@@ -1,6 +1,9 @@
 import { defineConfig } from "@playwright/test";
 
-const adlePort = process.env.ADLE_PLAYWRIGHT_PORT ?? "3210";
+const reuseExistingServer =
+  process.env.ADLE_PLAYWRIGHT_REUSE_EXISTING === "true";
+const adlePort =
+  process.env.ADLE_PLAYWRIGHT_PORT ?? (reuseExistingServer ? "3000" : "3210");
 const adleBaseUrl = `http://127.0.0.1:${adlePort}`;
 
 export default defineConfig({
@@ -19,7 +22,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${adlePort}`,
     url: `${adleBaseUrl}/dev/adle/morphology-primitives`,
-    reuseExistingServer: process.env.ADLE_PLAYWRIGHT_REUSE_EXISTING === "true",
+    reuseExistingServer,
     timeout: 120_000,
   },
   projects: [

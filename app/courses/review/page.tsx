@@ -10,6 +10,11 @@ import {
 } from "@/lib/children";
 import { formatCourseDate, getActiveChildrenForUser } from "@/lib/courses/queries";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import {
+  loadAdleReviewWorkSummaries,
+  type AdleReviewWorkSummary,
+} from "@/lib/adle/review-work/read-model";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
 import type {
   ReviewWritingIssueCorrectionAttemptProjection,
@@ -148,6 +153,11 @@ type ManualReviewSampleSummary = {
 
 type LiveReviewQueueEntry =
   | {
+      sourceType: "adle_review_v3";
+      submitted_at: string;
+      review: AdleReviewWorkSummary;
+    }
+  | {
       sourceType: "manual_writing_sample";
       submitted_at: string;
       sample: ManualReviewSampleSummary;
@@ -159,6 +169,11 @@ type LiveReviewQueueEntry =
     };
 
 type ArchivedReviewQueueEntry =
+  | {
+      sourceType: "adle_review_v3";
+      submitted_at: string;
+      review: AdleReviewWorkSummary;
+    }
   | {
       sourceType: "manual_writing_sample";
       submitted_at: string;
@@ -194,6 +209,16 @@ export default async function CourseReviewPage({
   if (!selectedChild) {
     notFound();
   }
+
+  const adleReviewSummariesPromise =
+    mode === "parent"
+      ? loadAdleReviewWorkSummaries({
+          userClient: supabase,
+          serviceClient: createServiceRoleClient(),
+          parentUserId: user.id,
+          childId: selectedChild.id,
+        })
+      : Promise.resolve([] as AdleReviewWorkSummary[]);
 
   const [
     { data: submissions },
@@ -559,7 +584,15 @@ export default async function CourseReviewPage({
   const archivedManualReviewSamples = manualReviewSamples.filter(
     (sample) => sample.review_completed_at !== null,
   );
+  const adleReviewSummaries = await adleReviewSummariesPromise;
   const liveReviewEntries: LiveReviewQueueEntry[] = [
+    ...adleReviewSummaries
+      .filter((review) => review.observationalStatus === "available_to_review")
+      .map((review) => ({
+        sourceType: "adle_review_v3" as const,
+        submitted_at: review.completedAt,
+        review,
+      })),
     ...liveManualReviewSamples.map((sample) => ({
       sourceType: "manual_writing_sample" as const,
       submitted_at: sample.submitted_at,
@@ -572,6 +605,13 @@ export default async function CourseReviewPage({
     })),
   ].sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
   const archivedReviewEntries: ArchivedReviewQueueEntry[] = [
+    ...adleReviewSummaries
+      .filter((review) => review.observationalStatus === "reviewed")
+      .map((review) => ({
+        sourceType: "adle_review_v3" as const,
+        submitted_at: review.completedAt,
+        review,
+      })),
     ...archivedManualReviewSamples.map((sample) => ({
       sourceType: "manual_writing_sample" as const,
       submitted_at: sample.submitted_at,
@@ -583,7 +623,7 @@ export default async function CourseReviewPage({
       thread,
     })),
   ].sort((left, right) => right.submitted_at.localeCompare(left.submitted_at));
-  const liveReviewCount = liveReviewThreads.length + liveManualReviewSamples.length;
+  const liveReviewCount = liveReviewEntries.length;
 
   return (
     <AppShell
@@ -634,6 +674,57 @@ export default async function CourseReviewPage({
           {liveReviewCount > 0 ? (
             <div className="mt-4 grid gap-3">
               {liveReviewEntries.map((entry) => {
+                if (entry.sourceType === "adle_review_v3") {
+                  const { review } = entry;
+                  const reviewPath = buildScopedPath(
+                    `/courses/review/${buildReviewWorkEntryId({
+                      sourceType: "adle_review_v3",
+                      id: review.sourceId,
+                    })}`,
+                    selectedChild.id,
+                    mode,
+                  );
+                  return (
+                    <article
+                      key={`adle-${review.reviewSessionId}`}
+                      className="rounded-3xl border border-sky-200 bg-sky-50/40 px-4 py-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-semibold text-[color:var(--ink)]">
+                              {review.challengeTitle}
+                            </h3>
+                            <span className="rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-medium text-sky-700">
+                              ADLE Review
+                            </span>
+                            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                              New completed Review
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-[color:var(--mid)]">
+                            Optional parent inspection · learner Review already complete
+                          </p>
+                        </div>
+                        <Link href={reviewPath} className="brand-primary-btn">
+                          Inspect completed Review
+                        </Link>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
+                        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[color:var(--ink)]">
+                          {review.targetCount} Target Words
+                        </span>
+                        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[color:var(--ink)]">
+                          {review.originalSuccessCount} originally correct · {review.originalFailureCount} originally incorrect
+                        </span>
+                        <span className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-[color:var(--ink)]">
+                          {review.repairedCount} repaired
+                        </span>
+                      </div>
+                    </article>
+                  );
+                }
+
                 if (entry.sourceType === "manual_writing_sample") {
                   const { sample } = entry;
                   const reviewPath = buildScopedPath(
@@ -824,6 +915,26 @@ export default async function CourseReviewPage({
           {archivedReviewEntries.length > 0 ? (
             <div className="mt-4 overflow-hidden rounded-3xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)]">
               {archivedReviewEntries.map((entry) => {
+                if (entry.sourceType === "adle_review_v3") {
+                  const { review } = entry;
+                  const reviewPath = buildScopedPath(
+                    `/courses/review/${buildReviewWorkEntryId({ sourceType: "adle_review_v3", id: review.sourceId })}`,
+                    selectedChild.id,
+                    mode,
+                  );
+                  return (
+                    <article key={`archived-adle-${review.reviewSessionId}`} className="border-t border-[var(--border)] px-4 py-4 first:border-t-0">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-sm font-semibold text-[color:var(--ink)]">{review.challengeTitle}</h3>
+                          <p className="mt-1 text-sm text-[color:var(--mid)]">ADLE Review · Reviewed · learner Review was already complete</p>
+                        </div>
+                        <Link href={reviewPath} className="brand-secondary-btn">Open history</Link>
+                      </div>
+                    </article>
+                  );
+                }
+
                 if (entry.sourceType === "manual_writing_sample") {
                   const { sample } = entry;
                   const reviewPath = buildScopedPath(

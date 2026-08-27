@@ -15,7 +15,7 @@ import {
   type ReturnedCorrectionRepairIssue,
   type ReturnedCorrectionRepairLearningLink,
 } from "@/lib/writing-engine/persistence/returned-correction-repair";
-import { createSupabaseSpellingCanonicalRecommendationRepository } from "@/lib/writing-engine/persistence/spelling-canonical-recommendations";
+import { ensureCanonicalRecommendationForCandidateMapping } from "@/lib/writing-engine/persistence/spelling-canonical-recommendation-service";
 import {
   createSupabaseSpellingCandidateMappingRepository,
   type SpellingCandidateMappingRecord,
@@ -52,48 +52,6 @@ type OwnedSubmissionForCandidateCapture = NonNullable<
   Awaited<ReturnType<typeof getOwnedSubmission>>["submission"]
 >;
 
-function readMetadataString(metadata: Record<string, unknown>, key: string) {
-  const value = metadata[key];
-
-  return typeof value === "string" && value.trim().length > 0
-    ? value.trim()
-    : null;
-}
-
-function getRecommendationSourceRowType(input: {
-  sourceProvenance: string;
-  metadata: Record<string, unknown>;
-}) {
-  if (
-    readMetadataString(input.metadata, "source_route") === "returned_correction"
-  ) {
-    return "returned_correction" as const;
-  }
-
-  if (input.sourceProvenance === "lesson_submission_parent_added_missed_word") {
-    return "parent_added_missed_word" as const;
-  }
-
-  return "engine_suggested" as const;
-}
-
-function isOpenRecommendationDuplicateError(error: unknown) {
-  const message = error instanceof Error ? error.message : "";
-
-  return (
-    message.includes("duplicate key") ||
-    message.includes(
-      "spelling_canonical_mapping_recommendations_open_candidate_idx",
-    ) ||
-    message.includes(
-      "spelling_canonical_mapping_recommendations_open_source_idx",
-    ) ||
-    message.includes(
-      "spelling_canonical_mapping_recommendations_open_event_idx",
-    )
-  );
-}
-
 type AutoRecommendationResult =
   { status: "sent" } | { status: "already_sent" } | { status: "failed" };
 
@@ -104,82 +62,18 @@ async function createAdminRecommendationForPromotedCandidateMapping(input: {
   candidateMapping: SpellingCandidateMappingRecord;
   actionSource: string;
 }): Promise<AutoRecommendationResult> {
-  const recommendationRepository =
-    createSupabaseSpellingCanonicalRecommendationRepository(input.supabase);
-  const existingRecommendation =
-    await recommendationRepository.findOpenForCandidateMapping({
-      parentUserId: input.parentUserId,
-      childId: input.childId,
-      candidateMappingId: input.candidateMapping.id,
-    });
-
-  if (existingRecommendation) {
-    return { status: "already_sent" };
-  }
-
-  const sourceProvenance = input.candidateMapping.source_provenance as
-    | "lesson_submission_existing_output"
-    | "lesson_submission_parent_added_missed_word";
-  const sourceRowType = getRecommendationSourceRowType({
-    sourceProvenance,
-    metadata: input.candidateMapping.metadata,
+  const result = await ensureCanonicalRecommendationForCandidateMapping({
+    supabase: input.supabase,
+    parentUserId: input.parentUserId,
+    childId: input.childId,
+    candidateMapping: input.candidateMapping,
+    actionSource: input.actionSource,
   });
-
-  try {
-    await recommendationRepository.insertPendingAdminReview({
-      parentUserId: input.parentUserId,
-      childId: input.childId,
-      taskSubmissionId: input.candidateMapping.task_submission_id,
-      writingSampleId: input.candidateMapping.writing_sample_id,
-      sourceMisspellingInstanceId:
-        input.candidateMapping.source_misspelling_instance_id,
-      sourceWritingIssueId:
-        sourceRowType === "returned_correction"
-          ? readMetadataString(
-              input.candidateMapping.metadata,
-              "original_writing_issue_id",
-            )
-          : null,
-      sourceCorrectionAttemptId:
-        sourceRowType === "returned_correction"
-          ? readMetadataString(
-              input.candidateMapping.metadata,
-              "correction_attempt_id",
-            )
-          : null,
-      parentVerificationId: input.candidateMapping.parent_verification_id,
-      sourceSuggestionId: input.candidateMapping.source_suggestion_id,
-      candidateMappingId: input.candidateMapping.id,
-      sourceRowType,
-      sourceProvenance,
-      reviewedEventSourceEntityId:
-        input.candidateMapping.reviewed_event_source_entity_id,
-      originalChildSpelling: input.candidateMapping.original_child_spelling,
-      originalCorrectSpelling: input.candidateMapping.original_correct_spelling,
-      misspellingNormalized: input.candidateMapping.misspelling_normalized,
-      correctSpellingNormalized:
-        input.candidateMapping.correct_spelling_normalized,
-      microSkillKey: input.candidateMapping.micro_skill_key,
-      metadata: {
-        source_candidate_mapping_status:
-          input.candidateMapping.candidate_status,
-        source_candidate_mapping_scope: input.candidateMapping.promotion_scope,
-        source_candidate_mapping_metadata: input.candidateMapping.metadata,
-        action_source: input.actionSource,
-        parent_ui_source: "unified_spelling_review_table",
-        resolver_visible: false,
-      },
-    });
-  } catch (error) {
-    if (isOpenRecommendationDuplicateError(error)) {
-      return { status: "already_sent" };
-    }
-
-    console.error("Parent canonical recommendation capture failed.", error);
+  if (result.status === "failed") {
+    console.error("Parent canonical recommendation capture failed.", result.error);
     return { status: "failed" };
   }
-
-  return { status: "sent" };
+  return { status: result.status === "existing" ? "already_sent" : "sent" };
 }
 
 async function promoteAndRecommendParentLocalCandidateMapping(input: {
@@ -1871,10 +1765,6 @@ export async function recommendParentLocalCanonicalMappingImpl(
       ),
     );
   }
-  const sourceProvenance = candidateMapping.source_provenance as
-    | "lesson_submission_existing_output"
-    | "lesson_submission_parent_added_missed_word";
-
   const catalogEntry =
     await getReviewWorkCandidateCaptureMicroSkillCatalogEntry({
       supabase,
@@ -1920,16 +1810,14 @@ export async function recommendParentLocalCanonicalMappingImpl(
     );
   }
 
-  const recommendationRepository =
-    createSupabaseSpellingCanonicalRecommendationRepository(supabase);
-  const existingRecommendation =
-    await recommendationRepository.findOpenForCandidateMapping({
-      parentUserId: user.id,
-      childId: submission.child_id,
-      candidateMappingId: candidateMapping.id,
-    });
-
-  if (existingRecommendation) {
+  const recommendationResult = await ensureCanonicalRecommendationForCandidateMapping({
+    supabase,
+    parentUserId: user.id,
+    childId: submission.child_id,
+    candidateMapping,
+    actionSource: "review_work_parent_recommended_canonical_mapping",
+  });
+  if (recommendationResult.status === "existing") {
     redirect(
       buildRedirectWithMessage(
         safeRedirectPath,
@@ -1938,76 +1826,10 @@ export async function recommendParentLocalCanonicalMappingImpl(
       ),
     );
   }
-
-  const sourceRowType = getRecommendationSourceRowType({
-    sourceProvenance,
-    metadata: candidateMapping.metadata,
-  });
-
-  try {
-    await recommendationRepository.insertPendingAdminReview({
-      parentUserId: user.id,
-      childId: submission.child_id,
-      taskSubmissionId: candidateMapping.task_submission_id,
-      writingSampleId: candidateMapping.writing_sample_id,
-      sourceMisspellingInstanceId:
-        candidateMapping.source_misspelling_instance_id,
-      sourceWritingIssueId:
-        sourceRowType === "returned_correction"
-          ? readMetadataString(
-              candidateMapping.metadata,
-              "original_writing_issue_id",
-            )
-          : null,
-      sourceCorrectionAttemptId:
-        sourceRowType === "returned_correction"
-          ? readMetadataString(
-              candidateMapping.metadata,
-              "correction_attempt_id",
-            )
-          : null,
-      parentVerificationId: candidateMapping.parent_verification_id,
-      sourceSuggestionId: candidateMapping.source_suggestion_id,
-      candidateMappingId: candidateMapping.id,
-      sourceRowType,
-      sourceProvenance,
-      reviewedEventSourceEntityId:
-        candidateMapping.reviewed_event_source_entity_id,
-      originalChildSpelling: candidateMapping.original_child_spelling,
-      originalCorrectSpelling: candidateMapping.original_correct_spelling,
-      misspellingNormalized: candidateMapping.misspelling_normalized,
-      correctSpellingNormalized: candidateMapping.correct_spelling_normalized,
-      microSkillKey: candidateMapping.micro_skill_key,
-      metadata: {
-        source_candidate_mapping_status: candidateMapping.candidate_status,
-        source_candidate_mapping_scope: candidateMapping.promotion_scope,
-        source_candidate_mapping_metadata: candidateMapping.metadata,
-        action_source: "review_work_parent_recommended_canonical_mapping",
-        parent_ui_source: "unified_spelling_review_table",
-        resolver_visible: false,
-      },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-
-    if (
-      message.includes("duplicate key") ||
-      message.includes(
-        "spelling_canonical_mapping_recommendations_open_candidate_idx",
-      )
-    ) {
-      redirect(
-        buildRedirectWithMessage(
-          safeRedirectPath,
-          "saved",
-          "This pairing is already recommended for admin review.",
-        ),
-      );
-    }
-
+  if (recommendationResult.status === "failed") {
     console.error(
       "Parent canonical recommendation capture failed before redirect.",
-      error,
+      recommendationResult.error,
     );
     redirect(
       buildRedirectWithMessage(

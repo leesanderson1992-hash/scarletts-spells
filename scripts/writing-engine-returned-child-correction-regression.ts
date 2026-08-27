@@ -401,8 +401,8 @@ assert.match(
 );
 assert.match(
   unifiedSpellingReviewTable,
-  /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{showRouteColumns \? 8 : showActionsColumn \? 6 : 5\}[\s\S]*routeText\(row\)/,
-  "Unified compact table must render expanded Details across the active compact columns.",
+  /<tr className="border-t border-\[var\(--border\)\] bg-\[rgba\(255,247,220,0\.18\)\]">[\s\S]*colSpan=\{adlePhase \? 7 : showRouteColumns \? 8 : showActionsColumn \? 6 : 5\}[\s\S]*routeText\(row\)/,
+  "Unified compact table must preserve course Details spans while allowing the seven-column ADLE adapter.",
 );
 assert.match(
   unifiedSpellingReviewTable,

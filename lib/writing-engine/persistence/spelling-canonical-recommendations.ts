@@ -16,11 +16,13 @@ export type SpellingCanonicalRecommendationStatus =
 export type SpellingCanonicalRecommendationSourceRowType =
   | "engine_suggested"
   | "parent_added_missed_word"
-  | "returned_correction";
+  | "returned_correction"
+  | "adle_parent_added_missed_word";
 
 export type SpellingCanonicalRecommendationSourceProvenance =
   | "lesson_submission_existing_output"
-  | "lesson_submission_parent_added_missed_word";
+  | "lesson_submission_parent_added_missed_word"
+  | "adle_review_submitted_writing_parent_identified";
 
 export type SpellingCanonicalRecommendationRecord = {
   id: string;
@@ -34,6 +36,8 @@ export type SpellingCanonicalRecommendationRecord = {
   parent_verification_id: string | null;
   source_suggestion_id: string | null;
   candidate_mapping_id: string | null;
+  source_adle_review_session_id: string | null;
+  source_adle_review_parent_issue_link_id: string | null;
   source_row_type: SpellingCanonicalRecommendationSourceRowType;
   source_provenance: SpellingCanonicalRecommendationSourceProvenance;
   reviewed_event_source_entity_id: string | null;
@@ -69,6 +73,8 @@ export type CreateSpellingCanonicalRecommendationInput = {
   parentVerificationId?: string | null;
   sourceSuggestionId?: string | null;
   candidateMappingId?: string | null;
+  sourceAdleReviewSessionId?: string | null;
+  sourceAdleReviewParentIssueLinkId?: string | null;
   sourceRowType: SpellingCanonicalRecommendationSourceRowType;
   sourceProvenance: SpellingCanonicalRecommendationSourceProvenance;
   reviewedEventSourceEntityId?: string | null;
@@ -101,7 +107,8 @@ function isSourceRowType(
   return (
     value === "engine_suggested" ||
     value === "parent_added_missed_word" ||
-    value === "returned_correction"
+    value === "returned_correction" ||
+    value === "adle_parent_added_missed_word"
   );
 }
 
@@ -110,7 +117,8 @@ function isSourceProvenance(
 ): value is SpellingCanonicalRecommendationSourceProvenance {
   return (
     value === "lesson_submission_existing_output" ||
-    value === "lesson_submission_parent_added_missed_word"
+    value === "lesson_submission_parent_added_missed_word" ||
+    value === "adle_review_submitted_writing_parent_identified"
   );
 }
 
@@ -175,6 +183,14 @@ export function normaliseSpellingCanonicalRecommendationRecord(
     candidate_mapping_id:
       typeof candidate.candidate_mapping_id === "string"
         ? candidate.candidate_mapping_id
+        : null,
+    source_adle_review_session_id:
+      typeof candidate.source_adle_review_session_id === "string"
+        ? candidate.source_adle_review_session_id
+        : null,
+    source_adle_review_parent_issue_link_id:
+      typeof candidate.source_adle_review_parent_issue_link_id === "string"
+        ? candidate.source_adle_review_parent_issue_link_id
         : null,
     source_row_type: candidate.source_row_type,
     source_provenance: candidate.source_provenance,
@@ -248,6 +264,8 @@ const selectedColumns = [
   "parent_verification_id",
   "source_suggestion_id",
   "candidate_mapping_id",
+  "source_adle_review_session_id",
+  "source_adle_review_parent_issue_link_id",
   "source_row_type",
   "source_provenance",
   "reviewed_event_source_entity_id",
@@ -338,6 +356,10 @@ export function createSupabaseSpellingCanonicalRecommendationRepository(
           parent_verification_id: input.parentVerificationId ?? null,
           source_suggestion_id: input.sourceSuggestionId ?? null,
           candidate_mapping_id: input.candidateMappingId ?? null,
+          source_adle_review_session_id:
+            input.sourceAdleReviewSessionId ?? null,
+          source_adle_review_parent_issue_link_id:
+            input.sourceAdleReviewParentIssueLinkId ?? null,
           source_row_type: input.sourceRowType,
           source_provenance: input.sourceProvenance,
           reviewed_event_source_entity_id:

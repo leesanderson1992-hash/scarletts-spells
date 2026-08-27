@@ -26,6 +26,7 @@ export const WRITING_ENGINE_SOURCE_TYPES = [
   "delayed_review",
   "self_correction",
   "legacy_spelling_analysis",
+  "adle_review_submitted_writing_parent_identified",
 ] as const;
 
 export type WritingEngineSourceType =

@@ -442,6 +442,7 @@ async function seedApprovedCandidate(
     id: string;
     correct_spelling_normalized: string;
     micro_skill_key: string;
+    source_adle_review_session_id?: string | null;
   },
   skillClusterKey: string | null,
 ) {
@@ -455,7 +456,9 @@ async function seedApprovedCandidate(
     p_route_id: route.routeId,
     p_route_version: route.routeVersion,
     p_micro_skill_key: candidate.micro_skill_key,
-    p_source_ref: `parent_approval:${candidate.id}`,
+    p_source_ref: candidate.source_adle_review_session_id
+      ? `adle_review_parent_observation:${candidate.id}`
+      : `parent_approval:${candidate.id}`,
   });
   if (error) throwQuery("canonical intake candidate seed", error);
 }
@@ -467,6 +470,31 @@ export async function intakeApprovedSubmissionCorrections(params: {
   parentUserId: string;
   childId: string;
   submissionId: string;
+  dryRun?: boolean;
+  candidateMappingIds?: readonly string[];
+  seedCandidates?: boolean;
+}): Promise<CanonicalIntakeLiveResult> {
+  return intakeApprovedParentVerifiedCorrections(params);
+}
+
+export async function intakeApprovedAdleReviewCorrection(params: {
+  serviceClient: AdleClient;
+  parentUserId: string;
+  childId: string;
+  adleReviewSessionId: string;
+  dryRun?: boolean;
+  candidateMappingIds?: readonly string[];
+  seedCandidates?: boolean;
+}): Promise<CanonicalIntakeLiveResult> {
+  return intakeApprovedParentVerifiedCorrections(params);
+}
+
+async function intakeApprovedParentVerifiedCorrections(params: {
+  serviceClient: AdleClient;
+  parentUserId: string;
+  childId: string;
+  submissionId?: string;
+  adleReviewSessionId?: string;
   dryRun?: boolean;
   candidateMappingIds?: readonly string[];
   seedCandidates?: boolean;
@@ -485,18 +513,30 @@ export async function intakeApprovedSubmissionCorrections(params: {
     return result;
   result.enabled = true;
   const client = params.serviceClient;
+  if (
+    Number(Boolean(params.submissionId)) +
+      Number(Boolean(params.adleReviewSessionId)) !==
+    1
+  ) {
+    throw new Error("canonical intake requires exactly one governed source");
+  }
   let candidateQuery = client
     .from("parent_verified_spelling_candidate_mappings")
     .select(
-      "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at",
+      "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at,source_adle_review_session_id",
     )
     .eq("parent_user_id", params.parentUserId)
     .eq("child_id", params.childId)
-    .eq("task_submission_id", params.submissionId)
     .in("candidate_status", [
       "parent_local_promoted",
       "global_canonical_promoted",
     ]);
+  candidateQuery = params.submissionId
+    ? candidateQuery.eq("task_submission_id", params.submissionId)
+    : candidateQuery.eq(
+        "source_adle_review_session_id",
+        params.adleReviewSessionId as string,
+      );
   if (params.candidateMappingIds?.length) {
     candidateQuery = candidateQuery.in("id", [...params.candidateMappingIds]);
   }
@@ -754,8 +794,8 @@ export interface CanonicalIntakeSweepResult {
   pendingContent: number;
 }
 
-/** Bounded event/safety-sweep worker. It reuses the same submission-scoped
- * evaluator path as the parent approval hook; database uniqueness makes
+/** Bounded event/safety-sweep worker. It reuses the same source-scoped
+ * evaluator path as the parent verification hook; database uniqueness makes
  * repeated sibling processing safe and reconciliation never writes an
  * assignment. */
 export async function runCanonicalIntakeReconciliationSweep(params: {
@@ -830,7 +870,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
         );
       const { data: source, error: sourceError } = await client
         .from("parent_verified_spelling_candidate_mappings")
-        .select("parent_user_id,child_id,task_submission_id")
+        .select("parent_user_id,child_id,task_submission_id,source_adle_review_session_id")
         .eq(
           "id",
           (intakeCandidate as any).source_candidate_mapping_id,
@@ -838,19 +878,33 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
         .single();
       if (sourceError)
         throwQuery("canonical intake reconciler source", sourceError);
-      if (!(source as any).task_submission_id)
-        throw new Error("canonical intake reconciler source has no submission");
+      const sourceRow = source as any;
+      if (
+        Number(Boolean(sourceRow.task_submission_id)) +
+          Number(Boolean(sourceRow.source_adle_review_session_id)) !==
+        1
+      ) {
+        throw new Error("canonical intake reconciler source has no single governed anchor");
+      }
 
-      const outcome = await intakeApprovedSubmissionCorrections({
+      const shared = {
         serviceClient: client,
-        parentUserId: (source as any).parent_user_id,
-        childId: (source as any).child_id,
-        submissionId: (source as any).task_submission_id,
+        parentUserId: sourceRow.parent_user_id as string,
+        childId: sourceRow.child_id as string,
         candidateMappingIds: [
-          (intakeCandidate as any).source_candidate_mapping_id,
+          (intakeCandidate as any).source_candidate_mapping_id as string,
         ],
         seedCandidates: false,
-      });
+      };
+      const outcome = sourceRow.task_submission_id
+        ? await intakeApprovedSubmissionCorrections({
+            ...shared,
+            submissionId: sourceRow.task_submission_id,
+          })
+        : await intakeApprovedAdleReviewCorrection({
+            ...shared,
+            adleReviewSessionId: sourceRow.source_adle_review_session_id,
+          });
       summary.completed += 1;
       summary.inserted += outcome.inserted;
       summary.strengthened += outcome.strengthened;

@@ -19,6 +19,9 @@ import {
   type FreeWritingEvidenceReviewCandidate,
 } from "@/lib/rewards/free-writing-evidence";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { loadAdleReviewWorkDetail } from "@/lib/adle/review-work/read-model";
+import { loadAdleUnifiedSpellingReviewItems } from "@/lib/adle/review-work/unified-spelling";
 import {
   getReviewWorkCandidateCaptureMicroSkillProvider,
   getReviewWorkDerivedTemplateMetadataByMicroSkillKeys,
@@ -39,6 +42,7 @@ import {
   type ReviewWritingIssueWithSourceSuggestionRow,
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
+import { AdleReviewSections } from "../adle-review-sections";
 import { SuggestedIssuesPanel } from "../suggested-issues-panel";
 import {
   UnifiedSpellingReviewTable,
@@ -630,6 +634,90 @@ export default async function CourseReviewDetailPage({
   }
 
   const reviewPath = buildScopedPath("/courses/review", selectedChild.id, mode);
+
+  if (reviewEntry.sourceType === "adle_review_v3") {
+    if (mode !== "parent") {
+      redirect(buildScopedPath("/learn/week", selectedChild.id, "child"));
+    }
+    const serviceClient = createServiceRoleClient();
+    const detail = await loadAdleReviewWorkDetail({
+      userClient: supabase,
+      serviceClient,
+      parentUserId: user.id,
+      childId: selectedChild.id,
+      sourceId: reviewEntry.id,
+    });
+    if (!detail) notFound();
+    const [adleSpellingRows, candidateCaptureMicroSkillProvider] =
+      await Promise.all([
+        loadAdleUnifiedSpellingReviewItems({ serviceClient, detail }),
+        getReviewWorkCandidateCaptureMicroSkillProvider({ supabase }),
+      ]);
+    const originalSuccessCount = detail.targets.filter(
+      (target) => target.originalOutcome === "success",
+    ).length;
+    const repairedCount = detail.targets.filter(
+      (target) => target.repairState === "completed_correct",
+    ).length;
+    const notSecuredCount = detail.targets.filter(
+      (target) => target.repairState === "attempted_not_secured",
+    ).length;
+    const detailPath = buildScopedPath(
+      `/courses/review/${reviewEntryId}`,
+      selectedChild.id,
+      mode,
+    );
+
+    return (
+      <AppShell
+        currentPath="/courses/review"
+        mode={mode}
+        activeChildId={selectedChild.id}
+        availableChildren={children}
+        userEmail={user.email}
+      >
+        <section className="grid gap-4">
+          <div className="brand-card rounded-3xl p-4 md:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="brand-eyebrow">ADLE Review · {formatCourseDate(detail.assignmentDate)}</p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">{detail.challengeTitle}</h1>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Learner Review complete</span>
+                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${detail.observationalStatus === "reviewed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-sky-200 bg-sky-50 text-sky-700"}`}>
+                    {detail.observationalStatus === "reviewed" ? "Reviewed" : "Available to review"}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">Parent inspection does not affect completion, schedules or rewards.</p>
+              </div>
+              <div className="grid gap-3">
+                <Link href={reviewPath} className="brand-secondary-btn">Back to review list</Link>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs font-medium sm:grid-cols-4">
+                  <span className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">{detail.targets.length} targets</span>
+                  <span className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-700">{originalSuccessCount} correct</span>
+                  <span className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">{repairedCount} repaired</span>
+                  <span className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">{notSecuredCount} not secured</span>
+                </div>
+              </div>
+            </div>
+            {resolvedSearchParams?.saved ? <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{resolvedSearchParams.saved}</p> : null}
+            {resolvedSearchParams?.error ? <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{resolvedSearchParams.error}</p> : null}
+          </div>
+
+          <AdleReviewSections
+            detail={detail}
+            rows={adleSpellingRows}
+            options={
+              candidateCaptureMicroSkillProvider.status === "available"
+                ? candidateCaptureMicroSkillProvider.options
+                : []
+            }
+            redirectPath={detailPath}
+          />
+        </section>
+      </AppShell>
+    );
+  }
 
   if (reviewEntry.sourceType === "manual_writing_sample") {
     const { data: manualSample } = await supabase

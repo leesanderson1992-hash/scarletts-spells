@@ -184,8 +184,8 @@ const unifiedSpellingReviewTable = readFileSync(
 
 assert.match(
   candidateMappingActions,
-  /finaliseReturnedCorrectionAfterRouteCapture[\s\S]*returned_correction_route_bridge:[\s\S]*micro_skill_key: input\.selectedMicroSkillKey[\s\S]*finalise_writing_issue_classification_and_learning_item/,
-  "Candidate handoff finalisation must attach the verified parent-local route to the durable issue before the learning-item RPC.",
+  /buildReturnedCorrectionRepairPlan\([\s\S]*if \(!plan\.safeToApply\)[\s\S]*applyReturnedCorrectionRepairPlan\([\s\S]*if \(!result\.repaired \|\| !result\.learningItemId\)/,
+  "Candidate handoff repair must build and validate the governed repair plan before applying it and requiring a durable learning item.",
 );
 assert.match(
   candidateMappingActions,

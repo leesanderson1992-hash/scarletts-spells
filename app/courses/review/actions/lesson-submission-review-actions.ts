@@ -1,16 +1,8 @@
 import { redirect } from "next/navigation";
 
-import {
-  categoriseError,
-  getSecondaryCategory,
-} from "@/lib/spelling/categoriseError";
-import {
-  detectErrorPattern,
-  selectTeachingFamilyForError,
-} from "@/lib/spelling/errorPatterns";
-import { findWordFamilyForWord } from "@/lib/spelling/wordFamilies";
 import { createClient } from "@/lib/supabase/server";
 import { stringifyAnalysisExtraMetadata } from "@/lib/writing-engine/spelling/legacy-analysis";
+import { analyseParentAddedMisspellingPair } from "@/lib/writing-engine/spelling/parent-added-misspelling-analysis";
 
 import {
   backfillPendingSubmissionSuggestionCanonicalMicroSkill,
@@ -183,8 +175,23 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const safeMisspelledWord = normaliseWordForLookup(misspelledWord);
-  const safeCorrectedWord = normaliseWordForLookup(correctedWord);
+  const analysis = analyseParentAddedMisspellingPair({
+    observedSpelling: misspelledWord,
+    correctSpelling: correctedWord,
+  });
+
+  if (!analysis) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Add two different spellings before saving this missed word.",
+      ),
+    );
+  }
+
+  const safeMisspelledWord = analysis.observedSpelling;
+  const safeCorrectedWord = analysis.correctSpelling;
 
   const { data: submission } = await supabase
     .from("task_submissions")
@@ -240,29 +247,6 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   }
 
   const range = findWordRange(sample.sample_text, safeMisspelledWord);
-  const detectedErrorPattern =
-    detectErrorPattern(safeMisspelledWord, safeCorrectedWord) ??
-    "tricky_whole_word_error";
-  const category = categoriseError(
-    safeMisspelledWord,
-    safeCorrectedWord,
-    detectedErrorPattern,
-  );
-  const secondaryCategory = getSecondaryCategory(
-    safeMisspelledWord,
-    safeCorrectedWord,
-    category,
-    detectedErrorPattern,
-  );
-  const selectedWordFamilyId =
-    selectTeachingFamilyForError(
-      safeMisspelledWord,
-      safeCorrectedWord,
-      detectedErrorPattern,
-    ) ??
-    findWordFamilyForWord(safeCorrectedWord)?.id ??
-    null;
-
   const { error } = await supabase.from("misspelling_instances").insert({
     writing_sample_id: sample.id,
     child_id: sample.child_id,
@@ -270,8 +254,8 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     misspelled_word: safeMisspelledWord,
     corrected_word: safeCorrectedWord,
     suggested_word: safeCorrectedWord,
-    error_type: category,
-    secondary_error_type: secondaryCategory,
+    error_type: analysis.primaryCategory,
+    secondary_error_type: analysis.secondaryCategory,
     confidence_score: 1,
     is_false_positive: false,
     is_parent_overridden: false,
@@ -280,15 +264,15 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     position_start: range?.start ?? null,
     position_end: range?.end ?? null,
     notes: stringifyAnalysisExtraMetadata({
-      detectedPrimaryCategory: category,
+      detectedPrimaryCategory: analysis.primaryCategory,
       parentOverrideCategory: null,
       parentOverrideFamilyId: null,
       parentOverrideDiagnosis: null,
       parentReviewedAt: null,
       parentAuthoredMissedWord: true,
       markedCareless: false,
-      detectedErrorPattern,
-      selectedWordFamilyId,
+      detectedErrorPattern: analysis.detectedErrorPattern,
+      selectedWordFamilyId: analysis.selectedWordFamilyId,
       detectionSource: null,
       canonicalDetection: null,
     }),

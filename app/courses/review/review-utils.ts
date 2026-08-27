@@ -11,10 +11,12 @@ import {
 } from "@/lib/writing-practice/types";
 
 const MANUAL_SAMPLE_REVIEW_ENTRY_PREFIX = "sample_";
+const ADLE_REVIEW_ENTRY_PREFIX = "adle_review_";
 
 export type ReviewWorkEntrySourceType =
   | "lesson_submission"
-  | "manual_writing_sample";
+  | "manual_writing_sample"
+  | "adle_review_v3";
 
 export function buildReviewWorkEntryId(input: {
   sourceType: ReviewWorkEntrySourceType;
@@ -24,6 +26,10 @@ export function buildReviewWorkEntryId(input: {
     return `${MANUAL_SAMPLE_REVIEW_ENTRY_PREFIX}${input.id}`;
   }
 
+  if (input.sourceType === "adle_review_v3") {
+    return `${ADLE_REVIEW_ENTRY_PREFIX}${input.id}`;
+  }
+
   return input.id;
 }
 
@@ -31,6 +37,13 @@ export function parseReviewWorkEntryId(entryId: string): {
   sourceType: ReviewWorkEntrySourceType;
   id: string;
 } {
+  if (entryId.startsWith(ADLE_REVIEW_ENTRY_PREFIX)) {
+    return {
+      sourceType: "adle_review_v3",
+      id: entryId.slice(ADLE_REVIEW_ENTRY_PREFIX.length),
+    };
+  }
+
   if (entryId.startsWith(MANUAL_SAMPLE_REVIEW_ENTRY_PREFIX)) {
     return {
       sourceType: "manual_writing_sample",

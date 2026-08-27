@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
+import { applyAdleCatalogReviewDecision } from "@/lib/adle/review-work/admin-catalog-route";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { surfaceReturnedCorrectionReplayRecommendations } from "@/lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply";
 
@@ -121,8 +122,26 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     );
   }
 
+  const caseStateResult = await supabase
+    .from("spelling_catalog_review_cases")
+    .select("case_status,source_provenance")
+    .eq("id", caseId)
+    .maybeSingle();
+  if (caseStateResult.error || !caseStateResult.data) {
+    redirect(buildRedirectWithMessage("error", "Catalog-review case not found."));
+  }
+  const isAdleBacklogResume =
+    caseStateResult.data.source_provenance ===
+      "adle_review_submitted_writing_parent_identified" &&
+    ["needs_new_micro_skill", "word_level_only"].includes(
+      caseStateResult.data.case_status,
+    );
+  const rpcName = isAdleBacklogResume
+    ? "resume_adle_spelling_catalog_review_case_admin"
+    : "resolve_spelling_catalog_review_case_admin";
+
   const { error } = await supabase.rpc(
-    "resolve_spelling_catalog_review_case_admin",
+    rpcName,
     {
       p_admin_email: adminUser.email ?? null,
       p_admin_user_id: adminUser.id,
@@ -149,24 +168,47 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
   }
 
   try {
-    await surfaceReturnedCorrectionReplayRecommendations({
+    await applyAdleCatalogReviewDecision({
       supabase,
-      scope: {
-        adminCaseId: caseId,
-        limit: 100,
-      },
-      nowIso: new Date().toISOString(),
-      triggerSource: "admin_hook",
+      caseId,
+      decisionType,
+      linkedMicroSkillKey,
     });
-  } catch (surfaceError) {
+  } catch (adleError) {
     redirect(
       buildRedirectWithMessage(
         "error",
-        surfaceError instanceof Error
-          ? surfaceError.message
-          : "Catalog-review decision saved, but deferred replay recommendations could not be refreshed.",
+        adleError instanceof Error
+          ? `Catalog decision saved, but ADLE intake was not finalized: ${adleError.message}`
+          : "Catalog decision saved, but ADLE intake was not finalized.",
       ),
     );
+  }
+
+  if (
+    caseStateResult.data.source_provenance !==
+    "adle_review_submitted_writing_parent_identified"
+  ) {
+    try {
+      await surfaceReturnedCorrectionReplayRecommendations({
+        supabase,
+        scope: {
+          adminCaseId: caseId,
+          limit: 100,
+        },
+        nowIso: new Date().toISOString(),
+        triggerSource: "admin_hook",
+      });
+    } catch (surfaceError) {
+      redirect(
+        buildRedirectWithMessage(
+          "error",
+          surfaceError instanceof Error
+            ? surfaceError.message
+            : "Catalog-review decision saved, but deferred replay recommendations could not be refreshed.",
+        ),
+      );
+    }
   }
 
   revalidatePath(ADMIN_CATALOG_REVIEW_PATH);

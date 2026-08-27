@@ -23,9 +23,11 @@ export type PendingSpellingCandidateMappingInsert = {
   writingSampleId: string | null;
   sourceSuggestionId: string | null;
   sourceMisspellingInstanceId: string | null;
+  sourceAdleReviewSessionId?: string | null;
   sourceProvenance:
     | "lesson_submission_existing_output"
-    | "lesson_submission_parent_added_missed_word";
+    | "lesson_submission_parent_added_missed_word"
+    | "adle_review_submitted_writing_parent_identified";
   reviewedEventSourceEntityId: string;
   originalChildSpelling: string | null;
   originalCorrectSpelling: string | null;
@@ -44,6 +46,7 @@ export type SpellingCandidateMappingRecord = {
   writing_sample_id: string | null;
   source_suggestion_id: string | null;
   source_misspelling_instance_id: string | null;
+  source_adle_review_session_id: string | null;
   source_provenance: string;
   reviewed_event_source_entity_id: string;
   original_child_spelling: string | null;
@@ -140,6 +143,10 @@ export function normaliseSpellingCandidateMappingRecord(
       typeof candidate.source_misspelling_instance_id === "string"
         ? candidate.source_misspelling_instance_id
         : null,
+    source_adle_review_session_id:
+      typeof candidate.source_adle_review_session_id === "string"
+        ? candidate.source_adle_review_session_id
+        : null,
     source_provenance: candidate.source_provenance,
     reviewed_event_source_entity_id: candidate.reviewed_event_source_entity_id,
     original_child_spelling:
@@ -201,6 +208,7 @@ const selectedColumns = [
   "writing_sample_id",
   "source_suggestion_id",
   "source_misspelling_instance_id",
+  "source_adle_review_session_id",
   "source_provenance",
   "reviewed_event_source_entity_id",
   "original_child_spelling",
@@ -351,6 +359,8 @@ export function createSupabaseSpellingCandidateMappingRepositoryBase(
           writing_sample_id: input.writingSampleId,
           source_suggestion_id: input.sourceSuggestionId,
           source_misspelling_instance_id: input.sourceMisspellingInstanceId,
+          source_adle_review_session_id:
+            input.sourceAdleReviewSessionId ?? null,
           source_provenance: input.sourceProvenance,
           reviewed_event_source_entity_id: input.reviewedEventSourceEntityId,
           original_child_spelling: input.originalChildSpelling,

@@ -41,20 +41,25 @@ assert.match(
 );
 assert.match(
   approveSource,
-  /\.from\("course_tasks"\)[\s\S]*\.select\("id, title, task_type, lesson_schema, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount"\)/,
+  /\.from\("course_tasks"\)[\s\S]*\.select\(\s*"id, title, task_type, lesson_schema, monthly_goal_total, coin_reward_trigger, gold_coin_reward_amount"\s*,?\s*\)/,
   "Approval must load lesson_schema so only structured lesson/test submissions receive guarded draft cleanup.",
 );
 
-const approvalUpdateIndex = approveSource.indexOf('parent_review_status: "approved"');
+const approvalUpdateIndex = approveSource.indexOf(
+  '"approve_task_submission_with_reason_drafts"',
+);
 const payloadCheckIndex = approveSource.indexOf('from("task_submission_payloads")');
 const draftDeleteIndex = approveSource.indexOf('from("task_submission_drafts")');
-assert.ok(approvalUpdateIndex >= 0, "Approval must still mark the submission approved.");
+assert.ok(
+  approvalUpdateIndex >= 0,
+  "Approval must still cross the atomic governed approval boundary.",
+);
 assert.ok(payloadCheckIndex > approvalUpdateIndex, "Durable payload lookup must not block the approval status update.");
 assert.ok(draftDeleteIndex > payloadCheckIndex, "Draft deletion must happen only after the durable payload existence decision.");
 
 assert.match(
   approveSource,
-  /const structuredPayloadType = getStructuredSubmissionPayloadTypeForReview\(task\);[\s\S]*let shouldDeleteDraft = true;/,
+  /const structuredPayloadType =\s*getStructuredSubmissionPayloadTypeForReview\(task\);[\s\S]*let shouldDeleteDraft = true;/,
   "Plain-writing approval behaviour must default to the existing draft cleanup path.",
 );
 assert.match(

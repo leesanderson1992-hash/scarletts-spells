@@ -326,15 +326,15 @@ assert.doesNotMatch(
 );
 
 const appSources = [
-  "app/courses/review/actions/review-completion-actions.ts",
-  "app/courses/review/actions/returned-correction-route-helpers.ts",
   "app/courses/review/unified-spelling-review-table.tsx",
+  "app/courses/review/adle-writing-issue-picker.tsx",
 ].map((path) => readFileSync(path, "utf8"));
 for (const source of appSources) {
+  assert.match(source, /^"use client";/);
   assert.doesNotMatch(
     source,
     /SUPABASE_SERVICE_ROLE_KEY|createServiceRoleClient|service-role/i,
-    "Browser/client review paths must not expose service-role access.",
+    "Client review components must not expose service-role access.",
   );
 }
 

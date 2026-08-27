@@ -97,6 +97,10 @@ function formatLabel(value: string) {
 }
 
 function formatSourceLabel(value: string) {
+  if (value === "adle_review_submitted_writing_parent_identified") {
+    return "ADLE Review parent observation";
+  }
+
   if (value === "lesson_submission_parent_added_missed_word") {
     return "Parent-added";
   }
@@ -463,7 +467,9 @@ async function getOpenCatalogReviewCases() {
         "updated_at",
       ].join(", "),
     )
-    .eq("case_status", "open")
+    .or(
+      "case_status.eq.open,and(source_provenance.eq.adle_review_submitted_writing_parent_identified,case_status.in.(needs_new_micro_skill,word_level_only))",
+    )
     .order("updated_at", { ascending: false });
 }
 

@@ -27,6 +27,13 @@ import {
 } from "./actions/candidate-mapping-actions";
 import { captureSpellingCatalogReviewCaseImpl } from "./actions/catalog-review-case-actions";
 import { releaseAdlePausedWordImpl } from "./actions/adle-paused-words-actions";
+import {
+  addAdleReviewParentSpellingCandidate as addAdleReviewParentSpellingCandidateImpl,
+  confirmAdleReviewParentSpellingCandidate as confirmAdleReviewParentSpellingCandidateImpl,
+  rejectAdleReviewParentSpellingCandidate as rejectAdleReviewParentSpellingCandidateImpl,
+  sendAdleReviewParentSpellingCandidateToCatalog as sendAdleReviewParentSpellingCandidateToCatalogImpl,
+  submitAdleReviewWorkInspection as submitAdleReviewWorkInspectionImpl,
+} from "./actions/adle-review-work-actions";
 
 export async function addMissedWordToSubmissionReview(formData: FormData) {
   return addMissedWordToSubmissionReviewImpl(formData);
@@ -102,4 +109,24 @@ export async function approveSubmissionReview(formData: FormData) {
 
 export async function releaseAdlePausedWord(formData: FormData) {
   return releaseAdlePausedWordImpl(formData);
+}
+
+export async function submitAdleReviewWorkInspection(formData: FormData) {
+  return submitAdleReviewWorkInspectionImpl(formData);
+}
+
+export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
+  return addAdleReviewParentSpellingCandidateImpl(formData);
+}
+
+export async function confirmAdleReviewParentSpellingCandidate(formData: FormData) {
+  return confirmAdleReviewParentSpellingCandidateImpl(formData);
+}
+
+export async function rejectAdleReviewParentSpellingCandidate(formData: FormData) {
+  return rejectAdleReviewParentSpellingCandidateImpl(formData);
+}
+
+export async function sendAdleReviewParentSpellingCandidateToCatalog(formData: FormData) {
+  return sendAdleReviewParentSpellingCandidateToCatalogImpl(formData);
 }

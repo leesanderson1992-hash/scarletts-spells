@@ -49,6 +49,7 @@ type TaskSubmissionThreadRow = {
 export type UnifiedSpellingReviewSource =
   | "engine_suggested"
   | "parent_added_missed_word"
+  | "adle_parent_added_missed_word"
   | "returned_correction";
 
 export type UnifiedSpellingReviewState =
@@ -101,8 +102,16 @@ export type UnifiedSpellingReviewItem = {
   terminalStatus: UnifiedSpellingReviewTerminalStatus | null;
   readyForApproval: boolean;
   parentNote: string | null;
+  analysis?: {
+    primaryCategory: string | null;
+    secondaryCategory: string | null;
+    detectedErrorPattern: string | null;
+    detectedErrorPatternLabel: string | null;
+    selectedWordFamilyId: string | null;
+    selectedWordFamilyLabel: string | null;
+  } | null;
   sourceIds: {
-    currentTaskSubmissionId: string;
+    currentTaskSubmissionId: string | null;
     writingSampleId: string | null;
     misspellingInstanceId: string | null;
     writingIssueSuggestionId: string | null;
@@ -118,6 +127,18 @@ export type UnifiedSpellingReviewItem = {
       | "pending_admin_review"
       | "accepted"
       | null;
+    adleReviewSessionId?: string | null;
+    adleParentIssueLinkId?: string | null;
+    adleCanonicalIntakeState?:
+      | "queued"
+      | "pending_mapping"
+      | "pending_content"
+      | "error_retryable"
+      | "activated"
+      | "rejected"
+      | "superseded"
+      | null;
+    adleLearningItemId?: string | null;
   };
   provenance: {
     parentAuthored: boolean;
@@ -844,7 +865,7 @@ export function buildUnifiedSpellingReviewItems(
       misspelling.corrected_word;
     const verification =
       buildVerificationSourceEntityIds({
-        taskSubmissionId: input.submissionId,
+        taskSubmissionId: input.submissionId ?? null,
         writingSampleId: input.writingSampleId,
         misspelling,
         expectedCorrection,
@@ -974,6 +995,7 @@ export function buildUnifiedSpellingReviewItems(
         writingIssue?.parent_review_note ??
         suggestion?.notes ??
         misspelling.notes,
+      analysis: null,
       sourceIds: {
         currentTaskSubmissionId: input.submissionId,
         writingSampleId: input.writingSampleId,
@@ -1097,6 +1119,7 @@ export function buildUnifiedSpellingReviewItems(
                 : null,
         readyForApproval,
         parentNote: issue.parent_review_note ?? issue.notes ?? attempt?.attempt_notes ?? null,
+        analysis: null,
         sourceIds: {
           currentTaskSubmissionId: input.submissionId,
           writingSampleId: input.writingSampleId,
@@ -1180,7 +1203,7 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
   rows: UnifiedSpellingReviewItem[];
   parentUserId: string;
   childId: string;
-  submissionId: string;
+  submissionId?: string | null;
   canonicalExactPairLookup?: RecommendationCanonicalExactPairLookup;
   canonicalWordMapLookup?: RecommendationCanonicalWordMapLookup;
 }) {
@@ -1278,7 +1301,7 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
             : null,
         parentUserId: input.parentUserId,
         childId: input.childId,
-        taskSubmissionId: input.submissionId,
+        taskSubmissionId: input.submissionId ?? null,
         writingSampleId: row.sourceIds.writingSampleId,
         trustedCanonicalMappings: trustedCanonicalMappings.map(
           (mapping): WritingEngineStage2aCanonicalMappingSignal => ({

@@ -42,6 +42,13 @@ type BuildStage7dReviewWorkVerificationTargetInput = {
   notes: string | null;
 };
 
+export type BuildStage7dSourceNeutralVerificationTargetInput = Omit<
+  BuildStage7dReviewWorkVerificationTargetInput,
+  "taskSubmissionId" | "writingSampleId"
+> & {
+  sourceRef: WritingEngineSourceRef;
+};
+
 type RecordStage7dParentVerificationInput = {
   supabase: SupabaseServerClient;
   childId: string;
@@ -272,6 +279,30 @@ export function buildStage7dReviewWorkVerificationTarget(
 
   return {
     sourceRef,
+    observedText: input.observedText,
+    suggestedReplacement: input.suggestedReplacement,
+    contextText: input.contextText,
+    positionStart: input.positionStart,
+    positionEnd: input.positionEnd,
+    suggestedCategoryCode: input.suggestedCategoryCode,
+    suggestedMicroSkillKey: input.suggestedMicroSkillKey,
+    notes: input.notes,
+  };
+}
+
+export function buildStage7dSourceNeutralVerificationTarget(
+  input: BuildStage7dSourceNeutralVerificationTargetInput,
+): Stage7dReviewWorkVerificationTarget | null {
+  if (
+    input.positionStart === null ||
+    input.positionEnd === null ||
+    input.positionEnd <= input.positionStart
+  ) {
+    return null;
+  }
+
+  return {
+    sourceRef: input.sourceRef,
     observedText: input.observedText,
     suggestedReplacement: input.suggestedReplacement,
     contextText: input.contextText,

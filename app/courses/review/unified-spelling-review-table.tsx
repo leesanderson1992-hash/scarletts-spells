@@ -12,10 +12,13 @@ import {
 import {
   captureSpellingCatalogReviewCase,
   captureSubmissionSpellingCandidateMapping,
+  confirmAdleReviewParentSpellingCandidate,
   promoteParentLocalCandidateMapping,
   recordReviewWorkVerificationAction,
+  rejectAdleReviewParentSpellingCandidate,
   revertParentLocalCandidateMapping,
   saveWritingIssueReasonDraft,
+  sendAdleReviewParentSpellingCandidateToCatalog,
 } from "./actions";
 
 const NO_MATCHING_SKILL_VALUE = "__no_matching_skill__";
@@ -31,10 +34,25 @@ type UnifiedSpellingReviewTableProps = {
   submissionId: string;
   redirectPath: string;
   reviewWorkflowPhase: UnifiedSpellingReviewWorkflowPhase;
+  adleContext?: {
+    sourceId: string;
+    childId: string;
+    readOnly: boolean;
+  };
+  previewActions?: {
+    resolve: (
+      rowId: string,
+      resolution: "confirmed" | "not_a_learning_issue" | "sent_to_admin",
+      microSkillKey?: string,
+    ) => void;
+  };
 };
 
 export type UnifiedSpellingReviewWorkflowPhase =
-  "prepare_retry" | "returned_correction" | "read_only";
+  | "prepare_retry"
+  | "returned_correction"
+  | "read_only"
+  | "adle_observational";
 
 type FamilyOption = {
   key: string;
@@ -149,10 +167,34 @@ function sourceMarker(row: UnifiedSpellingReviewItem) {
     return { label: "P", title: "Parent-added missed word" };
   }
 
+  if (row.source === "adle_parent_added_missed_word") {
+    return { label: "P", title: "Parent-added from ADLE Review writing" };
+  }
+
   return { label: "E", title: "Engine suggestion" };
 }
 
 function statusLabel(row: UnifiedSpellingReviewItem) {
+  if (row.source === "adle_parent_added_missed_word") {
+    if (row.terminalStatus === "not_an_issue") return "Not a learning issue";
+    if (row.terminalStatus === "sent_to_admin") return "Awaiting admin route";
+    if (row.sourceIds.canonicalRecommendationId) return "Awaiting canonical review";
+    if (
+      row.sourceIds.adleCanonicalIntakeState === "activated" &&
+      row.sourceIds.adleLearningItemId
+    ) {
+      return "Learning item ready";
+    }
+    if (row.sourceIds.adleCanonicalIntakeState === "pending_content") {
+      return "Awaiting curriculum readiness";
+    }
+    if (row.sourceIds.adleCanonicalIntakeState === "pending_mapping") {
+      return "Awaiting canonical review";
+    }
+    if (row.terminalStatus === "resolved_known_match") return "Confirmed";
+    return "Needs learning route";
+  }
+
   if (row.terminalStatus === "sent_to_admin") {
     return "Admin route pending";
   }
@@ -275,6 +317,13 @@ function phaseHeading(phase: UnifiedSpellingReviewWorkflowPhase) {
         description:
           "Review the spelling decisions recorded for this submission.",
       };
+    case "adle_observational":
+      return {
+        eyebrow: "Spelling review",
+        title: "Added misspellings",
+        description:
+          "Confirm or change the learning route for each spelling the parent found.",
+      };
   }
 }
 
@@ -371,6 +420,8 @@ function UnifiedSpellingReviewTableRow({
   redirectPath,
   reviewWorkflowPhase,
   showPrepareRetryActions,
+  adleContext,
+  previewActions,
 }: {
   row: UnifiedSpellingReviewItem;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
@@ -379,16 +430,22 @@ function UnifiedSpellingReviewTableRow({
   redirectPath: string;
   reviewWorkflowPhase: UnifiedSpellingReviewWorkflowPhase;
   showPrepareRetryActions: boolean;
+  adleContext?: UnifiedSpellingReviewTableProps["adleContext"];
+  previewActions?: UnifiedSpellingReviewTableProps["previewActions"];
 }) {
   const marker = sourceMarker(row);
   const sourceMisspellingId = row.sourceIds.misspellingInstanceId;
+  const isAdleRow = row.source === "adle_parent_added_missed_word";
+  const adlePhase = reviewWorkflowPhase === "adle_observational";
   const routeControlsAllowed = reviewWorkflowPhase === "returned_correction";
+  const sourceRouteControlsAllowed =
+    routeControlsAllowed || (adlePhase && !adleContext?.readOnly);
   const showRouteColumns = reviewWorkflowPhase !== "prepare_retry";
   const showActionsColumn = showRouteColumns || showPrepareRetryActions;
   const currentRouteIsOpen =
-    routeControlsAllowed &&
+    sourceRouteControlsAllowed &&
     row.source !== "returned_correction" &&
-    Boolean(sourceMisspellingId) &&
+    Boolean(sourceMisspellingId || row.sourceIds.adleParentIssueLinkId) &&
     !row.sourceIds.parentVerificationId &&
     !row.sourceIds.catalogReviewCaseId &&
     !row.sourceIds.candidateMappingId &&
@@ -414,7 +471,7 @@ function UnifiedSpellingReviewTableRow({
         : null,
   );
   const returnedRouteIsOpen =
-    routeControlsAllowed &&
+    sourceRouteControlsAllowed &&
     !row.knownMatchAutoResolution &&
     (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
@@ -476,6 +533,10 @@ function UnifiedSpellingReviewTableRow({
   const [microSkillKey, setMicroSkillKey] = useState(initialSkill ?? "");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [knownMatchEditOpen, setKnownMatchEditOpen] = useState(false);
+  const showAdleConfirmedRoute =
+    adlePhase &&
+    row.terminalStatus === "resolved_known_match" &&
+    Boolean(initialSkillOption);
   const knownMatchEditEligible =
     row.source === "returned_correction" &&
     Boolean(row.knownMatchAutoResolution) &&
@@ -485,7 +546,9 @@ function UnifiedSpellingReviewTableRow({
     Boolean(row.sourceIds.correctionAttemptId);
   const editableRouteIsOpen = routeIsOpen || knownMatchEditOpen;
   const showRouteSelectors =
-    editableRouteIsOpen || Boolean(row.knownMatchAutoResolution);
+    editableRouteIsOpen ||
+    Boolean(row.knownMatchAutoResolution) ||
+    showAdleConfirmedRoute;
   function handleOutcomeChange(
     nextOutcome: string,
     form: HTMLFormElement | null,
@@ -506,10 +569,10 @@ function UnifiedSpellingReviewTableRow({
   const canSendToAdmin =
     editableRouteIsOpen &&
     noMatchingSkillSelected &&
-    Boolean(submissionId) &&
+    Boolean(submissionId || adleContext) &&
     (!knownMatchEditOpen || selectedOutcomeNeedsRoute);
   const canEditReason =
-    routeControlsAllowed &&
+    sourceRouteControlsAllowed &&
     row.source === "returned_correction" &&
     row.state === "child_responded" &&
     !row.correctionOutcome &&
@@ -528,7 +591,7 @@ function UnifiedSpellingReviewTableRow({
   const selectedSkillOption = findOption(options, microSkillKey);
   const recommendationBadgeModel = row.knownMatchAutoResolution
     ? knownMatchBadge()
-    : routeIsOpen
+    : routeIsOpen || showAdleConfirmedRoute
       ? (recommendationBadge(row) ??
       (!selectedSkillOption && !suggestedSkillIsUsable
         ? noMatchYetBadge()
@@ -601,11 +664,13 @@ function UnifiedSpellingReviewTableRow({
             {row.expectedCorrection ?? "Unknown"}
           </span>
         </td>
-        <td className="max-w-[9rem] px-3 py-2 align-top text-sm text-[color:var(--ink)]">
-          <span className="block truncate" title={row.latestChildAttempt ?? ""}>
-            {row.latestChildAttempt ?? ""}
-          </span>
-        </td>
+        {!adlePhase ? (
+          <td className="max-w-[9rem] px-3 py-2 align-top text-sm text-[color:var(--ink)]">
+            <span className="block truncate" title={row.latestChildAttempt ?? ""}>
+              {row.latestChildAttempt ?? ""}
+            </span>
+          </td>
+        ) : null}
         <td className="px-2 py-2 align-top text-center">
           <span
             title={marker.title}
@@ -618,7 +683,7 @@ function UnifiedSpellingReviewTableRow({
         <td className="px-3 py-2 align-top text-sm font-medium text-[color:var(--ink)]">
           {statusLabel(row)}
         </td>
-        {showRouteColumns ? (
+        {showRouteColumns && !adlePhase ? (
           <td className="min-w-44 px-3 py-2 align-top">
             {canEditReason ? (
               <form
@@ -682,6 +747,22 @@ function UnifiedSpellingReviewTableRow({
                 No outcome recorded.
               </p>
             )}
+          </td>
+        ) : null}
+        {adlePhase ? (
+          <td className="min-w-56 px-3 py-2 align-top text-xs leading-5 text-[color:var(--mid)]">
+            <p className="font-medium text-[color:var(--ink)]">
+              {row.analysis?.primaryCategory ?? "Analysis unavailable"}
+              {row.analysis?.secondaryCategory
+                ? ` · ${row.analysis.secondaryCategory}`
+                : ""}
+            </p>
+            {row.analysis?.detectedErrorPatternLabel ? (
+              <p>{row.analysis.detectedErrorPatternLabel}</p>
+            ) : null}
+            {row.analysis?.selectedWordFamilyLabel ? (
+              <p>Teaching family: {row.analysis.selectedWordFamilyLabel}</p>
+            ) : null}
           </td>
         ) : null}
         {showRouteColumns ? (
@@ -783,7 +864,7 @@ function UnifiedSpellingReviewTableRow({
               </div>
             ) : (
               <p className="max-w-48 text-xs leading-5 text-[color:var(--mid)]">
-                {selectedOutcomeNeedsRoute || returnedIssueOutcomeNeedsRoute
+                {adlePhase || selectedOutcomeNeedsRoute || returnedIssueOutcomeNeedsRoute
                   ? routeText(row)
                   : "Learning route appears only for learning outcomes."}
               </p>
@@ -813,7 +894,30 @@ function UnifiedSpellingReviewTableRow({
               ) : null}
 
               {canSendSelectedRouteToAdmin ? (
-                <form action={captureSubmissionSpellingCandidateMapping}>
+                <form
+                  action={
+                    previewActions
+                      ? undefined
+                      : isAdleRow
+                      ? confirmAdleReviewParentSpellingCandidate
+                      : captureSubmissionSpellingCandidateMapping
+                  }
+                  onSubmit={
+                    previewActions
+                      ? (event) => {
+                          event.preventDefault();
+                          previewActions.resolve(row.id, "confirmed", microSkillKey);
+                        }
+                      : undefined
+                  }
+                >
+                  {isAdleRow && adleContext ? (
+                    <>
+                      <input type="hidden" name="source_id" value={adleContext.sourceId} />
+                      <input type="hidden" name="child_id" value={adleContext.childId} />
+                      <input type="hidden" name="issue_id" value={row.sourceIds.adleParentIssueLinkId ?? ""} />
+                    </>
+                  ) : null}
                   <input
                     type="hidden"
                     name="submission_id"
@@ -854,18 +958,51 @@ function UnifiedSpellingReviewTableRow({
                     name="micro_skill_key"
                     value={microSkillKey}
                   />
-                  <IconActionButton
-                    type="submit"
-                    icon="!"
-                    helpText="Use this skill and send for admin review"
-                    ariaLabel={`Use this skill for ${row.observedText} and send for admin review`}
-                    className="border border-sky-200 bg-sky-50 text-sky-800"
-                  />
+                  {isAdleRow ? (
+                    <IconActionButton
+                      type="submit"
+                      icon="✓"
+                      helpText="Confirm this learning route"
+                      ariaLabel={`Confirm the learning route for ${row.observedText}`}
+                      className="border border-sky-200 bg-sky-50 text-sky-800"
+                    />
+                  ) : (
+                    <IconActionButton
+                      type="submit"
+                      icon="!"
+                      helpText="Use this skill and send for admin review"
+                      ariaLabel={`Use this skill for ${row.observedText} and send for admin review`}
+                      className="border border-sky-200 bg-sky-50 text-sky-800"
+                    />
+                  )}
                 </form>
               ) : null}
 
               {currentRouteIsOpen || canMarkNotIssueBeforeRetry ? (
-                <form action={recordReviewWorkVerificationAction}>
+                <form
+                  action={
+                    previewActions
+                      ? undefined
+                      : isAdleRow
+                      ? rejectAdleReviewParentSpellingCandidate
+                      : recordReviewWorkVerificationAction
+                  }
+                  onSubmit={
+                    previewActions
+                      ? (event) => {
+                          event.preventDefault();
+                          previewActions.resolve(row.id, "not_a_learning_issue");
+                        }
+                      : undefined
+                  }
+                >
+                  {isAdleRow && adleContext ? (
+                    <>
+                      <input type="hidden" name="source_id" value={adleContext.sourceId} />
+                      <input type="hidden" name="child_id" value={adleContext.childId} />
+                      <input type="hidden" name="issue_id" value={row.sourceIds.adleParentIssueLinkId ?? ""} />
+                    </>
+                  ) : null}
                   <input
                     type="hidden"
                     name="redirect_path"
@@ -886,20 +1023,55 @@ function UnifiedSpellingReviewTableRow({
                     name="writing_sample_id"
                     value={row.sourceIds.writingSampleId ?? ""}
                   />
-                  <IconActionButton
-                    type="submit"
-                    name="decision"
-                    value="false_positive"
-                    icon="✕"
-                    helpText="Reject as not an issue"
-                    ariaLabel={`Reject ${row.observedText} as not an issue`}
-                    className="border border-rose-200 bg-rose-50 text-rose-800"
-                  />
+                  {isAdleRow ? (
+                    <IconActionButton
+                      type="submit"
+                      name="decision"
+                      value="false_positive"
+                      icon="✕"
+                      helpText="Mark as not a learning issue"
+                      ariaLabel={`Mark ${row.observedText} as not a learning issue`}
+                      className="border border-rose-200 bg-rose-50 text-rose-800"
+                    />
+                  ) : (
+                    <IconActionButton
+                      type="submit"
+                      name="decision"
+                      value="false_positive"
+                      icon="✕"
+                      helpText="Reject as not an issue"
+                      ariaLabel={`Reject ${row.observedText} as not an issue`}
+                      className="border border-rose-200 bg-rose-50 text-rose-800"
+                    />
+                  )}
                 </form>
               ) : null}
 
               {canSendToAdmin ? (
-                <form action={captureSpellingCatalogReviewCase}>
+                <form
+                  action={
+                    previewActions
+                      ? undefined
+                      : isAdleRow
+                      ? sendAdleReviewParentSpellingCandidateToCatalog
+                      : captureSpellingCatalogReviewCase
+                  }
+                  onSubmit={
+                    previewActions
+                      ? (event) => {
+                          event.preventDefault();
+                          previewActions.resolve(row.id, "sent_to_admin");
+                        }
+                      : undefined
+                  }
+                >
+                  {isAdleRow && adleContext ? (
+                    <>
+                      <input type="hidden" name="source_id" value={adleContext.sourceId} />
+                      <input type="hidden" name="child_id" value={adleContext.childId} />
+                      <input type="hidden" name="issue_id" value={row.sourceIds.adleParentIssueLinkId ?? ""} />
+                    </>
+                  ) : null}
                   <input
                     type="hidden"
                     name="submission_id"
@@ -945,7 +1117,8 @@ function UnifiedSpellingReviewTableRow({
                 </form>
               ) : null}
 
-              {row.sourceIds.candidateMappingId &&
+              {!isAdleRow &&
+              row.sourceIds.candidateMappingId &&
               !row.sourceIds.canonicalRecommendationId &&
               (row.categorisationStatus === "parent_local_pending" ||
                 row.categorisationStatus === "parent_local_promoted") ? (
@@ -983,7 +1156,8 @@ function UnifiedSpellingReviewTableRow({
                 </form>
               ) : null}
 
-              {row.sourceIds.candidateMappingId &&
+              {!isAdleRow &&
+              row.sourceIds.candidateMappingId &&
               row.categorisationStatus === "parent_local_promoted" ? (
                 <form action={revertParentLocalCandidateMapping}>
                   <input
@@ -1036,7 +1210,7 @@ function UnifiedSpellingReviewTableRow({
         <tr className="border-t border-[var(--border)] bg-[rgba(255,247,220,0.18)]">
           <td
             id={detailsId}
-            colSpan={showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
+            colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
             className="px-3 py-2 text-xs leading-5 text-[color:var(--mid)]"
           >
             <div className="grid gap-1 whitespace-pre-wrap break-words">
@@ -1112,6 +1286,8 @@ export function UnifiedSpellingReviewTable({
   submissionId,
   redirectPath,
   reviewWorkflowPhase,
+  adleContext,
+  previewActions,
 }: UnifiedSpellingReviewTableProps) {
   const families = useMemo(() => buildFamilies(options), [options]);
   const phaseCopy = phaseHeading(reviewWorkflowPhase);
@@ -1128,10 +1304,11 @@ export function UnifiedSpellingReviewTable({
         row.state !== "sent_to_admin",
     );
   const showActionsColumn = showRouteColumns || showPrepareRetryActions;
+  const adlePhase = reviewWorkflowPhase === "adle_observational";
 
   if (rows.length === 0) {
     return (
-      <section className="brand-card rounded-3xl p-4 md:p-5">
+      <section className="brand-card min-w-0 rounded-3xl p-4 md:p-5">
         <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
         <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
           No spelling review items
@@ -1144,7 +1321,7 @@ export function UnifiedSpellingReviewTable({
   }
 
   return (
-    <section className="brand-card rounded-3xl p-4 md:p-5">
+    <section className="brand-card min-w-0 rounded-3xl p-4 md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
@@ -1162,18 +1339,20 @@ export function UnifiedSpellingReviewTable({
 
       <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
         <table
-          className={`${showRouteColumns ? "min-w-[1120px]" : showActionsColumn ? "min-w-[720px]" : "min-w-[620px]"} w-full border-collapse text-left`}
+          className={`${adlePhase ? "min-w-[980px]" : showRouteColumns ? "min-w-[1120px]" : showActionsColumn ? "min-w-[720px]" : "min-w-[620px]"} w-full border-collapse text-left`}
         >
           <thead>
             <tr className="bg-[rgba(255,247,220,0.45)] text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--mid)]">
               <th className="px-3 py-2">Word</th>
               <th className="px-3 py-2">Correction</th>
-              <th className="px-3 py-2">Retry</th>
+              {!adlePhase ? <th className="px-3 py-2">Retry</th> : null}
               <th className="px-2 py-2 text-center">Src</th>
               <th className="px-3 py-2">Status</th>
               {showRouteColumns ? (
                 <>
-                  <th className="px-3 py-2">Reason</th>
+                  <th className="px-3 py-2">
+                    {adlePhase ? "Analysis" : "Reason"}
+                  </th>
                   <th className="px-3 py-2">Learning route</th>
                 </>
               ) : null}
@@ -1195,6 +1374,8 @@ export function UnifiedSpellingReviewTable({
                 redirectPath={redirectPath}
                 reviewWorkflowPhase={reviewWorkflowPhase}
                 showPrepareRetryActions={showPrepareRetryActions}
+                adleContext={adleContext}
+                previewActions={previewActions}
               />
             ))}
           </tbody>
