@@ -29,34 +29,27 @@ type InventoryRule = Readonly<{
 const baselineRules: Record<string, InventoryRule> = {
   ensureAdleDailyPlan: {
     token: /\bensureAdleDailyPlan\b/,
-    allowedPaths: ["lib/adle/loaders/daily-plan-surface.ts"],
+    allowedPaths: [],
   },
   persistComposedAdleDailyPlan: {
     token: /\bpersistComposedAdleDailyPlan\b/,
-    allowedPaths: [
-      "app/learn/week/adle/closed-compounds/actions.ts",
-      "lib/adle/loaders/compound-word-assignment-loader.ts",
-      "lib/adle/loaders/daily-plan-surface.ts",
-      "lib/adle/morphology/dynamic-affix-assignment-writer.ts",
-      "lib/adle/morphology/dynamic-prefix-assignment-writer.ts",
-      "lib/adle/today-assignment-service.ts",
-    ],
+    allowedPaths: [],
   },
   genericSnapshotV2Writer: {
     token: /persist_adle_generic_daily_plan_v2/,
-    allowedPaths: ["lib/adle/loaders/daily-plan-surface.ts"],
+    allowedPaths: [],
   },
   snapshotNullWriter: {
     token: /persist_adle_composed_daily_plan_v1/,
-    allowedPaths: ["lib/adle/loaders/daily-plan-surface.ts"],
+    allowedPaths: [],
   },
   specialistChildRollout: {
     token: /ADLE_SPECIALIST_SNAPSHOT_V3_(?:WRITER_MODE|CURRENT_LEARNER_CHILD_ID)/,
-    allowedPaths: ["lib/adle/composable-lesson/specialist-snapshot-writer-rollout.ts"],
+    allowedPaths: [],
   },
   genericChildRollout: {
     token: /ADLE_GENERIC_SNAPSHOT_V3_(?:WRITER_MODE|CURRENT_LEARNER_CHILD_ID)/,
-    allowedPaths: ["lib/adle/composable-lesson/generic-snapshot-writer-rollout.ts"],
+    allowedPaths: [],
   },
   retiredClosedCompoundCreation: {
     token: /createClosedCompoundAssignmentAction|buildClosedCompoundAssignmentPlan/,
@@ -64,7 +57,6 @@ const baselineRules: Record<string, InventoryRule> = {
       "app/learn/week/adle/closed-compounds/actions.ts",
       "app/learn/week/adle/closed-compounds/page.tsx",
       "lib/adle/morphology/closed-compound-assignment-plan.ts",
-      "lib/adle/today-assignment-service.ts",
     ],
   },
   dailySpellingPracticeWriter: {
@@ -89,6 +81,29 @@ const inventory = Object.fromEntries(
 const childRoute = sourceByPath.get("app/learn/week/adle/page.tsx") ?? "";
 assert.doesNotMatch(childRoute, /ensureAdleDailyPlan|persistComposedAdleDailyPlan/);
 
+const currentWriters = [
+  "lib/adle/loaders/base-word-family-pilot-loader.ts",
+  "lib/adle/loaders/compound-word-assignment-loader.ts",
+  "lib/adle/morphology/dynamic-affix-assignment-writer.ts",
+  "lib/adle/morphology/dynamic-prefix-assignment-writer.ts",
+] as const;
+for (const writerPath of currentWriters) {
+  const writer = sourceByPath.get(writerPath) ?? "";
+  assert.match(writer, /persistSpecialistSnapshotV3/);
+  assert.doesNotMatch(writer, /persistComposedAdleDailyPlan|persist_adle_composed_daily_plan_v1/);
+}
+const todayWriter = sourceByPath.get("lib/adle/today-assignment-service.ts") ?? "";
+assert.match(todayWriter, /compileAndPersistGuardedGenericSnapshotV3/);
+assert.doesNotMatch(todayWriter, /configuredProductionGenericSnapshotV3Writer|persistComposedAdleDailyPlan/);
+assert.match(
+  sourceByPath.get("lib/adle/composable-lesson/generic-snapshot-v3-persistence.ts") ?? "",
+  /persist_adle_generic_daily_plan_v3/,
+);
+assert.match(
+  sourceByPath.get("lib/adle/composable-lesson/specialist-snapshot-v3-persistence.ts") ?? "",
+  /persist_adle_specialist_daily_plan_v3/,
+);
+
 const vercelConfiguration = readFileSync(resolve(root, "vercel.json"), "utf8");
 assert.doesNotMatch(vercelConfiguration, /daily-spelling-practice\/generate/);
 
@@ -106,9 +121,10 @@ for (const protectedPath of [
 }
 
 process.stdout.write(`${JSON.stringify({
-  contractVersion: "adle_phase_e_no_legacy_writes_baseline_v1",
+  contractVersion: "adle_phase_e_no_legacy_writes_v3_only_v2",
   runtimeFileCount: files.length,
   inventory,
   childRouteReadOnly: true,
   dailySpellingPracticeWriterRetired: true,
+  everyForwardLessonWriterSnapshotsV3: true,
 }, null, 2)}\n`);

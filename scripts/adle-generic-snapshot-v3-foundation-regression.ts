@@ -13,7 +13,7 @@ import {
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-contracts";
 import {
   GENERIC_SNAPSHOT_V3_WRITER_ENABLED,
-  PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
+  GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import {
   fingerprintCompiledLessonSnapshotV3,
@@ -142,8 +142,8 @@ const items: AdleSessionItem[] = [
 ];
 const context = { lessonRouteMetadata: route, assignmentGenerationSource: "adle_composer_v1", items };
 const snapshot = signedSnapshot();
-assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, false, "the v3 writer gate remains physically off");
-assert.equal(PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST.length, 10, "the proposed allow-list is exact and reviewable");
+assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, true, "v3 is the sole forward generic writer");
+assert.equal(GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST.length, 10, "the active allow-list is exact and reviewable");
 assert.equal(validateCompiledGenericLessonSnapshotV3(snapshot, context).ok, true, "a complete canonical v3 snapshot validates");
 
 const serialized = serializeCompiledGenericLessonSnapshotV3(snapshot);
@@ -189,4 +189,4 @@ assert(lifecycleResult.ok === false && lifecycleResult.blockers.some((entry) => 
 assert.deepEqual(parseCompiledGenericLessonSnapshotV3("{bad json"), { ok: false, blockers: [{ code: "malformed_snapshot_v3" }] });
 for (const code of GENERIC_SNAPSHOT_V3_BLOCKER_CODES) assert.equal(typeof code, "string");
 
-console.log("PASS: Generic Snapshot v3 reader/foundation (deterministic round-trip, explicit canonical identities, missing-content rejection, fail-closed contracts, writer OFF)");
+console.log("PASS: Generic Snapshot v3 current authority (deterministic round-trip, explicit canonical identities, missing-content rejection, fail-closed contracts, writer ON)");

@@ -52,7 +52,8 @@ for (const boundary of [
   "selectDynamicPrefixWordLab",
   "compileDynamicPrefixWordLabDecision",
   "buildDynamicPrefixAssignmentPlan",
-  "persistComposedAdleDailyPlan",
+  "compileDynamicPrefixSpecialistSnapshotV3",
+  "persistSpecialistSnapshotV3",
 ]) assert(writer.includes(boundary), `normal writer boundary includes ${boundary}`);
 assert(writer.includes("getExistingAdleSessionPlanId") && writer.includes('? "existing"') && writer.includes(': "conflict"'), "duplicate/conflict guard is before persistence");
 assert(actions.includes("DYNAMIC_PREFIX_QA_PROFILE_ORDER") && actions.includes("sequence preflight") === false);

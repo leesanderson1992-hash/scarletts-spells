@@ -12,7 +12,7 @@ import type {
   GenericSnapshotSectionKeyV3,
 } from "./generic-snapshot-v3-contracts";
 
-export const GENERIC_SNAPSHOT_V3_WRITER_ENABLED = false as const;
+export const GENERIC_SNAPSHOT_V3_WRITER_ENABLED = true as const;
 
 export type GenericCanonicalGenerationContextV3 =
   | "first_impression"
@@ -20,14 +20,14 @@ export type GenericCanonicalGenerationContextV3 =
   | "same_session_repair"
   | "diagnostic";
 
-export interface ProposedGenericCanonicalGenerationContractV3 {
+export interface GenericCanonicalGenerationContractV3 {
   concept: string;
   mode: string;
   contractVersion: 1;
   contexts: readonly GenericCanonicalGenerationContextV3[];
   requiredAuthoredPayload: readonly string[];
   readiness: string;
-  writerStatus: "awaiting_owner_approval";
+  writerStatus: "active_v3";
 }
 
 type PayloadIssue = {
@@ -35,7 +35,7 @@ type PayloadIssue = {
   detail: string;
 };
 
-interface GenericSnapshotV3ReaderContract extends ProposedGenericCanonicalGenerationContractV3 {
+interface GenericSnapshotV3ReaderContract extends GenericCanonicalGenerationContractV3 {
   lifecycle: {
     sectionKeys: readonly GenericSnapshotSectionKeyV3[];
     answerVisibility: "teaching" | "guided" | "recall_neutral" | "post_submit";
@@ -156,7 +156,7 @@ function governedLessonReflection(payload: Readonly<Record<string, GenericSnapsh
 function registration(
   input: Omit<GenericSnapshotV3ReaderContract, "contractVersion" | "writerStatus">,
 ): GenericSnapshotV3ReaderContract {
-  return { ...input, contractVersion: 1, writerStatus: "awaiting_owner_approval" };
+  return { ...input, contractVersion: 1, writerStatus: "active_v3" };
 }
 
 const contracts = [
@@ -353,8 +353,8 @@ function contractKey(identity: { concept: string; mode: string; contractVersion:
 
 const byContract = new Map(contracts.map((entry) => [contractKey(entry), entry]));
 
-export const PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST:
-  readonly ProposedGenericCanonicalGenerationContractV3[] = contracts;
+export const GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST:
+  readonly GenericCanonicalGenerationContractV3[] = contracts;
 
 export function getGenericSnapshotV3ReaderContract(identity: {
   concept: string;

@@ -17,7 +17,6 @@ import {
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-persistence";
 import { GENERIC_SNAPSHOT_V3_WRITER_ENABLED } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import { compileAndPersistGuardedGenericSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-writer";
-import { selectGenericSnapshotWriter } from "../lib/adle/composable-lesson/generic-snapshot-writer-rollout";
 import { resolveGenericLessonSnapshot } from "../lib/adle/composable-lesson/generic-snapshot-reader";
 import { fingerprintCompiledLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-validator";
 import { normalizeGenericActivitySequence } from "../lib/adle/generic-activity-compatibility";
@@ -163,10 +162,7 @@ const persistence = planAssignmentPersistence(plan, { parentUserId: PARENT, exis
 assert(persistence.action === "insert" && persistence.header);
 const compilerInput = { facts, plan, persistence: persistence as typeof persistence & { action: "insert"; header: NonNullable<typeof persistence.header> } };
 
-assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, false, "the deployed default remains OFF");
-assert.equal(selectGenericSnapshotWriter({ snapshotMode: "enforce", childId: CHILD }), "v2");
-assert.equal(selectGenericSnapshotWriter({ snapshotMode: "enforce", childId: CHILD, rollout: "guarded_non_production", childIds: CHILD, nodeEnv: "production" }), "v2");
-assert.equal(selectGenericSnapshotWriter({ snapshotMode: "enforce", childId: CHILD, rollout: "guarded_non_production", childIds: CHILD, nodeEnv: "test" }), "v3_guarded_non_production");
+assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, true, "v3 is the sole forward generic writer");
 
 const first = compileGenericLessonSnapshotV3(compilerInput);
 const second = compileGenericLessonSnapshotV3(compilerInput);
@@ -187,20 +183,7 @@ const port: GenericSnapshotJsonPersistencePort = {
 };
 
 async function main() {
-  await assert.rejects(
-    compileAndPersistGuardedGenericSnapshotV3({
-      rollout: { snapshotMode: "enforce", childId: CHILD, nodeEnv: "test" },
-      environment: "test",
-      compiler: compilerInput,
-      port,
-    }),
-    /rollout selector is not enabled/,
-  );
-  assert.equal(writes, 0, "default-off selection cannot reach the persistence port");
-
   const result = await compileAndPersistGuardedGenericSnapshotV3({
-    rollout: { snapshotMode: "enforce", childId: CHILD, rollout: "guarded_non_production", childIds: CHILD, nodeEnv: "test" },
-    environment: "test",
     compiler: compilerInput,
     port,
   });
@@ -256,7 +239,7 @@ async function main() {
   delete (malformed.activities[0].payload as Record<string, unknown>).config;
   await assert.rejects(
     persistGuardedGenericSnapshotV3(port, {
-      environment: "test", parentUserId: PARENT, childId: CHILD, planDate: PLAN_DATE,
+      parentUserId: PARENT, childId: CHILD, planDate: PLAN_DATE,
       header: persistence.header!, items: persistence.items, intakes: persistence.learningItemIntakes,
       snapshot: malformed,
     }),
@@ -287,7 +270,6 @@ async function main() {
     persistGuardedGenericSnapshotV3ToSupabase(
       rpcClient as never,
       {
-        environment: "test",
         parentUserId: PARENT,
         childId: CHILD,
         planDate: PLAN_DATE,
@@ -316,7 +298,6 @@ async function main() {
     persistGuardedGenericSnapshotV3ToSupabase(
       rpcClient as never,
       {
-        environment: "test",
         parentUserId: PARENT,
         childId: CHILD,
         planDate: PLAN_DATE,
@@ -333,7 +314,6 @@ async function main() {
   const supabaseResult = await persistGuardedGenericSnapshotV3ToSupabase(
     rpcClient as never,
     {
-      environment: "test",
       parentUserId: PARENT,
       childId: CHILD,
       planDate: PLAN_DATE,
@@ -346,7 +326,7 @@ async function main() {
   assert.equal(supabaseResult.assignmentId, "91919191-9191-4191-8191-919191919191");
   assert.equal(rpcCalls, 1, "valid canonical content reaches the explicit v3 RPC exactly once");
 
-  console.log("PASS: v3 writer compiler (10-contract gate, deterministic compile, guarded Supabase persistence, readback, canonical registry render, pre-write fail-closed, Production=v2)");
+  console.log("PASS: v3 writer compiler (10-contract gate, deterministic compile, v3-only persistence, readback, canonical registry render, pre-write fail-closed)");
 }
 
 void main();

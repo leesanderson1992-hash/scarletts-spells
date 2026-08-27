@@ -3,14 +3,8 @@ import type { LearningItemFact } from "../learning-items";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CompiledLessonSnapshotV3, GenericSnapshotV3ValidationResult } from "./generic-snapshot-v3-contracts";
 import { validateCompiledGenericLessonSnapshotV3 } from "./generic-snapshot-v3-validator";
-import {
-  configuredProductionGenericSnapshotV3Writer,
-  type GenericSnapshotV3ProductionAuthorization,
-} from "./generic-snapshot-writer-rollout";
 
 export interface GuardedGenericSnapshotV3PersistenceInput {
-  environment: "test" | "development" | "staging" | "production";
-  productionAuthorization?: GenericSnapshotV3ProductionAuthorization;
   parentUserId: string;
   childId: string;
   planDate: string;
@@ -68,15 +62,6 @@ export async function persistGuardedGenericSnapshotV3(
   port: GenericSnapshotJsonPersistencePort,
   input: GuardedGenericSnapshotV3PersistenceInput,
 ): Promise<{ assignmentId: string; validation: Extract<GenericSnapshotV3ValidationResult, { ok: true }> }> {
-  const environment: string = input.environment;
-  if (environment === "production") {
-    const configured = configuredProductionGenericSnapshotV3Writer(input.childId);
-    if (input.productionAuthorization?.kind !== "on_for_current_learner"
-      || input.productionAuthorization.childId !== input.childId
-      || configured?.childId !== input.childId) {
-      throw new Error("persistGuardedGenericSnapshotV3: Production persistence is not authorised");
-    }
-  }
   const validation = validateCompiledGenericLessonSnapshotV3(input.snapshot, {
     lessonRouteMetadata: input.header.lessonRouteMetadata,
     assignmentGenerationSource: input.header.assignmentGenerationSource,
@@ -131,7 +116,7 @@ export async function persistGuardedGenericSnapshotV3(
  * The only application-facing Supabase entry point for v3 persistence.
  * Canonical Phase D validation always completes before the service-only RPC
  * can be invoked; detailed activity eligibility deliberately stays out of SQL.
- * This function is not wired into assignment generation in D2A.
+ * Every current generic assignment writer uses this boundary.
  */
 export function persistGuardedGenericSnapshotV3ToSupabase(
   serviceClient: GenericSnapshotV3RpcClient,

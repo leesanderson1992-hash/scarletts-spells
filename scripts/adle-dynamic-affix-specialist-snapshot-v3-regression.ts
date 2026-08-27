@@ -5,7 +5,6 @@ import type { ComposedDailyPlan } from "../lib/adle/daily-assignment-composer";
 import { planAssignmentPersistence } from "../lib/adle/assignment-persistence";
 import { compileDynamicAffixSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-compiler";
 import { persistSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-persistence";
-import { selectSpecialistSnapshotV3Writer } from "../lib/adle/composable-lesson/specialist-snapshot-writer-rollout";
 import { validateCompiledSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-validator";
 import { validateCompiledGenericLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-validator";
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
@@ -149,14 +148,10 @@ const completion = deriveDynamicAffixCompletionPolicy({
 });
 assert(completion.ok, "completion authority comes from the frozen snapshot");
 
-assert.equal(selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3" }), null, "writer defaults OFF");
-assert.equal(selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3", mode: "compound_word_v2_for_current_learner", currentLearnerChildId: childId }), null, "Compound mode cannot capture Affix");
-const authorization = selectSpecialistSnapshotV3Writer({ childId, routeKey: "dynamic_affix_word_lab:v3", mode: "dynamic_affix_v3_for_current_learner", currentLearnerChildId: childId });
-if (!authorization) throw new Error("dynamic affix writer authorization fixture failed");
 let calls = 0;
 async function verifyPersistence(): Promise<void> {
   const stored = await persistSpecialistSnapshotV3({ persist: async () => { calls += 1; return "00000000-0000-4000-8000-000000000203"; } }, {
-    authorization: authorization!, parentUserId, childId, planDate: plan.planDate, header: persistence.header!,
+    parentUserId, childId, planDate: plan.planDate, header: persistence.header!,
     items: persistence.items, intakes: persistence.learningItemIntakes, snapshot: first,
   });
   assert.equal(stored, "00000000-0000-4000-8000-000000000203");
@@ -166,7 +161,7 @@ async function verifyPersistence(): Promise<void> {
     (typeof invalid.activities)[number]["itemBindings"][number]
   >).pop();
   await assert.rejects(() => persistSpecialistSnapshotV3({ persist: async () => { calls += 1; return stored; } }, {
-    authorization: authorization!, parentUserId, childId, planDate: plan.planDate, header: persistence.header!,
+    parentUserId, childId, planDate: plan.planDate, header: persistence.header!,
     items: persistence.items, intakes: persistence.learningItemIntakes, snapshot: invalid,
   }));
 assert.equal(calls, 1, "invalid/partial envelope never crosses the sole atomic persistence port");

@@ -4,10 +4,8 @@ import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-p
 import type { LearningItemFact } from "../learning-items";
 import type { CompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-contracts";
 import { validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
-import type { SpecialistSnapshotV3WriterAuthorization } from "./specialist-snapshot-writer-rollout";
 
 export type SpecialistSnapshotV3PersistenceInput = {
-  authorization: SpecialistSnapshotV3WriterAuthorization;
   parentUserId: string;
   childId: string;
   planDate: string;
@@ -18,7 +16,7 @@ export type SpecialistSnapshotV3PersistenceInput = {
 };
 
 export interface SpecialistSnapshotV3PersistencePort {
-  persist(input: Omit<SpecialistSnapshotV3PersistenceInput, "authorization" | "snapshot"> & {
+  persist(input: Omit<SpecialistSnapshotV3PersistenceInput, "snapshot"> & {
     compiledLessonSnapshot: CompiledSpecialistSnapshotV3;
   }): Promise<string>;
 }
@@ -49,14 +47,6 @@ export async function persistSpecialistSnapshotV3(
   port: SpecialistSnapshotV3PersistencePort,
   input: SpecialistSnapshotV3PersistenceInput,
 ): Promise<string> {
-  const requiredAuthorization = input.snapshot.route.routeId === "dynamic_affix_word_lab" ? "dynamic_affix_v3_for_current_learner"
-    : input.snapshot.route.routeId === "dynamic_prefix_word_lab" ? "dynamic_prefix_v2_for_current_learner"
-      : input.snapshot.route.routeId === "base_word_lab" ? "base_word_v2_for_current_learner"
-        : "compound_word_v2_for_current_learner";
-  if (input.authorization.kind !== requiredAuthorization
-    || input.authorization.childId.toLowerCase() !== input.childId.toLowerCase()) {
-    throw new Error("persistSpecialistSnapshotV3: writer selection mismatch");
-  }
   const validation = validateCompiledSpecialistSnapshotV3(input.snapshot, {
     lessonRouteMetadata: input.header.lessonRouteMetadata,
     assignmentGenerationSource: input.header.assignmentGenerationSource,

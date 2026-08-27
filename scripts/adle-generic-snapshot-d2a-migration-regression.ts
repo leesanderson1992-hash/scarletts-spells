@@ -86,7 +86,7 @@ for (const implementationIdentity of [
 assert.match(persistence, /validateCompiledGenericLessonSnapshotV3\(input\.snapshot/);
 assert.match(persistence, /persist_adle_generic_daily_plan_v3/);
 assert.match(persistence, /export function persistGuardedGenericSnapshotV3ToSupabase/);
-assert.match(rollout, /GENERIC_SNAPSHOT_V3_WRITER_ENABLED\s*=\s*false/);
+assert.match(rollout, /GENERIC_SNAPSHOT_V3_WRITER_ENABLED\s*=\s*true/);
 
 assert.match(productionHarness, /wwohrqtunajrbwxyssjf/);
 assert.match(productionHarness, /--dry-run/);

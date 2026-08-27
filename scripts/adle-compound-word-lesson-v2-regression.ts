@@ -9,7 +9,6 @@ import { listRegisteredActivityTemplateKeys } from "../lib/adle/activity-templat
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
 import { compileCompoundWordSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-compiler";
 import { persistSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-persistence";
-import { selectSpecialistSnapshotV3Writer } from "../lib/adle/composable-lesson/specialist-snapshot-writer-rollout";
 import { validateCompiledGenericLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-validator";
 import { validateCompiledSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-validator";
 import { createPersistedRouteMetadataV2 } from "../lib/adle/composable-lesson/persisted-route-metadata";
@@ -369,12 +368,6 @@ assert.equal(validateCompiledSpecialistSnapshotV3(duplicateBinding, {
   items: persistence.items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey, canonicalWordId: item.metadata.canonicalWordId })),
 }).ok, false, "grouped bindings reject duplicate item ownership");
 
-const learnerId = "00000000-0000-4000-8000-000000000097";
-assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId }), null, "writer defaults OFF");
-assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "off", currentLearnerChildId: learnerId }), null);
-assert.equal(selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "compound_word_v2_for_current_learner", currentLearnerChildId: "00000000-0000-4000-8000-000000000098" }), null);
-const authorization = selectSpecialistSnapshotV3Writer({ childId: learnerId, mode: "compound_word_v2_for_current_learner", currentLearnerChildId: learnerId });
-if (!authorization) throw new Error("compound specialist writer authorization fixture failed");
 async function verifySpecialistPersistenceBoundary() {
   let persistenceCalls = 0;
   const storedId = await persistSpecialistSnapshotV3({
@@ -383,7 +376,6 @@ async function verifySpecialistPersistenceBoundary() {
       return "00000000-0000-4000-8000-000000000099";
     },
   }, {
-    authorization: { kind: "compound_word_v2_for_current_learner", childId: snapshotPlan.childId },
     parentUserId: persistence.header!.parentUserId,
     childId: snapshotPlan.childId,
     planDate: snapshotPlan.planDate,
@@ -397,7 +389,6 @@ async function verifySpecialistPersistenceBoundary() {
   const invalidSnapshot = structuredClone(firstSnapshot);
   invalidSnapshot.activities[0].itemBindings = invalidSnapshot.activities[0].itemBindings.slice(1);
   await assert.rejects(() => persistSpecialistSnapshotV3({ persist: async () => { persistenceCalls += 1; return storedId; } }, {
-    authorization: { kind: "compound_word_v2_for_current_learner", childId: snapshotPlan.childId },
     parentUserId: persistence.header!.parentUserId,
     childId: snapshotPlan.childId,
     planDate: snapshotPlan.planDate,

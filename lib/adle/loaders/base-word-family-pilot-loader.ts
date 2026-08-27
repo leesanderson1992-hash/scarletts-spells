@@ -23,7 +23,6 @@ import {
   type ActivatedBaseWordReleaseAuthority,
 } from "../curriculum-release-activation";
 import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-registry";
-import { configuredSpecialistSnapshotV3Writer } from "../composable-lesson/specialist-snapshot-writer-rollout";
 import { compileBaseWordSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "../composable-lesson/specialist-snapshot-v3-persistence";
 import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
@@ -140,47 +139,30 @@ export async function persistBaseWordFamilyPilotAssignment(params: {
     generationTrigger: params.generationTrigger,
   });
   if (items.length !== BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT) throw new Error("Refusing base-word pilot persistence: assignment binding count drift.");
-  const authorization = configuredSpecialistSnapshotV3Writer(params.childId, "base_word_lab:v2");
-  if (authorization) {
-    const routeMetadata = createPersistedRouteMetadataV2("base_word_lab", persistedReleaseAuthority(params.releaseAuthority));
-    const header: AssignmentHeaderDraft = {
-      childId: params.childId, parentUserId: params.parentUserId, assignmentDate: params.planDate as import("../review-scheduler").IsoDate,
-      title: "ADLE Base-word Family Pilot", status: "pending", targetWords: payload.independentWords.map((word) => word.displayWord), reviewWords: [],
-      assignmentGenerationSource: "adle_base_word_family_pilot_v1", lessonRouteMetadata: routeMetadata,
-    };
-    const snapshotItems: AssignmentItemDraft[] = items.map((item) => ({
-      ...item, status: "ready" as const,
-      metadata: {
-        planDate: params.planDate as import("../review-scheduler").IsoDate,
-        sectionKey: String(item.metadata.sectionKey), provenance: "base_word_family_release_v2",
-        microSkillKey: payload.microSkillKey, canonicalWordId: typeof item.metadata.canonicalWordId === "string" ? item.metadata.canonicalWordId : null,
-        expectedEvidenceKind: item.metadata.sectionKey === "lesson_dictation" ? "dictation" : item.metadata.sectionKey === "lesson_production" ? "controlled_spelling" : "guided_task",
-        adleLearningItemRef: typeof item.metadata.learningItemId === "string" ? item.metadata.learningItemId : null,
-        composerPolicyVersion: "base_word_family_v1", schedulePolicyVersion: "base_word_family_v1",
-      },
-    }));
-    const resolved = resolveBaseWordFamilyLessonAuthorityV2(payload);
-    if (!resolved) throw new Error("Refusing base-word specialist snapshot: resolved lesson invalid.");
-    const snapshot = compileBaseWordSpecialistSnapshotV3({ payload: resolved, releaseAuthority: params.releaseAuthority, header, items: snapshotItems });
-    return persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.client), {
-      authorization, parentUserId: params.parentUserId, childId: params.childId, planDate: params.planDate,
-      header, items: snapshotItems, intakes: [], snapshot,
-    });
-  }
-  const { data, error } = await params.client.rpc("persist_adle_base_word_family_pilot_v2", {
-    p_parent_user_id: params.parentUserId, p_child_id: params.childId, p_plan_date: params.planDate, p_payload: payload, p_items: items,
-    p_route_metadata: createPersistedRouteMetadataV2(
-      "base_word_lab",
-      persistedReleaseAuthority(params.releaseAuthority),
-    ),
-    p_activation_revision_id: params.releaseAuthority.activationRevisionId,
-    p_release_manifest_id: params.releaseAuthority.releaseManifestId,
-    p_release_manifest_sha256: params.releaseAuthority.releaseManifestSha256,
-    p_dependency_fingerprint: params.releaseAuthority.dependencyFingerprint,
+  const routeMetadata = createPersistedRouteMetadataV2("base_word_lab", persistedReleaseAuthority(params.releaseAuthority));
+  const header: AssignmentHeaderDraft = {
+    childId: params.childId, parentUserId: params.parentUserId, assignmentDate: params.planDate as import("../review-scheduler").IsoDate,
+    title: "ADLE Base-word Family Pilot", status: "pending", targetWords: payload.independentWords.map((word) => word.displayWord), reviewWords: [],
+    assignmentGenerationSource: "adle_base_word_family_pilot_v1", lessonRouteMetadata: routeMetadata,
+  };
+  const snapshotItems: AssignmentItemDraft[] = items.map((item) => ({
+    ...item, status: "ready" as const,
+    metadata: {
+      planDate: params.planDate as import("../review-scheduler").IsoDate,
+      sectionKey: String(item.metadata.sectionKey), provenance: "base_word_family_release_v2",
+      microSkillKey: payload.microSkillKey, canonicalWordId: typeof item.metadata.canonicalWordId === "string" ? item.metadata.canonicalWordId : null,
+      expectedEvidenceKind: item.metadata.sectionKey === "lesson_dictation" ? "dictation" : item.metadata.sectionKey === "lesson_production" ? "controlled_spelling" : "guided_task",
+      adleLearningItemRef: typeof item.metadata.learningItemId === "string" ? item.metadata.learningItemId : null,
+      composerPolicyVersion: "base_word_family_v1", schedulePolicyVersion: "base_word_family_v1",
+    },
+  }));
+  const resolved = resolveBaseWordFamilyLessonAuthorityV2(payload);
+  if (!resolved) throw new Error("Refusing base-word specialist snapshot: resolved lesson invalid.");
+  const snapshot = compileBaseWordSpecialistSnapshotV3({ payload: resolved, releaseAuthority: params.releaseAuthority, header, items: snapshotItems });
+  return persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.client), {
+    parentUserId: params.parentUserId, childId: params.childId, planDate: params.planDate,
+    header, items: snapshotItems, intakes: [], snapshot,
   });
-  if (error) throw new Error(`persistBaseWordFamilyPilotAssignment: ${error.message}`);
-  if (typeof data !== "string" || data.length === 0) throw new Error("persistBaseWordFamilyPilotAssignment: RPC returned no assignment id");
-  return data;
 }
 
 /** Explicit guarded generator. This is intentionally not called by the child route or generic composer. */

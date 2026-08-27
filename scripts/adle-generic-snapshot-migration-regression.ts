@@ -1,18 +1,13 @@
 import { readFileSync } from "node:fs";
 import { equal, match, ok } from "node:assert/strict";
 
-import {
-  genericSnapshotMode,
-  genericSnapshotWritesEnabled,
-} from "../lib/adle/composable-lesson/generic-snapshot-mode";
+import { genericSnapshotMode } from "../lib/adle/composable-lesson/generic-snapshot-mode";
 
 const migrationPath =
   "supabase/migrations/20260731200000_add_adle_generic_lesson_snapshot_v2.sql";
 const migration = readFileSync(migrationPath, "utf8");
-const writer = readFileSync("lib/adle/loaders/daily-plan-surface.ts", "utf8");
+const reader = readFileSync("lib/adle/loaders/daily-plan-surface.ts", "utf8");
 const snapshotCapability = readFileSync("lib/adle/loaders/daily-plan-snapshot-capability.ts", "utf8");
-const stagingHarness = readFileSync("scripts/apply-adle-generic-snapshot-staging-migration.ts", "utf8");
-const proofHarness = readFileSync("scripts/adle-generic-snapshot-staging-proof.ts", "utf8");
 
 match(migration, /add column compiled_lesson_snapshot jsonb null/);
 match(migration, /daily_assignments_compiled_lesson_snapshot_v2_check/);
@@ -34,37 +29,14 @@ match(migration, /grant execute on function public\.persist_adle_generic_daily_p
 ok(!/grant execute on function public\.persist_adle_generic_daily_plan_v2[\s\S]{0,200}to authenticated/.test(migration), "generic writer is never granted to authenticated");
 ok(!migration.includes("create or replace function public.persist_adle_composed_daily_plan_v1"), "rich persistence RPC is unchanged");
 
-match(writer, /compileGenericLessonSnapshot/);
-match(writer, /persist_adle_generic_daily_plan_v2/);
-match(writer, /p_snapshot: compiled\.snapshot/);
-match(writer, /generic plans require the snapshot-aware ensure path/);
-match(writer, /dailyPlanHeaderProjection\(snapshotCapability\)/);
+match(reader, /resolveGenericLessonSnapshot/);
+match(reader, /dailyPlanHeaderProjection\(snapshotCapability\)/);
 match(snapshotCapability, /lesson_route_metadata, assignment_generation_source/);
 match(snapshotCapability, /compiled_lesson_snapshot/);
-match(writer, /source_entity_id/);
+match(reader, /source_entity_id/);
 
 equal(genericSnapshotMode(undefined), "off");
 equal(genericSnapshotMode("bad"), "off");
 equal(genericSnapshotMode("observe"), "observe");
 equal(genericSnapshotMode("enforce"), "enforce");
-equal(genericSnapshotWritesEnabled("off"), false);
-equal(genericSnapshotWritesEnabled("observe"), true);
-equal(genericSnapshotWritesEnabled("enforce"), true);
-
-match(stagingHarness, /const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz"/);
-match(stagingHarness, /const PRODUCTION_PROJECT_REF = "wwohrqtunajrbwxyssjf"/);
-match(stagingHarness, /--environment staging/);
-match(stagingHarness, /--confirm-generic-snapshot-migration/);
-match(stagingHarness, /production and unknown targets are rejected/);
-ok(!stagingHarness.includes("SAND8624erson"), "staging harness contains no credential literal");
-
-match(proofHarness, /const STAGING_REF = "jlhotktspjvffslvuyfz"/);
-match(proofHarness, /const PRODUCTION_REF = "wwohrqtunajrbwxyssjf"/);
-match(proofHarness, /const STAGING_POOLER = "aws-1-eu-central-1\.pooler\.supabase\.com"/);
-match(proofHarness, /ADLE-GENERIC-SNAPSHOT-STAGING-FIXTURE-V2/);
-match(proofHarness, /persist_adle_generic_daily_plan_v2/);
-match(proofHarness, /compiled_lesson_snapshot/);
-match(proofHarness, /exactFixtureResidue: 0/);
-ok(!proofHarness.includes("SAND8624erson"), "proof harness contains no credential literal");
-
-console.log("ADLE generic snapshot migration regression passed.");
+console.log("ADLE historical generic snapshot migration/read compatibility regression passed.");

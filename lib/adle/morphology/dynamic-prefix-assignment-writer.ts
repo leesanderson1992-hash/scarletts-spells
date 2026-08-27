@@ -4,8 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
 import type { AdleGenerationTrigger } from "../assignment-persistence";
-import { getExistingAdleSessionPlanId, persistComposedAdleDailyPlan, prepareComposedAdleDailyPlanPersistence, findAdleHeader } from "../loaders/daily-plan-surface";
-import { configuredSpecialistSnapshotV3Writer } from "../composable-lesson/specialist-snapshot-writer-rollout";
+import { getExistingAdleSessionPlanId, prepareComposedAdleDailyPlanPersistence, findAdleHeader } from "../loaders/daily-plan-surface";
 import { compileDynamicPrefixSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "../composable-lesson/specialist-snapshot-v3-persistence";
 import { resolveDynamicPrefixLessonAuthorityV2 } from "./dynamic-prefix-runtime";
@@ -218,23 +217,8 @@ export async function prepareDynamicPrefixAssignment(
 export async function persistPreparedDynamicPrefixAssignment(params: WriterParams & {
   prepared: Extract<PreparedDynamicPrefixAssignment, { status: "ready" }>;
 }): Promise<DynamicPrefixAssignmentResult> {
-  const authorization = configuredSpecialistSnapshotV3Writer(params.childId, "dynamic_prefix_word_lab:v2");
   let assignmentId: string | null;
-  if (authorization) {
-    const persistence = await prepareComposedAdleDailyPlanPersistence({
-      userClient: params.userClient, serviceClient: params.serviceClient, parentUserId: params.parentUserId,
-      childId: params.childId, planDate: params.prepared.planDate, plan: params.prepared.plan, generationTrigger: params.generationTrigger,
-    });
-    if (persistence.action === "noop") assignmentId = persistence.noopReason === "existing_active_plan"
-      ? (await findAdleHeader(params.userClient, params.parentUserId, params.childId, params.prepared.planDate))?.id ?? null : null;
-    else {
-      if (!persistence.header) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:missing_header");
-      const resolved = resolveDynamicPrefixLessonAuthorityV2(params.prepared.payload);
-      if (!resolved) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:resolved_lesson_invalid");
-      const snapshot = compileDynamicPrefixSpecialistSnapshotV3({ payload: resolved, selection: params.prepared.selection, compilerDecision: params.prepared.compilerDecision, header: persistence.header, items: persistence.items });
-      assignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { authorization, parentUserId: params.parentUserId, childId: params.childId, planDate: params.prepared.planDate, header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot });
-    }
-  } else assignmentId = await persistComposedAdleDailyPlan({
+  const persistence = await prepareComposedAdleDailyPlanPersistence({
     userClient: params.userClient,
     serviceClient: params.serviceClient,
     parentUserId: params.parentUserId,
@@ -243,6 +227,15 @@ export async function persistPreparedDynamicPrefixAssignment(params: WriterParam
     plan: params.prepared.plan,
     generationTrigger: params.generationTrigger,
   });
+  if (persistence.action === "noop") assignmentId = persistence.noopReason === "existing_active_plan"
+    ? (await findAdleHeader(params.userClient, params.parentUserId, params.childId, params.prepared.planDate))?.id ?? null : null;
+  else {
+    if (!persistence.header) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:missing_header");
+    const resolved = resolveDynamicPrefixLessonAuthorityV2(params.prepared.payload);
+    if (!resolved) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:resolved_lesson_invalid");
+    const snapshot = compileDynamicPrefixSpecialistSnapshotV3({ payload: resolved, selection: params.prepared.selection, compilerDecision: params.prepared.compilerDecision, header: persistence.header, items: persistence.items });
+    assignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { parentUserId: params.parentUserId, childId: params.childId, planDate: params.prepared.planDate, header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot });
+  }
   if (!assignmentId) {
     return {
       status: "not_ready",

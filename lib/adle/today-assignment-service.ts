@@ -15,12 +15,10 @@ import {
 import { selectPartTwoSkill } from "./composer-skill-selection";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "./curriculum-readiness/route-registry";
 import { composeDailyPlan } from "./daily-assignment-composer";
-import { authorCompleteGenericSnapshotV3, evaluateNoSpecialistGenericSnapshotV3Boundary } from "./composable-lesson/generic-snapshot-v3-forward-authoring";
+import { authorCompleteGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-forward-authoring";
 import { supabaseGenericSnapshotV3PersistencePort } from "./composable-lesson/generic-snapshot-v3-persistence";
 import { compileAndPersistGuardedGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-writer";
-import { configuredProductionGenericSnapshotV3Writer } from "./composable-lesson/generic-snapshot-writer-rollout";
 import { loadDailyPlanFacts } from "./loaders/composer-facts-loader";
-import { persistComposedAdleDailyPlan } from "./loaders/daily-plan-surface";
 import {
   generateGuardedBaseWordFamilyPilot,
 } from "./loaders/base-word-family-pilot-loader";
@@ -29,10 +27,6 @@ import {
   BASE_WORD_FAMILY_ASSIGNMENT_TITLE,
 } from "./morphology/base-word-family-pilot-plan";
 import { isBaseWordFamilyPilotEnabledForChild } from "./morphology/base-word-family-pilot-access";
-import { buildClosedCompoundAssignmentPlan } from "./morphology/closed-compound-assignment-plan";
-import { loadClosedCompoundProfiles } from "./morphology/closed-compound-profile-loader";
-import { isClosedCompoundRouteEnabled } from "./morphology/closed-compound-route-gate";
-import { compileClosedCompoundLesson } from "./morphology/closed-compound-word-lab";
 import {
   createDynamicAffixAssignment,
 } from "./morphology/dynamic-affix-assignment-writer";
@@ -386,26 +380,10 @@ export async function ensureParentAdleTodayAssignment(params: {
 
     routeId = resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
     if (!routeId) {
-      const boundary = evaluateNoSpecialistGenericSnapshotV3Boundary({
-        authorization: configuredProductionGenericSnapshotV3Writer(params.childId),
-        author: () => authorCompleteGenericSnapshotV3(
-          facts,
-          composeDailyPlan(facts, practiceDate as IsoDate),
-        ),
-      });
-      if (!boundary.authorization) {
-        const result = { outcome: "no_eligible" as const, blockerCode: "no_active_specialist_route" };
-        emitGenerationEvent({
-          parentUserId: params.parentUserId,
-          childId: params.childId,
-          practiceDate,
-          outcome: result.outcome,
-          blockerCode: result.blockerCode,
-        });
-        return result;
-      }
-      const productionAuthorization = boundary.authorization;
-      const authored = boundary.authoring;
+      const authored = authorCompleteGenericSnapshotV3(
+        facts,
+        composeDailyPlan(facts, practiceDate as IsoDate),
+      );
       if (!authored.ok) {
         const result = { outcome: "no_eligible" as const, blockerCode: authored.blockerCode };
         emitGenerationEvent({
@@ -447,9 +425,6 @@ export async function ensureParentAdleTodayAssignment(params: {
         return result;
       }
       const persistedV3 = await compileAndPersistGuardedGenericSnapshotV3({
-        rollout: { snapshotMode: "off", childId: params.childId },
-        environment: "production",
-        productionAuthorization,
         compiler: {
           facts,
           plan: authored.plan,
@@ -527,37 +502,6 @@ export async function ensureParentAdleTodayAssignment(params: {
         blockerCode = result.status === "not_ready" || result.status === "conflict"
           ? result.reason ?? result.status
           : null;
-      }
-    } else if (routeId === "closed_compound_word_lab") {
-      if (!isClosedCompoundRouteEnabled()) blockerCode = "route_disabled";
-      else {
-        const loaded = await loadClosedCompoundProfiles(
-          params.serviceClient,
-          params.childId,
-          { allowStagingProfiles },
-        );
-        const profile = loaded.profiles.find(
-          (candidate) => candidate.microSkillKey === selection.microSkillKey,
-        );
-        const payload = profile
-          ? compileClosedCompoundLesson(profile, loaded.learningItems)
-          : null;
-        if (!payload) blockerCode = "profile_or_authentic_queue_not_ready";
-        else {
-          const plan = buildClosedCompoundAssignmentPlan(
-            composeDailyPlan(facts, practiceDate as IsoDate),
-            payload,
-          );
-          generatedAssignmentId = await persistComposedAdleDailyPlan({
-            userClient: params.userClient,
-            serviceClient: params.serviceClient,
-            parentUserId: params.parentUserId,
-            childId: params.childId,
-            planDate: practiceDate as IsoDate,
-            plan,
-            generationTrigger: "parent_manual",
-          });
-        }
       }
     } else if (routeId === "base_word_lab") {
       if (!isBaseWordFamilyPilotEnabledForChild(params.childId)) blockerCode = "route_disabled";

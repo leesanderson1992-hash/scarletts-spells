@@ -2,17 +2,11 @@ import assert from "node:assert/strict";
 
 import { planAssignmentPersistence } from "../lib/adle/assignment-persistence";
 import type { ComposedDailyPlan, DailyPlanFacts, PlanItemCandidate } from "../lib/adle/daily-assignment-composer";
-import { authorCompleteGenericSnapshotV3, evaluateNoSpecialistGenericSnapshotV3Boundary } from "../lib/adle/composable-lesson/generic-snapshot-v3-forward-authoring";
+import { authorCompleteGenericSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-forward-authoring";
 import { compileGenericLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-compiler";
 import { persistGuardedGenericSnapshotV3, type GenericSnapshotJsonPersistencePort } from "../lib/adle/composable-lesson/generic-snapshot-v3-persistence";
-import {
-  ADLE_GENERIC_SNAPSHOT_V3_CURRENT_LEARNER_CHILD_ID_ENV,
-  ADLE_GENERIC_SNAPSHOT_V3_WRITER_MODE_ENV,
-  selectProductionGenericSnapshotV3Writer,
-} from "../lib/adle/composable-lesson/generic-snapshot-writer-rollout";
 
 const CHILD = "11111111-1111-4111-8111-111111111111";
-const OTHER = "22222222-2222-4222-8222-222222222222";
 const PARENT = "33333333-3333-4333-8333-333333333333";
 const DATE = "2026-08-23";
 const SKILL = "D3_GENERIC_TEST";
@@ -71,20 +65,6 @@ function facts(): DailyPlanFacts {
 }
 
 async function main() {
-  assert.equal(selectProductionGenericSnapshotV3Writer({ childId: CHILD }), null);
-  assert.equal(selectProductionGenericSnapshotV3Writer({ childId: CHILD, mode: "off", currentLearnerChildId: CHILD }), null);
-  assert.equal(selectProductionGenericSnapshotV3Writer({ childId: CHILD, mode: "unknown", currentLearnerChildId: CHILD }), null);
-  assert.equal(selectProductionGenericSnapshotV3Writer({ childId: CHILD, mode: "on_for_current_learner", currentLearnerChildId: "not-a-uuid" }), null);
-  assert.equal(selectProductionGenericSnapshotV3Writer({ childId: OTHER, mode: "on_for_current_learner", currentLearnerChildId: CHILD }), null);
-  const authorization = selectProductionGenericSnapshotV3Writer({ childId: CHILD, mode: "on_for_current_learner", currentLearnerChildId: CHILD });
-  assert(authorization);
-  let authorCalls = 0;
-  assert.deepEqual(evaluateNoSpecialistGenericSnapshotV3Boundary({
-    authorization: null,
-    author: () => { authorCalls += 1; return { ok: false, blockerCode: "generic_v3_no_lesson_composed" }; },
-  }), { authorization: null, authoring: null, blockerCode: "no_active_specialist_route" });
-  assert.equal(authorCalls, 0, "OFF must not invoke generic composition or authoring");
-
   const eligibleFacts = facts();
   const eligible = authorCompleteGenericSnapshotV3(eligibleFacts, rawPlan());
   assert(eligible.ok);
@@ -135,28 +115,12 @@ async function main() {
 
   let writes = 0;
   const port: GenericSnapshotJsonPersistencePort = { persist: async () => { writes += 1; return "55555555-5555-4555-8555-555555555555"; } };
-  await assert.rejects(persistGuardedGenericSnapshotV3(port, {
-    environment: "production", parentUserId: PARENT, childId: CHILD, planDate: DATE,
+  await persistGuardedGenericSnapshotV3(port, {
+    parentUserId: PARENT, childId: CHILD, planDate: DATE,
     header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot: first.snapshot,
-  }), /Production persistence is not authorised/);
-  assert.equal(writes, 0);
-
-  const previousMode = process.env[ADLE_GENERIC_SNAPSHOT_V3_WRITER_MODE_ENV];
-  const previousChild = process.env[ADLE_GENERIC_SNAPSHOT_V3_CURRENT_LEARNER_CHILD_ID_ENV];
-  process.env[ADLE_GENERIC_SNAPSHOT_V3_WRITER_MODE_ENV] = "on_for_current_learner";
-  process.env[ADLE_GENERIC_SNAPSHOT_V3_CURRENT_LEARNER_CHILD_ID_ENV] = CHILD;
-  try {
-    await persistGuardedGenericSnapshotV3(port, {
-      environment: "production", productionAuthorization: authorization,
-      parentUserId: PARENT, childId: CHILD, planDate: DATE,
-      header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot: first.snapshot,
-    });
-  } finally {
-    if (previousMode === undefined) delete process.env[ADLE_GENERIC_SNAPSHOT_V3_WRITER_MODE_ENV]; else process.env[ADLE_GENERIC_SNAPSHOT_V3_WRITER_MODE_ENV] = previousMode;
-    if (previousChild === undefined) delete process.env[ADLE_GENERIC_SNAPSHOT_V3_CURRENT_LEARNER_CHILD_ID_ENV]; else process.env[ADLE_GENERIC_SNAPSHOT_V3_CURRENT_LEARNER_CHILD_ID_ENV] = previousChild;
-  }
+  });
   assert.equal(writes, 1);
-  console.log("PASS: D3 exact-learner OFF/ON selector, fail-closed eligibility, deterministic v3 authoring and Production authorization");
+  console.log("PASS: D3 fail-closed eligibility, deterministic v3 authoring and unconditional snapshot-v3 persistence");
 }
 
 void main();

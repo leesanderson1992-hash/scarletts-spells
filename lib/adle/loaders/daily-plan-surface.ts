@@ -17,7 +17,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
+import type { ComposedDailyPlan } from "../daily-assignment-composer";
 import {
   ADLE_ASSIGNMENT_GENERATION_SOURCE,
   ADLE_DAILY_ASSIGNMENT_TITLE,
@@ -27,14 +27,8 @@ import {
   type ExistingAssignmentHeaderFact,
 } from "../assignment-persistence";
 import type { IsoDate } from "../review-scheduler";
-import { loadDailyPlanFacts } from "./composer-facts-loader";
-import { insertLearningItemIntakes } from "./session-completion-loader";
 import { BASE_WORD_FAMILY_ASSIGNMENT_SOURCE, BASE_WORD_FAMILY_ASSIGNMENT_TITLE } from "../morphology/base-word-family-pilot-plan";
-import { compileGenericLessonSnapshot } from "../composable-lesson/generic-snapshot-compiler";
-import {
-  genericSnapshotMode,
-  genericSnapshotWritesEnabled,
-} from "../composable-lesson/generic-snapshot-mode";
+import { genericSnapshotMode } from "../composable-lesson/generic-snapshot-mode";
 import {
   emitGenericSnapshotResolutionEvent,
   resolveGenericLessonSnapshot,
@@ -202,175 +196,13 @@ export async function prepareComposedAdleDailyPlanPersistence(params: EnsureAdle
 }): Promise<AssignmentPersistencePlan> {
   const { userClient, parentUserId, childId, planDate, plan } = params;
   const { data: headerRows, error: headersError } = await userClient.from("daily_assignments").select("child_id, assignment_date, title, status").eq("parent_user_id", parentUserId).eq("child_id", childId).eq("assignment_date", planDate);
-  if (headersError) throw new Error(`persistComposedAdleDailyPlan:headers: ${headersError.message}`);
+  if (headersError) throw new Error(`prepareComposedAdleDailyPlanPersistence:headers: ${headersError.message}`);
   const existingHeaders: ExistingAssignmentHeaderFact[] = (headerRows ?? []).map((row) => ({ childId: (row as { child_id: string }).child_id, assignmentDate: (row as { assignment_date: string }).assignment_date, title: (row as { title: string | null }).title ?? "", status: (row as { status: string }).status }));
   return planAssignmentPersistence(plan, {
     parentUserId,
     existingHeaders,
     generationTrigger: params.generationTrigger,
   });
-}
-
-export async function persistComposedAdleDailyPlan(params: EnsureAdleDailyPlanParams & {
-  plan: ComposedDailyPlan;
-  generationTrigger?: AdleGenerationTrigger;
-}): Promise<string | null> {
-  const { userClient, serviceClient, parentUserId, childId, planDate } = params;
-  const persistence = await prepareComposedAdleDailyPlanPersistence(params);
-  if (persistence.action === "noop") return persistence.noopReason === "existing_active_plan" ? (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null : null;
-  if (!persistence.header) return null;
-  if (
-    genericSnapshotWritesEnabled() &&
-    persistence.header.lessonRouteMetadata?.route.routeId === "generic_composer"
-  ) {
-    throw new Error("persistComposedAdleDailyPlan: generic plans require the snapshot-aware ensure path");
-  }
-  const { data, error } = await serviceClient.rpc("persist_adle_composed_daily_plan_v1", {
-    p_parent_user_id: parentUserId,
-    p_child_id: childId,
-    p_plan_date: planDate,
-    p_header: persistence.header,
-    p_items: persistence.items,
-    p_intakes: persistence.learningItemIntakes,
-  });
-  if (error) throw new Error(`persistComposedAdleDailyPlan:rpc: ${error.message}`);
-  if (typeof data !== "string" || data.length === 0) throw new Error("persistComposedAdleDailyPlan: RPC returned no assignment id");
-  return data;
-}
-
-/** Ensure today's ADLE plan exists; returns the header id or null when the
- * composed day is empty (nothing due, no lesson possible). Idempotent and
- * concurrency-safe via the header uniqueness guard. */
-export async function ensureAdleDailyPlan(params: EnsureAdleDailyPlanParams): Promise<string | null> {
-  const { userClient, serviceClient, parentUserId, childId, planDate } = params;
-
-  const existing = await findAdleHeader(userClient, parentUserId, childId, planDate);
-  if (existing !== null) {
-    return existing.id;
-  }
-
-  const { facts } = await loadDailyPlanFacts(serviceClient, { childId, today: planDate });
-  const plan = composeDailyPlan(facts, planDate);
-
-  const skips = [...plan.partOne.skips, ...plan.partTwo.skips];
-  if (skips.length > 0) {
-    console.info(
-      `[adle-composer] ${childId} ${planDate} skips: ${JSON.stringify(skips.map((skip) => skip.reason))}`,
-    );
-  }
-
-  const { data: headerRows, error: headersError } = await userClient
-    .from("daily_assignments")
-    .select("child_id, assignment_date, title, status")
-    .eq("parent_user_id", parentUserId)
-    .eq("child_id", childId)
-    .eq("assignment_date", planDate);
-  if (headersError) {
-    throw new Error(`ensureAdleDailyPlan:headers: ${headersError.message}`);
-  }
-  const existingHeaders: ExistingAssignmentHeaderFact[] = (headerRows ?? []).map((row) => ({
-    childId: (row as { child_id: string }).child_id,
-    assignmentDate: (row as { assignment_date: string }).assignment_date,
-    title: (row as { title: string | null }).title ?? "",
-    status: (row as { status: string }).status,
-  }));
-
-  const persistence = planAssignmentPersistence(plan, { parentUserId, existingHeaders });
-  if (persistence.action === "noop") {
-    if (persistence.noopReason === "existing_active_plan") {
-      return (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null;
-    }
-    return null; // empty_plan -> explicit "nothing today" state
-  }
-
-  const header = persistence.header;
-  if (header === null) {
-    return null;
-  }
-  const snapshotMode = genericSnapshotMode();
-  if (genericSnapshotWritesEnabled(snapshotMode)) {
-    const compiled = compileGenericLessonSnapshot({
-      facts,
-      plan,
-      persistence: persistence as typeof persistence & {
-        action: "insert";
-        header: NonNullable<typeof persistence.header>;
-      },
-    });
-    if (compiled.ok === false) {
-      throw new Error(
-        `ensureAdleDailyPlan:snapshot: ${compiled.blockers.map((entry) => entry.code).join(",")}`,
-      );
-    }
-    const { data, error } = await serviceClient.rpc("persist_adle_generic_daily_plan_v2", {
-      p_parent_user_id: parentUserId,
-      p_child_id: childId,
-      p_plan_date: planDate,
-      p_header: header,
-      p_items: persistence.items,
-      p_intakes: persistence.learningItemIntakes,
-      p_snapshot: compiled.snapshot,
-    });
-    if (error) throw new Error(`ensureAdleDailyPlan:snapshotRpc: ${error.message}`);
-    if (typeof data !== "string" || data.length === 0) {
-      throw new Error("ensureAdleDailyPlan: snapshot RPC returned no assignment id");
-    }
-    return data;
-  }
-  const { data: insertedHeader, error: insertError } = await userClient
-    .from("daily_assignments")
-    .insert({
-      child_id: header.childId,
-      parent_user_id: header.parentUserId,
-      assignment_date: header.assignmentDate,
-      title: header.title,
-      status: header.status,
-      target_words: header.targetWords,
-      review_words: header.reviewWords,
-      assignment_generation_source: header.assignmentGenerationSource,
-      lesson_route_metadata: header.lessonRouteMetadata,
-    })
-    .select("id")
-    .maybeSingle();
-  if (insertError) {
-    // Unique-violation = a concurrent first visit won the insert; re-read.
-    if (`${insertError.code ?? ""}`.startsWith("23505")) {
-      return (await findAdleHeader(userClient, parentUserId, childId, planDate))?.id ?? null;
-    }
-    throw new Error(`ensureAdleDailyPlan:insertHeader: ${insertError.message}`);
-  }
-  const assignmentId = (insertedHeader as { id: string } | null)?.id ?? null;
-  if (assignmentId === null) {
-    throw new Error("ensureAdleDailyPlan: header insert returned no id");
-  }
-
-  const { error: itemsError } = await userClient.from("assignment_items").insert(
-    persistence.items.map((item) => ({
-      daily_assignment_id: assignmentId,
-      child_id: item.childId,
-      parent_user_id: item.parentUserId,
-      domain_module: item.domainModule,
-      item_type: item.itemType,
-      source_type: item.sourceType,
-      source_entity_id: item.sourceEntityId,
-      learning_item_id: null,
-      template_key: item.templateKey,
-      target_word: item.targetWord,
-      position: item.position,
-      status: item.status,
-      prompt_data: item.promptData,
-      metadata: item.metadata,
-    })),
-  );
-  if (itemsError) {
-    throw new Error(`ensureAdleDailyPlan:insertItems: ${itemsError.message}`);
-  }
-
-  // Stretch-word learning items ride the same ensure (composer contract:
-  // every generated item traces to an active adle_learning_items row).
-  await insertLearningItemIntakes(serviceClient, persistence.learningItemIntakes);
-
-  return assignmentId;
 }
 
 export async function getAdleDailyPlanReadModel(params: {

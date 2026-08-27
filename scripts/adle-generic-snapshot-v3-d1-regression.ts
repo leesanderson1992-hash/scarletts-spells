@@ -12,7 +12,7 @@ import {
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-contracts";
 import {
   GENERIC_SNAPSHOT_V3_WRITER_ENABLED,
-  PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
+  GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
   getGenericSnapshotV3ReaderContract,
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import {
@@ -83,7 +83,7 @@ assert.equal(dictation.validatePayload({ canonicalWordId: "word-2", targetWord: 
 assert.equal(dictation.validatePayload({ canonicalWordId: "word-2", targetWord: "football pitch", audioText: "We crossed the football pitch.", correctSentence: "We crossed the football pitch.", targetBinding: { kind: "span", startTokenIndex: 3, endTokenIndexExclusive: 5, exactAnswer: "wrong span" } })?.kind, "malformed_canonical_payload");
 assert.equal(extractCanonicalSentenceTarget("We crossed the football pitch.", { kind: "span", startTokenIndex: 3, endTokenIndexExclusive: 5, exactAnswer: "football pitch" }), "football pitch");
 
-const allowList = PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST.map((entry) => `${entry.concept}.${entry.mode}@${entry.contractVersion}`).sort();
+const allowList = GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST.map((entry) => `${entry.concept}.${entry.mode}@${entry.contractVersion}`).sort();
 assert.deepEqual(allowList, [
   "COLD_WORD_RECALL.diagnostic_probe@1",
   "COLD_WORD_RECALL.scheduled_review@1",
@@ -104,7 +104,7 @@ for (const key of [
   "DICTATION.target_token@1",
   "DICTATION.target_span@1",
 ]) assert(rendererContracts.includes(key), `${key} remains representable in the canonical specialist registry`);
-assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, false, "D1 must not enable the v3 writer");
+assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, true, "Phase E keeps v3 as the sole forward generic writer");
 
 const teachingContentRef = "teaching_content:D4_AFFIX_FUL:v1";
 const wordDraft: Omit<LessonWordSnapshotV3, "factFingerprint"> = {

@@ -6,7 +6,6 @@ import type {
 } from "../daily-assignment-composer";
 import { createPersistedRouteMetadata } from "./persisted-route-metadata";
 import type { GenericCanonicalActivityAuthoringV3 } from "./generic-snapshot-v3-contracts";
-import type { GenericSnapshotV3ProductionAuthorization } from "./generic-snapshot-writer-rollout";
 
 export type GenericSnapshotV3EligibilityBlocker =
   | "generic_v3_no_lesson_composed"
@@ -19,17 +18,6 @@ export type GenericSnapshotV3EligibilityBlocker =
 export type GenericSnapshotV3AuthoringResult =
   | { ok: true; plan: ComposedDailyPlan }
   | { ok: false; blockerCode: GenericSnapshotV3EligibilityBlocker };
-
-export function evaluateNoSpecialistGenericSnapshotV3Boundary(input: {
-  authorization: GenericSnapshotV3ProductionAuthorization | null;
-  author: () => GenericSnapshotV3AuthoringResult;
-}): { authorization: GenericSnapshotV3ProductionAuthorization; authoring: GenericSnapshotV3AuthoringResult }
-  | { authorization: null; authoring: null; blockerCode: "no_active_specialist_route" } {
-  if (!input.authorization) {
-    return { authorization: null, authoring: null, blockerCode: "no_active_specialist_route" };
-  }
-  return { authorization: input.authorization, authoring: input.author() };
-}
 
 const text = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 

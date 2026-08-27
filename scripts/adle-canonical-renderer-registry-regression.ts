@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { ADLE_ACTIVITY_CATALOGUE } from "../lib/adle/activity-catalogue";
 import {
   GENERIC_SNAPSHOT_V3_WRITER_ENABLED,
-  PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
+  GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
 } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import {
   canonicalActivityContractKey,
@@ -25,8 +25,8 @@ for (const registration of registrations) {
   assert(catalogue.supportedModes.includes(registration.mode), `${canonicalActivityContractKey(registration)} must use a Catalogue-supported mode`);
   assert.equal(catalogue.canonicalComponent, registration.catalogueComponent, `${canonicalActivityContractKey(registration)} must select the Catalogue canonical component`);
 }
-assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, false, "canonical v3 reader support must land before writer enablement");
-for (const proposed of PROPOSED_GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST) {
+assert.equal(GENERIC_SNAPSHOT_V3_WRITER_ENABLED, true, "every forward generic contract is snapshot-v3 backed");
+for (const proposed of GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST) {
   assert(
     keys.includes(canonicalActivityContractKey(proposed)),
     `${canonicalActivityContractKey(proposed)} must have a canonical renderer before it can be proposed for v3 generation`,
