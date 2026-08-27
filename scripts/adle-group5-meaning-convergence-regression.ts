@@ -14,7 +14,7 @@ const snapshotRegistry = source("lib/adle/composable-lesson/generic-snapshot-reg
 
 assert(!existsSync("components/adle/activities/quick-sort-activity.tsx"), "QuickSort learner renderer must be retired");
 assert(!existsSync("components/adle/activities/shared/flip-toggle.tsx"), "FlipToggle prototype must be retired");
-assert(!source("components/adle/activities/morphology/shared/morphology-primitives.tsx").includes("MeaningFlip"), "MeaningFlip prototype must be retired");
+assert(!existsSync("components/adle/activities/morphology/shared/morphology-primitives.tsx"), "the preview-only morphology primitives must be retired");
 assert(!morphology.includes("function MeaningCards") && !morphology.includes("function MeaningOverview"), "route-local Meaning recap implementations must be retired");
 
 assert(binSort.includes("function BinSortOverview") && binSort.includes("if (complete && props.showOverview !== false)"), "Overview must be an internal BinSort completion view");

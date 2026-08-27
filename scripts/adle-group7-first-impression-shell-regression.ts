@@ -39,7 +39,7 @@ for (const [family, source] of [["Prefix/Affix", morphology], ["Base Word", base
 assert(morphology.includes('type: "DISCOVER"') && morphology.includes('type: "SPLIT"') && morphology.includes('type: "BUILD"'), "Prefix/Affix middle sequence is configured");
 assert(base.includes('type: "WORD_FAMILY_REVEAL"') && base.includes('type: "SPLIT"') && base.includes('type: "BUILD"'), "Base Word configures FamilyReveal distinctly in its middle sequence");
 assert(compound.includes('type: "COMPOUND_JIGSAW"') && compound.includes('type: "MEANING_MATCH"'), "Compound middle sequence is configured");
-assert(!baseWordMeetWordsConflated(base), "Meet the Words and FamilyReveal remain separate learner concepts");
+assert.equal(ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "WORD_FAMILY_REVEAL")?.canonicalComponent, "FamilyReveal", "Meet the Words and FamilyReveal remain separate learner concepts");
 
 const baseResume = normaliseBaseWordFamilyResume({ stage: "intro", familyIndex: 0, cleaveIndex: 0, cleaveStep: 0, cleaveCuts: {}, cleaveMisses: {}, buildIndex: 0, controlledIndex: 0, dictationIndex: 0, controlledAttempts: {}, controlledChecked: {}, sentenceAttempts: {}, sentenceChecked: false, reflectionText: "" }, BASE_WORD_FAMILY_PREVIEW_PAYLOAD);
 assert.equal(baseResume?.teachingPageIndex, 0, "historical Base Word resume normalizes to the first canonical teaching page");
@@ -57,9 +57,3 @@ for (const canonical of ["TeachingPages", "MeetWords presentation", "FirstImpres
 assert(ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.filter((row) => row.activityConcept === "SPECIALIST_LESSON_SHELL").length === 0, "no specialist lesson shell remains governed as forward architecture");
 
 console.log("PASS: Group 7 TeachingPages and deterministic FirstImpressionLesson convergence, resume normalization, evidence-safe reread, and canonical completion");
-
-function baseWordMeetWordsConflated(source: string): boolean {
-  const configStart = source.indexOf("function baseWordTeachingPages");
-  const revealStart = source.indexOf("function FamilyReveal");
-  return configStart < 0 || revealStart < 0 || source.slice(configStart, revealStart).includes("FamilyReveal");
-}

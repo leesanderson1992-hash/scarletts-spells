@@ -98,7 +98,6 @@ assert(events[0].attemptText === "It was unkind to leave her out.", "attempt led
 assert(events[0].isCorrect === true && events[0].evidenceClass === "first_exposure_lesson_attempt", "word-level correctness and evidence class remain unchanged");
 assert(isAttemptCorrect("it was unfair to change the rules.", "unfair") === true, "missing sentence capital does not change target-token assessment correctness");
 
-const previewSource = readFileSync("app/dev/adle/morphology-primitives/morphology-primitives-preview.tsx", "utf8");
 const railSource = readFileSync("components/adle/activities/shared/snap-rail.tsx", "utf8");
 const diffSource = readFileSync("components/adle/activities/shared/diff-reveal.tsx", "utf8");
 const lessonSource = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
@@ -113,9 +112,6 @@ const quickSortSource = readFileSync("components/adle/activities/quick-sort-acti
 const appShellSource = readFileSync("components/app-shell.tsx", "utf8");
 const adlePageSource = readFileSync("app/learn/week/adle/page.tsx", "utf8");
 const adleActionsSource = readFileSync("app/learn/week/adle/actions.ts", "utf8");
-assert(previewSource.includes("useState(true)") && previewSource.includes("Restart lesson") && previewSource.includes("Open component playground"), "development preview opens the guided lesson and keeps restart/playground controls");
-assert(!previewSource.includes('import { MorphologyGuidedLesson } from "@/components/adle/morphology/morphology-guided-lesson"') && previewSource.includes('import("@/components/adle/morphology/morphology-guided-lesson")'), "development preview preserves the Word Lab lazy boundary");
-assert(previewSource.includes("onPreviewComplete") && previewSource.includes("This preview stayed local") && previewSource.includes("Try the Word Lab again"), "development preview completes locally and offers a fresh run");
 assert(railSource.includes('fixedTilesPosition?: "before" | "after"') && railSource.indexOf("{placedTiles}{fixedTiles}") >= 0, "assembly rail supports a prefix slot before the fixed base");
 assert(!railSource.includes('`${id} placed in position') && railSource.includes('`${tileLabel} placed in position'), "assembly announcements use child-facing tile text instead of internal identifiers");
 assert(appShellSource.includes("inline-flex min-h-11 items-center rounded-full") && adlePageSource.includes('className="mt-3 inline-flex min-h-11 items-center'), "learner-shell navigation targets retain a 44px minimum height");

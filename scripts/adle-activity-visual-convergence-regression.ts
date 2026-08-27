@@ -16,7 +16,7 @@ const allowed = new Set<VisualConvergenceClassification>([
 
 assert.deepEqual(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.number), [1, 2, 3, 4, 5, 7], "completed convergence groups and Group 7 Teaching/Shell must remain ordered");
 assert.equal(new Set(ADLE_VISUAL_CONVERGENCE_GROUPS.map((group) => group.id)).size, 6, "visual group ids must be unique");
-assert.equal(visualConvergenceCandidateCount(), 32, "visual lab inventory replaces teaching duplicates with canonical TeachingPages and FirstImpressionLesson while retaining both ColdWordRecall evidence configurations");
+assert.equal(visualConvergenceCandidateCount(), 30, "visual lab excludes retired preview primitives while retaining canonical comparisons and both ColdWordRecall evidence configurations");
 
 const candidateIds = new Set<string>();
 for (const group of ADLE_VISUAL_CONVERGENCE_GROUPS) {

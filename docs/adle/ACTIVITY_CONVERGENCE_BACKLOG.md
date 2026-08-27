@@ -32,18 +32,6 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Release boundary: These are generic curriculum capability additions rather than Model C specialist releases. Every new interaction still requires a separate pedagogical contract, owner approval and an independently authorized generic-generation release.
 - Consolidation opportunity: Capability addition, not a deletion opportunity.
 
-### P2 — Retire preview-only/dead primitives after decisions
-
-- Current implementations: `MorphemeRail`, `MorphologyDiff`, `ActivityFrame family`
-- Target: catalogue-selected shared primitives or explicit deletion
-- Intended modes: `development_reference`
-- Routes affected: `/dev/adle/morphology-primitives`
-- Regression requirements: confirm no historical import; retain screenshots or replacement gallery fixture where valuable
-- Learner/runtime risk: `low`
-- Model C release change required: No
-- Release boundary: Development-reference cleanup has no release implication after reachability and historical-import checks pass.
-- Consolidation opportunity: Potential cleanup only; measure after architecture decisions because some primitives may seed genuine gap implementations.
-
 ### P2 — Retain historical route compatibility until replay retirement
 
 - Current implementations: `fixed_un_prefix_word_lab:v1`, `closed_compound_word_lab:v1 payload/runtime adapter`

@@ -1,5 +1,4 @@
 import { extractAuthoredTargetToken, type MorphologyWordSnapshot } from "./payload";
-import type { LearningItemFact } from "../learning-items";
 
 export const CLOSED_COMPOUND_MICRO_SKILL = "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS" as const;
 export const CLOSED_COMPOUND_CONTENT_VERSION = "d4_mor_closed_compounds_v1" as const;
@@ -21,14 +20,6 @@ export interface ClosedCompoundWord {
   approvedTransfer: boolean;
 }
 
-export interface ClosedCompoundProfile {
-  microSkillKey: typeof CLOSED_COMPOUND_MICRO_SKILL;
-  productionEnabled: boolean;
-  introduction: { title: string; childFriendlyExplanation: string; summary: string; examples: Array<{ firstWord: string; secondWord: string; word: string }> };
-  reflection: { promptKey: string; promptText: string };
-  wordsByCanonicalId: ReadonlyMap<string, ClosedCompoundWord>;
-}
-
 export interface ClosedCompoundLessonPayloadV1 {
   schemaVersion: 1;
   experience: "D4_MOR_CLOSED_COMPOUND";
@@ -36,7 +27,11 @@ export interface ClosedCompoundLessonPayloadV1 {
   microSkillId: typeof CLOSED_COMPOUND_MICRO_SKILL;
   experienceProfile: "closed_compound_word_lab_v1";
   words: { lesson: ClosedCompoundWord[] };
-  activities: { introduction: ClosedCompoundProfile["introduction"]; reflection: ClosedCompoundProfile["reflection"]; dictation: Array<{ canonicalWordId: string; targetWord: string; sentence: string; targetTokenIndex: number }> };
+  activities: {
+    introduction: { title: string; childFriendlyExplanation: string; summary: string; examples: Array<{ firstWord: string; secondWord: string; word: string }> };
+    reflection: { promptKey: string; promptText: string };
+    dictation: Array<{ canonicalWordId: string; targetWord: string; sentence: string; targetTokenIndex: number }>;
+  };
 }
 
 export function closedCompoundExpectedItemCount() { return 18; }
@@ -57,26 +52,6 @@ function reconstructable(word: ClosedCompoundWord) {
     word.trueMorphology.parts.length >= 2 && canonical === word.displayWord && word.trueMorphology.joins.length === word.trueMorphology.parts.length - 1 &&
     word.trueMorphology.provenance && Object.keys(word.trueMorphology.provenance).length > 0,
   );
-}
-
-function rotate<T>(values: readonly T[], seed: string): T[] {
-  if (values.length === 0) return [];
-  const offset = [...seed].reduce((hash, char) => ((hash * 31) + char.charCodeAt(0)) >>> 0, 0) % values.length;
-  return [...values.slice(offset), ...values.slice(0, offset)];
-}
-
-/** Targets take priority. The remaining reviewed pool rotates by child, then is frozen in the assignment snapshot. */
-export function compileClosedCompoundLesson(profile: ClosedCompoundProfile, learningItems: readonly LearningItemFact[]): ClosedCompoundLessonPayloadV1 | null {
-  if (!profile.productionEnabled || !profile.introduction.title || !profile.introduction.childFriendlyExplanation || !profile.introduction.summary || !profile.reflection.promptKey || !profile.reflection.promptText) return null;
-  const targets = learningItems.filter((item) => item.microSkillKey === CLOSED_COMPOUND_MICRO_SKILL && item.sourceKind === "verified_misspelling" && profile.wordsByCanonicalId.has(item.canonicalWordId));
-  const targetIds = targets.map((item) => item.canonicalWordId).filter((id, index, all) => all.indexOf(id) === index).slice(0, 4);
-  const childSeed = targets[0]?.childId ?? "closed-compound-pool";
-  const poolIds = rotate([...profile.wordsByCanonicalId.values()].filter((word) => word.approvedTransfer).sort((left, right) => left.displayWord.localeCompare(right.displayWord)).map((word) => word.canonicalWordId), childSeed);
-  const ids = [...targetIds, ...poolIds.filter((id) => !targetIds.includes(id))].slice(0, 4);
-  if (ids.length !== 4) return null;
-  const words = ids.map((id) => profile.wordsByCanonicalId.get(id)).filter((word): word is ClosedCompoundWord => Boolean(word));
-  if (words.length !== 4 || new Set(words.map((word) => word.dictationSentence.trim().toLocaleLowerCase("en-GB"))).size !== words.length || words.some((word) => !word.approvedTransfer || !reconstructable(word))) return null;
-  return { schemaVersion: 1, experience: "D4_MOR_CLOSED_COMPOUND", contentVersion: CLOSED_COMPOUND_CONTENT_VERSION, microSkillId: CLOSED_COMPOUND_MICRO_SKILL, experienceProfile: "closed_compound_word_lab_v1", words: { lesson: words }, activities: { introduction: profile.introduction, reflection: profile.reflection, dictation: words.map((word) => ({ canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, sentence: word.dictationSentence, targetTokenIndex: word.dictationTargetTokenIndex })) } };
 }
 
 export function validateClosedCompoundLessonPayload(value: unknown): value is ClosedCompoundLessonPayloadV1 {

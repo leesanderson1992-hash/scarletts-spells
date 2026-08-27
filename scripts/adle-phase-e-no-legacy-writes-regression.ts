@@ -53,11 +53,7 @@ const baselineRules: Record<string, InventoryRule> = {
   },
   retiredClosedCompoundCreation: {
     token: /createClosedCompoundAssignmentAction|buildClosedCompoundAssignmentPlan/,
-    allowedPaths: [
-      "app/learn/week/adle/closed-compounds/actions.ts",
-      "app/learn/week/adle/closed-compounds/page.tsx",
-      "lib/adle/morphology/closed-compound-assignment-plan.ts",
-    ],
+    allowedPaths: [],
   },
   dailySpellingPracticeWriter: {
     token: /generateDailySpellingPracticeAssignment|runDailySpellingPracticeMaterialization|createDailySpellingPracticeAssignment|updateDailySpellingPracticeSourceItems/,

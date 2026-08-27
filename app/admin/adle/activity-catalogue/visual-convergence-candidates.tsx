@@ -15,8 +15,6 @@ import { DefinitionWordBuilder } from "@/components/adle/activities/shared/defin
 import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
 import { SnapRail } from "@/components/adle/activities/shared/snap-rail";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
-import { MorphemeRail } from "@/components/adle/activities/morphology/shared/morphology-primitives";
-import { AssemblySlot } from "@/components/adle/interactions/selectable-item";
 import {
   Cleave as BaseCleave,
   FamilyReveal,
@@ -71,12 +69,6 @@ const MEANING_TARGETS = [
   { canonicalWordId: "preview-playground", word: "playground", definition: "a place for games and play", componentMeanings: ["have fun", "an area of land"], componentToWholeRelationship: "A ground where people play is a playground." },
 ];
 
-const MORPHEME_TILES = [
-  { id: "un", text: "un", kind: "prefix" as const, label: "prefix", gloss: "not", surfaceText: "un", transformationState: "none" as const },
-  { id: "kind", text: "kind", kind: "base" as const, label: "base", gloss: "caring", surfaceText: "kind", transformationState: "none" as const },
-  { id: "ness", text: "ness", kind: "suffix" as const, label: "suffix", gloss: "state of", surfaceText: "ness", transformationState: "none" as const },
-];
-
 function sessionItem(id: string, templateKey: string, targetWord: string | null, promptData: Record<string, unknown>): AdleSessionItem {
   return { id, sourceEntityId: `preview:${id}`, sectionKey: "visual_preview", templateKey, position: 0, status: "preview", targetWord, canonicalWordId: targetWord ? `preview-${targetWord}` : null, microSkillKey: null, adleLearningItemRef: null, promptData };
 }
@@ -97,11 +89,6 @@ function stateValue(state: VisualFixtureState, correct: string, incorrect: strin
   return state === "restored" || state === "active" ? incorrect.slice(0, Math.max(1, incorrect.length - 1)) : state === "incorrect" ? incorrect : state === "success" || state === "completed" ? correct : "";
 }
 
-function AssemblySlotPreview(props: { state: VisualFixtureState }) {
-  const [placed, setPlaced] = useState(props.state === "active" || props.state === "completed");
-  return <AssemblySlot label={placed ? "Remove un from position 1" : "Place selected tile in position 1"} active={!placed} onPlace={() => setPlaced((value) => !value)}>{placed ? "1. un · remove" : "Position 1"}</AssemblySlot>;
-}
-
 function BuildCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {
   const restored = props.state === "restored";
   if (props.candidateId === "snap-rail") return <SnapRail key={props.state} tiles={[{ id: "rain", text: "rain", role: "base" }, { id: "bow", text: "bow", role: "base" }]} expectedIds={["rain", "bow"]} joins={["space"]} checkMode="manual" label="Build rain bow" muted />;
@@ -110,8 +97,6 @@ function BuildCandidates(props: { candidateId: string; state: VisualFixtureState
     return <DefinitionWordBuilder key={props.state} targetId="preview-unkind" stepLabel="Prefix build" definition="not kind" tiles={[{ id: "un", text: "un-", role: "prefix", gloss: "not" }, { id: "dis", text: "dis-", role: "prefix", gloss: "opposite or apart" }, { id: "mis", text: "mis-", role: "prefix", gloss: "wrongly" }]} expectedIds={["un"]} fixedTiles={[{ id: "kind", text: "kind", role: "base" }]} fixedTilesPosition="after" label="Build the word that means not kind" wordSum="un + kind → unkind" resultingMeaning="not kind" continueLabel="Remember the lesson words" muted initialProgress={restored ? { placedIds: ["un"], completed: true } : undefined} onContinue={noop} />;
   }
   if (props.candidateId === "base-word-builder") return <DefinitionWordBuilder key={props.state} targetId="preview-replayed" stepLabel="Base Word build" definition="played again" tiles={[{ id: "re", text: "re", role: "prefix", gloss: "again" }, { id: "play", text: "play", role: "base" }, { id: "ed", text: "ed", role: "suffix" }, { id: "un", text: "un", role: "prefix", gloss: "not" }]} expectedIds={["re", "play", "ed"]} label="Build replayed from word parts" wordSum="re + play + ed → replayed" resultingMeaning="played again" continueLabel="Build the next word" muted initialProgress={restored ? { placedIds: ["re", "play", "ed"], completed: true } : undefined} onContinue={noop} />;
-  if (props.candidateId === "morpheme-rail") return <MorphemeRail key={props.state} tiles={MORPHEME_TILES} slots={3} mode="teaching" label="Build unkindness" />;
-  if (props.candidateId === "assembly-slot") return <AssemblySlotPreview key={props.state} state={props.state} />;
   return null;
 }
 

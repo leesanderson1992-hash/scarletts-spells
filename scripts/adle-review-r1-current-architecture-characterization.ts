@@ -29,7 +29,6 @@ const specialistPlans = [
   "lib/adle/morphology/dynamic-prefix-assignment-plan.ts",
   "lib/adle/morphology/dynamic-affix-assignment-plan.ts",
   "lib/adle/morphology/compound-word-assignment-plan-v2.ts",
-  "lib/adle/morphology/closed-compound-assignment-plan.ts",
 ];
 for (const path of specialistPlans) {
   const source = read(path);
