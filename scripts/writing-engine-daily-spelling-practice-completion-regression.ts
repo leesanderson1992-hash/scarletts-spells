@@ -163,15 +163,11 @@ function testViewerCompletionFormAndReadModelState() {
   assertIncludes(viewerSource, "Done for today", "viewer");
   assertIncludes(
     routeSource,
-    'practice.state === "ready" && supportedItems.length > 0',
+    'buildScopedPath("/learn/week/adle", selectedChild.id, "child")',
     "viewer route",
   );
-  assertIncludes(routeSource, "completeDailySpellingPracticeAction", "viewer route");
-  assertIncludes(
-    routeSource,
-    "completeAction={completeDailySpellingPracticeAction}",
-    "viewer route",
-  );
+  assertNotIncludes(routeSource, "completeDailySpellingPracticeAction", "viewer route");
+  assertNotIncludes(routeSource, "DailySpellingPracticeViewer", "viewer route");
   assertIncludes(
     readModelSource,
     'supportedItems.every((item) => item.status === "completed")',

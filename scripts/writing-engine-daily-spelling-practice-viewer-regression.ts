@@ -79,15 +79,9 @@ const forbiddenWritesAndTables = [
   "task_submissions",
 ];
 
-function testViewerRouteUsesReadModelOnly() {
+function testLegacyViewerRouteRedirectsToCurrentAdle() {
   const routeSource = readRepoFile("app/learn/week/practice/page.tsx");
 
-  assertIncludes(routeSource, "getDailySpellingPracticeReadModel", "viewer route");
-  assertIncludes(
-    routeSource,
-    "buildMissingDailySpellingPracticeReadModel",
-    "viewer route",
-  );
   assertIncludes(routeSource, 'mode !== "child"', "viewer route");
   assertIncludes(
     routeSource,
@@ -96,15 +90,11 @@ function testViewerRouteUsesReadModelOnly() {
   );
   assertIncludes(
     routeSource,
-    'buildScopedPath("/learn/week", selectedChild.id, "child")',
+    'buildScopedPath("/learn/week/adle", selectedChild.id, "child")',
     "viewer route",
   );
-  assertIncludes(routeSource, "DailySpellingPracticeViewer", "viewer route");
-  assertIncludes(
-    routeSource,
-    "item.isSupportedForChildSurface",
-    "viewer route",
-  );
+  assertNotIncludes(routeSource, "getDailySpellingPracticeReadModel", "viewer route");
+  assertNotIncludes(routeSource, "DailySpellingPracticeViewer", "viewer route");
 
   for (const forbidden of forbiddenImports) {
     assertNotIncludes(routeSource, forbidden, "viewer route");
@@ -197,7 +187,7 @@ function testLegacyPracticeAndAssignmentsStayRedirectOnly() {
 }
 
 function run() {
-  testViewerRouteUsesReadModelOnly();
+  testLegacyViewerRouteRedirectsToCurrentAdle();
   testViewerComponentIsLocalOnlyAndNeutral();
   testCardLinksOnlyWhenReadyAndSupported();
   testLegacyPracticeAndAssignmentsStayRedirectOnly();

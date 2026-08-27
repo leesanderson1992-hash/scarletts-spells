@@ -67,6 +67,10 @@ const baselineRules: Record<string, InventoryRule> = {
       "lib/adle/today-assignment-service.ts",
     ],
   },
+  dailySpellingPracticeWriter: {
+    token: /generateDailySpellingPracticeAssignment|runDailySpellingPracticeMaterialization|createDailySpellingPracticeAssignment|updateDailySpellingPracticeSourceItems/,
+    allowedPaths: [],
+  },
 };
 
 const inventory = Object.fromEntries(
@@ -85,9 +89,26 @@ const inventory = Object.fromEntries(
 const childRoute = sourceByPath.get("app/learn/week/adle/page.tsx") ?? "";
 assert.doesNotMatch(childRoute, /ensureAdleDailyPlan|persistComposedAdleDailyPlan/);
 
+const vercelConfiguration = readFileSync(resolve(root, "vercel.json"), "utf8");
+assert.doesNotMatch(vercelConfiguration, /daily-spelling-practice\/generate/);
+
+for (const protectedPath of [
+  "app/dashboard/todays-adle-actions.ts",
+  "app/learn/week/todays-adle-action.ts",
+  "lib/rewards/read-model.ts",
+  "lib/rewards/word-treasures.ts",
+]) {
+  assert.doesNotMatch(
+    sourceByPath.get(protectedPath) ?? "",
+    /daily-spelling-practice-(?:generation|materialization|planner)/,
+    `${protectedPath} must remain independent of the retired writer`,
+  );
+}
+
 process.stdout.write(`${JSON.stringify({
   contractVersion: "adle_phase_e_no_legacy_writes_baseline_v1",
   runtimeFileCount: files.length,
   inventory,
   childRouteReadOnly: true,
+  dailySpellingPracticeWriterRetired: true,
 }, null, 2)}\n`);

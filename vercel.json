@@ -1,10 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/internal/daily-spelling-practice/generate",
-      "schedule": "15 6 * * *"
-    },
-    {
       "path": "/api/internal/task-submissions/process",
       "schedule": "20 6 * * *"
     }
