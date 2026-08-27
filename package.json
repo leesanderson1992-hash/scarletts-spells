@@ -28,6 +28,8 @@
     "child-switcher:regression": "tsx scripts/child-switcher-regression.ts",
     "course-review-gating:regression": "tsx scripts/course-review-gating-regression.ts",
     "adle:review-work-regression": "tsx scripts/adle-review-work-regression.ts",
+    "adle:phase-e:no-legacy-writes": "tsx scripts/adle-phase-e-no-legacy-writes-regression.ts",
+    "adle:phase-e:production-audit": "tsx scripts/adle-phase-e-readonly-audit.ts",
     "adle:review-work-interaction-regression": "ADLE_PLAYWRIGHT_REUSE_EXISTING=true playwright test --config=playwright.adle.config.ts tests/adle/adle-review-work.spec.ts",
     "security:audit:production": "npm audit --omit=dev --audit-level=high",
     "security:audit:full": "npm audit --audit-level=high",
