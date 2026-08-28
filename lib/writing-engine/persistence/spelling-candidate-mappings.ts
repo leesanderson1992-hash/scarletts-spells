@@ -11,6 +11,7 @@ export {
   type SpellingCandidatePromotionScope,
 } from "./spelling-candidate-mapping-repository";
 export {
+  R8D_CONSUMED_SOURCE_REVERSION_MESSAGE,
   type ParentLocalSpellingCandidateMappingUpdateResult,
 } from "./spelling-candidate-mapping-promotion";
 

@@ -11,6 +11,15 @@ import {
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
+export const R8D_CONSUMED_SOURCE_REVERSION_MESSAGE =
+  "This spelling decision has already reached learning. Change it through the governed spelling-correction action so future learning is reconciled safely.";
+
+function isR8DConsumedSourceGuardError(message: string): boolean {
+  return message.includes(
+    "consumed spelling source requires the governed R8D reconciliation path",
+  );
+}
+
 export type ParentLocalSpellingCandidateMappingUpdateResult =
   | {
       status: "updated";
@@ -200,6 +209,9 @@ export function createSpellingCandidateMappingPromotionHelpers(input: {
         .maybeSingle();
 
       if (error) {
+        if (isR8DConsumedSourceGuardError(error.message)) {
+          throw new Error(R8D_CONSUMED_SOURCE_REVERSION_MESSAGE);
+        }
         throw new Error("Failed to revert the parent-local candidate mapping.");
       }
 

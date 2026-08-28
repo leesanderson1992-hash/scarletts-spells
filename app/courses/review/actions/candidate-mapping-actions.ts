@@ -18,6 +18,7 @@ import {
 import { ensureCanonicalRecommendationForCandidateMapping } from "@/lib/writing-engine/persistence/spelling-canonical-recommendation-service";
 import {
   createSupabaseSpellingCandidateMappingRepository,
+  R8D_CONSUMED_SOURCE_REVERSION_MESSAGE,
   type SpellingCandidateMappingRecord,
 } from "@/lib/writing-engine/persistence/spelling-candidate-mappings";
 import {
@@ -1658,7 +1659,10 @@ export async function revertParentLocalCandidateMappingImpl(
       buildRedirectWithMessage(
         safeRedirectPath,
         "error",
-        "We couldn't revert that promoted mapping just yet.",
+        error instanceof Error &&
+          error.message === R8D_CONSUMED_SOURCE_REVERSION_MESSAGE
+          ? R8D_CONSUMED_SOURCE_REVERSION_MESSAGE
+          : "We couldn't revert that promoted mapping just yet.",
       ),
     );
   }
