@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 import { summarizeReturnedCorrectionDeferredRouteReplayPlans } from "../lib/writing-engine/persistence/returned-correction-deferred-route-replay";
+import { continueResolvedHistoricalOccurrence } from "../lib/adle/canonical-intake/governed-source-continuation";
 import {
   applyReturnedCorrectionDeferredRouteReplayPlan,
   loadReturnedCorrectionDeferredRouteReplay,
@@ -112,6 +113,22 @@ function assertRequired(value: string | undefined, label: string) {
   return value.trim();
 }
 
+function hasAppliedGovernedAdminReplay(issue: {
+  metadata?: Record<string, unknown> | null;
+  source_misspelling_instance_id?: string | null;
+}) {
+  const replay = issue.metadata?.returned_correction_stage_f_replay;
+  return Boolean(
+    issue.source_misspelling_instance_id &&
+      replay &&
+      typeof replay === "object" &&
+      !Array.isArray(replay) &&
+      (replay as Record<string, unknown>).action === "attached_verified_route" &&
+      (replay as Record<string, unknown>).route_source === "admin_decision" &&
+      (replay as Record<string, unknown>).dry_run_first === true,
+  );
+}
+
 function validateScope(args: Args) {
   const hasAnyScope = Boolean(
     args.childId ||
@@ -164,6 +181,12 @@ async function main() {
   const summary = summarizeReturnedCorrectionDeferredRouteReplayPlans(loaded.plans);
   let mutationsApplied = 0;
   const repairedIssueIds: string[] = [];
+  const canonicalIntakeContinuations: Array<{
+    writingIssueId: string;
+    occurrenceId: string;
+    governedSourceId: string;
+    canonicalIntakeCandidateId: string;
+  }> = [];
   const skipped = loaded.plans.map((plan) => ({
     issueId: plan.issueId,
     bucket: plan.bucket,
@@ -173,6 +196,25 @@ async function main() {
   if (args.apply) {
     for (const plan of loaded.plans) {
       const issue = loaded.issues.find((candidate) => candidate.id === plan.issueId);
+      // A lost response after the governed replay receipt was written must not
+      // strand the source/candidate merely because the next planner pass sees
+      // an already-linked or durable-route issue. This retry path still uses
+      // the exact occurrence and the database independently revalidates the
+      // immutable admin decision.
+      if (issue && hasAppliedGovernedAdminReplay(issue)) {
+        const continuation = await continueResolvedHistoricalOccurrence({
+          serviceClient: supabase,
+          occurrenceId: issue.source_misspelling_instance_id as string,
+          parentUserId: issue.parent_user_id,
+          childId: issue.child_id,
+        });
+        canonicalIntakeContinuations.push({
+          writingIssueId: issue.id,
+          occurrenceId: issue.source_misspelling_instance_id as string,
+          governedSourceId: continuation.candidateMappingId,
+          canonicalIntakeCandidateId: continuation.canonicalIntakeCandidateId,
+        });
+      }
       if (!issue || !plan.safeToApply) {
         continue;
       }
@@ -190,6 +232,29 @@ async function main() {
       mutationsApplied += result.mutationCount;
       if (result.repaired) {
         repairedIssueIds.push(plan.issueId);
+        if (
+          plan.routeSupport.source === "admin_decision" &&
+          !hasAppliedGovernedAdminReplay(issue)
+        ) {
+          if (!issue.source_misspelling_instance_id) {
+            throw new Error(
+              `Governed Stage-F continuation requires an exact occurrence for ${issue.id}.`,
+            );
+          }
+          const continuation = await continueResolvedHistoricalOccurrence({
+            serviceClient: supabase,
+            occurrenceId: issue.source_misspelling_instance_id,
+            parentUserId: issue.parent_user_id,
+            childId: issue.child_id,
+          });
+          canonicalIntakeContinuations.push({
+            writingIssueId: issue.id,
+            occurrenceId: issue.source_misspelling_instance_id,
+            governedSourceId: continuation.candidateMappingId,
+            canonicalIntakeCandidateId:
+              continuation.canonicalIntakeCandidateId,
+          });
+        }
       }
     }
   }
@@ -201,6 +266,7 @@ async function main() {
         mutationsApplied,
         summary,
         repairedIssueIds,
+        canonicalIntakeContinuations,
         skippedIssueIds: skipped.filter((row) => !repairedIssueIds.includes(row.issueId)),
         proposedMutations: loaded.plans.flatMap((plan) => plan.proposedMutations),
         rows: loaded.plans,

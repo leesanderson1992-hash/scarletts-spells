@@ -61,6 +61,28 @@ Blockers may be replaced without replacing the demand. New source links, not
 retries, increment occurrences. Notification workflow (`unread`, `open`,
 `resolved`) is separate from readiness truth.
 
+## Candidate availability is not ADLE readiness
+
+The lifecycle has three separate questions:
+
+1. Does an exact governed occurrence/source exist?
+2. Does that exact source own a durable canonical-intake candidate?
+3. Does the candidate pass every current mapping, word, microskill, route,
+   profile, content, child-band, and route-specific readiness gate?
+
+Migration
+`20260828160000_complete_governed_blocked_word_auto_resume.sql` completes the
+missing boundary between the first two questions. A controlled Stage-F admin
+replay may materialise one exact occurrence source, and one exact eligible
+governed source may be authorised for the existing candidate seeder. Both
+operations derive word, learner, occurrence, and microskill identity from the
+database. They accept no caller-supplied substitute token or route.
+
+Candidate seeding only queues the ordinary evaluator. It cannot create an ADLE
+target or treat a released profile as teaching readiness. Historical R8E repair
+remains a separate, explicitly governed operation for old occurrences that have
+not yet crossed the source/candidate boundary.
+
 ## Processing and reconciliation
 
 The approval hook first seeds a durable queued candidate/job, then evaluates
@@ -78,6 +100,27 @@ this job. Both event and safety-sweep paths reuse the same evaluator.
 Successful activation resolves the link and notification while preserving the
 demand and history. The reconciler has no assignment-table write; only the
 normal daily composer can later select an activated item.
+
+Generic transfer-selector profile release and signed-off generic teaching-
+content release now enqueue existing candidates by exact microskill. They do
+not discover writing issues or manufacture candidates. The Teaching Dictionary
+and Dynamic Prefix release hooks remain unchanged. Dynamic Suffix profile and
+member publication now enqueue only the affected microskill or exact canonical
+word × microskill candidates. Base Word activation-head changes and immutable
+curriculum dependency publication enqueue only existing candidates for that
+dependency microskill. The five-minute sweep remains the fallback for missed
+release events. No release hook creates a governed source, intake candidate,
+ADLE item, lineage row, or Review state.
+
+The generic route requires an active approved transfer-selector profile (or
+the exact approved word support admitted by the evaluator), an active signed-
+off content version, and non-empty child-facing and rule explanations. Dynamic
+Prefix and Dynamic Affix require a production-enabled approved profile plus an
+approved assignment-eligible exact member and compilable route payload. Base
+Word requires an enabled activation revision, immutable curriculum release,
+and exact dictionary-closure member. Compound Word requires the immutable
+release dependency set, approved structure, and exact closure member. These
+route-specific requirements remain independent of candidate creation.
 
 Migration
 `20260804234500_add_adle_canonical_intake_supabase_scheduler.sql` owns the
