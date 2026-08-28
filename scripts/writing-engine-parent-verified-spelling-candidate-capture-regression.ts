@@ -330,7 +330,10 @@ function createHarnessState(overrides: HarnessState = {}): Required<HarnessState
 
 function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessState>) {
   const workspaceRoot = process.cwd();
-  const actionSourcePath = path.join(workspaceRoot, "app/courses/review/actions.ts");
+  const actionSourcePath = path.join(
+    workspaceRoot,
+    "app/courses/review/actions/candidate-mapping-actions.ts",
+  );
 
   const result: HarnessResult = {
     redirects: [],
@@ -590,6 +593,12 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
         };
       },
     },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendation-service": {
+      async ensureCanonicalRecommendationForCandidateMapping() {
+        result.recommendationInserts += 1;
+        return { status: "created" };
+      },
+    },
     "@/lib/writing-engine/review/stage7d-parent-verification": {
       buildStage7dReviewWorkVerificationTarget(input: {
         taskSubmissionId: string | null;
@@ -639,6 +648,11 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
     "@/lib/writing-engine/spelling/legacy-analysis": {
       stringifyAnalysisExtraMetadata() {
         return "{}";
+      },
+    },
+    "@/lib/writing-engine/spelling/parent-added-misspelling-analysis": {
+      analyseParentAddedMisspellingPair() {
+        return null;
       },
     },
     "@/lib/writing-practice/positive-evidence": {
@@ -692,11 +706,13 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
   };
 
   const loadedModule = loadTsModule<{
-    captureSubmissionSpellingCandidateMapping: (formData: FormData) => Promise<void>;
+    captureSubmissionSpellingCandidateMappingImpl: (
+      formData: FormData,
+    ) => Promise<void>;
   }>(actionSourcePath, { stubModules });
 
   return {
-    action: loadedModule.captureSubmissionSpellingCandidateMapping,
+    action: loadedModule.captureSubmissionSpellingCandidateMappingImpl,
     result,
   };
 }
@@ -811,7 +827,10 @@ class FakeAddMissedWordQueryBuilder {
 
 function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
   const workspaceRoot = process.cwd();
-  const actionSourcePath = path.join(workspaceRoot, "app/courses/review/actions.ts");
+  const actionSourcePath = path.join(
+    workspaceRoot,
+    "app/courses/review/actions/lesson-submission-review-actions.ts",
+  );
 
   const result: AddMissedWordHarnessResult = {
     redirects: [],
@@ -1004,6 +1023,11 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
         };
       },
     },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendation-service": {
+      async ensureCanonicalRecommendationForCandidateMapping() {
+        return { status: "created" };
+      },
+    },
     "@/lib/writing-engine/review/stage7d-parent-verification": {
       buildStage7dReviewWorkVerificationTarget() {
         return null;
@@ -1027,6 +1051,21 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
     "@/lib/writing-engine/spelling/legacy-analysis": {
       stringifyAnalysisExtraMetadata(input: Record<string, unknown>) {
         return JSON.stringify(input);
+      },
+    },
+    "@/lib/writing-engine/spelling/parent-added-misspelling-analysis": {
+      analyseParentAddedMisspellingPair(input: {
+        observedSpelling: string;
+        correctSpelling: string;
+      }) {
+        return {
+          observedSpelling: input.observedSpelling.trim().toLowerCase(),
+          correctSpelling: input.correctSpelling.trim().toLowerCase(),
+          detectedErrorPattern: "tricky_whole_word_error",
+          primaryCategory: "Pattern/rule",
+          secondaryCategory: null,
+          selectedWordFamilyId: null,
+        };
       },
     },
     "@/lib/writing-practice/positive-evidence": {
@@ -1068,11 +1107,11 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
   };
 
   const loadedModule = loadTsModule<{
-    addMissedWordToSubmissionReview: (formData: FormData) => Promise<void>;
+    addMissedWordToSubmissionReviewImpl: (formData: FormData) => Promise<void>;
   }>(actionSourcePath, { stubModules });
 
   return {
-    action: loadedModule.addMissedWordToSubmissionReview,
+    action: loadedModule.addMissedWordToSubmissionReviewImpl,
     result,
   };
 }

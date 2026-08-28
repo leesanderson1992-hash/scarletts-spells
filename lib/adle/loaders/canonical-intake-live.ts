@@ -523,7 +523,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
   let candidateQuery = client
     .from("parent_verified_spelling_candidate_mappings")
     .select(
-      "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at,source_adle_review_session_id",
+      "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at,source_adle_review_session_id,canonical_intake_handoff_state",
     )
     .eq("parent_user_id", params.parentUserId)
     .eq("child_id", params.childId)
@@ -542,25 +542,31 @@ async function intakeApprovedParentVerifiedCorrections(params: {
   }
   const { data: candidateRows, error: candidateError } = await candidateQuery;
   if (candidateError) throwQuery("canonical intake candidates", candidateError);
-  if ((candidateRows ?? []).length === 0) return result;
+  const handoffEligibleCandidateRows = (candidateRows ?? []).filter(
+    (row: any) =>
+      row.canonical_intake_handoff_state !== "awaiting_r8c_exact_id_handoff",
+  );
+  if (handoffEligibleCandidateRows.length === 0) return result;
 
   const corrections = [
     ...new Set(
-      (candidateRows ?? []).map(
+      handoffEligibleCandidateRows.map(
         (row: any) => row.correct_spelling_normalized as string,
       ),
     ),
   ];
   const misspellings = [
     ...new Set(
-      (candidateRows ?? []).map(
+      handoffEligibleCandidateRows.map(
         (row: any) => row.misspelling_normalized as string,
       ),
     ),
   ];
   const skillKeys = [
     ...new Set(
-      (candidateRows ?? []).map((row: any) => row.micro_skill_key as string),
+      handoffEligibleCandidateRows.map((row: any) =>
+        row.micro_skill_key as string,
+      ),
     ),
   ];
   const [
@@ -595,7 +601,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
     (skills ?? []).map((skill: any) => [skill.micro_skill_key as string, skill]),
   );
   if (!params.dryRun && params.seedCandidates !== false) {
-    for (const rawCandidate of candidateRows ?? []) {
+    for (const rawCandidate of handoffEligibleCandidateRows) {
       const candidate = rawCandidate as any;
       await seedApprovedCandidate(
         client,
@@ -657,7 +663,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
     }),
   );
 
-  for (const row of candidateRows ?? []) {
+  for (const row of handoffEligibleCandidateRows) {
     const candidate = row as any;
     const candidateSkill = skillByKey.get(candidate.micro_skill_key);
     const baseWordCandidate = isBaseWordIntakeSkill(

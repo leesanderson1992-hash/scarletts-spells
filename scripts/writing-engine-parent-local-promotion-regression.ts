@@ -125,7 +125,10 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
   };
 
   const workspaceRoot = process.cwd();
-  const actionSourcePath = path.join(workspaceRoot, "app/courses/review/actions.ts");
+  const actionSourcePath = path.join(
+    workspaceRoot,
+    "app/courses/review/actions/candidate-mapping-actions.ts",
+  );
   const canonicalBackfillSourcePath = path.join(
     workspaceRoot,
     "app/courses/review/actions/canonical-spelling-backfill-actions.ts",
@@ -480,6 +483,33 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
         };
       },
     },
+    "@/lib/writing-engine/persistence/spelling-canonical-recommendation-service": {
+      async ensureCanonicalRecommendationForCandidateMapping(input: {
+        candidateMapping: CandidateMappingRow;
+        actionSource: string;
+      }) {
+        if (state.failRecommendationInsert) {
+          return {
+            status: "failed",
+            error: new Error("simulated recommendation insert failure"),
+          };
+        }
+        const existing = state.recommendations.find(
+          (row) => row.candidate_mapping_id === input.candidateMapping.id,
+        );
+        if (existing) return { status: "existing", recommendation: existing };
+        const recommendation = {
+          id: `recommendation-${state.recommendations.length + 1}`,
+          parent_user_id: input.candidateMapping.parent_user_id,
+          child_id: input.candidateMapping.child_id,
+          candidate_mapping_id: input.candidateMapping.id,
+          recommendation_status: "pending_admin_review" as const,
+          metadata: { action_source: input.actionSource },
+        };
+        state.recommendations.push(recommendation);
+        return { status: "created", recommendation };
+      },
+    },
     "@/lib/writing-engine/persistence/unified-spelling-review-items": {
       async loadUnifiedSpellingReviewItemsForSubmission() {
         return [];
@@ -521,6 +551,11 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
         return "{}";
       },
     },
+    "@/lib/writing-engine/spelling/parent-added-misspelling-analysis": {
+      analyseParentAddedMisspellingPair() {
+        return null;
+      },
+    },
     "@/lib/writing-practice/positive-evidence": {
       async confirmPositiveEvidenceSuggestions() {},
     },
@@ -560,8 +595,8 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
   };
 
   const actionModule = loadTsModule<{
-    promoteParentLocalCandidateMapping: (formData: FormData) => Promise<void>;
-    revertParentLocalCandidateMapping: (formData: FormData) => Promise<void>;
+    promoteParentLocalCandidateMappingImpl: (formData: FormData) => Promise<void>;
+    revertParentLocalCandidateMappingImpl: (formData: FormData) => Promise<void>;
   }>(actionSourcePath, { stubModules });
   const canonicalModule = loadTsModule<{
     resolveScopedMicroSkillForSubmissionSuggestion: (input: {
@@ -575,8 +610,8 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
 
   return {
     state,
-    promoteAction: actionModule.promoteParentLocalCandidateMapping,
-    revertAction: actionModule.revertParentLocalCandidateMapping,
+    promoteAction: actionModule.promoteParentLocalCandidateMappingImpl,
+    revertAction: actionModule.revertParentLocalCandidateMappingImpl,
     resolveScoped: canonicalModule.resolveScopedMicroSkillForSubmissionSuggestion,
   };
 }
