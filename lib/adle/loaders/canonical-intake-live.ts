@@ -40,6 +40,10 @@ import {
   type CompoundWordPublishedStructureFact,
   type CompoundWordReleaseFact,
 } from "../canonical-intake/compound-word-release-readiness";
+import {
+  normalizeExactCandidateMappingIds,
+  parseAuthorizedCandidateMappingIds,
+} from "../canonical-intake/exact-id-handoff";
 
 type AdleClient = SupabaseClient;
 
@@ -477,6 +481,56 @@ export async function intakeApprovedSubmissionCorrections(params: {
   return intakeApprovedParentVerifiedCorrections(params);
 }
 
+/** R8C parent-approval hook. The database first validates that this is exactly
+ * the governed source set returned by approval, atomically accepts any R8B
+ * quarantined rows, and returns the same IDs. Evaluation then remains
+ * per-word/failure-isolated and cannot widen back to the submission. */
+export async function intakeApprovedExactSubmissionCorrections(params: {
+  serviceClient: AdleClient;
+  parentUserId: string;
+  childId: string;
+  submissionId: string;
+  candidateMappingIds: readonly string[];
+  dryRun?: boolean;
+}): Promise<CanonicalIntakeLiveResult> {
+  if (!isCanonicalIntakeEnabled()) {
+    return {
+      enabled: false,
+      eligible: 0,
+      inserted: 0,
+      strengthened: 0,
+      pendingMapping: 0,
+      pendingContent: 0,
+      demandsCreated: 0,
+      blocked: [],
+    };
+  }
+
+  const expectedCandidateMappingIds = normalizeExactCandidateMappingIds(
+    params.candidateMappingIds,
+  );
+  const { data, error } = await params.serviceClient.rpc(
+    "adle_authorize_parent_approval_exact_id_handoff",
+    {
+      p_submission_id: params.submissionId,
+      p_parent_user_id: params.parentUserId,
+      p_child_id: params.childId,
+      p_candidate_mapping_ids: expectedCandidateMappingIds,
+    },
+  );
+  if (error) throwQuery("R8C exact-ID handoff authorization", error);
+  const authorizedCandidateMappingIds = parseAuthorizedCandidateMappingIds(
+    data,
+    expectedCandidateMappingIds,
+  );
+
+  return intakeApprovedParentVerifiedCorrections({
+    ...params,
+    candidateMappingIds: authorizedCandidateMappingIds,
+    requireExactCandidateMappingIds: true,
+  });
+}
+
 export async function intakeApprovedAdleReviewCorrection(params: {
   serviceClient: AdleClient;
   parentUserId: string;
@@ -498,6 +552,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
   dryRun?: boolean;
   candidateMappingIds?: readonly string[];
   seedCandidates?: boolean;
+  requireExactCandidateMappingIds?: boolean;
 }): Promise<CanonicalIntakeLiveResult> {
   const result: CanonicalIntakeLiveResult = {
     enabled: false,
@@ -513,6 +568,12 @@ async function intakeApprovedParentVerifiedCorrections(params: {
     return result;
   result.enabled = true;
   const client = params.serviceClient;
+  const exactCandidateMappingIds = params.candidateMappingIds
+    ? normalizeExactCandidateMappingIds(params.candidateMappingIds)
+    : null;
+  if (params.requireExactCandidateMappingIds && exactCandidateMappingIds === null) {
+    throw new Error("Canonical intake exact-ID mode requires candidate IDs");
+  }
   if (
     Number(Boolean(params.submissionId)) +
       Number(Boolean(params.adleReviewSessionId)) !==
@@ -531,21 +592,49 @@ async function intakeApprovedParentVerifiedCorrections(params: {
       "parent_local_promoted",
       "global_canonical_promoted",
     ]);
-  candidateQuery = params.submissionId
-    ? candidateQuery.eq("task_submission_id", params.submissionId)
-    : candidateQuery.eq(
-        "source_adle_review_session_id",
-        params.adleReviewSessionId as string,
-      );
-  if (params.candidateMappingIds?.length) {
-    candidateQuery = candidateQuery.in("id", [...params.candidateMappingIds]);
+  // R8B approval governs a task-thread source set. Newly materialised known
+  // matches remain anchored to the original issue submission, while an
+  // existing candidate-capture source can be anchored to the returned
+  // correction submission. In exact-ID mode the trusted authorization RPC has
+  // already validated that complete thread relationship, so narrowing again
+  // by one submission ID would incorrectly discard valid approved IDs.
+  if (!params.requireExactCandidateMappingIds) {
+    candidateQuery = params.submissionId
+      ? candidateQuery.eq("task_submission_id", params.submissionId)
+      : candidateQuery.eq(
+          "source_adle_review_session_id",
+          params.adleReviewSessionId as string,
+        );
+  }
+  if (exactCandidateMappingIds) {
+    candidateQuery = candidateQuery.in("id", exactCandidateMappingIds);
   }
   const { data: candidateRows, error: candidateError } = await candidateQuery;
   if (candidateError) throwQuery("canonical intake candidates", candidateError);
+  if (exactCandidateMappingIds) {
+    const returnedIds = [...new Set(
+      (candidateRows ?? []).map((row: any) => row.id as string),
+    )].sort();
+    if (
+      returnedIds.length !== exactCandidateMappingIds.length ||
+      returnedIds.some(
+        (candidateMappingId, index) =>
+          candidateMappingId !== exactCandidateMappingIds[index],
+      )
+    ) {
+      throw new Error("Canonical intake did not load the exact governed candidate ID set");
+    }
+  }
   const handoffEligibleCandidateRows = (candidateRows ?? []).filter(
     (row: any) =>
       row.canonical_intake_handoff_state !== "awaiting_r8c_exact_id_handoff",
   );
+  if (
+    params.requireExactCandidateMappingIds &&
+    handoffEligibleCandidateRows.length !== (candidateRows ?? []).length
+  ) {
+    throw new Error("R8C exact-ID authorization left a governed source quarantined");
+  }
   if (handoffEligibleCandidateRows.length === 0) return result;
 
   const corrections = [

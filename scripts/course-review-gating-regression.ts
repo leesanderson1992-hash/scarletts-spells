@@ -36,7 +36,8 @@ const approvalSource = readFileSync(
 );
 assert.match(approvalSource, /approve_task_submission_with_reason_drafts/);
 assert.match(approvalSource, /maybeAwardTaskSubmissionApprovalCoins/);
-assert.match(approvalSource, /intakeApprovedSubmissionCorrections/);
+assert.match(approvalSource, /parseApprovalGovernedOccurrenceSources/);
+assert.match(approvalSource, /intakeApprovedExactSubmissionCorrections/);
 assert.match(approvalSource, /emitAdleAuthenticUseFromApprovedSubmission/);
 assert.match(approvalSource, /createOrUpdateGoldenNuggetFromParentApproval/);
 assert.match(approvalSource, /recordAdleAuthenticUsesForRewards/);

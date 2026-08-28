@@ -8,12 +8,23 @@ const action = readFileSync(
   "app/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
-const importIndex = action.indexOf("intakeApprovedSubmissionCorrections");
+const importIndex = action.indexOf("intakeApprovedExactSubmissionCorrections");
 const approvalIndex = action.indexOf("export async function approveSubmissionReviewImpl");
-const intakeIndex = action.indexOf("await intakeApprovedSubmissionCorrections", approvalIndex);
+const exactSourceIndex = action.indexOf(
+  "parseApprovalGovernedOccurrenceSources(approvalResult)",
+  approvalIndex,
+);
+const intakeIndex = action.indexOf(
+  "await intakeApprovedExactSubmissionCorrections",
+  approvalIndex,
+);
 const rewardIndex = action.indexOf("recordAdleAuthenticUsesForRewards", approvalIndex);
 
 assert(importIndex >= 0, "parent review imports the guarded canonical-intake hook");
+assert(
+  exactSourceIndex > approvalIndex && exactSourceIndex < intakeIndex,
+  "parent review passes the exact approval-governed occurrence source set",
+);
 assert(intakeIndex > approvalIndex, "canonical intake runs only during parent approval");
 assert(
   action.lastIndexOf("try {", intakeIndex) >= 0 &&
