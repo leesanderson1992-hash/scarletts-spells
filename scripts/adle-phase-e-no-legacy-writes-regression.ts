@@ -59,6 +59,10 @@ const baselineRules: Record<string, InventoryRule> = {
     token: /generateDailySpellingPracticeAssignment|runDailySpellingPracticeMaterialization|createDailySpellingPracticeAssignment|updateDailySpellingPracticeSourceItems/,
     allowedPaths: [],
   },
+  genericSnapshotV2CompilerRuntimeImport: {
+    token: /(?:from|import\()\s*["'][^"']*generic-snapshot-compiler["']/,
+    allowedPaths: [],
+  },
 };
 
 const inventory = Object.fromEntries(
@@ -116,11 +120,51 @@ for (const protectedPath of [
   );
 }
 
+const historicalReaderContracts = {
+  genericReader: sourceByPath.get("lib/adle/composable-lesson/generic-snapshot-reader.ts") ?? "",
+  dailyPlanSurface: sourceByPath.get("lib/adle/loaders/daily-plan-surface.ts") ?? "",
+  routeResolution: sourceByPath.get("lib/adle/composable-lesson/route-resolution.ts") ?? "",
+  compatibility: sourceByPath.get("lib/adle/generic-activity-compatibility.ts") ?? "",
+  rendererRegistry: sourceByPath.get("components/adle/activities/canonical-renderer-registry.tsx") ?? "",
+  baseWordLoader: sourceByPath.get("lib/adle/loaders/base-word-family-pilot-loader.ts") ?? "",
+  morphologyResume: sourceByPath.get("lib/adle/morphology/resume.ts") ?? "",
+};
+assert.match(historicalReaderContracts.genericReader, /source: "snapshot_absent"/);
+assert.match(historicalReaderContracts.genericReader, /source: "snapshot_v2"/);
+assert.match(historicalReaderContracts.dailyPlanSurface, /resolveGenericLessonSnapshot/);
+assert.match(historicalReaderContracts.routeResolution, /resolveLegacy/);
+assert.match(historicalReaderContracts.compatibility, /key === "REVIEW_QUICK_SORT"/);
+assert.match(historicalReaderContracts.compatibility, /key === "CONTROLLED_SPELLING"/);
+assert.match(historicalReaderContracts.compatibility, /MUST_USE_FREEWRITING/);
+assert.match(historicalReaderContracts.rendererRegistry, /CompatibilityNoop/);
+assert.match(historicalReaderContracts.baseWordLoader, /complete_adle_base_word_family_pilot_v2/);
+assert.match(historicalReaderContracts.morphologyResume, /Keep the legacy v1 key stable/);
+
+const r8Authorities = [
+  "lib/adle/canonical-intake/exact-id-handoff.ts",
+  "lib/adle/canonical-intake/downstream-reconciliation.ts",
+  "lib/adle/canonical-intake/governed-source-continuation.ts",
+] as const;
+for (const authorityPath of r8Authorities) {
+  assert.ok(sourceByPath.has(authorityPath), `${authorityPath} must remain a current R8 authority`);
+}
+const stageFReplay = readFileSync(
+  resolve(root, "scripts/returned-correction-stage-f-deferred-route-replay.ts"),
+  "utf8",
+);
+assert.match(stageFReplay, /continueResolvedHistoricalOccurrence/);
+assert.match(
+  sourceByPath.get("lib/adle/canonical-intake/governed-source-continuation.ts") ?? "",
+  /materialize_resolved_stage_f_spelling_occurrence_source/,
+);
+
 process.stdout.write(`${JSON.stringify({
-  contractVersion: "adle_phase_e_no_legacy_writes_v3_only_v2",
+  contractVersion: "adle_phase_e_no_legacy_writes_v3_only_r8_preserved_v3",
   runtimeFileCount: files.length,
   inventory,
   childRouteReadOnly: true,
   dailySpellingPracticeWriterRetired: true,
   everyForwardLessonWriterSnapshotsV3: true,
+  historicalReadersPreserved: true,
+  r8AuthoritiesPreserved: true,
 }, null, 2)}\n`);

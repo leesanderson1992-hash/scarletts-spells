@@ -426,7 +426,7 @@ function testReviewWorkSourceWiringAndGuardrailText() {
   assert.match(reviewDetailPageSource, /action=\{returnSubmissionToChild\}/);
   assert.match(
     reviewDetailPageSource,
-    /No suggestions found\. Please check the work and mark it complete when you are/,
+    /No suggestions found\. Please check the work and mark it complete when\s+you are/,
   );
 
   assert.match(

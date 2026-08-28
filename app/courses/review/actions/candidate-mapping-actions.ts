@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWorkCandidateCaptureMicroSkillCatalogEntry } from "@/lib/writing-engine/persistence/learning-items";
 import {
@@ -148,7 +149,12 @@ function parseObjectMetadata(value: unknown): Record<string, unknown> {
     : {};
 }
 
-async function repairFinalisedReturnedCorrectionAfterRouteCapture(input: {
+function getTrimmedOrNull(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+export async function repairFinalisedReturnedCorrectionAfterRouteCapture(input: {
   supabase: Awaited<ReturnType<typeof createClient>>;
   issue: ReturnedCorrectionRepairIssue;
   parentUserId: string;
@@ -315,45 +321,128 @@ async function repairFinalisedReturnedCorrectionAfterRouteCapture(input: {
     nowIso: new Date().toISOString(),
   });
 
+  let learningItemId: string;
+
   if (
     plan.bucket === "already_repaired" &&
     input.issue.micro_skill_key === input.selectedMicroSkillKey &&
     plan.existingLearningItemIds.length === 1
   ) {
-    return plan.existingLearningItemIds[0];
+    learningItemId = plan.existingLearningItemIds[0];
+  } else {
+    if (!plan.safeToApply) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          `The route was saved, but the previous outcome needs manual review: ${plan.reasons.join(" ")}`,
+        ),
+      );
+    }
+
+    const result = await applyReturnedCorrectionRepairPlan({
+      supabase: input.supabase,
+      issue: input.issue,
+      attempts,
+      plan,
+      catalogEntries,
+      nowIso: new Date().toISOString(),
+    });
+
+    if (!result.repaired || !result.learningItemId) {
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          result.reason ??
+            "The route was saved, but the previous outcome could not be linked to learning yet.",
+        ),
+      );
+    }
+
+    learningItemId = result.learningItemId;
   }
 
-  if (!plan.safeToApply) {
+  const correctedWord =
+    getTrimmedOrNull(input.issue.approved_replacement) ??
+    getTrimmedOrNull(input.issue.suggested_replacement);
+
+  if (!correctedWord) {
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
         "error",
-        `The route was saved, but the previous outcome needs manual review: ${plan.reasons.join(" ")}`,
+        "The outcome was repaired, but Word Treasure could not be linked because the corrected word was missing.",
       ),
     );
   }
 
-  const result = await applyReturnedCorrectionRepairPlan({
-    supabase: input.supabase,
-    issue: input.issue,
-    attempts,
-    plan,
-    catalogEntries,
-    nowIso: new Date().toISOString(),
-  });
+  const { data: existingRewardEvent, error: existingRewardEventError } =
+    await input.supabase
+      .from("child_word_treasure_events")
+      .select("id")
+      .eq("parent_user_id", input.parentUserId)
+      .eq("child_id", input.issue.child_id)
+      .eq("source_type", "writing_issue")
+      .eq("source_entity_id", input.issue.id)
+      .in("event_type", ["golden_nugget_created", "golden_nugget_updated"])
+      .limit(1)
+      .maybeSingle<{ id: string }>();
 
-  if (!result.repaired || !result.learningItemId) {
+  if (existingRewardEventError) {
+    console.error(
+      "Returned correction Word Treasure reconciliation lookup failed.",
+      existingRewardEventError,
+    );
     redirect(
       buildRedirectWithMessage(
         input.safeRedirectPath,
         "error",
-        result.reason ??
-          "The route was saved, but the previous outcome could not be linked to learning yet.",
+        "The outcome was repaired, but the Golden Nugget could not be checked yet. Please retry before closing this item.",
       ),
     );
   }
 
-  return result.learningItemId;
+  if (!existingRewardEvent) {
+    try {
+      const result = await createOrUpdateGoldenNuggetFromParentApproval({
+        childId: input.issue.child_id,
+        parentUserId: input.parentUserId,
+        correctedWord,
+        originalMisspelling: input.issue.observed_text,
+        sourceIssueId: input.issue.id,
+        sourceLearningItemId: learningItemId,
+        sourceSubmissionId: input.issue.task_submission_id,
+        sourceMisspellingInstanceId:
+          input.issue.source_misspelling_instance_id,
+        microSkillKey: input.selectedMicroSkillKey,
+        correctionAttemptedAt: attempts[0]?.created_at ?? null,
+        metadata: {
+          final_classification: input.issue.final_classification,
+          learning_item_id: learningItemId,
+          finalisation_source: "returned_correction_route_repair",
+        },
+      });
+
+      if (!result.treasure) {
+        throw new Error("Canonical Word Treasure writer returned no treasure.");
+      }
+    } catch (error) {
+      console.error(
+        "Returned correction Word Treasure reconciliation failed.",
+        error,
+      );
+      redirect(
+        buildRedirectWithMessage(
+          input.safeRedirectPath,
+          "error",
+          "The outcome was repaired, but the Golden Nugget could not be linked yet. Please retry before closing this item.",
+        ),
+      );
+    }
+  }
+
+  return learningItemId;
 }
 
 
