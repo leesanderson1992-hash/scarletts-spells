@@ -67,7 +67,8 @@ assert(actions.includes("promptKey: reflection.promptKey") && actions.includes("
 assert(actions.includes("promptKey: lesson.reflection.promptKey") && actions.includes("promptText: lesson.reflection.promptText"), "Compound completion persists the shared resolved learner-visible prompt");
 assert(resolvedCompound.includes('lessonReflectionPrompt({ kind: "compound" })') && !actions.includes("payload.activities.reflection.promptText"), "unused route-payload prompt cannot become Compound completion authority");
 assert(actions.includes("promptKey: resolvedBaseWordLesson.reflection.promptKey") && actions.includes("promptText: resolvedBaseWordLesson.reflection.promptText"), "Base Word stored prompt key/text remain assignment-resolved and historically compatible");
-assert(actions.includes("persistWordLabCompletion") && actions.includes("persistReleaseBoundWordLabCompletion") && actions.includes("persistBaseWordFamilyPilotCompletion"), "all atomic completion boundaries remain in place");
+assert(!actions.includes("persistWordLabCompletion"), "retired Word Lab v1 completion cannot remain a route action");
+assert(actions.includes("persistReleaseBoundWordLabCompletion") && actions.includes("persistBaseWordFamilyPilotCompletion"), "current release-bound and Base Word atomic completion boundaries remain in place");
 
 assert(errorRepair.includes("Hide word") || errorRepair.includes("Hide Word"), "ERROR_REPAIR remains a separate reveal-hide-retry component");
 assert(!errorRepair.includes("LessonReflection"), "ERROR_REPAIR must not converge into LessonReflection");

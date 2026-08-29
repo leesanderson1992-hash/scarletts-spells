@@ -50,21 +50,18 @@ assert(
   "fresh and forward migrations grant only validator execution needed by authenticated assignment updates",
 );
 assert(
-  stagingHarness.includes('const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz"') &&
-    stagingHarness.includes(
-      'const PRODUCTION_PROJECT_REF = "wwohrqtunajrbwxyssjf"',
-    ),
-  "the staging migration harness names the verified staging and rejected production projects",
+  !stagingHarness.includes('from "pg"') &&
+    !stagingHarness.includes("STAGING_PROJECT_REF") &&
+    !stagingHarness.includes("PRODUCTION_PROJECT_REF"),
+  "the retired staging harness retains no database client or project target",
 );
 assert(
-  stagingHarness.indexOf("requiredDatabaseUrl()") <
-    stagingHarness.indexOf("await client.connect()"),
-  "project identity validation runs before the staging migration opens a database connection",
+  stagingHarness.includes("throw new Error(RETIRED_OPERATIONAL_ENTRYPOINT)"),
+  "the retired staging harness has no database execution path",
 );
 assert(
-  stagingHarness.includes('"--dry-run"') &&
-    stagingHarness.includes("Unexpected migration selected"),
-  "the staging harness proves that only the reviewed migration is selected",
+  stagingHarness.includes("requires removed legacy persistence RPCs"),
+  "the staging harness explains why it can no longer masquerade as a current release path",
 );
 
 console.log("ADLE route metadata migration regression passed.");

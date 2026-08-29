@@ -87,7 +87,10 @@ assert.match(proof, /queued verified learner evidence was downgraded/);
 assert.match(proof, /old closure followed mutable source/);
 assert.match(proof, /old assignment provenance changed/);
 assert.match(proof, /safety revocation did not block incomplete assignment/);
-assert.match(runner, /signature\.split\(","\)\.length !== 15/);
-assert.match(runner, /serviceExecute !== true/);
+assert(
+  runner.indexOf("throw new Error(RETIRED_OPERATIONAL_ENTRYPOINT)") > runner.indexOf("RETIRED_OPERATIONAL_ENTRYPOINT"),
+  "the mixed legacy assignment-persistence proof has no database execution path",
+);
+assert.match(runner, /specialist snapshot-v3.*Base Word completion regressions/);
 
 console.log("adle-base-word-canonical-intake-persistence-contract-regression: ok");

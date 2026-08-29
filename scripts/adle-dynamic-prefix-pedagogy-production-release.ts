@@ -27,6 +27,8 @@ export const PRODUCTION_IMPORTER_VERSION = "dynamic_prefix_pedagogy_production_r
 export const PRODUCTION_SOURCE_FOLDER = "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-03-dynamic-prefix-pedagogy-v1";
 export const PROFILE_MUTATION_FIELDS = ["meaning_bins", "prefix_choices", "intro_content"] as const;
 export const READ_ONLY_BEGIN_SQL = "begin transaction isolation level repeatable read read only";
+export const RETIRED_OPERATIONAL_ENTRYPOINT =
+  "Phase E7B retired this legacy composed-plan release entrypoint; current lesson generation uses immutable specialist snapshot v3.";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const ACCEPTED_MANIFEST_PATH = resolve(
@@ -1076,6 +1078,7 @@ async function deactivateCommand(loaded: Awaited<ReturnType<typeof loadAcceptedM
 }
 
 async function main() {
+  fail(RETIRED_OPERATIONAL_ENTRYPOINT);
   const command = (process.argv[2] ?? "validate") as ReleaseCommand;
   if (!["validate", "plan", "release", "reactivate", "verify", "deactivate"].includes(command)) fail(`Unknown production release command: ${command}.`);
   assertProductionEnvelope({

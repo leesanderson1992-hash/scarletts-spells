@@ -22,6 +22,7 @@ import {
   READ_ONLY_RELEASE_FLAG_VALUE,
   REACTIVATE_CONFIRMATION,
   RELEASE_CONFIRMATION,
+  RETIRED_OPERATIONAL_ENTRYPOINT,
   STAGING_SUPABASE_REF,
   assertExpectedProfileColumns,
   assertProductionDatabaseTarget,
@@ -46,6 +47,7 @@ function expectFailure(operation: () => unknown, pattern: RegExp) {
 }
 
 async function main() {
+assert.match(RETIRED_OPERATIONAL_ENTRYPOINT, /Phase E7B retired.*specialist snapshot v3/);
 const productionUrl = `postgresql://postgres.${PRODUCTION_SUPABASE_REF}@aws-0-eu-west-2.pooler.supabase.com:6543/postgres`;
 const stagingUrl = `postgresql://postgres.${STAGING_SUPABASE_REF}@aws-0-eu-west-2.pooler.supabase.com:6543/postgres`;
 assert.equal(assertProductionDatabaseTarget(productionUrl), PRODUCTION_SUPABASE_REF);
@@ -214,6 +216,7 @@ assert.equal(transactionQueries.at(-1), "rollback");
 assert(transactionQueries.every((query) => !/^\s*(insert|update|delete|alter|create|drop|truncate|grant|revoke)\b/i.test(query)), "read-only transaction issued no mutation statement");
 
 const source = await readFile("scripts/adle-dynamic-prefix-pedagogy-production-release.ts", "utf8");
+assert(source.indexOf("fail(RETIRED_OPERATIONAL_ENTRYPOINT)") < source.indexOf("const command ="), "retired operational entrypoint fails before selecting any command or opening Production state");
 assert(source.includes("begin transaction isolation level repeatable read read only"), "plan is database-enforced read-only");
 assert(source.includes("set meaning_bins=$1,prefix_choices=$2,intro_content=$3"), "release update names only the three allowed profile fields");
 assert(source.includes("Current production profiles do not equal the retained rollback projection"), "reactivation requires exact retained rollback equality");
