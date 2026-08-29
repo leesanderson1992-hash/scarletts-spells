@@ -4,14 +4,14 @@
 
 # ADLE Activity Implementation Audit Matrix
 
-Authoritative base SHA: `d59506c9f3175a73b3f4614a1077470f3ab0e4a2`
+Authoritative base SHA: `f3a4b37d9df460553feb9bf748f543dff2da66ae`
 
 Scope: named child-facing activity components, shared learner-interaction primitives, embedded specialist activity functions, development components representing intended learner interactions, and the dispatch/shell components that own them. Pure data compilers, server actions, persistence helpers, sound/motion utilities, and non-ADLE course UI are excluded.
 
 ## Starting state
 
-- Audit worktree: Fresh isolated worktree scarletts-spells-p1-registry-planning on codex/adle-p1-registry-wiring-plan at fetched origin/main d59506c9f3175a73b3f4614a1077470f3ab0e4a2.
-- Protected occupied checkout: The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.
+- Audit worktree: Phase E6 documentation convergence on codex/phase-e-legacy-convergence at the released E5 Production authority f3a4b37d9df460553feb9bf748f543dff2da66ae.
+- Protected occupied checkout: Production data, schema, historical migrations, learner state, and separately governed E4/E7 work remain untouched.
 
 Existing runtime/architecture registries:
 
@@ -20,7 +20,7 @@ Existing runtime/architecture registries:
 - lib/adle/activity-template-registry.ts — historical 34-key normalization vocabulary retained for metadata-free replay
 - lib/adle/composable-lesson/generic-snapshot-v3-registry.ts — current canonical snapshot-v3 contract authority
 - lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts
-- lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations
+- lib/adle/curriculum-readiness/route-registry.ts — five current generic/specialist route declarations
 - components/adle/word-lab/activity-registry.tsx — five dark Common Word Lab fixture plugin registrations
 
 Architecture documents inspected:
@@ -121,7 +121,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.
+- Next workstream: `PHASE_E6_DOCUMENTATION_CONVERGENCE_CURRENT` — E5 is released: snapshot v3 is the only new-lesson authority, zero-row generic-v2 and old route contracts are retired, and metadata-free historical normalization remains. E6 aligns current documentation; any E7 database cleanup is separately governed.
 
 ### Group 3 closeout detail
 

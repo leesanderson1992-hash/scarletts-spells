@@ -147,7 +147,8 @@ assert(
 assert(
     migrationTracker.includes("internal V2 compiler migration") &&
     migrationTracker.includes("exact-production `un-` source release") &&
-    migrationTracker.includes("do not depend on its production rollout") &&
+    migrationTracker.includes("did not depend on its production rollout") &&
+    migrationTracker.includes("superseded by the released snapshot-v3 architecture") &&
     migrationTracker.includes("ten Dynamic Affix profiles"),
 );
 assert(

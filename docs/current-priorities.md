@@ -1,57 +1,31 @@
 # Current Priorities — Scarlett’s Spells
 
-## Current ADLE 7-UI Priority
+## Current ADLE priority
 
-Current ADLE priority: `PR 7-UI-H current-child rollout observation and remaining-category planning`.
+Current ADLE priority: `Phase E6 documentation convergence`.
 
-PRs 7-UI-A through 7-UI-F established the programme documentation, activity
-registry, approved D4_MOR source package and reusable morphology primitives.
-PR 7-UI-G implements the `D4_MOR_PREFIXES_UN` Word Lab vertical pilot and has
-completed automated, authenticated real-route and disposable-database
-engineering QA. The owner preview was accepted on 2026-07-14.
+Production application authority is
+`f3a4b37d9df460553feb9bf748f543dff2da66ae`. E0-E3 and E5 are closed and
+released. E4 proof-learner cleanup is optional, deferred, and not authorised;
+it is not a blocker. E6 aligns current documentation and generated references.
+Any E7 database cleanup is separately governed and unapproved.
 
-The Word Lab remains an explicitly generated, child-allowlisted pilot. It is
-not broad D4_MOR runtime truth and must stay disabled outside the allowlist
-until UI-H explicitly changes that rollout decision. The Mac Safari and Chrome
-desktop/responsive accessibility matrix, lazy-loading boundary and bundle
-budget are recorded. Finish persistence measured 11.3 seconds before batching
-and approximately 7.4 seconds after batching; the immediate completion screen
-is the accepted MVP mitigation, not a performance pass. UI-H now has a
-working-tree implementation of privacy-safe stage timing, a pilot-only atomic
-completion RPC and the decision-complete Word Lab v1 snapshot/resume contract.
-Authenticated staging measured 23.9ms feedback and 4.743s completed-route time
-on the true batched baseline, then 27.0ms and 2.874s through the 238.4ms atomic
-transaction. The route is 39.4% faster and durable server return is 52.9%
-faster. The database contract remained `1 / 16 / 14 / 1 / 4 / 4 / 4` before
-and after completed reload, with the 6/4/4 attempt split and raw dictation
-sentences retained. This is a material guarded-pilot performance pass, but the
-40% stretch gate missed by 0.6 percentage points and is recorded as such.
-The service-role-only RPC is now installed on production. Following owner
-approval and acceptance of the prior production-child proof, the Word Lab and
-atomic-completion switches were enabled in Production only for a private,
-duplicate-free snapshot of the 13 children current on 2026-07-17 (snapshot
-digest `a7a1d5a4632f`). Future children are not automatically included, and
-Word Lab still requires an explicitly generated valid v1 assignment snapshot.
-The rollout configuration read only child identifiers; no learner assignment,
-attempt, reflection, evidence, reward or schedule data was read or written.
-True touch-event execution, controlled production-preview
-Web Vitals, browser 200% zoom, operating-system reduced-motion execution,
-native Windows/Android/iOS and screen-reader checks are optional UI-H rollout
-evidence.
-The application was redeployed from the approved production release with the
-new configuration on 2026-07-17. `/login` returned `200` and an unauthenticated
-unknown-child ADLE route returned the expected `307` to `/login`. The rollout
-does not bulk-activate D4_MOR or alter generic lessons.
+Every new generic or specialist lesson uses immutable snapshot v3 through the
+five current routes. Today's ADLE Session, R8 canonical intake, Review v3,
+per-word schedules, Parent Review Work, Word Treasure, and course Review Work
+remain protected authorities. `legacy_bundle` remains active forward schedule
+creation/read authority despite its name.
 
-Authoritative links:
+Historical compatibility remains for 24 snapshot-null lessons, two
+metadata-free generic assignments, `REVIEW_QUICK_SORT`, controlled spelling,
+base-word-v2 completion, and immutable learner history. The old daily-practice
+application surface is retired; its 157 empty historical headers remain.
 
-- [ADLE 7-UI Programme Roadmap](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-roadmap.md:1)
-- [ADLE 7-UI-H Durable Completion Contract](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-h-word-lab-durable-completion-contract.md:1)
-- [ADLE 7-UI-H Completion Performance Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-h-completion-performance-proof.md:1)
-- [ADLE 7-UI Control Matrix Guide](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-7-ui-control-matrix.md:1)
-- [ADLE 7-UI-G Observation Ledger](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-7-ui-g-observation-ledger.md:1)
-- [ADLE 7S Reflection Recall-Gate Proof](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/qa/adle-slice-7s-reflection-recall-gate-proof-2026-07-10.md:1)
-- [D4_MOR Morphology UX Design Pack](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/product/areas/d4-mor-ux-design-pack.md:1)
+Authoritative current references:
+
+- [Phase E current architecture and status](implementation/adle-phase-e-legacy-convergence-audit.md)
+- [ADLE activity platform architecture](architecture/adle-activity-platform-architecture.md)
+- [ADLE current state and release registry](implementation/adle-current-state-and-release-registry.md)
 
 ## Current Private MVP Scope
 
@@ -303,20 +277,11 @@ excluded.
   [docs/implementation/version-3-roadmap.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/version-3-roadmap.md:113)
   and
   [docs/implementation/adle-slice-7s-reflection-recall-gate.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/implementation/adle-slice-7s-reflection-recall-gate.md:1).
-- The scheduled daily spelling practice materializer is implemented as the
-  production bridge from active `learning_items` to today's bounded
-  `daily_assignments`: Vercel cron calls
-  `/api/internal/daily-spelling-practice/generate`, the route requires
-  `Authorization: Bearer ${CRON_SECRET}`, computes the practice date in
-  `Europe/London`, uses server-only service-role access, and calls the existing
-  Slice `6` generator. It caps queued learning items into calm daily practice
-  instead of exposing backlog size, and it adds no learning-truth, evidence,
-  reward, mastery, canonical, resolver, Review Work, or course-completion
-  behavior. Local smoke on port `3005` verified 401 without the cron secret,
-  200 with the local cron secret, one generated assignment for the seeded active
-  learning-item child, and an idempotent rerun that appended zero duplicate
-  items; authenticated browser smoke verified the logged-in child neutral state,
-  Daily Practice menu link, `/learn/week/practice`, and legacy child redirects.
+- The scheduled daily spelling-practice materializer, cron route, learner UI,
+  read model, and completion action are retired application surfaces. Today's
+  ADLE Session is the current daily spelling authority. The 157 historical
+  empty headers remain stored and ignored; reward/check-in authorities used by
+  current journeys remain intact.
 - Version 2.0 Slice `4` bulk candidate mapping import/review is implemented
   and production-smoked through the import-to-resolver-visible canonical truth
   path

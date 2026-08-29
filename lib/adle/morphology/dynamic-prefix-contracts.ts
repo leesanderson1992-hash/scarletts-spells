@@ -26,7 +26,7 @@ export const DEFAULT_PREFIX_CLEAVER_FEEDBACK_POLICY: PrefixCleaverFeedbackPolicy
   ],
   revealCorrectBoundaryAfterMisses: false,
 };
-/** First released dynamic profile; legacy fixed v1 remains independently supported. */
+/** First released dynamic v2 profile; the retired fixed-v1 route is not a fallback. */
 export const DYNAMIC_PREFIX_INITIAL_PROFILE_KEY = "D4_MOR_PREFIXES_UN";
 
 export interface DynamicPrefixWord {

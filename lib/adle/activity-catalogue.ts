@@ -489,8 +489,8 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     intendedModes: ["existing canonical activity contracts", "behaviour-identical specialist routing", "explicit historical normalization"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
     regressionRequirements: ["catalogue-to-registration totality", "payload validation", "lazy renderer loading", "route replay", "resume/completion/evidence parity", "fail-closed unknown contracts"],
     learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
-    releaseBoundary: "Phases A–C, the Phase D reader/foundation, D1 contracts and guarded compiler slice leave real-assignment v3 selection physically unwired and default OFF. Production continues generating v2. Actual assignment enablement remains owner-gated. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change.",
-    consolidationOpportunity: "Phases A–C removed competing runtime renderer selection. The additive v3 reader and deterministic compiler now accept complete canonical contracts through a guarded non-Production JSON persistence port; a later owner-approved infrastructure gate can make the existing assignment JSON constraint/RPC v3-capable before any real writer selection.",
+    releaseBoundary: "Snapshot v3 is active for every new generic and specialist lesson. E5 retired the zero-row generic-v2 and old specialist route contracts. New activity concepts, curriculum meaning, dependency fingerprints, or route activation still require their own governed release decision; no retired fallback may be restored.",
+    consolidationOpportunity: "CanonicalActivityHost and the versioned renderer registry are the current shared renderer authority. Retained route adapters own curriculum, resume, evidence, and completion, while metadata-free normalization remains historical-read-only compatibility.",
   },
   {
     priority: "P1", title: "Implement genuine missing activity surfaces",
@@ -505,17 +505,17 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
-  authoritativeBaseSha: "d59506c9f3175a73b3f4614a1077470f3ab0e4a2",
+  authoritativeBaseSha: "f3a4b37d9df460553feb9bf748f543dff2da66ae",
   startingState: {
-    auditWorktree: "Fresh isolated worktree scarletts-spells-p1-registry-planning on codex/adle-p1-registry-wiring-plan at fetched origin/main d59506c9f3175a73b3f4614a1077470f3ab0e4a2.",
-    protectedOccupiedCheckout: "The dirty primary checkout and occupied earlier convergence worktrees were inspected read-only and left unmodified.",
+    auditWorktree: "Phase E6 documentation convergence on codex/phase-e-legacy-convergence at the released E5 Production authority f3a4b37d9df460553feb9bf748f543dff2da66ae.",
+    protectedOccupiedCheckout: "Production data, schema, historical migrations, learner state, and separately governed E4/E7 work remain untouched.",
     runtimeRegistries: [
       "components/adle/activities/canonical-renderer-registry.tsx — versioned canonical concept/mode contracts for specialist and generic/historical runtime rendering",
       "lib/adle/generic-activity-compatibility.ts — deterministic in-memory normalization of supported generic/historical inputs",
       "lib/adle/activity-template-registry.ts — historical 34-key normalization vocabulary retained for metadata-free replay",
       "lib/adle/composable-lesson/generic-snapshot-v3-registry.ts — current canonical snapshot-v3 contract authority",
       "lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts",
-      "lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations",
+      "lib/adle/curriculum-readiness/route-registry.ts — five current generic/specialist route declarations",
       "components/adle/word-lab/activity-registry.tsx — five dark Common Word Lab fixture plugin registrations",
     ],
     architectureDocuments: [
@@ -528,7 +528,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     ],
   },
   authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets metadata-free historical keys into CanonicalActivitySpec contracts but cannot select React components. Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Snapshot v3 is the only forward generic snapshot authority.",
-  buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
+  buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Compound Word Lab v2 is the only current compound route; the zero-row closed-compound-v1 payload and renderer contracts were retired in E5.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
   meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less historical payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a metadata-free historical compatibility key.",
   reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
@@ -572,12 +572,12 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     nextStep: "Closed. Retain TeachingPages and FirstImpressionLesson as the canonical boundaries; do not restore route-local teaching-page navigation or duplicate Meet the Words screens.",
   },
   nextConvergenceGroup: {
-    status: "P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF",
-    summary: "The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.",
+    status: "PHASE_E6_DOCUMENTATION_CONVERGENCE_CURRENT",
+    summary: "E5 is released: snapshot v3 is the only new-lesson authority, zero-row generic-v2 and old route contracts are retired, and metadata-free historical normalization remains. E6 aligns current documentation; any E7 database cleanup is separately governed.",
   },
   genericSnapshotV3Boundary: {
     schemaVersion: 3,
-    storage: "Existing compiledLessonSnapshot JSON application boundary. The guarded non-Production proof uses an injected JSON persistence port; the live daily_assignments RPC/check constraint remains v2-only and was not changed.",
+    storage: "daily_assignments.compiled_lesson_snapshot stores immutable snapshot v3 through the current service-only persistence RPCs. Snapshot-null and metadata-free formats remain readable only for protected historical assignments.",
     readerContractsProposedForGeneration: [
       "INTRODUCTION.teaching_page@1",
       "COVER_CHECK.whole_word@1",
@@ -590,7 +590,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "MEANING_MATCH.component_clues@1",
       "LESSON_REFLECTION.standard_lesson_reflection@1",
     ],
-    writerStatus: "DETERMINISTIC_COMPILER_AND_GUARDED_NON_PRODUCTION_PORT_COMPLETE; REAL_ASSIGNMENT_SELECTION_DEFAULT_OFF_AND_UNWIRED",
+    writerStatus: "ACTIVE_V3_ONLY_FOR_ALL_NEW_GENERIC_AND_SPECIALIST_LESSONS",
     immutableCompatibility: "Metadata-free generic replay, REVIEW_QUICK_SORT normalization, and canonical historical adapters remain unchanged.",
   },
   newActivityRule: [

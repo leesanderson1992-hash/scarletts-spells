@@ -1,43 +1,46 @@
-# ADLE Review R5 legacy scheduler compatibility
+# ADLE Review R5 scheduling and bundle compatibility
 
-Status: implemented but inactive. R5 does not generate Review assignments,
-execute the starter cutover, or activate Review v3 routing.
+Updated: 2026-08-29
 
-## Forward authority after the R6 cutover
+## Current authority
 
-For an explicitly approved child scope, R6 may call the R5 starter audit and
-cutover contract. Eligible never-reviewed pending words copy their existing
-bundle interval, due date, policy, and provenance into the R1 per-word fields.
-No outcome is created and no due date or taught fact changes.
+R5 per-word scheduling and R6/Review v3 are released current authorities.
+Review v3 reads and transitions exact frozen rows in
+`adle_review_schedule_words`; it owns immutable Review snapshots, encounters,
+original outcomes, repair attempts, Memory Cues, completion receipts, and
+outcome events.
 
-After that administrative cutover, Review v3 reads and transitions only the
-per-word authority on `adle_review_schedule_words`. There is no permanent
-bundle/per-word synchronization and no dual-write trigger.
+Per-word rows own due date, catch-up stage, pause state, and pre-retirement
+checks. A Review completion never overwrites its original outcome and never
+advances unrelated words merely because they once shared a bundle.
 
-## Compatibility-only paths retained for Phase E
+## Current bundle boundary
 
-The following remain operational for pre-cutover data and existing readers:
+`legacy_bundle` is a current supported forward scheduling authority despite
+its historical name. Current snapshot-v3 lesson completion can create Review
+bundles, bundle-linked per-word schedules, and `source_bundle_id` provenance.
+The post-E5 Production baseline contains 29 active bundle schedule rows and 21
+active bundles.
 
-- `adle_review_bundles.interval_index`, `next_due_on`, and bundle status;
-- `lib/adle/review-scheduler.ts`, including bundle review resolution;
-- `lib/adle/review-due-queue.ts`, for legacy bundle-backed queues;
-- legacy composer/session-completion loaders and persistence paths that call
-  the bundle scheduler;
-- bundle IDs and source references retained on per-word rows and final outcome
-  events as history/provenance.
+The following therefore remain operational current paths:
 
-R5 finalization never updates a source bundle. It transitions only the exact
-frozen schedule-word rows in the Review snapshot. Consequently a split bundle
-can contribute some words to a capped Review without advancing the remaining
-words.
+- bundle creation from supported lesson completion;
+- `lib/adle/review-scheduler.ts` bundle scheduling;
+- `lib/adle/review-due-queue.ts` bundle-backed queue support;
+- bundle IDs and source references on per-word rows and outcome events;
+- readers needed by current and historical bundle-backed schedules.
 
-Phase E may remove the compatibility paths only after R6 activation, the
-explicit test-data reset, and verification that no uncut legacy learner scope
-still depends on them.
+These paths are not historical-only and are not E5/E6 deletion candidates.
+Their names must not be used as evidence that they are obsolete.
 
-## R6 activation boundary
+## Historical compatibility
 
-R6 owns approval of child UUID scope, ambiguity resolution, quiescing legacy
-scheduler writes, executing the matching audited cutover, per-word assignment
-generation, Review-first/Review-only routing, assignment-item/header
-completion, and Celebration/navigation convergence.
+The R5 cutover copied eligible pre-R6 bundle interval, due date, policy, and
+provenance into per-word fields without creating outcomes or changing taught
+facts. Historical Review artifacts remain immutable and readable. There is no
+permanent bundle/per-word synchronization trigger: Review v3 transitions its
+frozen per-word rows, while bundle provenance remains available to readers.
+
+Any proposal to retire bundle database objects or application paths requires a
+new Production dependency and invocation audit. Because bundle creation is
+currently forward-active, no such retirement is presently justified.

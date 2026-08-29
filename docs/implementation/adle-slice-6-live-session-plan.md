@@ -1,5 +1,11 @@
 # ADLE Slice 6: Live Session Surface and Completion Wiring — Plan
 
+Current correction (2026-08-29): this is a historical implementation plan.
+Its `ensureAdleDailyPlan`, generic fallback, and early Review/bundle statements
+do not describe current forward architecture. Snapshot v3, Today's ADLE
+Session, Review v3/R5-R6, and active bundle scheduling are governed by the
+Phase E current-architecture record.
+
 ## Status
 
 - Status: `COMPLETE 2026-07-06 (local/dev). All Slice 6 paths verified

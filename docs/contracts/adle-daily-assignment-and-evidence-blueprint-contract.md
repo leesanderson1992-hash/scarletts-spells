@@ -26,6 +26,18 @@ Status: `Version 3.0 planning contract (draft for owner review)`
 No runtime implementation, migration, Supabase mutation, import, or production
 deployment is authorized by this file.
 
+### Current implementation correction (2026-08-29)
+
+This file preserves the policy design record; current runtime authority is the
+released Phase E architecture. R5 owns per-word schedules and R6/Review v3 owns
+immutable Review snapshots and outcomes. `legacy_bundle` remains active
+forward schedule creation/read authority and is not historical-only. Today's
+ADLE Session uses immutable lesson snapshot v3. First-impression success may
+activate a word and add controlled evidence, but is not independent production;
+breadth proficiency still requires the governed support, approval, and banding
+gates. These current facts supersede any draft wording below that implies a
+future bundle-only implementation or automatic proficiency credit.
+
 This contract supersedes:
 - the mastery stage ladder (Stages 0-8), source-weight table, and
   weighted-accuracy mastery formula in

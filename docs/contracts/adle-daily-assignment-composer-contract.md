@@ -252,51 +252,40 @@ must not create an unusable active item. Intake reconciliation never selects a
 date, builds a payload, writes an assignment, or overwrites a daily plan. Once
 activated, the item enters the unchanged composer and persistence path.
 
-### Generic snapshot V2 addendum (2026-07-31)
+### Current immutable snapshot-v3 addendum (2026-08-29)
 
 For a new `generic_composer:v1` insert, persistence additionally requires:
 
-- compile `CompiledLessonSnapshotV2` only after composition and persistence
+- compile snapshot v3 only after composition and persistence
   planning have fixed the header and ordered items;
 - persist one nullable immutable snapshot at
   `daily_assignments.compiled_lesson_snapshot`, with no historical backfill;
 - bind every snapshot activity to the exact deterministic
   `assignment_items.source_entity_id` and contiguous position;
-- keep `assignment_items.prompt_data` authoritative for runtime inputs;
+- store canonical concept, mode, contract version, authored payload, bindings,
+  semantic roles, evidence/schedule roles, and provenance in the snapshot;
 - fingerprint only consumed composer, schedule, banding, family, activity and
   Teaching Dictionary content versions using canonical JSON and SHA-256;
-- write header, route metadata, snapshot, variable-count items and stretch
-  intakes atomically through `persist_adle_generic_daily_plan_v2`;
-- validate every present snapshot in `off`, `observe` and `enforce` modes;
+- write header, route metadata, snapshot, variable-count items and governed
+  intakes atomically through the current service-only v3 persistence boundary;
+- validate every present snapshot before rendering;
 - block the complete assignment before review or lesson writes when a present
   snapshot is invalid, unsupported or diverges from its bound rows;
-- use compatibility only when the snapshot is absent, including explicit
-  pre-snapshot generic and metadata-free historical assignments.
+- use snapshot-null and metadata-free compatibility only for protected
+  historical assignments; no new writer may select it.
 
 `MUST_USE_FREEWRITING` and `REVIEW_MUST_USE_WRITING` remain registered and
-legacy-readable but are not safe for new V2 compilation until a sentence-level
+legacy-readable but are not safe for new v3 compilation until a sentence-level
 evidence contract exists.
 
-### Deferred snapshot-column read compatibility (2026-08-05)
+### Historical snapshot compatibility
 
-The daily-plan reader treats the Generic Snapshot column as an explicit
-database capability. A server-only, process-cached, read-only probe checks only
-`daily_assignments.compiled_lesson_snapshot`. Exact PostgreSQL `42703` or
-PostgREST `PGRST204` signatures naming that column and relation establish
-`deferred_absent`; every other schema, permission, query or transport error is
-fatal.
-
-When available, the reader selects the complete header projection and
-distinguishes a null, valid or invalid snapshot. When deferred, it selects the
-baseline route/source projection and marks the snapshot value unavailable
-rather than collapsing it to null. Explicit non-generic routes—including
-Dynamic Prefix V2, Dynamic Affix V3, Closed Compound and Base Word—continue
-through their existing persisted metadata and payload adapters. Metadata-free
-and explicit pre-snapshot generic assignments retain their authorised
-compatibility reader while Snapshot mode is off. A generic assignment that
-requires Snapshot under an active mode fails closed with
-`snapshot_column_unavailable`. The compatibility reader never writes,
-synthesises or migrates a snapshot.
+The snapshot column is present and v3 is the only current new-lesson writer
+contract. A null snapshot identifies protected historical work; it never
+authorises snapshot-null creation. Metadata-free and pre-snapshot assignments
+retain their registered normalizers, while a present invalid snapshot fails
+closed. Compatibility readers never write, synthesize, backfill, or migrate a
+snapshot.
 
 ## Acceptance criteria
 

@@ -1,5 +1,10 @@
 # ADLE Canonical Intake Contract
 
+Current implementation status (2026-08-29): R8B/R8C/R8D, Stage-F governed
+source continuation, and bounded automatic reconsideration are released
+authorities. Canonical intake feeds learning items and Today's ADLE Session;
+it does not create assignments or rewards directly.
+
 ## Purpose
 
 Canonical intake converts a parent-approved spelling correction into durable
@@ -159,8 +164,9 @@ Mutation functions are service-role only. Demand rows contain no child name,
 email, raw answer, dictation, or secret. Exact flag value
 `ADLE_CANONICAL_INTAKE_ENABLED=enabled` is required for live processing.
 
-Staging evidence is required first. Production migration, enablement, targeted
-replay, and backlog processing remain separately authorised operations.
+The staging-first statements below record the 2026-08-05 release sequence.
+They are historical chronology; current R8 authorities are released and
+governed as stated at the top of this contract.
 
 The 2026-08-05 targeted production publication proved the intake contract for
 one approved submission: twelve Prefix candidates activated, exact target
@@ -168,5 +174,6 @@ one approved submission: twelve Prefix candidates activated, exact target
 reconciliation-created assignments appeared. The normal composer then created
 one Prefix V2 assignment. Its learner route exposed a separately deferred
 Generic Snapshot column mismatch, so future intake was disabled and all valid
-state was preserved. This contract does not authorize that wrapper or schema
-remedy, nor any wider backlog replay.
+state was preserved. Later R8 releases resolved that temporary disabled state.
+This receipt is not current runtime status and does not authorize an ad hoc
+backlog replay.

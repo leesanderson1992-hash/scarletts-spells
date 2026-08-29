@@ -1,10 +1,20 @@
 # ADLE Composable Lesson Migration Tracker
 
-Status: temporary  
+Status: `HISTORICAL TRACKER — SUPERSEDED BY RELEASED SNAPSHOT V3`
 Created: 2026-07-30  
-Retire this document when every current production route has either migrated
-to the composable snapshot contract or has an explicit decision to remain on a
-versioned legacy reader.
+
+## Current outcome (2026-08-29)
+
+The tracked application migration is complete. Every current generic and
+specialist writer persists immutable snapshot v3. E5 retired the zero-row
+generic-v2, fixed-`un` v1, and closed-compound-v1 application contracts.
+Snapshot-null and metadata-free readers remain only for protected historical
+assignments. `legacy_bundle` remains current forward scheduling authority.
+
+The numbered sequence below is retained as historical implementation
+chronology. Statements that describe v3 as future, v2 as current, or a v1
+route as renderable are superseded by this outcome and by
+`adle-phase-e-legacy-convergence-audit.md`.
 
 ## Purpose
 
@@ -24,7 +34,7 @@ Dictionary content. Those facts are generated from the code registries under
   route migration.
 - Re-run the semantic production baseline before and after each migration.
 
-## Approved Sequence
+## Historical approved sequence
 
 1. **Complete in staging and production:** explicit persisted route metadata
    now retains current payload sniffing and legacy adapters. Schema, writer,
@@ -119,12 +129,11 @@ For stage 2, staging exit evidence includes:
   compatibility reads;
 - exact disposable fixture cleanup.
 
-Production Generic Snapshot migration/application rollout remains deferred
+At the 2026-08-01 checkpoint, Production Generic Snapshot rollout remained deferred
 after the 2026-08-01 pre-mutation stop. The completed Stage 3 extraction and
 Stage 4 internal Prefix V2 compiler-authority migration do not persist or
-activate Generic Snapshot V2 and do not depend on its production rollout. Any
-future route migration onto Generic Snapshot still requires a fresh,
-separately authorised Stage 2 production rollout.
+activate Generic Snapshot V2 and did not depend on its production rollout.
+This condition was later superseded by the released snapshot-v3 architecture.
 
 For stage 3, exit evidence includes:
 

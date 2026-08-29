@@ -1,269 +1,189 @@
-# ADLE Activity Platform Architecture
+# ADLE activity platform architecture
 
-## Purpose
+Updated: 2026-08-29
+Production authority: `f3a4b37d9df460553feb9bf748f543dff2da66ae`
 
-This document owns the 7-UI runtime architecture for rendering many ADLE activity templates without creating bespoke persistence paths or one component per micro-skill.
+This document describes the current released application architecture. Dated
+implementation plans and QA receipts describe historical checkpoints; they do
+not override these current boundaries.
 
-## Target Flow
-
-```text
-assignment item
--> template key and version
--> typed registry entry
--> payload schema validation
--> payload normalisation
--> lazily loaded renderer
--> shared activity runtime
--> standard completion result
--> existing attempt capture
--> evidence policy outside the renderer
-```
-
-## Runtime Layers
+## Current flow
 
 ```text
-shared ADLE runtime
--> reusable activity-template mechanics
--> category-specific learning primitives
--> micro-skill experience profile and reviewed content
+governed spelling occurrence
+  -> R8 canonical intake and learning-item lineage
+  -> Today's ADLE Session selection
+  -> current route compiler
+  -> immutable compiled_lesson_snapshot v3
+  -> persisted route resolution
+  -> CanonicalActivitySpec
+  -> CanonicalActivityHost / current specialist adapter
+  -> attempts and evidence
+  -> per-word Review schedule
+  -> immutable Review v3
+  -> Parent Review Work
 ```
 
-## Current Implemented Baseline
+Every new generic and specialist lesson is persisted with snapshot v3. There
+is no application fallback that can create snapshot-null, generic-v2,
+fixed-`un` v1, closed-compound-v1, or old daily-plan output.
 
-Current implementation has:
+## Current routes
 
-- a typed `templateKey -> activity template definition` registry;
-- unversioned `assignment_items.prompt_data`;
-- section-driven rendering in the child session runner;
-- server-side correctness derivation;
-- item-level attempt capture;
-- separate evidence, scheduler, and reward paths.
+`lib/adle/curriculum-readiness/route-registry.ts` owns the five current
+new-assignment routes:
 
-The composable-lesson foundation added descriptive contracts and audit
-tooling. The explicit-route stage then adds assignment-level route identity
-without changing the existing lesson payloads: new assignment writers persist
-the versioned route, recipe and raw payload contract, while the current runtime
-adapters continue to reconstruct the same payloads.
+- `generic_composer:v1`;
+- `dynamic_prefix_word_lab:v2`;
+- `dynamic_affix_word_lab:v3`;
+- `base_word_lab:v2`;
+- `compound_word_lab:v2`.
 
-This is enough for warm shells and current dictation-style rendering, but not enough for many rich templates.
+`daily_assignments.lesson_route_metadata` is immutable after insertion. Valid metadata resolves the exact
+registered route. Metadata-free assignments enter only the retained historical
+normalizer. In other words, absent metadata selects registered historical
+compatibility, while present invalid or contradictory metadata fails closed
+and never falls back to payload sniffing.
 
-7-UI-C adds D4_MOR category-v1 semantic candidate source artifacts only. Those
-artifacts define morphology parts, joins/separators,
-transformations, reusable linguistic identities, and experience-manifest
-selection without changing assignment payload emission, registry behaviour,
-renderers, composer output, evidence, scheduler, or reward semantics. 7-UI-D
-records human approval for that category-v1 content/schema candidate, but does
-not activate it or make it runtime truth. 7-UI-E freezes the approved
-category-v1 source package under `data/adle/approved/d4-mor/v1/` with
-`activationStatus = not_activated` and `runtimeEnabled = false`. The package is
-not imported by the composer, registry, session runner, renderer, Supabase, or
-evidence/scheduler/reward paths in that PR.
+## Snapshot-v3 boundary
 
-## Registry Direction
+Snapshot v3 stores canonical activity concept, mode, contract version, authored
+payload, deterministic bindings, semantic roles, evidence/schedule roles, and
+content provenance in `daily_assignments.compiled_lesson_snapshot`.
 
-Each registry entry should declare:
+The writer compiles only after selection has produced a real assignment plan.
+Service-only persistence stores the header, route metadata, immutable v3
+snapshot, bound items, and any governed intake together. Readers validate the
+snapshot before rendering; an invalid or unsupported present snapshot blocks
+the assignment with no learner writes.
 
-- `templateKey`;
-- `templateVersion`;
-- supported category/family;
-- experience mode;
-- lazy renderer;
-- payload schema;
-- normaliser;
-- answer-visibility policy;
-- correctness policy;
-- evidence class label;
-- fallback ladder;
-- accessibility capabilities;
-- supported completion envelope.
+Generic snapshot v2 is retired and has zero Production rows. Snapshot absence
+is historical compatibility, not a writer mode. The 24 historical
+snapshot-null lessons and two metadata-free generic assignments are not
+backfilled and retain their current readers and completion paths.
 
-The registry remains the drop-in seam. It must not become a giant switch statement.
+## Activity authority
 
-## Composable Lesson Contract Boundary
+`lib/adle/activity-catalogue.ts` is the machine capability inventory.
+`CanonicalActivityHost` and its versioned renderer registry are the React
+renderer-selection authority. The pure generic compatibility normalizer can
+translate supported historical template keys into `CanonicalActivitySpec`,
+but it cannot choose React components or create assignments.
 
-The runtime-neutral contract is
-`lib/adle/composable-lesson/contracts.ts`. It versions route, recipe, activity,
-word-role, snapshot, validator, compiler and provenance references. Activity
-snapshots are discriminated unions with typed conditions; there is no generic
-string-expression workflow language.
+Thin route adapters retain curriculum transformation, resume state,
+correctness, evidence, assignment binding, and completion envelopes. Shared
+activities may own interaction state, feedback, animation, audio, and a typed
+completion result. They must not own persistence, learning-item creation,
+proficiency, scheduling, rewards, or global lesson navigation.
 
-The generic composer now implements `CompiledLessonSnapshotV2`. It compiles
-only after `composeDailyPlan` and `planAssignmentPersistence` have finalised a
-real insert, binds every activity to its deterministic
-`assignment_items.source_entity_id`, and persists the header, route metadata,
-snapshot, variable-count items and stretch intakes in one service-role RPC.
-The smaller versioned persisted-route metadata contract remains the
-assignment-level routing boundary for every route. Schema v1 remains the live
-writer contract. The dark schema v2 foundation can additionally retain an
-immutable curriculum release and operational activation revision; no current
-route emits it until separately integrated. Prefix, suffix, compound and Base
-Word payloads remain authoritative teaching snapshots for their existing
-validators and adapters.
+Unknown contracts and invalid payloads fail closed. There is no generic prompt
+fallback renderer.
 
-Generic V2 snapshots live only in nullable, immutable
-`daily_assignments.compiled_lesson_snapshot`; they are never duplicated into
-route metadata or item payloads. `assignment_items.prompt_data` remains the
-authoritative activity-input source. The snapshot owns semantic identities,
-ordered bindings, word roles, conditions, attempt/evidence classes,
-schedule/reward roles and the canonical content fingerprint.
+## Current canonical experiences
 
-`ADLE_GENERIC_SNAPSHOT_MODE` supports `off`, `observe` and `enforce`, with
-`off` as the safe default. A present snapshot is validated in every mode.
-Observe mode retains the item-derived projection only after field-by-field
-parity; enforce mode reconstructs the same read model from validated snapshot
-activities plus bound item rows. A present invalid or unsupported snapshot
-blocks the entire assignment before either completion action writes. Snapshot
-absence alone enters compatibility for explicit pre-snapshot generic and
-metadata-free historical assignments.
+- `TeachingPages` and `FirstImpressionLesson` own the shared first-impression
+  teaching sequence.
+- `SplitHandle` owns Prefix, Affix, and Base Word split/cleave interaction.
+- `DefinitionWordBuilder` and `CompoundJigsawActivity` share ordered-placement
+  mechanics while preserving distinct learner experiences.
+- Discovery, `MeaningConnectionActivity`, and `BinSort` are the three governed
+  meaning/categorisation actions.
+- `CoverShutter` owns study-cover-spell-compare.
+- `SentenceDictation` owns authored whole-sentence recall.
+- `ColdWordRecall` owns scheduled and diagnostic independent recall.
+- `ReflectionActivity`, Memory Cue authoring, and `LessonReflection` retain
+  their distinct evidence contracts.
 
-The daily-plan wrapper supports the separately governed state where the
-Snapshot migration is deferred. It caches a server-only exact-column
-capability probe and chooses either the full header projection or the baseline
-route/source projection. This keeps non-generic route payloads readable
-without treating an unavailable column as a null snapshot. Unknown errors
-remain fatal, and any route that actually requires Generic Snapshot blocks
-rather than degrading to another adapter.
+Compound Word Lab v2 is the only current compound route. Closed-compound-v1
+payload adapters and render-only contracts were retired after Production
+proved zero rows and zero consumers. Dynamic Prefix v2 is profile-driven;
+the fixed-`un` v1 route and adapter were retired after the same proof.
 
-## Persisted Route Resolution
+## R8, evidence, and proficiency
 
-`daily_assignments.lesson_route_metadata` is the sole authoritative route
-metadata location. It is nullable for historical assignments, structurally
-validated, immutable after insertion and has no default.
+R8 keeps occurrence identity, canonical-word identity, and learner x word x
+microskill learning-target identity separate. Exact-ID handoff and governed
+readiness determine whether a candidate is `READY` or durably `BLOCKED`.
+Blocked candidates are reconsidered by released hooks and the bounded safety
+sweep; submission text never substitutes for canonical identity.
 
-Resolution follows three rules:
+First-impression success may activate a word and add controlled evidence, but
+it is not independent production. Cold or prompted Review production can move
+a word to `produced` under the governed evidence policy. Breadth proficiency
+is credited only when support, approval, and banding gates admit the word.
+Repairs append evidence without rewriting the original outcome.
 
-1. valid metadata resolves the exact route, recipe and raw payload version
-   through the canonical route registry;
-2. absent metadata uses the registered historical discriminator and payload
-   reader;
-3. present invalid, unsupported or contradictory metadata blocks and never
-   falls back to payload sniffing.
+## Review and bundle authority
 
-The server page and completion actions call the same resolver. A blocked route
-renders a child-safe grown-up-check state and writes no attempts, evidence,
-schedules or rewards. Resume state remains route-specific and unchanged;
-route identity is loaded from the assignment on every server request.
+Review v3/R6 owns immutable snapshots, encounters, original outcomes, repairs,
+Memory Cues, completion receipts, and outcome events. R5 owns per-word due
+dates, catch-up stages, pause state, and pre-retirement checks.
 
-The metadata stores no compiler, renderer, activity-contract or content
-version. Compiler/adapter/renderer identity is derived from the canonical
-registry, activity detail remains in immutable assignment items, and content
-versions remain in existing rich payloads.
+`legacy_bundle` is a current forward scheduling authority despite its name.
+Current snapshot-v3 lesson completion can create bundle rows and bundle-linked
+schedules. Bundle creation, readers, and `source_bundle_id` provenance remain
+supported. The post-E5 baseline records 29 active bundle schedule rows and 21
+active bundles.
 
-## Canonical Factual Inventories
+## Reward and course boundaries
 
-Code owns structured architecture inventory:
+Word Treasure is a separate governed reward journey. Parent approval and the
+returned-correction bridge call the canonical writer only after the governed
+learning-item relationship exists. Replay is idempotent. Lesson generation and
+activity rendering do not mint rewards.
 
-- routes: `lib/adle/curriculum-readiness/route-registry.ts`;
-- activity fact requirements:
-  `lib/adle/composable-lesson/activity-requirements.ts`;
-- compatibility blocker codes:
-  `lib/adle/composable-lesson/compatibility.ts`;
-- readiness stages and policy:
-  `lib/adle/composable-lesson/readiness-audit.ts`.
+Course Review Work remains a separate mandatory
+`pending`/`approved`/`returned` progression gate.
 
-Generated route, activity, blocker and repository-readiness references live in
-`docs/generated/adle-composable-lesson/`. They are factual projections, not
-handwritten sources of truth. Run `npm run adle:architecture-drift-check` to
-detect drift.
+## Historical compatibility
 
-The generated shared-affix profile and blocker inventories describe typed
-position, split, build, meaning, count and role policies for all five Prefix V2
-and ten Affix V3 profiles. Dynamic Prefix keeps its unchanged selector and V2
-contract but reaches the shared compiler through a guarded authority boundary:
-all five approved profiles advance through shadow, enforced-parity and
-shared-authoritative modes after exact `un-` normal-path source release.
-Dynamic Affix profiles govern membership and pedagogy rather than a fixed
-transfer roster. `dynamic_affix_transfer_selection_v1` selects reviewed,
-route-ready members with coverage-first semantic ranking that is independent
-of UUID and database order, then preserves the selected order through the
-existing V3 compiler boundary. Production remains `legacy_authoritative` until
-the focused correction proof passes. This boundary does not alter the activity registry,
-`AdleSessionRunner`, route metadata, persistence contract, Generic Snapshot or
-Common Word Lab shell.
+The following remain intentionally supported:
 
-The existing `base_word_family_v1` activation registry remains the persisted
-Base Word compatibility projection. It points to the canonical descriptive
-`base_word_lab:v2` declaration and is not broadened to activate other routes.
+- snapshot-null specialist readers and completion paths;
+- metadata-free generic decoding and old template normalization;
+- `REVIEW_QUICK_SORT` to `CompatibilityNoop`;
+- controlled-spelling and historical free-response adapters;
+- base-word-v2 completion compatibility;
+- immutable lesson and Review history;
+- current `legacy_bundle` creation and readers;
+- historical migrations and database objects.
 
-## Compatibility Boundary
+Historical rows are never reinterpreted or rewritten merely to simplify code.
 
-Compatibility assessment is pure and does not select words or query the
-database. It keeps four states separate:
+## Retired application surfaces
 
-- supported;
-- authentic-target eligible;
-- transfer eligible;
-- selected in an immutable assignment.
+Phase E retired generic snapshot-v2 infrastructure, fixed-`un` v1,
+closed-compound-v1, snapshot-null creation, the obsolete daily-spelling writer,
+and the daily-practice route/viewer/read-model/completion/materialiser. The 157
+historical empty daily-practice headers remain harmlessly stored; Today's ADLE
+Session is the current learner-facing authority.
 
-Activity readiness is derived from owned facts rather than manually authored
-`canSplit`, `canBuild`, `canMeaningSort` or `canDictate` flags. Missing facts
-remain typed blockers. The current Closed Compound authentic/transfer coupling
-and separator-comparator disagreement are reported as production-parity
-findings; this foundation does not repair either behaviour.
+## Generated references and drift
 
-## Readiness Audit Boundary
+Generated factual references live in:
 
-The readiness audit has three explicit modes:
+- `docs/adle/ACTIVITY_CATALOGUE.md`;
+- `docs/adle/ACTIVITY_CONVERGENCE_BACKLOG.md`;
+- `docs/adle/ACTIVITY_IMPLEMENTATION_AUDIT.md`;
+- `docs/generated/adle-composable-lesson/`.
 
-- `repository/report` proves repository structure and reports live fact stages
-  as not assessed;
-- `live/report` reports select-only production observations without using
-  readiness blockers as an exit failure;
-- `live/strict` exits with failure for blockers or unassessed stages.
+Their machine inputs include
+`lib/adle/composable-lesson/activity-requirements.ts`, the route registry,
+compatibility blocker inventory, and readiness policy. The readiness audit's
+`repository/report`, `live/report`, and `live/strict` modes retain their
+documented read-only/fail-closed boundaries.
 
-The live adapter is pinned to the production Supabase hostname, has a table
-allowlist, exposes only selects, and reads no learner tables. Project-pin,
-registry or execution errors use exit code `2`; genuine strict readiness
-failures use exit code `1`. Live credentials are never used by CI.
+Regenerate them from the machine sources and run the repository architecture
+drift checks whenever those sources change. Generated documents must not be
+hand-edited.
 
-## Renderer Boundary
+## Change rules
 
-Renderers may own local interaction, drag/tap/typing, animation, sound, temporary state, local feedback, and completion output.
+New activities follow: reuse an existing canonical concept, configure a
+supported mode, extend a shared abstraction under governance, or declare a
+new-interaction requirement with explicit pedagogical evidence.
 
-Renderers must not own Supabase writes, assignment completion persistence, evidence creation, proficiency changes, scheduling, reward creation, or global lesson navigation.
-
-## Shared Runtime Boundary
-
-The shared runtime owns activity framing, progress, attempt identity, timings, retry/hint/replay counts, completion submission, recoverable state, fallback rendering, error boundaries, navigation, and accessibility state.
-
-## Versioning And Old Payloads
-
-The exact activity-template version storage decision remains separate from
-assignment-level route identity. The current compatibility policy is:
-
-- old payloads must never be silently reinterpreted under new semantics;
-- missing/unsupported versions fall to safe fallback or explicit unsupported handling;
-- assignment data stores semantic teaching payloads, not visual layout details.
-
-Historical rows are not backfilled. Existing payload sniffing is restricted to
-metadata-free assignments and retained compatibility cases. Existing payload
-validators, adapters and resume keys remain in place until route-specific
-migration and retirement proofs are separately approved.
-
-## Route And Snapshot Rollout And Rollback
-
-The additive database schema is deployed before metadata-writing application
-code. Staging must use the pinned staging project and prove explicit routes,
-metadata-free historical routes, resume, completion and application rollback.
-
-Application rollback is the normal recovery path. The nullable column,
-constraints, index, compatible RPCs and any written metadata remain in place;
-older application versions ignore the additional field and continue creating
-metadata-free assignments that the legacy readers support.
-
-The generic V2 schema follows the same rule: deploy the nullable/no-backfill
-column and atomic writer before snapshot-writing code, prove observe parity,
-then enable the snapshot reader. Older application commits do not select the
-snapshot column and therefore continue reading and completing snapshot-bearing
-assignments from their unchanged item rows. Rollback never deletes or rewrites
-an immutable snapshot.
-
-## Determinism And Resumability
-
-Variation should use a stable seed from assignment item identity, template key/version, and attempt number.
-
-Persist only resumable interaction state and authoritative completion data. Do not persist pointer movement, animation frames, or every drag event.
-
-## Performance
-
-Rich renderers should be lazy-loaded by template or category. Safe warm-shell fallback must remain available in the base bundle.
+No application change may restore a retired writer or renderer as fallback.
+Any future database-object cleanup is Phase E7: it requires a fresh read-only
+dependency audit, explicit owner approval, a unique forward migration, and a
+restoration plan. Historical migrations are never deletion candidates.

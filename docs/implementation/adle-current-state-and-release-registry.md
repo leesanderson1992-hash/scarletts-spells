@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-07
+Updated: 2026-08-29
 
 ## Purpose
 
@@ -9,15 +9,18 @@ It distinguishes historical pilots from routes that can genuinely be selected
 for learners. It does not replace the programme roadmap or teaching-content
 approval records.
 
-The parent-dashboard manual ADLE entry point is implemented as a temporary
-application layer over the existing production curriculum authorities. It
-does not change any route capability state or selector/compiler policy. The
-parent supplies only the child action; `selectPartTwoSkill` chooses the next
-micro-skill and the activated specialist route remains authoritative for words
-and compilation. Generic Snapshot remains excluded, automatic Daily ADLE and
-review orchestration remain deferred, and parent-triggered assignment items
-carry observational `parent_manual` provenance. See
-`docs/implementation/parent-dashboard-manual-adle-generation.md`.
+The current Production application authority is
+`f3a4b37d9df460553feb9bf748f543dff2da66ae`. Today's ADLE Session unifies
+generic lessons, specialist lessons, and Review v3. Every newly created lesson
+persists immutable snapshot v3. The current route registry contains
+`generic_composer:v1`, Dynamic Prefix v2, Dynamic Affix v3, Base Word v2, and
+Compound Word v2. Generic-v2, fixed-`un` v1, closed-compound-v1, and the old
+daily-practice application surface are retired.
+
+The release chronology below remains useful evidence for individual content
+profiles. Where an older dated entry describes a temporary rollout, generic
+v2, or a v1 route as current, this 2026-08-29 current-state section supersedes
+that operational claim; the dated text remains historical context only.
 
 ## Release states
 
@@ -37,24 +40,12 @@ first-impression lessons, 0 staging-approved first-impression lessons, 2
 later-phase base-word transfer skills marked `not_required_first_impression`,
 and 5 first-impression lessons awaiting implementation.
 
-The shared ADLE routing foundation was promoted on 2026-07-31. Newly composed
-Generic, Dynamic Prefix V2, Dynamic Affix V3, Closed Compound V1 and Base Word
-Family assignments now persist explicit immutable route metadata. Historical
-metadata-free assignments, including fixed legacy `un-`, retain their existing
-readers. This infrastructure release changed no capability state, selection,
-lesson behavior or Teaching Dictionary content. See
-`docs/implementation/qa/adle-explicit-route-metadata-production-receipt-2026-07-31.md`.
-
-The Generic Composer V2 snapshot reader is implemented and proven on the
-pinned staging project only. New generic plans can compile an immutable,
-content-fingerprinted assignment snapshot; enforce mode reconstructs the
-existing session read model and preserves review, lesson, attempt, evidence,
-scheduler, reward, completion and resume behaviour. Explicit snapshot-absent
-and metadata-free assignments retain compatibility readers, while a present
-invalid snapshot blocks with zero learner writes. This foundation changes no
-lesson capability state or Teaching Dictionary activation. Production rollout
-is deferred. See
-`docs/implementation/qa/adle-generic-snapshot-v2-staging-rollback-proof-2026-07-31.md`.
+Current route metadata and snapshot v3 are immutable forward contracts.
+Snapshot-null specialist readers, metadata-free generic replay, old template
+normalization, controlled-spelling adapters, `REVIEW_QUICK_SORT` compatibility,
+and base-word-v2 completion remain protected for historical assignments. A
+present invalid snapshot blocks with zero learner writes. Historical Generic
+Composer v2 staging receipts remain chronology, not current writer authority.
 
 | Lesson capability | Micro-skill(s) | State | Selection rule | Notes |
 |---|---|---|---|---|
@@ -77,7 +68,7 @@ is deferred. See
 | Dynamic Suffix Word Lab: `-sion` | `D4_MOR_SUFFIXES_SION` | `production_enabled` | Reviewed set of `decision`, `division`, `confusion`, and `expansion`; later complete, reviewed same-profile roster members may be selected as authentic targets or transfers | Production promotion completed 2026-07-29: batch `d5f11ec9-1b93-499f-9ed3-ffbe17b591ae` created one active reviewed profile with four safe members and no learner-data writes. The suffix gate is enabled and deployment `dpl_Ar4QxewDxY64Lz1t2hSLjMF2Po9k` is Ready. See `adle-dynamic-suffix-sion-production-receipt-2026-07-29.json`. |
 | Later-phase base-word capabilities | `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX` | `not_required_first_impression` | Used only when an already-taught word needs base-plus-affix transfer work | No standalone first-impression ADLE profile is required. Historical morphology-node aliases such as base meaning/proof/review are not current live micro-skills. |
 | Remaining first-impression suffix lessons | none currently | — | — | All currently planned suffix first-impression profiles are production-enabled. |
-| Closed Compound Word Lab | `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS` | `production_enabled` | Select four verified authentic targets first, then deterministically rotate the explicit seven-word approved pool | Production batch `2f6db9a1-f844-4577-9631-c3740f6ea7ae` activated seven explicit compound facts after child-completed staging verification. The 18-item Word Lab is independently gated by `ADLE_CLOSED_COMPOUND_PRODUCTION_ENABLED=enabled`; deployment `dpl_7QNw3SyH4weqWj573LT4LDDHHvUy` is Ready. |
+| Compound Word Lab v2 | `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS` | `production_enabled` | Select four verified authentic targets first, then deterministically rotate the explicit seven-word approved pool | The current `compound_word_lab:v2` route uses immutable snapshot v3 and the shared first-impression runtime. The retired closed-compound-v1 route is not a fallback. |
 | Open/Hyphenated Compound Word Lab | `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED` | `awaiting_content` | none | Reviewed four-word roster: `ice cream`, `post office`, `twenty-one`, `part-time`; multi-token dictation span and separator-significant comparison are required. |
 | Common Greek Roots Lab | `D4_MOR_ROOTS_COMMON_GREEK_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `telephone`, `telescope`, `microphone`, `microscope`; runtime eligibility remains fail-closed. |
 | Common Latin Roots Lab | `D4_MOR_ROOTS_COMMON_LATIN_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `transport`, `export`, `construct`, `structure`; runtime eligibility remains fail-closed. |
@@ -102,14 +93,14 @@ key. Any additional authentic targets remain pending for a later lesson.
 
 ## Dynamic Prefix Word Lab implementation state
 
-The generic v2 selector and stable public compiler boundary live in
+The current profile selector and stable public compiler boundary live in
 `lib/adle/morphology/dynamic-prefix-word-lab.ts`; inert V2 contracts and
-validation live in `dynamic-prefix-contracts.ts`. A separate preview-gated v2
-assignment and child route has passed the disposable staging proof recorded in
-`docs/implementation/qa/adle-dynamic-prefix-stage-one-proof.md`. The legacy
-fixed `un-` v1 payload, bindings, renderer, and snapshots remain unchanged and
-renderable. Production activation was explicitly approved on 2026-07-21 and is
-controlled by the independent `ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED` gate.
+validation live in `dynamic-prefix-contracts.ts`. Dynamic Prefix v2 now creates
+immutable snapshot-v3 lessons through the current route. The fixed `un-` v1
+payload, bindings, renderer, and completion contract were retired in E5 after
+Production proved zero persisted rows and zero runtime consumers. Production
+activation remains controlled by the independent
+`ADLE_DYNAMIC_PREFIX_PRODUCTION_ENABLED` gate.
 
 The V2 boundary accepts reviewed per-skill profiles rather than a dedicated
 `un-` renderer. All five profiles (`UN`, `DIS_MIS`, `IN_IM_IL_IR`, `RE_PRE`,
@@ -264,7 +255,7 @@ assignment with capability `deferred_absent`; its genuine first screen and
 resume initialization rendered without learner writes. Deliberate deployment
 `dpl_2Ynhce4ofYSfh8mtLCLnwi2J4mB8` restored future canonical intake, and the
 natural five-minute scheduler re-evaluated the existing pending candidate
-idempotently. Generic Snapshot remains deferred, Dynamic Affix remains paused,
+idempotently. At that checkpoint Generic Snapshot remained deferred and Dynamic Affix remained paused,
 and the wider backlog remains unprocessed. The child subsequently completed
 the genuine assignment. Completion preserved 18/18 items and the authentic
 target paths, but exposed two prospective corrections: a hard-coded `un-`

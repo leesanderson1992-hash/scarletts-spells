@@ -17,8 +17,8 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Regression requirements: catalogue-to-registration totality; payload validation; lazy renderer loading; route replay; resume/completion/evidence parity; fail-closed unknown contracts
 - Learner/runtime risk: `high`
 - Model C release change required: No
-- Release boundary: Phases A–C, the Phase D reader/foundation, D1 contracts and guarded compiler slice leave real-assignment v3 selection physically unwired and default OFF. Production continues generating v2. Actual assignment enablement remains owner-gated. Stop and require a separate Model C decision before any specialist payload, curriculum meaning, dependency fingerprint, route activation or learner semantics change.
-- Consolidation opportunity: Phases A–C removed competing runtime renderer selection. The additive v3 reader and deterministic compiler now accept complete canonical contracts through a guarded non-Production JSON persistence port; a later owner-approved infrastructure gate can make the existing assignment JSON constraint/RPC v3-capable before any real writer selection.
+- Release boundary: Snapshot v3 is active for every new generic and specialist lesson. E5 retired the zero-row generic-v2 and old specialist route contracts. New activity concepts, curriculum meaning, dependency fingerprints, or route activation still require their own governed release decision; no retired fallback may be restored.
+- Consolidation opportunity: CanonicalActivityHost and the versioned renderer registry are the current shared renderer authority. Retained route adapters own curriculum, resume, evidence, and completion, while metadata-free normalization remains historical-read-only compatibility.
 
 ### P1 — Implement genuine missing activity surfaces
 
@@ -54,7 +54,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.
+- Next workstream: `PHASE_E6_DOCUMENTATION_CONVERGENCE_CURRENT` — E5 is released: snapshot v3 is the only new-lesson authority, zero-row generic-v2 and old route contracts are retired, and metadata-free historical normalization remains. E6 aligns current documentation; any E7 database cleanup is separately governed.
 
 #### Group 3 closeout detail
 

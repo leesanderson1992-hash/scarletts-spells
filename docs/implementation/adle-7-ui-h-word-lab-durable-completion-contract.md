@@ -1,9 +1,11 @@
 # ADLE 7-UI-H Word Lab durable completion and v1 contract
 
-Status: implementation and database-backed guarded-staging proof complete. The
-service-role RPC is installed on production; the feature remains explicitly
-child-allowlisted and both the pilot and atomic completion switches default to
-disabled.
+Status: `HISTORICAL FIXED-UN V1 COMPLETION CONTRACT — APPLICATION ROUTE RETIRED`.
+
+This document records the 2026-07 v1 rollout and is not current runtime
+authority. E5 retired the zero-row fixed-`un` v1 application route, payload
+adapter, renderer, and completion path. Historical migrations and database
+objects remain audit history; Dynamic Prefix v2 with snapshot v3 is current.
 
 ## Durable completion boundary
 
@@ -52,7 +54,7 @@ not included in durable database completion latency.
 - Structurally valid `schemaVersion: 1`, `word_lab_v1` snapshots remain
   renderable across older `contentVersion` values. Current authored-value
   equality belongs to compiler/package regression, not runtime hydration.
-- Runtime still requires the fixed v1 renderer activity IDs, word and binding
+- At that checkpoint, runtime required the fixed v1 renderer activity IDs, word and binding
   order, reconstructable morphology, valid Guide references, recall-neutral
   assessment activities, authored dictation target positions and an isolated
   reflection.

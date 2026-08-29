@@ -1,6 +1,11 @@
 # ADLE common Word Lab foundation contract
 
-Status: dark foundation; no live assignment writer, storage, route activation, or production renderer.
+Status: `HISTORICAL DARK-FOUNDATION CONTRACT`.
+
+Current correction (2026-08-29): this unactivated proposal is retained as
+design history. Current generic and specialist lessons use snapshot v3 and
+`CanonicalActivityHost`; Generic Snapshot v2 is retired. Nothing in this file
+authorises restoration of the proposed v1 shell or a retired writer.
 
 ## Boundary
 
@@ -22,8 +27,9 @@ selected microskill
 → server completion boundary
 ```
 
-The current `adle_family_methods`, `adle_activity_templates`, generic five-word
-policy, Generic Snapshot V2, and legacy readers retain their existing meaning.
+At this historical checkpoint, `adle_family_methods`,
+`adle_activity_templates`, generic five-word policy, Generic Snapshot V2, and
+legacy readers retained their existing meaning.
 They are not reinterpreted as Word Lab recipes.
 
 ## Authority and activation
@@ -63,9 +69,9 @@ production and performs no remote writes.
 
 ## Compatibility
 
-This foundation does not change the live composer, production route registry
-entries, assignment persistence, completion actions, Generic Snapshot V2,
-current Word Lab payloads, or historical readers and resume formats. A future
+This foundation did not change the then-live composer, production route
+registry entries, assignment persistence, completion actions, Generic Snapshot
+V2, Word Lab payloads, or historical readers and resume formats. A later
 stage must add route-neutral storage and atomic persistence in staging before
 any live route can adopt `WordLabSnapshotV1`.
 

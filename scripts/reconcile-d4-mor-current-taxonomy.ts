@@ -49,7 +49,7 @@ const PRODUCTION_STATUS_RECONCILIATIONS = new Map([
   ],
   [
     "D4_MOR_PREFIXES_UN",
-    "The reviewed seven-word un- profile is production-enabled through the independently gated generic dynamic prefix runtime; fixed v1 snapshots remain renderable.",
+    "The reviewed seven-word un- profile is production-enabled through Dynamic Prefix v2 and immutable snapshot v3; the retired fixed-v1 route is not a fallback.",
   ],
   [
     "D4_MOR_SUFFIXES_ABLE_IBLE",

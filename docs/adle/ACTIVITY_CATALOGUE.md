@@ -5,7 +5,7 @@
 # ADLE Activity Catalogue
 
 Version: `adle_activity_catalogue_v1`
-Authoritative base: `d59506c9f3175a73b3f4614a1077470f3ab0e4a2`
+Authoritative base: `f3a4b37d9df460553feb9bf748f543dff2da66ae`
 
 This is the chooser for curriculum designers and future implementation tasks. It describes interaction capability, not route-specific teaching content.
 
@@ -646,4 +646,4 @@ Activity Catalogue is the architectural chooser and capability inventory. Canoni
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.
+- Next workstream: `PHASE_E6_DOCUMENTATION_CONVERGENCE_CURRENT` — E5 is released: snapshot v3 is the only new-lesson authority, zero-row generic-v2 and old route contracts are retired, and metadata-free historical normalization remains. E6 aligns current documentation; any E7 database cleanup is separately governed.

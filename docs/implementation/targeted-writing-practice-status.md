@@ -1,5 +1,11 @@
 # Targeted Writing Practice Status
 
+ADLE application correction (2026-08-29): references below to the old
+`/learn/week/practice` delivery surface describe completed historical slices.
+That route, its read model/completion action, and its materializer are retired.
+Today's ADLE Session, R8 intake, Review v3, and current reward authorities are
+described by `adle-phase-e-legacy-convergence-audit.md`.
+
 ## Purpose
 
 This file tracks current implementation state for the Writing Engine / Targeted

@@ -1,12 +1,12 @@
 # Parent Dashboard Manual ADLE Generation
 
-Updated: 2026-08-07
+Updated: 2026-08-29
 
 ## Purpose
 
-The authenticated parent dashboard exposes one temporary, child-specific
-action: `Generate today’s lesson`. It lets a parent request the next genuine
-ADLE lesson while automatic Daily ADLE scheduling remains deferred.
+The authenticated parent dashboard exposes one child-specific action:
+`Generate today’s lesson`. It requests the next governed ADLE session through
+the current unified orchestration authority.
 
 The parent never chooses a route, profile, affix, prefix, learning item, or
 word. Generation uses the child’s real production learning items, the existing
@@ -46,17 +46,19 @@ new-assignment-capable specialist route:
 
 - Dynamic Prefix V2
 - Dynamic Affix V3
-- Closed Compound V1
 - Base Word Lab V2
+- Compound Word Lab V2
+- Generic Composer V1
 
 The specialist selector and compiler remain authoritative inside that route.
 There is no Prefix-first, Affix-first, or next-route fallback loop. If the
 selected route is disabled or not ready, the parent sees `No lesson ready
 today` and nothing is persisted.
 
-Generic Snapshot and historical render-only routes are excluded. The existing
-specialist new-lesson-only assignment shape remains unchanged; this feature
-does not add Daily ADLE review orchestration.
+Every newly created route persists immutable snapshot v3. Historical
+snapshot-null and metadata-free assignments remain readable, but they are not
+new-assignment fallbacks. Retired generic-v2, fixed-`un` v1, and
+closed-compound-v1 routes cannot be selected.
 
 ## Provenance and completion
 

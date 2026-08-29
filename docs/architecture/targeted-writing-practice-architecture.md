@@ -1,5 +1,11 @@
 # Targeted Writing Practice Architecture
 
+ADLE application correction (2026-08-29): the daily-practice delivery sections
+below preserve the historical Targeted Writing Practice design. The old
+`/learn/week/practice` application surface and materializer are retired;
+Today's ADLE Session is current. This document does not override the Phase E
+architecture or restore those paths.
+
 ## Purpose
 
 This document describes the intended MVP architecture for Targeted Writing Practice.

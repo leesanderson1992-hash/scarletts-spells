@@ -1,5 +1,11 @@
 # Version 2.0 Roadmap
 
+Current ADLE correction (2026-08-29): the slice-by-slice Daily Practice text
+below is historical roadmap chronology. The old Daily Practice application
+surface is retired and Today's ADLE Session is current. Consult
+`adle-phase-e-legacy-convergence-audit.md` before treating a completed roadmap
+slice as live architecture.
+
 ## Purpose
 
 This is the active Version 2.0 roadmap for Scarlett's Spells after the private

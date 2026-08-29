@@ -1,6 +1,11 @@
 # Docs Index
 
-- [Parent dashboard manual ADLE generation](implementation/parent-dashboard-manual-adle-generation.md)
+Current ADLE authority:
+
+- [Phase E current architecture and status](implementation/adle-phase-e-legacy-convergence-audit.md)
+- [ADLE activity platform architecture](architecture/adle-activity-platform-architecture.md)
+- [ADLE current state and release registry](implementation/adle-current-state-and-release-registry.md)
+- [Parent dashboard ADLE generation](implementation/parent-dashboard-manual-adle-generation.md)
 
 ## Purpose
 

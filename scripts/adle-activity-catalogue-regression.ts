@@ -75,8 +75,8 @@ assert.equal(
 
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.authoritativeBaseSha,
-  "d59506c9f3175a73b3f4614a1077470f3ab0e4a2",
-  "catalogue governance must cite the fetched post-Group-7 authority",
+  "f3a4b37d9df460553feb9bf748f543dff2da66ae",
+  "catalogue governance must cite the released E5 Production authority",
 );
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.group7Closeout.status,
@@ -94,15 +94,16 @@ assert(
 const registryWiring = ADLE_ACTIVITY_CONVERGENCE_BACKLOG.find((item) => item.title === "Wire rich components through registry modes");
 assert(registryWiring, "registry wiring must remain the next active architecture workstream");
 assert.equal(registryWiring.modelCReleaseChangeRequired, false, "behaviour-identical registry wiring is not itself a Model C release change");
-assert(registryWiring.releaseBoundary.includes("Stop and require a separate Model C decision"), "registry wiring must retain the semantic-change release gate");
+assert(registryWiring.releaseBoundary.includes("Snapshot v3 is active for every new generic and specialist lesson"), "registry wiring must describe the current v3-only writer authority");
+assert(registryWiring.releaseBoundary.includes("require their own governed release decision"), "registry wiring must retain the semantic-change release gate");
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.nextConvergenceGroup.status,
-  "P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF",
-  "governance must stop before real-assignment v3 enablement or Phase E",
+  "PHASE_E6_DOCUMENTATION_CONVERGENCE_CURRENT",
+  "governance must describe the current Phase E convergence stage",
 );
 assert.equal(
   ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genericSnapshotV3Boundary.writerStatus,
-  "DETERMINISTIC_COMPILER_AND_GUARDED_NON_PRODUCTION_PORT_COMPLETE; REAL_ASSIGNMENT_SELECTION_DEFAULT_OFF_AND_UNWIRED",
+  "ACTIVE_V3_ONLY_FOR_ALL_NEW_GENERIC_AND_SPECIALIST_LESSONS",
 );
 assert.equal(ADLE_ACTIVITY_AUDIT_CONCLUSIONS.genericSnapshotV3Boundary.readerContractsProposedForGeneration.length, 10);
 assert(
