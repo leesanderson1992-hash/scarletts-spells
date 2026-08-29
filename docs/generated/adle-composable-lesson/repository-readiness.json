@@ -4,7 +4,7 @@
     "auditVersion": "adle_readiness_audit_v1",
     "containsLearnerIdentity": false,
     "containsRawAttempts": false,
-    "inputFingerprint": "ca45043d83aec585c7b2679e89074104108b8e18b5d3049b2de13048454d15b4",
+    "inputFingerprint": "21d4042cc40163ea51c54894b88476938164cf6b310fc17abc5e4f3819197ed8",
     "knownReportOnlyFindings": [
       {
         "code": "transfer_not_approved",
@@ -611,7 +611,7 @@
         "wordAssessments": []
       },
       {
-        "dependencyFingerprint": "2bbd71b50d4c7adc76048bafcd447f316f0ba559bcfb19f1799c147ddddf7f26",
+        "dependencyFingerprint": "65afc7e3e0dadcb8e6f5048fe71c57766f893d55551c7784fcc3001c049fb3fb",
         "microSkillKey": "D4_MOR_PREFIXES_DIS_MIS",
         "routeId": "dynamic_prefix_word_lab",
         "routeVersion": "v2",
@@ -682,7 +682,8 @@
             "blockers": [],
             "evidence": [
               "itemCount=16",
-              "itemCount=18"
+              "itemCount=18",
+              "itemCount=20"
             ],
             "stage": "assignment_construction",
             "status": "ready"
@@ -712,7 +713,7 @@
         "wordAssessments": []
       },
       {
-        "dependencyFingerprint": "73371c25f8bc9485cd83214c9ef809342dffc30a6fb3a64376590be844446b7a",
+        "dependencyFingerprint": "9e47ebc7deae4cee96e5502c4503425495af3a44d83d0e7be0ee2937c3983c8f",
         "microSkillKey": "D4_MOR_PREFIXES_IN_IM_IL_IR",
         "routeId": "dynamic_prefix_word_lab",
         "routeVersion": "v2",
@@ -783,7 +784,8 @@
             "blockers": [],
             "evidence": [
               "itemCount=16",
-              "itemCount=18"
+              "itemCount=18",
+              "itemCount=20"
             ],
             "stage": "assignment_construction",
             "status": "ready"
@@ -813,7 +815,7 @@
         "wordAssessments": []
       },
       {
-        "dependencyFingerprint": "d3f02b07d91b592b848d4c3f3d9fd75e7a6d5239e7551dea48b0a4a5c9ea97ae",
+        "dependencyFingerprint": "075eed071dfba212dc5e92759b872d356bbe8467119865955d26266d35544d5f",
         "microSkillKey": "D4_MOR_PREFIXES_RE_PRE",
         "routeId": "dynamic_prefix_word_lab",
         "routeVersion": "v2",
@@ -884,7 +886,8 @@
             "blockers": [],
             "evidence": [
               "itemCount=16",
-              "itemCount=18"
+              "itemCount=18",
+              "itemCount=20"
             ],
             "stage": "assignment_construction",
             "status": "ready"
@@ -914,7 +917,7 @@
         "wordAssessments": []
       },
       {
-        "dependencyFingerprint": "5b081aa28784dbbb28392a12bddb8b21740e742d3a8b24eda6540df27cb468af",
+        "dependencyFingerprint": "61fba8e107b829160efac1648d30e4ce2835bcda9139d1a2ebf02a224357a344",
         "microSkillKey": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
         "routeId": "dynamic_prefix_word_lab",
         "routeVersion": "v2",
@@ -985,7 +988,8 @@
             "blockers": [],
             "evidence": [
               "itemCount=16",
-              "itemCount=18"
+              "itemCount=18",
+              "itemCount=20"
             ],
             "stage": "assignment_construction",
             "status": "ready"
@@ -1015,7 +1019,7 @@
         "wordAssessments": []
       },
       {
-        "dependencyFingerprint": "8290ca7bc762fb5553d8162c20c0223535767a2b8b7addf9b2dfd0417c2ba0ac",
+        "dependencyFingerprint": "6b9e497d389f22ffda3f8a38d608b052fd0d93cff6536316d70cb0b1a0f41fdc",
         "microSkillKey": "D4_MOR_PREFIXES_UN",
         "routeId": "dynamic_prefix_word_lab",
         "routeVersion": "v2",
@@ -1086,7 +1090,8 @@
             "blockers": [],
             "evidence": [
               "itemCount=16",
-              "itemCount=18"
+              "itemCount=18",
+              "itemCount=20"
             ],
             "stage": "assignment_construction",
             "status": "ready"

@@ -53,7 +53,12 @@ const positions = payload.activities.guided.builds.map((build) => { assert.deepE
 assert(new Set(positions).size > 1, "target suffix position varies deterministically");
 const runtime = dynamicAffixRuntime(payload);
 assert(runtime && runtime.activities.filter((activity) => activity.type === "meaning_sort").length === 0, "no meaning sort or fallback cards");
-assert.equal(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, statement);
+assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[1]?.paragraphs, [
+  ...reviewed.profile.introContent.paragraphs.filter(
+    (paragraph: string) => paragraph !== "A suffix is added to the end of a base or root.",
+  ),
+  ...reviewed.profile.introContent.spellingRules,
+]);
 assert.equal(normaliseSessionWord("Equality"), normaliseSessionWord("equality"), "capitalised spelling is correct");
 const basePlan = { childId: "child", planDate: "2026-07-28", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as any;
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection, payload }).partTwo.sections.flatMap((section: any) => section.items).length, 16);

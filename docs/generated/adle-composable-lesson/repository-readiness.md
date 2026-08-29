@@ -6,7 +6,7 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `ca45043d83aec585c7b2679e89074104108b8e18b5d3049b2de13048454d15b4`
+Input fingerprint: `21d4042cc40163ea51c54894b88476938164cf6b310fc17abc5e4f3819197ed8`
 
 Production morphology micro-skills: 21
 Structurally declared: 21

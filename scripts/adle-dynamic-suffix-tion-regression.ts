@@ -87,7 +87,12 @@ const targetPositions = payload.activities.guided.builds.map((build) => {
 assert(new Set(targetPositions).size > 1, "correct suffix tile ordering varies deterministically");
 const runtime = dynamicAffixRuntime(payload);
 assert(runtime && runtime.activities.filter((activity) => activity.type === "meaning_sort").length === 0, "no sort or fallback meaning cards");
-assert.equal(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, statement);
+assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[1]?.paragraphs, [
+  ...pkg.profile.introContent.paragraphs.filter(
+    (paragraph: string) => paragraph !== "A suffix is added to the end of a base or root.",
+  ),
+  ...pkg.profile.introContent.spellingRules,
+]);
 assert.equal(runtime.activities.find((activity) => activity.type === "reflection")?.promptText, reflectionPrompt, "shared runtime uses the child-friendly affix reflection question");
 assert.equal(normaliseSessionWord("Invention"), normaliseSessionWord("invention"), "capitalised controlled spelling is correct");
 const basePlan = { childId: "child", planDate: "2026-07-29", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as any;

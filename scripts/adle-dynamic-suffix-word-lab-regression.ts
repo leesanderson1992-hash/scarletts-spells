@@ -45,8 +45,16 @@ const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts a valid suffix snapshot for the shared Word Lab");
 assert.equal(runtime.activities.find((activity) => activity.type === "strip_build")?.assignmentBindings.length, 2);
 assert.equal(runtime.activities.find((activity) => activity.type === "prefix_choice")?.affixTerm, "suffix");
-assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.paragraphs.slice(0, 2), ["A suffix is added to the end of a word.", "-ness is spelled n-e-s-s."]);
-assert.equal(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, "The suffix -ness means state or quality.");
+const introScreens = runtime.activities.find((activity) => activity.type === "introduction")?.introScreens;
+assert.deepEqual(introScreens?.[0]?.paragraphs, [
+  "A suffix is a group of letters added to the end of a base or root that change the meaning of the word.",
+  "Each suffix carries its own way to change the word.",
+]);
+assert.deepEqual(introScreens?.[1]?.paragraphs.slice(0, 2), [
+  "A suffix is added to the end of a word.",
+  "-ness is spelled n-e-s-s.",
+]);
+assert.equal(introScreens?.[1]?.examples?.[0]?.meaning, "the state of being kind");
 const builds = payload.activities.guided.builds;
 assert.notDeepEqual(builds[0]!.choices.map((choice) => choice.text), builds[1]!.choices.map((choice) => choice.text), "suffix choices rotate deterministically between builds");
 assert.equal(normaliseSessionWord("Happiness"), normaliseSessionWord("happiness"), "capitalised controlled spelling is correct");
@@ -85,7 +93,14 @@ assert(ableIblePayload.activities.introduction.spellingRules.includes("Use -able
 assert(ableIblePayload.activities.introduction.spellingRules.includes("Use -ible when the base is not a full standalone word: sens- → sensible."));
 assert.notDeepEqual(ableIblePayload.activities.guided.builds[0]!.choices.map((choice) => choice.text), ableIblePayload.activities.guided.builds[1]!.choices.map((choice) => choice.text), "mixed suffix choices rotate deterministically");
 const ableIbleRuntime = dynamicAffixRuntime(ableIblePayload)!;
-assert.equal(ableIbleRuntime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, "The suffixes -able and -ible mean can be.");
+assert.deepEqual(
+  ableIbleRuntime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[1]?.paragraphs,
+  [
+    "The suffixes -able and -ible both mean can be.",
+    "Use -able when the root word is a complete, recognisable standalone word: wash → washable.",
+    "Use -ible when the base is not a full standalone word: sens- → sensible.",
+  ],
+);
 const basePlan = { childId: "child", planDate: "2026-07-27", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as unknown as ComposedDailyPlan;
 const ableIblePlan = buildDynamicAffixAssignmentPlan({ basePlan, selection: ableIbleSelection, payload: ableIblePayload });
 assert.equal(ableIblePlan.partTwo.sections.flatMap((section) => section.items).length, 16, "keeps the 16-item contract");

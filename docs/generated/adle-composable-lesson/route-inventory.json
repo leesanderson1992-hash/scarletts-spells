@@ -281,7 +281,8 @@
       "implementationState": "registered",
       "intentionalItemCounts": [
         16,
-        18
+        18,
+        20
       ],
       "legacyDetectionRules": [
         "prompt_data.dynamicPrefixActivityId=intro-root"

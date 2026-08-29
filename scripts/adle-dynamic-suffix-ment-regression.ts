@@ -28,8 +28,11 @@ assert.equal(JSON.stringify(reviewed).split(meaningStatement).length - 1, 1, "ap
 assert(reviewed.profile.introContent.paragraphs.includes("The suffix -ment is a noun maker. We can take a verb like enjoy and, when we add -ment to the end, it turns it into a noun."), "introduction teaches -ment as a noun maker");
 assert(guidedLessonSource.includes("window.setTimeout(() =>"), "resume hydration is not animation-frame gated");
 assert(!guidedLessonSource.includes("window.requestAnimationFrame(() =>"), "background reload cannot stall resume hydration");
-assert(guidedLessonSource.includes('return "Try another split"'), "intermediate cleavers announce another split");
-assert(guidedLessonSource.includes('hasMeaningSort ? "Continue to meanings" : "Build a word"'), "final suffix cleaver advances directly to build");
+assert(
+  guidedLessonSource.includes("continueLabel: state.splitIndex + 1 <")
+    && guidedLessonSource.includes('? "Try another split" : hasMeaningSort ? "Continue to meanings" : "Build a word"'),
+  "cleavers announce another split until the final suffix advances to meanings or building",
+);
 assert(completionActionSource.includes("dynamicSuffix !== null\n    ? productionItems")
   && completionActionSource.includes("scheduleAllProducedWords: dynamicSuffix !== null"),
   "suffix completion teaches and schedules all four selected lesson words");
@@ -139,7 +142,16 @@ const runtime = dynamicAffixRuntime(payload);
 assert(runtime, "adapts -ment to the shared position-aware runtime");
 assert.equal(runtime.guide.displayName, "Suffix Scout");
 const introduction = runtime.activities.find((activity) => activity.type === "introduction");
-assert.equal(introduction?.introScreens?.[0]?.meaningCallout, meaningStatement);
+assert.deepEqual(introduction?.introScreens?.[1]?.paragraphs, [
+  ...reviewed.profile.introContent.paragraphs.filter(
+    (paragraph: string) => paragraph !== "A suffix is added to the end of a base or root.",
+  ),
+  ...reviewed.profile.introContent.spellingRules,
+]);
+assert.deepEqual(
+  introduction?.introScreens?.[1]?.examples?.map((example) => example.word),
+  reviewed.profile.introContent.examples.map((example: any) => example.word),
+);
 assert.equal(runtime.activities.filter((activity) => activity.type === "meaning_sort").length, 0);
 assert.equal(normaliseSessionWord("Movement"), normaliseSessionWord("movement"));
 const basePlan = {

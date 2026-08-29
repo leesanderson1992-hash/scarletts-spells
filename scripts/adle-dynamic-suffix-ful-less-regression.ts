@@ -40,7 +40,11 @@ assert(
     && rendererSource.includes('"Suffix meanings, four words"'),
   "meaning overview uses the reviewed suffix label rather than the legacy un- fallback",
 );
-assert(rendererSource.includes("introScreens!.length"), "introduction supports profile-driven screen counts");
+assert(
+  rendererSource.includes("resolveMorphologyTeachingPages(props.payload)")
+    && rendererSource.includes("<FirstImpressionLesson"),
+  "introduction resolves through the canonical Group 7 teaching pages and lesson shell",
+);
 assert(persistenceMigration.includes("D4_MOR_SUFFIXES_FUL_LESS")
   && persistenceMigration.includes("dynamic_affix_v3")
   && persistenceMigration.includes("includeMeaningSort")
@@ -162,15 +166,20 @@ assert.equal(runtime.activities.filter((activity) => activity.type === "meaning_
 assert.equal(runtime.activities.find((activity) => activity.type === "meaning_sort")?.assignmentBindings.length, 4);
 assert.equal(runtime.activities.find((activity) => activity.type === "meaning_sort")?.prefixLabel, "-ful and -less");
 const intro = runtime.activities.find((activity) => activity.type === "introduction");
-assert.equal(intro?.introScreens?.length, 5);
-assert.equal(intro?.introScreens?.[0]?.meaningCallout, meaningStatement);
-assert.deepEqual(intro?.introScreens?.slice(1, 3).flatMap((screen) => screen.examples?.map((example) => example.word) ?? []), [
+assert.equal(intro?.introScreens?.length, 2);
+assert.deepEqual(intro?.introScreens?.[1]?.paragraphs, [
+  ...reviewed.profile.introContent.paragraphs.filter(
+    (paragraph: string) => paragraph !== "A suffix is added to the end of a base or root.",
+  ),
+  ...reviewed.profile.introContent.spellingRules,
+]);
+assert.deepEqual(intro?.introScreens?.[1]?.examples?.map((example) => example.word), [
   "careful", "hopeful", "helpful", "colourful", "careless", "hopeless", "helpless", "colourless",
 ]);
 assert.equal(normaliseSessionWord("Careful"), normaliseSessionWord("careful"));
 assert(normaliseMorphologyLessonResume({
   stage: "learn",
-  introIndex: 4,
+  introIndex: 2,
   discoverIndex: 0,
   discoverAddedPrefix: false,
   splitMisses: 0,
@@ -189,10 +198,10 @@ assert(normaliseMorphologyLessonResume({
   helpLevel: 0,
   reflectionText: "",
 }, payload.words.lesson.map((word) => word.canonicalWordId), [], {
-  introScreenCount: 5,
+  introScreenCount: 2,
   splitCount: 2,
   buildCount: 2,
-}), "the final explainer screen survives reload/resume validation");
+}), "the required final Meet the Words page survives reload/resume validation");
 
 const basePlan = {
   childId: "child",

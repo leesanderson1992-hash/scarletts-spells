@@ -55,7 +55,14 @@ assertDynamicAffixSharedParity(selection, payload, "SION reviewed fixture");
 assert.equal(payload.activities.guided.includeMeaningSort, false); assert.equal(payload.activities.guided.splitCanonicalWordIds.length, 2); assert.equal(payload.activities.guided.builds.length, 4);
 const positions = payload.activities.guided.builds.map((build) => { assert.deepEqual(new Set(build.choices.map((choice) => choice.text)), new Set(["sion", "tion", "cion"])); assert.equal(build.baseWord + "sion", payload.words.lesson.find((word) => word.canonicalWordId === build.canonicalWordId)?.displayWord); return build.choices.findIndex((choice) => choice.status === "target"); });
 assert(new Set(positions).size > 1, "correct suffix tile ordering varies deterministically");
-const runtime = dynamicAffixRuntime(payload); assert(runtime && runtime.activities.filter((activity) => activity.type === "meaning_sort").length === 0); assert.equal(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[0]?.meaningCallout, rule); assert.equal(runtime.activities.find((activity) => activity.type === "reflection")?.promptText, reflectionPrompt);
+const runtime = dynamicAffixRuntime(payload); assert(runtime && runtime.activities.filter((activity) => activity.type === "meaning_sort").length === 0);
+assert.deepEqual(runtime.activities.find((activity) => activity.type === "introduction")?.introScreens?.[1]?.paragraphs, [
+  ...pkg.profile.introContent.paragraphs.filter(
+    (paragraph: string) => paragraph !== "A suffix is added to the end of a base or root.",
+  ),
+  ...pkg.profile.introContent.spellingRules,
+]);
+assert.equal(runtime.activities.find((activity) => activity.type === "reflection")?.promptText, reflectionPrompt);
 assert.equal(normaliseSessionWord("Decision"), normaliseSessionWord("decision"));
 const basePlan = { childId: "child", planDate: "2026-07-29", composerPolicyVersion: "test", schedulePolicyVersion: "test", throttle: {}, partOne: {}, partTwo: {}, budget: { budgetResponses: 0, estimatedResponses: 0, guidedWordCount: 0, introTrimmed: false, trims: [] } } as any;
 assert.equal(buildDynamicAffixAssignmentPlan({ basePlan, selection, payload }).partTwo.sections.flatMap((section: any) => section.items).length, 16);
