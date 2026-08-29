@@ -82,10 +82,10 @@ export interface ActivityConvergenceBacklogItem {
 }
 
 const GENERIC_ROUTE = "generic_composer:v1";
-const PREFIX_ROUTES = ["dynamic_prefix_word_lab:v2", "fixed_un_prefix_word_lab:v1"] as const;
+const PREFIX_ROUTES = ["dynamic_prefix_word_lab:v2"] as const;
 const AFFIX_ROUTE = "dynamic_affix_word_lab:v3";
 const BASE_ROUTE = "base_word_lab:v2";
-const COMPOUND_ROUTES = ["compound_word_lab:v2", "closed_compound_word_lab:v1"] as const;
+const COMPOUND_ROUTES = ["compound_word_lab:v2"] as const;
 const ALL_SPECIALIST_ROUTES = [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, ...COMPOUND_ROUTES] as const;
 
 const PREFIX_SKILLS = [
@@ -250,8 +250,8 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     requiredInputs: [], optionalInputs: ["historical review words", "historical sortBins"],
     usedByRoutes: ["historical generic assignments only"], usedByMicroSkills: ["historical review payloads only"], templateKeys: ["REVIEW_QUICK_SORT"],
     status: "COMPATIBILITY_ONLY", firstImpressionEligible: false, reviewEligible: false,
-    whenToUse: "Only while decoding immutable historical assignments or generic snapshot v2 payloads.", whenNotToUse: "For forward curriculum generation or any learner-facing categorisation.",
-    notes: "The current registry maps the key to compatibility_noop. Generic snapshot v2 retains its immutable quick_sort discriminator solely for historical decoding.",
+    whenToUse: "Only while decoding immutable historical assignments.", whenNotToUse: "For forward curriculum generation or any learner-facing categorisation.",
+    notes: "The current metadata-free compatibility reader maps the historical key to compatibility_noop.",
   }),
   activity({
     activityKey: "COVER_CHECK", displayName: "Cover Check", interactionFamily: "cover_recall",
@@ -459,12 +459,12 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("Base Word Sentence Dictation adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state.", persistenceEvidenceDifferences: "Authored target-token extraction remains route-owned.", migrationRisk: "high" }),
   auditRow("Base Word reflection adapter", "components/adle/morphology/base-word-family-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [BASE_ROUTE], propsConfigDifferences: "Extracts the governed target token from each dictated sentence and derives the base-word prompt.", persistenceEvidenceDifferences: "Returns controlled attempts, sentence attempts and reflection to BaseWordFamilyPart; atomic completion remains external.", migrationRisk: "high" }),
 
-  auditRow("Compound teaching adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE / MEET_WORDS", "THIN_ADAPTER", "TeachingPages", { currentRouteUsages: ["compound_word_lab:v2", "closed_compound_word_lab:v1"], propsConfigDifferences: "Maps governed reading sections, examples and compound word structure into TeachingPages.", migrationRisk: "medium", historicalReplayDependency: true }),
+  auditRow("Compound teaching adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "READING_PAGE / MEET_WORDS", "THIN_ADAPTER", "TeachingPages", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Maps governed reading sections, examples and compound word structure into TeachingPages.", migrationRisk: "medium" }),
   auditRow("CompoundJigsawActivity", "components/adle/morphology/compound-jigsaw-activity.tsx", "COMPOUND_JIGSAW", "CANONICAL", "CompoundJigsawActivity", { currentRouteUsages: [...COMPOUND_ROUTES], registryTemplateKeys: ["MOR_COMPOUND_JIGSAW"], migrationRisk: "high", historicalReplayDependency: true }),
   auditRow("MeaningConnectionActivity", "components/adle/morphology/meaning-connection-activity.tsx", "MEANING_MATCH", "CANONICAL", "MeaningConnectionActivity", { currentRouteUsages: [...COMPOUND_ROUTES, GENERIC_ROUTE], registryTemplateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], propsConfigDifferences: "Governed definitions are required; optional component clues and audio do not create another mode state machine.", migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("Compound Cover Check adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies governed components, split points and restored checked attempt through the shared v1/v2 runtime adapter.", migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("Compound Sentence Dictation adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state through the shared v1/v2 runtime adapter.", persistenceEvidenceDifferences: "Governed span extraction and separator-significant correctness remain route-owned.", migrationRisk: "high", historicalReplayDependency: true }),
-  auditRow("CompoundLessonReflectionAdapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Derives exact-governed-form misses and retains existing sentence comparisons plus closed-v1 no-miss copy.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction and all hidden guided/production envelopes outside LessonReflection.", migrationRisk: "high", historicalReplayDependency: true }),
+  auditRow("Compound Cover Check adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "COVER_CHECK adapter", "CANONICAL_MODE", "CoverShutter", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies governed components, split points and restored checked attempt through the current v2 runtime adapter.", migrationRisk: "high" }),
+  auditRow("Compound Sentence Dictation adapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "DICTATION.whole_sentence adapter", "CANONICAL_MODE", "SentenceDictation", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Supplies authored audio/sentence and restored response/check state through the current v2 runtime adapter.", persistenceEvidenceDifferences: "Governed span extraction and separator-significant correctness remain route-owned.", migrationRisk: "high" }),
+  auditRow("CompoundLessonReflectionAdapter", "components/adle/morphology/closed-compound-guided-lesson.tsx", "LESSON_REFLECTION adapter", "CANONICAL_MODE", "LessonReflection", { currentRouteUsages: [...COMPOUND_ROUTES], propsConfigDifferences: "Derives exact-governed-form misses and retains existing sentence comparisons.", persistenceEvidenceDifferences: "Retains completeAdleLessonPartAction and all hidden guided/production envelopes outside LessonReflection.", migrationRisk: "high" }),
   auditRow("LessonReflection", "components/adle/activities/lesson-reflection.tsx", "LESSON_REFLECTION", "CANONICAL", "LessonReflection", { currentRouteUsages: [...ALL_SPECIALIST_ROUTES], propsConfigDifferences: "One neutral normalized mistake, context recap, specialist recap, governed prompt and controlled response contract.", persistenceEvidenceDifferences: "Emits response/completion UI only; performs no correctness, assignment, persistence or evidence work.", migrationRisk: "high" }),
 
   auditRow("FixtureActivity", "components/adle/word-lab/activity-registry.tsx", "COMMON_WORD_LAB_PLACEHOLDER", "COMPATIBILITY_ONLY", "real per-kind Word Lab plugins", { currentRouteUsages: ["/dev/adle/common-word-lab only"], propsConfigDifferences: "One textarea implementation stands in for strategy_notice, guided_map, cover_check, dictation, and reflection.", recommendedAction: "Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations.", migrationRisk: "low" }),
@@ -484,7 +484,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
 export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBacklogItem[] = [
   {
     priority: "P1", title: "Wire rich components through registry modes",
-    currentImplementations: ["canonical renderer registry for specialist and normalized generic routes", "immutable Generic Snapshot v2 compiler/validator/replay", "additive Generic Snapshot v3 canonical reader/validator plus deterministic guarded non-Production compiler/persistence port; real assignment writer disabled"],
+    currentImplementations: ["canonical renderer registry for specialist and normalized generic routes", "immutable Generic Snapshot v3 compiler/validator/replay", "metadata-free historical generic normalization"],
     targetCanonicalImplementation: "Activity Catalogue capability mapping feeding one versioned canonical renderer registry",
     intendedModes: ["existing canonical activity contracts", "behaviour-identical specialist routing", "explicit historical normalization"], routesAffected: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES],
     regressionRequirements: ["catalogue-to-registration totality", "payload validation", "lazy renderer loading", "route replay", "resume/completion/evidence parity", "fail-closed unknown contracts"],
@@ -502,16 +502,6 @@ export const ADLE_ACTIVITY_CONVERGENCE_BACKLOG: readonly ActivityConvergenceBack
     releaseBoundary: "These are generic curriculum capability additions rather than Model C specialist releases. Every new interaction still requires a separate pedagogical contract, owner approval and an independently authorized generic-generation release.",
     consolidationOpportunity: "Capability addition, not a deletion opportunity.",
   },
-  {
-    priority: "P2", title: "Retain historical route compatibility until replay retirement",
-    currentImplementations: ["fixed_un_prefix_word_lab:v1", "closed_compound_word_lab:v1 payload/runtime adapter"],
-    targetCanonicalImplementation: "current shared renderers behind explicit compatibility adapters",
-    intendedModes: ["historical_replay"], routesAffected: ["fixed_un_prefix_word_lab:v1", "closed_compound_word_lab:v1"],
-    regressionRequirements: ["persisted payload replay", "resume", "completion", "separator policy", "no new assignment generation"],
-    learnerRuntimeRisk: "high", modelCReleaseChangeRequired: false,
-    releaseBoundary: "Compatibility-only retention does not change a released contract. Retirement requires persisted replay inventory and owner confirmation of the retention obligation.",
-    consolidationOpportunity: "The closed-v1 learner UI is retired; retain only payload decoding, route resolution, resume and completion compatibility until persisted replay is retired.",
-  },
 ] as const;
 
 export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
@@ -522,8 +512,8 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
     runtimeRegistries: [
       "components/adle/activities/canonical-renderer-registry.tsx — versioned canonical concept/mode contracts for specialist and generic/historical runtime rendering",
       "lib/adle/generic-activity-compatibility.ts — deterministic in-memory normalization of supported generic/historical inputs",
-      "lib/adle/activity-template-registry.ts — legacy 34-key renderer-kind vocabulary retained outside runtime pending Snapshot v2 retirement evidence",
-      "lib/adle/composable-lesson/generic-snapshot-registry.ts — versioned generic snapshot semantics for the same 34 keys",
+      "lib/adle/activity-template-registry.ts — historical 34-key normalization vocabulary retained for metadata-free replay",
+      "lib/adle/composable-lesson/generic-snapshot-v3-registry.ts — current canonical snapshot-v3 contract authority",
       "lib/adle/composable-lesson/activity-requirements.ts — 15 pedagogical activity fact contracts",
       "lib/adle/curriculum-readiness/route-registry.ts — seven generic/specialist route declarations",
       "components/adle/word-lab/activity-registry.tsx — five dark Common Word Lab fixture plugin registrations",
@@ -537,10 +527,10 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "docs/implementation/adle-base-word-family-lesson-plan.md",
     ],
   },
-  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets v0/v2 historical keys into CanonicalActivitySpec contracts but cannot select React components. Additive Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 remains immutable and replayable, and the v3 writer/forward composer output remain off pending owner approval.",
+  authorityRelationship: "Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets metadata-free historical keys into CanonicalActivitySpec contracts but cannot select React components. Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Snapshot v3 is the only forward generic snapshot authority.",
   buildBoundary: "BUILD is one shared ordered-placement interaction family with two learner experiences. DefinitionWordBuilder presents one definition-led target and is configured by all 19 Prefix, Suffix/Affix and Base Word microskills. CompoundJigsawActivity presents anonymous puzzle rows above one deterministic mixed bank using Jigsaw-shaped component, SPACE and hyphen pieces; checked row content identifies and locks the governed word. Both use OrderedBuildEngine for candidate order, placement, rearrangement, validation, completion and restoration. Historical closed-compound v1 payloads are translated at the route boundary to generalized two-piece/no-join targets; no historical Jigsaw UI remains.",
   cleaverBoundary: "SplitHandle is the one stateful Split engine across Prefix, Affix and Base Word. Required boundaries, restored selected cuts and an isolated governed component are neutral configuration; SplitBuild and Base Word Cleave are thin curriculum adapters. Final-y source-form restoration is a separate post-Split SpellingTransformationReveal, and the redundant typed base confirmation is retired. Word assembly and syllable split/rebuild remain separate learner actions.",
-  meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less immutable payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a compatibility key and immutable generic snapshot v2 discriminator.",
+  meaningCategorisationBoundary: "Meaning has exactly three canonical learner actions. Discovery is one prefix/suffix-configured transformation-and-choice engine. MeaningConnectionActivity is one rich word-to-definition connection engine for Compound and governed generic payloads; definition-less historical payloads use an explicit compatibility fallback. BinSort is one categorisation state machine and owns immediate feedback, a brief reduced-motion-safe success celebration, automatic advance, and its stateless final BinSortOverview. QuickSort UI and forward generation are retired; REVIEW_QUICK_SORT remains only a metadata-free historical compatibility key.",
   reflectionBoundary: "ERROR_REPAIR remains ReflectionActivity and keeps reveal-hide-retry evidence. MEMORY_CUE remains child mnemonic authoring. LessonReflection is the canonical end-of-first-impression LESSON_REFLECTION: it receives normalized attempted-versus-correct spelling summaries, a governed lesson-specific prompt, optional specialist/context recap, and one controlled response. Prefix context slips remain recap data rather than target assessment evidence. Route correctness, persistence, assignment and completion adapters remain outside the component; stored historical prompt keys/text remain assignment-owned.",
   spellRecallBoundary: "First-impression spelling has exactly two learner experiences: CoverShutter for study-cover-spell-compare and SentenceDictation for authored whole-sentence audio recall. Scheduled review and diagnostics share ColdWordRecall, which never reveals the governed spelling until the response is irreversibly locked. Historical CONTROLLED_SPELLING, HIDE_WRITE, DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT, REVIEW_DICTATION and DIAGNOSTIC_DICTATION_PROBE keys remain accepted semantic/configuration inputs only. Route adapters retain resume, correctness, evidence, scheduling, probe intake, assignment and persistence. SpellingField and GrownUpReveal are retired.",
   group3Closeout: {
@@ -583,7 +573,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   },
   nextConvergenceGroup: {
     status: "P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF",
-    summary: "The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.",
+    summary: "The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.",
   },
   genericSnapshotV3Boundary: {
     schemaVersion: 3,
@@ -601,7 +591,7 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
       "LESSON_REFLECTION.standard_lesson_reflection@1",
     ],
     writerStatus: "DETERMINISTIC_COMPILER_AND_GUARDED_NON_PRODUCTION_PORT_COMPLETE; REAL_ASSIGNMENT_SELECTION_DEFAULT_OFF_AND_UNWIRED",
-    immutableCompatibility: "Generic Snapshot v2 contracts, compiler, validator, fingerprints and replay remain unchanged.",
+    immutableCompatibility: "Metadata-free generic replay, REVIEW_QUICK_SORT normalization, and canonical historical adapters remain unchanged.",
   },
   newActivityRule: [
     "Search the canonical Activity Catalogue.",
@@ -613,9 +603,9 @@ export const ADLE_ACTIVITY_AUDIT_CONCLUSIONS = {
   firstImpressionImplications: {
     targetSequence: ["Teaching Page 1", "optional Teaching Page 2", "optional Teaching Page 3", "required Meet the Words", "configured Activity Catalogue sequence", "CoverShutter", "SentenceDictation", "LessonReflection", "Celebration"],
     canonicalRoutes: [
-      "compound_word_lab:v2 and closed_compound_word_lab:v1 use TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter",
+      "compound_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter",
       "base_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the Base Word runtime adapter",
-      "dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter",
+      "dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter",
     ],
     bespokePieces: ["thin curriculum adapters", "historical resume normalization", "route evidence/completion envelopes"],
   },

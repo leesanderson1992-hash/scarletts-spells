@@ -187,24 +187,6 @@ export function createPersistedRouteMetadata(
   };
 }
 
-/** Historical metadata constructor used only to replay/rebuild an existing
- * closed-v1 assignment contract. This route cannot originate new work. */
-export function createLegacyPersistedRouteMetadata(
-  routeId: "closed_compound_word_lab",
-): PersistedLessonRouteMetadataV1 {
-  const route = getCurriculumRouteDefinition(routeId, "v1");
-  if (!route || route.implementationState !== "legacy_render_only" ||
-      route.recipes.length !== 1 || route.payloadVersions.length !== 1) {
-    throw new Error(`Legacy route ${routeId}:v1 is unavailable for replay.`);
-  }
-  return {
-    metadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION,
-    route: { routeId, routeVersion: route.routeVersion },
-    recipe: { ...route.recipes[0] },
-    payload: { kind: route.payloadKind, version: route.payloadVersions[0] },
-  };
-}
-
 export function validatePersistedRouteMetadataCompatibility(
   metadata: PersistedLessonRouteMetadata,
 ):

@@ -9,7 +9,6 @@ import {
 import { createPersistedRouteMetadata } from "../lib/adle/composable-lesson/persisted-route-metadata";
 
 const enabled: LessonRouteRuntimeContext = {
-  morphologyUnEnabled: true,
   dynamicPrefixEnabled: true,
   dynamicAffixEnabled: true,
   baseWordFamilyEnabled: true,
@@ -89,7 +88,7 @@ assert(
 assert(
   blocker({
     ...createPersistedRouteMetadata("generic_composer"),
-    payload: { kind: "closed_compound_lesson_v1", version: 1 },
+    payload: { kind: "dynamic_affix_lesson_v3", version: 3 },
   }).includes("payload_kind_mismatch"),
 );
 assert(

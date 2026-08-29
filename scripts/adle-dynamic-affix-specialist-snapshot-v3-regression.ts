@@ -115,7 +115,7 @@ const snapshotRoute = resolvePersistedLessonRoute({
   lessonRouteMetadata: persistence.header.lessonRouteMetadata,
   compiledLessonSnapshot: first,
   items,
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert.equal(snapshotRoute.status, "resolved_explicit");
 assert(snapshotRoute.status === "resolved_explicit" && snapshotRoute.runtime.adapterKey === "dynamic_affix_v3");
@@ -130,7 +130,7 @@ const legacyRoute = resolvePersistedLessonRoute({
     sectionKey: item.metadata.sectionKey, templateKey: item.templateKey,
     canonicalWordId: item.metadata.canonicalWordId, targetWord: item.targetWord, promptData: item.promptData,
   })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert.equal(legacyRoute.status, "resolved_explicit");
 assert(legacyRoute.status === "resolved_explicit" && legacyRoute.runtime.adapterKey === "dynamic_affix_v3");

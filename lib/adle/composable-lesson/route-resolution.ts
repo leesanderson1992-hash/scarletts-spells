@@ -17,8 +17,6 @@ import {
   type CurriculumRouteDefinition,
 } from "../curriculum-readiness/route-registry";
 import {
-  resolveMorphologyPilotRuntime,
-  validateMorphologyLessonPayload,
   type MorphologyLessonPayloadV1,
 } from "../morphology/payload";
 import {
@@ -44,10 +42,6 @@ import {
   type BaseWordFamilyLessonSnapshotV1,
 } from "../morphology/base-word-family-payload";
 import {
-  validateClosedCompoundLessonPayload,
-  type ClosedCompoundLessonPayloadV1,
-} from "../morphology/closed-compound-word-lab";
-import {
   COMPOUND_WORD_LESSON_ITEM_COUNT,
   validateCompoundWordLessonPayloadV2,
   type CompoundWordLessonPayloadV2,
@@ -68,7 +62,6 @@ export interface LessonRouteResolutionItem {
 }
 
 export interface LessonRouteRuntimeContext {
-  morphologyUnEnabled: boolean;
   dynamicPrefixEnabled: boolean;
   dynamicAffixEnabled: boolean;
   baseWordFamilyEnabled: boolean;
@@ -76,10 +69,8 @@ export interface LessonRouteRuntimeContext {
 
 export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   "generic_composer_v1",
-  "morphology_guided_v1",
   "dynamic_prefix_v2",
   "dynamic_affix_v3",
-  "closed_compound_v1",
   "compound_word_v2",
   "base_word_family_v1",
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
@@ -91,9 +82,7 @@ export type ResolvedLessonRuntime =
       payload: null;
     }
   | {
-      adapterKey:
-        | "morphology_guided_v1"
-        | "dynamic_prefix_v2";
+      adapterKey: "dynamic_prefix_v2";
       rendererKey: "morphology_guided";
       payload: MorphologyLessonPayloadV1;
       sourcePayload?: import("../morphology/dynamic-prefix-word-lab").DynamicPrefixLessonPayloadV2;
@@ -105,12 +94,6 @@ export type ResolvedLessonRuntime =
       payload: MorphologyLessonPayloadV1;
       sourcePayload: import("../morphology/affix-word-lab").DynamicAffixLessonPayloadV3;
       resolvedLesson: import("../morphology/dynamic-affix-runtime").ResolvedDynamicAffixLessonV3;
-    }
-  | {
-      adapterKey: "closed_compound_v1";
-      rendererKey: "closed_compound_guided";
-      payload: ClosedCompoundLessonPayloadV1;
-      completionPayload: MorphologyLessonPayloadV1;
     }
   | {
       adapterKey: "compound_word_v2";
@@ -193,96 +176,6 @@ function refs(route: CurriculumRouteDefinition) {
   };
 }
 
-function compoundCompletionPayload(
-  payload: ClosedCompoundLessonPayloadV1,
-): MorphologyLessonPayloadV1 {
-  return {
-    microSkillId: payload.microSkillId,
-    contentVersion: payload.contentVersion,
-    activities: [
-      {
-        type: "sentence_dictation",
-        sentences: payload.activities.dictation,
-      },
-      {
-        type: "reflection",
-        promptKey: payload.activities.reflection.promptKey,
-        promptText: payload.activities.reflection.promptText,
-      },
-    ],
-  } as unknown as MorphologyLessonPayloadV1;
-}
-
-function validateClosedCompoundBindings(
-  items: readonly LessonRouteResolutionItem[],
-  payload: ClosedCompoundLessonPayloadV1,
-): boolean {
-  const expected = [
-    {
-      id: "intro-root",
-      section: "lesson_intro",
-      template: "MICRO_READ_ONLY_INTRO",
-      canonicalWordId: null,
-      targetWord: null,
-    },
-    {
-      id: "intro-words",
-      section: "lesson_intro",
-      template: "LESSON_WORDS_INTRO",
-      canonicalWordId: null,
-      targetWord: null,
-    },
-    ...payload.words.lesson.flatMap((word) => [
-      {
-        id: `jigsaw-${word.canonicalWordId}`,
-        section: "guided_practice",
-        template: "MOR_COMPOUND_JIGSAW",
-        canonicalWordId: word.canonicalWordId,
-        targetWord: word.displayWord,
-      },
-      {
-        id: `meaning-${word.canonicalWordId}`,
-        section: "guided_practice",
-        template: "MOR_COMPOUND_MEANING_CONNECTION",
-        canonicalWordId: word.canonicalWordId,
-        targetWord: word.displayWord,
-      },
-    ]),
-    ...payload.words.lesson.map((word) => ({
-      id: `controlled-${word.canonicalWordId}`,
-      section: "lesson_production",
-      template: "CONTROLLED_SPELLING",
-      canonicalWordId: word.canonicalWordId,
-      targetWord: word.displayWord,
-    })),
-    ...payload.activities.dictation.map((sentence) => ({
-      id: `dictation-${sentence.canonicalWordId}`,
-      section: "lesson_dictation",
-      template: "DICTATION_NO_IMAGE",
-      canonicalWordId: sentence.canonicalWordId,
-      targetWord: sentence.targetWord,
-    })),
-  ];
-  if (items.length !== expected.length) return false;
-  const observed = new Set<string>();
-  for (const item of items) {
-    const binding = item.promptData.closedCompoundActivityId;
-    if (typeof binding !== "string" || observed.has(binding)) return false;
-    observed.add(binding);
-    const spec = expected.find((candidate) => candidate.id === binding);
-    if (
-      !spec ||
-      item.sectionKey !== spec.section ||
-      item.templateKey !== spec.template ||
-      item.canonicalWordId !== spec.canonicalWordId ||
-      item.targetWord !== spec.targetWord
-    ) {
-      return false;
-    }
-  }
-  return observed.size === expected.length;
-}
-
 function validateCompoundWordV2Bindings(
   items: readonly LessonRouteResolutionItem[],
   payload: CompoundWordLessonPayloadV2,
@@ -347,26 +240,6 @@ function runAdapter(
           payload: null,
         },
       };
-    case "morphology_guided_v1": {
-      const candidates = roots(items, "pilotActivityId", "intro-root");
-      if (candidates.length === 0) return { ok: false, blocker: "root_item_missing" };
-      if (candidates.length > 1) return { ok: false, blocker: "root_item_duplicate" };
-      if (!validateMorphologyLessonPayload(candidates[0].promptData.morphologyLesson)) {
-        return { ok: false, blocker: "persisted_payload_malformed" };
-      }
-      if (!context.morphologyUnEnabled) return { ok: false, blocker: "route_unavailable" };
-      const payload = resolveMorphologyPilotRuntime(context.morphologyUnEnabled, items);
-      return payload
-        ? {
-            ok: true,
-            runtime: {
-              adapterKey: "morphology_guided_v1",
-              rendererKey: "morphology_guided",
-              payload,
-            },
-          }
-        : { ok: false, blocker: "assignment_binding_mismatch" };
-    }
     case "dynamic_prefix_v2": {
       const candidates = roots(items, "dynamicPrefixActivityId", "intro-root");
       if (candidates.length === 0) return { ok: false, blocker: "root_item_missing" };
@@ -420,27 +293,6 @@ function runAdapter(
             },
           }
         : { ok: false, blocker: "assignment_binding_mismatch" };
-    }
-    case "closed_compound_v1": {
-      const candidates = roots(items, "closedCompoundActivityId", "intro-root");
-      if (candidates.length === 0) return { ok: false, blocker: "root_item_missing" };
-      if (candidates.length > 1) return { ok: false, blocker: "root_item_duplicate" };
-      const source = candidates[0].promptData.closedCompoundLesson;
-      if (!validateClosedCompoundLessonPayload(source)) {
-        return { ok: false, blocker: "persisted_payload_malformed" };
-      }
-      if (!validateClosedCompoundBindings(items, source)) {
-        return { ok: false, blocker: "assignment_binding_mismatch" };
-      }
-      return {
-        ok: true,
-        runtime: {
-          adapterKey: "closed_compound_v1",
-          rendererKey: "closed_compound_guided",
-          payload: source,
-          completionPayload: compoundCompletionPayload(source),
-        },
-      };
     }
     case "compound_word_v2": {
       const candidates = roots(items, "compoundWordActivityId", "intro-root");
@@ -497,9 +349,6 @@ function detectedLegacyRouteIds(
   items: readonly LessonRouteResolutionItem[],
 ): LessonRouteId[] {
   const ids: LessonRouteId[] = [];
-  if (roots(items, "closedCompoundActivityId", "intro-root").length > 0) {
-    ids.push("closed_compound_word_lab");
-  }
   if (roots(items, "pilotActivityId", "strategy-intro").length > 0) {
     ids.push("base_word_lab");
   }
@@ -508,9 +357,6 @@ function detectedLegacyRouteIds(
   }
   if (roots(items, "dynamicPrefixActivityId", "intro-root").length > 0) {
     ids.push("dynamic_prefix_word_lab");
-  }
-  if (roots(items, "pilotActivityId", "intro-root").length > 0) {
-    ids.push("fixed_un_prefix_word_lab");
   }
   return ids;
 }
@@ -591,10 +437,7 @@ export function resolvePersistedLessonRoute(input: {
     parsed.metadata.route.routeVersion,
   );
   if (!route) return blocked("persisted_metadata", "unknown_route");
-  if (
-    route.implementationState !== "registered" &&
-    route.routeId !== "closed_compound_word_lab"
-  ) {
+  if (route.implementationState !== "registered") {
     return blocked("persisted_metadata", "route_unavailable");
   }
   const detected = detectedBoundRouteIds(items);

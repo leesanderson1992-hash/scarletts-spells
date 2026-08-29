@@ -189,7 +189,7 @@ async function assign(): Promise<any> {
     const replay = await generateGuardedCompoundWordAssignment({ userClient: client, serviceClient: client, parentUserId: PARENT, childId: CHILD, planDate: DATES[skill], microSkillKey: skill, generationTrigger: "parent_manual" });
     if (replay.assignmentId !== first.assignmentId) fail(`${skill} assignment replay changed identity`);
     const model = await getAdleDailyPlanReadModel({ userClient: client, parentUserId: PARENT, childId: CHILD, planDate: DATES[skill], assignmentId: first.assignmentId });
-    const route = resolvePersistedLessonRoute({ lessonRouteMetadata: model.lessonRouteMetadata, items: model.partTwo.items, runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true } });
+    const route = resolvePersistedLessonRoute({ lessonRouteMetadata: model.lessonRouteMetadata, items: model.partTwo.items, runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true } });
     if (model.partTwo.items.length !== 18 || route.status !== "resolved_explicit" || route.runtime.adapterKey !== "compound_word_v2") fail(`${skill} persisted runtime did not resolve exactly`);
     const payload = route.runtime.payload;
     const authentic = payload.words.lesson.filter((word) => word.lineage.kind === "learner_target");
@@ -204,7 +204,7 @@ async function assign(): Promise<any> {
 }
 
 function payloadFromRoute(model: Awaited<ReturnType<typeof getAdleDailyPlanReadModel>>): CompoundWordLessonPayloadV2 {
-  const route = resolvePersistedLessonRoute({ lessonRouteMetadata: model.lessonRouteMetadata, items: model.partTwo.items, runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true } });
+  const route = resolvePersistedLessonRoute({ lessonRouteMetadata: model.lessonRouteMetadata, items: model.partTwo.items, runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true } });
   if (route.status !== "resolved_explicit" || route.runtime.adapterKey !== "compound_word_v2") fail("assignment did not resolve through Compound v2 runtime");
   return route.runtime.payload;
 }

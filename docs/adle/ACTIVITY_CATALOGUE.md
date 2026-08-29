@@ -29,7 +29,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `COMPOUND_JIGSAW` | Join compound components in governed order while preserving spaces and hyphens. | For compound structure where puzzle joining is itself pedagogically meaningful. | Yes | No | `CANONICAL` |
 | `MEANING_MATCH` | Connect each word to its whole-word definition. | When each word must be paired with a distinct definition. | Yes | No | `CANONICAL` |
 | `MEANING_SORT` | Sort words into reusable meaning or affix-form groups. | When several words share meaningful categories. | Yes | No | `CANONICAL` |
-| `REVIEW_SORT` | Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer. | Only while decoding immutable historical assignments or generic snapshot v2 payloads. | No | No | `COMPATIBILITY_ONLY` |
+| `REVIEW_SORT` | Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer. | Only while decoding immutable historical assignments. | No | No | `COMPATIBILITY_ONLY` |
 | `COVER_CHECK` | Study a visible word, hide it, recall it, and compare the attempt. | For supported study-cover-recall practice where a teaching view is intentional. | Yes | No | `CANONICAL` |
 | `CONTROLLED_SPELLING` | Historical catalogue concept for controlled study/spelling payloads. | Only to decode accepted historical template keys into Cover Check. | No | No | `COMPATIBILITY_ONLY` |
 | `DICTATION` | Transcribe a governed authored sentence from audio, then lock and compare. | For every first-impression Dictation activity with governed authored sentence content. | Yes | No | `CANONICAL` |
@@ -61,7 +61,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `meet_words`: Required final page using the accepted word-card presentation without audio or evidence.
 - `historical_generic_read_only`: Replays immutable generic intro copy through the explicit IntroActivity compatibility adapter.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `TeachingPages` in `components/adle/first-impression/teaching-pages.tsx`
 
@@ -114,7 +114,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `prefix`: Add a prefix then choose the meaning.
 - `suffix`: Add a suffix then choose the resulting meaning.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
 
 **Canonical implementation:** `Discovery` in `components/adle/morphology/morphology-guided-lesson.tsx`
 
@@ -167,7 +167,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `identify_components`: After success, display supplied component strings and tailored explanation.
 - `isolate_component`: Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
 
 **Canonical implementation:** `SplitHandle` in `components/adle/activities/shared/split-handle.tsx`
 
@@ -197,7 +197,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `fixed_suffix`: Places immutable parts after the selectable bank.
 - `governed_joins`: Assembles none, space, or hyphen joins.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`.
 
 **Canonical implementation:** `DefinitionWordBuilder` in `components/adle/activities/shared/definition-word-builder.tsx`
 
@@ -223,7 +223,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `jigsaw_multi_target`: Two-or-more governed components per target, compact joined trays above one mixed bank, with spaces and hyphens represented as draggable pieces.
 
-**Current users:** Routes `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `compound_word_lab:v2`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `CompoundJigsawActivity` in `components/adle/morphology/compound-jigsaw-activity.tsx`
 
@@ -251,7 +251,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `component_clues`: Shows component meanings as clues.
 - `historical_free_response`: Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction.
 
-**Current users:** Routes `compound_word_lab:v2`, `closed_compound_word_lab:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `generic_composer:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `generic homophone/morphology skills`.
+**Current users:** Routes `compound_word_lab:v2`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `generic_composer:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `generic homophone/morphology skills`.
 
 **Canonical implementation:** `MeaningConnectionActivity` in `components/adle/morphology/meaning-connection-activity.tsx`
 
@@ -281,7 +281,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `success_sparkle`: Brief presentation-only correct-placement celebration before automatic advance.
 - `completion_overview`: Read-only grouping of every governed word after the final correct placement.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`.
 
 **Canonical implementation:** `BinSort` in `components/adle/activities/shared/bin-sort.tsx`
 
@@ -298,7 +298,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Interaction family:** `compatibility_key`
 
-**Best used for:** Only while decoding immutable historical assignments or generic snapshot v2 payloads.
+**Best used for:** Only while decoding immutable historical assignments.
 
 **Do not use when:** For forward curriculum generation or any learner-facing categorisation.
 
@@ -316,7 +316,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 **Capabilities:** Pointer No · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression No · Review No.
 
-**Notes:** The current registry maps the key to compatibility_noop. Generic snapshot v2 retains its immutable quick_sort discriminator solely for historical decoding.
+**Notes:** The current metadata-free compatibility reader maps the historical key to compatibility_noop.
 
 ## COVER_CHECK — Cover Check
 
@@ -334,7 +334,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `component_marked`: Show governed components separated visually.
 - `ratio_close_policy`: Require a configured proportion of the shutter track.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `historical generic compatibility`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`. Micro-skills `historical generic compatibility`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `CoverShutter` in `components/adle/activities/shared/cover-shutter.tsx`
 
@@ -388,7 +388,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `target_token`: Route adapter extracts one governed token for correctness/evidence.
 - `target_span`: Route adapter extracts an exact governed multi-token span.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `SentenceDictation` in `components/adle/activities/shared/sentence-dictation.tsx`
 
@@ -466,7 +466,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `standard_lesson_reflection`: Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`.
 
 **Canonical implementation:** `LessonReflection` in `components/adle/activities/lesson-reflection.tsx`
 
@@ -638,7 +638,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 ## Authority relationship
 
-Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets v0/v2 historical keys into CanonicalActivitySpec contracts but cannot select React components. Additive Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Generic Snapshot v2 remains immutable and replayable, and the v3 writer/forward composer output remain off pending owner approval.
+Activity Catalogue is the architectural chooser and capability inventory. CanonicalActivityHost and its versioned renderer registry are the sole React renderer-selection authority for specialist and supported generic/historical activities. The pure generic compatibility normalizer interprets metadata-free historical keys into CanonicalActivitySpec contracts but cannot select React components. Generic Snapshot v3 stores canonical concept, mode, contract version and authored payload directly; its reader validates and supplies those contracts to the same host. Thin specialist and generic lifecycle adapters retain curriculum transformation, resume, evidence and completion. Snapshot v3 is the only forward generic snapshot authority.
 
 ## Convergence programme status
 
@@ -646,4 +646,4 @@ Activity Catalogue is the architectural chooser and capability inventory. Canoni
 - Group 5: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.

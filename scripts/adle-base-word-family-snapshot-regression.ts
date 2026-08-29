@@ -34,7 +34,7 @@ const baseItems = buildBaseWordFamilyPilotItems({ payload: valid, parentUserId: 
 const resolvedBase = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("base_word_lab"),
   items: baseItems.map((entry, index) => ({ id: `base-${index}`, sectionKey: String(entry.metadata.sectionKey), templateKey: entry.templateKey, canonicalWordId: typeof entry.metadata.canonicalWordId === "string" ? entry.metadata.canonicalWordId : null, targetWord: entry.targetWord, promptData: entry.promptData, itemMetadata: entry.metadata })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert(resolvedBase.status === "resolved_explicit" && resolvedBase.runtime.adapterKey === "base_word_family_v1", "Base Word keeps its stronger snapshot adapter behind explicit metadata");
 const baseLedItems = buildBaseWordFamilyPilotItems({ payload: baseLed, parentUserId: "parent", childId: "child", planDate: "2026-08-10" });

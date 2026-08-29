@@ -25,7 +25,6 @@ import {
   type AdleSessionCelebrationModel,
 } from "@/lib/rewards/adle-session-celebration";
 import { AdleSessionCelebration } from "@/components/adle/adle-session-celebration";
-import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
 import { isDynamicPrefixQaAuthorizedForUser } from "@/lib/adle/morphology/dynamic-prefix-qa-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
@@ -137,7 +136,6 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
         compiledLessonSnapshot: readModel.compiledLessonSnapshot,
         items: assignmentItems,
         runtimeContext: {
-          morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(selectedChild.id),
           dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
           dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
           baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(selectedChild.id),

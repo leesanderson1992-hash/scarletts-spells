@@ -10,10 +10,10 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 
 ### P1 — Wire rich components through registry modes
 
-- Current implementations: `canonical renderer registry for specialist and normalized generic routes`, `immutable Generic Snapshot v2 compiler/validator/replay`, `additive Generic Snapshot v3 canonical reader/validator plus deterministic guarded non-Production compiler/persistence port; real assignment writer disabled`
+- Current implementations: `canonical renderer registry for specialist and normalized generic routes`, `immutable Generic Snapshot v3 compiler/validator/replay`, `metadata-free historical generic normalization`
 - Target: Activity Catalogue capability mapping feeding one versioned canonical renderer registry
 - Intended modes: `existing canonical activity contracts`, `behaviour-identical specialist routing`, `explicit historical normalization`
-- Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `fixed_un_prefix_word_lab:v1`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `closed_compound_word_lab:v1`
+- Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
 - Regression requirements: catalogue-to-registration totality; payload validation; lazy renderer loading; route replay; resume/completion/evidence parity; fail-closed unknown contracts
 - Learner/runtime risk: `high`
 - Model C release change required: No
@@ -31,18 +31,6 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Model C release change required: No
 - Release boundary: These are generic curriculum capability additions rather than Model C specialist releases. Every new interaction still requires a separate pedagogical contract, owner approval and an independently authorized generic-generation release.
 - Consolidation opportunity: Capability addition, not a deletion opportunity.
-
-### P2 — Retain historical route compatibility until replay retirement
-
-- Current implementations: `fixed_un_prefix_word_lab:v1`, `closed_compound_word_lab:v1 payload/runtime adapter`
-- Target: current shared renderers behind explicit compatibility adapters
-- Intended modes: `historical_replay`
-- Routes affected: `fixed_un_prefix_word_lab:v1`, `closed_compound_word_lab:v1`
-- Regression requirements: persisted payload replay; resume; completion; separator policy; no new assignment generation
-- Learner/runtime risk: `high`
-- Model C release change required: No
-- Release boundary: Compatibility-only retention does not change a released contract. Retirement requires persisted replay inventory and owner confirmation of the retention obligation.
-- Consolidation opportunity: The closed-v1 learner UI is retired; retain only payload decoding, route resolution, resume and completion compatibility until persisted replay is retired.
 
 
 ## Exact canonical boundaries
@@ -66,7 +54,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Group 5 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 5 — Meaning & Categorisation Convergence is complete, merged to origin/main and deployed. The canonical learner architecture is Discovery, MeaningConnectionActivity and BinSort. BinSort owns immediate correctness feedback, its brief reduced-motion-safe success celebration and its stateless final BinSortOverview as one learner activity. QuickSort UI and forward generation are retired; duplicate, fallback and prototype Meaning/Sort UI is retained only as required configuration or compatibility code, or is retired.
 - Former proposed Group 6: `ABSORBED_INTO_GROUP_5` — Former proposed Group 6 — Meaning was absorbed into Group 5 — Meaning & Categorisation Convergence. Sort and Meaning were intentionally implemented as one workstream; there is no separate Group 6 implementation, merge or outstanding dependency.
 - Group 7 status: `COMPLETE_MERGED_AND_DEPLOYED` — Group 7 — First Impression Shell Convergence is accepted, merged into origin/main and deployed to Production. The authoritative d59506c main tree contains implementation commit 93ec640. TeachingPages is the one shared ordered teaching and Meet the Words experience; FirstImpressionLesson is the canonical staged shell for Prefix, Suffix/Affix, Base Word and Closed Compound lessons.
-- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list now has a deterministic compiler, pre-persistence validation, a separately guarded non-Production selector and JSON persistence port proof. A complete First Impression snapshot compiles, persists in the test port, reads back and resolves every activity through the canonical registry. Real assignment wiring remains absent/default OFF, Production continues generating v2, the existing database RPC/constraint remains v2-only, Snapshot v2 is unchanged and Phase E has not started.
+- Next workstream: `P1_REGISTRY_WIRING_PHASE_D_WRITER_COMPILER_COMPLETE_REAL_ASSIGNMENT_ENABLEMENT_OFF` — The approved ten-contract v3 allow-list is the current generic writer/reader authority. Phase E5 removes the zero-row snapshot-v2 compiler and reader branch while preserving metadata-free historical normalization.
 
 #### Group 3 closeout detail
 
@@ -121,9 +109,9 @@ Target sequence:
 
 Canonical route adoption:
 
-- compound_word_lab:v2 and closed_compound_word_lab:v1 use TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter
+- compound_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the shared Compound runtime adapter
 - base_word_lab:v2 uses TeachingPages and FirstImpressionLesson through the Base Word runtime adapter
-- dynamic_prefix_word_lab:v2, fixed_un_prefix_word_lab:v1 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter
+- dynamic_prefix_word_lab:v2 and dynamic_affix_word_lab:v3 use TeachingPages and FirstImpressionLesson through the shared morphology runtime adapter
 
 Still bespoke:
 

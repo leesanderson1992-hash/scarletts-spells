@@ -34,19 +34,19 @@ assert(!resolveDynamicPrefixRuntime(true, boundItems.slice(0, -1)));
 const resolved = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("dynamic_prefix_word_lab"),
   items: boundItems.map((item, index) => ({ id: `prefix-${index}`, ...item })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert(resolved.status === "resolved_explicit" && resolved.runtime.adapterKey === "dynamic_prefix_v2");
 const unavailable = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("dynamic_prefix_word_lab"),
   items: boundItems.map((item, index) => ({ id: `prefix-${index}`, ...item })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: false, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: false, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert(unavailable.status === "blocked" && unavailable.blockers.some((entry) => entry.code === "route_unavailable"));
 const brokenBinding = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("dynamic_prefix_word_lab"),
   items: boundItems.slice(0, -1).map((item, index) => ({ id: `prefix-${index}`, ...item })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert(brokenBinding.status === "blocked" && brokenBinding.blockers.some((entry) => entry.code === "assignment_binding_mismatch"));
 console.log("PASS: v2 Dynamic Prefix snapshot adapts only after validation");

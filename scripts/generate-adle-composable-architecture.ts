@@ -5,19 +5,12 @@ import { ADLE_ACTIVITY_REQUIREMENT_REGISTRY } from "../lib/adle/composable-lesso
 import { COMPATIBILITY_BLOCKER_CODES } from "../lib/adle/composable-lesson/compatibility";
 import { LESSON_ROUTE_RESOLUTION_BLOCKER_CODES } from "../lib/adle/composable-lesson/contracts";
 import {
-  GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION,
-  GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION,
-  GENERIC_LESSON_SNAPSHOT_VALIDATOR_VERSION,
-  GENERIC_SNAPSHOT_BLOCKER_CODES,
-} from "../lib/adle/composable-lesson/generic-snapshot-contracts";
-import {
-  GENERIC_SNAPSHOT_TEMPLATE_REGISTRY,
-  validateGenericSnapshotTemplateRegistry,
-} from "../lib/adle/composable-lesson/generic-snapshot-registry";
-import {
-  GENERIC_SNAPSHOT_ACTIVITY_REQUIREMENTS,
-  validateGenericSnapshotRequirementRegistry,
-} from "../lib/adle/composable-lesson/generic-snapshot-requirements";
+  GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION_V3,
+  GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION_V3,
+  GENERIC_LESSON_SNAPSHOT_VALIDATOR_VERSION_V3,
+  GENERIC_SNAPSHOT_V3_BLOCKER_CODES,
+} from "../lib/adle/composable-lesson/generic-snapshot-v3-contracts";
+import { GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 import {
   ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
   ADLE_ROUTE_METADATA_SCHEMA_VERSION,
@@ -113,7 +106,7 @@ const blockers = [
   ...new Set([
     ...COMPATIBILITY_BLOCKER_CODES,
     ...LESSON_ROUTE_RESOLUTION_BLOCKER_CODES,
-    ...GENERIC_SNAPSHOT_BLOCKER_CODES,
+    ...GENERIC_SNAPSHOT_V3_BLOCKER_CODES,
     ...WORD_LAB_BLOCKER_CODES,
     ...SHARED_AFFIX_BLOCKER_CODES,
     ...DYNAMIC_PREFIX_COMPILER_BLOCKER_CODES,
@@ -126,18 +119,11 @@ const blockers = [
     label: code.replaceAll("_", " "),
   }));
 
-const genericTemplateMappings = [...GENERIC_SNAPSHOT_TEMPLATE_REGISTRY]
-  .sort((left, right) => left.templateKey.localeCompare(right.templateKey))
-  .map((entry) => ({
-    ...entry,
-    requirements: GENERIC_SNAPSHOT_ACTIVITY_REQUIREMENTS.find(
-      (candidate) => candidate.templateKey === entry.templateKey,
-    )?.requirements ?? [],
-  }));
+const genericTemplateMappings = listRegisteredActivityTemplateKeys()
+  .map((templateKey) => getActivityTemplateDefinition(templateKey))
+  .filter((entry) => entry !== null);
 
 const registryErrors = [
-  ...validateGenericSnapshotTemplateRegistry(),
-  ...validateGenericSnapshotRequirementRegistry(),
   ...validateWordLabRecipeRegistry(),
   ...validateSharedAffixProfileRegistry(),
 ];
@@ -189,43 +175,21 @@ for (const key of Object.keys(SHARED_AFFIX_POLICY_VARIANTS) as Array<keyof typeo
     registryErrors.push(`shared_affix_policy_variant_without_profile_coverage:${key}`);
   }
 }
-const runtimeKeys = listRegisteredActivityTemplateKeys();
-const snapshotKeys = genericTemplateMappings.map((entry) => entry.templateKey);
-if (JSON.stringify(runtimeKeys) !== JSON.stringify(snapshotKeys)) {
-  registryErrors.push("runtime_and_snapshot_template_keys_disagree");
-}
-for (const mapping of genericTemplateMappings) {
-  const runtime = getActivityTemplateDefinition(mapping.templateKey);
-  if (!runtime) continue;
-  const historicalQuickSortCompatibility =
-    mapping.templateKey === "REVIEW_QUICK_SORT" &&
-    mapping.rendererKind === "quick_sort" &&
-    runtime.rendererKind === "compatibility_noop";
-  if (runtime.rendererKind !== mapping.rendererKind && !historicalQuickSortCompatibility) {
-    registryErrors.push(`renderer_mismatch:${mapping.templateKey}`);
-  }
-  if (
-    JSON.stringify([...runtime.supportedSectionKeys].sort()) !==
-    JSON.stringify([...mapping.supportedSections].sort())
-  ) {
-    registryErrors.push(`section_mismatch:${mapping.templateKey}`);
-  }
-}
 if (registryErrors.length > 0) {
-  throw new Error(`ADLE generic snapshot registry invalid:\n${registryErrors.sort().join("\n")}`);
+  throw new Error(`ADLE architecture registry invalid:\n${registryErrors.sort().join("\n")}`);
 }
 
 const snapshotVersions = [{
-  snapshotSchemaVersion: GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION,
+  snapshotSchemaVersion: GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION_V3,
   route: "generic_composer:v1",
   recipe: "generic_first_exposure:v1",
   payload: "composed_daily_plan:1",
-  compilerVersion: GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION,
-  validatorVersion: GENERIC_LESSON_SNAPSHOT_VALIDATOR_VERSION,
-  writer: "persist_adle_generic_daily_plan_v2",
+  compilerVersion: GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION_V3,
+  validatorVersion: GENERIC_LESSON_SNAPSHOT_VALIDATOR_VERSION_V3,
+  writer: "persist_adle_generic_daily_plan_v3",
   reader: "resolveGenericLessonSnapshot",
   authoritativeStorage: "daily_assignments.compiled_lesson_snapshot",
-  legacyFallback: "snapshot_absent_only",
+  legacyFallback: "snapshot_absent_metadata_free_only; snapshot v2 retired after zero-row proof",
 }, {
   snapshotSchemaVersion: WORD_LAB_SNAPSHOT_SCHEMA_VERSION,
   route: "route-neutral; no production route activated",
@@ -421,8 +385,9 @@ const outputs = new Map<string, string>([
     `${outputRoot}/generic-template-snapshot-mapping.json`,
     json({
       generatedNotice: GENERATED_NOTICE,
-      version: "adle_generic_snapshot_templates_v2",
-      mappings: genericTemplateMappings,
+      version: "adle_generic_snapshot_v3_and_historical_template_readers",
+      historicalTemplateMappings: genericTemplateMappings,
+      snapshotV3GenerationContracts: GENERIC_SNAPSHOT_V3_GENERATION_ALLOW_LIST,
     }),
   ],
   [`${outputRoot}/route-and-activity-reference.md`, routeActivityMarkdown],

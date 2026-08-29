@@ -10,7 +10,7 @@ const morphology = source("components/adle/morphology/morphology-guided-lesson.t
 const match = source("components/adle/morphology/meaning-connection-activity.tsx");
 const session = source("components/adle-session-runner.tsx");
 const composer = source("lib/adle/daily-assignment-composer.ts");
-const snapshotRegistry = source("lib/adle/composable-lesson/generic-snapshot-registry.ts");
+const compatibility = source("lib/adle/generic-activity-compatibility.ts");
 
 assert(!existsSync("components/adle/activities/quick-sort-activity.tsx"), "QuickSort learner renderer must be retired");
 assert(!existsSync("components/adle/activities/shared/flip-toggle.tsx"), "FlipToggle prototype must be retired");
@@ -32,7 +32,7 @@ assert(!composer.includes('templateKey: "REVIEW_QUICK_SORT"') && !composer.inclu
 const historicalItem = (templateKey: string, promptData: Record<string, unknown> = {}): AdleSessionItem => ({ id: templateKey, sourceEntityId: templateKey, sectionKey: templateKey === "REVIEW_QUICK_SORT" ? "review_quick_sort" : "guided_practice", templateKey, position: 0, status: "pending", targetWord: "helpful", canonicalWordId: "word-helpful", microSkillKey: null, adleLearningItemRef: null, promptData });
 const reviewSort = normalizeGenericActivitySequence([historicalItem("REVIEW_QUICK_SORT")])[0];
 assert(reviewSort?.status === "compatibility" && reviewSort.spec.concept === "REVIEW_SORT", "historical REVIEW_QUICK_SORT must normalize to the canonical no-op contract");
-assert(snapshotRegistry.includes('rendererKind: "quick_sort"'), "immutable generic snapshot v2 must retain historical quick_sort decoding");
+assert(compatibility.includes('key === "REVIEW_QUICK_SORT"') && compatibility.includes('"REVIEW_SORT", "compatibility_noop"'), "historical REVIEW_QUICK_SORT decoding remains in the metadata-free compatibility reader");
 
 for (const key of ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"]) {
   const normalized = normalizeGenericActivitySequence([historicalItem(key, { definition: "giving help" })])[0];

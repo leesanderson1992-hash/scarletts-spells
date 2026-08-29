@@ -1,6 +1,7 @@
 /**
- * Legacy generic template vocabulary retained for Snapshot v2 parity tooling
- * and route compile-time keys. Learner runtime does not import this module.
+ * Historical generic template vocabulary retained for metadata-free replay
+ * audit tooling and route compile-time keys. Learner runtime does not import
+ * this module.
  *
  * This module owns only immutable template metadata. Its former section and
  * catch-all renderer fallback functions were removed in Phase C. It has no

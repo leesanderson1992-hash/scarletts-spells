@@ -15,7 +15,6 @@ import {
   createOrUpdateGoldenNuggetFromParentApproval,
   moveGoldenNuggetIntoForgeFromDailyAssignmentItem,
 } from "../lib/rewards/word-treasures";
-import { completeDailySpellingPracticeItems } from "../lib/writing-practice/daily-spelling-practice-completion";
 
 const CONFIRM = "LOCAL_WORD_TREASURE_PHASE_3_7A";
 const DAILY_PRACTICE_TITLE = "Daily spelling practice";
@@ -625,6 +624,7 @@ async function main() {
       },
       "Failed to create daily assignment",
     );
+    const assignmentItemSourceEntityId = randomUUID();
     const assignmentItem = await insertSingle(
       supabase,
       "assignment_items",
@@ -635,7 +635,7 @@ async function main() {
         domain_module: "spelling",
         item_type: "controlled_spelling",
         source_type: "learning_item_evidence",
-        source_entity_id: randomUUID(),
+        source_entity_id: assignmentItemSourceEntityId,
         learning_item_id: finalisedIssue.learningItemId,
         template_key: "phase_3_7a_template",
         target_word: TARGET_WORD,
@@ -654,20 +654,20 @@ async function main() {
       "Failed to create assignment item",
     );
 
-    const completion = await completeDailySpellingPracticeItems({
+    const forgeResult = await moveGoldenNuggetIntoForgeFromDailyAssignmentItem({
       supabase,
       parentUserId,
       childId,
       dailyAssignmentId: assignment.id,
-      practiceDate: PRACTICE_DATE,
-      moveGoldenNuggetIntoForge: (input) =>
-        moveGoldenNuggetIntoForgeFromDailyAssignmentItem({
-          ...input,
-          supabase,
-        }),
+      assignmentItemId: assignmentItem.id,
+      learningItemId: finalisedIssue.learningItemId,
+      targetWord: TARGET_WORD,
+      sourceType: "learning_item_evidence",
+      sourceEntityId: assignmentItemSourceEntityId,
+      metadata: { practice_date: PRACTICE_DATE, phase: "3.7A" },
     });
 
-    assert.equal(completion.completedItemCount, 1);
+    assert.equal(forgeResult.eventCreated, true);
 
     const { data: forgedTreasure, error: forgedTreasureError } = await supabase
       .from("child_word_treasures")
@@ -686,7 +686,7 @@ async function main() {
         eventType: "entered_forge",
       }),
       1,
-      "Daily Assignment completion should create one Forge event.",
+      "The governed assignment-item reward bridge should create one Forge event.",
     );
 
     const retryOnlyTaskId = await createTask({

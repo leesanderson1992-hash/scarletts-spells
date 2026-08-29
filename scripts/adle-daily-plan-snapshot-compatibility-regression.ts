@@ -239,7 +239,6 @@ const prefixRoute = resolvePersistedLessonRoute({
   lessonRouteMetadata: compatibleRead.lessonRouteMetadata,
   items: routeItems,
   runtimeContext: {
-    morphologyUnEnabled: true,
     dynamicPrefixEnabled: true,
     dynamicAffixEnabled: false,
     baseWordFamilyEnabled: true,

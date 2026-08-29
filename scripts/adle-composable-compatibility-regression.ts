@@ -58,8 +58,8 @@ const completeFacts = [
 ] as const satisfies readonly ActivityFactKey[];
 
 const input = {
-  route: { routeKey: "closed_compound_word_lab", routeVersion: "v1" },
-  recipe: { recipeKey: "closed_compound_word_lab", recipeVersion: "v1" },
+  route: { routeKey: "compound_word_lab", routeVersion: "v2" },
+  recipe: { recipeKey: "compound_word_lab", recipeVersion: "v2" },
   microSkillKey: "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
   canonicalWordId: "fixture-word",
   role: "authentic_target" as const,

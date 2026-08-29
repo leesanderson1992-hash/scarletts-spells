@@ -1,7 +1,3 @@
-import type {
-  CompiledLessonSnapshotV2,
-  GenericSnapshotBlocker,
-} from "./generic-snapshot-contracts";
 import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import type {
   CompiledLessonSnapshotV3,
@@ -12,8 +8,13 @@ import { validateCompiledGenericLessonSnapshotV3 } from "./generic-snapshot-v3-v
 import type { GenericSnapshotMode } from "./generic-snapshot-mode";
 import {
   canonicalSnapshotJson,
-  validateCompiledGenericLessonSnapshot,
-} from "./generic-snapshot-validator";
+} from "./canonical-fingerprint";
+
+type GenericSnapshotReaderBlocker = GenericSnapshotV3Blocker | {
+  code:
+    | "snapshot_column_unavailable"
+    | "snapshot_missing_for_explicit_generic_route";
+};
 
 export interface GenericSnapshotReadableItem {
   id: string;
@@ -43,18 +44,18 @@ export type GenericSnapshotResolutionResult<T extends GenericSnapshotReadableIte
   | {
       status: "resolved";
       mode: GenericSnapshotMode;
-      source: "snapshot_v2" | "snapshot_v3";
-      snapshot: CompiledLessonSnapshotV2 | CompiledLessonSnapshotV3;
+      source: "snapshot_v3";
+      snapshot: CompiledLessonSnapshotV3;
       items: T[];
       blockers: readonly [];
     }
   | {
       status: "blocked";
       mode: GenericSnapshotMode;
-      source: "snapshot_v2" | "snapshot_v3" | "snapshot_column_unavailable";
+      source: "snapshot_v3" | "snapshot_unsupported" | "snapshot_column_unavailable";
       snapshot: null;
       items: readonly [];
-      blockers: readonly (GenericSnapshotBlocker | GenericSnapshotV3Blocker)[];
+      blockers: readonly GenericSnapshotReaderBlocker[];
     };
 
 function projection<T extends GenericSnapshotReadableItem>(items: readonly T[]): unknown {
@@ -109,7 +110,7 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
       return {
         status: "blocked",
         mode: input.mode,
-        source: "snapshot_v2",
+        source: "snapshot_unsupported",
         snapshot: null,
         items: [],
         blockers: [{ code: "snapshot_missing_for_explicit_generic_route" }],
@@ -194,84 +195,13 @@ export function resolveGenericLessonSnapshot<T extends GenericSnapshotReadableIt
       blockers: [],
     };
   }
-  const validated = validateCompiledGenericLessonSnapshot(input.compiledLessonSnapshot, {
-    lessonRouteMetadata: input.lessonRouteMetadata,
-    assignmentGenerationSource: input.assignmentGenerationSource,
-    items: legacyItems.map((item) => ({
-      sourceEntityId: item.sourceEntityId,
-      position: item.position,
-      sectionKey: item.sectionKey,
-      templateKey: item.templateKey,
-      canonicalWordId: item.canonicalWordId,
-      targetWord: item.targetWord,
-      promptData: item.promptData,
-    })),
-  });
-  if (validated.ok === false) {
-    return {
-      status: "blocked",
-      mode: input.mode,
-      source: "snapshot_v2",
-      snapshot: null,
-      items: [],
-      blockers: validated.blockers,
-    };
-  }
-  const itemBySource = new Map(legacyItems.map((item) => [item.sourceEntityId, item]));
-  const wordBySnapshotId = new Map(
-    validated.snapshot.words.map((word) => [word.wordSnapshotId, word]),
-  );
-  const snapshotItems = validated.snapshot.activities.flatMap((activity) => {
-    const item = itemBySource.get(activity.itemBinding.sourceEntityId);
-    if (!item) return [];
-    const boundWords = activity.wordSnapshotIds.flatMap((id) => {
-      const word = wordBySnapshotId.get(id);
-      return word ? [word] : [];
-    });
-    const boundWord = item.canonicalWordId === null
-      ? null
-      : boundWords.find((word) => word.canonicalWordId === item.canonicalWordId) ?? null;
-    return [{
-      ...item,
-      sourceEntityId: activity.itemBinding.sourceEntityId,
-      sectionKey: activity.sectionKey,
-      templateKey: activity.templateKey,
-      position: activity.itemBinding.position,
-      targetWord: boundWord?.displayWord ?? item.targetWord,
-      canonicalWordId: boundWord?.canonicalWordId ?? item.canonicalWordId,
-      microSkillKey: boundWord?.microSkillKey ?? item.microSkillKey,
-      adleLearningItemRef: boundWord?.learningItemId ?? item.adleLearningItemRef,
-    }];
-  });
-  if (snapshotItems.length !== legacyItems.length) {
-    return {
-      status: "blocked",
-      mode: input.mode,
-      source: "snapshot_v2",
-      snapshot: null,
-      items: [],
-      blockers: [{ code: "snapshot_item_count_mismatch" }],
-    };
-  }
-  if (canonicalSnapshotJson(projection(snapshotItems)) !== canonicalSnapshotJson(projection(legacyItems))) {
-    return {
-      status: "blocked",
-      mode: input.mode,
-      source: "snapshot_v2",
-      snapshot: null,
-      items: [],
-      blockers: [{ code: "item_position_mismatch" }],
-    };
-  }
   return {
-    status: "resolved",
+    status: "blocked",
     mode: input.mode,
-    source: "snapshot_v2",
-    snapshot: validated.snapshot,
-    // Observe/off retain the current item-derived projection; enforce uses
-    // snapshot activity order. Parity above makes the values identical.
-    items: input.mode === "enforce" ? snapshotItems : legacyItems,
-    blockers: [],
+    source: "snapshot_unsupported",
+    snapshot: null,
+    items: [],
+    blockers: [{ code: "unsupported_snapshot_schema_version" }],
   };
 }
 

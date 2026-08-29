@@ -56,7 +56,6 @@ import {
   persistProbeCompletion,
   persistReviewSessionCompletion,
 } from "@/lib/adle/loaders/session-completion-loader";
-import { isMorphologyUnPilotEnabledForChild } from "@/lib/adle/morphology/pilot-access";
 import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefix-staging-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { deriveDynamicAffixCompletionPolicy } from "@/lib/adle/morphology/dynamic-affix-completion-policy";
@@ -71,7 +70,6 @@ import { upsertChildLearningReflection } from "@/lib/adle/morphology/reflections
 import { safeCompletionTraceId, WordLabCompletionTimer } from "@/lib/adle/completion-timing";
 import {
   persistReleaseBoundWordLabCompletion,
-  persistWordLabCompletion,
   type WordLabReflectionWrite,
 } from "@/lib/adle/loaders/word-lab-completion-loader";
 import {
@@ -340,7 +338,6 @@ export async function completeAdleReviewPartAction(formData: FormData) {
     compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
-      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
       dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
       baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(childId),
@@ -562,7 +559,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
-      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
       dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
       baseWordFamilyEnabled: isBaseWordFamilyPilotEnabledForChild(childId),
@@ -585,10 +581,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   }))) {
     finishWith(context, "This Word Lab needs a grown-up check before it can continue.");
   }
-  const morphologyPilot =
-    routeResolution.runtime.adapterKey === "morphology_guided_v1"
-      ? routeResolution.runtime.payload
-      : null;
   const dynamicPrefix =
     routeResolution.runtime.adapterKey === "dynamic_prefix_v2"
       ? routeResolution.runtime.payload
@@ -596,10 +588,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
   const dynamicSuffix =
     routeResolution.runtime.adapterKey === "dynamic_affix_v3"
       ? routeResolution.runtime.payload
-      : null;
-  const compoundRuntime =
-    routeResolution.runtime.adapterKey === "closed_compound_v1"
-      ? routeResolution.runtime.completionPayload
       : null;
   const compoundV2 =
     routeResolution.runtime.adapterKey === "compound_word_v2"
@@ -609,7 +597,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     routeResolution.runtime.adapterKey === "compound_word_v2"
       ? routeResolution.runtime.resolvedLesson
       : null;
-  const wordLabPayload = compoundRuntime ?? dynamicSuffix ?? dynamicPrefix ?? morphologyPilot;
+  const wordLabPayload = dynamicSuffix ?? dynamicPrefix;
   const genericReflectionSpec = wordLabPayload === null
     ? readModel.partTwo.items.find((item) => item.canonicalActivitySpec?.concept === "LESSON_REFLECTION"
       && item.canonicalActivitySpec.mode === "standard_lesson_reflection")?.canonicalActivitySpec ?? null
@@ -833,7 +821,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     completedOn: planDate,
     sourceRef: lessonSourceRef,
     bundleId: randomUUID(),
-    scheduleAllProducedWords: dynamicSuffix !== null || compoundRuntime !== null || compoundV2 !== null,
+    scheduleAllProducedWords: dynamicSuffix !== null || compoundV2 !== null,
     producedWords,
     ...(completionWordPolicies ? { wordPolicies: completionWordPolicies } : {}),
     learningItems,
@@ -870,30 +858,6 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       result.status === "already_completed"
         ? "Today's lesson is already recorded."
         : "Lesson finished. Your writing words join review tomorrow.",
-      completionTraceId,
-      timer,
-      result.status,
-    );
-  }
-
-  if (morphologyPilot !== null && dynamicPrefix === null && dynamicSuffix === null && compoundRuntime === null && atomicWordLabCompletionEnabled) {
-    const reflection = buildMorphologyReflection(context, morphologyPilot, learningReflection);
-    const result = await timer.measure("atomic_durable_completion", () => persistWordLabCompletion(serviceClient, {
-      parentUserId: context.parentUserId,
-      childId,
-      assignmentId: context.assignmentId,
-      planDate,
-      microSkillKey,
-      sourceRef: lessonSourceRef,
-      assignmentItemIds: readModel.partTwo.items.map((item) => item.id),
-      attempts: attemptEvents,
-      lesson: lessonResult,
-      reflection,
-    }));
-    scheduleLessonReward(context, rewardProductionItems, timer);
-    finishWith(
-      context,
-      result.status === "already_completed" ? "Today's lesson is already recorded." : "Lesson finished. New words join review tomorrow.",
       completionTraceId,
       timer,
       result.status,
@@ -1008,7 +972,6 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     compiledLessonSnapshot: readModel.compiledLessonSnapshot,
     items: allSessionItems(readModel),
     runtimeContext: {
-      morphologyUnEnabled: isMorphologyUnPilotEnabledForChild(context.childId),
       dynamicPrefixEnabled: isDynamicPrefixRouteEnabled(),
       dynamicAffixEnabled: isDynamicSuffixRouteEnabled(),
       baseWordFamilyEnabled: true,

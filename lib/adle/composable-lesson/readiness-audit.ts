@@ -355,13 +355,13 @@ export function auditProductionReadiness(input: {
     microSkills: audits,
     knownReportOnlyFindings: [
       {
-        routeId: "closed_compound_word_lab",
+        routeId: "compound_word_lab",
         code: "transfer_not_approved",
         description:
           "Current production compilation couples authentic targets to transfer eligibility.",
       },
       {
-        routeId: "closed_compound_word_lab",
+        routeId: "compound_word_lab",
         code: "answer_comparator_mismatch",
         description:
           "Current child and server separator comparison policies are not identical.",

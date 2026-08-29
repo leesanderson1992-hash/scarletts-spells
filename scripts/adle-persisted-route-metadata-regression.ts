@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 
 import {
   ADLE_NEW_ASSIGNMENT_ROUTE_IDS,
   createPersistedRouteMetadata,
-  createLegacyPersistedRouteMetadata,
   createPersistedRouteMetadataV2,
   parsePersistedLessonRouteMetadata,
   validatePersistedRouteMetadataCompatibility,
@@ -40,10 +38,6 @@ const expected = {
   },
 } as const;
 
-const closedCompatibility = createLegacyPersistedRouteMetadata("closed_compound_word_lab");
-assert.deepEqual(validatePersistedRouteMetadataCompatibility(closedCompatibility), { ok: true });
-assert.equal(closedCompatibility.route.routeVersion, "v1");
-
 assert.deepEqual(
   [...ADLE_NEW_ASSIGNMENT_ROUTE_IDS].sort(),
   Object.keys(expected).sort(),
@@ -71,16 +65,8 @@ for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
   });
 }
 
-const fixed = ADLE_CURRICULUM_ROUTE_REGISTRY.find(
-  (route) => route.routeId === "fixed_un_prefix_word_lab",
-);
-assert(fixed);
-assert.equal(fixed.newAssignmentCapable, false);
-assert.equal(fixed.implementationState, "legacy_render_only");
-assert.equal(
-  (ADLE_NEW_ASSIGNMENT_ROUTE_IDS as readonly string[]).includes(fixed.routeId),
-  false,
-);
+assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "fixed_un_prefix_word_lab"));
+assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "closed_compound_word_lab"));
 assert.deepEqual(
   [...new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.map((route) => route.runtimeAdapterKey))].sort(),
   [...ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS].sort(),
@@ -152,15 +138,6 @@ assert.deepEqual(
     payload: { kind: "dynamic_affix_lesson_v3", version: 3 },
   }),
   { ok: false, blocker: "payload_kind_mismatch" },
-);
-
-const fixedPlanSource = readFileSync(
-  "lib/adle/morphology/pilot-plan.ts",
-  "utf8",
-);
-assert(
-  fixedPlanSource.includes("lessonRouteMetadata: null"),
-  "fixed un- remains an explicit metadata-free compatibility writer",
 );
 
 console.log("ADLE persisted route metadata regression passed.");

@@ -24,17 +24,13 @@ export type LessonRouteId =
   | "generic_composer"
   | "base_word_lab"
   | "dynamic_prefix_word_lab"
-  | "fixed_un_prefix_word_lab"
   | "dynamic_affix_word_lab"
-  | "closed_compound_word_lab"
   | "compound_word_lab";
 
 export type LessonPayloadKind =
   | "composed_daily_plan"
-  | "morphology_guided_v1"
   | "dynamic_prefix_lesson_v2"
   | "dynamic_affix_lesson_v3"
-  | "closed_compound_lesson_v1"
   | "compound_word_lesson_v2"
   | "base_word_family_snapshot_v1";
 
@@ -82,17 +78,14 @@ export type PersistedLessonRouteMetadata =
 
 export type LessonRuntimeAdapterKey =
   | "generic_composer_v1"
-  | "morphology_guided_v1"
   | "dynamic_prefix_v2"
   | "dynamic_affix_v3"
-  | "closed_compound_v1"
   | "compound_word_v2"
   | "base_word_family_v1";
 
 export type LessonRendererKey =
   | "generic_session"
   | "morphology_guided"
-  | "closed_compound_guided"
   | "compound_word_guided"
   | "base_word_family_guided";
 

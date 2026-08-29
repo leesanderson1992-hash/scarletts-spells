@@ -1,5 +1,3 @@
-import type { ClosedCompoundWord } from "./closed-compound-word-lab";
-
 export const COMPOUND_WORD_STRUCTURE_SCHEMA_VERSION = 2 as const;
 
 export const COMPOUND_WORD_MICRO_SKILL_KEYS = [
@@ -246,52 +244,4 @@ export function validateCompoundWordStructureV2(
     structure: value as CompoundWordStructureV2,
     blockers: [],
   };
-}
-
-export type ClosedCompoundV1CompatibilityAuthority = {
-  componentCanonicalWordIds: readonly [string, string];
-  componentToWholeRelationship: string;
-  review: CompoundWordReviewProvenanceV2;
-  source: CompoundWordSourceProvenanceV2;
-};
-
-/**
- * Historical v1 facts lack component IDs and the reviewed semantic
- * relationship. Callers must provide those governed facts; the adapter never
- * invents them.
- */
-export function adaptClosedCompoundWordV1ToV2(
-  word: ClosedCompoundWord,
-  authority: ClosedCompoundV1CompatibilityAuthority,
-): CompoundWordStructureValidation {
-  return validateCompoundWordStructureV2({
-    schemaVersion: COMPOUND_WORD_STRUCTURE_SCHEMA_VERSION,
-    wholeCanonicalWordId: word.canonicalWordId,
-    microSkillKey: "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
-    wholeWord: word.displayWord,
-    components: [
-      {
-        ordinal: 1,
-        canonicalWordId: authority.componentCanonicalWordIds[0],
-        displaySurface: word.firstWord,
-        meaning: word.firstWordMeaning,
-        sense: null,
-      },
-      {
-        ordinal: 2,
-        canonicalWordId: authority.componentCanonicalWordIds[1],
-        displaySurface: word.secondWord,
-        meaning: word.secondWordMeaning,
-        sense: null,
-      },
-    ],
-    joins: [{ ordinal: 1, kind: "none" }],
-    childFriendlyMeaning: word.childFriendlyDefinition,
-    componentToWholeRelationship: authority.componentToWholeRelationship,
-    morphologyProvenance: word.trueMorphology.provenance,
-    assignmentEligible: word.approvedTransfer,
-    transferEligible: word.approvedTransfer,
-    review: authority.review,
-    source: authority.source,
-  });
 }

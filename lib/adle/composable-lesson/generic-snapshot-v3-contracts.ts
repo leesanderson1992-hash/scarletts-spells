@@ -7,16 +7,16 @@ import type {
   DailyPlanFacts,
 } from "../daily-assignment-composer";
 import type {
-  GenericSnapshotConditionV2,
-  GenericSnapshotContentVersionV2,
-  GenericSnapshotEvidenceBindingV2,
-  GenericSnapshotPartV2,
-  GenericSnapshotRewardRoleV2,
-  GenericSnapshotScheduleRoleV2,
-  GenericSnapshotSectionKeyV2,
-  GenericSnapshotSelectionProvenanceV2,
-  GenericSnapshotWordRoleV2,
-} from "./generic-snapshot-contracts";
+  GenericSnapshotCondition,
+  GenericSnapshotContentVersion,
+  GenericSnapshotEvidenceBinding,
+  GenericSnapshotPart,
+  GenericSnapshotRewardRole,
+  GenericSnapshotScheduleRole,
+  GenericSnapshotSectionKey,
+  GenericSnapshotSelectionProvenance,
+  GenericSnapshotWordRole,
+} from "./generic-snapshot-shared-contracts";
 
 export const GENERIC_LESSON_SNAPSHOT_SCHEMA_VERSION_V3 = 3 as const;
 export const GENERIC_LESSON_SNAPSHOT_COMPILER_VERSION_V3 =
@@ -27,9 +27,8 @@ export const GENERIC_CANONICAL_CONTRACT_REGISTRY_VERSION_V3 =
   "adle_generic_canonical_contracts_v1" as const;
 export const GENERIC_SNAPSHOT_FINGERPRINT_VERSION_V3 = 1 as const;
 
-/** Additive v3 vocabulary. Snapshot v2's section-key union remains immutable. */
 export type GenericSnapshotSectionKeyV3 =
-  | GenericSnapshotSectionKeyV2
+  | GenericSnapshotSectionKey
   | "lesson_reflection";
 
 export type GenericSnapshotJsonValue =
@@ -49,8 +48,8 @@ export interface LessonWordSnapshotV3 {
   familyKey: string | null;
   microSkillKey: string | null;
   learningItemId: string | null;
-  role: GenericSnapshotWordRoleV2;
-  selectionProvenance: GenericSnapshotSelectionProvenanceV2;
+  role: GenericSnapshotWordRole;
+  selectionProvenance: GenericSnapshotSelectionProvenance;
   source: {
     kind:
       | "learning_item"
@@ -70,7 +69,7 @@ export interface CanonicalActivitySnapshotV3 {
   activityId: string;
   label: string;
   order: number;
-  part: GenericSnapshotPartV2;
+  part: GenericSnapshotPart;
   sectionKey: GenericSnapshotSectionKeyV3;
   canonical: {
     concept: string;
@@ -85,15 +84,15 @@ export interface CanonicalActivitySnapshotV3 {
   };
   wordSnapshotIds: readonly string[];
   contentVersionRefs: readonly string[];
-  condition: GenericSnapshotConditionV2;
+  condition: GenericSnapshotCondition;
   answerVisibility: "teaching" | "guided" | "recall_neutral" | "post_submit";
-  evidence: GenericSnapshotEvidenceBindingV2;
+  evidence: GenericSnapshotEvidenceBinding;
   completion: {
     binding: "part_submission";
-    part: GenericSnapshotPartV2;
+    part: GenericSnapshotPart;
   };
-  scheduleRole: GenericSnapshotScheduleRoleV2;
-  rewardRole: GenericSnapshotRewardRoleV2;
+  scheduleRole: GenericSnapshotScheduleRole;
+  rewardRole: GenericSnapshotRewardRole;
 }
 
 /**
@@ -110,7 +109,7 @@ export interface GenericCanonicalActivityAuthoringV3 {
   };
   payload: Readonly<Record<string, GenericSnapshotJsonValue>>;
   canonicalWordIds: readonly string[];
-  condition?: GenericSnapshotConditionV2;
+  condition?: GenericSnapshotCondition;
 }
 
 export const GENERIC_CANONICAL_ACTIVITY_AUTHORING_FIELD_V3 =
@@ -146,7 +145,7 @@ export interface CompiledLessonSnapshotV3 {
   words: readonly LessonWordSnapshotV3[];
   activities: readonly CanonicalActivitySnapshotV3[];
   segments: readonly GenericSnapshotSegmentV3[];
-  contentVersions: readonly GenericSnapshotContentVersionV2[];
+  contentVersions: readonly GenericSnapshotContentVersion[];
   provenance: {
     sourceKind: "compiled_generic_canonical_assignment";
     fingerprintAlgorithm: "sha256";

@@ -30,10 +30,6 @@ import {
   DICTATION_TARGET_SPAN_SCHEMA_VERSION,
   extractAuthoredTargetSpan,
 } from "../lib/adle/morphology/dictation-target-span";
-import {
-  validateClosedCompoundLessonPayload,
-  type ClosedCompoundLessonPayloadV1,
-} from "../lib/adle/morphology/closed-compound-word-lab";
 import type {
   CompoundWordJoinKind,
   CompoundWordMicroSkillKey,
@@ -258,7 +254,7 @@ for (const item of items.filter((entry) => entry.canonicalWordId !== null && ent
 const resolution = resolvePersistedLessonRoute({
   lessonRouteMetadata: COMPOUND_WORD_LAB_V2_ROUTE_METADATA,
   items: items.map((item, index) => ({ id: `cw2-${index}`, sectionKey: item.sectionKey, templateKey: item.templateKey, canonicalWordId: item.canonicalWordId, targetWord: item.targetWord, promptData: item.payload })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert.equal(resolution.status, "resolved_explicit");
 assert(resolution.status === "resolved_explicit" && resolution.runtime.adapterKey === "compound_word_v2");
@@ -352,7 +348,7 @@ const snapshotResolution = resolvePersistedLessonRoute({
       ? { ...item.promptData, compoundWordLesson: { corruptedMutableItemCopy: true } }
       : item.promptData,
   })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert.equal(snapshotResolution.status, "resolved_explicit");
 assert(snapshotResolution.status === "resolved_explicit" && snapshotResolution.runtime.adapterKey === "compound_word_v2");
@@ -409,37 +405,6 @@ const templates = listRegisteredActivityTemplateKeys();
 assert.equal(templates.filter((key) => key === "MOR_COMPOUND_JIGSAW").length, 1);
 assert.equal(templates.filter((key) => key === "MOR_COMPOUND_MEANING_CONNECTION").length, 1);
 
-const v1Word = (word: string, firstWord: string, secondWord: string, index: number) => ({
-  canonicalWordId: `v1-${word}`,
-  displayWord: word,
-  firstWord,
-  secondWord,
-  firstWordMeaning: "fixture first meaning",
-  secondWordMeaning: "fixture second meaning",
-  childFriendlyDefinition: "fixture whole meaning",
-  audioText: `${word} ${index}`,
-  dictationSentence: `${word} ${index}`,
-  dictationTargetTokenIndex: 0,
-  parts: [{ id: "first", text: firstWord }, { id: "second", text: secondWord }],
-  joins: [{ afterPartId: "first", beforePartId: "second", joinType: "none" }],
-  trueMorphology: { parts: [{ id: "first", text: firstWord }, { id: "second", text: secondWord }], joins: [{ afterPartId: "first", beforePartId: "second", joinType: "none" }], transformations: [], notes: "", provenance: { source: "v1 fixture" } },
-  approvedTransfer: true,
-});
-const v1Words = [v1Word("bedroom", "bed", "room", 1), v1Word("football", "foot", "ball", 2), v1Word("playground", "play", "ground", 3), v1Word("rainbow", "rain", "bow", 4)];
-const v1Payload = {
-  schemaVersion: 1,
-  experience: "D4_MOR_CLOSED_COMPOUND",
-  contentVersion: "d4_mor_closed_compounds_v1",
-  microSkillId: CLOSED,
-  experienceProfile: "closed_compound_word_lab_v1",
-  words: { lesson: v1Words },
-  activities: {
-    introduction: { title: "v1", childFriendlyExplanation: "v1", summary: "v1", examples: [] },
-    reflection: { promptKey: "v1", promptText: "v1" },
-    dictation: v1Words.map((word) => ({ canonicalWordId: word.canonicalWordId, targetWord: word.displayWord, sentence: word.dictationSentence, targetTokenIndex: 0 })),
-  },
-} as unknown as ClosedCompoundLessonPayloadV1;
-assert(validateClosedCompoundLessonPayload(v1Payload), "closed v1 payload remains valid");
 const invalidIdentity = structuredClone(separatedPayload) as CompoundWordLessonPayloadV2;
 invalidIdentity.words.lesson[0].structure.components[0].canonicalWordId = "";
 assert(!validateCompoundWordLessonPayloadV2(invalidIdentity), "v2 payload rejects missing canonical component identity");

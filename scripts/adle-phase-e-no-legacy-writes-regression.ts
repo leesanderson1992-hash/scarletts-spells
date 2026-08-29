@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { relative, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -81,6 +81,34 @@ const inventory = Object.fromEntries(
 const childRoute = sourceByPath.get("app/learn/week/adle/page.tsx") ?? "";
 assert.doesNotMatch(childRoute, /ensureAdleDailyPlan|persistComposedAdleDailyPlan/);
 
+for (const retiredSurface of [
+  "app/learn/week/practice/page.tsx",
+  "app/learn/week/practice/actions.ts",
+  "components/daily-spelling-practice-viewer.tsx",
+  "lib/writing-practice/daily-spelling-practice-read-model.ts",
+  "lib/writing-practice/daily-spelling-practice-completion.ts",
+  "lib/writing-engine/persistence/daily-spelling-practice-assignments.ts",
+  "lib/adle/morphology/closed-compound-word-lab.ts",
+  "lib/adle/morphology/closed-compound-jigsaw-compatibility.ts",
+  "lib/adle/morphology/pilot-access.ts",
+  "lib/adle/morphology/pilot-plan.ts",
+]) {
+  assert.equal(existsSync(resolve(root, retiredSurface)), false, `${retiredSurface} remains retired`);
+}
+for (const retiredToken of [
+  "morphology_guided_v1",
+  "closed_compound_v1",
+  "fixed_un_prefix_word_lab",
+  "closed_compound_word_lab",
+  "closedCompoundActivityId",
+]) {
+  assert.equal(
+    files.some((path) => (sourceByPath.get(path) ?? "").includes(retiredToken)),
+    false,
+    `${retiredToken} remains absent from application runtime`,
+  );
+}
+
 const currentWriters = [
   "lib/adle/loaders/base-word-family-pilot-loader.ts",
   "lib/adle/loaders/compound-word-assignment-loader.ts",
@@ -130,7 +158,8 @@ const historicalReaderContracts = {
   morphologyResume: sourceByPath.get("lib/adle/morphology/resume.ts") ?? "",
 };
 assert.match(historicalReaderContracts.genericReader, /source: "snapshot_absent"/);
-assert.match(historicalReaderContracts.genericReader, /source: "snapshot_v2"/);
+assert.doesNotMatch(historicalReaderContracts.genericReader, /source: "snapshot_v2"/);
+assert.match(historicalReaderContracts.genericReader, /source: "snapshot_unsupported"/);
 assert.match(historicalReaderContracts.dailyPlanSurface, /resolveGenericLessonSnapshot/);
 assert.match(historicalReaderContracts.routeResolution, /resolveLegacy/);
 assert.match(historicalReaderContracts.compatibility, /key === "REVIEW_QUICK_SORT"/);
@@ -140,6 +169,16 @@ assert.match(historicalReaderContracts.rendererRegistry, /CompatibilityNoop/);
 assert.match(historicalReaderContracts.baseWordLoader, /complete_adle_base_word_family_pilot_v2/);
 assert.match(historicalReaderContracts.morphologyResume, /Keep the legacy v1 key stable/);
 
+for (const retiredV2Path of [
+  "lib/adle/composable-lesson/generic-snapshot-compiler.ts",
+  "lib/adle/composable-lesson/generic-snapshot-contracts.ts",
+  "lib/adle/composable-lesson/generic-snapshot-registry.ts",
+  "lib/adle/composable-lesson/generic-snapshot-requirements.ts",
+  "lib/adle/composable-lesson/generic-snapshot-validator.ts",
+]) {
+  assert.equal(sourceByPath.has(retiredV2Path), false, `${retiredV2Path} remains deleted`);
+}
+
 const r8Authorities = [
   "lib/adle/canonical-intake/exact-id-handoff.ts",
   "lib/adle/canonical-intake/downstream-reconciliation.ts",
@@ -148,6 +187,10 @@ const r8Authorities = [
 for (const authorityPath of r8Authorities) {
   assert.ok(sourceByPath.has(authorityPath), `${authorityPath} must remain a current R8 authority`);
 }
+assert.match(sourceByPath.get("lib/adle/review-scheduler.ts") ?? "", /export function createReviewBundle/);
+assert.match(sourceByPath.get("lib/adle/review-v3/r6-generation.ts") ?? "", /sourceBundleId: row\.bundle_id/);
+assert.match(sourceByPath.get("lib/rewards/word-treasures.ts") ?? "", /createOrUpdateGoldenNuggetFromParentApproval/);
+assert.match(sourceByPath.get("lib/rewards/word-treasures.ts") ?? "", /moveGoldenNuggetIntoForgeFromDailyAssignmentItem/);
 const stageFReplay = readFileSync(
   resolve(root, "scripts/returned-correction-stage-f-deferred-route-replay.ts"),
   "utf8",
@@ -164,7 +207,9 @@ process.stdout.write(`${JSON.stringify({
   inventory,
   childRouteReadOnly: true,
   dailySpellingPracticeWriterRetired: true,
+  dailySpellingPracticeSurfaceRetired: true,
   everyForwardLessonWriterSnapshotsV3: true,
   historicalReadersPreserved: true,
+  activeLegacyBundleAuthorityPreserved: true,
   r8AuthoritiesPreserved: true,
 }, null, 2)}\n`);

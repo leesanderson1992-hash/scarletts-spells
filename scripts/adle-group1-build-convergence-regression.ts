@@ -9,7 +9,6 @@ import {
   type OrderedBuildTarget,
 } from "../components/adle/activities/shared/ordered-build-engine";
 import { ADLE_ACTIVITY_CATALOGUE } from "../lib/adle/activity-catalogue";
-import { adaptClosedCompoundJigsawTargets } from "../lib/adle/morphology/closed-compound-jigsaw-compatibility";
 import {
   compoundJigsawAutoScrollDelta,
   compoundJigsawExpectedPieceIds,
@@ -22,7 +21,6 @@ import {
   normaliseAnonymousCompoundJigsawSnapshot,
   normaliseCompoundJigsawPlacements,
 } from "../lib/adle/morphology/compound-jigsaw-pieces";
-import type { ClosedCompoundLessonPayloadV1 } from "../lib/adle/morphology/closed-compound-word-lab";
 
 const targets: OrderedBuildTarget[] = [
   { id: "rainbow", expectedPieceIds: ["rainbow:0", "rainbow:1"] },
@@ -170,19 +168,6 @@ assert(orderedBuildTargetIsCorrect(interchangeableHyphenTarget, [
   "well-being:1",
 ]), "any physical hyphen piece satisfies a governed hyphen slot");
 
-const historicalPayload = {
-  words: {
-    lesson: [
-      { canonicalWordId: "rainbow", displayWord: "rainbow", firstWord: "rain", secondWord: "bow" },
-      { canonicalWordId: "football", displayWord: "football", firstWord: "foot", secondWord: "ball" },
-    ],
-  },
-} as ClosedCompoundLessonPayloadV1;
-assert.deepEqual(adaptClosedCompoundJigsawTargets(historicalPayload), [
-  { canonicalWordId: "rainbow", word: "rainbow", components: ["rain", "bow"], joins: ["none"] },
-  { canonicalWordId: "football", word: "football", components: ["foot", "ball"], joins: ["none"] },
-], "historical first/second payloads translate exactly to generalized two-piece/no-join targets");
-
 const jigsawSource = readFileSync("components/adle/morphology/compound-jigsaw-activity.tsx", "utf8");
 const compoundAdapterSource = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
 const morphologySource = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
@@ -196,7 +181,7 @@ assert(!jigsawSource.includes("aria-hidden=\"true\">+</span>"), "Jigsaw trays do
 assert(!jigsawSource.includes("Word {targetIndex + 1}") && jigsawSource.includes("compoundJigsawPlacementTargetId"), "rows expose no target numbering and derive canonical ownership from assembled content");
 assert(jigsawSource.includes("compoundJigsawPiecePath") && jigsawSource.includes("preserveAspectRatio=\"xMidYMid meet\""), "bank pieces, placed pieces and silhouettes share aspect-ratio-safe SVG geometry");
 assert(jigsawSource.includes("pointerStart") && jigsawSource.includes("nearestDestination") && jigsawSource.includes("setPointerCapture"), "Jigsaw pointer capture and hit testing are controlled at board level");
-assert(compoundAdapterSource.includes("adaptClosedCompoundJigsawTargets"), "historical translation lives at the compatibility adapter boundary");
+assert(!compoundAdapterSource.includes("closedCompoundActivityId") && !compoundAdapterSource.includes("ClosedCompoundGuidedLesson"), "the current compound renderer has no closed-v1 route adapter");
 assert(morphologySource.includes('concept: "WORD_ASSEMBLY"') && morphologySource.includes('mode: "definition_word_builder"') && canonicalRegistrySource.includes('"DefinitionWordBuilder", definitionBuilderLoader'), "Prefix and Affix resolve shared Definition Word Builder through the canonical registry");
 assert(baseWordSource.includes('concept: "WORD_ASSEMBLY"') && baseWordSource.includes('mode: "definition_word_builder"') && canonicalRegistrySource.includes('"DefinitionWordBuilder", definitionBuilderLoader') && !baseWordSource.includes("function WordBuilder"), "Base Word resolves the shared Definition Word Builder through the canonical registry without a route-local renderer");
 assert(!definitionBuilderSource.includes("Build from the meaning"), "Definition Word Builder has one progress title instead of a duplicate build heading");

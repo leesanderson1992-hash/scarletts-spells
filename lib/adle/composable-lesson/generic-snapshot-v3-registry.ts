@@ -1,11 +1,11 @@
 import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import { resolveSentenceDictationContract } from "../sentence-dictation-contract";
 import type {
-  GenericSnapshotContentKindV2,
-  GenericSnapshotEvidenceBindingV2,
-  GenericSnapshotRewardRoleV2,
-  GenericSnapshotScheduleRoleV2,
-} from "./generic-snapshot-contracts";
+  GenericSnapshotContentKind,
+  GenericSnapshotEvidenceBinding,
+  GenericSnapshotRewardRole,
+  GenericSnapshotScheduleRole,
+} from "./generic-snapshot-shared-contracts";
 import type {
   CanonicalActivitySnapshotV3,
   GenericSnapshotJsonValue,
@@ -39,12 +39,12 @@ interface GenericSnapshotV3ReaderContract extends GenericCanonicalGenerationCont
   lifecycle: {
     sectionKeys: readonly GenericSnapshotSectionKeyV3[];
     answerVisibility: "teaching" | "guided" | "recall_neutral" | "post_submit";
-    evidence: GenericSnapshotEvidenceBindingV2;
-    scheduleRole: GenericSnapshotScheduleRoleV2;
-    rewardRole: GenericSnapshotRewardRoleV2;
+    evidence: GenericSnapshotEvidenceBinding;
+    scheduleRole: GenericSnapshotScheduleRole;
+    rewardRole: GenericSnapshotRewardRole;
     conditionKind: "always" | "on_misspelling";
   };
-  requiredContentKinds: readonly GenericSnapshotContentKindV2[];
+  requiredContentKinds: readonly GenericSnapshotContentKind[];
   validatePayload: (payload: Readonly<Record<string, GenericSnapshotJsonValue>>) => PayloadIssue | null;
 }
 

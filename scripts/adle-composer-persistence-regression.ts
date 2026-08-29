@@ -28,7 +28,6 @@ import {
   planAssignmentPersistence,
   type ExistingAssignmentHeaderFact,
 } from "../lib/adle/assignment-persistence";
-import { compileGenericLessonSnapshot } from "../lib/adle/composable-lesson/generic-snapshot-compiler";
 import {
   addDays,
   createReviewBundle,
@@ -288,27 +287,6 @@ items.forEach((draft, index) => {
   assert(!("learningItemId" in draft), "legacy learning_item_id is never set on ADLE drafts");
 });
 assert(new Set(items.map((draft) => draft.sourceEntityId)).size === items.length, "source_entity_ids unique");
-
-const compiledSnapshot = compileGenericLessonSnapshot({
-  facts: planInputFacts,
-  plan,
-  persistence: persistence as typeof persistence & {
-    action: "insert";
-    header: NonNullable<typeof persistence.header>;
-  },
-});
-assert(compiledSnapshot.ok, "the real composer insert plan compiles to a valid V2 snapshot");
-if (compiledSnapshot.ok) {
-  assert(compiledSnapshot.snapshot.activities.length === items.length, "snapshot binds every real composer item");
-  assert(
-    compiledSnapshot.snapshot.words.filter((word) => word.role === "review").length === 2,
-    "snapshot preserves the two review roles",
-  );
-  assert(
-    compiledSnapshot.snapshot.words.filter((word) => word.role === "authentic_target" || word.role === "transfer").length === 5,
-    "snapshot preserves all five selected lesson roles",
-  );
-}
 
 // Lesson-word rows keep their ADLE learning-item linkage in metadata.
 const controlledRows = items.filter((draft) => draft.metadata.sectionKey === "lesson_production");

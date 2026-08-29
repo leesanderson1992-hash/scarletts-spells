@@ -40,5 +40,5 @@ Not assessed: 21
 
 ## Report-only known findings
 
-- `transfer_not_approved` (closed_compound_word_lab): Current production compilation couples authentic targets to transfer eligibility.
-- `answer_comparator_mismatch` (closed_compound_word_lab): Current child and server separator comparison policies are not identical.
+- `transfer_not_approved` (compound_word_lab): Current production compilation couples authentic targets to transfer eligibility.
+- `answer_comparator_mismatch` (compound_word_lab): Current child and server separator comparison policies are not identical.

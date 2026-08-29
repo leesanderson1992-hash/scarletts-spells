@@ -108,7 +108,7 @@ assert.equal(ableIblePlan.lessonRouteMetadata?.route.routeId, "dynamic_affix_wor
 const resolvedAffix = resolvePersistedLessonRoute({
   lessonRouteMetadata: createPersistedRouteMetadata("dynamic_affix_word_lab"),
   items: ableIblePlan.partTwo.sections.flatMap((section) => section.items).map((entry, index) => ({ id: `affix-${index}`, sectionKey: entry.sectionKey, templateKey: entry.templateKey, canonicalWordId: entry.canonicalWordId, targetWord: entry.targetWord, promptData: entry.payload })),
-  runtimeContext: { morphologyUnEnabled: true, dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
+  runtimeContext: { dynamicPrefixEnabled: true, dynamicAffixEnabled: true, baseWordFamilyEnabled: true },
 });
 assert.equal(resolvedAffix.status, "resolved_explicit");
 assert(resolvedAffix.runtime.adapterKey === "dynamic_affix_v3");

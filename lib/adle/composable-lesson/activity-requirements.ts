@@ -175,7 +175,6 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
     applicableRecipes: [
-      "fixed_un_prefix:v1",
       "dynamic_prefix_word_lab:v2",
       "dynamic_affix_word_lab:v3",
       "base_word_family:v1",
@@ -195,7 +194,6 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
     applicableRecipes: [
-      "fixed_un_prefix:v1",
       "dynamic_prefix_word_lab:v2",
       "dynamic_affix_word_lab:v3",
       "base_word_family:v1",
@@ -219,7 +217,7 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
     roleRequirements: lessonRoles,
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
-    applicableRecipes: ["closed_compound_word_lab:v1", "compound_word_lab:v2"],
+    applicableRecipes: ["compound_word_lab:v2"],
   }),
   definition("meaning_match", {
     requiredFacts: [
@@ -233,7 +231,7 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
     roleRequirements: lessonRoles,
     answerVisibility: "guided",
     evidenceMode: "guided_completion",
-    applicableRecipes: ["closed_compound_word_lab:v1", "compound_word_lab:v2"],
+    applicableRecipes: ["compound_word_lab:v2"],
   }),
   definition("meaning_sort", {
     requiredFacts: [

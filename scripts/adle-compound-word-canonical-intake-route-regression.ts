@@ -15,7 +15,7 @@ import {
   resolveCanonicalIntakeRoute,
 } from "../lib/adle/canonical-intake/route-readiness";
 import {
-  getCurriculumRouteDefinition,
+  ADLE_CURRICULUM_ROUTE_REGISTRY,
   getNewAssignmentCurriculumRouteForMicroSkill,
 } from "../lib/adle/curriculum-readiness/route-registry";
 
@@ -44,9 +44,7 @@ assert.equal(isCompoundWordIntakeSkill(CLOSED, "D4_MOR_PREFIXES"), false);
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_PREFIXES_UN", "D4_MOR_PREFIXES"), {
   routeId: "dynamic_prefix_word_lab", routeVersion: "v2",
 });
-const legacy = getCurriculumRouteDefinition("closed_compound_word_lab", "v1");
-assert.equal(legacy?.implementationState, "legacy_render_only");
-assert.equal(legacy?.newAssignmentCapable, false);
+assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((entry) => entry.routeId === "closed_compound_word_lab"));
 
 const structure = {
   wholeCanonicalWordId: WORD_ID,

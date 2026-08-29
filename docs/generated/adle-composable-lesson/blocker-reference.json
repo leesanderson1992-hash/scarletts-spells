@@ -9,10 +9,6 @@
       "label": "activity contract mismatch"
     },
     {
-      "code": "activity_requirement_failed",
-      "label": "activity requirement failed"
-    },
-    {
       "code": "activity_requirement_unmet",
       "label": "activity requirement unmet"
     },
@@ -69,6 +65,14 @@
       "label": "base or root missing"
     },
     {
+      "code": "canonical_contract_registry_version_mismatch",
+      "label": "canonical contract registry version mismatch"
+    },
+    {
+      "code": "canonical_contract_version_mismatch",
+      "label": "canonical contract version mismatch"
+    },
+    {
       "code": "canonical_identity_missing",
       "label": "canonical identity missing"
     },
@@ -83,10 +87,6 @@
     {
       "code": "compiler_version_mismatch",
       "label": "compiler version mismatch"
-    },
-    {
-      "code": "completion_binding_mismatch",
-      "label": "completion binding mismatch"
     },
     {
       "code": "completion_role_mismatch",
@@ -137,16 +137,8 @@
       "label": "duplicate word"
     },
     {
-      "code": "duplicate_word_binding",
-      "label": "duplicate word binding"
-    },
-    {
       "code": "duplicate_word_snapshot_id",
       "label": "duplicate word snapshot id"
-    },
-    {
-      "code": "evidence_binding_mismatch",
-      "label": "evidence binding mismatch"
     },
     {
       "code": "explicit_legacy_disagreement",
@@ -213,16 +205,16 @@
       "label": "item section mismatch"
     },
     {
-      "code": "item_template_mismatch",
-      "label": "item template mismatch"
-    },
-    {
       "code": "legacy_payload_invalid",
       "label": "legacy payload invalid"
     },
     {
       "code": "lesson_fingerprint_mismatch",
       "label": "lesson fingerprint mismatch"
+    },
+    {
+      "code": "malformed_canonical_payload",
+      "label": "malformed canonical payload"
     },
     {
       "code": "malformed_content_provenance",
@@ -241,8 +233,8 @@
       "label": "malformed recipe"
     },
     {
-      "code": "malformed_snapshot",
-      "label": "malformed snapshot"
+      "code": "malformed_snapshot_v3",
+      "label": "malformed snapshot v3"
     },
     {
       "code": "meaning_facts_missing",
@@ -267,6 +259,10 @@
     {
       "code": "missing_affix_form",
       "label": "missing affix form"
+    },
+    {
+      "code": "missing_authored_content",
+      "label": "missing authored content"
     },
     {
       "code": "missing_decomposition",
@@ -389,10 +385,6 @@
       "label": "reconstruction mismatch"
     },
     {
-      "code": "requirement_registry_version_mismatch",
-      "label": "requirement registry version mismatch"
-    },
-    {
       "code": "resume_assignment_mismatch",
       "label": "resume assignment mismatch"
     },
@@ -403,10 +395,6 @@
     {
       "code": "resume_schema_mismatch",
       "label": "resume schema mismatch"
-    },
-    {
-      "code": "reward_role_mismatch",
-      "label": "reward role mismatch"
     },
     {
       "code": "root_item_duplicate",
@@ -437,10 +425,6 @@
       "label": "runtime reconstruction failure"
     },
     {
-      "code": "schedule_role_mismatch",
-      "label": "schedule role mismatch"
-    },
-    {
       "code": "selected_word_not_in_profile",
       "label": "selected word not in profile"
     },
@@ -457,20 +441,12 @@
       "label": "snapshot assignment source mismatch"
     },
     {
-      "code": "snapshot_column_unavailable",
-      "label": "snapshot column unavailable"
-    },
-    {
       "code": "snapshot_fingerprint_mismatch",
       "label": "snapshot fingerprint mismatch"
     },
     {
       "code": "snapshot_item_count_mismatch",
       "label": "snapshot item count mismatch"
-    },
-    {
-      "code": "snapshot_missing_for_explicit_generic_route",
-      "label": "snapshot missing for explicit generic route"
     },
     {
       "code": "snapshot_payload_mismatch",
@@ -529,6 +505,10 @@
       "label": "unresolved activity binding"
     },
     {
+      "code": "unsupported_canonical_contract",
+      "label": "unsupported canonical contract"
+    },
+    {
       "code": "unsupported_legacy_payload",
       "label": "unsupported legacy payload"
     },
@@ -547,14 +527,6 @@
     {
       "code": "unsupported_snapshot_schema_version",
       "label": "unsupported snapshot schema version"
-    },
-    {
-      "code": "unsupported_template",
-      "label": "unsupported template"
-    },
-    {
-      "code": "unsupported_template_shape",
-      "label": "unsupported template shape"
     },
     {
       "code": "unsupported_transformation",

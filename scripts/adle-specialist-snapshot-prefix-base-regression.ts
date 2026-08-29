@@ -48,7 +48,7 @@ const baseA=compileBaseWordSpecialistSnapshotV3({payload:baseResolved,releaseAut
 const baseB=compileBaseWordSpecialistSnapshotV3({payload:baseResolved,releaseAuthority:release,header:baseHeader,items:baseItems});
 assert.equal(canonicalSnapshotJson(baseA),canonicalSnapshotJson(baseB)); assert.equal(baseA.provenance.sourceFingerprint,baseB.provenance.sourceFingerprint);
 assert.equal(baseA.activities.flatMap((a)=>a.itemBindings).length,18); assert.equal(new Set(baseA.activities.flatMap((a)=>a.itemBindings.map((b)=>b.sourceEntityId))).size,18);
-const context={morphologyUnEnabled:true,dynamicPrefixEnabled:true,dynamicAffixEnabled:true,baseWordFamilyEnabled:true};
+const context={dynamicPrefixEnabled:true,dynamicAffixEnabled:true,baseWordFamilyEnabled:true};
 const routeItems=baseItems.map((i,index)=>({id:`item-${index}`,sourceEntityId:i.sourceEntityId,position:i.position,sectionKey:i.metadata.sectionKey,templateKey:i.templateKey,canonicalWordId:i.metadata.canonicalWordId,targetWord:i.targetWord,promptData:i.promptData}));
 const legacy=resolvePersistedLessonRoute({lessonRouteMetadata:baseMetadata,items:routeItems,runtimeContext:context,compiledLessonSnapshot:null});
 const frozen=resolvePersistedLessonRoute({lessonRouteMetadata:baseMetadata,items:routeItems,runtimeContext:context,compiledLessonSnapshot:baseA});

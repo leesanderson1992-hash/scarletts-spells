@@ -16,8 +16,6 @@ import {
 } from "@/lib/adle/lesson-reflection";
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { EXACT_GOVERNED_FORM_ANSWER_POLICY, isAnswerCorrectUnderPolicy } from "@/lib/adle/answer-policy";
-import type { ClosedCompoundLessonPayloadV1 } from "@/lib/adle/morphology/closed-compound-word-lab";
-import { adaptClosedCompoundJigsawTargets } from "@/lib/adle/morphology/closed-compound-jigsaw-compatibility";
 import type {
   CompoundWordLessonIntroductionV2,
   CompoundWordLessonPayloadV2,
@@ -29,7 +27,6 @@ import {
 } from "@/lib/adle/morphology/resolved-compound-word-lesson-v2";
 import type { CompoundWordJoinKind } from "@/lib/adle/morphology/compound-word-structure-v2";
 import {
-  dictationTargetSpanFromToken,
   extractAuthoredTargetSpan,
   type DictationTargetSpanV2,
 } from "@/lib/adle/morphology/dictation-target-span";
@@ -81,7 +78,7 @@ type RuntimePayload = {
   };
 };
 
-type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; resumeNamespace: "closed-compound" | "compound-word-v2"; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void };
+type RuntimeProps = { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void };
 
 function CompoundWordLessonRuntime(props: RuntimeProps) {
   const onDurableResumeStateChange = props.onDurableResumeStateChange;
@@ -89,9 +86,7 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   const [hydrated, setHydrated] = useState(false);
   const words = props.payload.words.lesson;
   const wordIds = useMemo(() => words.map((entry) => entry.canonicalWordId), [words]);
-  const resumeKey = props.resumeNamespace === "closed-compound"
-    ? closedCompoundResumeKey(props.assignmentId, props.payload.contentVersion)
-    : `${closedCompoundResumeKey(props.assignmentId, props.payload.contentVersion)}:v2`;
+  const resumeKey = `${closedCompoundResumeKey(props.assignmentId, props.payload.contentVersion)}:v2`;
   useEffect(() => {
     const timer = window.setTimeout(() => {
       const restored = normaliseClosedCompoundResume(
@@ -109,9 +104,7 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   const word = words[state.index];
   const beat = useMemo<GuideBeatV1>(() => ({ id: `closed-${state.stage}`, activityId: state.stage, state: state.stage === "controlled" || state.stage === "dictation" ? "guideSilent" : state.stage === "reflect" ? "reflect" : "invite", say: "", goal: "Build, connect, remember, and spell compound words.", waitFor: "the next step", onComplete: "continue" }), [state.stage]);
   if (!hydrated) return <div className="min-h-[28rem]" aria-label="Restoring Word Lab" />;
-  const isV1 = props.resumeNamespace === "closed-compound";
-  const readingPages = isV1 ? undefined : props.payload.activities.introduction.readingPages;
-  const teaching = props.payload.teaching ?? compoundTeachingPages(props.payload, words, readingPages);
+  const teaching = props.payload.teaching ?? compoundTeachingPages(props.payload, words, props.payload.activities.introduction.readingPages);
   const reflectionModel = compoundLessonReflectionModel(props.payload, state);
   const guidedAttempts = compoundGuidedAttempts(props.items, state);
   const activities: FirstImpressionConfiguredActivity[] = [
@@ -148,7 +141,7 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
     })}
     reflectionActivity={createCanonicalActivityBinding({
       id: "reflection", concept: "LESSON_REFLECTION", mode: "standard_lesson_reflection", contractVersion: 1, label: "Reflection",
-      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: props.payload.activities.reflection.promptText, response: state.reflection, onResponseChange: (reflection: string) => setState((current) => ({ ...current, reflection })), completionType: "submit", completionLabel: "Finish Word Lab", successMessage: isV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form." }),
+      createProps: () => ({ mistakes: reflectionModel.mistakes, sentenceComparisons: reflectionModel.sentenceComparisons, prompt: props.payload.activities.reflection.promptText, response: state.reflection, onResponseChange: (reflection: string) => setState((current) => ({ ...current, reflection })), completionType: "submit", completionLabel: "Finish Word Lab", successMessage: "You checked each compound word carefully and kept its governed written form." }),
       wrap: (activity) => <CompoundLessonReflectionAdapter childId={props.childId} assignmentId={props.assignmentId} state={state} guidedAttempts={guidedAttempts} activity={activity} onPreviewComplete={props.onPreviewComplete} />,
     })}
   />;
@@ -213,7 +206,7 @@ function compoundGuidedAttempts(items: AdleSessionItem[], state: ClosedCompoundR
   return items.flatMap((item) => {
     if (item.sectionKey === "lesson_intro") return [{ key: item.id, attemptText: "viewed" }];
     if (item.sectionKey !== "guided_practice" || !item.canonicalWordId) return [];
-    const activityId = item.promptData.closedCompoundActivityId ?? item.promptData.compoundWordActivityId;
+    const activityId = item.promptData.compoundWordActivityId;
     const isJigsaw = activityId === `jigsaw-${item.canonicalWordId}`;
     const completed = isJigsaw ? state.jigsawLocked.includes(item.canonicalWordId) : state.meaningConnected.includes(item.canonicalWordId);
     const incorrectAttempts = isJigsaw ? state.jigsawMisses[item.canonicalWordId] ?? 0 : state.meaningMisses[item.canonicalWordId] ?? 0;
@@ -225,28 +218,6 @@ function CompoundLessonReflectionAdapter(props: { childId: string; assignmentId:
   return <form action={props.onPreviewComplete ? undefined : completeAdleLessonPartAction} onSubmit={props.onPreviewComplete ? (event) => { event.preventDefault(); props.onPreviewComplete?.(props.state.reflection); } : undefined} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(props.guidedAttempts)} /><input type="hidden" name="learningReflection" value={props.state.reflection} />
     {props.activity}
   </form>;
-}
-
-export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void }) {
-  const jigsawTargets = adaptClosedCompoundJigsawTargets(props.payload);
-  const jigsawById = new Map(jigsawTargets.map((target) => [target.canonicalWordId, target]));
-  const payload: RuntimePayload = {
-    contentVersion: props.payload.contentVersion,
-    activities: props.payload.activities,
-    words: { lesson: props.payload.words.lesson.map((word) => ({
-      canonicalWordId: word.canonicalWordId,
-      displayWord: word.displayWord,
-      components: jigsawById.get(word.canonicalWordId)?.components ?? [],
-      joins: jigsawById.get(word.canonicalWordId)?.joins ?? [],
-      childFriendlyDefinition: word.childFriendlyDefinition,
-      componentToWholeRelationship: "",
-      audioText: word.audioText,
-      dictationSentence: word.dictationSentence,
-      dictationTargetSpan: dictationTargetSpanFromToken(word.dictationSentence, word.dictationTargetTokenIndex)!,
-      splitPoints: [word.firstWord.length],
-    })) },
-  };
-  return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="closed-compound" />;
 }
 
 export function CompoundWordGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload?: CompoundWordLessonPayloadV2; resolvedLesson?: ResolvedCompoundWordFirstImpressionV2; onPreviewComplete?: (reflection: string) => void; durableResumeState?: unknown; onDurableResumeStateChange?: (state: unknown) => void }) {
@@ -261,5 +232,5 @@ export function CompoundWordGuidedLesson(props: { childId: string; assignmentId:
     },
     words: { lesson: resolved.words },
   };
-  return <CompoundWordLessonRuntime childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={payload} resumeNamespace="compound-word-v2" onPreviewComplete={props.onPreviewComplete} durableResumeState={props.durableResumeState} onDurableResumeStateChange={props.onDurableResumeStateChange} />;
+  return <CompoundWordLessonRuntime childId={props.childId} assignmentId={props.assignmentId} items={props.items} payload={payload} onPreviewComplete={props.onPreviewComplete} durableResumeState={props.durableResumeState} onDurableResumeStateChange={props.onDurableResumeStateChange} />;
 }

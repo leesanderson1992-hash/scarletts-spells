@@ -80,23 +80,6 @@ function profileFor(
       transfer: members.filter((row) => row.member_role === "transfer").length,
     };
   }
-  if (route.routeId === "closed_compound_word_lab") {
-    const profile = tables.canonical_teaching_dictionary_compound_profiles.find(
-      (row) => row.micro_skill_key === microSkillKey && approved(row),
-    );
-    const facts = tables.canonical_teaching_dictionary_compound_facts.filter(
-      (row) =>
-        row.micro_skill_key === microSkillKey &&
-        approved(row) &&
-        row.assignment_eligible === true,
-    );
-    return {
-      declared: Boolean(profile),
-      enabled: profile?.production_enabled === true,
-      authentic: facts.length,
-      transfer: facts.filter((row) => row.transfer_eligible === true).length,
-    };
-  }
   const families =
     tables.canonical_teaching_dictionary_base_word_families.filter(
       (row) => row.micro_skill_key === microSkillKey && approved(row),

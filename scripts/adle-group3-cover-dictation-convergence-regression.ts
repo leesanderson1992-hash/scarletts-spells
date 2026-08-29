@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { ADLE_ACTIVITY_CATALOGUE, ADLE_ACTIVITY_IMPLEMENTATION_AUDIT } from "../lib/adle/activity-catalogue";
 import { normalizeGenericActivity } from "../lib/adle/generic-activity-compatibility";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
-import { getGenericSnapshotTemplateDefinition } from "../lib/adle/composable-lesson/generic-snapshot-registry";
+import { getGenericSnapshotV3ReaderContract } from "../lib/adle/composable-lesson/generic-snapshot-v3-registry";
 
 const read = (path: string) => readFileSync(path, "utf8");
 const cover = read("components/adle/activities/shared/cover-shutter.tsx");
@@ -79,18 +79,24 @@ assert(base.includes("controlledAttempts: state.controlledAttempts") && base.inc
 assert(actions.includes("extractAuthoredTargetSpan") && actions.includes("extractAuthoredTargetToken") && actions.includes("analyseDictationSentence"), "correctness and target extraction remain server/adapter-owned");
 
 const genericModes = [
-  ["CONTROLLED_SPELLING", "teaching", "first_exposure_lesson_attempt"],
-  ["HIDE_WRITE", "guided", "guided_practice_attempt"],
-  ["DICTATION_NO_IMAGE", "recall_neutral", "first_exposure_lesson_attempt"],
-  ["DICTATION_SENTENCE_CONTEXT", "recall_neutral", "first_exposure_lesson_attempt"],
-  ["DIAGNOSTIC_DICTATION_PROBE", "recall_neutral", "diagnostic_probe_attempt"],
-  ["REVIEW_DICTATION", "recall_neutral", "scheduled_review_attempt"],
+  ["CONTROLLED_SPELLING", "lesson_production", "COVER_CHECK", "whole_word", "recall_neutral", "first_exposure_lesson_attempt"],
+  ["DICTATION_NO_IMAGE", "lesson_dictation", "DICTATION", "whole_sentence", "recall_neutral", "first_exposure_lesson_attempt"],
+  ["DICTATION_SENTENCE_CONTEXT", "review_production", "COLD_WORD_RECALL", "scheduled_review", "recall_neutral", "scheduled_review_attempt"],
+  ["DIAGNOSTIC_DICTATION_PROBE", "lesson_probe", "COLD_WORD_RECALL", "diagnostic_probe", "recall_neutral", "diagnostic_probe_attempt"],
+  ["REVIEW_DICTATION", "review_production", "COLD_WORD_RECALL", "scheduled_review", "recall_neutral", "scheduled_review_attempt"],
 ] as const;
-for (const [templateKey, visibility, evidenceClass] of genericModes) {
-  const definition = getGenericSnapshotTemplateDefinition(templateKey);
-  assert(definition, `${templateKey} remains registered`);
-  assert.equal(definition.answerVisibility, visibility, `${templateKey} answer visibility remains ${visibility}`);
-  assert.equal(definition.evidence.evidenceClass, evidenceClass, `${templateKey} evidence remains ${evidenceClass}`);
+for (const [templateKey, sectionKey, concept, mode, visibility, evidenceClass] of genericModes) {
+  const promptData = templateKey === "DICTATION_NO_IMAGE"
+    ? { sentence: "The helpful child smiled.", audioText: "The helpful child smiled.", targetTokenIndex: 1 }
+    : templateKey === "DIAGNOSTIC_DICTATION_PROBE"
+      ? { words: [{ canonicalWordId: "probe", targetWord: "brightness" }] }
+      : {};
+  const normalized = normalizeGenericActivity(genericItem(templateKey, sectionKey, promptData));
+  assert.notEqual(normalized.status, "blocked", `${templateKey} remains canonically normalizable`);
+  const definition = normalized.status === "blocked" ? null : getGenericSnapshotV3ReaderContract(normalized.spec);
+  assert(definition && normalized.status !== "blocked" && normalized.spec.concept === concept && normalized.spec.mode === mode, `${templateKey} resolves the current v3 contract`);
+  assert.equal(definition.lifecycle.answerVisibility, visibility, `${templateKey} answer visibility remains ${visibility}`);
+  assert.equal(definition.lifecycle.evidence.evidenceClass, evidenceClass, `${templateKey} evidence remains ${evidenceClass}`);
 }
 
 const coverEntry = ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "COVER_CHECK");

@@ -72,66 +72,6 @@
       "wordSupportAuthority": "route_content"
     },
     {
-      "activationAuthority": "environment_and_profile_gates",
-      "compatibilityScope": {
-        "kind": "declared_micro_skills"
-      },
-      "coverageRequirements": [
-        "unique_dictation_sentences"
-      ],
-      "implementationState": "legacy_render_only",
-      "intentionalItemCounts": [
-        18
-      ],
-      "legacyDetectionRules": [
-        "prompt_data.closedCompoundActivityId=intro-root"
-      ],
-      "newAssignmentCapable": false,
-      "payloadKind": "closed_compound_lesson_v1",
-      "payloadVersions": [
-        1
-      ],
-      "recipes": [
-        {
-          "recipeKey": "closed_compound_word_lab",
-          "recipeVersion": "v1"
-        }
-      ],
-      "rendererKey": "closed_compound_guided",
-      "requiredActivities": [
-        "introduction",
-        "compound_jigsaw",
-        "meaning_match",
-        "cover_check",
-        "dictation",
-        "reflection"
-      ],
-      "requiresAuthenticSelectableItem": false,
-      "routeId": "closed_compound_word_lab",
-      "routeOwnership": {
-        "kind": "declared_micro_skills"
-      },
-      "routeVersion": "v1",
-      "runtimeAdapterKey": "closed_compound_v1",
-      "supportedMicroSkillKeys": [
-        "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"
-      ],
-      "wordCounts": {
-        "authentic": [
-          0,
-          4
-        ],
-        "lesson": [
-          4,
-          4
-        ],
-        "transfer": [
-          0,
-          4
-        ]
-      }
-    },
-    {
       "activationAuthority": "database_route_activation",
       "canonicalContentAuthority": "route_content",
       "compatibilityScope": {
@@ -335,67 +275,6 @@
         "transfer": [
           0,
           3
-        ]
-      }
-    },
-    {
-      "activationAuthority": "environment_profile_and_child_gates",
-      "compatibilityScope": {
-        "kind": "declared_micro_skills"
-      },
-      "coverageRequirements": [
-        "meaning_groups",
-        "unique_dictation_sentences"
-      ],
-      "implementationState": "legacy_render_only",
-      "intentionalItemCounts": [],
-      "legacyDetectionRules": [
-        "payload.experience=D4_MOR_GUIDED",
-        "payload.microSkillId=D4_MOR_PREFIXES_UN"
-      ],
-      "newAssignmentCapable": false,
-      "payloadKind": "morphology_guided_v1",
-      "payloadVersions": [
-        1
-      ],
-      "recipes": [
-        {
-          "recipeKey": "fixed_un_prefix",
-          "recipeVersion": "v1"
-        }
-      ],
-      "rendererKey": "morphology_guided",
-      "requiredActivities": [
-        "introduction",
-        "discovery",
-        "cleaver",
-        "word_build",
-        "cover_check",
-        "dictation",
-        "reflection"
-      ],
-      "requiresAuthenticSelectableItem": false,
-      "routeId": "fixed_un_prefix_word_lab",
-      "routeOwnership": {
-        "kind": "declared_micro_skills"
-      },
-      "routeVersion": "v1",
-      "runtimeAdapterKey": "morphology_guided_v1",
-      "supportedMicroSkillKeys": [
-        "D4_MOR_PREFIXES_UN"
-      ],
-      "wordCounts": {
-        "authentic": [
-          0,
-          0
-        ],
-        "lesson": [
-          7,
-          7
-        ],
-        "transfer": [
-          7,
-          7
         ]
       }
     },

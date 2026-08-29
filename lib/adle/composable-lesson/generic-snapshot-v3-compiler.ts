@@ -5,10 +5,10 @@ import type {
   TeachingContentFact,
 } from "../daily-assignment-composer";
 import type {
-  GenericSnapshotContentKindV2,
-  GenericSnapshotContentVersionV2,
-  GenericSnapshotPartV2,
-} from "./generic-snapshot-contracts";
+  GenericSnapshotContentKind,
+  GenericSnapshotContentVersion,
+  GenericSnapshotPart,
+} from "./generic-snapshot-shared-contracts";
 import {
   GENERIC_CANONICAL_ACTIVITY_AUTHORING_FIELD_V3,
   GENERIC_CANONICAL_CONTRACT_REGISTRY_VERSION_V3,
@@ -50,7 +50,7 @@ function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort();
 }
 
-function partForSection(sectionKey: string): GenericSnapshotPartV2 {
+function partForSection(sectionKey: string): GenericSnapshotPart {
   return sectionKey.startsWith("review_") ? "review" : "lesson";
 }
 
@@ -97,9 +97,9 @@ export function compileGenericLessonSnapshotV3(
   }
 
   const blockers: GenericSnapshotV3Blocker[] = [];
-  const contentVersions = new Map<string, GenericSnapshotContentVersionV2>();
+  const contentVersions = new Map<string, GenericSnapshotContentVersion>();
   const addContent = (
-    kind: GenericSnapshotContentKindV2,
+    kind: GenericSnapshotContentKind,
     key: string,
     version: string | undefined,
     sourceRowHash: string | null = null,
@@ -134,7 +134,7 @@ export function compileGenericLessonSnapshotV3(
 
   const words: LessonWordSnapshotV3[] = [];
   const wordByPartAndCanonical = new Map<string, LessonWordSnapshotV3>();
-  const addWord = (draft: Omit<LessonWordSnapshotV3, "contractVersion" | "wordSnapshotId" | "order" | "factFingerprint"> & { part: GenericSnapshotPartV2 }) => {
+  const addWord = (draft: Omit<LessonWordSnapshotV3, "contractVersion" | "wordSnapshotId" | "order" | "factFingerprint"> & { part: GenericSnapshotPart }) => {
     const ordinal = words.filter((word) => word.role === draft.role).length + 1;
     const { part, ...fields } = draft;
     const unsigned = {

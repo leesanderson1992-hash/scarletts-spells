@@ -41,7 +41,7 @@ import {
   CanonicalActivityNormalizationBlockedState,
 } from "@/components/adle/activities/canonical-renderer-registry";
 import type { BaseWordFamilyLessonSnapshotV1 } from "@/lib/adle/morphology/base-word-family-payload";
-import { ClosedCompoundGuidedLesson, CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
+import { CompoundWordGuidedLesson } from "@/components/adle/morphology/closed-compound-guided-lesson";
 import type { LessonRouteResolutionResult } from "@/lib/adle/composable-lesson/route-resolution";
 import {
   hydrateGenericV3CheckpointState,
@@ -761,12 +761,6 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   const { runtime } = props.routeResolution;
   const saveR6Checkpoint = useR6SpecialistCheckpointWriter(props);
   const durableState = props.r6SpecialistCheckpoint?.checkpointPayload.state;
-
-  // A profile-declared closed-compound lesson is its own complete Word Lab.
-  // It must not be hidden behind the generic daily review panel.
-  if (runtime.adapterKey === "closed_compound_v1" && props.assignmentId && partTwo.present && !partTwo.complete) {
-    return <ClosedCompoundGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint("closed_compound_v1", "closed_compound_resume_v1", state)} />;
-  }
 
   if (runtime.adapterKey === "compound_word_v2" && props.assignmentId && partTwo.present && !partTwo.complete) {
     return <CompoundWordGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} resolvedLesson={runtime.resolvedLesson} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint("compound_word_v2", "closed_compound_resume_v1", state)} />;

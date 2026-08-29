@@ -31,9 +31,7 @@ assert.deepEqual(
     "generic_composer:v1",
     "base_word_lab:v2",
     "dynamic_prefix_word_lab:v2",
-    "fixed_un_prefix_word_lab:v1",
     "dynamic_affix_word_lab:v3",
-    "closed_compound_word_lab:v1",
     "compound_word_lab:v2",
   ]),
 );
@@ -56,18 +54,13 @@ assert.equal(
   "production morphology route declarations must not overlap",
 );
 
-const closed = getCurriculumRouteDefinition("closed_compound_word_lab", "v1");
-assert(closed);
-assert.deepEqual(closed.intentionalItemCounts, [18]);
-assert.deepEqual(closed.wordCounts.lesson, [4, 4]);
-assert(closed.requiredActivities.includes("compound_jigsaw"));
-assert(closed.requiredActivities.includes("meaning_match"));
-
 const compoundV2 = getCurriculumRouteDefinition("compound_word_lab", "v2");
 assert(compoundV2);
 assert.equal(compoundV2.newAssignmentCapable, true);
 assert.deepEqual(compoundV2.routeOwnership, { kind: "skill_clusters", skillClusterKeys: ["D4_MOR_COMPOUND_WORDS"] });
 assert.deepEqual(compoundV2.intentionalItemCounts, [18]);
+assert(compoundV2.requiredActivities.includes("compound_jigsaw"));
+assert(compoundV2.requiredActivities.includes("meaning_match"));
 
 const base = getCurriculumRouteDefinition(
   BASE_WORD_ROUTE_COMPATIBILITY_PROJECTION.canonicalRouteId,

@@ -101,7 +101,7 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
 function isCurrentNavItem(currentPath: string, href: string) {
   if (
     href === "/learn/week" &&
-    (currentPath.startsWith("/learn/week/practice") || currentPath.startsWith("/learn/week/adle"))
+    currentPath.startsWith("/learn/week/adle")
   ) {
     return false;
   }

@@ -3,15 +3,15 @@
   "versions": [
     {
       "authoritativeStorage": "daily_assignments.compiled_lesson_snapshot",
-      "compilerVersion": "adle_generic_snapshot_compiler_v2",
-      "legacyFallback": "snapshot_absent_only",
+      "compilerVersion": "adle_generic_canonical_snapshot_compiler_v3",
+      "legacyFallback": "snapshot_absent_metadata_free_only; snapshot v2 retired after zero-row proof",
       "payload": "composed_daily_plan:1",
       "reader": "resolveGenericLessonSnapshot",
       "recipe": "generic_first_exposure:v1",
       "route": "generic_composer:v1",
-      "snapshotSchemaVersion": 2,
-      "validatorVersion": "adle_generic_snapshot_validator_v2",
-      "writer": "persist_adle_generic_daily_plan_v2"
+      "snapshotSchemaVersion": 3,
+      "validatorVersion": "adle_generic_canonical_snapshot_validator_v3",
+      "writer": "persist_adle_generic_daily_plan_v3"
     },
     {
       "authoritativeStorage": "not persisted; future route-neutral column",
