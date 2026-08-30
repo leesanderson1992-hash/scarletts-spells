@@ -1,5 +1,21 @@
 # ADLE Word-Complexity Banding and Formula Numbers — Proposal
 
+## Proficiency authority marker (2026-08-30)
+
+Classification: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
+
+`CURRENT_RUNTIME`: `banding_v1.1`, its global structural score, effective level
+override, and current allocation outputs remain released inputs.
+
+`APPROVED_TARGET_MODEL`: V1 proficiency reuses those global complexity facts
+and derives skill-relative `FOUNDATION / EXTENDED / CHALLENGE` coverage within
+each normalized governed word/skill pool, as specified in
+`docs/implementation/adle-proficiency-v1-maths.md`.
+
+`SUPERSEDED_AFTER_TARGET_RELEASE`: this document's current proficiency-target
+and allocation-denominator use. Global complexity itself is retained; it does
+not become a proficiency point multiplier.
+
 Status: `Owner-approved 2026-07-04 (all checklist items). Recorded in the
 blueprint contract's 2026-07-04 formula-package amendment and the decision
 log. Runtime implementation proceeds as separate slices; no migration is

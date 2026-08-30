@@ -1,5 +1,14 @@
 # Mastery Domain 4: Spelling and Orthographic Knowledge
 
+## Authority and status
+
+Classification: `ACTIVE_PEDAGOGICAL_REFERENCE`
+
+This document owns Domain 4 pedagogical scope and taxonomy examples. It does
+not own proficiency levels, thresholds, evidence effects, word progression, or
+instructional-state transitions. Those concerns defer to the ADLE authority
+map and their canonical contracts.
+
 ## Purpose
 
 This document is the detailed pedagogy document for the first deep mastery domain in Scarlett's Spells.
@@ -204,70 +213,18 @@ These are representative examples, not the final exhaustive curriculum.
 
 ## Competency levels in spelling
 
-Operational mastery stages, evidence weighting, breadth requirements, stage
-gates, recurrence rules, and parent-facing "Mastered" semantics now defer to:
+Competency belongs to the child + micro-skill relationship and is derived from
+governed evidence. It does not replace taxonomy or word-route state.
 
-- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+Target numeric Level 1–5 meanings and gates are owned by:
 
-This section remains pedagogical. The Level 1 to Level 5 examples below are
-best read as domain-facing teaching shorthand for the progression from
-recognition to secure retained use, not as the runtime contract for promotion,
-demotion, or scoring.
+- `docs/contracts/adle-spelling-proficiency-contract.md`; and
+- `docs/implementation/adle-proficiency-v1-maths.md`.
 
-Competency levels describe how independently and reliably the child can use a linked spelling micro-skill.
-
-They do not replace the taxonomy.
-They sit alongside the micro-skill and help distinguish recognition, prompted correction, controlled practice, transfer, and retained mastery.
-
-Example:
-
-```text
-Micro-skill:
-Spell final /ai/ words with ay
-
-Level 1:
-Recognises final `ay` examples.
-
-Level 2:
-Corrects `plae` -> `play` with parent prompt.
-
-Level 3:
-Spells `day`, `play`, `tray`, `stay` correctly in a targeted lesson.
-
-Level 4:
-Uses final `ay` words correctly in real writing.
-
-Level 5:
-Retains and applies the pattern reliably over time in mixed writing and review.
-```
-
-This means spelling mastery should not be treated as a simple binary.
-
-A child may therefore have:
-- a current competency such as Level 2 or Level 3
-- a target competency such as Level 4 or Level 5
-
-The important distinction is:
-- taxonomy describes what the skill is
-- competency describes how well the child can use it
-
-Minimum evidence principles:
-
-| Level | Meaning | Minimum evidence principle |
-|---:|---|---|
-| 1 | Recognition / exposure | child recognises the skill or examples with support |
-| 2 | Guided correction | child can correct or apply the skill with prompt/support |
-| 3 | Independent controlled use | child can use the skill in targeted practice without help |
-| 4 | Transfer to authentic work | child applies the skill in real writing/submission |
-| 5 | Secure retained mastery | child applies the skill over time after delay/mixed review |
-
-Pedagogical rule:
-
-```text
-The runtime should treat competency as per-child-per-micro-skill state supported by evidence history.
-Exact thresholds, transfer gates, breadth, confidence, recurrence, and scoring now defer to the dedicated mastery/evidence contract.
-Level 4 and Level 5 in this document describe the pedagogical meaning of transfer and retained mastery, not the full runtime stage model.
-```
+At a pedagogical level, development should move from initial application to
+broader independent retrieval, contextual transfer, authentic use, and stable
+generalisation. This document intentionally defines no literal word count,
+score, stage mapping, or promotion threshold.
 
 ## Route fit in Domain 4
 
@@ -296,10 +253,9 @@ The route should follow the micro-skill, not the other way around.
 The pedagogical interpretation here explains what stronger and weaker spelling
 evidence means in human terms.
 
-Operational source types, source weights, role weights, evidence-value
-calculations, and model versioning now defer to:
-
-- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+Operational source identity and lineage defer to the Writing Engine Evidence
+and Lineage Contract. Activity effects defer to the ADLE Proficiency Task and
+Evidence Matrix.
 
 Inside spelling, evidence should come from both:
 - direct practice performance
@@ -316,113 +272,28 @@ Weak spelling evidence usually includes:
 - one successful burst of repetition in the same sitting
 - accuracy only in copied form
 
-Positive evidence types for Domain 4:
-
-| Evidence type | Meaning | Competency signal |
-|---|---|---|
-| `authentic_correct_use` | correct use in real submitted work | Level 4 evidence |
-| `delayed_authentic_correct_use` | correct use in real work after time delay | Level 5 evidence candidate |
-| `repeated_correct_use` | correct use across multiple later submissions | strong Level 5 evidence candidate |
-| `parent_confirmation` | parent confirms it was genuine independent use | allows meaningful competency update |
-
 Rules:
-- one correct authentic occurrence should increase evidence rather than force mastery
-- repeated correct use over time supports retained mastery
-- parent confirmation remains required before competency changes materially
 
-## Level 4 and Level 5 pedagogical interpretation
+- one correct authentic occurrence contributes evidence but cannot force a
+  level by itself;
+- repeated correct use over time strengthens Stability;
+- authentic writing must pass the governed verification boundary;
+- complexity provides `FOUNDATION`, `EXTENDED`, and `CHALLENGE` coverage, not
+  point multiplication;
+- absence of an error is not positive evidence;
+- harder vocabulary affects only micro-skills it genuinely demonstrates; and
+- a causal failure must not demote unrelated skills.
 
-The examples below explain what transfer and retained mastery mean
-pedagogically inside Domain 4.
+## Transfer and retained-generalisation interpretation
 
-This means:
-- a level belongs to the child + micro-skill relationship
-- words are evidence opportunities, not the mastery object by themselves
-- harder vocabulary can strengthen or challenge a micro-skill only when it honestly tests that same micro-skill
-- failure on a more complex or different word should not demote an unrelated mastered micro-skill
+Strong spelling proficiency requires evidence beyond immediate controlled
+success. It should include representative words, independent retrieval,
+meaningful contextual use, verified learner-chosen writing, and persistence
+over time according to the canonical proficiency gates.
 
-Runtime stage ownership, formal gates, breadth thresholds, recurrence handling,
-and scoring semantics now defer to:
-
-- [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
-
-### Level 4 pedagogical interpretation
-
-Pedagogically, Level 4 means:
-- evidence comes from authentic writing, not controlled practice
-- the child shows correct use in 5 distinct words
-- those 5 words are matched through:
-  - exact watched target words, or
-  - curated related watch words for the same micro-skill
-- all 5 words honestly map to the same canonical micro-skill
-- there is no meaningful contradictory failure for that same micro-skill during the active Level 4 qualification window
-- the parent confirms the evidence reflects genuine independent use
-- later authentic success may still be confirmed as evidence while contradiction pauses Level 4 promotion
-
-Interpretation:
-- Level 4 means the child can use the micro-skill in real writing, not only in training
-- one strong authentic success should add evidence, but should not force Level 4 by itself
-- repeating the same exact word should not be enough to prove transfer
-
-### Level 5 pedagogical interpretation
-
-Pedagogically, Level 5 means:
-- Level 4 has already been reached
-- the child shows correct authentic use across 5 distinct later pieces of work
-- each piece of work can count at most once toward retained-mastery evidence for that micro-skill
-- the evidence shows at least 2 complexity bands where that micro-skill has genuine lexical range
-- there is no meaningful contradictory failure for that same micro-skill during the active Level 5 qualification window
-- the parent confirms the pattern looks secure and retained
-- contradiction pauses Level 5 promotion, but does not invalidate a genuine later authentic success as evidence
-
-Interpretation:
-- Level 5 means the child keeps using the micro-skill successfully over time, after delay, in later authentic work
-- Level 5 should not be awarded from one burst of success in a single submission
-- Level 5 should not rely on one easy repeated word only
-
-### Slippage and contradiction interpretation
-
-For Levels 4 and 5, "no slippage" means:
-- no meaningful contradictory failure in the same micro-skill during the relevant qualification window
-
-Rules:
-- contradiction is evaluated at the same micro-skill, not at the whole family or domain
-- a harder or newer word only counts as contradiction if the parent can honestly say the failure primarily belongs to that same micro-skill
-- unrelated vocabulary growth should create new evidence or a new issue, not automatically lower an older mastered micro-skill
-
-Example:
-- secure spelling of `duck`, `back`, and `sack` should not be lost just because the child later misspells `acknowledgement`
-- that later error may reveal a different morphology or orthographic problem, but it is not automatically contradiction of the earlier `ck` pattern mastery
-
-### Complexity interpretation for retained mastery
-
-The runtime should use a hybrid complexity source:
-- primary source: curated seed data and word-bank difficulty
-- fallback source: lexical or dictionary enrichment for unseen words
-
-Normalize complexity into these internal bands:
-- `basic`
-- `extended`
-- `complex_transfer`
-
-Rules:
-- complexity supports retained-mastery judgment, but does not replace taxonomy truth
-- the taxonomy and parent confirmation remain primary
-- if a micro-skill only has one practical band in MVP, require the maximum available spread rather than blocking Level 5 permanently
-- absence of an error should never count as positive evidence by itself
-
-### Positive evidence interpretation
-
-Later authentic writing should only produce Level 4 / Level 5 candidates when the system finds a genuine opportunity to demonstrate the micro-skill.
-
-For MVP, candidate positive evidence should come from:
-- exact watched target words
-- curated related watch words
-
-It should not come from:
-- broad open-ended pattern inference
-- "no spelling error detected"
-- dictionary complexity alone
+Words remain evidence opportunities, not the mastery object. Repetition of one
+easy word cannot substitute for required breadth, complexity coverage, or
+transfer. Literal requirements belong only to the V1 Maths owner.
 
 ## Fragility rule
 
@@ -463,7 +334,7 @@ Linked micro-skill:
 Spell final /ai/ words with ay
 
 Competency level:
-Level 1 or Level 2
+Derived from the canonical proficiency profile; this issue alone does not set it
 ```
 
 ```text
@@ -477,7 +348,7 @@ Linked micro-skill:
 Spell final /ai/ words with ay
 
 Competency level:
-Level 3, not yet Level 4
+May show current transfer fragility; the complete profile still determines level
 ```
 
 ```text
@@ -491,7 +362,7 @@ Linked micro-skill:
 Spell final /ai/ words with ay
 
 Competency level:
-Potentially Level 4 or Level 5, depending on evidence history
+Unchanged by self-correction alone; governed evidence history determines it
 ```
 
 ## Cross-domain overlap
@@ -520,9 +391,10 @@ Canonical Writing Engine rule:
 
 - no parent-facing "Mastered" without authentic writing transfer
 
-The broader runtime ladder, confidence requirements, breadth requirements, and
-recurrence handling now defer to the mastery/evidence contract rather than
-being owned here.
+The target Level 1–5 gates, Breadth, Diversity/Complexity, Transfer, and
+Stability requirements defer to the Spelling Proficiency Contract and V1 Maths
+rather than being owned here. Source lineage and verification defer to the
+Writing Engine Evidence and Lineage Contract.
 
 Spelling mastery is not complete just because isolated practice improved.
 

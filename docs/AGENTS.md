@@ -20,6 +20,13 @@ The product combines:
 
 These are the docs that define live product truth.
 
+For ADLE policy ownership, current-runtime versus approved-target status, and
+fresh-engineer reading order, begin with
+`docs/architecture/adle-authority-map.md` and its machine-readable manifest.
+Historical Slice plans and the Daily Assignment/Evidence blueprint are not
+future target authority merely because their filenames contain “plan” or
+“contract”.
+
 ### Core contracts
 - [docs/contracts/modules-model.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/modules-model.md:1)
 - [docs/archive/spelling-model.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/archive/spelling-model.md:1)

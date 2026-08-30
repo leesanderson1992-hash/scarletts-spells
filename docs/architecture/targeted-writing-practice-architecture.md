@@ -976,8 +976,10 @@ This preserves:
 - later transfer breakdown
 - re-strengthening attempts
 
-The stage ladder, recurrence interpretation, and parent-facing mastered rules
-now defer to the mastery/evidence contract rather than this architecture doc.
+Evidence lineage defers to the Writing Engine Evidence and Lineage Contract.
+Word-route changes defer to the ADLE Word Progression and Review Contract;
+micro-skill recurrence and Level interpretation defer to the ADLE Spelling
+Proficiency Contract and V1 Maths rather than this architecture document.
 
 ## Reject-suppression concept
 

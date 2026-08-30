@@ -517,7 +517,9 @@ Stage `2` architectural rules:
 - curated spelling-content ownership must not move into route-local `app/*`
   code or retired spelling runtime helpers
 - micro-skill identity remains anchored by `micro_skill_catalog`
-- mastery truth remains anchored by the existing mastery/evidence contract
+- evidence truth remains anchored by the Writing Engine Evidence and Lineage
+  Contract; ADLE proficiency remains anchored by its separate proficiency
+  contract and maths owner
 - parent-verification truth remains anchored by `parent_verifications`
 - assignment truth remains anchored by canonical `learning_items` ->
   `assignment_items` generation rules
@@ -565,7 +567,8 @@ Stage `2E` boundary refinement:
 - `2E` must preserve:
   - the Stage `2A` content-source boundary
   - the Stage `2C` micro-skill identity/mapping boundary
-  - the existing mastery/evidence contract without recalibration
+  - the evidence-lineage contract without reinterpretation and the separate
+    proficiency authority without recalibration
   - the existing Stage `1D` assignment ownership and duplicate-identity rules
 - complexity lookup must remain a shared read-only concern under
   `lib/writing-engine`
@@ -602,7 +605,7 @@ Stage `2F` boundary refinement:
 - `2F` must preserve:
   - the Stage `2A` content-source boundary
   - the Stage `2C` micro-skill identity/mapping boundary
-  - the existing mastery/evidence contract unchanged
+  - the evidence-lineage contract and separate proficiency authority unchanged
   - the existing Stage `1D` assignment ownership and duplicate-identity rules
 - similar-practice lookup must remain a shared read-only concern under
   `lib/writing-engine`

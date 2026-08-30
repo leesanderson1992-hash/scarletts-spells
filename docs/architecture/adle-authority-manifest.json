@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "ADLE_AUTHORITY_MANIFEST_V1_2026-08-30",
+  "authorities": [
+    {
+      "key": "word_progression_and_review",
+      "canonicalDocument": "docs/contracts/micro-skill-taxonomy-and-assignment-contract.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "micro_skill_catalog plus released ADLE word-scoped learning items",
+      "approvedTargetPolicy": "stable curated micro-skill identity and learner+word+primary-skill learning-item identity",
+      "policyVersion": "ADLE_TAXONOMY_AND_LEARNING_ITEM_IDENTITY_V1",
+      "requiredIdentifiers": ["INTRODUCTION_REQUIRED", "GUIDED_PRACTICE", "RETRIEVAL", "CONSOLIDATION", "MAINTENANCE"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "micro_skill_taxonomy",
+      "canonicalDocument": "docs/contracts/adle-word-progression-and-review-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "review_policy_v1_2026-07-04; see Slice 2 and R5 receipts",
+      "approvedTargetPolicy": "controlled OR graduation and stage-sensitive spaced-review recovery/regression",
+      "policyVersion": "ADLE_SPACED_REVIEW_REGRESSION_V1",
+      "requiredIdentifiers": ["ADLE_CONTROLLED_GRADUATION_V1_OR", "ADLE_SPACED_REVIEW_REGRESSION_V1"],
+      "supersededDocuments": ["docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md"]
+    },
+    {
+      "key": "review_retirement_current_runtime",
+      "canonicalDocument": "docs/implementation/adle-slice-2-review-scheduler-plan.md",
+      "status": "CURRENT_RUNTIME_AUTHORITY_RECEIPT",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "conditional final-rung retirement/pre-retirement behaviour under review_policy_v1_2026-07-04",
+      "approvedTargetPolicy": "preserved separately; no replacement retirement policy approved by Phase A",
+      "policyVersion": "review_policy_v1_2026-07-04",
+      "requiredIdentifiers": ["Conditional 112-day pre-retirement check"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "word_skill_relationships",
+      "canonicalDocument": "docs/contracts/adle-spelling-proficiency-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "approved generic support is the live Slice 5 proficiency mapping path",
+      "approvedTargetPolicy": "deduplicated CanonicalWordSkillRelationship over all admitted governed sources",
+      "policyVersion": "ADLE_PROFICIENCY_MODEL_V1",
+      "requiredIdentifiers": ["CanonicalWordSkillRelationship", "ADLE_PROFICIENCY_MODEL_V1"],
+      "supersededDocuments": ["docs/implementation/adle-slice-5-proficiency-engine-plan.md"]
+    },
+    {
+      "key": "proficiency_semantics",
+      "canonicalDocument": "docs/contracts/adle-spelling-proficiency-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "released Slice 5 graded word-state breadth projection",
+      "approvedTargetPolicy": "Breadth, Diversity/Complexity, Transfer, Stability, and derived Level 1-5",
+      "policyVersion": "ADLE_PROFICIENCY_MODEL_V1",
+      "requiredIdentifiers": ["Breadth", "Diversity and complexity", "Transfer", "Stability", "Derived Level 1–5", "Child eligibility and the obscure-word firewall"],
+      "supersededDocuments": ["docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md", "docs/implementation/adle-slice-5-proficiency-engine-plan.md"]
+    },
+    {
+      "key": "proficiency_math",
+      "canonicalDocument": "docs/implementation/adle-proficiency-v1-maths.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "released Slice 5 calculation; see Slice 5 receipt",
+      "approvedTargetPolicy": "versioned four-dimension aggregation, requirement profiles, gated levels, and progress maths",
+      "policyVersion": "ADLE_PROFICIENCY_MODEL_V1",
+      "requiredIdentifiers": ["PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED", "ADLE_PROFICIENCY_PROGRESS_V1_EQUAL_ACTIVE_GATES"],
+      "supersededDocuments": ["docs/implementation/adle-slice-5-proficiency-engine-plan.md"]
+    },
+    {
+      "key": "task_evidence_effects",
+      "canonicalDocument": "docs/pedagogy/adle-proficiency-task-evidence-matrix.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "Slice 4/Review v3 evidence facts remain live",
+      "approvedTargetPolicy": "activity and outcome effects on proficiency dimensions and causal negatives",
+      "policyVersion": "ADLE_TASK_EVIDENCE_EFFECTS_V1",
+      "requiredIdentifiers": ["ADLE_PROFICIENCY_MODEL_V1", "INTRODUCTION_REQUIRED", "GUIDED_PRACTICE", "RETRIEVAL", "CONSOLIDATION", "MAINTENANCE"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "evidence_lineage",
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "current Writing Engine, Slice 4, and Review v3 source records",
+      "approvedTargetPolicy": "immutable singular source events, verification, provenance, causal attribution, and environment identity",
+      "policyVersion": "WRITING_ENGINE_EVIDENCE_LINEAGE_V1",
+      "requiredIdentifiers": ["Immutable source events", "Attempt lineage", "Verification boundary"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "child_parent_proficiency_experience",
+      "canonicalDocument": "docs/product/adle-proficiency-progression-experience.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "no complete target Level 1-5 proficiency experience",
+      "approvedTargetPolicy": "child and parent presentation of versioned proficiency and explanations",
+      "policyVersion": "ADLE_PROFICIENCY_EXPERIENCE_V1",
+      "requiredIdentifiers": ["Stable progression identity", "Word Treasure"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "word_metadata_and_curriculum",
+      "canonicalDocument": "docs/contracts/canonical-spelling-word-map-contract.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "released Canonical Teaching Dictionary and curriculum release authorities",
+      "approvedTargetPolicy": "canonical word metadata, teaching content, readiness, eligibility metadata, and content boundaries",
+      "policyVersion": "CANONICAL_SPELLING_WORD_MAP_CURRENT",
+      "requiredIdentifiers": ["Authority boundary", "Version 3.0 curriculum readiness"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "resolver_and_canonical_mapping",
+      "canonicalDocument": "docs/contracts/parent-recommended-canonical-mapping.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "released exact canonical mapping and resolver-visibility authorities",
+      "approvedTargetPolicy": "exact misspelling/correction/causal-skill approval with provenance",
+      "policyVersion": "PCRM_CANONICAL_MAPPING_CURRENT",
+      "requiredIdentifiers": ["Exact Pair And Micro-Skill Model"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "daily_assignment_composition",
+      "canonicalDocument": "docs/contracts/adle-daily-assignment-composer-contract.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "released composer/snapshot-v3 route authorities",
+      "approvedTargetPolicy": "daily composition ownership and deterministic assignment boundaries",
+      "policyVersion": "ADLE_DAILY_ASSIGNMENT_COMPOSER_CURRENT",
+      "requiredIdentifiers": ["Plan structure and ordering"],
+      "supersededDocuments": ["docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md"]
+    },
+    {
+      "key": "word_treasure",
+      "canonicalDocument": "docs/contracts/reward-system-contract.md",
+      "status": "ACTIVE_NORMATIVE_CONTRACT",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "released Word Treasure and compatibility reward paths",
+      "approvedTargetPolicy": "word-specific Nugget, Forge, Golden Bar, Vault, and reward separation",
+      "policyVersion": "WORD_TREASURE_CURRENT",
+      "requiredIdentifiers": ["Word Treasure System", "Golden Bar", "Vault"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "current_runtime_registry",
+      "canonicalDocument": "docs/implementation/adle-current-state-and-release-registry.md",
+      "status": "CURRENT_RUNTIME_REGISTRY",
+      "targetTerminologyScope": false,
+      "currentRuntimePolicy": "released ADLE application, routes, capability states, and runtime policy differences",
+      "approvedTargetPolicy": null,
+      "policyVersion": "ADLE_CURRENT_STATE_2026-08-30",
+      "requiredIdentifiers": ["CURRENT_RUNTIME"],
+      "supersededDocuments": []
+    }
+  ],
+  "historicalReceipts": [
+    "docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md",
+    "docs/implementation/adle-slice-2-review-scheduler-plan.md",
+    "docs/implementation/adle-review-r5-legacy-scheduler-compatibility.md",
+    "docs/implementation/adle-slice-5-proficiency-engine-plan.md",
+    "docs/implementation/adle-v3-proficiency-authority-audit.md"
+  ],
+  "canonicalTargetDocuments": [
+    "docs/contracts/adle-word-progression-and-review-contract.md",
+    "docs/contracts/adle-spelling-proficiency-contract.md",
+    "docs/pedagogy/adle-proficiency-task-evidence-matrix.md",
+    "docs/implementation/adle-proficiency-v1-maths.md",
+    "docs/product/adle-proficiency-progression-experience.md",
+    "docs/contracts/micro-skill-taxonomy-and-assignment-contract.md",
+    "docs/contracts/writing-engine-mastery-and-evidence-contract.md"
+  ]
+}

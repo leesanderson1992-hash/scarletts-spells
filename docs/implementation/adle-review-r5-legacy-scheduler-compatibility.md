@@ -1,6 +1,22 @@
 # ADLE Review R5 scheduling and bundle compatibility
 
-Updated: 2026-08-29
+Updated: 2026-08-30
+
+## Target-policy marker
+
+Classification: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
+
+`CURRENT_RUNTIME`: the R5 per-word schedule, legacy-bundle compatibility,
+current catch-up stages, and immutable Review v3 outcomes described here remain
+live.
+
+`APPROVED_TARGET_NOT_YET_IMPLEMENTED`: replacement word graduation and review
+transitions are owned only by
+`docs/contracts/adle-word-progression-and-review-contract.md`.
+
+This target does not weaken R5's immutable-original-outcome or per-word
+scheduling boundary. It changes future transition semantics and may require a
+forward storage migration; it is not current behaviour.
 
 ## Current authority
 

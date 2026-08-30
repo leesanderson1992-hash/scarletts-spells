@@ -1,12 +1,21 @@
 # Micro-Skill Taxonomy
 
+## Authority and status
+
+Classification: `ACTIVE_PEDAGOGICAL_REFERENCE`
+
+Canonical taxonomy and micro-skill identity are owned by
+`docs/contracts/micro-skill-taxonomy-and-assignment-contract.md`. This document
+explains the pedagogy behind that contract. Spelling proficiency defers to
+`docs/contracts/adle-spelling-proficiency-contract.md`. Words remain evidence
+opportunities, never taxonomy identities or skill levels.
+
 ## Purpose
 
-This document is the canonical pedagogical taxonomy for Scarlett's Spells.
+This document explains the conceptual structure used to organise learning from
+broad outcomes down to assignable micro-skills.
 
-It defines the conceptual structure used to organise learning from broad outcomes down to assignable micro-skills.
-
-This document owns:
+It elaborates:
 - what each taxonomy level means
 - how the levels relate
 - naming and stability rules
@@ -24,7 +33,9 @@ This document does not own:
 - assignment runtime mechanics
 - database schema unless explicitly mirrored from a contract
 
-Implementation contracts may derive keys and runtime rules from this document, but they should not redefine the taxonomy in competing language.
+The canonical contract defines keys and runtime invariants. If this pedagogical
+reference conflicts with that contract, the contract wins and this reference
+must be corrected.
 
 ## Core taxonomy ladder
 

@@ -1,5 +1,40 @@
 # ADLE Slice 2: Review Scheduler — Plan
 
+## Authority classification
+
+Classification: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
+
+`CURRENT_RUNTIME`: this is the implementation receipt for
+`review_policy_v1_2026-07-04`: rolling rungs `1/3/7/14/28/56`, first catch-up
+next day, second catch-up at +3 days, ejection/reteach, and no interval-index
+decrement path. Its schema and regression descriptions below remain current
+until a separately approved replacement is released.
+
+`APPROVED_TARGET_NOT_YET_IMPLEMENTED`: all replacement word-graduation and
+review-transition semantics are owned only by
+`docs/contracts/adle-word-progression-and-review-contract.md`. This receipt
+must not restate or implement that state machine.
+
+`SUPERSEDED_AFTER_TARGET_RELEASE`: the second +3-day retest/ejection target
+semantics, “bundles only move forward” as a word-level failure invariant, and
+any all-failures-share-one-route interpretation. Preserve the body below as the
+2026-07-05 implementation record; it must not be rewritten to look like the new
+runtime.
+
+### Future replacement boundary
+
+Any replacement must implement and test the invariants in the canonical Word
+Progression and Review Contract. Those target tests belong to the later Phase
+C2 design/implementation package, not this historical receipt.
+
+Current storage is not yet target-ready by declaration. The active schema
+constrains catch-up stages to two, restricts outcome event types, stores the
+interval primarily on a bundle, and the current implementation deliberately
+has no decrement path. A future design must decide, with a read-only migration
+impact report first, whether per-word rung/mode/failure-episode fields and new
+ledger event types require one forward migration. No migration is authorised
+here.
+
 ## Status
 
 - Status: `Implemented 2026-07-05 (owner instructed "proceed with

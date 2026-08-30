@@ -1,5 +1,29 @@
 # Canonical Spelling Word-Map / Curriculum Metadata Contract
 
+## Authority and status
+
+Classification: `ACTIVE_NORMATIVE_CONTRACT + EMBEDDED_HISTORICAL_RECEIPT`
+
+`CURRENT_GOVERNANCE`: this contract continues to own word metadata,
+curriculum-readiness, Teaching Dictionary, and resolver-invisibility
+boundaries. Metadata rows still do not create learner evidence or progress.
+
+`APPROVED_TARGET_MODEL`: the future normalized
+`CanonicalWordSkillRelationship` read authority is owned by
+`docs/contracts/adle-spelling-proficiency-contract.md`. It may admit exact
+governed facts from approved resolver mappings, released specialist
+membership/content, approved generic support, and explicit reviewed
+associations while retaining provenance.
+
+This does not make the word map or diagnostic examples resolver truth and does
+not authorise a new table. `SUPERSEDED_AFTER_TARGET_RELEASE`: any implication
+that generic Teaching Dictionary support must duplicate an already governed
+specialist or resolver word/skill fact before proficiency can see it.
+
+Sections explicitly headed `Legacy` or describing dated Stage 2 import
+chronology are implementation history only. They do not override the active
+word/content/readiness rules in the non-legacy sections of this contract.
+
 ## Purpose
 
 This contract defines the authority boundary for a future canonical spelling
@@ -153,8 +177,9 @@ Ownership boundaries:
   mapping truth.
 - resolver-visible canonical mappings remain explicit, audited operational
   resolver authority.
-- mastery and evidence meaning remain governed by the mastery/evidence
-  contract.
+- evidence identity/lineage remains governed by the Writing Engine Evidence and
+  Lineage Contract; proficiency meaning remains governed by the ADLE Spelling
+  Proficiency Contract.
 
 If this document conflicts with those authority contracts, the stricter boundary
 wins until a later explicit contract update says otherwise.

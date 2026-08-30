@@ -1,18 +1,39 @@
-# ADLE Daily Assignment and Evidence Blueprint Contract
+# ADLE Daily Assignment and Evidence Blueprint — Current-Runtime Receipt
+
+## Authority classification
+
+Classification: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
+
+`CURRENT_RUNTIME`: the released `0.1 / 0.4 / 1.0` word-state breadth
+projection, global three-level complexity allocation, evidence pricing, word
+states, scheduler, and assignment behaviour described here remain live until a
+controlled target-model release.
+
+This file is not future target authority. Approved target ownership is:
+
+- word graduation and spaced-review transitions:
+  `docs/contracts/adle-word-progression-and-review-contract.md`;
+- proficiency semantics: `docs/contracts/adle-spelling-proficiency-contract.md`;
+- activity effects: `docs/pedagogy/adle-proficiency-task-evidence-matrix.md`;
+- proficiency maths: `docs/implementation/adle-proficiency-v1-maths.md`; and
+- assignment composition:
+  `docs/contracts/adle-daily-assignment-composer-contract.md`.
+
+Where this receipt differs from an approved target contract, this file remains
+evidence of live/current behaviour only and must not be used to implement the
+replacement.
 
 ## Purpose
 
-This contract defines the reformed ADLE daily-assignment, review, evidence,
-and micro-skill proficiency model agreed on 2026-07-04.
-
-It is the single policy source for:
+This receipt records the 2026-07-04 design that became the released Slice
+1–5 daily-assignment, review, evidence, and proficiency runtime. It documents:
 - daily assignment structure and ordering
 - review scheduling and the bundle-with-catch-up model
 - lesson word selection and the diagnostic probe
 - evidence events, weights, caps, and deductions
 - word states and the exits from daily practice
 - micro-skill proficiency (graded breadth with gated levels)
-- the constraints package for the deferred word-complexity banding
+- the constraints package used for released word-complexity banding
 
 The child's real writing is the strongest evidence of capability. The child's
 mistakes decide what to teach. The micro-skill is the lesson. The selected
@@ -21,7 +42,7 @@ transfer.
 
 ## Status
 
-Status: `Version 3.0 planning contract (draft for owner review)`
+Status: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
 
 No runtime implementation, migration, Supabase mutation, import, or production
 deployment is authorized by this file.
@@ -38,17 +59,9 @@ breadth proficiency still requires the governed support, approval, and banding
 gates. These current facts supersede any draft wording below that implies a
 future bundle-only implementation or automatic proficiency credit.
 
-This contract supersedes:
-- the mastery stage ladder (Stages 0-8), source-weight table, and
-  weighted-accuracy mastery formula in
-  `writing-engine-mastery-and-evidence-contract.md`
-- the lesson structures and section ordering in
-  `adle-daily-assignment-composer-contract.md`
-
-Those documents remain authoritative for their non-superseded sections
-(evidence capture vocabulary, attempt lineage, composer ownership boundaries)
-until rewritten. The reward-system contract is not superseded and remains
-authoritative for Word Treasure.
+This receipt superseded earlier designs when its runtime was released. It does
+not supersede the current active evidence-lineage, composer, proficiency, word
+progression, or reward contracts.
 
 The content workbook is
 `docs/implementation/seed-data/ADLE_content_workbook_v1.xlsx` (content version
@@ -57,23 +70,13 @@ the activity template registry. It is content data, not policy. The earlier
 `ADLE_codex_handoff_reformed_pedagogy.xlsx` is superseded; where any older
 workbook's policy columns disagree with this contract, this contract wins.
 
-## Ownership
+## Receipt scope
 
-This contract owns:
-- assignment section structure and ordering rules
-- review intervals, catch-up, ejection, and retirement rules
-- lesson word-count and word-selection policy
-- evidence weights, caps, deductions, and validity rules
-- word evidence states and transitions
-- micro-skill breadth credit, level gating, and target rules
-- the deferred-decision package handed to the implementation agent
-
-This contract does not own:
-- micro-skill taxonomy (taxonomy contract)
-- dictionary/word metadata truth (canonical word-map contract)
-- activity template metadata shape (activity registry contract)
-- Word Treasure reward state (reward-system contract)
-- parent review workflow (targeted-writing-practice contract)
+This file records the released/current assignment ordering, current scheduler,
+current evidence pricing and word states, and current Slice 5 proficiency
+projection. It is authoritative only as evidence of current runtime where the
+current-state registry and code confirm it. Active target owners are listed
+above and in the ADLE authority manifest.
 
 ## Word evidence states
 

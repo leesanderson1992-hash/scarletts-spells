@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
+    "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",
     "adle:activity-catalogue:generate": "tsx scripts/generate-adle-activity-catalogue.ts",
     "adle:activity-catalogue:check": "tsx scripts/generate-adle-activity-catalogue.ts --check",
     "adle:activity-catalogue-regression": "tsx scripts/adle-activity-catalogue-regression.ts",

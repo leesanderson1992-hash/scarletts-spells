@@ -1428,8 +1428,10 @@ If a previously mastered item fails again in fresh writing:
 
 Do not overwrite prior success.
 
-Stage movement, recurrence effects, and confidence reduction after transfer
-failure now defer to the mastery/evidence contract.
+Evidence lineage after transfer failure defers to the Writing Engine Evidence
+and Lineage Contract. Word-route changes defer to the ADLE Word Progression and
+Review Contract, and micro-skill Stability/Level effects defer to the ADLE
+Spelling Proficiency Contract and V1 Maths.
 
 ## Non-AI Historic Learning Loop for MVP
 

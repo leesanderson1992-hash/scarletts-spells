@@ -1,6 +1,29 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-29
+Updated: 2026-08-30
+
+## Proficiency authority marker and 2026-08-30 revalidation
+
+`CURRENT_RUNTIME`: this registry describes released lesson/read/write
+capability. The current Slice 5 `0.1 / 0.4 / 1.0` proficiency projection remains
+live.
+
+`APPROVED_TARGET_MODEL`: future proficiency semantics are documented in
+`docs/contracts/adle-spelling-proficiency-contract.md` and future word-route
+semantics in `docs/contracts/adle-word-progression-and-review-contract.md`.
+Neither is deployed. This registry must continue to distinguish those states
+until controlled release; current Slice 2/R5 catch-up/ejection behaviour remains
+live.
+
+Canonical ownership and reading order are in
+`docs/architecture/adle-authority-map.md`. This registry owns current runtime
+state only and must not redefine target policy.
+
+Read-only revalidation on 2026-08-30 corrects the Production application pin to
+`42bf928fb6efde80c2f65dfd5a0a0bd9411616c1` and confirms both Compound route
+heads are Production-enabled. The older separated/hyphenated
+`awaiting_content` row is superseded by the corrected row below; dated rollout
+entries remain historical.
 
 ## Purpose
 
@@ -10,7 +33,7 @@ for learners. It does not replace the programme roadmap or teaching-content
 approval records.
 
 The current Production application authority is
-`f3a4b37d9df460553feb9bf748f543dff2da66ae`. Today's ADLE Session unifies
+`42bf928fb6efde80c2f65dfd5a0a0bd9411616c1`. Today's ADLE Session unifies
 generic lessons, specialist lessons, and Review v3. Every newly created lesson
 persists immutable snapshot v3. The current route registry contains
 `generic_composer:v1`, Dynamic Prefix v2, Dynamic Affix v3, Base Word v2, and
@@ -19,7 +42,7 @@ daily-practice application surface are retired.
 
 The release chronology below remains useful evidence for individual content
 profiles. Where an older dated entry describes a temporary rollout, generic
-v2, or a v1 route as current, this 2026-08-29 current-state section supersedes
+v2, or a v1 route as current, this 2026-08-30 current-state section supersedes
 that operational claim; the dated text remains historical context only.
 
 ## Release states
@@ -35,10 +58,10 @@ that operational claim; the dated text remains historical context only.
 
 ## Current capability register
 
-Current D4_MOR position: 25 live micro-skills — 18 production-enabled
+Current D4_MOR position: 25 live micro-skills — 19 production-enabled
 first-impression lessons, 0 staging-approved first-impression lessons, 2
 later-phase base-word transfer skills marked `not_required_first_impression`,
-and 5 first-impression lessons awaiting implementation.
+and 4 first-impression lessons awaiting implementation.
 
 Current route metadata and snapshot v3 are immutable forward contracts.
 Snapshot-null specialist readers, metadata-free generic replay, old template
@@ -69,7 +92,7 @@ Composer v2 staging receipts remain chronology, not current writer authority.
 | Later-phase base-word capabilities | `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX` | `not_required_first_impression` | Used only when an already-taught word needs base-plus-affix transfer work | No standalone first-impression ADLE profile is required. Historical morphology-node aliases such as base meaning/proof/review are not current live micro-skills. |
 | Remaining first-impression suffix lessons | none currently | — | — | All currently planned suffix first-impression profiles are production-enabled. |
 | Compound Word Lab v2 | `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS` | `production_enabled` | Select four verified authentic targets first, then deterministically rotate the explicit seven-word approved pool | The current `compound_word_lab:v2` route uses immutable snapshot v3 and the shared first-impression runtime. The retired closed-compound-v1 route is not a fallback. |
-| Open/Hyphenated Compound Word Lab | `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED` | `awaiting_content` | none | Reviewed four-word roster: `ice cream`, `post office`, `twenty-one`, `part-time`; multi-token dictation span and separator-significant comparison are required. |
+| Open/Hyphenated Compound Word Lab | `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED` | `production_enabled` | Select governed released members through `compound_word_lab:v2` | Read-only Production revalidation on 2026-08-30 found the route head released with seven governed specialist word/skill pairs. Earlier candidate/awaiting-content rows are historical and must not be used as the current route state. |
 | Common Greek Roots Lab | `D4_MOR_ROOTS_COMMON_GREEK_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `telephone`, `telescope`, `microphone`, `microscope`; runtime eligibility remains fail-closed. |
 | Common Latin Roots Lab | `D4_MOR_ROOTS_COMMON_LATIN_ROOTS` | `awaiting_content` | none | Reviewed four-word roster: `transport`, `export`, `construct`, `structure`; runtime eligibility remains fail-closed. |
 | Root-Family Spelling Lab | `D4_MOR_ROOTS_ROOT_FAMILY_SPELLING` | `awaiting_content` | none | Reviewed four-word roster: `action`, `active`, `actor`, `react`. This current root-specific key is retained; it is not the retired general word-family cluster. |

@@ -3,9 +3,12 @@
 This document is the canonical source of truth for the reward system.
 All other docs should defer to this terminology and behavior.
 
-Writing Engine product identity and operational mastery semantics defer to:
+Writing Engine product identity and evidence lineage defer to:
 - [docs/architecture/writing-engine-canonical-brief.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/architecture/writing-engine-canonical-brief.md:1)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
+
+ADLE micro-skill proficiency semantics defer to
+`docs/contracts/adle-spelling-proficiency-contract.md`.
 
 Workflow and approval semantics should defer to:
 - [docs/contracts/universal-progress-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/universal-progress-contract.md:1)
@@ -237,32 +240,23 @@ Free-writing Gold Bar evidence:
 
 Micro-skill levels are separate from word treasure.
 
-A word can become a Golden Bar while the linked micro-skill remains developing.
-A micro-skill can level up only from evidence across enough representative
-words, source types, difficulty bands, and authentic writing transfer.
+A word can become a Golden Bar while the linked micro-skill remains developing,
+and a micro-skill may progress without changing that word's Treasure state.
 
-Suggested levels:
-
-```text
-0 Hidden / Unseen
-1 Explorer / Discovered
-2 Miner / Practising
-3 Prospector / Emerging
-4 Goldsmith / Developing
-5 Master Goldsmith / Secure
-6 Treasure Keeper / Fluent
-7 Grand Treasure Master / Mastered
-```
+This reward contract does not define micro-skill levels, thresholds, labels, or
+evidence effects. Target proficiency is owned by
+`docs/contracts/adle-spelling-proficiency-contract.md`, with calculations in
+`docs/implementation/adle-proficiency-v1-maths.md` and presentation in
+`docs/product/adle-proficiency-progression-experience.md`.
 
 Rules:
-- do not infer micro-skill mastery from a single Golden Bar
-- do not award word Golden Bars from broad micro-skill mastery alone
-- micro-skill levels should use successes, failures, difficulty, recency,
-  free-writing evidence, and number of different words successfully used
-- authentic/original writing should count more strongly than isolated quiz or
-  copy evidence
-- parent-facing "Mastered" semantics continue to defer to the Writing Engine
-  mastery/evidence contract
+
+- do not infer micro-skill proficiency from a single Golden Bar;
+- do not award word Golden Bars from micro-skill proficiency;
+- reward code may display a proficiency projection but must not recompute it;
+  and
+- Word Treasure and proficiency may reference the same singular source event
+  while retaining separate deduplication and outcomes.
 
 ## Gold Coin Economy
 
@@ -522,18 +516,10 @@ Suggested statuses:
 
 ### Micro-skill level projection
 
-Future canonical table or materialized projection: `micro_skill_levels`.
-
-Recommended fields:
-- `child_id`
-- `micro_skill_id` or `micro_skill_key`
-- `level`
-- `level_name`
-- `mastery_score`
-- `evidence_count`
-- `distinct_words_successfully_used`
-- `last_updated_at`
-- `metadata`
+Any micro-skill projection displayed beside rewards is a read-only view owned
+by the Spelling Proficiency Contract and its maths/experience documents. This
+reward contract does not prescribe its table, fields, scores, levels, or
+materialization. Reward storage must not become proficiency authority.
 
 ### Gold Coin ledger
 

@@ -2,6 +2,10 @@
 
 Current ADLE authority:
 
+- [ADLE authority map](architecture/adle-authority-map.md)
+- [ADLE authority manifest](architecture/adle-authority-manifest.json)
+- [ADLE Word Progression and Review contract](contracts/adle-word-progression-and-review-contract.md)
+- [ADLE Spelling Proficiency contract](contracts/adle-spelling-proficiency-contract.md)
 - [Phase E current architecture and status](implementation/adle-phase-e-legacy-convergence-audit.md)
 - [ADLE activity platform architecture](architecture/adle-activity-platform-architecture.md)
 - [ADLE current state and release registry](implementation/adle-current-state-and-release-registry.md)
@@ -38,10 +42,15 @@ When docs overlap:
 
 ### Contracts
 
+- [docs/contracts/adle-word-progression-and-review-contract.md](contracts/adle-word-progression-and-review-contract.md)
+- [docs/contracts/adle-spelling-proficiency-contract.md](contracts/adle-spelling-proficiency-contract.md)
+- [docs/pedagogy/adle-proficiency-task-evidence-matrix.md](pedagogy/adle-proficiency-task-evidence-matrix.md)
+- [docs/implementation/adle-proficiency-v1-maths.md](implementation/adle-proficiency-v1-maths.md)
+- [docs/product/adle-proficiency-progression-experience.md](product/adle-proficiency-progression-experience.md)
 - [docs/contracts/adle-category-design-pack-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-category-design-pack-contract.md:1)
 - [docs/contracts/adle-template-development-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-template-development-contract.md:1)
 - [docs/contracts/adle-teaching-content-authoring-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-teaching-content-authoring-contract.md:1)
-- [docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md:1)
+- [Current-runtime Daily Assignment/Evidence blueprint receipt](contracts/adle-daily-assignment-and-evidence-blueprint-contract.md)
 - [docs/contracts/writing-engine-mastery-and-evidence-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/writing-engine-mastery-and-evidence-contract.md:1)
 - [docs/contracts/targeted-writing-practice-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/targeted-writing-practice-contract.md:1)
 - [docs/contracts/micro-skill-taxonomy-and-assignment-contract.md](/Users/katiesanderson/Documents/Scarletts%20Spells/scarletts-spells/docs/contracts/micro-skill-taxonomy-and-assignment-contract.md:1)

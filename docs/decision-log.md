@@ -1,5 +1,52 @@
 # Decision Log
 
+## 2026-08-30 — ADLE Phase A documentation authority converged
+
+### Decision
+
+- Adopted `docs/architecture/adle-authority-manifest.json` and
+  `docs/architecture/adle-authority-map.md` as the deterministic ownership
+  index and human entry point.
+- Assigned individual word graduation and review transitions exclusively to
+  `docs/contracts/adle-word-progression-and-review-contract.md`, under
+  `ADLE_CONTROLLED_GRADUATION_V1_OR` and
+  `ADLE_SPACED_REVIEW_REGRESSION_V1`.
+- Retained `docs/contracts/adle-spelling-proficiency-contract.md` as owner of
+  word/skill relationships and the Breadth, Diversity/Complexity, Transfer,
+  Stability, and Level 1–5 model.
+- Restricted the V1 Maths and Task/Evidence Matrix to calculations and evidence
+  effects respectively; neither owns scheduler transitions.
+- Replaced obsolete mastery/scoring authority with the active Writing Engine
+  Evidence and Lineage Contract while retaining its filename for link safety.
+- Rewrote taxonomy around the released word-scoped ADLE learning-item identity
+  and canonical five instructional states.
+- Classified the Daily Assignment Blueprint, Slice 2 scheduler plan, R5
+  compatibility document, and Slice 5 plan as current-runtime/historical
+  receipts rather than target authorities.
+- Preserved Word Treasure, child eligibility, exact-pair resolver authority,
+  immutable source events, positive multi-skill projection, and causal negative
+  projection as separate governed concerns.
+
+### Runtime boundary
+
+- No runtime, learner, schema, resolver/support/profile, Review, reward,
+  allocation, Production, deployment, commit, or push occurred.
+- Released Slice 2/R5 scheduler and Slice 5 proficiency behaviour remain
+  `CURRENT_RUNTIME` and are named in the authority map.
+- Approved target contracts remain `APPROVED_TARGET_NOT_YET_IMPLEMENTED`.
+- Numerical Level gates remain `PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED`
+  and do not block Phase B.
+
+### Next gate
+
+- `PHASE A COMPLETE — AUTHORITY CONVERGED — PHASE B READY`.
+- The exact bounded Phase B prompt is owned by
+  `docs/implementation/adle-proficiency-overhaul-plan.md`.
+- Phase B is server-only, read-only, no-schema relationship normalization. It
+  does not authorise scheduler replacement or any learner-facing consumer.
+
+---
+
 ## 2026-07-08 — ADLE Slice 7a complete: child fun session + reward loop; template UI/UX redesign is next
 
 ### What changed

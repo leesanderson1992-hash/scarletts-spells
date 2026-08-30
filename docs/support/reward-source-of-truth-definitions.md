@@ -92,8 +92,8 @@ This source should be used for:
 - micro-skill level display
 - proficiency summaries
 - lesson recommendation inputs
-- parent-facing mastery interpretation where the mastery/evidence contract
-  allows it
+- parent-facing proficiency interpretation where the ADLE Spelling Proficiency
+  Contract and Progression Experience allow it
 
 This source should **not** be used for:
 - awarding a word Golden Bar by itself

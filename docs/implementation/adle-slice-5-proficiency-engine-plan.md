@@ -1,5 +1,23 @@
 # ADLE Slice 5: Micro-skill Proficiency Engine — Plan
 
+## Authority marker (2026-08-30)
+
+Classification: `CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`
+
+`CURRENT_RUNTIME`: this is the implementation and QA receipt for the live pure
+projection in `lib/adle/proficiency-policy.ts` and
+`lib/adle/micro-skill-proficiency.ts`, including `0.1 / 0.4 / 1.0` breadth,
+generic-support eligibility, and allocation-derived global levels.
+
+`APPROVED_TARGET_MODEL`: `docs/contracts/adle-spelling-proficiency-contract.md`
+and `docs/implementation/adle-proficiency-v1-maths.md` own the approved future
+four-dimension Level 1–5 model.
+
+`SUPERSEDED_AFTER_TARGET_RELEASE`: the Slice 5 scoring, denominator, level, and
+reporting semantics stop being runtime authority only after a separately
+approved controlled release. Preserve this file as historical implementation
+evidence; do not rewrite its 2026-07-05 decisions to resemble the target.
+
 ## Status
 
 - Status: `COMPLETE 2026-07-05. Owner signed off the QA artefact
@@ -428,7 +446,7 @@ it.
   (with each word's state, credit, and link role), progress, gate
   result, badges, evidence gaps, and the parent-facing sentence the
   vocabulary pin produces. Output committed as
-  `docs/implementation/adle-slice-5-proficiency-report-samples-2026-07-XX.md`
+  `docs/implementation/adle-slice-5-proficiency-report-samples-2026-07-05.md`
   — the owner QA gate artefact. Fixtures must cover: a limited-
   allocation secure, a gated `developing (early)`, an unpopulated-level
   skip, a slipped-word credit (both the `produced`-demotion and the

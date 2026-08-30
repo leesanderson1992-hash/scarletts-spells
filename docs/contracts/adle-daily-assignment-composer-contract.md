@@ -1,134 +1,118 @@
 # ADLE Daily Assignment Composer Contract
 
+## Authority and status
+
+Classification: `ACTIVE_NORMATIVE_CONTRACT`
+
+This contract owns daily ADLE composition: the inputs a composer may consume,
+the deterministic selection/ordering boundary, the assignment-plan output,
+skip reasons, and immutable snapshot/persistence requirements.
+
+It does not own:
+
+- word graduation or review transitions;
+- proficiency semantics or maths;
+- evidence effects or source scoring;
+- word/skill relationship authority;
+- micro-skill or learning-item identity;
+- word complexity or child eligibility rules;
+- curriculum content creation; or
+- Word Treasure/reward state.
+
+The former Daily Assignment and Evidence Blueprint is retained as
+`CURRENT_RUNTIME + HISTORICAL_IMPLEMENTATION_RECEIPT`. It is not a second
+future-policy owner.
+
 ## Purpose
 
-This contract defines how ADLE composes a child-facing daily instructional
-practice plan from canonical learning truth.
-
-ADLE stands for Adaptive Daily Learning Engine.
-
-ADLE is not a full parent-authored lesson builder. It is a generated daily
-instructional engine that decides when to teach, guide, retrieve, interleave,
-transfer, and maintain micro-skills.
-
-## Status
-
-Status: `Version 3.0 planning contract — lesson structures superseded`
-
-No runtime implementation, migration, Supabase mutation, import, or production
-deployment is authorized by this file.
-
-## Supersession notice (2026-07-04 reformed pedagogy)
-
-The lesson structures and section ordering defined in this contract
-(first-exposure, review/consolidation, and guided-practice structures) are
-superseded by
-[docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md](adle-daily-assignment-and-evidence-blueprint-contract.md),
-which defines the reformed two-part daily assignment: Part 1 spaced review
-(intervals 1/3/7/14/28/56, bundle-with-catch-up scheduling, quick sort then
-production, reflection loop) and Part 2 one micro-skill lesson with 5 words
-(real learning_items, probe misses, then stretch dictionary words), throttled
-by review debt.
-
-Still authoritative here: the composer's ownership boundaries, the target
-architecture flow, and the Word Treasure separation. Where structures
-conflict, the blueprint wins.
-
-## Target architecture
+ADLE composes a child-facing daily plan from already governed learning,
+review, curriculum, and workload facts. Composition selects and arranges work;
+it does not manufacture educational truth.
 
 ```text
-Canonical Truth
--> Curriculum Metadata
--> Curriculum Readiness
--> Learning Item
--> Instructional State
--> Instructional Activity Registry
--> ADLE Daily Assignment Composer
--> Assignment Items
--> Child Attempt
--> Evidence
--> Micro-skill Proficiency
+governed learner needs + due review facts + released curriculum
+-> deterministic composition
+-> immutable assignment snapshot
+-> learner attempts
 ```
 
-Word Treasure remains separate:
+Learner attempts flow to the evidence authority after delivery. Assignment
+creation itself is not evidence.
 
-```text
-verified word-specific misspelling
--> correction attempted
--> Golden Nugget
--> word shown and attempted in ADLE
--> 5 authentic/original correct uses
--> Golden Bar
--> Vault
-```
+## Canonical delegations
 
-## Ownership
-
-This contract owns:
-- daily ADLE composition inputs
-- daily ADLE composition outputs
-- state-dependent lesson structures
-- composer skip reasons
-- sequencing and workload rules
-- persistence boundary into `assignment_items`
-
-This contract does not own:
-- micro-skill taxonomy identity
-- curriculum metadata creation
-- Instructional Activity Registry metadata
-- evidence scoring and proficiency transitions
-- Word Treasure reward state
-- structured parent-authored lesson design
+- taxonomy, instructional states, and word-scoped learning-item identity:
+  `docs/contracts/micro-skill-taxonomy-and-assignment-contract.md`;
+- word progression and review-route facts:
+  `docs/contracts/adle-word-progression-and-review-contract.md` for target
+  policy and current scheduler receipts for live facts;
+- word metadata and curriculum readiness:
+  `docs/contracts/canonical-spelling-word-map-contract.md`;
+- activity metadata:
+  `docs/contracts/adle-instructional-activity-registry-contract.md`;
+- evidence lineage:
+  `docs/contracts/writing-engine-mastery-and-evidence-contract.md`;
+- proficiency:
+  `docs/contracts/adle-spelling-proficiency-contract.md`; and
+- rewards: `docs/contracts/reward-system-contract.md`.
 
 ## Inputs
 
-The composer may read:
-- `child_id`
-- `parent_user_id`
-- active `learning_items`
-- instructional state for each learning item
-- review due state
-- recent evidence state
-- curriculum readiness
-- curriculum metadata
-- Instructional Activity Registry
-- route eligibility
-- workload settings
-- Word Treasure context for child-facing motivation only
+The composer may consume only versioned, governed facts required for the
+selected route, including:
 
-The composer must not generate work directly from:
-- word-map rows without an active learning item
-- diagnostic misspelling examples
-- raw misspelling rows
-- `word_progress`
-- `spelling_reward_states`
-- free-text micro-skill keys
+- child and parent scope;
+- active `adle_learning_items`;
+- current canonical instructional state when available;
+- current due-review/read-model facts;
+- reteach/controlled-reacquisition priority facts;
+- released curriculum route and content authority;
+- canonical word identity and assignment eligibility;
+- governed word-to-skill relationships where the route requires them;
+- previous exposure/taught history;
+- workload/session-cap policy; and
+- current assignment date supplied explicitly.
 
-## Outputs
+Missing or inconsistent required facts fail closed. The composer must not use
+Word Treasure, raw analyser hypotheses, free-text skills, unreviewed content,
+or a proficiency level as a substitute for a real learner need.
 
-The composer should produce a proposed daily plan with:
-- daily assignment destination/header reference
-- ordered sections
-- ordered assignment-item candidates
-- section purpose
-- `learning_item_id`
-- `micro_skill_key`
-- instructional state
-- activity key
-- route
-- template or strategy key
-- target word, grouped payload, contrast payload, dictation payload, or transfer prompt
-- expected evidence capture
-- provenance
-- content status
-- skip reason where applicable
+## Learning-item boundary
 
-Persisted output should ultimately use `assignment_items`.
-`daily_assignments` may remain a transitional header/destination only.
+The current ADLE learning-item identity is one active
+`child + canonical word + primary micro-skill` need. Composition may group
+several word-scoped items into one lesson for the same skill, but it does not
+replace their identities with a stored cluster.
 
-## Instructional states
+Every selected learner target must retain its exact ADLE learning-item and
+source lineage. Governed transfer/example words included by released content
+do not become learner needs solely because they appear in a lesson.
 
-The composer must branch by learning-item instructional state:
+## Plan structure and ordering
+
+Current daily composition presents due Review before new/reteach teaching.
+The active current scheduler and due-queue read model supply due facts,
+throttling facts, and caps. The composer orders those facts but does not derive
+their transition semantics.
+
+When teaching is permitted, selection is deterministic over the active policy
+and facts. It may consider:
+
+1. controlled-reacquisition/reteach priority;
+2. actionable prerequisite precedence;
+3. unresolved cluster size derived at composition time;
+4. oldest learner need;
+5. child-appropriate usefulness/eligibility;
+6. family rotation; and
+7. stable micro-skill and word identity tie-breakers.
+
+Exact current runtime constants remain in current implementation receipts and
+code. Any future change to this ordering is a composer-policy change, not a
+scheduler or proficiency change.
+
+## Instructional-state use
+
+The composer may select activities for the five canonical states:
 
 ```text
 INTRODUCTION_REQUIRED
@@ -138,163 +122,108 @@ CONSOLIDATION
 MAINTENANCE
 ```
 
-Do not use `learning_items.progress_state` as instructional state.
+It consumes the state; it does not infer a replacement state from task labels
+or proficiency levels. A missing first-exposure curriculum authority produces
+a readiness skip rather than invented teaching content.
 
-## First-exposure structure
+## Activity and content selection
 
-For `INTRODUCTION_REQUIRED`, the default lesson structure is:
+- Activities must come from the released Instructional Activity Registry.
+- Teaching copy and word content must come from released curriculum authority.
+- Routes must be compatible with the active micro-skill and learning item.
+- Contrast/example words must retain content provenance.
+- A generated prompt is not resolver truth or proficiency evidence.
+- Unsupported routes must be skipped explicitly, never coerced into generic
+  spelling practice.
 
-1. Review
-2. Golden Nugget Discovery
-3. Teach the Micro-Skill
-4. Guided Practice
-5. Independent Practice
-6. Writing Transfer
-7. Reflection
+## Outputs
 
-Rules:
-- Review retrieves previously learned micro-skills only
-- Golden Nugget Discovery may show the child's own spelling and corrected word
-  when source lineage exists
-- Teach the Micro-Skill requires curriculum readiness
-- Guided Practice uses supported, scaffolded activities
-- Independent Practice should not appear before explicit teaching
-- Writing Transfer appears only when content supports it
-- Reflection should be short and focused on the rule or pattern
+A composed plan must include enough versioned identity to reproduce and audit
+what the child saw:
 
-If curriculum readiness is missing, the composer must skip or downgrade the
-first-exposure plan with an explicit readiness status.
+- plan and assignment identity;
+- learner/parent scope and plan date;
+- ordered Part 1/Part 2 items as applicable;
+- exact word and micro-skill identity;
+- exact ADLE learning-item lineage for learner targets;
+- route and template identity;
+- curriculum release/content versions;
+- source/provenance references;
+- review-route references supplied by the scheduler read model;
+- skip reasons and workload decisions;
+- composer policy/version; and
+- a deterministic snapshot/fingerprint.
 
-## Review and consolidation structure
+The output must not contain derived proficiency credit, reward mutation, or an
+invented scheduler transition.
 
-For `RETRIEVAL`, `CONSOLIDATION`, and `MAINTENANCE`, the default lesson
-structure is:
+## Immutable snapshot-v3 boundary
 
-1. Review
-2. Retrieval Practice
-3. Interleaving
-4. Writing Transfer
-5. Complete
-
-Rules:
-- do not repeatedly reteach the same rule
-- reteaching appears only when evidence shows fragility or regression
-- interleaving must be intentional, not random
-- transfer appears only when the available curriculum content supports it
-- maintenance should be light and short
-
-## Guided-practice structure
-
-For `GUIDED_PRACTICE`, the composer may produce:
-
-1. Brief Review
-2. Short Rule Reminder
-3. Guided Practice
-4. Independent Practice
-5. Reflection
-
-The reminder is not a full first-exposure teaching section unless evidence
-requires reteaching.
-
-## Selection rules
+Newly created current ADLE lessons persist immutable snapshot v3. Generic and
+specialist routes converge at that frozen assignment boundary.
 
 Rules:
-- due review appears before new learning
-- first exposure should not be hidden behind a large review backlog
-- new or strengthened learning streams should be capped
-- the child should see a calm, small practice set
-- unsupported content must skip explicitly
-- under-populated curriculum metadata must skip explicitly
-- no fallback invented words
-- no generic spelling-list fallback
-- no diagnostic misspelling rows as assignment content
-- every generated item must trace to an active `learning_item`
+
+- persistence validates current authority before writing;
+- replay renders the frozen snapshot, not mutable present-day content;
+- present invalid/missing authority blocks new persistence;
+- historical snapshots remain readable through explicit compatibility paths;
+- snapshot compatibility does not authorise new legacy assignment creation;
+- assignment rows preserve ADLE learning-item linkage through the governed ADLE
+  metadata/route boundary; and
+- no completion path may reinterpret the snapshot as proficiency or reward
+  authority.
+
+## Canonical-intake boundary
+
+Canonical intake may create or reuse an active word-scoped ADLE learning item
+only through its own governed workflow. The composer reads activated items. It
+must not:
+
+- reconcile raw candidates;
+- approve mappings;
+- create micro-skills;
+- bypass curriculum readiness;
+- activate pending content; or
+- write resolver visibility.
 
 ## Skip reasons
 
-Minimum composer skip reasons:
-- `missing_learning_item`
-- `inactive_learning_item`
-- `unknown_micro_skill`
-- `unsupported_practice_route`
-- `missing_curriculum_readiness`
-- `missing_teaching_metadata`
-- `missing_activity_strategy`
-- `missing_required_words`
-- `missing_contrast_content`
-- `missing_transfer_prompt`
-- `daily_capacity_reached`
-- `new_learning_cap_reached`
-- `not_due`
-- `word_map_metadata_only`
-- `diagnostic_example_not_assignable`
+Every refusal must be explicit and deterministic. Categories include:
 
-## Persistence boundary
+- missing/inactive learning item;
+- missing canonical word or skill identity;
+- curriculum/route not ready;
+- unsupported route or template;
+- current review/workload policy blocks teaching;
+- no child-eligible word/content allocation;
+- source/release/fingerprint mismatch;
+- ambiguous or ungoverned relationship; and
+- existing assignment/idempotence duplicate.
 
-Read-model composition should be implemented and QA-passed before persistence.
+Skip reasons explain absence. They do not create negative learner evidence.
 
-When persistence is authorized:
-- append to `assignment_items`
-- preserve deterministic ordering
-- preserve idempotence
-- avoid duplicates
-- preserve provenance
-- do not create evidence merely by assignment creation
-- do not update proficiency merely by assignment creation
-- do not update Word Treasure merely by assignment creation
+## Persistence and mutation boundary
 
-### Canonical-intake boundary (2026-08-04)
-
-Canonical intake may create or reuse an active `adle_learning_item` and its
-source lineage only after the route-aware readiness evaluator passes. A
-`pending_mapping` or `pending_content` candidate is not composer-eligible and
-must not create an unusable active item. Intake reconciliation never selects a
-date, builds a payload, writes an assignment, or overwrites a daily plan. Once
-activated, the item enters the unchanged composer and persistence path.
-
-### Current immutable snapshot-v3 addendum (2026-08-29)
-
-For a new `generic_composer:v1` insert, persistence additionally requires:
-
-- compile snapshot v3 only after composition and persistence
-  planning have fixed the header and ordered items;
-- persist one nullable immutable snapshot at
-  `daily_assignments.compiled_lesson_snapshot`, with no historical backfill;
-- bind every snapshot activity to the exact deterministic
-  `assignment_items.source_entity_id` and contiguous position;
-- store canonical concept, mode, contract version, authored payload, bindings,
-  semantic roles, evidence/schedule roles, and provenance in the snapshot;
-- fingerprint only consumed composer, schedule, banding, family, activity and
-  Teaching Dictionary content versions using canonical JSON and SHA-256;
-- write header, route metadata, snapshot, variable-count items and governed
-  intakes atomically through the current service-only v3 persistence boundary;
-- validate every present snapshot before rendering;
-- block the complete assignment before review or lesson writes when a present
-  snapshot is invalid, unsupported or diverges from its bound rows;
-- use snapshot-null and metadata-free compatibility only for protected
-  historical assignments; no new writer may select it.
-
-`MUST_USE_FREEWRITING` and `REVIEW_MUST_USE_WRITING` remain registered and
-legacy-readable but are not safe for new v3 compilation until a sentence-level
-evidence contract exists.
-
-### Historical snapshot compatibility
-
-The snapshot column is present and v3 is the only current new-lesson writer
-contract. A null snapshot identifies protected historical work; it never
-authorises snapshot-null creation. Metadata-free and pre-snapshot assignments
-retain their registered normalizers, while a present invalid snapshot fails
-closed. Compatibility readers never write, synthesize, backfill, or migrate a
-snapshot.
+- Use the released server-side assignment writer/RPC boundary.
+- Persist only the validated immutable plan.
+- Repeated identical writes must be idempotent.
+- Do not mutate source learning needs beyond the exact authorised intake or
+  selection transition.
+- Do not update proficiency, scheduler state, resolver truth, or rewards merely
+  because an assignment was composed.
+- Completion writes learner outcomes through their separately governed paths.
 
 ## Acceptance criteria
 
-- every generated ADLE item traces to an active `learning_item`
-- first-exposure lessons teach before independent retrieval
-- review lessons stay short and avoid unnecessary reteaching
-- curriculum gaps produce explicit skip/readiness statuses
-- unsupported activity strategies produce explicit skip statuses
-- Word Treasure never determines micro-skill proficiency
-- micro-skill proficiency never mints Golden Bars
-- no word-map row, diagnostic misspelling, or strategy creates assignment,
-  evidence, reward, or resolver truth by itself
+1. Same governed inputs and policy versions produce the same plan.
+2. Every learner target traces to an active word-scoped ADLE learning item.
+3. Every prompt traces to released route/content/activity authority.
+4. Due Review ordering consumes rather than redefines scheduler facts.
+5. Missing authority fails closed with a stable skip reason.
+6. New lessons persist immutable snapshot v3.
+7. Replay does not read mutable content as historical truth.
+8. Assignment creation creates no learner evidence, proficiency, scheduler
+   transition, Word Treasure, or currency.
+9. Word Treasure never selects or defines proficiency.
+10. Current and historical compatibility paths remain explicit and bounded.
