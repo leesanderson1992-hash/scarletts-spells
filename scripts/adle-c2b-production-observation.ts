@@ -25,8 +25,6 @@ const STAGING_PROJECT_REF = "jlhotktspjvffslvuyfz";
 const DATABASE_URL_ENV = "SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED";
 const CONFIRMATION = `ADLE-C2B-PRODUCTION-OBSERVE:${PRODUCTION_PROJECT_REF}`;
 const LEARNER_ID = "e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e";
-const SOURCE_BASELINE = "716aab3";
-const DEPLOYMENT_IDENTITY = "dpl_H6iEe91wJsESBXmDfS86qS8ghzEd";
 const TARGET_POLICY = "ADLE_SPACED_REVIEW_REGRESSION_V1";
 const TARGET_SHAPE = "adle_review_per_word_schedule_v2";
 const COHORT_STARTED_AT = "2026-09-01T00:00:00Z";
@@ -70,6 +68,12 @@ function assertInvocation(): void {
   if (!argument("--observed-at")) fail("use --observed-at <ISO timestamp>");
   const observedAt = new Date(argument("--observed-at") as string);
   if (Number.isNaN(observedAt.getTime())) fail("invalid --observed-at timestamp");
+  if (!/^[a-f0-9]{7,40}$/.test(argument("--source-baseline") ?? "")) {
+    fail("use --source-baseline <exact git commit>");
+  }
+  if (!/^dpl_[A-Za-z0-9]+$/.test(argument("--deployment-identity") ?? "")) {
+    fail("use --deployment-identity <exact Vercel deployment id>");
+  }
   const forbidden = ["--apply", "--write", "--cut-over", "--activate", "--default", "--repair", "--retry"];
   if (forbidden.some((flag) => process.argv.includes(flag))) fail("mutation flags are not supported");
 }
@@ -276,8 +280,8 @@ async function main(): Promise<void> {
     if (policies.length !== 1) fail("target policy registry row missing or duplicated");
     const receipt = buildC2BProductionObservation({
       observedAt: new Date(argument("--observed-at") as string).toISOString(),
-      sourceBaseline: SOURCE_BASELINE,
-      deploymentIdentity: DEPLOYMENT_IDENTITY,
+      sourceBaseline: argument("--source-baseline") as string,
+      deploymentIdentity: argument("--deployment-identity") as string,
       productionProjectRef: PRODUCTION_PROJECT_REF,
       learnerId: LEARNER_ID,
       approvedTargetScheduleIds: APPROVED_TARGET_IDS,

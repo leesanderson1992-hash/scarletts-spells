@@ -64,13 +64,13 @@ repair it, in accordance with this gate's boundary.
 Initial observation (save stdout as the immutable local receipt if desired):
 
 ```text
-NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-c2b-production-observation.ts --environment production --observed-at <ISO_INSTANT> --confirm-read-only ADLE-C2B-PRODUCTION-OBSERVE:wwohrqtunajrbwxyssjf
+NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-c2b-production-observation.ts --environment production --observed-at <ISO_INSTANT> --source-baseline <EXACT_GIT_COMMIT> --deployment-identity <EXACT_VERCEL_DEPLOYMENT_ID> --confirm-read-only ADLE-C2B-PRODUCTION-OBSERVE:wwohrqtunajrbwxyssjf
 ```
 
 Delta observation:
 
 ```text
-NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-c2b-production-observation.ts --environment production --observed-at <ISO_INSTANT> --confirm-read-only ADLE-C2B-PRODUCTION-OBSERVE:wwohrqtunajrbwxyssjf --previous <PREVIOUS_RECEIPT_JSON>
+NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-c2b-production-observation.ts --environment production --observed-at <ISO_INSTANT> --source-baseline <EXACT_GIT_COMMIT> --deployment-identity <EXACT_VERCEL_DEPLOYMENT_ID> --confirm-read-only ADLE-C2B-PRODUCTION-OBSERVE:wwohrqtunajrbwxyssjf --previous <PREVIOUS_RECEIPT_JSON>
 ```
 
 Optional normalized read-only Vercel log facts can be provided with
