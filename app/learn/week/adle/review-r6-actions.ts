@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -31,6 +32,8 @@ import {
 } from "@/lib/adle/review-v3/r6-persistence";
 import type { CompiledReviewSnapshotV3, ReviewChallengeType } from "@/lib/adle/review-v3/contracts";
 import { ensureSpecialistStageR6 } from "@/lib/adle/review-v3/r6-specialist-stage";
+import { recordReviewWritingGoldBarUses } from "@/lib/rewards/review-writing-authentic-use";
+import { reviewWritingGoldBarGateConfig } from "@/lib/rewards/gold-bar-authentic-use";
 
 type ReviewActionEnvelope = {
   assignmentId: string;
@@ -184,6 +187,23 @@ export async function reviewR6GatewayAction(request: ReviewR6GatewayRequest): Pr
         snapshotFingerprint: request.snapshotFingerprint,
         idempotencyKey: request.idempotencyKey,
       });
+      const goldBarGate = reviewWritingGoldBarGateConfig();
+      if (goldBarGate) {
+        after(async () => {
+          try {
+            await recordReviewWritingGoldBarUses({
+              client: context.serviceClient,
+              reviewSessionId: request.reviewSessionId,
+              gate: goldBarGate,
+            });
+          } catch (rewardError) {
+            console.error(
+              "[gold-bar-review-writing] qualification failed (Review completion unaffected)",
+              rewardError,
+            );
+          }
+        });
+      }
       const specialist = await ensureSpecialistStageR6({
         userClient: context.userClient,
         serviceClient: context.serviceClient,

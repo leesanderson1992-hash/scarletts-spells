@@ -213,8 +213,15 @@ verified source event through the reward contract, but:
 - a Golden Bar does not prove a micro-skill level;
 - a micro-skill level does not mint a Golden Bar;
 - system-selected Contextual Review is not learner-chosen authentic writing by
-  default; and
+  default, even when the versioned reward contract separately admits that
+  prompted authored use to the Gold Bar counter; and
 - reward deduplication remains separate from proficiency deduplication.
+
+Reward admission must preserve the original evidence source. In particular,
+`REVIEW_WRITING_AUTHENTIC_USE` remains prompted `CONTEXTUAL_TRANSFER` for
+future Breadth, Diversity, Transfer, and Stability interpretation, while
+`SPONTANEOUS_AUTHENTIC_USE` remains learner-chosen `AUTHENTIC_WRITING`.
+Neither a reward event nor a Golden Bar may rewrite those environments.
 
 ## Source-linked administrative and assignment boundaries
 

@@ -150,10 +150,10 @@
       "canonicalDocument": "docs/contracts/reward-system-contract.md",
       "status": "ACTIVE_NORMATIVE_CONTRACT",
       "targetTerminologyScope": false,
-      "currentRuntimePolicy": "released Word Treasure and compatibility reward paths",
-      "approvedTargetPolicy": "word-specific Nugget, Forge, Golden Bar, Vault, and reward separation",
-      "policyVersion": "WORD_TREASURE_CURRENT",
-      "requiredIdentifiers": ["Word Treasure System", "Golden Bar", "Vault"],
+      "currentRuntimePolicy": "released Word Treasure paths plus Production-disabled Review-writing V2 qualification",
+      "approvedTargetPolicy": "word-specific Nugget, Forge, five-use Golden Bar, source-distinguished authentic-use reward qualification, Vault, and proficiency separation",
+      "policyVersion": "WORD_TREASURE_AUTHENTIC_USE_V2",
+      "requiredIdentifiers": ["Word Treasure System", "Golden Bar", "Vault", "WORD_TREASURE_AUTHENTIC_USE_V2", "REVIEW_WRITING_AUTHENTIC_USE"],
       "supersededDocuments": []
     },
     {

@@ -129,18 +129,56 @@ A Golden Bar means the child has correctly used that specific corrected word in
 authentic/original writing enough times after entering the Forge.
 
 Default rule:
-- only authentic/original writing after `entered_forge_at` increments
+- only a qualifying authentic-use source after `entered_forge_at` increments
   `authentic_correct_uses_after_forge`
 - `required_uses_for_bar = 5`
 - when `authentic_correct_uses_after_forge >= required_uses_for_bar`, the word
   becomes a Golden Bar
 
+Policy authority: `WORD_TREASURE_AUTHENTIC_USE_V2`.
+
+V2 preserves two governed, auditable source classes:
+
+```text
+SPONTANEOUS_AUTHENTIC_USE
+REVIEW_WRITING_AUTHENTIC_USE
+```
+
+Both classes may increment the same word-specific Forge counter, but they must
+never be collapsed into indistinguishable evidence. Spontaneous writing keeps
+its parent-verification boundary. Review writing is prompted contextual
+transfer for proficiency, but may qualify independently for the motivational
+Gold Bar counter when all of these reward conditions hold:
+
+- the governed Review session completed successfully;
+- the canonical word occurs in the learner's immutable submitted writing, not
+  merely in a prompt, instruction, word bank, model, scaffold, or UI;
+- the original writing outcome is successful and no repair was required;
+- the answer was not visible;
+- context-sensitive use is `VALID`; non-context-sensitive use is
+  `NOT_REQUIRED`; `INVALID` and `UNCERTAIN` do not earn credit;
+- the writing was submitted after both `entered_forge_at` and the versioned
+  policy effective timestamp; and
+- the word has not already received credit for that governed Review session.
+
+One canonical word earns at most one use from one Review writing task,
+regardless of occurrence count, replay, refresh, resubmission, or persistence
+retry. A completed governed Review supplies the verification authority for
+this reward class; it does not require a second parent approval. The stored
+reward lineage must retain `prompted = true`, the Review session/encounter,
+source authentic-use event, context decision/version, and reward policy.
+
+Review-writing reward qualification does not change the evidence environment:
+it remains `CONTEXTUAL_TRANSFER`, not learner-chosen `AUTHENTIC_WRITING`, for
+proficiency. It does not change Review scheduling, finalization, repair,
+retirement, or proficiency maths.
+
 Rules:
 - lesson completion must not award a Golden Bar by itself
 - isolated quiz, copy, or same-session drill success must not award a Golden
   Bar by default
-- if a future configuration allows non-authentic evidence to count, that must
-  be explicit, versioned, and visibly weaker than authentic/original writing
+- prompted Review-writing qualification must remain explicit, versioned, and
+  distinguishable from spontaneous authentic writing
 - a Golden Bar is a word-specific learning milestone first
 - a Golden Bar must not be treated as proof that the whole linked micro-skill is
   mastered
@@ -464,10 +502,15 @@ Currency language:
 - Nuggets are not currency
 
 ### Golden Bars
-- Golden Bars require authentic/original writing evidence after Forge
-- the default threshold is 5 correct authentic/original uses of the same word
+- Golden Bars require qualifying, versioned authentic-use reward evidence after
+  Forge
+- the default threshold is 5 qualifying uses of the same word
 - immediate retries, isolated quizzes, copying, or controlled drill attempts
   must not mint Golden Bars by default
+- one Review session can credit a canonical word at most once, and only from
+  the immutable learner-authored submission
+- `INVALID` or `UNCERTAIN` context and visible-answer production cannot credit
+  the Forge counter
 - a Golden Bar should only earn currency once unless relearning cycles are
   explicitly supported intentionally
 

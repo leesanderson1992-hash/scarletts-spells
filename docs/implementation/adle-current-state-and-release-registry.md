@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-30
+Updated: 2026-09-01
 
 ## Proficiency authority marker and 2026-08-30 revalidation
 
@@ -19,9 +19,31 @@ Canonical ownership and reading order are in
 `docs/architecture/adle-authority-map.md`. This registry owns current runtime
 state only and must not redefine target policy.
 
-Read-only revalidation on 2026-08-30 corrects the Production application pin to
-`42bf928fb6efde80c2f65dfd5a0a0bd9411616c1` and confirms both Compound route
-heads are Production-enabled. The older separated/hyphenated
+## Gold Bar authentic-use alignment release state
+
+`GB.1`–`GB.4` are implemented as an additive, reward-owned path under
+`WORD_TREASURE_AUTHENTIC_USE_V2`: source-distinguished Review qualification,
+an append-only audit ledger, atomic task-scoped idempotency, post-Forge timing,
+and a fail-closed contextual-use gate. The Review completion action registers
+the consumer only downstream of successful finalization, and consumer failure
+cannot roll back or block Review/scheduler state.
+
+`GB.5` release planning and read-only preflight are approved; Production
+migration and activation are **not approved or active**. Production is
+hard-disabled in code and has no Gold Bar environment controls. The 2026-09-01
+preflight confirmed a dark Production state, unchanged five-use threshold and
+no Review reward events, while identifying missing FR2 migration ancestry and
+the absence of an immutable merged GB candidate as release blockers. No
+historical Review submission is backfilled or reinterpreted. See
+`gold-bar-gb5-production-release-plan-2026-09-01.md` and the accompanying QA
+receipt. Production activation still requires separate written authority, a
+prospective effective timestamp, staging/schema-dark proof, and observation
+criteria.
+
+Read-only route revalidation on 2026-08-30 confirmed both Compound route heads
+are Production-enabled. A later 2026-09-01 Vercel inspection pins the current
+Ready Production application to
+`1a39e993b6908bf5e5bb4332fee58022557c4444`. The older separated/hyphenated
 `awaiting_content` row is superseded by the corrected row below; dated rollout
 entries remain historical.
 
@@ -33,7 +55,7 @@ for learners. It does not replace the programme roadmap or teaching-content
 approval records.
 
 The current Production application authority is
-`42bf928fb6efde80c2f65dfd5a0a0bd9411616c1`. Today's ADLE Session unifies
+`1a39e993b6908bf5e5bb4332fee58022557c4444`. Today's ADLE Session unifies
 generic lessons, specialist lessons, and Review v3. Every newly created lesson
 persists immutable snapshot v3. The current route registry contains
 `generic_composer:v1`, Dynamic Prefix v2, Dynamic Affix v3, Base Word v2, and

@@ -11,6 +11,7 @@ import {
 } from "./word-treasures";
 import { loadAdleCountedSampleKeys } from "./adle-reward-bridge";
 import { authenticUseDedupKey } from "./adle-reward-bridge-core";
+import { SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS } from "./gold-bar-authentic-use";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -541,6 +542,7 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
     const eventMetadata = {
       ...candidate.metadata,
       source: "parent_confirmed_free_writing_evidence",
+      evidenceSourceClass: SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS,
       evidence_candidate_id: candidate.id,
       task_submission_id: candidate.task_submission_id,
       task_id: candidate.task_id,

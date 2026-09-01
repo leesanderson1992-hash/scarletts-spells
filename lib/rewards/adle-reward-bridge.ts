@@ -27,6 +27,7 @@
 
 import type { createClient } from "@/lib/supabase/server";
 
+import { SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS } from "./gold-bar-authentic-use";
 import { normaliseWordTreasureWord, moveGoldenNuggetIntoForgeFromDailyAssignmentItem } from "./word-treasures";
 import {
   ADLE_AUTHENTIC_USE_SOURCE_TYPE,
@@ -404,7 +405,11 @@ async function insertAuthenticUseEventIfMissing(input: {
     previous_status: input.previousStatus,
     new_status: input.newStatus,
     authentic_use_increment: 1,
-    metadata: { source: "adle_authentic_use", writing_sample_id: input.writingSampleId },
+    metadata: {
+      source: "adle_authentic_use",
+      evidenceSourceClass: SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS,
+      writing_sample_id: input.writingSampleId,
+    },
   });
   if (error) {
     throw error;
@@ -442,7 +447,10 @@ async function insertGoldenBarEventIfMissing(input: {
     previous_status: "in_forge",
     new_status: "golden_bar",
     authentic_use_increment: 0,
-    metadata: { source: "adle_authentic_use" },
+    metadata: {
+      source: "adle_authentic_use",
+      evidenceSourceClass: SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS,
+    },
   });
   if (error) {
     throw error;
