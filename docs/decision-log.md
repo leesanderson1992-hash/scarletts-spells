@@ -1,5 +1,41 @@
 # Decision Log
 
+## 2026-09-01 — ADLE target final-rung retirement policy approved
+
+### Decision
+
+- Added `ADLE_FINAL_RUNG_RETIREMENT_V1` as the target owner for Day-56
+  delegation, the one governed 112-day check, retirement, and later
+  retired-word reactivation.
+- A failed 112-day check uses the unchanged target v2 recovery, one-rung
+  regression, and controlled-reacquisition system. Legacy `+1/+3` catch-up is
+  not carried forward.
+- Once a word that failed the check successfully rebuilds to the final-rung
+  boundary, it retires without another 112-day wait.
+- A retired word that later returns begins a new schedule episode under the
+  approved default at that future time. The retired schedule remains
+  historical and is never resurrected.
+- Target retirement receives an explicit immutable decision receipt linking
+  the Review outcome, qualifying authentic-use evidence where applicable,
+  policies, decision, transition, and resulting revision. This receipt becomes
+  target `review_retired` authority.
+
+### Runtime boundary
+
+- This decision and its implementation specification change documentation
+  only.
+- No reducer, runtime, SQL, migration, queue, policy flag, Production row,
+  learner state, deployment, commit, or push changed.
+- The released v1 retirement path remains current until a separately approved
+  implementation gate ships the target authority.
+
+### Next gate
+
+- `FR.1`: pure retirement contracts/reducer/orchestrator plus exhaustive
+  fixtures only; no database or runtime integration.
+
+---
+
 ## 2026-08-30 — ADLE Phase A documentation authority converged
 
 ### Decision

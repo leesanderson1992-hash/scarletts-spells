@@ -99,7 +99,9 @@ DAY_1 -> DAY_3 -> DAY_7 -> DAY_14 -> DAY_28 -> DAY_56
 ```
 
 Due-date anchoring is versioned scheduler policy. Final-rung retirement and
-pre-retirement checks remain separately governed and are not changed here.
+pre-retirement checks are separately governed by
+`docs/contracts/adle-final-rung-retirement-contract.md` and are not redefined
+here.
 
 ## Canonical transition table
 
@@ -119,8 +121,8 @@ pre-retirement checks remain separately governed and are not changed here.
 | any independent scheduled/recovery check in one unresolved episode | third consecutive fail | controlled reacquisition | episode closes into reteaching requirement |
 
 `next scheduled rung` means the next rung after the scheduled, recovered, or
-regressed rung. `DAY_56` success delegates to the separately governed
-retirement/pre-retirement policy.
+regressed rung. `DAY_56` success delegates to
+`ADLE_FINAL_RUNG_RETIREMENT_V1`.
 
 ## Day 1 is the early-consolidation gate
 

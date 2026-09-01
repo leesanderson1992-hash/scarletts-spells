@@ -16,7 +16,7 @@ target.
 |---|---|---|---|---|
 | micro-skill and ADLE learning-item identity | `docs/contracts/micro-skill-taxonomy-and-assignment-contract.md` | current word-scoped ADLE identity is released | active normative | composer, intake, proficiency |
 | individual word graduation and spaced review | `docs/contracts/adle-word-progression-and-review-contract.md` | current Slice 2/R5 policy differs | approved, not implemented | evidence matrix, proficiency maths, product experience |
-| final-rung retirement/pre-retirement | `docs/implementation/adle-slice-2-review-scheduler-plan.md` | released current-runtime authority/receipt | preserved separately; no replacement approved | scheduler and Review readers |
+| final-rung retirement/pre-retirement | `docs/contracts/adle-final-rung-retirement-contract.md` | released v1 behaviour remains evidenced by `docs/implementation/adle-slice-2-review-scheduler-plan.md` | approved target, not implemented | scheduler, Review, evidence-state readers |
 | word-to-skill relationships and proficiency meaning | `docs/contracts/adle-spelling-proficiency-contract.md` | current Slice 5 relationship/projection path differs | approved, not implemented | maths, evidence matrix, UI |
 | proficiency calculations and numerical proposals | `docs/implementation/adle-proficiency-v1-maths.md` | no target maths is live | approved architecture; constants remain proposals | shadow engine, reports, UI |
 | activity/outcome evidence effects | `docs/pedagogy/adle-proficiency-task-evidence-matrix.md` | Slice 4/Review v3 facts remain live | approved, not implemented | evidence projection, instructional explanations |
@@ -35,7 +35,7 @@ These files are intentionally retained but are not future architecture owners:
 - `docs/contracts/adle-daily-assignment-and-evidence-blueprint-contract.md` —
   current Slice 1–5 policy record and historical blueprint;
 - `docs/implementation/adle-slice-2-review-scheduler-plan.md` — current
-  scheduler implementation receipt;
+  scheduler and retirement implementation receipt;
 - `docs/implementation/adle-review-r5-legacy-scheduler-compatibility.md` —
   current per-word/bundle compatibility evidence;
 - `docs/implementation/adle-slice-5-proficiency-engine-plan.md` — current

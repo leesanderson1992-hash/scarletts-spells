@@ -36,6 +36,17 @@
       "supersededDocuments": []
     },
     {
+      "key": "review_retirement_target",
+      "canonicalDocument": "docs/contracts/adle-final-rung-retirement-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "conditional v1 retirement/pre-retirement with legacy +1/+3 catch-up; see Slice 2 and R5 receipts",
+      "approvedTargetPolicy": "explicitly receipted final-rung retirement with one 112-day check and normal v2 recovery after check failure",
+      "policyVersion": "ADLE_FINAL_RUNG_RETIREMENT_V1",
+      "requiredIdentifiers": ["ADLE_FINAL_RUNG_RETIREMENT_V1", "one governed 112-day check", "new learning episode"],
+      "supersededDocuments": ["docs/implementation/adle-slice-2-review-scheduler-plan.md"]
+    },
+    {
       "key": "word_skill_relationships",
       "canonicalDocument": "docs/contracts/adle-spelling-proficiency-contract.md",
       "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
@@ -171,6 +182,7 @@
     "docs/implementation/adle-proficiency-v1-maths.md",
     "docs/product/adle-proficiency-progression-experience.md",
     "docs/contracts/micro-skill-taxonomy-and-assignment-contract.md",
-    "docs/contracts/writing-engine-mastery-and-evidence-contract.md"
+    "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+    "docs/contracts/adle-final-rung-retirement-contract.md"
   ]
 }
