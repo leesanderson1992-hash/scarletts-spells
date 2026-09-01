@@ -87,6 +87,10 @@ import {
   type GenericV3CheckpointKind,
   type GenericV3DurableCheckpoint,
 } from "@/lib/adle/generic-v3-attempt-checkpoints";
+import {
+  integrateTargetControlledGraduationForCompletedLesson,
+  loadPinnedTargetScheduleWordIds,
+} from "@/lib/adle/review-policy/controlled-graduation-integration";
 
 function readFormValue(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -635,7 +639,28 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       : productionItems;
   const atomicWordLabCompletionEnabled = process.env.ADLE_WORD_LAB_ATOMIC_COMPLETION_ENABLED === "enabled";
   const learningReflection = readFormValue(formData, "learningReflection");
+  const pinnedTargetSchedules = await timer.measure("target_schedule_pin_check", () =>
+    loadPinnedTargetScheduleWordIds({
+      client: serviceClient,
+      childId,
+      canonicalWordIds: productionItems.flatMap((item) =>
+        item.canonicalWordId ? [item.canonicalWordId] : []),
+    }));
+  const integratePinnedTargetControlledGraduation = async () => {
+    if (pinnedTargetSchedules.size === 0) return;
+    await integrateTargetControlledGraduationForCompletedLesson({
+      client: serviceClient,
+      parentUserId: context.parentUserId,
+      childId,
+      assignmentId: context.assignmentId,
+      completedOn: planDate,
+      sourceRef: lessonSourceRef,
+      assignmentItemIds: readModel.partTwo.items.map((item) => item.id),
+      canonicalWordIds: [...pinnedTargetSchedules.keys()],
+    });
+  };
   if (readModel.partTwo.complete && wordLabPayload === null) {
+    await integratePinnedTargetControlledGraduation();
     finishWith(context, "Today's lesson is already recorded.");
   }
 
@@ -645,6 +670,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     hasTaughtEventsForSourceRef(serviceClient, childId, lessonSourceRef));
   if (taughtCompletionExists && wordLabPayload !== null && !atomicWordLabCompletionEnabled) {
     await timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection));
+    await timer.measure("controlled_graduation", integratePinnedTargetControlledGraduation);
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
     scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(context, "Today's lesson is already recorded.", completionTraceId, timer, "batched_retry");
@@ -666,6 +692,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
         buildCompoundWordV2Reflection(context, compoundV2Resolved!, learningReflection),
       );
     }
+    await timer.measure("controlled_graduation", integratePinnedTargetControlledGraduation);
     await markItemsCompleted(context, readModel.partTwo.items);
     finishWith(context, "Today's lesson is already recorded.");
   }
@@ -785,7 +812,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
     : dynamicPrefix !== null
       ? productionItems.filter((item) => item.adleLearningItemRef !== null)
       : productionItems;
-  const completionWordPolicies: CompletionWordPolicy[] | undefined = dynamicSuffix !== null
+  let completionWordPolicies: CompletionWordPolicy[] | undefined = dynamicSuffix !== null
     && dynamicAffixCompletionPolicy?.ok
     ? dynamicAffixCompletionPolicy.wordPolicies
     : dynamicPrefix !== null
@@ -815,6 +842,24 @@ export async function completeAdleLessonPartAction(formData: FormData) {
         };
       })
     : undefined;
+  if (pinnedTargetSchedules.size > 0) {
+    const existing = new Map((completionWordPolicies ?? []).map((policy) => [
+      policy.canonicalWordId,
+      policy,
+    ]));
+    completionWordPolicies = producedWords.map((word) => {
+      const policy = existing.get(word.canonicalWordId) ?? {
+        canonicalWordId: word.canonicalWordId,
+        evidenceEligible: true,
+        scheduleEligible: true,
+        learningItemTransitionEligible: true,
+        rewardEligible: true,
+      };
+      return pinnedTargetSchedules.has(word.canonicalWordId)
+        ? { ...policy, scheduleEligible: false }
+        : policy;
+    });
+  }
   const lessonResult = onLessonCompleted(policy, {
     childId,
     microSkillKey,
@@ -852,6 +897,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
         lesson: lessonResult,
         reflection: buildCompoundWordV2Reflection(context, compoundV2Resolved!, learningReflection),
       }));
+    await timer.measure("controlled_graduation", integratePinnedTargetControlledGraduation);
     scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(
       context,
@@ -872,6 +918,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       })),
       timer.measure("reflection_persistence", () => persistMorphologyReflection(context, wordLabPayload, learningReflection)),
     ]);
+    await timer.measure("controlled_graduation", integratePinnedTargetControlledGraduation);
     await timer.measure("assignment_completion", () => markItemsCompleted(context, readModel.partTwo.items));
     scheduleLessonReward(context, rewardProductionItems, timer);
     finishWith(context, "Lesson finished. New words join review tomorrow.", completionTraceId, timer, "instrumented_batched_completion");
@@ -903,6 +950,7 @@ export async function completeAdleLessonPartAction(formData: FormData) {
       });
     })] : []),
   ]);
+  await timer.measure("controlled_graduation", integratePinnedTargetControlledGraduation);
 
   // Probe day: the diagnostic probe replaced the lesson dictation — record
   // it through its own completion helper (probe words are cold words with
@@ -1008,12 +1056,28 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     .eq("child_id", context.childId).eq("row_status", "active");
   if (itemsError) throw new Error(`completeBaseWordFamilyLessonAction:items: ${itemsError.message}`);
   const policy = await loadActiveReviewPolicy(context.serviceClient);
+  const baseWordProducedAttempts = finalAttempts.filter((attempt) =>
+    learnerBackedIds.has(attempt.canonicalWordId));
+  const pinnedTargetSchedules = await loadPinnedTargetScheduleWordIds({
+    client: context.serviceClient,
+    childId: context.childId,
+    canonicalWordIds: baseWordProducedAttempts.map((attempt) => attempt.canonicalWordId),
+  });
   const lesson = onLessonCompleted(policy, {
     childId: context.childId, microSkillKey: payload.microSkillKey, completedOn: context.planDate,
     sourceRef: `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`,
     bundleId: randomUUID(),
     scheduleAllProducedWords: true,
-    producedWords: finalAttempts.filter((attempt) => learnerBackedIds.has(attempt.canonicalWordId)),
+    producedWords: baseWordProducedAttempts,
+    ...(pinnedTargetSchedules.size > 0 ? {
+      wordPolicies: baseWordProducedAttempts.map((attempt) => ({
+        canonicalWordId: attempt.canonicalWordId,
+        evidenceEligible: true,
+        scheduleEligible: !pinnedTargetSchedules.has(attempt.canonicalWordId),
+        learningItemTransitionEligible: true,
+        rewardEligible: true,
+      })),
+    } : {}),
     learningItems: ((learningItemRows ?? []) as LearningItemRow[]).map(learningItemFromRow),
   });
   const sourceRef = `lesson:${context.childId}:${context.planDate}:${payload.microSkillKey}`;
@@ -1032,6 +1096,18 @@ export async function completeBaseWordFamilyLessonAction(formData: FormData) {
     reflection: { childId: context.childId, parentUserId: context.parentUserId, assignmentId: context.assignmentId, microSkillKey: payload.microSkillKey, contentVersion: payload.contentVersion, promptKey: resolvedBaseWordLesson.reflection.promptKey, promptText: resolvedBaseWordLesson.reflection.promptText, reflectionText: reflection },
     transferMisses: baseWordTransferMissWrites({ payload, childId: context.childId, lessonSourceRef: sourceRef, occurredOn: context.planDate as import("@/lib/adle/review-scheduler").IsoDate, finalAttempts }),
   });
+  if (pinnedTargetSchedules.size > 0) {
+    await integrateTargetControlledGraduationForCompletedLesson({
+      client: context.serviceClient,
+      parentUserId: context.parentUserId,
+      childId: context.childId,
+      assignmentId: context.assignmentId,
+      completedOn: context.planDate as import("@/lib/adle/review-scheduler").IsoDate,
+      sourceRef,
+      assignmentItemIds: readModel.partTwo.items.map((item) => item.id),
+      canonicalWordIds: [...pinnedTargetSchedules.keys()],
+    });
+  }
   scheduleLessonReward(context, authenticProductionItems);
   finishWith(context, result.status === "already_completed" ? "Today's lesson is already recorded." : "Lesson finished. Your two writing words join review tomorrow.");
 }

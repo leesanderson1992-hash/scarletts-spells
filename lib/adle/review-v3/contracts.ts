@@ -91,6 +91,7 @@ export interface ReviewCueSnapshotV3 {
 export type ReviewDueKindV3 =
   | "scheduled_review"
   | "catch_up_retest"
+  | "next_day_recovery"
   | "pre_retirement_check";
 
 export interface ReviewTargetSnapshotV3 {

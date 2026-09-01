@@ -10,6 +10,10 @@ import type {
   ReviewR6WritingSessionView,
 } from "./r6-session-contracts";
 import type { ReviewChallengeType } from "./contracts";
+import {
+  finalizeMixedPolicyReviewSessionC2B6,
+  reviewSessionContainsTargetV2,
+} from "../review-policy/mixed-policy-finalization";
 
 type Client = SupabaseClient;
 
@@ -213,6 +217,12 @@ export async function finalizeReviewStageR6(input: {
   snapshotFingerprint: string;
   idempotencyKey: string;
 }): Promise<Record<string, unknown>> {
+  if (await reviewSessionContainsTargetV2({
+    client: input.client,
+    reviewSessionId: input.reviewSessionId,
+  })) {
+    return finalizeMixedPolicyReviewSessionC2B6(input);
+  }
   const result = await input.client.rpc("finalize_adle_review_stage_r6", {
     p_review_session_id: input.reviewSessionId,
     p_snapshot_fingerprint: input.snapshotFingerprint,

@@ -5,7 +5,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   PER_WORD_REVIEW_SCHEDULE_VERSION_V1,
-  selectDuePerWordReviewsV1,
   type PerWordReviewScheduleFactV1,
 } from "./per-word-scheduler";
 import { selectLeastRecentlyUsedReflectionPrompt } from "./prompt-selection";
@@ -16,6 +15,16 @@ import {
   type ReviewR6PromptFact,
 } from "./r6-snapshot-compiler";
 import type { ReviewChallengeType, ReviewPromptReusePolicy } from "./contracts";
+import {
+  CURRENT_PER_WORD_STATE_SHAPE_VERSION,
+  CURRENT_REVIEW_POLICY_VERSION,
+  TARGET_PER_WORD_STATE_SHAPE_VERSION,
+  TARGET_REVIEW_POLICY_VERSION,
+} from "../review-policy/contracts";
+import { selectDueMixedReviewWords } from "../review-policy/mixed-due-selection";
+import { loadReviewScheduleForExecution } from "../review-policy/runtime-repository";
+import type { HydratedReviewSchedule } from "../review-policy/runtime-coexistence";
+import type { IsoDate } from "../review-scheduler";
 
 type Client = SupabaseClient;
 
@@ -31,7 +40,15 @@ type ScheduleRow = {
   membership_status: PerWordReviewScheduleFactV1["membershipStatus"];
   catch_up_stage: number;
   next_retest_due_on: string | null;
+  failed_review_on: string | null;
   pre_retirement_check_due_on: string | null;
+  last_28_day_review_on: string | null;
+  reteach_cycle_count: number;
+  word_schedule_transition_count: number;
+  word_last_review_completed_on: string | null;
+  word_last_review_completed_at: string | null;
+  consecutive_independent_failures: number | null;
+  failure_episode_id: string | null;
   taught_on: string;
   row_status: string;
 };
@@ -113,12 +130,12 @@ export async function ensureReviewAssignmentR6(input: {
   const [policyResult, scheduleResult] = await Promise.all([
     input.client.from("adle_review_policy_versions")
       .select("schedule_policy_version,session_cap")
-      .eq("is_active", true),
+      .eq("schedule_policy_version", CURRENT_REVIEW_POLICY_VERSION),
     input.client.from("adle_review_schedule_words")
-      .select("id,child_id,canonical_word_id,bundle_id,word_schedule_version,word_schedule_policy_version,word_interval_index,word_next_due_on,membership_status,catch_up_stage,next_retest_due_on,pre_retirement_check_due_on,taught_on,row_status")
+      .select("id,child_id,canonical_word_id,bundle_id,word_schedule_version,word_schedule_policy_version,word_interval_index,word_next_due_on,membership_status,catch_up_stage,next_retest_due_on,failed_review_on,pre_retirement_check_due_on,last_28_day_review_on,reteach_cycle_count,word_schedule_transition_count,word_last_review_completed_on,word_last_review_completed_at,consecutive_independent_failures,failure_episode_id,taught_on,row_status")
       .eq("child_id", input.childId)
       .eq("row_status", "active")
-      .eq("word_schedule_version", PER_WORD_REVIEW_SCHEDULE_VERSION_V1),
+      .in("word_schedule_version", [CURRENT_PER_WORD_STATE_SHAPE_VERSION, TARGET_PER_WORD_STATE_SHAPE_VERSION]),
   ]);
   if (policyResult.error) fail(policyResult.error, "ensureReviewAssignmentR6:policy");
   if (scheduleResult.error) fail(scheduleResult.error, "ensureReviewAssignmentR6:schedule");
@@ -127,12 +144,24 @@ export async function ensureReviewAssignmentR6(input: {
   }
   const policy = policyResult.data![0] as { schedule_policy_version: string; session_cap: number };
   const scheduleRows = (scheduleResult.data ?? []) as ScheduleRow[];
-  const due = selectDuePerWordReviewsV1({
-    policyVersion: policy.schedule_policy_version,
+  const targetRows = scheduleRows.filter((row) =>
+    row.word_schedule_version === TARGET_PER_WORD_STATE_SHAPE_VERSION
+    && row.word_schedule_policy_version === TARGET_REVIEW_POLICY_VERSION);
+  const targetHydration = await Promise.all(targetRows.map(async (row) => ({
+    row,
+    result: await loadReviewScheduleForExecution({ client: input.client, scheduleWordId: row.id }),
+  })));
+  if (targetHydration.some(({ result }) => result.disposition !== "HYDRATED"
+    || result.schedule.kind !== "TARGET_REGRESSION_V1")) {
+    return { outcome: "blocked", blockerCode: "review_r6_target_schedule_hydration_conflict" };
+  }
+  const due = selectDueMixedReviewWords({
+    today: input.assignmentDate as IsoDate,
     sessionCap: Math.min(10, policy.session_cap),
-    today: input.assignmentDate,
-    words: scheduleRows.flatMap((row): PerWordReviewScheduleFactV1[] =>
-      row.word_interval_index === null || row.word_schedule_policy_version === null
+    currentWords: scheduleRows.flatMap((row): PerWordReviewScheduleFactV1[] =>
+      row.word_schedule_version !== CURRENT_PER_WORD_STATE_SHAPE_VERSION
+        || row.word_schedule_policy_version !== CURRENT_REVIEW_POLICY_VERSION
+        || row.word_interval_index === null
         ? []
         : [{
             scheduleWordId: row.id,
@@ -151,6 +180,10 @@ export async function ensureReviewAssignmentR6(input: {
             rowStatus: row.row_status === "active" ? "active" : "superseded",
           }],
     ),
+    targetWords: targetHydration.map(({ row, result }) => ({
+      schedule: (result as { disposition: "HYDRATED"; schedule: HydratedReviewSchedule }).schedule as Extract<HydratedReviewSchedule, { kind: "TARGET_REGRESSION_V1" }>,
+      taughtOn: row.taught_on as IsoDate,
+    })),
   });
   if (due.length === 0) return { outcome: "not_due" };
 
@@ -206,7 +239,7 @@ export async function ensureReviewAssignmentR6(input: {
       ...item,
       canonicalSpelling: canonical.display_word,
       taughtOn: schedule.taught_on,
-      wordScheduleVersion: PER_WORD_REVIEW_SCHEDULE_VERSION_V1,
+      wordScheduleVersion: item.wordScheduleVersion,
       answerAuthorityReferenceId: `canonical_teaching_dictionary_words:${canonical.id}`,
       answerAuthorityVersion: authorityVersion,
       answerAuthorityFingerprint: fingerprint(`answer:${canonical.id}:${authorityVersion}:${canonical.display_word}`),
@@ -308,7 +341,11 @@ export async function ensureReviewAssignmentR6(input: {
     prompts: selectedPrompts,
   });
   if (!compiled.ok) return { outcome: "blocked", blockerCode: compiled.blockerCode };
-  const persistence = await input.client.rpc("persist_adle_review_assignment_r6", {
+  const persistence = await input.client.rpc(
+    due.some((item) => item.wordScheduleVersion === TARGET_PER_WORD_STATE_SHAPE_VERSION)
+      ? "persist_adle_review_assignment_c2b6"
+      : "persist_adle_review_assignment_r6",
+    {
     p_parent_user_id: input.parentUserId,
     p_child_id: input.childId,
     p_plan_date: input.assignmentDate,
@@ -316,7 +353,8 @@ export async function ensureReviewAssignmentR6(input: {
     p_review_item_id: reviewItemId,
     p_review_session_id: reviewSessionId,
     p_snapshot: compiled.snapshot,
-  });
+    },
+  );
   if (persistence.error) fail(persistence.error, "ensureReviewAssignmentR6:persist");
   const value = persistence.data as {
     outcome?: "created" | "reused_incomplete";

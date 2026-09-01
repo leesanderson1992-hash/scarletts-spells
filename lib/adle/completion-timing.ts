@@ -7,6 +7,8 @@ export type WordLabCompletionStage =
   | "lesson_persistence"
   | "reflection_persistence"
   | "atomic_durable_completion"
+  | "target_schedule_pin_check"
+  | "controlled_graduation"
   | "assignment_completion"
   | "redirect"
   | "completed_route_reads"

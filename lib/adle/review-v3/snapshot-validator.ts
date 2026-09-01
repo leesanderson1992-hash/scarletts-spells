@@ -173,7 +173,7 @@ function validTarget(value: unknown): value is ReviewTargetSnapshotV3 {
     ]) &&
     nonEmptyString(schedule.scheduleWordId) &&
     nullableString(schedule.sourceBundleId) &&
-    ["scheduled_review", "catch_up_retest", "pre_retirement_check"].includes(
+    ["scheduled_review", "catch_up_retest", "next_day_recovery", "pre_retirement_check"].includes(
       String(schedule.dueKind),
     ) &&
     typeof schedule.dueOn === "string" &&

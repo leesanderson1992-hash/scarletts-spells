@@ -219,15 +219,17 @@ export function compileReviewSnapshotR6(
           sourceFingerprint: word.audioAuthorityFingerprint,
         },
       ])),
-      {
-        contentRefId: `schedule-policy:${input.dueWords[0].schedulePolicyVersion}`,
-        kind: "schedule_policy" as const,
-        key: input.dueWords[0].schedulePolicyVersion,
-        version: input.dueWords[0].schedulePolicyVersion,
-        sourceFingerprint: createHash("sha256")
-          .update(`schedule-policy:${input.dueWords[0].schedulePolicyVersion}`)
-          .digest("hex"),
-      },
+      ...[...new Set(input.dueWords.map((word) => word.schedulePolicyVersion))]
+        .sort()
+        .map((policyVersion) => ({
+          contentRefId: `schedule-policy:${policyVersion}`,
+          kind: "schedule_policy" as const,
+          key: policyVersion,
+          version: policyVersion,
+          sourceFingerprint: createHash("sha256")
+            .update(`schedule-policy:${policyVersion}`)
+            .digest("hex"),
+        })),
     ],
     provenance: {
       sourceKind: "compiled_review_assignment",
