@@ -10,6 +10,7 @@ import { canonicalUtcTimestampMilliseconds } from "../lib/adle/review-policy/can
 const CONFIRMATION = "PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY";
 const C2B6_CONFIRMATION = "PROVE_ADLE_C2B6_CONTROLLED_OPT_IN_LOCALLY";
 const C2B7_CONFIRMATION = "PROVE_ADLE_C2B7_CANARY_HOTFIX_LOCALLY";
+const FR2_CONFIRMATION = "PROVE_ADLE_FR2_RETIREMENT_PERSISTENCE_LOCALLY";
 if (!process.argv.slice(2).includes(CONFIRMATION)) {
   throw new Error(`Refusing disposable C2B.2 proof without: -- ${CONFIRMATION}`);
 }
@@ -23,7 +24,9 @@ const migrationName = "20260831120000_add_adle_c2b2_scheduler_persistence.sql";
 const migrationPath = resolve(root, "supabase/migrations", migrationName);
 const c2b6MigrationName = "20260901120000_add_adle_c2b6_controlled_opt_in.sql";
 const c2b7MigrationName = "20260901130000_normalize_adle_c2b6_review_completion_milliseconds.sql";
-const proveC2B7 = process.argv.slice(2).includes(C2B7_CONFIRMATION);
+const fr2MigrationName = "20260901140000_add_adle_fr2_retirement_persistence.sql";
+const proveFR2 = process.argv.slice(2).includes(FR2_CONFIRMATION);
+const proveC2B7 = proveFR2 || process.argv.slice(2).includes(C2B7_CONFIRMATION);
 const proveC2B6 = proveC2B7 || process.argv.slice(2).includes(C2B6_CONFIRMATION);
 const maxBuffer = 192 * 1024 * 1024;
 
@@ -267,6 +270,8 @@ try {
   const receipt = JSON.parse(receiptLine.slice("C2B2_SQL_RECEIPT:".length));
   let c2b6Receipt: unknown = null;
   let c2b7Receipt: unknown = null;
+  let fr2Receipt: unknown = null;
+  let fr2PreexistingSchedulesStable = false;
   if (proveC2B6) {
     const c2b6Migration = readFileSync(resolve(root, "supabase/migrations", c2b6MigrationName), "utf8");
     psql(proofDatabase, c2b6Migration);
@@ -333,6 +338,67 @@ try {
       };
     }
   }
+  if (proveFR2) {
+    const schedulesBefore = psql(proofDatabase, `
+      select coalesce(jsonb_agg(
+        to_jsonb(word) - array['updated_at']::text[] order by word.id
+      ), '[]'::jsonb)
+      from public.adle_review_schedule_words word;
+    `).trim();
+    const fr2Migration = readFileSync(resolve(root, "supabase/migrations", fr2MigrationName), "utf8");
+    psql(proofDatabase, fr2Migration);
+    recordMigration(proofDatabase, fr2MigrationName);
+    const schedulesAfter = psql(proofDatabase, `
+      select coalesce(jsonb_agg(
+        to_jsonb(word)
+          - array['updated_at','pre_retirement_check_outcome_event_id']::text[]
+        order by word.id
+      ), '[]'::jsonb)
+      from public.adle_review_schedule_words word;
+    `).trim();
+    const fr2Boundary = JSON.parse(psql(proofDatabase, `
+      select jsonb_build_object(
+        'newLineageNull', not exists (
+          select 1 from public.adle_review_schedule_words
+          where pre_retirement_check_outcome_event_id is not null
+        ),
+        'receiptRows', (
+          select count(*) from public.adle_review_retirement_decision_receipts
+        ),
+        'targetActive', (
+          select is_active from public.adle_review_policy_versions
+          where schedule_policy_version='ADLE_SPACED_REVIEW_REGRESSION_V1'
+        ),
+        'targetDefault', (
+          select is_default_for_new_schedules
+          from public.adle_review_policy_versions
+          where schedule_policy_version='ADLE_SPACED_REVIEW_REGRESSION_V1'
+        )
+      );
+    `).trim()) as {
+      newLineageNull: boolean;
+      receiptRows: number;
+      targetActive: boolean;
+      targetDefault: boolean;
+    };
+    fr2PreexistingSchedulesStable = schedulesBefore === schedulesAfter;
+    if (!fr2PreexistingSchedulesStable
+      || !fr2Boundary.newLineageNull
+      || fr2Boundary.receiptRows !== 0
+      || fr2Boundary.targetActive
+      || fr2Boundary.targetDefault) {
+      throw new Error(`FR.2 additive boundary failed: ${JSON.stringify({
+        fr2PreexistingSchedulesStable, ...fr2Boundary,
+      })}`);
+    }
+    const fr2Output = psql(
+      proofDatabase,
+      readFileSync(resolve(root, "scripts/sql/prove-adle-fr2-retirement-persistence-local.sql"), "utf8"),
+    );
+    const fr2Line = fr2Output.split("\n").find((line) => line.startsWith("FR2_SQL_RECEIPT:"));
+    if (!fr2Line) throw new Error(`FR.2 SQL proof returned no receipt:\n${fr2Output}`);
+    fr2Receipt = JSON.parse(fr2Line.slice("FR2_SQL_RECEIPT:".length));
+  }
   const migrationFingerprint = createHash("sha256").update(migration).digest("hex");
   console.log(JSON.stringify({
     status: "PASS",
@@ -357,6 +423,14 @@ try {
         resolve(root, "supabase/migrations", c2b7MigrationName),
       )).digest("hex"),
       c2b7Fixture: c2b7Receipt,
+    } : {}),
+    ...(proveFR2 ? {
+      fr2Migration: fr2MigrationName,
+      fr2MigrationSha256: createHash("sha256").update(readFileSync(
+        resolve(root, "supabase/migrations", fr2MigrationName),
+      )).digest("hex"),
+      fr2PreexistingSchedulesStable,
+      fr2Fixture: fr2Receipt,
     } : {}),
     disposableDatabaseDropped: true,
   }, null, 2));
