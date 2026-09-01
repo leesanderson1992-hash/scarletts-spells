@@ -22,6 +22,7 @@ import {
   type SupportedPureReviewPolicyExecutor,
 } from "./pure-dispatch";
 import { TARGET_REVIEW_POLICY_CONFIG } from "./target-regression-v1";
+import { canonicalUtcTimestampExactComparison } from "./canonical-timestamp";
 
 export const TARGET_REVIEW_REDUCER_VERSION = TARGET_REVIEW_POLICY_VERSION;
 
@@ -195,7 +196,15 @@ export function persistedTargetStateFromRow(
   return stateRecord(result) ? result : null;
 }
 
-function sameState(left: unknown, right: unknown): boolean {
+/** Exact state equality with one narrowly governed canonicalization boundary.
+ * Every field remains byte-exact except wordLastReviewCompletedAt, whose two
+ * historical transport representations are compared as the same precise
+ * instant without discarding sub-millisecond precision. */
+export function equalPersistedTargetStatesForHistory(
+  left: unknown,
+  right: unknown,
+): boolean {
+  if (!stateRecord(left) || !stateRecord(right)) return false;
   const canonical = (value: unknown): string => {
     if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
     if (value !== null && typeof value === "object") {
@@ -205,7 +214,17 @@ function sameState(left: unknown, right: unknown): boolean {
     }
     return JSON.stringify(value);
   };
-  return canonical(left) === canonical(right);
+  try {
+    const normalize = (state: PersistedReviewScheduleStateC2B2) => ({
+      ...state,
+      wordLastReviewCompletedAt: state.wordLastReviewCompletedAt === null
+        ? null
+        : canonicalUtcTimestampExactComparison(state.wordLastReviewCompletedAt),
+    });
+    return canonical(normalize(left)) === canonical(normalize(right));
+  } catch {
+    return false;
+  }
 }
 
 function targetStateFromPersistence(input: {
@@ -249,13 +268,17 @@ function targetStateFromPersistence(input: {
         || Array.isArray(transition.from_state)
       ))
       || !stateRecord(transition.to_state)
-      || (index > 0 && !sameState(transitions[index - 1].to_state, transition.from_state))
+      || (index > 0 && !equalPersistedTargetStatesForHistory(
+        transitions[index - 1].to_state,
+        transition.from_state,
+      ))
     ) return null;
   }
   if (transitions.length > 0 && transitions.at(-1)?.applied_state_revision !== input.revision) {
     return null;
   }
-  if (transitions.length > 0 && !sameState(transitions.at(-1)?.to_state, persisted)) return null;
+  if (transitions.length > 0
+    && !equalPersistedTargetStatesForHistory(transitions.at(-1)?.to_state, persisted)) return null;
 
   const appliedEventIds = transitions.flatMap((transition) => {
     if (transition.transition_kind === "REVIEW_OUTCOME_APPLIED") {
