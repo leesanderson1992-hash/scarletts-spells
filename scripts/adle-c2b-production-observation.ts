@@ -6,14 +6,19 @@ import pg from "pg";
 
 import {
   buildC2BProductionObservation,
-  type C2BProductionObservationReceipt,
   type ObservationCompletionReceiptRow,
   type ObservationControlledReceiptRow,
+  type ObservationAuthenticUseRow,
   type ObservationEncounterRow,
   type ObservationLogFact,
   type ObservationOutcomeRow,
   type ObservationSessionRow,
+  type ObservationScheduleRow,
+  type ObservationRetirementReceiptRow,
   type ObservationTransitionRow,
+  C2B_PRODUCTION_OBSERVATION_LEGACY_VERSION,
+  C2B_PRODUCTION_OBSERVATION_VERSION,
+  type PreviousC2BProductionObservationReceipt,
 } from "../lib/adle/review-policy/production-observation";
 import type {
   PersistedReviewPolicyRow,
@@ -74,6 +79,9 @@ function assertInvocation(): void {
   if (!/^dpl_[A-Za-z0-9]+$/.test(argument("--deployment-identity") ?? "")) {
     fail("use --deployment-identity <exact Vercel deployment id>");
   }
+  if (!(["absent", "present"] as const).includes(
+    argument("--expected-retirement-capability") as "absent" | "present",
+  )) fail("use --expected-retirement-capability absent|present");
   const forbidden = ["--apply", "--write", "--cut-over", "--activate", "--default", "--repair", "--retry"];
   if (forbidden.some((flag) => process.argv.includes(flag))) fail("mutation flags are not supported");
 }
@@ -119,6 +127,8 @@ type ProtectedFacts = {
   completion_fingerprint: string;
   controlled_count: string;
   controlled_fingerprint: string;
+  retirement_count?: string;
+  retirement_fingerprint?: string;
 };
 
 const PROTECTED_SQL = `
@@ -135,6 +145,28 @@ select
  (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_controlled_graduation_receipts x) controlled_fingerprint
 `;
 
+const RETIREMENT_PROTECTED_SQL = `
+select base.*,
+ (select count(*)::text from public.adle_review_retirement_decision_receipts) retirement_count,
+ (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_retirement_decision_receipts x) retirement_fingerprint
+from (${PROTECTED_SQL}) base
+`;
+
+type RetirementCapabilityFact = {
+  receipt_table_present: boolean;
+  check_column_present: boolean;
+  fr2_migration_present: boolean;
+  fr3_migration_present: boolean;
+};
+
+const RETIREMENT_CAPABILITY_SQL = `select
+ to_regclass('public.adle_review_retirement_decision_receipts') is not null receipt_table_present,
+ exists(select 1 from information_schema.columns where table_schema='public'
+   and table_name='adle_review_schedule_words'
+   and column_name='pre_retirement_check_outcome_event_id') check_column_present,
+ exists(select 1 from supabase_migrations.schema_migrations where version='20260901140000') fr2_migration_present,
+ exists(select 1 from supabase_migrations.schema_migrations where version='20260902120000') fr3_migration_present`;
+
 const SCHEDULE_SQL = `select
  id::text,child_id::text,canonical_word_id::text,bundle_id::text,membership_status,taught_on::text,row_status,
  word_schedule_version,word_schedule_policy_version,word_interval_index,word_next_due_on::text,catch_up_stage,
@@ -147,6 +179,11 @@ const SCHEDULE_SQL = `select
 from public.adle_review_schedule_words
 where word_schedule_policy_version=$1 and word_schedule_version=$2
 order by child_id::text,id::text`;
+
+const RETIREMENT_SCHEDULE_SQL = SCHEDULE_SQL.replace(
+  "consecutive_independent_failures,failure_episode_id::text",
+  "consecutive_independent_failures,failure_episode_id::text,pre_retirement_check_outcome_event_id::text",
+);
 
 const POLICY_SQL = `select schedule_policy_version,is_active,is_default_for_new_schedules,transition_family,
  interval_ladder_days,catch_up_offsets_days,recovery_delay_days,due_anchor,controlled_graduation_policy_version,session_cap
@@ -187,6 +224,20 @@ const CONTROLLED_SQL = `select id::text,child_id::text,daily_assignment_id::text
  later_clean_outcome,decision,decision_reason,completed_on::text,decided_at::text,source_fingerprint,created_at::text
 from public.adle_controlled_graduation_receipts where child_id=$1 and created_at >= $2::timestamptz
 order by created_at,id`;
+
+const RETIREMENT_RECEIPT_SQL = `select id::text,schedule_word_id::text,child_id::text,
+ canonical_word_id::text,schedule_policy_version,state_shape_version,retirement_policy_version,
+ retirement_state_version,source_review_outcome_event_id::text,qualifying_authentic_use_event_id::text,
+ pre_retirement_check_outcome_event_id::text,decision,decision_reason,scheduler_reducer_input_state,
+ schedule_transition_event_id::text,idempotency_key,expected_state_revision::integer,
+ applied_state_revision::integer,source_fingerprint,occurred_at::text,created_at::text
+from public.adle_review_retirement_decision_receipts where child_id=$1
+order by schedule_word_id,applied_state_revision,id`;
+
+const AUTHENTIC_USE_SQL = `select id::text,child_id::text,canonical_word_id::text,occurred_on::text,
+ use_kind,parent_verified,provenance_kind,row_status,source_ref
+from public.adle_authentic_use_events where child_id=$1
+order by occurred_on,id`;
 
 type RawSession = Omit<ObservationSessionRow, "target_schedule_word_ids" | "target_v2_schedule_word_ids" | "target_snapshot_facts"> & {
   compiled_review_snapshot: unknown;
@@ -233,15 +284,16 @@ function normalizeSession(row: RawSession): ObservationSessionRow {
   };
 }
 
-function previousReceipt(): C2BProductionObservationReceipt | null {
+function previousReceipt(): PreviousC2BProductionObservationReceipt | null {
   const path = argument("--previous");
   if (!path) return null;
   const parsed = JSON.parse(readFileSync(path, "utf8")) as unknown;
   const record = parsed && typeof parsed === "object" && !Array.isArray(parsed)
     ? parsed as Record<string, unknown>
     : null;
-  const receipt = (record?.receipt ?? parsed) as C2BProductionObservationReceipt | null;
-  if (!receipt || receipt.observationVersion !== "ADLE_C2B_PRODUCTION_OBSERVATION_V1"
+  const receipt = (record?.receipt ?? parsed) as PreviousC2BProductionObservationReceipt | null;
+  if (!receipt || ![C2B_PRODUCTION_OBSERVATION_LEGACY_VERSION,
+    C2B_PRODUCTION_OBSERVATION_VERSION].includes(receipt.observationVersion)
     || !receipt.stableRecordFingerprints) fail("--previous is not a C2B observation receipt");
   return receipt;
 }
@@ -264,9 +316,26 @@ async function main(): Promise<void> {
     began = true;
     const readOnly = await select<{ transaction_read_only: string }>(client, "show transaction_read_only");
     if (readOnly[0]?.transaction_read_only !== "on") fail("transaction is not read-only");
-    const before = (await select<ProtectedFacts>(client, PROTECTED_SQL))[0];
-    const schedules = await select<PersistedReviewScheduleWordRow>(
-      client, SCHEDULE_SQL, [TARGET_POLICY, TARGET_SHAPE]);
+    const capability = (await select<RetirementCapabilityFact>(
+      client, RETIREMENT_CAPABILITY_SQL))[0];
+    const expectedCapability = argument("--expected-retirement-capability") === "present"
+      ? "PRESENT" as const : "ABSENT" as const;
+    const capabilityPresent = capability.receipt_table_present && capability.check_column_present
+      && capability.fr2_migration_present && capability.fr3_migration_present;
+    if ((expectedCapability === "PRESENT") !== capabilityPresent) {
+      fail(`retirement capability mismatch: expected ${expectedCapability}, observed ${JSON.stringify(capability)}`);
+    }
+    const protectedSql = capabilityPresent ? RETIREMENT_PROTECTED_SQL : PROTECTED_SQL;
+    const before = (await select<ProtectedFacts>(client, protectedSql))[0];
+    const rawSchedules = await select<PersistedReviewScheduleWordRow & {
+      pre_retirement_check_outcome_event_id?: string | null;
+    }>(client, capabilityPresent ? RETIREMENT_SCHEDULE_SQL : SCHEDULE_SQL,
+      [TARGET_POLICY, TARGET_SHAPE]);
+    const schedules: ObservationScheduleRow[] = rawSchedules.map((row) => ({
+      ...row,
+      pre_retirement_check_outcome_event_id:
+        row.pre_retirement_check_outcome_event_id ?? null,
+    }));
     const policies = await select<PersistedReviewPolicyRow>(client, POLICY_SQL, [TARGET_POLICY]);
     const transitions = await select<ObservationTransitionRow>(client, TRANSITION_SQL, [LEARNER_ID]);
     const outcomes = await select<ObservationOutcomeRow>(client, OUTCOME_SQL, [LEARNER_ID, TARGET_SHAPE]);
@@ -277,6 +346,13 @@ async function main(): Promise<void> {
       client, COMPLETION_SQL, [LEARNER_ID, COHORT_STARTED_AT]);
     const controlled = await select<ObservationControlledReceiptRow>(
       client, CONTROLLED_SQL, [LEARNER_ID, COHORT_STARTED_AT]);
+    const retirementReceipts = capabilityPresent
+      ? await select<ObservationRetirementReceiptRow>(
+          client, RETIREMENT_RECEIPT_SQL, [LEARNER_ID])
+      : [];
+    const authenticUseEvidence = capabilityPresent
+      ? await select<ObservationAuthenticUseRow>(client, AUTHENTIC_USE_SQL, [LEARNER_ID])
+      : [];
     if (policies.length !== 1) fail("target policy registry row missing or duplicated");
     const receipt = buildC2BProductionObservation({
       observedAt: new Date(argument("--observed-at") as string).toISOString(),
@@ -284,6 +360,7 @@ async function main(): Promise<void> {
       deploymentIdentity: argument("--deployment-identity") as string,
       productionProjectRef: PRODUCTION_PROJECT_REF,
       learnerId: LEARNER_ID,
+      retirementCapability: expectedCapability,
       approvedTargetScheduleIds: APPROVED_TARGET_IDS,
       targetSchedules: schedules,
       targetPolicy: policies[0],
@@ -293,10 +370,12 @@ async function main(): Promise<void> {
       sessions: sessions.map(normalizeSession),
       completionReceipts: completions,
       controlledReceipts: controlled,
+      retirementReceipts,
+      authenticUseEvidence,
       logs: logFacts(),
       previous: previousReceipt(),
     });
-    const after = (await select<ProtectedFacts>(client, PROTECTED_SQL))[0];
+    const after = (await select<ProtectedFacts>(client, protectedSql))[0];
     if (JSON.stringify(before) !== JSON.stringify(after)) fail("protected facts changed during observation");
     await client.query("rollback");
     began = false;

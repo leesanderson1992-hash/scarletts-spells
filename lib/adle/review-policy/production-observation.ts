@@ -2,6 +2,15 @@ import "server-only";
 
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 import type { IsoDate } from "../review-scheduler";
+import type {
+  FinalRungRetirementLifecycle,
+  RetirementAuthenticUseEvidence,
+} from "../review-retirement/contracts";
+import {
+  buildTargetRuntimeTransitionPlan,
+  hydrateFinalRungRetirementAuthorityV1,
+  type PersistedRetirementDecisionReceipt,
+} from "../review-retirement/runtime-integration";
 import {
   TARGET_PER_WORD_STATE_SHAPE_VERSION,
   TARGET_REVIEW_POLICY_VERSION,
@@ -24,6 +33,9 @@ import {
 } from "./target-transition-persistence";
 
 export const C2B_PRODUCTION_OBSERVATION_VERSION =
+  "ADLE_C2B_PRODUCTION_OBSERVATION_V2" as const;
+
+export const C2B_PRODUCTION_OBSERVATION_LEGACY_VERSION =
   "ADLE_C2B_PRODUCTION_OBSERVATION_V1" as const;
 
 export type ObservationClassification =
@@ -124,6 +136,34 @@ export type ObservationControlledReceiptRow = TargetControlledPassSourceFact & {
   created_at: string;
 };
 
+export type ObservationScheduleRow = PersistedReviewScheduleWordRow & {
+  pre_retirement_check_outcome_event_id: string | null;
+};
+
+export type ObservationRetirementReceiptRow = PersistedRetirementDecisionReceipt & {
+  id: string;
+  schedule_word_id: string;
+  child_id: string;
+  canonical_word_id: string;
+  scheduler_reducer_input_state: unknown | null;
+  schedule_transition_event_id: string;
+  idempotency_key: string;
+  source_fingerprint: string;
+  created_at: string;
+};
+
+export type ObservationAuthenticUseRow = {
+  id: string;
+  child_id: string;
+  canonical_word_id: string;
+  occurred_on: IsoDate;
+  use_kind: string;
+  parent_verified: boolean;
+  provenance_kind: string | null;
+  row_status: string;
+  source_ref: string;
+};
+
 export type ObservationLogFact = {
   id: string;
   occurredAt: string | null;
@@ -141,7 +181,8 @@ export type ObservationInput = {
   productionProjectRef: string;
   learnerId: string;
   approvedTargetScheduleIds: readonly string[];
-  targetSchedules: readonly PersistedReviewScheduleWordRow[];
+  retirementCapability: "ABSENT" | "PRESENT";
+  targetSchedules: readonly ObservationScheduleRow[];
   targetPolicy: PersistedReviewPolicyRow;
   transitions: readonly ObservationTransitionRow[];
   outcomes: readonly ObservationOutcomeRow[];
@@ -149,8 +190,24 @@ export type ObservationInput = {
   sessions: readonly ObservationSessionRow[];
   completionReceipts: readonly ObservationCompletionReceiptRow[];
   controlledReceipts: readonly ObservationControlledReceiptRow[];
+  retirementReceipts: readonly ObservationRetirementReceiptRow[];
+  authenticUseEvidence: readonly ObservationAuthenticUseRow[];
   logs: readonly ObservationLogFact[];
-  previous?: C2BProductionObservationReceipt | null;
+  previous?: PreviousC2BProductionObservationReceipt | null;
+};
+
+export type ObservedRetirementLifecycle = {
+  status: FinalRungRetirementLifecycle["status"] | "NOT_AVAILABLE";
+  preRetirementCheckDueOn: IsoDate | null;
+  preRetirementCheckOutcomeEventId: string | null;
+  latestRetirementReceiptId: string | null;
+  latestDecision: ObservationRetirementReceiptRow["decision"] | null;
+  latestDecisionReason: ObservationRetirementReceiptRow["decision_reason"] | null;
+  retirementBasis: "QUALIFYING_AUTHENTIC_USE" | "PRE_RETIREMENT_CHECK_PASS"
+    | "POST_CHECK_FINAL_RUNG_PASS" | null;
+  retiredOn: IsoDate | null;
+  hydration: "HYDRATED" | "REJECTED" | "NOT_APPLICABLE";
+  projection: "REVIEW_RETIRED" | "NOT_RETIRED" | "REJECTED";
 };
 
 export type ObservedTargetSchedule = {
@@ -164,6 +221,7 @@ export type ObservedTargetSchedule = {
   consecutiveIndependentFailures: number;
   failureEpisodeId: string | null;
   hydration: "HYDRATED" | "REJECTED";
+  retirementLifecycle: ObservedRetirementLifecycle;
   rowFingerprint: string;
 };
 
@@ -191,11 +249,13 @@ export type C2BProductionObservationReceipt = {
   deploymentIdentity: string | null;
   productionProjectRef: string;
   learnerId: string;
+  retirementCapability: ObservationInput["retirementCapability"];
   targetStateCensus: ObservedTargetSchedule[];
   newlyObservedReviewSessions: ObservationSessionRow[];
   newlyObservedTargetTransitions: ObservedTargetTransition[];
   newlyObservedCompletionReceipts: ObservationCompletionReceiptRow[];
   newlyObservedControlledReceipts: ObservationControlledReceiptRow[];
+  newlyObservedRetirementReceipts: ObservationRetirementReceiptRow[];
   c2bLogsSincePrevious: ObservationLogFact[];
   progress: ObservationFinding[];
   interestingEvidence: ObservationFinding[];
@@ -213,9 +273,24 @@ export type C2BProductionObservationReceipt = {
     sessions: Record<string, string>;
     completionReceipts: Record<string, string>;
     controlledReceipts: Record<string, string>;
+    retirementReceipts: Record<string, string>;
+    authenticUseEvidence: Record<string, string>;
   };
   normalizedStateFingerprint: string;
 };
+
+type LegacyStableRecordFingerprints = Omit<
+  C2BProductionObservationReceipt["stableRecordFingerprints"],
+  "retirementReceipts" | "authenticUseEvidence"
+> & Partial<Pick<C2BProductionObservationReceipt["stableRecordFingerprints"],
+  "retirementReceipts" | "authenticUseEvidence">>;
+
+export type PreviousC2BProductionObservationReceipt =
+  | C2BProductionObservationReceipt
+  | {
+      observationVersion: typeof C2B_PRODUCTION_OBSERVATION_LEGACY_VERSION;
+      stableRecordFingerprints: LegacyStableRecordFingerprints;
+    };
 
 function sorted<T>(values: readonly T[], key: (value: T) => string): T[] {
   return [...values].sort((left, right) => key(left).localeCompare(key(right)));
@@ -252,7 +327,7 @@ function same(left: unknown, right: unknown): boolean {
 }
 
 function syntheticRowAtTransition(
-  current: PersistedReviewScheduleWordRow,
+  current: ObservationScheduleRow,
   transition: ObservationTransitionRow,
 ): PersistedReviewScheduleWordRow | null {
   if (transition.transition_kind === "POLICY_CUTOVER_APPLIED") return null;
@@ -274,12 +349,71 @@ function syntheticRowAtTransition(
   };
 }
 
+function retirementCheckOutcomes(outcomes: readonly ObservationOutcomeRow[]) {
+  return outcomes.flatMap((outcome) =>
+    ["review_pass", "retirement_check_pass", "retirement_check_fail"].includes(outcome.event_type)
+      ? [{
+          id: outcome.id,
+          event_type: outcome.event_type as "review_pass" | "retirement_check_pass"
+            | "retirement_check_fail",
+          occurred_on: outcome.review_completed_on,
+          frozen_due_on: outcome.frozen_due_on,
+        }]
+      : []);
+}
+
+function persistedCheckOutcomeBefore(
+  receipts: readonly ObservationRetirementReceiptRow[],
+): string | null {
+  const latest = [...receipts].sort((left, right) =>
+    left.applied_state_revision - right.applied_state_revision
+    || left.id.localeCompare(right.id)).at(-1);
+  return latest?.pre_retirement_check_outcome_event_id ?? null;
+}
+
+function retirementEvidence(rows: readonly ObservationAuthenticUseRow[]): RetirementAuthenticUseEvidence[] {
+  return rows.flatMap((row) =>
+    ["authentic_correct_use", "self_correction_in_writing"].includes(row.use_kind)
+      && ["independent_or_parent_verified_application",
+        "prompted_review_writing_application"].includes(row.provenance_kind ?? "")
+      ? [{
+    eventId: row.id,
+    childId: row.child_id,
+    canonicalWordId: row.canonical_word_id,
+    occurredOn: row.occurred_on,
+    useKind: row.use_kind as RetirementAuthenticUseEvidence["useKind"],
+    parentVerified: row.parent_verified,
+    provenanceKind: row.provenance_kind as RetirementAuthenticUseEvidence["provenanceKind"],
+    rowStatus: row.row_status,
+  }] : []);
+}
+
+function transitionMatchesPlan(
+  transition: ObservationTransitionRow,
+  plan: {
+    transition: {
+      decisionReason: string;
+      reducerVersion: string;
+      sourceFingerprint: string;
+      toState: PersistedReviewScheduleStateC2B2;
+    };
+  },
+): boolean {
+  return plan.transition.decisionReason === transition.transition_reason
+    && plan.transition.reducerVersion === transition.reducer_version
+    && plan.transition.sourceFingerprint === transition.source_fingerprint
+    && same(plan.transition.toState, transition.to_state);
+}
+
 function transitionParity(input: {
-  row: PersistedReviewScheduleWordRow;
+  row: ObservationScheduleRow;
   transition: ObservationTransitionRow;
   allTransitions: readonly ObservationTransitionRow[];
   outcomes: readonly ObservationOutcomeRow[];
   controlledReceipts: readonly ObservationControlledReceiptRow[];
+  retirementCapability: ObservationInput["retirementCapability"];
+  retirementReceipts: readonly ObservationRetirementReceiptRow[];
+  authenticUseEvidence: readonly ObservationAuthenticUseRow[];
   targetPolicy: PersistedReviewPolicyRow;
 }): "MATCH" | "NOT_APPLICABLE" | "MISMATCH" | "UNPROVABLE" {
   if (input.transition.transition_kind === "POLICY_CUTOVER_APPLIED") return "NOT_APPLICABLE";
@@ -290,12 +424,55 @@ function transitionParity(input: {
     candidate.schedule_word_id === input.row.id
     && candidate.applied_state_revision <= input.transition.expected_state_revision);
   const hydrated = hydratePersistedReviewSchedule({ row: synthetic, transitions: prefix });
-  if (hydrated.disposition !== "HYDRATED") return "UNPROVABLE";
+  if (hydrated.disposition !== "HYDRATED"
+    || hydrated.schedule.kind !== "TARGET_REGRESSION_V1") return "UNPROVABLE";
   let source: TargetTransitionSource | null = null;
   if (input.transition.transition_kind === "REVIEW_OUTCOME_APPLIED") {
     const outcome = input.outcomes.find((candidate) =>
       candidate.id === input.transition.source_review_outcome_event_id);
-    if (outcome) source = { kind: "REVIEW_OUTCOME_APPLIED", outcome };
+    if (!outcome) return "UNPROVABLE";
+    if (input.retirementCapability === "PRESENT") {
+      const priorReceipts = input.retirementReceipts.filter((receipt) =>
+        receipt.schedule_word_id === input.row.id
+        && receipt.applied_state_revision <= input.transition.expected_state_revision);
+      const retirement = hydrateFinalRungRetirementAuthorityV1({
+        schedule: hydrated.schedule,
+        persistedCheckOutcomeEventId: persistedCheckOutcomeBefore(priorReceipts),
+        receipts: priorReceipts,
+        checkOutcomes: retirementCheckOutcomes(input.outcomes),
+      });
+      if (retirement.disposition !== "HYDRATED") return "UNPROVABLE";
+      const planned = buildTargetRuntimeTransitionPlan({
+        schedule: hydrated.schedule,
+        retirementState: retirement.state,
+        source: outcome,
+        authenticUseEvidence: retirementEvidence(input.authenticUseEvidence),
+        policyConfig: config,
+      });
+      if (planned.disposition !== "PLANNED" || !transitionMatchesPlan(input.transition, planned.value)) {
+        return "MISMATCH";
+      }
+      const linkedReceipts = input.retirementReceipts.filter((receipt) =>
+        receipt.schedule_transition_event_id === input.transition.id);
+      if (planned.value.authority !== "TARGET_RETIREMENT_V1") {
+        return linkedReceipts.length === 0 ? "MATCH" : "MISMATCH";
+      }
+      if (linkedReceipts.length !== 1) return "MISMATCH";
+      const receipt = linkedReceipts[0];
+      return receipt.schedule_word_id === input.row.id
+        && receipt.source_review_outcome_event_id === outcome.id
+        && receipt.decision === planned.value.decision
+        && receipt.decision_reason === planned.value.decisionReason
+        && receipt.qualifying_authentic_use_event_id === planned.value.qualifyingAuthenticUseEventId
+        && receipt.pre_retirement_check_outcome_event_id
+          === planned.value.preRetirementCheckOutcomeEventId
+        && receipt.expected_state_revision === input.transition.expected_state_revision
+        && receipt.applied_state_revision === input.transition.applied_state_revision
+        && receipt.source_fingerprint === planned.value.retirementSourceFingerprint
+        && same(receipt.scheduler_reducer_input_state, planned.value.schedulerReducerInputState)
+        ? "MATCH" : "MISMATCH";
+    }
+    source = { kind: "REVIEW_OUTCOME_APPLIED", outcome };
   } else {
     const receipt = input.controlledReceipts.find((candidate) =>
       candidate.id === input.transition.source_controlled_graduation_receipt_id);
@@ -308,12 +485,90 @@ function transitionParity(input: {
     policyConfig: config,
   });
   if (planned.disposition !== "PLANNED") return "MISMATCH";
-  return planned.value.decisionReason === input.transition.transition_reason
-    && planned.value.reducerVersion === input.transition.reducer_version
-    && planned.value.sourceFingerprint === input.transition.source_fingerprint
-    && same(planned.value.toState, input.transition.to_state)
+  return transitionMatchesPlan(input.transition, { transition: planned.value })
     ? "MATCH"
     : "MISMATCH";
+}
+
+function observedRetirementLifecycle(input: {
+  capability: ObservationInput["retirementCapability"];
+  row: ObservationScheduleRow;
+  schedule: Extract<ReturnType<typeof hydratePersistedReviewSchedule>, {
+    disposition: "HYDRATED";
+  }>["schedule"] | null;
+  receipts: readonly ObservationRetirementReceiptRow[];
+  outcomes: readonly ObservationOutcomeRow[];
+}): ObservedRetirementLifecycle {
+  if (input.capability === "ABSENT") {
+    return {
+      status: "NOT_AVAILABLE",
+      preRetirementCheckDueOn: input.row.pre_retirement_check_due_on as IsoDate | null,
+      preRetirementCheckOutcomeEventId: null,
+      latestRetirementReceiptId: null,
+      latestDecision: null,
+      latestDecisionReason: null,
+      retirementBasis: null,
+      retiredOn: null,
+      hydration: "NOT_APPLICABLE",
+      projection: "NOT_RETIRED",
+    };
+  }
+  const receipts = sorted(input.receipts.filter((receipt) =>
+    receipt.schedule_word_id === input.row.id), (receipt) =>
+    `${String(receipt.applied_state_revision).padStart(12, "0")}:${receipt.id}`);
+  const latest = receipts.at(-1) ?? null;
+  if (!input.schedule || input.schedule.kind !== "TARGET_REGRESSION_V1") {
+    return {
+      status: "NOT_ENTERED",
+      preRetirementCheckDueOn: input.row.pre_retirement_check_due_on as IsoDate | null,
+      preRetirementCheckOutcomeEventId: input.row.pre_retirement_check_outcome_event_id,
+      latestRetirementReceiptId: latest?.id ?? null,
+      latestDecision: latest?.decision ?? null,
+      latestDecisionReason: latest?.decision_reason ?? null,
+      retirementBasis: null,
+      retiredOn: null,
+      hydration: "REJECTED",
+      projection: "REJECTED",
+    };
+  }
+  const hydrated = hydrateFinalRungRetirementAuthorityV1({
+    schedule: input.schedule,
+    persistedCheckOutcomeEventId: input.row.pre_retirement_check_outcome_event_id,
+    receipts,
+    checkOutcomes: retirementCheckOutcomes(input.outcomes),
+  });
+  if (hydrated.disposition !== "HYDRATED") {
+    return {
+      status: "NOT_ENTERED",
+      preRetirementCheckDueOn: input.row.pre_retirement_check_due_on as IsoDate | null,
+      preRetirementCheckOutcomeEventId: input.row.pre_retirement_check_outcome_event_id,
+      latestRetirementReceiptId: latest?.id ?? null,
+      latestDecision: latest?.decision ?? null,
+      latestDecisionReason: latest?.decision_reason ?? null,
+      retirementBasis: null,
+      retiredOn: null,
+      hydration: "REJECTED",
+      projection: "REJECTED",
+    };
+  }
+  const lifecycle = hydrated.state.retirementLifecycle;
+  return {
+    status: lifecycle.status,
+    preRetirementCheckDueOn: lifecycle.status === "AWAITING_PRE_RETIREMENT_CHECK"
+      ? lifecycle.dueOn : null,
+    preRetirementCheckOutcomeEventId: lifecycle.status === "POST_CHECK_RECOVERY"
+      ? lifecycle.checkOutcomeLineage.outcomeEventId
+      : lifecycle.status === "RETIRED"
+        ? lifecycle.checkOutcomeLineage?.outcomeEventId ?? null
+        : null,
+    latestRetirementReceiptId: latest?.id ?? null,
+    latestDecision: latest?.decision ?? null,
+    latestDecisionReason: latest?.decision_reason ?? null,
+    retirementBasis: lifecycle.status === "RETIRED" ? lifecycle.basis : null,
+    retiredOn: lifecycle.status === "RETIRED" ? lifecycle.retiredOn : null,
+    hydration: "HYDRATED",
+    projection: lifecycle.status === "RETIRED" ? "REVIEW_RETIRED" : "NOT_RETIRED",
+  };
 }
 
 export function buildC2BProductionObservation(
@@ -373,6 +628,23 @@ export function buildC2BProductionObservation(
       alert("TARGET_HYDRATION_REJECTED", "schedule_word", row.id,
         hydration.disposition === "REJECTED" ? hydration.reason : "wrong executor");
     }
+    const retirementLifecycle = observedRetirementLifecycle({
+      capability: input.retirementCapability,
+      row,
+      schedule: hydration.disposition === "HYDRATED" ? hydration.schedule : null,
+      receipts: input.retirementReceipts,
+      outcomes: input.outcomes,
+    });
+    if (input.retirementCapability === "ABSENT"
+      && (row.pre_retirement_check_due_on !== null
+        || ["awaiting_pre_retirement_check", "retired"].includes(row.membership_status))) {
+      alert("RETIREMENT_CAPABILITY_MISSING_FOR_STATE", "schedule_word", row.id,
+        "Target row contains a final-rung lifecycle state while FR persistence capability is absent.");
+    }
+    if (retirementLifecycle.hydration === "REJECTED") {
+      alert("RETIREMENT_HYDRATION_REJECTED", "schedule_word", row.id,
+        "Immutable FR receipt/check lineage does not hydrate exactly.");
+    }
     return {
       scheduleWordId: row.id,
       canonicalWordId: row.canonical_word_id,
@@ -385,6 +657,7 @@ export function buildC2BProductionObservation(
       failureEpisodeId: row.failure_episode_id,
       hydration: hydration.disposition === "HYDRATED"
         && hydration.schedule.kind === "TARGET_REGRESSION_V1" ? "HYDRATED" : "REJECTED",
+      retirementLifecycle,
       rowFingerprint: fingerprintSnapshotValue(row),
     };
   });
@@ -402,6 +675,9 @@ export function buildC2BProductionObservation(
       allTransitions: transitions,
       outcomes: input.outcomes,
       controlledReceipts: input.controlledReceipts,
+      retirementCapability: input.retirementCapability,
+      retirementReceipts: input.retirementReceipts,
+      authenticUseEvidence: input.authenticUseEvidence,
       targetPolicy: input.targetPolicy,
     }) : "UNPROVABLE";
     if (parity === "MISMATCH" || parity === "UNPROVABLE") {
@@ -440,6 +716,81 @@ export function buildC2BProductionObservation(
       `${rows.length} target transitions reference the same governed source.`);
   }
 
+  if (input.retirementCapability === "ABSENT" && input.retirementReceipts.length > 0) {
+    alert("RETIREMENT_RECEIPTS_WITHOUT_CAPABILITY", "retirement_capability", input.learnerId,
+      "Retirement receipts were supplied while the governed FR persistence capability is absent.");
+  }
+  const retirementByTransition = new Map<string, ObservationRetirementReceiptRow[]>();
+  const retirementBySource = new Map<string, ObservationRetirementReceiptRow[]>();
+  for (const receipt of input.retirementReceipts) {
+    retirementByTransition.set(receipt.schedule_transition_event_id,
+      [...(retirementByTransition.get(receipt.schedule_transition_event_id) ?? []), receipt]);
+    retirementBySource.set(receipt.source_review_outcome_event_id,
+      [...(retirementBySource.get(receipt.source_review_outcome_event_id) ?? []), receipt]);
+    const schedule = targetSchedules.find((row) => row.id === receipt.schedule_word_id);
+    const transition = transitions.find((row) => row.id === receipt.schedule_transition_event_id);
+    const outcome = outcomeById.get(receipt.source_review_outcome_event_id);
+    if (!schedule || !transition || !outcome
+      || receipt.child_id !== schedule.child_id
+      || receipt.canonical_word_id !== schedule.canonical_word_id
+      || outcome.schedule_word_id !== receipt.schedule_word_id
+      || transition.schedule_word_id !== receipt.schedule_word_id
+      || transition.source_review_outcome_event_id !== outcome.id
+      || transition.expected_state_revision !== receipt.expected_state_revision
+      || transition.applied_state_revision !== receipt.applied_state_revision) {
+      alert("RETIREMENT_RECEIPT_LINEAGE_CONFLICT", "retirement_receipt", receipt.id,
+        "Receipt does not bind exactly to one target schedule, Review outcome and transition revision.");
+    }
+    if (receipt.qualifying_authentic_use_event_id) {
+      const evidence = input.authenticUseEvidence.find((row) =>
+        row.id === receipt.qualifying_authentic_use_event_id);
+      const last28 = (transition?.from_state as PersistedReviewScheduleStateC2B2 | undefined)
+        ?.last28DayReviewOn;
+      if (!evidence || !outcome
+        || evidence.child_id !== receipt.child_id
+        || evidence.canonical_word_id !== receipt.canonical_word_id
+        || evidence.use_kind !== "authentic_correct_use"
+        || evidence.parent_verified !== true
+        || evidence.provenance_kind !== "independent_or_parent_verified_application"
+        || evidence.row_status !== "active"
+        || !last28
+        || evidence.occurred_on < last28
+        || evidence.occurred_on > outcome.review_completed_on) {
+        alert("RETIREMENT_AUTHENTIC_PROVENANCE_CONFLICT", "retirement_receipt", receipt.id,
+          "Immediate retirement is not linked to exact qualifying learner-chosen authentic evidence.");
+      }
+    }
+    if (receipt.pre_retirement_check_outcome_event_id) {
+      const checkOutcome = outcomeById.get(receipt.pre_retirement_check_outcome_event_id);
+      if (!checkOutcome || checkOutcome.schedule_word_id !== receipt.schedule_word_id
+        || checkOutcome.due_kind !== "pre_retirement_check"
+        || !["retirement_check_pass", "retirement_check_fail"].includes(checkOutcome.event_type)) {
+        alert("RETIREMENT_CHECK_LINEAGE_CONFLICT", "retirement_receipt", receipt.id,
+          "Receipt check lineage is not one exact governed pre-retirement outcome.");
+      }
+    }
+  }
+  for (const [transitionId, receipts] of retirementByTransition) {
+    if (receipts.length > 1) alert("DUPLICATE_RETIREMENT_TRANSITION", "transition_event", transitionId,
+      `${receipts.length} retirement receipts reference one scheduler transition.`);
+  }
+  for (const [sourceId, receipts] of retirementBySource) {
+    if (receipts.length > 1) alert("DUPLICATE_RETIREMENT_SOURCE", "outcome_event", sourceId,
+      `${receipts.length} retirement receipts reference one learner outcome.`);
+  }
+  for (const schedule of targetSchedules) {
+    const receipts = sorted(input.retirementReceipts.filter((receipt) =>
+      receipt.schedule_word_id === schedule.id), (receipt) =>
+      `${String(receipt.applied_state_revision).padStart(12, "0")}:${receipt.id}`);
+    const failedCheckIndex = receipts.findIndex((receipt) =>
+      receipt.decision_reason === "PRE_RETIREMENT_CHECK_FAIL_TO_V2_RECOVERY");
+    if (failedCheckIndex >= 0 && receipts.slice(failedCheckIndex + 1).some((receipt) =>
+      receipt.decision === "AWAIT_PRE_RETIREMENT_CHECK")) {
+      alert("SECOND_PRE_RETIREMENT_WAIT", "schedule_word", schedule.id,
+        "A schedule entered another 112-day wait after its governed check had already failed.");
+    }
+  }
+
   for (const outcome of input.outcomes) {
     const linked = transitions.filter((row) => row.source_review_outcome_event_id === outcome.id);
     const encounter = encounterById.get(outcome.review_encounter_id);
@@ -476,6 +827,12 @@ export function buildC2BProductionObservation(
         alert("TARGET_WORD_APPEARED_BEFORE_DUE", "review_session", session.id,
           `${target.scheduleWordId} due ${target.dueOn} appeared on ${session.assignment_date}.`);
       }
+      const observed = census.find((row) => row.scheduleWordId === target.scheduleWordId);
+      if (observed?.retirementLifecycle.retiredOn
+        && session.assignment_date > observed.retirementLifecycle.retiredOn) {
+        alert("RETIRED_TARGET_REAPPEARED", "review_session", session.id,
+          `${target.scheduleWordId} appeared after governed retirement on ${observed.retirementLifecycle.retiredOn}.`);
+      }
     }
   }
 
@@ -494,10 +851,12 @@ export function buildC2BProductionObservation(
     sessions: recordMap(input.sessions),
     completionReceipts: recordMap(input.completionReceipts),
     controlledReceipts: recordMap(input.controlledReceipts),
+    retirementReceipts: recordMap(input.retirementReceipts),
+    authenticUseEvidence: recordMap(input.authenticUseEvidence),
   };
   if (previousFingerprints) {
     for (const kind of Object.keys(currentFingerprints) as Array<keyof typeof currentFingerprints>) {
-      for (const [id, oldFingerprint] of Object.entries(previousFingerprints[kind])) {
+      for (const [id, oldFingerprint] of Object.entries(previousFingerprints[kind] ?? {})) {
         const current = currentFingerprints[kind][id];
         if (current && current !== oldFingerprint) alert("PROTECTED_HISTORY_REWRITTEN", kind, id,
           "An existing immutable observation record changed fingerprint.");
@@ -513,9 +872,14 @@ export function buildC2BProductionObservation(
     previousFingerprints?.completionReceipts);
   const newControlledReceipts = findNew(input.controlledReceipts,
     previousFingerprints?.controlledReceipts);
+  const newRetirementReceipts = findNew(input.retirementReceipts,
+    previousFingerprints?.retirementReceipts);
+  const retirementTransitionIds = new Set(input.retirementReceipts.map((receipt) =>
+    receipt.schedule_transition_event_id));
 
   for (const transition of newTransitions) {
     if (transition.sourceKind === "POLICY_CUTOVER_APPLIED") continue;
+    if (retirementTransitionIds.has(transition.transitionEventId)) continue;
     const failed = transition.immutableOutcome === "failure";
     if (failed || transition.transitionReason.includes("RECOVERY")
       || transition.transitionReason.includes("CONTROLLED")) {
@@ -528,6 +892,17 @@ export function buildC2BProductionObservation(
         `Successful target progression revision ${transition.expectedRevision} → ${transition.appliedRevision}.`);
     }
   }
+  for (const receipt of newRetirementReceipts) {
+    if (receipt.decision_reason === "PRE_RETIREMENT_CHECK_FAIL_TO_V2_RECOVERY") {
+      finding("INTERESTING_EVIDENCE", receipt.decision_reason, "retirement_receipt", receipt.id,
+        `Governed retirement check failed; C2B.1 recovery began at revision ${receipt.applied_state_revision}.`);
+    } else {
+      finding("PROGRESS", receipt.decision_reason, "retirement_receipt", receipt.id,
+        receipt.decision === "RETIRE"
+          ? `Schedule episode retired at revision ${receipt.applied_state_revision}.`
+          : `One governed pre-retirement check scheduled at revision ${receipt.applied_state_revision}.`);
+    }
+  }
   for (const session of newSessions) {
     if (session.target_v2_schedule_word_ids.length > 0
       && session.target_schedule_word_ids.length > session.target_v2_schedule_word_ids.length) {
@@ -537,7 +912,7 @@ export function buildC2BProductionObservation(
   }
   for (const log of input.logs) {
     if (log.statusCode !== null && log.statusCode >= 500
-      || /fingerprint|compare-and-swap|\bcas\b|hydrate|dispatch|finaliz|replay/i.test(log.message)) {
+      || /fingerprint|compare-and-swap|\bcas\b|hydrate|dispatch|finaliz|replay|retirement|pre-retirement/i.test(log.message)) {
       alert("C2B_PRODUCTION_ERROR", "production_log", log.id,
         `${log.statusCode ?? log.level}: ${log.message}`);
     }
@@ -555,7 +930,27 @@ export function buildC2BProductionObservation(
     "Outcome/transition source cardinality checked.");
   check("REDUCER_PARITY",
     observedTransitions.every((row) => ["MATCH", "NOT_APPLICABLE"].includes(row.reducerParity)),
-    "Every pedagogical transition replays through the C2B.1 reducer; cutover is non-pedagogical.");
+    "Every pedagogical transition replays through C2B.1 or FR.1/FR.3; cutover is non-pedagogical.");
+  check("RETIREMENT_LIFECYCLE_HYDRATES",
+    input.retirementCapability === "ABSENT"
+      ? census.every((row) => row.retirementLifecycle.hydration === "NOT_APPLICABLE")
+      : census.every((row) => row.retirementLifecycle.hydration === "HYDRATED"),
+    input.retirementCapability === "ABSENT"
+      ? "FR persistence capability is explicitly absent and no lifecycle hydration was attempted."
+      : `${census.filter((row) => row.retirementLifecycle.hydration === "HYDRATED").length}/${census.length} retirement lifecycles hydrated.`);
+  check("RETIREMENT_RECEIPT_LINEAGE_EXACT",
+    !findings.some((row) => ["RETIREMENT_RECEIPT_LINEAGE_CONFLICT",
+      "DUPLICATE_RETIREMENT_TRANSITION", "DUPLICATE_RETIREMENT_SOURCE",
+      "RETIREMENT_AUTHENTIC_PROVENANCE_CONFLICT", "RETIREMENT_CHECK_LINEAGE_CONFLICT"].includes(row.code)),
+    "Retirement receipts bind singular schedule, outcome, evidence and transition identities.");
+  check("NO_SECOND_PRE_RETIREMENT_WAIT",
+    !findings.some((row) => row.code === "SECOND_PRE_RETIREMENT_WAIT"),
+    "No post-check episode entered another 112-day wait.");
+  check("TARGET_REVIEW_RETIRED_DERIVES_FROM_RECEIPT",
+    census.every((row) => row.retirementLifecycle.projection !== "REJECTED"
+      && (row.retirementLifecycle.projection !== "REVIEW_RETIRED"
+        || row.retirementLifecycle.latestDecision === "RETIRE")),
+    "Every target review_retired projection is backed by an immutable RETIRE receipt.");
   check("POLICY_INACTIVE_NON_DEFAULT", policySafe,
     `is_active=${input.targetPolicy.is_active}; is_default_for_new_schedules=${input.targetPolicy.is_default_for_new_schedules}.`);
   check("NO_EARLY_TARGET_APPEARANCE",
@@ -585,6 +980,7 @@ export function buildC2BProductionObservation(
     row.classification === "INTERESTING_EVIDENCE"), (row) => `${row.code}:${row.entityId}`);
   const noChange = newTransitions.length === 0 && newSessions.length === 0
     && newCompletionReceipts.length === 0 && newControlledReceipts.length === 0
+    && newRetirementReceipts.length === 0
     && input.logs.length === 0 && alerts.length === 0
     ? [{
         classification: "NO_CHANGE" as const,
@@ -601,11 +997,14 @@ export function buildC2BProductionObservation(
     deploymentIdentity: input.deploymentIdentity,
     productionProjectRef: input.productionProjectRef,
     learnerId: input.learnerId,
+    retirementCapability: input.retirementCapability,
     targetStateCensus: census,
     allTransitions: observedTransitions,
     allSessions: sorted(input.sessions, (row) => row.id),
     allCompletionReceipts: sorted(input.completionReceipts, (row) => row.id),
     allControlledReceipts: sorted(input.controlledReceipts, (row) => row.id),
+    allRetirementReceipts: sorted(input.retirementReceipts, (row) => row.id),
+    allAuthenticUseEvidence: sorted(input.authenticUseEvidence, (row) => row.id),
     policyState: {
       schedulePolicyVersion: input.targetPolicy.schedule_policy_version,
       isActive: input.targetPolicy.is_active,
@@ -621,11 +1020,13 @@ export function buildC2BProductionObservation(
     deploymentIdentity: input.deploymentIdentity,
     productionProjectRef: input.productionProjectRef,
     learnerId: input.learnerId,
+    retirementCapability: input.retirementCapability,
     targetStateCensus: census,
     newlyObservedReviewSessions: newSessions,
     newlyObservedTargetTransitions: newTransitions,
     newlyObservedCompletionReceipts: newCompletionReceipts,
     newlyObservedControlledReceipts: newControlledReceipts,
+    newlyObservedRetirementReceipts: newRetirementReceipts,
     c2bLogsSincePrevious: sorted(input.logs, (row) => `${row.occurredAt}:${row.id}`),
     progress,
     interestingEvidence,

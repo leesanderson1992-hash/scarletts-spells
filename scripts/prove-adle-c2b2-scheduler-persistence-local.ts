@@ -12,6 +12,7 @@ const C2B6_CONFIRMATION = "PROVE_ADLE_C2B6_CONTROLLED_OPT_IN_LOCALLY";
 const C2B7_CONFIRMATION = "PROVE_ADLE_C2B7_CANARY_HOTFIX_LOCALLY";
 const FR2_CONFIRMATION = "PROVE_ADLE_FR2_RETIREMENT_PERSISTENCE_LOCALLY";
 const FR3_CONFIRMATION = "PROVE_ADLE_FR3_FINAL_RUNG_RUNTIME_LOCALLY";
+const FR4_CONFIRMATION = "PROVE_ADLE_FR4_RETIREMENT_OBSERVATION_LOCALLY";
 if (!process.argv.slice(2).includes(CONFIRMATION)) {
   throw new Error(`Refusing disposable C2B.2 proof without: -- ${CONFIRMATION}`);
 }
@@ -27,7 +28,8 @@ const c2b6MigrationName = "20260901120000_add_adle_c2b6_controlled_opt_in.sql";
 const c2b7MigrationName = "20260901130000_normalize_adle_c2b6_review_completion_milliseconds.sql";
 const fr2MigrationName = "20260901140000_add_adle_fr2_retirement_persistence.sql";
 const fr3MigrationName = "20260902120000_integrate_adle_fr3_final_rung_runtime.sql";
-const proveFR3 = process.argv.slice(2).includes(FR3_CONFIRMATION);
+const proveFR4 = process.argv.slice(2).includes(FR4_CONFIRMATION);
+const proveFR3 = proveFR4 || process.argv.slice(2).includes(FR3_CONFIRMATION);
 const proveFR2 = proveFR3 || process.argv.slice(2).includes(FR2_CONFIRMATION);
 const proveC2B7 = proveFR2 || process.argv.slice(2).includes(C2B7_CONFIRMATION);
 const proveC2B6 = proveC2B7 || process.argv.slice(2).includes(C2B6_CONFIRMATION);
@@ -275,6 +277,8 @@ try {
   let c2b7Receipt: unknown = null;
   let fr2Receipt: unknown = null;
   let fr3Receipt: unknown = null;
+  let fr4Receipt: unknown = null;
+  let fr4AbsentCapability = false;
   let fr2PreexistingSchedulesStable = false;
   if (proveC2B6) {
     const c2b6Migration = readFileSync(resolve(root, "supabase/migrations", c2b6MigrationName), "utf8");
@@ -343,6 +347,24 @@ try {
     }
   }
   if (proveFR2) {
+    if (proveFR4) {
+      fr4AbsentCapability = JSON.parse(psql(proofDatabase, `
+        select jsonb_build_object(
+          'absent',
+          to_regclass('public.adle_review_retirement_decision_receipts') is null
+          and not exists (
+            select 1 from information_schema.columns
+            where table_schema='public' and table_name='adle_review_schedule_words'
+              and column_name='pre_retirement_check_outcome_event_id'
+          )
+          and not exists (
+            select 1 from supabase_migrations.schema_migrations
+            where version in ('20260901140000','20260902120000')
+          )
+        );
+      `).trim()).absent === true;
+      if (!fr4AbsentCapability) throw new Error("FR.4 absent-capability preflight was not exact");
+    }
     const schedulesBefore = psql(proofDatabase, `
       select coalesce(jsonb_agg(
         to_jsonb(word) - array['updated_at']::text[] order by word.id
@@ -424,6 +446,38 @@ try {
       const fr3Line = fr3Output.split("\n").find((line) => line.startsWith("FR3_SQL_RECEIPT:"));
       if (!fr3Line) throw new Error(`FR.3 SQL proof returned no receipt:\n${fr3Output}`);
       fr3Receipt = JSON.parse(fr3Line.slice("FR3_SQL_RECEIPT:".length));
+      if (proveFR4) {
+        const protectedBeforeFR4 = psql(proofDatabase, `
+          select jsonb_build_object(
+            'schedules', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_schedule_words x),
+            'transitions', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_schedule_transition_events x),
+            'retirement', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_retirement_decision_receipts x)
+          );
+        `).trim();
+        const fr4Output = psql(
+          proofDatabase,
+          readFileSync(resolve(root, "scripts/sql/prove-adle-fr4-retirement-observation-local.sql"), "utf8"),
+        );
+        const fr4Line = fr4Output.split("\n").find((line) => line.startsWith("FR4_SQL_RECEIPT:"));
+        if (!fr4Line) throw new Error(`FR.4 SQL proof returned no receipt:\n${fr4Output}`);
+        const fr4Facts = JSON.parse(fr4Line.slice("FR4_SQL_RECEIPT:".length)) as
+          Record<string, boolean | string>;
+        if (fr4Facts.status !== "PASS"
+          || Object.entries(fr4Facts).some(([key, value]) => key !== "status" && value !== true)) {
+          throw new Error(`FR.4 capability/security proof failed: ${JSON.stringify(fr4Facts)}`);
+        }
+        fr4Receipt = fr4Facts;
+        const protectedAfterFR4 = psql(proofDatabase, `
+          select jsonb_build_object(
+            'schedules', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_schedule_words x),
+            'transitions', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_schedule_transition_events x),
+            'retirement', (select encode(digest(coalesce(string_agg(to_jsonb(x)::text,E'\\n' order by x.id::text),''),'sha256'),'hex') from public.adle_review_retirement_decision_receipts x)
+          );
+        `).trim();
+        if (protectedBeforeFR4 !== protectedAfterFR4) {
+          throw new Error("FR.4 read-only observation proof changed protected facts");
+        }
+      }
     }
   }
   const migrationFingerprint = createHash("sha256").update(migration).digest("hex");
@@ -465,6 +519,12 @@ try {
         resolve(root, "supabase/migrations", fr3MigrationName),
       )).digest("hex"),
       fr3Fixture: fr3Receipt,
+    } : {}),
+    ...(proveFR4 ? {
+      fr4AbsentCapability,
+      fr4PresentCapability: true,
+      fr4Fixture: fr4Receipt,
+      fr4MutationSurface: false,
     } : {}),
     disposableDatabaseDropped: true,
   }, null, 2));

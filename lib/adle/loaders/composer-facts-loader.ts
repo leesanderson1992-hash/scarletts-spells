@@ -31,10 +31,19 @@ import { EVIDENCE_POLICY_V1 } from "../evidence-policy";
 import { PROFICIENCY_POLICY_V1 } from "../proficiency-policy";
 import { priceWordEvidence } from "../evidence-pricing";
 import { computeWordEvidenceState, type WordEvidenceStateResult } from "../word-evidence-state";
+import type { TargetRetirementReceiptFact } from "../word-evidence-state";
 import { computeAllSkillProficiency, notYetSecureSkillKeys } from "../micro-skill-proficiency";
 import { taughtWordHistoryProviderFromFacts } from "../taught-word-history";
 import { isCanonicalIntakeEnabled } from "../canonical-intake";
 import { resolveSharedWordReviewPolicy } from "../shared-word-routes";
+import {
+  TARGET_PER_WORD_STATE_SHAPE_VERSION,
+  TARGET_REVIEW_POLICY_VERSION,
+} from "../review-policy/contracts";
+import {
+  FINAL_RUNG_RETIREMENT_POLICY_VERSION,
+  FINAL_RUNG_RETIREMENT_STATE_VERSION,
+} from "../review-retirement/contracts";
 import type {
   ReviewedWordMorphology,
   TransferSelectorProfile,
@@ -139,8 +148,8 @@ export async function loadDailyPlanFacts(
   const sharedRoutesEnabled = isCanonicalIntakeEnabled();
   const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
     .select(sharedRoutesEnabled
-      ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"
-      : "child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status")
+      ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"
+      : "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count")
     .eq("child_id", childId)
     .eq("row_status", "active");
 
@@ -317,15 +326,24 @@ export async function loadDailyPlanFacts(
       "loadDailyPlanFacts:slippage",
     ),
     rows<{
+      id: string;
+      schedule_word_id: string;
       child_id: string;
       canonical_word_id: string;
-      decision: "AWAIT_PRE_RETIREMENT_CHECK" | "CONTINUE_V2_RECOVERY" | "RETIRE";
+      schedule_policy_version: string;
+      state_shape_version: string;
+      retirement_policy_version: string;
+      retirement_state_version: string;
+      decision: "RETIRE";
+      decision_reason: TargetRetirementReceiptFact["decisionReason"];
       source_review_outcome_event_id: string;
+      applied_state_revision: number;
     }>(
       client
         .from("adle_review_retirement_decision_receipts")
-        .select("child_id,canonical_word_id,decision,source_review_outcome_event_id")
-        .eq("child_id", childId),
+        .select("id,schedule_word_id,child_id,canonical_word_id,schedule_policy_version,state_shape_version,retirement_policy_version,retirement_state_version,decision,decision_reason,source_review_outcome_event_id,applied_state_revision")
+        .eq("child_id", childId)
+        .eq("decision", "RETIRE"),
       "loadDailyPlanFacts:retirementReceipts",
     ),
     rows<{
@@ -384,16 +402,33 @@ export async function loadDailyPlanFacts(
   const taughtHistory = taughtHistoryRows.map(taughtHistoryFromRow);
   const outcomeEvents = outcomeEventRows.map(outcomeEventFromRow);
   const outcomeDateById = new Map(outcomeEventRows.map((row) => [row.id, row.occurred_on as IsoDate]));
-  const retirementReceipts = retirementReceiptRows.map((receipt) => {
+  const scheduleRowById = new Map(scheduleWordRows.flatMap((row) => row.id ? [[row.id, row]] : []));
+  const retirementReceipts: TargetRetirementReceiptFact[] = retirementReceiptRows.map((receipt) => {
     const occurredOn = outcomeDateById.get(receipt.source_review_outcome_event_id);
-    if (!occurredOn) {
-      throw new Error("loadDailyPlanFacts: retirement receipt source outcome missing");
+    const scheduleRow = scheduleRowById.get(receipt.schedule_word_id);
+    if (!occurredOn || !scheduleRow
+      || scheduleRow.child_id !== receipt.child_id
+      || scheduleRow.canonical_word_id !== receipt.canonical_word_id
+      || scheduleRow.word_schedule_policy_version !== TARGET_REVIEW_POLICY_VERSION
+      || scheduleRow.word_schedule_version !== TARGET_PER_WORD_STATE_SHAPE_VERSION
+      || receipt.schedule_policy_version !== TARGET_REVIEW_POLICY_VERSION
+      || receipt.state_shape_version !== TARGET_PER_WORD_STATE_SHAPE_VERSION
+      || receipt.retirement_policy_version !== FINAL_RUNG_RETIREMENT_POLICY_VERSION
+      || receipt.retirement_state_version !== FINAL_RUNG_RETIREMENT_STATE_VERSION
+      || typeof scheduleRow.word_schedule_transition_count !== "number"
+      || receipt.applied_state_revision > scheduleRow.word_schedule_transition_count) {
+      throw new Error("loadDailyPlanFacts: retirement receipt lineage malformed");
     }
     return {
+      receiptId: receipt.id,
+      scheduleWordId: receipt.schedule_word_id,
       childId: receipt.child_id,
       canonicalWordId: receipt.canonical_word_id,
-      decision: receipt.decision,
+      sourceReviewOutcomeEventId: receipt.source_review_outcome_event_id,
+      decision: "RETIRE" as const,
+      decisionReason: receipt.decision_reason,
       occurredOn,
+      appliedStateRevision: receipt.applied_state_revision,
     };
   });
   const authenticUseEvents = authenticUseRows.map(authenticUseEventFromRow);

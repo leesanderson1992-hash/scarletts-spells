@@ -98,6 +98,9 @@ export interface ScheduleWordRow {
   reteach_cycle_count: number;
   taught_on: IsoDate;
   row_status: string;
+  word_schedule_policy_version?: string | null;
+  word_schedule_version?: string | null;
+  word_schedule_transition_count?: number;
   adle_review_schedule_word_routes?: Array<{
     learning_item_id: string;
     micro_skill_key: string;

@@ -12,12 +12,12 @@ import {
   type C2BProductionObservationReceipt,
   type ObservationInput,
   type ObservationOutcomeRow,
+  type ObservationScheduleRow,
   type ObservationTransitionRow,
 } from "../lib/adle/review-policy/production-observation";
 import {
   hydratePersistedReviewSchedule,
   type PersistedReviewPolicyRow,
-  type PersistedReviewScheduleWordRow,
 } from "../lib/adle/review-policy/runtime-coexistence";
 import { buildTargetReviewTransitionPlan } from "../lib/adle/review-policy/target-transition-persistence";
 import { TARGET_REVIEW_POLICY_CONFIG } from "../lib/adle/review-policy/target-regression-v1";
@@ -46,7 +46,7 @@ const policy: PersistedReviewPolicyRow = {
   session_cap: 10,
 };
 
-function initialRow(rung = 0, due = "2026-09-01"): PersistedReviewScheduleWordRow {
+function initialRow(rung = 0, due = "2026-09-01"): ObservationScheduleRow {
   return {
     id: ids.schedule, child_id: ids.child, canonical_word_id: ids.word, bundle_id: null,
     membership_status: "scheduled", taught_on: "2026-08-01", row_status: "active",
@@ -57,6 +57,7 @@ function initialRow(rung = 0, due = "2026-09-01"): PersistedReviewScheduleWordRo
     last_28_day_review_on: null, reteach_cycle_count: 0, word_schedule_transition_count: 0,
     word_last_review_completed_on: null, word_last_review_completed_at: null,
     consecutive_independent_failures: 0, failure_episode_id: null,
+    pre_retirement_check_outcome_event_id: null,
   };
 }
 
@@ -94,7 +95,7 @@ function fixture(result: "success" | "failure" = "success", rung = 0): Observati
     source_fingerprint: planned.value.sourceFingerprint,
     occurred_at: planned.value.occurredAt, created_at: "2026-09-01T10:00:00.002Z",
   };
-  const after: PersistedReviewScheduleWordRow = {
+  const after: ObservationScheduleRow = {
     ...before,
     membership_status: planned.value.toState.membershipStatus,
     word_interval_index: planned.value.toState.wordIntervalIndex,
@@ -109,6 +110,7 @@ function fixture(result: "success" | "failure" = "success", rung = 0): Observati
     observedAt: "2026-09-01T11:00:00.000Z", sourceBaseline: "716aab3",
     deploymentIdentity: "fixture-deployment", productionProjectRef: "fixture-production",
     learnerId: ids.child, approvedTargetScheduleIds: [ids.schedule], targetSchedules: [after],
+    retirementCapability: "ABSENT",
     targetPolicy: policy, transitions: [transition], outcomes: [outcome],
     encounters: [{
       id: ids.encounter, review_session_id: ids.session, schedule_word_id: ids.schedule,
@@ -133,7 +135,8 @@ function fixture(result: "success" | "failure" = "success", rung = 0): Observati
       review_completed_on: "2026-09-01", result_payload: { ok: true },
       created_at: "2026-09-01T10:00:00.003Z",
     }],
-    controlledReceipts: [], logs: [], previous: null,
+    controlledReceipts: [], retirementReceipts: [], authenticUseEvidence: [],
+    logs: [], previous: null,
   };
 }
 
@@ -214,6 +217,7 @@ assert.match(runner, /await client\.query\("rollback"\)/);
 assert.doesNotMatch(runner, /\.rpc\s*\(/);
 assert.doesNotMatch(runner, /\b(apply|finalize|prepare)_adle_[a-z0-9_]+\s*\(/i);
 assert.match(runner, /const forbidden = \["--apply", "--write"/);
+assert.match(runner, /--expected-retirement-capability/);
 assert.equal(fingerprintSnapshotValue(pass), fingerprintSnapshotValue(pass));
 
 console.log(JSON.stringify({

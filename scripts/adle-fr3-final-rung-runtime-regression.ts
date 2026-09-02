@@ -405,8 +405,13 @@ const retiredProjection = computeWordEvidenceState(EVIDENCE_POLICY_V1, {
 }, {
   outcomeEvents: [], taughtHistory: [], slippageEvents: [],
   retirementReceipts: [{
+    receiptId: "00000000-0000-4000-8000-000000000399",
+    scheduleWordId: IDS.schedule,
     childId: IDS.child, canonicalWordId: IDS.word,
-    decision: "RETIRE", occurredOn: "2027-02-01",
+    sourceReviewOutcomeEventId: laterDay56Id,
+    decision: "RETIRE",
+    decisionReason: "POST_CHECK_FINAL_RUNG_PASS_RETIRED",
+    occurredOn: "2027-02-01", appliedStateRevision: 7,
   }],
 });
 assert.equal(retiredProjection.state, "review_retired");

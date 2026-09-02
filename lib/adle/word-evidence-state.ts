@@ -36,18 +36,31 @@ export type WordEvidenceState =
   | "review_retired"
   | "mastered";
 
+/** Exact read fact derived from one immutable target retirement receipt and
+ * its governed Review outcome. The loader validates schedule/policy lineage;
+ * evidence-state projection never infers retirement from membership alone. */
+export type TargetRetirementReceiptFact = {
+  receiptId: string;
+  scheduleWordId: string;
+  childId: string;
+  canonicalWordId: string;
+  sourceReviewOutcomeEventId: string;
+  decision: "RETIRE";
+  decisionReason:
+    | "DAY_56_PASS_RETIRED_WITH_AUTHENTIC_USE"
+    | "PRE_RETIREMENT_CHECK_PASS_RETIRED"
+    | "POST_CHECK_FINAL_RUNG_PASS_RETIRED";
+  occurredOn: IsoDate;
+  appliedStateRevision: number;
+};
+
 export interface WordStateFacts {
   outcomeEvents: readonly OutcomeEventFact[];
   taughtHistory: readonly TaughtHistoryFact[];
   slippageEvents: readonly SlippageEventFact[];
   /** Target-v2 retirement derives from the immutable FR receipt. Historical
    * v1 keeps its legacy retired outcome compatibility until separately moved. */
-  retirementReceipts?: readonly {
-    childId: string;
-    canonicalWordId: string;
-    decision: "AWAIT_PRE_RETIREMENT_CHECK" | "CONTINUE_V2_RECOVERY" | "RETIRE";
-    occurredOn: IsoDate;
-  }[];
+  retirementReceipts?: readonly TargetRetirementReceiptFact[];
 }
 
 export interface WordEvidenceStateResult {
@@ -110,8 +123,7 @@ export function computeWordEvidenceState(
     );
   const latestTargetRetiredOn = (facts.retirementReceipts ?? [])
     .filter((receipt) => receipt.childId === childId
-      && receipt.canonicalWordId === canonicalWordId
-      && receipt.decision === "RETIRE")
+      && receipt.canonicalWordId === canonicalWordId)
     .reduce<IsoDate | null>(
       (latest, receipt) => latest === null || receipt.occurredOn > latest
         ? receipt.occurredOn
