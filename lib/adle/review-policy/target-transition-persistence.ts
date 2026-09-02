@@ -90,7 +90,7 @@ function validInstant(value: string): boolean {
   return !Number.isNaN(new Date(value).getTime());
 }
 
-function sourceEvent(input: {
+export function targetReviewEventFromSource(input: {
   schedule: Extract<HydratedReviewSchedule, { kind: "TARGET_REGRESSION_V1" }>;
   source: TargetTransitionSource;
 }): { event: TargetReviewEvent; sourceId: string; occurredAt: string; occurredOn: IsoDate } | null {
@@ -151,7 +151,7 @@ function sourceEvent(input: {
       occurredOn: outcome.review_completed_on,
     };
   }
-  // Final-rung/pre-retirement delegation remains a later gate.
+  // Pre-retirement checks are owned by the final-rung retirement authority.
   return null;
 }
 
@@ -283,7 +283,7 @@ export function buildTargetReviewTransitionPlan(input: {
     input.schedule.kind !== "TARGET_REGRESSION_V1"
     || input.schedule.executor.kind !== "TARGET_REVIEW_REGRESSION_V1"
   ) return { disposition: "REJECTED", result: { disposition: "REJECTED", reason: "TARGET_EXECUTOR_REQUIRED" } };
-  const fact = sourceEvent({ schedule: input.schedule, source: input.source });
+  const fact = targetReviewEventFromSource({ schedule: input.schedule, source: input.source });
   if (!fact) {
     const unsupported = input.source.kind === "REVIEW_OUTCOME_APPLIED"
       && input.source.outcome.due_kind === "pre_retirement_check";

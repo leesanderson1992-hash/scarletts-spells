@@ -11,6 +11,7 @@ const CONFIRMATION = "PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY";
 const C2B6_CONFIRMATION = "PROVE_ADLE_C2B6_CONTROLLED_OPT_IN_LOCALLY";
 const C2B7_CONFIRMATION = "PROVE_ADLE_C2B7_CANARY_HOTFIX_LOCALLY";
 const FR2_CONFIRMATION = "PROVE_ADLE_FR2_RETIREMENT_PERSISTENCE_LOCALLY";
+const FR3_CONFIRMATION = "PROVE_ADLE_FR3_FINAL_RUNG_RUNTIME_LOCALLY";
 if (!process.argv.slice(2).includes(CONFIRMATION)) {
   throw new Error(`Refusing disposable C2B.2 proof without: -- ${CONFIRMATION}`);
 }
@@ -25,7 +26,9 @@ const migrationPath = resolve(root, "supabase/migrations", migrationName);
 const c2b6MigrationName = "20260901120000_add_adle_c2b6_controlled_opt_in.sql";
 const c2b7MigrationName = "20260901130000_normalize_adle_c2b6_review_completion_milliseconds.sql";
 const fr2MigrationName = "20260901140000_add_adle_fr2_retirement_persistence.sql";
-const proveFR2 = process.argv.slice(2).includes(FR2_CONFIRMATION);
+const fr3MigrationName = "20260902120000_integrate_adle_fr3_final_rung_runtime.sql";
+const proveFR3 = process.argv.slice(2).includes(FR3_CONFIRMATION);
+const proveFR2 = proveFR3 || process.argv.slice(2).includes(FR2_CONFIRMATION);
 const proveC2B7 = proveFR2 || process.argv.slice(2).includes(C2B7_CONFIRMATION);
 const proveC2B6 = proveC2B7 || process.argv.slice(2).includes(C2B6_CONFIRMATION);
 const maxBuffer = 192 * 1024 * 1024;
@@ -271,6 +274,7 @@ try {
   let c2b6Receipt: unknown = null;
   let c2b7Receipt: unknown = null;
   let fr2Receipt: unknown = null;
+  let fr3Receipt: unknown = null;
   let fr2PreexistingSchedulesStable = false;
   if (proveC2B6) {
     const c2b6Migration = readFileSync(resolve(root, "supabase/migrations", c2b6MigrationName), "utf8");
@@ -398,6 +402,29 @@ try {
     const fr2Line = fr2Output.split("\n").find((line) => line.startsWith("FR2_SQL_RECEIPT:"));
     if (!fr2Line) throw new Error(`FR.2 SQL proof returned no receipt:\n${fr2Output}`);
     fr2Receipt = JSON.parse(fr2Line.slice("FR2_SQL_RECEIPT:".length));
+    if (proveFR3) {
+      const schedulesBeforeFR3 = psql(proofDatabase, `
+        select coalesce(jsonb_agg(to_jsonb(word) order by word.id), '[]'::jsonb)
+        from public.adle_review_schedule_words word;
+      `).trim();
+      const fr3Migration = readFileSync(resolve(root, "supabase/migrations", fr3MigrationName), "utf8");
+      psql(proofDatabase, fr3Migration);
+      recordMigration(proofDatabase, fr3MigrationName);
+      const schedulesAfterFR3 = psql(proofDatabase, `
+        select coalesce(jsonb_agg(to_jsonb(word) order by word.id), '[]'::jsonb)
+        from public.adle_review_schedule_words word;
+      `).trim();
+      if (schedulesBeforeFR3 !== schedulesAfterFR3) {
+        throw new Error("FR.3 migration changed schedule rows");
+      }
+      const fr3Output = psql(
+        proofDatabase,
+        readFileSync(resolve(root, "scripts/sql/prove-adle-fr3-final-rung-runtime-local.sql"), "utf8"),
+      );
+      const fr3Line = fr3Output.split("\n").find((line) => line.startsWith("FR3_SQL_RECEIPT:"));
+      if (!fr3Line) throw new Error(`FR.3 SQL proof returned no receipt:\n${fr3Output}`);
+      fr3Receipt = JSON.parse(fr3Line.slice("FR3_SQL_RECEIPT:".length));
+    }
   }
   const migrationFingerprint = createHash("sha256").update(migration).digest("hex");
   console.log(JSON.stringify({
@@ -431,6 +458,13 @@ try {
       )).digest("hex"),
       fr2PreexistingSchedulesStable,
       fr2Fixture: fr2Receipt,
+    } : {}),
+    ...(proveFR3 ? {
+      fr3Migration: fr3MigrationName,
+      fr3MigrationSha256: createHash("sha256").update(readFileSync(
+        resolve(root, "supabase/migrations", fr3MigrationName),
+      )).digest("hex"),
+      fr3Fixture: fr3Receipt,
     } : {}),
     disposableDatabaseDropped: true,
   }, null, 2));

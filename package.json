@@ -18,6 +18,8 @@
     "adle:final-rung-retirement-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-final-rung-retirement-regression.ts",
     "adle:fr2-persistence-regression": "tsx scripts/adle-fr2-persistence-regression.ts",
     "adle:fr2-persistence-local-proof": "tsx scripts/prove-adle-c2b2-scheduler-persistence-local.ts -- PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY PROVE_ADLE_FR2_RETIREMENT_PERSISTENCE_LOCALLY",
+    "adle:fr3-final-rung-runtime-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-fr3-final-rung-runtime-regression.ts",
+    "adle:fr3-final-rung-runtime-local-proof": "tsx scripts/prove-adle-c2b2-scheduler-persistence-local.ts -- PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY PROVE_ADLE_FR3_FINAL_RUNG_RUNTIME_LOCALLY",
     "adle:c2b2-persistence-regression": "tsx scripts/adle-c2b2-persistence-regression.ts",
     "adle:c2b2-persistence-local-proof": "tsx scripts/prove-adle-c2b2-scheduler-persistence-local.ts -- PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY",
     "adle:c2b6-controlled-opt-in-local-proof": "tsx scripts/prove-adle-c2b2-scheduler-persistence-local.ts -- PROVE_ADLE_C2B2_SCHEDULER_PERSISTENCE_LOCALLY PROVE_ADLE_C2B6_CONTROLLED_OPT_IN_LOCALLY",

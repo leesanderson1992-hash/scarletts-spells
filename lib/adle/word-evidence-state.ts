@@ -12,9 +12,10 @@
  *   direction); `review_retired` persists (the scheduler's retirement fact
  *   cannot be recomputed away) and carries the flag; the `slipped` flag
  *   marks any word whose slip-agnostic state would be secure or better
- * - `review_retired` derives only from the scheduler's `retired` outcome
- *   event; `mastered` is evaluated independently of retirement (the two are
- *   different exits) and outranks it when its full gate passes
+ * - target-v2 `review_retired` derives from an immutable FR retirement
+ *   receipt; historical v1 retains its scheduler `retired` outcome
+ *   compatibility. `mastered` is evaluated independently of retirement (the
+ *   two are different exits) and outranks it when its full gate passes
  */
 
 import type { IsoDate } from "./review-scheduler";
@@ -39,6 +40,14 @@ export interface WordStateFacts {
   outcomeEvents: readonly OutcomeEventFact[];
   taughtHistory: readonly TaughtHistoryFact[];
   slippageEvents: readonly SlippageEventFact[];
+  /** Target-v2 retirement derives from the immutable FR receipt. Historical
+   * v1 keeps its legacy retired outcome compatibility until separately moved. */
+  retirementReceipts?: readonly {
+    childId: string;
+    canonicalWordId: string;
+    decision: "AWAIT_PRE_RETIREMENT_CHECK" | "CONTINUE_V2_RECOVERY" | "RETIRE";
+    occurredOn: IsoDate;
+  }[];
 }
 
 export interface WordEvidenceStateResult {
@@ -93,12 +102,25 @@ export function computeWordEvidenceState(
 
   // Retirement is a lifecycle state, not an eternal historical flag. A later
   // error-specific route may legitimately reopen the shared canonical word.
-  const latestRetiredOn = outcomeEvents
+  const latestLegacyRetiredOn = outcomeEvents
     .filter((event) => event.eventType === "retired")
     .reduce<IsoDate | null>(
       (latest, event) => (latest === null || event.occurredOn > latest ? event.occurredOn : latest),
       null,
     );
+  const latestTargetRetiredOn = (facts.retirementReceipts ?? [])
+    .filter((receipt) => receipt.childId === childId
+      && receipt.canonicalWordId === canonicalWordId
+      && receipt.decision === "RETIRE")
+    .reduce<IsoDate | null>(
+      (latest, receipt) => latest === null || receipt.occurredOn > latest
+        ? receipt.occurredOn
+        : latest,
+      null,
+    );
+  const latestRetiredOn = [latestLegacyRetiredOn, latestTargetRetiredOn]
+    .filter((value): value is IsoDate => value !== null)
+    .sort().at(-1) ?? null;
   const latestReactivatedOn = outcomeEvents
     .filter((event) => event.eventType === "reactivated_for_new_skill")
     .reduce<IsoDate | null>(
@@ -111,7 +133,9 @@ export function computeWordEvidenceState(
     latestRetiredOn !== null &&
     (latestReactivatedOn === null || latestRetiredOn > latestReactivatedOn);
   if (retired) {
-    explanation.push("scheduler ledger holds a retired event (review_retired exit)");
+    explanation.push(latestTargetRetiredOn !== null && latestTargetRetiredOn === latestRetiredOn
+      ? "immutable target retirement receipt holds a RETIRE decision (review_retired exit)"
+      : "scheduler ledger holds a retired event (review_retired exit)");
   }
 
   // --- edge evaluations (slip-agnostic first, for the flag) ---

@@ -30,7 +30,8 @@ type TargetHydrated = Extract<HydratedReviewSchedule, { kind: "TARGET_REGRESSION
  * One deterministic due ordering for coexisting exact pins. The released v1
  * selector remains the authority for every v1 row. Target rows are admitted
  * only after C2B.3 hydration has proved their policy, state shape, ledger and
- * route. DAY_56 is intentionally fail-closed until final-rung integration.
+ * route. FR.3 admits target DAY_56 and the singular governed pre-retirement
+ * check only when their persisted due date has arrived.
  */
 export function selectDueMixedReviewWords(input: {
   today: IsoDate;
@@ -52,7 +53,7 @@ export function selectDueMixedReviewWords(input: {
   const target = input.targetWords.flatMap(({ schedule, taughtOn }): MixedReviewDueItem[] => {
     const route = schedule.state.route;
     if (route.membership === "SCHEDULED") {
-      if (route.rung === "DAY_56" || route.dueOn > input.today) return [];
+      if (route.dueOn > input.today) return [];
       return [{
         scheduleWordId: schedule.scheduleWordId,
         canonicalWordId: schedule.canonicalWordId,
@@ -60,6 +61,20 @@ export function selectDueMixedReviewWords(input: {
         dueKind: "scheduled_review",
         dueOn: route.dueOn,
         intervalIndex: rungIndex(route.rung),
+        schedulePolicyVersion: TARGET_REVIEW_POLICY_VERSION,
+        wordScheduleVersion: TARGET_PER_WORD_STATE_SHAPE_VERSION,
+        taughtOn,
+      }];
+    }
+    if (route.membership === "PRE_RETIREMENT_PRESERVED") {
+      if (route.dueOn > input.today) return [];
+      return [{
+        scheduleWordId: schedule.scheduleWordId,
+        canonicalWordId: schedule.canonicalWordId,
+        sourceBundleId: schedule.sourceBundleId,
+        dueKind: "pre_retirement_check",
+        dueOn: route.dueOn,
+        intervalIndex: rungIndex("DAY_56"),
         schedulePolicyVersion: TARGET_REVIEW_POLICY_VERSION,
         wordScheduleVersion: TARGET_PER_WORD_STATE_SHAPE_VERSION,
         taughtOn,

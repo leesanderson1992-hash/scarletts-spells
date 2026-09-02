@@ -12,6 +12,12 @@ import {
   type PersistedReviewScheduleWordRow,
   type PersistedTargetTransitionRow,
 } from "./runtime-coexistence";
+import {
+  hydrateFinalRungRetirementAuthorityV1,
+  type HydrateRetirementAuthorityResult,
+  type PersistedRetirementCheckOutcome,
+  type PersistedRetirementDecisionReceipt,
+} from "../review-retirement/runtime-integration";
 
 const SCHEDULE_SELECT = [
   "id", "child_id", "canonical_word_id", "bundle_id", "membership_status",
@@ -96,4 +102,63 @@ export async function loadReviewScheduleForExecution(input: {
     return { disposition: "REJECTED", reason: "TARGET_STATE_MALFORMED" };
   }
   return { ...hydrated, targetPolicyConfig };
+}
+
+/** FR.3 retirement hydration is deliberately lazy. Ordinary C2B hydration
+ * remains usable before the additive FR schema is deployed, while final-rung
+ * runtime integration must prove the separate FR.2 receipt/check lineage. */
+export async function loadFinalRungRetirementStateForExecution(input: {
+  client: SupabaseClient;
+  schedule: Extract<HydrateReviewScheduleResult, { disposition: "HYDRATED" }>["schedule"];
+}): Promise<HydrateRetirementAuthorityResult> {
+  if (input.schedule.kind !== "TARGET_REGRESSION_V1") {
+    return { disposition: "REJECTED", reason: "RETIREMENT_HISTORY_MALFORMED" };
+  }
+  const [wordResult, receiptResult] = await Promise.all([
+    input.client.from("adle_review_schedule_words")
+      .select("pre_retirement_check_outcome_event_id")
+      .eq("id", input.schedule.scheduleWordId)
+      .maybeSingle(),
+    input.client.from("adle_review_retirement_decision_receipts")
+      .select([
+        "source_review_outcome_event_id", "qualifying_authentic_use_event_id",
+        "pre_retirement_check_outcome_event_id", "schedule_policy_version",
+        "state_shape_version", "retirement_policy_version",
+        "retirement_state_version", "decision", "decision_reason",
+        "expected_state_revision", "applied_state_revision", "occurred_at",
+      ].join(","))
+      .eq("schedule_word_id", input.schedule.scheduleWordId)
+      .order("applied_state_revision", { ascending: true }),
+  ]);
+  if (wordResult.error || !wordResult.data) {
+    databaseError("loadFinalRungRetirementStateForExecution:word", wordResult.error);
+  }
+  if (receiptResult.error) {
+    databaseError("loadFinalRungRetirementStateForExecution:receipts", receiptResult.error);
+  }
+  const receipts = (receiptResult.data ?? []) as unknown as PersistedRetirementDecisionReceipt[];
+  const checkIds = [...new Set(receipts.flatMap((receipt) => [
+    receipt.source_review_outcome_event_id,
+    ...(receipt.pre_retirement_check_outcome_event_id
+      ? [receipt.pre_retirement_check_outcome_event_id]
+      : []),
+  ]))];
+  let checkOutcomes: PersistedRetirementCheckOutcome[] = [];
+  if (checkIds.length > 0) {
+    const checkResult = await input.client.from("adle_review_outcome_events")
+      .select("id,event_type,occurred_on,frozen_due_on")
+      .in("id", checkIds);
+    if (checkResult.error) {
+      databaseError("loadFinalRungRetirementStateForExecution:checkOutcomes", checkResult.error);
+    }
+    checkOutcomes = (checkResult.data ?? []) as unknown as PersistedRetirementCheckOutcome[];
+  }
+  return hydrateFinalRungRetirementAuthorityV1({
+    schedule: input.schedule,
+    persistedCheckOutcomeEventId:
+      (wordResult.data as { pre_retirement_check_outcome_event_id: string | null })
+        .pre_retirement_check_outcome_event_id,
+    receipts,
+    checkOutcomes,
+  });
 }

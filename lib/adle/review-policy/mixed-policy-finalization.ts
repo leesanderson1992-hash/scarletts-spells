@@ -16,12 +16,18 @@ import {
   TARGET_PER_WORD_STATE_SHAPE_VERSION,
   TARGET_REVIEW_POLICY_VERSION,
 } from "./contracts";
-import { loadReviewScheduleForExecution } from "./runtime-repository";
 import {
-  buildTargetReviewTransitionPlan,
+  loadFinalRungRetirementStateForExecution,
+  loadReviewScheduleForExecution,
+} from "./runtime-repository";
+import {
   type TargetReviewOutcomeSourceFact,
 } from "./target-transition-persistence";
 import { canonicalUtcTimestampMilliseconds } from "./canonical-timestamp";
+import {
+  buildTargetRuntimeTransitionPlan,
+} from "../review-retirement/runtime-integration";
+import type { RetirementAuthenticUseEvidence } from "../review-retirement/contracts";
 
 type Client = SupabaseClient;
 
@@ -238,7 +244,7 @@ export async function finalizeMixedPolicyReviewSessionC2B6(input: {
       .select("schedule_policy_version,interval_ladder_days,catch_up_offsets_days,session_cap,pre_retirement_check_gap_days,completion_grace_minutes")
       .eq("schedule_policy_version", CURRENT_REVIEW_POLICY_VERSION).maybeSingle(),
     input.client.from("adle_authentic_use_events")
-      .select("canonical_word_id,occurred_on,parent_verified,provenance_kind,row_status")
+      .select("id,child_id,canonical_word_id,occurred_on,use_kind,parent_verified,provenance_kind,row_status")
       .eq("child_id", session.child_id).eq("row_status", "active").eq("parent_verified", true),
     input.client.rpc("prepare_adle_review_finalization_c2b6", {
       p_review_session_id: input.reviewSessionId,
@@ -316,29 +322,66 @@ export async function finalizeMixedPolicyReviewSessionC2B6(input: {
       canonical_word_id: loaded.schedule.canonicalWordId,
       schedule_policy_version: TARGET_REVIEW_POLICY_VERSION,
       word_schedule_version: TARGET_PER_WORD_STATE_SHAPE_VERSION,
-      due_kind: target.schedule.dueKind as "scheduled_review" | "next_day_recovery",
+      due_kind: target.schedule.dueKind as "scheduled_review" | "next_day_recovery" | "pre_retirement_check",
       frozen_interval_index: target.schedule.intervalIndex,
       original_result: encounter.original_outcome as "success" | "failure",
       review_completed_on: preparation.reviewCompletedOn,
       completed_at: preparation.completedAt,
     };
-    const plan = buildTargetReviewTransitionPlan({
+    const retirement = await loadFinalRungRetirementStateForExecution({
+      client: input.client,
       schedule: loaded.schedule,
-      source: { kind: "REVIEW_OUTCOME_APPLIED", outcome: source },
+    });
+    if (retirement.disposition !== "HYDRATED") {
+      throw new Error(`finalizeMixedPolicyReviewSessionC2B6:${retirement.reason}`);
+    }
+    const authenticUseEvidence: RetirementAuthenticUseEvidence[] = (authenticResult.data ?? [])
+      .map((row) => ({
+        eventId: row.id as string,
+        childId: row.child_id as string,
+        canonicalWordId: row.canonical_word_id as string,
+        occurredOn: row.occurred_on as IsoDate,
+        useKind: row.use_kind as RetirementAuthenticUseEvidence["useKind"],
+        parentVerified: row.parent_verified as boolean,
+        provenanceKind: row.provenance_kind as RetirementAuthenticUseEvidence["provenanceKind"],
+        rowStatus: row.row_status as string,
+      }));
+    const plan = buildTargetRuntimeTransitionPlan({
+      schedule: loaded.schedule,
+      retirementState: retirement.state,
+      source,
+      authenticUseEvidence,
       policyConfig: loaded.targetPolicyConfig,
     });
-    if (plan.disposition === "REJECTED") throw new Error(`finalizeMixedPolicyReviewSessionC2B6:${plan.result.reason}`);
-    plans.push({
-      authority: "TARGET_REGRESSION_V1", encounterId: encounter.id,
+    if (plan.disposition === "REJECTED") {
+      throw new Error(`finalizeMixedPolicyReviewSessionC2B6:${plan.reason}`);
+    }
+    const transition = plan.value.transition;
+    const base = {
+      authority: plan.value.authority, encounterId: encounter.id,
       scheduleWordId: loaded.schedule.scheduleWordId, outcomeEventId,
       expectedStateRevision: loaded.schedule.stateRevision,
-      eventType: encounter.original_outcome === "success" ? "review_pass" : "review_fail",
-      fromState: loaded.schedule.persistedState, toState: plan.value.toState,
-      transitionReason: plan.value.decisionReason,
-      reducerVersion: plan.value.reducerVersion,
-      idempotencyKey: plan.value.idempotencyKey,
-      sourceFingerprint: plan.value.sourceFingerprint,
-    });
+      eventType: target.schedule.dueKind === "pre_retirement_check"
+        ? encounter.original_outcome === "success" ? "retirement_check_pass" : "retirement_check_fail"
+        : encounter.original_outcome === "success" ? "review_pass" : "review_fail",
+      fromState: loaded.schedule.persistedState, toState: transition.toState,
+      transitionReason: transition.decisionReason,
+      reducerVersion: transition.reducerVersion,
+      idempotencyKey: transition.idempotencyKey,
+      sourceFingerprint: transition.sourceFingerprint,
+    };
+    plans.push(plan.value.authority === "TARGET_RETIREMENT_V1"
+      ? {
+          ...base,
+          retirementDecision: plan.value.decision,
+          qualifyingAuthenticUseEventId: plan.value.qualifyingAuthenticUseEventId,
+          preRetirementCheckOutcomeEventId: plan.value.preRetirementCheckOutcomeEventId,
+          expectedPreRetirementCheckOutcomeEventId:
+            plan.value.expectedPreRetirementCheckOutcomeEventId,
+          schedulerReducerInputState: plan.value.schedulerReducerInputState,
+          retirementSourceFingerprint: plan.value.retirementSourceFingerprint,
+        }
+      : base);
   }
   const request = {
     reviewSessionId: input.reviewSessionId, snapshotFingerprint: input.snapshotFingerprint,

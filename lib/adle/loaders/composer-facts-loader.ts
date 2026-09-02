@@ -165,6 +165,7 @@ export async function loadDailyPlanFacts(
     outcomeEventRows,
     authenticUseRows,
     slippageRows,
+    retirementReceiptRows,
     transferSelectorProfileRows,
     reviewedMorphologyRows,
   ] = await Promise.all([
@@ -288,11 +289,11 @@ export async function loadDailyPlanFacts(
         .eq("child_id", childId),
       "loadDailyPlanFacts:taughtHistory",
     ),
-    rows<OutcomeEventRow>(
+    rows<OutcomeEventRow & { id: string }>(
       client
         .from("adle_review_outcome_events")
         .select(
-          "child_id, canonical_word_id, bundle_id, event_type, occurred_on, interval_index, schedule_policy_version, attempt_text",
+          "id, child_id, canonical_word_id, bundle_id, event_type, occurred_on, interval_index, schedule_policy_version, attempt_text",
         )
         .eq("child_id", childId),
       "loadDailyPlanFacts:outcomeEvents",
@@ -314,6 +315,18 @@ export async function loadDailyPlanFacts(
         .eq("child_id", childId)
         .eq("row_status", "active"),
       "loadDailyPlanFacts:slippage",
+    ),
+    rows<{
+      child_id: string;
+      canonical_word_id: string;
+      decision: "AWAIT_PRE_RETIREMENT_CHECK" | "CONTINUE_V2_RECOVERY" | "RETIRE";
+      source_review_outcome_event_id: string;
+    }>(
+      client
+        .from("adle_review_retirement_decision_receipts")
+        .select("child_id,canonical_word_id,decision,source_review_outcome_event_id")
+        .eq("child_id", childId),
+      "loadDailyPlanFacts:retirementReceipts",
     ),
     rows<{
       micro_skill_key: string;
@@ -370,6 +383,19 @@ export async function loadDailyPlanFacts(
   const allocations = allocationRows.map(skillLevelAllocationFromRow);
   const taughtHistory = taughtHistoryRows.map(taughtHistoryFromRow);
   const outcomeEvents = outcomeEventRows.map(outcomeEventFromRow);
+  const outcomeDateById = new Map(outcomeEventRows.map((row) => [row.id, row.occurred_on as IsoDate]));
+  const retirementReceipts = retirementReceiptRows.map((receipt) => {
+    const occurredOn = outcomeDateById.get(receipt.source_review_outcome_event_id);
+    if (!occurredOn) {
+      throw new Error("loadDailyPlanFacts: retirement receipt source outcome missing");
+    }
+    return {
+      childId: receipt.child_id,
+      canonicalWordId: receipt.canonical_word_id,
+      decision: receipt.decision,
+      occurredOn,
+    };
+  });
   const authenticUseEvents = authenticUseRows.map(authenticUseEventFromRow);
   const slippageEvents = slippageRows.map(slippageEventFromRow);
 
@@ -542,6 +568,7 @@ export async function loadDailyPlanFacts(
     ...outcomeEvents.map((event) => event.canonicalWordId),
     ...authenticUseEvents.map((event) => event.canonicalWordId),
     ...slippageEvents.map((event) => event.canonicalWordId),
+    ...retirementReceiptRows.map((receipt) => receipt.canonical_word_id),
   ]);
   const wordStates: WordEvidenceStateResult[] = [];
   for (const wordId of [...evidenceWordIds].sort()) {
@@ -565,6 +592,7 @@ export async function loadDailyPlanFacts(
         outcomeEvents,
         taughtHistory,
         slippageEvents,
+        retirementReceipts,
       }),
     );
   }
