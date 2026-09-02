@@ -147,7 +147,20 @@ assert.equal(
     GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT: "2026-09-01T00:00:00Z",
   }),
   null,
-  "GB.5 must remain a code gate, not an environment-only switch",
+  "Production Preview-style controls must not bypass the release-policy key",
+);
+assert.deepEqual(
+  reviewWritingGoldBarGateConfig({
+    VERCEL_ENV: "production",
+    GOLD_BAR_REVIEW_WRITING_ENABLED: "enabled",
+    GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT: "2026-09-02T08:22:46Z",
+    GOLD_BAR_REVIEW_WRITING_RELEASE_POLICY: GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION,
+  }),
+  {
+    policyVersion: GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION,
+    effectiveAt: "2026-09-02T08:22:46.000Z",
+  },
+  "GB.5D Production configuration requires all three exact governed controls",
 );
 assert.deepEqual(
   reviewWritingGoldBarGateConfig({
@@ -217,8 +230,9 @@ assert.ok(rewardContract.includes("required_uses_for_bar = 5"));
 assert.ok(rewardContract.includes("does not require a second parent approval"));
 
 const registry = read("docs/implementation/adle-current-state-and-release-registry.md");
-assert.ok(registry.includes("`GB.5` release planning and read-only preflight are approved"));
-assert.ok(registry.includes("migration and activation are **not approved or active**"));
-assert.match(registry, /Production is\s+hard-disabled in code/);
+assert.ok(registry.includes("`GB.5C` Production\nschema-dark release are complete"));
+assert.ok(registry.includes("`GB.5D` implements the\nactivation-capable but fail-closed candidate"));
+assert.ok(registry.includes("No Production Gold Bar controls are\nconfigured"));
+assert.ok(registry.includes("`GB.5E` activation still requires separate written owner authority"));
 
 console.log("Gold Bar authentic-use alignment regression: PASS");

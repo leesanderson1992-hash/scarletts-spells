@@ -22,6 +22,7 @@ import {
   GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION,
   type ReviewWritingGoldBarGateConfig,
   qualifyReviewWritingGoldBarUse,
+  reviewWritingGoldBarEffectiveAtMatchesAuthority,
 } from "./gold-bar-authentic-use";
 import { normaliseWordTreasureWord } from "./word-treasures";
 
@@ -82,6 +83,33 @@ export interface ReviewWritingGoldBarConsumerResult {
 
 function databaseFailure(boundary: string, error: { message?: string } | null): never {
   throw new Error(`${boundary}:${error?.message ?? "unknown_database_error"}`);
+}
+
+export async function assertReviewWritingGoldBarEffectiveAtAuthority(input: {
+  client: Client;
+  gate: ReviewWritingGoldBarGateConfig;
+}): Promise<void> {
+  const effectiveAtAuthorityQuery = await input.client
+    .from("child_word_treasure_review_use_qualifications")
+    .select("policy_effective_at")
+    .eq("reward_policy_version", GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (effectiveAtAuthorityQuery.error) {
+    databaseFailure(
+      "recordReviewWritingGoldBarUses:effective_at_authority",
+      effectiveAtAuthorityQuery.error,
+    );
+  }
+  const persistedEffectiveAt = effectiveAtAuthorityQuery.data?.policy_effective_at;
+  if (typeof persistedEffectiveAt === "string" &&
+      !reviewWritingGoldBarEffectiveAtMatchesAuthority(
+        input.gate.effectiveAt,
+        persistedEffectiveAt,
+      )) {
+    throw new Error("recordReviewWritingGoldBarUses:effective_at_authority_conflict");
+  }
 }
 
 function learnerVisiblePromptStrings(prompt: ReviewPromptCandidateSnapshotV3): string[] {
@@ -170,6 +198,11 @@ export async function recordReviewWritingGoldBarUses(input: {
   if (input.gate.policyVersion !== GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION) {
     throw new Error("recordReviewWritingGoldBarUses:policy_version_mismatch");
   }
+
+  // The first immutable qualification row pins the effective instant for this
+  // policy version. A later deployment cannot lower or otherwise change it and
+  // silently reinterpret an older completed Review.
+  await assertReviewWritingGoldBarEffectiveAtAuthority(input);
 
   const sessionQuery = await input.client.from("adle_review_sessions")
     .select("id,daily_assignment_id,child_id,parent_user_id,snapshot_fingerprint,selected_prompt_version_id,submitted_writing_text,writing_submitted_at,completed_at,stage")

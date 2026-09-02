@@ -65,6 +65,7 @@
     "adle:phase-e:e7b-local-proof": "tsx scripts/prove-adle-phase-e7b-cleanup-local.ts -- PROVE_ADLE_PHASE_E7B_LOCALLY",
     "word-treasure:returned-correction-repair-regression": "tsx scripts/word-treasure-returned-correction-repair-regression.ts",
     "word-treasure:gold-bar-authentic-use-alignment-regression": "tsx scripts/gold-bar-authentic-use-alignment-regression.ts",
+    "word-treasure:gb5d-activation-gate-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/gold-bar-gb5d-activation-gate-regression.ts",
     "word-treasure:gb5-production-readiness-audit": "tsx scripts/gold-bar-gb5-production-readiness-audit.ts",
     "adle:review-work-interaction-regression": "ADLE_PLAYWRIGHT_REUSE_EXISTING=true playwright test --config=playwright.adle.config.ts tests/adle/adle-review-work.spec.ts",
     "security:audit:production": "npm audit --omit=dev --audit-level=high",

@@ -173,6 +173,22 @@ it remains `CONTEXTUAL_TRANSFER`, not learner-chosen `AUTHENTIC_WRITING`, for
 proficiency. It does not change Review scheduling, finalization, repair,
 retirement, or proficiency maths.
 
+Production activation is governed by the canonical
+`reviewWritingGoldBarGateConfig` authority. Production returns configuration
+only when all three exact controls are present:
+
+- `GOLD_BAR_REVIEW_WRITING_ENABLED=enabled`;
+- a strict UTC/offset-aware `GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT` later than
+  the verified schema-dark safety floor; and
+- `GOLD_BAR_REVIEW_WRITING_RELEASE_POLICY=WORD_TREASURE_AUTHENTIC_USE_V2`.
+
+Non-Production Preview retains the approved enable-plus-effective-time gate and
+does not require the Production release marker. The first immutable Review-use
+qualification for this policy pins `policy_effective_at`; the reward consumer
+fails before its mutation RPC if later configuration differs. This prevents a
+lowered timestamp from silently reinterpreting completed Review evidence. The
+actual Production effective timestamp remains a GB.5E owner decision.
+
 Rules:
 - lesson completion must not award a Golden Bar by itself
 - isolated quiz, copy, or same-session drill success must not award a Golden

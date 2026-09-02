@@ -16,6 +16,15 @@ export const REVIEW_WRITING_GOLD_BAR_FEATURE_FLAG =
 export const REVIEW_WRITING_GOLD_BAR_EFFECTIVE_AT =
   "GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT" as const;
 
+export const REVIEW_WRITING_GOLD_BAR_RELEASE_POLICY =
+  "GOLD_BAR_REVIEW_WRITING_RELEASE_POLICY" as const;
+
+// The Production effective time selected in GB.5E must be later than the
+// completed GB.5C schema-dark verification. This is a safety floor, not the
+// Production effective time; GB.5D deliberately does not select that instant.
+export const REVIEW_WRITING_GOLD_BAR_PRODUCTION_EFFECTIVE_AT_FLOOR =
+  "2026-09-02T08:22:45.000Z" as const;
+
 export type GoldBarAuthenticUseSourceClass =
   | typeof SPONTANEOUS_AUTHENTIC_USE_SOURCE_CLASS
   | typeof REVIEW_WRITING_AUTHENTIC_USE_SOURCE_CLASS;
@@ -41,18 +50,66 @@ export interface ReviewWritingGoldBarGateConfig {
   effectiveAt: string;
 }
 
+const OFFSET_AWARE_INSTANT =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|([+-])(\d{2}):(\d{2}))$/;
+
+/** Parse an explicit UTC/offset-aware ISO instant without Date.parse rollover. */
+export function normalizeReviewWritingGoldBarEffectiveAt(value: string): string | null {
+  const match = OFFSET_AWARE_INSTANT.exec(value);
+  if (!match) return null;
+  const [, yearRaw, monthRaw, dayRaw, hourRaw, minuteRaw, secondRaw,
+    fractionRaw = "", , offsetSign, offsetHourRaw = "0", offsetMinuteRaw = "0"] = match;
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  const day = Number(dayRaw);
+  const hour = Number(hourRaw);
+  const minute = Number(minuteRaw);
+  const second = Number(secondRaw);
+  const millisecond = Number(fractionRaw.padEnd(3, "0"));
+  const offsetHour = Number(offsetHourRaw);
+  const offsetMinute = Number(offsetMinuteRaw);
+  if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 ||
+      minute > 59 || second > 59 || offsetHour > 14 || offsetMinute > 59 ||
+      (offsetHour === 14 && offsetMinute !== 0)) return null;
+
+  const local = new Date(0);
+  local.setUTCFullYear(year, month - 1, day);
+  local.setUTCHours(hour, minute, second, millisecond);
+  if (local.getUTCFullYear() !== year || local.getUTCMonth() !== month - 1 ||
+      local.getUTCDate() !== day || local.getUTCHours() !== hour ||
+      local.getUTCMinutes() !== minute || local.getUTCSeconds() !== second ||
+      local.getUTCMilliseconds() !== millisecond) return null;
+
+  const offsetMinutes = (offsetHour * 60 + offsetMinute) * (offsetSign === "-" ? -1 : 1);
+  return new Date(local.getTime() - offsetMinutes * 60_000).toISOString();
+}
+
+export function reviewWritingGoldBarEffectiveAtMatchesAuthority(
+  configuredEffectiveAt: string,
+  persistedEffectiveAt: string,
+): boolean {
+  const configured = normalizeReviewWritingGoldBarEffectiveAt(configuredEffectiveAt);
+  const persisted = normalizeReviewWritingGoldBarEffectiveAt(persistedEffectiveAt);
+  return configured !== null && persisted !== null && configured === persisted;
+}
+
 export function reviewWritingGoldBarGateConfig(
   environment: Readonly<Record<string, string | undefined>> = process.env,
 ): ReviewWritingGoldBarGateConfig | null {
-  // GB.5 is a separate release gate. No environment variable can activate
-  // this path in Production until that explicit code boundary is changed.
-  if (environment.VERCEL_ENV === "production") return null;
   if (environment[REVIEW_WRITING_GOLD_BAR_FEATURE_FLAG] !== "enabled") return null;
-  const effectiveAt = environment[REVIEW_WRITING_GOLD_BAR_EFFECTIVE_AT];
-  if (!effectiveAt || Number.isNaN(Date.parse(effectiveAt))) return null;
+  const effectiveAtRaw = environment[REVIEW_WRITING_GOLD_BAR_EFFECTIVE_AT];
+  if (!effectiveAtRaw) return null;
+  const effectiveAt = normalizeReviewWritingGoldBarEffectiveAt(effectiveAtRaw);
+  if (!effectiveAt) return null;
+  if (environment.VERCEL_ENV === "production") {
+    if (environment[REVIEW_WRITING_GOLD_BAR_RELEASE_POLICY] !==
+        GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION) return null;
+    if (Date.parse(effectiveAt) <=
+        Date.parse(REVIEW_WRITING_GOLD_BAR_PRODUCTION_EFFECTIVE_AT_FLOOR)) return null;
+  }
   return {
     policyVersion: GOLD_BAR_AUTHENTIC_USE_POLICY_VERSION,
-    effectiveAt: new Date(effectiveAt).toISOString(),
+    effectiveAt,
   };
 }
 

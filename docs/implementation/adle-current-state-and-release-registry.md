@@ -1,6 +1,6 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-09-01
+Updated: 2026-09-02
 
 ## Proficiency authority marker and 2026-08-30 revalidation
 
@@ -28,17 +28,20 @@ and a fail-closed contextual-use gate. The Review completion action registers
 the consumer only downstream of successful finalization, and consumer failure
 cannot roll back or block Review/scheduler state.
 
-`GB.5` release planning and read-only preflight are approved; Production
-migration and activation are **not approved or active**. Production is
-hard-disabled in code and has no Gold Bar environment controls. The 2026-09-01
-preflight confirmed a dark Production state, unchanged five-use threshold and
-no Review reward events, while identifying missing FR2 migration ancestry and
-the absence of an immutable merged GB candidate as release blockers. No
-historical Review submission is backfilled or reinterpreted. See
-`gold-bar-gb5-production-release-plan-2026-09-01.md` and the accompanying QA
-receipt. Production activation still requires separate written authority, a
-prospective effective timestamp, staging/schema-dark proof, and observation
-criteria.
+`GB.5A` candidate sealing, `GB.5B` staging proof, and `GB.5C` Production
+schema-dark release are complete. Production contains FR.2 and the Gold Bar
+qualification/RPC schema with zero qualification rows, zero Review-writing
+reward events, and all Treasure thresholds still `5`. `GB.5D` implements the
+activation-capable but fail-closed candidate: Production requires the exact
+enable flag, strict prospective effective time, and release-policy marker
+`WORD_TREASURE_AUTHENTIC_USE_V2`; the immutable first qualification pins that
+effective time for later runtime checks. No Production Gold Bar controls are
+configured and the currently deployed Production application remains the old
+hard-off build. No historical Review submission is backfilled or reinterpreted.
+`GB.5E` activation still requires separate written owner authority, an exact
+candidate/deployment identity, a not-yet-selected prospective timestamp, and
+accepted observation and rollback criteria. See
+`gold-bar-gb5-production-release-plan-2026-09-01.md`.
 
 Read-only route revalidation on 2026-08-30 confirmed both Compound route heads
 are Production-enabled. A later 2026-09-01 Vercel inspection pins the current

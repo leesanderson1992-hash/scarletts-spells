@@ -40,16 +40,18 @@ the threshold. Disposable-schema proof confirmed its default remains `5`.
 
 ## Release gate
 
-`reviewWritingGoldBarGateConfig` returns no configuration in
-`VERCEL_ENV=production`, regardless of feature variables. Outside Production,
-the path additionally requires both:
+At the GB.1–GB.4 seal, `reviewWritingGoldBarGateConfig` returned no
+configuration in `VERCEL_ENV=production`. GB.5D supersedes that temporary hard
+deny with the approved three-key, fail-closed Production candidate. Outside
+Production, the path continues to require both:
 
 - `GOLD_BAR_REVIEW_WRITING_ENABLED=enabled`
 - a valid prospective `GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT`
 
 The submitted-writing timestamp must be on or after both that effective time
 and `entered_forge_at`. There is no backfill or historical reinterpretation.
-Removing the Production code boundary is GB.5 and needs separate approval.
+Production remains inactive until separately authorized GB.5E configuration
+and deployment.
 
 ## Regression proof
 

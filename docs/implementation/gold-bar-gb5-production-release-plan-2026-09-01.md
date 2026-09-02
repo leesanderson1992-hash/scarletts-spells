@@ -130,8 +130,7 @@ Required behavioural proof:
 
 ### GB.5C — Production schema-dark release
 
-This phase needs explicit Production migration authorization. It does not
-activate the consumer.
+Completed and verified on 2026-09-02. This phase did not activate the consumer.
 
 1. Rerun the guarded pre-schema audit against the intended clean source SHA.
 2. Resolve missing migration ancestry through its separately approved release.
@@ -140,22 +139,23 @@ activate the consumer.
 5. Require: target ledger row exactly `1`; qualification table and RPC present;
    qualification rows `0`; Review reward events `0`; threshold still `5`; and
    protected Review/C2B/reward facts unchanged.
-6. Leave the Production application hard-disabled.
+6. The Production application remained hard-disabled.
 
 The additive schema remains dormant and backward-compatible with the currently
 deployed application. A destructive down migration is not part of rollback.
 
 ### GB.5D — explicit Production activation candidate
 
-Activation requires a new, reviewed code change. The current hard Production
-deny must not simply be deleted. Replace it with a two-key, fail-closed check:
+Implemented as an activation-capable candidate on 2026-09-02; it is not
+Production-active. The former unconditional Production deny is replaced by a
+three-key, fail-closed check:
 
 1. code recognizes the exact release policy
    `WORD_TREASURE_AUTHENTIC_USE_V2`; and
 2. Production configuration contains all of:
    - `GOLD_BAR_REVIEW_WRITING_ENABLED=enabled`;
    - `GOLD_BAR_REVIEW_WRITING_EFFECTIVE_AT=<prospective UTC instant>`;
-   - a Production-only release marker equal to
+   - `GOLD_BAR_REVIEW_WRITING_RELEASE_POLICY=`
      `WORD_TREASURE_AUTHENTIC_USE_V2`.
 
 An invalid, absent, stale, or mismatched value must return no configuration.
@@ -165,7 +165,11 @@ to reinterpret completed submissions.
 
 The effective timestamp must be later than schema-dark verification and no
 earlier than the Ready time of the activation deployment. It is immutable for
-this policy version once the first qualification is recorded.
+this policy version once the first qualification is recorded. The runtime uses
+the first append-only qualification row as the durable effective-time authority
+and fails before the reward RPC when later configuration differs. GB.5D sets a
+schema-dark verification safety floor but does not select the GB.5E Production
+effective timestamp.
 
 ### GB.5E — activation and observation
 
@@ -239,18 +243,19 @@ a new append-only policy and explicit owner authorization.
 
 ## Current gate decision
 
-**HOLD — not ready for Production migration or activation.**
+**HOLD — schema-dark and activation-capable, but not Production-active.**
 
-The read-only preflight is healthy, but candidate sealing, Preview/staging
-proof, FR2 Production ancestry, schema-dark verification, the explicit
-Production two-key code gate, and final activation authorization remain open.
+GB.5A–GB.5C are complete and GB.5D supplies the reviewed three-key candidate.
+Production still has no Gold Bar controls and runs the previous hard-off
+deployment. Only explicit GB.5E authorization may select the prospective
+timestamp, configure Production, deploy the candidate, or begin observation.
 
 ## Owner decisions required before activation
 
-1. Approve the final source SHA and migration hash after merge and staging
-   proof.
-2. Approve the Production-only release-marker design.
-3. Approve the prospective UTC effective timestamp.
-4. Approve the observation window and the recommended rollback triggers.
-5. Issue separate written authority for Production ancestry migration,
-   schema-dark GB migration, and later activation deployment.
+1. Approve the exact GB.5D source SHA and intended Production deployment
+   candidate.
+2. Reconfirm the Gold Bar migration hash and exact Production release marker.
+3. Select and approve a prospective UTC effective timestamp later than the
+   activation deployment Ready time.
+4. Approve the observation window and rollback triggers.
+5. Issue separate written GB.5E activation authority.
