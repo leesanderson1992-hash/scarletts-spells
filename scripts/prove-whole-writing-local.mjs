@@ -65,6 +65,7 @@ try {
   await db.query(migration("20260906160000_add_writing_enrichment_operations.sql"));
   const writerAfterE1 = (await db.query("select pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
   assert.equal(writerAfterE1, writerBeforeE1, "E1 must compose with the installed evidence writer"); proof();
+  await db.query(migration("20260906170000_fix_writing_enrichment_published_metrics.sql"));
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);

@@ -45,8 +45,17 @@ if (command === "apply") {
     notify pgrst,'reload schema'; commit; select true applied;`);
   const after = query("select md5(pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure)) writer_hash;")[0].writer_hash;
   assert.equal(after, before, "E1 replaced the installed S2/S5 evidence writer");
+  const fixName = "20260906170000_fix_writing_enrichment_published_metrics.sql";
+  const fixSql = readFileSync(`supabase/migrations/${fixName}`, "utf8");
+  assert.ok(!fixSql.includes("$e1fix$"));
+  const fixExisting = query("select version from supabase_migrations.schema_migrations where version='20260906170000';");
+  if (!fixExisting.length) query(`begin; set local lock_timeout='5s'; set local statement_timeout='30s'; ${fixSql}
+    insert into supabase_migrations.schema_migrations(version,name,statements)
+    values('20260906170000','fix_writing_enrichment_published_metrics',array[$e1fix$${fixSql}$e1fix$]);
+    notify pgrst,'reload schema'; commit; select true applied;`);
   console.log(JSON.stringify({ status: existing.length ? "already_applied" : "applied", project: REF, migration: name,
-    sha256: createHash("sha256").update(sql).digest("hex"), evidenceWriterPreserved: true }));
+    sha256: createHash("sha256").update(sql).digest("hex"), metricsFix: fixName,
+    metricsFixSha256: createHash("sha256").update(fixSql).digest("hex"), evidenceWriterPreserved: true }));
 } else {
   const rawKeys = run(["projects", "api-keys", "--project-ref", REF, "--output", "json"]);
   const keys = JSON.parse(rawKeys.slice(rawKeys.indexOf("["), rawKeys.lastIndexOf("]") + 1));
@@ -219,10 +228,35 @@ if (command === "apply") {
     const review = check(await client.from("adle_word_skill_package_reviews").select("decisions").eq("package_id", state.packageId).single());
     assert.deepEqual(review.decisions, ["approved", "rejected"]);
     assert.ok(check(await client.from("adle_word_skill_pair_review_annotations").select("rejection_reason").eq("package_id", state.packageId).single()).rejection_reason);
+    const generatorMetrics = check(await client.from("writing_enrichment_metrics").select("*").eq("environment_key", "local")
+      .eq("primary_source_kind", "reviewed_morphology").single());
+    assert.deepEqual({ candidates: Number(generatorMetrics.candidate_attempts), packaged: Number(generatorMetrics.packaged_candidates),
+      approved: Number(generatorMetrics.approved_candidates), rejected: Number(generatorMetrics.rejected_candidates),
+      published: Number(generatorMetrics.published_candidates), curatorSeconds: Number(generatorMetrics.curator_active_seconds),
+      aiCalls: Number(generatorMetrics.ai_calls), aiTokens: Number(generatorMetrics.ai_tokens), aiCost: Number(generatorMetrics.ai_cost) },
+    { candidates: 2, packaged: 2, approved: 1, rejected: 1, published: 1, curatorSeconds: 45, aiCalls: 0, aiTokens: 0, aiCost: 0 });
+    const rejectionMetrics = check(await client.from("writing_enrichment_rejection_metrics").select("rejection_reason,rejection_count")
+      .eq("environment_key", "local").eq("rejection_reason", "Disposable rejection control; not a curriculum assertion").single());
+    assert.equal(Number(rejectionMetrics.rejection_count), 1);
+    const publicationResolution = check(await client.from("writing_enrichment_event_resolution_metrics").select("*").eq("event_id", state.publicationEventId).single());
+    const withdrawalResolution = check(await client.from("writing_enrichment_event_resolution_metrics").select("*").eq("event_id", withdrawal.id).single());
+    assert.equal(Number(publicationResolution.identity_resolutions), 0); assert.equal(Number(publicationResolution.relationship_resolutions), 2);
+    assert.equal(Number(withdrawalResolution.relationship_withdrawals), 2);
     assert.deepEqual(await counts(), state.baseline);
     state.withdrawalEventId = withdrawal.id; state.verified = true; save(state);
     console.log(JSON.stringify({ status: "verified", approved: 1, rejected: 1, publicationReplay: true,
-      automaticWithdrawalReplay: true, noLearningConsequences: true }));
+      automaticWithdrawalReplay: true, metricsReconciled: true, noLearningConsequences: true }));
+  } else if (command === "verify-retry") {
+    const state = load(); assert.equal(state.verified, true);
+    const { recoverWritingShadowRuns } = await import("../lib/writing-engine/whole-writing/worker.ts");
+    const retry = await recoverWritingShadowRuns(client);
+    assert.deepEqual({ claimed: retry.claimed, completed: retry.completed ?? 0, failed: retry.failed ?? 0 }, { claimed: 0, completed: 0, failed: 0 });
+    const events = check(await client.from("writing_enrichment_authority_events").select("event_kind").eq("release_id", state.releaseId));
+    assert.equal(events.filter((row) => row.event_kind === "s4_publication").length, 1);
+    assert.equal(events.filter((row) => row.event_kind === "s4_withdrawal").length, 1);
+    assert.deepEqual(await counts(), state.baseline);
+    state.retryVerified = true; save(state);
+    console.log(JSON.stringify({ status: "retry_verified", newlyClaimedRuns: 0, duplicateAuthorityEvents: 0, noLearningConsequences: true }));
   } else if (command === "reset-partial") {
     const state = load(); assert.ok(!state.packageId, "Use verified cleanup after package creation");
     check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
@@ -259,7 +293,7 @@ if (command === "apply") {
     state.releaseId = publication.release_id; state.verified = true; state.aborted = true; save(state);
     console.log(JSON.stringify({ status: "failed_pass_withdrawn", recoveryFailed: 0, protectedCountsUnchanged: true }));
   } else if (command === "cleanup") {
-    const state = load(); assert.equal(state.verified, true, "Verify before cleanup");
+    const state = load(); assert.equal(state.verified, true, "Verify before cleanup"); assert.equal(state.retryVerified, true, "Verify retry before cleanup");
     check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
     check(await client.from("adle_word_skill_review_controls").update({ review_enabled: false, publication_enabled: false, withdrawal_enabled: false }).eq("environment_key", "local"));
     assert.match(state.actor, /^[0-9a-f-]{36}$/); assert.match(state.packageId, /^[0-9a-f-]{36}$/);
@@ -289,5 +323,5 @@ if (command === "apply") {
     assert.ok(controls.every((row) => !row.inventory_enabled && !row.generation_enabled && !row.replay_enabled));
     state.cleaned = true; save(state);
     console.log(JSON.stringify({ status: "cleanup_verified", protectedCountsRestored: true, fixtureResidue: 0 }));
-  } else throw new Error("Use apply, setup, recover, verify-publication, verify, reset-partial, reset-unreviewed, abort-published or cleanup");
+  } else throw new Error("Use apply, setup, recover, verify-publication, verify, verify-retry, reset-partial, reset-unreviewed, abort-published or cleanup");
 }
