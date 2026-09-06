@@ -53,9 +53,18 @@ if (command === "apply") {
     insert into supabase_migrations.schema_migrations(version,name,statements)
     values('20260906170000','fix_writing_enrichment_published_metrics',array[$e1fix$${fixSql}$e1fix$]);
     notify pgrst,'reload schema'; commit; select true applied;`);
+  const gapName = "20260906180000_allow_unknown_enrichment_gap_skill_keys.sql";
+  const gapSql = readFileSync(`supabase/migrations/${gapName}`, "utf8");
+  assert.ok(!gapSql.includes("$e1gap$"));
+  const gapExisting = query("select version from supabase_migrations.schema_migrations where version='20260906180000';");
+  if (!gapExisting.length) query(`begin; set local lock_timeout='5s'; set local statement_timeout='30s'; ${gapSql}
+    insert into supabase_migrations.schema_migrations(version,name,statements)
+    values('20260906180000','allow_unknown_enrichment_gap_skill_keys',array[$e1gap$${gapSql}$e1gap$]);
+    notify pgrst,'reload schema'; commit; select true applied;`);
   console.log(JSON.stringify({ status: existing.length ? "already_applied" : "applied", project: REF, migration: name,
     sha256: createHash("sha256").update(sql).digest("hex"), metricsFix: fixName,
-    metricsFixSha256: createHash("sha256").update(fixSql).digest("hex"), evidenceWriterPreserved: true }));
+    metricsFixSha256: createHash("sha256").update(fixSql).digest("hex"), gapKeyFix: gapName,
+    gapKeyFixSha256: createHash("sha256").update(gapSql).digest("hex"), evidenceWriterPreserved: true }));
 } else {
   const rawKeys = run(["projects", "api-keys", "--project-ref", REF, "--output", "json"]);
   const keys = JSON.parse(rawKeys.slice(rawKeys.indexOf("["), rawKeys.lastIndexOf("]") + 1));

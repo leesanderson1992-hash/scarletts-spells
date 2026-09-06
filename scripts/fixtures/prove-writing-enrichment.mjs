@@ -10,7 +10,10 @@ export async function proveWritingEnrichment({ db, connect, actor, otherActor, c
     identityFingerprint: "dictionary-one", relationshipFingerprint: "phase-b-one",
     entries: [{ gapKey: "gap-one", gapType: "missing_governed_relationship", normalizedForm: "i", dialect: "en-GB",
       canonicalWordId: word, microSkillKey: null, occurrenceCount: 1, submissionCount: 1, priority: 1001,
-      route: "s4_review", reasons: ["NO_ADMITTED_PHASE_B_PAIR"], sourceAuthorities: [], occurrenceIds: [occurrence.id] }],
+      route: "s4_review", reasons: ["NO_ADMITTED_PHASE_B_PAIR"], sourceAuthorities: [], occurrenceIds: [occurrence.id] },
+    { gapKey: "unknown-skill-gap", gapType: "unapproved_relationship", normalizedForm: "i", dialect: "en-GB",
+      canonicalWordId: word, microSkillKey: "D4_UNKNOWN_FIXTURE", occurrenceCount: 0, submissionCount: 0, priority: 0,
+      route: "authority_reconciliation", reasons: ["MICRO_SKILL_KEY_UNKNOWN"], sourceAuthorities: [], occurrenceIds: [] }],
   };
   await db.query("update writing_enrichment_controls set inventory_enabled=false where environment_key='local'");
   await assert.rejects(db.query("select persist_writing_enrichment_inventory('inventory-one','local',$1,$2)",[report,actor]),/INVENTORY_DISABLED/); proofs++;
@@ -20,6 +23,7 @@ export async function proveWritingEnrichment({ db, connect, actor, otherActor, c
   const [inventoryId,repeatedId]=await Promise.all([persist(),persist(other)]);
   assert.equal(inventoryId,repeatedId);
   assert.equal((await db.query("select count(*)::int n from writing_enrichment_inventory_occurrences")).rows[0].n,1);
+  assert.equal((await db.query("select count(*)::int n from writing_enrichment_inventory_entries where micro_skill_key='D4_UNKNOWN_FIXTURE'")).rows[0].n,1);
   await assert.rejects(persist(db,{...report,inputFingerprint:"changed"}),/INVENTORY_CONFLICT/); proofs++;
   const outsideOccurrence = "outside-occurrence";
   await db.query("insert into writing_occurrences values($1,(select id from writing_source_snapshots limit 1),'field',0,1,'x','hash','unknown','fixture')",
@@ -28,7 +32,7 @@ export async function proveWritingEnrichment({ db, connect, actor, otherActor, c
   await db.query("update writing_enrichment_cohorts set enabled=false where environment_key='local' and child_id=$1",[child]);
   await assert.rejects(db.query("select persist_writing_enrichment_inventory('outside','local',$1,$2)",[outsideReport,actor]),/OUTSIDE_COHORT/);
   await db.query("update writing_enrichment_cohorts set enabled=true where environment_key='local' and child_id=$1",[child]); proofs++;
-  const entry=(await db.query("select id from writing_enrichment_inventory_entries where run_id=$1",[inventoryId])).rows[0].id;
+  const entry=(await db.query("select id from writing_enrichment_inventory_entries where run_id=$1 and gap_key='gap-one'",[inventoryId])).rows[0].id;
   const candidate={canonicalWordId:word,microSkillKey:"fixture_skill",relationshipRole:"demonstrates",sourceReference:"synthetic-reviewed-morphology",licenceReference:"original-synthetic",method:"deterministic_candidate"};
   const attemptArgs=["attempt-one",entry,"local","WRITING_ENRICHMENT_GENERATOR_V1","deterministic_candidate","reviewed_morphology","source-fingerprint",JSON.stringify(["synthetic:source:v1"]),"dictionary-one","phase-b-one",candidate,JSON.stringify([]),"candidate",actor];
   const attempt=(await db.query("select record_writing_enrichment_attempt($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) id",attemptArgs)).rows[0].id;

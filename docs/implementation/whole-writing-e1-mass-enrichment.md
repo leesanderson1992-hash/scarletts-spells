@@ -42,6 +42,14 @@ changed contents fail with a conflict. Failed scans cannot replace a completed
 inventory. A rejected exact pair remains history and does not resolve a broader
 word gap.
 
+Migration `20260906170000_fix_writing_enrichment_published_metrics.sql` ensures
+the published count includes only approved members of a published S4 package;
+rejected members contribute only to review/rejection metrics.
+
+Migration `20260906180000_allow_unknown_enrichment_gap_skill_keys.sql` permits a
+blocked inventory row to retain an unknown skill key as text. Candidate creation
+still requires an active catalog skill through the generator and S4 validation.
+
 ## Deterministic candidates and S4 reuse
 
 `writing:enrichment-generate` reads the pilot and generates in this fixed order:
@@ -144,4 +152,3 @@ before staging.
 External source versions and permitted uses still require explicit approval.
 Any later offline AI work also requires an owner-selected provider/model, input
 policy, retention terms, call/token/cost budget and curator responsibility.
-
