@@ -76,10 +76,15 @@ if (command === "apply") {
       && sourceInputs.activeCanonicalWordIds.has(row.canonicalWordId) && sourceInputs.activeMicroSkillKeys.has(row.microSkillKey)
       && !governedWords.has(row.canonicalWordId));
     const selected = [];
+    const coherentGroups = new Map();
     for (const source of approvedSourceChoices) {
-      if (!selected.some((item) => item.canonicalWordId === source.canonicalWordId)) selected.push(source);
-      if (selected.length === 2) break;
+      const key = `${source.sourceKind}\u0000${source.microSkillKey}`;
+      const group = coherentGroups.get(key) ?? [];
+      if (!group.some((item) => item.canonicalWordId === source.canonicalWordId)) group.push(source);
+      coherentGroups.set(key, group);
     }
+    const approvedGroup = [...coherentGroups.entries()].sort(([a], [b]) => a.localeCompare(b)).find(([, rows]) => rows.length >= 2);
+    if (approvedGroup) selected.push(...approvedGroup[1].slice(0, 2));
     const tag = randomUUID();
     if (selected.length < 2) {
       const uncovered = check(await client.from("canonical_teaching_dictionary_words").select("id,normalised_word,dialect_code")
@@ -91,11 +96,11 @@ if (command === "apply") {
       }
       const unique = uncovered.filter((row) => formCounts.get(`${row.dialect_code}\u0000${row.normalised_word}`) === 1
         && !selected.some((item) => item.canonicalWordId === row.id));
-      const skillRows = check(await client.from("micro_skill_catalog").select("micro_skill_key").eq("is_active", true).order("micro_skill_key").limit(2));
+      const skillRows = check(await client.from("micro_skill_catalog").select("micro_skill_key").eq("is_active", true).order("micro_skill_key").limit(1));
       while (selected.length < 2) {
-        const word = unique.shift(), skill = skillRows[selected.length];
+        const word = unique.shift(), skill = skillRows[0];
         assert.ok(word && skill, "Staging lacks two unique uncovered identities for the disposable proof");
-        selected.push({ sourceKind: selected.length ? "governed_spelling_transformation" : "reviewed_morphology",
+        selected.push({ sourceKind: "reviewed_morphology",
           sourceId: `disposable-e1:${tag}:${selected.length}`, sourceVersion: "original-synthetic-v1", canonicalWordId: word.id,
           microSkillKey: skill.micro_skill_key, relationshipRole: "demonstrates", sourceReference: "Original synthetic disposable E1 proof; not a curriculum assertion",
           licenceReference: "Original synthetic proof", sourceUseApproved: true });
@@ -126,7 +131,7 @@ if (command === "apply") {
     check(await client.from("adle_word_skill_review_controls").update({ review_enabled: true, publication_enabled: true, withdrawal_enabled: true }).eq("environment_key", "local"));
     const parent = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
     check(await parent.auth.signInWithPassword({ email: state.email, password: state.password }));
-    const rawText = `${label.get(selected[0].canonicalWordId)} ${label.get(selected[0].canonicalWordId)} ${label.get(selected[1].canonicalWordId)} ${label.get(covered.canonicalWordId)}`;
+    const rawText = `${label.get(selected[0].canonicalWordId)} ${label.get(selected[0].canonicalWordId)} ${label.get(selected[1].canonicalWordId)} ${label.get(selected[1].canonicalWordId)} ${label.get(covered.canonicalWordId)}`;
     const occurredAt = new Date().toISOString();
     const draft = { version: 1, answers: [{ block_id: "answer", value: rawText }] };
     const submitted = check(await parent.rpc("submit_course_task_response_once", { p_parent_user_id: state.actor, p_child_id: state.childId,
@@ -140,7 +145,7 @@ if (command === "apply") {
     const { loadWritingEnrichmentInventory } = await import("../lib/writing-engine/whole-writing/enrichment-inventory-repository.ts");
     const inventory = await loadWritingEnrichmentInventory({ client, environment: "local", corpusScope: `disposable-e1:${state.tag}`, childIds: [state.childId] });
     assert.ok(inventory.pilot.some((row) => row.canonicalWordId === selected[0].canonicalWordId && row.occurrenceCount === 2));
-    assert.ok(inventory.pilot.some((row) => row.canonicalWordId === selected[1].canonicalWordId && row.occurrenceCount === 1));
+    assert.ok(inventory.pilot.some((row) => row.canonicalWordId === selected[1].canonicalWordId && row.occurrenceCount === 2));
     assert.ok(!inventory.pilot.some((row) => row.canonicalWordId === covered.canonicalWordId));
     const persisted = check(await client.rpc("persist_writing_enrichment_inventory", { p_key: `e1-proof:${state.tag}`, p_environment: "local", p_report: inventory, p_actor: state.actor }));
     state.inventoryRunId = persisted;
@@ -171,7 +176,8 @@ if (command === "apply") {
       p_candidate: candidate, p_findings: [], p_outcome: "candidate", p_actor: state.actor })));
     state.packageId = check(await client.rpc("create_writing_enrichment_candidate_package", { p_attempts: attempts,
       p_package_key: `e1-proof:${state.tag}`, p_environment: "local", p_actor: state.actor }));
-    state.approvedCandidate = candidates[0]; state.rejectedCandidate = candidates[1]; state.duplicateSuppressed = true; save(state);
+    const storedPackage = check(await client.from("adle_word_skill_candidate_packages").select("candidates").eq("id", state.packageId).single());
+    state.approvedCandidate = storedPackage.candidates[0]; state.rejectedCandidate = storedPackage.candidates[1]; state.duplicateSuppressed = true; save(state);
     console.log(JSON.stringify({ status: "fixture_ready", packageId: state.packageId,
       reviewPath: `/admin/word-skill-review?environment=local&package=${state.packageId}`, inventoryPilot: inventory.pilot.length,
       candidateCount: candidates.length, approvedExistingSourceChoiceCount: approvedSourceChoices.length,
@@ -241,6 +247,17 @@ if (command === "apply") {
     assert.deepEqual(await counts(), state.baseline);
     unlinkSync(FILE);
     console.log(JSON.stringify({ status: "unreviewed_fixture_removed", protectedCountsRestored: true }));
+  } else if (command === "abort-published") {
+    const state = load(); assert.ok(state.packageId && !state.verified, "abort-published is only for a failed disposable pass");
+    const publication = check(await client.from("adle_word_skill_package_publications").select("release_id").eq("package_id", state.packageId).single());
+    const prior = check(await client.from("adle_reviewed_word_skill_withdrawals").select("release_id").eq("release_id", publication.release_id));
+    if (!prior.length) check(await client.rpc("withdraw_word_skill_reviewed_release", { p_release: publication.release_id, p_environment: "local",
+      p_actor: state.actor, p_reason: "Abort failed disposable E1 proof before fresh restart" }));
+    const { recoverWritingShadowRuns } = await import("../lib/writing-engine/whole-writing/worker.ts");
+    const result = await recoverWritingShadowRuns(client); assert.equal(result.failed, 0);
+    assert.deepEqual(await counts(), state.baseline);
+    state.releaseId = publication.release_id; state.verified = true; state.aborted = true; save(state);
+    console.log(JSON.stringify({ status: "failed_pass_withdrawn", recoveryFailed: 0, protectedCountsUnchanged: true }));
   } else if (command === "cleanup") {
     const state = load(); assert.equal(state.verified, true, "Verify before cleanup");
     check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
@@ -272,5 +289,5 @@ if (command === "apply") {
     assert.ok(controls.every((row) => !row.inventory_enabled && !row.generation_enabled && !row.replay_enabled));
     state.cleaned = true; save(state);
     console.log(JSON.stringify({ status: "cleanup_verified", protectedCountsRestored: true, fixtureResidue: 0 }));
-  } else throw new Error("Use apply, setup, recover, verify-publication, verify, reset-partial, reset-unreviewed or cleanup");
+  } else throw new Error("Use apply, setup, recover, verify-publication, verify, reset-partial, reset-unreviewed, abort-published or cleanup");
 }
