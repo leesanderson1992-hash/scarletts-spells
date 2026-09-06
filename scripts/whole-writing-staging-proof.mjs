@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 const REF="jlhotktspjvffslvuyfz";
@@ -40,6 +41,17 @@ if(command==="setup"){
   const snapshots=check(await client.from("writing_source_snapshots").select("id,submission_id,envelope").eq("child_id",f.childId));
   const runs=snapshots.length?check(await client.from("writing_shadow_runs").select("id,snapshot_id,status,attempt_count,error_code,result").in("snapshot_id",snapshots.map(s=>s.id))):[];
   console.log(JSON.stringify({submissions,snapshots:snapshots.map(s=>({id:s.id,submission:s.submission_id,rawDraft:s.envelope.draftPayload!==null})),runs:runs.map(r=>({id:r.id,status:r.status,attempts:r.attempt_count,error:r.error_code,occurrences:r.result?.occurrences?.length}))}));
+}else if(command==="concurrent"){
+  const f=state();assert.ok(!f.testTaskId,"Concurrent fixture already exists");
+  const original=check(await client.from("course_tasks").select("lesson_schema").eq("id",f.taskId).single());
+  const source=check(await client.from("writing_source_snapshots").select("envelope").eq("child_id",f.childId).order("occurred_at").limit(1).single());
+  f.testTaskId=await insert("course_tasks",{parent_user_id:f.parentId,course_id:f.courseId,module_id:f.moduleId,title:"Concurrent test proof",task_type:"test",position:1,is_active:true,coin_reward_trigger:"none",gold_bar_rule:"none",lesson_schema:original.lesson_schema});save(f);
+  const parent=await parentClient(f);const capture={...source.envelope.processingPayload,writingSourceCapture:{rawSubmissionText:source.envelope.rawSubmissionText,draftPayload:source.envelope.draftPayload}};
+  const now=new Date().toISOString();const args={p_parent_user_id:f.parentId,p_child_id:f.childId,p_course_id:f.courseId,p_task_id:f.testTaskId,p_submission_request_id:randomUUID(),p_submission_text:"Concurrent writing proof",p_submitted_at:now,p_completion_date:now.slice(0,10),p_structured_payload_type:"structured_test_response",p_structured_payload:source.envelope.draftPayload.__structured_lesson_response,p_processing_payload:capture};
+  const results=await Promise.all([parent.rpc("submit_course_task_response_once",args),parent.rpc("submit_course_task_response_once",args)]);results.forEach(check);
+  assert.deepEqual(results.map(r=>r.data.outcome).sort(),["created","duplicate"]);assert.equal(results[0].data.submissionId,results[1].data.submissionId);
+  assert.equal(check(await client.from("writing_source_snapshots").select("id").eq("task_id",f.testTaskId)).length,1);
+  console.log(JSON.stringify({status:"concurrent_submission_verified",created:1,duplicate:1,snapshots:1}));
 }else if(command==="verify"){
   const f=state();const snapshots=check(await client.from("writing_source_snapshots").select("*").eq("child_id",f.childId).order("occurred_at"));assert.ok(snapshots.length>=1);
   for(const s of snapshots){
@@ -51,14 +63,31 @@ if(command==="setup"){
     assert.ok((await client.from("writing_source_snapshots").update({source_revision:"tampered"}).eq("id",s.id)).error);
     const initial=s.envelope.draftPayload.__structured_lesson_response.answers.find(a=>a.block_id==="story").value;
     assert.ok(initial.startsWith("  🐕"),"Leading raw whitespace lost");
-    const first=runs[0].result.occurrences.find(o=>o.fieldKey.endsWith("/answers/0/value"));
+    const occurrences=runs[0].result.occurrences;
+    assert.equal(occurrences.length,21,"Whole-writing coverage changed");
+    assert.equal(occurrences.filter(o=>o.observedText==="cat").length,5,"Repeated/independent answers were collapsed");
+    assert.ok(occurrences.some(o=>o.observedText==="Quazibloom"&&o.interpretation.status==="unmapped"),"Unknown word was not retained");
+    assert.ok(occurrences.some(o=>o.observedText==="cat"&&o.interpretation.status==="resolved"),"Untaught canonical word did not resolve");
+    assert.equal(check(await client.from("writing_occurrences").select("id").eq("snapshot_id",s.id)).length,21);
+    assert.ok((await client.from("writing_shadow_runs").update({result:{}}).eq("id",runs[0].id)).error,"Completed result was mutable");
     assert.ok(runs[0].result.occurrences.some(o=>o.observedText==="I"&&o.start===5),"UTF-16 offset after raw whitespace/emoji lost");
-    assert.ok(first || runs[0].result.occurrences.some(o=>o.observedText==="I"));
     assert.ok(!runs[0].result.occurrences.some(o=>o.observedText==="supplied"));
   }
   assert.deepEqual(await counts(),f.baseline,"Protected learning/reward counts changed");
+  if(snapshots.length===3){
+    assert.equal(snapshots.filter(s=>s.task_id===f.taskId).length,2,"Returned work did not create a new source");
+    assert.equal(check(await client.from("task_submissions").select("id").eq("child_id",f.childId)).length,3);
+  }
   f.verifiedSnapshots=snapshots.map(s=>s.id);save(f);
   console.log(JSON.stringify({status:"verified",snapshots:snapshots.length,rawFidelity:true,ownershipIsolation:true,noLearningConsequences:true}));
+}else if(command==="recover"){
+  const f=state();assert.equal(new URL(f.previewUrl).hostname,"scarletts-spells-staged-nt8meegkg.vercel.app");
+  const other=check(await client.from("task_submission_processing_jobs").select("id").in("status",["pending","failed","processing"]).neq("child_id",f.childId));
+  assert.equal(other.length,0,"Non-fixture jobs block recovery");
+  const result=spawnSync("vercel",["curl","/api/internal/task-submissions/process","--deployment",f.previewUrl,"--","--silent","--show-error","--header","Authorization: Bearer "+f.cronSecret],{cwd:"/tmp/scarlett-whole-writing-staging-20260906",encoding:"utf8"});
+  assert.equal(result.status,0,"Preview recovery request failed");
+  const body=JSON.parse(result.stdout);assert.equal(body.failed,0);assert.equal(body.writingShadow.failed,0);
+  f.recoveryReceipts=[...(f.recoveryReceipts??[]),body];save(f);console.log(JSON.stringify(body));
 }else if(command==="replay"){
   const f=state();const s=check(await client.from("writing_source_snapshots").select("id").eq("child_id",f.childId).order("occurred_at").limit(1).single());
   f.replaySnapshot=s.id;f.beforeReplay=check(await client.from("writing_occurrences").select("id").eq("snapshot_id",s.id)).map(o=>o.id).sort();save(f);
@@ -73,14 +102,55 @@ if(command==="setup"){
   assert.deepEqual(check(await client.from("writing_occurrences").select("id").eq("snapshot_id",f.replaySnapshot)).map(o=>o.id).sort(),f.beforeReplay);
   assert.deepEqual(await counts(),f.baseline);console.log(JSON.stringify({status:"replay_verified",stableOccurrences:f.beforeReplay.length,staleLeaseRejected:true,noLearningConsequences:true}));
 }else if(command==="return"){
-  const f=state();const s=check(await client.from("task_submissions").select("id").eq("child_id",f.childId).order("submitted_at",{ascending:false}).limit(1).single());
+  const f=state();const s=check(await client.from("task_submissions").select("id").eq("child_id",f.childId).eq("task_id",f.taskId).order("submitted_at",{ascending:false}).limit(1).single());
   check(await client.from("task_submissions").update({parent_review_status:"returned",parent_review_note:"Disposable proof: submit the same writing again.",parent_reviewed_at:new Date().toISOString()}).eq("id",s.id));console.log(JSON.stringify({status:"returned",submission:s.id}));
+}else if(command==="transaction-proof"){
+  const f=state();for(const id of [f.childId,f.parentId,f.courseId,f.taskId])assert.match(id,/^[0-9a-f-]{36}$/);
+  const cli=process.env.WRITING_PROOF_SUPABASE_CLI;assert.ok(cli);
+  const sql=`begin; set local lock_timeout='5s'; set local statement_timeout='20s';
+    select set_config('request.jwt.claim.sub','${f.parentId}',true);
+    update task_submissions set parent_review_status='returned' where child_id='${f.childId}' and task_id='${f.taskId}';
+    alter table writing_source_snapshots add constraint writing_fixture_failure check (child_id <> '${f.childId}'::uuid) not valid;
+    do $proof$ declare n integer; j integer; failed boolean := false; begin
+      select count(*) into n from task_submissions where child_id='${f.childId}';
+      select count(*) into j from task_submission_processing_jobs where child_id='${f.childId}';
+      begin
+        perform submit_course_task_response_once('${f.parentId}','${f.childId}','${f.courseId}','${f.taskId}',gen_random_uuid(),'Disposable transactional proof',now(),current_date,'structured_lesson_response','{}'::jsonb,'{}'::jsonb);
+      exception when check_violation then
+        if sqlerrm not like '%writing_fixture_failure%' then raise; end if;
+        failed := true;
+      end;
+      if not failed then raise exception 'Capture failure was not exercised'; end if;
+      if n <> (select count(*) from task_submissions where child_id='${f.childId}') or j <> (select count(*) from task_submission_processing_jobs where child_id='${f.childId}') then raise exception 'Capture failure leaked writes'; end if;
+    end $proof$;
+    alter table writing_source_snapshots drop constraint writing_fixture_failure;
+    update writing_shadow_controls set capture_enabled=false where child_id='${f.childId}';
+    do $proof$ declare n integer; r jsonb; begin
+      select count(*) into n from writing_source_snapshots where child_id='${f.childId}';
+      select submit_course_task_response_once('${f.parentId}','${f.childId}','${f.courseId}','${f.taskId}',gen_random_uuid(),'Disposable disabled proof',now(),current_date,'structured_lesson_response','{}'::jsonb,'{}'::jsonb) into r;
+      if r->>'outcome' <> 'created' then raise exception 'Disabled submission was not created'; end if;
+      if n <> (select count(*) from writing_source_snapshots where child_id='${f.childId}') then raise exception 'Disabled capture created source'; end if;
+    end $proof$;
+    rollback; select true as capture_rollback, true as disabled_capture;`;
+  const file=`${ROOT}/transaction-proof.sql`;writeFileSync(file,sql,{mode:0o600});
+  try{
+    const result=spawnSync(cli,["db","query","--linked","--project-ref",REF,"--output","json","--file",file],{encoding:"utf8",timeout:60000});
+    if(result.status!==0)throw new Error(result.stderr||"Transactional proof failed");
+    const output=JSON.parse(result.stdout.slice(result.stdout.indexOf("{"),result.stdout.lastIndexOf("}")+1));
+    assert.deepEqual(output.rows,[{capture_rollback:true,disabled_capture:true}]);
+    console.log(JSON.stringify({status:"transaction_proof_verified",captureRollback:true,disabledCapture:true,allChangesRolledBack:true}));
+  }finally{unlinkSync(file);}
 }else if(command==="cleanup"){
   const f=state();
+  const snapshotIds=check(await client.from("writing_source_snapshots").select("id").eq("child_id",f.childId)).map(s=>s.id);
+  const occurrenceIds=snapshotIds.length?check(await client.from("writing_occurrences").select("id").in("snapshot_id",snapshotIds)).map(o=>o.id):[];
   check(await client.from("writing_shadow_controls").update({capture_enabled:false,processing_enabled:false}).eq("child_id",f.childId));
   // Existing cascade lifecycle removes only the exact disposable parents.
   check(await client.auth.admin.deleteUser(f.parentId));check(await client.auth.admin.deleteUser(f.otherParentId));
   assert.equal(check(await client.from("writing_source_snapshots").select("id").eq("child_id",f.childId)).length,0);
   assert.equal(check(await client.from("children").select("id").eq("id",f.childId)).length,0);
-  assert.deepEqual(await counts(),f.baseline);f.cleaned=true;save(f);console.log(JSON.stringify({status:"cleanup_verified",protectedCountsRestored:true}));
-}else throw new Error("Use setup, inspect, verify, replay, verify-replay, return or cleanup");
+  assert.equal(check(await client.from("writing_shadow_controls").select("child_id").eq("child_id",f.childId)).length,0);
+  if(snapshotIds.length)for(const table of ["writing_shadow_runs","writing_occurrences"])assert.equal(check(await client.from(table).select("id").in("snapshot_id",snapshotIds)).length,0);
+  if(occurrenceIds.length)assert.equal(check(await client.from("writing_occurrence_interpretations").select("id").in("occurrence_id",occurrenceIds)).length,0);
+  assert.deepEqual(await counts(),f.baseline);f.cleaned=true;save(f);console.log(JSON.stringify({status:"cleanup_verified",protectedCountsRestored:true,snapshotsRemoved:snapshotIds.length,occurrencesRemoved:occurrenceIds.length}));
+}else throw new Error("Use setup, inspect, concurrent, verify, recover, replay, verify-replay, return, transaction-proof or cleanup");

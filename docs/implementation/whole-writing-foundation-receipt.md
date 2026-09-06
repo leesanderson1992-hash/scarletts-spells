@@ -2,10 +2,11 @@
 
 This checkpoint implements the capture-to-shadow-evidence foundation of the
 approved whole-writing roadmap. **It does not complete S1–S13 or activate any
-learning consequences.** All new producer controls default to off. No remote
-migration, knowledge publication, historical replay, deployment or activation
-was performed. The unconfirmed Context Resolver proposal is neither imported
-nor changed.
+learning consequences.** All new producer controls default to off. The four additive migrations and a
+disposable S1–S3 staging proof are now complete; see the
+[staging receipt](whole-writing-staging-proof-receipt.md). No production change,
+knowledge publication or learning consequence was activated. The unconfirmed
+Context Resolver proposal is neither imported nor changed.
 
 ## Authority and scope
 
@@ -25,9 +26,9 @@ embodied by an intended word.
 
 | Roadmap stage | Implementation at this checkpoint | Remaining completion work |
 |---|---|---|
-| S1 | Atomic snapshot trigger on the existing submission RPC's job insertion; default-off child controls; immutable completed results; isolated leases/retries; existing recovery endpoint dispatches the shadow worker | Full-schema/Supabase staging proof before rollout |
-| S2 | Stable UTF-16 occurrences for text, textarea, table and interview string leaves; repeated/short words; Unicode; explicit block mirrors; unknown fields retained | Staging fixtures across actual supported lesson/test submissions; classify additional structures only from their schema |
-| S3 | Exact active dictionary resolution independent of Target status; dialect-scoped index; ambiguity/inactive/unmapped states; content fingerprints; separate intended-word candidates | Staging dictionary reconciliation; approved aliases require a governed source adapter, not inferred stemming |
+| S1 | Atomic snapshot trigger on the existing submission RPC's job insertion; default-off child controls; immutable completed results; isolated leases/retries; existing recovery endpoint dispatches the shadow worker | Disposable full-schema staging proof passed; any rollout remains separately controlled |
+| S2 | Stable UTF-16 occurrences for text, textarea, table and interview string leaves; repeated/short words; Unicode; explicit block mirrors; unknown fields retained | Browser lesson/returned-work and concurrent test RPC fixtures passed; additional structures require schema-led fixtures |
+| S3 | Exact active dictionary resolution independent of Target status; dialect-scoped index; ambiguity/inactive/unmapped states; content fingerprints; separate intended-word candidates | Exact staging dictionary resolution and unmapped retention passed; approved aliases still need a governed adapter |
 | S4 | Durable enumerated reviewed-pair publication, withdrawal records and a loader into Phase B's existing `explicit_reviewed_association` adapter; Phase B remains the effective relationship authority | Admin review/publication workflow and full production-shaped source reconciliation |
 | E1 | Candidate-package validation; explicit human publication RPC; durable affected-snapshot work; bounded scheduling and retrospective shadow replay | Wire existing batch generators/review tooling; operational candidate backlog, curator metrics and release withdrawal replay workflow |
 | S5 | Append-only pending assessments; new Phase C source vocabulary; unknown independence blocked explicitly; worker stores Phase C shadow decisions and governed relationships | Restricted longitudinal report surface, existing verified-source compatibility reconciliation and staging proof |
@@ -55,8 +56,9 @@ Capture failure rolls back the save. Analysis failure only fails a shadow run.
 No shadow code invokes the legacy submission worker, correction processor,
 reward bridge, proficiency writer, scheduler or intake writer.
 
-The action provides raw free text and the parsed submitted draft before its
-existing formatting. The snapshot also preserves structured payloads, processing
+The lesson form transports a separate raw answer-map draft before the legacy
+capture builder trims ordinary text answers. The action provides that draft and
+raw free text before existing formatting. The snapshot also preserves structured payloads, processing
 metadata and the task definition saved at submission. That definition is
 explicitly **not proof of the screen displayed to the learner**. A generated
 flat-response mirror is anchored to its original untrimmed input.
@@ -165,11 +167,12 @@ Its explicitly verified examples are synthetic fixtures, not a new verifier.
 
 ## Next completion gate and owner decisions
 
-The next operational gate is a disposable **staging proof of S1–S3** using the
-actual schema, submission action, recovery route, parent isolation and returned
-work UI. No remote migration or staging activation has been performed here.
-After that proof, complete the S4/E1 admin and reporting surfaces and continue
-S6–S8's existing parent-review/retry/intake integrations.
+The disposable **staging proof of S1–S3** passed against the actual schema,
+submission action, recovery route, parent isolation and returned-work UI,
+including reload and cleanup. The [staging receipt](whole-writing-staging-proof-receipt.md)
+records exact scope and limitations. Next complete S4/E1 admin and reporting
+surfaces and S5 longitudinal inspection before S6–S8 parent-review/retry/intake
+integrations. No production rollout is implied.
 
 G1–G5 remain exactly as in the approved roadmap: verification/exposure policy;
 automatic feedback and repeated corrected-error remediation; mixed-context and
