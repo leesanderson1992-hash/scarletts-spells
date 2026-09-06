@@ -29,7 +29,7 @@ embodied by an intended word.
 | S1 | Atomic snapshot trigger on the existing submission RPC's job insertion; default-off child controls; immutable completed results; isolated leases/retries; existing recovery endpoint dispatches the shadow worker | Disposable full-schema staging proof passed; any rollout remains separately controlled |
 | S2 | Stable UTF-16 occurrences for text, textarea, table and interview string leaves; repeated/short words; Unicode; explicit block mirrors; unknown fields retained | Browser lesson/returned-work and concurrent test RPC fixtures passed; additional structures require schema-led fixtures |
 | S3 | Exact active dictionary resolution independent of Target status; dialect-scoped index; ambiguity/inactive/unmapped states; content fingerprints; separate intended-word candidates | Exact staging dictionary resolution and unmapped retention passed; approved aliases still need a governed adapter |
-| S4 | Durable enumerated reviewed-pair publication, withdrawal records and a loader into Phase B's existing `explicit_reviewed_association` adapter; Phase B remains the effective relationship authority | Admin review/publication workflow and full production-shaped source reconciliation |
+| S4 | Durable enumerated reviewed-pair publication, withdrawal records and a loader into Phase B's existing `explicit_reviewed_association` adapter; Phase B remains the effective relationship authority | S4 review/publication workflow and staging source reconciliation passed; see the S4 receipt; real releases remain human-approved |
 | E1 | Candidate-package validation; explicit human publication RPC; durable affected-snapshot work; bounded scheduling and retrospective shadow replay | Wire existing batch generators/review tooling; operational candidate backlog, curator metrics and release withdrawal replay workflow |
 | S5 | Append-only pending assessments; new Phase C source vocabulary; unknown independence blocked explicitly; worker stores Phase C shadow decisions and governed relationships | Restricted longitudinal report surface, existing verified-source compatibility reconciliation and staging proof |
 | S6–S10 | Existing behaviour retained; no new error, retry, intake, context, qualification or reward integration | Implement the ordered roadmap after foundation proof, respecting G1–G3 and consumer isolation |
@@ -170,8 +170,9 @@ Its explicitly verified examples are synthetic fixtures, not a new verifier.
 The disposable **staging proof of S1–S3** passed against the actual schema,
 submission action, recovery route, parent isolation and returned-work UI,
 including reload and cleanup. The [staging receipt](whole-writing-staging-proof-receipt.md)
-records exact scope and limitations. Next complete S4/E1 admin and reporting
-surfaces and S5 longitudinal inspection before S6–S8 parent-review/retry/intake
+records exact scope and limitations. [S4 review/publication](whole-writing-s4-staging-receipt.md)
+is now implemented and staging-verified. Next complete S5 longitudinal shadow
+inspection, with E1 enrichment in parallel, before S6–S8 parent-review/retry/intake
 integrations. No production rollout is implied.
 
 G1–G5 remain exactly as in the approved roadmap: verification/exposure policy;

@@ -86,8 +86,9 @@ genuine knowledge/evidence history or reverse learning consequences automaticall
   `e9970379e0d876cddc4f8e1053848cb320faa617115844a03b890a013df08e97`.
   No unapproved knowledge was promoted to improve these counts.
 
-Staging browser proof and cleanup are recorded in the completion receipt after
-execution. Local fixtures do not establish full production-schema coverage.
+The [staging completion receipt](whole-writing-s4-staging-receipt.md) records the
+successful browser flow, runtime reuse, withdrawal, reload, database verifier and
+cleanup. Local fixtures do not establish full production-schema coverage.
 
 ## Next dependency
 

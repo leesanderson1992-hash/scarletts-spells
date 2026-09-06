@@ -53,7 +53,24 @@ if (command === "apply") {
   } else {
     const f = JSON.parse(readFileSync(FILE, "utf8"));
     const packages = check(await client.from("adle_word_skill_candidate_packages").select("*").eq("created_by", f.actor));
-    if (command === "verify") {
+    if (command === "restart") {
+      assert.equal(f.cleaned, true, "Restart only a cleaned disposable fixture");
+      check(await client.auth.admin.createUser({ id: f.actor, email: f.email, password: f.password, email_confirm: true }));
+      f.tag = randomUUID(); f.cleaned = false; f.verified = false; save(f);
+      check(await client.from("adle_word_skill_review_controls").update({ review_enabled: true, publication_enabled: true, withdrawal_enabled: true }).eq("environment_key", "local"));
+      console.log(JSON.stringify({ status: "fixture_restarted" }));
+    } else if (command === "verify-runtime") {
+      const { loadPublishedWritingAssociations } = await import("../lib/writing-engine/whole-writing/knowledge-repository.ts");
+      const { loadCanonicalWordSkillRelationshipAuthority } = await import("../lib/adle/word-skill-relationships/repository.ts");
+      const local = await loadPublishedWritingAssociations(client, "local");
+      const staging = await loadPublishedWritingAssociations(client, "staging");
+      const result = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: "local", explicitReviewedAssociations: local });
+      assert.equal(local.length, 1); assert.equal(staging.length, 0);
+      assert.equal(result.reconciliation.deduplicatedExactPairCount, 44);
+      assert.equal(result.reconciliation.explicitReviewedPairCount, 1);
+      assert.ok(!local.some(p => p.microSkillKey === f.candidates[1].microSkillKey));
+      console.log(JSON.stringify({ status: "runtime_verified", effectivePairs: 44, reviewedPairs: 1, otherEnvironmentPairs: 0, rejectedPairExcluded: true }));
+    } else if (command === "verify") {
       assert.equal(packages.length, 1);
       const pack = packages[0]; assert.equal(pack.environment_key, "local"); assert.deepEqual(pack.candidates, f.candidates);
       const review = check(await client.from("adle_word_skill_package_reviews").select("*").eq("package_id", pack.id).single());
@@ -62,6 +79,9 @@ if (command === "apply") {
       const pairs = check(await client.from("adle_reviewed_word_skill_pairs").select("*").eq("release_id", publication.release_id));
       assert.equal(pairs.length, 1); assert.equal(pairs[0].micro_skill_key, f.candidates[0].microSkillKey);
       assert.ok(check(await client.from("adle_reviewed_word_skill_withdrawals").select("release_id").eq("release_id", publication.release_id).single()));
+      const { loadPublishedWritingAssociations } = await import("../lib/writing-engine/whole-writing/knowledge-repository.ts");
+      const associations = await loadPublishedWritingAssociations(client, "local");
+      assert.equal(associations.length, 1); assert.equal(associations[0].rowStatus, "inactive");
       assert.deepEqual(await counts(), f.baseline);
       f.packageId = pack.id; f.releaseId = publication.release_id; f.verified = true; save(f);
       console.log(JSON.stringify({ status: "verified", candidates: 2, approved: 1, rejected: 1, publishedPairs: 1, withdrawn: true, noLearningConsequences: true }));
@@ -82,7 +102,13 @@ if (command === "apply") {
       check(await client.auth.admin.deleteUser(f.actor));
       assert.deepEqual(await counts(), f.baseline);
       assert.equal(check(await client.from("adle_word_skill_candidate_packages").select("id").eq("created_by", f.actor)).length, 0);
+      if (f.releaseId) {
+        assert.equal(check(await client.from("adle_reviewed_word_skill_releases").select("id").eq("id", f.releaseId)).length, 0);
+        assert.equal(check(await client.from("adle_reviewed_word_skill_pairs").select("id").eq("release_id", f.releaseId)).length, 0);
+      }
+      const controls = check(await client.from("adle_word_skill_review_controls").select("review_enabled,publication_enabled,withdrawal_enabled"));
+      assert.ok(controls.every(c => !c.review_enabled && !c.publication_enabled && !c.withdrawal_enabled));
       f.cleaned = true; save(f); console.log(JSON.stringify({ status: "cleanup_verified", noLearningConsequences: true }));
-    } else throw new Error("Use apply, setup, verify or cleanup");
+    } else throw new Error("Use apply, setup, restart, verify-runtime, verify or cleanup");
   }
 }
