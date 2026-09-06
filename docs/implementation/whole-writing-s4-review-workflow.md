@@ -48,10 +48,12 @@ the publication-time read; it is not an immutable lock over all source systems.
 environment uses `ADLE_ROUTE_ACTIVATION_ENVIRONMENT`; missing configuration fails
 closed. Controls are service-managed and absent from learner/parent forms.
 
-Publication retains the existing bounded shadow replay work and recovery
-scheduler. It does not enable any learner capture/evidence controls, qualify
-performances, queue lessons or deliver rewards, proficiency or scheduler events.
-Automated withdrawal replay and mass candidate generation remain E1 work.
+E1 extends publication replay with authority-event discovery and occurrence-only
+shadow runs, including automatic withdrawal replay. It reuses the same recovery
+leases and remains default-off outside an explicit cohort. See the
+[E1 operations contract](whole-writing-e1-mass-enrichment.md). Neither workflow
+enables learner capture/evidence controls, qualifies performances, queues lessons
+or delivers rewards, proficiency or scheduler events.
 
 The admin page exposes candidate/review counts, blocked-pair reasons, exact
 source decisions and the Phase B reconciliation receipt. Action failures log
@@ -92,8 +94,9 @@ cleanup. Local fixtures do not establish full production-schema coverage.
 
 ## Next dependency
 
-E1 mass-enrichment candidate generation/curation and S5 longitudinal shadow
-inspection can build on this workflow. S6+ remain the existing ordered roadmap.
+E1 mass-enrichment operations now build on this workflow; S5 longitudinal shadow
+inspection can proceed against the documented shared persistence contract. S6+
+remain the existing ordered roadmap.
 Owner gates G1–G5 are unchanged; no qualification, feedback tolerance, Stability,
 numeric proficiency policy or historical learning-consequence decision is made
 by this slice.

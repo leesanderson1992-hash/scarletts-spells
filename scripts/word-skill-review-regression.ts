@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseWordSkillCandidates, parsePairDecisions, candidatePreviewAssociations, reviewPairReadiness } from "../lib/writing-engine/whole-writing/knowledge-review";
+import { parseWordSkillCandidates, parsePairDecisions, parsePairRejectionReasons, candidatePreviewAssociations, reviewPairReadiness } from "../lib/writing-engine/whole-writing/knowledge-review";
 import { publishedAssociationsToPhaseB } from "../lib/writing-engine/whole-writing/knowledge";
 import { adaptExplicitReviewedAssociations } from "../lib/adle/word-skill-relationships/adapters";
 import { readCanonicalWordSkillRelationships } from "../lib/adle/word-skill-relationships/authority";
@@ -14,6 +14,10 @@ const form = new FormData(); form.set("decision_0", "approved");
 assert.deepEqual(parsePairDecisions(form, 1), ["approved"]);
 assert.throws(() => parsePairDecisions(form, 2));
 form.append("decision_0", "rejected"); assert.throws(() => parsePairDecisions(form, 1));
+const rejectedForm = new FormData(); rejectedForm.set("rejection_reason_0", "Source does not establish the exact pair");
+assert.deepEqual(parsePairRejectionReasons(rejectedForm, ["rejected"]), ["Source does not establish the exact pair"]);
+assert.throws(() => parsePairRejectionReasons(new FormData(), ["rejected"]));
+assert.throws(() => parsePairRejectionReasons(rejectedForm, ["approved"]));
 const words = [{ canonicalWordId: word, normalisedWord: "synthetic", state: "active" as const, identityStable: true }];
 const microSkills = ["skill", "other"].map(microSkillKey => ({ microSkillKey, state: "active" as const, identityStable: true }));
 const proposal = candidatePreviewAssociations("package", candidates);

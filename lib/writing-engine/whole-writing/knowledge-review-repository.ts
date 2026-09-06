@@ -33,14 +33,19 @@ export async function loadWordSkillReviewControls(client: SupabaseClient, enviro
   return result.data ?? { review_enabled: false, publication_enabled: false, withdrawal_enabled: false };
 }
 export async function loadWordSkillPackage(client: SupabaseClient, environment: AdleRouteActivationEnvironment, id: string) {
-  const [pack, review, publication] = await Promise.all([
+  const [pack, review, publication, annotations, metrics] = await Promise.all([
     client.from("adle_word_skill_candidate_packages").select("*").eq("id", id).eq("environment_key", environment).maybeSingle(),
     client.from("adle_word_skill_package_reviews").select("decisions,reviewed_by,review_note,reviewed_at").eq("package_id", id).maybeSingle(),
     client.from("adle_word_skill_package_publications").select("release_id,authority_fingerprint,published_at").eq("package_id", id).maybeSingle(),
+    client.from("adle_word_skill_pair_review_annotations").select("candidate_index,rejection_reason").eq("package_id", id).order("candidate_index"),
+    client.from("adle_word_skill_review_metrics").select("curator_active_seconds").eq("package_id", id).maybeSingle(),
   ]);
-  if (pack.error || review.error || publication.error) throw new Error("WORD_SKILL_PACKAGE_READ_FAILED");
+  if (pack.error || review.error || publication.error || annotations.error || metrics.error) throw new Error("WORD_SKILL_PACKAGE_READ_FAILED");
   if (!pack.data) throw new Error("WORD_SKILL_PACKAGE_NOT_FOUND");
-  return { package: pack.data as CandidatePackage, review: review.data as PackageReview | null, publication: publication.data as { release_id: string; authority_fingerprint: string; published_at: string } | null };
+  return { package: pack.data as CandidatePackage, review: review.data as PackageReview | null,
+    publication: publication.data as { release_id: string; authority_fingerprint: string; published_at: string } | null,
+    rejectionReasons: new Map((annotations.data ?? []).map((row) => [row.candidate_index, row.rejection_reason])),
+    curatorActiveSeconds: metrics.data?.curator_active_seconds ?? null };
 }
 export async function previewWordSkillPackage(client: SupabaseClient, pack: CandidatePackage, review: PackageReview | null) {
   const existing = await loadPublishedWritingAssociations(client, pack.environment_key);

@@ -113,12 +113,12 @@ No new canonical word IDs are invented. Existing dictionary publication tooling
 still owns dictionary identities. The runtime loader passes admitted source rows
 through Phase B; it does not maintain another effective relationship graph.
 
-Publication creates durable replay work for affected snapshots. Recovery schedules
-bounded batches only for processing-enabled learners. New interpretations retain
-the original occurrence identity/time and remain shadow. Withdrawal excludes a
-release on subsequent authority reads; previously completed interpretations stay
-immutable. Reanalyse an explicitly selected affected cohort with a new replay key
-to inspect a withdrawal. Automated withdrawal replay remains part of E1 completion.
+Publication creates an atomic authority-event receipt. E1 discovers affected
+occurrences in bounded pages and schedules the existing shadow worker only for an
+explicit enabled cohort. New interpretations retain the original occurrence
+identity/time and remain shadow. Withdrawal excludes a release on subsequent
+authority reads and automatically records a distinct replay event; previously
+completed interpretations stay immutable.
 
 Rollback means disabling the affected control and retaining history. Stop capture
 and processing independently. No destructive down migration or automatic reversal
@@ -171,9 +171,11 @@ The disposable **staging proof of S1–S3** passed against the actual schema,
 submission action, recovery route, parent isolation and returned-work UI,
 including reload and cleanup. The [staging receipt](whole-writing-staging-proof-receipt.md)
 records exact scope and limitations. [S4 review/publication](whole-writing-s4-staging-receipt.md)
-is now implemented and staging-verified. Next complete S5 longitudinal shadow
-inspection, with E1 enrichment in parallel, before S6–S8 parent-review/retry/intake
-integrations. No production rollout is implied.
+is implemented and staging-verified. [E1 enrichment operations](whole-writing-e1-mass-enrichment.md)
+are implemented and locally verified from the clean S4 baseline; their disposable
+staging receipt remains the final E1 gate. S5 longitudinal shadow inspection can
+continue against the shared per-occurrence persistence contract before S6–S8
+parent-review/retry/intake integrations. No production rollout is implied.
 
 G1–G5 remain exactly as in the approved roadmap: verification/exposure policy;
 automatic feedback and repeated corrected-error remediation; mixed-context and

@@ -39,6 +39,16 @@ export function parsePairDecisions(form: FormData, count: number): PairReviewDec
   });
 }
 
+export function parsePairRejectionReasons(form: FormData, decisions: readonly PairReviewDecision[]) {
+  return decisions.map((decision, index) => {
+    const reason = String(form.get(`rejection_reason_${index}`) ?? "").trim();
+    if (reason.length > 2000) throw new Error("WORD_SKILL_REJECTION_REASON_INVALID");
+    if (decision === "rejected" && !reason) throw new Error("WORD_SKILL_REJECTION_REASON_REQUIRED");
+    if (decision === "approved" && reason) throw new Error("WORD_SKILL_APPROVED_REASON_INVALID");
+    return reason;
+  });
+}
+
 export function previewAssociationId(packageId: string, index: number) { return `candidate-package:${packageId}:${index}`; }
 export function candidatePreviewAssociations(packageId: string, candidates: readonly EnrichmentCandidate[], decisions?: readonly PairReviewDecision[]): ExplicitReviewedAssociationAdapterRow[] {
   return candidates.flatMap((candidate, index) => decisions?.[index] === "rejected" ? [] : [{

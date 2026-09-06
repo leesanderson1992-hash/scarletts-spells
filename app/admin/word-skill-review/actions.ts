@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { isUuid, parsePairDecisions, parseWordSkillCandidates } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { isUuid, parsePairDecisions, parsePairRejectionReasons, parseWordSkillCandidates } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 
 const PATH = "/admin/word-skill-review";
@@ -50,9 +50,14 @@ export async function recordWordSkillReview(form: FormData) {
     if (!isUuid(id)) throw new Error("WORD_SKILL_PACKAGE_NOT_FOUND");
     const loaded = await loadWordSkillPackage(client, environment, id);
     const decisions = parsePairDecisions(form, loaded.package.candidates.length);
+    const rejectionReasons = parsePairRejectionReasons(form, decisions);
     const note = text(form, "review_note");
     if (!note || note.length > 2000) throw new Error("WORD_SKILL_REVIEW_NOTE_REQUIRED");
-    const result = await client.rpc("review_word_skill_candidate_package", { p_package: id, p_environment: environment, p_decisions: decisions, p_actor: actor.id, p_note: note });
+    const activeSecondsText = text(form, "curator_active_seconds");
+    const activeSeconds = activeSecondsText ? Number(activeSecondsText) : null;
+    if (activeSeconds !== null && (!Number.isInteger(activeSeconds) || activeSeconds < 0)) throw new Error("WORD_SKILL_REVIEW_TIME_INVALID");
+    const result = await client.rpc("review_word_skill_candidate_package_with_metrics", { p_package: id, p_environment: environment,
+      p_decisions: decisions, p_rejection_reasons: rejectionReasons, p_actor: actor.id, p_note: note, p_active_seconds: activeSeconds });
     if (result.error) throw new Error("WORD_SKILL_REVIEW_FAILED");
   } catch (error) { finish(id, error); }
   finish(id);

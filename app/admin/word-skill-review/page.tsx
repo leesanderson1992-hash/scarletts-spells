@@ -71,12 +71,17 @@ export default async function WordSkillReviewPage({ searchParams }: { searchPara
             <td className="border-b p-2 align-top break-words">{candidate.sourceReference}<br />Licence/source rights: {candidate.licenceReference}<br />{candidate.method}</td>
             <td className="border-b p-2 align-top">{selected?.review?.decisions[i] === "rejected" ? "Rejected; excluded from publication" : preview?.pairs[i].reasons.join(", ") ?? "Unavailable"}
               {preview && <details><summary>Existing source decisions</summary>{preview.pairs[i].sources.length ? preview.pairs[i].sources.map((source, n) => <p key={n}>{source.source}: {source.reason} ({source.provenanceId})</p>) : <p>No existing source for this pair.</p>}</details>}</td>
-            <td className="border-b p-2 align-top">{selected?.review ? selected.review.decisions[i] : <select className={inputClass} name={`decision_${i}`} aria-label={`Decision for pair ${i + 1}`} required defaultValue="" disabled={!controls.review_enabled || previewFailed}>
-              <option value="" disabled>Choose</option><option value="approved">Approve exact pair</option><option value="rejected">Reject</option></select>}</td>
+            <td className="border-b p-2 align-top">{selected?.review
+              ? <>{selected.review.decisions[i]}{selected.rejectionReasons.get(i) && <small className="block">Reason: {selected.rejectionReasons.get(i)}</small>}</>
+              : <><select className={inputClass} name={`decision_${i}`} aria-label={`Decision for pair ${i + 1}`} required defaultValue="" disabled={!controls.review_enabled || previewFailed}>
+                <option value="" disabled>Choose</option><option value="approved">Approve exact pair</option><option value="rejected">Reject</option></select>
+                <label className="mt-2 block">Rejection reason<input className={inputClass} name={`rejection_reason_${i}`} maxLength={2000} /></label></>}</td>
           </tr>)}</tbody></table></div>
-        {!selected.review && <><label className="grid gap-1">Review note<textarea className={inputClass} name="review_note" maxLength={2000} required /></label><p>Decisions are final for this package. Submit a new package to revise an association.</p><button className={buttonClass} disabled={!controls.review_enabled || previewFailed}>Record pair decisions</button></>}
+        {!selected.review && <><label className="grid gap-1">Review note<textarea className={inputClass} name="review_note" maxLength={2000} required /></label>
+          <label className="grid gap-1">Curator active time in seconds (optional)<input className={inputClass} type="number" name="curator_active_seconds" min={0} step={1} /></label>
+          <p>Every rejected pair requires a reason. Decisions are final for this package. Submit a new package to revise an association.</p><button className={buttonClass} disabled={!controls.review_enabled || previewFailed}>Record pair decisions</button></>}
       </form>
-      {selected.review && <p>Reviewed {selected.review.reviewed_at} by {selected.review.reviewed_by}: {selected.review.review_note}</p>}
+      {selected.review && <p>Reviewed {selected.review.reviewed_at} by {selected.review.reviewed_by}: {selected.review.review_note}{selected.curatorActiveSeconds === null ? " · curator time not recorded" : ` · ${selected.curatorActiveSeconds}s curator time`}</p>}
       {selected.publication ? <><p>Release: {selected.publication.release_id} · {withdrawn ? "Withdrawn" : "Published"}</p>{!withdrawn && <form action={withdrawWordSkillReview} className="grid gap-3">
         <input type="hidden" name="package_id" value={selected.package.id} /><label className="grid gap-1">Withdrawal reason<textarea className={inputClass} name="reason" required maxLength={2000} /></label><p>Future authority reads exclude this release. Existing evidence history stays intact.</p><button className={buttonClass} disabled={!controls.withdrawal_enabled || previewFailed}>Withdraw release</button>
       </form>}</> : selected.review && <form action={publishWordSkillReview} className="grid gap-3">

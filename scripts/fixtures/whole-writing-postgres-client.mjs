@@ -1,7 +1,8 @@
 /** Test transport only: the actual worker executes against disposable PostgreSQL.
  * This deliberately implements only its small PostgREST query surface.
  */
-const tables = new Set(["writing_source_snapshots","writing_shadow_controls","canonical_teaching_dictionary_words"]);
+const tables = new Set(["writing_source_snapshots","writing_shadow_controls","canonical_teaching_dictionary_words",
+  "writing_shadow_run_enrichment_scopes","writing_shadow_run_occurrences","writing_occurrences"]);
 const rpcArguments = {
   schedule_writing_enrichment_replays:["p_limit"],
   claim_writing_shadow_runs:["p_limit"],
@@ -29,9 +30,11 @@ export function postgresWorkerClient(db) {
       const builder = {
         select(value) { columns=value==="*" ? "*" : value.split(",").map((v) => identifier(v.trim())).join(","); return builder; },
         eq(key,value) { values.push(value); predicates.push(`${identifier(key)}=$${values.length}`); return builder; },
+        in(key,value) { values.push(value); predicates.push(`${identifier(key)}=any($${values.length})`); return builder; },
         order(key) { order=` order by ${identifier(key)}`; return builder; },
         range(start,end) { offset=start; limit=end-start+1; return builder; },
         single() { one=true; return builder; },
+        maybeSingle() { one=true; return builder; },
         async then(resolve) {
           try {
             const result=await db.query(`select ${columns} from ${identifier(table)}${predicates.length ? ` where ${predicates.join(" and ")}` : ""}${order}${limit===null ? "" : ` limit ${limit} offset ${offset}`}`,values);

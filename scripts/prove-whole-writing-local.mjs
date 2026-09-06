@@ -11,6 +11,7 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { postgresWorkerClient } from "./fixtures/whole-writing-postgres-client.mjs";
 import { proveWordSkillReview } from "./fixtures/prove-word-skill-review.mjs";
+import { proveWritingEnrichment } from "./fixtures/prove-writing-enrichment.mjs";
 
 const runtime = process.env.WRITING_PROOF_RUNTIME;
 assert.ok(runtime, "WRITING_PROOF_RUNTIME must name an isolated installed native PostgreSQL runtime");
@@ -48,7 +49,8 @@ try {
     create table task_submissions(id uuid primary key default gen_random_uuid(),task_id uuid references course_tasks,course_id uuid references courses,child_id uuid references children,parent_user_id uuid references auth.users,submission_text text,submitted_at timestamptz,parent_review_status text,parent_review_note text,parent_reviewed_at timestamptz,created_at timestamptz default now());
     create table task_submission_payloads(id uuid primary key default gen_random_uuid(),submission_id uuid references task_submissions,parent_user_id uuid references auth.users,course_id uuid references courses,task_id uuid references course_tasks,child_id uuid references children,payload_type text,payload_version integer,payload_json jsonb);
     create table task_completions(id uuid primary key default gen_random_uuid(),task_id uuid,course_id uuid,child_id uuid,parent_user_id uuid,completion_date date,quantity_completed integer,completed_at timestamptz,updated_at timestamptz,unique(task_id,child_id,completion_date));
-    create table canonical_teaching_dictionary_words(id uuid primary key,normalised_word text,dialect_code text,row_status text);
+    create table canonical_teaching_dictionary_import_batches(id uuid primary key,source_folder_path text,source_folder_sha256 text,source_commit text,batch_status text);
+    create table canonical_teaching_dictionary_words(id uuid primary key,normalised_word text,dialect_code text,row_status text,import_batch_id uuid references canonical_teaching_dictionary_import_batches);
     create table micro_skill_catalog(micro_skill_key text primary key,is_active boolean);
     create table parent_verifications(id uuid primary key,parent_user_id uuid,child_id uuid,task_submission_id uuid,source_entity_id text);
   `);
@@ -59,6 +61,10 @@ try {
   await db.query(migration("20260906120000_add_reviewed_word_skill_publications.sql"));
   await db.query(migration("20260906130000_add_writing_shadow_health.sql"));
   await db.query(migration("20260906140000_add_word_skill_review_workflow.sql"));
+  const writerBeforeE1 = (await db.query("select pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
+  await db.query(migration("20260906160000_add_writing_enrichment_operations.sql"));
+  const writerAfterE1 = (await db.query("select pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
+  assert.equal(writerAfterE1, writerBeforeE1, "E1 must compose with the installed evidence writer"); proof();
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);
@@ -149,8 +155,10 @@ try {
   const jobs = (await db.query("select status,attempt_count from task_submission_processing_jobs")).rows;
   assert.equal(jobs.length,3); assert.ok(jobs.every((j) => j.status==='pending' && j.attempt_count===0)); proof();
   const word = randomUUID();
-  await db.query("insert into canonical_teaching_dictionary_words values($1,'i','en-GB','active')",[word]);
+  await db.query("insert into canonical_teaching_dictionary_words(id,normalised_word,dialect_code,row_status) values($1,'i','en-GB','active')",[word]);
   await db.query("insert into micro_skill_catalog values('fixture_skill',true)");
+  await db.query("update writing_enrichment_controls set inventory_enabled=true,generation_enabled=true,replay_enabled=true where environment_key='local'");
+  await db.query("insert into writing_enrichment_cohorts(environment_key,child_id,parent_user_id,enabled) values('local',$1,$2,true)",[child,parent]);
   const manifest = { approvedPairs:[{ canonicalWordId:word,microSkillKey:"fixture_skill",relationshipRole:"demonstrates",decision:"approved",sourceReference:"synthetic-test-only",licenceReference:"original-synthetic-fixture" }] };
   async function publish(key, value) {
     return (await db.query("select publish_reviewed_word_skill_release($1,'local',$2,$3,'Explicit synthetic pair review') id",[key,value,parent])).rows[0].id;
@@ -162,17 +170,27 @@ try {
   const release = await publish("synthetic-release",manifest);
   assert.equal(await publish("synthetic-release",manifest),release);
   await assert.rejects(publish("synthetic-release",{ approvedPairs:[{...manifest.approvedPairs[0],relationshipRole:"contrast_only"}] }),/conflict/);
-  assert.equal((await db.query("select count(*)::int n from writing_enrichment_replay_work")).rows[0].n,1);
+  assert.equal((await db.query("select count(*)::int n from writing_enrichment_replay_work")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from writing_enrichment_authority_events where event_kind='s4_publication'")).rows[0].n,1);
   assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,1);
   assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,0); proof();
   const enriched = (await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
-  await db.query("select persist_writing_shadow_result($1,$2,$3)",[enriched.id,enriched.lease_token,{...result,occurrences:[{...occurrence,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word}}]}]);
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[enriched.id,enriched.lease_token,{...result,occurrences:[{...occurrence,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word,relationships:[{canonicalWordId:word,microSkillKey:"fixture_skill"}]}}]}]);
   assert.equal((await db.query("select count(*)::int n from writing_occurrences")).rows[0].n,1);
   assert.equal((await db.query("select count(*)::int n from writing_occurrence_interpretations where canonical_word_id=$1",[word])).rows[0].n,1);
   assert.equal((await db.query("select count(*)::int n from writing_occurrence_assessments where outcome<>'unknown'")).rows[0].n,0); proof();
   await assert.rejects(db.query("update adle_reviewed_word_skill_pairs set relationship_role='negative_only'"),/immutable/);
   await db.query("insert into adle_reviewed_word_skill_withdrawals(release_id,reviewed_by,reason) values($1,$2,'Synthetic withdrawal')",[release,parent]);
-  assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_pairs")).rows[0].n,1); proof();
+  assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_pairs")).rows[0].n,1);
+  assert.equal((await db.query("select count(*)::int n from writing_enrichment_authority_events where event_kind='s4_withdrawal'")).rows[0].n,1);
+  assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,1);
+  const withdrawnReplay = (await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[withdrawnReplay.id,withdrawnReplay.lease_token,{...result,occurrences:[{...occurrence,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word,relationships:[]}}]}]);
+  const withdrawalSequence=(await db.query("select event_sequence::text from writing_enrichment_authority_events where event_kind='s4_withdrawal'")).rows[0].event_sequence;
+  assert.equal((await db.query("select authority_event_sequence::text from writing_current_occurrence_interpretations where occurrence_id=$1",[occurrence.id])).rows[0].authority_event_sequence,withdrawalSequence); proof();
+  const eventMetrics=(await db.query("select event_kind,identity_resolutions::int,relationship_resolutions::int,relationship_withdrawals::int from writing_enrichment_event_resolution_metrics order by event_kind")).rows;
+  assert.deepEqual(eventMetrics.find((row)=>row.event_kind==='s4_publication'),{event_kind:'s4_publication',identity_resolutions:1,relationship_resolutions:1,relationship_withdrawals:0});
+  assert.deepEqual(eventMetrics.find((row)=>row.event_kind==='s4_withdrawal'),{event_kind:'s4_withdrawal',identity_resolutions:0,relationship_resolutions:0,relationship_withdrawals:1}); proof();
   await db.query("update writing_shadow_controls set processing_enabled=false");
   assert.equal((await db.query("select enqueue_writing_shadow_replay($1,'disabled') n",[[source.id]])).rows[0].n,0); proof();
   const { recoverWritingShadowRuns } = await import("../lib/writing-engine/whole-writing/worker.ts");
@@ -186,9 +204,10 @@ try {
   assert.ok(workerResult.occurrences.every((o) => o.interpretation.correctness==='NOT_ASSESSED'));
   assert.equal((await recoverWritingShadowRuns(postgresWorkerClient(db))).claimed,0);
   assert.ok((await db.query("select attempt_count from task_submission_processing_jobs")).rows.every((j) => j.attempt_count===0)); proof();
+  const enrichmentProofs=await proveWritingEnrichment({db,connect,actor:parent,otherActor:otherParent,child,occurrence,word});
   await db.query("insert into micro_skill_catalog values('second_fixture_skill',true)");
   const reviewProofs = await proveWordSkillReview({ db, connect, actor: parent, otherActor: otherParent, word });
-  console.log(JSON.stringify({ status:"passed",proofs,reviewProofs,database:"disposable PostgreSQL 18", productionConnections:0, limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
+  console.log(JSON.stringify({ status:"passed",proofs,enrichmentProofs,reviewProofs,database:"disposable PostgreSQL 18", productionConnections:0, limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
 } finally {
   await Promise.allSettled(connections.map((client) => client.end()));
   if (started) execFileSync(binaries.pg_ctl,["-D",dataDir,"-m","immediate","-w","stop"],options);
