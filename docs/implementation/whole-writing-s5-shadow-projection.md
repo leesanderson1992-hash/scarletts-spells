@@ -86,6 +86,7 @@ migrations and proves append-only storage, one decision per occurrence,
 service-only access, current/history selection, exact replay linkage and zero
 admitted projections for unknown facts.
 
-The staging gate must additionally prove the actual recovery route, report
-authorization and reload behaviour against a disposable cohort, then remove the
-cohort and restore protected counts before S5 is marked staging-complete.
+The staging gate proved the actual recovery route, report authorization and
+reload behaviour against a disposable cohort, then removed the cohort and
+restored protected counts. See the
+[S5 staging receipt](whole-writing-s5-staging-receipt.md).
