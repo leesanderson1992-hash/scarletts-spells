@@ -212,6 +212,7 @@ export function buildEnrichmentInventory(input: {
   for (const [pair, decisions] of decisionGroups) {
     const [canonicalWordId, microSkillKey] = pair.split("\u0000");
     const word = activeWords.get(canonicalWordId);
+    if (!word) continue;
     seeds.push({
       gapKey: enrichmentGapKey({ gapType: "unapproved_relationship", dialect: word?.dialect, normalizedForm: word?.normalizedForm, canonicalWordId, microSkillKey }),
       gapType: "unapproved_relationship", normalizedForm: word ? clean(word.normalizedForm) : null, dialect: word?.dialect ?? null,

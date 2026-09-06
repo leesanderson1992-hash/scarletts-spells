@@ -11,6 +11,9 @@ const FILE = `${ROOT}/fixture.json`;
 const CLI = process.env.WRITING_PROOF_SUPABASE_CLI;
 const command = process.argv[2];
 assert.ok(CLI, "WRITING_PROOF_SUPABASE_CLI required");
+assert.ok(!process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT || process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "local",
+  "Disposable proof requires the isolated local authority environment");
+process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "local";
 mkdirSync(ROOT, { recursive: true, mode: 0o700 });
 
 function run(args) {
@@ -69,15 +72,35 @@ if (command === "apply") {
     const { loadDeterministicEnrichmentGenerationInputs } = await import("../lib/writing-engine/whole-writing/enrichment-generation-repository.ts");
     const sourceInputs = await loadDeterministicEnrichmentGenerationInputs(client, "local");
     const governedWords = new Set(sourceInputs.authority.relationships.map((row) => row.canonicalWordId));
-    const sourceChoices = sourceInputs.sources.filter((row) => row.sourceUseApproved && row.relationshipRole === "demonstrates"
+    const approvedSourceChoices = sourceInputs.sources.filter((row) => row.sourceUseApproved && row.relationshipRole === "demonstrates"
       && sourceInputs.activeCanonicalWordIds.has(row.canonicalWordId) && sourceInputs.activeMicroSkillKeys.has(row.microSkillKey)
       && !governedWords.has(row.canonicalWordId));
     const selected = [];
-    for (const source of sourceChoices) {
+    for (const source of approvedSourceChoices) {
       if (!selected.some((item) => item.canonicalWordId === source.canonicalWordId)) selected.push(source);
       if (selected.length === 2) break;
     }
-    assert.equal(selected.length, 2, "Staging lacks two approved deterministic sources for uncovered active words");
+    const tag = randomUUID();
+    if (selected.length < 2) {
+      const uncovered = check(await client.from("canonical_teaching_dictionary_words").select("id,normalised_word,dialect_code")
+        .eq("row_status", "active").order("id").range(0, 999)).filter((row) => !governedWords.has(row.id));
+      const formCounts = new Map();
+      for (const row of uncovered) {
+        const key = `${row.dialect_code}\u0000${row.normalised_word}`;
+        formCounts.set(key, (formCounts.get(key) ?? 0) + 1);
+      }
+      const unique = uncovered.filter((row) => formCounts.get(`${row.dialect_code}\u0000${row.normalised_word}`) === 1
+        && !selected.some((item) => item.canonicalWordId === row.id));
+      const skillRows = check(await client.from("micro_skill_catalog").select("micro_skill_key").eq("is_active", true).order("micro_skill_key").limit(2));
+      while (selected.length < 2) {
+        const word = unique.shift(), skill = skillRows[selected.length];
+        assert.ok(word && skill, "Staging lacks two unique uncovered identities for the disposable proof");
+        selected.push({ sourceKind: selected.length ? "governed_spelling_transformation" : "reviewed_morphology",
+          sourceId: `disposable-e1:${tag}:${selected.length}`, sourceVersion: "original-synthetic-v1", canonicalWordId: word.id,
+          microSkillKey: skill.micro_skill_key, relationshipRole: "demonstrates", sourceReference: "Original synthetic disposable E1 proof; not a curriculum assertion",
+          licenceReference: "Original synthetic proof", sourceUseApproved: true });
+      }
+    }
     const covered = sourceInputs.authority.relationships.find((row) => !selected.some((item) => item.canonicalWordId === row.canonicalWordId));
     assert.ok(covered, "Staging lacks an unaffected governed word");
     const wordIds = [...selected.map((row) => row.canonicalWordId), covered.canonicalWordId];
@@ -85,7 +108,8 @@ if (command === "apply") {
     const label = new Map(labels.map((row) => [row.id, row.normalised_word]));
     assert.equal(label.size, 3);
 
-    const state = { tag: randomUUID(), password: `E1-proof-${randomUUID()}!`, baseline: await counts(), selected, covered,
+    const state = { tag, password: `E1-proof-${randomUUID()}!`, baseline: await counts(), selected, covered,
+      approvedExistingSourceChoiceCount: approvedSourceChoices.length,
       forms: Object.fromEntries(labels.map((row) => [row.id, row.normalised_word])) };
     state.email = `e1-${state.tag}@example.test`; save(state);
     state.actor = check(await client.auth.admin.createUser({ email: state.email, password: state.password, email_confirm: true })).user.id; save(state);
@@ -123,9 +147,11 @@ if (command === "apply") {
     const entries = check(await client.from("writing_enrichment_inventory_entries").select("id,canonical_word_id").eq("run_id", persisted));
     const entryByWord = new Map(entries.map((row) => [row.canonical_word_id, row.id]));
     const { generateDeterministicEnrichmentCandidates } = await import("../lib/writing-engine/whole-writing/enrichment-generation.ts");
+    const selectedSourceIds = new Set(sourceInputs.sources.map((row) => row.sourceId));
+    const generationSources = [...sourceInputs.sources, ...selected.filter((row) => !selectedSourceIds.has(row.sourceId))];
     const generation = generateDeterministicEnrichmentCandidates({ observedGapWordIds: new Set(inventory.pilot.flatMap((row) => row.canonicalWordId ? [row.canonicalWordId] : [])),
       activeCanonicalWordIds: sourceInputs.activeCanonicalWordIds, activeMicroSkillKeys: sourceInputs.activeMicroSkillKeys,
-      sources: sourceInputs.sources, governedPairs: sourceInputs.governedPairs, pendingPairs: sourceInputs.pendingPairs, history: sourceInputs.history });
+      sources: generationSources, governedPairs: sourceInputs.governedPairs, pendingPairs: sourceInputs.pendingPairs, history: sourceInputs.history });
     const candidates = selected.map((choice) => generation.candidates.find((candidate) => candidate.canonicalWordId === choice.canonicalWordId
       && candidate.microSkillKey === choice.microSkillKey)).filter(Boolean);
     assert.equal(candidates.length, 2);
@@ -148,9 +174,12 @@ if (command === "apply") {
     state.approvedCandidate = candidates[0]; state.rejectedCandidate = candidates[1]; state.duplicateSuppressed = true; save(state);
     console.log(JSON.stringify({ status: "fixture_ready", packageId: state.packageId,
       reviewPath: `/admin/word-skill-review?environment=local&package=${state.packageId}`, inventoryPilot: inventory.pilot.length,
-      candidateCount: candidates.length, duplicateSuppressed: true, aiCalls: generation.ai.calls }));
+      candidateCount: candidates.length, approvedExistingSourceChoiceCount: approvedSourceChoices.length,
+      syntheticDisposableSources: approvedSourceChoices.length < 2, duplicateSuppressed: true, aiCalls: generation.ai.calls }));
   } else if (command === "recover") {
     const state = load();
+    const snapshotIds = check(await client.from("writing_source_snapshots").select("id").eq("child_id", state.childId)).map((row) => row.id);
+    if (snapshotIds.length) check(await client.from("writing_shadow_runs").update({ next_retry_at: new Date().toISOString() }).in("snapshot_id", snapshotIds).eq("status", "failed"));
     const { recoverWritingShadowRuns } = await import("../lib/writing-engine/whole-writing/worker.ts");
     const result = await recoverWritingShadowRuns(client);
     assert.equal(result.failed, 0); assert.ok(result.completed >= 1);
@@ -188,6 +217,30 @@ if (command === "apply") {
     state.withdrawalEventId = withdrawal.id; state.verified = true; save(state);
     console.log(JSON.stringify({ status: "verified", approved: 1, rejected: 1, publicationReplay: true,
       automaticWithdrawalReplay: true, noLearningConsequences: true }));
+  } else if (command === "reset-partial") {
+    const state = load(); assert.ok(!state.packageId, "Use verified cleanup after package creation");
+    check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
+    check(await client.from("adle_word_skill_review_controls").update({ review_enabled: false, publication_enabled: false, withdrawal_enabled: false }).eq("environment_key", "local"));
+    check(await client.auth.admin.deleteUser(state.actor));
+    assert.deepEqual(await counts(), state.baseline);
+    unlinkSync(FILE);
+    console.log(JSON.stringify({ status: "partial_fixture_removed", protectedCountsRestored: true }));
+  } else if (command === "reset-unreviewed") {
+    const state = load(); assert.ok(state.packageId && !state.releaseId, "Only an unpublished package can use reset-unreviewed");
+    check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
+    check(await client.from("adle_word_skill_review_controls").update({ review_enabled: false, publication_enabled: false, withdrawal_enabled: false }).eq("environment_key", "local"));
+    query(`begin;
+      delete from writing_enrichment_attempt_packages where package_id='${state.packageId}';
+      delete from writing_enrichment_attempts where created_by='${state.actor}';
+      delete from writing_enrichment_inventory_occurrences where entry_id in (select e.id from writing_enrichment_inventory_entries e join writing_enrichment_inventory_runs r on r.id=e.run_id where r.created_by='${state.actor}');
+      delete from writing_enrichment_inventory_entries where run_id in (select id from writing_enrichment_inventory_runs where created_by='${state.actor}');
+      delete from writing_enrichment_inventory_runs where created_by='${state.actor}';
+      delete from adle_word_skill_candidate_packages where id='${state.packageId}';
+      commit; select true cleaned;`);
+    check(await client.auth.admin.deleteUser(state.actor));
+    assert.deepEqual(await counts(), state.baseline);
+    unlinkSync(FILE);
+    console.log(JSON.stringify({ status: "unreviewed_fixture_removed", protectedCountsRestored: true }));
   } else if (command === "cleanup") {
     const state = load(); assert.equal(state.verified, true, "Verify before cleanup");
     check(await client.from("writing_enrichment_controls").update({ inventory_enabled: false, generation_enabled: false, replay_enabled: false }).eq("environment_key", "local"));
@@ -219,5 +272,5 @@ if (command === "apply") {
     assert.ok(controls.every((row) => !row.inventory_enabled && !row.generation_enabled && !row.replay_enabled));
     state.cleaned = true; save(state);
     console.log(JSON.stringify({ status: "cleanup_verified", protectedCountsRestored: true, fixtureResidue: 0 }));
-  } else throw new Error("Use apply, setup, recover, verify-publication, verify or cleanup");
+  } else throw new Error("Use apply, setup, recover, verify-publication, verify, reset-partial, reset-unreviewed or cleanup");
 }

@@ -123,6 +123,8 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
       completed++;
     } catch (error) {
       failed++;
+      const diagnosticCode = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : "UNCLASSIFIED_FAILURE";
+      console.error("[writing-shadow] bounded run failed", { code: diagnosticCode });
       const code = error instanceof Error && error.message === "UNSUPPORTED_VERSION" ? "UNSUPPORTED_VERSION" : "ANALYSIS_FAILED";
       const saved = await client.rpc("finish_writing_shadow_run", { p_run_id: run.id, p_lease_token: run.lease_token, p_result: null, p_error_code: code });
       if (saved.error) console.error("[writing-shadow] failure receipt unavailable", { code: "FAILURE_RECEIPT_UNAVAILABLE" });
