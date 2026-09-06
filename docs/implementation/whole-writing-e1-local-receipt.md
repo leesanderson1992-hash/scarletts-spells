@@ -36,10 +36,8 @@ The proof also hashes the installed result writer before and after the E1
 migration and confirms it is unchanged. Scope triggers compose with either the
 baseline writer or S5's projection writer; E1 does not replace evidence storage.
 
-## Remaining gate
+## Staging gate
 
-Local fixtures cannot prove the full staging migration chain, PostgREST schema
-cache, Preview admin action or actual staging authority readers. E1 is not complete
-until the disposable staging flow passes verification before cleanup and its
-receipt records the Preview, migration hash, exact before/after state and residue
-check. All E1, S4 and whole-writing controls must be off after cleanup.
+The [disposable staging receipt](whole-writing-e1-staging-receipt.md) records the
+completed full-schema, PostgREST, browser, runtime, metric and cleanup proof. The
+staging gate passed with all operational controls off after cleanup.

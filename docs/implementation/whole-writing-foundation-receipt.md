@@ -30,7 +30,7 @@ embodied by an intended word.
 | S2 | Stable UTF-16 occurrences for text, textarea, table and interview string leaves; repeated/short words; Unicode; explicit block mirrors; unknown fields retained | Browser lesson/returned-work and concurrent test RPC fixtures passed; additional structures require schema-led fixtures |
 | S3 | Exact active dictionary resolution independent of Target status; dialect-scoped index; ambiguity/inactive/unmapped states; content fingerprints; separate intended-word candidates | Exact staging dictionary resolution and unmapped retention passed; approved aliases still need a governed adapter |
 | S4 | Durable enumerated reviewed-pair publication, withdrawal records and a loader into Phase B's existing `explicit_reviewed_association` adapter; Phase B remains the effective relationship authority | S4 review/publication workflow and staging source reconciliation passed; see the S4 receipt; real releases remain human-approved |
-| E1 | Candidate-package validation; explicit human publication RPC; durable affected-snapshot work; bounded scheduling and retrospective shadow replay | Wire existing batch generators/review tooling; operational candidate backlog, curator metrics and release withdrawal replay workflow |
+| E1 | Versioned aggregate gap inventory; deterministic generation; bounded S4 batches; curator metrics; authority-event scheduling; occurrence-scoped publication and withdrawal replay; release reconciliation and aggregate metrics | A genuine operational pilot awaits source approval for an uncovered active word; AI remains disabled |
 | S5 | Append-only pending assessments; new Phase C source vocabulary; unknown independence blocked explicitly; worker stores Phase C shadow decisions and governed relationships | Restricted longitudinal report surface, existing verified-source compatibility reconciliation and staging proof |
 | S6–S10 | Existing behaviour retained; no new error, retry, intake, context, qualification or reward integration | Implement the ordered roadmap after foundation proof, respecting G1–G3 and consumer isolation |
 | S11 | Read-only distinct-word, transfer and UTC-day input-set helper using existing positive Phase C projections | Governed eligibility/group/complexity inputs, required pools and reproducible calibration pack |
@@ -172,8 +172,8 @@ submission action, recovery route, parent isolation and returned-work UI,
 including reload and cleanup. The [staging receipt](whole-writing-staging-proof-receipt.md)
 records exact scope and limitations. [S4 review/publication](whole-writing-s4-staging-receipt.md)
 is implemented and staging-verified. [E1 enrichment operations](whole-writing-e1-mass-enrichment.md)
-are implemented and locally verified from the clean S4 baseline; their disposable
-staging receipt remains the final E1 gate. S5 longitudinal shadow inspection can
+are implemented and [disposable-staging verified](whole-writing-e1-staging-receipt.md)
+from the clean S4 baseline. S5 longitudinal shadow inspection can
 continue against the shared per-occurrence persistence contract before S6–S8
 parent-review/retry/intake integrations. No production rollout is implied.
 
