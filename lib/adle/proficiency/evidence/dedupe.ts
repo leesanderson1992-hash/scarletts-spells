@@ -21,6 +21,7 @@ const SOURCE_PRIORITY: Record<LearnerEvidenceSourceKind, number> = {
   adle_review_repair_attempt: 10,
   adle_taught_word_history: 11,
   word_treasure_evidence_candidate: 12,
+  whole_writing_occurrence: 13,
 };
 
 function decision(
@@ -53,6 +54,7 @@ function initialDecision(candidate: RawLearnerEvidenceCandidate): LearnerEvidenc
   if (candidate.environment === "EXPOSURE_ONLY") return decision(candidate, "EXCLUDED", "EXPOSURE_IS_NOT_PERFORMANCE");
   if (!candidate.canonicalWordId) return decision(candidate, "BLOCKED", "CANONICAL_WORD_ID_MISSING");
   if (!candidate.canonicalWordResolution) return decision(candidate, "BLOCKED", "CANONICAL_WORD_ID_UNKNOWN");
+  if (candidate.independence === "unknown") return decision(candidate, "BLOCKED", "INDEPENDENCE_UNKNOWN");
   return null;
 }
 

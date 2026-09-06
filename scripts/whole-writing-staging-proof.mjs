@@ -1,0 +1,86 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { createClient } from "@supabase/supabase-js";
+
+const REF="jlhotktspjvffslvuyfz";
+const ROOT=".tmp/whole-writing-staging";
+const FILE=`${ROOT}/fixture.json`;
+const keys=JSON.parse(readFileSync(`${ROOT}/keys.json`,"utf8"));
+const url=`https://${REF}.supabase.co`;
+const client=createClient(url,keys.service_role,{auth:{persistSession:false,autoRefreshToken:false}});
+const state=()=>JSON.parse(readFileSync(FILE,"utf8"));
+const save=f=>writeFileSync(FILE,JSON.stringify(f,null,2),{mode:0o600});
+const command=process.argv[2];
+function check(result){if(result.error)throw new Error(result.error.message);return result.data;}
+async function insert(table,row){return check(await client.from(table).insert(row).select("id").single()).id;}
+const protectedTables=["adle_learning_items","child_gold_coin_ledger_events","child_gold_bar_ledger_events","adle_authentic_use_events","adle_review_schedule_words"];
+async function counts(){return Object.fromEntries(await Promise.all(protectedTables.map(async table=>{const r=await client.from(table).select("id",{head:true,count:"exact"});check(r);return[table,r.count];})));}
+async function parentClient(f,other=false){const c=createClient(url,keys.anon,{auth:{persistSession:false,autoRefreshToken:false}});check(await c.auth.signInWithPassword({email:other?f.otherEmail:f.email,password:f.password}));return c;}
+if(command==="setup"){
+  assert.ok(!existsSync(FILE),"Fixture already exists; resume it");
+  const tag=randomUUID();const f={tag,email:`writing-${tag}@example.test`,otherEmail:`writing-other-${tag}@example.test`,password:`Writing-proof-${randomUUID()}!`,baseline:await counts()};save(f);
+  f.parentId=check(await client.auth.admin.createUser({email:f.email,password:f.password,email_confirm:true})).user.id;save(f);
+  f.otherParentId=check(await client.auth.admin.createUser({email:f.otherEmail,password:f.password,email_confirm:true})).user.id;save(f);
+  f.childId=await insert("children",{parent_user_id:f.parentId,first_name:"Writing Proof",notes:`disposable-whole-writing:${tag}`});save(f);
+  f.courseId=await insert("courses",{parent_user_id:f.parentId,child_id:f.childId,title:"Whole-writing proof",description:`disposable:${tag}`,structure_type:"timed"});save(f);
+  f.moduleId=await insert("course_modules",{parent_user_id:f.parentId,course_id:f.courseId,title:"Source capture proof",position:0});save(f);
+  const schema={version:1,theme:"scarlett-default",title:"Whole-writing source proof",blocks:[
+    {block_id:"prompt",block_type:"rich_text",content:"Supplied prompt words must stay out of learner evidence."},
+    {block_id:"story",block_type:"question_textarea",label:"Story",rows:5},
+    {block_id:"second",block_type:"question_textarea",label:"Another answer",rows:3},
+    {block_id:"table",block_type:"question_table",label:"Word table",row_count:2,columns:[{column_id:"word",label:"Written word",input_type:"text"},{column_id:"option",label:"Selected label",input_type:"select",options:[{label:"Supplied",value:"supplied"}]}]},
+    {block_id:"interview",block_type:"question_repeatable_interview",label:"Interview",repeat_count:1,questions:[{question_id:"answer",prompt:"Their answer"}]},
+  ]};
+  f.taskId=await insert("course_tasks",{parent_user_id:f.parentId,course_id:f.courseId,module_id:f.moduleId,title:"Whole-writing source proof",task_type:"lesson",position:0,is_active:true,coin_reward_trigger:"none",gold_bar_rule:"none",lesson_schema:schema});save(f);
+  check(await client.from("writing_shadow_controls").insert({child_id:f.childId,parent_user_id:f.parentId,capture_enabled:true,processing_enabled:true,extraction_enabled:true,resolution_enabled:true,evidence_shadow_enabled:false}));
+  console.log(JSON.stringify({status:"fixture_ready",childId:f.childId,taskPath:`/learn/modules/${f.moduleId}/tasks/${f.taskId}?child=${f.childId}&mode=child`}));
+}else if(command==="inspect"){
+  const f=state();const submissions=check(await client.from("task_submissions").select("id,submission_request_id,submitted_at,parent_review_status").eq("child_id",f.childId).order("submitted_at"));
+  const snapshots=check(await client.from("writing_source_snapshots").select("id,submission_id,envelope").eq("child_id",f.childId));
+  const runs=snapshots.length?check(await client.from("writing_shadow_runs").select("id,snapshot_id,status,attempt_count,error_code,result").in("snapshot_id",snapshots.map(s=>s.id))):[];
+  console.log(JSON.stringify({submissions,snapshots:snapshots.map(s=>({id:s.id,submission:s.submission_id,rawDraft:s.envelope.draftPayload!==null})),runs:runs.map(r=>({id:r.id,status:r.status,attempts:r.attempt_count,error:r.error_code,occurrences:r.result?.occurrences?.length}))}));
+}else if(command==="verify"){
+  const f=state();const snapshots=check(await client.from("writing_source_snapshots").select("*").eq("child_id",f.childId).order("occurred_at"));assert.ok(snapshots.length>=1);
+  for(const s of snapshots){
+    const runs=check(await client.from("writing_shadow_runs").select("*").eq("snapshot_id",s.id).eq("status","completed"));assert.ok(runs.length>=1,"Recovery has not completed");
+    for(const r of runs){assert.equal(r.result.qualification,"NOT_QUALIFIED");assert.ok(r.result.occurrences.length>0);assert.ok(r.result.occurrences.every(o=>o.interpretation.correctness==="NOT_ASSESSED"));}
+    const parent=await parentClient(f);assert.equal(check(await parent.from("writing_source_snapshots").select("id").eq("id",s.id)).length,1);
+    const other=await parentClient(f,true);assert.equal(check(await other.from("writing_source_snapshots").select("id").eq("id",s.id)).length,0);
+    assert.ok((await other.rpc("claim_writing_shadow_runs",{p_limit:1})).error);
+    assert.ok((await client.from("writing_source_snapshots").update({source_revision:"tampered"}).eq("id",s.id)).error);
+    const initial=s.envelope.draftPayload.__structured_lesson_response.answers.find(a=>a.block_id==="story").value;
+    assert.ok(initial.startsWith("  🐕"),"Leading raw whitespace lost");
+    const first=runs[0].result.occurrences.find(o=>o.fieldKey.endsWith("/answers/0/value"));
+    assert.ok(runs[0].result.occurrences.some(o=>o.observedText==="I"&&o.start===5),"UTF-16 offset after raw whitespace/emoji lost");
+    assert.ok(first || runs[0].result.occurrences.some(o=>o.observedText==="I"));
+    assert.ok(!runs[0].result.occurrences.some(o=>o.observedText==="supplied"));
+  }
+  assert.deepEqual(await counts(),f.baseline,"Protected learning/reward counts changed");
+  f.verifiedSnapshots=snapshots.map(s=>s.id);save(f);
+  console.log(JSON.stringify({status:"verified",snapshots:snapshots.length,rawFidelity:true,ownershipIsolation:true,noLearningConsequences:true}));
+}else if(command==="replay"){
+  const f=state();const s=check(await client.from("writing_source_snapshots").select("id").eq("child_id",f.childId).order("occurred_at").limit(1).single());
+  f.replaySnapshot=s.id;f.beforeReplay=check(await client.from("writing_occurrences").select("id").eq("snapshot_id",s.id)).map(o=>o.id).sort();save(f);
+  const params={p_snapshot_ids:[s.id],p_release_key:`proof-replay:${f.tag}`};assert.equal(check(await client.rpc("enqueue_writing_shadow_replay",params)),1);assert.equal(check(await client.rpc("enqueue_writing_shadow_replay",params)),0);
+  const claims=check(await client.rpc("claim_writing_shadow_runs",{p_limit:1}));assert.equal(claims.length,1);
+  f.interruptedRun=claims[0];save(f);
+  check(await client.from("writing_shadow_runs").update({started_at:new Date(Date.now()-11*60000).toISOString()}).eq("id",claims[0].id));
+  console.log(JSON.stringify({status:"interrupted_replay_ready"}));
+}else if(command==="verify-replay"){
+  const f=state();const run=check(await client.from("writing_shadow_runs").select("*").eq("id",f.interruptedRun.id).single());assert.equal(run.status,"completed");assert.equal(run.attempt_count,2);
+  assert.equal(check(await client.rpc("persist_writing_shadow_result",{p_run_id:run.id,p_lease_token:f.interruptedRun.lease_token,p_result:{}})),false);
+  assert.deepEqual(check(await client.from("writing_occurrences").select("id").eq("snapshot_id",f.replaySnapshot)).map(o=>o.id).sort(),f.beforeReplay);
+  assert.deepEqual(await counts(),f.baseline);console.log(JSON.stringify({status:"replay_verified",stableOccurrences:f.beforeReplay.length,staleLeaseRejected:true,noLearningConsequences:true}));
+}else if(command==="return"){
+  const f=state();const s=check(await client.from("task_submissions").select("id").eq("child_id",f.childId).order("submitted_at",{ascending:false}).limit(1).single());
+  check(await client.from("task_submissions").update({parent_review_status:"returned",parent_review_note:"Disposable proof: submit the same writing again.",parent_reviewed_at:new Date().toISOString()}).eq("id",s.id));console.log(JSON.stringify({status:"returned",submission:s.id}));
+}else if(command==="cleanup"){
+  const f=state();
+  check(await client.from("writing_shadow_controls").update({capture_enabled:false,processing_enabled:false}).eq("child_id",f.childId));
+  // Existing cascade lifecycle removes only the exact disposable parents.
+  check(await client.auth.admin.deleteUser(f.parentId));check(await client.auth.admin.deleteUser(f.otherParentId));
+  assert.equal(check(await client.from("writing_source_snapshots").select("id").eq("child_id",f.childId)).length,0);
+  assert.equal(check(await client.from("children").select("id").eq("id",f.childId)).length,0);
+  assert.deepEqual(await counts(),f.baseline);f.cleaned=true;save(f);console.log(JSON.stringify({status:"cleanup_verified",protectedCountsRestored:true}));
+}else throw new Error("Use setup, inspect, verify, replay, verify-replay, return or cleanup");
