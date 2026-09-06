@@ -65,7 +65,9 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
           : { status: "not_assessed", canonicalWordId: null, candidates: [], normalizedForm: normaliseSurface(occurrence.observedText), dialect: "en-GB", correctness: "NOT_ASSESSED" };
         const demonstrated = controls.data.evidence_shadow_enabled && interpretation.canonicalWordId && relationships
           ? relationships.relationships.filter((r) => r.canonicalWordId === interpretation.canonicalWordId) : [];
-        return { ...occurrence, assessmentId: randomUUID(), interpretation: { ...interpretation, relationships: demonstrated, relationshipFingerprint: relationships?.reconciliation.sourceFingerprint ?? null, evidenceStatus: "PENDING_VERIFICATION" } };
+        const relationshipDecisions = controls.data.evidence_shadow_enabled && interpretation.canonicalWordId && relationships
+          ? relationships.decisions.filter(d => d.canonicalWordId === interpretation.canonicalWordId) : [];
+        return { ...occurrence, assessmentId: randomUUID(), interpretation: { ...interpretation, relationships: demonstrated, relationshipDecisions, relationshipFingerprint: relationships?.reconciliation.sourceFingerprint ?? null, evidenceStatus: "PENDING_VERIFICATION" } };
       });
       const shadowEvidence = controls.data.evidence_shadow_enabled && relationships ? readWholeWritingShadowEvidence(occurrences.map((occurrence) => ({
         occurrenceId: occurrence.id, assessmentId: occurrence.assessmentId,

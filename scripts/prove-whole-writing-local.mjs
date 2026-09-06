@@ -10,6 +10,7 @@ import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { postgresWorkerClient } from "./fixtures/whole-writing-postgres-client.mjs";
+import { proveWordSkillReview } from "./fixtures/prove-word-skill-review.mjs";
 
 const runtime = process.env.WRITING_PROOF_RUNTIME;
 assert.ok(runtime, "WRITING_PROOF_RUNTIME must name an isolated installed native PostgreSQL runtime");
@@ -57,6 +58,7 @@ try {
   await db.query(migration("20260906110000_add_whole_writing_occurrences.sql"));
   await db.query(migration("20260906120000_add_reviewed_word_skill_publications.sql"));
   await db.query(migration("20260906130000_add_writing_shadow_health.sql"));
+  await db.query(migration("20260906140000_add_word_skill_review_workflow.sql"));
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);
@@ -184,7 +186,9 @@ try {
   assert.ok(workerResult.occurrences.every((o) => o.interpretation.correctness==='NOT_ASSESSED'));
   assert.equal((await recoverWritingShadowRuns(postgresWorkerClient(db))).claimed,0);
   assert.ok((await db.query("select attempt_count from task_submission_processing_jobs")).rows.every((j) => j.attempt_count===0)); proof();
-  console.log(JSON.stringify({ status:"passed",proofs,database:"disposable PostgreSQL 18", productionConnections:0, limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
+  await db.query("insert into micro_skill_catalog values('second_fixture_skill',true)");
+  const reviewProofs = await proveWordSkillReview({ db, connect, actor: parent, otherActor: otherParent, word });
+  console.log(JSON.stringify({ status:"passed",proofs,reviewProofs,database:"disposable PostgreSQL 18", productionConnections:0, limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
 } finally {
   await Promise.allSettled(connections.map((client) => client.end()));
   if (started) execFileSync(binaries.pg_ctl,["-D",dataDir,"-m","immediate","-w","stop"],options);

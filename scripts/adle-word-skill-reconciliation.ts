@@ -4,6 +4,7 @@ import { readCanonicalWordSkillRelationships } from "../lib/adle/word-skill-rela
 import { phaseBFixtureFacts, phaseBFixtureSkills, phaseBFixtureWords } from "../lib/adle/word-skill-relationships/fixtures";
 import { formatCanonicalWordSkillReconciliationReport } from "../lib/adle/word-skill-relationships/report";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../lib/adle/word-skill-relationships/repository";
+import { loadPublishedWritingAssociations } from "../lib/writing-engine/whole-writing/knowledge-repository";
 import type { CanonicalWordSkillRelationshipReadResult } from "../lib/adle/word-skill-relationships/contracts";
 
 const REPRESENTATIVE_WORDS = ["careful", "playing", "dishonest", "hopeful"] as const;
@@ -76,7 +77,9 @@ async function main() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SB_SERVICE_ROLE_KEY?.trim();
   if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SB_SERVICE_ROLE_KEY are required");
   const client = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
-  const result = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environmentKey as "local" | "staging" | "production" });
+  const explicitReviewedAssociations = process.argv.includes("--include-reviewed-associations")
+    ? await loadPublishedWritingAssociations(client, environmentKey as "local" | "staging" | "production") : undefined;
+  const result = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environmentKey as "local" | "staging" | "production", explicitReviewedAssociations });
   const report = formatCanonicalWordSkillReconciliationReport(result, `${environmentKey} read-only source facts`);
   const representatives = await formatLiveRepresentatives(client, result);
   console.log(`${report}\n${representatives}`);
