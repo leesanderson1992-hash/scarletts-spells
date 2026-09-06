@@ -2,7 +2,7 @@
 
 This checkpoint implements the capture-to-shadow-evidence foundation of the
 approved whole-writing roadmap. **It does not complete S1–S13 or activate any
-learning consequences.** All new producer controls default to off. The four additive migrations and a
+learning consequences.** All new producer controls default to off. The six additive migrations and a
 disposable S1–S3 staging proof are now complete; see the
 [staging receipt](whole-writing-staging-proof-receipt.md). No production change,
 knowledge publication or learning consequence was activated. The unconfirmed
@@ -31,7 +31,7 @@ embodied by an intended word.
 | S3 | Exact active dictionary resolution independent of Target status; dialect-scoped index; ambiguity/inactive/unmapped states; content fingerprints; separate intended-word candidates | Exact staging dictionary resolution and unmapped retention passed; approved aliases still need a governed adapter |
 | S4 | Durable enumerated reviewed-pair publication, withdrawal records and a loader into Phase B's existing `explicit_reviewed_association` adapter; Phase B remains the effective relationship authority | S4 review/publication workflow and staging source reconciliation passed; see the S4 receipt; real releases remain human-approved |
 | E1 | Candidate-package validation; explicit human publication RPC; durable affected-snapshot work; bounded scheduling and retrospective shadow replay | Wire existing batch generators/review tooling; operational candidate backlog, curator metrics and release withdrawal replay workflow |
-| S5 | Append-only pending assessments; new Phase C source vocabulary; unknown independence blocked explicitly; worker stores Phase C shadow decisions and governed relationships | Restricted longitudinal report surface, existing verified-source compatibility reconciliation and staging proof |
+| S5 | Indexed append-only Phase C decision receipts and governed skill candidates for every occurrence; deterministic current/history selection; exact compatibility-lineage reconciliation; admin-only longitudinal report; unknown facts stay blocked | Disposable staging recovery/report/reload/cleanup gate |
 | S6–S10 | Existing behaviour retained; no new error, retry, intake, context, qualification or reward integration | Implement the ordered roadmap after foundation proof, respecting G1–G3 and consumer isolation |
 | S11 | Read-only distinct-word, transfer and UTC-day input-set helper using existing positive Phase C projections | Governed eligibility/group/complexity inputs, required pools and reproducible calibration pack |
 | S12 | No target level mathematics or consumer cutover implemented | G3/G4 and the existing proficiency overhaul prerequisites |
@@ -48,6 +48,8 @@ Apply these **additive** migrations in order to the approved proof environment:
 2. `20260906110000_add_whole_writing_occurrences.sql`
 3. `20260906120000_add_reviewed_word_skill_publications.sql`
 4. `20260906130000_add_writing_shadow_health.sql`
+5. `20260906140000_add_word_skill_review_workflow.sql`
+6. `20260906150000_add_whole_writing_shadow_projections.sql`
 
 The latest `submit_course_task_response_once` RPC remains unchanged. Its job
 insertion and source capture share one transaction. Duplicate requests reuse

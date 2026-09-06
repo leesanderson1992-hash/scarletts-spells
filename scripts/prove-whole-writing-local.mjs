@@ -59,6 +59,7 @@ try {
   await db.query(migration("20260906120000_add_reviewed_word_skill_publications.sql"));
   await db.query(migration("20260906130000_add_writing_shadow_health.sql"));
   await db.query(migration("20260906140000_add_word_skill_review_workflow.sql"));
+  await db.query(migration("20260906150000_add_whole_writing_shadow_projections.sql"));
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);
@@ -170,6 +171,30 @@ try {
   assert.equal((await db.query("select count(*)::int n from writing_occurrences")).rows[0].n,1);
   assert.equal((await db.query("select count(*)::int n from writing_occurrence_interpretations where canonical_word_id=$1",[word])).rows[0].n,1);
   assert.equal((await db.query("select count(*)::int n from writing_occurrence_assessments where outcome<>'unknown'")).rows[0].n,0); proof();
+  function s5Result(assessmentId) {
+    const relationship={canonicalWordId:word,microSkillKey:"fixture_skill",relationshipRole:"demonstrates",positiveEvidenceEligible:true,authorityFingerprint:"fixture-relationship"};
+    const interpreted={...occurrence,assessmentId,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word,relationships:[relationship],relationshipFingerprint:"fixture-authority"}};
+    return {...result,relationshipAuthorityFingerprint:"fixture-authority",occurrences:[interpreted],shadowEvidence:{events:[],projections:[],decisions:[{
+      candidateId:`whole-writing-assessment:${assessmentId}`,sourceKind:"whole_writing_occurrence",sourceEntityId:occurrence.id,
+      disposition:"BLOCKED",reason:"SOURCE_CONTEXT_UNSUPPORTED",performanceLineageKey:`whole-writing:${child}:${occurrence.id}`,eventId:null,
+    }],reconciliation:{interpretationVersion:"ADLE_LEARNER_EVIDENCE_PROJECTION_V1",sourceFingerprint:`source-${assessmentId}`,eventFingerprint:"empty-events",projectionFingerprint:"empty-projections",rawCandidateSourceRowCount:1,admittedSourceEventCount:0,excludedCount:0,blockedCount:1,ambiguousCount:0}}};
+  }
+  for (const replayKey of ["s5-first","s5-second"]) {
+    await db.query("select enqueue_writing_shadow_replay($1,$2)",[[source.id],replayKey]);
+    const claimed=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+    const assessmentId=randomUUID();
+    assert.equal((await db.query("select persist_writing_shadow_result($1,$2,$3) ok",[claimed.id,claimed.lease_token,s5Result(assessmentId)])).rows[0].ok,true);
+  }
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_projection_batches where snapshot_id=$1",[source.id])).rows[0].n,2);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_occurrence_evidence_receipts e join writing_shadow_projection_batches b on b.id=e.batch_id where b.snapshot_id=$1",[source.id])).rows[0].n,2);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_occurrence_skill_candidates")).rows[0].n,2);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_skill_evidence_projections")).rows[0].n,0);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_current_occurrence_evidence e join writing_shadow_current_projection_batches b on b.id=e.batch_id where b.snapshot_id=$1",[source.id])).rows[0].n,1);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_current_occurrence_evidence where lineage_reconciliation='EXACT_HISTORICAL_MATCH'")).rows[0].n,1); proof();
+  await assert.rejects(db.query("update writing_shadow_occurrence_evidence_receipts set reason='changed'"),/immutable/);
+  await db.query("set role authenticated"); await db.query("select set_config('request.jwt.claim.sub',$1,false)",[parent]);
+  await assert.rejects(db.query("select * from writing_shadow_current_occurrence_evidence"),/permission denied/);
+  await db.query("reset role"); await db.query("select set_config('request.jwt.claim.sub',$1,false)",[parent]); proof();
   await assert.rejects(db.query("update adle_reviewed_word_skill_pairs set relationship_role='negative_only'"),/immutable/);
   await db.query("insert into adle_reviewed_word_skill_withdrawals(release_id,reviewed_by,reason) values($1,$2,'Synthetic withdrawal')",[release,parent]);
   assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_pairs")).rows[0].n,1); proof();

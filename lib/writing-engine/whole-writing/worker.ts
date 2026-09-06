@@ -81,6 +81,7 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
       const result = { analysisVersion: run.analysis_version, extractionVersion: extraction?.version ?? null,
         sourceContextKind: object(envelope.taskContext).kind ?? "missing", baseline: baseline.summary,
         fields: extraction?.fields ?? [], occurrences, diagnostics: extraction?.diagnostics ?? [],
+        relationshipAuthorityFingerprint: relationships?.reconciliation.sourceFingerprint ?? null,
         shadowEvidence, qualification: "NOT_QUALIFIED", aiCalls: 0, processingMs: Date.now() - started };
       const saved = await client.rpc("persist_writing_shadow_result", { p_run_id: run.id, p_lease_token: run.lease_token, p_result: result });
       if (saved.error || saved.data !== true) throw new Error("RESULT_SAVE_FAILED");
