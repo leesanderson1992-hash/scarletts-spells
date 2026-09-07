@@ -152,3 +152,8 @@ before staging.
 External source versions and permitted uses still require explicit approval.
 Any later offline AI work also requires an owner-selected provider/model, input
 policy, retention terms, call/token/cost budget and curator responsibility.
+
+The first [genuine-source staging pilot](whole-writing-e1-genuine-source-pilot.md)
+uses a redacted receipt for an existing governed Production mapping and is
+awaiting exact-pair human review. No Production writing was copied and
+publication/replay remain disabled.
