@@ -7,6 +7,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { applyAdleCatalogReviewDecision } from "@/lib/adle/review-work/admin-catalog-route";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { surfaceReturnedCorrectionReplayRecommendations } from "@/lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply";
+import { continueUnknownErrorAfterAdminDecision } from "@/lib/writing-engine/whole-writing/unknown-error-continuation";
 
 const ADMIN_CATALOG_REVIEW_PATH = "/admin/catalog-review";
 
@@ -21,10 +22,7 @@ const ADMIN_DECISION_TYPES = [
 
 type AdminDecisionType = (typeof ADMIN_DECISION_TYPES)[number];
 
-function buildRedirectWithMessage(
-  key: "saved" | "error",
-  value: string,
-) {
+function buildRedirectWithMessage(key: "saved" | "error", value: string) {
   const searchParams = new URLSearchParams();
   searchParams.set(key, value);
   return `${ADMIN_CATALOG_REVIEW_PATH}?${searchParams.toString()}`;
@@ -37,7 +35,8 @@ function readRequiredText(formData: FormData, key: string) {
 
 function readOptionalText(formData: FormData, key: string, maxLength: number) {
   const value = formData.get(key);
-  const normalized = typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+  const normalized =
+    typeof value === "string" ? value.trim().slice(0, maxLength) : "";
   return normalized.length > 0 ? normalized : null;
 }
 
@@ -72,7 +71,11 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     readRequiredText(formData, "decision_type"),
   );
   const decisionNote = readOptionalText(formData, "decision_note", 500);
-  const submittedMicroSkillKey = readOptionalText(formData, "micro_skill_key", 120);
+  const submittedMicroSkillKey = readOptionalText(
+    formData,
+    "micro_skill_key",
+    120,
+  );
 
   if (!caseId || !decisionType) {
     redirect(
@@ -128,7 +131,9 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     .eq("id", caseId)
     .maybeSingle();
   if (caseStateResult.error || !caseStateResult.data) {
-    redirect(buildRedirectWithMessage("error", "Catalog-review case not found."));
+    redirect(
+      buildRedirectWithMessage("error", "Catalog-review case not found."),
+    );
   }
   const isAdleBacklogResume =
     caseStateResult.data.source_provenance ===
@@ -140,23 +145,20 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
     ? "resume_adle_spelling_catalog_review_case_admin"
     : "resolve_spelling_catalog_review_case_admin";
 
-  const { error } = await supabase.rpc(
-    rpcName,
-    {
-      p_admin_email: adminUser.email ?? null,
-      p_admin_user_id: adminUser.id,
-      p_case_id: caseId,
-      p_decision_note: decisionNote,
-      p_decision_type: decisionType,
-      p_linked_micro_skill_key: linkedMicroSkillKey,
-      p_metadata: {
-        action_source: "admin_catalog_review_4e2",
-        canonical_mapping_created: decisionType === "add_canonical_mapping",
-        canonical_mapping_requested: decisionType === "add_canonical_mapping",
-        resolver_visible: false,
-      },
+  const { error } = await supabase.rpc(rpcName, {
+    p_admin_email: adminUser.email ?? null,
+    p_admin_user_id: adminUser.id,
+    p_case_id: caseId,
+    p_decision_note: decisionNote,
+    p_decision_type: decisionType,
+    p_linked_micro_skill_key: linkedMicroSkillKey,
+    p_metadata: {
+      action_source: "admin_catalog_review_4e2",
+      canonical_mapping_created: decisionType === "add_canonical_mapping",
+      canonical_mapping_requested: decisionType === "add_canonical_mapping",
+      resolver_visible: false,
     },
-  );
+  });
 
   if (error) {
     redirect(
@@ -199,13 +201,26 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
         nowIso: new Date().toISOString(),
         triggerSource: "admin_hook",
       });
+      const continuation = await continueUnknownErrorAfterAdminDecision({
+        serviceClient: supabase,
+        adminCaseId: caseId,
+      });
+      if (continuation.status === "partially_blocked") {
+        console.info(
+          "[whole-writing-s7] admin decision retained for later continuation",
+          {
+            caseId,
+            blockedIssueIds: continuation.blockedIssueIds,
+          },
+        );
+      }
     } catch (surfaceError) {
       redirect(
         buildRedirectWithMessage(
           "error",
           surfaceError instanceof Error
             ? surfaceError.message
-            : "Catalog-review decision saved, but deferred replay recommendations could not be refreshed.",
+            : "Catalog-review decision saved, but the governed continuation could not be completed.",
         ),
       );
     }
@@ -213,7 +228,5 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
 
   revalidatePath(ADMIN_CATALOG_REVIEW_PATH);
   revalidatePath("/admin/canonical-mappings");
-  redirect(
-    buildRedirectWithMessage("saved", "Catalog-review decision saved."),
-  );
+  redirect(buildRedirectWithMessage("saved", "Catalog-review decision saved."));
 }

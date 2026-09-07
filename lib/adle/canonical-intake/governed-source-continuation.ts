@@ -9,6 +9,7 @@ type GovernedSourceAuthority = {
   submissionId: string | null;
   adleReviewSessionId: string | null;
   occurrenceId: string | null;
+  wholeWritingOccurrenceId: string | null;
   misspellingNormalized: string;
   correctSpellingNormalized: string;
   microSkillKey: string;
@@ -62,6 +63,10 @@ function parseAuthority(
       row.source_misspelling_instance_id,
       "occurrence ID",
     ),
+    wholeWritingOccurrenceId: nullableString(
+      row.source_writing_occurrence_id,
+      "whole-writing occurrence ID",
+    ),
     misspellingNormalized: requiredString(
       row.misspelling_normalized,
       "misspelling identity",
@@ -80,10 +85,18 @@ function parseAuthority(
     authority.parentUserId !== expected.parentUserId ||
     authority.childId !== expected.childId
   ) {
-    throw new Error("Governed-source continuation receipt changed exact identity");
+    throw new Error(
+      "Governed-source continuation receipt changed exact identity",
+    );
   }
-  if (Number(Boolean(authority.submissionId)) + Number(Boolean(authority.adleReviewSessionId)) !== 1) {
-    throw new Error("Governed-source continuation returned an ambiguous source anchor");
+  if (
+    Number(Boolean(authority.submissionId)) +
+      Number(Boolean(authority.adleReviewSessionId)) !==
+    1
+  ) {
+    throw new Error(
+      "Governed-source continuation returned an ambiguous source anchor",
+    );
   }
   return authority;
 }
@@ -99,12 +112,26 @@ export async function ensureCanonicalIntakeForGovernedSource(input: {
   parentUserId: string;
   childId: string;
 }): Promise<GovernedSourceContinuationResult> {
-  const { data: authorization, error: authorizationError } =
-    await input.serviceClient.rpc("adle_authorize_governed_source_continuation", {
-      p_candidate_mapping_id: input.candidateMappingId,
-      p_expected_parent_user_id: input.parentUserId,
-      p_expected_child_id: input.childId,
-    });
+  const authorizationArgs = {
+    p_candidate_mapping_id: input.candidateMappingId,
+    p_expected_parent_user_id: input.parentUserId,
+    p_expected_child_id: input.childId,
+  };
+  let { data: authorization, error: authorizationError } =
+    await input.serviceClient.rpc(
+      "adle_authorize_governed_source_continuation_s7",
+      authorizationArgs,
+    );
+  if (
+    authorizationError &&
+    ["PGRST202", "42883"].includes(authorizationError.code ?? "")
+  ) {
+    ({ data: authorization, error: authorizationError } =
+      await input.serviceClient.rpc(
+        "adle_authorize_governed_source_continuation",
+        authorizationArgs,
+      ));
+  }
   if (authorizationError) {
     throw new Error(
       `Governed-source continuation authorization failed: ${authorizationError.message}`,
@@ -114,21 +141,29 @@ export async function ensureCanonicalIntakeForGovernedSource(input: {
 
   const { data: skill, error: skillError } = await input.serviceClient
     .from("micro_skill_catalog")
-    .select("micro_skill_key,skill_cluster_key,mastery_domain_key,is_active,is_assignable")
+    .select(
+      "micro_skill_key,skill_cluster_key,mastery_domain_key,is_active,is_assignable",
+    )
     .eq("micro_skill_key", authority.microSkillKey)
     .eq("mastery_domain_key", "D4")
     .eq("is_active", true)
     .eq("is_assignable", true)
     .maybeSingle();
   if (skillError) {
-    throw new Error(`Governed-source micro-skill load failed: ${skillError.message}`);
+    throw new Error(
+      `Governed-source micro-skill load failed: ${skillError.message}`,
+    );
   }
   if (!skill || skill.micro_skill_key !== authority.microSkillKey) {
-    throw new Error("Governed-source micro-skill is no longer active and assignable");
+    throw new Error(
+      "Governed-source micro-skill is no longer active and assignable",
+    );
   }
   const route = resolveCanonicalIntakeRoute(
     authority.microSkillKey,
-    typeof skill.skill_cluster_key === "string" ? skill.skill_cluster_key : null,
+    typeof skill.skill_cluster_key === "string"
+      ? skill.skill_cluster_key
+      : null,
   );
   const { data: canonicalIntakeCandidateId, error: seedError } =
     await input.serviceClient.rpc("adle_seed_canonical_intake_candidate", {
@@ -142,7 +177,9 @@ export async function ensureCanonicalIntakeForGovernedSource(input: {
         : `governed_occurrence_source:${authority.candidateMappingId}`,
     });
   if (seedError) {
-    throw new Error(`Governed-source canonical candidate seed failed: ${seedError.message}`);
+    throw new Error(
+      `Governed-source canonical candidate seed failed: ${seedError.message}`,
+    );
   }
 
   return {
@@ -177,8 +214,14 @@ export async function continueResolvedHistoricalOccurrence(input: {
       `Stage-F governed occurrence materialization failed: ${materializationError.message}`,
     );
   }
-  if (!materialized || typeof materialized !== "object" || Array.isArray(materialized)) {
-    throw new Error("Stage-F governed occurrence materialization returned an invalid receipt");
+  if (
+    !materialized ||
+    typeof materialized !== "object" ||
+    Array.isArray(materialized)
+  ) {
+    throw new Error(
+      "Stage-F governed occurrence materialization returned an invalid receipt",
+    );
   }
   const candidateMappingId = requiredString(
     (materialized as Record<string, unknown>).candidate_mapping_id,

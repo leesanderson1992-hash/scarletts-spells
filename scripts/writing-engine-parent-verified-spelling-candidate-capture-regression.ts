@@ -763,6 +763,11 @@ class FakeAddMissedWordQueryBuilder {
     return this;
   }
 
+  limit(value: number) {
+    void value;
+    return this;
+  }
+
   maybeSingle() {
     return Promise.resolve({ data: this.resolveSingle() });
   }
@@ -811,6 +816,8 @@ class FakeAddMissedWordQueryBuilder {
         );
       case "misspelling_instances":
         return this.filterRows(this.state.misspelling ? [this.state.misspelling] : []);
+      case "writing_source_snapshots":
+        return [];
       default:
         throw new Error(`Unexpected table lookup in add missed word harness: ${this.table}`);
     }
@@ -1411,6 +1418,7 @@ async function testAddMissedWordPersistsParentAddedReviewInput() {
       is_false_positive: false,
       is_parent_overridden: false,
       word_family_id: null,
+      source_writing_occurrence_id: null,
       context_text: "natral",
       position_start: 2,
       position_end: 8,

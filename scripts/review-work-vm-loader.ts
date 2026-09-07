@@ -77,6 +77,18 @@ export function loadTsModule<TModule = Record<string, unknown>>(
           );
         }
 
+        if (
+          specifier ===
+          "@/lib/writing-engine/whole-writing/parent-identified-errors"
+        ) {
+          return loadModule(
+            path.resolve(
+              process.cwd(),
+              "lib/writing-engine/whole-writing/parent-identified-errors.ts",
+            ),
+          );
+        }
+
         throw new Error(`Missing stub module for ${specifier}`);
       },
       __dirname: path.dirname(modulePath),

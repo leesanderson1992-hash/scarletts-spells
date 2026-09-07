@@ -48,6 +48,7 @@ import {
   UnifiedSpellingReviewTable,
   type UnifiedSpellingReviewWorkflowPhase,
 } from "../unified-spelling-review-table";
+import { ParentMissedWordForm } from "../parent-missed-word-form";
 import {
   buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
   hasCanonicalMicroSkillKey,
@@ -67,6 +68,7 @@ import {
   parseReviewWorkEntryId,
   parseSubmissionReview,
 } from "../review-utils";
+import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 
 type CourseReviewDetailPageProps = {
   params: Promise<{ submissionId: string }>;
@@ -276,6 +278,51 @@ async function buildDerivedTemplateMetadataByMicroSkillKey(input: {
   });
 }
 
+async function loadParentIdentifiedOccurrenceCandidates(input: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  submissionId: string;
+  parentUserId: string;
+  childId: string;
+}) {
+  const { data: snapshot, error: snapshotError } = await input.supabase
+    .from("writing_source_snapshots")
+    .select("id")
+    .eq("submission_id", input.submissionId)
+    .eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId)
+    .maybeSingle();
+
+  // The whole-writing migrations and cohort capture are independently
+  // deployable. Review Work remains usable while either is unavailable.
+  if (snapshotError || !snapshot) return [];
+
+  const occurrences: ParentIdentifiedOccurrenceCandidate[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await input.supabase
+      .from("writing_occurrences")
+      .select("id,observed_text,field_path,start_utf16,end_utf16,provenance")
+      .eq("snapshot_id", snapshot.id)
+      .eq("provenance", "learner_response")
+      .order("field_path", { ascending: true })
+      .order("start_utf16", { ascending: true })
+      .range(offset, offset + 999);
+    if (error) return [];
+    const rows = data ?? [];
+    occurrences.push(
+      ...rows.map((row) => ({
+        id: row.id,
+        observedText: row.observed_text,
+        fieldPath: row.field_path,
+        startUtf16: row.start_utf16,
+        endUtf16: row.end_utf16,
+        provenance: row.provenance as "learner_response" | "unknown",
+      })),
+    );
+    if (rows.length < 1000) break;
+  }
+  return occurrences;
+}
+
 function LessonParentActionsSection(props: {
   submissionId: string;
   redirectPath: string;
@@ -284,6 +331,7 @@ function LessonParentActionsSection(props: {
   completionSummary: UnifiedSpellingReviewCompletionSummary;
   showZeroSuggestionGuidance: boolean;
   freeWritingEvidenceCandidates: FreeWritingEvidenceReviewCandidate[];
+  parentIdentifiedOccurrences: ParentIdentifiedOccurrenceCandidate[];
 }) {
   const approvalBlocked = !props.completionSummary.canComplete;
   const blockingReasons = props.completionSummary.blockingReasons;
@@ -393,48 +441,12 @@ function LessonParentActionsSection(props: {
         </div>
       ) : null}
 
-      <form
+      <ParentMissedWordForm
         action={addMissedWordToSubmissionReview}
-        className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4"
-      >
-        <input type="hidden" name="submission_id" value={props.submissionId} />
-        <input type="hidden" name="redirect_path" value={props.redirectPath} />
-        <div>
-          <p className="text-sm font-medium text-[color:var(--ink)]">
-            Add missed word
-          </p>
-          <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
-            Save a missed word the parent spotted in this lesson. It will appear
-            as parent-authored review input, not as Suggested Issues engine
-            output.
-          </p>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
-            <span className="font-medium">Word child wrote</span>
-            <input
-              name="misspelled_word"
-              type="text"
-              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
-              placeholder="eg becos"
-            />
-          </label>
-          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
-            <span className="font-medium">Correct spelling</span>
-            <input
-              name="corrected_word"
-              type="text"
-              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[color:var(--ink)]"
-              placeholder="eg because"
-            />
-          </label>
-        </div>
-        <div>
-          <button className="brand-secondary-btn justify-center" type="submit">
-            Add missed word
-          </button>
-        </div>
-      </form>
+        submissionId={props.submissionId}
+        redirectPath={props.redirectPath}
+        occurrences={props.parentIdentifiedOccurrences}
+      />
 
       <div className="mt-4 grid gap-3">
         <form action={approveSubmissionReview} className="grid gap-2">
@@ -680,28 +692,59 @@ export default async function CourseReviewDetailPage({
           <div className="brand-card rounded-3xl p-4 md:p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="brand-eyebrow">ADLE Review · {formatCourseDate(detail.assignmentDate)}</p>
-                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">{detail.challengeTitle}</h1>
+                <p className="brand-eyebrow">
+                  ADLE Review · {formatCourseDate(detail.assignmentDate)}
+                </p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
+                  {detail.challengeTitle}
+                </h1>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">Learner Review complete</span>
-                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${detail.observationalStatus === "reviewed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-sky-200 bg-sky-50 text-sky-700"}`}>
-                    {detail.observationalStatus === "reviewed" ? "Reviewed" : "Available to review"}
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                    Learner Review complete
+                  </span>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-medium ${detail.observationalStatus === "reviewed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-sky-200 bg-sky-50 text-sky-700"}`}
+                  >
+                    {detail.observationalStatus === "reviewed"
+                      ? "Reviewed"
+                      : "Available to review"}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">Parent inspection does not affect completion, schedules or rewards.</p>
+                <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
+                  Parent inspection does not affect completion, schedules or
+                  rewards.
+                </p>
               </div>
               <div className="grid gap-3">
-                <Link href={reviewPath} className="brand-secondary-btn">Back to review list</Link>
+                <Link href={reviewPath} className="brand-secondary-btn">
+                  Back to review list
+                </Link>
                 <div className="grid grid-cols-2 gap-2 text-center text-xs font-medium sm:grid-cols-4">
-                  <span className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">{detail.targets.length} targets</span>
-                  <span className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-700">{originalSuccessCount} correct</span>
-                  <span className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">{repairedCount} repaired</span>
-                  <span className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">{notSecuredCount} not secured</span>
+                  <span className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
+                    {detail.targets.length} targets
+                  </span>
+                  <span className="rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-700">
+                    {originalSuccessCount} correct
+                  </span>
+                  <span className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
+                    {repairedCount} repaired
+                  </span>
+                  <span className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">
+                    {notSecuredCount} not secured
+                  </span>
                 </div>
               </div>
             </div>
-            {resolvedSearchParams?.saved ? <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{resolvedSearchParams.saved}</p> : null}
-            {resolvedSearchParams?.error ? <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{resolvedSearchParams.error}</p> : null}
+            {resolvedSearchParams?.saved ? (
+              <p className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                {resolvedSearchParams.saved}
+              </p>
+            ) : null}
+            {resolvedSearchParams?.error ? (
+              <p className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                {resolvedSearchParams.error}
+              </p>
+            ) : null}
           </div>
 
           <AdleReviewSections
@@ -975,6 +1018,7 @@ export default async function CourseReviewDetailPage({
     { data: parentVerificationRows, error: parentVerificationError },
     unifiedSpellingReviewItems,
     freeWritingEvidenceCandidates,
+    parentIdentifiedOccurrences,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -1036,6 +1080,12 @@ export default async function CourseReviewDetailPage({
       parentUserId: user.id,
       childId: submission.child_id,
       taskSubmissionId: submission.id,
+    }),
+    loadParentIdentifiedOccurrenceCandidates({
+      supabase,
+      submissionId: submission.id,
+      parentUserId: user.id,
+      childId: submission.child_id,
     }),
   ]);
   const reviewWorkflowPhase = getReviewWorkflowPhase({
@@ -1271,6 +1321,7 @@ export default async function CourseReviewDetailPage({
             panelModel.state === "empty_result"
           }
           freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
+          parentIdentifiedOccurrences={parentIdentifiedOccurrences}
         />
       </section>
     </AppShell>

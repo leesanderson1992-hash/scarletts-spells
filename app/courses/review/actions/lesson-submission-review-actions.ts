@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { stringifyAnalysisExtraMetadata } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { analyseParentAddedMisspellingPair } from "@/lib/writing-engine/spelling/parent-added-misspelling-analysis";
+import {
+  resolveParentIdentifiedOccurrence,
+  type ParentIdentifiedOccurrenceCandidate,
+} from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 
 import {
   backfillPendingSubmissionSuggestionCanonicalMicroSkill,
@@ -75,17 +79,18 @@ export async function findOrCreateSuggestionForMisspelling({
     });
   }
 
-  const scopedResolution = await resolveScopedMicroSkillForSubmissionSuggestion({
-    supabase,
-    parentUserId,
-    childId,
-    observedText,
-    suggestedReplacement,
-  });
-  const nextSuggestedMicroSkillKey =
-    scopedResolution.blocked
-      ? null
-      : scopedResolution.microSkillKey ?? suggestedMicroSkillKey;
+  const scopedResolution = await resolveScopedMicroSkillForSubmissionSuggestion(
+    {
+      supabase,
+      parentUserId,
+      childId,
+      observedText,
+      suggestedReplacement,
+    },
+  );
+  const nextSuggestedMicroSkillKey = scopedResolution.blocked
+    ? null
+    : (scopedResolution.microSkillKey ?? suggestedMicroSkillKey);
   const metadata = mergeScopedSubmissionMicroSkillResolutionMetadata({
     metadata: null,
     resolution: scopedResolution,
@@ -143,9 +148,11 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   const redirectPath = formData.get("redirect_path");
   const misspelledWord = formData.get("misspelled_word");
   const correctedWord = formData.get("corrected_word");
+  const requestedOccurrenceId = formData.get("source_writing_occurrence_id");
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -227,14 +234,112 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  const { data: existing } = await supabase
+  const { data: sourceSnapshot } = await supabase
+    .from("writing_source_snapshots")
+    .select("id")
+    .eq("submission_id", submission.id)
+    .eq("parent_user_id", user.id)
+    .eq("child_id", submission.child_id)
+    .maybeSingle();
+  type OccurrenceRow = {
+    id: string;
+    observed_text: string;
+    field_path: string;
+    start_utf16: number;
+    end_utf16: number;
+    provenance: "learner_response" | "unknown";
+  };
+  const occurrenceRows: OccurrenceRow[] = [];
+  if (sourceSnapshot) {
+    const selectedOccurrenceId =
+      typeof requestedOccurrenceId === "string" && requestedOccurrenceId
+        ? requestedOccurrenceId
+        : null;
+    if (selectedOccurrenceId) {
+      const { data } = await supabase
+        .from("writing_occurrences")
+        .select("id,observed_text,field_path,start_utf16,end_utf16,provenance")
+        .eq("snapshot_id", sourceSnapshot.id)
+        .eq("id", selectedOccurrenceId)
+        .eq("provenance", "learner_response")
+        .maybeSingle();
+      if (data) occurrenceRows.push(data as OccurrenceRow);
+    } else {
+      for (let offset = 0; ; offset += 1000) {
+        const { data, error } = await supabase
+          .from("writing_occurrences")
+          .select(
+            "id,observed_text,field_path,start_utf16,end_utf16,provenance",
+          )
+          .eq("snapshot_id", sourceSnapshot.id)
+          .eq("provenance", "learner_response")
+          .order("field_path", { ascending: true })
+          .order("start_utf16", { ascending: true })
+          .range(offset, offset + 999);
+        if (error) break;
+        occurrenceRows.push(...((data ?? []) as OccurrenceRow[]));
+        if ((data ?? []).length < 1000) break;
+      }
+    }
+  }
+  const occurrenceResolution = resolveParentIdentifiedOccurrence({
+    observedSpelling: safeMisspelledWord,
+    explicitOccurrenceId:
+      typeof requestedOccurrenceId === "string" && requestedOccurrenceId
+        ? requestedOccurrenceId
+        : null,
+    candidates: occurrenceRows.map(
+      (row): ParentIdentifiedOccurrenceCandidate => ({
+        id: row.id,
+        observedText: row.observed_text,
+        fieldPath: row.field_path,
+        startUtf16: row.start_utf16,
+        endUtf16: row.end_utf16,
+        provenance: row.provenance,
+      }),
+    ),
+  });
+
+  if (occurrenceResolution.status === "ambiguous") {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "Choose where this repeated spelling appeared before adding it.",
+      ),
+    );
+  }
+  if (
+    occurrenceResolution.status === "invalid_explicit_occurrence" ||
+    occurrenceResolution.status === "observed_spelling_mismatch"
+  ) {
+    redirect(
+      buildRedirectWithMessage(
+        safeRedirectPath,
+        "error",
+        "The selected occurrence no longer matches that spelling. Review the word and try again.",
+      ),
+    );
+  }
+  const sourceWritingOccurrenceId =
+    occurrenceResolution.status === "resolved"
+      ? occurrenceResolution.occurrence.id
+      : null;
+
+  let existingQuery = supabase
     .from("misspelling_instances")
     .select("id")
     .eq("writing_sample_id", sample.id)
-    .eq("parent_user_id", user.id)
-    .eq("misspelled_word", safeMisspelledWord)
-    .eq("corrected_word", safeCorrectedWord)
-    .maybeSingle();
+    .eq("parent_user_id", user.id);
+  existingQuery = sourceWritingOccurrenceId
+    ? existingQuery.eq(
+        "source_writing_occurrence_id",
+        sourceWritingOccurrenceId,
+      )
+    : existingQuery
+        .eq("misspelled_word", safeMisspelledWord)
+        .eq("corrected_word", safeCorrectedWord);
+  const { data: existing } = await existingQuery.limit(1).maybeSingle();
 
   if (existing) {
     redirect(
@@ -260,6 +365,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     is_false_positive: false,
     is_parent_overridden: false,
     word_family_id: null,
+    source_writing_occurrence_id: sourceWritingOccurrenceId,
     context_text: range?.raw ?? safeMisspelledWord,
     position_start: range?.start ?? null,
     position_end: range?.end ?? null,
@@ -303,13 +409,20 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const misspellingInstanceId = formData.get("misspelling_instance_id");
-  const observedText = normaliseOptionalIssueText(formData.get("observed_text"));
-  const approvedReplacement = normaliseOptionalIssueText(formData.get("approved_replacement"));
-  const parentReviewNote = normaliseOptionalIssueText(formData.get("issue_note"));
+  const observedText = normaliseOptionalIssueText(
+    formData.get("observed_text"),
+  );
+  const approvedReplacement = normaliseOptionalIssueText(
+    formData.get("approved_replacement"),
+  );
+  const parentReviewNote = normaliseOptionalIssueText(
+    formData.get("issue_note"),
+  );
   const microSkillKey = normaliseMicroSkillKey(formData.get("micro_skill_key"));
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -336,7 +449,10 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const { supabase, submission } = await getOwnedSubmission(submissionId, user.id);
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
 
   if (!submission) {
     redirect(
@@ -348,7 +464,11 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
     );
   }
 
-  const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);
+  const linkedSample = await getLinkedWritingSample(
+    supabase,
+    submission.id,
+    user.id,
+  );
   const structuredLessonReviewContext = await getStructuredLessonReviewContext({
     supabase,
     taskId: submission.task_id,
@@ -397,7 +517,9 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
     reviewContext: structuredLessonReviewContext,
     observedText: observedText ?? misspelling.misspelled_word,
     approvedReplacement:
-      approvedReplacement ?? misspelling.suggested_word ?? misspelling.corrected_word,
+      approvedReplacement ??
+      misspelling.suggested_word ??
+      misspelling.corrected_word,
     contextText: misspelling.context_text,
     parentReviewNote,
   });
@@ -412,7 +534,8 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
     writingSampleId: linkedSample?.id ?? null,
     misspellingInstanceId: misspelling.id,
     observedText: misspelling.misspelled_word,
-    suggestedReplacement: misspelling.suggested_word ?? misspelling.corrected_word,
+    suggestedReplacement:
+      misspelling.suggested_word ?? misspelling.corrected_word,
     contextText: misspelling.context_text,
     positionStart: misspelling.position_start,
     positionEnd: misspelling.position_end,
@@ -435,7 +558,9 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
       suggestion_status: "accepted",
       observed_text: observedText ?? misspelling.misspelled_word,
       suggested_replacement:
-        approvedReplacement ?? misspelling.suggested_word ?? misspelling.corrected_word,
+        approvedReplacement ??
+        misspelling.suggested_word ??
+        misspelling.corrected_word,
       suggested_micro_skill_key: microSkillKey,
       source_field_key: matchedLessonField?.key ?? null,
       resolved_at: new Date().toISOString(),
@@ -463,9 +588,12 @@ export async function acceptSubmissionReviewIssueImpl(formData: FormData) {
     issue_status: "pending_parent_review",
     final_classification: null,
     observed_text: observedText ?? misspelling.misspelled_word,
-    suggested_replacement: misspelling.suggested_word ?? misspelling.corrected_word,
+    suggested_replacement:
+      misspelling.suggested_word ?? misspelling.corrected_word,
     approved_replacement:
-      approvedReplacement ?? misspelling.suggested_word ?? misspelling.corrected_word,
+      approvedReplacement ??
+      misspelling.suggested_word ??
+      misspelling.corrected_word,
     context_text: misspelling.context_text,
     source_field_key: matchedLessonField?.key ?? null,
     position_start: misspelling.position_start,
@@ -500,10 +628,13 @@ export async function rejectSubmissionReviewIssueImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const misspellingInstanceId = formData.get("misspelling_instance_id");
-  const rejectionNote = normaliseOptionalIssueText(formData.get("rejection_note"));
+  const rejectionNote = normaliseOptionalIssueText(
+    formData.get("rejection_note"),
+  );
 
   const safeRedirectPath =
-    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    typeof redirectPath === "string" &&
+    redirectPath.startsWith("/courses/review/")
       ? redirectPath
       : "/courses/review";
 
@@ -530,7 +661,10 @@ export async function rejectSubmissionReviewIssueImpl(formData: FormData) {
     redirect("/login");
   }
 
-  const { supabase, submission } = await getOwnedSubmission(submissionId, user.id);
+  const { supabase, submission } = await getOwnedSubmission(
+    submissionId,
+    user.id,
+  );
 
   if (!submission) {
     redirect(
@@ -542,7 +676,11 @@ export async function rejectSubmissionReviewIssueImpl(formData: FormData) {
     );
   }
 
-  const linkedSample = await getLinkedWritingSample(supabase, submission.id, user.id);
+  const linkedSample = await getLinkedWritingSample(
+    supabase,
+    submission.id,
+    user.id,
+  );
 
   const { data: misspelling } = await supabase
     .from("misspelling_instances")
@@ -589,7 +727,8 @@ export async function rejectSubmissionReviewIssueImpl(formData: FormData) {
     writingSampleId: linkedSample?.id ?? null,
     misspellingInstanceId: misspelling.id,
     observedText: misspelling.misspelled_word,
-    suggestedReplacement: misspelling.suggested_word ?? misspelling.corrected_word,
+    suggestedReplacement:
+      misspelling.suggested_word ?? misspelling.corrected_word,
     contextText: misspelling.context_text,
     positionStart: misspelling.position_start,
     positionEnd: misspelling.position_end,
