@@ -35,7 +35,9 @@ occurrences and one distinct submission.
 
 - S4 package: `7863735c-306f-4a37-ac41-33aa37165f9b`.
 - Review page:
-  <https://scarletts-spells-b4bsq0u91-leesanderson1992-hashs-projects.vercel.app/admin/word-skill-review?environment=local&package=7863735c-306f-4a37-ac41-33aa37165f9b>.
+  <https://scarletts-spells-h6ctzhgah-leesanderson1992-hashs-projects.vercel.app/admin/word-skill-review?environment=local&package=7863735c-306f-4a37-ac41-33aa37165f9b>.
+- Review deployment: `dpl_7uqyeZvKZZAFq99vyKWjUpu3Dm7e`, READY, with
+  deployment-scoped `ADLE_ROUTE_ACTIVATION_ENVIRONMENT=local`.
 - Package candidates: one.
 - Review receipts: zero.
 - Publication receipts: zero.
@@ -49,4 +51,3 @@ The next action is an exact-pair human review. If approved, publication remains
 a separate action. Publication/replay should be enabled only for the bounded
 pilot, followed by runtime verification, withdrawal replay and disposal of the
 retained staging lineage.
-
