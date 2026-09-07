@@ -12,7 +12,10 @@ import { buildWholeWritingKnownErrorFindings } from "../lib/writing-engine/whole
 import { findResolverVisibleTokenSafeCanonicalMappings } from "../lib/writing-engine/persistence/spelling-canonical-mappings";
 
 const STAGING_REF = "jlhotktspjvffslvuyfz";
-const MIGRATION = "20260907100000_add_whole_writing_known_errors_and_retries.sql";
+const MIGRATIONS = [
+  "20260906190000_integrate_e1_s5_current_evidence.sql",
+  "20260907100000_add_whole_writing_known_errors_and_retries.sql",
+];
 const command = process.argv[2];
 const cli = process.env.WRITING_PROOF_SUPABASE_CLI;
 const stagingUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -32,19 +35,24 @@ if (command === "apply") {
       writeFileSync(queryPath, sql, { mode: 0o600 });
       return parseCliJson(execFileSync(cli, ["db", "query", "--linked", "--project-ref", STAGING_REF, "--output", "json", "--file", queryPath], { encoding: "utf8", timeout: 90_000 })).rows;
     };
-    const before = query(`select version from supabase_migrations.schema_migrations where version in ('20260906190000','20260907100000') order by version;`);
-    assert.ok(before.some((row) => row.version === "20260906190000"), "E1/S5 integration is required in staging");
-    if (before.some((row) => row.version === "20260907100000")) {
-      console.log(JSON.stringify({ status: "already_applied", project: STAGING_REF, migration: MIGRATION }));
+    const before = query(`select version from supabase_migrations.schema_migrations where version between '20260906100000' and '20260907100000' order by version;`);
+    const installed = new Set(before.map((row) => row.version));
+    for (const version of ["20260906100000","20260906110000","20260906120000","20260906130000","20260906140000","20260906150000","20260906160000","20260906170000","20260906180000"]) {
+      assert.ok(installed.has(version), `Required staging predecessor ${version} is missing`);
+    }
+    const pending = MIGRATIONS.filter((name) => !installed.has(name.slice(0, 14)));
+    if (pending.length === 0) {
+      console.log(JSON.stringify({ status: "already_applied", project: STAGING_REF, migrations: MIGRATIONS }));
     } else {
-      const sql = readFileSync(new URL(`../supabase/migrations/${MIGRATION}`, import.meta.url), "utf8");
-      assert.ok(!sql.includes("$s6migration$"));
-      const applied = query(`begin; set local lock_timeout='5s'; set local statement_timeout='60s'; ${sql}
+      const files = pending.map((name) => ({ name, version: name.slice(0, 14), sql: readFileSync(new URL(`../supabase/migrations/${name}`, import.meta.url), "utf8") }));
+      assert.ok(files.every((file) => !file.sql.includes("$s6migration$")));
+      const statements = files.map((file) => `${file.sql}
         insert into supabase_migrations.schema_migrations(version,name,statements)
-        values('20260907100000','add_whole_writing_known_errors_and_retries',array[$s6migration$${sql}$s6migration$]);
+        values('${file.version}','${file.name.slice(15, -4)}',array[$s6migration$${file.sql}$s6migration$]);`).join("\n");
+      const applied = query(`begin; set local lock_timeout='5s'; set local statement_timeout='60s'; ${statements}
         commit; select true applied;`);
       assert.equal(applied[0]?.applied, true);
-      console.log(JSON.stringify({ status: "applied", project: STAGING_REF, migration: MIGRATION, sha256: createHash("sha256").update(sql).digest("hex") }));
+      console.log(JSON.stringify({ status: "applied", project: STAGING_REF, migrations: files.map((file) => ({ name: file.name, sha256: createHash("sha256").update(file.sql).digest("hex") })) }));
     }
   } finally {
     rmSync(root, { recursive: true, force: true });
