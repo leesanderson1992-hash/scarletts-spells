@@ -1,0 +1,26 @@
+{
+  "version": "WRITING_ENRICHMENT_INVENTORY_V1",
+  "gapKeyVersion": "WRITING_ENRICHMENT_GAP_KEY_V1",
+  "corpusScope": "synthetic-redacted-fixture",
+  "entries": [
+    { "gapType": "missing_canonical_identity", "normalizedForm": "mystery", "dialect": "en-GB", "occurrenceCount": 1, "submissionCount": 1, "route": "teaching_dictionary", "reasons": ["IDENTITY_UNMAPPED"] },
+    { "gapType": "missing_canonical_identity", "normalizedForm": "retired", "dialect": "en-GB", "occurrenceCount": 1, "submissionCount": 1, "route": "teaching_dictionary", "reasons": ["IDENTITY_INACTIVE"] },
+    { "gapType": "missing_canonical_identity", "normalizedForm": "either", "dialect": "en-GB", "occurrenceCount": 1, "submissionCount": 1, "route": "teaching_dictionary", "reasons": ["IDENTITY_AMBIGUOUS"] },
+    { "gapType": "missing_governed_relationship", "normalizedForm": "gap", "dialect": "en-GB", "occurrenceCount": 2, "submissionCount": 2, "route": "s4_review", "reasons": ["NO_ADMITTED_PHASE_B_PAIR", "OCCURRENCE_PROVENANCE_UNKNOWN"] },
+    { "gapType": "unapproved_relationship", "normalizedForm": "gap", "dialect": "en-GB", "occurrenceCount": 2, "submissionCount": 2, "route": "s4_review", "reasons": ["EXACT_PAIR_NOT_APPROVED"] },
+    { "gapType": "curriculum_zero_coverage", "normalizedForm": null, "dialect": null, "occurrenceCount": 0, "submissionCount": 0, "route": "authority_reconciliation", "reasons": ["ZERO_ADMITTED_PHASE_B_PAIRS"] },
+    { "gapType": "mapping_authority_gap", "normalizedForm": "mystery", "dialect": "en-GB", "occurrenceCount": 1, "submissionCount": 1, "route": "authority_reconciliation", "reasons": ["CANONICAL_WORD_ID_UNKNOWN"] }
+  ],
+  "aggregate": {
+    "affectedOccurrenceCount": 5,
+    "notAssessedOccurrenceCount": 1,
+    "unknownProvenanceOccurrenceCount": 2
+  },
+  "privacy": {
+    "rawWriting": false,
+    "learnerIdentifiers": false,
+    "submissionIdentifiers": false,
+    "occurrenceIdentifiers": false
+  },
+  "ai": { "calls": 0, "tokens": 0, "cost": 0 }
+}

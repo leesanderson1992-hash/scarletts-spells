@@ -602,6 +602,12 @@ export async function submitTaskResponse(formData: FormData) {
       : null,
     p_structured_payload: shouldPersistStructuredPayload ? durableStructuredResponse : null,
     p_processing_payload: {
+      writingSourceCapture: {
+        rawSubmissionText: typeof submissionText === "string" ? submissionText : null,
+        draftPayload: parseDraftPayloadValue(formData.get("writing_source_draft_payload")) ?? safeDraftPayload,
+        rawLessonReviewSummary: typeof lessonReviewSummary === "string" ? lessonReviewSummary : null,
+        structuredResponseOrigin: fallbackStructuredResponse ? "derived_from_flat" : "submitted_draft",
+      },
       draftPayload: processingDraftPayload,
       submissionText: safeSubmissionText,
       lessonReviewSummary: safeLessonReviewSummary,

@@ -1,0 +1,63 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+
+/** Runs only inside the disposable native database created by the parent proof. */
+export async function proveWordSkillReview({ db, connect, actor, otherActor, word }) {
+  let proofs = 0;
+  const candidate = { canonicalWordId: word, microSkillKey: "fixture_skill", relationshipRole: "demonstrates", sourceReference: "synthetic", licenceReference: "original-synthetic", method: "deterministic_candidate" };
+  const create = async (key, candidates = [candidate], environment = "local", client = db) => (await client.query("select create_word_skill_candidate_package($1,$2,$3,$4) id", [key, environment, JSON.stringify(candidates), actor])).rows[0].id;
+  const review = (id, decisions = ["approved"], reviewer = actor) => db.query("select review_word_skill_candidate_package($1,'local',$2,$3,'Synthetic exact pair review')", [id, JSON.stringify(decisions), reviewer]);
+  const publish = async (id, client = db) => (await client.query("select publish_word_skill_candidate_package($1,'local',$2,'synthetic-authority-fingerprint') id", [id, actor])).rows[0].id;
+  const control = "update adle_word_skill_review_controls set review_enabled=true,publication_enabled=true,withdrawal_enabled=true where environment_key='local'";
+  await assert.rejects(create("disabled"), /REVIEW_DISABLED/); proofs++;
+  await db.query(control);
+  for (const pair of [{ ...candidate, method: "unknown" }, { ...candidate, licenceReference: "" }, { ...candidate, canonicalWordId: randomUUID() }, { ...candidate, microSkillKey: "unknown" }, { ...candidate, relationshipRole: "invented" }]) await assert.rejects(create("invalid", [pair]), /CANDIDATE_INVALID/);
+  await assert.rejects(create("duplicate", [candidate, candidate]), /DUPLICATE_PAIR/); proofs++;
+  const other = await connect();
+  const [id, sameId] = await Promise.all([create("concurrent"), create("concurrent", [candidate], "local", other)]);
+  assert.equal(id, sameId);
+  await assert.rejects(create("concurrent", [{ ...candidate, relationshipRole: "contrast_only" }]), /PACKAGE_CONFLICT/); proofs++;
+  await assert.rejects(publish(id), /REVIEW_REQUIRED/);
+  await assert.rejects(review(id, []), /REVIEW_INCOMPLETE/);
+  await assert.rejects(review(id, ["automatic"]), /REVIEW_INCOMPLETE/);
+  await review(id); await review(id);
+  await assert.rejects(review(id, ["rejected"]), /REVIEW_CONFLICT/);
+  await assert.rejects(review(id, ["approved"], otherActor), /REVIEW_CONFLICT/); proofs++;
+  await db.query("update adle_word_skill_review_controls set publication_enabled=false where environment_key='local'");
+  await assert.rejects(publish(id), /PUBLICATION_DISABLED/);
+  await db.query(control);
+  const [release, repeated] = await Promise.all([publish(id), publish(id, other)]);
+  assert.equal(release, repeated);
+  assert.equal((await db.query("select count(*)::int n from adle_word_skill_package_publications where package_id=$1", [id])).rows[0].n, 1); proofs++;
+  const mixed = await create("mixed", [candidate, { ...candidate, microSkillKey: "second_fixture_skill", relationshipRole: "contrast_only" }]);
+  await review(mixed, ["rejected", "approved"]);
+  const mixedRelease = await publish(mixed);
+  const pairs = (await db.query("select micro_skill_key,relationship_role from adle_reviewed_word_skill_pairs where release_id=$1", [mixedRelease])).rows;
+  assert.deepEqual(pairs, [{ micro_skill_key: "second_fixture_skill", relationship_role: "contrast_only" }]); proofs++;
+  const rejected = await create("rejected"); await review(rejected, ["rejected"]);
+  await assert.rejects(publish(rejected), /NO_APPROVED_PAIRS/); proofs++;
+  const stale = await create("inactive-after-review"); await review(stale);
+  await db.query("update canonical_teaching_dictionary_words set row_status='inactive' where id=$1", [word]);
+  await assert.rejects(publish(stale), /identity_invalid/);
+  assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_releases where release_key=$1", [`review-package:${stale}`])).rows[0].n, 0);
+  await db.query("update canonical_teaching_dictionary_words set row_status='active' where id=$1", [word]); proofs++;
+  await assert.rejects(db.query("select review_word_skill_candidate_package($1,'staging','[\"approved\"]',$2,'wrong environment')", [id, actor]), /PACKAGE_NOT_FOUND/);
+  await assert.rejects(db.query("select publish_word_skill_candidate_package($1,'staging',$2,'fp')", [id, actor]), /PACKAGE_NOT_FOUND/); proofs++;
+  for (const table of ["adle_word_skill_candidate_packages", "adle_word_skill_package_reviews", "adle_word_skill_package_publications"]) {
+    const column = table === "adle_word_skill_candidate_packages" ? "created_at" : table === "adle_word_skill_package_reviews" ? "reviewed_at" : "published_at";
+    await assert.rejects(db.query(`update ${table} set ${column}=now()`), /immutable/);
+  } proofs++;
+  await db.query("set role authenticated");
+  for (const table of ["adle_word_skill_review_controls", "adle_word_skill_candidate_packages", "adle_word_skill_package_reviews", "adle_word_skill_package_publications"]) await assert.rejects(db.query(`select * from ${table}`), /permission denied/);
+  await assert.rejects(create("parent-cannot-create"), /permission denied/);
+  await assert.rejects(publish(id), /permission denied/);
+  await db.query("reset role"); proofs++;
+  await db.query("update adle_word_skill_review_controls set withdrawal_enabled=false where environment_key='local'");
+  const withdraw = () => db.query("select withdraw_word_skill_reviewed_release($1,'local',$2,'Synthetic withdrawal')", [release, actor]);
+  await assert.rejects(withdraw(), /WITHDRAWAL_DISABLED/);
+  await db.query(control); await withdraw(); await withdraw();
+  assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_withdrawals where release_id=$1", [release])).rows[0].n, 1);
+  assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_pairs where release_id=$1", [release])).rows[0].n, 1); proofs++;
+  await db.query("update adle_word_skill_review_controls set review_enabled=false,publication_enabled=false,withdrawal_enabled=false");
+  return proofs;
+}

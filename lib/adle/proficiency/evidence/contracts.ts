@@ -14,6 +14,7 @@ export const LEARNER_EVIDENCE_SOURCE_KINDS = [
   "writing_engine_verified_spelling",
   "writing_issue_correction_attempt",
   "word_treasure_evidence_candidate",
+  "whole_writing_occurrence",
 ] as const;
 
 export type LearnerEvidenceSourceKind =
@@ -35,6 +36,7 @@ export type LearnerEvidenceVerificationState =
   | "rejected";
 
 export type LearnerEvidenceIndependence =
+  | "unknown"
   | "independent"
   | "scaffolded"
   | "answer_visible";
@@ -62,6 +64,7 @@ export type EvidenceDecisionReason =
   | "OCCURRED_AT_MISSING"
   | "SOURCE_EVENT_ID_MISSING"
   | "SOURCE_CONTEXT_UNSUPPORTED"
+  | "INDEPENDENCE_UNKNOWN"
   | "CAUSAL_SKILL_UNRESOLVED"
   | "CAUSAL_SKILL_UNKNOWN"
   | "LINEAGE_IDENTITY_MISSING"
