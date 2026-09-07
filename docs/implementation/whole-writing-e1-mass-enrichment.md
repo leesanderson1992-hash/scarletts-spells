@@ -154,6 +154,6 @@ Any later offline AI work also requires an owner-selected provider/model, input
 policy, retention terms, call/token/cost budget and curator responsibility.
 
 The first [genuine-source staging pilot](whole-writing-e1-genuine-source-pilot.md)
-uses a redacted receipt for an existing governed Production mapping and is
-awaiting exact-pair human review. No Production writing was copied and
-publication/replay remain disabled.
+passed human review, separate publication, authoritative runtime reuse,
+occurrence-only replay, automatic withdrawal replay, retry and cleanup. No
+Production writing was copied and Production remained unchanged.

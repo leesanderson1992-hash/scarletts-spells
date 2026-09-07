@@ -1,7 +1,9 @@
 # E1 genuine-source staging pilot — 7 September 2026
 
-**AWAITING HUMAN REVIEW:** one deterministic candidate is packaged in S4. It
-has not been reviewed, published or replayed.
+**PASS:** governed Production source receipt → observed staging gap →
+deterministic candidate → human review → separate publication → authoritative
+runtime reuse → occurrence-only replay → automatic withdrawal replay → retry →
+cleanup.
 
 ## Source selection
 
@@ -26,7 +28,7 @@ the E1 attempt. Production learner writing, accounts and review-case content
 were not copied. The Production project was read only and no Production row was
 modified.
 
-## Staging state
+## Staging execution
 
 The disposable staging cohort supplied two synthetic occurrences in one
 submission so the ordinary E1 inventory and prioritization route was exercised.
@@ -34,26 +36,34 @@ The persisted gap is `missing_governed_relationship`, with two distinct
 occurrences and one distinct submission.
 
 - S4 package: `7863735c-306f-4a37-ac41-33aa37165f9b`.
-- Review page:
-  <https://scarletts-spells-koxo2jt2q-leesanderson1992-hashs-projects.vercel.app/admin/word-skill-review?environment=local&package=7863735c-306f-4a37-ac41-33aa37165f9b>.
+- S4 release: `15938b9a-3b8d-4c9b-9c2a-0e9bccd6850d`.
 - Review deployment: `dpl_6JWPt6KWdWXu1rL2o3HmWZuj3Uw1`, READY, with
   deployment-scoped staging Supabase credentials, the isolated `local`
   authority environment and an explicit staging administrator ID.
 - Package candidates: one.
-- Review receipts: zero.
-- Publication receipts: zero.
+- Human decisions: one approval.
+- Publication receipts: one, subsequently withdrawn.
 - AI calls/tokens/cost: zero.
-
-E1 inventory, generation and replay controls are off. S4 review is enabled;
-publication and withdrawal are off. The disposable cohort has no learning item,
-coin, gold-bar, Authentic Use or review-schedule consequence.
 
 Authenticated browser verification displayed the exact `certain` candidate,
 its governed Production source reference and an `ADMITTED_EXACT_PAIR` Phase B
-preview. The review form was enabled. No decision was submitted during
-verification.
+preview. After human approval, a separate browser action published the one
+approved pair. The existing worker claimed one bounded run and appended new
+interpretations for exactly two stored occurrences. Both current
+interpretations then contained the published relationship.
 
-The next action is an exact-pair human review. If approved, publication remains
-a separate action. Publication/replay should be enabled only for the bounded
-pilot, followed by runtime verification, withdrawal replay and disposal of the
-retained staging lineage.
+Browser withdrawal created a distinct authority event automatically. The worker
+claimed one bounded run and both current interpretations no longer contained
+the relationship. A repeat recovery claimed zero runs and created no duplicate
+authority event.
+
+Learning items, coin and gold-bar ledgers, Authentic Use events and review
+schedules stayed unchanged throughout.
+
+## Cleanup
+
+Verification completed before cleanup. The disposable package, review,
+publication, withdrawal, release, event, replay, inventory, occurrence and
+account lineage was removed. The verifier found zero fixture residue. E1 and S4
+review/publication/withdrawal controls are off, and the final authenticated UI
+shows no remaining candidate package. Production remained unchanged.
