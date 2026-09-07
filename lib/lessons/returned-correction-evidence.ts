@@ -20,9 +20,19 @@ export function getReturnedCorrectionEvidenceFlags(input: {
 }) {
   const matchesApprovedReplacement =
     returnedCorrectionMatchesApprovedReplacement(input);
+  const hasAttempt = normaliseCorrectionComparisonValue(
+    input.attemptedCorrection,
+  ).length > 0;
 
   return {
     markedFixed: matchesApprovedReplacement,
-    correctedIndependently: matchesApprovedReplacement,
+    correctionOutcome: matchesApprovedReplacement
+      ? "correct" as const
+      : hasAttempt
+        ? "incorrect" as const
+        : "unknown" as const,
+    correctedIndependently: false,
+    assistanceState: "unknown" as const,
+    answerVisibility: "unknown" as const,
   };
 }

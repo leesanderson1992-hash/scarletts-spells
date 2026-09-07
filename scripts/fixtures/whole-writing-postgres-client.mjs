@@ -9,6 +9,8 @@ const rpcArguments = {
   schedule_writing_enrichment_replays:["p_limit"],
   claim_writing_shadow_runs:["p_limit"],
   persist_writing_shadow_result:["p_run_id","p_lease_token","p_result"],
+  persist_writing_shadow_result_with_known_errors:["p_run_id","p_lease_token","p_result"],
+  materialize_writing_known_error_review_candidates:["p_limit"],
   finish_writing_shadow_run:["p_run_id","p_lease_token","p_result","p_error_code"],
 };
 const identifier = (value) => {

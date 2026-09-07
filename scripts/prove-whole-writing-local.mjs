@@ -53,6 +53,17 @@ try {
     create table canonical_teaching_dictionary_words(id uuid primary key,normalised_word text,dialect_code text,row_status text,import_batch_id uuid references canonical_teaching_dictionary_import_batches);
     create table micro_skill_catalog(micro_skill_key text primary key,is_active boolean);
     create table parent_verifications(id uuid primary key,parent_user_id uuid,child_id uuid,task_submission_id uuid,source_entity_id text);
+    create table writing_samples(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,sample_text text,task_submission_id uuid);
+    create table misspelling_instances(id uuid primary key default gen_random_uuid(),writing_sample_id uuid not null,child_id uuid not null,parent_user_id uuid not null,misspelled_word text not null,corrected_word text not null,word_family_id uuid,context_text text,position_start integer,position_end integer,notes text,error_type text,secondary_error_type text,confidence_score numeric(4,2),suggested_word text,is_parent_overridden boolean not null default false,is_false_positive boolean not null default false,created_at timestamptz default now(),updated_at timestamptz default now());
+    create table writing_issue_suggestions(id uuid primary key default gen_random_uuid(),child_id uuid not null,parent_user_id uuid not null,task_submission_id uuid,writing_sample_id uuid,misspelling_instance_id uuid,source_type text default 'misspelling_instance',suggestion_status text default 'pending',observed_text text,suggested_replacement text,context_text text,source_field_key text,position_start integer,position_end integer,suggested_micro_skill_key text,metadata jsonb default '{}',created_at timestamptz default now());
+    create table writing_issues(id uuid primary key default gen_random_uuid(),child_id uuid not null,parent_user_id uuid not null,task_submission_id uuid,writing_sample_id uuid,source_suggestion_id uuid,source_misspelling_instance_id uuid,issue_status text default 'pending_parent_review',final_classification text,observed_text text,suggested_replacement text,approved_replacement text,context_text text,source_field_key text,position_start integer,position_end integer,micro_skill_key text default 'unknown',metadata jsonb default '{}',created_at timestamptz default now());
+    create table writing_issue_correction_attempts(id uuid primary key default gen_random_uuid(),writing_issue_id uuid not null,child_id uuid not null,parent_user_id uuid not null,task_submission_id uuid,attempted_correction text,attempt_notes text,corrected_independently boolean not null default false,reflection text not null,metadata jsonb default '{}',created_at timestamptz default now(),updated_at timestamptz default now());
+    create table fixture_token_safe_mappings(mapping_id uuid primary key,misspelling_normalized text,correct_spelling_normalized text,micro_skill_key text,dialect_code text,normalization_version text,authority_reference text);
+    create function find_resolver_visible_token_safe_canonical_mappings(text[],text default 'en-GB',text default 'spelling_normalize_v1') returns table(mapping_id uuid,misspelling_normalized text,correct_spelling_normalized text,micro_skill_key text,dialect_code text,normalization_version text,authority_reference text) language sql stable as $$
+      select m.* from fixture_token_safe_mappings m where m.misspelling_normalized=any($1) and m.dialect_code=$2 and m.normalization_version=$3
+      order by m.misspelling_normalized,m.correct_spelling_normalized,m.mapping_id
+    $$;
+    grant all on writing_samples,misspelling_instances,writing_issue_suggestions,writing_issues,writing_issue_correction_attempts to authenticated,service_role;
   `);
   await db.query(migration("20260717153000_add_idempotent_course_task_submission.sql"));
   await db.query(migration("20260721110000_allow_returned_task_resubmission_after_historical_pending.sql"));
@@ -69,6 +80,7 @@ try {
   await db.query(migration("20260906170000_fix_writing_enrichment_published_metrics.sql"));
   await db.query(migration("20260906180000_allow_unknown_enrichment_gap_skill_keys.sql"));
   await db.query(migration("20260906190000_integrate_e1_s5_current_evidence.sql"));
+  await db.query(migration("20260907100000_add_whole_writing_known_errors_and_retries.sql"));
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);
@@ -258,7 +270,66 @@ try {
   const enrichmentProofs=await proveWritingEnrichment({db,connect,actor:parent,otherActor:otherParent,child,occurrence,word});
   await db.query("insert into micro_skill_catalog values('second_fixture_skill',true)");
   const reviewProofs = await proveWordSkillReview({ db, connect, actor: parent, otherActor: otherParent, word });
-  console.log(JSON.stringify({ status:"passed",proofs,enrichmentProofs,reviewProofs,database:"disposable PostgreSQL 18", productionConnections:0, limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
+  const s6Occurrence={...occurrence,id:"synthetic:s6-known-error",start:10,end:17,observedText:"becuase",interpretation:{...occurrence.interpretation,normalizedForm:"becuase"}};
+  const legacyOccurrence={...occurrence,id:"synthetic:s6-legacy-known-error",start:18,end:24,observedText:"adress",interpretation:{...occurrence.interpretation,normalizedForm:"adress"}};
+  const knownMappingId=randomUUID(),legacyMappingId=randomUUID();
+  await db.query("insert into fixture_token_safe_mappings values($1,'becuase','because','fixture_skill','en-GB','spelling_normalize_v1','fixture:governed-token-safe')",[knownMappingId]);
+  await db.query("insert into fixture_token_safe_mappings values($1,'adress','address','fixture_skill','en-GB','spelling_normalize_v1','fixture:legacy-governed-token-safe')",[legacyMappingId]);
+  const knownFinding={findingKey:"fixture-known-error-key",occurrenceId:s6Occurrence.id,observedNormalized:"becuase",intendedNormalized:"because",
+    mappingIds:[knownMappingId],microSkillKeys:["fixture_skill"],authorityReferences:["fixture:governed-token-safe"],dialect:"en-GB",
+    normalizationVersion:"spelling_normalize_v1",category:"Pattern/rule",secondaryCategory:null,errorPattern:"transposition"};
+  const legacyFinding={...knownFinding,findingKey:"fixture-legacy-known-error-key",occurrenceId:legacyOccurrence.id,observedNormalized:"adress",intendedNormalized:"address",
+    mappingIds:[legacyMappingId],authorityReferences:["fixture:legacy-governed-token-safe"]};
+  const known=(finding=true)=>({version:"WHOLE_WRITING_KNOWN_ERROR_V1",mappingAuthorityFingerprint:"fixture-mapping-authority",
+    eligibleOccurrenceCount:1,ineligibleOccurrenceCount:0,abstainedOccurrenceCount:0,
+    checks:[{occurrenceId:s6Occurrence.id,disposition:finding?"FINDING":"NO_MAPPING",findingKey:finding?knownFinding.findingKey:null}],findings:finding?[knownFinding]:[]});
+  const knownWithLegacy={...known(true),eligibleOccurrenceCount:2,
+    checks:[...known(true).checks,{occurrenceId:legacyOccurrence.id,disposition:"FINDING",findingKey:legacyFinding.findingKey}],
+    findings:[knownFinding,legacyFinding]};
+  await db.query("update writing_shadow_controls set known_error_detection_enabled=true,known_error_review_enabled=true where child_id=$1",[child]);
+  const s6Sample=(await db.query("insert into writing_samples(child_id,parent_user_id,sample_text,task_submission_id) values($1,$2,'becuase adress',$3) returning id",[child,parent,source.submission_id])).rows[0];
+  const legacyMisspellingId=randomUUID();
+  await db.query("insert into misspelling_instances(id,writing_sample_id,child_id,parent_user_id,misspelled_word,corrected_word) values($1,$2,$3,$4,'adress','address')",[legacyMisspellingId,s6Sample.id,child,parent]);
+  await db.query("select enqueue_writing_shadow_replay($1,'s6-first')",[[source.id]]);
+  const s6First=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  const s6FirstResult={...s5Result([{base:s6Occurrence,canonicalWordId:null},{base:legacyOccurrence,canonicalWordId:null}],"s6-first"),knownSpellingErrors:knownWithLegacy};
+  await db.query("delete from fixture_token_safe_mappings where mapping_id=$1",[knownMappingId]);
+  await assert.rejects(db.query("select persist_writing_shadow_result_with_known_errors($1,$2,$3)",[s6First.id,s6First.lease_token,s6FirstResult]),/authority_changed/);
+  assert.equal((await db.query("select status from writing_shadow_runs where id=$1",[s6First.id])).rows[0].status,"processing");
+  await db.query("insert into fixture_token_safe_mappings values($1,'becuase','because','fixture_skill','en-GB','spelling_normalize_v1','fixture:governed-token-safe')",[knownMappingId]); proof();
+  assert.equal((await db.query("select persist_writing_shadow_result_with_known_errors($1,$2,$3) ok",[s6First.id,s6First.lease_token,s6FirstResult])).rows[0].ok,true);
+  assert.equal((await db.query("select count(*)::int n from writing_known_spelling_findings")).rows[0].n,2);
+  await assert.rejects(db.query("update writing_known_spelling_findings set intended_normalized='changed'"),/immutable/); proof();
+  assert.equal((await db.query("select materialize_writing_known_error_review_candidates(100)::int n")).rows[0].n,2);
+  const materialized=(await db.query("select * from misspelling_instances where source_writing_occurrence_id=$1",[s6Occurrence.id])).rows[0];
+  assert.equal(materialized.corrected_word,"because"); assert.equal(materialized.position_start,null); proof();
+  assert.equal((await db.query("select id from misspelling_instances where source_writing_occurrence_id=$1",[legacyOccurrence.id])).rows[0].id,legacyMisspellingId); proof();
+  const suggestionId=randomUUID(),issueId=randomUUID();
+  await db.query("insert into writing_issue_suggestions(id,child_id,parent_user_id,task_submission_id,writing_sample_id,misspelling_instance_id) values($1,$2,$3,$4,$5,$6)",
+    [suggestionId,child,parent,source.submission_id,materialized.writing_sample_id,materialized.id]);
+  await db.query("insert into writing_issues(id,child_id,parent_user_id,task_submission_id,writing_sample_id,source_suggestion_id,source_misspelling_instance_id,approved_replacement) values($1,$2,$3,$4,$5,$6,$7,'because')",
+    [issueId,child,parent,source.submission_id,materialized.writing_sample_id,suggestionId,materialized.id]);
+  await db.query("insert into writing_issue_correction_attempts(writing_issue_id,child_id,parent_user_id,task_submission_id,attempted_correction,reflection,correction_outcome,assistance_state,answer_visibility) values($1,$2,$3,$4,'because','medium','correct','unknown','unknown')",
+    [issueId,child,parent,source.submission_id]);
+  const lineage=(await db.query("select s.source_writing_occurrence_id suggestion_occurrence,i.source_writing_occurrence_id issue_occurrence,a.source_writing_occurrence_id attempt_occurrence,a.correction_outcome,a.corrected_independently,a.assistance_state from writing_issue_suggestions s join writing_issues i on i.source_suggestion_id=s.id join writing_issue_correction_attempts a on a.writing_issue_id=i.id where s.id=$1",[suggestionId])).rows[0];
+  assert.deepEqual(lineage,{suggestion_occurrence:s6Occurrence.id,issue_occurrence:s6Occurrence.id,attempt_occurrence:s6Occurrence.id,correction_outcome:"correct",corrected_independently:false,assistance_state:"unknown"}); proof();
+  await assert.rejects(db.query("update writing_issue_correction_attempts set corrected_independently=true where writing_issue_id=$1",[issueId]),/fact_immutable/);
+  const observed=(await db.query("select findings::int,review_candidates::int,parent_review_issues::int,retry_attempts::int,correct_retries::int,retries_with_unknown_assistance::int from writing_known_spelling_observability where child_id=$1",[child])).rows[0];
+  assert.deepEqual(observed,{findings:2,review_candidates:2,parent_review_issues:1,retry_attempts:1,correct_retries:1,retries_with_unknown_assistance:1}); proof();
+  await db.query("select enqueue_writing_shadow_replay($1,'s6-replay')",[[source.id]]);
+  const s6Replay=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  assert.equal((await db.query("select persist_writing_shadow_result_with_known_errors($1,$2,$3) ok",[s6Replay.id,s6Replay.lease_token,{...s5Result([{base:s6Occurrence,canonicalWordId:null}],"s6-replay"),knownSpellingErrors:known(true)}])).rows[0].ok,true);
+  assert.equal((await db.query("select count(*)::int n from writing_known_spelling_findings where occurrence_id=$1",[s6Occurrence.id])).rows[0].n,2);
+  assert.equal((await db.query("select lineage_reconciliation from writing_known_spelling_current_findings where occurrence_id=$1",[s6Occurrence.id])).rows[0].lineage_reconciliation,"EXACT_HISTORICAL_MATCH");
+  assert.equal((await db.query("select materialize_writing_known_error_review_candidates(100)::int n")).rows[0].n,0); proof();
+  await db.query("select enqueue_writing_shadow_replay($1,'s6-withdrawn')",[[source.id]]);
+  const s6Withdrawn=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  await db.query("select persist_writing_shadow_result_with_known_errors($1,$2,$3)",[s6Withdrawn.id,s6Withdrawn.lease_token,{...s5Result([{base:s6Occurrence,canonicalWordId:null}],"s6-withdrawn"),knownSpellingErrors:known(false)}]);
+  assert.equal((await db.query("select count(*)::int n from writing_known_spelling_current_findings where occurrence_id=$1",[s6Occurrence.id])).rows[0].n,0); proof();
+  await db.query("set role authenticated");
+  await assert.rejects(db.query("select * from writing_known_spelling_findings"),/permission denied/);
+  await db.query("reset role"); proof();
+  console.log(JSON.stringify({ status:"passed",proofs,enrichmentProofs,reviewProofs,s6Proofs:10,database:"disposable PostgreSQL 18", productionConnections:0,limitations:"Minimal dependency fixture; staging and full migration-chain verification remain required." }));
 } finally {
   await Promise.allSettled(connections.map((client) => client.end()));
   if (started) execFileSync(binaries.pg_ctl,["-D",dataDir,"-m","immediate","-w","stop"],options);

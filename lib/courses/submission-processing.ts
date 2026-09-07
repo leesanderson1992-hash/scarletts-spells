@@ -177,6 +177,9 @@ async function processReturnedCorrections(
         attempted_correction: attemptedCorrection,
         attempt_notes: null,
         corrected_independently: evidence.correctedIndependently,
+        correction_outcome: evidence.correctionOutcome,
+        assistance_state: evidence.assistanceState,
+        answer_visibility: evidence.answerVisibility,
         reflection: issue.reflection ?? "medium",
         metadata: {
           source_field_key: issue.source_field_key,
@@ -185,6 +188,7 @@ async function processReturnedCorrections(
           retry_mode: issue.retry_mode ?? "try_again",
           reflection_source: issue.reflection ? "child_input" : "default",
           approved_replacement_match: evidence.markedFixed,
+          independence_not_inferred_from_answer_match: true,
         },
       };
     });

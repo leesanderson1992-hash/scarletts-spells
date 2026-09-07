@@ -9,6 +9,11 @@ import { object, extractWholeWriting, type SourceSnapshot } from "./source";
 import { buildIdentityIndex, normaliseSurface, type WordIdentity } from "./identity";
 import { loadPublishedWritingAssociations } from "./knowledge-repository";
 import { readWholeWritingShadowEvidence } from "./evidence";
+import { findResolverVisibleTokenSafeCanonicalMappings } from "../persistence/spelling-canonical-mappings";
+import {
+  buildWholeWritingKnownErrorFindings,
+  knownErrorMappingAuthorityFingerprint,
+} from "./known-errors";
 
 type Run = { id: string; snapshot_id: string; lease_token: string; analysis_version: string };
 type EnrichmentScope = { event_id: string; event_sequence: number; environment_key: "local" | "staging" | "production" };
@@ -27,6 +32,12 @@ async function allWords(client: SupabaseClient): Promise<WordIdentity[]> {
 
 /** Separate dispatcher: never calls submission processing, rewards or intake. */
 export async function recoverWritingShadowRuns(client: SupabaseClient = createServiceRoleClient()) {
+  const materializedBefore = await client.rpc("materialize_writing_known_error_review_candidates", { p_limit: 100 });
+  if (materializedBefore.error && !["PGRST202", "42883"].includes(materializedBefore.error.code)) {
+    console.error("[writing-shadow] known-error review materialization failed", {
+      code: "KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED",
+    });
+  }
   const replay = await client.rpc("schedule_writing_enrichment_replays", { p_limit: 20 });
   if (replay.error && !["PGRST202", "42883"].includes(replay.error.code)) throw new Error("ENRICHMENT_SCHEDULE_FAILED");
   const claimed = await client.rpc("claim_writing_shadow_runs", { p_limit: 20 });
@@ -43,11 +54,12 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
     try {
       let index: ReturnType<typeof buildIdentityIndex> | undefined;
       let relationships: Awaited<ReturnType<typeof loadCanonicalWordSkillRelationshipAuthority>> | undefined;
+      let knownErrorMappings: Awaited<ReturnType<typeof findResolverVisibleTokenSafeCanonicalMappings>> | undefined;
       if (run.analysis_version !== "WRITING_SHADOW_V1") throw new Error("UNSUPPORTED_VERSION");
       const loaded = await client.from("writing_source_snapshots").select("*").eq("id", run.snapshot_id).single();
       if (loaded.error || !loaded.data) throw new Error("SOURCE_READ_FAILED");
       const snapshot = loaded.data as SourceSnapshot;
-      const controls = await client.from("writing_shadow_controls").select("extraction_enabled,resolution_enabled,evidence_shadow_enabled")
+      const controls = await client.from("writing_shadow_controls").select("extraction_enabled,resolution_enabled,evidence_shadow_enabled,known_error_detection_enabled")
         .eq("child_id", snapshot.child_id).eq("parent_user_id", snapshot.parent_user_id).single();
       if (controls.error) throw new Error("CONTROL_READ_FAILED");
       const scopeRead = await client.from("writing_shadow_run_enrichment_scopes").select("event_id,event_sequence,environment_key").eq("run_id", run.id).maybeSingle();
@@ -100,6 +112,18 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
         outcome: "unknown", independence: "unknown", environment: null,
         verification: null, contextStatus: "NOT_ASSESSED", governedCausalSkillKeys: [],
       })), relationships) : null;
+      if (controls.data.known_error_detection_enabled && occurrences.length > 0) {
+        knownErrorMappings = await findResolverVisibleTokenSafeCanonicalMappings({
+          supabase: client as never,
+          observedNormalizedTokens: occurrences.map((occurrence) => occurrence.observedText),
+        });
+      }
+      const knownSpellingErrors = controls.data.known_error_detection_enabled
+        ? buildWholeWritingKnownErrorFindings({
+            occurrences,
+            mappings: knownErrorMappings ?? [],
+          })
+        : null;
       if (index && buildIdentityIndex(await allWords(client)).releaseFingerprint !== index.releaseFingerprint) {
         throw new Error("IDENTITY_AUTHORITY_CHANGED");
       }
@@ -112,14 +136,32 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
           throw new Error("RELATIONSHIP_AUTHORITY_CHANGED");
         }
       }
+      if (knownErrorMappings) {
+        const currentMappings = await findResolverVisibleTokenSafeCanonicalMappings({
+          supabase: client as never,
+          observedNormalizedTokens: occurrences.map((occurrence) => occurrence.observedText),
+        });
+        if (
+          knownErrorMappingAuthorityFingerprint(currentMappings) !==
+          knownErrorMappingAuthorityFingerprint(knownErrorMappings)
+        ) {
+          throw new Error("KNOWN_ERROR_AUTHORITY_CHANGED");
+        }
+      }
       const result = { analysisVersion: run.analysis_version, extractionVersion: extraction?.version ?? null,
         sourceContextKind: object(envelope.taskContext).kind ?? "missing", baseline: baseline.summary,
         fields: extraction?.fields ?? [], occurrences, diagnostics: extraction?.diagnostics ?? [],
         relationshipAuthorityFingerprint: relationships?.reconciliation.sourceFingerprint ?? null,
         enrichmentScope: scope ? { eventId: scope.event_id, eventSequence: scope.event_sequence, occurrenceCount: occurrences.length } : null,
-        shadowEvidence, qualification: "NOT_QUALIFIED", aiCalls: 0, processingMs: Date.now() - started };
-      const saved = await client.rpc("persist_writing_shadow_result", { p_run_id: run.id, p_lease_token: run.lease_token, p_result: result });
+        shadowEvidence, knownSpellingErrors, qualification: "NOT_QUALIFIED", aiCalls: 0, processingMs: Date.now() - started };
+      const saved = await client.rpc("persist_writing_shadow_result_with_known_errors", { p_run_id: run.id, p_lease_token: run.lease_token, p_result: result });
       if (saved.error || saved.data !== true) throw new Error("RESULT_SAVE_FAILED");
+      const materialized = await client.rpc("materialize_writing_known_error_review_candidates", { p_limit: 100 });
+      if (materialized.error) {
+        console.error("[writing-shadow] known-error review materialization failed", {
+          code: "KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED",
+        });
+      }
       completed++;
     } catch (error) {
       failed++;

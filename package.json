@@ -11,6 +11,7 @@
     "writing:enrichment-generate": "NODE_OPTIONS=--conditions=react-server tsx scripts/writing-enrichment-generate.ts",
     "writing:enrichment-metrics": "NODE_OPTIONS=--conditions=react-server tsx scripts/writing-enrichment-metrics.ts",
     "writing:enrichment-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/writing-enrichment-inventory-regression.ts",
+    "writing:s6-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s6-regression.ts",
     "lint": "eslint",
     "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",
     "adle:word-skill-relationship-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-relationship-regression.ts",

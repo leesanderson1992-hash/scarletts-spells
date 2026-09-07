@@ -41,7 +41,10 @@ assert.deepEqual(
   }),
   {
     markedFixed: false,
+    correctionOutcome: "incorrect",
     correctedIndependently: false,
+    assistanceState: "unknown",
+    answerVisibility: "unknown",
   },
 );
 assert.deepEqual(
@@ -51,7 +54,10 @@ assert.deepEqual(
   }),
   {
     markedFixed: true,
-    correctedIndependently: true,
+    correctionOutcome: "correct",
+    correctedIndependently: false,
+    assistanceState: "unknown",
+    answerVisibility: "unknown",
   },
 );
 

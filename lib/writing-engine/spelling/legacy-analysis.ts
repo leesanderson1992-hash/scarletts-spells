@@ -100,6 +100,7 @@ type ExistingAnalysisRow = PriorOverrideRow & {
   context_text: string | null;
   position_start: number | null;
   position_end: number | null;
+  source_writing_occurrence_id: string | null;
 };
 
 function clampConfidence(value: number | null | undefined) {
@@ -268,7 +269,7 @@ async function getExistingAnalysisRows(
   const { data, error } = await supabase
     .from("misspelling_instances")
     .select(
-      "id, writing_sample_id, child_id, parent_user_id, misspelled_word, corrected_word, suggested_word, error_type, secondary_error_type, confidence_score, is_parent_overridden, is_false_positive, notes, word_family_id, context_text, position_start, position_end",
+      "id, writing_sample_id, child_id, parent_user_id, misspelled_word, corrected_word, suggested_word, error_type, secondary_error_type, confidence_score, is_parent_overridden, is_false_positive, notes, word_family_id, context_text, position_start, position_end, source_writing_occurrence_id",
     )
     .eq("writing_sample_id", sample.id)
     .eq("parent_user_id", parentUserId)
@@ -453,7 +454,10 @@ export async function buildMisspellingRows(
   });
 
   for (const existing of existingRows) {
-    if (!retainedIds.has(existing.id) && hasDurableParentDecision(existing)) {
+    if (
+      !retainedIds.has(existing.id) &&
+      (hasDurableParentDecision(existing) || existing.source_writing_occurrence_id)
+    ) {
       retainedIds.add(existing.id);
       rows.push(preserveExistingRow(existing));
     }
