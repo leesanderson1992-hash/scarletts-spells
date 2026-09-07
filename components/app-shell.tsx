@@ -79,6 +79,7 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
         { label: "Seed Import Review", href: "/admin/seed-import-review" },
         { label: "Canonical Mappings", href: "/admin/canonical-mappings" },
         { label: "Word–skill Review", href: "/admin/word-skill-review" },
+        { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence" },
         {
           label: "Resolver Readiness",
           href: "/admin/spelling-canonical-resolver-readiness",

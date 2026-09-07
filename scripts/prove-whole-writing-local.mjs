@@ -61,12 +61,14 @@ try {
   await db.query(migration("20260906120000_add_reviewed_word_skill_publications.sql"));
   await db.query(migration("20260906130000_add_writing_shadow_health.sql"));
   await db.query(migration("20260906140000_add_word_skill_review_workflow.sql"));
+  await db.query(migration("20260906150000_add_whole_writing_shadow_projections.sql"));
   const writerBeforeE1 = (await db.query("select pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
   await db.query(migration("20260906160000_add_writing_enrichment_operations.sql"));
   const writerAfterE1 = (await db.query("select pg_get_functiondef('persist_writing_shadow_result(uuid,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
   assert.equal(writerAfterE1, writerBeforeE1, "E1 must compose with the installed evidence writer"); proof();
   await db.query(migration("20260906170000_fix_writing_enrichment_published_metrics.sql"));
   await db.query(migration("20260906180000_allow_unknown_enrichment_gap_skill_keys.sql"));
+  await db.query(migration("20260906190000_integrate_e1_s5_current_evidence.sql"));
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);
@@ -162,6 +164,27 @@ try {
   await db.query("update writing_enrichment_controls set inventory_enabled=true,generation_enabled=true,replay_enabled=true where environment_key='local'");
   await db.query("insert into writing_enrichment_cohorts(environment_key,child_id,parent_user_id,enabled) values('local',$1,$2,true)",[child,parent]);
   const manifest = { approvedPairs:[{ canonicalWordId:word,microSkillKey:"fixture_skill",relationshipRole:"demonstrates",decision:"approved",sourceReference:"synthetic-test-only",licenceReference:"original-synthetic-fixture" }] };
+  const unaffectedWord=randomUUID();
+  const unaffectedOccurrence={...occurrence,id:"synthetic:unaffected-occurrence",start:7,end:9,observedText:"am",interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:unaffectedWord,normalizedForm:"am"}};
+  await db.query("insert into canonical_teaching_dictionary_words(id,normalised_word,dialect_code,row_status) values($1,'am','en-GB','active')",[unaffectedWord]);
+  await db.query("insert into micro_skill_catalog values('unaffected_fixture_skill',true)");
+  const relationship=(canonicalWordId,microSkillKey)=>({canonicalWordId,microSkillKey,relationshipRole:"demonstrates",positiveEvidenceEligible:true,authorityFingerprint:`fixture:${microSkillKey}`});
+  function s5Result(items,key) {
+    const interpreted=items.map(({base,canonicalWordId,relationships=[]})=>{
+      const assessmentId=randomUUID();
+      return {...base,assessmentId,interpretation:{...base.interpretation,status:canonicalWordId?"resolved":"unmapped",canonicalWordId,relationships,relationshipFingerprint:`fixture-authority:${key}`}};
+    });
+    return {...result,relationshipAuthorityFingerprint:`fixture-authority:${key}`,occurrences:interpreted,shadowEvidence:{events:[],projections:[],decisions:interpreted.map((item)=>({
+      candidateId:`whole-writing-assessment:${item.assessmentId}`,sourceKind:"whole_writing_occurrence",sourceEntityId:item.id,
+      disposition:"BLOCKED",reason:"SOURCE_CONTEXT_UNSUPPORTED",performanceLineageKey:`whole-writing:${child}:${item.id}`,eventId:null,
+    })),reconciliation:{interpretationVersion:"ADLE_LEARNER_EVIDENCE_PROJECTION_V1",sourceFingerprint:`source:${key}`,eventFingerprint:"empty-events",projectionFingerprint:"empty-projections",rawCandidateSourceRowCount:interpreted.length,admittedSourceEventCount:0,excludedCount:0,blockedCount:interpreted.length,ambiguousCount:0}}};
+  }
+  await db.query("select enqueue_writing_shadow_replay($1,'s5-before-publication')",[[source.id]]);
+  const beforePublication=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[beforePublication.id,beforePublication.lease_token,s5Result([
+    {base:occurrence,canonicalWordId:null},{base:unaffectedOccurrence,canonicalWordId:unaffectedWord,relationships:[relationship(unaffectedWord,"unaffected_fixture_skill")]},
+  ],"before-publication")]);
+  assert.equal((await db.query("select count(*)::int n from writing_shadow_current_occurrence_report where child_id=$1",[child])).rows[0].n,2); proof();
   async function publish(key, value) {
     return (await db.query("select publish_reviewed_word_skill_release($1,'local',$2,$3,'Explicit synthetic pair review') id",[key,value,parent])).rows[0].id;
   }
@@ -177,19 +200,45 @@ try {
   assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,1);
   assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,0); proof();
   const enriched = (await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
-  await db.query("select persist_writing_shadow_result($1,$2,$3)",[enriched.id,enriched.lease_token,{...result,occurrences:[{...occurrence,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word,relationships:[{canonicalWordId:word,microSkillKey:"fixture_skill"}]}}]}]);
-  assert.equal((await db.query("select count(*)::int n from writing_occurrences")).rows[0].n,1);
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[enriched.id,enriched.lease_token,s5Result([
+    {base:occurrence,canonicalWordId:word,relationships:[relationship(word,"fixture_skill")]},
+  ],"publication")]);
+  assert.equal((await db.query("select count(*)::int n from writing_occurrences")).rows[0].n,2);
   assert.equal((await db.query("select count(*)::int n from writing_occurrence_interpretations where canonical_word_id=$1",[word])).rows[0].n,1);
-  assert.equal((await db.query("select count(*)::int n from writing_occurrence_assessments where outcome<>'unknown'")).rows[0].n,0); proof();
+  assert.equal((await db.query("select count(*)::int n from writing_occurrence_assessments where outcome<>'unknown'")).rows[0].n,0);
+  let currentEvidence=(await db.query("select occurrence_id,batch_id from writing_shadow_current_occurrence_report where child_id=$1 order by occurrence_id",[child])).rows;
+  assert.deepEqual(currentEvidence.map((row)=>row.occurrence_id),[occurrence.id,unaffectedOccurrence.id].sort());
+  assert.equal(new Set(currentEvidence.map((row)=>row.batch_id)).size,2); proof();
+  await db.query("select enqueue_writing_shadow_replay($1,'s5-late-unscoped')",[[source.id]]);
+  const lateUnscoped=(await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[lateUnscoped.id,lateUnscoped.lease_token,s5Result([
+    {base:occurrence,canonicalWordId:word,relationships:[relationship(word,"fixture_skill")]},
+    {base:unaffectedOccurrence,canonicalWordId:unaffectedWord,relationships:[relationship(unaffectedWord,"unaffected_fixture_skill")]},
+  ],"late-unscoped")]);
+  assert.equal((await db.query("select authority_event_sequence::int sequence from writing_current_occurrence_interpretations where occurrence_id=$1",[occurrence.id])).rows[0].sequence,1);
+  const publicationMetricsBeforeWithdrawal=(await db.query("select identity_resolutions::int,relationship_resolutions::int from writing_enrichment_event_resolution_metrics where event_kind='s4_publication'")).rows[0];
+  assert.deepEqual(publicationMetricsBeforeWithdrawal,{identity_resolutions:1,relationship_resolutions:1}); proof();
   await assert.rejects(db.query("update adle_reviewed_word_skill_pairs set relationship_role='negative_only'"),/immutable/);
   await db.query("insert into adle_reviewed_word_skill_withdrawals(release_id,reviewed_by,reason) values($1,$2,'Synthetic withdrawal')",[release,parent]);
   assert.equal((await db.query("select count(*)::int n from adle_reviewed_word_skill_pairs")).rows[0].n,1);
   assert.equal((await db.query("select count(*)::int n from writing_enrichment_authority_events where event_kind='s4_withdrawal'")).rows[0].n,1);
   assert.equal((await db.query("select schedule_writing_enrichment_replays(1) n")).rows[0].n,1);
   const withdrawnReplay = (await db.query("select * from claim_writing_shadow_runs(1)")).rows[0];
-  await db.query("select persist_writing_shadow_result($1,$2,$3)",[withdrawnReplay.id,withdrawnReplay.lease_token,{...result,occurrences:[{...occurrence,interpretation:{...occurrence.interpretation,status:"resolved",canonicalWordId:word,relationships:[]}}]}]);
+  await db.query("select persist_writing_shadow_result($1,$2,$3)",[withdrawnReplay.id,withdrawnReplay.lease_token,s5Result([
+    {base:occurrence,canonicalWordId:word,relationships:[]},
+  ],"withdrawal")]);
   const withdrawalSequence=(await db.query("select event_sequence::text from writing_enrichment_authority_events where event_kind='s4_withdrawal'")).rows[0].event_sequence;
-  assert.equal((await db.query("select authority_event_sequence::text from writing_current_occurrence_interpretations where occurrence_id=$1",[occurrence.id])).rows[0].authority_event_sequence,withdrawalSequence); proof();
+  assert.equal((await db.query("select authority_event_sequence::text from writing_current_occurrence_interpretations where occurrence_id=$1",[occurrence.id])).rows[0].authority_event_sequence,withdrawalSequence);
+  currentEvidence=(await db.query("select id,occurrence_id,batch_id from writing_shadow_current_occurrence_report where child_id=$1 order by occurrence_id",[child])).rows;
+  assert.deepEqual(currentEvidence.map((row)=>row.occurrence_id),[occurrence.id,unaffectedOccurrence.id].sort());
+  assert.equal(new Set(currentEvidence.map((row)=>row.batch_id)).size,2);
+  await db.query("alter table children add column first_name text,add column last_name text; alter table micro_skill_catalog add column display_name text; update children set first_name='Fixture'; update micro_skill_catalog set display_name=micro_skill_key");
+  const { loadWholeWritingLongitudinalReport } = await import("../lib/writing-engine/whole-writing/projection-repository.ts");
+  const currentReport=await loadWholeWritingLongitudinalReport(postgresWorkerClient(db),child,"current");
+  assert.equal(currentReport.rows.length,2);
+  assert.equal(currentReport.candidateCount,2);
+  assert.equal(currentReport.batchCount,2);
+  assert.deepEqual(currentReport.rows.map((row)=>row.receiptId).sort(),currentEvidence.map((row)=>row.id).sort()); proof();
   const eventMetrics=(await db.query("select event_kind,identity_resolutions::int,relationship_resolutions::int,relationship_withdrawals::int from writing_enrichment_event_resolution_metrics order by event_kind")).rows;
   assert.deepEqual(eventMetrics.find((row)=>row.event_kind==='s4_publication'),{event_kind:'s4_publication',identity_resolutions:1,relationship_resolutions:1,relationship_withdrawals:0});
   assert.deepEqual(eventMetrics.find((row)=>row.event_kind==='s4_withdrawal'),{event_kind:'s4_withdrawal',identity_resolutions:0,relationship_resolutions:0,relationship_withdrawals:1}); proof();

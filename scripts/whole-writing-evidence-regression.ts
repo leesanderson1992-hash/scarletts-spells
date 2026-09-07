@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { readCanonicalWordSkillRelationships } from "../lib/adle/word-skill-relationships/authority";
 import { adaptExplicitReviewedAssociations } from "../lib/adle/word-skill-relationships/adapters";
 import { publishedAssociationsToPhaseB, validateEnrichmentPackage, type EnrichmentCandidate } from "../lib/writing-engine/whole-writing/knowledge";
-import { readWholeWritingShadowEvidence, type WholeWritingEvidenceFact } from "../lib/writing-engine/whole-writing/evidence";
+import { readWholeWritingShadowEvidence, wholeWritingCandidate, type WholeWritingEvidenceFact } from "../lib/writing-engine/whole-writing/evidence";
 import { wholeWritingCalibrationInputs } from "../lib/writing-engine/whole-writing/calibration";
+import { readLearnerEvidenceProjection } from "../lib/adle/proficiency/evidence/classifier";
+import { reconcileExactCompatibilityLineage } from "../lib/writing-engine/whole-writing/projection";
 
 const words = [{ canonicalWordId:"untaught-word",normalisedWord:"untaught",state:"active" as const,identityStable:true }];
 const skills = ["skill-a","skill-b"].map((microSkillKey) => ({ microSkillKey,state:"active" as const,identityStable:true }));
@@ -42,6 +44,17 @@ const duplicate = readWholeWritingShadowEvidence([occurrence,{...occurrence,asse
 assert.equal(duplicate.events.length,1);
 const repeated = readWholeWritingShadowEvidence([occurrence,{...occurrence,occurrenceId:"another-span",assessmentId:"second"}],authority);
 assert.equal(repeated.events.length,2,"distinct same-day spans remain available; no occurrence-count scoring");
+const compatibilityCandidate = {
+  ...wholeWritingCandidate(occurrence), candidateId:"legacy-compatible-row", sourceKind:"learning_item_evidence" as const,
+  sourceEntityId:"legacy-compatible-row", representationRole:"compatibility_evidence" as const,
+};
+const exactCompatibility = readLearnerEvidenceProjection({ candidates:[wholeWritingCandidate(occurrence),compatibilityCandidate], relationshipAuthority:authority });
+assert.equal(exactCompatibility.events.length,1,"an explicitly shared exact lineage collapses to one performance");
+assert.equal(exactCompatibility.reconciliation.duplicateRepresentationsCollapsedCount,1);
+const compatibilityReceipt = { receiptId:"receipt",learnerId:occurrence.learnerId,canonicalWordId:occurrence.canonicalWordId,occurredAt:occurrence.occurredAt,performanceLineageKey:positive.events[0].provenance.performanceLineageKey };
+assert.equal(reconcileExactCompatibilityLineage([compatibilityReceipt],positive.events)[0].status,"EXACT_MATCH");
+assert.equal(reconcileExactCompatibilityLineage([{...compatibilityReceipt,occurredAt:"2026-09-02T10:00:00Z"}],positive.events)[0].status,"EXACT_LINEAGE_CONFLICT");
+assert.equal(reconcileExactCompatibilityLineage([{...compatibilityReceipt,performanceLineageKey:"similar-but-not-exact"}],positive.events)[0].status,"NO_EXACT_LINEAGE");
 const calibration=wholeWritingCalibrationInputs(repeated.projections);
 assert.equal(calibration.length,2);
 assert.equal(calibration[0].distinctWords.length,1);
