@@ -1299,6 +1299,15 @@ export default async function CourseReviewDetailPage({
           ) : null}
         </div>
 
+        <ContextualUseSuggestionsPanel
+          rows={contextReviewDeliveries}
+          redirectPath={buildScopedPath(
+            `/courses/review/${reviewEntryId}`,
+            selectedChild.id,
+            mode,
+          )}
+        />
+
         <UnifiedSpellingReviewTable
           rows={unifiedSpellingReviewItems}
           options={
@@ -1315,15 +1324,6 @@ export default async function CourseReviewDetailPage({
           reviewWorkflowPhase={reviewWorkflowPhase}
         />
 
-        <ContextualUseSuggestionsPanel
-          rows={contextReviewDeliveries}
-          redirectPath={buildScopedPath(
-            `/courses/review/${reviewEntryId}`,
-            selectedChild.id,
-            mode,
-          )}
-        />
-
         <LessonParentActionsSection
           submissionId={submission.id}
           redirectPath={buildScopedPath(
@@ -1336,7 +1336,8 @@ export default async function CourseReviewDetailPage({
           completionSummary={unifiedCompletionSummary}
           showZeroSuggestionGuidance={
             submission.parent_review_status === "pending" &&
-            panelModel.state === "empty_result"
+            panelModel.state === "empty_result" &&
+            contextReviewDeliveries.length === 0
           }
           freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
           parentIdentifiedOccurrences={parentIdentifiedOccurrences}

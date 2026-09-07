@@ -20,7 +20,7 @@ export function ContextualUseSuggestionsPanel(props: {
         <table className="w-full min-w-[760px] border-collapse text-left text-sm">
           <thead><tr>{["Child wrote", "Suggested word", "Original context", "Decision"].map((label) => <th key={label} className="border-b p-3">{label}</th>)}</tr></thead>
           <tbody>{props.rows.map((row) => <tr key={row.id}>
-            <td className="border-b p-3 align-top font-semibold">{row.observedText}<small className="mt-1 block break-all font-normal text-[color:var(--mid)]">{row.sourceFieldPath}</small></td>
+            <td className="border-b p-3 align-top font-semibold">{row.observedText}</td>
             <td className="border-b p-3 align-top font-semibold">{row.suggestedReplacement}<small className="mt-1 block font-normal text-[color:var(--mid)]">{row.familyKey}</small></td>
             <td className="border-b p-3 align-top whitespace-pre-wrap">{row.contextExcerpt}</td>
             <td className="border-b p-3 align-top"><div className="flex flex-wrap gap-2">
