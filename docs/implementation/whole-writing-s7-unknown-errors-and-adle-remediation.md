@@ -110,3 +110,38 @@ Completion additionally requires the repository type check, focused lint,
 relevant S6/returned-correction/canonical-intake regressions, production build
 and a disposable staging proof against the branch preview. Production deployment
 or production migrations are not part of S7 development.
+
+## Staging proof receipt — 7 September 2026
+
+The additive migration was applied only to fixed staging Supabase project
+`jlhotktspjvffslvuyfz`, after verifying every S1–S6 predecessor through
+`20260907100000`. Its SHA-256 is
+`4ab458844e06072e14a8ef7eeb7bf5d585b116238bece36f87c78d94c765c8e4`.
+The migration ledger records version `20260907110000`. No Production database
+was contacted.
+
+The disposable runner used the READY staging Preview at
+`scarletts-spells-staged-p6optzhph.vercel.app`. It submitted learner writing,
+extracted the immutable occurrence, attached a parent-identified unknown error,
+stored an incorrect retry, materialised the existing parent-approved governed
+source and seeded the existing canonical-intake queue. The intake candidate
+remained `queued`; all protected consequence counts were unchanged.
+
+The output was:
+
+```json
+{"status":"passed","project":"jlhotktspjvffslvuyfz","preview":"scarletts-spells-staged-p6optzhph.vercel.app","exactOccurrenceLineage":true,"separateIncorrectRetry":true,"canonicalIntakeCandidate":"queued","protectedConsequenceChanges":0}
+```
+
+Cleanup removed the technical intake candidate first, temporarily disabled only
+the existing consumed-source delete guard inside one database transaction,
+deleted the disposable governed source and parent, restored the guard before
+commit, and verified zero child residue. This is necessary because the existing
+R8D authority correctly prevents ordinary deletion of a source after canonical
+intake has consumed it.
+
+Run the proof only with the fixed staging Preview environment loaded:
+
+```text
+npm run writing:s7-staging-proof
+```
