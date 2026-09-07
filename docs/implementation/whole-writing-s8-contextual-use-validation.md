@@ -137,5 +137,45 @@ npm run writing:s8-regression
 WRITING_PROOF_RUNTIME=/tmp/scarlett-writing-proof-runtime npm run writing:s8-db-proof
 ```
 
-The Preview and disposable staging receipt is added only after the complete
-parent-to-child journey, cleanup and fixed-staging verification pass.
+## Preview and disposable staging receipt
+
+The complete S8 journey was verified on 7 September 2026 against runtime-code
+commit `9dc8b3bd3cdec50dff5687186b96b45e9e07e4b2` and Vercel Preview deployment
+`dpl_424Bt8QG8yTnSgHTjt4qo6dwHVpB`:
+
+```text
+https://scarletts-spells-staged-3zm4lxpz8.vercel.app
+```
+
+Vercel reported the deployment as `READY`, target `Preview`, for branch
+`codex/s8-contextual-use-validation` and the exact runtime-code commit above.
+
+The guarded migration runner applied only migration `20260907120000` to the
+fixed staging Supabase project `jlhotktspjvffslvuyfz`. Its checksum was
+`b235fd8a99b077f4596519cd8ecb168b15460cc310158ea002a4e71d00657c1d`.
+Immediately after application, staging contained four family releases, twelve
+environment/family selection events, no approval events and no enabled S8
+controls.
+
+The disposable browser and database proof then established:
+
+- the parent received the exact occurrence and original sentence for an
+  eligible contextual suggestion;
+- the parent confirmed the proposed intended word and sent the work back;
+- the child corrected the sentence, completed the separate retry and submitted
+  successfully;
+- the persisted retry outcome was `correct`, while assistance and answer
+  visibility remained `unknown`;
+- the parent decision, correction attempt and source occurrence retained exact
+  compatibility lineage;
+- counts for learning items, coins, Gold Bars, Authentic Use and review
+  schedules did not change.
+
+The proof enabled one learner-scoped control set and installed one temporary
+mapping and one temporary family approval. Cleanup disabled and removed those
+facts and deleted the disposable account and owned records. A separate
+read-only check confirmed zero proof users, proof approvals, proof mappings,
+enabled context controls and currently approved staging families.
+
+No Production deployment or Production database migration was run. The frozen
+E1/S5 release candidate and `origin/main` were not changed by this verification.
