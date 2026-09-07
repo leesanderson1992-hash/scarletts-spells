@@ -2,7 +2,7 @@
 
 **Baseline:** `adfbd571aa0811fe8d224b34310ed086864736d7`  
 **Implementation branch:** `codex/s6-known-errors-retries`  
-**Status:** implemented locally; all controls default off; no consequential consumer is enabled.
+**Status:** implemented and proven locally and in disposable staging; all controls default off; no consequential consumer is enabled.
 
 ## Authority and scope
 
@@ -117,9 +117,28 @@ WRITING_PROOF_RUNTIME=/tmp/scarlett-writing-proof-runtime \
   node --import tsx --conditions=react-server scripts/prove-whole-writing-local.mjs
 ```
 
-The proof connects to no application or Production database. A Preview/staging
-proof is still required before either S6 switch is enabled outside local
-development.
+The local proof connects to no application or Production database.
+
+The fixed-project staging runner applies only missing S6 prerequisites and S6,
+then creates and removes a disposable learner cohort:
+
+```text
+WRITING_PROOF_SUPABASE_CLI=/path/to/supabase \
+  NODE_OPTIONS=--conditions=react-server \
+  node --import tsx scripts/whole-writing-s6-staging-proof.mjs apply
+
+NODE_OPTIONS=--conditions=react-server \
+  node --import tsx scripts/whole-writing-s6-staging-proof.mjs proof
+```
+
+On 7 September 2026 the proof passed against staging project
+`jlhotktspjvffslvuyfz`: one current finding, two append-only historical
+findings after replay, one exact replay link, one parent-review candidate,
+pending S5 assessment provenance and zero changes to protected consequential
+tables. The staging database needed the already-approved
+`20260906190000_integrate_e1_s5_current_evidence.sql` immediately before S6;
+the runner applied both migrations transactionally and recorded their ledger
+entries. No Production database was contacted.
 
 ## Rollout and rollback
 

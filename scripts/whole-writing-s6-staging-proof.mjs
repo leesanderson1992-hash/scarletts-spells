@@ -18,9 +18,10 @@ const MIGRATIONS = [
 ];
 const command = process.argv[2];
 const cli = process.env.WRITING_PROOF_SUPABASE_CLI;
-const stagingUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SB_SERVICE_ROLE_KEY;
-const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const firstConfigured = (...values) => values.find((value) => typeof value === "string" && value.length > 0);
+const stagingUrl = firstConfigured(process.env.SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_URL);
+const serviceKey = firstConfigured(process.env.SUPABASE_SERVICE_ROLE_KEY, process.env.SB_SERVICE_ROLE_KEY);
+const anonKey = firstConfigured(process.env.SUPABASE_ANON_KEY, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 function parseCliJson(output) {
   return JSON.parse(output.slice(output.indexOf("{"), output.lastIndexOf("}") + 1));
@@ -63,6 +64,8 @@ if (command === "apply") {
 assert.equal(command, "proof", "Use apply or proof");
 assert.ok(stagingUrl?.includes(STAGING_REF), "The configured Supabase URL is not the fixed staging project");
 assert.ok(serviceKey && anonKey, "Staging Supabase keys are required");
+process.env.SUPABASE_SERVICE_ROLE_KEY = serviceKey;
+process.env.NEXT_PUBLIC_SUPABASE_URL = stagingUrl;
 const client = createClient(stagingUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 const anon = createClient(stagingUrl, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
 const protectedTables = ["adle_learning_items", "child_gold_coin_ledger_events", "child_gold_bar_ledger_events", "adle_authentic_use_events", "adle_review_schedule_words"];
