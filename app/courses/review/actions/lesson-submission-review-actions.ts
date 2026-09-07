@@ -7,6 +7,8 @@ import {
   resolveParentIdentifiedOccurrence,
   type ParentIdentifiedOccurrenceCandidate,
 } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
+import { readSnapshotField } from "@/lib/writing-engine/whole-writing/context-source";
+import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
 
 import {
   backfillPendingSubmissionSuggestionCanonicalMicroSkill,
@@ -236,7 +238,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
 
   const { data: sourceSnapshot } = await supabase
     .from("writing_source_snapshots")
-    .select("id")
+    .select("*")
     .eq("submission_id", submission.id)
     .eq("parent_user_id", user.id)
     .eq("child_id", submission.child_id)
@@ -325,6 +327,9 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     occurrenceResolution.status === "resolved"
       ? occurrenceResolution.occurrence.id
       : null;
+  const sourceOccurrence = sourceWritingOccurrenceId
+    ? occurrenceRows.find((row) => row.id === sourceWritingOccurrenceId) ?? null
+    : null;
 
   let existingQuery = supabase
     .from("misspelling_instances")
@@ -351,7 +356,20 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  const range = findWordRange(sample.sample_text, safeMisspelledWord);
+  const sourceFieldText = sourceOccurrence && sourceSnapshot
+    ? readSnapshotField(sourceSnapshot as unknown as SourceSnapshot, sourceOccurrence.field_path)
+    : null;
+  const sourceExcerpt = sourceOccurrence && sourceFieldText !== null &&
+      sourceFieldText.slice(sourceOccurrence.start_utf16, sourceOccurrence.end_utf16) === sourceOccurrence.observed_text
+    ? sourceFieldText.slice(
+        Math.max(0, sourceOccurrence.start_utf16 - 80),
+        Math.min(sourceFieldText.length, sourceOccurrence.end_utf16 + 80),
+      )
+    : null;
+  const exactSampleRange = sourceOccurrence && sourceFieldText === sample.sample_text
+    ? { raw: sourceOccurrence.observed_text, start: sourceOccurrence.start_utf16, end: sourceOccurrence.end_utf16 }
+    : null;
+  const range = sourceWritingOccurrenceId ? exactSampleRange : findWordRange(sample.sample_text, safeMisspelledWord);
   const { error } = await supabase.from("misspelling_instances").insert({
     writing_sample_id: sample.id,
     child_id: sample.child_id,
@@ -366,7 +384,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     is_parent_overridden: false,
     word_family_id: null,
     source_writing_occurrence_id: sourceWritingOccurrenceId,
-    context_text: range?.raw ?? safeMisspelledWord,
+    context_text: sourceExcerpt ?? range?.raw ?? safeMisspelledWord,
     position_start: range?.start ?? null,
     position_end: range?.end ?? null,
     notes: stringifyAnalysisExtraMetadata({

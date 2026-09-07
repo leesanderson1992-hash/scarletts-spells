@@ -152,6 +152,11 @@ function buildClusters(
 }
 
 function sourceMarker(row: UnifiedSpellingReviewItem) {
+  if (row.provenance.metadata.suggestion_metadata &&
+    typeof row.provenance.metadata.suggestion_metadata === "object" &&
+    (row.provenance.metadata.suggestion_metadata as Record<string, unknown>).detection_source === "whole_writing_context_s8") {
+    return { label: "C", title: "Parent-confirmed contextual word choice" };
+  }
   if (row.source === "returned_correction" && row.provenance.parentAuthored) {
     return {
       label: "P·R",

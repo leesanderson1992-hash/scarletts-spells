@@ -69,6 +69,8 @@ import {
   parseSubmissionReview,
 } from "../review-utils";
 import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
+import { loadPendingContextReviewDeliveries } from "@/lib/writing-engine/whole-writing/context-review-repository";
+import { ContextualUseSuggestionsPanel } from "../contextual-use-suggestions-panel";
 
 type CourseReviewDetailPageProps = {
   params: Promise<{ submissionId: string }>;
@@ -1019,6 +1021,7 @@ export default async function CourseReviewDetailPage({
     unifiedSpellingReviewItems,
     freeWritingEvidenceCandidates,
     parentIdentifiedOccurrences,
+    contextReviewDeliveries,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -1086,6 +1089,12 @@ export default async function CourseReviewDetailPage({
       submissionId: submission.id,
       parentUserId: user.id,
       childId: submission.child_id,
+    }),
+    loadPendingContextReviewDeliveries({
+      client: createServiceRoleClient(),
+      parentUserId: user.id,
+      childId: submission.child_id,
+      taskSubmissionId: submission.id,
     }),
   ]);
   const reviewWorkflowPhase = getReviewWorkflowPhase({
@@ -1304,6 +1313,15 @@ export default async function CourseReviewDetailPage({
             mode,
           )}
           reviewWorkflowPhase={reviewWorkflowPhase}
+        />
+
+        <ContextualUseSuggestionsPanel
+          rows={contextReviewDeliveries}
+          redirectPath={buildScopedPath(
+            `/courses/review/${reviewEntryId}`,
+            selectedChild.id,
+            mode,
+          )}
         />
 
         <LessonParentActionsSection

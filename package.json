@@ -15,6 +15,8 @@
     "writing:s7-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s7-regression.ts",
     "writing:s7-db-proof": "node scripts/prove-whole-writing-s7-local.mjs",
     "writing:s7-staging-proof": "NODE_OPTIONS=--conditions=react-server node --import tsx scripts/whole-writing-s7-staging-proof.mjs",
+    "writing:s8-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-regression.ts",
+    "writing:s8-db-proof": "node scripts/prove-whole-writing-s8-local.mjs",
     "lint": "eslint",
     "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",
     "adle:word-skill-relationship-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-relationship-regression.ts",

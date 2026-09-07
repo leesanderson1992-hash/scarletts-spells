@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- additive shadow tables intentionally precede generated database types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { contextFamilyForMember } from "./context";
 
 export type WholeWritingReportMode = "current" | "history";
 
@@ -28,6 +29,20 @@ export type WholeWritingReportRow = {
   priorReceiptId: string | null;
   skillCandidates: { microSkillKey: string; displayName: string; authorityFingerprint: string }[];
   admittedProjections: { microSkillKey: string; polarity: string; environment: string }[];
+  context: {
+    status: "VALID" | "INVALID" | "UNCERTAIN" | "NOT_ASSESSED";
+    familyKey: string | null;
+    alternativeMember: string | null;
+    assessedScope: string | null;
+    reasonCode: string;
+    ruleId: string | null;
+    analyserVersion: string | null;
+    registryVersion: string | null;
+    corpusVersion: string | null;
+    manifestFingerprint: string | null;
+    contextExcerpt: string | null;
+    createdAt: string | null;
+  };
 };
 
 export type WholeWritingLongitudinalReport = {
@@ -41,6 +56,10 @@ export type WholeWritingLongitudinalReport = {
   admittedEventCount: number;
   admittedProjectionCount: number;
   exactHistoricalMatchCount: number;
+  contextValidCount: number;
+  contextInvalidCount: number;
+  contextUncertainCount: number;
+  contextNotAssessedCount: number;
   truncated: boolean;
 };
 
@@ -71,7 +90,8 @@ export async function loadWholeWritingLongitudinalReport(
     : (inventory[0]?.child_id as string | undefined) ?? null;
   if (!selectedChildId) {
     return { mode, selectedChildId, children, rows: [], batchCount: 0, candidateCount: 0, blockedCount: 0,
-      admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, truncated: inventory.length === 1000 };
+      admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, contextValidCount: 0,
+      contextInvalidCount: 0, contextUncertainCount: 0, contextNotAssessedCount: 0, truncated: inventory.length === 1000 };
   }
   let batches: any[];
   let receipts: any[];
@@ -100,7 +120,8 @@ export async function loadWholeWritingLongitudinalReport(
     batches = selectedBatches.slice(0, BATCH_LIMIT);
     if (batches.length === 0) {
       return { mode, selectedChildId, children, rows: [], batchCount: 0, candidateCount: 0, blockedCount: 0,
-        admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, truncated: inventory.length === 1000 };
+        admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, contextValidCount: 0,
+        contextInvalidCount: 0, contextUncertainCount: 0, contextNotAssessedCount: 0, truncated: inventory.length === 1000 };
     }
     const receiptResult = await client.from("writing_shadow_occurrence_evidence_receipts")
       .select("id,batch_id,occurrence_id,interpretation_id,canonical_word_id,disposition,reason,performance_lineage_key,lineage_reconciliation,prior_receipt_id,occurred_at,created_at")
@@ -112,20 +133,26 @@ export async function loadWholeWritingLongitudinalReport(
   }
   if (receipts.length === 0) {
     return { mode, selectedChildId, children, rows: [], batchCount: 0, candidateCount: 0, blockedCount: 0,
-      admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, truncated: inventory.length === 1000 };
+      admittedEventCount: 0, admittedProjectionCount: 0, exactHistoricalMatchCount: 0, contextValidCount: 0,
+      contextInvalidCount: 0, contextUncertainCount: 0, contextNotAssessedCount: 0, truncated: inventory.length === 1000 };
   }
   const occurrenceIds = [...new Set(receipts.map((row) => row.occurrence_id as string))];
   const interpretationIds = [...new Set(receipts.map((row) => row.interpretation_id as string))];
   const receiptIds = receipts.map((row) => row.id as string);
   const wordIds = [...new Set(receipts.map((row) => row.canonical_word_id as string | null).filter(Boolean))] as string[];
-  const [occurrenceResult, interpretationResult, candidateResult, projectionResult, wordResult] = await Promise.all([
-    occurrenceIds.length ? client.from("writing_occurrences").select("id,observed_text,field_path,start_utf16,end_utf16").in("id", occurrenceIds) : null,
+  const contextQuery = client.from(mode === "current" ? "writing_context_current_results" : "writing_context_results")
+    .select("id,occurrence_id,interpretation_id,family_key,result_status,alternative_member,assessed_scope,reason_code,rule_id,analyser_version,registry_version,corpus_version,manifest_fingerprint,context_excerpt,created_at")
+    .in("occurrence_id", occurrenceIds).order("created_at", { ascending: false });
+  const [occurrenceResult, interpretationResult, candidateResult, projectionResult, wordResult, contextResult] = await Promise.all([
+    occurrenceIds.length ? client.from("writing_occurrences").select("id,observed_text,field_path,start_utf16,end_utf16,provenance").in("id", occurrenceIds) : null,
     interpretationIds.length ? client.from("writing_occurrence_interpretations").select("id,normalized_form,resolution_status").in("id", interpretationIds) : null,
     receiptIds.length ? client.from("writing_shadow_occurrence_skill_candidates").select("receipt_id,micro_skill_key,relationship_authority_fingerprint").in("receipt_id", receiptIds) : null,
     receiptIds.length ? client.from("writing_shadow_skill_evidence_projections").select("receipt_id,micro_skill_key,polarity,environment").in("receipt_id", receiptIds) : null,
     wordIds.length ? client.from("canonical_teaching_dictionary_words").select("id,normalised_word").in("id", wordIds) : null,
+    contextQuery,
   ]);
-  if (occurrenceResult?.error || interpretationResult?.error || candidateResult?.error || projectionResult?.error || wordResult?.error) {
+  const contextUnavailable = contextResult.error && ["42P01", "PGRST205"].includes(contextResult.error.code);
+  if (occurrenceResult?.error || interpretationResult?.error || candidateResult?.error || projectionResult?.error || wordResult?.error || (contextResult.error && !contextUnavailable)) {
     throw new Error("WHOLE_WRITING_REPORT_DETAIL_READ_FAILED");
   }
   const skillKeys = [...new Set([
@@ -145,10 +172,23 @@ export async function loadWholeWritingLongitudinalReport(
   for (const row of (candidateResult?.data ?? []) as any[]) candidatesByReceipt.set(row.receipt_id, [...(candidatesByReceipt.get(row.receipt_id) ?? []), row]);
   const projectionsByReceipt = new Map<string, any[]>();
   for (const row of (projectionResult?.data ?? []) as any[]) projectionsByReceipt.set(row.receipt_id, [...(projectionsByReceipt.get(row.receipt_id) ?? []), row]);
+  const contextByInterpretation = new Map<string, any>();
+  for (const row of (contextResult.data ?? []) as any[]) {
+    if (!contextByInterpretation.has(row.interpretation_id)) contextByInterpretation.set(row.interpretation_id, row);
+  }
   const rows = receipts.map((receipt): WholeWritingReportRow => {
     const batch = batchById.get(receipt.batch_id)!;
     const occurrence = occurrenceById.get(receipt.occurrence_id)!;
     const interpretation = interpretationById.get(receipt.interpretation_id)!;
+    const context = contextByInterpretation.get(receipt.interpretation_id) ?? null;
+    const family = contextFamilyForMember(interpretation.normalized_form);
+    const notAssessedReason = occurrence.provenance !== "learner_response"
+      ? "AUTHORSHIP_NOT_ELIGIBLE"
+      : interpretation.resolution_status !== "resolved"
+        ? "IDENTITY_UNRESOLVED"
+        : family
+          ? "PENDING_OR_STALE_CONTEXT_RESULT"
+          : "OUTSIDE_SUPPORTED_FAMILIES";
     return {
       receiptId: receipt.id, batchId: receipt.batch_id, runId: batch.run_id, snapshotId: batch.snapshot_id,
       learnerId: batch.child_id, occurredAt: receipt.occurred_at, batchCreatedAt: batch.created_at,
@@ -165,6 +205,19 @@ export async function loadWholeWritingLongitudinalReport(
       admittedProjections: (projectionsByReceipt.get(receipt.id) ?? []).map((row) => ({
         microSkillKey: row.micro_skill_key, polarity: row.polarity, environment: row.environment,
       })),
+      context: context ? {
+        status: context.result_status, familyKey: context.family_key,
+        alternativeMember: context.alternative_member, assessedScope: context.assessed_scope,
+        reasonCode: context.reason_code, ruleId: context.rule_id,
+        analyserVersion: context.analyser_version, registryVersion: context.registry_version,
+        corpusVersion: context.corpus_version, manifestFingerprint: context.manifest_fingerprint,
+        contextExcerpt: context.context_excerpt, createdAt: context.created_at,
+      } : {
+        status: "NOT_ASSESSED", familyKey: family?.familyKey ?? null, alternativeMember: null,
+        assessedScope: null, reasonCode: contextUnavailable ? "CONTEXT_STORE_NOT_INSTALLED" : notAssessedReason,
+        ruleId: null, analyserVersion: null, registryVersion: null, corpusVersion: null,
+        manifestFingerprint: null, contextExcerpt: null, createdAt: null,
+      },
     };
   });
   return {
@@ -174,6 +227,10 @@ export async function loadWholeWritingLongitudinalReport(
     admittedEventCount: mode === "current" ? receipts.filter((row) => row.disposition === "ADMITTED").length : batches.reduce((sum, row) => sum + row.admitted_count, 0),
     admittedProjectionCount: mode === "current" ? ((projectionResult?.data ?? []) as any[]).length : batches.reduce((sum, row) => sum + row.projection_count, 0),
     exactHistoricalMatchCount: rows.filter((row) => row.lineageReconciliation === "EXACT_HISTORICAL_MATCH").length,
+    contextValidCount: rows.filter((row) => row.context.status === "VALID").length,
+    contextInvalidCount: rows.filter((row) => row.context.status === "INVALID").length,
+    contextUncertainCount: rows.filter((row) => row.context.status === "UNCERTAIN").length,
+    contextNotAssessedCount: rows.filter((row) => row.context.status === "NOT_ASSESSED").length,
     truncated: inventory.length === 1000 || batchReadTruncated || receiptReadTruncated,
   };
 }

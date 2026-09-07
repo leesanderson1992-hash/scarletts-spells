@@ -19,6 +19,7 @@ import {
   dismissSubmissionPositiveEvidenceImpl,
 } from "./actions/positive-evidence-actions";
 import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verification-actions";
+import { resolveContextReviewSuggestionImpl } from "./actions/context-review-actions";
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
@@ -49,6 +50,10 @@ export async function rejectSubmissionReviewIssue(formData: FormData) {
 
 export async function recordReviewWorkVerificationAction(formData: FormData) {
   return recordReviewWorkVerificationActionImpl(formData);
+}
+
+export async function resolveContextReviewSuggestion(formData: FormData) {
+  return resolveContextReviewSuggestionImpl(formData);
 }
 
 export async function captureSubmissionSpellingCandidateMapping(formData: FormData) {

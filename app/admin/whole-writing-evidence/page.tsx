@@ -99,18 +99,26 @@ export default async function WholeWritingEvidencePage({
       ].map(([label, value]) => <div key={label} className="rounded-2xl border border-[var(--border)] bg-white/70 p-4"><p className="text-xs uppercase tracking-[0.14em] text-[var(--mid)]">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div>)}
     </section>
 
+    <section aria-label="Context analysis totals" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {[
+        ["Context valid", report.contextValidCount], ["Context invalid", report.contextInvalidCount],
+        ["Context uncertain", report.contextUncertainCount], ["Context not assessed", report.contextNotAssessedCount],
+      ].map(([label, value]) => <div key={label} className="rounded-2xl border border-[var(--border)] bg-white/70 p-4"><p className="text-xs uppercase tracking-[0.14em] text-[var(--mid)]">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div>)}
+    </section>
+
     {compatibilityUnavailable ? <p role="alert">Existing Phase C compatibility evidence could not be reconciled. No approximate match was substituted.</p> : null}
     {compatibilityRequested && !compatibilityUnavailable ? <p role="status">Compatibility scan complete. Only an explicitly identical performance-lineage key can match; submission, word, date or text similarity is ignored.</p> : null}
     {report.truncated ? <p role="status">This bounded report is truncated. Select a learner and current interpretations to reduce the result set.</p> : null}
 
     <section className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-white/70">
-      <table className="w-full min-w-[1180px] border-collapse text-left text-sm">
-        <thead><tr>{["Occurrence", "Canonical identity", "Governed micro-skills", "Phase C decision", "Interpretation lineage", "Compatibility"].map((label) => <th className="border-b p-3" key={label}>{label}</th>)}</tr></thead>
+      <table className="w-full min-w-[1460px] border-collapse text-left text-sm">
+        <thead><tr>{["Occurrence", "Canonical identity", "Context analysis", "Governed micro-skills", "Phase C decision", "Interpretation lineage", "Compatibility"].map((label) => <th className="border-b p-3" key={label}>{label}</th>)}</tr></thead>
         <tbody>{report.rows.map((row) => {
           const exact = compatibility.get(row.receiptId);
           return <tr key={row.receiptId}>
             <td className="border-b p-3 align-top"><strong>{row.observedText}</strong><small className="mt-1 block break-all text-[var(--mid)]">{row.fieldPath} · UTF-16 {row.startUtf16}–{row.endUtf16}<br />Occurred {row.occurredAt}</small></td>
             <td className="border-b p-3 align-top">{row.canonicalWord ?? "Unresolved"}<small className="mt-1 block break-all text-[var(--mid)]">{row.resolutionStatus} · {row.canonicalWordId ?? row.normalizedForm}</small></td>
+            <td className="border-b p-3 align-top"><strong>{row.context.status}</strong><small className="mt-1 block text-[var(--mid)]">{row.context.familyKey ?? "No supported family"} · {row.context.reasonCode}</small>{row.context.alternativeMember ? <small className="mt-1 block">Suggested alternative: {row.context.alternativeMember}</small> : null}{row.context.contextExcerpt ? <small className="mt-2 block whitespace-pre-wrap rounded bg-[rgba(255,247,220,0.35)] p-2">{row.context.contextExcerpt}</small> : null}{row.context.ruleId ? <small className="mt-1 block break-all text-[var(--mid)]">{row.context.ruleId}<br />{row.context.corpusVersion}</small> : null}</td>
             <td className="border-b p-3 align-top">{row.skillCandidates.length ? row.skillCandidates.map((skill) => <p key={`${row.receiptId}:${skill.microSkillKey}`}>{skill.displayName}<small className="block text-[var(--mid)]">{skill.microSkillKey}</small></p>) : "No admitted relationship"}</td>
             <td className="border-b p-3 align-top"><strong>{row.disposition}</strong><small className="mt-1 block text-[var(--mid)]">{row.reason}</small>{row.admittedProjections.length ? row.admittedProjections.map((projection) => <small className="mt-1 block" key={`${row.receiptId}:${projection.microSkillKey}`}>{projection.polarity} · {projection.microSkillKey} · {projection.environment}</small>) : <small className="mt-1 block">No admitted skill evidence</small>}</td>
             <td className="border-b p-3 align-top">{row.lineageReconciliation === "EXACT_HISTORICAL_MATCH" ? "Exact prior interpretation" : "First interpretation"}<small className="mt-1 block break-all text-[var(--mid)]">{row.performanceLineageKey}<br />Batch {row.batchId}<br />Interpreted {row.batchCreatedAt}</small></td>
