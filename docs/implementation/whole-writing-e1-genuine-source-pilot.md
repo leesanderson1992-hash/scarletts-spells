@@ -35,9 +35,10 @@ occurrences and one distinct submission.
 
 - S4 package: `7863735c-306f-4a37-ac41-33aa37165f9b`.
 - Review page:
-  <https://scarletts-spells-h6ctzhgah-leesanderson1992-hashs-projects.vercel.app/admin/word-skill-review?environment=local&package=7863735c-306f-4a37-ac41-33aa37165f9b>.
-- Review deployment: `dpl_7uqyeZvKZZAFq99vyKWjUpu3Dm7e`, READY, with
-  deployment-scoped `ADLE_ROUTE_ACTIVATION_ENVIRONMENT=local`.
+  <https://scarletts-spells-koxo2jt2q-leesanderson1992-hashs-projects.vercel.app/admin/word-skill-review?environment=local&package=7863735c-306f-4a37-ac41-33aa37165f9b>.
+- Review deployment: `dpl_6JWPt6KWdWXu1rL2o3HmWZuj3Uw1`, READY, with
+  deployment-scoped staging Supabase credentials, the isolated `local`
+  authority environment and an explicit staging administrator ID.
 - Package candidates: one.
 - Review receipts: zero.
 - Publication receipts: zero.
@@ -46,6 +47,11 @@ occurrences and one distinct submission.
 E1 inventory, generation and replay controls are off. S4 review is enabled;
 publication and withdrawal are off. The disposable cohort has no learning item,
 coin, gold-bar, Authentic Use or review-schedule consequence.
+
+Authenticated browser verification displayed the exact `certain` candidate,
+its governed Production source reference and an `ADMITTED_EXACT_PAIR` Phase B
+preview. The review form was enabled. No decision was submitted during
+verification.
 
 The next action is an exact-pair human review. If approved, publication remains
 a separate action. Publication/replay should be enabled only for the bounded
