@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
+  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08",
+  "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
+  "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+  "runtime": {
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+    "analyserSourceSha256": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_REGISTRY_V1",
+    "registryFingerprint": "95a81ab899bea0575acc9e791d12cc6afd4e6e8bcc3d2a4e6768c64d87194b08",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "releaseMigrationSha256": "b235fd8a99b077f4596519cd8ecb168b15460cc310158ea002a4e71d00657c1d",
+    "familyManifestFingerprints": {
+      "THERE_THEIR_THEYRE": "50cb8caf24132ae1b57bb5755e16c29a3152427631310483ad72c5dc3fa47df6",
+      "TO_TOO_TWO": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd",
+      "YOUR_YOURE": "b3bfc583b6d0c8d6eed86987d4ae4a114591963428d596f9c605ef2370cb9921",
+      "ITS_ITS": "d89c3caf575349dcdd0226fd1c4e7e3740f31a98a227d1b4162ad8d615a21b53"
+    },
+    "familyRuleFingerprints": {
+      "THERE_THEIR_THEYRE": "84db7891fa9310e9b391b8fb86adf919afa5073ce76cea4c418d2e43259fdf3b",
+      "TO_TOO_TWO": "adc41a033ac1a5afbadc2acd311dd522ba833565787b07ec2ad7f069a4e6994f",
+      "YOUR_YOURE": "213b8d126db3e681523c25eedf5b9f53ef5fa45928f44792159763dfd0c05801",
+      "ITS_ITS": "e3d9220776dd2d4558b591e9492aa42e219875bb9e4a823282b5b98171f03a42"
+    }
+  },
+  "families": {
+    "THERE_THEIR_THEYRE": {
+      "releaseId": "81000000-0000-4000-8000-000000000001",
+      "releaseKey": "s8-v1-there-their-theyre",
+      "members": [
+        "there",
+        "their",
+        "they're"
+      ],
+      "supportedConstructions": [
+        "existential",
+        "locative",
+        "possessive",
+        "they_are_contraction"
+      ],
+      "exclusions": [
+        "ambiguous_gerund",
+        "fragment",
+        "quoted_or_reported_intent"
+      ],
+      "manifestFingerprint": "50cb8caf24132ae1b57bb5755e16c29a3152427631310483ad72c5dc3fa47df6",
+      "corpusFingerprint": "44ef7ed906959c3ffabfdbc793b65f212aea25f4baa104f0ac190f21a462e351",
+      "candidateCount": 400,
+      "authorProposalCounts": {
+        "VALID": 150,
+        "INVALID": 150,
+        "UNCERTAIN": 100
+      },
+      "authorProposalFingerprint": "35c1dc7168d4ef9cf87449c43dbc5d938e99e2a92076dc38a93dd986ed37fb06",
+      "authorProposalsAreGold": false,
+      "packetFingerprints": {
+        "A": "d737dff25f3b7084e850d77e53eaec92dedfdc1d0c210483db356ce0692a03c6",
+        "B": "3e340cf6e4c1e082bd5ffa4f5a322d0abd367eb79afede8f4d303e98df60f76d"
+      },
+      "variety": {
+        "total": 400,
+        "uniqueNormalizedTexts": 400,
+        "distinctTemplateIds": 70,
+        "exactDuplicates": [],
+        "nearDuplicates": [],
+        "effectiveVarietyRatio": 1
+      }
+    },
+    "TO_TOO_TWO": {
+      "releaseId": "81000000-0000-4000-8000-000000000002",
+      "releaseKey": "s8-v1-to-too-two",
+      "members": [
+        "to",
+        "too",
+        "two"
+      ],
+      "supportedConstructions": [
+        "preposition",
+        "infinitive",
+        "additive",
+        "degree",
+        "numeral"
+      ],
+      "exclusions": [
+        "fragment",
+        "unresolved_lexical_category",
+        "quoted_or_reported_intent"
+      ],
+      "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd",
+      "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9",
+      "candidateCount": 400,
+      "authorProposalCounts": {
+        "VALID": 150,
+        "INVALID": 150,
+        "UNCERTAIN": 100
+      },
+      "authorProposalFingerprint": "629a46234a8c2bb5e68a677addf9bb2b89583943825a637e58502c70be1072aa",
+      "authorProposalsAreGold": false,
+      "packetFingerprints": {
+        "A": "9edad8b69d26d9e8a379a40d6ad667f64e34396d4dd67360345b3c92aa2f405c",
+        "B": "1ee3c5970dd1d46dd31e4c6886f6ee2701329f3abad2cb52320046c6d3c727f0"
+      },
+      "variety": {
+        "total": 400,
+        "uniqueNormalizedTexts": 400,
+        "distinctTemplateIds": 60,
+        "exactDuplicates": [],
+        "nearDuplicates": [],
+        "effectiveVarietyRatio": 1
+      }
+    },
+    "YOUR_YOURE": {
+      "releaseId": "81000000-0000-4000-8000-000000000003",
+      "releaseKey": "s8-v1-your-youre",
+      "members": [
+        "your",
+        "you're"
+      ],
+      "supportedConstructions": [
+        "possessive",
+        "you_are_contraction"
+      ],
+      "exclusions": [
+        "ambiguous_gerund",
+        "fragment",
+        "quoted_or_reported_intent"
+      ],
+      "manifestFingerprint": "b3bfc583b6d0c8d6eed86987d4ae4a114591963428d596f9c605ef2370cb9921",
+      "corpusFingerprint": "fa2577b9de20e1f8f63ae08999214f61d489c11d2d215627ceae0c7b2d0be938",
+      "candidateCount": 400,
+      "authorProposalCounts": {
+        "VALID": 150,
+        "INVALID": 150,
+        "UNCERTAIN": 100
+      },
+      "authorProposalFingerprint": "12e73e83262f12ba7d0c16958fcc994880e6d35c757ea2bd3112590d5ac35f17",
+      "authorProposalsAreGold": false,
+      "packetFingerprints": {
+        "A": "9d294b78088f52f8a4fc05d351baa9a4577751b5d88bbd07efbbe43624714f00",
+        "B": "ebf0f481cfee0350d4d3f9f67f7b78b71605d4ff93ab422adf222728a8f2e48d"
+      },
+      "variety": {
+        "total": 400,
+        "uniqueNormalizedTexts": 400,
+        "distinctTemplateIds": 62,
+        "exactDuplicates": [],
+        "nearDuplicates": [],
+        "effectiveVarietyRatio": 1
+      }
+    },
+    "ITS_ITS": {
+      "releaseId": "81000000-0000-4000-8000-000000000004",
+      "releaseKey": "s8-v1-its-its",
+      "members": [
+        "its",
+        "it's"
+      ],
+      "supportedConstructions": [
+        "possessive",
+        "it_is_contraction",
+        "it_has_contraction"
+      ],
+      "exclusions": [
+        "fragment",
+        "quoted_or_reported_intent"
+      ],
+      "manifestFingerprint": "d89c3caf575349dcdd0226fd1c4e7e3740f31a98a227d1b4162ad8d615a21b53",
+      "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0",
+      "candidateCount": 400,
+      "authorProposalCounts": {
+        "VALID": 150,
+        "INVALID": 150,
+        "UNCERTAIN": 100
+      },
+      "authorProposalFingerprint": "9d5d93f4a5d30d5db9a3c49d29884848a11f0f27f059d1228d2319e1bb304892",
+      "authorProposalsAreGold": false,
+      "packetFingerprints": {
+        "A": "4266e564a8ef9029c7294e3a17652df014dbfd902877eb8e1f59637a89c814b0",
+        "B": "e87cc2fbf82a0246eb73a16387dd74bdd024db766213a0561aef917e2d635870"
+      },
+      "variety": {
+        "total": 400,
+        "uniqueNormalizedTexts": 400,
+        "distinctTemplateIds": 62,
+        "exactDuplicates": [],
+        "nearDuplicates": [],
+        "effectiveVarietyRatio": 1
+      }
+    }
+  },
+  "goldAuthority": "TWO_INDEPENDENT_HUMAN_LABELS_WITH_DISAGREEMENT_ADJUDICATION",
+  "operationalApproval": false,
+  "packageFingerprint": "886ed2c3a41b24ebe286cd9125fb08ac99391308470bccc9b489d0cbd4faad73"
+}

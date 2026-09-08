@@ -1,0 +1,2144 @@
+{
+  "schemaVersion": 1,
+  "artifactVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:BLOCKED_V1",
+  "status": "BLOCKED",
+  "family": "ITS_ITS",
+  "approvalIdentity": null,
+  "exactRelease": {
+    "releaseId": "81000000-0000-4000-8000-000000000004",
+    "releaseKey": "s8-v1-its-its",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+    "analyserSourceSha256": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65",
+    "ruleFingerprint": "e3d9220776dd2d4558b591e9492aa42e219875bb9e4a823282b5b98171f03a42",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_REGISTRY_V1",
+    "registryFingerprint": "95a81ab899bea0575acc9e791d12cc6afd4e6e8bcc3d2a4e6768c64d87194b08",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0",
+    "manifestFingerprint": "d89c3caf575349dcdd0226fd1c4e7e3740f31a98a227d1b4162ad8d615a21b53",
+    "releaseMigrationSha256": "b235fd8a99b077f4596519cd8ecb168b15460cc310158ea002a4e71d00657c1d"
+  },
+  "metrics": {
+    "disposition": "BLOCKED",
+    "counts": {
+      "total": 0,
+      "valid": 0,
+      "invalid": 0,
+      "uncertain": 0
+    },
+    "confusion": {
+      "truePositives": 0,
+      "falsePositives": 0,
+      "trueNegatives": 0,
+      "falseNegatives": 0,
+      "abstentions": 0
+    },
+    "precision": 0,
+    "wilsonLower95": 0,
+    "supportedRecall": 0,
+    "invalidAlternativeAccuracy": 0,
+    "byConstruction": {},
+    "byProtectedSet": {
+      "fragment": {
+        "total": 0,
+        "failures": 0
+      },
+      "quotation": {
+        "total": 0,
+        "failures": 0
+      },
+      "gerund": {
+        "total": 0,
+        "failures": 0
+      },
+      "run_on": {
+        "total": 0,
+        "failures": 0
+      },
+      "task_dependent": {
+        "total": 0,
+        "failures": 0
+      }
+    },
+    "failures": [
+      {
+        "caseId": "g2-its-its-0001",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0002",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0003",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0004",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0005",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0006",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0007",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0008",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0009",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0010",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0011",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0012",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0013",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0014",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0015",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0016",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0017",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0018",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0019",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0020",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0021",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0022",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0023",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0024",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0025",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0026",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0027",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0028",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0029",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0030",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0031",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0032",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0033",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0034",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0035",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0036",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0037",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0038",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0039",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0040",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0041",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0042",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0043",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0044",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0045",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0046",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0047",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0048",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0049",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0050",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0051",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0052",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0053",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0054",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0055",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0056",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0057",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0058",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0059",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0060",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0061",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0062",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0063",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0064",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0065",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0066",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0067",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0068",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0069",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0070",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0071",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0072",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0073",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0074",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0075",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0076",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0077",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0078",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0079",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0080",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0081",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0082",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0083",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0084",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0085",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0086",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0087",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0088",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0089",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0090",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0091",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0092",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0093",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0094",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0095",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0096",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0097",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0098",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0099",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0100",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0101",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0102",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0103",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0104",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0105",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0106",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0107",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0108",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0109",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0110",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0111",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0112",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0113",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0114",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0115",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0116",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0117",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0118",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0119",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0120",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0121",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0122",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0123",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0124",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0125",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0126",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0127",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0128",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0129",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0130",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0131",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0132",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0133",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0134",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0135",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0136",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0137",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0138",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0139",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0140",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0141",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0142",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0143",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0144",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0145",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0146",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0147",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0148",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0149",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0150",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0151",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0152",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0153",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0154",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0155",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0156",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0157",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0158",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0159",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0160",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0161",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0162",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0163",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0164",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0165",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0166",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0167",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0168",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0169",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0170",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0171",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0172",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0173",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0174",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0175",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0176",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0177",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0178",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0179",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0180",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0181",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0182",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0183",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0184",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0185",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0186",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0187",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0188",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0189",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0190",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0191",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0192",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0193",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0194",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0195",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0196",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0197",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0198",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0199",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0200",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0201",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0202",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0203",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0204",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0205",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0206",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0207",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0208",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0209",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0210",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0211",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0212",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0213",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0214",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0215",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0216",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0217",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0218",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0219",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0220",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0221",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0222",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0223",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0224",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0225",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0226",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0227",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0228",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0229",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0230",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0231",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0232",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0233",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0234",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0235",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0236",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0237",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0238",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0239",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0240",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0241",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0242",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0243",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0244",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0245",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0246",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0247",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0248",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0249",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0250",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0251",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0252",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0253",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0254",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0255",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0256",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0257",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0258",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0259",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0260",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0261",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0262",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0263",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0264",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0265",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0266",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0267",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0268",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0269",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0270",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0271",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0272",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0273",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0274",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0275",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0276",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0277",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0278",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0279",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0280",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0281",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0282",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0283",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0284",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0285",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0286",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0287",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0288",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0289",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0290",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0291",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0292",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0293",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0294",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0295",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0296",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0297",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0298",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0299",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0300",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0301",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0302",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0303",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0304",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0305",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0306",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0307",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0308",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0309",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0310",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0311",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0312",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0313",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0314",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0315",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0316",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0317",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0318",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0319",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0320",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0321",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0322",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0323",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0324",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0325",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0326",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0327",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0328",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0329",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0330",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0331",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0332",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0333",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0334",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0335",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0336",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0337",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0338",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0339",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0340",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0341",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0342",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0343",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0344",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0345",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0346",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0347",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0348",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0349",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0350",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0351",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0352",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0353",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0354",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0355",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0356",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0357",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0358",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0359",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0360",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0361",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0362",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0363",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0364",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0365",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0366",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0367",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0368",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0369",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0370",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0371",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0372",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0373",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0374",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0375",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0376",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0377",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0378",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0379",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0380",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0381",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0382",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0383",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0384",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0385",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0386",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0387",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0388",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0389",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0390",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0391",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0392",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0393",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0394",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0395",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0396",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0397",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0398",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0399",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": "g2-its-its-0400",
+        "reason": "INDEPENDENT_LABEL_COUNT",
+        "actual": "expected exactly two labels, found 0"
+      },
+      {
+        "caseId": null,
+        "reason": "PACKET_LABEL_COUNT",
+        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_A expected 400 labels, found 0"
+      },
+      {
+        "caseId": null,
+        "reason": "PACKET_LABELER_IDENTITY",
+        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_A must be completed by exactly one labeler identity"
+      },
+      {
+        "caseId": null,
+        "reason": "PACKET_LABEL_COUNT",
+        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_B expected 400 labels, found 0"
+      },
+      {
+        "caseId": null,
+        "reason": "PACKET_LABELER_IDENTITY",
+        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_B must be completed by exactly one labeler identity"
+      },
+      {
+        "caseId": null,
+        "reason": "LOCKED_GOLD_INCOMPLETE",
+        "actual": "expected 400 locked gold records, found 0"
+      },
+      {
+        "caseId": null,
+        "reason": "FINAL_GOLD_INCOMPLETE",
+        "expected": 400,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "MINIMUM_TOTAL_NOT_MET",
+        "expected": 400,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "MINIMUM_VALID_NOT_MET",
+        "expected": 150,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "MINIMUM_INVALID_NOT_MET",
+        "expected": 150,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "MINIMUM_UNCERTAIN_NOT_MET",
+        "expected": 100,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "PRECISION_BELOW_POLICY",
+        "expected": 0.98,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "WILSON_LOWER_BOUND_BELOW_POLICY",
+        "expected": 0.95,
+        "actual": 0
+      },
+      {
+        "caseId": null,
+        "reason": "SUPPORTED_RECALL_BELOW_POLICY",
+        "expected": 0.8,
+        "actual": 0
+      }
+    ],
+    "evaluationFingerprint": "dc317dbc937818fada854fb1362bbf5b4112bcbba01516d7ccca70bc2503a6e4"
+  },
+  "nextAction": "Obtain two complete independent human label sets, then adjudicate every substantive disagreement and rerun the deterministic evaluator.",
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "confirmation": "No family activation, runtime policy, database, staging, Production, context_review_enabled, or family delivery-control change was performed.",
+  "artifactFingerprint": "a5b33007dd131b6310152a0dc6829df34d436c4fa86ed471f7ea68d4f3c6defa"
+}
