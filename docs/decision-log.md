@@ -1,5 +1,66 @@
 # Decision Log
 
+## 2026-09-08 — Whole-writing owner gates G1–G5 resolved
+
+### Decision
+
+- Approved `WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08`: one append-only,
+  snapshot-scoped parent attestation may verify explicitly fingerprinted
+  learner-authored occurrences. Prompt, exposure, authorship, assistance,
+  unresolved finding, and context-family exclusions remain occurrence- or
+  field-specific. Automated analysis does not replace parent attestation.
+- Approved `WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`: a first verified
+  authentic error opens an independent-confirmation need; recurrence in a later
+  snapshot before a clean independent success routes through existing S7
+  intake. Automatic child-facing feedback remains excluded.
+- Set the S8 parent-suggestion release standard to an independently labelled,
+  adjudicated corpus of at least 400 cases per family, at least 98% precision,
+  at least 95% Wilson lower bound, at least 80% supported-construction recall,
+  and zero protected-case failures. Each family remains blocked until its exact
+  release passes.
+- Approved `WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08`: orthographic form
+  and contextual choice project separately, causal context skills suppress
+  their own positive projection, recurrence deduplicates within a snapshot, and
+  later verified answer-hidden independent use may resolve proficiency-only
+  instability.
+- Approved `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`, including the existing
+  productive-pattern values, breadth function, relative bands, recurrence
+  limits, equal active-dimension progress, the pool-capped
+  `CONTEXT_DEPENDENT_CLOSED_SET_V1` profile, and
+  `CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08` with DOB-derived cumulative age
+  bands and medium/high-frequency requirements.
+- Required append-only level explanations, admin monitoring, current-versus-V1
+  comparison, and one-at-a-time sensitivity variants. Comparators cannot become
+  policy. Later policy versions run in shadow and need explicit cohort-cutover
+  approval before recomputation becomes learner-facing.
+- Approved `WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08`: pre-activation
+  source facts may affect proficiency only when every qualifying fact already
+  existed before the cutoff. Historical writing cannot retrospectively create
+  rewards, remediation, Authentic Use effects, retirement changes, or reopened
+  schedules.
+
+### Runtime boundary
+
+- This decision changes documentation authority only.
+- No application code, schema, migration, staging data, Production data,
+  deployment, feature control, historical replay, family activation, or
+  proficiency cutover changed.
+- Current Slice 5 proficiency and existing reward, Authentic Use, Review, and
+  retirement authorities remain live until separately verified releases.
+- The unconfirmed Context Resolver proposal remains untouched and unadopted.
+
+### Next gate
+
+- Implement S9 from
+  `docs/implementation/whole-writing-s9-qualified-evidence-specification.md`
+  with every consequential consumer disabled.
+- Build and adjudicate the four G2 family corpora independently; publish family
+  approval only for an exact release that passes every threshold.
+- Implement S11/S12 calculations in shadow before requesting explicit
+  learner-facing cohort cutover approval.
+
+---
+
 ## 2026-09-01 — ADLE target final-rung retirement policy approved
 
 ### Decision

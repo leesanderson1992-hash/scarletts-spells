@@ -470,6 +470,10 @@ Currency language:
   must not mint Golden Bars by default
 - a Golden Bar should only earn currency once unless relearning cycles are
   explicitly supported intentionally
+- `WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08` forbids pre-activation
+  whole-writing analysis from retrospectively minting Golden Bars, other
+  rewards, or new consequential Authentic Use records; existing authoritative
+  Authentic Use records continue under this contract's normal rules
 
 ### Micro-skill levels
 - one word must not prove transferable mastery

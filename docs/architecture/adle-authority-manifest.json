@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "manifestVersion": "ADLE_AUTHORITY_MANIFEST_V1_2026-08-30",
+  "manifestVersion": "ADLE_AUTHORITY_MANIFEST_V1_2026-09-08",
   "authorities": [
     {
       "key": "word_progression_and_review",
@@ -74,9 +74,9 @@
       "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
       "targetTerminologyScope": true,
       "currentRuntimePolicy": "released Slice 5 calculation; see Slice 5 receipt",
-      "approvedTargetPolicy": "versioned four-dimension aggregation, requirement profiles, gated levels, and progress maths",
-      "policyVersion": "ADLE_PROFICIENCY_MODEL_V1",
-      "requiredIdentifiers": ["PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED", "ADLE_PROFICIENCY_PROGRESS_V1_EQUAL_ACTIVE_GATES"],
+      "approvedTargetPolicy": "approved productive and context-dependent requirement profiles, four-dimension aggregation, gated levels, progress maths, evidence trails, monitoring, and read-only sensitivity comparisons",
+      "policyVersion": "ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08",
+      "requiredIdentifiers": ["ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08", "CONTEXT_DEPENDENT_CLOSED_SET_V1", "ADLE_PROFICIENCY_PROGRESS_V1_EQUAL_ACTIVE_GATES"],
       "supersededDocuments": ["docs/implementation/adle-slice-5-proficiency-engine-plan.md"]
     },
     {
@@ -99,6 +99,61 @@
       "approvedTargetPolicy": "immutable singular source events, verification, provenance, causal attribution, and environment identity",
       "policyVersion": "WRITING_ENGINE_EVIDENCE_LINEAGE_V1",
       "requiredIdentifiers": ["Immutable source events", "Attempt lineage", "Verification boundary"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "whole_writing_verification",
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "S5 shadow occurrence evidence and existing explicit parent-review decisions; no S9 qualification",
+      "approvedTargetPolicy": "append-only snapshot-scoped parent attestation with explicit included and excluded occurrence scope",
+      "policyVersion": "WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08",
+      "requiredIdentifiers": ["WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08", "Snapshot-scoped whole-writing attestation"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "whole_writing_remediation",
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "S6 and S7 preserve errors and repairs; automatic repeated-error escalation remains disabled",
+      "approvedTargetPolicy": "first error opens independent confirmation; recurrence across snapshots routes through existing S7 intake",
+      "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08",
+      "requiredIdentifiers": ["WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08", "Repeated authentic-error escalation"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "whole_writing_mixed_outcomes",
+      "canonicalDocument": "docs/contracts/adle-spelling-proficiency-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "S5 and S8 retain shadow assessment and context results without consequential projection",
+      "approvedTargetPolicy": "separate orthographic and contextual outcomes with causal-skill positive suppression and snapshot-level recurrence deduplication",
+      "policyVersion": "WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08",
+      "requiredIdentifiers": ["WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08", "Orthographic form and contextual choice"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "child_requirement_eligibility",
+      "canonicalDocument": "docs/implementation/adle-proficiency-v1-maths.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "current Slice 5 allocation eligibility remains live",
+      "approvedTargetPolicy": "DOB-derived cumulative age bands with frequency, canonical identity, relationship, and review-status gates",
+      "policyVersion": "CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08",
+      "requiredIdentifiers": ["CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08", "Approved child-requirement eligibility"],
+      "supersededDocuments": []
+    },
+    {
+      "key": "whole_writing_historical_effects",
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "historical whole-writing analysis and shadow projections have no consequential consumers",
+      "approvedTargetPolicy": "pre-activation facts may affect proficiency only; rewards, remediation, Authentic Use and retirement remain forward-only",
+      "policyVersion": "WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08",
+      "requiredIdentifiers": ["WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08", "Historical whole-writing boundary"],
       "supersededDocuments": []
     },
     {

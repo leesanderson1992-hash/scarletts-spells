@@ -44,6 +44,13 @@ It does not own:
 
 Those remain with their canonical authorities.
 
+The historical whole-writing activation boundary is owned by
+`WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08` in the Writing Engine Evidence
+and Lineage Contract. Pre-activation whole-writing analysis cannot emit a new
+consequential Authentic Use fact, change a completed retirement decision, or
+reopen a review schedule. Existing authoritative Authentic Use facts remain
+eligible under the normal rules below; S9 must not recreate them.
+
 ## Final-rung decision
 
 A target `DAY_56` pass first reaches the C2B.1 delegation boundary:

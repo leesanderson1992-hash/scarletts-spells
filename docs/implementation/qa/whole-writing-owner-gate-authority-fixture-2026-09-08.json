@@ -1,0 +1,43 @@
+{
+  "fixtureVersion": "WHOLE_WRITING_OWNER_GATE_AUTHORITY_FIXTURE_V1_2026_09_08",
+  "authorityManifest": "docs/architecture/adle-authority-manifest.json",
+  "expectedUniqueOwners": {
+    "whole_writing_verification": {
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "policyVersion": "WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08"
+    },
+    "whole_writing_remediation": {
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08"
+    },
+    "whole_writing_mixed_outcomes": {
+      "canonicalDocument": "docs/contracts/adle-spelling-proficiency-contract.md",
+      "policyVersion": "WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08"
+    },
+    "proficiency_math": {
+      "canonicalDocument": "docs/implementation/adle-proficiency-v1-maths.md",
+      "policyVersion": "ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08"
+    },
+    "child_requirement_eligibility": {
+      "canonicalDocument": "docs/implementation/adle-proficiency-v1-maths.md",
+      "policyVersion": "CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08"
+    },
+    "whole_writing_historical_effects": {
+      "canonicalDocument": "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
+      "policyVersion": "WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08"
+    }
+  },
+  "approvedValueDocuments": [
+    "docs/implementation/adle-proficiency-v1-maths.md"
+  ],
+  "forbiddenApprovedValueMarkers": [
+    "PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED",
+    "Owner decision required for level placement"
+  ],
+  "expectedApprovedIdentifiers": [
+    "ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08",
+    "CONTEXT_DEPENDENT_CLOSED_SET_V1",
+    "CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08",
+    "Approved 2026-09-08"
+  ]
+}

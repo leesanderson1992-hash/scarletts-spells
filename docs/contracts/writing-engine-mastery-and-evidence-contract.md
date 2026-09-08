@@ -4,8 +4,18 @@
 
 Classification: `ACTIVE_NORMATIVE_CONTRACT`
 
+Whole-writing policy identities approved on 8 September 2026:
+
+```text
+WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08
+WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08
+WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08
+```
+
 This contract owns Writing Engine evidence identity, immutable lineage,
-verification, causal attribution, provenance, and source-environment identity.
+verification, causal attribution, provenance, source-environment identity,
+snapshot-scoped whole-writing attestation, repeated-error evidence state, and
+the activation-cutoff boundary for historical whole-writing evidence.
 It does not own ADLE word progression, micro-skill proficiency mathematics,
 instructional-state transitions, or Word Treasure calculations.
 
@@ -52,12 +62,15 @@ retain, directly or through durable lineage:
 - learner/child identity;
 - source environment and source entity identity;
 - occurrence timestamp;
-- canonical word identity when resolved;
+- observed and intended canonical word identities when resolved;
 - target text and learner attempt text where applicable;
 - outcome: correct, incorrect, or unknown;
+- separate orthographic-form and contextual-choice outcomes where applicable;
 - prompt/scaffold/answer-visibility state;
 - verification state and verifier decision;
 - causal micro-skill attribution when governed;
+- per-skill positive exclusions where a causal outcome blocks only one of the
+  word's governed relationships;
 - model/policy interpretation version; and
 - provenance back to the original submission, assignment, Review encounter,
   or diagnostic decision.
@@ -139,6 +152,35 @@ Raw analysis is candidate truth, not canonical evidence.
 - Unknown or ambiguous word/skill identity remains unknown; the system must
   not invent attribution to make a score computable.
 
+### Snapshot-scoped whole-writing attestation
+
+Under `WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08`, a parent may verify
+eligible occurrences through one attestation tied to an immutable source
+snapshot and source revision. The append-only attestation must retain:
+
+- the included learner-authored fields and their occurrence-set fingerprint;
+- every excluded field or occurrence and its reason;
+- the learner-authorship decision;
+- whether production was independent of displayed spellings, copying,
+  transcription, and dictation;
+- confirmation that outstanding spelling and contextual findings were
+  reviewed; and
+- the parent, decision time, analyser versions, and selected releases.
+
+Ordinary topic instructions are compatible with `AUTHENTIC_WRITING`. Exact
+supplied words, sentence stems, copied quotations, dictated text, and
+answer-visible spellings exclude the affected occurrence or field rather than
+the entire snapshot. Uncertain exposure remains `unknown`.
+
+An attestation cannot qualify a confirmed error, immediate repair, unknown
+authorship or assistance, unresolved governed context-family decision, or
+prompted/system-selected Review writing as learner-chosen authentic writing.
+Outside a governed context-sensitive family, contextual analysis is
+`NOT_REQUIRED`. Inside an active family, qualification requires a current
+`VALID` context result or an explicit parent decision for the occurrence.
+Automated analysis may prepare parent review but cannot replace the parent
+attestation in V1.
+
 ## Positive and causal-negative attribution
 
 Positive and negative interpretation follow different governed paths.
@@ -175,6 +217,40 @@ following evidence boundaries are invariant:
   production;
 - same-session repair does not erase causal history; and
 - later scheduled or independent success is a new event, not a rewrite.
+
+### Repeated authentic-error escalation
+
+Under `WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`, a first verified
+authentic error followed by successful repair creates a pending independent-
+confirmation need and no immediate ADLE lesson. A later verified,
+answer-hidden independent success for the same intended canonical word and
+causal micro-skill closes that need.
+
+If the same governed error recurs before that success, preserve the new source
+occurrence and its repair separately and route the existing need through S7
+canonical intake even when the second immediate retry succeeds. Existing
+mapping, readiness, review, and lesson authorities remain authoritative.
+Repeated occurrences in one immutable snapshot count as one recurrence and
+cannot trigger escalation by themselves. Automatic child-facing feedback is
+outside this policy; contextual suggestions remain parent-mediated.
+
+Every S8 family remains operationally blocked until an independently labelled,
+adjudicated release corpus for that exact family, rule, and corpus version has:
+
+- at least 400 cases: at least 150 valid counterexamples, 150 genuine supported
+  misuses, and 100 ambiguous or unsupported cases;
+- two independent labels followed by adjudication;
+- suggestion precision of at least 98%;
+- a 95% Wilson lower confidence bound of at least 95%;
+- recall of at least 80% within its declared supported constructions; and
+- zero failures in the protected fragment, quotation, gerund, run-on, and
+  task-dependent counterexample sets.
+
+The existing 30 synthetic S8 cases are engineering tests and do not count
+toward this corpus. After activation, the family must be flagged for review if
+parent rejection exceeds 5% over at least 50 decisions or a repeated false-
+positive construction appears. Delivery remains independently withdrawable by
+family.
 
 ## Instructional-state separation
 
@@ -240,6 +316,23 @@ them. A future model may reinterpret the same immutable events when:
 Recomputation must be deterministic for the same source facts and pinned
 versions. Historical interpretations may be retained for audit, but they must
 not be presented as the active target authority.
+
+### Historical whole-writing boundary
+
+`WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08` permits pre-activation writing
+to affect a recomputed proficiency profile only when canonical identity,
+correctness, environment, independence, and verification facts all existed
+before the activation cutoff. A retrospective attestation cannot manufacture
+those facts. Qualifying positives and governed causal negatives use their
+original occurrence times and the normal lookback and resolution rules. Later
+approved mappings may reinterpret them only with complete version lineage.
+
+Pre-activation writing must not create remediation or delayed lessons, mint a
+Golden Bar or other reward, emit a new consequential Authentic Use record,
+change a completed retirement decision, or reopen a review schedule.
+Historical analysis, enrichment, and shadow projections remain available.
+Existing authoritative Authentic Use records continue under their existing
+policy and are never recreated by S9.
 
 ## Required invariants
 

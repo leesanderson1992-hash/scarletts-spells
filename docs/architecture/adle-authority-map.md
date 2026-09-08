@@ -2,7 +2,7 @@
 
 ## Status
 
-Authority manifest: `ADLE_AUTHORITY_MANIFEST_V1_2026-08-30`
+Authority manifest: `ADLE_AUTHORITY_MANIFEST_V1_2026-09-08`
 
 This is the entry point for ADLE policy work. If two documents appear to define
 the same rule, the owner in this map and
@@ -17,10 +17,13 @@ target.
 | micro-skill and ADLE learning-item identity | `docs/contracts/micro-skill-taxonomy-and-assignment-contract.md` | current word-scoped ADLE identity is released | active normative | composer, intake, proficiency |
 | individual word graduation and spaced review | `docs/contracts/adle-word-progression-and-review-contract.md` | current Slice 2/R5 policy differs | approved, not implemented | evidence matrix, proficiency maths, product experience |
 | final-rung retirement/pre-retirement | `docs/contracts/adle-final-rung-retirement-contract.md` | released v1 behaviour remains evidenced by `docs/implementation/adle-slice-2-review-scheduler-plan.md` | approved target, not implemented | scheduler, Review, evidence-state readers |
-| word-to-skill relationships and proficiency meaning | `docs/contracts/adle-spelling-proficiency-contract.md` | current Slice 5 relationship/projection path differs | approved, not implemented | maths, evidence matrix, UI |
-| proficiency calculations and numerical proposals | `docs/implementation/adle-proficiency-v1-maths.md` | no target maths is live | approved architecture; constants remain proposals | shadow engine, reports, UI |
+| word-to-skill relationships, proficiency meaning, and mixed whole-writing outcomes | `docs/contracts/adle-spelling-proficiency-contract.md` | Phase B/S4 relationships and Phase C/S5 shadow projection exist; no target level model is live | approved; consequential mixed-outcome projection not implemented | maths, evidence matrix, S9, UI |
+| proficiency calculations, approved requirements, child eligibility, monitoring, and comparisons | `docs/implementation/adle-proficiency-v1-maths.md` | no target maths is live | approved under `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`; not implemented | S11/S12 shadow engine, reports, UI |
 | activity/outcome evidence effects | `docs/pedagogy/adle-proficiency-task-evidence-matrix.md` | Slice 4/Review v3 facts remain live | approved, not implemented | evidence projection, instructional explanations |
-| evidence identity, lineage, verification, provenance | `docs/contracts/writing-engine-mastery-and-evidence-contract.md` | active across current Writing Engine/Review | active normative | all evidence consumers |
+| evidence identity, lineage, verification, provenance, repeated-error state, and historical activation boundary | `docs/contracts/writing-engine-mastery-and-evidence-contract.md` | active lineage plus S5–S8 shadow/source records | active normative base; whole-writing V1 policies approved and awaiting S9/adapters | all evidence consumers |
+| whole-writing snapshot verification | `docs/contracts/writing-engine-mastery-and-evidence-contract.md` | no S9 qualification | `WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08` approved | S9, proficiency, Authentic Use |
+| repeated whole-writing error escalation | `docs/contracts/writing-engine-mastery-and-evidence-contract.md` | S6/S7 preserve source and repair; recurrence adapter absent | `WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08` approved | recurrence adapter, S7 intake |
+| pre-activation whole-writing effects | `docs/contracts/writing-engine-mastery-and-evidence-contract.md` | shadow history has no consequences | `WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08` approved | S9, S11/S12, reward and retirement guards |
 | child/parent proficiency presentation | `docs/product/adle-proficiency-progression-experience.md` | complete target surface not live | approved, not implemented | child/parent UI |
 | canonical word metadata and curriculum readiness | `docs/contracts/canonical-spelling-word-map-contract.md` | released content authorities | active normative | relationship adapters, composer, complexity |
 | resolver and exact canonical mapping | `docs/contracts/parent-recommended-canonical-mapping.md` | released exact mapping authorities | active normative | diagnosis, Phase B relationship adapter |
@@ -69,24 +72,22 @@ historical proficiency evidence or become the proficiency algorithm.
 
 ## Numerical status
 
-The four-dimension proficiency architecture is approved. Level thresholds in
-the V1 Maths document remain:
-
-```text
-PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED
-```
-
-They are calibrated after the real relationship, evidence, group, complexity,
-and eligibility pools can be inspected. They do not block Phase B.
+The four-dimension architecture, productive-pattern values, breadth function,
+relative-band cuts, recurrence limits, equal-active-dimension progress formula,
+`CONTEXT_DEPENDENT_CLOSED_SET_V1`, and DOB-based child eligibility are approved
+under `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`. They are target policy, not
+current runtime. S11/S12 must implement them in shadow with evidence trails,
+monitoring, and comparisons before any separately approved cohort cutover.
 
 ## Next authorised engineering step
 
-Phase B only: a server-only, read-only, no-schema
-`CanonicalWordSkillRelationship` authority and reconciliation report. The
-exact bounded prompt is in
-`docs/implementation/adle-proficiency-overhaul-plan.md`. Scheduler replacement,
-learner scoring, composer integration, UI, rewards, writes, and deployment are
-not authorised by Phase B.
+S9: implement snapshot-scoped verification, mixed outcomes, activation-cutoff
+classification, and shadow qualification as specified in
+`docs/implementation/whole-writing-s9-qualified-evidence-specification.md`.
+Every consequential consumer remains disabled. The G2 family corpus work and
+the separately controlled recurrence-to-S7 adapter follow their approved gates.
+Learner-facing proficiency requires S11/S12 shadow reconciliation and explicit
+cohort-cutover approval.
 
 ## Future policy changes
 

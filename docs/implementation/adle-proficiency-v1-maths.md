@@ -6,11 +6,19 @@ Classification: `APPROVED_TARGET_NOT_YET_IMPLEMENTED`
 
 Model identity: `ADLE_PROFICIENCY_MODEL_V1`
 
+Approved requirement policy:
+`ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`
+
+Approved child-eligibility policy:
+`CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08`
+
 This document owns the deterministic mathematical shape of the target model.
-The four-dimension, gated-level architecture is owner-approved. Values labelled
-`PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED` are not owner-approved merely
-because they appear here. They are isolated so calibration can change policy
-without changing source events or schema.
+The four-dimension gated-level architecture, productive-pattern table, breadth
+function, relative-band cuts, recurrence limits, equal-active-dimension progress
+formula, context-dependent closed-set profile, and child-eligibility rule are
+owner-approved under the policy identities above. A future policy version may
+change them without changing source events or schema, but must run in shadow
+and receive explicit owner approval before cohort cutover.
 
 No formula in this document is active runtime. `CURRENT_RUNTIME` remains the
 released `PROFICIENCY_POLICY_V1` state-based breadth projection documented in
@@ -26,8 +34,12 @@ type ProficiencyProjectionInput = {
   eventId: string
   learnerId: string
   canonicalWordId: string
+  observedCanonicalWordId: string | null
+  intendedCanonicalWordId: string | null
   occurredAt: string
   outcome: "correct" | "incorrect" | "unknown"
+  orthographicOutcome: "correct" | "incorrect" | "unknown"
+  contextualOutcome: "valid" | "invalid" | "not_required" | "unknown"
   environment:
     | "CONTROLLED_LESSON"
     | "ISOLATED_RETRIEVAL"
@@ -38,6 +50,8 @@ type ProficiencyProjectionInput = {
   verificationState: "verified" | "suspected" | "rejected"
   independence: "independent" | "scaffolded" | "answer_visible"
   causalMicroSkillKeys: string[]
+  positiveExcludedMicroSkillKeys: string[]
+  snapshotId: string | null
   sourceEntityType: string
   sourceEntityId: string
   controlledPassFactId: string | null
@@ -91,6 +105,8 @@ attempt events; it does not derive scheduler transitions.
 Every output pins:
 
 - `proficiencyModelVersion = ADLE_PROFICIENCY_MODEL_V1`;
+- `requirementPolicyVersion = ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`;
+- `eligibilityPolicyVersion = CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08`;
 - relationship interpretation version and pool fingerprint;
 - task/evidence interpretation version;
 - controlled-graduation policy version;
@@ -132,6 +148,32 @@ when produced. They do not enlarge the required denominator, become mandatory,
 or make a gate less certifiable. Both pools pin the same relationship authority
 plus the child-eligibility policy/version so provenance cannot drift.
 
+### 2.1 Approved child-requirement eligibility
+
+`CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08` derives the learner's age from
+stored date of birth at the calculation `asOf` date. It requires medium- or
+high-frequency word metadata and admits cumulative age bands:
+
+| Learner age | Cumulative admitted bands |
+|---:|---|
+| 1–7 | `early_primary` |
+| 8–9 | add `middle_primary` |
+| 10–11 | add `upper_primary` |
+| 12–13 | add `lower_secondary` |
+| 14–15 | add `mid_secondary` |
+| 16–18 | add `later_review` |
+
+An eligible relationship additionally requires an active canonical identity, a
+current positive governed relationship, and existing evidence-eligible review
+status. Missing date of birth, word metadata, identity, relationship authority,
+or review authority yields `eligibility_unresolved`; it does not silently
+include or exclude the word. Low-frequency and later-band words may contribute
+genuine positive evidence when produced but do not enlarge `A_(c,s)`.
+
+A birthday or approved pool change may cause a new versioned profile
+calculation. The prior result and a machine-readable explanation of the pool
+change remain available.
+
 ## 3. Event eligibility and singular projection
 
 ### 3.1 Positive eligibility
@@ -155,7 +197,9 @@ Define `positive(e)` as true only when all of these hold:
 
 For one positive event `e` on word `w`, create derived references for every
 `r in R` where `r.canonicalWordId = w`. The source event remains singular and
-each derived reference stores the same `eventId`.
+each derived reference stores the same `eventId`. A skill listed in
+`positiveExcludedMicroSkillKeys` receives no positive reference from that
+event.
 
 ### 3.2 Negative eligibility
 
@@ -167,6 +211,14 @@ Define `negative(e,s)` as true only when:
 
 No relationship expansion is performed for negative events. Empty causal sets
 produce no skill-level negative evidence.
+
+For a correctly formed but contextually invalid occurrence, evaluate the
+orthographic positive and contextual negative separately under
+`WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08`. The observed word may
+project positive evidence to unrelated governed orthographic skills. The causal
+context skill is excluded from positive projection and receives negative
+evidence using the intended canonical word. A single occurrence cannot create
+both outcomes for the same skill.
 
 ### 3.3 Repair
 
@@ -308,18 +360,29 @@ ElapsedDays(c,s) =
 
 Same-day repetition does not increase `PositiveDayCount`.
 
-For a requirement lookback `L` evaluated at `asOf`, select causal negative
-events whose occurrence date is within `[asOf - L days, asOf]`. A causal error
+For whole-writing Stability and recurrence, first preserve every occurrence,
+then derive at most one positive and one causal-negative performance for each:
+
+```text
+snapshot + canonical/intended word + micro-skill + outcome
+```
+
+For a requirement lookback `L` evaluated at `asOf`, select the resulting causal
+negative performances whose occurrence date is within `[asOf - L days, asOf]`.
+A causal error
 for `(c,s,w)` is unresolved when either:
 
 - it is a controlled-production fragility with no later clean independent
   success fact for the same word/skill; or
 - the Word Progression contract reports its word-level failure episode open.
 
-A later governed `failure_episode_resolved` fact closes the applicable current
-instability. A parallel controlled success does not erase a causal failure in
-another attempt. Immediate repair does not generate an independent resolution
-fact. The source events remain in history in every case.
+A later verified, answer-hidden success for the same word and skill in
+`ISOLATED_RETRIEVAL`, `CONTEXTUAL_TRANSFER`, or `AUTHENTIC_WRITING` closes a
+whole-writing proficiency instability. The Word Progression authority may also
+supply a governed `failure_episode_resolved` fact for schedule-owned episodes.
+A same-snapshot success, parallel controlled success, or immediate repair does
+not resolve the instability. The source events remain in history in every case,
+and scheduler state changes only through the Word Progression authority.
 
 ```text
 UnresolvedCausalErrors(c,s,L) = count of unresolved causal error events
@@ -331,7 +394,8 @@ RecoveredFailureEpisodes(c,s,L) = count of episodes in the lookback closed by
   a later independent pass
 ```
 
-Counting events, rather than only words, makes repeated recurrence visible.
+Counting deduplicated performances, rather than only words, makes recurrence
+across snapshots visible without multiplying repeated occurrences in one piece.
 Historical positives and negatives remain in the ledger after resolution.
 `RecentCausalFailures` and `RecoveredFailureEpisodes` keep a recovered lapse
 visible in Stability explanations even when it no longer fails the unresolved
@@ -356,9 +420,9 @@ These are approved structural rules:
 - requirements may be recalibrated without rewriting source history or adding
   schema, provided the profile version changes.
 
-### 7.2 Proposed breadth target function
+### 7.2 Approved productive-pattern breadth target function
 
-`PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED`
+Policy: `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`
 
 For learner `c`, skill `s`, and level `l`, with floor `F_l`, ratio `R_l`, and
 cap `C_l`:
@@ -375,9 +439,10 @@ This varies breadth automatically by governed skill population while bounding
 large pools. Closed-set or genuinely exceptional skills use a signed family or
 skill override rather than a hidden special case.
 
-### 7.3 Proposed default gate table
+### 7.3 Approved productive-pattern gate table
 
-All numbers in this table are `PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED`.
+These values are approved for `PRODUCTIVE_PATTERN_DEFAULT` under
+`ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`.
 
 | Level | Breadth `F / R / C` | Min groups | Required bands | Min independent words | Min contextual words | Min authentic words | Min challenge transfer words | Positive days | Elapsed days | Recurrence lookback / max unresolved |
 |---:|---|---:|---|---:|---:|---:|---:|---:|---:|---|
@@ -396,17 +461,41 @@ approved.
 ### 7.4 Family defaults and overrides
 
 The default profile is assigned from existing taxonomy family/route metadata;
-this avoids per-skill administration. Candidate profiles for calibration are:
+this avoids per-skill administration. Approved profiles are:
 
 - `PRODUCTIVE_PATTERN_DEFAULT` — the table above;
-- `CLOSED_SET_DEFAULT` — reserved for skills with a finite governed set, using
-  the same dimensions but reviewed lower breadth/group minima; and
-- `CONTEXT_DEPENDENT_DEFAULT` — reserved for meaning-choice skills where
-  contextual transfer must enter earlier.
+- `CONTEXT_DEPENDENT_CLOSED_SET_V1` — the pool-capped table below for governed
+  D4 homophone/context-choice skills.
 
-The two specialised profiles require owner-approved numbers before release.
-Until then, a skill that cannot use `PRODUCTIVE_PATTERN_DEFAULT` is
+Other finite-set profiles still require a separately approved profile version.
+A skill that matches neither approved profile is
 `requirement_profile_unresolved`, not silently assigned easier gates.
+
+For `CONTEXT_DEPENDENT_CLOSED_SET_V1`, let `N` be the learner-appropriate pool
+size, `G` the governed group count, `P` the populated relative complexity-band
+set, and `C` the challenge-word count:
+
+| Level | Breadth | Independent | Contextual | Authentic | Challenge transfer |
+|---:|---:|---:|---:|---:|---:|
+| 1 | `1` | `0` | `0` | `0` | `0` |
+| 2 | `min(2,N)` | `1` | `1` | `0` | `0` |
+| 3 | `min(2,N)` | `min(2,N)` | `min(2,N)` | `0` | `0` |
+| 4 | `N` | `N` | `min(2,N)` | `1` | `min(1,C)` |
+| 5 | `N` | `N` | `N` | `N` | `min(2,C)` |
+
+This profile uses the productive table's approved positive-observation-day,
+elapsed-day, and recurrence gates unchanged. Representative-group minima are
+capped as `min(productive-level group minimum, G)`. Required relative bands
+are:
+
+- Level 1: any populated band;
+- Level 2: `FOUNDATION`;
+- Level 3: the populated members of `FOUNDATION + EXTENDED`; and
+- Levels 4–5: every band in `P`.
+
+Missing relationship, band, or group authority remains visible. `N = 0`,
+absent banding, or absent governed context-role groups yields
+`requirement_profile_unresolved` and cannot silently award a level.
 
 Override precedence:
 
@@ -526,20 +615,54 @@ resolution when the event is an eligible non-repair production.
 
 | Value / policy | Purpose | Rationale / expected behaviour | Sensitivity / risk | Later calibration without schema change? | Decision status |
 |---|---|---|---|---|---|
-| Breadth floors `2,4,8,12,20` | Minimum representative distinct words by level | Prevents expertise from thin evidence; increasingly broad proof | May make Levels 4–5 allocation-limited for sparse skills | Yes, requirement version only | Owner decision required |
-| Breadth ratios `.10,.20,.35,.50,.70` | Scale targets with skill pool | Different skills need different literal counts | Large or poorly curated pools may inflate targets | Yes | Owner decision required |
-| Breadth caps `3,6,12,18,30` | Bound workload for large pools | Prevents exhaustive-dictionary requirements | Too-low cap could under-sample very broad skills | Yes | Owner decision required |
-| Group minima `1,1,2,3,4` | Representative diversity | Blocks near-duplicate grinding | Group metadata is incomplete for some skills | Yes; group/profile metadata and requirement version | Owner decision required |
-| Complexity band gates by level | Robustness under increased load | Makes complexity coverage rather than points | Relative pools can shift after content releases | Yes; pool/version recomputation | Owner decision required for level placement; band algorithm proposed |
-| Independent word minima `0,2,3,4,7` | Separate recall from salient teaching | Requires emerging independence | Direct retrieval may be sparse in current data | Yes | Owner decision required |
-| Contextual minima `0,0,1,3,5` | Require meaningful mixed transfer | Preserves strong Review semantics | Small Review bundles slow progression | Yes | Owner decision required |
-| Authentic minima `0,0,0,1,3` | Require spontaneous transfer at upper levels | Suitable for sparse authentic evidence; Level 3 remains reachable | Verification latency may delay Levels 4–5 | Yes | Owner decision required |
-| Challenge-transfer minima `0,0,0,1,2` | Prove transfer under load | Complexity affects robustness, not points | Challenge-band availability may be thin | Yes | Owner decision required |
-| Positive days `1,2,2,3,4` | Prevent same-session grinding | Distinct dates are simple and deterministic | Calendar boundaries are a coarse proxy | Yes | Owner decision required |
-| Elapsed days `0,3,7,21,56` | Retention over increasing delay | Mirrors pedagogical progression and existing long review horizon | Can slow progression; timezone policy must be pinned | Yes | Owner decision required |
-| Recurrence `none, 28/2, 28/1, 28/0, 56/0` | Current stability confidence | Higher levels tolerate fewer unresolved causal errors | Sparse negative attribution can overstate stability; repeated errors can block | Yes | Owner decision required |
-| Relative band cuts at `1/3, 2/3` | Three low-admin skill-relative bands | Deterministic approximate terciles | Ties/small pools may leave bands empty | Yes; derivation version only | Owner decision required |
-| Equal active-dimension weights | Motivational progress | Transparent; no false precision | Users may perceive jumps when gates activate | Yes; progress version only | Owner decision required |
+| Breadth floors `2,4,8,12,20` | Minimum representative distinct words by level | Prevents expertise from thin evidence; increasingly broad proof | May make Levels 4–5 allocation-limited for sparse skills | Yes, requirement version only | Approved 2026-09-08 |
+| Breadth ratios `.10,.20,.35,.50,.70` | Scale targets with skill pool | Different skills need different literal counts | Large or poorly curated pools may inflate targets | Yes | Approved 2026-09-08 |
+| Breadth caps `3,6,12,18,30` | Bound workload for large pools | Prevents exhaustive-dictionary requirements | Too-low cap could under-sample very broad skills | Yes | Approved 2026-09-08 |
+| Group minima `1,1,2,3,4` | Representative diversity | Blocks near-duplicate grinding | Group metadata is incomplete for some skills | Yes; group/profile metadata and requirement version | Approved 2026-09-08 |
+| Complexity band gates by level | Robustness under increased load | Makes complexity coverage rather than points | Relative pools can shift after content releases | Yes; pool/version recomputation | Approved 2026-09-08 |
+| Independent word minima `0,2,3,4,7` | Separate recall from salient teaching | Requires emerging independence | Direct retrieval may be sparse in current data | Yes | Approved 2026-09-08 |
+| Contextual minima `0,0,1,3,5` | Require meaningful mixed transfer | Preserves strong Review semantics | Small Review bundles slow progression | Yes | Approved 2026-09-08 |
+| Authentic minima `0,0,0,1,3` | Require spontaneous transfer at upper levels | Suitable for sparse authentic evidence; Level 3 remains reachable | Verification latency may delay Levels 4–5 | Yes | Approved 2026-09-08 |
+| Challenge-transfer minima `0,0,0,1,2` | Prove transfer under load | Complexity affects robustness, not points | Challenge-band availability may be thin | Yes | Approved 2026-09-08 |
+| Positive days `1,2,2,3,4` | Prevent same-session grinding | Distinct dates are simple and deterministic | Calendar boundaries are a coarse proxy | Yes | Approved 2026-09-08 |
+| Elapsed days `0,3,7,21,56` | Retention over increasing delay | Mirrors pedagogical progression and existing long review horizon | Can slow progression; timezone policy must be pinned | Yes | Approved 2026-09-08 |
+| Recurrence `none, 28/2, 28/1, 28/0, 56/0` | Current stability confidence | Higher levels tolerate fewer unresolved causal errors | Sparse negative attribution can overstate stability; repeated errors can block | Yes | Approved 2026-09-08 |
+| Relative band cuts at `1/3, 2/3` | Three low-admin skill-relative bands | Deterministic approximate terciles | Ties/small pools may leave bands empty | Yes; derivation version only | Approved 2026-09-08 |
+| Equal active-dimension weights | Motivational progress | Transparent; no false precision | Users may perceive jumps when gates activate | Yes; progress version only | Approved 2026-09-08 |
+
+### 10.1 Calculation evidence trail and monitoring
+
+Every level calculation and level change must retain:
+
+- source-event and projection IDs;
+- observed and required values for every gate;
+- causal errors and their resolution state;
+- relationship, eligibility, complexity, and requirement fingerprints;
+- prior and new level and progress;
+- calculation time, occurrence-time basis, and policy version; and
+- the reason the profile changed.
+
+The admin monitor reports level distributions, advancement, blocked gates,
+allocation limitations, achievable requirements, source-environment
+contributions, errors following advancement, missing authority, and differences
+caused by policy versions.
+
+### 10.2 Read-only policy comparisons
+
+The monitor provides read-only calculations for:
+
+1. the current Slice 5 runtime;
+2. approved V1; and
+3. one-at-a-time sensitivity variants of approved V1:
+   - numeric count, day, and lookback values at 80% and 120%, rounded outward;
+   - ratios and relative-band cuts at minus and plus `0.05`;
+   - recurrence maxima at minus one and plus one, bounded at zero; and
+   - each progress dimension weighted at 40% with the other three at 20%.
+
+A comparator is never policy and cannot alter a learner profile. A later policy
+version runs in shadow first. Cohort cutover requires explicit owner approval
+and then recomputes from immutable evidence. Prior profiles and explanations
+remain available; no source event is rewritten.
 
 ### Existing allocation constants
 
@@ -556,8 +679,8 @@ and the requirement denominator applies the pinned child-eligibility policy.
 
 ## 11. Worked examples
 
-The examples show semantics. Any level outcomes that depend on the proposed
-table remain illustrative until the numbers are owner-approved.
+The examples show semantics under the approved V1 requirement policy. They do
+not describe current runtime until controlled target-model cutover occurs.
 
 ### Example 1 — `hope`
 
@@ -655,7 +778,7 @@ days.
 
 Learner A may have more breadth, but fails diversity and transfer gates for
 upper levels. Additional easy controlled words cannot compensate. Learner B can
-qualify for a higher level if every proposed gate is met because the profile
+qualify for a higher level if every approved gate is met because the profile
 shows representative, transferred, spaced knowledge. No weighted total is
 needed to reach that conclusion.
 
@@ -682,4 +805,13 @@ V1 tests must prove:
     interpretation;
 15. open and resolved failure-episode facts affect current Stability without
     deleting historical breadth or transfer; and
-16. word-route facts affect only causally attributed micro-skills.
+16. word-route facts affect only causally attributed micro-skills;
+17. one snapshot produces at most one positive and one causal-negative
+    performance for a word, skill, and outcome;
+18. a same-snapshot correct occurrence and an immediate repair cannot resolve
+    that snapshot's causal error;
+19. a contextually invalid but orthographically correct occurrence can project
+    unrelated orthographic evidence while suppressing the causal context skill;
+20. missing context-profile or child-eligibility authority returns the explicit
+    unresolved state; and
+21. sensitivity comparators never alter the approved profile.

@@ -6,6 +6,11 @@ Classification: `APPROVED_TARGET_NOT_YET_IMPLEMENTED`
 
 Target model identity: `ADLE_PROFICIENCY_MODEL_V1`
 
+Approved requirement policy: `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`
+
+Approved mixed-outcome policy:
+`WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08`
+
 This is the canonical product and educational contract for the approved ADLE
 spelling-proficiency target. It does not describe released runtime behaviour
 unless a paragraph is explicitly labelled `CURRENT_RUNTIME`.
@@ -61,7 +66,7 @@ It delegates:
 - word graduation, spaced-review progression, recovery, regression, and
   controlled return to
   `docs/contracts/adle-word-progression-and-review-contract.md`;
-- exact V1 calculations and numerical proposals to
+- exact approved V1 calculations and controlled sensitivity comparators to
   `docs/implementation/adle-proficiency-v1-maths.md`;
 - activity-by-activity effects to
   `docs/pedagogy/adle-proficiency-task-evidence-matrix.md`;
@@ -222,6 +227,13 @@ curriculum, release, and other approved eligibility facts from the canonical
 word/content authority. It supplies breadth-target derivation, required
 complexity/group availability, and certifiability.
 
+The exact V1 eligibility rule is
+`CHILD_REQUIREMENT_ELIGIBILITY_V1_2026_09_08`, owned by the V1 Mathematics
+document. It derives age from stored date of birth, admits medium- and
+high-frequency words through cumulative governed age bands, and fails closed
+when required identity, metadata, relationship, review status, or date-of-birth
+authority is unavailable.
+
 Rules:
 
 - rare or advanced words do not become mandatory merely because they exist in
@@ -271,6 +283,26 @@ governed, retain the error as unresolved word evidence; do not guess a
 micro-skill penalty.
 
 An error never blankets every relationship of the corrected word.
+
+### Orthographic form and contextual choice
+
+`WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08` represents orthographic form
+and contextual selection separately. When a word is correctly formed but wrong
+in context:
+
+- the observed canonical word may project positive evidence to governed
+  orthographic skills unrelated to the choice error;
+- positive projection to the causal homophone or contextual-choice skill is
+  suppressed;
+- the causal context skill receives governed negative evidence using the
+  intended canonical word; and
+- one occurrence cannot give the same micro-skill both positive and negative
+  evidence.
+
+Observed and intended canonical identities, contextual outcome, orthographic
+outcome, positive exclusions, and causal negatives remain independently
+explainable. Unresolved intended identity or context remains unknown rather
+than forcing either outcome.
 
 ### Unknown and absence
 
@@ -374,6 +406,22 @@ Stability records persistence across days and time span, later independent
 success, repeated transfer, causal error recurrence, and unresolved recent
 slips. Repetition of the same word can strengthen stability. A later causal
 error weakens current stability but never deletes historical demonstrations.
+
+Every occurrence remains stored. For Stability and recurrence, whole-writing
+projections derive at most one positive and one causal-negative performance for
+each:
+
+```text
+snapshot + canonical/intended word + micro-skill + outcome
+```
+
+A correct occurrence in the same snapshot cannot resolve that snapshot's
+error. A verified authentic-writing slip opens proficiency-only instability for
+its intended word and causal skill. A later verified independent success in
+`ISOLATED_RETRIEVAL`, `CONTEXTUAL_TRANSFER`, or `AUTHENTIC_WRITING` resolves it.
+Repair, answer-visible work, and same-snapshot use cannot. Scheduler state
+changes only when the Word Progression authority independently recognises the
+later event.
 
 ## Derived Level 1–5
 

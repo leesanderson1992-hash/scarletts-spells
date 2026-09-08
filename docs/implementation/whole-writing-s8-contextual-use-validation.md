@@ -110,12 +110,18 @@ S8 does not write S5 assessments, Authentic Use, Gold Bars, proficiency,
 learning levels, review schedules or retirement state. A successful child retry
 remains repair rather than independent contextual mastery.
 
-G2 approval is required per exact family, release and corpus before parent
-delivery can activate. Its quality limits and evaluation metrics have no
-invented defaults. G1 remains required for S9 evidence qualification; G3 owns
-mixed-outcome and recurrence meaning; G5 owns historical consequences.
-Retrospective context processing is shadow-only. Runtime AI and additional
-families are separate future releases.
+G2 policy is resolved by
+`WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`, but approval remains required
+per exact family, rule release and adjudicated corpus before parent delivery can
+activate. The current 30 engineering cases do not count toward the required
+400-case family corpus.
+
+G1, G3 and G5 are resolved respectively by
+`WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08`,
+`WHOLE_WRITING_MIXED_OUTCOME_POLICY_V1_2026_09_08`, and
+`WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08`. Their runtime interfaces and
+shadow qualification remain S9 work. Retrospective context processing remains
+shadow-only. Runtime AI and additional families are separate future releases.
 
 ## Local verification
 

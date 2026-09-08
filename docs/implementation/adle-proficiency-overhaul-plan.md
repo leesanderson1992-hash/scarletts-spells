@@ -4,7 +4,9 @@
 
 ```text
 PHASE A COMPLETE — AUTHORITY CONVERGED
-PHASE B READY
+PHASE B COMPLETE — NORMALIZED RELATIONSHIP READ AUTHORITY
+PHASE C COMPLETE IN SHADOW — WHOLE-WRITING EXTENSION AVAILABLE
+PHASE D / D2 READY — APPROVED V1 POLICY REQUIRES DATA RECONCILIATION
 ```
 
 Classification: `ACTIVE_IMPLEMENTATION_ROADMAP`
@@ -127,21 +129,18 @@ Using the real Phase B relationship pool:
 ### Phase D2 — Simulation and numerical calibration
 
 Run counterfactual simulations over the real normalized relationship,
-evidence, and complexity pools. Calibrate breadth, diversity, transfer,
-Stability, recurrence, and progress constants.
+evidence, and complexity pools. Validate the approved breadth, diversity,
+transfer, Stability, recurrence, and progress policy under
+`ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08`.
 
-All Level numbers in the V1 Maths document remain:
-
-```text
-PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED
-```
-
-They do not block Phase B. They are approved or adjusted only after the real
-pools can be inspected.
+Report current Slice 5, approved V1, and the approved one-at-a-time sensitivity
+comparators. Comparators do not alter policy. Any recommendation to change an
+approved value requires a later policy version, shadow execution, and explicit
+owner approval.
 
 ### Phase E — Freeze and implement V1 proficiency Level maths in shadow
 
-After Phase D2 owner approval:
+After Phase D/D2 data-readiness and reconciliation gates pass:
 
 - freeze a versioned requirement profile;
 - implement Breadth, Diversity/Complexity, Transfer, and Stability;
@@ -162,20 +161,22 @@ Run read-only comparison on real Production facts. Report:
 - complexity/group coverage and allocation limitations;
 - child-eligibility exclusions;
 - recurrence and sparse-authentic-evidence behaviour; and
-- sensitivity to every proposed numerical constant.
+- the approved one-at-a-time numerical sensitivity comparisons.
 
 No learner-facing or write effects.
 
 ### Phase G — Child and parent UI
 
 Implement the approved Progression Experience behind a feature gate after the
-shadow model and numbers are approved. Keep Word Treasure visibly separate.
+shadow model is reconciled and a cohort cutover is explicitly approved. Keep
+Word Treasure visibly separate.
 
 ### Phase H — Controlled release
 
 Prerequisites:
 
-- approved shadow report and frozen numerical policy;
+- approved shadow report and the frozen
+  `ADLE_PROFICIENCY_REQUIREMENTS_V1_2026_09_08` policy;
 - complete invariant/regression suite;
 - explicit current-consumer cutover decision;
 - migration and scheduler authority where applicable;
