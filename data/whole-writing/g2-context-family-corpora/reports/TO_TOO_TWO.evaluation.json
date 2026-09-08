@@ -3,7 +3,7 @@
   "reportVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:EVALUATION_V1",
   "evaluationMode": "LOCAL_DETERMINISTIC_RELEASE_EVALUATION",
   "disposition": "BLOCKED",
-  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08",
+  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
   "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
   "family": "TO_TOO_TWO",
   "release": {
@@ -22,7 +22,9 @@
   "provenance": {
     "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
     "candidateCount": 400,
-    "independentLabelCount": 0,
+    "primaryHumanLabelCount": 0,
+    "nonGoldReviewCount": 0,
+    "reviewDisagreementCount": 0,
     "adjudicationCount": 0,
     "finalGoldCount": 0,
     "authorProposalsUsedAsGold": false
@@ -80,2023 +82,4008 @@
     "failures": [
       {
         "caseId": "g2-to-too-two-0001",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0002",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0003",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0004",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0005",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0006",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0007",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0008",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0009",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0010",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0011",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0012",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0013",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0014",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0015",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0016",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0017",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0018",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0019",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0020",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0021",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0022",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0023",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0024",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0025",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0026",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0027",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0028",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0029",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0030",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0031",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0032",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0033",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0034",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0035",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0036",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0037",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0038",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0039",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0040",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0041",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0042",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0043",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0044",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0045",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0046",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0047",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0048",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0049",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0050",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0051",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0052",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0053",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0054",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0055",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0056",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0057",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0058",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0059",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0060",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0061",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0062",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0063",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0064",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0065",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0066",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0067",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0068",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0069",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0070",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0071",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0072",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0073",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0074",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0075",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0076",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0077",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0078",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0079",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0080",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0081",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0082",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0083",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0084",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0085",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0086",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0087",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0088",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0089",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0090",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0091",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0092",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0093",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0094",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0095",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0096",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0097",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0098",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0099",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0100",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0101",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0102",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0103",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0104",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0105",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0106",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0107",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0108",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0109",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0110",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0111",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0112",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0113",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0114",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0115",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0116",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0117",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0118",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0119",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0120",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0121",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0122",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0123",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0124",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0125",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0126",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0127",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0128",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0129",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0130",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0131",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0132",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0133",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0134",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0135",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0136",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0137",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0138",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0139",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0140",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0141",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0142",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0143",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0144",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0145",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0146",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0147",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0148",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0149",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0150",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0151",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0152",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0153",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0154",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0155",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0156",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0157",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0158",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0159",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0160",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0161",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0162",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0163",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0164",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0165",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0166",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0167",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0168",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0169",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0170",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0171",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0172",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0173",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0174",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0175",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0176",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0177",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0178",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0179",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0180",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0181",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0182",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0183",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0184",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0185",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0186",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0187",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0188",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0189",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0190",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0191",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0192",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0193",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0194",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0195",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0196",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0197",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0198",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0199",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0200",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0201",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0202",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0203",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0204",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0205",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0206",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0207",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0208",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0209",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0210",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0211",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0212",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0213",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0214",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0215",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0216",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0217",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0218",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0219",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0220",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0221",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0222",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0223",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0224",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0225",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0226",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0227",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0228",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0229",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0230",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0231",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0232",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0233",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0234",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0235",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0236",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0237",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0238",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0239",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0240",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0241",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0242",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0243",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0244",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0245",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0246",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0247",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0248",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0249",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0250",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0251",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0252",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0253",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0254",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0255",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0256",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0257",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0258",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0259",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0260",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0261",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0262",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0263",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0264",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0265",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0266",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0267",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0268",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0269",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0270",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0271",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0272",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0273",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0274",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0275",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0276",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0277",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0278",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0279",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0280",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0281",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0282",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0283",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0284",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0285",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0286",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0287",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0288",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0289",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0290",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0291",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0292",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0293",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0294",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0295",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0296",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0297",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0298",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0299",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0300",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0301",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0302",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0303",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0304",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0305",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0306",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0307",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0308",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0309",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0310",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0311",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0312",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0313",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0314",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0315",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0316",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0317",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0318",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0319",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0320",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0321",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0322",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0323",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0324",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0325",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0326",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0327",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0328",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0329",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0330",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0331",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0332",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0333",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0334",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0335",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0336",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0337",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0338",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0339",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0340",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0341",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0342",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0343",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0344",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0345",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0346",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0347",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0348",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0349",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0350",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0351",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0352",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0353",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0354",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0355",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0356",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0357",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0358",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0359",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0360",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0361",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0362",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0363",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0364",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0365",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0366",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0367",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0368",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0369",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0370",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0371",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0372",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0373",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0374",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0375",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0376",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0377",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0378",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0379",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0380",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0381",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0382",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0383",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0384",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0385",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0386",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0387",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0388",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0389",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0390",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0391",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0392",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0393",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0394",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0395",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0396",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0397",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0398",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0399",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": "g2-to-too-two-0400",
-        "reason": "INDEPENDENT_LABEL_COUNT",
-        "actual": "expected exactly two labels, found 0"
+        "reason": "PRIMARY_LABEL_COUNT",
+        "actual": "expected exactly one primary human label, found 0"
       },
       {
         "caseId": null,
-        "reason": "PACKET_LABEL_COUNT",
-        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_A expected 400 labels, found 0"
+        "reason": "PRIMARY_PACKET_COUNT",
+        "actual": "expected exactly one complete governed packet, found 0"
       },
       {
-        "caseId": null,
-        "reason": "PACKET_LABELER_IDENTITY",
-        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_A must be completed by exactly one labeler identity"
+        "caseId": "g2-to-too-two-0001",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
       },
       {
-        "caseId": null,
-        "reason": "PACKET_LABEL_COUNT",
-        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_B expected 400 labels, found 0"
+        "caseId": "g2-to-too-two-0002",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
       },
       {
-        "caseId": null,
-        "reason": "PACKET_LABELER_IDENTITY",
-        "actual": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_B must be completed by exactly one labeler identity"
+        "caseId": "g2-to-too-two-0003",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0004",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0005",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0006",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0007",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0008",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0009",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0010",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0011",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0012",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0013",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0014",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0015",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0016",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0017",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0018",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0019",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0020",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0021",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0022",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0023",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0024",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0025",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0026",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0027",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0028",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0029",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0030",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0031",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0032",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0033",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0034",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0035",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0036",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0037",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0038",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0039",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0040",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0041",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0042",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0043",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0044",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0045",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0046",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0047",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0048",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0049",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0050",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0051",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0052",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0053",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0054",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0055",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0056",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0057",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0058",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0059",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0060",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0061",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0062",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0063",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0064",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0065",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0066",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0067",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0068",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0069",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0070",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0071",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0072",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0073",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0074",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0075",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0076",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0077",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0078",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0079",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0080",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0081",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0082",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0083",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0084",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0085",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0086",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0087",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0088",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0089",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0090",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0091",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0092",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0093",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0094",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0095",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0096",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0097",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0098",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0099",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0100",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0101",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0102",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0103",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0104",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0105",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0106",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0107",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0108",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0109",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0110",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0111",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0112",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0113",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0114",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0115",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0116",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0117",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0118",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0119",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0120",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0121",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0122",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0123",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0124",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0125",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0126",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0127",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0128",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0129",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0130",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0131",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0132",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0133",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0134",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0135",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0136",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0137",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0138",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0139",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0140",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0141",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0142",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0143",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0144",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0145",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0146",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0147",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0148",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0149",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0150",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0151",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0152",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0153",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0154",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0155",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0156",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0157",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0158",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0159",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0160",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0161",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0162",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0163",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0164",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0165",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0166",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0167",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0168",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0169",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0170",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0171",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0172",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0173",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0174",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0175",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0176",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0177",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0178",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0179",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0180",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0181",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0182",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0183",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0184",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0185",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0186",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0187",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0188",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0189",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0190",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0191",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0192",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0193",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0194",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0195",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0196",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0197",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0198",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0199",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0200",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0201",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0202",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0203",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0204",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0205",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0206",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0207",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0208",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0209",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0210",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0211",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0212",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0213",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0214",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0215",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0216",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0217",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0218",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0219",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0220",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0221",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0222",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0223",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0224",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0225",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0226",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0227",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0228",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0229",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0230",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0231",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0232",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0233",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0234",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0235",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0236",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0237",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0238",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0239",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0240",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0241",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0242",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0243",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0244",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0245",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0246",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0247",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0248",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0249",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0250",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0251",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0252",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0253",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0254",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0255",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0256",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0257",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0258",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0259",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0260",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0261",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0262",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0263",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0264",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0265",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0266",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0267",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0268",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0269",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0270",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0271",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0272",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0273",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0274",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0275",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0276",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0277",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0278",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0279",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0280",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0281",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0282",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0283",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0284",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0285",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0286",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0287",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0288",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0289",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0290",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0291",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0292",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0293",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0294",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0295",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0296",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0297",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0298",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0299",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0300",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0301",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0302",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0303",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0304",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0305",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0306",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0307",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0308",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0309",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0310",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0311",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0312",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0313",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0314",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0315",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0316",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0317",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0318",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0319",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0320",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0321",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0322",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0323",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0324",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0325",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0326",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0327",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0328",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0329",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0330",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0331",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0332",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0333",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0334",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0335",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0336",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0337",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0338",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0339",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0340",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0341",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0342",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0343",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0344",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0345",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0346",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0347",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0348",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0349",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0350",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0351",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0352",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0353",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0354",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0355",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0356",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0357",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0358",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0359",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0360",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0361",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0362",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0363",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0364",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0365",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0366",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0367",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0368",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0369",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0370",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0371",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0372",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0373",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0374",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0375",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0376",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0377",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0378",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0379",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0380",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0381",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0382",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0383",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0384",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0385",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0386",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0387",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0388",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0389",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0390",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0391",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0392",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0393",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0394",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0395",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0396",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0397",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0398",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0399",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
+      },
+      {
+        "caseId": "g2-to-too-two-0400",
+        "reason": "SECONDARY_REVIEW_COUNT",
+        "actual": "expected exactly one non-gold review, found 0"
       },
       {
         "caseId": null,
@@ -2152,7 +4139,7 @@
         "actual": 0
       }
     ],
-    "evaluationFingerprint": "3a0bc3b565aac2ffbadad279737d18632a16b0f428fc0c760d1484960f812b9d"
+    "evaluationFingerprint": "d33649bee4a7a4e77375f8a582843d0055d2824b1fab105c5d124a91b83329c7"
   },
-  "reportFingerprint": "6d236a44abeaa04e731019d3ceca448af6998dd7fb06bfb5cbefd02f1bd1ec71"
+  "reportFingerprint": "c2834baeef16108d69adf96779121a53a1b671bf90ccd584553fa0da7839bffd"
 }

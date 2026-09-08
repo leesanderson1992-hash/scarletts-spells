@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import {
@@ -16,13 +16,16 @@ import {
   recordFingerprint,
   runtimeFingerprints,
   validateCandidate,
-  validateIndependentLabels,
+  validatePrimaryLabels,
+  validateSecondaryReviews,
   wilsonLowerBound,
   type AuthorProposal,
   type CandidateCase,
   type IndependentLabel,
+  type SecondaryReview,
 } from "./lib/whole-writing-g2-corpus";
 import { parseCsv, serialiseCsv } from "./lib/deterministic-csv";
+import { G2_ADJUDICATION_ANSWER_HEADERS, G2_ADJUDICATION_CSV_HEADERS } from "./lib/whole-writing-g2-adjudication-csv";
 import { G2_CSV_ANSWER_HEADERS, G2_CSV_HEADERS, G2_CSV_PACKET_EXPORT_VERSION } from "./lib/whole-writing-g2-csv";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
@@ -39,6 +42,20 @@ assert.equal(csvManifest.exportVersion, G2_CSV_PACKET_EXPORT_VERSION);
 assert.equal(csvManifest.sourcePackageFingerprint, manifest.packageFingerprint, "CSV export must derive from the locked governed package");
 const csvRoundTripFixture = [{ first: "comma, quote \"kept\"", second: "line one\nline two" }];
 assert.deepEqual(parseCsv(serialiseCsv(["first", "second"], csvRoundTripFixture)).rows, csvRoundTripFixture, "CSV parser must preserve quoted commas, quotes and newlines");
+
+const secondPersonCsvPath = join(root, "packets-csv", "THERE_THEIR_THEYRE.second-person-adjudication.csv");
+if (existsSync(secondPersonCsvPath)) {
+  const content = readFileSync(secondPersonCsvPath, "utf8");
+  const parsed = parseCsv(content);
+  assert.deepEqual(parsed.headers, [...G2_ADJUDICATION_CSV_HEADERS]);
+  assert.equal(parsed.rows.length, 20, "second-person packet must contain only the 20 substantive disagreements");
+  assert.equal(serialiseCsv(G2_ADJUDICATION_CSV_HEADERS, parsed.rows), content, "second-person CSV serialization must be deterministic");
+  assert(parsed.rows.every((row) => G2_ADJUDICATION_ANSWER_HEADERS.every((header) => row[header] === "")), "second-person adjudication answers must be blank");
+  assert(parsed.rows.every((row) => row.primary_labeler_id === "Katherine Sanderson"), "primary human attribution must be retained");
+  for (const forbidden of ["prediction", "proposal", "gold", "approval", "reference_answer"]) {
+    assert(!parsed.headers.some((header) => header.includes(forbidden)), `second-person packet must not expose ${forbidden}`);
+  }
+}
 
 for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
   const family = familyManifest.familyKey;
@@ -99,9 +116,10 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       for (const forbidden of ["prediction", "proposal", "other_label", "adjudication", "gold", "reference_answer", "candidate_fingerprint", "release_id"]) assert(!csv.headers.some((header) => header.includes(forbidden)));
     }
   }
-  const empty = buildFinalGold(candidates, [], []);
+  const empty = buildFinalGold(candidates, [], [], []);
   assert.equal(empty.gold.length, 0);
-  assert.equal(empty.issues.filter((issue) => issue.code === "INDEPENDENT_LABEL_COUNT").length, 400, "unlabelled release fails closed by case");
+  assert.equal(empty.issues.filter((issue) => issue.code === "PRIMARY_LABEL_COUNT").length, 400, "unlabelled release fails closed by case");
+  assert.equal(empty.issues.filter((issue) => issue.code === "SECONDARY_REVIEW_COUNT").length, 400, "unreviewed release fails closed by case");
 }
 
 assert(Math.abs(wilsonLowerBound(98, 100) - 0.9299882092714561) < 1e-12, "Wilson calculation is reproducible");
@@ -114,7 +132,7 @@ function label(labelerId: string, classification: IndependentLabel["classificati
   const body = {
     schemaVersion: 1 as const,
     labelId: `test:${labelerId}:${candidate.caseId}`,
-    packetId: `NON_RELEASE_TEST_PACKET:${labelerId}`,
+    packetId: `${G2_PACKAGE_VERSION}:${candidate.family}:LABEL_PACKET_A`,
     caseId: candidate.caseId,
     family: candidate.family,
     labelerId,
@@ -132,12 +150,36 @@ function label(labelerId: string, classification: IndependentLabel["classificati
   };
   return { ...body, labelFingerprint: recordFingerprint(body) };
 }
-const first = label("independent-a", "VALID", null);
-const samePerson = label("independent-a", "VALID", null);
-assert(validateIndependentLabels([candidate], [first, samePerson]).some((issue) => issue.code === "LABELERS_NOT_DISTINCT"));
+const first = label("Katherine Sanderson", "VALID", null);
+assert.deepEqual(validatePrimaryLabels([candidate], [first]), []);
+assert(validatePrimaryLabels([candidate], [first, first]).some((issue) => issue.code === "PRIMARY_LABEL_COUNT"));
 const mutated = { ...first, rationale: "Changed after import." };
-assert(validateIndependentLabels([candidate], [first, mutated]).some((issue) => issue.code === "POST_HOC_LABEL_MUTATION"));
-const disagreement = buildFinalGold([candidate], [first, label("independent-b", "INVALID", "their")], []);
+assert(validatePrimaryLabels([candidate], [first, mutated]).some((issue) => issue.code === "POST_HOC_LABEL_MUTATION"));
+function review(disposition: "AGREE" | "DISAGREE", classification: IndependentLabel["classification"], alternative: string | null): SecondaryReview {
+  const body = {
+    schemaVersion: 1 as const,
+    reviewId: `test:review:${candidate.caseId}`,
+    caseId: candidate.caseId,
+    family: candidate.family,
+    reviewerId: "CODEX_NON_GOLD_REVIEW",
+    reviewerKind: "AI_NON_GOLD_REVIEW" as const,
+    reviewedAt: "2026-09-08T00:00:00.000Z",
+    primaryLabelFingerprint: first.labelFingerprint,
+    disposition,
+    classification,
+    intendedAlternative: alternative,
+    supportedConstructionStatus: "SUPPORTED" as const,
+    rationale: "Non-gold review fixture.",
+    releaseId: candidate.releaseId,
+    familyManifestFingerprint: candidate.familyManifestFingerprint,
+    corpusVersion: WHOLE_WRITING_CONTEXT_CORPUS_VERSION,
+    candidateFingerprint: candidate.candidateFingerprint,
+  };
+  return { ...body, reviewFingerprint: recordFingerprint(body) };
+}
+const agreedReview = review("AGREE", "VALID", null);
+assert.deepEqual(validateSecondaryReviews([candidate], [first], [agreedReview]), []);
+const disagreement = buildFinalGold([candidate], [first], [review("DISAGREE", "INVALID", "their")], []);
 assert(disagreement.issues.some((issue) => issue.code === "ADJUDICATION_REQUIRED"));
 
 const runtime = runtimeFingerprints(repositoryRoot);
@@ -145,4 +187,4 @@ const deterministicLeft = evaluateFamily({ candidates: [candidate], gold: [], pr
 const deterministicRight = evaluateFamily({ candidates: [candidate], gold: [], prerequisiteIssues: [], expectedRuntimeFingerprints: runtime, actualRuntimeFingerprints: runtime });
 assert.deepEqual(deterministicLeft, deterministicRight, "metric reproduction must be byte-stable for identical inputs");
 
-console.log("Whole-writing G2 corpus regression passed: four 400-case packages, JSONL/CSV blinded packets, span/variety checks, fail-closed label provenance, deterministic metrics, and Wilson bounds.");
+console.log("Whole-writing G2 corpus regression passed: four 400-case packages, blinded and disagreement CSVs, span/variety checks, fail-closed label/review provenance, deterministic metrics, and Wilson bounds.");

@@ -1,3 +1,3 @@
-# YOUR_YOURE independent-label imports
+# YOUR_YOURE primary human-label imports
 
-No labels are stored here yet. Import two completed packet exports with distinct real labeler identities. Do not copy author proposals into label records.
+Store one append-only governed packet import from one real identified human labeler in this directory. Do not copy author proposals into label records.

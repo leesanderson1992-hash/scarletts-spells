@@ -19,6 +19,7 @@ import {
   type CandidateCase,
   type FinalGold,
   type IndependentLabel,
+  type SecondaryReview,
   type ValidationIssue,
 } from "./lib/whole-writing-g2-corpus";
 
@@ -88,25 +89,27 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
   const family = familyManifest.familyKey;
   const candidates = readJsonLines<CandidateCase>(join(packageRoot, "candidates", `${family}.jsonl`));
   const labelImport = attributedRecordsIn<IndependentLabel & Record<string, unknown>>(join(packageRoot, "labels"), family, "labelFingerprint");
+  const reviewImport = attributedRecordsIn<SecondaryReview & Record<string, unknown>>(join(packageRoot, "reviews"), family, "reviewFingerprint");
   const adjudicationImport = attributedRecordsIn<Adjudication & Record<string, unknown>>(join(packageRoot, "adjudications"), family, "adjudicationFingerprint");
   const goldImport = attributedRecordsIn<FinalGold & Record<string, unknown>>(join(packageRoot, "gold"), family, "goldFingerprint");
   const labels = labelImport.records;
+  const reviews = reviewImport.records;
   const adjudications = adjudicationImport.records;
   const lockedGold = goldImport.records;
   const prerequisiteIssues: ValidationIssue[] = candidates.flatMap(validateCandidate);
-  prerequisiteIssues.push(...labelImport.issues, ...adjudicationImport.issues, ...goldImport.issues);
+  prerequisiteIssues.push(...labelImport.issues, ...reviewImport.issues, ...adjudicationImport.issues, ...goldImport.issues);
   const corpusFingerprint = recordFingerprint(candidates.map((item) => item.candidateFingerprint));
   if (corpusFingerprint !== packageManifest.families[family]?.corpusFingerprint) prerequisiteIssues.push({ code: "CORPUS_FINGERPRINT_MISMATCH", message: "candidate set does not match package manifest" });
   const variety = corpusVariety(candidates);
   if (variety.exactDuplicates.length) prerequisiteIssues.push({ code: "EXACT_DUPLICATES", message: `${variety.exactDuplicates.length} exact duplicate pairs found` });
   prerequisiteIssues.push(...packetLeakageIssues(family));
-  const { gold: derivedGold, issues: goldIssues } = buildFinalGold(candidates, labels, adjudications);
+  const { gold: derivedGold, issues: goldIssues } = buildFinalGold(candidates, labels, reviews, adjudications);
   prerequisiteIssues.push(...goldIssues);
   for (const gold of lockedGold) {
     if (recordFingerprint(gold, "goldFingerprint") !== gold.goldFingerprint) prerequisiteIssues.push({ code: "GOLD_FINGERPRINT_MISMATCH", message: "locked gold fingerprint is stale or invalid", caseId: gold.caseId });
   }
   if (lockedGold.length !== candidates.length) prerequisiteIssues.push({ code: "LOCKED_GOLD_INCOMPLETE", message: `expected ${candidates.length} locked gold records, found ${lockedGold.length}` });
-  if (JSON.stringify(lockedGold) !== JSON.stringify(derivedGold)) prerequisiteIssues.push({ code: "LOCKED_GOLD_DERIVATION_MISMATCH", message: "locked gold does not exactly reproduce from independent labels and adjudications" });
+  if (JSON.stringify(lockedGold) !== JSON.stringify(derivedGold)) prerequisiteIssues.push({ code: "LOCKED_GOLD_DERIVATION_MISMATCH", message: "locked gold does not exactly reproduce from primary labels, non-gold reviews and adjudications" });
   const evaluation = evaluateFamily({
     candidates,
     gold: lockedGold,
@@ -138,7 +141,9 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
     provenance: {
       documentationAuthorityBaseline: "f7865ab9edab410a3a6f5aba6965457705319b5f",
       candidateCount: candidates.length,
-      independentLabelCount: labels.length,
+      primaryHumanLabelCount: labels.length,
+      nonGoldReviewCount: reviews.length,
+      reviewDisagreementCount: reviews.filter((review) => review.disposition === "DISAGREE").length,
       adjudicationCount: adjudications.length,
       finalGoldCount: lockedGold.length,
       authorProposalsUsedAsGold: false,
@@ -179,15 +184,15 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       approvalIdentity: null,
       exactRelease: report.release,
       metrics: evaluation,
-      nextAction: labels.length < candidates.length * 2
-        ? "Obtain two complete independent human label sets, then adjudicate every substantive disagreement and rerun the deterministic evaluator."
+      nextAction: labels.length < candidates.length || reviews.length < candidates.length
+        ? "Obtain one complete primary human label set and one complete non-gold secondary review, then adjudicate every flagged substantive disagreement and rerun the deterministic evaluator."
         : "Review exact failed cases and propose a later S8 rule or declared-scope release; do not change gold truth or current runtime merely to pass.",
       publicationPerformed: false,
       parentDeliveryEnabled: false,
       confirmation: "No family activation, runtime policy, database, staging, Production, context_review_enabled, or family delivery-control change was performed.",
     };
   writeFileSync(join(packageRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
-  console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length * 2} labels; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.failures.length} failures.`);
+  console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.failures.length} failures.`);
 }
 
 if (passCount !== CONTEXT_FAMILY_MANIFESTS.length) {

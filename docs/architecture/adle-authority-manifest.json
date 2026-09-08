@@ -119,8 +119,8 @@
       "targetTerminologyScope": true,
       "currentRuntimePolicy": "S6 and S7 preserve errors and repairs; automatic repeated-error escalation remains disabled",
       "approvedTargetPolicy": "first error opens independent confirmation; recurrence across snapshots routes through existing S7 intake",
-      "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08",
-      "requiredIdentifiers": ["WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08", "Repeated authentic-error escalation"],
+      "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
+      "requiredIdentifiers": ["WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09", "Repeated authentic-error escalation"],
       "supersededDocuments": []
     },
     {

@@ -91,7 +91,7 @@ Gold Bars, proficiency changes, Authentic Use, review changes or retirement
 changes. It neither modifies nor adopts the unconfirmed Context Resolver
 proposal.
 
-`WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08` now governs repeated-error
+`WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09` now governs repeated-error
 escalation. This slice uses explicit parent and administrator actions and does
 not implement or activate the new recurrence-to-S7 adapter. Automatic
 child-facing feedback remains out of scope. S8 remains responsible for

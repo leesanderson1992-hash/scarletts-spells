@@ -94,7 +94,7 @@ S6 does not:
 - modify or adopt the unconfirmed Context Resolver proposal.
 
 G2 policy is resolved by
-`WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`. Automatic child-facing
+`WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09`. Automatic child-facing
 feedback remains out of scope. Repeated-error escalation is not part of S6 and
 stays inactive until the separately controlled recurrence-to-S7 adapter is
 implemented and verified. S7 remains responsible for unresolved/unknown errors

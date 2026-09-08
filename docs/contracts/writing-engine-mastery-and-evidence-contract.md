@@ -8,7 +8,7 @@ Whole-writing policy identities approved on 8 September 2026:
 
 ```text
 WHOLE_WRITING_VERIFICATION_POLICY_V1_2026_09_08
-WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08
+WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09
 WHOLE_WRITING_HISTORICAL_EFFECTS_V1_2026_09_08
 ```
 
@@ -220,7 +220,7 @@ following evidence boundaries are invariant:
 
 ### Repeated authentic-error escalation
 
-Under `WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`, a first verified
+Under `WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09`, a first verified
 authentic error followed by successful repair creates a pending independent-
 confirmation need and no immediate ADLE lesson. A later verified,
 answer-hidden independent success for the same intended canonical word and
@@ -239,12 +239,26 @@ adjudicated release corpus for that exact family, rule, and corpus version has:
 
 - at least 400 cases: at least 150 valid counterexamples, 150 genuine supported
   misuses, and 100 ambiguous or unsupported cases;
-- two independent labels followed by adjudication;
+- one complete independently authored label from one identified human for every
+  case;
+- one complete, separately attributable secondary review. An AI review may
+  identify agreement or disagreement but is never a gold label or approval
+  authority;
+- adjudication by a second identified human, distinct from the primary
+  labeler, for every substantive disagreement identified by that review. No
+  second person completes the full corpus when only disagreement cases require
+  adjudication;
 - suggestion precision of at least 98%;
 - a 95% Wilson lower confidence bound of at least 95%;
 - recall of at least 80% within its declared supported constructions; and
 - zero failures in the protected fragment, quotation, gerund, run-on, and
   task-dependent counterexample sets.
+
+For this gate, substantive disagreement means a difference in classification,
+unique intended alternative, or supported-construction status. Differences in
+confidence or explanatory wording alone do not require adjudication. Consensus
+gold comes only from the primary human label; the secondary review can require
+human adjudication but cannot supply final truth.
 
 The existing 30 synthetic S8 cases are engineering tests and do not count
 toward this corpus. After activation, the family must be flagged for review if

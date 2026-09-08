@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
-  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08",
+  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
   "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
   "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
   "runtime": {
@@ -189,7 +189,7 @@
       }
     }
   },
-  "goldAuthority": "TWO_INDEPENDENT_HUMAN_LABELS_WITH_DISAGREEMENT_ADJUDICATION",
+  "goldAuthority": "ONE_PRIMARY_HUMAN_LABEL_WITH_NON_GOLD_REVIEW_AND_HUMAN_DISAGREEMENT_ADJUDICATION",
   "operationalApproval": false,
-  "packageFingerprint": "886ed2c3a41b24ebe286cd9125fb08ac99391308470bccc9b489d0cbd4faad73"
+  "packageFingerprint": "9201e52e4f7fa32583f6c8ce14575d5d4ae16a9e2bd74bb31f8081192b98e277"
 }

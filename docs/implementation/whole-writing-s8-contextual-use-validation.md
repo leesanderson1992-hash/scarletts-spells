@@ -111,7 +111,7 @@ learning levels, review schedules or retirement state. A successful child retry
 remains repair rather than independent contextual mastery.
 
 G2 policy is resolved by
-`WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08`, but approval remains required
+`WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09`, but approval remains required
 per exact family, rule release and adjudicated corpus before parent delivery can
 activate. The current 30 engineering cases do not count toward the required
 400-case family corpus.

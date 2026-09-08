@@ -1,9 +1,9 @@
-# Independent labelling instructions
+# Primary human labelling instructions
 
-Two real labelers independently complete packet A and packet B for one family.
-Assign a packet privately. Labelers must not inspect `author-proposals/`, S8
-analyser output, evaluation reports, the other completed packet or any proposed
-approval artifact before their packet is imported.
+One real identified human independently completes either packet A or packet B
+for one family. Only one complete packet is required. Assign it privately. The
+labeler must not inspect `author-proposals/`, S8 analyser output, evaluation
+reports, a secondary review or any proposed approval artifact before import.
 
 For manual review, use the eight CSV files in `packets-csv/`. Each family has a
 separate `labeler-a.csv` and `labeler-b.csv`; their row order differs
@@ -69,12 +69,13 @@ npm run writing:g2-label-import -- csv-label \
   --output /absolute/path/labels/THERE_THEIR_THEYRE.labeler-id.jsonl
 ```
 
-Use packet B and a different real labeler ID for the second import. The
-downstream independent-label validator requires exactly one complete governed
-packet per labeler and distinct identities for A and B.
+Do not import a second full packet for the same family. The downstream validator
+requires exactly one complete governed packet from one human identity. Packet B
+is retained as an equivalent alternate ordering, not a second-person requirement.
 
 Copy the resulting append-only JSONL into the family `labels/` directory only
 after checking the labeler identity and record count. Never edit imported
 records. If a genuine correction is required, retain the original import and
 record the resolution through the adjudication path; duplicated label or
-labeler/case identities remain blocked.
+labeler/case identities remain blocked. Capitalisation errors outside the
+family choice do not make an otherwise correct family member `INVALID`.

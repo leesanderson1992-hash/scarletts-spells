@@ -18,8 +18,11 @@ existing S8 engineering regression cases are not included.
 - `packets-csv/` contains deterministic manual-review CSV exports for Labeler A
   and Labeler B. Its separate manifest binds every CSV to the unchanged JSONL
   packet and governed package fingerprint.
-- `labels/` accepts append-only imports from two distinct real labelers.
-- `adjudications/` accepts append-only decisions for every substantive label
+- `labels/` accepts one complete append-only primary human-label import.
+- `reviews/` retains the complete attributable non-gold secondary review.
+- `adjudication-packets/` contains only disagreements selected for a second
+  identified human.
+- `adjudications/` accepts append-only decisions for every flagged substantive
   disagreement.
 - `gold/` accepts derived final-gold records only after label and adjudication
   validation succeeds.
@@ -29,8 +32,8 @@ existing S8 engineering regression cases are not included.
 
 `schema.json` describes the separately attributable record shapes. The
 executable validators additionally enforce exact family membership, UTF-16
-surface reconstruction, fingerprints, label independence and final-gold
-lineage. Every label, adjudication and final-gold import also creates a sidecar
+surface reconstruction, fingerprints, one complete human label, one complete
+non-gold review and final-gold lineage. Every label, review, adjudication and final-gold import also creates a sidecar
 receipt locking the imported file hash and its ordered record fingerprints;
 the evaluator rejects a missing or stale receipt as post-hoc mutation.
 
@@ -65,5 +68,5 @@ npm run writing:g2-corpus-regression
 npm run writing:g2-evaluate
 ```
 
-The evaluator is expected to exit non-zero while genuine human labels or
-adjudications are missing.
+The evaluator is expected to exit non-zero while a primary human label, complete
+secondary review, required human adjudication or final gold is missing.

@@ -5,7 +5,7 @@
 Classification: `DEPENDENT_IMPLEMENTATION_DOCUMENTATION`.
 
 The canonical thresholds and operational gate are owned only by
-`WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08` in
+`WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09` in
 `docs/contracts/writing-engine-mastery-and-evidence-contract.md`. This document
 implements that policy without redefining it. The authority baseline is commit
 `f7865ab9edab410a3a6f5aba6965457705319b5f`.
@@ -102,7 +102,7 @@ proposed payload shaped for S8's existing
 approver remain explicit placeholders so the artifact cannot be mistaken for
 authorization or inserted accidentally.
 
-Independent-label, adjudication and final-gold imports have sidecar receipts
+Primary-label, non-gold-review, adjudication and final-gold imports have sidecar receipts
 that bind each file hash to its ordered record fingerprints. Missing receipts,
 changed content, duplicate identities or stale record fingerprints block
 evaluation as post-hoc mutation or incomplete provenance.
@@ -115,8 +115,8 @@ control.
 
 ## Manual CSV adapter
 
-The manual-review adapter exports Labeler A and Labeler B CSVs from the locked
-blinded JSONL packets without changing candidate or packet identity. CSV rows
+The manual-review adapter retains Labeler A and Labeler B CSVs as equivalent
+alternate orderings from the locked blinded JSONL packets without changing candidate or packet identity. Only one full packet is completed. CSV rows
 contain only case/family identity, the complete source, focus surface and span,
 and blank governed label-form fields. Release fingerprints remain hidden from
 reviewers and are restored from the source packet during import.
@@ -125,5 +125,7 @@ CSV import requires the completed CSV, its exact governed packet, a stable real
 labeler identity and an explicit timestamp. It rejects header changes,
 immutable-field edits, missing, duplicate or foreign cases, invalid permitted
 values and incomplete required answers before writing anything. Successful
-imports use the existing append-only independent-label record and receipt
-format, so adjudication and evaluation require no alternate semantics.
+imports use the append-only primary-label record and receipt format. A complete
+non-gold secondary review records agreement or disagreement for every case.
+Only disagreements are exported to an adjudication CSV for a second identified
+human; the importer restores exact label, review, release and corpus fingerprints.

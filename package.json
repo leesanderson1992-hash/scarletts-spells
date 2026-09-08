@@ -21,6 +21,7 @@
     "writing:s8-staging-proof": "NODE_OPTIONS=--conditions=react-server node --import tsx scripts/whole-writing-s8-staging-proof.mjs",
     "writing:g2-corpus-build": "NODE_OPTIONS=--conditions=react-server tsx scripts/build-whole-writing-g2-corpus.ts",
     "writing:g2-csv-export": "NODE_OPTIONS=--conditions=react-server tsx scripts/export-whole-writing-g2-label-packets.ts",
+    "writing:g2-adjudication-csv-export": "NODE_OPTIONS=--conditions=react-server tsx scripts/export-whole-writing-g2-adjudication-csv.ts",
     "writing:g2-corpus-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-g2-corpus-regression.ts",
     "writing:g2-evaluate": "NODE_OPTIONS=--conditions=react-server tsx scripts/evaluate-whole-writing-g2-corpus.ts",
     "writing:g2-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-g2-labels.ts",

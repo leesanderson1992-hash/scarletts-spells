@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "scarletts-spells://whole-writing/g2-context-family-corpus-v1",
+  "$id": "scarletts-spells://whole-writing/g2-context-family-corpus-v2",
   "title": "Whole-writing G2 contextual-family corpus records",
-  "description": "Governed candidate, independent-label, adjudication and final-gold records. Each record kind remains separately attributable.",
+  "description": "Governed candidate, primary human-label, non-gold review, adjudication and final-gold records. Each record kind remains separately attributable.",
   "$defs": {
     "family": {
       "enum": ["THERE_THEIR_THEYRE", "TO_TOO_TWO", "YOUR_YOURE", "ITS_ITS"]
@@ -86,13 +86,84 @@
         "authority": { "const": "CORPUS_AUTHOR_PROPOSAL_NOT_GOLD" }
       }
     },
+    "secondaryReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "reviewId", "caseId", "family", "reviewerId", "reviewerKind", "reviewedAt", "primaryLabelFingerprint", "disposition", "classification", "intendedAlternative", "supportedConstructionStatus", "rationale", "releaseId", "familyManifestFingerprint", "corpusVersion", "candidateFingerprint", "reviewFingerprint"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "reviewId": { "type": "string", "minLength": 1 },
+        "caseId": { "type": "string", "minLength": 1 },
+        "family": { "$ref": "#/$defs/family" },
+        "reviewerId": { "type": "string", "minLength": 1 },
+        "reviewerKind": { "const": "AI_NON_GOLD_REVIEW" },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "primaryLabelFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "disposition": { "enum": ["AGREE", "DISAGREE"] },
+        "classification": { "$ref": "#/$defs/classification" },
+        "intendedAlternative": { "type": ["string", "null"] },
+        "supportedConstructionStatus": { "$ref": "#/$defs/support" },
+        "rationale": { "type": "string", "minLength": 1 },
+        "releaseId": { "type": "string", "format": "uuid" },
+        "familyManifestFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "corpusVersion": { "const": "WHOLE_WRITING_CONTEXT_CORPUS_V1" },
+        "candidateFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "reviewFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
     "adjudication": {
       "type": "object",
-      "required": ["schemaVersion", "adjudicationId", "caseId", "family", "adjudicatorId", "adjudicatedAt", "sourceLabelFingerprints", "classification", "intendedAlternative", "supportedConstructionStatus", "ambiguityOrExclusionReason", "rationale", "releaseId", "familyManifestFingerprint", "corpusVersion", "candidateFingerprint", "adjudicationFingerprint"]
+      "additionalProperties": false,
+      "required": ["schemaVersion", "adjudicationId", "caseId", "family", "adjudicatorId", "adjudicatedAt", "sourceLabelFingerprint", "sourceReviewFingerprint", "classification", "intendedAlternative", "supportedConstructionStatus", "ambiguityOrExclusionReason", "rationale", "releaseId", "familyManifestFingerprint", "corpusVersion", "candidateFingerprint", "adjudicationFingerprint"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "adjudicationId": { "type": "string", "minLength": 1 },
+        "caseId": { "type": "string", "minLength": 1 },
+        "family": { "$ref": "#/$defs/family" },
+        "adjudicatorId": { "type": "string", "minLength": 1 },
+        "adjudicatedAt": { "type": "string", "format": "date-time" },
+        "sourceLabelFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "sourceReviewFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "classification": { "$ref": "#/$defs/classification" },
+        "intendedAlternative": { "type": ["string", "null"] },
+        "supportedConstructionStatus": { "$ref": "#/$defs/support" },
+        "ambiguityOrExclusionReason": { "type": ["string", "null"] },
+        "rationale": { "type": "string", "minLength": 1 },
+        "releaseId": { "type": "string", "format": "uuid" },
+        "familyManifestFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "corpusVersion": { "const": "WHOLE_WRITING_CONTEXT_CORPUS_V1" },
+        "candidateFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "adjudicationFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
     },
     "finalGold": {
       "type": "object",
-      "required": ["schemaVersion", "caseId", "family", "classification", "intendedMember", "expectedAlternative", "supportedConstructionStatus", "ambiguityOrExclusionReason", "provenance", "sourceLabelFingerprints", "adjudicationFingerprint", "releaseId", "familyManifestFingerprint", "corpusVersion", "candidateFingerprint", "goldFingerprint"]
+      "additionalProperties": false,
+      "required": ["schemaVersion", "caseId", "family", "classification", "intendedMember", "expectedAlternative", "supportedConstructionStatus", "ambiguityOrExclusionReason", "provenance", "sourceLabelFingerprints", "reviewFingerprint", "adjudicationFingerprint", "releaseId", "familyManifestFingerprint", "corpusVersion", "candidateFingerprint", "goldFingerprint"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "caseId": { "type": "string", "minLength": 1 },
+        "family": { "$ref": "#/$defs/family" },
+        "classification": { "$ref": "#/$defs/classification" },
+        "intendedMember": { "type": ["string", "null"] },
+        "expectedAlternative": { "type": ["string", "null"] },
+        "supportedConstructionStatus": { "$ref": "#/$defs/support" },
+        "ambiguityOrExclusionReason": { "type": ["string", "null"] },
+        "provenance": { "enum": ["PRIMARY_HUMAN_LABEL_REVIEWED", "ADJUDICATION"] },
+        "sourceLabelFingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        },
+        "reviewFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "adjudicationFingerprint": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "releaseId": { "type": "string", "format": "uuid" },
+        "familyManifestFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "corpusVersion": { "const": "WHOLE_WRITING_CONTEXT_CORPUS_V1" },
+        "candidateFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "goldFingerprint": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
     }
   }
 }

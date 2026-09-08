@@ -12,7 +12,7 @@ import {
   type ContextResultStatus,
 } from "../../lib/writing-engine/whole-writing/context";
 
-export const G2_POLICY_VERSION = "WHOLE_WRITING_REMEDIATION_POLICY_V1_2026_09_08" as const;
+export const G2_POLICY_VERSION = "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09" as const;
 export const G2_PACKAGE_VERSION = "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08" as const;
 
 export const G2_LIMITS = Object.freeze({
@@ -124,6 +124,27 @@ export type IndependentLabel = Readonly<{
   labelFingerprint: string;
 }>;
 
+export type SecondaryReview = Readonly<{
+  schemaVersion: 1;
+  reviewId: string;
+  caseId: string;
+  family: ContextFamilyKey;
+  reviewerId: string;
+  reviewerKind: "AI_NON_GOLD_REVIEW";
+  reviewedAt: string;
+  primaryLabelFingerprint: string;
+  disposition: "AGREE" | "DISAGREE";
+  classification: GoldClassification;
+  intendedAlternative: string | null;
+  supportedConstructionStatus: SupportedConstructionStatus;
+  rationale: string;
+  releaseId: string;
+  familyManifestFingerprint: string;
+  corpusVersion: typeof WHOLE_WRITING_CONTEXT_CORPUS_VERSION;
+  candidateFingerprint: string;
+  reviewFingerprint: string;
+}>;
+
 export type Adjudication = Readonly<{
   schemaVersion: 1;
   adjudicationId: string;
@@ -131,7 +152,8 @@ export type Adjudication = Readonly<{
   family: ContextFamilyKey;
   adjudicatorId: string;
   adjudicatedAt: string;
-  sourceLabelFingerprints: [string, string];
+  sourceLabelFingerprint: string;
+  sourceReviewFingerprint: string;
   classification: GoldClassification;
   intendedAlternative: string | null;
   supportedConstructionStatus: SupportedConstructionStatus;
@@ -153,8 +175,9 @@ export type FinalGold = Readonly<{
   expectedAlternative: string | null;
   supportedConstructionStatus: SupportedConstructionStatus;
   ambiguityOrExclusionReason: string | null;
-  provenance: "INDEPENDENT_LABEL_CONSENSUS" | "ADJUDICATION";
-  sourceLabelFingerprints: [string, string];
+  provenance: "PRIMARY_HUMAN_LABEL_REVIEWED" | "ADJUDICATION";
+  sourceLabelFingerprints: [string];
+  reviewFingerprint: string;
   adjudicationFingerprint: string | null;
   releaseId: string;
   familyManifestFingerprint: string;
@@ -241,12 +264,11 @@ export function validateCandidate(candidate: CandidateCase): ValidationIssue[] {
   return issues;
 }
 
-function substantiveLabelKey(label: IndependentLabel | Adjudication): string {
+function substantiveLabelKey(label: Pick<IndependentLabel, "classification" | "intendedAlternative" | "supportedConstructionStatus">): string {
   return JSON.stringify(canonicalise({
     classification: label.classification,
     intendedAlternative: label.intendedAlternative,
     supportedConstructionStatus: label.supportedConstructionStatus,
-    ambiguityOrExclusionReason: label.ambiguityOrExclusionReason,
   }));
 }
 
@@ -254,7 +276,7 @@ export function labelsDisagree(left: IndependentLabel, right: IndependentLabel):
   return substantiveLabelKey(left) !== substantiveLabelKey(right);
 }
 
-export function validateIndependentLabels(
+export function validatePrimaryLabels(
   candidates: CandidateCase[],
   labels: IndependentLabel[],
 ): ValidationIssue[] {
@@ -294,26 +316,53 @@ export function validateIndependentLabels(
   }
   for (const candidate of candidates) {
     const caseLabels = byCase.get(candidate.caseId) ?? [];
-    if (caseLabels.length !== 2) issues.push({ code: "INDEPENDENT_LABEL_COUNT", message: `expected exactly two labels, found ${caseLabels.length}`, caseId: candidate.caseId });
-    if (caseLabels.length === 2 && caseLabels[0].labelerId === caseLabels[1].labelerId) {
-      issues.push({ code: "LABELERS_NOT_DISTINCT", message: "the two independent labels must have distinct labeler identities", caseId: candidate.caseId });
-    }
-    if (caseLabels.length === 2 && caseLabels[0].packetId === caseLabels[1].packetId) {
-      issues.push({ code: "PACKETS_NOT_DISTINCT", message: "the two independent labels must come from different blinded packets", caseId: candidate.caseId });
-    }
+    if (caseLabels.length !== 1) issues.push({ code: "PRIMARY_LABEL_COUNT", message: `expected exactly one primary human label, found ${caseLabels.length}`, caseId: candidate.caseId });
   }
   if (candidates.length) {
     const family = candidates[0].family;
     const expectedPackets = [`${G2_PACKAGE_VERSION}:${family}:LABEL_PACKET_A`, `${G2_PACKAGE_VERSION}:${family}:LABEL_PACKET_B`];
-    for (const packetId of expectedPackets) {
-      const packetLabels = labels.filter((label) => label.packetId === packetId);
+    const completedPackets = expectedPackets.filter((packetId) => labels.filter((label) => label.packetId === packetId).length === candidates.length);
+    if (completedPackets.length !== 1) issues.push({ code: "PRIMARY_PACKET_COUNT", message: `expected exactly one complete governed packet, found ${completedPackets.length}` });
+    for (const packetId of completedPackets) {
       const packetLabelers = labelersByPacket.get(packetId) ?? new Set<string>();
-      if (packetLabels.length !== candidates.length) issues.push({ code: "PACKET_LABEL_COUNT", message: `${packetId} expected ${candidates.length} labels, found ${packetLabels.length}` });
-      if (packetLabelers.size !== 1) issues.push({ code: "PACKET_LABELER_IDENTITY", message: `${packetId} must be completed by exactly one labeler identity` });
+      if (packetLabelers.size !== 1) issues.push({ code: "PACKET_LABELER_IDENTITY", message: `${packetId} must be completed by exactly one human labeler identity` });
     }
     for (const label of labels) if (!expectedPackets.includes(label.packetId)) issues.push({ code: "UNEXPECTED_LABEL_PACKET", message: `label references ungoverned packet ${label.packetId}`, caseId: label.caseId });
-    const packetActors = expectedPackets.map((packetId) => [...(labelersByPacket.get(packetId) ?? [])][0]).filter(Boolean);
-    if (packetActors.length === 2 && packetActors[0] === packetActors[1]) issues.push({ code: "PACKET_LABELERS_NOT_DISTINCT", message: "packet A and B must be completed by distinct labeler identities" });
+  }
+  return issues;
+}
+
+export function validateSecondaryReviews(
+  candidates: CandidateCase[],
+  labels: IndependentLabel[],
+  reviews: SecondaryReview[],
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const candidatesById = new Map(candidates.map((item) => [item.caseId, item]));
+  const labelsByCase = new Map(labels.map((item) => [item.caseId, item]));
+  const reviewsByCase = new Map<string, SecondaryReview[]>();
+  for (const review of reviews) {
+    const candidate = candidatesById.get(review.caseId);
+    const label = labelsByCase.get(review.caseId);
+    const issue = (code: string, message: string) => issues.push({ code, message, caseId: review.caseId });
+    if (!candidate || !label) issue("REVIEW_DEPENDENCY_MISSING", "review requires the exact candidate and primary human label");
+    else {
+      if (review.family !== candidate.family || review.candidateFingerprint !== candidate.candidateFingerprint) issue("REVIEW_CANDIDATE_MISMATCH", "review family or candidate fingerprint differs");
+      if (review.primaryLabelFingerprint !== label.labelFingerprint) issue("REVIEW_LABEL_FINGERPRINT_MISMATCH", "review does not reference the exact primary label");
+      if (review.releaseId !== candidate.releaseId || review.familyManifestFingerprint !== candidate.familyManifestFingerprint || review.corpusVersion !== candidate.corpusVersion) issue("REVIEW_RELEASE_MISMATCH", "review family release or corpus dependency differs");
+      const differs = substantiveLabelKey(review) !== substantiveLabelKey(label);
+      if ((review.disposition === "DISAGREE") !== differs) issue("REVIEW_DISPOSITION_MISMATCH", "review disposition must match the substantive decision comparison");
+      if (review.classification === "INVALID" && (!review.intendedAlternative || !manifestFor(candidate.family).members.includes(review.intendedAlternative) || review.intendedAlternative === candidate.observedMember)) issue("REVIEW_INVALID_ALTERNATIVE", "reviewed INVALID requires one different enumerated family member");
+      if (review.classification === "INVALID" && review.supportedConstructionStatus !== "SUPPORTED") issue("REVIEW_INVALID_NOT_SUPPORTED", "reviewed INVALID must identify a supported construction");
+    }
+    if (review.reviewerKind !== "AI_NON_GOLD_REVIEW" || !review.reviewerId.trim() || !review.reviewedAt.trim()) issue("REVIEW_ATTRIBUTION_MISSING", "non-gold reviewer identity, kind and timestamp are required");
+    if (!review.rationale.trim()) issue("REVIEW_RATIONALE_MISSING", "review rationale is required");
+    if (recordFingerprint(review, "reviewFingerprint") !== review.reviewFingerprint) issue("REVIEW_FINGERPRINT_MISMATCH", "review fingerprint is stale or invalid");
+    reviewsByCase.set(review.caseId, [...(reviewsByCase.get(review.caseId) ?? []), review]);
+  }
+  for (const candidate of candidates) {
+    const caseReviews = reviewsByCase.get(candidate.caseId) ?? [];
+    if (caseReviews.length !== 1) issues.push({ code: "SECONDARY_REVIEW_COUNT", message: `expected exactly one non-gold review, found ${caseReviews.length}`, caseId: candidate.caseId });
   }
   return issues;
 }
@@ -321,20 +370,22 @@ export function validateIndependentLabels(
 export function buildFinalGold(
   candidates: CandidateCase[],
   labels: IndependentLabel[],
+  reviews: SecondaryReview[],
   adjudications: Adjudication[],
 ): { gold: FinalGold[]; issues: ValidationIssue[] } {
-  const issues = validateIndependentLabels(candidates, labels);
-  const labelsByCase = new Map<string, IndependentLabel[]>();
-  for (const label of labels) labelsByCase.set(label.caseId, [...(labelsByCase.get(label.caseId) ?? []), label]);
+  const issues = [...validatePrimaryLabels(candidates, labels), ...validateSecondaryReviews(candidates, labels, reviews)];
+  const labelsByCase = new Map(labels.map((item) => [item.caseId, item]));
+  const reviewsByCase = new Map(reviews.map((item) => [item.caseId, item]));
   const adjudicationsByCase = new Map<string, Adjudication[]>();
   for (const adjudication of adjudications) {
     adjudicationsByCase.set(adjudication.caseId, [...(adjudicationsByCase.get(adjudication.caseId) ?? []), adjudication]);
   }
   const gold: FinalGold[] = [];
   for (const candidate of candidates) {
-    const caseLabels = (labelsByCase.get(candidate.caseId) ?? []).sort((a, b) => a.labelFingerprint.localeCompare(b.labelFingerprint));
-    if (caseLabels.length !== 2 || caseLabels[0].labelerId === caseLabels[1].labelerId) continue;
-    const disagreements = labelsDisagree(caseLabels[0], caseLabels[1]);
+    const label = labelsByCase.get(candidate.caseId);
+    const review = reviewsByCase.get(candidate.caseId);
+    if (!label || !review) continue;
+    const disagreements = review.disposition === "DISAGREE";
     const caseAdjudications = adjudicationsByCase.get(candidate.caseId) ?? [];
     if (disagreements && caseAdjudications.length !== 1) {
       issues.push({ code: "ADJUDICATION_REQUIRED", message: `disagreement requires exactly one adjudication, found ${caseAdjudications.length}`, caseId: candidate.caseId });
@@ -351,9 +402,9 @@ export function buildFinalGold(
       const adjudication = caseAdjudications[0];
       const issue = (code: string, message: string) => issues.push({ code, message, caseId: candidate.caseId });
       if (!adjudication.adjudicatorId.trim() || !adjudication.adjudicatedAt.trim()) issue("ADJUDICATOR_IDENTITY_OR_TIME_MISSING", "adjudicator identity and timestamp are required");
-      if (adjudication.adjudicatorId === caseLabels[0].labelerId || adjudication.adjudicatorId === caseLabels[1].labelerId) issue("ADJUDICATOR_NOT_INDEPENDENT", "adjudicator must differ from both labelers");
+      if (adjudication.adjudicatorId === label.labelerId) issue("ADJUDICATOR_NOT_INDEPENDENT", "adjudicator must differ from the primary human labeler");
       if (adjudication.family !== candidate.family || adjudication.candidateFingerprint !== candidate.candidateFingerprint || adjudication.corpusVersion !== candidate.corpusVersion || adjudication.releaseId !== candidate.releaseId || adjudication.familyManifestFingerprint !== candidate.familyManifestFingerprint) issue("ADJUDICATION_DEPENDENCY_MISMATCH", "adjudication family, release, corpus or candidate fingerprint differs");
-      if (JSON.stringify([...adjudication.sourceLabelFingerprints].sort()) !== JSON.stringify(caseLabels.map((item) => item.labelFingerprint))) issue("ADJUDICATION_LABEL_FINGERPRINT_MISMATCH", "adjudication does not reference the exact two labels");
+      if (adjudication.sourceLabelFingerprint !== label.labelFingerprint || adjudication.sourceReviewFingerprint !== review.reviewFingerprint) issue("ADJUDICATION_SOURCE_FINGERPRINT_MISMATCH", "adjudication does not reference the exact primary label and non-gold review");
       if (recordFingerprint(adjudication, "adjudicationFingerprint") !== adjudication.adjudicationFingerprint) issue("ADJUDICATION_FINGERPRINT_MISMATCH", "adjudication fingerprint is stale or invalid");
       if (adjudication.classification === "INVALID" && !adjudication.intendedAlternative) issue("INVALID_ALTERNATIVE_MISSING", "adjudicated INVALID requires one alternative");
       if (adjudication.classification === "INVALID" && (!manifestFor(candidate.family).members.includes(adjudication.intendedAlternative!) || adjudication.intendedAlternative === candidate.observedMember)) issue("INVALID_ALTERNATIVE_NOT_UNIQUE_FAMILY_MEMBER", "adjudicated INVALID alternative must be one different enumerated family member");
@@ -362,8 +413,8 @@ export function buildFinalGold(
       provenance = "ADJUDICATION";
       adjudicationFingerprint = adjudication.adjudicationFingerprint;
     } else {
-      final = caseLabels[0];
-      provenance = "INDEPENDENT_LABEL_CONSENSUS";
+      final = label;
+      provenance = "PRIMARY_HUMAN_LABEL_REVIEWED";
     }
     const withoutFingerprint = {
       schemaVersion: 1 as const,
@@ -375,7 +426,8 @@ export function buildFinalGold(
       supportedConstructionStatus: final.supportedConstructionStatus,
       ambiguityOrExclusionReason: final.ambiguityOrExclusionReason,
       provenance,
-      sourceLabelFingerprints: caseLabels.map((item) => item.labelFingerprint) as [string, string],
+      sourceLabelFingerprints: [label.labelFingerprint] as [string],
+      reviewFingerprint: review.reviewFingerprint,
       adjudicationFingerprint,
       releaseId: candidate.releaseId,
       familyManifestFingerprint: candidate.familyManifestFingerprint,

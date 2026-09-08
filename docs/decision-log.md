@@ -1,5 +1,28 @@
 # Decision Log
 
+## 2026-09-09 — G2 corpus human-review requirement revised
+
+### Decision
+
+- Approved `WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09` supersedes V1 for the G2
+  contextual-family corpus gate.
+- One identified human completes one full blinded family packet. A complete,
+  separately attributable secondary review may flag disagreements but is not
+  a gold-label or approval authority.
+- Only substantive disagreements in classification, unique alternative or
+  supported-construction status go to a second identified human adjudicator.
+  Confidence and explanatory wording differences alone do not require
+  adjudication.
+- Unflagged final gold comes from the primary human label. Flagged final gold
+  comes only from the second human adjudicator. Original labels and reviews
+  remain append-only and fingerprinted.
+
+### Runtime boundary
+
+- This decision changes corpus governance and local evaluation tooling only.
+- It does not change S8 runtime rules, family activation, approval events,
+  databases, staging, Production or delivery controls.
+
 ## 2026-09-08 — Whole-writing owner gates G1–G5 resolved
 
 ### Decision

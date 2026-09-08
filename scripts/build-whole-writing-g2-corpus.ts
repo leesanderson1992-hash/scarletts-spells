@@ -285,7 +285,7 @@ function packetRecord(candidate: CandidateCase, packetId: string) {
 }
 
 mkdirSync(root, { recursive: true });
-for (const directory of ["candidates", "author-proposals", "packets", "labels", "adjudications", "gold", "release-artifacts", "reports"]) mkdirSync(join(root, directory), { recursive: true });
+for (const directory of ["candidates", "author-proposals", "packets", "labels", "reviews", "adjudication-packets", "adjudications", "gold", "release-artifacts", "reports"]) mkdirSync(join(root, directory), { recursive: true });
 
 const runtime = runtimeFingerprints(repositoryRoot);
 const packageFamilies: Record<string, unknown> = {};
@@ -306,9 +306,10 @@ for (const manifest of CONTEXT_FAMILY_MANIFESTS) {
     const packetRows = deterministicPacketOrder(candidates, packet).map((candidate) => packetRecord(candidate, packetId));
     writeFileSync(join(root, "packets", `${family}.label-packet-${packet.toLowerCase()}.jsonl`), jsonl(packetRows));
   }
-  writeFileSync(join(root, "labels", `${family}.README.md`), `# ${family} independent-label imports\n\nNo labels are stored here yet. Import two completed packet exports with distinct real labeler identities. Do not copy author proposals into label records.\n`);
-  writeFileSync(join(root, "adjudications", `${family}.README.md`), `# ${family} adjudications\n\nNo adjudications are stored here yet. Add one separately attributable adjudication record for every substantive label disagreement after both packets are imported.\n`);
-  writeFileSync(join(root, "gold", `${family}.README.md`), `# ${family} final gold\n\nGenerated only after two independent labels are complete and every disagreement is adjudicated. Author proposals are not gold truth.\n`);
+  writeFileSync(join(root, "labels", `${family}.README.md`), `# ${family} primary human-label imports\n\nStore one append-only governed packet import from one real identified human labeler in this directory. Do not copy author proposals into label records.\n`);
+  writeFileSync(join(root, "reviews", `${family}.README.md`), `# ${family} non-gold secondary reviews\n\nStore one append-only, completely attributed review in this directory. It may flag disagreements but cannot supply gold truth or approval authority.\n`);
+  writeFileSync(join(root, "adjudications", `${family}.README.md`), `# ${family} adjudications\n\nStore one append-only decision from a second identified human for every disagreement flagged by the non-gold review.\n`);
+  writeFileSync(join(root, "gold", `${family}.README.md`), `# ${family} final gold\n\nGenerated only after one complete primary human label, one complete non-gold review and adjudication of every flagged disagreement. Author proposals and secondary review outputs are not gold truth.\n`);
   const plannedCounts = proposals.reduce((counts, proposal) => ({ ...counts, [proposal.proposedClassification]: counts[proposal.proposedClassification] + 1 }), { VALID: 0, INVALID: 0, UNCERTAIN: 0 });
   packageFamilies[family] = {
     ...FAMILY_RELEASES[family],
@@ -337,7 +338,7 @@ const packageManifestWithoutFingerprint = {
   corpusVersion: WHOLE_WRITING_CONTEXT_CORPUS_VERSION,
   runtime,
   families: packageFamilies,
-  goldAuthority: "TWO_INDEPENDENT_HUMAN_LABELS_WITH_DISAGREEMENT_ADJUDICATION",
+  goldAuthority: "ONE_PRIMARY_HUMAN_LABEL_WITH_NON_GOLD_REVIEW_AND_HUMAN_DISAGREEMENT_ADJUDICATION",
   operationalApproval: false,
 };
 const packageManifest = { ...packageManifestWithoutFingerprint, packageFingerprint: recordFingerprint(packageManifestWithoutFingerprint) };
