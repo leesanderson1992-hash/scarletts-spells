@@ -112,3 +112,18 @@ failure and the next required human-label or later-S8-release action. It states
 that parent delivery remains disabled. Evaluation writes neither form to the
 database and never changes `context_review_enabled` or a family delivery
 control.
+
+## Manual CSV adapter
+
+The manual-review adapter exports Labeler A and Labeler B CSVs from the locked
+blinded JSONL packets without changing candidate or packet identity. CSV rows
+contain only case/family identity, the complete source, focus surface and span,
+and blank governed label-form fields. Release fingerprints remain hidden from
+reviewers and are restored from the source packet during import.
+
+CSV import requires the completed CSV, its exact governed packet, a stable real
+labeler identity and an explicit timestamp. It rejects header changes,
+immutable-field edits, missing, duplicate or foreign cases, invalid permitted
+values and incomplete required answers before writing anything. Successful
+imports use the existing append-only independent-label record and receipt
+format, so adjudication and evaluation require no alternate semantics.

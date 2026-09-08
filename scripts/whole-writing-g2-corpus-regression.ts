@@ -22,6 +22,8 @@ import {
   type CandidateCase,
   type IndependentLabel,
 } from "./lib/whole-writing-g2-corpus";
+import { parseCsv, serialiseCsv } from "./lib/deterministic-csv";
+import { G2_CSV_ANSWER_HEADERS, G2_CSV_HEADERS, G2_CSV_PACKET_EXPORT_VERSION } from "./lib/whole-writing-g2-csv";
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const root = join(repositoryRoot, "data/whole-writing/g2-context-family-corpora");
@@ -30,6 +32,13 @@ const manifestBody = Object.fromEntries(Object.entries(manifest).filter(([key]) 
 assert.equal(recordFingerprint(manifestBody), manifest.packageFingerprint, "package manifest must be immutable");
 assert.equal(manifest.packageVersion, G2_PACKAGE_VERSION);
 assert.deepEqual(manifest.runtime, runtimeFingerprints(repositoryRoot), "runtime dependencies remain exact");
+const csvManifest = JSON.parse(readFileSync(join(root, "packets-csv", "manifest.json"), "utf8"));
+const csvManifestBody = Object.fromEntries(Object.entries(csvManifest).filter(([key]) => key !== "exportFingerprint"));
+assert.equal(recordFingerprint(csvManifestBody), csvManifest.exportFingerprint, "CSV export manifest must be immutable");
+assert.equal(csvManifest.exportVersion, G2_CSV_PACKET_EXPORT_VERSION);
+assert.equal(csvManifest.sourcePackageFingerprint, manifest.packageFingerprint, "CSV export must derive from the locked governed package");
+const csvRoundTripFixture = [{ first: "comma, quote \"kept\"", second: "line one\nline two" }];
+assert.deepEqual(parseCsv(serialiseCsv(["first", "second"], csvRoundTripFixture)).rows, csvRoundTripFixture, "CSV parser must preserve quoted commas, quotes and newlines");
 
 for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
   const family = familyManifest.familyKey;
@@ -70,6 +79,25 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
   assert.notDeepEqual(packetA.map((row) => row.caseId), packetB.map((row) => row.caseId), "packet order must be independently blinded");
   for (const row of [...packetA, ...packetB]) {
     for (const forbidden of ["proposedClassification", "proposedExpectedAlternative", "analyserResult", "proposedApproval", "otherLabel"]) assert(!(forbidden in row));
+  }
+  for (const [packetLabel, governedPacket] of [["a", packetA], ["b", packetB]] as const) {
+    const csvContent = readFileSync(join(root, "packets-csv", `${family}.labeler-${packetLabel}.csv`), "utf8");
+    const csv = parseCsv(csvContent);
+    assert.deepEqual(csv.headers, [...G2_CSV_HEADERS]);
+    assert.equal(csv.rows.length, 400);
+    assert.equal(serialiseCsv(G2_CSV_HEADERS, csv.rows), csvContent, `${family} CSV serialization must be deterministic`);
+    assert.deepEqual(csv.rows.map((row) => row.case_id), governedPacket.map((row) => row.caseId));
+    for (let index = 0; index < csv.rows.length; index += 1) {
+      const row = csv.rows[index];
+      const governed = governedPacket[index];
+      assert.equal(row.family, governed.family);
+      assert.equal(row.source_text, governed.sourceText);
+      assert.equal(row.focus_surface, governed.focusSurface);
+      assert.equal(row.start_utf16, String(governed.startUtf16));
+      assert.equal(row.end_utf16, String(governed.endUtf16));
+      assert(G2_CSV_ANSWER_HEADERS.every((header) => row[header] === ""), `${family} ${packetLabel} answers must be blank`);
+      for (const forbidden of ["prediction", "proposal", "other_label", "adjudication", "gold", "reference_answer", "candidate_fingerprint", "release_id"]) assert(!csv.headers.some((header) => header.includes(forbidden)));
+    }
   }
   const empty = buildFinalGold(candidates, [], []);
   assert.equal(empty.gold.length, 0);
@@ -117,4 +145,4 @@ const deterministicLeft = evaluateFamily({ candidates: [candidate], gold: [], pr
 const deterministicRight = evaluateFamily({ candidates: [candidate], gold: [], prerequisiteIssues: [], expectedRuntimeFingerprints: runtime, actualRuntimeFingerprints: runtime });
 assert.deepEqual(deterministicLeft, deterministicRight, "metric reproduction must be byte-stable for identical inputs");
 
-console.log("Whole-writing G2 corpus regression passed: four 400-case packages, blinded packets, span/variety checks, fail-closed label provenance, deterministic metrics, and Wilson bounds.");
+console.log("Whole-writing G2 corpus regression passed: four 400-case packages, JSONL/CSV blinded packets, span/variety checks, fail-closed label provenance, deterministic metrics, and Wilson bounds.");

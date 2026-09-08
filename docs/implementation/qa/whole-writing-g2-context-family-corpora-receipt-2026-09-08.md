@@ -37,13 +37,14 @@ Local verification produced these outcomes:
 | Command | Outcome |
 |---|---|
 | `npm run writing:g2-corpus-build` | passed; four 400-case candidate sets and eight blinded packets reproduced |
+| `npm run writing:g2-csv-export` | passed; eight deterministic manual-review CSV packets and a fingerprinted export manifest reproduced |
 | `npm run writing:g2-corpus-regression` | passed; schema, UTF-16 span/focus, category proposal, duplicate/similarity, protected-set, label provenance, deterministic metric and Wilson tests passed |
 | `npm run writing:g2-evaluate` | expected exit 2; all four families emitted deterministic `BLOCKED` artifacts because 0/800 required independent labels and 0/400 locked gold records exist per family |
 | `npm run writing:s8-regression` | passed; the existing 30 engineering cases remained separate |
 | `WRITING_PROOF_RUNTIME=/tmp/scarlett-writing-proof-runtime npm run writing:s8-db-proof` | passed; 9 disposable PostgreSQL 18 proofs, four releases seeded, exact occurrence lineage, zero Production connections |
 | `npm run adle:authority-docs-check` | passed; 20 authority keys, eight canonical target documents and five historical receipts |
 | `tsc -p tsconfig.scripts.json --noEmit --incremental false` | passed for the repository scripts and libraries |
-| focused ESLint over the five new TypeScript files | passed with zero warnings or errors |
+| focused ESLint over the G2 TypeScript files | passed with zero warnings or errors |
 | `git diff --check` | passed |
 
 The evaluator was run repeatedly after the final corpus build and reproduced

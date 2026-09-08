@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "exportVersion": "G2_CONTEXT_FAMILY_BLINDED_CSV_V1_2026_09_08",
+  "sourcePackageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
+  "sourcePackageFingerprint": "886ed2c3a41b24ebe286cd9125fb08ac99391308470bccc9b489d0cbd4faad73",
+  "encoding": "UTF-8",
+  "dialect": "RFC4180-compatible, CRLF rows, every cell quoted",
+  "headers": [
+    "case_id",
+    "family",
+    "source_text",
+    "focus_surface",
+    "start_utf16",
+    "end_utf16",
+    "classification",
+    "intended_alternative",
+    "supported_construction_status",
+    "ambiguity_or_exclusion_reason",
+    "confidence",
+    "rationale"
+  ],
+  "answerHeaders": [
+    "classification",
+    "intended_alternative",
+    "supported_construction_status",
+    "ambiguity_or_exclusion_reason",
+    "confidence",
+    "rationale"
+  ],
+  "permittedValues": {
+    "classification": [
+      "VALID",
+      "INVALID",
+      "UNCERTAIN"
+    ],
+    "supported_construction_status": [
+      "SUPPORTED",
+      "UNSUPPORTED",
+      "UNCERTAIN"
+    ],
+    "confidence": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ]
+  },
+  "hiddenGovernedFieldsRestoredOnImport": [
+    "packetId",
+    "releaseId",
+    "familyManifestFingerprint",
+    "corpusVersion",
+    "candidateFingerprint"
+  ],
+  "files": [
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "labelerPacket": "A",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:THERE_THEIR_THEYRE:LABEL_PACKET_A",
+      "sourceJsonl": "packets/THERE_THEIR_THEYRE.label-packet-a.jsonl",
+      "sourceJsonlSha256": "724db5832e77053e992707d6fbbc6ef8e01c69744dfad868dc90487beaea93d2",
+      "csv": "packets-csv/THERE_THEIR_THEYRE.labeler-a.csv",
+      "csvSha256": "cab368bd8b5c1be317beb15c975143ac6b2bf785856e8639397bdfa7d60bcfe8",
+      "rowCount": 400
+    },
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "labelerPacket": "B",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:THERE_THEIR_THEYRE:LABEL_PACKET_B",
+      "sourceJsonl": "packets/THERE_THEIR_THEYRE.label-packet-b.jsonl",
+      "sourceJsonlSha256": "01b84eb322a8e449a06df63de315446a31685d8880fcdaa5bb5597570d91ea29",
+      "csv": "packets-csv/THERE_THEIR_THEYRE.labeler-b.csv",
+      "csvSha256": "a42ea4f279e19fd8bf83dabb02ef73b248cffce62d52a3bed0ef681ac0f54983",
+      "rowCount": 400
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "labelerPacket": "A",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_A",
+      "sourceJsonl": "packets/TO_TOO_TWO.label-packet-a.jsonl",
+      "sourceJsonlSha256": "742d7809cc2cf90d107a7273ed54401e9839957ee78900234e7fedca73de1959",
+      "csv": "packets-csv/TO_TOO_TWO.labeler-a.csv",
+      "csvSha256": "25658019e93d9d0b4be8c963677f7f7bfdd0a9b577080d6a8e669e062a6e9c12",
+      "rowCount": 400
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "labelerPacket": "B",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:LABEL_PACKET_B",
+      "sourceJsonl": "packets/TO_TOO_TWO.label-packet-b.jsonl",
+      "sourceJsonlSha256": "cc45759f146d139203b7ab235407a82e3a05bb7110224f089ac2b26ff5eb5fbd",
+      "csv": "packets-csv/TO_TOO_TWO.labeler-b.csv",
+      "csvSha256": "5c42cc3504fbca5c2a7bb385748a439f4730f70b0ee68d730bc9985c0fa0283f",
+      "rowCount": 400
+    },
+    {
+      "family": "YOUR_YOURE",
+      "labelerPacket": "A",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:YOUR_YOURE:LABEL_PACKET_A",
+      "sourceJsonl": "packets/YOUR_YOURE.label-packet-a.jsonl",
+      "sourceJsonlSha256": "265aacd13409f3434fe7410a9bfd496cd08b116672a9ae775976cac903888732",
+      "csv": "packets-csv/YOUR_YOURE.labeler-a.csv",
+      "csvSha256": "13a6a52edcecbb698861f9b974b1481748d39321bd9f09d1a444224892e69340",
+      "rowCount": 400
+    },
+    {
+      "family": "YOUR_YOURE",
+      "labelerPacket": "B",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:YOUR_YOURE:LABEL_PACKET_B",
+      "sourceJsonl": "packets/YOUR_YOURE.label-packet-b.jsonl",
+      "sourceJsonlSha256": "8149278881272484152415948113d4fec00c8b0ad89699da7eed670ea089f6de",
+      "csv": "packets-csv/YOUR_YOURE.labeler-b.csv",
+      "csvSha256": "0ff63311f515195c93f1c0176140d54c8751fbc94f445387908c91e8ed20fa24",
+      "rowCount": 400
+    },
+    {
+      "family": "ITS_ITS",
+      "labelerPacket": "A",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_A",
+      "sourceJsonl": "packets/ITS_ITS.label-packet-a.jsonl",
+      "sourceJsonlSha256": "d5731057bad2bfb3dbd1269924f24f5e47da947446c3a7b2faf3bbd61cbb1c55",
+      "csv": "packets-csv/ITS_ITS.labeler-a.csv",
+      "csvSha256": "c6abf1fe40d106ad3f42bd7b017a34786222c3324de82ea1583ebd104da94a5c",
+      "rowCount": 400
+    },
+    {
+      "family": "ITS_ITS",
+      "labelerPacket": "B",
+      "packetId": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:LABEL_PACKET_B",
+      "sourceJsonl": "packets/ITS_ITS.label-packet-b.jsonl",
+      "sourceJsonlSha256": "0c4f52d2c15ba5ee47c5e2853d5ea7cd152c8bc5bd56c19c185810f086ae4096",
+      "csv": "packets-csv/ITS_ITS.labeler-b.csv",
+      "csvSha256": "e99df6c0aa0ec9c6c06d845037ffa6401d6837a3847cfc9fb3656323168b850b",
+      "rowCount": 400
+    }
+  ],
+  "exportFingerprint": "2094c9ca0a188141fddc962a3a7d3b02609713dd24f317fc3f793f2939a86264"
+}

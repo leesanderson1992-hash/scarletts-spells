@@ -15,6 +15,9 @@ existing S8 engineering regression cases are not included.
 - `packets/` contains two differently ordered, blinded labelling packets per
   family. It includes neither analyser output nor author classification and
   alternative proposals.
+- `packets-csv/` contains deterministic manual-review CSV exports for Labeler A
+  and Labeler B. Its separate manifest binds every CSV to the unchanged JSONL
+  packet and governed package fingerprint.
 - `labels/` accepts append-only imports from two distinct real labelers.
 - `adjudications/` accepts append-only decisions for every substantive label
   disagreement.
@@ -57,6 +60,7 @@ Run:
 
 ```text
 npm run writing:g2-corpus-build
+npm run writing:g2-csv-export
 npm run writing:g2-corpus-regression
 npm run writing:g2-evaluate
 ```
