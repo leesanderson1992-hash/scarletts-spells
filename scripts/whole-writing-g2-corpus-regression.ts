@@ -11,7 +11,9 @@ import {
   G2_PACKAGE_VERSION,
   buildFinalGold,
   corpusVariety,
+  evaluationDisposition,
   evaluateFamily,
+  isBlockingEvaluationFailure,
   readJsonLines,
   recordFingerprint,
   runtimeFingerprints,
@@ -43,17 +45,19 @@ assert.equal(csvManifest.sourcePackageFingerprint, manifest.packageFingerprint, 
 const csvRoundTripFixture = [{ first: "comma, quote \"kept\"", second: "line one\nline two" }];
 assert.deepEqual(parseCsv(serialiseCsv(["first", "second"], csvRoundTripFixture)).rows, csvRoundTripFixture, "CSV parser must preserve quoted commas, quotes and newlines");
 
-const secondPersonCsvPath = join(root, "packets-csv", "THERE_THEIR_THEYRE.second-person-adjudication.csv");
-if (existsSync(secondPersonCsvPath)) {
-  const content = readFileSync(secondPersonCsvPath, "utf8");
-  const parsed = parseCsv(content);
-  assert.deepEqual(parsed.headers, [...G2_ADJUDICATION_CSV_HEADERS]);
-  assert.equal(parsed.rows.length, 20, "second-person packet must contain only the 20 substantive disagreements");
-  assert.equal(serialiseCsv(G2_ADJUDICATION_CSV_HEADERS, parsed.rows), content, "second-person CSV serialization must be deterministic");
-  assert(parsed.rows.every((row) => G2_ADJUDICATION_ANSWER_HEADERS.every((header) => row[header] === "")), "second-person adjudication answers must be blank");
-  assert(parsed.rows.every((row) => row.primary_labeler_id === "Katherine Sanderson"), "primary human attribution must be retained");
-  for (const forbidden of ["prediction", "proposal", "gold", "approval", "reference_answer"]) {
-    assert(!parsed.headers.some((header) => header.includes(forbidden)), `second-person packet must not expose ${forbidden}`);
+for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
+  const secondPersonCsvPath = join(root, "packets-csv", `${familyManifest.familyKey}.second-person-adjudication.csv`);
+  if (existsSync(secondPersonCsvPath)) {
+    const content = readFileSync(secondPersonCsvPath, "utf8");
+    const parsed = parseCsv(content);
+    assert.deepEqual(parsed.headers, [...G2_ADJUDICATION_CSV_HEADERS]);
+    assert.equal(parsed.rows.length, 20, `${familyManifest.familyKey} second-person packet must contain only the 20 substantive disagreements`);
+    assert.equal(serialiseCsv(G2_ADJUDICATION_CSV_HEADERS, parsed.rows), content, `${familyManifest.familyKey} second-person CSV serialization must be deterministic`);
+    assert(parsed.rows.every((row) => G2_ADJUDICATION_ANSWER_HEADERS.every((header) => row[header] === "")), `${familyManifest.familyKey} second-person adjudication answers must be blank`);
+    assert(parsed.rows.every((row) => row.primary_labeler_id === "Katherine Sanderson"), `${familyManifest.familyKey} primary human attribution must be retained`);
+    for (const forbidden of ["prediction", "proposal", "gold", "approval", "reference_answer"]) {
+      assert(!parsed.headers.some((header) => header.includes(forbidden)), `${familyManifest.familyKey} second-person packet must not expose ${forbidden}`);
+    }
   }
 }
 
@@ -126,6 +130,30 @@ assert(Math.abs(wilsonLowerBound(98, 100) - 0.9299882092714561) < 1e-12, "Wilson
 assert(wilsonLowerBound(98, 100) < 0.95, "98% point precision alone is insufficient at n=100");
 assert(wilsonLowerBound(294, 300) > 0.95, "larger 98% sample can clear the Wilson gate");
 assert.equal(wilsonLowerBound(0, 0), 0, "zero suggestions cannot pass precision confidence");
+
+const monitoredSupportedMiss = {
+  caseId: "g2-policy-fixture-supported-miss",
+  reason: "SUPPORTED_INVALID_MISSED",
+  expected: "too",
+  actual: { status: "UNCERTAIN" },
+  blocking: false as const,
+};
+assert.equal(isBlockingEvaluationFailure(monitoredSupportedMiss), false, "a supported miss is retained for monitoring without independently blocking");
+assert.equal(evaluationDisposition([monitoredSupportedMiss]), "PASS", "a monitored miss alone does not override the governed recall threshold");
+assert.equal(evaluationDisposition([
+  monitoredSupportedMiss,
+  { caseId: null, reason: "SUPPORTED_RECALL_BELOW_POLICY", expected: 0.8, actual: 0.79 },
+]), "BLOCKED", "supported misses block when aggregate recall falls below policy");
+assert.equal(evaluationDisposition([
+  monitoredSupportedMiss,
+  { caseId: null, reason: "PROTECTED_GERUND_FAILURE", expected: 0, actual: 1 },
+]), "BLOCKED", "a protected-set failure remains an unconditional blocker");
+assert.equal(evaluationDisposition([{
+  caseId: "g2-policy-fixture-wrong-alternative",
+  reason: "SUPPORTED_INVALID_WRONG_ALTERNATIVE",
+  expected: "too",
+  actual: { status: "INVALID", alternativeMember: "to" },
+}]), "BLOCKED", "an INVALID result with the wrong unique alternative remains blocking");
 
 const candidate = readJsonLines<CandidateCase>(join(root, "candidates", "THERE_THEIR_THEYRE.jsonl"))[0];
 function label(labelerId: string, classification: IndependentLabel["classification"], alternative: string | null): IndependentLabel {

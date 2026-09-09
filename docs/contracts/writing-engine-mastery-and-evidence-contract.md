@@ -254,6 +254,12 @@ adjudicated release corpus for that exact family, rule, and corpus version has:
 - zero failures in the protected fragment, quotation, gerund, run-on, and
   task-dependent counterexample sets.
 
+A safely abstained supported case remains a false negative in the governed
+recall denominator and a case-level monitoring finding. Outside the five
+protected sets, that miss does not independently block a release when the
+aggregate recall gate and every other release gate pass. A wrong alternative
+on an `INVALID` result remains a blocking unique-alternative failure.
+
 For this gate, substantive disagreement means a difference in classification,
 unique intended alternative, or supported-construction status. Differences in
 confidence or explanatory wording alone do not require adjudication. Consensus

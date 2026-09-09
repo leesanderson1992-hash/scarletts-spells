@@ -16,6 +16,10 @@
 - Unflagged final gold comes from the primary human label. Flagged final gold
   comes only from the second human adjudicator. Original labels and reviews
   remain append-only and fingerprinted.
+- Confirmed the existing supported-construction recall threshold is the release
+  gate. A safely abstained supported case remains a false negative and is
+  reported by case ID, but it is not an additional release blocker unless the
+  aggregate recall gate fails or the case causes a protected-set failure.
 
 ### Runtime boundary
 

@@ -92,6 +92,13 @@ listed by stable case ID. The evaluator imports the canonical numeric limits
 from one code constant corresponding to the owning contract and fails closed
 on any unmet gate.
 
+Per-case supported misses remain in the report as non-blocking monitoring
+findings and remain false negatives in the supported-construction recall
+denominator. They affect disposition through that aggregate recall gate, or
+through the zero-failure gate if the case belongs to a protected set. An
+`INVALID` result carrying the wrong alternative remains a blocking
+unique-alternative failure.
+
 ## Release artifact
 
 A passing artifact is `PASS_REVIEWABLE_NOT_PUBLISHED` and contains the exact

@@ -192,7 +192,7 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       confirmation: "No family activation, runtime policy, database, staging, Production, context_review_enabled, or family delivery-control change was performed.",
     };
   writeFileSync(join(packageRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
-  console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.failures.length} failures.`);
+  console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.blockingFailureCount} blocking failures; ${evaluation.monitoringSupportedMissCount} monitored supported misses.`);
 }
 
 if (passCount !== CONTEXT_FAMILY_MANIFESTS.length) {
