@@ -45,9 +45,40 @@ alternative; the disagreement is whether their supported-construction status
 is `SUPPORTED` or `UNSUPPORTED`.
 
 The deterministic workflow produced a 20-record disagreement packet and a
-blinded second-person adjudication CSV with all answer fields blank. ITS remains
-blocked pending a distinct identified human adjudicator. No final gold or
-governed ITS release-evaluation artifact was created in the workstream.
+blinded second-person adjudication CSV. Lee Sanderson then agreed with the
+non-gold review for all 20 rows at `2026-09-09T19:42:07.000Z`: classification
+`UNCERTAIN`, no alternative, status `UNSUPPORTED`, reason
+`unfinished_gerund_context`. The fail-closed importer preserved Katherine's
+labels and the review positions while recording 20 separately fingerprinted
+Lee Sanderson adjudications.
+
+Deterministic gold derivation then locked 400 records: 150 `VALID`, 150
+`INVALID` and 100 `UNCERTAIN`. Receipt fingerprints are:
+
+- primary labels: `d492579c67ddfb1284f2f9eb010e06a23d93cf58d249b27b0d25e68561a5255d`;
+- non-gold review: `ee504090422a86edabf2a2539c6ef0d6efa43dcebb4af638692bea96c4d6386d`;
+- adjudication: `1e70da50f1ce767f140d641a955395df4c8c1eaa5ff8c86b0c7c46ec3c7e5a37`; and
+- final gold: `4fec1af3432f04cb6d9a2266f77506cfcd779cd27d9334aff3776ae55d32ff7b`.
+
+## Exact current ITS release evaluation
+
+The targeted evaluator ran exact release `s8-v1-its-its` without evaluating or
+rewriting another family's artifacts. It returned `BLOCKED`:
+
+- true positives: 50; false positives: 0; true negatives: 250; false
+  negatives: 100; abstentions: 239;
+- suggestion precision: 100%;
+- 95% Wilson lower bound: 92.8652400867%;
+- supported-construction recall: 33.3333333333%;
+- invalid-alternative accuracy: 100%;
+- protected failures: zero in all five sets; and
+- blocking gates: `WILSON_LOWER_BOUND_BELOW_POLICY` and
+  `SUPPORTED_RECALL_BELOW_POLICY`.
+
+All 100 missed supported cases remain individually present as non-blocking
+monitoring findings. The result establishes that a later, separately
+fingerprinted S8 ITS release is required. No human label, adjudication or
+declared construction was changed to accommodate the analyser.
 
 ## Evaluator change
 
@@ -75,7 +106,9 @@ Passed locally:
   changing governed reports; and
 - a policy replay over the preserved exact TO V2 report, which produced `PASS`
   with both unresolved cases retained as monitored supported misses and all
-  numerical and protected-set gates passing.
+  numerical and protected-set gates passing; and
+- targeted exact-release ITS evaluation, which reproduced the 400-record gold
+  chain and the two blocking numerical gates above.
 
 The regression proves that a monitored supported miss alone does not override
 the governed disposition, while a below-threshold recall result, a protected-

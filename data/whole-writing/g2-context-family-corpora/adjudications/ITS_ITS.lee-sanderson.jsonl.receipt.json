@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "recordKind": "ADJUDICATIONS",
+  "dataFile": "ITS_ITS.lee-sanderson.jsonl",
+  "dataSha256": "b26a246aef9dd6dab53f332f7206974b0a3b789c6d8af5a738cf4d29eba9ec8a",
+  "actorId": "Lee Sanderson",
+  "recordedAt": "2026-09-09T19:42:07.000Z",
+  "sourceFiles": [
+    "ITS_ITS.second-person-adjudication.completed.csv",
+    "ITS_ITS.disagreements.jsonl"
+  ],
+  "recordCount": 20,
+  "recordFingerprints": [
+    "bb4d7b1151764aeccc13e1dce5b69d327f02d008d7d491d988c91c40d7572f2c",
+    "cfa0b39f21c9907968310e05627f514f4cc28c7732ee3405b77639cd2ee07bed",
+    "ac81dbf608c4489f9192d74f2b320ca1e27b95a8aac870024634e02e749237b5",
+    "0ccb23543aca378c568bcf51121722f70919b1dbc1e1ffe47fed6bc969b452f0",
+    "aa5090e6a90b8e97c8256f498af80087e21fb810f43ba7d07dd816bc7abe4c46",
+    "4f0ba9e9cc7bce96cdba3c24a15c30fab9df1288dca88a0ff8e77491131ad991",
+    "7447903661d18e3be5dd9c6b1ad2dca1e991fd782a847669dab1bdb5bbac7f90",
+    "6d483fc2479a1f68216d9596fef8690289454bd7f5b7ba9f81b8373c77a41bef",
+    "a1e32f317ed8c37dc6cde3adeafc008e32138dbf7a255031682cdb09efce59db",
+    "dae55ab01c3f7055e5077708af5b9045f5da17ec6ac491d8ccfe6a0d3ef35f6b",
+    "90277b5431642a67633ce07f1d7b2a9bb6f4ea9facdce6fb2fd10250d072be70",
+    "4ceaf100a0a48d7234ecf41378117fb62d711e513eb11f9349175cc499aa8e30",
+    "7c5d285a8d93f6f89dfaae5f34017f7848f64fab53064617e2b3d462555a2a6c",
+    "5ee4ffd5e4e0e4c5eb4f488961cb09b094c2f633400988441f6b3612d05601bb",
+    "aadb6c60c8e981eba5c670b5184afaa34e9add7b850a255f45789ab67d0af2b9",
+    "4bcdf36a5fc71b3d67c1611237cba2e5639a052f6bb48fb3e54ef3e1466542b2",
+    "0e79072464d0b341cd6b8559654da6bde07233b97b6374089fa452861ff942d8",
+    "e691dcc418ebaf3223e83700f6264a2c88a228aba1286f0ed98a802088335b2e",
+    "83cbe85f02e94aae237fcdb1517f3eb54f3ac47ac07be2e7b4dfe4ad097d45f7",
+    "f2ed995f3f538cae942a9efb38da22f98f71111505282e55610508c868da941e"
+  ],
+  "receiptFingerprint": "1e70da50f1ce767f140d641a955395df4c8c1eaa5ff8c86b0c7c46ec3c7e5a37"
+}

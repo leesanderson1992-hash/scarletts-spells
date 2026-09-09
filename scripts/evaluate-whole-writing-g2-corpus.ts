@@ -25,6 +25,12 @@ import {
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(process.env.G2_CORPUS_ROOT ?? join(repositoryRoot, "data/whole-writing/g2-context-family-corpora"));
+const requestedFamilyIndex = process.argv.indexOf("--family");
+const requestedFamily = requestedFamilyIndex >= 0 ? process.argv[requestedFamilyIndex + 1] : null;
+const selectedFamilyManifests = requestedFamily
+  ? CONTEXT_FAMILY_MANIFESTS.filter((manifest) => manifest.familyKey === requestedFamily)
+  : CONTEXT_FAMILY_MANIFESTS;
+if (requestedFamily && selectedFamilyManifests.length !== 1) throw new Error(`Unknown --family ${requestedFamily}`);
 const manifestPath = join(packageRoot, "manifest.json");
 const packageManifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
   packageVersion: string;
@@ -85,7 +91,7 @@ mkdirSync(join(packageRoot, "release-artifacts"), { recursive: true });
 const actualRuntime = runtimeFingerprints(repositoryRoot);
 let passCount = 0;
 
-for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
+for (const familyManifest of selectedFamilyManifests) {
   const family = familyManifest.familyKey;
   const candidates = readJsonLines<CandidateCase>(join(packageRoot, "candidates", `${family}.jsonl`));
   const labelImport = attributedRecordsIn<IndependentLabel & Record<string, unknown>>(join(packageRoot, "labels"), family, "labelFingerprint");
@@ -195,9 +201,9 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
   console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.blockingFailureCount} blocking failures; ${evaluation.monitoringSupportedMissCount} monitored supported misses.`);
 }
 
-if (passCount !== CONTEXT_FAMILY_MANIFESTS.length) {
-  console.error(`G2 evaluation blocked: ${passCount}/${CONTEXT_FAMILY_MANIFESTS.length} family approval candidates passed.`);
+if (passCount !== selectedFamilyManifests.length) {
+  console.error(`G2 evaluation blocked: ${passCount}/${selectedFamilyManifests.length} selected family approval candidates passed.`);
   process.exitCode = 2;
 } else {
-  console.log("All four G2 family approval candidates passed. No approval event was published.");
+  console.log(`${selectedFamilyManifests.length} selected G2 family approval candidate(s) passed. No approval event was published.`);
 }
