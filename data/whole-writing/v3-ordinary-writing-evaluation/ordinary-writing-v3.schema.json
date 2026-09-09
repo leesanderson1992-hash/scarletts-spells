@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scarletts-spells://whole-writing/s8/v3/ordinary-writing-evaluation",
+  "title": "S8 V3 ordinary-writing evaluation records",
+  "$defs": {
+    "family": {
+      "enum": ["THERE_THEIR_THEYRE", "YOUR_YOURE", "TO_TOO_TWO", "ITS_ITS"]
+    },
+    "classification": {
+      "enum": ["VALID", "INVALID", "UNCERTAIN"]
+    },
+    "protectedTag": {
+      "enum": ["fragment", "quotation", "gerund", "run_on", "task_dependent"]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "passageId", "caseId", "family", "sourceText", "focusSurface", "startUtf16", "endUtf16", "declaredConstruction", "declaredSubtype", "primaryFocus", "protectedSetTags", "sourceReference", "authoredBy", "candidateFingerprint"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "passageId": { "type": "string", "minLength": 1 },
+        "caseId": { "type": "string", "minLength": 1 },
+        "family": { "$ref": "#/$defs/family" },
+        "sourceText": { "type": "string", "minLength": 1 },
+        "focusSurface": { "type": "string", "minLength": 1 },
+        "startUtf16": { "type": "integer", "minimum": 0 },
+        "endUtf16": { "type": "integer", "minimum": 1 },
+        "declaredConstruction": { "type": "string", "minLength": 1 },
+        "declaredSubtype": { "type": "string", "minLength": 1 },
+        "primaryFocus": { "type": "boolean" },
+        "protectedSetTags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/protectedTag" } },
+        "sourceReference": { "type": "string", "minLength": 1 },
+        "authoredBy": { "type": "string", "minLength": 1 },
+        "candidateFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "gold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "caseId", "family", "classification", "intendedAlternative", "supportedConstruction", "primaryLabelId", "nonGoldReviewId", "adjudicationId", "goldFingerprint"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "caseId": { "type": "string", "minLength": 1 },
+        "family": { "$ref": "#/$defs/family" },
+        "classification": { "$ref": "#/$defs/classification" },
+        "intendedAlternative": { "type": ["string", "null"] },
+        "supportedConstruction": { "type": "boolean" },
+        "primaryLabelId": { "type": "string", "minLength": 1 },
+        "nonGoldReviewId": { "type": "string", "minLength": 1 },
+        "adjudicationId": { "type": ["string", "null"] },
+        "goldFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    }
+  }
+}

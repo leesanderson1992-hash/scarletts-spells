@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "BLOCKED_HUMAN_HOLDOUT_MISSING",
+  "baseline": "b7eeeb1f0d8226897d93e7d0e974e946fcef955f",
+  "releaseId": "81000000-0000-4000-8000-000000000011",
+  "releaseKey": "s8-v3-to-too-two",
+  "familyKey": "TO_TOO_TWO",
+  "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V3",
+  "registryVersion": "WHOLE_WRITING_CONTEXT_TO_REGISTRY_V3",
+  "corpusVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_CORPUS_V3_PENDING_HUMAN_HOLDOUT",
+  "manifestFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
+  "frozenG2Regression": { "disposition": "PASS", "truePositives": 148, "falsePositives": 0, "trueNegatives": 250, "falseNegatives": 2, "abstentions": 103, "protectedFailures": 0 },
+  "ordinaryWritingEvaluation": null,
+  "blockingReasons": ["INDEPENDENT_HUMAN_AUTHORED_HOLDOUT_MISSING", "PRIMARY_LABELS_REVIEWS_ADJUDICATION_AND_LOCKED_GOLD_MISSING"],
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "parentDeliveryEnabled": false,
+  "consequentialConsumersEnabled": false,
+  "artifactFingerprint": "097ac006fab63a1078afaca518ab5139cbccbac4be75f830b5d71660b82fa88d"
+}

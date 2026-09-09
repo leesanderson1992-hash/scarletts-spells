@@ -3,6 +3,10 @@ import { analyseItsContextV2, ITS_V2_MANIFEST, ITS_V2_MANIFEST_FINGERPRINT } fro
 import { analyseThereContextV2, THERE_V2_MANIFEST, THERE_V2_MANIFEST_FINGERPRINT } from "./context-there-v2";
 import { analyseYourContextV2, YOUR_V2_MANIFEST, YOUR_V2_MANIFEST_FINGERPRINT } from "./context-your-v2";
 import { analyseToContextV2, TO_V2_MANIFEST, TO_V2_MANIFEST_FINGERPRINT } from "./context-to-v2";
+import { analyseItsContextV3, ITS_V3_MANIFEST, ITS_V3_MANIFEST_FINGERPRINT } from "./context-its-v3";
+import { analyseThereContextV3, THERE_V3_MANIFEST, THERE_V3_MANIFEST_FINGERPRINT } from "./context-there-v3";
+import { analyseToContextV3, TO_V3_MANIFEST, TO_V3_MANIFEST_FINGERPRINT } from "./context-to-v3";
+import { analyseYourContextV3, YOUR_V3_MANIFEST, YOUR_V3_MANIFEST_FINGERPRINT } from "./context-your-v3";
 
 export const CONTEXT_YOUR_TO_CANDIDATES_V2 = [
   { manifest: YOUR_V2_MANIFEST, fingerprint: YOUR_V2_MANIFEST_FINGERPRINT, analyse: analyseYourContextV2 },
@@ -13,12 +17,26 @@ export const CONTEXT_V2_CANDIDATES = [
   ...CONTEXT_YOUR_TO_CANDIDATES_V2,
   { manifest: ITS_V2_MANIFEST, fingerprint: ITS_V2_MANIFEST_FINGERPRINT, analyse: analyseItsContextV2 },
 ] as const;
+export const CONTEXT_V3_CANDIDATES = [
+  { manifest: THERE_V3_MANIFEST, fingerprint: THERE_V3_MANIFEST_FINGERPRINT, analyse: analyseThereContextV3 },
+  { manifest: YOUR_V3_MANIFEST, fingerprint: YOUR_V3_MANIFEST_FINGERPRINT, analyse: analyseYourContextV3 },
+  { manifest: TO_V3_MANIFEST, fingerprint: TO_V3_MANIFEST_FINGERPRINT, analyse: analyseToContextV3 },
+  { manifest: ITS_V3_MANIFEST, fingerprint: ITS_V3_MANIFEST_FINGERPRINT, analyse: analyseItsContextV3 },
+] as const;
 
 /** Exact persisted dependencies choose execution. No selection/publication occurs here. */
 export function contextAnalyserForRelease(release: {
   id: string; release_key: string; family_key: string; analyser_version: string; registry_version: string;
   corpus_version: string; manifest_fingerprint: string;
 }) {
+  for (const candidate of CONTEXT_V3_CANDIDATES) {
+    const m = candidate.manifest;
+    if (release.id === m.releaseId && release.release_key === m.releaseKey && release.family_key === m.familyKey &&
+      release.analyser_version === m.analyserVersion && release.registry_version === m.registryVersion &&
+      release.corpus_version === m.corpusVersion && release.manifest_fingerprint === candidate.fingerprint) {
+      return { manifest: { ...m, fingerprint: candidate.fingerprint }, analyse: candidate.analyse };
+    }
+  }
   for (const candidate of CONTEXT_V2_CANDIDATES) {
     const m = candidate.manifest;
     if (release.id === m.releaseId && release.release_key === m.releaseKey && release.family_key === m.familyKey &&

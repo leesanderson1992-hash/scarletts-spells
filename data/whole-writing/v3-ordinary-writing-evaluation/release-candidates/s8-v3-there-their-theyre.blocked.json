@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "BLOCKED_HUMAN_HOLDOUT_MISSING",
+  "baseline": "b7eeeb1f0d8226897d93e7d0e974e946fcef955f",
+  "releaseId": "81000000-0000-4000-8000-000000000009",
+  "releaseKey": "s8-v3-there-their-theyre",
+  "familyKey": "THERE_THEIR_THEYRE",
+  "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_DETERMINISTIC_V3",
+  "registryVersion": "WHOLE_WRITING_CONTEXT_THERE_REGISTRY_V3",
+  "corpusVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_CORPUS_V3_PENDING_HUMAN_HOLDOUT",
+  "manifestFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
+  "frozenG2Regression": { "disposition": "PASS", "truePositives": 150, "falsePositives": 0, "trueNegatives": 250, "falseNegatives": 0, "abstentions": 100, "protectedFailures": 0 },
+  "ordinaryWritingEvaluation": null,
+  "blockingReasons": ["INDEPENDENT_HUMAN_AUTHORED_HOLDOUT_MISSING", "PRIMARY_LABELS_REVIEWS_ADJUDICATION_AND_LOCKED_GOLD_MISSING"],
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "parentDeliveryEnabled": false,
+  "consequentialConsumersEnabled": false,
+  "artifactFingerprint": "68e9b1605d9e39314be5ee319e8b6a530adc66d0edb6c5aa7933f0145ef7d5e5"
+}

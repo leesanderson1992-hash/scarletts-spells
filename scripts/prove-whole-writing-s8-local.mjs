@@ -132,6 +132,33 @@ try {
   await db.query(migration);
   proof();
 
+  // V3 uses the existing additive release contract. This row exists only in
+  // this disposable cluster and is neither selected nor approved.
+  const v3Artifact = JSON.parse(readFileSync(
+    new URL("../data/whole-writing/v3-ordinary-writing-evaluation/release-candidates/s8-v3-there-their-theyre.blocked.json", import.meta.url),
+    "utf8",
+  ));
+  await db.query(`insert into writing_context_family_releases(
+    id,release_key,family_key,registry_version,analyser_version,corpus_version,members,manifest,manifest_fingerprint
+  ) values($1,$2,$3,$4,$5,$6,$7,$8,$9)`, [
+    v3Artifact.releaseId,
+    v3Artifact.releaseKey,
+    v3Artifact.familyKey,
+    v3Artifact.registryVersion,
+    v3Artifact.analyserVersion,
+    v3Artifact.corpusVersion,
+    ["there", "their", "they're"],
+    { proofFixture: true, operationalPublication: false },
+    v3Artifact.manifestFingerprint,
+  ]);
+  assert.equal((await db.query("select count(*)::int count from writing_context_family_selection_events where release_id=$1", [v3Artifact.releaseId])).rows[0].count, 0);
+  assert.equal((await db.query("select count(*)::int count from writing_context_family_approval_events where release_id=$1", [v3Artifact.releaseId])).rows[0].count, 0);
+  await assert.rejects(
+    db.query("update writing_context_family_releases set release_key='changed' where id=$1", [v3Artifact.releaseId]),
+    /writing_fact_immutable/,
+  );
+  proof();
+
   const parent = randomUUID();
   const otherParent = randomUUID();
   const child = randomUUID();
@@ -285,6 +312,7 @@ try {
     proofs,
     database: "disposable PostgreSQL 18",
     familiesSeeded: 4,
+    v3UnselectedReleaseFixture: true,
     exactOccurrenceLineage: true,
     productionConnections: 0,
   }));

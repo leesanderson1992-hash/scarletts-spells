@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "BLOCKED_HUMAN_HOLDOUT_MISSING",
+  "baseline": "b7eeeb1f0d8226897d93e7d0e974e946fcef955f",
+  "releaseId": "81000000-0000-4000-8000-000000000012",
+  "releaseKey": "s8-v3-its-its",
+  "familyKey": "ITS_ITS",
+  "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_DETERMINISTIC_V3",
+  "registryVersion": "WHOLE_WRITING_CONTEXT_ITS_REGISTRY_V3",
+  "corpusVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_CORPUS_V3_PENDING_HUMAN_HOLDOUT",
+  "manifestFingerprint": "8d99eb51af6bc8c20b91c3f05fdf81bba0f4c7b86b026a45ee05e71312425d02",
+  "frozenG2Regression": { "disposition": "PASS", "truePositives": 150, "falsePositives": 0, "trueNegatives": 250, "falseNegatives": 0, "abstentions": 100, "protectedFailures": 0 },
+  "ordinaryWritingEvaluation": null,
+  "blockingReasons": ["INDEPENDENT_HUMAN_AUTHORED_HOLDOUT_MISSING", "PRIMARY_LABELS_REVIEWS_ADJUDICATION_AND_LOCKED_GOLD_MISSING"],
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "parentDeliveryEnabled": false,
+  "consequentialConsumersEnabled": false,
+  "artifactFingerprint": "5a1cfa5d55cb032858b72a875cc2bed552d7f00ecfc54fcfd761891f4f87239b"
+}

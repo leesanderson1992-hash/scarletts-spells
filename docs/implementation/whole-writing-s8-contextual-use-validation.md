@@ -1,5 +1,10 @@
 # Whole-writing S8 — contextual-use validation
 
+> Ordinary-writing successor: see
+> [S8 V3 ordinary-writing coverage](./whole-writing-s8-v3-ordinary-writing-coverage.md).
+> V3 adds independently versioned engineering coverage and does not alter the
+> V1/V2 releases documented here.
+
 ## Status and authority
 
 S8 is implemented from clean S7 commit
