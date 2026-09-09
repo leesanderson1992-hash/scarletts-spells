@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "artifactVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:THERE_THEIR_THEYRE:APPROVAL_CANDIDATE_V1",
+  "status": "PASS_REVIEWABLE_NOT_PUBLISHED",
+  "family": "THERE_THEIR_THEYRE",
+  "approvalIdentity": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:THERE_THEIR_THEYRE:a72ae593d94352c04f4a8ccb1ed6d806ae6a4bb1282df6a69da86776640b7541",
+  "exactRelease": {
+    "releaseId": "81000000-0000-4000-8000-000000000005",
+    "releaseKey": "s8-v2-there-their-theyre",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_DETERMINISTIC_V2",
+    "analyserSourceSha256": "9f64796f7eb23b55254ee8dd7e43c9e5d2922d8efb24667bfd1ac87dfc13966b",
+    "ruleFingerprint": "d826a9da49e841d224d2b663b5212bb32f0fec3f612d15533cdd5ef718108596",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_THERE_REGISTRY_V2",
+    "registryFingerprint": "6a574d8915e8fc4a742eee79617ebb7548698a2caa6883057c8b72d6f6f3a67b",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "44ef7ed906959c3ffabfdbc793b65f212aea25f4baa104f0ac190f21a462e351",
+    "manifestFingerprint": "e9d41060b69b418d13078f0aa0160b426f4bbc04572e49b67a0d3bf2f3a60022",
+    "releaseMigrationSha256": null,
+    "familyKey": "THERE_THEIR_THEYRE",
+    "members": [
+      "there",
+      "their",
+      "they're"
+    ],
+    "supportedConstructions": [
+      "existential",
+      "locative",
+      "possessive",
+      "they_are_contraction"
+    ],
+    "supportedScope": [
+      "clause-initial existential be + determiner noun phrase with optional place complement",
+      "subject + placement verb + object noun phrase + over/down/up + terminal locative",
+      "clause-initial possessive noun phrase + finite copular predicate",
+      "clause-initial they-are + adjective predicate; substitution requires a complete prepositional complement"
+    ],
+    "exclusions": [
+      "ambiguous_gerund",
+      "fragment",
+      "quoted_or_reported_intent",
+      "unsupported_clause_structure"
+    ],
+    "releaseFingerprint": "d79aa9dfc32b1c1cc817623852bcf6d35d5f0033b74ec233517dd39f3229b07a",
+    "publicationStatus": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE"
+  },
+  "approvalEventInterface": {
+    "environment_key": "LOCAL_REVIEW_ONLY_NOT_FOR_INSERT",
+    "family_key": "THERE_THEIR_THEYRE",
+    "release_id": "81000000-0000-4000-8000-000000000005",
+    "action": "approved",
+    "corpus_version": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "evaluation_fingerprint": "a72ae593d94352c04f4a8ccb1ed6d806ae6a4bb1282df6a69da86776640b7541",
+    "quality_limits": {
+      "minimumTotal": 400,
+      "minimumValid": 150,
+      "minimumInvalid": 150,
+      "minimumUncertain": 100,
+      "minimumPrecision": 0.98,
+      "minimumWilsonLower95": 0.95,
+      "minimumSupportedRecall": 0.8,
+      "maximumProtectedFailures": 0
+    },
+    "evaluation_metrics": {
+      "releaseEvidence": {
+        "releaseFingerprint": "d79aa9dfc32b1c1cc817623852bcf6d35d5f0033b74ec233517dd39f3229b07a",
+        "corpusFingerprint": "44ef7ed906959c3ffabfdbc793b65f212aea25f4baa104f0ac190f21a462e351"
+      },
+      "disposition": "PASS",
+      "counts": {
+        "total": 400,
+        "valid": 150,
+        "invalid": 150,
+        "uncertain": 100
+      },
+      "confusion": {
+        "truePositives": 150,
+        "falsePositives": 0,
+        "trueNegatives": 250,
+        "falseNegatives": 0,
+        "abstentions": 100
+      },
+      "precision": 1,
+      "wilsonLower95": 0.9750297556319234,
+      "supportedRecall": 1,
+      "invalidAlternativeAccuracy": 1,
+      "byConstruction": {
+        "existential": {
+          "total": 75,
+          "failures": 0,
+          "invalidSuggestions": 37
+        },
+        "locative": {
+          "total": 75,
+          "failures": 0,
+          "invalidSuggestions": 37
+        },
+        "possessive": {
+          "total": 75,
+          "failures": 0,
+          "invalidSuggestions": 38
+        },
+        "they_are_contraction": {
+          "total": 75,
+          "failures": 0,
+          "invalidSuggestions": 38
+        },
+        "fragment": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "quoted_or_reported_intent": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "ambiguous_gerund": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "unsupported_or_ambiguous": {
+          "total": 40,
+          "failures": 0,
+          "invalidSuggestions": 0
+        }
+      },
+      "byProtectedSet": {
+        "fragment": {
+          "total": 20,
+          "failures": 0
+        },
+        "quotation": {
+          "total": 20,
+          "failures": 0
+        },
+        "gerund": {
+          "total": 20,
+          "failures": 0
+        },
+        "run_on": {
+          "total": 20,
+          "failures": 0
+        },
+        "task_dependent": {
+          "total": 20,
+          "failures": 0
+        }
+      },
+      "failures": [],
+      "evaluationFingerprint": "a72ae593d94352c04f4a8ccb1ed6d806ae6a4bb1282df6a69da86776640b7541"
+    },
+    "authority_reference": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:THERE_THEIR_THEYRE:a72ae593d94352c04f4a8ccb1ed6d806ae6a4bb1282df6a69da86776640b7541",
+    "approved_by": "SEPARATELY_AUTHORISED_REVIEWER_UUID_REQUIRED"
+  },
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "artifactFingerprint": "573981480a23e3b531d56ece347ca347dfdc9a7aae371b26578909bfe3966822"
+}

@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { basename, join, resolve } from "node:path";
 
 import { CONTEXT_FAMILY_MANIFESTS, type ContextFamilyKey } from "../lib/writing-engine/whole-writing/context";
-import { CONTEXT_YOUR_TO_CANDIDATES_V2 } from "../lib/writing-engine/whole-writing/context-analyser-release";
+import { CONTEXT_V2_CANDIDATES } from "../lib/writing-engine/whole-writing/context-analyser-release";
 import { lockedYourToFilesV2 } from "./lib/whole-writing-s8-your-to-release";
 import {
   FAMILY_RELEASES,
@@ -83,12 +83,18 @@ function packetLeakageIssues(family: ContextFamilyKey): ValidationIssue[] {
 }
 
 const options = process.argv.slice(2);
-const candidateOption = options.find((arg) => ["--your-v2", "--to-v2"].includes(arg)) ?? null;
+const candidateFlags: Record<string, ContextFamilyKey> = {
+  "--there-v2": "THERE_THEIR_THEYRE",
+  "--your-v2": "YOUR_YOURE",
+  "--to-v2": "TO_TOO_TWO",
+};
+const candidateOption = options.find((arg) => Object.hasOwn(candidateFlags, arg)) ?? null;
 const requestedFamilyIndex = options.indexOf("--family");
 const requestedFamily = requestedFamilyIndex >= 0 ? options[requestedFamilyIndex + 1] : null;
 const expectedOptionCount = candidateOption ? 1 : requestedFamily ? 2 : 0;
 if (options.length !== expectedOptionCount || (candidateOption && requestedFamily)) throw new Error("Unknown or conflicting evaluation option");
-const candidateRelease = candidateOption ? CONTEXT_YOUR_TO_CANDIDATES_V2[candidateOption === "--your-v2" ? 0 : 1] : null;
+const candidateFamily = candidateOption ? candidateFlags[candidateOption] : null;
+const candidateRelease = candidateFamily ? CONTEXT_V2_CANDIDATES.find((candidate) => candidate.manifest.familyKey === candidateFamily) ?? null : null;
 const selectedFamilyManifests = CONTEXT_FAMILY_MANIFESTS.filter((manifest) =>
   candidateRelease ? manifest.familyKey === candidateRelease.manifest.familyKey : !requestedFamily || manifest.familyKey === requestedFamily,
 );
@@ -96,20 +102,25 @@ if (requestedFamily && selectedFamilyManifests.length !== 1) throw new Error(`Un
 const outputRoot = candidateRelease ? join(packageRoot, "release-evaluations", candidateRelease!.manifest.releaseKey) : packageRoot;
 const releasePin = candidateRelease
   ? JSON.parse(readFileSync(join(outputRoot, "release.json"), "utf8")) as {
-    fingerprint: string; manifestFingerprint: string; sourceSha256: string; sourceDependencies: Record<string, string>; manifest: (typeof CONTEXT_YOUR_TO_CANDIDATES_V2)[number]["manifest"];
+    fingerprint: string; manifestFingerprint?: string; sourceSha256: string; sourceDependencies?: Record<string, string>; manifest: (typeof CONTEXT_V2_CANDIDATES)[number]["manifest"];
     packageFingerprint: string; lockedFiles: Record<string, string>;
   } : null;
 if (releasePin) {
   if (recordFingerprint(releasePin, "fingerprint") !== releasePin.fingerprint) throw new Error("Candidate release fingerprint mismatch");
-  if (releasePin.manifestFingerprint !== candidateRelease!.fingerprint) throw new Error("Candidate manifest fingerprint mismatch");
+  if (releasePin.manifestFingerprint && releasePin.manifestFingerprint !== candidateRelease!.fingerprint) throw new Error("Candidate manifest fingerprint mismatch");
   if (recordFingerprint(releasePin.manifest) !== recordFingerprint(candidateRelease!.manifest)) throw new Error("Candidate manifest mismatch");
-  if (recordFingerprint(releasePin.sourceDependencies) !== recordFingerprint(candidateRelease!.manifest.sourceFingerprints)) throw new Error("Candidate source dependency set mismatch");
-  for (const [file, hash] of Object.entries(releasePin.sourceDependencies)) {
-    if (sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing", file))) !== hash) throw new Error(`Candidate analyser source mismatch: ${file}`);
+  if (releasePin.sourceDependencies) {
+    if (!("sourceFingerprints" in candidateRelease!.manifest) || recordFingerprint(releasePin.sourceDependencies) !== recordFingerprint(candidateRelease!.manifest.sourceFingerprints)) throw new Error("Candidate source dependency set mismatch");
+    for (const [file, hash] of Object.entries(releasePin.sourceDependencies)) {
+      if (sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing", file))) !== hash) throw new Error(`Candidate analyser source mismatch: ${file}`);
+    }
+    const sourceName = candidateRelease!.manifest.familyKey === "YOUR_YOURE" ? "context-your-v2.ts" : "context-to-v2.ts";
+    if (releasePin.sourceSha256 !== releasePin.sourceDependencies[sourceName]) throw new Error("Candidate source identity mismatch");
+    if (JSON.stringify(Object.keys(releasePin.lockedFiles).sort()) !== JSON.stringify(lockedYourToFilesV2(candidateRelease!.manifest.familyKey as "YOUR_YOURE" | "TO_TOO_TWO"))) throw new Error("Candidate locked file set mismatch");
+  } else {
+    const sourceName = candidateRelease!.manifest.familyKey === "THERE_THEIR_THEYRE" ? "context-there-v2.ts" : null;
+    if (!sourceName || releasePin.sourceSha256 !== sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing", sourceName)))) throw new Error("Candidate analyser source mismatch");
   }
-  const sourceName = candidateRelease!.manifest.familyKey === "YOUR_YOURE" ? "context-your-v2.ts" : "context-to-v2.ts";
-  if (releasePin.sourceSha256 !== releasePin.sourceDependencies[sourceName]) throw new Error("Candidate source identity mismatch");
-  if (JSON.stringify(Object.keys(releasePin.lockedFiles).sort()) !== JSON.stringify(lockedYourToFilesV2(candidateRelease!.manifest.familyKey))) throw new Error("Candidate locked file set mismatch");
   if (releasePin.packageFingerprint !== packageManifest.packageFingerprint) throw new Error("Candidate corpus package mismatch");
   for (const [path, hash] of Object.entries(releasePin.lockedFiles)) {
     if (path.includes("..") || path.startsWith("/")) throw new Error("Unsafe locked source path");
@@ -179,8 +190,10 @@ for (const familyManifest of selectedFamilyManifests) {
         ...releasePin.manifest,
         analyserSourceSha256: releasePin.sourceSha256,
         manifestFingerprint: candidateRelease!.fingerprint,
-        ruleFingerprint: recordFingerprint({ manifest: releasePin.manifest, sourceDependencies: releasePin.sourceDependencies }),
-        sourceDependencies: releasePin.sourceDependencies,
+        ruleFingerprint: recordFingerprint(releasePin.sourceDependencies
+          ? { manifest: releasePin.manifest, sourceDependencies: releasePin.sourceDependencies }
+          : { manifest: releasePin.manifest, sourceSha256: releasePin.sourceSha256 }),
+        ...(releasePin.sourceDependencies ? { sourceDependencies: releasePin.sourceDependencies } : {}),
         registryFingerprint: recordFingerprint(releasePin.manifest),
         releaseMigrationSha256: null,
         releaseFingerprint: releasePin.fingerprint,

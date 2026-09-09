@@ -1,4 +1,5 @@
 import { analyseDeterministicContext, CONTEXT_FAMILY_MANIFESTS, WHOLE_WRITING_CONTEXT_ANALYSER_VERSION, WHOLE_WRITING_CONTEXT_REGISTRY_VERSION, WHOLE_WRITING_CONTEXT_CORPUS_VERSION } from "./context";
+import { analyseThereContextV2, THERE_V2_MANIFEST, THERE_V2_MANIFEST_FINGERPRINT } from "./context-there-v2";
 import { analyseYourContextV2, YOUR_V2_MANIFEST, YOUR_V2_MANIFEST_FINGERPRINT } from "./context-your-v2";
 import { analyseToContextV2, TO_V2_MANIFEST, TO_V2_MANIFEST_FINGERPRINT } from "./context-to-v2";
 
@@ -6,13 +7,17 @@ export const CONTEXT_YOUR_TO_CANDIDATES_V2 = [
   { manifest: YOUR_V2_MANIFEST, fingerprint: YOUR_V2_MANIFEST_FINGERPRINT, analyse: analyseYourContextV2 },
   { manifest: TO_V2_MANIFEST, fingerprint: TO_V2_MANIFEST_FINGERPRINT, analyse: analyseToContextV2 },
 ] as const;
+export const CONTEXT_V2_CANDIDATES = [
+  { manifest: THERE_V2_MANIFEST, fingerprint: THERE_V2_MANIFEST_FINGERPRINT, analyse: analyseThereContextV2 },
+  ...CONTEXT_YOUR_TO_CANDIDATES_V2,
+] as const;
 
 /** Exact persisted dependencies choose execution. No selection/publication occurs here. */
 export function contextAnalyserForRelease(release: {
   id: string; release_key: string; family_key: string; analyser_version: string; registry_version: string;
   corpus_version: string; manifest_fingerprint: string;
 }) {
-  for (const candidate of CONTEXT_YOUR_TO_CANDIDATES_V2) {
+  for (const candidate of CONTEXT_V2_CANDIDATES) {
     const m = candidate.manifest;
     if (release.id === m.releaseId && release.release_key === m.releaseKey && release.family_key === m.familyKey &&
       release.analyser_version === m.analyserVersion && release.registry_version === m.registryVersion &&
