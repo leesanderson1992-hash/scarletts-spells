@@ -25,8 +25,8 @@
     "primaryHumanLabelCount": 400,
     "nonGoldReviewCount": 400,
     "reviewDisagreementCount": 20,
-    "adjudicationCount": 0,
-    "finalGoldCount": 0,
+    "adjudicationCount": 20,
+    "finalGoldCount": 400,
     "authorProposalsUsedAsGold": false
   },
   "variety": {
@@ -40,206 +40,1754 @@
   "metrics": {
     "disposition": "BLOCKED",
     "counts": {
-      "total": 0,
-      "valid": 0,
-      "invalid": 0,
-      "uncertain": 0
+      "total": 400,
+      "valid": 150,
+      "invalid": 150,
+      "uncertain": 100
     },
     "confusion": {
-      "truePositives": 0,
+      "truePositives": 47,
       "falsePositives": 0,
-      "trueNegatives": 0,
-      "falseNegatives": 0,
-      "abstentions": 0
+      "trueNegatives": 250,
+      "falseNegatives": 103,
+      "abstentions": 213
     },
-    "precision": 0,
-    "wilsonLower95": 0,
-    "supportedRecall": 0,
-    "invalidAlternativeAccuracy": 0,
-    "byConstruction": {},
+    "precision": 1,
+    "wilsonLower95": 0.9244423958360036,
+    "supportedRecall": 0.31333333333333335,
+    "invalidAlternativeAccuracy": 1,
+    "byConstruction": {
+      "preposition": {
+        "total": 60,
+        "failures": 30,
+        "invalidSuggestions": 0
+      },
+      "infinitive": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 30
+      },
+      "additive": {
+        "total": 60,
+        "failures": 30,
+        "invalidSuggestions": 0
+      },
+      "degree": {
+        "total": 60,
+        "failures": 30,
+        "invalidSuggestions": 0
+      },
+      "numeral": {
+        "total": 60,
+        "failures": 13,
+        "invalidSuggestions": 17
+      },
+      "fragment": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "quoted_or_reported_intent": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "unresolved_lexical_category": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "unsupported_or_ambiguous": {
+        "total": 40,
+        "failures": 0,
+        "invalidSuggestions": 0
+      }
+    },
     "byProtectedSet": {
       "fragment": {
-        "total": 0,
+        "total": 20,
         "failures": 0
       },
       "quotation": {
-        "total": 0,
+        "total": 20,
         "failures": 0
       },
       "gerund": {
-        "total": 0,
+        "total": 20,
         "failures": 0
       },
       "run_on": {
-        "total": 0,
+        "total": 20,
         "failures": 0
       },
       "task_dependent": {
-        "total": 0,
+        "total": 20,
         "failures": 0
       }
     },
     "failures": [
       {
-        "caseId": "g2-to-too-two-0341",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0151",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0342",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0153",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0343",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0154",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0344",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0156",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0345",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0158",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0346",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0159",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0347",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0161",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0348",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0163",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0349",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0164",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0350",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0166",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0351",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0168",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0352",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0169",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0353",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0171",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0354",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0173",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0355",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0174",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0356",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0175",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0357",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0176",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0358",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0178",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0359",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0179",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": "g2-to-too-two-0360",
-        "reason": "ADJUDICATION_REQUIRED",
-        "actual": "disagreement requires exactly one adjudication, found 0"
+        "caseId": "g2-to-too-two-0180",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "LOCKED_GOLD_INCOMPLETE",
-        "actual": "expected 400 locked gold records, found 0"
+        "caseId": "g2-to-too-two-0181",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "LOCKED_GOLD_DERIVATION_MISMATCH",
-        "actual": "locked gold does not exactly reproduce from primary labels, non-gold reviews and adjudications"
+        "caseId": "g2-to-too-two-0183",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "FINAL_GOLD_INCOMPLETE",
-        "expected": 400,
-        "actual": 0
+        "caseId": "g2-to-too-two-0184",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "MINIMUM_TOTAL_NOT_MET",
-        "expected": 400,
-        "actual": 0
+        "caseId": "g2-to-too-two-0185",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "MINIMUM_VALID_NOT_MET",
-        "expected": 150,
-        "actual": 0
+        "caseId": "g2-to-too-two-0186",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "MINIMUM_INVALID_NOT_MET",
-        "expected": 150,
-        "actual": 0
+        "caseId": "g2-to-too-two-0188",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "MINIMUM_UNCERTAIN_NOT_MET",
-        "expected": 100,
-        "actual": 0
+        "caseId": "g2-to-too-two-0189",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
-        "caseId": null,
-        "reason": "PRECISION_BELOW_POLICY",
-        "expected": 0.98,
-        "actual": 0
+        "caseId": "g2-to-too-two-0190",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0191",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0193",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0194",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0195",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0196",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0198",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0199",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0200",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0201",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0203",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0204",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0205",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0206",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0208",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0209",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0210",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0211",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0213",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0214",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0216",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0218",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0219",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0221",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0223",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0224",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0226",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0228",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0229",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0231",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0233",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0234",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0236",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0238",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0239",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0241",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0243",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0244",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0246",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0248",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0249",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0251",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0253",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0254",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0256",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0258",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0259",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0261",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0263",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0264",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0266",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0268",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0269",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0271",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0273",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0274",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0276",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0278",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0279",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0280",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0281",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0283",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0284",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0285",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0286",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0288",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0289",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0290",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0291",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0293",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0294",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0295",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0296",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "to",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0298",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "two",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0299",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "to",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0300",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "two",
+        "actual": {
+          "status": "UNCERTAIN",
+          "familyKey": "TO_TOO_TWO",
+          "observedMember": "too",
+          "alternativeMember": null,
+          "assessedScope": "bounded_family_context",
+          "reasonCode": "INSUFFICIENT_CONTEXT",
+          "ruleId": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1:TO_TOO_TWO:INSUFFICIENT_CONTEXT",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+          "manifestFingerprint": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd"
+        }
       },
       {
         "caseId": null,
         "reason": "WILSON_LOWER_BOUND_BELOW_POLICY",
         "expected": 0.95,
-        "actual": 0
+        "actual": 0.9244423958360036
       },
       {
         "caseId": null,
         "reason": "SUPPORTED_RECALL_BELOW_POLICY",
         "expected": 0.8,
-        "actual": 0
+        "actual": 0.31333333333333335
       }
     ],
-    "evaluationFingerprint": "d3a65ceb04b3ad16feb76ca5f411823d8865cd689d8f38cf5ad4ee8729133345"
+    "evaluationFingerprint": "421680d40c3380a61cf97e290f886095168c606026d396f7de0f72b59ad8e63d"
   },
-  "reportFingerprint": "6224f351fad309087ed3c10233d4bcffde343578547bac552ec2eb11a67b14c5"
+  "reportFingerprint": "ced7e063d987061a663383fa28d110a7d97bddbacbc0b18c3e2d5087dedb5961"
 }
