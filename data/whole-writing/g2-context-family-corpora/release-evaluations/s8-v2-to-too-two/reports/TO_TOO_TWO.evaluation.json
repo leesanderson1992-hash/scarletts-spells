@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "reportVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:EVALUATION_V1",
+  "evaluationMode": "LOCAL_DETERMINISTIC_RELEASE_EVALUATION",
+  "disposition": "BLOCKED",
+  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
+  "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
+  "family": "TO_TOO_TWO",
+  "release": {
+    "releaseId": "81000000-0000-4000-8000-000000000007",
+    "releaseKey": "s8-v2-to-too-two",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+    "analyserSourceSha256": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+    "ruleFingerprint": "e88758513f2e7b2075c4e19e7a24f244a396798f26f49e496efa7e2bde055724",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_TO_REGISTRY_V2",
+    "registryFingerprint": "fecde78d47f8a14d3dd6485b90a02b12790f72c84747d6dd45a3008b6ea5becd",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9",
+    "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8",
+    "releaseMigrationSha256": null,
+    "familyKey": "TO_TOO_TWO",
+    "members": [
+      "to",
+      "too",
+      "two"
+    ],
+    "supportedConstructions": [
+      "preposition",
+      "infinitive",
+      "additive",
+      "degree",
+      "numeral"
+    ],
+    "supportedScope": [
+      "subject plus finite motion verb, destination preposition and complete destination noun phrase",
+      "subject plus finite want/need, infinitive and enumerated verb phrase",
+      "complete subject plus finite want/need and determiner-led object plus terminal additive",
+      "subject plus finite copula, degree modifier and complete adjective predicate",
+      "subject plus finite possession, numeral and explicit plural count noun phrase"
+    ],
+    "exclusions": [
+      "fragment",
+      "unresolved_lexical_category",
+      "quoted_or_reported_intent",
+      "unsupported_clause_structure",
+      "ambiguous_adjective_or_infinitive_fast"
+    ],
+    "sourceFingerprints": {
+      "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+      "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+      "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+    },
+    "syntaxDependency": "context-your-to-syntax-v2.ts",
+    "sourceDependencies": {
+      "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+      "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+      "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+    },
+    "releaseFingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695",
+    "publicationStatus": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE"
+  },
+  "provenance": {
+    "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
+    "candidateCount": 400,
+    "primaryHumanLabelCount": 400,
+    "nonGoldReviewCount": 400,
+    "reviewDisagreementCount": 20,
+    "adjudicationCount": 20,
+    "finalGoldCount": 400,
+    "authorProposalsUsedAsGold": false,
+    "lockedCorpusPackageFingerprint": "9201e52e4f7fa32583f6c8ce14575d5d4ae16a9e2bd74bb31f8081192b98e277",
+    "lockedFiles": {
+      "adjudications/TO_TOO_TWO.lee-sanderson.jsonl": "e5a2591f81c752a7bc627c1836a3fdfe9b857aedca2a9dcbaf010fbef16144d6",
+      "adjudications/TO_TOO_TWO.lee-sanderson.jsonl.receipt.json": "1b70f8144b23e58256e2ab856eff68da6dab0389a427af32e0fdff76a3783238",
+      "candidates/TO_TOO_TWO.jsonl": "f82c92f1c80a89254f938879379a910fc5aa9376865446cc8f6bdedafea1f983",
+      "gold/TO_TOO_TWO.final-gold.jsonl": "f1672c8b242eb06de65255e28c0d514e5c3523c123ab713e2b530522d8b1e9dd",
+      "gold/TO_TOO_TWO.final-gold.jsonl.receipt.json": "28c168c8f63b4b76382d18e21ed31275433c3b4c99a60a7e6c6f073e4f5713a5",
+      "labels/TO_TOO_TWO.katherine-sanderson.jsonl": "c963a416b4dd4442132fe37ee3e5cedc80ec617d2b2d77e93fa562f621d7aa5a",
+      "labels/TO_TOO_TWO.katherine-sanderson.jsonl.receipt.json": "af1e3347f1cce5d2bd9fa58a3b4297681426082eaa9db3f9f751a3fedd91a100",
+      "manifest.json": "bd7e0f5d99ec0c714c4f0df3f711726bfa0d866d9d3160cf5c7941324210e392",
+      "packets-csv/TO_TOO_TWO.second-person-adjudication.completed.csv": "7449b9d3806baf56ec1344f7407b8e179fe4c35c265e12eabf5616647e3cf66c",
+      "packets/TO_TOO_TWO.label-packet-a.jsonl": "742d7809cc2cf90d107a7273ed54401e9839957ee78900234e7fedca73de1959",
+      "packets/TO_TOO_TWO.label-packet-b.jsonl": "cc45759f146d139203b7ab235407a82e3a05bb7110224f089ac2b26ff5eb5fbd",
+      "release-artifacts/TO_TOO_TWO.blocked.json": "103b1d889dc154e0ec24a478539fda09d40aa22b424b1e8ab6e032d5030ce1fc",
+      "reports/TO_TOO_TWO.evaluation.json": "1a1d0c22f93e23409cd8c0fb4b958f210bdd8206ceeb47b2e150d2f9b593036e",
+      "reviews/TO_TOO_TWO.codex-non-gold.jsonl": "24158fdd2d266df462fff73c1f4935f8b15fbff8618c4c73ccad7c84859bad06",
+      "reviews/TO_TOO_TWO.codex-non-gold.jsonl.receipt.json": "8b0897bd533449a84831010cb0101a48235fd3e09a06c6f643cc0e4b5ffea79f"
+    },
+    "originalRuntime": {
+      "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+      "analyserSourceSha256": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65",
+      "registryVersion": "WHOLE_WRITING_CONTEXT_REGISTRY_V1",
+      "registryFingerprint": "95a81ab899bea0575acc9e791d12cc6afd4e6e8bcc3d2a4e6768c64d87194b08",
+      "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+      "releaseMigrationSha256": "b235fd8a99b077f4596519cd8ecb168b15460cc310158ea002a4e71d00657c1d",
+      "familyManifestFingerprints": {
+        "THERE_THEIR_THEYRE": "50cb8caf24132ae1b57bb5755e16c29a3152427631310483ad72c5dc3fa47df6",
+        "TO_TOO_TWO": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd",
+        "YOUR_YOURE": "b3bfc583b6d0c8d6eed86987d4ae4a114591963428d596f9c605ef2370cb9921",
+        "ITS_ITS": "d89c3caf575349dcdd0226fd1c4e7e3740f31a98a227d1b4162ad8d615a21b53"
+      },
+      "familyRuleFingerprints": {
+        "THERE_THEIR_THEYRE": "84db7891fa9310e9b391b8fb86adf919afa5073ce76cea4c418d2e43259fdf3b",
+        "TO_TOO_TWO": "adc41a033ac1a5afbadc2acd311dd522ba833565787b07ec2ad7f069a4e6994f",
+        "YOUR_YOURE": "213b8d126db3e681523c25eedf5b9f53ef5fa45928f44792159763dfd0c05801",
+        "ITS_ITS": "e3d9220776dd2d4558b591e9492aa42e219875bb9e4a823282b5b98171f03a42"
+      }
+    }
+  },
+  "variety": {
+    "total": 400,
+    "uniqueNormalizedTexts": 400,
+    "distinctTemplateIds": 60,
+    "exactDuplicates": [],
+    "nearDuplicates": [],
+    "effectiveVarietyRatio": 1
+  },
+  "metrics": {
+    "releaseEvidence": {
+      "releaseFingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695",
+      "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9"
+    },
+    "disposition": "BLOCKED",
+    "counts": {
+      "total": 400,
+      "valid": 150,
+      "invalid": 150,
+      "uncertain": 100
+    },
+    "confusion": {
+      "truePositives": 148,
+      "falsePositives": 0,
+      "trueNegatives": 250,
+      "falseNegatives": 2,
+      "abstentions": 102
+    },
+    "precision": 1,
+    "wilsonLower95": 0.9747008567322154,
+    "supportedRecall": 0.9866666666666667,
+    "invalidAlternativeAccuracy": 1,
+    "byConstruction": {
+      "preposition": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 30
+      },
+      "infinitive": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 30
+      },
+      "additive": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 30
+      },
+      "degree": {
+        "total": 60,
+        "failures": 2,
+        "invalidSuggestions": 28
+      },
+      "numeral": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 30
+      },
+      "fragment": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "quoted_or_reported_intent": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "unresolved_lexical_category": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "unsupported_or_ambiguous": {
+        "total": 40,
+        "failures": 0,
+        "invalidSuggestions": 0
+      }
+    },
+    "byProtectedSet": {
+      "fragment": {
+        "total": 20,
+        "failures": 0
+      },
+      "quotation": {
+        "total": 20,
+        "failures": 0
+      },
+      "gerund": {
+        "total": 20,
+        "failures": 0
+      },
+      "run_on": {
+        "total": 20,
+        "failures": 0
+      },
+      "task_dependent": {
+        "total": 20,
+        "failures": 0
+      }
+    },
+    "failures": [
+      {
+        "caseId": "g2-to-too-two-0194",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "reasonCode": "AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+          "assessedScope": "degree",
+          "alternativeMember": null,
+          "observedMember": "two",
+          "familyKey": "TO_TOO_TWO",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+          "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+          "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
+        }
+      },
+      {
+        "caseId": "g2-to-too-two-0294",
+        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "expected": "too",
+        "actual": {
+          "status": "UNCERTAIN",
+          "reasonCode": "AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+          "assessedScope": "degree",
+          "alternativeMember": null,
+          "observedMember": "two",
+          "familyKey": "TO_TOO_TWO",
+          "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+          "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+          "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
+        }
+      }
+    ],
+    "evaluationFingerprint": "4008585a1a65d009cac0f75bf6ffa2c52f8277bb59db5672ce06011cb29551b3"
+  },
+  "reportFingerprint": "11ab4dfa3b3ad77eca0f79977f51a979bbca2ef01e43753a12d6a121cf4906cd"
+}

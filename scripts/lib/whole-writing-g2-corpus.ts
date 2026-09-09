@@ -518,6 +518,12 @@ export function evaluateFamily(input: {
   prerequisiteIssues: ValidationIssue[];
   expectedRuntimeFingerprints: ReturnType<typeof runtimeFingerprints>;
   actualRuntimeFingerprints: ReturnType<typeof runtimeFingerprints>;
+  releaseEvidence?: { releaseFingerprint: string; corpusFingerprint: string };
+  // A separately pinned release can reuse the locked corpus's original
+  // provenance without relabelling or rewriting any V1 dependencies.
+  analyser?: (input: Parameters<typeof analyseDeterministicContext>[0]) => {
+    status: ContextResultStatus; alternativeMember: string | null;
+  } | null;
 }) {
   const failures: EvaluationFailure[] = input.prerequisiteIssues.map((item) => ({ caseId: item.caseId ?? null, reason: item.code, actual: item.message }));
   if (JSON.stringify(input.expectedRuntimeFingerprints) !== JSON.stringify(input.actualRuntimeFingerprints)) {
@@ -537,7 +543,7 @@ export function evaluateFamily(input: {
     const gold = goldById.get(candidate.caseId);
     if (!gold) continue;
     counts[gold.classification === "VALID" ? "valid" : gold.classification === "INVALID" ? "invalid" : "uncertain"] += 1;
-    const result = analyseDeterministicContext({ fieldText: candidate.sourceText, startUtf16: candidate.startUtf16, endUtf16: candidate.endUtf16 });
+    const result = (input.analyser ?? analyseDeterministicContext)({ fieldText: candidate.sourceText, startUtf16: candidate.startUtf16, endUtf16: candidate.endUtf16 });
     const prediction: ContextResultStatus = result?.status ?? "NOT_ASSESSED";
     if (prediction === "UNCERTAIN" || prediction === "NOT_ASSESSED") confusion.abstentions += 1;
     const construction = byConstruction[candidate.declaredConstruction] ?? { total: 0, failures: 0, invalidSuggestions: 0 };
@@ -595,6 +601,7 @@ export function evaluateFamily(input: {
   if (supportedRecall < G2_LIMITS.minimumSupportedRecall) failures.push({ caseId: null, reason: "SUPPORTED_RECALL_BELOW_POLICY", expected: G2_LIMITS.minimumSupportedRecall, actual: supportedRecall });
   for (const tag of PROTECTED_TAGS) if (byProtectedSet[tag].failures > G2_LIMITS.maximumProtectedFailures) failures.push({ caseId: null, reason: `PROTECTED_${tag.toUpperCase()}_FAILURE`, expected: 0, actual: byProtectedSet[tag].failures });
   const result = {
+    ...(input.releaseEvidence ? { releaseEvidence: input.releaseEvidence } : {}),
     disposition: failures.length === 0 ? "PASS" as const : "BLOCKED" as const,
     counts,
     confusion,
