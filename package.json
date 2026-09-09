@@ -24,6 +24,8 @@
     "writing:g2-adjudication-csv-export": "NODE_OPTIONS=--conditions=react-server tsx scripts/export-whole-writing-g2-adjudication-csv.ts",
     "writing:g2-corpus-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-g2-corpus-regression.ts",
     "writing:g2-evaluate": "NODE_OPTIONS=--conditions=react-server tsx scripts/evaluate-whole-writing-g2-corpus.ts",
+    "writing:s8-its-v2-freeze": "NODE_OPTIONS=--conditions=react-server tsx scripts/freeze-whole-writing-s8-its-v2.ts",
+    "writing:s8-its-v2-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-its-v2-regression.ts",
     "writing:g2-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-g2-labels.ts",
     "lint": "eslint",
     "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",

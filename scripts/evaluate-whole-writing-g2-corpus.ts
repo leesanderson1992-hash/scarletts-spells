@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { basename, join, resolve } from "node:path";
 
 import { CONTEXT_FAMILY_MANIFESTS, type ContextFamilyKey } from "../lib/writing-engine/whole-writing/context";
+import { analyseItsContextV2, ITS_V2_MANIFEST, ITS_V2_MANIFEST_FINGERPRINT } from "../lib/writing-engine/whole-writing/context-its-v2";
 import {
   FAMILY_RELEASES,
   G2_LIMITS,
@@ -25,9 +26,17 @@ import {
 
 const repositoryRoot = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(process.env.G2_CORPUS_ROOT ?? join(repositoryRoot, "data/whole-writing/g2-context-family-corpora"));
+const candidateRelease = process.argv.includes("--its-v2");
 const requestedFamilyIndex = process.argv.indexOf("--family");
 const requestedFamily = requestedFamilyIndex >= 0 ? process.argv[requestedFamilyIndex + 1] : null;
-const selectedFamilyManifests = requestedFamily
+if (requestedFamilyIndex >= 0 && (!requestedFamily || requestedFamily.startsWith("--"))) throw new Error("--family requires one family key");
+const knownArguments = new Set(["--its-v2", "--family", ...(requestedFamily ? [requestedFamily] : [])]);
+const unknownArguments = process.argv.slice(2).filter((argument) => !knownArguments.has(argument));
+if (unknownArguments.length) throw new Error(`Unknown evaluation option: ${unknownArguments.join(", ")}`);
+if (candidateRelease && requestedFamily && requestedFamily !== ITS_V2_MANIFEST.familyKey) throw new Error("--its-v2 can evaluate only ITS_ITS");
+const selectedFamilyManifests = candidateRelease
+  ? CONTEXT_FAMILY_MANIFESTS.filter((manifest) => manifest.familyKey === ITS_V2_MANIFEST.familyKey)
+  : requestedFamily
   ? CONTEXT_FAMILY_MANIFESTS.filter((manifest) => manifest.familyKey === requestedFamily)
   : CONTEXT_FAMILY_MANIFESTS;
 if (requestedFamily && selectedFamilyManifests.length !== 1) throw new Error(`Unknown --family ${requestedFamily}`);
@@ -42,6 +51,28 @@ const packageManifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
 const manifestWithoutFingerprint = Object.fromEntries(Object.entries(packageManifest).filter(([key]) => key !== "packageFingerprint"));
 if (recordFingerprint(manifestWithoutFingerprint) !== packageManifest.packageFingerprint) throw new Error("Package manifest fingerprint mismatch");
 if (packageManifest.packageVersion !== G2_PACKAGE_VERSION) throw new Error("Package manifest version mismatch");
+
+const outputRoot = candidateRelease ? join(packageRoot, "release-evaluations", ITS_V2_MANIFEST.releaseKey) : packageRoot;
+const releasePin = candidateRelease
+  ? JSON.parse(readFileSync(join(outputRoot, "release.json"), "utf8")) as {
+    fingerprint: string;
+    manifestFingerprint: string;
+    sourceSha256: string;
+    manifest: typeof ITS_V2_MANIFEST;
+    packageFingerprint: string;
+    lockedFiles: Record<string, string>;
+  }
+  : null;
+if (releasePin) {
+  if (recordFingerprint(releasePin, "fingerprint") !== releasePin.fingerprint) throw new Error("Candidate release fingerprint mismatch");
+  if (releasePin.manifestFingerprint !== ITS_V2_MANIFEST_FINGERPRINT || recordFingerprint(releasePin.manifest) !== recordFingerprint(ITS_V2_MANIFEST)) throw new Error("Candidate manifest mismatch");
+  if (releasePin.sourceSha256 !== sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing/context-its-v2.ts")))) throw new Error("Candidate analyser source mismatch");
+  if (releasePin.packageFingerprint !== packageManifest.packageFingerprint) throw new Error("Candidate corpus package mismatch");
+  for (const [path, hash] of Object.entries(releasePin.lockedFiles)) {
+    if (path.includes("..") || path.startsWith("/")) throw new Error("Unsafe locked source path");
+    if (sha256(readFileSync(join(packageRoot, path))) !== hash) throw new Error(`Locked corpus input changed: ${path}`);
+  }
+}
 
 function attributedRecordsIn<T extends Record<string, unknown>>(
   directory: string,
@@ -86,8 +117,8 @@ function packetLeakageIssues(family: ContextFamilyKey): ValidationIssue[] {
   return issues;
 }
 
-mkdirSync(join(packageRoot, "reports"), { recursive: true });
-mkdirSync(join(packageRoot, "release-artifacts"), { recursive: true });
+mkdirSync(join(outputRoot, "reports"), { recursive: true });
+mkdirSync(join(outputRoot, "release-artifacts"), { recursive: true });
 const actualRuntime = runtimeFingerprints(repositoryRoot);
 let passCount = 0;
 
@@ -122,6 +153,8 @@ for (const familyManifest of selectedFamilyManifests) {
     prerequisiteIssues,
     expectedRuntimeFingerprints: packageManifest.runtime,
     actualRuntimeFingerprints: actualRuntime,
+    analyser: candidateRelease ? analyseItsContextV2 : undefined,
+    releaseEvidence: releasePin ? { releaseFingerprint: releasePin.fingerprint, corpusFingerprint } : undefined,
   });
   if (evaluation.disposition === "PASS") passCount += 1;
   const report = {
@@ -143,6 +176,16 @@ for (const familyManifest of selectedFamilyManifests) {
       corpusFingerprint,
       manifestFingerprint: familyManifest.fingerprint,
       releaseMigrationSha256: actualRuntime.releaseMigrationSha256,
+      ...(releasePin ? {
+        ...releasePin.manifest,
+        analyserSourceSha256: releasePin.sourceSha256,
+        manifestFingerprint: ITS_V2_MANIFEST_FINGERPRINT,
+        ruleFingerprint: recordFingerprint({ manifest: releasePin.manifest, sourceSha256: releasePin.sourceSha256 }),
+        registryFingerprint: recordFingerprint(releasePin.manifest),
+        releaseMigrationSha256: null,
+        releaseFingerprint: releasePin.fingerprint,
+        publicationStatus: "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE",
+      } : {}),
     },
     provenance: {
       documentationAuthorityBaseline: "f7865ab9edab410a3a6f5aba6965457705319b5f",
@@ -153,12 +196,17 @@ for (const familyManifest of selectedFamilyManifests) {
       adjudicationCount: adjudications.length,
       finalGoldCount: lockedGold.length,
       authorProposalsUsedAsGold: false,
+      ...(releasePin ? {
+        lockedCorpusPackageFingerprint: packageManifest.packageFingerprint,
+        lockedFiles: releasePin.lockedFiles,
+        originalRuntime: packageManifest.runtime,
+      } : {}),
     },
     variety,
     metrics: evaluation,
   };
   const reportFingerprint = recordFingerprint(report);
-  writeFileSync(join(packageRoot, "reports", `${family}.evaluation.json`), `${JSON.stringify({ ...report, reportFingerprint }, null, 2)}\n`);
+  writeFileSync(join(outputRoot, "reports", `${family}.evaluation.json`), `${JSON.stringify({ ...report, reportFingerprint }, null, 2)}\n`);
   const approvalIdentity = `g2:${G2_PACKAGE_VERSION}:${family}:${evaluation.evaluationFingerprint}`;
   const releaseArtifact = evaluation.disposition === "PASS"
     ? {
@@ -167,10 +215,11 @@ for (const familyManifest of selectedFamilyManifests) {
       status: "PASS_REVIEWABLE_NOT_PUBLISHED",
       family,
       approvalIdentity,
+      exactRelease: report.release,
       approvalEventInterface: {
         environment_key: "LOCAL_REVIEW_ONLY_NOT_FOR_INSERT",
         family_key: family,
-        release_id: FAMILY_RELEASES[family].releaseId,
+        release_id: releasePin?.manifest.releaseId ?? FAMILY_RELEASES[family].releaseId,
         action: "approved",
         corpus_version: actualRuntime.corpusVersion,
         evaluation_fingerprint: evaluation.evaluationFingerprint,
@@ -197,7 +246,7 @@ for (const familyManifest of selectedFamilyManifests) {
       parentDeliveryEnabled: false,
       confirmation: "No family activation, runtime policy, database, staging, Production, context_review_enabled, or family delivery-control change was performed.",
     };
-  writeFileSync(join(packageRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
+  writeFileSync(join(outputRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
   console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.blockingFailureCount} blocking failures; ${evaluation.monitoringSupportedMissCount} monitored supported misses.`);
 }
 

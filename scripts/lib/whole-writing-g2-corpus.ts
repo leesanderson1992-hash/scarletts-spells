@@ -527,6 +527,11 @@ export function evaluateFamily(input: {
   prerequisiteIssues: ValidationIssue[];
   expectedRuntimeFingerprints: ReturnType<typeof runtimeFingerprints>;
   actualRuntimeFingerprints: ReturnType<typeof runtimeFingerprints>;
+  releaseEvidence?: { releaseFingerprint: string; corpusFingerprint: string };
+  analyser?: (input: Parameters<typeof analyseDeterministicContext>[0]) => {
+    status: ContextResultStatus;
+    alternativeMember: string | null;
+  } | null;
 }) {
   const failures: EvaluationFailure[] = input.prerequisiteIssues.map((item) => ({ caseId: item.caseId ?? null, reason: item.code, actual: item.message }));
   if (JSON.stringify(input.expectedRuntimeFingerprints) !== JSON.stringify(input.actualRuntimeFingerprints)) {
@@ -546,7 +551,7 @@ export function evaluateFamily(input: {
     const gold = goldById.get(candidate.caseId);
     if (!gold) continue;
     counts[gold.classification === "VALID" ? "valid" : gold.classification === "INVALID" ? "invalid" : "uncertain"] += 1;
-    const result = analyseDeterministicContext({ fieldText: candidate.sourceText, startUtf16: candidate.startUtf16, endUtf16: candidate.endUtf16 });
+    const result = (input.analyser ?? analyseDeterministicContext)({ fieldText: candidate.sourceText, startUtf16: candidate.startUtf16, endUtf16: candidate.endUtf16 });
     const prediction: ContextResultStatus = result?.status ?? "NOT_ASSESSED";
     if (prediction === "UNCERTAIN" || prediction === "NOT_ASSESSED") confusion.abstentions += 1;
     const construction = byConstruction[candidate.declaredConstruction] ?? { total: 0, failures: 0, invalidSuggestions: 0 };
@@ -608,6 +613,7 @@ export function evaluateFamily(input: {
   const blockingFailureCount = failures.filter(isBlockingEvaluationFailure).length;
   const monitoringSupportedMissCount = failures.filter((failure) => failure.reason === "SUPPORTED_INVALID_MISSED").length;
   const result = {
+    ...(input.releaseEvidence ? { releaseEvidence: input.releaseEvidence } : {}),
     disposition: evaluationDisposition(failures),
     counts,
     confusion,
