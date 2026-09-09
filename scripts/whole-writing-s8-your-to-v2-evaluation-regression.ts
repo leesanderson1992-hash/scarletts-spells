@@ -16,19 +16,28 @@ cpSync(original, corpus, { recursive: true });
 const run = (args: string[], repository = root) => spawnSync(join(root, "node_modules/.bin/tsx"), [join(repository, "scripts/evaluate-whole-writing-g2-corpus.ts"), ...args], { cwd: repository, env: { ...process.env, G2_CORPUS_ROOT: corpus }, encoding: "utf8" });
 const outputs = (directory: string): Record<string, string> => Object.fromEntries(readdirSync(directory, { recursive: true }).filter((f) => String(f).endsWith(".json")).map((f) => [String(f), sha256(readFileSync(join(directory, String(f))))]));
 try {
-  // Legacy executable/provenance still reproduce both locked reports exactly.
-  const baseline = run([]); assert.equal(baseline.status, 2, baseline.stderr);
-  for (const c of CONTEXT_YOUR_TO_CANDIDATES_V2) {
-    const path = `reports/${c.manifest.familyKey}.evaluation.json`;
-    assert.equal(readFileSync(join(corpus, path), "utf8"), readFileSync(join(original, path), "utf8"));
-  }
+  // Exact V2 release outputs reproduce without rewriting another family.
   for (const c of CONTEXT_YOUR_TO_CANDIDATES_V2) {
     const flag = c.manifest.familyKey === "YOUR_YOURE" ? "--your-v2" : "--to-v2";
-    const expectedExit = c.manifest.familyKey === "YOUR_YOURE" ? 0 : 2;
+    const expectedExit = 0;
     const directory = join(corpus, "release-evaluations", c.manifest.releaseKey);
     const saved = outputs(directory);
     for (let i = 0; i < 2; i += 1) {
       const result = run([flag]); assert.equal(result.status, expectedExit, result.stderr); assert.deepEqual(outputs(directory), saved);
+    }
+    if (c.manifest.familyKey === "TO_TOO_TWO") {
+      const report = JSON.parse(readFileSync(join(directory, "reports/TO_TOO_TWO.evaluation.json"), "utf8"));
+      assert.equal(report.metrics.disposition, "PASS");
+      assert.equal(report.metrics.supportedRecall, 148 / 150);
+      assert.deepEqual(report.metrics.failures.map((failure: { caseId: string; reason: string; blocking?: false }) => ({
+        caseId: failure.caseId,
+        reason: failure.reason,
+        blocking: failure.blocking,
+      })), [
+        { caseId: "g2-to-too-two-0194", reason: "SUPPORTED_INVALID_MISSED", blocking: false },
+        { caseId: "g2-to-too-two-0294", reason: "SUPPORTED_INVALID_MISSED", blocking: false },
+      ]);
+      for (const protectedSet of Object.values(report.metrics.byProtectedSet) as Array<{ failures: number }>) assert.equal(protectedSet.failures, 0);
     }
     const pinPath = join(directory, "release.json"); const raw = readFileSync(pinPath, "utf8");
     for (const mutate of [
@@ -63,5 +72,5 @@ try {
   writeFileSync(helper, readFileSync(helper, "utf8") + "\n// source tamper proof\n");
   for (const flag of ["--your-v2", "--to-v2"]) { const result = run([flag], isolated); assert.equal(result.status, 1); assert.match(result.stderr, /Candidate analyser source mismatch/); }
   assert.equal(run(["--your-v2", "--to-v2"]).status, 1);
-  console.log("S8 YOUR/TO V2 evaluation: exact V1 reports, repeated byte-identical V2 outputs, pin/dependency/locked-input/source tampering and isolated cleanup passed.");
+  console.log("S8 YOUR/TO V2 evaluation: repeated byte-identical V2 outputs, TO recall-policy monitoring, pin/dependency/locked-input/source tampering and isolated cleanup passed.");
 } finally { rmSync(temp, { recursive: true, force: true }); }

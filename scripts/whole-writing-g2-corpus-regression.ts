@@ -11,7 +11,9 @@ import {
   G2_PACKAGE_VERSION,
   buildFinalGold,
   corpusVariety,
+  evaluationDisposition,
   evaluateFamily,
+  isBlockingEvaluationFailure,
   readJsonLines,
   recordFingerprint,
   runtimeFingerprints,
@@ -126,6 +128,30 @@ assert(Math.abs(wilsonLowerBound(98, 100) - 0.9299882092714561) < 1e-12, "Wilson
 assert(wilsonLowerBound(98, 100) < 0.95, "98% point precision alone is insufficient at n=100");
 assert(wilsonLowerBound(294, 300) > 0.95, "larger 98% sample can clear the Wilson gate");
 assert.equal(wilsonLowerBound(0, 0), 0, "zero suggestions cannot pass precision confidence");
+
+const monitoredSupportedMiss = {
+  caseId: "g2-policy-fixture-supported-miss",
+  reason: "SUPPORTED_INVALID_MISSED",
+  expected: "too",
+  actual: { status: "UNCERTAIN" },
+  blocking: false as const,
+};
+assert.equal(isBlockingEvaluationFailure(monitoredSupportedMiss), false, "a supported miss is retained for monitoring without independently blocking");
+assert.equal(evaluationDisposition([monitoredSupportedMiss]), "PASS", "a monitored miss alone does not override the governed recall threshold");
+assert.equal(evaluationDisposition([
+  monitoredSupportedMiss,
+  { caseId: null, reason: "SUPPORTED_RECALL_BELOW_POLICY", expected: 0.8, actual: 0.79 },
+]), "BLOCKED", "supported misses block when aggregate recall falls below policy");
+assert.equal(evaluationDisposition([
+  monitoredSupportedMiss,
+  { caseId: null, reason: "PROTECTED_GERUND_FAILURE", expected: 0, actual: 1 },
+]), "BLOCKED", "a protected-set failure remains an unconditional blocker");
+assert.equal(evaluationDisposition([{
+  caseId: "g2-policy-fixture-wrong-alternative",
+  reason: "SUPPORTED_INVALID_WRONG_ALTERNATIVE",
+  expected: "too",
+  actual: { status: "INVALID", alternativeMember: "to" },
+}]), "BLOCKED", "an INVALID result with the wrong unique alternative remains blocking");
 
 const candidate = readJsonLines<CandidateCase>(join(root, "candidates", "THERE_THEIR_THEYRE.jsonl"))[0];
 function label(labelerId: string, classification: IndependentLabel["classification"], alternative: string | null): IndependentLabel {

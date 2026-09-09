@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "reportVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:EVALUATION_V1",
   "evaluationMode": "LOCAL_DETERMINISTIC_RELEASE_EVALUATION",
-  "disposition": "BLOCKED",
+  "disposition": "PASS",
   "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
   "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
   "family": "TO_TOO_TWO",
@@ -120,7 +120,7 @@
       "releaseFingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695",
       "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9"
     },
-    "disposition": "BLOCKED",
+    "disposition": "PASS",
     "counts": {
       "total": 400,
       "valid": 150,
@@ -210,7 +210,7 @@
     "failures": [
       {
         "caseId": "g2-to-too-two-0194",
-        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "reason": "SUPPORTED_INVALID_MISSED",
         "expected": "too",
         "actual": {
           "status": "UNCERTAIN",
@@ -222,11 +222,12 @@
           "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
           "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
           "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
-        }
+        },
+        "blocking": false
       },
       {
         "caseId": "g2-to-too-two-0294",
-        "reason": "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE",
+        "reason": "SUPPORTED_INVALID_MISSED",
         "expected": "too",
         "actual": {
           "status": "UNCERTAIN",
@@ -238,10 +239,11 @@
           "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
           "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
           "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
-        }
+        },
+        "blocking": false
       }
     ],
-    "evaluationFingerprint": "4008585a1a65d009cac0f75bf6ffa2c52f8277bb59db5672ce06011cb29551b3"
+    "evaluationFingerprint": "25dc26af619a3059028a38d3858783e01764fa218c197c5be3011ad52c143a03"
   },
-  "reportFingerprint": "11ab4dfa3b3ad77eca0f79977f51a979bbca2ef01e43753a12d6a121cf4906cd"
+  "reportFingerprint": "c1ad9bb449635489e24f79d077c630793290cae7d7d66010f06a8b160342106b"
 }

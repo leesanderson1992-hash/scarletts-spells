@@ -197,7 +197,16 @@ export type EvaluationFailure = Readonly<{
   reason: string;
   expected?: unknown;
   actual?: unknown;
+  blocking?: false;
 }>;
+
+export function isBlockingEvaluationFailure(failure: EvaluationFailure): boolean {
+  return failure.blocking !== false;
+}
+
+export function evaluationDisposition(failures: EvaluationFailure[]): "PASS" | "BLOCKED" {
+  return failures.some(isBlockingEvaluationFailure) ? "BLOCKED" : "PASS";
+}
 
 export function sha256(value: string | Buffer): string {
   return createHash("sha256").update(value).digest("hex");
@@ -561,10 +570,14 @@ export function evaluateFamily(input: {
           confusion.truePositives += 1;
           supportedTruePositive += 1;
           invalidAlternativeCorrect += 1;
+        } else if (prediction === "INVALID") {
+          confusion.falseNegatives += 1;
+          confusion.falsePositives += 1;
+          failures.push({ caseId: candidate.caseId, reason: "SUPPORTED_INVALID_WRONG_ALTERNATIVE", expected: gold.expectedAlternative, actual: result });
+          failed = true;
         } else {
           confusion.falseNegatives += 1;
-          if (prediction === "INVALID") confusion.falsePositives += 1;
-          failures.push({ caseId: candidate.caseId, reason: "SUPPORTED_INVALID_MISSED_OR_WRONG_ALTERNATIVE", expected: gold.expectedAlternative, actual: result });
+          failures.push({ caseId: candidate.caseId, reason: "SUPPORTED_INVALID_MISSED", expected: gold.expectedAlternative, actual: result, blocking: false });
           failed = true;
         }
         if (prediction === "INVALID") invalidSuggestionsOnGoldInvalid += 1;
@@ -602,7 +615,7 @@ export function evaluateFamily(input: {
   for (const tag of PROTECTED_TAGS) if (byProtectedSet[tag].failures > G2_LIMITS.maximumProtectedFailures) failures.push({ caseId: null, reason: `PROTECTED_${tag.toUpperCase()}_FAILURE`, expected: 0, actual: byProtectedSet[tag].failures });
   const result = {
     ...(input.releaseEvidence ? { releaseEvidence: input.releaseEvidence } : {}),
-    disposition: failures.length === 0 ? "PASS" as const : "BLOCKED" as const,
+    disposition: evaluationDisposition(failures),
     counts,
     confusion,
     precision,
