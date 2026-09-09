@@ -624,8 +624,7 @@ export function evaluateFamily(input: {
     invalidAlternativeAccuracy,
     byConstruction,
     byProtectedSet,
-    blockingFailureCount,
-    monitoringSupportedMissCount,
+    ...(!input.releaseEvidence ? { blockingFailureCount, monitoringSupportedMissCount } : {}),
     failures,
   };
   return { ...result, evaluationFingerprint: recordFingerprint(result) };
