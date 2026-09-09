@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "artifactVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:APPROVAL_CANDIDATE_V1",
+  "status": "PASS_REVIEWABLE_NOT_PUBLISHED",
+  "family": "TO_TOO_TWO",
+  "approvalIdentity": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:25dc26af619a3059028a38d3858783e01764fa218c197c5be3011ad52c143a03",
+  "exactRelease": {
+    "releaseId": "81000000-0000-4000-8000-000000000007",
+    "releaseKey": "s8-v2-to-too-two",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+    "analyserSourceSha256": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+    "ruleFingerprint": "e88758513f2e7b2075c4e19e7a24f244a396798f26f49e496efa7e2bde055724",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_TO_REGISTRY_V2",
+    "registryFingerprint": "fecde78d47f8a14d3dd6485b90a02b12790f72c84747d6dd45a3008b6ea5becd",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9",
+    "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8",
+    "releaseMigrationSha256": null,
+    "familyKey": "TO_TOO_TWO",
+    "members": [
+      "to",
+      "too",
+      "two"
+    ],
+    "supportedConstructions": [
+      "preposition",
+      "infinitive",
+      "additive",
+      "degree",
+      "numeral"
+    ],
+    "supportedScope": [
+      "subject plus finite motion verb, destination preposition and complete destination noun phrase",
+      "subject plus finite want/need, infinitive and enumerated verb phrase",
+      "complete subject plus finite want/need and determiner-led object plus terminal additive",
+      "subject plus finite copula, degree modifier and complete adjective predicate",
+      "subject plus finite possession, numeral and explicit plural count noun phrase"
+    ],
+    "exclusions": [
+      "fragment",
+      "unresolved_lexical_category",
+      "quoted_or_reported_intent",
+      "unsupported_clause_structure",
+      "ambiguous_adjective_or_infinitive_fast"
+    ],
+    "sourceFingerprints": {
+      "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+      "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+      "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+    },
+    "syntaxDependency": "context-your-to-syntax-v2.ts",
+    "sourceDependencies": {
+      "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+      "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+      "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+    },
+    "releaseFingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695",
+    "publicationStatus": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE"
+  },
+  "approvalEventInterface": {
+    "environment_key": "LOCAL_REVIEW_ONLY_NOT_FOR_INSERT",
+    "family_key": "TO_TOO_TWO",
+    "release_id": "81000000-0000-4000-8000-000000000007",
+    "action": "approved",
+    "corpus_version": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "evaluation_fingerprint": "25dc26af619a3059028a38d3858783e01764fa218c197c5be3011ad52c143a03",
+    "quality_limits": {
+      "minimumTotal": 400,
+      "minimumValid": 150,
+      "minimumInvalid": 150,
+      "minimumUncertain": 100,
+      "minimumPrecision": 0.98,
+      "minimumWilsonLower95": 0.95,
+      "minimumSupportedRecall": 0.8,
+      "maximumProtectedFailures": 0
+    },
+    "evaluation_metrics": {
+      "releaseEvidence": {
+        "releaseFingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695",
+        "corpusFingerprint": "663526ef2b0646739d7a4dc3e5c56fc7e13659d43b66d4f71446746a4250e1d9"
+      },
+      "disposition": "PASS",
+      "counts": {
+        "total": 400,
+        "valid": 150,
+        "invalid": 150,
+        "uncertain": 100
+      },
+      "confusion": {
+        "truePositives": 148,
+        "falsePositives": 0,
+        "trueNegatives": 250,
+        "falseNegatives": 2,
+        "abstentions": 102
+      },
+      "precision": 1,
+      "wilsonLower95": 0.9747008567322154,
+      "supportedRecall": 0.9866666666666667,
+      "invalidAlternativeAccuracy": 1,
+      "byConstruction": {
+        "preposition": {
+          "total": 60,
+          "failures": 0,
+          "invalidSuggestions": 30
+        },
+        "infinitive": {
+          "total": 60,
+          "failures": 0,
+          "invalidSuggestions": 30
+        },
+        "additive": {
+          "total": 60,
+          "failures": 0,
+          "invalidSuggestions": 30
+        },
+        "degree": {
+          "total": 60,
+          "failures": 2,
+          "invalidSuggestions": 28
+        },
+        "numeral": {
+          "total": 60,
+          "failures": 0,
+          "invalidSuggestions": 30
+        },
+        "fragment": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "quoted_or_reported_intent": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "unresolved_lexical_category": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "unsupported_or_ambiguous": {
+          "total": 40,
+          "failures": 0,
+          "invalidSuggestions": 0
+        }
+      },
+      "byProtectedSet": {
+        "fragment": {
+          "total": 20,
+          "failures": 0
+        },
+        "quotation": {
+          "total": 20,
+          "failures": 0
+        },
+        "gerund": {
+          "total": 20,
+          "failures": 0
+        },
+        "run_on": {
+          "total": 20,
+          "failures": 0
+        },
+        "task_dependent": {
+          "total": 20,
+          "failures": 0
+        }
+      },
+      "failures": [
+        {
+          "caseId": "g2-to-too-two-0194",
+          "reason": "SUPPORTED_INVALID_MISSED",
+          "expected": "too",
+          "actual": {
+            "status": "UNCERTAIN",
+            "reasonCode": "AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+            "assessedScope": "degree",
+            "alternativeMember": null,
+            "observedMember": "two",
+            "familyKey": "TO_TOO_TWO",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+            "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
+          },
+          "blocking": false
+        },
+        {
+          "caseId": "g2-to-too-two-0294",
+          "reason": "SUPPORTED_INVALID_MISSED",
+          "expected": "too",
+          "actual": {
+            "status": "UNCERTAIN",
+            "reasonCode": "AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+            "assessedScope": "degree",
+            "alternativeMember": null,
+            "observedMember": "two",
+            "familyKey": "TO_TOO_TWO",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2:AMBIGUOUS_ADJECTIVE_OR_INFINITIVE",
+            "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8"
+          },
+          "blocking": false
+        }
+      ],
+      "evaluationFingerprint": "25dc26af619a3059028a38d3858783e01764fa218c197c5be3011ad52c143a03"
+    },
+    "authority_reference": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:TO_TOO_TWO:25dc26af619a3059028a38d3858783e01764fa218c197c5be3011ad52c143a03",
+    "approved_by": "SEPARATELY_AUTHORISED_REVIEWER_UUID_REQUIRED"
+  },
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "artifactFingerprint": "c1f02ffff4894a7b598c70da22eb220ccd5fe25d14d4d2f46f67ceeb056de6be"
+}

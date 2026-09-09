@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "status": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE",
+  "baseline": "5b1a1090edf659093557684955b0ee66c7c50f34",
+  "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
+  "manifest": {
+    "releaseId": "81000000-0000-4000-8000-000000000007",
+    "releaseKey": "s8-v2-to-too-two",
+    "familyKey": "TO_TOO_TWO",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_DETERMINISTIC_V2",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_TO_REGISTRY_V2",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "members": [
+      "to",
+      "too",
+      "two"
+    ],
+    "supportedConstructions": [
+      "preposition",
+      "infinitive",
+      "additive",
+      "degree",
+      "numeral"
+    ],
+    "supportedScope": [
+      "subject plus finite motion verb, destination preposition and complete destination noun phrase",
+      "subject plus finite want/need, infinitive and enumerated verb phrase",
+      "complete subject plus finite want/need and determiner-led object plus terminal additive",
+      "subject plus finite copula, degree modifier and complete adjective predicate",
+      "subject plus finite possession, numeral and explicit plural count noun phrase"
+    ],
+    "exclusions": [
+      "fragment",
+      "unresolved_lexical_category",
+      "quoted_or_reported_intent",
+      "unsupported_clause_structure",
+      "ambiguous_adjective_or_infinitive_fast"
+    ],
+    "sourceFingerprints": {
+      "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+      "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+      "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+    },
+    "syntaxDependency": "context-your-to-syntax-v2.ts"
+  },
+  "manifestFingerprint": "d372dd4a93741f52f6e619f9013caadf3f404410a59e6aba370e60fd9ba887d8",
+  "sourceSha256": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+  "sourceDependencies": {
+    "context-to-v2.ts": "cfa4f186f5858e89983ed631d76176a655fd4673b9850b3079f6b5a736519ec8",
+    "context-your-to-syntax-v2.ts": "c7a1357ea3882cde1a2ab104b12655bd1b7f33d2f851d93b04c60e39f538a399",
+    "context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65"
+  },
+  "packageFingerprint": "9201e52e4f7fa32583f6c8ce14575d5d4ae16a9e2bd74bb31f8081192b98e277",
+  "lockedFiles": {
+    "adjudications/TO_TOO_TWO.lee-sanderson.jsonl": "e5a2591f81c752a7bc627c1836a3fdfe9b857aedca2a9dcbaf010fbef16144d6",
+    "adjudications/TO_TOO_TWO.lee-sanderson.jsonl.receipt.json": "1b70f8144b23e58256e2ab856eff68da6dab0389a427af32e0fdff76a3783238",
+    "candidates/TO_TOO_TWO.jsonl": "f82c92f1c80a89254f938879379a910fc5aa9376865446cc8f6bdedafea1f983",
+    "gold/TO_TOO_TWO.final-gold.jsonl": "f1672c8b242eb06de65255e28c0d514e5c3523c123ab713e2b530522d8b1e9dd",
+    "gold/TO_TOO_TWO.final-gold.jsonl.receipt.json": "28c168c8f63b4b76382d18e21ed31275433c3b4c99a60a7e6c6f073e4f5713a5",
+    "labels/TO_TOO_TWO.katherine-sanderson.jsonl": "c963a416b4dd4442132fe37ee3e5cedc80ec617d2b2d77e93fa562f621d7aa5a",
+    "labels/TO_TOO_TWO.katherine-sanderson.jsonl.receipt.json": "af1e3347f1cce5d2bd9fa58a3b4297681426082eaa9db3f9f751a3fedd91a100",
+    "manifest.json": "bd7e0f5d99ec0c714c4f0df3f711726bfa0d866d9d3160cf5c7941324210e392",
+    "packets-csv/TO_TOO_TWO.second-person-adjudication.completed.csv": "7449b9d3806baf56ec1344f7407b8e179fe4c35c265e12eabf5616647e3cf66c",
+    "packets/TO_TOO_TWO.label-packet-a.jsonl": "742d7809cc2cf90d107a7273ed54401e9839957ee78900234e7fedca73de1959",
+    "packets/TO_TOO_TWO.label-packet-b.jsonl": "cc45759f146d139203b7ab235407a82e3a05bb7110224f089ac2b26ff5eb5fbd",
+    "release-artifacts/TO_TOO_TWO.blocked.json": "103b1d889dc154e0ec24a478539fda09d40aa22b424b1e8ab6e032d5030ce1fc",
+    "reports/TO_TOO_TWO.evaluation.json": "1a1d0c22f93e23409cd8c0fb4b958f210bdd8206ceeb47b2e150d2f9b593036e",
+    "reviews/TO_TOO_TWO.codex-non-gold.jsonl": "24158fdd2d266df462fff73c1f4935f8b15fbff8618c4c73ccad7c84859bad06",
+    "reviews/TO_TOO_TWO.codex-non-gold.jsonl.receipt.json": "8b0897bd533449a84831010cb0101a48235fd3e09a06c6f643cc0e4b5ffea79f"
+  },
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "fingerprint": "ef57765d13211edba4b56caba85de51c482809d83a921ebc4d97552e2818b695"
+}
