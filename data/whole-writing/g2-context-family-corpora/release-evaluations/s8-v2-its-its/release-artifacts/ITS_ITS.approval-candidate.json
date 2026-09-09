@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "artifactVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:APPROVAL_CANDIDATE_V1",
+  "status": "PASS_REVIEWABLE_NOT_PUBLISHED",
+  "family": "ITS_ITS",
+  "approvalIdentity": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:96e119ced0239fd7ca6f7ee9396d514399592b417c8fb5a24c2dba71bf64c9f7",
+  "exactRelease": {
+    "releaseId": "81000000-0000-4000-8000-000000000008",
+    "releaseKey": "s8-v2-its-its",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_DETERMINISTIC_V2",
+    "analyserSourceSha256": "aab83df6b7a92e105b105c7532d7c10419f4eb98b9d91f114ba33ab62120eb02",
+    "ruleFingerprint": "caaad0e8d5483a0713c5b1542624d82c3b86750b639499e23323d3440cdd3f84",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_ITS_REGISTRY_V2",
+    "registryFingerprint": "8598faef3a66ba1b9f8237220b57199e16519b03507ba64f7d641aab434404ef",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0",
+    "manifestFingerprint": "66e19a9dcedb6846400b0c73912b0e833efe4c0dd6b9281ad4938742ee1ed68d",
+    "releaseMigrationSha256": null,
+    "familyKey": "ITS_ITS",
+    "members": [
+      "its",
+      "it's"
+    ],
+    "supportedConstructions": [
+      "possessive",
+      "it_is_contraction",
+      "it_has_contraction"
+    ],
+    "supportedScope": [
+      "subject noun phrase + kept + possessive determiner + object noun phrase + complete place complement",
+      "clause-initial it-is contraction + adjective predicate + complete place complement",
+      "clause-initial it-has contraction + been + adjective predicate + complete since-time complement"
+    ],
+    "exclusions": [
+      "fragment",
+      "quoted_or_reported_intent",
+      "unfinished_gerund_context",
+      "run_on",
+      "task_dependent",
+      "unsupported_clause_structure"
+    ],
+    "releaseFingerprint": "4a1008517b76eb9cf8fec764b2e9e3fc8396b96f6a28cf90d1c7efeac9df47cb",
+    "publicationStatus": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE"
+  },
+  "approvalEventInterface": {
+    "environment_key": "LOCAL_REVIEW_ONLY_NOT_FOR_INSERT",
+    "family_key": "ITS_ITS",
+    "release_id": "81000000-0000-4000-8000-000000000008",
+    "action": "approved",
+    "corpus_version": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "evaluation_fingerprint": "96e119ced0239fd7ca6f7ee9396d514399592b417c8fb5a24c2dba71bf64c9f7",
+    "quality_limits": {
+      "minimumTotal": 400,
+      "minimumValid": 150,
+      "minimumInvalid": 150,
+      "minimumUncertain": 100,
+      "minimumPrecision": 0.98,
+      "minimumWilsonLower95": 0.95,
+      "minimumSupportedRecall": 0.8,
+      "maximumProtectedFailures": 0
+    },
+    "evaluation_metrics": {
+      "releaseEvidence": {
+        "releaseFingerprint": "4a1008517b76eb9cf8fec764b2e9e3fc8396b96f6a28cf90d1c7efeac9df47cb",
+        "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0"
+      },
+      "disposition": "PASS",
+      "counts": {
+        "total": 400,
+        "valid": 150,
+        "invalid": 150,
+        "uncertain": 100
+      },
+      "confusion": {
+        "truePositives": 150,
+        "falsePositives": 0,
+        "trueNegatives": 250,
+        "falseNegatives": 0,
+        "abstentions": 100
+      },
+      "precision": 1,
+      "wilsonLower95": 0.9750297556319234,
+      "supportedRecall": 1,
+      "invalidAlternativeAccuracy": 1,
+      "byConstruction": {
+        "possessive": {
+          "total": 100,
+          "failures": 0,
+          "invalidSuggestions": 50
+        },
+        "it_is_contraction": {
+          "total": 100,
+          "failures": 0,
+          "invalidSuggestions": 50
+        },
+        "it_has_contraction": {
+          "total": 100,
+          "failures": 0,
+          "invalidSuggestions": 50
+        },
+        "fragment": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "quoted_or_reported_intent": {
+          "total": 20,
+          "failures": 0,
+          "invalidSuggestions": 0
+        },
+        "unsupported_or_ambiguous": {
+          "total": 60,
+          "failures": 0,
+          "invalidSuggestions": 0
+        }
+      },
+      "byProtectedSet": {
+        "fragment": {
+          "total": 20,
+          "failures": 0
+        },
+        "quotation": {
+          "total": 20,
+          "failures": 0
+        },
+        "gerund": {
+          "total": 20,
+          "failures": 0
+        },
+        "run_on": {
+          "total": 20,
+          "failures": 0
+        },
+        "task_dependent": {
+          "total": 20,
+          "failures": 0
+        }
+      },
+      "blockingFailureCount": 0,
+      "monitoringSupportedMissCount": 0,
+      "failures": [],
+      "evaluationFingerprint": "96e119ced0239fd7ca6f7ee9396d514399592b417c8fb5a24c2dba71bf64c9f7"
+    },
+    "authority_reference": "g2:G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:96e119ced0239fd7ca6f7ee9396d514399592b417c8fb5a24c2dba71bf64c9f7",
+    "approved_by": "SEPARATELY_AUTHORISED_REVIEWER_UUID_REQUIRED"
+  },
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "artifactFingerprint": "396adeb9e5252a227d6c604d08aa987d4765fefc84b2b09da7a7eb2890173520"
+}

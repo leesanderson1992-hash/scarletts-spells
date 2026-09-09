@@ -1,4 +1,5 @@
 import { analyseDeterministicContext, CONTEXT_FAMILY_MANIFESTS, WHOLE_WRITING_CONTEXT_ANALYSER_VERSION, WHOLE_WRITING_CONTEXT_REGISTRY_VERSION, WHOLE_WRITING_CONTEXT_CORPUS_VERSION } from "./context";
+import { analyseItsContextV2, ITS_V2_MANIFEST, ITS_V2_MANIFEST_FINGERPRINT } from "./context-its-v2";
 import { analyseThereContextV2, THERE_V2_MANIFEST, THERE_V2_MANIFEST_FINGERPRINT } from "./context-there-v2";
 import { analyseYourContextV2, YOUR_V2_MANIFEST, YOUR_V2_MANIFEST_FINGERPRINT } from "./context-your-v2";
 import { analyseToContextV2, TO_V2_MANIFEST, TO_V2_MANIFEST_FINGERPRINT } from "./context-to-v2";
@@ -10,6 +11,7 @@ export const CONTEXT_YOUR_TO_CANDIDATES_V2 = [
 export const CONTEXT_V2_CANDIDATES = [
   { manifest: THERE_V2_MANIFEST, fingerprint: THERE_V2_MANIFEST_FINGERPRINT, analyse: analyseThereContextV2 },
   ...CONTEXT_YOUR_TO_CANDIDATES_V2,
+  { manifest: ITS_V2_MANIFEST, fingerprint: ITS_V2_MANIFEST_FINGERPRINT, analyse: analyseItsContextV2 },
 ] as const;
 
 /** Exact persisted dependencies choose execution. No selection/publication occurs here. */

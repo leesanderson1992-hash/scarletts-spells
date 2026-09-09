@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "reportVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08:ITS_ITS:EVALUATION_V1",
+  "evaluationMode": "LOCAL_DETERMINISTIC_RELEASE_EVALUATION",
+  "disposition": "PASS",
+  "policyVersion": "WHOLE_WRITING_REMEDIATION_POLICY_V2_2026_09_09",
+  "packageVersion": "G2_CONTEXT_FAMILY_CORPUS_PACKAGE_V1_2026_09_08",
+  "family": "ITS_ITS",
+  "release": {
+    "releaseId": "81000000-0000-4000-8000-000000000008",
+    "releaseKey": "s8-v2-its-its",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_DETERMINISTIC_V2",
+    "analyserSourceSha256": "aab83df6b7a92e105b105c7532d7c10419f4eb98b9d91f114ba33ab62120eb02",
+    "ruleFingerprint": "caaad0e8d5483a0713c5b1542624d82c3b86750b639499e23323d3440cdd3f84",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_ITS_REGISTRY_V2",
+    "registryFingerprint": "8598faef3a66ba1b9f8237220b57199e16519b03507ba64f7d641aab434404ef",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0",
+    "manifestFingerprint": "66e19a9dcedb6846400b0c73912b0e833efe4c0dd6b9281ad4938742ee1ed68d",
+    "releaseMigrationSha256": null,
+    "familyKey": "ITS_ITS",
+    "members": [
+      "its",
+      "it's"
+    ],
+    "supportedConstructions": [
+      "possessive",
+      "it_is_contraction",
+      "it_has_contraction"
+    ],
+    "supportedScope": [
+      "subject noun phrase + kept + possessive determiner + object noun phrase + complete place complement",
+      "clause-initial it-is contraction + adjective predicate + complete place complement",
+      "clause-initial it-has contraction + been + adjective predicate + complete since-time complement"
+    ],
+    "exclusions": [
+      "fragment",
+      "quoted_or_reported_intent",
+      "unfinished_gerund_context",
+      "run_on",
+      "task_dependent",
+      "unsupported_clause_structure"
+    ],
+    "releaseFingerprint": "4a1008517b76eb9cf8fec764b2e9e3fc8396b96f6a28cf90d1c7efeac9df47cb",
+    "publicationStatus": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE"
+  },
+  "provenance": {
+    "documentationAuthorityBaseline": "f7865ab9edab410a3a6f5aba6965457705319b5f",
+    "candidateCount": 400,
+    "primaryHumanLabelCount": 400,
+    "nonGoldReviewCount": 400,
+    "reviewDisagreementCount": 20,
+    "adjudicationCount": 20,
+    "finalGoldCount": 400,
+    "authorProposalsUsedAsGold": false,
+    "lockedCorpusPackageFingerprint": "9201e52e4f7fa32583f6c8ce14575d5d4ae16a9e2bd74bb31f8081192b98e277",
+    "lockedFiles": {
+      "adjudications/ITS_ITS.lee-sanderson.jsonl": "b26a246aef9dd6dab53f332f7206974b0a3b789c6d8af5a738cf4d29eba9ec8a",
+      "adjudications/ITS_ITS.lee-sanderson.jsonl.receipt.json": "7fb0bce22bc374acd3fd1ce5bf4711a1c5b72b19ab2b29a77432ed272c4b8501",
+      "candidates/ITS_ITS.jsonl": "0e79ca89c3c6939312e2d3592e113d01dc91ba6538001636f7d5a3a761ef5697",
+      "gold/ITS_ITS.final-gold.jsonl": "decaf2f6ed95250f803e42e3be812f53c805ae2a87471b82a71ca96554a717d1",
+      "gold/ITS_ITS.final-gold.jsonl.receipt.json": "093fb9036e382d607e2380d7cc0533cf0035a8d7fc53f12cc7cfa332a00538e9",
+      "labels/ITS_ITS.katherine-sanderson.jsonl": "3e2a9451611010ece362d99b4ad2558cd479b34f5f5af7b70b4ae0c4a94f424c",
+      "labels/ITS_ITS.katherine-sanderson.jsonl.receipt.json": "193da1abcb0f472829a4fbbc7f69a7488926e1d417a541d422f6eadd5df0168d",
+      "manifest.json": "bd7e0f5d99ec0c714c4f0df3f711726bfa0d866d9d3160cf5c7941324210e392",
+      "packets-csv/ITS_ITS.second-person-adjudication.completed.csv": "02b9fec9222ba9d224e75437265707c68a548c17371a3b8d39edabb01c76fe10",
+      "packets/ITS_ITS.label-packet-a.jsonl": "d5731057bad2bfb3dbd1269924f24f5e47da947446c3a7b2faf3bbd61cbb1c55",
+      "packets/ITS_ITS.label-packet-b.jsonl": "0c4f52d2c15ba5ee47c5e2853d5ea7cd152c8bc5bd56c19c185810f086ae4096",
+      "release-artifacts/ITS_ITS.blocked.json": "d54b5708294c59895aa295d05e436ec8ab8549eb3172ae0dd177df5bda2f0ffc",
+      "reports/ITS_ITS.evaluation.json": "434865a091cb39c66040087b2dd35ab32110f7050e72a45ce8c5131a41cce046",
+      "reviews/ITS_ITS.codex-non-gold.jsonl": "b3856374a74c6ef22cc8c6b1067a7efcc925221ba24890dbd8bdbad2c2f42834",
+      "reviews/ITS_ITS.codex-non-gold.jsonl.receipt.json": "a6fe1ac272e87ed4b5541011f3d6a36b593853a258386489f890db23270d8a73"
+    },
+    "originalRuntime": {
+      "analyserVersion": "WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1",
+      "analyserSourceSha256": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65",
+      "registryVersion": "WHOLE_WRITING_CONTEXT_REGISTRY_V1",
+      "registryFingerprint": "95a81ab899bea0575acc9e791d12cc6afd4e6e8bcc3d2a4e6768c64d87194b08",
+      "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+      "releaseMigrationSha256": "b235fd8a99b077f4596519cd8ecb168b15460cc310158ea002a4e71d00657c1d",
+      "familyManifestFingerprints": {
+        "THERE_THEIR_THEYRE": "50cb8caf24132ae1b57bb5755e16c29a3152427631310483ad72c5dc3fa47df6",
+        "TO_TOO_TWO": "8eb69607aa4d695ea15ee6d32946634b8ddce0bf5ea703faa2fc71a33bb073cd",
+        "YOUR_YOURE": "b3bfc583b6d0c8d6eed86987d4ae4a114591963428d596f9c605ef2370cb9921",
+        "ITS_ITS": "d89c3caf575349dcdd0226fd1c4e7e3740f31a98a227d1b4162ad8d615a21b53"
+      },
+      "familyRuleFingerprints": {
+        "THERE_THEIR_THEYRE": "84db7891fa9310e9b391b8fb86adf919afa5073ce76cea4c418d2e43259fdf3b",
+        "TO_TOO_TWO": "adc41a033ac1a5afbadc2acd311dd522ba833565787b07ec2ad7f069a4e6994f",
+        "YOUR_YOURE": "213b8d126db3e681523c25eedf5b9f53ef5fa45928f44792159763dfd0c05801",
+        "ITS_ITS": "e3d9220776dd2d4558b591e9492aa42e219875bb9e4a823282b5b98171f03a42"
+      }
+    }
+  },
+  "variety": {
+    "total": 400,
+    "uniqueNormalizedTexts": 400,
+    "distinctTemplateIds": 62,
+    "exactDuplicates": [],
+    "nearDuplicates": [],
+    "effectiveVarietyRatio": 1
+  },
+  "metrics": {
+    "releaseEvidence": {
+      "releaseFingerprint": "4a1008517b76eb9cf8fec764b2e9e3fc8396b96f6a28cf90d1c7efeac9df47cb",
+      "corpusFingerprint": "88fd5f5a801b557cb5471e386ac8314c3c34c4194ed8127bfcb09356eefe90b0"
+    },
+    "disposition": "PASS",
+    "counts": {
+      "total": 400,
+      "valid": 150,
+      "invalid": 150,
+      "uncertain": 100
+    },
+    "confusion": {
+      "truePositives": 150,
+      "falsePositives": 0,
+      "trueNegatives": 250,
+      "falseNegatives": 0,
+      "abstentions": 100
+    },
+    "precision": 1,
+    "wilsonLower95": 0.9750297556319234,
+    "supportedRecall": 1,
+    "invalidAlternativeAccuracy": 1,
+    "byConstruction": {
+      "possessive": {
+        "total": 100,
+        "failures": 0,
+        "invalidSuggestions": 50
+      },
+      "it_is_contraction": {
+        "total": 100,
+        "failures": 0,
+        "invalidSuggestions": 50
+      },
+      "it_has_contraction": {
+        "total": 100,
+        "failures": 0,
+        "invalidSuggestions": 50
+      },
+      "fragment": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "quoted_or_reported_intent": {
+        "total": 20,
+        "failures": 0,
+        "invalidSuggestions": 0
+      },
+      "unsupported_or_ambiguous": {
+        "total": 60,
+        "failures": 0,
+        "invalidSuggestions": 0
+      }
+    },
+    "byProtectedSet": {
+      "fragment": {
+        "total": 20,
+        "failures": 0
+      },
+      "quotation": {
+        "total": 20,
+        "failures": 0
+      },
+      "gerund": {
+        "total": 20,
+        "failures": 0
+      },
+      "run_on": {
+        "total": 20,
+        "failures": 0
+      },
+      "task_dependent": {
+        "total": 20,
+        "failures": 0
+      }
+    },
+    "blockingFailureCount": 0,
+    "monitoringSupportedMissCount": 0,
+    "failures": [],
+    "evaluationFingerprint": "96e119ced0239fd7ca6f7ee9396d514399592b417c8fb5a24c2dba71bf64c9f7"
+  },
+  "reportFingerprint": "ffe763c7a25c25800d6cc0e969cc5962be8be2d9fabf644d8c7f59193a22f1ca"
+}

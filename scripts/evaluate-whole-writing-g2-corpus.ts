@@ -87,6 +87,7 @@ const candidateFlags: Record<string, ContextFamilyKey> = {
   "--there-v2": "THERE_THEIR_THEYRE",
   "--your-v2": "YOUR_YOURE",
   "--to-v2": "TO_TOO_TWO",
+  "--its-v2": "ITS_ITS",
 };
 const candidateOption = options.find((arg) => Object.hasOwn(candidateFlags, arg)) ?? null;
 const requestedFamilyIndex = options.indexOf("--family");
@@ -118,7 +119,9 @@ if (releasePin) {
     if (releasePin.sourceSha256 !== releasePin.sourceDependencies[sourceName]) throw new Error("Candidate source identity mismatch");
     if (JSON.stringify(Object.keys(releasePin.lockedFiles).sort()) !== JSON.stringify(lockedYourToFilesV2(candidateRelease!.manifest.familyKey as "YOUR_YOURE" | "TO_TOO_TWO"))) throw new Error("Candidate locked file set mismatch");
   } else {
-    const sourceName = candidateRelease!.manifest.familyKey === "THERE_THEIR_THEYRE" ? "context-there-v2.ts" : null;
+    const sourceName = candidateRelease!.manifest.familyKey === "THERE_THEIR_THEYRE"
+      ? "context-there-v2.ts"
+      : candidateRelease!.manifest.familyKey === "ITS_ITS" ? "context-its-v2.ts" : null;
     if (!sourceName || releasePin.sourceSha256 !== sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing", sourceName)))) throw new Error("Candidate analyser source mismatch");
   }
   if (releasePin.packageFingerprint !== packageManifest.packageFingerprint) throw new Error("Candidate corpus package mismatch");
