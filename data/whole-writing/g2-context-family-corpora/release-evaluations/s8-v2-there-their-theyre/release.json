@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "status": "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE",
+  "baselineCommit": "41b94edca1aacefb8a05a19ea356b279bd3167fa",
+  "manifest": {
+    "releaseId": "81000000-0000-4000-8000-000000000005",
+    "releaseKey": "s8-v2-there-their-theyre",
+    "familyKey": "THERE_THEIR_THEYRE",
+    "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_DETERMINISTIC_V2",
+    "registryVersion": "WHOLE_WRITING_CONTEXT_THERE_REGISTRY_V2",
+    "corpusVersion": "WHOLE_WRITING_CONTEXT_CORPUS_V1",
+    "members": [
+      "there",
+      "their",
+      "they're"
+    ],
+    "supportedConstructions": [
+      "existential",
+      "locative",
+      "possessive",
+      "they_are_contraction"
+    ],
+    "supportedScope": [
+      "clause-initial existential be + determiner noun phrase with optional place complement",
+      "subject + placement verb + object noun phrase + over/down/up + terminal locative",
+      "clause-initial possessive noun phrase + finite copular predicate",
+      "clause-initial they-are + adjective predicate; substitution requires a complete prepositional complement"
+    ],
+    "exclusions": [
+      "ambiguous_gerund",
+      "fragment",
+      "quoted_or_reported_intent",
+      "unsupported_clause_structure"
+    ]
+  },
+  "sourceSha256": "9f64796f7eb23b55254ee8dd7e43c9e5d2922d8efb24667bfd1ac87dfc13966b",
+  "packageFingerprint": "9201e52e4f7fa32583f6c8ce14575d5d4ae16a9e2bd74bb31f8081192b98e277",
+  "lockedFiles": {
+    "manifest.json": "bd7e0f5d99ec0c714c4f0df3f711726bfa0d866d9d3160cf5c7941324210e392",
+    "candidates/THERE_THEIR_THEYRE.jsonl": "6da9b2e3838983eaf52b1e21666489265779529153ba0f380abba6cca37075b7",
+    "labels/THERE_THEIR_THEYRE.katherine-sanderson.jsonl": "79382c69479f933b914359ea1d05d0b396aceacf8f91ee8e3b07e6a90b3df9e9",
+    "labels/THERE_THEIR_THEYRE.katherine-sanderson.jsonl.receipt.json": "5f4522c5cbc1f97be728275e38e44999959292d518a3cdd4149df6d837e98da2",
+    "reviews/THERE_THEIR_THEYRE.codex-non-gold.jsonl": "024e854a783bb18c9abbf48398b6ebbbeca7dd62b4ee0e43491e984fa761981f",
+    "reviews/THERE_THEIR_THEYRE.codex-non-gold.jsonl.receipt.json": "adde9ed0ae3df45f4466d39019dde39c68cf8783906607713a52581589b2a503",
+    "adjudications/THERE_THEIR_THEYRE.lee-sanderson.jsonl": "93f7f0794acb1b0e1ebee6d29b6055f4b08cdc1ceab29f740655178b9e25266b",
+    "adjudications/THERE_THEIR_THEYRE.lee-sanderson.jsonl.receipt.json": "ba5e5b5b040ceca38c553dd59c03f1ec92c79a8ddc455480c9ce51f7800b785c",
+    "gold/THERE_THEIR_THEYRE.final-gold.jsonl": "20aadfd8581fd1f79710a50d0dc317ed5dad268df6acbe3d73d46dfd60db6cd1",
+    "gold/THERE_THEIR_THEYRE.final-gold.jsonl.receipt.json": "8e572e7d950a3f31aaeebf621a60df8717b4fbb91b55d90e53530a3470baf04e",
+    "packets/THERE_THEIR_THEYRE.label-packet-a.jsonl": "724db5832e77053e992707d6fbbc6ef8e01c69744dfad868dc90487beaea93d2",
+    "packets/THERE_THEIR_THEYRE.label-packet-b.jsonl": "01b84eb322a8e449a06df63de315446a31685d8880fcdaa5bb5597570d91ea29",
+    "packets-csv/THERE_THEIR_THEYRE.labeler-a.csv": "cab368bd8b5c1be317beb15c975143ac6b2bf785856e8639397bdfa7d60bcfe8",
+    "packets-csv/THERE_THEIR_THEYRE.labeler-b.csv": "a42ea4f279e19fd8bf83dabb02ef73b248cffce62d52a3bed0ef681ac0f54983",
+    "packets-csv/THERE_THEIR_THEYRE.second-person-adjudication.completed.csv": "6d5c51719605f88bc94f2f541e1514efdd3ff840717d17500955f263799f3d0d",
+    "packets-csv/THERE_THEIR_THEYRE.second-person-adjudication.csv": "ebf400e9262a013ceac9cdbfc31d99c6636f78b0e7c20280547b0913e046865a"
+  },
+  "publicationPerformed": false,
+  "parentDeliveryEnabled": false,
+  "fingerprint": "d79aa9dfc32b1c1cc817623852bcf6d35d5f0033b74ec233517dd39f3229b07a"
+}

@@ -14,6 +14,12 @@ The work is offline and local. It does not alter S8 runtime rules, the Context
 Resolver proposal, release selection, family approval events, database state,
 controls, staging or Production.
 
+The original corpus work above is preserved. The separately fingerprinted
+`s8-v2-there-their-theyre` candidate now reuses its locked corpus through
+`npm run writing:g2-evaluate -- --there-v2`. Diagnosis, supported scope,
+provenance, results and the unpublished release boundary are recorded in
+`docs/implementation/whole-writing-s8-there-v2-receipt-2026-09-09.md`.
+
 ## Exact S8 release contract
 
 All families use analyser `WHOLE_WRITING_CONTEXT_DETERMINISTIC_V1`, registry

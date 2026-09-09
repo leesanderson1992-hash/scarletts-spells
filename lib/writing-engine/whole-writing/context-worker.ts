@@ -5,14 +5,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveAdleRouteActivationEnvironment } from "../../adle/route-activation-environment";
 import { createServiceRoleClient } from "../../supabase/service-role";
 import { fingerprint } from "../baseline/source";
-import {
-  analyseDeterministicContext,
-  CONTEXT_FAMILY_MANIFESTS,
-  WHOLE_WRITING_CONTEXT_ANALYSER_VERSION,
-  WHOLE_WRITING_CONTEXT_CORPUS_VERSION,
-  WHOLE_WRITING_CONTEXT_REGISTRY_VERSION,
-  type ContextFamilyKey,
-} from "./context";
+import { type ContextFamilyKey } from "./context";
+import { contextAnalyserForRelease } from "./context-analyser-release";
 import { reconstructOccurrenceContext } from "./context-source";
 import type { SourceSnapshot } from "./source";
 
@@ -171,14 +165,10 @@ export async function recoverWritingContextJobs(
         loadSingle<InterpretationRow>(client, "writing_occurrence_interpretations", "id,occurrence_id,canonical_word_id,normalized_form,dialect,resolution_status,interpretation", job.interpretation_id, "CONTEXT_INTERPRETATION_READ_FAILED"),
         loadSingle<ReleaseRow>(client, "writing_context_family_releases", "id,family_key,registry_version,analyser_version,corpus_version,manifest_fingerprint", job.release_id, "CONTEXT_RELEASE_READ_FAILED"),
       ]);
-      const manifest = CONTEXT_FAMILY_MANIFESTS.find((candidate) => candidate.familyKey === job.family_key);
+      const selectedAnalyser = contextAnalyserForRelease(release);
       if (
-        !manifest ||
+        !selectedAnalyser ||
         release.family_key !== job.family_key ||
-        release.analyser_version !== WHOLE_WRITING_CONTEXT_ANALYSER_VERSION ||
-        release.registry_version !== WHOLE_WRITING_CONTEXT_REGISTRY_VERSION ||
-        release.corpus_version !== WHOLE_WRITING_CONTEXT_CORPUS_VERSION ||
-        release.manifest_fingerprint !== manifest.fingerprint ||
         interpretation.occurrence_id !== occurrence.id ||
         interpretation.resolution_status !== "resolved" ||
         !interpretation.canonical_word_id ||
@@ -188,6 +178,7 @@ export async function recoverWritingContextJobs(
         failed += 1;
         continue;
       }
+      const { manifest, analyse } = selectedAnalyser;
       const source = reconstructOccurrenceContext({
         snapshot,
         fieldPath: occurrence.field_path,
@@ -206,10 +197,10 @@ export async function recoverWritingContextJobs(
           alternativeMember: null,
           assessedScope: "source_reconstruction_unavailable",
           reasonCode: source.reason,
-          ruleId: `${WHOLE_WRITING_CONTEXT_ANALYSER_VERSION}:${job.family_key}:${source.reason}`,
-          analyserVersion: WHOLE_WRITING_CONTEXT_ANALYSER_VERSION,
-          registryVersion: WHOLE_WRITING_CONTEXT_REGISTRY_VERSION,
-          corpusVersion: WHOLE_WRITING_CONTEXT_CORPUS_VERSION,
+          ruleId: `${release.analyser_version}:${job.family_key}:${source.reason}`,
+          analyserVersion: release.analyser_version,
+          registryVersion: release.registry_version,
+          corpusVersion: release.corpus_version,
           manifestFingerprint: manifest.fingerprint,
           interpretationFingerprint: fingerprint(interpretation),
           mappingAuthorityFingerprint: fingerprint([]),
@@ -227,7 +218,7 @@ export async function recoverWritingContextJobs(
         completed += 1;
         continue;
       }
-      const analysed = analyseDeterministicContext({
+      const analysed = analyse({
         fieldText: source.fieldText,
         startUtf16: occurrence.start_utf16,
         endUtf16: occurrence.end_utf16,
@@ -253,8 +244,8 @@ export async function recoverWritingContextJobs(
         reasonCode: identityBlocked ? "ALTERNATIVE_IDENTITY_UNAVAILABLE" : analysed.reasonCode,
         ruleId: analysed.ruleId,
         analyserVersion: analysed.analyserVersion,
-        registryVersion: WHOLE_WRITING_CONTEXT_REGISTRY_VERSION,
-        corpusVersion: WHOLE_WRITING_CONTEXT_CORPUS_VERSION,
+        registryVersion: release.registry_version,
+        corpusVersion: release.corpus_version,
         manifestFingerprint: manifest.fingerprint,
         interpretationFingerprint: fingerprint(interpretation),
         mappingAuthorityFingerprint: mappingAuthority.fingerprint,

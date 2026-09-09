@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { basename, join, resolve } from "node:path";
 
 import { CONTEXT_FAMILY_MANIFESTS, type ContextFamilyKey } from "../lib/writing-engine/whole-writing/context";
+import { analyseThereContextV2, THERE_V2_MANIFEST, THERE_V2_MANIFEST_FINGERPRINT } from "../lib/writing-engine/whole-writing/context-there-v2";
 import {
   FAMILY_RELEASES,
   G2_LIMITS,
@@ -80,12 +81,31 @@ function packetLeakageIssues(family: ContextFamilyKey): ValidationIssue[] {
   return issues;
 }
 
-mkdirSync(join(packageRoot, "reports"), { recursive: true });
-mkdirSync(join(packageRoot, "release-artifacts"), { recursive: true });
+const candidateRelease = process.argv.includes("--there-v2");
+if (process.argv.slice(2).some((arg) => arg !== "--there-v2")) throw new Error("Unknown evaluation option");
+const outputRoot = candidateRelease ? join(packageRoot, "release-evaluations", THERE_V2_MANIFEST.releaseKey) : packageRoot;
+const releasePin = candidateRelease
+  ? JSON.parse(readFileSync(join(outputRoot, "release.json"), "utf8")) as {
+    fingerprint: string; sourceSha256: string; manifest: typeof THERE_V2_MANIFEST;
+    packageFingerprint: string; lockedFiles: Record<string, string>;
+  } : null;
+if (releasePin) {
+  if (recordFingerprint(releasePin, "fingerprint") !== releasePin.fingerprint) throw new Error("Candidate release fingerprint mismatch");
+  if (recordFingerprint(releasePin.manifest) !== recordFingerprint(THERE_V2_MANIFEST)) throw new Error("Candidate manifest mismatch");
+  if (releasePin.sourceSha256 !== sha256(readFileSync(join(repositoryRoot, "lib/writing-engine/whole-writing/context-there-v2.ts")))) throw new Error("Candidate analyser source mismatch");
+  if (releasePin.packageFingerprint !== packageManifest.packageFingerprint) throw new Error("Candidate corpus package mismatch");
+  for (const [path, hash] of Object.entries(releasePin.lockedFiles)) {
+    if (path.includes("..") || path.startsWith("/")) throw new Error("Unsafe locked source path");
+    if (sha256(readFileSync(join(packageRoot, path))) !== hash) throw new Error(`Locked corpus input changed: ${path}`);
+  }
+}
+mkdirSync(join(outputRoot, "reports"), { recursive: true });
+mkdirSync(join(outputRoot, "release-artifacts"), { recursive: true });
 const actualRuntime = runtimeFingerprints(repositoryRoot);
 let passCount = 0;
 
-for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
+const selectedFamilies = CONTEXT_FAMILY_MANIFESTS.filter((m) => !candidateRelease || m.familyKey === THERE_V2_MANIFEST.familyKey);
+for (const familyManifest of selectedFamilies) {
   const family = familyManifest.familyKey;
   const candidates = readJsonLines<CandidateCase>(join(packageRoot, "candidates", `${family}.jsonl`));
   const labelImport = attributedRecordsIn<IndependentLabel & Record<string, unknown>>(join(packageRoot, "labels"), family, "labelFingerprint");
@@ -116,6 +136,8 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
     prerequisiteIssues,
     expectedRuntimeFingerprints: packageManifest.runtime,
     actualRuntimeFingerprints: actualRuntime,
+    analyser: candidateRelease ? analyseThereContextV2 : undefined,
+    releaseEvidence: releasePin ? { releaseFingerprint: releasePin.fingerprint, corpusFingerprint } : undefined,
   });
   if (evaluation.disposition === "PASS") passCount += 1;
   const report = {
@@ -137,6 +159,16 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       corpusFingerprint,
       manifestFingerprint: familyManifest.fingerprint,
       releaseMigrationSha256: actualRuntime.releaseMigrationSha256,
+      ...(releasePin ? {
+        ...releasePin.manifest,
+        analyserSourceSha256: releasePin.sourceSha256,
+        manifestFingerprint: THERE_V2_MANIFEST_FINGERPRINT,
+        ruleFingerprint: recordFingerprint({ manifest: releasePin.manifest, sourceSha256: releasePin.sourceSha256 }),
+        registryFingerprint: recordFingerprint(releasePin.manifest),
+        releaseMigrationSha256: null,
+        releaseFingerprint: releasePin.fingerprint,
+        publicationStatus: "UNPUBLISHED_OFFLINE_RELEASE_CANDIDATE",
+      } : {}),
     },
     provenance: {
       documentationAuthorityBaseline: "f7865ab9edab410a3a6f5aba6965457705319b5f",
@@ -147,12 +179,13 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       adjudicationCount: adjudications.length,
       finalGoldCount: lockedGold.length,
       authorProposalsUsedAsGold: false,
+      ...(releasePin ? { lockedCorpusPackageFingerprint: packageManifest.packageFingerprint, lockedFiles: releasePin.lockedFiles, originalRuntime: packageManifest.runtime } : {}),
     },
     variety,
     metrics: evaluation,
   };
   const reportFingerprint = recordFingerprint(report);
-  writeFileSync(join(packageRoot, "reports", `${family}.evaluation.json`), `${JSON.stringify({ ...report, reportFingerprint }, null, 2)}\n`);
+  writeFileSync(join(outputRoot, "reports", `${family}.evaluation.json`), `${JSON.stringify({ ...report, reportFingerprint }, null, 2)}\n`);
   const approvalIdentity = `g2:${G2_PACKAGE_VERSION}:${family}:${evaluation.evaluationFingerprint}`;
   const releaseArtifact = evaluation.disposition === "PASS"
     ? {
@@ -161,10 +194,11 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       status: "PASS_REVIEWABLE_NOT_PUBLISHED",
       family,
       approvalIdentity,
+      exactRelease: report.release,
       approvalEventInterface: {
         environment_key: "LOCAL_REVIEW_ONLY_NOT_FOR_INSERT",
         family_key: family,
-        release_id: FAMILY_RELEASES[family].releaseId,
+        release_id: releasePin?.manifest.releaseId ?? FAMILY_RELEASES[family].releaseId,
         action: "approved",
         corpus_version: actualRuntime.corpusVersion,
         evaluation_fingerprint: evaluation.evaluationFingerprint,
@@ -191,13 +225,13 @@ for (const familyManifest of CONTEXT_FAMILY_MANIFESTS) {
       parentDeliveryEnabled: false,
       confirmation: "No family activation, runtime policy, database, staging, Production, context_review_enabled, or family delivery-control change was performed.",
     };
-  writeFileSync(join(packageRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
+  writeFileSync(join(outputRoot, "release-artifacts", `${family}.${evaluation.disposition === "PASS" ? "approval-candidate" : "blocked"}.json`), `${JSON.stringify({ ...releaseArtifact, artifactFingerprint: recordFingerprint(releaseArtifact) }, null, 2)}\n`);
   console.log(`${family}: ${evaluation.disposition}; ${labels.length}/${candidates.length} primary labels; ${reviews.length}/${candidates.length} reviews; ${lockedGold.length}/${candidates.length} final gold; ${evaluation.failures.length} failures.`);
 }
 
-if (passCount !== CONTEXT_FAMILY_MANIFESTS.length) {
-  console.error(`G2 evaluation blocked: ${passCount}/${CONTEXT_FAMILY_MANIFESTS.length} family approval candidates passed.`);
+if (passCount !== selectedFamilies.length) {
+  console.error(`G2 evaluation blocked: ${passCount}/${selectedFamilies.length} family approval candidates passed.`);
   process.exitCode = 2;
 } else {
-  console.log("All four G2 family approval candidates passed. No approval event was published.");
+  console.log(`All ${selectedFamilies.length} selected G2 family approval candidates passed. No approval event was published.`);
 }
