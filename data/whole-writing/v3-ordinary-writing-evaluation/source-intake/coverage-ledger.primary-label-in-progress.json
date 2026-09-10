@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "statusAt": "2026-09-10T11:00:40Z",
+  "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
+  "coverage": {
+    "THERE_THEIR_THEYRE": {
+      "totalAnnotatedOccurrences": 529,
+      "passagesWithFamily": 498,
+      "approvedPrimary": 452,
+      "completedOccurrencePrimaryLabels": 524,
+      "pendingOccurrencePrimaryLabels": 5,
+      "primaryByClassification": {
+        "VALID": 180,
+        "INVALID": 172,
+        "UNCERTAIN": 100
+      },
+      "primaryByConstruction": {
+        "existential": {
+          "VALID": 40,
+          "INVALID": 35
+        },
+        "locative": {
+          "VALID": 40,
+          "INVALID": 35
+        },
+        "possessive": {
+          "VALID": 40,
+          "INVALID": 40
+        },
+        "they_are_contraction": {
+          "VALID": 60,
+          "INVALID": 62
+        }
+      },
+      "primaryBySubtype": {
+        "embedded_existential": {
+          "VALID": 40,
+          "INVALID": 35
+        },
+        "adverbial_locative": {
+          "VALID": 40,
+          "INVALID": 35
+        },
+        "possessive_subject_or_object": {
+          "VALID": 40,
+          "INVALID": 40
+        },
+        "progressive_contraction": {
+          "VALID": 20,
+          "INVALID": 20
+        },
+        "adjectival_contraction": {
+          "VALID": 20,
+          "INVALID": 22
+        },
+        "passive_contraction": {
+          "VALID": 20,
+          "INVALID": 20
+        }
+      },
+      "protectedPrimaryCounts": {
+        "fragment": 20,
+        "quotation": 20,
+        "gerund": 20,
+        "run_on": 20,
+        "task_dependent": 20
+      },
+      "coverageQuotaShortages": [],
+      "workflowShortages": [
+        "5 incidental occurrence primary labels",
+        "separately attributable non-gold review for every occurrence",
+        "adjudication of every substantive disagreement",
+        "locked final gold"
+      ]
+    },
+    "TO_TOO_TWO": {
+      "supplementalAnnotatedOccurrences": 50,
+      "supplementalPassagesWithFamily": 39,
+      "supplementalPrimaryFocuses": 0,
+      "supplementalOccurrencePrimaryLabelsComplete": 0,
+      "supplementalOccurrencePrimaryLabelsPending": 50
+    }
+  },
+  "coverageLedgerFingerprint": "49ca3b5841631d7bbfc606a7acbc1a3473da310863642114654b8662a0be8e1f"
+}

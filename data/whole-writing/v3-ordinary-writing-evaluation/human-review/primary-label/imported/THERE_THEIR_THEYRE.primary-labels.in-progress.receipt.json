@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "importStatus": "IN_PROGRESS",
+  "importedLabelCount": 524,
+  "requiredOccurrenceLabelCount": 529,
+  "pendingOccurrenceLabelCount": 5,
+  "approvedPrimaryCount": 452,
+  "rawWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+  "mainDecisionProvenanceId": "s8-v3-there-primary-review-amended-katie-2026-09-10-01",
+  "supplementDecisionProvenanceId": "s8-v3-there-subtype-supplement-katie-2026-09-10-01",
+  "primaryDecisionProvenanceFingerprint": "0aac36f84fa3d16a7253ade5cc7f1f91ba6cd43a5b2033e77c9337c56e786c51",
+  "primaryLabelFileSha256": "ff71d3f57205eedc6cd85e03defaafa15ba70243d7a41cba1a91111a6608c9cf",
+  "primaryLabelSetFingerprint": "39d84b1d3cf1bdd54af98d525eb933d5f40df5c9f55a1f17449e2e8c15d94ba2",
+  "analyserBehaviour": "NOT_EVALUATED",
+  "receiptFingerprint": "378c2b5abc5d29d90485a90da26205a025fdb86294aa35440520e2641fd8dbbd"
+}

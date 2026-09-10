@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "intakeDate": "2026-09-10",
+  "nominalFamily": "THERE_THEIR_THEYRE",
+  "rawWorkbook": {
+    "suppliedFileName": "THERE_THEIR_THEYRE Primary Label Review Amended.xlsx",
+    "preservedPath": "human-review/primary-label/raw/THERE_THEIR_THEYRE Primary Label Review Amended.xlsx",
+    "byteLength": 107755,
+    "sha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614"
+  },
+  "extractedSheets": [
+    {
+      "sheetName": "THERE_THEIR_THEYRE Primary Labe",
+      "path": "human-review/primary-label/extracted/THERE_THEIR_THEYRE.primary-label-review.amended.csv",
+      "rowCount": 472,
+      "sha256": "879907751858a20e3370a23b3491af879b8b36e4838e2b5f91ca5a1e2d748bf6"
+    },
+    {
+      "sheetName": "Subtype Quota Supplement",
+      "path": "human-review/primary-label/extracted/THERE_THEIR_THEYRE.subtype-quota-supplement.csv",
+      "rowCount": 52,
+      "sha256": "40d1b087694a74941d631a44e1438f979eee510e707953af1ffbae4ecaf6ecd1"
+    }
+  ],
+  "formulaCellCount": 0,
+  "supplementalPassageCount": 52,
+  "supplementalOccurrenceCounts": {
+    "THERE_THEIR_THEYRE": 57,
+    "TO_TOO_TWO": 50,
+    "YOUR_YOURE": 0,
+    "ITS_ITS": 0
+  },
+  "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
+  "supplementAuthorshipResolutionId": "s8-v3-supplement-authorship-resolution-katie-2026-09-10-01",
+  "sentinelAuthorizationId": "s8-v3-unsupported-sentinel-authorization-katie-2026-09-10-01",
+  "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572"
+}

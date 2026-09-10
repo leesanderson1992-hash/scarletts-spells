@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "authorizationId": "s8-v3-unsupported-sentinel-authorization-katie-2026-09-10-01",
+  "authorizedBy": "Katie Sanderson",
+  "authorizedAt": "2026-09-10T11:00:40Z",
+  "scope": [
+    "THERE_THEIR_THEYRE",
+    "YOUR_YOURE",
+    "TO_TOO_TWO",
+    "ITS_ITS"
+  ],
+  "declaredConstructionSentinel": "not_applicable",
+  "declaredSubtypeSentinel": "not_applicable",
+  "permittedOnlyWhen": {
+    "classification": "UNCERTAIN",
+    "supportedConstruction": false,
+    "intendedAlternative": null
+  },
+  "source": "Explicit user authorization in the S8 V3 ordinary-writing holdout evaluation task.",
+  "authorizationFingerprint": "8372730d3584a9a4fe4155857c0199cce08efe5ea66d2a0c1ab5ceddbd1dd1ea"
+}

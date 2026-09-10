@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "canonicalPrimaryHuman": "Katie Sanderson",
+  "identityAliases": {
+    "KatieSanderson": "Katie Sanderson"
+  },
+  "decisions": [
+    {
+      "decisionProvenanceId": "s8-v3-there-primary-review-amended-katie-2026-09-10-01",
+      "sourceWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+      "sourceSheet": "THERE_THEIR_THEYRE Primary Labe",
+      "recordCount": 472,
+      "sourceLabelerId": "KatieSanderson",
+      "resolvedHuman": "Katie Sanderson",
+      "sourceTimestamp": "2026-09-10T08:14:00Z"
+    },
+    {
+      "decisionProvenanceId": "s8-v3-there-subtype-supplement-katie-2026-09-10-01",
+      "sourceWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+      "sourceSheet": "Subtype Quota Supplement",
+      "recordCount": 52,
+      "sourceLabelerId": "Katie Sanderson",
+      "resolvedHuman": "Katie Sanderson",
+      "confirmationTimestamp": "2026-09-10T11:00:40Z"
+    }
+  ],
+  "analyserPredictionsExposed": false,
+  "nonGoldReviewerMustBeSeparatelyAttributable": true,
+  "provenanceFingerprint": "0aac36f84fa3d16a7253ade5cc7f1f91ba6cd43a5b2033e77c9337c56e786c51"
+}

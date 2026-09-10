@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "resolutionId": "s8-v3-supplement-authorship-resolution-katie-2026-09-10-01",
+  "decidedBy": "Katie Sanderson",
+  "decidedAt": "2026-09-10T11:00:40Z",
+  "sourceWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+  "sourceTextAuthorship": "HUMAN_AUTHORED",
+  "identifierGeneration": "AI_ASSISTED",
+  "analyserPredictionsExposed": false,
+  "targetClassificationAndSubtypeStatus": "PRIMARY_HUMAN_DECISION",
+  "resolution": "Katie Sanderson confirmed that all 52 supplemental passages were independently human-authored without analyser predictions and that the target classification and subtype fields are her human decisions.",
+  "provenanceResolutionFingerprint": "d6029d310138f3c7dd5524ab155b4b94dbdfaa67bbb1a16e11db1b5daa522441"
+}

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "disposition": "BLOCKED",
+  "blockerType": "UNRESOLVED_HUMAN_AUTHORITY_AND_REVIEW_WORKFLOW",
+  "exactRelease": {
+    "releaseKey": "s8-v3-there-their-theyre",
+    "releaseId": "81000000-0000-4000-8000-000000000009",
+    "manifestFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
+    "engineeringCandidateArtifactFingerprint": "68e9b1605d9e39314be5ee319e8b6a530adc66d0edb6c5aa7933f0145ef7d5e5",
+    "frozenCandidateStatus": "BLOCKED_HUMAN_HOLDOUT_MISSING"
+  },
+  "evidence": {
+    "rawWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+    "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
+    "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
+    "primaryLabelReceiptFingerprint": "378c2b5abc5d29d90485a90da26205a025fdb86294aa35440520e2641fd8dbbd",
+    "coverageLedgerFingerprint": "49ca3b5841631d7bbfc606a7acbc1a3473da310863642114654b8662a0be8e1f",
+    "pendingPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
+    "candidateFingerprint": null,
+    "goldFingerprint": null,
+    "corpusFingerprint": null,
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "primaryLabelsComplete": false,
+    "confirmedOccurrenceDecisions": 524,
+    "requiredOccurrenceDecisions": 529,
+    "pendingOccurrenceDecisions": 5,
+    "primaryCoverageComplete": true,
+    "nonGoldReviewComplete": false,
+    "adjudicationComplete": false,
+    "finalGoldLocked": false
+  },
+  "coverage": {
+    "totalAnnotatedOccurrences": 529,
+    "passagesWithFamily": 498,
+    "approvedPrimary": 452,
+    "completedOccurrencePrimaryLabels": 524,
+    "pendingOccurrencePrimaryLabels": 5,
+    "primaryByClassification": {
+      "VALID": 180,
+      "INVALID": 172,
+      "UNCERTAIN": 100
+    },
+    "primaryByConstruction": {
+      "existential": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "locative": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "possessive": {
+        "VALID": 40,
+        "INVALID": 40
+      },
+      "they_are_contraction": {
+        "VALID": 60,
+        "INVALID": 62
+      }
+    },
+    "primaryBySubtype": {
+      "embedded_existential": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "adverbial_locative": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "possessive_subject_or_object": {
+        "VALID": 40,
+        "INVALID": 40
+      },
+      "progressive_contraction": {
+        "VALID": 20,
+        "INVALID": 20
+      },
+      "adjectival_contraction": {
+        "VALID": 20,
+        "INVALID": 22
+      },
+      "passive_contraction": {
+        "VALID": 20,
+        "INVALID": 20
+      }
+    },
+    "protectedPrimaryCounts": {
+      "fragment": 20,
+      "quotation": 20,
+      "gerund": 20,
+      "run_on": 20,
+      "task_dependent": 20
+    },
+    "coverageQuotaShortages": [],
+    "workflowShortages": [
+      "5 incidental occurrence primary labels",
+      "separately attributable non-gold review for every occurrence",
+      "adjudication of every substantive disagreement",
+      "locked final gold"
+    ]
+  },
+  "failedGates": [
+    "PRIMARY_HUMAN_LABELS_INCOMPLETE",
+    "NON_GOLD_REVIEW_INCOMPLETE",
+    "ADJUDICATION_NOT_COMPLETED",
+    "CANDIDATES_NOT_LOCKED",
+    "FINAL_GOLD_NOT_LOCKED",
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "failedCases": [
+    {
+      "caseId": "v3-there-their-theyre-supplement-0014-there-their-theyre-02",
+      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
+    },
+    {
+      "caseId": "v3-there-their-theyre-supplement-0028-there-their-theyre-02",
+      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
+    },
+    {
+      "caseId": "v3-there-their-theyre-supplement-0040-there-their-theyre-02",
+      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
+    },
+    {
+      "caseId": "v3-there-their-theyre-supplement-0042-there-their-theyre-02",
+      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
+    },
+    {
+      "caseId": "v3-there-their-theyre-supplement-0046-there-their-theyre-02",
+      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
+    }
+  ],
+  "unevaluatedCases": 529,
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "90579ebef624238f6bb3c2eb7561b8eb6144af84da1e60d88082d8e8d45f2269"
+}

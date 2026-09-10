@@ -44,3 +44,24 @@ The four machine-readable files under `dispositions` record the current
 `BLOCKED` holdout-evaluation outcome, exact evidence shortages and confirmation
 that delivery and every release operation remain disabled. They do not replace
 the frozen engineering-candidate artifacts under `release-candidates`.
+
+## Primary-label progress
+
+Katie Sanderson's amended `THERE_THEIR_THEYRE` workbook is preserved
+byte-for-byte under `human-review/primary-label/raw`. Its main sheet supplies
+472 complete occurrence decisions. Katie separately confirmed that the 52
+supplemental passages are independently human-authored without analyser
+predictions and that their target classifications and subtypes are her primary
+human decisions. The supplement contains 107 governed occurrences: 57
+`THERE_THEIR_THEYRE` and 50 incidental `TO_TOO_TWO` occurrences.
+
+The imported in-progress label set contains 524 of the 529
+`THERE_THEIR_THEYRE` occurrence decisions. All primary coverage quotas are now
+met across 452 approved primaries, but five neighbouring `THERE_THEIR_THEYRE`
+occurrences still require primary decisions. The 50 incidental `TO_TOO_TWO`
+occurrences also require decisions for that family. Exact pending packets are
+under `human-review/primary-label/pending`.
+
+No candidate or gold file has been locked. No non-gold review, adjudication or
+analyser evaluation has begun, and all family delivery and release operations
+remain disabled.
