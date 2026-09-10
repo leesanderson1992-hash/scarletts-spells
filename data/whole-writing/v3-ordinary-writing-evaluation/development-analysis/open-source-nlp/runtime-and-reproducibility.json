@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "purpose": "development_regression_only_not_approval_evidence",
+  "host": "macOS-26.5-arm64",
+  "pythonVersion": "3.12.14",
+  "input": {
+    "cases": 1140,
+    "failedDecisions": 1139,
+    "additionalRequestedStructureDiagnostics": 1,
+    "counterfactualVariants": 3420,
+    "inputSha256": "ef33133e4109b7f1c9cb321c365f7c93bc6e44eaa6112ca3c009e158033364f7"
+  },
+  "spacy": {
+    "version": "3.8.16",
+    "model": "en_core_web_sm",
+    "modelVersion": "3.8.0",
+    "license": "MIT",
+    "measuredInstalledEngineBytesApprox": 29360128,
+    "measuredInstalledModelBytesApprox": 15728640,
+    "loadSecondsRuns": [0.3551093749993015, 0.3565425000124378],
+    "parseSecondsRuns": [26.337419291987317, 25.56991270800063],
+    "variantsPerSecondRuns": [129.8532693004008, 133.75094545903195]
+  },
+  "stanza": {
+    "version": "1.14.0",
+    "torchVersion": "2.14.0",
+    "package": "en_default_fast",
+    "processors": ["tokenize", "mwt", "pos", "lemma", "depparse"],
+    "license": "Apache-2.0",
+    "selectedModelBytes": 242912160,
+    "measuredInstalledEngineBytesApprox": 13631488,
+    "measuredInstalledTorchBytesApprox": 610271232,
+    "loadSecondsRuns": [2.7720202909986256, 3.0879505420016358],
+    "parseSecondsRuns": [133.0620659999986, 196.4987018749962],
+    "variantsPerSecondRuns": [25.70229144044732, 17.40469513216252],
+    "combinedParserPeakRssBytesRuns": [1715634176, 1554251776],
+    "ewtCharLmSample": {
+      "cases": 99,
+      "variants": 297,
+      "variantsPerSecondRuns": [2.3062036512462543, 2.5364545715324747]
+    },
+    "modelSha256": {
+      "tokenize_combined_nocharlm": "0b67d0cc24bf9461176d854ca891706616a6eea3a7f698ccf085fcf559fa87ec",
+      "mwt_combined": "5f7579111def1f6212c98fa8154ff964bf0eafb9218845ecfa3a1d5a931be237",
+      "pos_combined_nocharlm": "de777e494a74b387b3f64682a216b3497dbdbf76f7e69efca0ea1e16915fbf2d",
+      "lemma_combined_nocharlm": "775d42962ae209d4ff2fc3a799a9438333a44aa6ede3a7368dc07afd573d79d3",
+      "depparse_combined_nocharlm": "93c7c704cc5878db89e4bfb5bb5744e138448693da65773e88a8a4f8c5983ac1",
+      "pretrain_conll17": "edde4c195f91ba45aab3f3a6254202011f284559da8a5ead5e62ce522f819c5e"
+    }
+  },
+  "languageTool": {
+    "version": "6.6",
+    "build": "2025-03-27 20:50:25 +0100, f3e8d91",
+    "license": "LGPL-2.1-or-later with separately licensed bundled resources",
+    "javaRuntime": "Eclipse Temurin 17.0.20.1+1",
+    "measuredStandaloneBytesApprox": 408944640,
+    "measuredJreBytesApprox": 136314880,
+    "elapsedSecondsRuns": [57.99710895899625, 57.54402458202094],
+    "peakRssBytesRuns": [592838656, 558022656],
+    "targetOutcomeCounts": {
+      "correctAlternative": 11,
+      "wrongOrPolicyUnsafe": 29,
+      "noTargetMatch": 1100
+    },
+    "standaloneZipSha256": "53600506b399bb5ffe1e4c8dec794fd378212f14aaf38ccef9b6f89314d11631",
+    "temurinArchiveSha256": "190480874ccceb358cbc840393207f77ac3e63a4c5f8129d0e23e9518b96ad05"
+  },
+  "universalDependenciesEnglishEwt": {
+    "commit": "4a4d77f599ea53cc405f85d0cec4b2f14f81d42b",
+    "license": "CC-BY-SA-4.0",
+    "measuredCheckoutBytesApprox": 49283072
+  },
+  "repeatability": {
+    "parserRun1Sha256": "ee847f20eb7eb4e48952c080698678227ac69273d17ce1b32ab5ee45f3fe2a7b",
+    "parserRun2Sha256": "ee847f20eb7eb4e48952c080698678227ac69273d17ce1b32ab5ee45f3fe2a7b",
+    "parserByteIdentical": true,
+    "languageToolRun1Sha256": "1f35923cd96393679a7752f64b69e7c5b8ff97d6925fa2e7b4c64de47016885e",
+    "languageToolRun2Sha256": "1f35923cd96393679a7752f64b69e7c5b8ff97d6925fa2e7b4c64de47016885e",
+    "languageToolByteIdentical": true
+  }
+}

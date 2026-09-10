@@ -1,0 +1,213 @@
+{
+  "caseEvidenceSha256": "069f6c3efa2ec30287605b81eb1cf15fce470403d448008bd3c31c89afa81767",
+  "casesByFamily": {
+    "THERE_THEIR_THEYRE": 235,
+    "TO_TOO_TWO": 905
+  },
+  "constructionComparison": [
+    {
+      "cases": 37,
+      "construction": "existential",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:correct_alternative": 4,
+      "languagetool:no_target_match": 29,
+      "languagetool:wrong_or_policy_unsafe": 4,
+      "spacy:ambiguous_structural_signal": 5,
+      "spacy:competing_variant_false_positive": 5,
+      "spacy:sufficient_structural_signal_candidate": 32,
+      "stanza:ambiguous_structural_signal": 8,
+      "stanza:competing_variant_false_positive": 8,
+      "stanza:sufficient_structural_signal_candidate": 29,
+      "subtype": "embedded_existential"
+    },
+    {
+      "cases": 60,
+      "construction": "locative",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:no_target_match": 54,
+      "languagetool:wrong_or_policy_unsafe": 6,
+      "spacy:sufficient_structural_signal_candidate": 60,
+      "stanza:missing_or_misleading_structural_signal": 19,
+      "stanza:sufficient_structural_signal_candidate": 41,
+      "subtype": "adverbial_locative"
+    },
+    {
+      "cases": 32,
+      "construction": "not_applicable",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:no_target_match": 32,
+      "spacy:insufficient_without_adle_policy_gate": 32,
+      "stanza:insufficient_without_adle_policy_gate": 32,
+      "subtype": "not_applicable"
+    },
+    {
+      "cases": 25,
+      "construction": "possessive",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:correct_alternative": 1,
+      "languagetool:no_target_match": 24,
+      "spacy:sufficient_structural_signal_candidate": 25,
+      "stanza:ambiguous_structural_signal": 14,
+      "stanza:competing_variant_false_positive": 14,
+      "stanza:sufficient_structural_signal_candidate": 11,
+      "subtype": "possessive_subject_or_object"
+    },
+    {
+      "cases": 17,
+      "construction": "they_are_contraction",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:correct_alternative": 1,
+      "languagetool:no_target_match": 16,
+      "spacy:sufficient_structural_signal_candidate": 17,
+      "stanza:sufficient_structural_signal_candidate": 17,
+      "subtype": "adjectival_contraction"
+    },
+    {
+      "cases": 38,
+      "construction": "they_are_contraction",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:no_target_match": 38,
+      "spacy:missing_or_misleading_structural_signal": 8,
+      "spacy:sufficient_structural_signal_candidate": 30,
+      "stanza:missing_or_misleading_structural_signal": 2,
+      "stanza:sufficient_structural_signal_candidate": 36,
+      "subtype": "passive_contraction"
+    },
+    {
+      "cases": 26,
+      "construction": "they_are_contraction",
+      "family": "THERE_THEIR_THEYRE",
+      "languagetool:no_target_match": 26,
+      "spacy:sufficient_structural_signal_candidate": 26,
+      "stanza:sufficient_structural_signal_candidate": 26,
+      "subtype": "progressive_contraction"
+    },
+    {
+      "cases": 23,
+      "construction": "degree",
+      "family": "TO_TOO_TWO",
+      "languagetool:correct_alternative": 4,
+      "languagetool:no_target_match": 19,
+      "spacy:sufficient_structural_signal_candidate": 23,
+      "stanza:sufficient_structural_signal_candidate": 23,
+      "subtype": "adjective_or_manner_degree"
+    },
+    {
+      "cases": 630,
+      "construction": "infinitive",
+      "family": "TO_TOO_TWO",
+      "languagetool:correct_alternative": 1,
+      "languagetool:no_target_match": 620,
+      "languagetool:wrong_or_policy_unsafe": 9,
+      "spacy:insufficient_without_adle_policy_gate": 31,
+      "spacy:sufficient_structural_signal_candidate": 599,
+      "stanza:insufficient_without_adle_policy_gate": 31,
+      "stanza:missing_or_misleading_structural_signal": 4,
+      "stanza:sufficient_structural_signal_candidate": 595,
+      "subtype": "governed_infinitive"
+    },
+    {
+      "cases": 60,
+      "construction": "not_applicable",
+      "family": "TO_TOO_TWO",
+      "languagetool:no_target_match": 57,
+      "languagetool:wrong_or_policy_unsafe": 3,
+      "spacy:insufficient_without_adle_policy_gate": 60,
+      "stanza:insufficient_without_adle_policy_gate": 60,
+      "subtype": "not_applicable"
+    },
+    {
+      "cases": 35,
+      "construction": "numeral",
+      "family": "TO_TOO_TWO",
+      "languagetool:no_target_match": 35,
+      "spacy:sufficient_structural_signal_candidate": 35,
+      "stanza:sufficient_structural_signal_candidate": 35,
+      "subtype": "ordinary_count_numeral"
+    },
+    {
+      "cases": 157,
+      "construction": "preposition",
+      "family": "TO_TOO_TWO",
+      "languagetool:no_target_match": 150,
+      "languagetool:wrong_or_policy_unsafe": 7,
+      "spacy:ambiguous_structural_signal": 1,
+      "spacy:competing_variant_false_positive": 1,
+      "spacy:insufficient_without_adle_policy_gate": 22,
+      "spacy:sufficient_structural_signal_candidate": 134,
+      "stanza:insufficient_without_adle_policy_gate": 22,
+      "stanza:sufficient_structural_signal_candidate": 135,
+      "subtype": "destination_or_recipient_preposition"
+    }
+  ],
+  "failureModesByFamily": {
+    "THERE_THEIR_THEYRE": {
+      "FAILED_REQUIRED_ABSTENTION": 32,
+      "FALSE_VALID": 32,
+      "MISSED_SUPPORTED_MISUSE": 88,
+      "MISSED_VALID_USE": 115,
+      "PROTECTED_ABSTENTION_CHANGED": 32,
+      "WRONG_OR_UNSUPPORTED_ALTERNATIVE": 37
+    },
+    "TO_TOO_TWO": {
+      "EVALUATOR_POLICY_CONFLICT_PROTECTED_VALID": 63,
+      "FAILED_REQUIRED_ABSTENTION": 29,
+      "FALSE_VALID": 5,
+      "MISSED_SUPPORTED_MISUSE": 55,
+      "MISSED_VALID_USE": 810,
+      "PROTECTED_ABSTENTION_CHANGED": 23,
+      "REQUESTED_STRUCTURE_DIAGNOSTIC": 2,
+      "WRONG_OR_UNSUPPORTED_ALTERNATIVE": 15
+    }
+  },
+  "protectedTagsByFamily": {
+    "THERE_THEIR_THEYRE": {
+      "fragment": 8,
+      "gerund": 11,
+      "run_on": 13
+    },
+    "TO_TOO_TWO": {
+      "gerund": 10,
+      "quotation": 9,
+      "run_on": 57
+    }
+  },
+  "purpose": "development_regression_only_not_approval_evidence",
+  "requestedStructures": [
+    "v3-to-too-two-gerund-supplement-0002-to-too-two-01",
+    "v3-to-too-two-gerund-supplement-0002-to-too-two-02"
+  ],
+  "rootRequirementsByFamily": {
+    "THERE_THEIR_THEYRE": {
+      "POS": 235,
+      "dependency_relation": 235,
+      "family_specific_policy": 32,
+      "genuine_semantic_ambiguity": 32,
+      "lexical_governance_information": 71,
+      "locative_existential_distinction": 97,
+      "morphology": 117,
+      "passive_progressive_adjectival_distinction": 92,
+      "possessive_relation": 36,
+      "sentence_clause_boundary": 21,
+      "subject_copular_auxiliary_relation": 129,
+      "syntactic_head": 235
+    },
+    "TO_TOO_TWO": {
+      "POS": 905,
+      "additive_degree_numeral_distinction": 58,
+      "dependency_relation": 905,
+      "evaluator_policy_contract_issue": 63,
+      "family_specific_policy": 113,
+      "genuine_semantic_ambiguity": 60,
+      "infinitive_prepositional_to_distinction": 787,
+      "lexical_governance_information": 797,
+      "morphology": 675,
+      "preposition_governing_gerund": 10,
+      "quotation_protected_boundary_recognition": 9,
+      "sentence_clause_boundary": 57,
+      "syntactic_head": 905
+    }
+  },
+  "schemaVersion": 1,
+  "totalCases": 1140
+}
