@@ -23,9 +23,23 @@
       "sourceLabelerId": "Katie Sanderson",
       "resolvedHuman": "Katie Sanderson",
       "confirmationTimestamp": "2026-09-10T11:00:40Z"
+    },
+    {
+      "decisionProvenanceId": "s8-v3-there-incidental-primary-label-confirmation-katie-2026-09-10-01",
+      "source": "Explicit Katie Sanderson decision in the current task.",
+      "recordCount": 5,
+      "resolvedHuman": "Katie Sanderson",
+      "confirmationTimestamp": "2026-09-10T11:38:43Z",
+      "decisions": {
+        "classification": "VALID",
+        "declaredConstruction": "possessive",
+        "declaredSubtype": "possessive_subject_or_object",
+        "supportedConstruction": true,
+        "primaryFocusApproved": false
+      }
     }
   ],
   "analyserPredictionsExposed": false,
   "nonGoldReviewerMustBeSeparatelyAttributable": true,
-  "provenanceFingerprint": "0aac36f84fa3d16a7253ade5cc7f1f91ba6cd43a5b2033e77c9337c56e786c51"
+  "provenanceFingerprint": "9c2e0b50736d1de5c79a0bf0ef3a78bccf1c20aa23482404352127a39d8ab93d"
 }

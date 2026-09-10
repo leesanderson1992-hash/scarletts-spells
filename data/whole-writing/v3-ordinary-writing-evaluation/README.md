@@ -55,13 +55,13 @@ predictions and that their target classifications and subtypes are her primary
 human decisions. The supplement contains 107 governed occurrences: 57
 `THERE_THEIR_THEYRE` and 50 incidental `TO_TOO_TWO` occurrences.
 
-The imported in-progress label set contains 524 of the 529
-`THERE_THEIR_THEYRE` occurrence decisions. All primary coverage quotas are now
-met across 452 approved primaries, but five neighbouring `THERE_THEIR_THEYRE`
-occurrences still require primary decisions. The 50 incidental `TO_TOO_TWO`
-occurrences also require decisions for that family. Exact pending packets are
-under `human-review/primary-label/pending`.
+The imported primary-label set contains all 529 `THERE_THEIR_THEYRE`
+occurrence decisions. All primary coverage quotas are met across 452 approved
+primaries. The five neighbouring possessive uses were retained as valid,
+non-primary incidental evidence. The 50 incidental `TO_TOO_TWO` occurrences
+still require decisions for that family.
 
-No candidate or gold file has been locked. No non-gold review, adjudication or
-analyser evaluation has begun, and all family delivery and release operations
-remain disabled.
+The analyser-blind `THERE_THEIR_THEYRE` non-gold packet is issued under
+`human-review/non-gold/pending`. No candidate or gold file has been locked, no
+non-gold decision or adjudication has been recorded, and all family delivery
+and release operations remain disabled.

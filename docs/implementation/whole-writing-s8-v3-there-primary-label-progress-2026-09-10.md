@@ -4,7 +4,7 @@ Date: 10 September 2026
 
 Classification: `EVIDENCE_PROGRESS_RECEIPT`
 
-Disposition: `BLOCKED — FIVE PRIMARY OCCURRENCE DECISIONS AND ALL INDEPENDENT REVIEW REMAIN`
+Disposition: `BLOCKED — INDEPENDENT NON-GOLD REVIEW AND ADJUDICATION REMAIN`
 
 ## Authority and holdout protection
 
@@ -46,21 +46,24 @@ the supplemental inventory SHA-256 is
 
 ## Imported primary decisions
 
-The amended main sheet's 472 decisions and the supplement's 52 confirmed
-target decisions produce 524 imported `THERE_THEIR_THEYRE` labels. Five
-neighbouring occurrences remain unlabelled, so the primary-label set is not
-complete and candidates remain unlocked.
+The amended main sheet's 472 decisions, the supplement's 52 confirmed target
+decisions, and Katie Sanderson's five explicit incidental decisions produce 529
+complete `THERE_THEIR_THEYRE` occurrence labels. The five neighbouring
+possessive uses are `VALID`, supported, non-primary evidence. They do not
+change the 452-primary coverage count.
 
 - Primary-label set fingerprint:
-  `39d84b1d3cf1bdd54af98d525eb933d5f40df5c9f55a1f17449e2e8c15d94ba2`.
+  `e0c75c15a36dc0990f4031a6206671ba889ccf4283a6234c24de184e8821535f`.
 - Primary-label receipt fingerprint:
-  `378c2b5abc5d29d90485a90da26205a025fdb86294aa35440520e2641fd8dbbd`.
+  `4d3a31a87de1f9a87d0d996dca8c88860a080fcbfdebbb1330461f9c21fd94a7`.
 - Primary-human identity/provenance fingerprint:
-  `0aac36f84fa3d16a7253ade5cc7f1f91ba6cd43a5b2033e77c9337c56e786c51`.
-- Pending `THERE_THEIR_THEYRE` packet SHA-256:
+  `9c2e0b50736d1de5c79a0bf0ef3a78bccf1c20aa23482404352127a39d8ab93d`.
+- Issued five-row incidental `THERE_THEIR_THEYRE` packet SHA-256:
   `ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b`.
 - Pending incidental `TO_TOO_TWO` packet SHA-256:
   `516e93b32aea67548dd2535f339b14cb8a9e7525daca1889752d654586eb90f4`.
+- Blinded 529-row `THERE_THEIR_THEYRE` non-gold packet SHA-256:
+  `897730e272cc599ce0a12d8266df80113e1726ccc2412751566bbc8d654a0cf0`.
 
 ## Coverage ledger
 
@@ -85,25 +88,23 @@ family. Confirmed primary classes are 180 `VALID`, 172 `INVALID` and 100
 | `passive_contraction` | 20 | 20 |
 
 Each protected category has 20 approved primary cases. All numerical coverage
-quotas pass. This does not satisfy the human workflow while five occurrence
-decisions, the separately attributable non-gold review and any required
-adjudication remain outstanding.
+quotas pass. This does not satisfy the human workflow until the separately
+attributable non-gold review and any required adjudication are complete.
 
 The coverage-ledger fingerprint is
-`49ca3b5841631d7bbfc606a7acbc1a3473da310863642114654b8662a0be8e1f`.
+`38c845b5ff92e070808683197bcb0bfbfb258b700f5c33e43d5aa02e9b6d4b75`.
 
 ## Current disposition
 
 `THERE_THEIR_THEYRE` remains `BLOCKED`. The progress-disposition fingerprint
-is `90579ebef624238f6bb3c2eb7561b8eb6144af84da1e60d88082d8e8d45f2269`.
+is `e22589ccbc36f66a8147f791d13963343b644f8b30cd85b4ff0d169b605810f1`.
 Candidate, gold, corpus, report and repeatability fingerprints do not exist.
 
 Nothing was published, selected, approved or activated. V1, V2, frozen G2,
 the four V3 analyser candidates, `origin/main`, staging and Production remain
 unchanged. Family delivery remains disabled.
 
-The next action is for Katie Sanderson to complete the five-row
-`THERE_THEIR_THEYRE` pending packet. The 50-row `TO_TOO_TWO` incidental packet
-must also be completed before that family's corpus can be locked. Only after
-all `THERE_THEIR_THEYRE` occurrence labels are complete may the analyser-blind,
-separately attributable non-gold review packet be issued.
+The next action is for a second, separately attributable identified human to
+complete the blinded 529-row `THERE_THEIR_THEYRE` non-gold packet. The 50-row
+`TO_TOO_TWO` incidental primary-label packet must also be completed before that
+family's corpus can be locked.

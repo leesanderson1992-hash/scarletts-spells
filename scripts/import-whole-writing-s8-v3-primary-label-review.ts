@@ -15,10 +15,20 @@ const EXPECTED_WORKBOOK_SHA256 = "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8
 const EXPECTED_MAIN_EXTRACT_SHA256 = "879907751858a20e3370a23b3491af879b8b36e4838e2b5f91ca5a1e2d748bf6";
 const EXPECTED_SUPPLEMENT_EXTRACT_SHA256 = "40d1b087694a74941d631a44e1438f979eee510e707953af1ffbae4ecaf6ecd1";
 const CONFIRMATION_TIMESTAMP = "2026-09-10T11:00:40Z";
+const INCIDENTAL_CONFIRMATION_TIMESTAMP = "2026-09-10T11:38:43Z";
 const SENTINEL_AUTHORIZATION_ID = "s8-v3-unsupported-sentinel-authorization-katie-2026-09-10-01";
 const SUPPLEMENT_AUTHORSHIP_RESOLUTION_ID = "s8-v3-supplement-authorship-resolution-katie-2026-09-10-01";
 const MAIN_DECISION_PROVENANCE_ID = "s8-v3-there-primary-review-amended-katie-2026-09-10-01";
 const SUPPLEMENT_DECISION_PROVENANCE_ID = "s8-v3-there-subtype-supplement-katie-2026-09-10-01";
+const INCIDENTAL_DECISION_PROVENANCE_ID = "s8-v3-there-incidental-primary-label-confirmation-katie-2026-09-10-01";
+const NON_GOLD_PACKET_ID = "s8-v3-there-non-gold-human-review-2026-09-10-01";
+const CONFIRMED_INCIDENTAL_CONTEXT_BY_CASE_ID = new Map([
+  ["v3-there-their-theyre-supplement-0014-there-their-theyre-02", "their book reviews"],
+  ["v3-there-their-theyre-supplement-0028-there-their-theyre-02", "their own work"],
+  ["v3-there-their-theyre-supplement-0040-there-their-theyre-02", "their own work"],
+  ["v3-there-their-theyre-supplement-0042-there-their-theyre-02", "their own work"],
+  ["v3-there-their-theyre-supplement-0046-there-their-theyre-02", "their group"],
+]);
 const PROTECTED_TAGS = ["fragment", "quotation", "gerund", "run_on", "task_dependent"] as const;
 const FAMILY_MEMBERS: Record<ContextFamilyKey, readonly string[]> = {
   THERE_THEIR_THEYRE: ["there", "their", "they're"],
@@ -42,6 +52,13 @@ const PRIMARY_REVIEW_HEADERS = [
   "identifier_generation", "declared_construction", "declared_subtype", "protected_set_tags_json",
   "classification", "intended_alternative", "supported_construction", "primary_focus_approved", "primary_label_id",
   "primary_labeler", "primary_label_timestamp_utc", "primary_notes",
+] as const;
+const NON_GOLD_REVIEW_HEADERS = [
+  "schema_version", "review_packet_id", "primary_decisions_visible", "inventory_fingerprint", "case_id", "family",
+  "source_text", "focus_surface", "start_utf16", "end_utf16", "span_validated", "source_reference", "authored_by",
+  "source_authorship", "identifier_generation", "review_classification", "review_intended_alternative",
+  "review_supported_construction", "review_declared_construction", "review_declared_subtype", "review_protected_set_tags_json",
+  "non_gold_review_id", "non_gold_reviewer", "non_gold_review_timestamp_utc", "review_notes",
 ] as const;
 
 type CsvRecord = Record<string, string>;
@@ -329,15 +346,46 @@ function main() {
     return label;
   });
 
-  const allThereLabels = [...mainLabels, ...supplementalLabels];
-  assert.equal(allThereLabels.length, 524);
-  assert.equal(new Set(allThereLabels.map((label) => label.caseId)).size, allThereLabels.length);
   const allThereInventory = [...baseThereInventory, ...supplementalInventory.filter((record) => record.family === "THERE_THEIR_THEYRE")];
-  const labeledCases = new Set(allThereLabels.map((label) => label.caseId));
-  const pendingThere = allThereInventory.filter((record) => !labeledCases.has(record.caseId));
+  const provisionalThereLabels = [...mainLabels, ...supplementalLabels];
+  assert.equal(provisionalThereLabels.length, 524);
+  const provisionalLabeledCases = new Set(provisionalThereLabels.map((label) => label.caseId));
+  const issuedThere = allThereInventory.filter((record) => !provisionalLabeledCases.has(record.caseId));
   const pendingTo = supplementalInventory.filter((record) => record.family === "TO_TOO_TWO");
-  assert.equal(pendingThere.length, 5);
+  assert.equal(issuedThere.length, 5);
+  assert.deepEqual(new Set(issuedThere.map((record) => record.caseId)), new Set(CONFIRMED_INCIDENTAL_CONTEXT_BY_CASE_ID.keys()));
+  for (const record of issuedThere) {
+    assert.equal(record.focusSurface.toLowerCase(), "their", `${record.caseId}: confirmed incidental surface`);
+    assert(record.sourceText.includes(CONFIRMED_INCIDENTAL_CONTEXT_BY_CASE_ID.get(record.caseId)!), `${record.caseId}: confirmed incidental context`);
+  }
   assert.equal(pendingTo.length, 50);
+  const incidentalLabels = issuedThere.map((inventory) => {
+    const core: Omit<PrimaryLabel, "primaryLabelFingerprint"> = {
+      schemaVersion: 1,
+      primaryLabelId: `primary-${inventory.caseId}`,
+      inventoryFingerprint: inventory.inventoryFingerprint,
+      caseId: inventory.caseId,
+      family: inventory.family,
+      declaredConstruction: "possessive",
+      declaredSubtype: "possessive_subject_or_object",
+      protectedSetTags: [],
+      classification: "VALID",
+      intendedAlternative: null,
+      supportedConstruction: true,
+      primaryFocusApproved: false,
+      labelerId: "Katie Sanderson",
+      labeledAt: INCIDENTAL_CONFIRMATION_TIMESTAMP,
+      notes: "Katie Sanderson confirmed this neighbouring occurrence is a valid incidental possessive use; it is not a primary-focus case.",
+      decisionProvenanceId: INCIDENTAL_DECISION_PROVENANCE_ID,
+    };
+    const label = labelWithFingerprint(core);
+    validateLabel(label, inventory);
+    return label;
+  });
+  const allThereLabels = [...provisionalThereLabels, ...incidentalLabels];
+  assert.equal(allThereLabels.length, 529);
+  assert.equal(new Set(allThereLabels.map((label) => label.caseId)).size, allThereLabels.length);
+  assert.equal(new Set(allThereLabels.map((label) => label.caseId)).size, allThereInventory.length);
 
   const primaryLabels = allThereLabels.filter((label) => label.primaryFocusApproved);
   assert.equal(primaryLabels.length, 452);
@@ -407,6 +455,20 @@ function main() {
         resolvedHuman: "Katie Sanderson",
         confirmationTimestamp: CONFIRMATION_TIMESTAMP,
       },
+      {
+        decisionProvenanceId: INCIDENTAL_DECISION_PROVENANCE_ID,
+        source: "Explicit Katie Sanderson decision in the current task.",
+        recordCount: incidentalLabels.length,
+        resolvedHuman: "Katie Sanderson",
+        confirmationTimestamp: INCIDENTAL_CONFIRMATION_TIMESTAMP,
+        decisions: {
+          classification: "VALID",
+          declaredConstruction: "possessive",
+          declaredSubtype: "possessive_subject_or_object",
+          supportedConstruction: true,
+          primaryFocusApproved: false,
+        },
+      },
     ],
     analyserPredictionsExposed: false,
     nonGoldReviewerMustBeSeparatelyAttributable: true,
@@ -436,24 +498,6 @@ function main() {
   };
   const supplementManifest = { ...supplementManifestCore, supplementalSourceManifestFingerprint: ordinaryEvaluationFingerprint(supplementManifestCore) };
   const primaryLabelText = `${allThereLabels.map((label) => JSON.stringify(label)).join("\n")}\n`;
-  const primaryLabelReceiptCore = {
-    schemaVersion: 1,
-    family: "THERE_THEIR_THEYRE",
-    importStatus: "IN_PROGRESS",
-    importedLabelCount: allThereLabels.length,
-    requiredOccurrenceLabelCount: allThereInventory.length,
-    pendingOccurrenceLabelCount: pendingThere.length,
-    approvedPrimaryCount: primaryLabels.length,
-    rawWorkbookSha256: EXPECTED_WORKBOOK_SHA256,
-    mainDecisionProvenanceId: MAIN_DECISION_PROVENANCE_ID,
-    supplementDecisionProvenanceId: SUPPLEMENT_DECISION_PROVENANCE_ID,
-    primaryDecisionProvenanceFingerprint: primaryDecisionProvenance.provenanceFingerprint,
-    primaryLabelFileSha256: sha256(primaryLabelText),
-    primaryLabelSetFingerprint: ordinaryEvaluationFingerprint(allThereLabels.map((label) => label.primaryLabelFingerprint)),
-    analyserBehaviour: "NOT_EVALUATED",
-  };
-  const primaryLabelReceipt = { ...primaryLabelReceiptCore, receiptFingerprint: ordinaryEvaluationFingerprint(primaryLabelReceiptCore) };
-
   const reviewRows = (records: InventoryRecord[]) => records.map((record) => [
     record.schemaVersion, record.inventoryFingerprint, record.sourceFileSha256, record.sourceFileName, record.sourceRowNumber,
     record.passageId, record.caseId, record.family, record.sourceText, record.focusSurface, record.startUtf16, record.endUtf16,
@@ -461,8 +505,35 @@ function main() {
     record.authorshipConfirmedClaim, record.sourceGroupClaim, record.authorshipResolutionId, record.sourceAuthorship,
     record.identifierGeneration, "", "", "", "", "", "", "", "", "", "", "",
   ]);
-  const pendingThereText = csvText(PRIMARY_REVIEW_HEADERS, reviewRows(pendingThere));
+  const issuedThereText = csvText(PRIMARY_REVIEW_HEADERS, reviewRows(issuedThere));
   const pendingToText = csvText(PRIMARY_REVIEW_HEADERS, reviewRows(pendingTo));
+  const nonGoldReviewRows = allThereInventory.map((record) => [
+    record.schemaVersion, NON_GOLD_PACKET_ID, "FALSE", record.inventoryFingerprint, record.caseId, record.family,
+    record.sourceText, record.focusSurface, record.startUtf16, record.endUtf16, record.spanValidated, record.sourceReference,
+    record.authoredByClaim, record.sourceAuthorship, record.identifierGeneration, "", "", "", "", "", "", "", "", "", "",
+  ]);
+  const nonGoldReviewPacketText = csvText(NON_GOLD_REVIEW_HEADERS, nonGoldReviewRows);
+  const nonGoldReviewInstructions = `# S8 V3 THERE_THEIR_THEYRE independent non-gold review\n\nThis packet contains 529 governed occurrences. It contains no analyser prediction and no primary-human decision. Review every row independently.\n\nThe reviewer must be an identified human separately attributable from Katie Sanderson. Enter one of \`VALID\`, \`INVALID\` or \`UNCERTAIN\`; a finite same-family intended alternative or blank; construction support; construction and subtype; protected tags; a stable review ID; reviewer identity; UTC timestamp; and concise notes.\n\nUse \`not_applicable/not_applicable\` only for an \`UNCERTAIN\` occurrence with unsupported construction and no intended alternative. Do not edit immutable columns. Substantive disagreement with the primary human will require second-human adjudication after the completed review returns.\n`;
+  const primaryLabelReceiptCore = {
+    schemaVersion: 1,
+    family: "THERE_THEIR_THEYRE",
+    importStatus: "COMPLETE_PRIMARY_LABELS",
+    importedLabelCount: allThereLabels.length,
+    requiredOccurrenceLabelCount: allThereInventory.length,
+    pendingOccurrenceLabelCount: 0,
+    approvedPrimaryCount: primaryLabels.length,
+    rawWorkbookSha256: EXPECTED_WORKBOOK_SHA256,
+    mainDecisionProvenanceId: MAIN_DECISION_PROVENANCE_ID,
+    supplementDecisionProvenanceId: SUPPLEMENT_DECISION_PROVENANCE_ID,
+    incidentalDecisionProvenanceId: INCIDENTAL_DECISION_PROVENANCE_ID,
+    primaryDecisionProvenanceFingerprint: primaryDecisionProvenance.provenanceFingerprint,
+    primaryLabelFileSha256: sha256(primaryLabelText),
+    primaryLabelSetFingerprint: ordinaryEvaluationFingerprint(allThereLabels.map((label) => label.primaryLabelFingerprint)),
+    issuedIncidentalPrimaryLabelPacketSha256: sha256(issuedThereText),
+    nonGoldReviewPacketSha256: sha256(nonGoldReviewPacketText),
+    analyserBehaviour: "NOT_EVALUATED",
+  };
+  const primaryLabelReceipt = { ...primaryLabelReceiptCore, receiptFingerprint: ordinaryEvaluationFingerprint(primaryLabelReceiptCore) };
   const coverageCore = {
     schemaVersion: 1,
     statusAt: CONFIRMATION_TIMESTAMP,
@@ -473,13 +544,13 @@ function main() {
         passagesWithFamily: new Set(allThereInventory.map((record) => record.passageId)).size,
         approvedPrimary: primaryLabels.length,
         completedOccurrencePrimaryLabels: allThereLabels.length,
-        pendingOccurrencePrimaryLabels: pendingThere.length,
+        pendingOccurrencePrimaryLabels: 0,
         primaryByClassification: classificationCounts,
         primaryByConstruction: constructionCounts,
         primaryBySubtype: subtypeCounts,
         protectedPrimaryCounts,
         coverageQuotaShortages: [],
-        workflowShortages: ["5 incidental occurrence primary labels", "separately attributable non-gold review for every occurrence", "adjudication of every substantive disagreement", "locked final gold"],
+        workflowShortages: ["separately attributable non-gold review for every occurrence", "adjudication of every substantive disagreement", "locked final gold"],
       },
       TO_TOO_TWO: {
         supplementalAnnotatedOccurrences: pendingTo.length,
@@ -497,7 +568,7 @@ function main() {
     schemaVersion: 1,
     family: "THERE_THEIR_THEYRE",
     disposition: "BLOCKED",
-    blockerType: "UNRESOLVED_HUMAN_AUTHORITY_AND_REVIEW_WORKFLOW",
+    blockerType: "NON_GOLD_REVIEW_AND_ADJUDICATION_PENDING",
     exactRelease: {
       releaseKey: frozenCandidate.releaseKey,
       releaseId: frozenCandidate.releaseId,
@@ -511,25 +582,26 @@ function main() {
       supplementalInventorySha256: sha256(supplementalInventoryText),
       primaryLabelReceiptFingerprint: primaryLabelReceipt.receiptFingerprint,
       coverageLedgerFingerprint: coverage.coverageLedgerFingerprint,
-      pendingPrimaryLabelPacketSha256: sha256(pendingThereText),
+      issuedIncidentalPrimaryLabelPacketSha256: sha256(issuedThereText),
+      pendingNonGoldReviewPacketSha256: sha256(nonGoldReviewPacketText),
       candidateFingerprint: null,
       goldFingerprint: null,
       corpusFingerprint: null,
       reportFingerprint: null,
     },
     humanWorkflow: {
-      primaryLabelsComplete: false,
+      primaryLabelsComplete: true,
       confirmedOccurrenceDecisions: allThereLabels.length,
       requiredOccurrenceDecisions: allThereInventory.length,
-      pendingOccurrenceDecisions: pendingThere.length,
+      pendingOccurrenceDecisions: 0,
       primaryCoverageComplete: true,
       nonGoldReviewComplete: false,
       adjudicationComplete: false,
       finalGoldLocked: false,
     },
     coverage: coverage.coverage.THERE_THEIR_THEYRE,
-    failedGates: ["PRIMARY_HUMAN_LABELS_INCOMPLETE", "NON_GOLD_REVIEW_INCOMPLETE", "ADJUDICATION_NOT_COMPLETED", "CANDIDATES_NOT_LOCKED", "FINAL_GOLD_NOT_LOCKED", "EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
-    failedCases: pendingThere.map((record) => ({ caseId: record.caseId, reason: "PRIMARY_HUMAN_LABEL_MISSING" })),
+    failedGates: ["NON_GOLD_REVIEW_INCOMPLETE", "ADJUDICATION_NOT_COMPLETED", "CANDIDATES_NOT_LOCKED", "FINAL_GOLD_NOT_LOCKED", "EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
+    failedCases: [],
     unevaluatedCases: allThereInventory.length,
     metrics: null,
     analyserBehaviour: "NOT_EVALUATED",
@@ -549,8 +621,10 @@ function main() {
     ["source-intake/occurrence-inventory.there-quota-supplement.jsonl", supplementalInventoryText],
     ["human-review/primary-label/imported/THERE_THEIR_THEYRE.primary-labels.in-progress.jsonl", primaryLabelText],
     ["human-review/primary-label/imported/THERE_THEIR_THEYRE.primary-labels.in-progress.receipt.json", `${JSON.stringify(primaryLabelReceipt, null, 2)}\n`],
-    ["human-review/primary-label/pending/THERE_THEIR_THEYRE.supplement-incidental.primary-label-review.csv", pendingThereText],
+    ["human-review/primary-label/issued/THERE_THEIR_THEYRE.supplement-incidental.primary-label-review.csv", issuedThereText],
     ["human-review/primary-label/pending/TO_TOO_TWO.supplement-incidental.primary-label-review.csv", pendingToText],
+    ["human-review/non-gold/pending/THERE_THEIR_THEYRE.non-gold-review.csv", nonGoldReviewPacketText],
+    ["human-review/non-gold/NON-GOLD-REVIEW-INSTRUCTIONS.md", nonGoldReviewInstructions],
     ["source-intake/coverage-ledger.primary-label-in-progress.json", coverageText],
     ["dispositions/s8-v3-there-their-theyre.primary-label-in-progress.blocked.json", `${JSON.stringify(disposition, null, 2)}\n`],
   ]);
@@ -566,9 +640,10 @@ function main() {
     supplementalOccurrences: supplementalInventory.length,
     supplementalOccurrenceCounts: supplementManifest.supplementalOccurrenceCounts,
     importedThereLabels: allThereLabels.length,
-    pendingThereLabels: pendingThere.length,
+    pendingThereLabels: 0,
     pendingToLabels: pendingTo.length,
     approvedTherePrimary: primaryLabels.length,
+    nonGoldReviewPacketRows: nonGoldReviewRows.length,
     primaryClassificationCounts: classificationCounts,
     constructionCounts,
     subtypeCounts,

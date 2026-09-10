@@ -7,8 +7,8 @@
       "totalAnnotatedOccurrences": 529,
       "passagesWithFamily": 498,
       "approvedPrimary": 452,
-      "completedOccurrencePrimaryLabels": 524,
-      "pendingOccurrencePrimaryLabels": 5,
+      "completedOccurrencePrimaryLabels": 529,
+      "pendingOccurrencePrimaryLabels": 0,
       "primaryByClassification": {
         "VALID": 180,
         "INVALID": 172,
@@ -67,7 +67,6 @@
       },
       "coverageQuotaShortages": [],
       "workflowShortages": [
-        "5 incidental occurrence primary labels",
         "separately attributable non-gold review for every occurrence",
         "adjudication of every substantive disagreement",
         "locked final gold"
@@ -81,5 +80,5 @@
       "supplementalOccurrencePrimaryLabelsPending": 50
     }
   },
-  "coverageLedgerFingerprint": "49ca3b5841631d7bbfc606a7acbc1a3473da310863642114654b8662a0be8e1f"
+  "coverageLedgerFingerprint": "38c845b5ff92e070808683197bcb0bfbfb258b700f5c33e43d5aa02e9b6d4b75"
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "family": "THERE_THEIR_THEYRE",
   "disposition": "BLOCKED",
-  "blockerType": "UNRESOLVED_HUMAN_AUTHORITY_AND_REVIEW_WORKFLOW",
+  "blockerType": "NON_GOLD_REVIEW_AND_ADJUDICATION_PENDING",
   "exactRelease": {
     "releaseKey": "s8-v3-there-their-theyre",
     "releaseId": "81000000-0000-4000-8000-000000000009",
@@ -14,19 +14,20 @@
     "rawWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
     "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
     "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
-    "primaryLabelReceiptFingerprint": "378c2b5abc5d29d90485a90da26205a025fdb86294aa35440520e2641fd8dbbd",
-    "coverageLedgerFingerprint": "49ca3b5841631d7bbfc606a7acbc1a3473da310863642114654b8662a0be8e1f",
-    "pendingPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
+    "primaryLabelReceiptFingerprint": "4d3a31a87de1f9a87d0d996dca8c88860a080fcbfdebbb1330461f9c21fd94a7",
+    "coverageLedgerFingerprint": "38c845b5ff92e070808683197bcb0bfbfb258b700f5c33e43d5aa02e9b6d4b75",
+    "issuedIncidentalPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
+    "pendingNonGoldReviewPacketSha256": "897730e272cc599ce0a12d8266df80113e1726ccc2412751566bbc8d654a0cf0",
     "candidateFingerprint": null,
     "goldFingerprint": null,
     "corpusFingerprint": null,
     "reportFingerprint": null
   },
   "humanWorkflow": {
-    "primaryLabelsComplete": false,
-    "confirmedOccurrenceDecisions": 524,
+    "primaryLabelsComplete": true,
+    "confirmedOccurrenceDecisions": 529,
     "requiredOccurrenceDecisions": 529,
-    "pendingOccurrenceDecisions": 5,
+    "pendingOccurrenceDecisions": 0,
     "primaryCoverageComplete": true,
     "nonGoldReviewComplete": false,
     "adjudicationComplete": false,
@@ -36,8 +37,8 @@
     "totalAnnotatedOccurrences": 529,
     "passagesWithFamily": 498,
     "approvedPrimary": 452,
-    "completedOccurrencePrimaryLabels": 524,
-    "pendingOccurrencePrimaryLabels": 5,
+    "completedOccurrencePrimaryLabels": 529,
+    "pendingOccurrencePrimaryLabels": 0,
     "primaryByClassification": {
       "VALID": 180,
       "INVALID": 172,
@@ -96,14 +97,12 @@
     },
     "coverageQuotaShortages": [],
     "workflowShortages": [
-      "5 incidental occurrence primary labels",
       "separately attributable non-gold review for every occurrence",
       "adjudication of every substantive disagreement",
       "locked final gold"
     ]
   },
   "failedGates": [
-    "PRIMARY_HUMAN_LABELS_INCOMPLETE",
     "NON_GOLD_REVIEW_INCOMPLETE",
     "ADJUDICATION_NOT_COMPLETED",
     "CANDIDATES_NOT_LOCKED",
@@ -111,28 +110,7 @@
     "EXACT_RELEASE_EVALUATION_NOT_RUN",
     "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
   ],
-  "failedCases": [
-    {
-      "caseId": "v3-there-their-theyre-supplement-0014-there-their-theyre-02",
-      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
-    },
-    {
-      "caseId": "v3-there-their-theyre-supplement-0028-there-their-theyre-02",
-      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
-    },
-    {
-      "caseId": "v3-there-their-theyre-supplement-0040-there-their-theyre-02",
-      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
-    },
-    {
-      "caseId": "v3-there-their-theyre-supplement-0042-there-their-theyre-02",
-      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
-    },
-    {
-      "caseId": "v3-there-their-theyre-supplement-0046-there-their-theyre-02",
-      "reason": "PRIMARY_HUMAN_LABEL_MISSING"
-    }
-  ],
+  "failedCases": [],
   "unevaluatedCases": 529,
   "metrics": null,
   "analyserBehaviour": "NOT_EVALUATED",
@@ -141,5 +119,5 @@
   "selectionPerformed": false,
   "approvalEventCreated": false,
   "activationPerformed": false,
-  "dispositionFingerprint": "90579ebef624238f6bb3c2eb7561b8eb6144af84da1e60d88082d8e8d45f2269"
+  "dispositionFingerprint": "e22589ccbc36f66a8147f791d13963343b644f8b30cd85b4ff0d169b605810f1"
 }
