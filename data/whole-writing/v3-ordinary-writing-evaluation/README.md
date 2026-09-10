@@ -63,6 +63,7 @@ still require decisions for that family.
 
 Katie Sanderson's completed `THERE_THEIR_THEYRE` non-gold review is preserved
 under `human-review/non-gold/completed`. It contains no analyser prediction and
-matches every primary decision, so no adjudication is required. No candidate or
-gold file has been locked, and all family delivery and release operations remain
-disabled.
+matches every primary decision, so no adjudication is required. The candidate
+and final-gold sets are locked, and the exact frozen release was evaluated twice
+with byte-identical output. Its governed disposition is `BLOCKED`; all family
+delivery and release operations remain disabled.

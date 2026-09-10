@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+  "family": "THERE_THEIR_THEYRE",
+  "releaseFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
+  "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
+  "counts": {
+    "valid": 180,
+    "invalid": 172,
+    "uncertain": 100
+  },
+  "totalPrimary": 452,
+  "totalAnnotatedOccurrences": 529,
+  "metrics": {
+    "precision": 0.6942148760330579,
+    "wilsonLower95": 0.6071971806219708,
+    "supportedRecall": 0.4883720930232558,
+    "validRecognition": 0.5362903225806451,
+    "falseValid": 32,
+    "wrongAlternatives": 37,
+    "protectedFailures": 32
+  },
+  "byConstruction": {
+    "locative": {
+      "supported": 35,
+      "recalled": 10,
+      "recall": 0.2857142857142857
+    },
+    "existential": {
+      "supported": 35,
+      "recalled": 19,
+      "recall": 0.5428571428571428
+    },
+    "possessive": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "they_are_contraction": {
+      "supported": 62,
+      "recalled": 25,
+      "recall": 0.4032258064516129
+    }
+  },
+  "bySubtype": {
+    "adverbial_locative": {
+      "supported": 35,
+      "recalled": 10,
+      "recall": 0.2857142857142857
+    },
+    "embedded_existential": {
+      "supported": 35,
+      "recalled": 19,
+      "recall": 0.5428571428571428
+    },
+    "possessive_subject_or_object": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "adjectival_contraction": {
+      "supported": 22,
+      "recalled": 14,
+      "recall": 0.6363636363636364
+    },
+    "passive_contraction": {
+      "supported": 20,
+      "recalled": 1,
+      "recall": 0.05
+    },
+    "progressive_contraction": {
+      "supported": 20,
+      "recalled": 10,
+      "recall": 0.5
+    }
+  },
+  "issues": [
+    "AGGREGATE_RECALL_BELOW_POLICY",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adjectival_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adverbial_locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:embedded_existential",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:existential",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:passive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive_subject_or_object",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
+    "FALSE_VALID_PRESENT",
+    "PRECISION_BELOW_POLICY",
+    "PROTECTED_FAILURE_PRESENT",
+    "SUBTYPE_QUOTA_FAILED:not_applicable",
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+    "VALID_RECOGNITION_BELOW_POLICY",
+    "WILSON_BELOW_POLICY",
+    "WRONG_ALTERNATIVE_PRESENT"
+  ],
+  "findings": [
+    {
+      "caseId": "v3-there-their-theyre-0042-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0048-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0050-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0051-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0052-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0058-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0059-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0063-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0064-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0065-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0069-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0072-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0074-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0077-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0081-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0085-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0086-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0093-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0094-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0097-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0111-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0115-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0196-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0198-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0202-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0204-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0212-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0214-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0218-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0220-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0222-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0223-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0224-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0230-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0232-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0234-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0248-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0301-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0301-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0303-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0303-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0307-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0307-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0308-there-their-theyre-02",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0308-there-their-theyre-02",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0310-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0310-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0313-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0313-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0317-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0317-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0318-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0318-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0342-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0342-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0343-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0343-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0349-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0349-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0350-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0350-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0353-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0353-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0354-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0354-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0355-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0355-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0356-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0356-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0357-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0357-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0358-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0358-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0360-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0360-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0361-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0361-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0362-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0362-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0368-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0368-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0371-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0371-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0376-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0376-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    }
+  ],
+  "disposition": "BLOCKED",
+  "reportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84"
+}

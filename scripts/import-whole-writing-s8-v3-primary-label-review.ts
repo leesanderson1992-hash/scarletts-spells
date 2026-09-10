@@ -108,6 +108,37 @@ type PrimaryLabel = Readonly<{
   primaryLabelFingerprint: string;
 }>;
 
+type CandidateRecord = Readonly<{
+  schemaVersion: 1;
+  passageId: string;
+  caseId: string;
+  family: ContextFamilyKey;
+  sourceText: string;
+  focusSurface: string;
+  startUtf16: number;
+  endUtf16: number;
+  declaredConstruction: string;
+  declaredSubtype: string;
+  primaryFocus: boolean;
+  protectedSetTags: readonly string[];
+  sourceReference: string;
+  authoredBy: string;
+  candidateFingerprint: string;
+}>;
+
+type GoldRecord = Readonly<{
+  schemaVersion: 1;
+  caseId: string;
+  family: ContextFamilyKey;
+  classification: PrimaryLabel["classification"];
+  intendedAlternative: string | null;
+  supportedConstruction: boolean;
+  primaryLabelId: string;
+  nonGoldReviewId: string;
+  adjudicationId: null;
+  goldFingerprint: string;
+}>;
+
 function sha256(value: Buffer | string) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -523,6 +554,65 @@ function main() {
   });
   const nonGoldReviewPacketText = csvText(NON_GOLD_REVIEW_HEADERS, nonGoldReviewRows);
   const nonGoldReviewInstructions = `# S8 V3 THERE_THEIR_THEYRE non-gold review receipt\n\nKatie Sanderson attested on ${NON_GOLD_REVIEW_CONFIRMATION_TIMESTAMP} that she reviewed and copied every human decision in this 529-occurrence packet. The packet contains no analyser prediction.\n\nAll review decisions match the primary decision set, so no substantive disagreement exists and no adjudication is required.\n\nUse \`not_applicable/not_applicable\` only for an \`UNCERTAIN\` occurrence with unsupported construction and no intended alternative.\n`;
+  const candidates: CandidateRecord[] = allThereInventory.map((record) => {
+    const label = labelsByCaseId.get(record.caseId)!;
+    const core = {
+      schemaVersion: 1 as const,
+      passageId: record.passageId,
+      caseId: record.caseId,
+      family: record.family,
+      sourceText: record.sourceText,
+      focusSurface: record.focusSurface,
+      startUtf16: record.startUtf16,
+      endUtf16: record.endUtf16,
+      declaredConstruction: label.declaredConstruction,
+      declaredSubtype: label.declaredSubtype,
+      primaryFocus: label.primaryFocusApproved,
+      protectedSetTags: label.protectedSetTags,
+      sourceReference: record.sourceReference,
+      authoredBy: record.authoredByClaim,
+    };
+    assert.equal(core.sourceText.slice(core.startUtf16, core.endUtf16), core.focusSurface);
+    return { ...core, candidateFingerprint: ordinaryEvaluationFingerprint(core) };
+  });
+  const gold: GoldRecord[] = allThereLabels.map((label) => {
+    const core = {
+      schemaVersion: 1 as const,
+      caseId: label.caseId,
+      family: label.family,
+      classification: label.classification,
+      intendedAlternative: label.intendedAlternative,
+      supportedConstruction: label.supportedConstruction,
+      primaryLabelId: label.primaryLabelId,
+      nonGoldReviewId: `non-gold-${label.caseId}`,
+      adjudicationId: null,
+    };
+    return { ...core, goldFingerprint: ordinaryEvaluationFingerprint(core) };
+  });
+  assert.equal(candidates.length, 529);
+  assert.equal(gold.length, candidates.length);
+  assert.deepEqual(new Set(gold.map((record) => record.caseId)), new Set(candidates.map((record) => record.caseId)));
+  const candidateText = `${candidates.map((record) => JSON.stringify(record)).join("\n")}\n`;
+  const goldText = `${gold.map((record) => JSON.stringify(record)).join("\n")}\n`;
+  const corpusFingerprint = sha256(Buffer.concat([Buffer.from(candidateText), Buffer.from(goldText)]));
+  const goldLockReceiptCore = {
+    schemaVersion: 1,
+    family: "THERE_THEIR_THEYRE",
+    lockedAt: NON_GOLD_REVIEW_CONFIRMATION_TIMESTAMP,
+    candidateCount: candidates.length,
+    goldCount: gold.length,
+    candidateFileSha256: sha256(candidateText),
+    candidateSetFingerprint: ordinaryEvaluationFingerprint(candidates.map((record) => record.candidateFingerprint)),
+    goldFileSha256: sha256(goldText),
+    goldSetFingerprint: ordinaryEvaluationFingerprint(gold.map((record) => record.goldFingerprint)),
+    corpusFingerprint,
+    primaryLabelSetFingerprint: ordinaryEvaluationFingerprint(allThereLabels.map((label) => label.primaryLabelFingerprint)),
+    nonGoldReviewFileSha256: sha256(nonGoldReviewPacketText),
+    substantiveDisagreementCount: 0,
+    adjudicationRequired: false,
+    analyserBehaviour: "NOT_EVALUATED",
+  };
+  const goldLockReceipt = { ...goldLockReceiptCore, goldLockReceiptFingerprint: ordinaryEvaluationFingerprint(goldLockReceiptCore) };
   const primaryLabelReceiptCore = {
     schemaVersion: 1,
     family: "THERE_THEIR_THEYRE",
@@ -559,7 +649,7 @@ function main() {
         primaryBySubtype: subtypeCounts,
         protectedPrimaryCounts,
         coverageQuotaShortages: [],
-        workflowShortages: ["locked final gold"],
+        workflowShortages: [],
       },
       TO_TOO_TWO: {
         supplementalAnnotatedOccurrences: pendingTo.length,
@@ -577,7 +667,7 @@ function main() {
     schemaVersion: 1,
     family: "THERE_THEIR_THEYRE",
     disposition: "BLOCKED",
-    blockerType: "CANDIDATE_GOLD_LOCK_AND_EXACT_EVALUATION_PENDING",
+    blockerType: "EXACT_EVALUATION_PENDING",
     exactRelease: {
       releaseKey: frozenCandidate.releaseKey,
       releaseId: frozenCandidate.releaseId,
@@ -593,9 +683,12 @@ function main() {
       coverageLedgerFingerprint: coverage.coverageLedgerFingerprint,
       issuedIncidentalPrimaryLabelPacketSha256: sha256(issuedThereText),
       completedNonGoldReviewPacketSha256: sha256(nonGoldReviewPacketText),
-      candidateFingerprint: null,
-      goldFingerprint: null,
-      corpusFingerprint: null,
+      candidateFingerprint: goldLockReceipt.candidateSetFingerprint,
+      candidateFileSha256: goldLockReceipt.candidateFileSha256,
+      goldFingerprint: goldLockReceipt.goldSetFingerprint,
+      goldFileSha256: goldLockReceipt.goldFileSha256,
+      goldLockReceiptFingerprint: goldLockReceipt.goldLockReceiptFingerprint,
+      corpusFingerprint,
       reportFingerprint: null,
     },
     humanWorkflow: {
@@ -606,10 +699,10 @@ function main() {
       primaryCoverageComplete: true,
       nonGoldReviewComplete: true,
       adjudicationComplete: true,
-      finalGoldLocked: false,
+      finalGoldLocked: true,
     },
     coverage: coverage.coverage.THERE_THEIR_THEYRE,
-    failedGates: ["CANDIDATES_NOT_LOCKED", "FINAL_GOLD_NOT_LOCKED", "EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
+    failedGates: ["EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
     failedCases: [],
     unevaluatedCases: allThereInventory.length,
     metrics: null,
@@ -634,6 +727,9 @@ function main() {
     ["human-review/primary-label/pending/TO_TOO_TWO.supplement-incidental.primary-label-review.csv", pendingToText],
     ["human-review/non-gold/completed/THERE_THEIR_THEYRE.non-gold-review.csv", nonGoldReviewPacketText],
     ["human-review/non-gold/NON-GOLD-REVIEW-INSTRUCTIONS.md", nonGoldReviewInstructions],
+    ["candidates/THERE_THEIR_THEYRE.jsonl", candidateText],
+    ["gold/THERE_THEIR_THEYRE.final-gold.jsonl", goldText],
+    ["gold/THERE_THEIR_THEYRE.gold-lock.receipt.json", `${JSON.stringify(goldLockReceipt, null, 2)}\n`],
     ["source-intake/coverage-ledger.primary-label-in-progress.json", coverageText],
     ["dispositions/s8-v3-there-their-theyre.primary-label-in-progress.blocked.json", `${JSON.stringify(disposition, null, 2)}\n`],
   ]);
@@ -653,6 +749,9 @@ function main() {
     pendingToLabels: pendingTo.length,
     approvedTherePrimary: primaryLabels.length,
     nonGoldReviewPacketRows: nonGoldReviewRows.length,
+    candidateCount: candidates.length,
+    goldCount: gold.length,
+    corpusFingerprint,
     primaryClassificationCounts: classificationCounts,
     constructionCounts,
     subtypeCounts,

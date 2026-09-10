@@ -4,7 +4,7 @@ Date: 10 September 2026
 
 Classification: `EVIDENCE_PROGRESS_RECEIPT`
 
-Disposition: `BLOCKED — CANDIDATE/GOLD LOCK AND EXACT EVALUATION REMAIN`
+Disposition: `BLOCKED — FROZEN ANALYSER FAILED HOLDOUT GATES`
 
 ## Authority and holdout protection
 
@@ -96,18 +96,35 @@ quotas pass. The primary-label, non-gold review and adjudication gates are
 complete; final-gold lock remains.
 
 The coverage-ledger fingerprint is
-`92d14deec30a2aade81dd0dba4a4856e47c6ec15d9a7045f075e13d5ad188111`.
+`8f8932e2105cd06e87e6b768d6278db3d6d9e8750c5c6666150808a5bf13092b`.
+
+## Locked gold and exact evaluation
+
+The 529 candidates and 529 final-gold records are locked. Candidate-set
+fingerprint: `ff392f4114991ada6c9e8330ae72a79478e556dc336479aee61f66418445331e`;
+gold-set fingerprint: `5bffa44ae5d4a1c83146363175221fe6366135eb066f0ea1c1d7a4fffce1b4ca`;
+corpus fingerprint: `6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9`.
+
+Two exact-release runs produced byte-identical output. The frozen release
+failed with precision `0.6942148760`, Wilson lower bound `0.6071971806`,
+supported-misuse recall `0.4883720930`, valid recognition `0.5362903226`, 32
+false-valid results, 37 wrong alternatives and 32 protected-case failures.
+The report records 101 findings across 69 unique cases and every aggregate,
+construction and subtype failure. Report fingerprint:
+`ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84`.
 
 ## Current disposition
 
 `THERE_THEIR_THEYRE` remains `BLOCKED`. The progress-disposition fingerprint
-is `5eda7cd85f7bcb68137dbddce35fcafa4a6d5e172e0992e7f26023005db89cc0`.
-Candidate, gold, corpus, report and repeatability fingerprints do not exist.
+is `dba0332e180ce5d0cfa26c7527dba7dbb96314cc18da1d2d61f56f5ac4ccf7ce`.
+The repeatability fingerprint is
+`43799a38ab65f153bc2e97c9850cff91eaa1fa0dd2a498273dcd8b216e1964b9`.
 
 Nothing was published, selected, approved or activated. V1, V2, frozen G2,
 the four V3 analyser candidates, `origin/main`, staging and Production remain
 unchanged. Family delivery remains disabled.
 
-The next action is to build candidates and lock final gold before exact frozen
-release evaluation. The 50-row `TO_TOO_TWO` incidental primary-label packet
-must also be completed before that family's corpus can be locked.
+Any analyser remediation must use a separately versioned candidate and a fresh
+independent holdout. This exposed corpus may be retained only as regression
+evidence. The 50-row `TO_TOO_TWO` incidental primary-label packet must also be
+completed before that family's corpus can be locked.

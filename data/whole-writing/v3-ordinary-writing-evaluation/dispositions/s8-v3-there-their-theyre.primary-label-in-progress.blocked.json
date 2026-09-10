@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "family": "THERE_THEIR_THEYRE",
   "disposition": "BLOCKED",
-  "blockerType": "CANDIDATE_GOLD_LOCK_AND_EXACT_EVALUATION_PENDING",
+  "blockerType": "EXACT_EVALUATION_PENDING",
   "exactRelease": {
     "releaseKey": "s8-v3-there-their-theyre",
     "releaseId": "81000000-0000-4000-8000-000000000009",
@@ -15,12 +15,15 @@
     "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
     "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
     "primaryLabelReceiptFingerprint": "565909c9a17aa471b39ed4485ea81d249d3df49489d53b7dfec3694e0de49fff",
-    "coverageLedgerFingerprint": "92d14deec30a2aade81dd0dba4a4856e47c6ec15d9a7045f075e13d5ad188111",
+    "coverageLedgerFingerprint": "8f8932e2105cd06e87e6b768d6278db3d6d9e8750c5c6666150808a5bf13092b",
     "issuedIncidentalPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
     "completedNonGoldReviewPacketSha256": "9e1f898e525abec88ea92567f626beb1e12d8d0a0c36cafa0ee0c047a4784f8a",
-    "candidateFingerprint": null,
-    "goldFingerprint": null,
-    "corpusFingerprint": null,
+    "candidateFingerprint": "ff392f4114991ada6c9e8330ae72a79478e556dc336479aee61f66418445331e",
+    "candidateFileSha256": "867c0789e4114951669d66eb97756b535b1e5271a3f1e8990d073a3e3c01a692",
+    "goldFingerprint": "5bffa44ae5d4a1c83146363175221fe6366135eb066f0ea1c1d7a4fffce1b4ca",
+    "goldFileSha256": "c8ca65811499a027a208a8740bcdba1421281996072c0452c26514821b204a39",
+    "goldLockReceiptFingerprint": "6fa6e4049ca43b44b26d3f04378bca9317bb050a2fe057e3c3f63733c21ed02b",
+    "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
     "reportFingerprint": null
   },
   "humanWorkflow": {
@@ -31,7 +34,7 @@
     "primaryCoverageComplete": true,
     "nonGoldReviewComplete": true,
     "adjudicationComplete": true,
-    "finalGoldLocked": false
+    "finalGoldLocked": true
   },
   "coverage": {
     "totalAnnotatedOccurrences": 529,
@@ -96,13 +99,9 @@
       "task_dependent": 20
     },
     "coverageQuotaShortages": [],
-    "workflowShortages": [
-      "locked final gold"
-    ]
+    "workflowShortages": []
   },
   "failedGates": [
-    "CANDIDATES_NOT_LOCKED",
-    "FINAL_GOLD_NOT_LOCKED",
     "EXACT_RELEASE_EVALUATION_NOT_RUN",
     "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
   ],
@@ -115,5 +114,5 @@
   "selectionPerformed": false,
   "approvalEventCreated": false,
   "activationPerformed": false,
-  "dispositionFingerprint": "5eda7cd85f7bcb68137dbddce35fcafa4a6d5e172e0992e7f26023005db89cc0"
+  "dispositionFingerprint": "69fc933fd1cde95ea0243bdd74d231bb4fb129c3653d11cb3571170e99e502c3"
 }

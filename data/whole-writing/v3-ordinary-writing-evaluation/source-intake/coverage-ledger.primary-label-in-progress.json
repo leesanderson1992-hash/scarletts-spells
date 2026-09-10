@@ -66,9 +66,7 @@
         "task_dependent": 20
       },
       "coverageQuotaShortages": [],
-      "workflowShortages": [
-        "locked final gold"
-      ]
+      "workflowShortages": []
     },
     "TO_TOO_TWO": {
       "supplementalAnnotatedOccurrences": 50,
@@ -78,5 +76,5 @@
       "supplementalOccurrencePrimaryLabelsPending": 50
     }
   },
-  "coverageLedgerFingerprint": "92d14deec30a2aade81dd0dba4a4856e47c6ec15d9a7045f075e13d5ad188111"
+  "coverageLedgerFingerprint": "8f8932e2105cd06e87e6b768d6278db3d6d9e8750c5c6666150808a5bf13092b"
 }

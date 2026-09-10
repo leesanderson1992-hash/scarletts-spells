@@ -1,0 +1,615 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "disposition": "BLOCKED",
+  "blockerType": "ANALYSER_BEHAVIOUR",
+  "exactRelease": {
+    "releaseKey": "s8-v3-there-their-theyre",
+    "releaseId": "81000000-0000-4000-8000-000000000009",
+    "manifestFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
+    "engineeringCandidateArtifactFingerprint": "68e9b1605d9e39314be5ee319e8b6a530adc66d0edb6c5aa7933f0145ef7d5e5",
+    "frozenCandidateStatus": "BLOCKED_HUMAN_HOLDOUT_MISSING"
+  },
+  "evidence": {
+    "rawWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
+    "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
+    "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
+    "primaryLabelReceiptFingerprint": "565909c9a17aa471b39ed4485ea81d249d3df49489d53b7dfec3694e0de49fff",
+    "coverageLedgerFingerprint": "8f8932e2105cd06e87e6b768d6278db3d6d9e8750c5c6666150808a5bf13092b",
+    "issuedIncidentalPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
+    "completedNonGoldReviewPacketSha256": "9e1f898e525abec88ea92567f626beb1e12d8d0a0c36cafa0ee0c047a4784f8a",
+    "candidateFingerprint": "ff392f4114991ada6c9e8330ae72a79478e556dc336479aee61f66418445331e",
+    "candidateFileSha256": "867c0789e4114951669d66eb97756b535b1e5271a3f1e8990d073a3e3c01a692",
+    "goldFingerprint": "5bffa44ae5d4a1c83146363175221fe6366135eb066f0ea1c1d7a4fffce1b4ca",
+    "goldFileSha256": "c8ca65811499a027a208a8740bcdba1421281996072c0452c26514821b204a39",
+    "goldLockReceiptFingerprint": "6fa6e4049ca43b44b26d3f04378bca9317bb050a2fe057e3c3f63733c21ed02b",
+    "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
+    "reportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84",
+    "reportSha256": "259196afcc4b098072c2b341ce3d64edf8715b0366f2a3cdd164c5f6b92e7baf",
+    "repeatabilityFingerprint": "43799a38ab65f153bc2e97c9850cff91eaa1fa0dd2a498273dcd8b216e1964b9"
+  },
+  "humanWorkflow": {
+    "primaryLabelsComplete": true,
+    "confirmedOccurrenceDecisions": 529,
+    "requiredOccurrenceDecisions": 529,
+    "pendingOccurrenceDecisions": 0,
+    "primaryCoverageComplete": true,
+    "nonGoldReviewComplete": true,
+    "adjudicationComplete": true,
+    "finalGoldLocked": true
+  },
+  "coverage": {
+    "totalAnnotatedOccurrences": 529,
+    "passagesWithFamily": 498,
+    "approvedPrimary": 452,
+    "completedOccurrencePrimaryLabels": 529,
+    "pendingOccurrencePrimaryLabels": 0,
+    "primaryByClassification": {
+      "VALID": 180,
+      "INVALID": 172,
+      "UNCERTAIN": 100
+    },
+    "primaryByConstruction": {
+      "existential": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "locative": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "possessive": {
+        "VALID": 40,
+        "INVALID": 40
+      },
+      "they_are_contraction": {
+        "VALID": 60,
+        "INVALID": 62
+      }
+    },
+    "primaryBySubtype": {
+      "embedded_existential": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "adverbial_locative": {
+        "VALID": 40,
+        "INVALID": 35
+      },
+      "possessive_subject_or_object": {
+        "VALID": 40,
+        "INVALID": 40
+      },
+      "progressive_contraction": {
+        "VALID": 20,
+        "INVALID": 20
+      },
+      "adjectival_contraction": {
+        "VALID": 20,
+        "INVALID": 22
+      },
+      "passive_contraction": {
+        "VALID": 20,
+        "INVALID": 20
+      }
+    },
+    "protectedPrimaryCounts": {
+      "fragment": 20,
+      "quotation": 20,
+      "gerund": 20,
+      "run_on": 20,
+      "task_dependent": 20
+    },
+    "coverageQuotaShortages": [],
+    "workflowShortages": []
+  },
+  "failedGates": [
+    "AGGREGATE_RECALL_BELOW_POLICY",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adjectival_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adverbial_locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:embedded_existential",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:existential",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:passive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive_subject_or_object",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
+    "FALSE_VALID_PRESENT",
+    "PRECISION_BELOW_POLICY",
+    "PROTECTED_FAILURE_PRESENT",
+    "SUBTYPE_QUOTA_FAILED:not_applicable",
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+    "VALID_RECOGNITION_BELOW_POLICY",
+    "WILSON_BELOW_POLICY",
+    "WRONG_ALTERNATIVE_PRESENT"
+  ],
+  "failedCases": [
+    {
+      "caseId": "v3-there-their-theyre-0042-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0048-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0050-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0051-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0052-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0058-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0059-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0063-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0064-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0065-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0069-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0072-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0074-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0077-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0081-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0085-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0086-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0093-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0094-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0097-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0111-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0115-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0196-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0198-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0202-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0204-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0212-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0214-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0218-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0220-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0222-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0223-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0224-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0230-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0232-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0234-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0248-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0301-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0301-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0303-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0303-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0307-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0307-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0308-there-their-theyre-02",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0308-there-their-theyre-02",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0310-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0310-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0313-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0313-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0317-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0317-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0318-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0318-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0342-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0342-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0343-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0343-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0349-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0349-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0350-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0350-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0353-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0353-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0354-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0354-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0355-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0355-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0356-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0356-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0357-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0357-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0358-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0358-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0360-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0360-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0361-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0361-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0362-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0362-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0368-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0368-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0371-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0371-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0376-there-their-theyre-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0376-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-there-their-theyre-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-there-their-theyre-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    }
+  ],
+  "metrics": {
+    "precision": 0.6942148760330579,
+    "wilsonLower95": 0.6071971806219708,
+    "supportedRecall": 0.4883720930232558,
+    "validRecognition": 0.5362903225806451,
+    "falseValid": 32,
+    "wrongAlternatives": 37,
+    "protectedFailures": 32
+  },
+  "byConstruction": {
+    "locative": {
+      "supported": 35,
+      "recalled": 10,
+      "recall": 0.2857142857142857
+    },
+    "existential": {
+      "supported": 35,
+      "recalled": 19,
+      "recall": 0.5428571428571428
+    },
+    "possessive": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "they_are_contraction": {
+      "supported": 62,
+      "recalled": 25,
+      "recall": 0.4032258064516129
+    }
+  },
+  "bySubtype": {
+    "adverbial_locative": {
+      "supported": 35,
+      "recalled": 10,
+      "recall": 0.2857142857142857
+    },
+    "embedded_existential": {
+      "supported": 35,
+      "recalled": 19,
+      "recall": 0.5428571428571428
+    },
+    "possessive_subject_or_object": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "adjectival_contraction": {
+      "supported": 22,
+      "recalled": 14,
+      "recall": 0.6363636363636364
+    },
+    "passive_contraction": {
+      "supported": 20,
+      "recalled": 1,
+      "recall": 0.05
+    },
+    "progressive_contraction": {
+      "supported": 20,
+      "recalled": 10,
+      "recall": 0.5
+    }
+  },
+  "repeatability": {
+    "schemaVersion": 1,
+    "family": "THERE_THEIR_THEYRE",
+    "runCount": 2,
+    "governedReportWrittenAfterComparison": true,
+    "firstRunReportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84",
+    "secondRunReportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84",
+    "byteIdenticalOutput": true,
+    "reportSha256": "259196afcc4b098072c2b341ce3d64edf8715b0366f2a3cdd164c5f6b92e7baf",
+    "repeatabilityFingerprint": "43799a38ab65f153bc2e97c9850cff91eaa1fa0dd2a498273dcd8b216e1964b9"
+  },
+  "g2Compatibility": "PRESERVED_SEPARATELY_NOT_POOLED",
+  "analyserBehaviour": "FAILED_FROZEN_HOLDOUT_GATES",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "dba0332e180ce5d0cfa26c7527dba7dbb96314cc18da1d2d61f56f5ac4ccf7ce"
+}

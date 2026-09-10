@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "lockedAt": "2026-09-10T11:58:40Z",
+  "candidateCount": 529,
+  "goldCount": 529,
+  "candidateFileSha256": "867c0789e4114951669d66eb97756b535b1e5271a3f1e8990d073a3e3c01a692",
+  "candidateSetFingerprint": "ff392f4114991ada6c9e8330ae72a79478e556dc336479aee61f66418445331e",
+  "goldFileSha256": "c8ca65811499a027a208a8740bcdba1421281996072c0452c26514821b204a39",
+  "goldSetFingerprint": "5bffa44ae5d4a1c83146363175221fe6366135eb066f0ea1c1d7a4fffce1b4ca",
+  "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
+  "primaryLabelSetFingerprint": "e0c75c15a36dc0990f4031a6206671ba889ccf4283a6234c24de184e8821535f",
+  "nonGoldReviewFileSha256": "9e1f898e525abec88ea92567f626beb1e12d8d0a0c36cafa0ee0c047a4784f8a",
+  "substantiveDisagreementCount": 0,
+  "adjudicationRequired": false,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "goldLockReceiptFingerprint": "6fa6e4049ca43b44b26d3f04378bca9317bb050a2fe057e3c3f63733c21ed02b"
+}

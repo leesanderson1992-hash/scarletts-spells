@@ -155,8 +155,31 @@ for (const candidate of CONTEXT_V3_CANDIDATES) {
   assert.equal(disposition.familyDeliveryRemainsDisabled, true);
 }
 
-assert(!existsSync(join(root, "candidates")), "Candidate records must not exist before human decisions are complete");
-assert(!existsSync(join(root, "gold")), "Gold must not exist before review and adjudication are complete");
-assert(!existsSync(join(root, "reports")), "Evaluation reports must not exist before final gold is locked");
+const thereCandidates = readFileSync(join(root, "candidates/THERE_THEIR_THEYRE.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+const thereGold = readFileSync(join(root, "gold/THERE_THEIR_THEYRE.final-gold.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+assert.equal(thereCandidates.length, 529);
+assert.equal(thereGold.length, 529);
+assert.deepEqual(new Set(thereCandidates.map((record) => record.caseId)), new Set(thereGold.map((record) => record.caseId)));
+for (const record of thereCandidates) {
+  const { candidateFingerprint, ...core } = record;
+  assert.equal(ordinaryEvaluationFingerprint(core), candidateFingerprint, record.caseId);
+  assert.equal(record.sourceText.slice(record.startUtf16, record.endUtf16), record.focusSurface, record.caseId);
+}
+for (const record of thereGold) {
+  const { goldFingerprint, ...core } = record;
+  assert.equal(ordinaryEvaluationFingerprint(core), goldFingerprint, record.caseId);
+  assert(record.primaryLabelId);
+  assert(record.nonGoldReviewId);
+}
+const thereReport = JSON.parse(readFileSync(join(root, "reports/s8-v3-there-their-theyre/THERE_THEIR_THEYRE.evaluation.json"), "utf8"));
+const reportCore = { ...thereReport };
+delete reportCore.reportFingerprint;
+delete reportCore.disposition;
+assert.equal(ordinaryEvaluationFingerprint(reportCore), thereReport.reportFingerprint);
+assert.equal(thereReport.disposition, "BLOCKED");
+for (const family of ["YOUR_YOURE", "TO_TOO_TWO", "ITS_ITS"] as const) {
+  assert(!existsSync(join(root, "candidates", `${family}.jsonl`)), `${family}: candidate records before completed human gates`);
+  assert(!existsSync(join(root, "gold", `${family}.final-gold.jsonl`)), `${family}: gold before completed human gates`);
+}
 
-console.log("S8 V3 intake regression passed: four byte-identical sources, 1,600 passages, 2,492 fingerprinted occurrences, 1,600 source-order primaries, blank human decisions, and no analyser reports.");
+console.log("S8 V3 intake regression passed: four byte-identical sources, 1,600 passages, 2,492 fingerprinted base occurrences, blank original packets, and gated THERE_THEIR_THEYRE candidate/gold/report evidence.");

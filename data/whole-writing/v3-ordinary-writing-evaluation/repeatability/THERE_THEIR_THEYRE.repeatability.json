@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "family": "THERE_THEIR_THEYRE",
+  "runCount": 2,
+  "governedReportWrittenAfterComparison": true,
+  "firstRunReportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84",
+  "secondRunReportFingerprint": "ba102e584795502dccbaffc9095f8e55fcb7aa4807b9a79533d62a5685463f84",
+  "byteIdenticalOutput": true,
+  "reportSha256": "259196afcc4b098072c2b341ce3d64edf8715b0366f2a3cdd164c5f6b92e7baf",
+  "repeatabilityFingerprint": "43799a38ab65f153bc2e97c9850cff91eaa1fa0dd2a498273dcd8b216e1964b9"
+}
