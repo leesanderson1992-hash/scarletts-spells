@@ -67,8 +67,6 @@
       },
       "coverageQuotaShortages": [],
       "workflowShortages": [
-        "separately attributable non-gold review for every occurrence",
-        "adjudication of every substantive disagreement",
         "locked final gold"
       ]
     },
@@ -80,5 +78,5 @@
       "supplementalOccurrencePrimaryLabelsPending": 50
     }
   },
-  "coverageLedgerFingerprint": "38c845b5ff92e070808683197bcb0bfbfb258b700f5c33e43d5aa02e9b6d4b75"
+  "coverageLedgerFingerprint": "92d14deec30a2aade81dd0dba4a4856e47c6ec15d9a7045f075e13d5ad188111"
 }

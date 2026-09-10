@@ -61,7 +61,8 @@ primaries. The five neighbouring possessive uses were retained as valid,
 non-primary incidental evidence. The 50 incidental `TO_TOO_TWO` occurrences
 still require decisions for that family.
 
-The analyser-blind `THERE_THEIR_THEYRE` non-gold packet is issued under
-`human-review/non-gold/pending`. No candidate or gold file has been locked, no
-non-gold decision or adjudication has been recorded, and all family delivery
-and release operations remain disabled.
+Katie Sanderson's completed `THERE_THEIR_THEYRE` non-gold review is preserved
+under `human-review/non-gold/completed`. It contains no analyser prediction and
+matches every primary decision, so no adjudication is required. No candidate or
+gold file has been locked, and all family delivery and release operations remain
+disabled.

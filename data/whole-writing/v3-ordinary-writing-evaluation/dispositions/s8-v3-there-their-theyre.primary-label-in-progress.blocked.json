@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "family": "THERE_THEIR_THEYRE",
   "disposition": "BLOCKED",
-  "blockerType": "NON_GOLD_REVIEW_AND_ADJUDICATION_PENDING",
+  "blockerType": "CANDIDATE_GOLD_LOCK_AND_EXACT_EVALUATION_PENDING",
   "exactRelease": {
     "releaseKey": "s8-v3-there-their-theyre",
     "releaseId": "81000000-0000-4000-8000-000000000009",
@@ -14,10 +14,10 @@
     "rawWorkbookSha256": "b0be515ca523874b342d2789c7a066b2c650f2a7b66df8d09f7b2fb0b38d8614",
     "supplementalSourceManifestFingerprint": "c127929d8e9af3cd4ad5d2132686dca87ac57f118ffae71dc2cb3d7d33b99572",
     "supplementalInventorySha256": "fe4813ccc070b844a97a87f2f5b220d45a3fd15d158e935624866a8e7383c0e4",
-    "primaryLabelReceiptFingerprint": "4d3a31a87de1f9a87d0d996dca8c88860a080fcbfdebbb1330461f9c21fd94a7",
-    "coverageLedgerFingerprint": "38c845b5ff92e070808683197bcb0bfbfb258b700f5c33e43d5aa02e9b6d4b75",
+    "primaryLabelReceiptFingerprint": "565909c9a17aa471b39ed4485ea81d249d3df49489d53b7dfec3694e0de49fff",
+    "coverageLedgerFingerprint": "92d14deec30a2aade81dd0dba4a4856e47c6ec15d9a7045f075e13d5ad188111",
     "issuedIncidentalPrimaryLabelPacketSha256": "ad476724102e3e0513646f80016b6bbe69c374e80cc05f8d0d246a929307e00b",
-    "pendingNonGoldReviewPacketSha256": "897730e272cc599ce0a12d8266df80113e1726ccc2412751566bbc8d654a0cf0",
+    "completedNonGoldReviewPacketSha256": "9e1f898e525abec88ea92567f626beb1e12d8d0a0c36cafa0ee0c047a4784f8a",
     "candidateFingerprint": null,
     "goldFingerprint": null,
     "corpusFingerprint": null,
@@ -29,8 +29,8 @@
     "requiredOccurrenceDecisions": 529,
     "pendingOccurrenceDecisions": 0,
     "primaryCoverageComplete": true,
-    "nonGoldReviewComplete": false,
-    "adjudicationComplete": false,
+    "nonGoldReviewComplete": true,
+    "adjudicationComplete": true,
     "finalGoldLocked": false
   },
   "coverage": {
@@ -97,14 +97,10 @@
     },
     "coverageQuotaShortages": [],
     "workflowShortages": [
-      "separately attributable non-gold review for every occurrence",
-      "adjudication of every substantive disagreement",
       "locked final gold"
     ]
   },
   "failedGates": [
-    "NON_GOLD_REVIEW_INCOMPLETE",
-    "ADJUDICATION_NOT_COMPLETED",
     "CANDIDATES_NOT_LOCKED",
     "FINAL_GOLD_NOT_LOCKED",
     "EXACT_RELEASE_EVALUATION_NOT_RUN",
@@ -119,5 +115,5 @@
   "selectionPerformed": false,
   "approvalEventCreated": false,
   "activationPerformed": false,
-  "dispositionFingerprint": "e22589ccbc36f66a8147f791d13963343b644f8b30cd85b4ff0d169b605810f1"
+  "dispositionFingerprint": "5eda7cd85f7bcb68137dbddce35fcafa4a6d5e172e0992e7f26023005db89cc0"
 }

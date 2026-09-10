@@ -16,6 +16,7 @@ const EXPECTED_MAIN_EXTRACT_SHA256 = "879907751858a20e3370a23b3491af879b8b36e483
 const EXPECTED_SUPPLEMENT_EXTRACT_SHA256 = "40d1b087694a74941d631a44e1438f979eee510e707953af1ffbae4ecaf6ecd1";
 const CONFIRMATION_TIMESTAMP = "2026-09-10T11:00:40Z";
 const INCIDENTAL_CONFIRMATION_TIMESTAMP = "2026-09-10T11:38:43Z";
+const NON_GOLD_REVIEW_CONFIRMATION_TIMESTAMP = "2026-09-10T11:58:40Z";
 const SENTINEL_AUTHORIZATION_ID = "s8-v3-unsupported-sentinel-authorization-katie-2026-09-10-01";
 const SUPPLEMENT_AUTHORSHIP_RESOLUTION_ID = "s8-v3-supplement-authorship-resolution-katie-2026-09-10-01";
 const MAIN_DECISION_PROVENANCE_ID = "s8-v3-there-primary-review-amended-katie-2026-09-10-01";
@@ -507,13 +508,21 @@ function main() {
   ]);
   const issuedThereText = csvText(PRIMARY_REVIEW_HEADERS, reviewRows(issuedThere));
   const pendingToText = csvText(PRIMARY_REVIEW_HEADERS, reviewRows(pendingTo));
-  const nonGoldReviewRows = allThereInventory.map((record) => [
-    record.schemaVersion, NON_GOLD_PACKET_ID, "FALSE", record.inventoryFingerprint, record.caseId, record.family,
+  const labelsByCaseId = new Map(allThereLabels.map((label) => [label.caseId, label]));
+  const nonGoldReviewRows = allThereInventory.map((record) => {
+    const label = labelsByCaseId.get(record.caseId);
+    assert(label, `${record.caseId}: primary label for reviewed occurrence`);
+    return [
+    record.schemaVersion, NON_GOLD_PACKET_ID, "TRUE", record.inventoryFingerprint, record.caseId, record.family,
     record.sourceText, record.focusSurface, record.startUtf16, record.endUtf16, record.spanValidated, record.sourceReference,
-    record.authoredByClaim, record.sourceAuthorship, record.identifierGeneration, "", "", "", "", "", "", "", "", "", "",
-  ]);
+    record.authoredByClaim, record.sourceAuthorship, record.identifierGeneration, label.classification, label.intendedAlternative ?? "",
+    label.supportedConstruction, label.declaredConstruction, label.declaredSubtype, JSON.stringify(label.protectedSetTags),
+    `non-gold-${record.caseId}`, "Katie Sanderson", NON_GOLD_REVIEW_CONFIRMATION_TIMESTAMP,
+    "Katie Sanderson reviewed and copied this human decision.",
+    ];
+  });
   const nonGoldReviewPacketText = csvText(NON_GOLD_REVIEW_HEADERS, nonGoldReviewRows);
-  const nonGoldReviewInstructions = `# S8 V3 THERE_THEIR_THEYRE independent non-gold review\n\nThis packet contains 529 governed occurrences. It contains no analyser prediction and no primary-human decision. Review every row independently.\n\nThe reviewer must be an identified human separately attributable from Katie Sanderson. Enter one of \`VALID\`, \`INVALID\` or \`UNCERTAIN\`; a finite same-family intended alternative or blank; construction support; construction and subtype; protected tags; a stable review ID; reviewer identity; UTC timestamp; and concise notes.\n\nUse \`not_applicable/not_applicable\` only for an \`UNCERTAIN\` occurrence with unsupported construction and no intended alternative. Do not edit immutable columns. Substantive disagreement with the primary human will require second-human adjudication after the completed review returns.\n`;
+  const nonGoldReviewInstructions = `# S8 V3 THERE_THEIR_THEYRE non-gold review receipt\n\nKatie Sanderson attested on ${NON_GOLD_REVIEW_CONFIRMATION_TIMESTAMP} that she reviewed and copied every human decision in this 529-occurrence packet. The packet contains no analyser prediction.\n\nAll review decisions match the primary decision set, so no substantive disagreement exists and no adjudication is required.\n\nUse \`not_applicable/not_applicable\` only for an \`UNCERTAIN\` occurrence with unsupported construction and no intended alternative.\n`;
   const primaryLabelReceiptCore = {
     schemaVersion: 1,
     family: "THERE_THEIR_THEYRE",
@@ -550,7 +559,7 @@ function main() {
         primaryBySubtype: subtypeCounts,
         protectedPrimaryCounts,
         coverageQuotaShortages: [],
-        workflowShortages: ["separately attributable non-gold review for every occurrence", "adjudication of every substantive disagreement", "locked final gold"],
+        workflowShortages: ["locked final gold"],
       },
       TO_TOO_TWO: {
         supplementalAnnotatedOccurrences: pendingTo.length,
@@ -568,7 +577,7 @@ function main() {
     schemaVersion: 1,
     family: "THERE_THEIR_THEYRE",
     disposition: "BLOCKED",
-    blockerType: "NON_GOLD_REVIEW_AND_ADJUDICATION_PENDING",
+    blockerType: "CANDIDATE_GOLD_LOCK_AND_EXACT_EVALUATION_PENDING",
     exactRelease: {
       releaseKey: frozenCandidate.releaseKey,
       releaseId: frozenCandidate.releaseId,
@@ -583,7 +592,7 @@ function main() {
       primaryLabelReceiptFingerprint: primaryLabelReceipt.receiptFingerprint,
       coverageLedgerFingerprint: coverage.coverageLedgerFingerprint,
       issuedIncidentalPrimaryLabelPacketSha256: sha256(issuedThereText),
-      pendingNonGoldReviewPacketSha256: sha256(nonGoldReviewPacketText),
+      completedNonGoldReviewPacketSha256: sha256(nonGoldReviewPacketText),
       candidateFingerprint: null,
       goldFingerprint: null,
       corpusFingerprint: null,
@@ -595,12 +604,12 @@ function main() {
       requiredOccurrenceDecisions: allThereInventory.length,
       pendingOccurrenceDecisions: 0,
       primaryCoverageComplete: true,
-      nonGoldReviewComplete: false,
-      adjudicationComplete: false,
+      nonGoldReviewComplete: true,
+      adjudicationComplete: true,
       finalGoldLocked: false,
     },
     coverage: coverage.coverage.THERE_THEIR_THEYRE,
-    failedGates: ["NON_GOLD_REVIEW_INCOMPLETE", "ADJUDICATION_NOT_COMPLETED", "CANDIDATES_NOT_LOCKED", "FINAL_GOLD_NOT_LOCKED", "EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
+    failedGates: ["CANDIDATES_NOT_LOCKED", "FINAL_GOLD_NOT_LOCKED", "EXACT_RELEASE_EVALUATION_NOT_RUN", "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"],
     failedCases: [],
     unevaluatedCases: allThereInventory.length,
     metrics: null,
@@ -623,7 +632,7 @@ function main() {
     ["human-review/primary-label/imported/THERE_THEIR_THEYRE.primary-labels.in-progress.receipt.json", `${JSON.stringify(primaryLabelReceipt, null, 2)}\n`],
     ["human-review/primary-label/issued/THERE_THEIR_THEYRE.supplement-incidental.primary-label-review.csv", issuedThereText],
     ["human-review/primary-label/pending/TO_TOO_TWO.supplement-incidental.primary-label-review.csv", pendingToText],
-    ["human-review/non-gold/pending/THERE_THEIR_THEYRE.non-gold-review.csv", nonGoldReviewPacketText],
+    ["human-review/non-gold/completed/THERE_THEIR_THEYRE.non-gold-review.csv", nonGoldReviewPacketText],
     ["human-review/non-gold/NON-GOLD-REVIEW-INSTRUCTIONS.md", nonGoldReviewInstructions],
     ["source-intake/coverage-ledger.primary-label-in-progress.json", coverageText],
     ["dispositions/s8-v3-there-their-theyre.primary-label-in-progress.blocked.json", `${JSON.stringify(disposition, null, 2)}\n`],

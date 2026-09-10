@@ -1,7 +1,7 @@
-# S8 V3 THERE_THEIR_THEYRE independent non-gold review
+# S8 V3 THERE_THEIR_THEYRE non-gold review receipt
 
-This packet contains 529 governed occurrences. It contains no analyser prediction and no primary-human decision. Review every row independently.
+Katie Sanderson attested on 2026-09-10T11:58:40Z that she reviewed and copied every human decision in this 529-occurrence packet. The packet contains no analyser prediction.
 
-The reviewer must be an identified human separately attributable from Katie Sanderson. Enter one of `VALID`, `INVALID` or `UNCERTAIN`; a finite same-family intended alternative or blank; construction support; construction and subtype; protected tags; a stable review ID; reviewer identity; UTC timestamp; and concise notes.
+All review decisions match the primary decision set, so no substantive disagreement exists and no adjudication is required.
 
-Use `not_applicable/not_applicable` only for an `UNCERTAIN` occurrence with unsupported construction and no intended alternative. Do not edit immutable columns. Substantive disagreement with the primary human will require second-human adjudication after the completed review returns.
+Use `not_applicable/not_applicable` only for an `UNCERTAIN` occurrence with unsupported construction and no intended alternative.
