@@ -22,6 +22,7 @@
     "writing:s8-v3-intake-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-intake-regression.ts",
     "writing:s8-v3-intake-review": "NODE_OPTIONS=--conditions=react-server tsx scripts/build-whole-writing-s8-v3-intake-review.ts",
     "writing:s8-v3-primary-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-s8-v3-primary-label-review.ts",
+    "writing:s8-v3-to-primary-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-s8-v3-to-primary-label-review.ts",
     "writing:s8-v3-there-finalize": "NODE_OPTIONS=--conditions=react-server tsx scripts/finalize-whole-writing-s8-v3-there-evaluation.ts",
     "writing:s8-v3-source-pin-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-source-pin-regression.ts",
     "writing:s8-v3-release-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-release-regression.ts",

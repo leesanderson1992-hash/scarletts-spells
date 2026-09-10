@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "importStatus": "CURRENT_OCCURRENCES_COMPLETE_GERUND_SOURCE_PENDING",
+  "importedLabelCount": 1259,
+  "importedPrimaryCount": 400,
+  "currentInventoryOccurrenceCount": 1259,
+  "pendingExistingOccurrenceLabels": 0,
+  "requiredAdditionalHumanGerundPrimaryCases": 10,
+  "primaryHuman": "Katie Sanderson",
+  "sourceManifestFingerprint": "4ca254823950543c1103149f00162f54a46675ed67649e3227df07cd34f9cc2a",
+  "primaryLabelFileSha256": "283dc8d9b3b9ed37c0b06f3f956fca5c21472451fcd8475be5fcd19f868f380c",
+  "primaryLabelSetFingerprint": "ddb6a5983a45b1c752c1396f47ed69d6c14a9b1a5f9e4cd42e6e6e9df88e678d",
+  "nonGoldReviewFileSha256": "614b906a4e8cb6d09559157768bc16322edf7ba9de33e2d24834e0924b49d651",
+  "pendingGerundIntakeSha256": "b88eff7638b85624850d35b0af227ff10920281fd122a5f236b581a17eb16eaf",
+  "sentinelAuthorizationFingerprint": "12ba665a6e8be830a0f4b5b915d63c9b19cacb1385311f7b96d172631d9640ce",
+  "analyserBehaviour": "NOT_EVALUATED",
+  "receiptFingerprint": "733a6d7e337c6985af5a9f19f3e0752cff30a77b0186c6127bf1665d7b3e9a71"
+}

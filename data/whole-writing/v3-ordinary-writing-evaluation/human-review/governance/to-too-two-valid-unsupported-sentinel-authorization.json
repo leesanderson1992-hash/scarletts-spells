@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "authorizationId": "s8-v3-to-too-two-valid-unsupported-sentinel-katie-2026-09-10-01",
+  "authorizedBy": "Katie Sanderson",
+  "authorizedAt": "2026-09-10T18:03:04Z",
+  "family": "TO_TOO_TWO",
+  "declaredConstruction": "not_applicable",
+  "declaredSubtype": "not_applicable",
+  "permittedClassifications": [
+    "VALID",
+    "UNCERTAIN"
+  ],
+  "requiredSupportedConstruction": false,
+  "requiredIntendedAlternative": null,
+  "source": "Explicit user authorization in the current governed holdout task.",
+  "authorizationFingerprint": "12ba665a6e8be830a0f4b5b915d63c9b19cacb1385311f7b96d172631d9640ce"
+}

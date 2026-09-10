@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "intakeDate": "2026-09-10",
+  "family": "TO_TOO_TWO",
+  "rawWorkbook": {
+    "suppliedFileName": "TO_TOO_TWO V3 Import-Ready Holdout Review.xlsx",
+    "preservedPath": "human-review/primary-label/raw/TO_TOO_TWO V3 Import-Ready Holdout Review.xlsx",
+    "byteLength": 267763,
+    "sha256": "5fb3d40d3ff497a921e5f7434b80c30fb213e458e6ea98f59fac2518f8433fd1"
+  },
+  "extractedSheets": [
+    {
+      "sheetName": "Core Corrected Labels",
+      "path": "human-review/primary-label/extracted/TO_TOO_TWO.core-corrected-labels.csv",
+      "rowCount": 1209,
+      "sha256": "12d47d09031732337e546bedcbc8084627d482747935aac8710430c63f12b546"
+    },
+    {
+      "sheetName": "TTT TO Incidentals",
+      "path": "human-review/primary-label/extracted/TO_TOO_TWO.ttt-incidentals.csv",
+      "rowCount": 50,
+      "sha256": "3c5221358078cec512189de1a23b54489c84d4d20451749faae5b55ef0766f9c"
+    },
+    {
+      "sheetName": "Gerund Human Intake",
+      "path": "human-review/primary-label/extracted/TO_TOO_TWO.gerund-human-intake.csv",
+      "rowCount": 10,
+      "sha256": "c53cb86933e6d8d7010bc75a45b2d518c2e692fe98436e4fcba0889197a19ccc"
+    }
+  ],
+  "primaryHuman": "Katie Sanderson",
+  "priorAiLabelerMetadataStatus": "STALE_REPLACED_BY_HUMAN_ATTESTATION",
+  "analyserPredictionsExposed": false,
+  "sourceManifestFingerprint": "4ca254823950543c1103149f00162f54a46675ed67649e3227df07cd34f9cc2a"
+}

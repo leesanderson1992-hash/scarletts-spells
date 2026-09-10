@@ -59,7 +59,7 @@ The imported primary-label set contains all 529 `THERE_THEIR_THEYRE`
 occurrence decisions. All primary coverage quotas are met across 452 approved
 primaries. The five neighbouring possessive uses were retained as valid,
 non-primary incidental evidence. The 50 incidental `TO_TOO_TWO` occurrences
-still require decisions for that family.
+are now included in that family's completed current-inventory decisions.
 
 Katie Sanderson's completed `THERE_THEIR_THEYRE` non-gold review is preserved
 under `human-review/non-gold/completed`. It contains no analyser prediction and
@@ -67,3 +67,10 @@ matches every primary decision, so no adjudication is required. The candidate
 and final-gold sets are locked, and the exact frozen release was evaluated twice
 with byte-identical output. Its governed disposition is `BLOCKED`; all family
 delivery and release operations remain disabled.
+
+For `TO_TOO_TWO`, Katie Sanderson has confirmed all 1,209 core decisions and
+the 50 TTT-supplement incidentals as her human decisions. The stale AI labeler
+metadata is not treated as decision provenance. All current occurrence labels,
+construction/subtype quotas and four protected categories are complete. Ten
+independently human-authored gerund-primary passages remain required, so
+candidate/gold locking and analyser evaluation remain blocked.

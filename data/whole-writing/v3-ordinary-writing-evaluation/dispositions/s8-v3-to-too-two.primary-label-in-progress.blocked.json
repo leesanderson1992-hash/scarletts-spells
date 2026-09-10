@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "disposition": "BLOCKED",
+  "blockerType": "EVIDENCE_COVERAGE",
+  "exactRelease": {
+    "releaseKey": "s8-v3-to-too-two",
+    "releaseId": "81000000-0000-4000-8000-000000000011",
+    "manifestFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8"
+  },
+  "evidence": {
+    "sourceManifestFingerprint": "4ca254823950543c1103149f00162f54a46675ed67649e3227df07cd34f9cc2a",
+    "primaryLabelReceiptFingerprint": "733a6d7e337c6985af5a9f19f3e0752cff30a77b0186c6127bf1665d7b3e9a71",
+    "coverageLedgerFingerprint": "9802ca2b3023496dd1e31a07709f55e500e25c6288e851145df0b821cce66937",
+    "candidateFingerprint": null,
+    "goldFingerprint": null,
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "currentOccurrencePrimaryLabelsComplete": true,
+    "currentOccurrenceNonGoldReviewComplete": true,
+    "adjudicationRequiredForCurrentDecisions": false,
+    "additionalHumanSourceRequired": true,
+    "finalGoldLocked": false
+  },
+  "failedGates": [
+    "GERUND_PROTECTED_COVERAGE_SHORTAGE_10",
+    "FINAL_GOLD_NOT_LOCKED",
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "f1d053d0109049728ef1961f236c5af7f0425486f5c0b0da563d296042b79eca"
+}

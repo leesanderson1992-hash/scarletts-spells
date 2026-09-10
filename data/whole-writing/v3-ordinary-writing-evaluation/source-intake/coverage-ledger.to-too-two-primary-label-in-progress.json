@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "currentAnnotatedOccurrences": 1259,
+  "currentPrimaryCases": 400,
+  "primaryByClassification": {
+    "VALID": 150,
+    "INVALID": 150,
+    "UNCERTAIN": 100
+  },
+  "primaryByConstruction": {
+    "preposition": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "infinitive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "additive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "degree": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "numeral": {
+      "VALID": 30,
+      "INVALID": 30
+    }
+  },
+  "protectedPrimaryCounts": {
+    "fragment": 20,
+    "quotation": 20,
+    "gerund": 0,
+    "run_on": 20,
+    "task_dependent": 20
+  },
+  "coverageShortages": [
+    {
+      "gate": "protected:gerund",
+      "required": 10,
+      "present": 0,
+      "shortage": 10
+    }
+  ],
+  "humanWorkflow": {
+    "currentOccurrencePrimaryLabelsComplete": true,
+    "currentOccurrenceNonGoldReviewComplete": true,
+    "adjudicationRequiredForCurrentDecisions": false,
+    "additionalHumanSourceRequired": true,
+    "finalGoldLocked": false
+  },
+  "coverageLedgerFingerprint": "9802ca2b3023496dd1e31a07709f55e500e25c6288e851145df0b821cce66937"
+}
