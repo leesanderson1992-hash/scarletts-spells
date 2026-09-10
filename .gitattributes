@@ -1,3 +1,7 @@
 # Reviewed Teaching Dictionary CSV packages preserve their source line endings;
 # a CR before LF is a record terminator here, not trailing content.
 docs/implementation/seed-data/teaching-dictionary/** -text whitespace=cr-at-eol
+
+# Independent holdout sources are preserved byte-for-byte; CRLF is part of the
+# supplied source artifact and must not be normalised or reported as whitespace.
+data/whole-writing/v3-ordinary-writing-evaluation/source-intake/raw/** -text whitespace=cr-at-eol

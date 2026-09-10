@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "coverage": {
+    "THERE_THEIR_THEYRE": {
+      "totalAnnotatedOccurrences": 472,
+      "passagesWithFamily": 446,
+      "preselectedPrimary": 400,
+      "confirmedPrimaryHumanDecisions": 0,
+      "confirmedPrimaryByClassification": {
+        "VALID": 0,
+        "INVALID": 0,
+        "UNCERTAIN": 0
+      },
+      "confirmedConstructionCounts": {},
+      "confirmedSubtypeCounts": {},
+      "confirmedProtectedCounts": {
+        "fragment": 0,
+        "quotation": 0,
+        "gerund": 0,
+        "run_on": 0,
+        "task_dependent": 0
+      },
+      "shortages": [
+        "400 complete primary human decisions",
+        "150 primary VALID decisions",
+        "150 primary INVALID decisions",
+        "100 primary UNCERTAIN or unsupported decisions",
+        "all top-level construction quotas",
+        "all subtype quotas",
+        "10 confirmed cases in each protected category",
+        "separately attributable non-gold review for every occurrence",
+        "adjudication for every substantive disagreement"
+      ]
+    },
+    "YOUR_YOURE": {
+      "totalAnnotatedOccurrences": 400,
+      "passagesWithFamily": 400,
+      "preselectedPrimary": 400,
+      "confirmedPrimaryHumanDecisions": 0,
+      "confirmedPrimaryByClassification": {
+        "VALID": 0,
+        "INVALID": 0,
+        "UNCERTAIN": 0
+      },
+      "confirmedConstructionCounts": {},
+      "confirmedSubtypeCounts": {},
+      "confirmedProtectedCounts": {
+        "fragment": 0,
+        "quotation": 0,
+        "gerund": 0,
+        "run_on": 0,
+        "task_dependent": 0
+      },
+      "shortages": [
+        "400 complete primary human decisions",
+        "150 primary VALID decisions",
+        "150 primary INVALID decisions",
+        "100 primary UNCERTAIN or unsupported decisions",
+        "all top-level construction quotas",
+        "all subtype quotas",
+        "10 confirmed cases in each protected category",
+        "separately attributable non-gold review for every occurrence",
+        "adjudication for every substantive disagreement"
+      ]
+    },
+    "TO_TOO_TWO": {
+      "totalAnnotatedOccurrences": 1209,
+      "passagesWithFamily": 977,
+      "preselectedPrimary": 400,
+      "confirmedPrimaryHumanDecisions": 0,
+      "confirmedPrimaryByClassification": {
+        "VALID": 0,
+        "INVALID": 0,
+        "UNCERTAIN": 0
+      },
+      "confirmedConstructionCounts": {},
+      "confirmedSubtypeCounts": {},
+      "confirmedProtectedCounts": {
+        "fragment": 0,
+        "quotation": 0,
+        "gerund": 0,
+        "run_on": 0,
+        "task_dependent": 0
+      },
+      "shortages": [
+        "400 complete primary human decisions",
+        "150 primary VALID decisions",
+        "150 primary INVALID decisions",
+        "100 primary UNCERTAIN or unsupported decisions",
+        "all top-level construction quotas",
+        "all subtype quotas",
+        "10 confirmed cases in each protected category",
+        "separately attributable non-gold review for every occurrence",
+        "adjudication for every substantive disagreement"
+      ]
+    },
+    "ITS_ITS": {
+      "totalAnnotatedOccurrences": 411,
+      "passagesWithFamily": 400,
+      "preselectedPrimary": 400,
+      "confirmedPrimaryHumanDecisions": 0,
+      "confirmedPrimaryByClassification": {
+        "VALID": 0,
+        "INVALID": 0,
+        "UNCERTAIN": 0
+      },
+      "confirmedConstructionCounts": {},
+      "confirmedSubtypeCounts": {},
+      "confirmedProtectedCounts": {
+        "fragment": 0,
+        "quotation": 0,
+        "gerund": 0,
+        "run_on": 0,
+        "task_dependent": 0
+      },
+      "shortages": [
+        "400 complete primary human decisions",
+        "150 primary VALID decisions",
+        "150 primary INVALID decisions",
+        "100 primary UNCERTAIN or unsupported decisions",
+        "all top-level construction quotas",
+        "all subtype quotas",
+        "10 confirmed cases in each protected category",
+        "separately attributable non-gold review for every occurrence",
+        "adjudication for every substantive disagreement"
+      ]
+    }
+  }
+}

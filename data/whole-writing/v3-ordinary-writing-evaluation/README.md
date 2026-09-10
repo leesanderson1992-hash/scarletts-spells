@@ -20,3 +20,27 @@ Required continuation:
 
 Until then all four V3 release dispositions are `BLOCKED_HUMAN_HOLDOUT_MISSING`.
 No file in this directory is suitable for database insertion or activation.
+
+## Current holdout intake
+
+The 10 September 2026 source intake is preserved byte-for-byte under
+`source-intake/raw`. `source-manifest.json` records the supplied filenames,
+byte lengths and SHA-256 fingerprints. `authorship-resolution.json` records
+Katie Sanderson's clarification that the prose is human-authored and that AI
+was used only to create non-conflicting identifiers.
+
+`source-intake/occurrence-inventory.jsonl` inventories every governed-family
+surface with source-preserving UTF-16 offsets. The first nominal-family
+occurrence in each source passage is preselected as that passage's primary
+focus; no analyser result is used in this selection. All other occurrences
+remain incidental annotated occurrences.
+
+The four files under `human-review/primary-label` are blank primary-label
+packets. They are not candidates or gold. Do not run the analyser against this
+intake until primary labels, separate non-gold review and required adjudication
+are complete and locked.
+
+The four machine-readable files under `dispositions` record the current
+`BLOCKED` holdout-evaluation outcome, exact evidence shortages and confirmation
+that delivery and every release operation remain disabled. They do not replace
+the frozen engineering-candidate artifacts under `release-candidates`.

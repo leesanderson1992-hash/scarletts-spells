@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "disposition": "BLOCKED",
+  "blockerType": "EVIDENCE_COVERAGE_AND_UNRESOLVED_HUMAN_AUTHORITY",
+  "exactRelease": {
+    "releaseKey": "s8-v3-to-too-two",
+    "releaseId": "81000000-0000-4000-8000-000000000011",
+    "manifestFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
+    "engineeringCandidateArtifactFingerprint": "097ac006fab63a1078afaca518ab5139cbccbac4be75f830b5d71660b82fa88d",
+    "frozenCandidateStatus": "BLOCKED_HUMAN_HOLDOUT_MISSING"
+  },
+  "evidence": {
+    "sourceManifestFingerprint": "9b3dc766f470bc1d223aa08fd7433dc6a87c29eb68cae80ab577184919ae9dda",
+    "authorshipResolutionFingerprint": "dc7182012559fa0c2e169c9ba82f425d7aa17ba2149a377ed4ca2cf7801e1420",
+    "occurrenceInventorySha256": "7f4558a12b21d8de8a5cce5fe408b4cbe92239cd396b9fcdefe452b52e6df93a",
+    "coverageLedgerSha256": "50c79fdccab397744eb9e43d3adff7e1c1e262b92d35f02e1cb8be9ce0943f04",
+    "primaryLabelPacketSha256": "08d95596d7d8d10e29171c4e0fa8a5da8bcce5d9306a9e79d3031fcd9e505494",
+    "candidateFingerprint": null,
+    "goldFingerprint": null,
+    "corpusFingerprint": null,
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "primaryLabelsComplete": false,
+    "confirmedPrimaryDecisions": 0,
+    "requiredPrimaryDecisions": 400,
+    "nonGoldReviewComplete": false,
+    "adjudicationComplete": false,
+    "finalGoldLocked": false
+  },
+  "coverage": {
+    "totalAnnotatedOccurrences": 1209,
+    "passagesWithFamily": 977,
+    "preselectedPrimary": 400,
+    "classShortfalls": {
+      "VALID": 150,
+      "INVALID": 150,
+      "UNCERTAIN_OR_UNSUPPORTED": 100
+    },
+    "constructionShortfalls": {
+      "preposition": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "infinitive": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "additive": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "degree": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "numeral": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      }
+    },
+    "subtypeShortfalls": {
+      "destination_or_recipient_preposition": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "governed_infinitive": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "clause_additive": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "adjective_or_manner_degree": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "ordinary_count_numeral": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      }
+    },
+    "protectedShortfalls": {
+      "fragment": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "quotation": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "gerund": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "run_on": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "task_dependent": {
+        "required": 10,
+        "confirmed": 0
+      }
+    }
+  },
+  "failedGates": [
+    "PRIMARY_HUMAN_LABELS_INCOMPLETE",
+    "NON_GOLD_REVIEW_INCOMPLETE",
+    "ADJUDICATION_NOT_COMPLETED",
+    "PRIMARY_CLASS_COVERAGE_UNCONFIRMED",
+    "TOP_LEVEL_CONSTRUCTION_COVERAGE_UNCONFIRMED",
+    "SUBTYPE_COVERAGE_UNCONFIRMED",
+    "PROTECTED_CATEGORY_COVERAGE_UNCONFIRMED",
+    "CANDIDATES_NOT_LOCKED",
+    "FINAL_GOLD_NOT_LOCKED",
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "failedCases": [],
+  "unevaluatedCases": 1209,
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "9c3ca8f1299d9b0d48540737607c0161c35fdce713cda77f1e11e4786e820a73"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "resolutionId": "s8-v3-authorship-resolution-katie-2026-09-10-01",
+  "decidedBy": "Katie Sanderson",
+  "decisionDate": "2026-09-10",
+  "sourceTextAuthorship": "HUMAN_AUTHORED",
+  "identifierGeneration": "AI_ASSISTED",
+  "resolution": "The source_text passages are human-authored. AI was used only to create non-conflicting identifiers.",
+  "scope": [
+    "THERE_THEIR_THEYRE.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+    "Your_Youre.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+    "It_s_Its.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+    "to_too_two.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv"
+  ],
+  "provenanceResolutionFingerprint": "dc7182012559fa0c2e169c9ba82f425d7aa17ba2149a377ed4ca2cf7801e1420"
+}

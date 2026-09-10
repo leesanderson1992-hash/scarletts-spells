@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "family": "ITS_ITS",
+  "disposition": "BLOCKED",
+  "blockerType": "EVIDENCE_COVERAGE_AND_UNRESOLVED_HUMAN_AUTHORITY",
+  "exactRelease": {
+    "releaseKey": "s8-v3-its-its",
+    "releaseId": "81000000-0000-4000-8000-000000000012",
+    "manifestFingerprint": "8d99eb51af6bc8c20b91c3f05fdf81bba0f4c7b86b026a45ee05e71312425d02",
+    "engineeringCandidateArtifactFingerprint": "5a1cfa5d55cb032858b72a875cc2bed552d7f00ecfc54fcfd761891f4f87239b",
+    "frozenCandidateStatus": "BLOCKED_HUMAN_HOLDOUT_MISSING"
+  },
+  "evidence": {
+    "sourceManifestFingerprint": "9b3dc766f470bc1d223aa08fd7433dc6a87c29eb68cae80ab577184919ae9dda",
+    "authorshipResolutionFingerprint": "dc7182012559fa0c2e169c9ba82f425d7aa17ba2149a377ed4ca2cf7801e1420",
+    "occurrenceInventorySha256": "7f4558a12b21d8de8a5cce5fe408b4cbe92239cd396b9fcdefe452b52e6df93a",
+    "coverageLedgerSha256": "50c79fdccab397744eb9e43d3adff7e1c1e262b92d35f02e1cb8be9ce0943f04",
+    "primaryLabelPacketSha256": "b48e774cbd3475fb640b5440a215e161053f558b5a3ae992829f5b561c518afa",
+    "candidateFingerprint": null,
+    "goldFingerprint": null,
+    "corpusFingerprint": null,
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "primaryLabelsComplete": false,
+    "confirmedPrimaryDecisions": 0,
+    "requiredPrimaryDecisions": 400,
+    "nonGoldReviewComplete": false,
+    "adjudicationComplete": false,
+    "finalGoldLocked": false
+  },
+  "coverage": {
+    "totalAnnotatedOccurrences": 411,
+    "passagesWithFamily": 400,
+    "preselectedPrimary": 400,
+    "classShortfalls": {
+      "VALID": 150,
+      "INVALID": 150,
+      "UNCERTAIN_OR_UNSUPPORTED": 100
+    },
+    "constructionShortfalls": {
+      "possessive": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "it_is_contraction": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      },
+      "it_has_contraction": {
+        "requiredValid": 30,
+        "confirmedValid": 0,
+        "requiredInvalid": 30,
+        "confirmedInvalid": 0
+      }
+    },
+    "subtypeShortfalls": {
+      "possessive_subject_or_object": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "progressive_contraction": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "adjectival_contraction": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "passive_contraction": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      },
+      "perfect_contraction": {
+        "requiredValid": 20,
+        "confirmedValid": 0,
+        "requiredInvalid": 20,
+        "confirmedInvalid": 0
+      }
+    },
+    "protectedShortfalls": {
+      "fragment": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "quotation": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "gerund": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "run_on": {
+        "required": 10,
+        "confirmed": 0
+      },
+      "task_dependent": {
+        "required": 10,
+        "confirmed": 0
+      }
+    }
+  },
+  "failedGates": [
+    "PRIMARY_HUMAN_LABELS_INCOMPLETE",
+    "NON_GOLD_REVIEW_INCOMPLETE",
+    "ADJUDICATION_NOT_COMPLETED",
+    "PRIMARY_CLASS_COVERAGE_UNCONFIRMED",
+    "TOP_LEVEL_CONSTRUCTION_COVERAGE_UNCONFIRMED",
+    "SUBTYPE_COVERAGE_UNCONFIRMED",
+    "PROTECTED_CATEGORY_COVERAGE_UNCONFIRMED",
+    "CANDIDATES_NOT_LOCKED",
+    "FINAL_GOLD_NOT_LOCKED",
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "failedCases": [],
+  "unevaluatedCases": 411,
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "5b72fc61e32bb863f3ee13d99ebed78d7daad7b0d764f3cfa7017975ad215999"
+}

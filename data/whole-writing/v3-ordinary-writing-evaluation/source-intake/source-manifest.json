@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "intakeDate": "2026-09-10",
+  "baselineCommit": "4139430dd8011c41a7e285e50b71312c1839d936",
+  "branch": "codex/s8-v3-ordinary-holdout-evaluation",
+  "authorshipResolutionId": "s8-v3-authorship-resolution-katie-2026-09-10-01",
+  "sources": [
+    {
+      "nominalFamily": "THERE_THEIR_THEYRE",
+      "suppliedFileName": "THERE_THEIR_THEYRE.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "preservedPath": "source-intake/raw/THERE_THEIR_THEYRE.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "byteLength": 94476,
+      "sha256": "c787f33cdb0b574182870fe4714b8b27078017f3b734a6727e16ce33cce91d14",
+      "headers": [
+        "passage_id",
+        "source_text",
+        "authored_by",
+        "authorship_confirmed",
+        "source_group"
+      ],
+      "passageCount": 400,
+      "allGovernedOccurrenceCount": 651
+    },
+    {
+      "nominalFamily": "YOUR_YOURE",
+      "suppliedFileName": "Your_Youre.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "preservedPath": "source-intake/raw/Your_Youre.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "byteLength": 91334,
+      "sha256": "8d1c00566ead58533fe6d81febba427b45fb1b5db23e8afabc97d7d15c0c2580",
+      "headers": [
+        "passage_id",
+        "source_text",
+        "authored_by",
+        "authorship_confirmed",
+        "source_group"
+      ],
+      "passageCount": 400,
+      "allGovernedOccurrenceCount": 667
+    },
+    {
+      "nominalFamily": "ITS_ITS",
+      "suppliedFileName": "It_s_Its.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "preservedPath": "source-intake/raw/It_s_Its.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "byteLength": 82826,
+      "sha256": "47d2a79694395fcda8dac8562974e4bc2e39cfeaf3e845f1495913322c7a833b",
+      "headers": [
+        "passage_id",
+        "source_text",
+        "authored_by",
+        "authorship_confirmed",
+        "source_group"
+      ],
+      "passageCount": 400,
+      "allGovernedOccurrenceCount": 653
+    },
+    {
+      "nominalFamily": "TO_TOO_TWO",
+      "suppliedFileName": "to_too_two.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "preservedPath": "source-intake/raw/to_too_two.v3-intake-approved-by-katie - THERE_THEIR_THEYRE.v3-intake-approved-by-katie.csv.csv",
+      "byteLength": 80852,
+      "sha256": "8d7c5e33ee185fa82b681cf1da7b7506334f9fc63aabb65b14c4d7ad3767a577",
+      "headers": [
+        "passage_id",
+        "source_text",
+        "authored_by",
+        "authorship_confirmed",
+        "source_group"
+      ],
+      "passageCount": 400,
+      "allGovernedOccurrenceCount": 521
+    }
+  ],
+  "sourceManifestFingerprint": "9b3dc766f470bc1d223aa08fd7433dc6a87c29eb68cae80ab577184919ae9dda"
+}

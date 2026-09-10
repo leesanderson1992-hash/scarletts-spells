@@ -19,6 +19,8 @@
     "writing:s8-four-family-integration-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-four-family-integration-regression.ts",
     "writing:s8-v3-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-regression.ts",
     "writing:s8-v3-evaluation-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-evaluation-regression.ts",
+    "writing:s8-v3-intake-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-intake-regression.ts",
+    "writing:s8-v3-intake-review": "NODE_OPTIONS=--conditions=react-server tsx scripts/build-whole-writing-s8-v3-intake-review.ts",
     "writing:s8-v3-source-pin-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-source-pin-regression.ts",
     "writing:s8-v3-release-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-release-regression.ts",
     "writing:s8-v3-smoke": "NODE_OPTIONS=--conditions=react-server tsx scripts/smoke-whole-writing-s8-v3.ts",
