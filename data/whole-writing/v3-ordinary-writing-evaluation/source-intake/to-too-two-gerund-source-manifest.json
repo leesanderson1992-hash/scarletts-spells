@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "intakeDate": "2026-09-10",
+  "rawCsv": {
+    "suppliedFileName": "TO_TOO_TWO V3 Import-Ready Holdout Review - Gerund Human Intake.csv",
+    "preservedPath": "human-review/primary-label/raw/TO_TOO_TWO V3 Import-Ready Holdout Review - Gerund Human Intake.csv",
+    "byteLength": 4817,
+    "sha256": "63fa6fa82d44d7a3efa78f3daeff16be9d68e3c0c47f23e002a7efec9fe4f4cc"
+  },
+  "passageCount": 10,
+  "governedOccurrenceCount": 11,
+  "completedPrimaryDecisionCount": 10,
+  "pendingIncidentalDecisionCount": 1,
+  "inventorySha256": "5d56616c2acfc721ec008a008fe2cdef885222cc6db916a02f358b3e5fbb9e40",
+  "authorshipResolutionId": "s8-v3-to-too-two-gerund-authorship-katie-2026-09-10-01",
+  "analyserPredictionsExposed": false,
+  "sourceManifestFingerprint": "a2360502a7bb58331c06ed3429fdd5fb036fa6d8b592d9e38f3d6368a9450974"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "resolutionId": "s8-v3-to-too-two-gerund-authorship-katie-2026-09-10-01",
+  "decidedBy": "Katie Sanderson",
+  "decidedAt": "2026-09-10T18:44:23Z",
+  "rawSourceSha256": "63fa6fa82d44d7a3efa78f3daeff16be9d68e3c0c47f23e002a7efec9fe4f4cc",
+  "passageCount": 10,
+  "sourceTextAuthorship": "HUMAN_AUTHORED",
+  "identifierGeneration": "AI_ASSISTED",
+  "analyserPredictionsExposed": false,
+  "resolution": "Katie Sanderson confirmed that she completed all ten source passages and adopted the populated planned primary decisions; blank authorship cells in the raw CSV are superseded by this direct attestation.",
+  "provenanceResolutionFingerprint": "5f0240303d3f3c07b0d4d4f8e7dbdcf154d0cb619153e360ae054b091a5bc738"
+}

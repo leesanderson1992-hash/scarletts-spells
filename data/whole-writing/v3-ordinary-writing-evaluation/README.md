@@ -74,3 +74,10 @@ metadata is not treated as decision provenance. All current occurrence labels,
 construction/subtype quotas and four protected categories are complete. Ten
 independently human-authored gerund-primary passages remain required, so
 candidate/gold locking and analyser evaluation remain blocked.
+
+Katie Sanderson subsequently supplied all ten human-authored gerund passages
+and adopted their populated primary decisions. Those ten gerund primaries now
+meet the protected-category quota. One additional `to` in the second passage
+is an inventoried non-primary occurrence without an explicit human decision;
+the one-row packet under `human-review/primary-label/pending` must be completed
+before candidate/gold locking or analyser evaluation.

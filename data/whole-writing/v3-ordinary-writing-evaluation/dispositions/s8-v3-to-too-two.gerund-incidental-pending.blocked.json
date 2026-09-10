@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "disposition": "BLOCKED",
+  "blockerType": "UNRESOLVED_HUMAN_AUTHORITY",
+  "exactRelease": {
+    "releaseKey": "s8-v3-to-too-two",
+    "releaseId": "81000000-0000-4000-8000-000000000011",
+    "manifestFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8"
+  },
+  "evidence": {
+    "rawGerundCsvSha256": "63fa6fa82d44d7a3efa78f3daeff16be9d68e3c0c47f23e002a7efec9fe4f4cc",
+    "gerundSourceManifestFingerprint": "a2360502a7bb58331c06ed3429fdd5fb036fa6d8b592d9e38f3d6368a9450974",
+    "gerundImportReceiptFingerprint": "5f2d3eed500939c639523db76d86fb34962c40154e0e7b04d4a67ed60b29eb4c",
+    "coverageLedgerFingerprint": "6c6fbccb2fd17cdefa0bb4425f5490c8a2093fb4a36555d31845edb0c36eb1b3",
+    "candidateFingerprint": null,
+    "goldFingerprint": null,
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "gerundPrimaryLabelsComplete": true,
+    "gerundPrimaryNonGoldReviewComplete": true,
+    "incidentalDecisionComplete": false,
+    "finalGoldLocked": false
+  },
+  "failedGates": [
+    "INCIDENTAL_OCCURRENCE_PRIMARY_LABEL_MISSING",
+    "FINAL_GOLD_NOT_LOCKED",
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "failedCases": [
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0002-to-too-two-01",
+      "reason": "The first TO in passage 02 is inventoried but has no explicit human classification, construction/subtype decision or completed non-gold review."
+    }
+  ],
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "b8a197056ae515dac91f978a3645a7738e24ce24b1cefe1ef8ff9380b29ed40c"
+}

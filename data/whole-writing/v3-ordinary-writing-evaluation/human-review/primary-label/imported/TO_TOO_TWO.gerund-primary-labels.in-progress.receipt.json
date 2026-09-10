@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "importStatus": "GERUND_PRIMARY_COMPLETE_ONE_INCIDENTAL_PENDING",
+  "importedGerundPrimaryLabelCount": 10,
+  "importedGerundNonGoldReviewCount": 10,
+  "pendingIncidentalOccurrenceLabels": 1,
+  "gerundInventorySha256": "5d56616c2acfc721ec008a008fe2cdef885222cc6db916a02f358b3e5fbb9e40",
+  "gerundPrimaryLabelFileSha256": "a6cd6ea3cf2febf1164a4b2a11e74c4d8ec8346ec85f345825a0e34f63aad2c9",
+  "gerundPrimaryLabelSetFingerprint": "0b2da5b9a6dde6ef66630c47168dbd20343bf7e1fcb768a95a299f4a840c9482",
+  "gerundNonGoldReviewFileSha256": "a5340725552d521015edab0dbf15b179e38f3408622390ad07b375a10f2aaa48",
+  "pendingIncidentalPacketSha256": "a861485db8a77dc33f726e24e139d701ee55644ad70c44e4ba3cb7e227eb03d5",
+  "sourceManifestFingerprint": "a2360502a7bb58331c06ed3429fdd5fb036fa6d8b592d9e38f3d6368a9450974",
+  "analyserBehaviour": "NOT_EVALUATED",
+  "receiptFingerprint": "5f2d3eed500939c639523db76d86fb34962c40154e0e7b04d4a67ed60b29eb4c"
+}

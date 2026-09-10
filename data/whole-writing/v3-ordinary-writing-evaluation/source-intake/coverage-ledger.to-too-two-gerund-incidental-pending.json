@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "totalAnnotatedOccurrences": 1270,
+  "completedOccurrencePrimaryLabels": 1269,
+  "pendingOccurrencePrimaryLabels": 1,
+  "approvedPrimary": 410,
+  "primaryByClassification": {
+    "VALID": 160,
+    "INVALID": 150,
+    "UNCERTAIN": 100
+  },
+  "primaryByConstruction": {
+    "preposition": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "infinitive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "additive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "degree": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "numeral": {
+      "VALID": 30,
+      "INVALID": 30
+    }
+  },
+  "primaryBySubtype": {
+    "destination_or_recipient_preposition": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "governed_infinitive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "clause_additive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "adjective_or_manner_degree": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "ordinary_count_numeral": {
+      "VALID": 30,
+      "INVALID": 30
+    }
+  },
+  "protectedPrimaryCounts": {
+    "fragment": 20,
+    "quotation": 20,
+    "gerund": 10,
+    "run_on": 20,
+    "task_dependent": 20
+  },
+  "coverageQuotaShortages": [],
+  "workflowShortages": [
+    {
+      "gate": "complete_occurrence_labels",
+      "shortage": 1,
+      "caseId": "v3-to-too-two-gerund-supplement-0002-to-too-two-01"
+    }
+  ],
+  "humanWorkflow": {
+    "gerundPrimaryLabelsComplete": true,
+    "gerundPrimaryNonGoldReviewComplete": true,
+    "incidentalDecisionComplete": false,
+    "finalGoldLocked": false
+  },
+  "coverageLedgerFingerprint": "6c6fbccb2fd17cdefa0bb4425f5490c8a2093fb4a36555d31845edb0c36eb1b3"
+}
