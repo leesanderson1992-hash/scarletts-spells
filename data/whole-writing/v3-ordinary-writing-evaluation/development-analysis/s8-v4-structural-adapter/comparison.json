@@ -1,0 +1,896 @@
+{
+  "schemaVersion": 1,
+  "purpose": "development_regression_only_not_approval_evidence",
+  "frozenEvaluatorUnchanged": true,
+  "releasesDefaultOff": true,
+  "families": [
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "releaseKey": "s8-v4-there-their-theyre",
+      "releaseId": "81000000-0000-4000-8000-000000000013",
+      "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38",
+      "decisionCounts": {
+        "VALID": 184,
+        "INVALID": 110,
+        "UNCERTAIN": 235
+      },
+      "report": {
+        "schemaVersion": 1,
+        "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+        "family": "THERE_THEIR_THEYRE",
+        "releaseFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38",
+        "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
+        "counts": {
+          "valid": 180,
+          "invalid": 172,
+          "uncertain": 100
+        },
+        "totalPrimary": 452,
+        "totalAnnotatedOccurrences": 529,
+        "metrics": {
+          "precision": 1,
+          "wilsonLower95": 0.9662560647018357,
+          "supportedRecall": 0.6395348837209303,
+          "validRecognition": 0.7419354838709677,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        },
+        "byConstruction": {
+          "locative": {
+            "supported": 35,
+            "recalled": 27,
+            "recall": 0.7714285714285715
+          },
+          "existential": {
+            "supported": 35,
+            "recalled": 35,
+            "recall": 1
+          },
+          "possessive": {
+            "supported": 40,
+            "recalled": 30,
+            "recall": 0.75
+          },
+          "they_are_contraction": {
+            "supported": 62,
+            "recalled": 18,
+            "recall": 0.2903225806451613
+          }
+        },
+        "bySubtype": {
+          "adverbial_locative": {
+            "supported": 35,
+            "recalled": 27,
+            "recall": 0.7714285714285715
+          },
+          "embedded_existential": {
+            "supported": 35,
+            "recalled": 35,
+            "recall": 1
+          },
+          "possessive_subject_or_object": {
+            "supported": 40,
+            "recalled": 30,
+            "recall": 0.75
+          },
+          "adjectival_contraction": {
+            "supported": 22,
+            "recalled": 3,
+            "recall": 0.13636363636363635
+          },
+          "passive_contraction": {
+            "supported": 20,
+            "recalled": 5,
+            "recall": 0.25
+          },
+          "progressive_contraction": {
+            "supported": 20,
+            "recalled": 10,
+            "recall": 0.5
+          }
+        },
+        "issues": [
+          "AGGREGATE_RECALL_BELOW_POLICY",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:adjectival_contraction",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:adverbial_locative",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:locative",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:passive_contraction",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:possessive",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:possessive_subject_or_object",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
+          "SUBTYPE_QUOTA_FAILED:not_applicable",
+          "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+          "VALID_RECOGNITION_BELOW_POLICY"
+        ],
+        "findings": [],
+        "disposition": "BLOCKED",
+        "reportFingerprint": "c0b6e27acf570a35ebc3ff34117956224fced6e556d6efe9851b1250babf1137"
+      },
+      "conflictAdjustedValidRecognition": 0.7419354838709677,
+      "v3": {
+        "releaseFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
+        "metrics": {
+          "precision": 0.6942148760330579,
+          "wilsonLower95": 0.6071971806219708,
+          "supportedRecall": 0.4883720930232558,
+          "validRecognition": 0.5362903225806451,
+          "falseValid": 32,
+          "wrongAlternatives": 37,
+          "protectedFailures": 32
+        },
+        "byConstruction": {
+          "locative": {
+            "supported": 35,
+            "recalled": 10,
+            "recall": 0.2857142857142857
+          },
+          "existential": {
+            "supported": 35,
+            "recalled": 19,
+            "recall": 0.5428571428571428
+          },
+          "possessive": {
+            "supported": 40,
+            "recalled": 30,
+            "recall": 0.75
+          },
+          "they_are_contraction": {
+            "supported": 62,
+            "recalled": 25,
+            "recall": 0.4032258064516129
+          }
+        },
+        "bySubtype": {
+          "adverbial_locative": {
+            "supported": 35,
+            "recalled": 10,
+            "recall": 0.2857142857142857
+          },
+          "embedded_existential": {
+            "supported": 35,
+            "recalled": 19,
+            "recall": 0.5428571428571428
+          },
+          "possessive_subject_or_object": {
+            "supported": 40,
+            "recalled": 30,
+            "recall": 0.75
+          },
+          "adjectival_contraction": {
+            "supported": 22,
+            "recalled": 14,
+            "recall": 0.6363636363636364
+          },
+          "passive_contraction": {
+            "supported": 20,
+            "recalled": 1,
+            "recall": 0.05
+          },
+          "progressive_contraction": {
+            "supported": 20,
+            "recalled": 10,
+            "recall": 0.5
+          }
+        }
+      },
+      "g2Metrics": {
+        "cases": 400,
+        "precision": 1,
+        "supportedRecall": 0.7866666666666666,
+        "validRecognition": 0.8066666666666666,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "contractConflicts": [],
+      "residualRootCauses": {
+        "parser_alignment": 0,
+        "structural_parser_ambiguity": 103,
+        "parser_misleading_output": 0,
+        "family_rule": 8,
+        "protected_policy": 15,
+        "lexical_governance": 0,
+        "semantic_ambiguity": 0,
+        "evaluator_contract": 0,
+        "unsupported_construction": 0,
+        "implementation_defect": 0
+      }
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "releaseKey": "s8-v4-to-too-two",
+      "releaseId": "81000000-0000-4000-8000-000000000014",
+      "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+      "decisionCounts": {
+        "VALID": 694,
+        "INVALID": 119,
+        "UNCERTAIN": 457
+      },
+      "report": {
+        "schemaVersion": 1,
+        "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+        "family": "TO_TOO_TWO",
+        "releaseFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+        "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
+        "counts": {
+          "valid": 160,
+          "invalid": 150,
+          "uncertain": 100
+        },
+        "totalPrimary": 410,
+        "totalAnnotatedOccurrences": 1270,
+        "metrics": {
+          "precision": 1,
+          "wilsonLower95": 0.9687283197580606,
+          "supportedRecall": 0.7933333333333333,
+          "validRecognition": 0.6803921568627451,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        },
+        "byConstruction": {
+          "preposition": {
+            "supported": 30,
+            "recalled": 30,
+            "recall": 1
+          },
+          "infinitive": {
+            "supported": 30,
+            "recalled": 26,
+            "recall": 0.8666666666666667
+          },
+          "additive": {
+            "supported": 30,
+            "recalled": 26,
+            "recall": 0.8666666666666667
+          },
+          "degree": {
+            "supported": 30,
+            "recalled": 24,
+            "recall": 0.8
+          },
+          "numeral": {
+            "supported": 30,
+            "recalled": 13,
+            "recall": 0.43333333333333335
+          }
+        },
+        "bySubtype": {
+          "destination_or_recipient_preposition": {
+            "supported": 30,
+            "recalled": 30,
+            "recall": 1
+          },
+          "governed_infinitive": {
+            "supported": 30,
+            "recalled": 26,
+            "recall": 0.8666666666666667
+          },
+          "clause_additive": {
+            "supported": 30,
+            "recalled": 26,
+            "recall": 0.8666666666666667
+          },
+          "adjective_or_manner_degree": {
+            "supported": 30,
+            "recalled": 24,
+            "recall": 0.8
+          },
+          "ordinary_count_numeral": {
+            "supported": 30,
+            "recalled": 13,
+            "recall": 0.43333333333333335
+          }
+        },
+        "issues": [
+          "AGGREGATE_RECALL_BELOW_POLICY",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:numeral",
+          "CONSTRUCTION_RECALL_BELOW_POLICY:ordinary_count_numeral",
+          "SUBTYPE_QUOTA_FAILED:not_applicable",
+          "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+          "VALID_RECOGNITION_BELOW_POLICY"
+        ],
+        "findings": [],
+        "disposition": "BLOCKED",
+        "reportFingerprint": "d82ac6c890969f7ed34c6844a3c59059d1752699784280565232fc92870464e6"
+      },
+      "conflictAdjustedValidRecognition": 0.7251828631138976,
+      "v3": {
+        "releaseFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
+        "metrics": {
+          "precision": 0.8636363636363636,
+          "wilsonLower95": 0.7871432478694177,
+          "supportedRecall": 0.6333333333333333,
+          "validRecognition": 0.20588235294117646,
+          "falseValid": 5,
+          "wrongAlternatives": 15,
+          "protectedFailures": 23
+        },
+        "byConstruction": {
+          "preposition": {
+            "supported": 30,
+            "recalled": 13,
+            "recall": 0.43333333333333335
+          },
+          "infinitive": {
+            "supported": 30,
+            "recalled": 9,
+            "recall": 0.3
+          },
+          "additive": {
+            "supported": 30,
+            "recalled": 30,
+            "recall": 1
+          },
+          "degree": {
+            "supported": 30,
+            "recalled": 22,
+            "recall": 0.7333333333333333
+          },
+          "numeral": {
+            "supported": 30,
+            "recalled": 21,
+            "recall": 0.7
+          }
+        },
+        "bySubtype": {
+          "destination_or_recipient_preposition": {
+            "supported": 30,
+            "recalled": 13,
+            "recall": 0.43333333333333335
+          },
+          "governed_infinitive": {
+            "supported": 30,
+            "recalled": 9,
+            "recall": 0.3
+          },
+          "clause_additive": {
+            "supported": 30,
+            "recalled": 30,
+            "recall": 1
+          },
+          "adjective_or_manner_degree": {
+            "supported": 30,
+            "recalled": 22,
+            "recall": 0.7333333333333333
+          },
+          "ordinary_count_numeral": {
+            "supported": 30,
+            "recalled": 21,
+            "recall": 0.7
+          }
+        }
+      },
+      "g2Metrics": {
+        "cases": 400,
+        "precision": 1,
+        "supportedRecall": 0.86,
+        "validRecognition": 0.8666666666666667,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "contractConflicts": [
+        {
+          "caseId": "v3-there-their-theyre-0321-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0325-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0331-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0333-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0339-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0340-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0365-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0367-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0369-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0372-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0373-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0374-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0375-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0377-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0378-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-there-their-theyre-0379-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0323-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0326-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0328-to-too-two-01",
+          "protectedSetTags": [
+            "quotation"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0362-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0363-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0364-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0365-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0366-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0368-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0370-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0371-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0372-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0373-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0374-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0375-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0377-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0378-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0379-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-your-youre-0380-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0361-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0362-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0366-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0368-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0369-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0370-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0374-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0375-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0377-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0378-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0379-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-its-its-0380-to-too-two-01",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0361-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0362-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0365-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0374-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0376-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-0379-to-too-two-02",
+          "protectedSetTags": [
+            "run_on"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0001-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0002-to-too-two-02",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0003-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0004-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0005-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0006-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0007-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0008-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0009-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        },
+        {
+          "caseId": "v3-to-too-two-gerund-supplement-0010-to-too-two-01",
+          "protectedSetTags": [
+            "gerund"
+          ],
+          "analyserRequiredByProtection": "UNCERTAIN",
+          "evaluatorValidRecognitionRequires": "VALID"
+        }
+      ],
+      "residualRootCauses": {
+        "parser_alignment": 0,
+        "structural_parser_ambiguity": 218,
+        "parser_misleading_output": 0,
+        "family_rule": 19,
+        "protected_policy": 37,
+        "lexical_governance": 0,
+        "semantic_ambiguity": 0,
+        "evaluator_contract": 63,
+        "unsupported_construction": 20,
+        "implementation_defect": 0
+      }
+    }
+  ],
+  "comparisonFingerprint": "f0781bca124f8930183a153acdcc65abdb86db4c5caced78cbbe9edb372677a6"
+}

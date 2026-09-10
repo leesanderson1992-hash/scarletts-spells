@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+  "family": "THERE_THEIR_THEYRE",
+  "releaseFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38",
+  "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
+  "counts": {
+    "valid": 180,
+    "invalid": 172,
+    "uncertain": 100
+  },
+  "totalPrimary": 452,
+  "totalAnnotatedOccurrences": 529,
+  "metrics": {
+    "precision": 1,
+    "wilsonLower95": 0.9662560647018357,
+    "supportedRecall": 0.6395348837209303,
+    "validRecognition": 0.7419354838709677,
+    "falseValid": 0,
+    "wrongAlternatives": 0,
+    "protectedFailures": 0
+  },
+  "byConstruction": {
+    "locative": {
+      "supported": 35,
+      "recalled": 27,
+      "recall": 0.7714285714285715
+    },
+    "existential": {
+      "supported": 35,
+      "recalled": 35,
+      "recall": 1
+    },
+    "possessive": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "they_are_contraction": {
+      "supported": 62,
+      "recalled": 18,
+      "recall": 0.2903225806451613
+    }
+  },
+  "bySubtype": {
+    "adverbial_locative": {
+      "supported": 35,
+      "recalled": 27,
+      "recall": 0.7714285714285715
+    },
+    "embedded_existential": {
+      "supported": 35,
+      "recalled": 35,
+      "recall": 1
+    },
+    "possessive_subject_or_object": {
+      "supported": 40,
+      "recalled": 30,
+      "recall": 0.75
+    },
+    "adjectival_contraction": {
+      "supported": 22,
+      "recalled": 3,
+      "recall": 0.13636363636363635
+    },
+    "passive_contraction": {
+      "supported": 20,
+      "recalled": 5,
+      "recall": 0.25
+    },
+    "progressive_contraction": {
+      "supported": 20,
+      "recalled": 10,
+      "recall": 0.5
+    }
+  },
+  "issues": [
+    "AGGREGATE_RECALL_BELOW_POLICY",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adjectival_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adverbial_locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:locative",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:passive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:possessive_subject_or_object",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
+    "SUBTYPE_QUOTA_FAILED:not_applicable",
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+    "VALID_RECOGNITION_BELOW_POLICY"
+  ],
+  "findings": [],
+  "disposition": "BLOCKED",
+  "reportFingerprint": "c0b6e27acf570a35ebc3ff34117956224fced6e556d6efe9851b1250babf1137"
+}

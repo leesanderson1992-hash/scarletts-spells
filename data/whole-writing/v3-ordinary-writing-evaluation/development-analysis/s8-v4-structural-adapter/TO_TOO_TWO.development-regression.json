@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+  "family": "TO_TOO_TWO",
+  "releaseFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+  "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
+  "counts": {
+    "valid": 160,
+    "invalid": 150,
+    "uncertain": 100
+  },
+  "totalPrimary": 410,
+  "totalAnnotatedOccurrences": 1270,
+  "metrics": {
+    "precision": 1,
+    "wilsonLower95": 0.9687283197580606,
+    "supportedRecall": 0.7933333333333333,
+    "validRecognition": 0.6803921568627451,
+    "falseValid": 0,
+    "wrongAlternatives": 0,
+    "protectedFailures": 0
+  },
+  "byConstruction": {
+    "preposition": {
+      "supported": 30,
+      "recalled": 30,
+      "recall": 1
+    },
+    "infinitive": {
+      "supported": 30,
+      "recalled": 26,
+      "recall": 0.8666666666666667
+    },
+    "additive": {
+      "supported": 30,
+      "recalled": 26,
+      "recall": 0.8666666666666667
+    },
+    "degree": {
+      "supported": 30,
+      "recalled": 24,
+      "recall": 0.8
+    },
+    "numeral": {
+      "supported": 30,
+      "recalled": 13,
+      "recall": 0.43333333333333335
+    }
+  },
+  "bySubtype": {
+    "destination_or_recipient_preposition": {
+      "supported": 30,
+      "recalled": 30,
+      "recall": 1
+    },
+    "governed_infinitive": {
+      "supported": 30,
+      "recalled": 26,
+      "recall": 0.8666666666666667
+    },
+    "clause_additive": {
+      "supported": 30,
+      "recalled": 26,
+      "recall": 0.8666666666666667
+    },
+    "adjective_or_manner_degree": {
+      "supported": 30,
+      "recalled": 24,
+      "recall": 0.8
+    },
+    "ordinary_count_numeral": {
+      "supported": 30,
+      "recalled": 13,
+      "recall": 0.43333333333333335
+    }
+  },
+  "issues": [
+    "AGGREGATE_RECALL_BELOW_POLICY",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:numeral",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:ordinary_count_numeral",
+    "SUBTYPE_QUOTA_FAILED:not_applicable",
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+    "VALID_RECOGNITION_BELOW_POLICY"
+  ],
+  "findings": [],
+  "disposition": "BLOCKED",
+  "reportFingerprint": "d82ac6c890969f7ed34c6844a3c59059d1752699784280565232fc92870464e6"
+}

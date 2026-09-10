@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "purpose": "development_regression_only_not_approval_evidence",
+  "command": "S8_V4_PYTHON=<pinned-python> npm run writing:s8-v4-development-regression",
+  "comparison": "BYTE_IDENTICAL_NORMALIZED_STDOUT",
+  "runAOutputSha256": "6312a4bfd78b603faac2c74627c2c5386c28dd5c7fd00b6dbc72d51298a89688",
+  "runBOutputSha256": "6312a4bfd78b603faac2c74627c2c5386c28dd5c7fd00b6dbc72d51298a89688",
+  "hostScopeOnly": true,
+  "crossPlatformDeterminismClaimed": false
+}

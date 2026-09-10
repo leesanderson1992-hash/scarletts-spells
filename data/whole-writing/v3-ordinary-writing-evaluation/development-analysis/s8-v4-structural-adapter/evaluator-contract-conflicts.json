@@ -1,0 +1,510 @@
+{
+  "schemaVersion": 1,
+  "evaluatorVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+  "conflicts": [
+    {
+      "caseId": "v3-there-their-theyre-0321-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0325-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0331-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0333-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0339-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0340-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0365-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0367-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0369-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0372-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0373-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0374-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0375-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0377-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0378-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0379-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0323-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0326-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0328-to-too-two-01",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0362-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0363-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0364-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0365-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0366-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0368-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0370-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0371-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0372-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0373-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0374-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0375-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0377-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0378-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0379-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-your-youre-0380-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0361-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0362-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0366-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0368-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0369-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0370-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0374-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0375-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0377-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0378-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0379-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-its-its-0380-to-too-two-01",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0361-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0362-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0365-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0374-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0376-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0379-to-too-two-02",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0001-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0002-to-too-two-02",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0003-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0004-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0005-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0006-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0007-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0008-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0009-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-gerund-supplement-0010-to-too-two-01",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "analyserRequiredByProtection": "UNCERTAIN",
+      "evaluatorValidRecognitionRequires": "VALID"
+    }
+  ]
+}
