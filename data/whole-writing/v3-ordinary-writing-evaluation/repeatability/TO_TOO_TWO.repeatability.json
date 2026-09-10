@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "runCount": 2,
+  "governedReportWrittenAfterComparison": true,
+  "firstRunStdoutSha256": "8d62e308833194f0e3e6a2f81e9f6d050c3581679320f22eeffb44eee74b242e",
+  "secondRunStdoutSha256": "8d62e308833194f0e3e6a2f81e9f6d050c3581679320f22eeffb44eee74b242e",
+  "firstRunReportFingerprint": "c048721a7e9f8674e7a03d36906bc9db30fd740626fe7da0e3913932fe08a04f",
+  "secondRunReportFingerprint": "c048721a7e9f8674e7a03d36906bc9db30fd740626fe7da0e3913932fe08a04f",
+  "byteIdenticalOutput": true,
+  "reportSha256": "a025840591313b617879a7848f626c9409fb086abb795ea05204989be9e72d8e",
+  "repeatabilityFingerprint": "43d30544c4e50a96e59adb2b58a671d8e6809f99567bc57a5272e17042b7578f"
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "decisionProvenanceId": "s8-v3-to-too-two-gerund-incidental-katie-2026-09-10-01",
+  "family": "TO_TOO_TWO",
+  "caseId": "v3-to-too-two-gerund-supplement-0002-to-too-two-01",
+  "decidedBy": "Katie Sanderson",
+  "decidedAt": "2026-09-10T19:24:51Z",
+  "decision": {
+    "classification": "VALID",
+    "intendedAlternative": null,
+    "supportedConstruction": true,
+    "declaredConstruction": "infinitive",
+    "declaredSubtype": "governed_infinitive",
+    "protectedSetTags": [],
+    "primaryFocusApproved": false
+  },
+  "interpretation": "The occurrence is the infinitival to in ‘going to look’, is incidental only, and does not count toward gerund or primary quotas.",
+  "source": "Explicit user confirmation in the governed S8 V3 holdout task.",
+  "analyserPredictionsExposed": false,
+  "provenanceFingerprint": "a3ef87c4c93946a4ed1d7e6e7ce9f07626b8f1da4911d11f41ce90fa82cb49a1"
+}

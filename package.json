@@ -24,6 +24,8 @@
     "writing:s8-v3-primary-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-s8-v3-primary-label-review.ts",
     "writing:s8-v3-to-primary-label-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-s8-v3-to-primary-label-review.ts",
     "writing:s8-v3-to-gerund-import": "NODE_OPTIONS=--conditions=react-server tsx scripts/import-whole-writing-s8-v3-to-gerund-review.ts",
+    "writing:s8-v3-to-human-finalize": "NODE_OPTIONS=--conditions=react-server tsx scripts/finalize-whole-writing-s8-v3-to-human-workflow.ts",
+    "writing:s8-v3-to-evaluation-finalize": "NODE_OPTIONS=--conditions=react-server tsx scripts/finalize-whole-writing-s8-v3-to-evaluation.ts",
     "writing:s8-v3-there-finalize": "NODE_OPTIONS=--conditions=react-server tsx scripts/finalize-whole-writing-s8-v3-there-evaluation.ts",
     "writing:s8-v3-source-pin-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-source-pin-regression.ts",
     "writing:s8-v3-release-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-release-regression.ts",

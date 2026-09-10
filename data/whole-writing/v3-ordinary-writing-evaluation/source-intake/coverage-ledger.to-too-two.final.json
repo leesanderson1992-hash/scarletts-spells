@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "totalAnnotatedOccurrences": 1270,
+  "passagesWithFamily": 1026,
+  "approvedPrimary": 410,
+  "completedOccurrencePrimaryLabels": 1270,
+  "pendingOccurrencePrimaryLabels": 0,
+  "primaryByClassification": {
+    "VALID": 160,
+    "INVALID": 150,
+    "UNCERTAIN": 100
+  },
+  "primaryByConstruction": {
+    "preposition": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "infinitive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "additive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "degree": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "numeral": {
+      "VALID": 30,
+      "INVALID": 30
+    }
+  },
+  "primaryBySubtype": {
+    "destination_or_recipient_preposition": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "governed_infinitive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "clause_additive": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "adjective_or_manner_degree": {
+      "VALID": 30,
+      "INVALID": 30
+    },
+    "ordinary_count_numeral": {
+      "VALID": 30,
+      "INVALID": 30
+    }
+  },
+  "unsupportedPrimary": {
+    "not_applicable": {
+      "VALID": 10,
+      "INVALID": 0,
+      "UNCERTAIN": 0
+    }
+  },
+  "protectedPrimaryCounts": {
+    "fragment": 20,
+    "quotation": 20,
+    "gerund": 10,
+    "run_on": 20,
+    "task_dependent": 20
+  },
+  "coverageQuotaShortages": [],
+  "workflowShortages": [],
+  "coverageLedgerFingerprint": "32886eb16fc3a24bfdb17fb48f849fcb8226762bcb06923be08b6d8041608106"
+}

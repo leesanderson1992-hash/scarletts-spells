@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
+  "family": "TO_TOO_TWO",
+  "releaseFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
+  "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
+  "counts": {
+    "valid": 160,
+    "invalid": 150,
+    "uncertain": 100
+  },
+  "totalPrimary": 410,
+  "totalAnnotatedOccurrences": 1270,
+  "metrics": {
+    "precision": 0.8636363636363636,
+    "wilsonLower95": 0.7871432478694177,
+    "supportedRecall": 0.6333333333333333,
+    "validRecognition": 0.20588235294117646,
+    "falseValid": 5,
+    "wrongAlternatives": 15,
+    "protectedFailures": 23
+  },
+  "byConstruction": {
+    "preposition": {
+      "supported": 30,
+      "recalled": 13,
+      "recall": 0.43333333333333335
+    },
+    "infinitive": {
+      "supported": 30,
+      "recalled": 9,
+      "recall": 0.3
+    },
+    "additive": {
+      "supported": 30,
+      "recalled": 30,
+      "recall": 1
+    },
+    "degree": {
+      "supported": 30,
+      "recalled": 22,
+      "recall": 0.7333333333333333
+    },
+    "numeral": {
+      "supported": 30,
+      "recalled": 21,
+      "recall": 0.7
+    }
+  },
+  "bySubtype": {
+    "destination_or_recipient_preposition": {
+      "supported": 30,
+      "recalled": 13,
+      "recall": 0.43333333333333335
+    },
+    "governed_infinitive": {
+      "supported": 30,
+      "recalled": 9,
+      "recall": 0.3
+    },
+    "clause_additive": {
+      "supported": 30,
+      "recalled": 30,
+      "recall": 1
+    },
+    "adjective_or_manner_degree": {
+      "supported": 30,
+      "recalled": 22,
+      "recall": 0.7333333333333333
+    },
+    "ordinary_count_numeral": {
+      "supported": 30,
+      "recalled": 21,
+      "recall": 0.7
+    }
+  },
+  "issues": [
+    "AGGREGATE_RECALL_BELOW_POLICY",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:adjective_or_manner_degree",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:degree",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:destination_or_recipient_preposition",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:governed_infinitive",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:infinitive",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:numeral",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:ordinary_count_numeral",
+    "CONSTRUCTION_RECALL_BELOW_POLICY:preposition",
+    "FALSE_VALID_PRESENT",
+    "PRECISION_BELOW_POLICY",
+    "PROTECTED_FAILURE_PRESENT",
+    "SUBTYPE_QUOTA_FAILED:not_applicable",
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
+    "VALID_RECOGNITION_BELOW_POLICY",
+    "WILSON_BELOW_POLICY",
+    "WRONG_ALTERNATIVE_PRESENT"
+  ],
+  "findings": [
+    {
+      "caseId": "v3-there-their-theyre-0365-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0367-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0369-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-there-their-theyre-0374-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0362-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0366-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0370-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0373-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0379-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-your-youre-0380-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-its-its-0007-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-its-its-0010-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-its-its-0015-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-its-its-0021-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0009-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0022-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0026-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0363-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0363-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0364-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0367-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0368-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0368-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-to-too-two-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0369-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0370-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0371-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0371-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-to-too-two-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0372-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0373-to-too-two-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0373-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-to-too-two-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0375-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0377-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-to-too-two-01",
+      "reason": "FALSE_VALID"
+    },
+    {
+      "caseId": "v3-to-too-two-0378-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    },
+    {
+      "caseId": "v3-to-too-two-0380-to-too-two-01",
+      "reason": "WRONG_OR_UNSUPPORTED_ALTERNATIVE"
+    },
+    {
+      "caseId": "v3-to-too-two-0380-to-too-two-01",
+      "reason": "PROTECTED_ABSTENTION_CHANGED"
+    }
+  ],
+  "disposition": "BLOCKED",
+  "reportFingerprint": "c048721a7e9f8674e7a03d36906bc9db30fd740626fe7da0e3913932fe08a04f"
+}

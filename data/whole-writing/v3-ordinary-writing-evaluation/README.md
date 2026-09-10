@@ -81,3 +81,11 @@ meet the protected-category quota. One additional `to` in the second passage
 is an inventoried non-primary occurrence without an explicit human decision;
 the one-row packet under `human-review/primary-label/pending` must be completed
 before candidate/gold locking or analyser evaluation.
+
+Katie Sanderson explicitly confirmed that final incidental occurrence as a
+valid, supported, non-primary `infinitive/governed_infinitive` use. The complete
+1,270-occurrence human workflow and 410-primary coverage ledger are locked.
+The exact frozen release was then evaluated twice with byte-identical output
+and the governed report was written once. Its disposition is `BLOCKED`; the
+report and failed cases are preserved without modifying the exposed candidate,
+labels, analyser or evaluator.

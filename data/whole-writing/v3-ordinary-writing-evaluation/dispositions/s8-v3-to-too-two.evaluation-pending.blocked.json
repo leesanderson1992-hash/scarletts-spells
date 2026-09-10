@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "family": "TO_TOO_TWO",
+  "disposition": "BLOCKED",
+  "blockerType": "EXACT_EVALUATION_PENDING",
+  "exactRelease": {
+    "releaseKey": "s8-v3-to-too-two",
+    "releaseId": "81000000-0000-4000-8000-000000000011",
+    "manifestFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
+    "engineeringCandidateArtifactFingerprint": "097ac006fab63a1078afaca518ab5139cbccbac4be75f830b5d71660b82fa88d",
+    "frozenCandidateStatus": "BLOCKED_HUMAN_HOLDOUT_MISSING"
+  },
+  "evidence": {
+    "primaryLabelSetFingerprint": "f44076b9cb17ea9da8635c0651717ad73ae22f93da071941f101beb99b70d857",
+    "completedNonGoldReviewPacketSha256": "8d7f3459a5927238b910d0dcf8676d6744fcf0c60759251a3ed899de33df5033",
+    "coverageLedgerFingerprint": "32886eb16fc3a24bfdb17fb48f849fcb8226762bcb06923be08b6d8041608106",
+    "candidateFingerprint": "a4b24b4da3ab79d6a9733093f98ac4774268fbb24ff042da8fbf6189699e5d64",
+    "candidateFileSha256": "ed18752c24491522a74932383d588a609370ac2f6eaf81bdb6fccd5e8f566dec",
+    "goldFingerprint": "9684c2a9a900924db2523192abd848fb657369f653faa3b4a8bc5b9ce848588d",
+    "goldFileSha256": "11b131aadd37d8829d71e622088211f24f0b67b4e5d479c68b16e30c2e58a003",
+    "goldLockReceiptFingerprint": "265f3075e1f562cf655a8acb29344b5665901cc89457a4479c04690fd589d971",
+    "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
+    "reportFingerprint": null
+  },
+  "humanWorkflow": {
+    "primaryLabelsComplete": true,
+    "confirmedOccurrenceDecisions": 1270,
+    "requiredOccurrenceDecisions": 1270,
+    "pendingOccurrenceDecisions": 0,
+    "primaryCoverageComplete": true,
+    "nonGoldReviewComplete": true,
+    "adjudicationComplete": true,
+    "finalGoldLocked": true
+  },
+  "coverage": {
+    "schemaVersion": 1,
+    "family": "TO_TOO_TWO",
+    "totalAnnotatedOccurrences": 1270,
+    "passagesWithFamily": 1026,
+    "approvedPrimary": 410,
+    "completedOccurrencePrimaryLabels": 1270,
+    "pendingOccurrencePrimaryLabels": 0,
+    "primaryByClassification": {
+      "VALID": 160,
+      "INVALID": 150,
+      "UNCERTAIN": 100
+    },
+    "primaryByConstruction": {
+      "preposition": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "infinitive": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "additive": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "degree": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "numeral": {
+        "VALID": 30,
+        "INVALID": 30
+      }
+    },
+    "primaryBySubtype": {
+      "destination_or_recipient_preposition": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "governed_infinitive": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "clause_additive": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "adjective_or_manner_degree": {
+        "VALID": 30,
+        "INVALID": 30
+      },
+      "ordinary_count_numeral": {
+        "VALID": 30,
+        "INVALID": 30
+      }
+    },
+    "unsupportedPrimary": {
+      "not_applicable": {
+        "VALID": 10,
+        "INVALID": 0,
+        "UNCERTAIN": 0
+      }
+    },
+    "protectedPrimaryCounts": {
+      "fragment": 20,
+      "quotation": 20,
+      "gerund": 10,
+      "run_on": 20,
+      "task_dependent": 20
+    },
+    "coverageQuotaShortages": [],
+    "workflowShortages": [],
+    "coverageLedgerFingerprint": "32886eb16fc3a24bfdb17fb48f849fcb8226762bcb06923be08b6d8041608106"
+  },
+  "failedGates": [
+    "EXACT_RELEASE_EVALUATION_NOT_RUN",
+    "DETERMINISTIC_EVALUATION_REPEAT_NOT_RUN"
+  ],
+  "failedCases": [],
+  "unevaluatedCases": 1270,
+  "metrics": null,
+  "analyserBehaviour": "NOT_EVALUATED",
+  "familyDeliveryRemainsDisabled": true,
+  "publicationPerformed": false,
+  "selectionPerformed": false,
+  "approvalEventCreated": false,
+  "activationPerformed": false,
+  "dispositionFingerprint": "86fc67e140255c56654c3099093f0924541f3a487fc8c1af652e56a6c7684f8a"
+}

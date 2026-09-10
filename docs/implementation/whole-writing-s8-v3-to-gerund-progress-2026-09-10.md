@@ -27,3 +27,20 @@ Until that occurrence has an explicit primary decision and completed non-gold
 review, candidate and final-gold records cannot be locked. The exact frozen
 analyser has not been run. Nothing was published, selected, approved or
 activated, and family delivery remains disabled.
+
+## Completion and evaluation
+
+Katie Sanderson subsequently confirmed the incidental occurrence as `VALID`,
+supported `infinitive/governed_infinitive`, with no protected tags and no
+primary focus. All 1,270 occurrence decisions and reviews are therefore
+complete, no adjudication is required, and the candidate and final-gold sets
+are locked. The corpus contains 410 primaries and has no coverage shortage.
+
+Two exact-release no-write evaluations produced byte-identical output. The
+governed report was then written once. The frozen candidate is `BLOCKED` by
+analyser-behaviour gates, including precision, Wilson lower bound, aggregate
+and construction/subtype recall, valid recognition, false-valid,
+wrong-alternative and protected-case failures. The existing evaluator also
+reports construction and subtype quota failures for the authorized unsupported
+`not_applicable/not_applicable` primaries. Those results are preserved exactly;
+no post-exposure change was made.

@@ -177,9 +177,39 @@ delete reportCore.reportFingerprint;
 delete reportCore.disposition;
 assert.equal(ordinaryEvaluationFingerprint(reportCore), thereReport.reportFingerprint);
 assert.equal(thereReport.disposition, "BLOCKED");
-for (const family of ["YOUR_YOURE", "TO_TOO_TWO", "ITS_ITS"] as const) {
+
+const toCandidates = readFileSync(join(root, "candidates/TO_TOO_TWO.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+const toGold = readFileSync(join(root, "gold/TO_TOO_TWO.final-gold.jsonl"), "utf8").trim().split("\n").map((line) => JSON.parse(line));
+assert.equal(toCandidates.length, 1270);
+assert.equal(toGold.length, 1270);
+assert.deepEqual(new Set(toCandidates.map((record) => record.caseId)), new Set(toGold.map((record) => record.caseId)));
+for (const record of toCandidates) {
+  const { candidateFingerprint, ...core } = record;
+  assert.equal(ordinaryEvaluationFingerprint(core), candidateFingerprint, record.caseId);
+  assert.equal(record.sourceText.slice(record.startUtf16, record.endUtf16), record.focusSurface, record.caseId);
+}
+for (const record of toGold) {
+  const { goldFingerprint, ...core } = record;
+  assert.equal(ordinaryEvaluationFingerprint(core), goldFingerprint, record.caseId);
+  assert(record.primaryLabelId);
+  assert(record.nonGoldReviewId);
+}
+const toLock = JSON.parse(readFileSync(join(root, "gold/TO_TOO_TWO.gold-lock.receipt.json"), "utf8"));
+const { goldLockReceiptFingerprint, ...toLockCore } = toLock;
+assert.equal(ordinaryEvaluationFingerprint(toLockCore), goldLockReceiptFingerprint);
+assert.equal(toLock.candidateCount, 1270);
+assert.equal(toLock.goldCount, 1270);
+const toReport = JSON.parse(readFileSync(join(root, "reports/s8-v3-to-too-two/TO_TOO_TWO.evaluation.json"), "utf8"));
+const toReportCore = { ...toReport };
+delete toReportCore.reportFingerprint;
+delete toReportCore.disposition;
+assert.equal(ordinaryEvaluationFingerprint(toReportCore), toReport.reportFingerprint);
+assert.equal(toReport.disposition, "BLOCKED");
+assert.equal(toReport.corpusFingerprint, toLock.corpusFingerprint);
+
+for (const family of ["YOUR_YOURE", "ITS_ITS"] as const) {
   assert(!existsSync(join(root, "candidates", `${family}.jsonl`)), `${family}: candidate records before completed human gates`);
   assert(!existsSync(join(root, "gold", `${family}.final-gold.jsonl`)), `${family}: gold before completed human gates`);
 }
 
-console.log("S8 V3 intake regression passed: four byte-identical sources, 1,600 passages, 2,492 fingerprinted base occurrences, blank original packets, and gated THERE_THEIR_THEYRE candidate/gold/report evidence.");
+console.log("S8 V3 intake regression passed: four byte-identical sources, 1,600 passages, 2,492 fingerprinted base occurrences, blank original packets, and gated THERE_THEIR_THEYRE plus TO_TOO_TWO candidate/gold/report evidence.");
