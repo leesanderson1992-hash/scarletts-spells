@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
   "family": "TO_TOO_TWO",
-  "releaseFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+  "releaseFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c",
   "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
   "counts": {
     "valid": 160,
@@ -84,5 +84,5 @@
   ],
   "findings": [],
   "disposition": "BLOCKED",
-  "reportFingerprint": "d82ac6c890969f7ed34c6844a3c59059d1752699784280565232fc92870464e6"
+  "reportFingerprint": "fb60649afe13256e5272789693aaf80892cf8d850f14f8a965ff2c3d962322ec"
 }

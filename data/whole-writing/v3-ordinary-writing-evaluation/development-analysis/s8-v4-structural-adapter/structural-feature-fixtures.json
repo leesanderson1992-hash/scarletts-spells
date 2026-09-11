@@ -23,7 +23,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "0",
@@ -55,6 +55,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -281,6 +282,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "EXISTENTIAL_NOMINAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -502,6 +506,7 @@
                 "surface": "they"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -758,7 +763,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "1",
@@ -779,6 +784,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -999,6 +1005,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "LOCATIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -1262,6 +1271,7 @@
                 "surface": "under"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -1547,7 +1557,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "2",
@@ -1579,6 +1589,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "POSSESSIVE_NOMINAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -1753,6 +1766,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "LOCATIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -1960,6 +1976,7 @@
                 "surface": "posters"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -2177,7 +2194,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "3",
@@ -2198,6 +2215,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -2357,6 +2375,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "LOCATIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -2513,6 +2534,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "CONTRACTION_VERBAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [
                 {
@@ -2725,7 +2749,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "4",
@@ -2746,6 +2770,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -2888,6 +2913,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -3046,6 +3072,9 @@
                 "startUtf16": 23,
                 "surface": "."
               }
+            ],
+            "dependencyMatches": [
+              "CONTRACTION_COPULAR_ADJECTIVAL_FRAME"
             ],
             "facts": {
               "auxiliaryRelations": [],
@@ -3231,7 +3260,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "5",
@@ -3252,6 +3281,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -3457,6 +3487,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -3633,6 +3664,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "CONTRACTION_VERBAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [
                 {
@@ -3891,7 +3925,7 @@
         "reasonCode": "GENUINE_PREDICATE_AMBIGUITY",
         "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:GENUINE_PREDICATE_AMBIGUITY",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38"
+        "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a"
       },
       "structural": {
         "requestId": "6",
@@ -3912,6 +3946,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -4070,6 +4105,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -4257,6 +4293,9 @@
                 "startUtf16": 33,
                 "surface": "."
               }
+            ],
+            "dependencyMatches": [
+              "CONTRACTION_COPULAR_ADJECTIVAL_FRAME"
             ],
             "facts": {
               "auxiliaryRelations": [],
@@ -4458,7 +4497,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "0",
@@ -4490,6 +4529,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "INFINITIVE_MARKER_VERB_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [
                 {
@@ -4732,6 +4774,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -4972,6 +5015,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -5212,7 +5256,7 @@
         "reasonCode": "PROTECTED_GERUND",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:PROTECTED_GERUND",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "1",
@@ -5245,6 +5289,7 @@
                 "surface": "beating"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -5506,6 +5551,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "ADDITIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -5746,6 +5794,7 @@
                 "surface": "beating"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -5984,7 +6033,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "2",
@@ -6016,6 +6065,9 @@
                 "startUtf16": 17,
                 "surface": "library"
               }
+            ],
+            "dependencyMatches": [
+              "PREPOSITION_NOMINAL_FRAME"
             ],
             "facts": {
               "auxiliaryRelations": [],
@@ -6213,6 +6265,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -6396,6 +6449,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -6579,7 +6633,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "3",
@@ -6611,6 +6665,9 @@
                 "startUtf16": 19,
                 "surface": "her"
               }
+            ],
+            "dependencyMatches": [
+              "PREPOSITION_NOMINAL_FRAME"
             ],
             "facts": {
               "auxiliaryRelations": [],
@@ -6819,6 +6876,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -7014,6 +7072,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -7209,7 +7268,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "4",
@@ -7241,6 +7300,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "INFINITIVE_MARKER_VERB_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [
                 {
@@ -7433,6 +7495,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "ADDITIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -7636,6 +7701,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -7839,7 +7905,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "5",
@@ -7871,6 +7937,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8053,6 +8120,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "ADDITIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8235,6 +8305,7 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8405,7 +8476,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "6",
@@ -8438,6 +8509,7 @@
                 "surface": "heavy"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8635,6 +8707,10 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "ADDITIVE_ADVERBIAL_FRAME",
+              "DEGREE_ADJECTIVAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8809,6 +8885,7 @@
                 "surface": "heavy"
               }
             ],
+            "dependencyMatches": [],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -8994,7 +9071,7 @@
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
         "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
         "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c"
+        "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c"
       },
       "structural": {
         "requestId": "7",
@@ -9026,6 +9103,9 @@
                 "startUtf16": 13,
                 "surface": "books"
               }
+            ],
+            "dependencyMatches": [
+              "PREPOSITION_NOMINAL_FRAME"
             ],
             "facts": {
               "auxiliaryRelations": [],
@@ -9193,6 +9273,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "ADDITIVE_ADVERBIAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -9359,6 +9442,9 @@
               }
             ],
             "children": [],
+            "dependencyMatches": [
+              "NUMERAL_NOMINAL_FRAME"
+            ],
             "facts": {
               "auxiliaryRelations": [],
               "copularRelations": [],
@@ -9503,5 +9589,5 @@
       }
     }
   ],
-  "fixtureFingerprint": "66c6f535dcf937bf27044a8fba3974834bfba8fae80c2f4abb57287b737c19f1"
+  "fixtureFingerprint": "7aa25609184e251ddad165643291ca8af8ecefd063b1b5d832202b936fcc3166"
 }

@@ -15,10 +15,11 @@ The TypeScript batch boundary validates immutable UTF-16 spans, applies ADLE
 pre-parser protection, starts one bounded Python process, verifies its identity
 and response, and asks it to parse each exact finite family-member substitution.
 The Python adapter loads spaCy once and emits only the versioned
-`ADLE_S8_STRUCTURAL_FEATURES_V1` contract: exact spans, sentence spans, token
+`ADLE_S8_STRUCTURAL_FEATURES_V2` contract: exact spans, sentence spans, token
 identity, lemma, POS/tag, morphology, normalized dependency/head relationships,
-bounded ancestors/children, and ADLE-named fact groups. It never emits a public
-classification or correction.
+bounded ancestors/children, ADLE-named fact groups, and bounded spaCy
+`DependencyMatcher` frame names. It never emits a public classification or
+correction.
 
 ADLE applies post-parse protected rules, construction/subtype policy, candidate
 deduplication, competing-interpretation arbitration, and alternative selection.
@@ -39,8 +40,8 @@ institution, punctuation-clause, finite-anchor, or plural-suffix heuristics.
 - `en_core_web_sm` 3.8.0
 - model package-tree SHA-256:
   `a07424822a13ad5bd9cb7a021e219c77279a907c58171c52846448b832107ed4`
-- adapter schema/version: `ADLE_S8_STRUCTURAL_FEATURES_V1` /
-  `ADLE_S8_SPACY_ADAPTER_V1`
+- adapter schema/version: `ADLE_S8_STRUCTURAL_FEATURES_V2` /
+  `ADLE_S8_SPACY_ADAPTER_V2`
 - spaCy and the packaged model report MIT licensing. The complete runtime
   dependency closure is version-pinned in `python/s8-v4-spacy/requirements.lock`.
 
@@ -52,8 +53,8 @@ Neither is a runtime dependency. LanguageTool is not integrated.
 
 | Family | Release key | Release ID | Manifest fingerprint |
 |---|---|---|---|
-| THERE_THEIR_THEYRE | `s8-v4-there-their-theyre` | `81000000-0000-4000-8000-000000000013` | `f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38` |
-| TO_TOO_TWO | `s8-v4-to-too-two` | `81000000-0000-4000-8000-000000000014` | `8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c` |
+| THERE_THEIR_THEYRE | `s8-v4-there-their-theyre` | `81000000-0000-4000-8000-000000000013` | `3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a` |
+| TO_TOO_TWO | `s8-v4-to-too-two` | `81000000-0000-4000-8000-000000000014` | `4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c` |
 
 Both are `DEVELOPMENT_CANDIDATE_DEFAULT_OFF`; persisted release dispatch rejects
 them. `YOUR_YOURE` and `ITS_ITS` are not migrated.
@@ -64,19 +65,19 @@ All figures below reuse exposed evidence and are not approval measurements.
 
 | Metric | THERE V3 | THERE V4 | TO V3 | TO V4 |
 |---|---:|---:|---:|---:|
-| annotated decisions `VALID / INVALID / UNCERTAIN` | — | 184 / 110 / 235 | — | 694 / 119 / 457 |
+| annotated decisions `VALID / INVALID / UNCERTAIN` | — | 198 / 149 / 182 | — | 694 / 119 / 457 |
 | precision | 69.42% | 100% | 86.36% | 100% |
-| Wilson lower 95% | 60.72% | 96.63% | 78.71% | 96.87% |
-| supported recall | 48.84% | 63.95% | 63.33% | 79.33% |
-| valid recognition (frozen evaluator) | 53.63% | 74.19% | 20.59% | 68.04% |
-| conflict-adjusted valid recognition | — | 74.19% | — | 72.52% |
+| Wilson lower 95% | 60.72% | 97.49% | 78.71% | 96.87% |
+| supported recall | 48.84% | 86.63% | 63.33% | 79.33% |
+| valid recognition (frozen evaluator) | 53.63% | 79.84% | 20.59% | 68.04% |
+| conflict-adjusted valid recognition | — | 79.84% | — | 72.52% |
 | false `VALID` | 32 | 0 | 5 | 0 |
 | wrong alternatives | 37 | 0 | 15 | 0 |
 | protected failures | 32 | 0 | 23 | 0 |
 
-THERE supported recall by construction is locative 77.14%, existential 100%,
-possessive 75%, and contraction 29.03%; contraction subtypes are progressive
-50%, adjectival 13.64%, and passive 25%. TO supported recall is preposition 100%,
+THERE supported recall by construction is locative 100%, existential 94.29%,
+possessive 82.5%, and contraction 77.42%; contraction subtypes are progressive
+65%, adjectival 81.82%, and passive 85%. TO supported recall is preposition 100%,
 infinitive 86.67%, additive 86.67%, degree 80%, and numeral 43.33%.
 
 Frozen G2 compatibility is safety-clean for both families. THERE: precision
@@ -85,25 +86,29 @@ valid recognition 86.67%. Both have zero false `VALID`, wrong alternatives, and
 protected failures.
 
 Exact report fingerprints are
-`c0b6e27acf570a35ebc3ff34117956224fced6e556d6efe9851b1250babf1137`
+`019141ba9ef309f1145e97f6fa45a0d45dae0333e2a84a43ea513c2db737e120`
 (THERE) and
-`d82ac6c890969f7ed34c6844a3c59059d1752699784280565232fc92870464e6`
+`fb60649afe13256e5272789693aaf80892cf8d850f14f8a965ff2c3d962322ec`
 (TO). Corpus fingerprints remain `6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9`
 and `a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac`.
 The comparison fingerprint is
-`f0781bca124f8930183a153acdcc65abdb86db4c5caced78cbbe9edb372677a6`.
-Two complete runs produced byte-identical normalized stdout with SHA-256
-`6312a4bfd78b603faac2c74627c2c5386c28dd5c7fd00b6dbc72d51298a89688`;
-this is a current-host guarantee, not a cross-platform claim. The 15-fixture
-golden structural artifact fingerprint is
-`66c6f535dcf937bf27044a8fba3974834bfba8fae80c2f4abb57287b737c19f1`.
+`674cd91a8dd33f2cf587785c490c855f91b515116ae62c88b7602ff5da1dcfcb`.
+The 15-fixture golden structural artifact fingerprint is
+`7aa25609184e251ddad165643291ca8af8ecefd063b1b5d832202b936fcc3166`.
 
 ## Residuals and disposition
 
-THERE has 103 structural-ambiguity, 8 family-rule, and 15 protected-policy
-residual mismatches. TO has 218 structural-ambiguity, 19 family-rule, 37
-protected-policy, 20 unsupported-construction, and 63 evaluator-contract
-residuals. Exact cases and decisions are preserved in `residual-failures.jsonl`.
+The independently grouped residual artifact is `residual-clusters.json`. The
+largest remaining cluster is 156 TO governed-infinitive cases, followed by 37
+TO numeral cases; both are counterfactual `too` parses that spaCy can make
+syntactically coherent only by retagging a neighbouring word. Giving the
+infinitive/numeral frame precedence produced six false `VALID` results and 33
+wrong alternatives, so that attempted rule was rejected. The DependencyMatcher
+improvements retained here require complete existential nominal frames and
+local contraction frames, reducing THERE structural ambiguity to 41 with no
+safety regression. TO therefore remains fail-closed at its existing
+counterfactual arbitration boundary. Exact cases and decisions are preserved in
+`residual-failures.jsonl`.
 
 Further engineering is justified before freeze: contraction arbitration needs a
 safer distinction from rival locative/possessive parses, and numeral arbitration

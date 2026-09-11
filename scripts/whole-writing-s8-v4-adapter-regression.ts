@@ -24,6 +24,16 @@ const fixtures: Fixture[] = [
   { id: "too-degree", family: "TO_TOO_TWO", text: "The bag is too heavy.", surface: "too" },
   { id: "two-numeral", family: "TO_TOO_TWO", text: "We packed two books.", surface: "two" },
 ];
+const requiredDependencyMatches: Readonly<Record<string, readonly string[]>> = {
+  "there-existential": ["EXISTENTIAL_NOMINAL_FRAME"],
+  "there-locative": ["LOCATIVE_ADVERBIAL_FRAME"],
+  "their-possessive": ["POSSESSIVE_NOMINAL_FRAME"],
+  "theyre-progressive": ["CONTRACTION_VERBAL_FRAME"],
+  "theyre-adjectival": ["CONTRACTION_COPULAR_ADJECTIVAL_FRAME"],
+  "to-going-look": ["INFINITIVE_MARKER_VERB_FRAME"],
+  "to-destination": ["PREPOSITION_NOMINAL_FRAME"],
+  "two-numeral": ["NUMERAL_NOMINAL_FRAME"],
+};
 
 function input(fixture: Fixture) {
   let start = -1;
@@ -57,6 +67,10 @@ for (const [index, result] of results.entries()) {
         assert.equal(variant.focusEndUtf16, request.startUtf16 + member.length);
         const focus = variant.tokens.filter((token: StructuralTokenV4) => variant.focusTokenIndices.includes(token.index)).map((token: StructuralTokenV4) => token.surface).join("");
         assert.equal(focus.toLowerCase(), member);
+        const observed = fixtures[index].surface.toLowerCase();
+        if (member === observed) for (const match of requiredDependencyMatches[fixtures[index].id] ?? []) {
+          assert(variant.dependencyMatches.includes(match), `${fixtures[index].id}:${member}:${match}`);
+        }
       }
     }
   }

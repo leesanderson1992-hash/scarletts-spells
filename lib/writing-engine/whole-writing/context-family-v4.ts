@@ -76,6 +76,9 @@ function tokenByIndex(variant: Extract<StructuralVariantV4, { status: "ready" }>
   return variant.tokens.find((token) => token.index === index) ?? null;
 }
 function hasMorph(token: StructuralTokenV4, value: string) { return token.morphology.includes(value); }
+function hasDependencyMatch(variant: Extract<StructuralVariantV4, { status: "ready" }>, name: string) {
+  return variant.dependencyMatches.includes(name);
+}
 function hasFiniteSentence(variant: Extract<StructuralVariantV4, { status: "ready" }>) {
   return variant.tokens.some((token) => hasMorph(token, "VerbForm=Fin"));
 }
@@ -118,11 +121,11 @@ function thereCandidates(result: StructuralResultV4): ContextCandidateV4[] {
     const focus = focusTokens(variant);
     const finiteSentence = hasFiniteSentence(variant);
     if (member === "there") {
-      if (finiteSentence && focus.some((token) => token.dependency === "EXPLETIVE")) candidates.push({ member, scope: "existential:embedded_existential", witness: ["EXPLETIVE", "FINITE_PREDICATE"] });
+      if (finiteSentence && hasDependencyMatch(variant, "EXISTENTIAL_NOMINAL_FRAME")) candidates.push({ member, scope: "existential:embedded_existential", witness: ["EXPLETIVE", "PREDICATE", "NOMINAL_FRAME"] });
       const nextWord = variant.tokens.find((token) => token.startUtf16 >= variant.focusEndUtf16 && token.coarsePos !== "PUNCT");
-      if (finiteSentence && focus.some((token) => token.coarsePos === "ADV" && ["ADVERBIAL_MODIFIER", "OBJECT_PREDICATE", "ATTRIBUTE"].includes(token.dependency)) && (!nextWord || ["ADP", "ADV", "PART", "SCONJ"].includes(nextWord.coarsePos))) candidates.push({ member, scope: "locative:adverbial_locative", witness: ["ADV", "ADVERBIAL_MODIFIER", "FINITE_PREDICATE"] });
+      if (finiteSentence && hasDependencyMatch(variant, "LOCATIVE_ADVERBIAL_FRAME") && focus.some((token) => token.coarsePos === "ADV" && ["ADVERBIAL_MODIFIER", "OBJECT_PREDICATE", "ATTRIBUTE"].includes(token.dependency)) && (!nextWord || ["ADP", "ADV", "PART", "SCONJ"].includes(nextWord.coarsePos))) candidates.push({ member, scope: "locative:adverbial_locative", witness: ["ADV", "ADVERBIAL_MODIFIER", "PREDICATE_FRAME"] });
     } else if (member === "their") {
-      if (finiteSentence && focus.some((token) => {
+      if (finiteSentence && hasDependencyMatch(variant, "POSSESSIVE_NOMINAL_FRAME") && focus.some((token) => {
         const head = tokenByIndex(variant, token.headIndex);
         return token.dependency === "POSSESSIVE_MODIFIER" && (hasMorph(token, "Poss=Yes") || ["PRON", "DET"].includes(token.coarsePos)) && head && ["NOUN", "PROPN"].includes(head.coarsePos) && ["SUBJECT", "PASSIVE_SUBJECT", "OBJECT", "INDIRECT_OBJECT", "PREPOSITIONAL_OBJECT", "ATTRIBUTE", "COORDINATE"].includes(head.dependency);
       })) candidates.push({ member, scope: "possessive:possessive_subject_or_object", witness: ["POSSESSIVE_MODIFIER", "Poss=Yes", "NOMINAL_HEAD"] });
@@ -130,12 +133,12 @@ function thereCandidates(result: StructuralResultV4): ContextCandidateV4[] {
       const subject = focus.find((token) => token.lemma === "they" && ["SUBJECT", "PASSIVE_SUBJECT"].includes(token.dependency));
       const auxiliary = focus.find((token) => token.lemma === "be" && token.coarsePos === "AUX");
       if (!subject || !auxiliary) continue;
-      const head = tokenByIndex(variant, auxiliary.headIndex);
-      const predicates = [head, ...variant.tokens.filter((token) => token.headIndex === auxiliary.index)].filter((token): token is StructuralTokenV4 => Boolean(token) && token!.index !== auxiliary.index);
-      if (predicates.some((token) => AMBIGUOUS_CONTRACTION_PREDICATES.has(token.lemma) || (token.coarsePos === "ADJ" && token.fineTag === "VBN"))) continue;
-      if (auxiliary.dependency === "PASSIVE_AUXILIARY" || predicates.some((token) => token.fineTag === "VBN" && token.coarsePos === "VERB")) candidates.push({ member, scope: "they_are_contraction:passive_contraction", witness: ["PASSIVE_AUXILIARY", "VBN"] });
-      else if (predicates.some((token) => token.fineTag === "VBG" && token.coarsePos === "VERB")) candidates.push({ member, scope: "they_are_contraction:progressive_contraction", witness: ["AUXILIARY", "VBG"] });
-      else if (predicates.some((token) => token.coarsePos === "ADJ" || token.fineTag.startsWith("JJ"))) candidates.push({ member, scope: "they_are_contraction:adjectival_contraction", witness: ["COPULAR_OR_AUXILIARY", "ADJECTIVAL_PREDICATE"] });
+      const predicate = subject.headIndex === auxiliary.index ? auxiliary : tokenByIndex(variant, auxiliary.headIndex);
+      if (!predicate || (predicate.index !== subject.headIndex && subject.headIndex !== auxiliary.index)) continue;
+      if (AMBIGUOUS_CONTRACTION_PREDICATES.has(predicate.lemma)) continue;
+      if (hasDependencyMatch(variant, "CONTRACTION_VERBAL_FRAME") && predicate.coarsePos === "VERB" && predicate.fineTag === "VBN") candidates.push({ member, scope: "they_are_contraction:passive_contraction", witness: ["SUBJECT", "PASSIVE_AUXILIARY", "VBN"] });
+      else if (hasDependencyMatch(variant, "CONTRACTION_VERBAL_FRAME") && predicate.coarsePos === "VERB" && predicate.fineTag === "VBG") candidates.push({ member, scope: "they_are_contraction:progressive_contraction", witness: ["SUBJECT", "AUXILIARY", "VBG"] });
+      else if (hasDependencyMatch(variant, "CONTRACTION_COPULAR_ADJECTIVAL_FRAME")) candidates.push({ member, scope: "they_are_contraction:adjectival_contraction", witness: ["SUBJECT", "COPULAR_AUXILIARY", "ADJECTIVAL_PREDICATE"] });
     }
   }
   return candidates;
@@ -167,6 +170,10 @@ function toCandidates(result: StructuralResultV4): ContextCandidateV4[] {
       if (modifier) {
         const head = tokenByIndex(variant, modifier.headIndex);
         const nextWord = variant.tokens.find((token) => token.startUtf16 >= modifier.endUtf16 && token.coarsePos !== "PUNCT");
+        // spaCy's POS distinction between adjective and manner adverb is not
+        // stable for this governed construction (`too fast` is commonly ADV),
+        // so its DependencyMatcher signal is retained as trace-only evidence.
+        // ADLE keeps the pre-existing bounded degree/additive policy here.
         const degree = head && ["ADJ", "ADV"].includes(head.coarsePos) && head.startUtf16 >= modifier.endUtf16;
         const additive = !nextWord;
         if (degree || additive) candidates.push({ member, scope: degree ? "degree:adjective_or_manner_degree" : "additive:clause_additive", witness: ["ADV", "ADVERBIAL_MODIFIER", head?.coarsePos ?? "UNKNOWN_HEAD"] });

@@ -13,9 +13,10 @@ from typing import Any
 
 import en_core_web_sm
 import spacy
+from spacy.matcher import DependencyMatcher
 
-SCHEMA_VERSION = "ADLE_S8_STRUCTURAL_FEATURES_V1"
-ADAPTER_VERSION = "ADLE_S8_SPACY_ADAPTER_V1"
+SCHEMA_VERSION = "ADLE_S8_STRUCTURAL_FEATURES_V2"
+ADAPTER_VERSION = "ADLE_S8_SPACY_ADAPTER_V2"
 EXPECTED_SPACY = "3.8.16"
 EXPECTED_MODEL = "en_core_web_sm"
 EXPECTED_MODEL_VERSION = "3.8.0"
@@ -36,6 +37,56 @@ DEPENDENCY = {
     "acomp": "ADJECTIVAL_COMPLEMENT", "oprd": "OBJECT_PREDICATE",
     "xcomp": "OPEN_CLAUSAL_COMPLEMENT", "ccomp": "CLAUSAL_COMPLEMENT",
     "conj": "COORDINATE", "parataxis": "PARATAXIS",
+}
+
+# These patterns expose only a bounded normalized structural signal.  They do
+# not choose a family member or make an ADLE public decision.  In particular,
+# the family layer still applies protections, construction policy, and its
+# fail-closed arbitration after receiving a match name.
+DEPENDENCY_PATTERNS: dict[str, list[dict[str, Any]]] = {
+    "EXISTENTIAL_NOMINAL_FRAME": [
+        {"RIGHT_ID": "predicate", "RIGHT_ATTRS": {"POS": {"IN": ["AUX", "VERB"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "there", "RIGHT_ATTRS": {"LOWER": "there", "DEP": "expl"}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "nominal", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PROPN", "PRON"]}, "DEP": {"IN": ["nsubj", "nsubjpass", "attr", "obj", "dobj"]}}},
+    ],
+    "LOCATIVE_ADVERBIAL_FRAME": [
+        {"RIGHT_ID": "predicate", "RIGHT_ATTRS": {"POS": {"IN": ["AUX", "VERB", "ADJ"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "there", "RIGHT_ATTRS": {"LOWER": "there", "POS": "ADV", "DEP": "advmod"}},
+    ],
+    "POSSESSIVE_NOMINAL_FRAME": [
+        {"RIGHT_ID": "nominal", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PROPN"]}}},
+        {"LEFT_ID": "nominal", "REL_OP": ">", "RIGHT_ID": "their", "RIGHT_ATTRS": {"LOWER": "their", "DEP": "poss"}},
+    ],
+    "INFINITIVE_MARKER_VERB_FRAME": [
+        {"RIGHT_ID": "verb", "RIGHT_ATTRS": {"POS": "VERB", "TAG": {"IN": ["VB", "VBP"]}}},
+        {"LEFT_ID": "verb", "REL_OP": ">", "RIGHT_ID": "to", "RIGHT_ATTRS": {"LOWER": "to", "POS": "PART", "DEP": {"IN": ["aux", "mark"]}}},
+    ],
+    "PREPOSITION_NOMINAL_FRAME": [
+        {"RIGHT_ID": "to", "RIGHT_ATTRS": {"LOWER": "to", "POS": "ADP", "DEP": {"IN": ["prep", "dative"]}}},
+        {"LEFT_ID": "to", "REL_OP": ">", "RIGHT_ID": "nominal", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PROPN", "PRON"]}, "DEP": {"IN": ["pobj", "pcomp", "dative"]}}},
+    ],
+    "NUMERAL_NOMINAL_FRAME": [
+        {"RIGHT_ID": "nominal", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PROPN"]}, "MORPH": {"IS_SUPERSET": ["Number=Plur"]}}},
+        {"LEFT_ID": "nominal", "REL_OP": ">", "RIGHT_ID": "two", "RIGHT_ATTRS": {"LOWER": "two", "POS": "NUM", "DEP": "nummod"}},
+    ],
+    "DEGREE_ADJECTIVAL_FRAME": [
+        {"RIGHT_ID": "adjective", "RIGHT_ATTRS": {"POS": "ADJ"}},
+        {"LEFT_ID": "adjective", "REL_OP": ">", "RIGHT_ID": "too", "RIGHT_ATTRS": {"LOWER": "too", "POS": "ADV", "DEP": "advmod"}},
+    ],
+    "ADDITIVE_ADVERBIAL_FRAME": [
+        {"RIGHT_ID": "predicate", "RIGHT_ATTRS": {"POS": {"IN": ["AUX", "VERB", "ADJ"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "too", "RIGHT_ATTRS": {"LOWER": "too", "POS": "ADV", "DEP": "advmod"}},
+    ],
+    "CONTRACTION_VERBAL_FRAME": [
+        {"RIGHT_ID": "predicate", "RIGHT_ATTRS": {"POS": "VERB", "TAG": {"IN": ["VBG", "VBN"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"LOWER": "they", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "be", "RIGHT_ATTRS": {"LEMMA": "be", "POS": "AUX", "DEP": {"IN": ["aux", "auxpass"]}}},
+    ],
+    "CONTRACTION_COPULAR_ADJECTIVAL_FRAME": [
+        {"RIGHT_ID": "be", "RIGHT_ATTRS": {"LEMMA": "be", "POS": "AUX"}},
+        {"LEFT_ID": "be", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"LOWER": "they", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
+        {"LEFT_ID": "be", "REL_OP": ">", "RIGHT_ID": "adjective", "RIGHT_ATTRS": {"POS": "ADJ", "DEP": {"IN": ["acomp", "attr"]}}},
+    ],
 }
 
 
@@ -76,6 +127,20 @@ def model_tree_fingerprint() -> str:
 
 def relation(dep: str) -> str:
     return DEPENDENCY.get(dep, f"OTHER:{dep}")
+
+
+def dependency_match_names(doc: Any, focus_indices: set[int]) -> list[str]:
+    matcher = DependencyMatcher(doc.vocab)
+    for name, pattern in DEPENDENCY_PATTERNS.items():
+        matcher.add(name, [pattern])
+    names: set[str] = set()
+    for match_id, token_indices in matcher(doc):
+        # A normalized match is relevant only when it contains every parser
+        # token aligned to this governed occurrence.  This prevents another
+        # same-family token elsewhere in the sentence from becoming evidence.
+        if focus_indices.issubset(set(token_indices)):
+            names.add(doc.vocab.strings[match_id])
+    return sorted(names)
 
 
 def token_record(token: Any, text: str) -> dict[str, Any]:
@@ -136,6 +201,7 @@ def analyse_variant(doc: Any, text: str, start: int, end: int) -> dict[str, Any]
         "sentenceStartUtf16": py_to_utf16(text, sentence.start_char),
         "sentenceEndUtf16": py_to_utf16(text, sentence.end_char),
         "tokens": [token_record(token, text) for token in sentence],
+        "dependencyMatches": dependency_match_names(doc, {token.i for token in overlaps}),
         "ancestors": [bounded_relation(token, text) for token in ancestors],
         "children": [bounded_relation(token, text) for token in children],
         "facts": {

@@ -8,17 +8,17 @@
       "family": "THERE_THEIR_THEYRE",
       "releaseKey": "s8-v4-there-their-theyre",
       "releaseId": "81000000-0000-4000-8000-000000000013",
-      "manifestFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38",
+      "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a",
       "decisionCounts": {
-        "VALID": 184,
-        "INVALID": 110,
-        "UNCERTAIN": 235
+        "VALID": 198,
+        "INVALID": 149,
+        "UNCERTAIN": 182
       },
       "report": {
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "THERE_THEIR_THEYRE",
-        "releaseFingerprint": "f7d0150a29cbf83105b72dd2f3d4280e87fa9f4787f9cfb2236e72f8d54e7f38",
+        "releaseFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a",
         "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
         "counts": {
           "valid": 180,
@@ -29,9 +29,9 @@
         "totalAnnotatedOccurrences": 529,
         "metrics": {
           "precision": 1,
-          "wilsonLower95": 0.9662560647018357,
-          "supportedRecall": 0.6395348837209303,
-          "validRecognition": 0.7419354838709677,
+          "wilsonLower95": 0.9748663821299904,
+          "supportedRecall": 0.8662790697674418,
+          "validRecognition": 0.7983870967741935,
           "falseValid": 0,
           "wrongAlternatives": 0,
           "protectedFailures": 0
@@ -39,65 +39,58 @@
         "byConstruction": {
           "locative": {
             "supported": 35,
-            "recalled": 27,
-            "recall": 0.7714285714285715
-          },
-          "existential": {
-            "supported": 35,
             "recalled": 35,
             "recall": 1
           },
+          "existential": {
+            "supported": 35,
+            "recalled": 33,
+            "recall": 0.9428571428571428
+          },
           "possessive": {
             "supported": 40,
-            "recalled": 30,
-            "recall": 0.75
+            "recalled": 33,
+            "recall": 0.825
           },
           "they_are_contraction": {
             "supported": 62,
-            "recalled": 18,
-            "recall": 0.2903225806451613
+            "recalled": 48,
+            "recall": 0.7741935483870968
           }
         },
         "bySubtype": {
           "adverbial_locative": {
             "supported": 35,
-            "recalled": 27,
-            "recall": 0.7714285714285715
-          },
-          "embedded_existential": {
-            "supported": 35,
             "recalled": 35,
             "recall": 1
           },
+          "embedded_existential": {
+            "supported": 35,
+            "recalled": 33,
+            "recall": 0.9428571428571428
+          },
           "possessive_subject_or_object": {
             "supported": 40,
-            "recalled": 30,
-            "recall": 0.75
+            "recalled": 33,
+            "recall": 0.825
           },
           "adjectival_contraction": {
             "supported": 22,
-            "recalled": 3,
-            "recall": 0.13636363636363635
+            "recalled": 18,
+            "recall": 0.8181818181818182
           },
           "passive_contraction": {
             "supported": 20,
-            "recalled": 5,
-            "recall": 0.25
+            "recalled": 17,
+            "recall": 0.85
           },
           "progressive_contraction": {
             "supported": 20,
-            "recalled": 10,
-            "recall": 0.5
+            "recalled": 13,
+            "recall": 0.65
           }
         },
         "issues": [
-          "AGGREGATE_RECALL_BELOW_POLICY",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:adjectival_contraction",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:adverbial_locative",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:locative",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:passive_contraction",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:possessive",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:possessive_subject_or_object",
           "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
           "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
           "SUBTYPE_QUOTA_FAILED:not_applicable",
@@ -106,9 +99,9 @@
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "c0b6e27acf570a35ebc3ff34117956224fced6e556d6efe9851b1250babf1137"
+        "reportFingerprint": "019141ba9ef309f1145e97f6fa45a0d45dae0333e2a84a43ea513c2db737e120"
       },
-      "conflictAdjustedValidRecognition": 0.7419354838709677,
+      "conflictAdjustedValidRecognition": 0.7983870967741935,
       "v3": {
         "releaseFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
         "metrics": {
@@ -178,8 +171,8 @@
       "g2Metrics": {
         "cases": 400,
         "precision": 1,
-        "supportedRecall": 0.7866666666666666,
-        "validRecognition": 0.8066666666666666,
+        "supportedRecall": 0.8933333333333333,
+        "validRecognition": 0.92,
         "falseValid": 0,
         "wrongAlternatives": 0,
         "protectedFailures": 0
@@ -187,9 +180,9 @@
       "contractConflicts": [],
       "residualRootCauses": {
         "parser_alignment": 0,
-        "structural_parser_ambiguity": 103,
+        "structural_parser_ambiguity": 41,
         "parser_misleading_output": 0,
-        "family_rule": 8,
+        "family_rule": 17,
         "protected_policy": 15,
         "lexical_governance": 0,
         "semantic_ambiguity": 0,
@@ -202,7 +195,7 @@
       "family": "TO_TOO_TWO",
       "releaseKey": "s8-v4-to-too-two",
       "releaseId": "81000000-0000-4000-8000-000000000014",
-      "manifestFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+      "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c",
       "decisionCounts": {
         "VALID": 694,
         "INVALID": 119,
@@ -212,7 +205,7 @@
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "TO_TOO_TWO",
-        "releaseFingerprint": "8e00ec9e3596053ab114114e838e8fafa0947c0766a7974129651f7f906f8b3c",
+        "releaseFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c",
         "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
         "counts": {
           "valid": 160,
@@ -294,7 +287,7 @@
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "d82ac6c890969f7ed34c6844a3c59059d1752699784280565232fc92870464e6"
+        "reportFingerprint": "fb60649afe13256e5272789693aaf80892cf8d850f14f8a965ff2c3d962322ec"
       },
       "conflictAdjustedValidRecognition": 0.7251828631138976,
       "v3": {
@@ -892,5 +885,5 @@
       }
     }
   ],
-  "comparisonFingerprint": "f0781bca124f8930183a153acdcc65abdb86db4c5caced78cbbe9edb372677a6"
+  "comparisonFingerprint": "674cd91a8dd33f2cf587785c490c855f91b515116ae62c88b7602ff5da1dcfcb"
 }

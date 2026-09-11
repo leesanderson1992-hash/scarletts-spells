@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 
 import type { ContextFamilyKey } from "./context";
 
-export const CONTEXT_V4_STRUCTURE_SCHEMA = "ADLE_S8_STRUCTURAL_FEATURES_V1" as const;
-export const CONTEXT_V4_ADAPTER_VERSION = "ADLE_S8_SPACY_ADAPTER_V1" as const;
+export const CONTEXT_V4_STRUCTURE_SCHEMA = "ADLE_S8_STRUCTURAL_FEATURES_V2" as const;
+export const CONTEXT_V4_ADAPTER_VERSION = "ADLE_S8_SPACY_ADAPTER_V2" as const;
 export const CONTEXT_V4_RUNTIME_IDENTITY = Object.freeze({
   pythonVersion: "3.12.14", spacyVersion: "3.8.16", modelName: "en_core_web_sm",
   modelVersion: "3.8.0", modelTreeSha256: "a07424822a13ad5bd9cb7a021e219c77279a907c58171c52846448b832107ed4",
@@ -37,7 +37,8 @@ type BoundedRelationV4 = Readonly<Pick<StructuralTokenV4,
 export type StructuralVariantV4 = Readonly<{
   status: "ready"; variantTextUtf16Length: number; focusStartUtf16: number; focusEndUtf16: number;
   focusTokenIndices: readonly number[]; sentenceStartUtf16: number; sentenceEndUtf16: number;
-  tokens: readonly StructuralTokenV4[]; ancestors: readonly BoundedRelationV4[]; children: readonly BoundedRelationV4[];
+  tokens: readonly StructuralTokenV4[]; dependencyMatches: readonly string[];
+  ancestors: readonly BoundedRelationV4[]; children: readonly BoundedRelationV4[];
   facts: Readonly<{
     nominalHead: BoundedRelationV4 | null; subjectRelations: readonly BoundedRelationV4[];
     possessiveRelations: readonly BoundedRelationV4[]; auxiliaryRelations: readonly BoundedRelationV4[];
@@ -71,7 +72,8 @@ function validVariant(value: unknown, start: number, end: number): value is Stru
   if (row.status === "blocked") return typeof row.reason === "string";
   if (row.status !== "ready" || row.focusStartUtf16 !== start || row.focusEndUtf16 !== end ||
       !Array.isArray(row.focusTokenIndices) || !Array.isArray(row.tokens) || !Array.isArray(row.ancestors) ||
-      !Array.isArray(row.children) || !row.facts || typeof row.facts !== "object") return false;
+      !Array.isArray(row.children) || !Array.isArray(row.dependencyMatches) || !row.dependencyMatches.every((match) => typeof match === "string") ||
+      !row.facts || typeof row.facts !== "object") return false;
   return (row.tokens as unknown[]).every((token) => {
     if (!token || typeof token !== "object") return false;
     const item = token as Record<string, unknown>;
