@@ -2,7 +2,7 @@
 // regression command verifies every byte before the candidate may be frozen.
 export const CONTEXT_V4_SOURCE_PINS = {
   shared: {
-    "lib/writing-engine/whole-writing/context-family-v4.ts": "2d392ee656f2c218ce98c3c9549eeaae4d0bc80a99dc7042e8fc31bb4ff5842b",
+    "lib/writing-engine/whole-writing/context-family-v4.ts": "750e0b45a35bed23d9a4bfff1bffcd923d4d370ce05ee39912464bcf39af7421",
     "lib/writing-engine/whole-writing/context-structure-v4.ts": "bb609eaf8bea5812a816cf04b4c0249ce57085b09f5013e9f12c94a10068968f",
     "lib/writing-engine/whole-writing/context.ts": "43d4d4acd38d926dfa61504bdc1e4c2777214b8bf510423c9e499399489a8c65",
     "python/s8-v4-spacy/adapter.py": "2c2e379234f8a42a487a8b3d6ade1d77a69f759e28ef11d9df679a587e958c4c",

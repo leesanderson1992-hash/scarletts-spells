@@ -8,7 +8,7 @@
       "family": "THERE_THEIR_THEYRE",
       "releaseKey": "s8-v4-there-their-theyre",
       "releaseId": "81000000-0000-4000-8000-000000000013",
-      "manifestFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a",
+      "manifestFingerprint": "ed01a6fcadaba7b81f617ee0752bafcde1d7146ee6523ffc8878559d88266ae7",
       "decisionCounts": {
         "VALID": 198,
         "INVALID": 149,
@@ -18,7 +18,7 @@
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "THERE_THEIR_THEYRE",
-        "releaseFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a",
+        "releaseFingerprint": "ed01a6fcadaba7b81f617ee0752bafcde1d7146ee6523ffc8878559d88266ae7",
         "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
         "counts": {
           "valid": 180,
@@ -99,7 +99,7 @@
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "019141ba9ef309f1145e97f6fa45a0d45dae0333e2a84a43ea513c2db737e120"
+        "reportFingerprint": "067179884084e9e85a964c066d92966ba20dbd79c3f9aa5c5e0cd7ec3915926b"
       },
       "conflictAdjustedValidRecognition": 0.7983870967741935,
       "v3": {
@@ -195,7 +195,7 @@
       "family": "TO_TOO_TWO",
       "releaseKey": "s8-v4-to-too-two",
       "releaseId": "81000000-0000-4000-8000-000000000014",
-      "manifestFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c",
+      "manifestFingerprint": "89cb23361e5764d52e1ffd4081e05b089840c69a8620788fe0fc116ac56f5f3f",
       "decisionCounts": {
         "VALID": 694,
         "INVALID": 119,
@@ -205,7 +205,7 @@
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "TO_TOO_TWO",
-        "releaseFingerprint": "4871ccd0ecf01f49ab5be7dc045bb6192b02ef4323a565c2527ecc3d49b13d5c",
+        "releaseFingerprint": "89cb23361e5764d52e1ffd4081e05b089840c69a8620788fe0fc116ac56f5f3f",
         "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
         "counts": {
           "valid": 160,
@@ -287,7 +287,7 @@
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "fb60649afe13256e5272789693aaf80892cf8d850f14f8a965ff2c3d962322ec"
+        "reportFingerprint": "a2c1bdd006aaadab2f0ea7b1b2bf18f742375cd2ad43912fd5f79a7b01707cc7"
       },
       "conflictAdjustedValidRecognition": 0.7251828631138976,
       "v3": {
@@ -885,5 +885,5 @@
       }
     }
   ],
-  "comparisonFingerprint": "674cd91a8dd33f2cf587785c490c855f91b515116ae62c88b7602ff5da1dcfcb"
+  "comparisonFingerprint": "4ec16575cf11d24de15d621de4200f64b873e26e924d4583ae81741c3a08f6e4"
 }

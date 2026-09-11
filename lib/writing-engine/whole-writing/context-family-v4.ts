@@ -26,6 +26,7 @@ export type DetailedContextDecisionV4 = Readonly<{
   decision: ContextDecisionV4 | null;
   trace: Readonly<{ protectionReason: string | null; structural: StructuralResultV4 | null; candidates: readonly ContextCandidateV4[] }>;
 }>;
+export type StructuralParserV4 = (requests: readonly StructuralRequestV4[]) => StructuralResultV4[];
 
 const POLICY_TASK_TERMS = new Set(["answer", "choice", "choose", "entered", "exercise", "label", "picture", "prompt", "question", "selected", "unseen", "worksheet"]);
 const AMBIGUOUS_CONTRACTION_PREDICATES = new Set(["due", "prepared"]);
@@ -186,13 +187,22 @@ function toCandidates(result: StructuralResultV4): ContextCandidateV4[] {
 export function manifestFingerprintV4(manifest: ContextManifestV4) { return fingerprint(manifest); }
 
 export function analyseFamilyContextsV4(manifest: ContextManifestV4, inputs: readonly ContextInputV4[]): DetailedContextDecisionV4[] {
+  return analyseFamilyContextsV4WithParser(manifest, inputs, parseStructuralFeaturesV4);
+}
+
+/**
+ * Development seam for a structurally compatible parser experiment. Production
+ * callers always use `analyseFamilyContextsV4` and therefore the pinned small
+ * adapter above; this seam cannot affect persisted release dispatch.
+ */
+export function analyseFamilyContextsV4WithParser(manifest: ContextManifestV4, inputs: readonly ContextInputV4[], structuralParser: StructuralParserV4): DetailedContextDecisionV4[] {
   const manifestFingerprint = manifestFingerprintV4(manifest);
   const base = inputs.map((input, index) => ({ input, index, observed: normaliseContextMember(input.fieldText.slice(input.startUtf16, input.endUtf16)), protection: preParserProtection(input) }));
   const requests: StructuralRequestV4[] = base.filter((row) => manifest.members.includes(row.observed) && !row.protection).map((row) => ({
     requestId: String(row.index), family: manifest.familyKey, sourceText: row.input.fieldText,
     startUtf16: row.input.startUtf16, endUtf16: row.input.endUtf16, familyMembers: manifest.members,
   }));
-  const structural = new Map(parseStructuralFeaturesV4(requests).map((result) => [Number(result.requestId), result]));
+  const structural = new Map(structuralParser(requests).map((result) => [Number(result.requestId), result]));
   return base.map((row) => {
     if (!manifest.members.includes(row.observed)) return { decision: null, trace: { protectionReason: null, structural: null, candidates: [] } };
     const make = (status: ContextDecisionV4["status"], reasonCode: string, scope = "ordinary_writing_spacy_structural_context", alternative: string | null = null): ContextDecisionV4 => ({

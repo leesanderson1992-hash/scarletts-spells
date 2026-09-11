@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
   "family": "THERE_THEIR_THEYRE",
-  "releaseFingerprint": "3e09cc7b061f6f1c41a6c8e700da600643ad5aab0f75cbecdeaf52c22b8d823a",
+  "releaseFingerprint": "ed01a6fcadaba7b81f617ee0752bafcde1d7146ee6523ffc8878559d88266ae7",
   "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
   "counts": {
     "valid": 180,
@@ -83,5 +83,5 @@
   ],
   "findings": [],
   "disposition": "BLOCKED",
-  "reportFingerprint": "019141ba9ef309f1145e97f6fa45a0d45dae0333e2a84a43ea513c2db737e120"
+  "reportFingerprint": "067179884084e9e85a964c066d92966ba20dbd79c3f9aa5c5e0cd7ec3915926b"
 }
