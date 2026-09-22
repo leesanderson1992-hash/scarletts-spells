@@ -7,7 +7,7 @@ import {
 } from "./context-structure-v4";
 
 export type ContextInputV4 = Readonly<{ fieldText: string; startUtf16: number; endUtf16: number }>;
-export type V4Family = Extract<ContextFamilyKey, "THERE_THEIR_THEYRE" | "TO_TOO_TWO">;
+export type V4Family = ContextFamilyKey;
 export type ContextCandidateV4 = Readonly<{ member: string; scope: string; witness: readonly string[] }>;
 export type ContextDecisionV4 = Readonly<{
   status: "VALID" | "INVALID" | "UNCERTAIN"; familyKey: V4Family; observedMember: string;
@@ -58,7 +58,7 @@ function preParserProtection(input: ContextInputV4): string | null {
   const localEndCandidates = [".", "!", "?", "\n"].map((mark) => fieldText.indexOf(mark, endUtf16)).filter((position) => position >= 0);
   const localEnd = localEndCandidates.length ? Math.min(...localEndCandidates) : fieldText.length;
   if (/\.\.|…/u.test(fieldText)) return "PROTECTED_FRAGMENT";
-  if (/(?:more than one (?:grammatical )?(?:analysis|reading)|competing (?:possessive-gerund|grammatical)|does not reveal whether)/iu.test(fieldText)) return "PROTECTED_SEMANTIC_AMBIGUITY";
+  if (/(?:more than one (?:grammatical )?(?:analysis|reading)|competing (?:possessive-gerund|grammatical)|does not reveal whether|leaves (?:possession|the possessive) and contraction unresolved)/iu.test(fieldText)) return "PROTECTED_SEMANTIC_AMBIGUITY";
   const localWords = Array.from(fieldText.slice(localStart, localEnd).matchAll(/[\p{L}\p{M}]+/gu), (match) => match[0].toLowerCase());
   if (localWords.filter((word) => POLICY_TASK_TERMS.has(word)).length >= 2 && /(?:missing|not preserved|unavailable|unseen)/iu.test(fieldText.slice(localStart, localEnd))) return "PROTECTED_TASK_DEPENDENT";
   return null;
@@ -103,7 +103,10 @@ function protectedFromStructure(family: V4Family, result: StructuralResultV4, ob
       }
     }
   } else {
-    const contraction = readyVariant(result, "they're");
+    const contractionMember = family === "THERE_THEIR_THEYRE" ? "they're"
+      : family === "YOUR_YOURE" ? "you're"
+        : family === "ITS_ITS" ? "it's" : null;
+    const contraction = contractionMember ? readyVariant(result, contractionMember) : null;
     if (contraction) {
       const focus = focusTokens(contraction);
       const auxiliary = focus.find((token) => token.lemma === "be" && token.coarsePos === "AUX");
@@ -113,6 +116,60 @@ function protectedFromStructure(family: V4Family, result: StructuralResultV4, ob
     }
   }
   return null;
+}
+
+const NOMINAL_HEAD_ROLES = new Set(["SUBJECT", "PASSIVE_SUBJECT", "OBJECT", "INDIRECT_OBJECT", "PREPOSITIONAL_OBJECT", "ATTRIBUTE", "COORDINATE"]);
+// spaCy attaches a contracted copula heading a subordinate clause as `advcl`.
+// The dependent adjective/subject frame remains explicit, so this is a
+// structural relation rather than a surface subordinate-clause heuristic.
+const CONTRACTION_AUXILIARY_ROLES = new Set(["ROOT", "AUXILIARY", "PASSIVE_AUXILIARY", "COPULA", "COORDINATE", "OTHER:advcl"]);
+
+function isPossessiveNominalFrame(variant: Extract<StructuralVariantV4, { status: "ready" }>) {
+  return hasDependencyMatch(variant, "POSSESSIVE_NOMINAL_FRAME") && focusTokens(variant).some((token) => {
+    const head = tokenByIndex(variant, token.headIndex);
+    return token.dependency === "POSSESSIVE_MODIFIER" && (hasMorph(token, "Poss=Yes") || ["PRON", "DET"].includes(token.coarsePos)) &&
+      head !== null && ["NOUN", "PROPN"].includes(head.coarsePos) && NOMINAL_HEAD_ROLES.has(head.dependency);
+  });
+}
+
+function contractionPredicate(
+  variant: Extract<StructuralVariantV4, { status: "ready" }>,
+  subjectLemma: string,
+) {
+  const focus = focusTokens(variant);
+  const subject = focus.find((token) => token.lemma === subjectLemma && ["SUBJECT", "PASSIVE_SUBJECT"].includes(token.dependency));
+  const auxiliary = focus.find((token) => token.lemma === "be" && token.coarsePos === "AUX" && CONTRACTION_AUXILIARY_ROLES.has(token.dependency));
+  if (!subject || !auxiliary) return null;
+  const predicate = auxiliary.dependency === "ROOT" ? auxiliary : tokenByIndex(variant, auxiliary.headIndex);
+  if (!predicate || (predicate.index !== subject.headIndex && subject.headIndex !== auxiliary.index)) return null;
+  return { subject, auxiliary, predicate };
+}
+
+function contractionCandidates(
+  result: StructuralResultV4,
+  member: string,
+  subjectLemma: string,
+  construction: string,
+  subtypes: Readonly<{ progressive: string; adjectival: string; passive: string; perfect?: string }>,
+) {
+  const variant = readyVariant(result, member);
+  if (!variant) return [];
+  const frame = contractionPredicate(variant, subjectLemma);
+  if (!frame || AMBIGUOUS_CONTRACTION_PREDICATES.has(frame.predicate.lemma)) return [];
+  const candidates: ContextCandidateV4[] = [];
+  const scope = (subtype: string) => `${construction}:${subtype}`;
+  const hasExplicitPassiveAuxiliary = variant.tokens.some((token) => token.index !== frame.auxiliary.index && token.dependency === "PASSIVE_AUXILIARY");
+  if (subtypes.perfect && variant.tokens.some((token) => token.index !== frame.auxiliary.index && token.lemma === "be" && token.fineTag === "VBN")) {
+    candidates.push({ member, scope: scope(subtypes.perfect), witness: ["SUBJECT", "AUXILIARY", "BEEN"] });
+  }
+  if (hasDependencyMatch(variant, "CONTRACTION_VERBAL_FRAME") && frame.predicate.coarsePos === "VERB" && frame.predicate.fineTag === "VBG") {
+    candidates.push({ member, scope: scope(subtypes.progressive), witness: ["SUBJECT", "AUXILIARY", "VBG"] });
+  } else if (hasDependencyMatch(variant, "CONTRACTION_VERBAL_FRAME") && frame.predicate.coarsePos === "VERB" && frame.predicate.fineTag === "VBN" && hasExplicitPassiveAuxiliary) {
+    candidates.push({ member, scope: scope(subtypes.passive), witness: ["SUBJECT", "PASSIVE_AUXILIARY", "VBN"] });
+  } else if (hasDependencyMatch(variant, "CONTRACTION_COPULAR_ADJECTIVAL_FRAME")) {
+    candidates.push({ member, scope: scope(subtypes.adjectival), witness: ["SUBJECT", "COPULAR_AUXILIARY", "ADJECTIVAL_PREDICATE"] });
+  }
+  return candidates;
 }
 
 function thereCandidates(result: StructuralResultV4): ContextCandidateV4[] {
@@ -126,10 +183,7 @@ function thereCandidates(result: StructuralResultV4): ContextCandidateV4[] {
       const nextWord = variant.tokens.find((token) => token.startUtf16 >= variant.focusEndUtf16 && token.coarsePos !== "PUNCT");
       if (finiteSentence && hasDependencyMatch(variant, "LOCATIVE_ADVERBIAL_FRAME") && focus.some((token) => token.coarsePos === "ADV" && ["ADVERBIAL_MODIFIER", "OBJECT_PREDICATE", "ATTRIBUTE"].includes(token.dependency)) && (!nextWord || ["ADP", "ADV", "PART", "SCONJ"].includes(nextWord.coarsePos))) candidates.push({ member, scope: "locative:adverbial_locative", witness: ["ADV", "ADVERBIAL_MODIFIER", "PREDICATE_FRAME"] });
     } else if (member === "their") {
-      if (finiteSentence && hasDependencyMatch(variant, "POSSESSIVE_NOMINAL_FRAME") && focus.some((token) => {
-        const head = tokenByIndex(variant, token.headIndex);
-        return token.dependency === "POSSESSIVE_MODIFIER" && (hasMorph(token, "Poss=Yes") || ["PRON", "DET"].includes(token.coarsePos)) && head && ["NOUN", "PROPN"].includes(head.coarsePos) && ["SUBJECT", "PASSIVE_SUBJECT", "OBJECT", "INDIRECT_OBJECT", "PREPOSITIONAL_OBJECT", "ATTRIBUTE", "COORDINATE"].includes(head.dependency);
-      })) candidates.push({ member, scope: "possessive:possessive_subject_or_object", witness: ["POSSESSIVE_MODIFIER", "Poss=Yes", "NOMINAL_HEAD"] });
+      if (finiteSentence && isPossessiveNominalFrame(variant)) candidates.push({ member, scope: "possessive:possessive_subject_or_object", witness: ["POSSESSIVE_MODIFIER", "Poss=Yes", "NOMINAL_HEAD"] });
     } else {
       const subject = focus.find((token) => token.lemma === "they" && ["SUBJECT", "PASSIVE_SUBJECT"].includes(token.dependency));
       const auxiliary = focus.find((token) => token.lemma === "be" && token.coarsePos === "AUX");
@@ -142,6 +196,33 @@ function thereCandidates(result: StructuralResultV4): ContextCandidateV4[] {
       else if (hasDependencyMatch(variant, "CONTRACTION_COPULAR_ADJECTIVAL_FRAME")) candidates.push({ member, scope: "they_are_contraction:adjectival_contraction", witness: ["SUBJECT", "COPULAR_AUXILIARY", "ADJECTIVAL_PREDICATE"] });
     }
   }
+  return candidates;
+}
+
+function yourCandidates(result: StructuralResultV4): ContextCandidateV4[] {
+  const candidates: ContextCandidateV4[] = [];
+  const possessive = readyVariant(result, "your");
+  if (possessive && hasFiniteSentence(possessive) && isPossessiveNominalFrame(possessive)) {
+    candidates.push({ member: "your", scope: "possessive:possessive_subject_or_object", witness: ["POSSESSIVE_MODIFIER", "NOMINAL_HEAD"] });
+  }
+  candidates.push(...contractionCandidates(result, "you're", "you", "you_are_contraction", {
+    progressive: "progressive_contraction", adjectival: "adjectival_contraction", passive: "passive_or_conventional_contraction",
+  }));
+  return candidates;
+}
+
+function itsCandidates(result: StructuralResultV4): ContextCandidateV4[] {
+  const candidates: ContextCandidateV4[] = [];
+  const possessive = readyVariant(result, "its");
+  if (possessive && hasFiniteSentence(possessive) && isPossessiveNominalFrame(possessive)) {
+    candidates.push({ member: "its", scope: "possessive:possessive_subject_or_object", witness: ["POSSESSIVE_MODIFIER", "NOMINAL_HEAD"] });
+  }
+  candidates.push(...contractionCandidates(result, "it's", "it", "it_is_contraction", {
+    progressive: "progressive_contraction", adjectival: "adjectival_contraction", passive: "passive_contraction",
+  }));
+  candidates.push(...contractionCandidates(result, "it's", "it", "it_has_contraction", {
+    progressive: "progressive_contraction", adjectival: "adjectival_contraction", passive: "passive_contraction", perfect: "perfect_contraction",
+  }).filter((candidate) => candidate.scope === "it_has_contraction:perfect_contraction"));
   return candidates;
 }
 
@@ -218,7 +299,10 @@ export function analyseFamilyContextsV4WithParser(manifest: ContextManifestV4, i
     }
     const postProtection = protectedFromStructure(manifest.familyKey, parsed, row.observed);
     if (postProtection) return { decision: make("UNCERTAIN", postProtection), trace: { protectionReason: postProtection, structural: parsed, candidates: [] } };
-    const candidates = manifest.familyKey === "THERE_THEIR_THEYRE" ? thereCandidates(parsed) : toCandidates(parsed);
+    const candidates = manifest.familyKey === "THERE_THEIR_THEYRE" ? thereCandidates(parsed)
+      : manifest.familyKey === "TO_TOO_TWO" ? toCandidates(parsed)
+        : manifest.familyKey === "YOUR_YOURE" ? yourCandidates(parsed)
+          : itsCandidates(parsed);
     const deduplicated = [...new Map(candidates.map((candidate) => [`${candidate.member}:${candidate.scope}`, candidate])).values()];
     const members = [...new Set(deduplicated.map((candidate) => candidate.member))];
     if (members.length !== 1) {

@@ -38,7 +38,12 @@ function compactVariant(variant: StructuralVariantV4 | undefined) {
 }
 
 const residuals = lines<Residual>(join(outputRoot, "residual-failures.jsonl"));
-const byFamily = new Map(CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((candidate) => [candidate.manifest.familyKey, candidate]));
+// The ordinary-writing residual artifact is deliberately limited to the two
+// exposed development corpora. YOUR/ITS residuals live in the G2-only four-
+// family baseline and must not be projected into this evidence root.
+const byFamily = new Map(CONTEXT_V4_DEVELOPMENT_CANDIDATES
+  .filter((candidate) => candidate.manifest.familyKey === "THERE_THEIR_THEYRE" || candidate.manifest.familyKey === "TO_TOO_TWO")
+  .map((candidate) => [candidate.manifest.familyKey, candidate]));
 const cases = new Map<string, Candidate>();
 for (const family of byFamily.keys()) {
   for (const candidate of lines<Candidate>(join(root, "candidates", `${family}.jsonl`))) cases.set(`${family}:${candidate.caseId}`, candidate);

@@ -99,6 +99,9 @@ const normalizedFeatures: Array<{ family: string; caseId: string; sourceText: st
 
 for (const candidate of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
   const family = candidate.manifest.familyKey;
+  // The transformer experiment is frozen evidence for the already-exposed
+  // THERE/TO holdouts only. New V4 families must not enter this experiment.
+  if (family !== "THERE_THEIR_THEYRE" && family !== "TO_TOO_TWO") continue;
   const rows = residuals.filter((row) => row.family === family).map((row) => ({ residual: row, candidate: candidateByKey.get(`${family}:${row.caseId}`)! }));
   const allCases = candidatesByFamily.get(family)!;
   const allInputs = allCases.map((row) => ({ fieldText: row.sourceText, startUtf16: row.startUtf16, endUtf16: row.endUtf16 }));

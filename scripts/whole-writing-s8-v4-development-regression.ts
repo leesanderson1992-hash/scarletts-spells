@@ -17,7 +17,13 @@ function key(input: { fieldText: string; startUtf16: number; endUtf16: number })
   return fingerprint([input.fieldText, input.startUtf16, input.endUtf16]);
 }
 
-const outputs = CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((candidate) => {
+// The ordinary-writing V3 corpus contains independently governed evidence for
+// THERE and TO only. YOUR/ITS are evaluated by the companion G2-only V4
+// development regression; they must not be fabricated into this corpus path.
+const ordinaryCandidates = CONTEXT_V4_DEVELOPMENT_CANDIDATES.filter((candidate) =>
+  candidate.manifest.familyKey === "THERE_THEIR_THEYRE" || candidate.manifest.familyKey === "TO_TOO_TWO",
+);
+const outputs = ordinaryCandidates.map((candidate) => {
   const family = candidate.manifest.familyKey;
   const candidatePath = join(root, "candidates", `${family}.jsonl`);
   const goldPath = join(root, "gold", `${family}.final-gold.jsonl`);

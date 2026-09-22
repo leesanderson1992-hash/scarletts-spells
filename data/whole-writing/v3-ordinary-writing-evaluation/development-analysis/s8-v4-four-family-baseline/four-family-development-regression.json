@@ -1,0 +1,1758 @@
+{
+  "schemaVersion": 1,
+  "purpose": "four_family_v4_small_model_development_regression_not_approval_evidence",
+  "productionRuntimeChanged": false,
+  "families": [
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "releaseKey": "s8-v4-there-their-theyre",
+      "releaseId": "81000000-0000-4000-8000-000000000013",
+      "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895",
+      "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
+      "decisionCounts": {
+        "VALID": 138,
+        "INVALID": 134,
+        "UNCERTAIN": 128
+      },
+      "metrics": {
+        "precision": 1,
+        "wilsonLower95": 0.9721313249761008,
+        "supportedRecall": 0.8933333333333333,
+        "validRecognition": 0.92,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "byConstruction": {
+        "existential": {
+          "supported": 37,
+          "recalled": 37,
+          "recall": 1
+        },
+        "locative": {
+          "supported": 37,
+          "recalled": 37,
+          "recall": 1
+        },
+        "possessive": {
+          "supported": 38,
+          "recalled": 25,
+          "recall": 0.6578947368421053
+        },
+        "they_are_contraction": {
+          "supported": 38,
+          "recalled": 35,
+          "recall": 0.9210526315789473
+        }
+      },
+      "subtypeRecall": "not_available_in_frozen_g2_candidate_schema",
+      "failures": [
+        {
+          "caseId": "g2-there-their-theyre-0011",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0039",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0044",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "they're",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0059",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0075",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0083",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0095",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0096",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "they're",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0123",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0136",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "they're",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0139",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0143",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0171",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0175",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0183",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0188",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "they're",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0195",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0219",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0223",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0239",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0240",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "they're",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0247",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0271",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0275",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0280",
+          "declaredConstruction": "they_are_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "they're",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "their",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0283",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0291",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-there-their-theyre-0299",
+          "declaredConstruction": "possessive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "their",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "THERE_THEIR_THEYRE",
+            "observedMember": "there",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+          },
+          "rootCause": "structural_ambiguity"
+        }
+      ],
+      "residualClusters": [
+        {
+          "key": "structural_ambiguity|possessive|COMPETING_STRUCTURAL_INTERPRETATIONS",
+          "count": 22,
+          "caseIds": [
+            "g2-there-their-theyre-0011",
+            "g2-there-their-theyre-0039",
+            "g2-there-their-theyre-0059",
+            "g2-there-their-theyre-0075",
+            "g2-there-their-theyre-0083",
+            "g2-there-their-theyre-0095",
+            "g2-there-their-theyre-0123",
+            "g2-there-their-theyre-0139",
+            "g2-there-their-theyre-0143",
+            "g2-there-their-theyre-0171",
+            "g2-there-their-theyre-0175",
+            "g2-there-their-theyre-0183",
+            "g2-there-their-theyre-0195",
+            "g2-there-their-theyre-0219",
+            "g2-there-their-theyre-0223",
+            "g2-there-their-theyre-0239",
+            "g2-there-their-theyre-0247",
+            "g2-there-their-theyre-0271",
+            "g2-there-their-theyre-0275",
+            "g2-there-their-theyre-0283",
+            "g2-there-their-theyre-0291",
+            "g2-there-their-theyre-0299"
+          ]
+        },
+        {
+          "key": "family_rule_limitation|they_are_contraction|UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+          "count": 6,
+          "caseIds": [
+            "g2-there-their-theyre-0044",
+            "g2-there-their-theyre-0096",
+            "g2-there-their-theyre-0136",
+            "g2-there-their-theyre-0188",
+            "g2-there-their-theyre-0240",
+            "g2-there-their-theyre-0280"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "releaseKey": "s8-v4-to-too-two",
+      "releaseId": "81000000-0000-4000-8000-000000000014",
+      "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4",
+      "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
+      "decisionCounts": {
+        "VALID": 130,
+        "INVALID": 129,
+        "UNCERTAIN": 141
+      },
+      "metrics": {
+        "precision": 1,
+        "wilsonLower95": 0.9710823800431218,
+        "supportedRecall": 0.86,
+        "validRecognition": 0.8666666666666667,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "byConstruction": {
+        "additive": {
+          "supported": 30,
+          "recalled": 30,
+          "recall": 1
+        },
+        "degree": {
+          "supported": 30,
+          "recalled": 15,
+          "recall": 0.5
+        },
+        "infinitive": {
+          "supported": 30,
+          "recalled": 24,
+          "recall": 0.8
+        },
+        "numeral": {
+          "supported": 30,
+          "recalled": 30,
+          "recall": 1
+        },
+        "preposition": {
+          "supported": 30,
+          "recalled": 30,
+          "recall": 1
+        }
+      },
+      "subtypeRecall": "not_available_in_frozen_g2_candidate_schema",
+      "failures": [
+        {
+          "caseId": "g2-to-too-two-0014",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0019",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0022",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0032",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0034",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0044",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0049",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0059",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0062",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0064",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0079",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0084",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0099",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0107",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0114",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0117",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0119",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0144",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0147",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0149",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0157",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0164",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0169",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0179",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0192",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0194",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0199",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0202",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0214",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0229",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0232",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0242",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0244",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0249",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0254",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0264",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0269",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0287",
+          "declaredConstruction": "infinitive",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "to",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "too",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0289",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0294",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "two",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        },
+        {
+          "caseId": "g2-to-too-two-0299",
+          "declaredConstruction": "degree",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "too",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "TO_TOO_TWO",
+            "observedMember": "to",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+          },
+          "rootCause": "structural_ambiguity"
+        }
+      ],
+      "residualClusters": [
+        {
+          "key": "structural_ambiguity|degree|COMPETING_STRUCTURAL_INTERPRETATIONS",
+          "count": 29,
+          "caseIds": [
+            "g2-to-too-two-0014",
+            "g2-to-too-two-0019",
+            "g2-to-too-two-0034",
+            "g2-to-too-two-0044",
+            "g2-to-too-two-0049",
+            "g2-to-too-two-0059",
+            "g2-to-too-two-0064",
+            "g2-to-too-two-0079",
+            "g2-to-too-two-0084",
+            "g2-to-too-two-0099",
+            "g2-to-too-two-0114",
+            "g2-to-too-two-0119",
+            "g2-to-too-two-0144",
+            "g2-to-too-two-0149",
+            "g2-to-too-two-0164",
+            "g2-to-too-two-0169",
+            "g2-to-too-two-0179",
+            "g2-to-too-two-0194",
+            "g2-to-too-two-0199",
+            "g2-to-too-two-0214",
+            "g2-to-too-two-0229",
+            "g2-to-too-two-0244",
+            "g2-to-too-two-0249",
+            "g2-to-too-two-0254",
+            "g2-to-too-two-0264",
+            "g2-to-too-two-0269",
+            "g2-to-too-two-0289",
+            "g2-to-too-two-0294",
+            "g2-to-too-two-0299"
+          ]
+        },
+        {
+          "key": "structural_ambiguity|infinitive|COMPETING_STRUCTURAL_INTERPRETATIONS",
+          "count": 12,
+          "caseIds": [
+            "g2-to-too-two-0022",
+            "g2-to-too-two-0032",
+            "g2-to-too-two-0062",
+            "g2-to-too-two-0107",
+            "g2-to-too-two-0117",
+            "g2-to-too-two-0147",
+            "g2-to-too-two-0157",
+            "g2-to-too-two-0192",
+            "g2-to-too-two-0202",
+            "g2-to-too-two-0232",
+            "g2-to-too-two-0242",
+            "g2-to-too-two-0287"
+          ]
+        }
+      ]
+    },
+    {
+      "family": "YOUR_YOURE",
+      "releaseKey": "s8-v4-your-youre",
+      "releaseId": "81000000-0000-4000-8000-000000000015",
+      "manifestFingerprint": "c4c8dd2745dfc8244c60feb81ea5d3e79360f5c760ab0e55e3d37add92f2272b",
+      "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
+      "decisionCounts": {
+        "VALID": 150,
+        "INVALID": 150,
+        "UNCERTAIN": 100
+      },
+      "metrics": {
+        "precision": 1,
+        "wilsonLower95": 0.9750297556319234,
+        "supportedRecall": 1,
+        "validRecognition": 1,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "byConstruction": {
+        "possessive": {
+          "supported": 75,
+          "recalled": 75,
+          "recall": 1
+        },
+        "you_are_contraction": {
+          "supported": 75,
+          "recalled": 75,
+          "recall": 1
+        }
+      },
+      "subtypeRecall": "not_available_in_frozen_g2_candidate_schema",
+      "failures": [],
+      "residualClusters": []
+    },
+    {
+      "family": "ITS_ITS",
+      "releaseKey": "s8-v4-its-its",
+      "releaseId": "81000000-0000-4000-8000-000000000016",
+      "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1",
+      "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
+      "decisionCounts": {
+        "VALID": 146,
+        "INVALID": 146,
+        "UNCERTAIN": 108
+      },
+      "metrics": {
+        "precision": 1,
+        "wilsonLower95": 0.9743631779153261,
+        "supportedRecall": 0.9733333333333334,
+        "validRecognition": 0.9733333333333334,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      },
+      "byConstruction": {
+        "it_has_contraction": {
+          "supported": 50,
+          "recalled": 50,
+          "recall": 1
+        },
+        "it_is_contraction": {
+          "supported": 50,
+          "recalled": 46,
+          "recall": 0.92
+        },
+        "possessive": {
+          "supported": 50,
+          "recalled": 50,
+          "recall": 1
+        }
+      },
+      "subtypeRecall": "not_available_in_frozen_g2_candidate_schema",
+      "failures": [
+        {
+          "caseId": "g2-its-its-0026",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "it's",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0044",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "it's",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0104",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "it's",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0110",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "VALID",
+          "expectedAlternative": null,
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "it's",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0170",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "it's",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "its",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0188",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "it's",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "its",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0248",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "it's",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "its",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        },
+        {
+          "caseId": "g2-its-its-0254",
+          "declaredConstruction": "it_is_contraction",
+          "protectedSetTags": [],
+          "gold": "INVALID",
+          "expectedAlternative": "it's",
+          "decision": {
+            "status": "UNCERTAIN",
+            "familyKey": "ITS_ITS",
+            "observedMember": "its",
+            "alternativeMember": null,
+            "assessedScope": "ordinary_writing_spacy_structural_context",
+            "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
+            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+          },
+          "rootCause": "family_rule_limitation"
+        }
+      ],
+      "residualClusters": [
+        {
+          "key": "family_rule_limitation|it_is_contraction|UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+          "count": 8,
+          "caseIds": [
+            "g2-its-its-0026",
+            "g2-its-its-0044",
+            "g2-its-its-0104",
+            "g2-its-its-0110",
+            "g2-its-its-0170",
+            "g2-its-its-0188",
+            "g2-its-its-0248",
+            "g2-its-its-0254"
+          ]
+        }
+      ]
+    }
+  ],
+  "baselineFingerprint": "a4cf8a27694104a2471a1ea5b0dcdc3a0d1676ae200d6a1049f73a8759fc0d49"
+}

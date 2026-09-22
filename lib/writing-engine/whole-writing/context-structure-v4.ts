@@ -50,7 +50,8 @@ export type StructuralVariantV4 = Readonly<{
 
 export type StructuralRequestV4 = Readonly<{
   requestId: string;
-  family: Extract<ContextFamilyKey, "THERE_THEIR_THEYRE" | "TO_TOO_TWO">;
+  /** Family identity scopes finite counterfactual members; parsing stays generic. */
+  family: ContextFamilyKey;
   sourceText: string; startUtf16: number; endUtf16: number; familyMembers: readonly string[];
 }>;
 export type StructuralResultV4 = Readonly<{

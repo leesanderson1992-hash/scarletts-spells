@@ -7,14 +7,14 @@ import { CONTEXT_FAMILY_MANIFESTS } from "../lib/writing-engine/whole-writing/co
 import { CONTEXT_V4_SOURCE_PINS } from "../lib/writing-engine/whole-writing/context-source-pins-v4";
 import { sha256 } from "./lib/whole-writing-g2-corpus";
 
-assert.equal(CONTEXT_V4_DEVELOPMENT_CANDIDATES.length, 2);
+assert.equal(CONTEXT_V4_DEVELOPMENT_CANDIDATES.length, 4, "all four V4 family candidates must remain development-only");
 const allIds = [
   ...CONTEXT_FAMILY_MANIFESTS.map((_, index) => `81000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`),
   ...CONTEXT_V2_CANDIDATES.map((candidate) => candidate.manifest.releaseId),
   ...CONTEXT_V3_CANDIDATES.map((candidate) => candidate.manifest.releaseId),
   ...CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((candidate) => candidate.manifest.releaseId),
 ];
-assert.equal(new Set(allIds).size, 14, "V1-V4 release IDs must be unique");
+assert.equal(new Set(allIds).size, allIds.length, "V1-V4 release IDs must be unique");
 assert.deepEqual(CONTEXT_V3_CANDIDATES.map((candidate) => candidate.fingerprint), [
   "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
   "4a065c499abbbbb4e922e30171f8960d9687fab8e5ee103e23b3e58d6fd14420",

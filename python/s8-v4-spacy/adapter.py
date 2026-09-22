@@ -55,7 +55,7 @@ DEPENDENCY_PATTERNS: dict[str, list[dict[str, Any]]] = {
     ],
     "POSSESSIVE_NOMINAL_FRAME": [
         {"RIGHT_ID": "nominal", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PROPN"]}}},
-        {"LEFT_ID": "nominal", "REL_OP": ">", "RIGHT_ID": "their", "RIGHT_ATTRS": {"LOWER": "their", "DEP": "poss"}},
+        {"LEFT_ID": "nominal", "REL_OP": ">", "RIGHT_ID": "possessive", "RIGHT_ATTRS": {"POS": {"IN": ["PRON", "DET"]}, "DEP": "poss"}},
     ],
     "INFINITIVE_MARKER_VERB_FRAME": [
         {"RIGHT_ID": "verb", "RIGHT_ATTRS": {"POS": "VERB", "TAG": {"IN": ["VB", "VBP"]}}},
@@ -79,12 +79,12 @@ DEPENDENCY_PATTERNS: dict[str, list[dict[str, Any]]] = {
     ],
     "CONTRACTION_VERBAL_FRAME": [
         {"RIGHT_ID": "predicate", "RIGHT_ATTRS": {"POS": "VERB", "TAG": {"IN": ["VBG", "VBN"]}}},
-        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"LOWER": "they", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
+        {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"POS": "PRON", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
         {"LEFT_ID": "predicate", "REL_OP": ">", "RIGHT_ID": "be", "RIGHT_ATTRS": {"LEMMA": "be", "POS": "AUX", "DEP": {"IN": ["aux", "auxpass"]}}},
     ],
     "CONTRACTION_COPULAR_ADJECTIVAL_FRAME": [
         {"RIGHT_ID": "be", "RIGHT_ATTRS": {"LEMMA": "be", "POS": "AUX"}},
-        {"LEFT_ID": "be", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"LOWER": "they", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
+        {"LEFT_ID": "be", "REL_OP": ">", "RIGHT_ID": "subject", "RIGHT_ATTRS": {"POS": "PRON", "DEP": {"IN": ["nsubj", "nsubjpass"]}}},
         {"LEFT_ID": "be", "REL_OP": ">", "RIGHT_ID": "adjective", "RIGHT_ATTRS": {"POS": "ADJ", "DEP": {"IN": ["acomp", "attr"]}}},
     ],
 }
