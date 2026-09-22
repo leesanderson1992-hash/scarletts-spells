@@ -6,7 +6,7 @@ Comparison fingerprint: `58394518d8906ae3119b1b46dff46819edc8e242d008e27035bd815
 
 ## Result
 
-The selected development architecture is `en_core_web_sm` as primary with a narrowly cluster-gated `en_core_web_trf` fallback. A case reaches fallback only when the small model reports competing interpretations in an authorised high-yield contraction or governed-infinitive cluster. A fallback decision is accepted only when ADLE resolves it back into that same governed scope; otherwise the small-model `UNCERTAIN` result is retained.
+The selected development architecture is `en_core_web_sm` as primary with a narrowly cluster-gated `en_core_web_trf` fallback for THERE contraction ambiguity and TO governed-infinitive ambiguity only. A fallback decision is accepted only when ADLE resolves it back into that same governed scope; otherwise the small-model `UNCERTAIN` result is retained. YOUR and ITS remain small-only because current evidence shows no performance need for a fallback.
 
 This is an architecture selection for a later implementation-freeze task. The transformer was not added to production dependencies or dispatch.
 
@@ -26,7 +26,7 @@ The no-NER transformer experiment produced identical decisions. It did not show 
 
 ## Fallback yield
 
-Across 3,399 available occurrences, 296 (8.71%) entered the transformer eligibility gate: THERE 54/929, TO 222/1,670, YOUR 20/400 and ITS 0/400. The scope guard safely recovered 29 THERE, 165 TO and 20 YOUR cases; 82 remained `UNCERTAIN`. ITS receives no fallback under current evidence. Submission-level invocation cannot be estimated reliably because the combined evidence does not represent production submission incidence.
+The experiment sent 296/3,399 available occurrences (8.71%) to the transformer: THERE 54/929, TO 222/1,670, YOUR 20/400 and ITS 0/400. Because YOUR is already perfect on available evidence, the selected architecture omits its zero-net-benefit fallback. The selected gate therefore covers 276/3,399 occurrences (8.12%), safely recovers 29 THERE and 165 TO cases, and leaves 82 `UNCERTAIN`. Submission-level invocation cannot be estimated reliably because the combined evidence does not represent production submission incidence.
 
 The full small corpus ran at about 166.6 counterfactuals/second. Medium ran at 149.1/s, large at 152.5/s, and the gated transformer at 59.2/s. Node RSS stayed below 153 MB. Checkpoints are incremental; canonical results exclude timing.
 
