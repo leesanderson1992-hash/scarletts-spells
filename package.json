@@ -35,6 +35,7 @@
     "writing:s8-v4-adapter-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v4-adapter-regression.ts",
     "writing:s8-v4-your-its-adapter-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v4-your-its-adapter-regression.ts",
     "writing:s8-v4-four-family-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v4-four-family-development-regression.ts",
+    "writing:s8-v4-parser-cost-optimisation": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v4-parser-cost-optimisation.ts",
     "writing:s8-v4-release-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v4-release-regression.ts",
     "writing:s8-db-proof": "node scripts/prove-whole-writing-s8-local.mjs",
     "writing:s8-staging-migration": "node scripts/apply-whole-writing-s8-staging.mjs",
