@@ -1,8 +1,9 @@
 import { fingerprint } from "../baseline/source";
 import { normaliseContextMember, type ContextFamilyKey } from "./context";
 import {
-  CONTEXT_V4_ADAPTER_VERSION, CONTEXT_V4_RESOURCE_LIMITS, CONTEXT_V4_RUNTIME_IDENTITY,
-  CONTEXT_V4_STRUCTURE_SCHEMA, parseStructuralFeaturesV4,
+  CONTEXT_V4_ADAPTER_VERSION, CONTEXT_V4_FALLBACK_RESOURCE_LIMITS, CONTEXT_V4_FALLBACK_RUNTIME_IDENTITY,
+  CONTEXT_V4_RESOURCE_LIMITS, CONTEXT_V4_RUNTIME_IDENTITY, CONTEXT_V4_STRUCTURE_SCHEMA,
+  parseStructuralFeaturesV4, parseTransformerStructuralFeaturesV4,
   type StructuralRequestV4, type StructuralResultV4, type StructuralTokenV4, type StructuralVariantV4,
 } from "./context-structure-v4";
 
@@ -19,14 +20,39 @@ export type ContextManifestV4 = Readonly<{
   corpusVersion: string; members: readonly string[]; supportedConstructions: readonly string[];
   supportedSubtypes: readonly string[]; exclusions: readonly string[]; adapterSchemaVersion: string;
   adapterVersion: string; runtimeIdentity: typeof CONTEXT_V4_RUNTIME_IDENTITY;
+  fallbackPolicyVersion: string; fallbackRuntimeIdentity: typeof CONTEXT_V4_FALLBACK_RUNTIME_IDENTITY | null;
+  fallbackResourceLimits: typeof CONTEXT_V4_FALLBACK_RESOURCE_LIMITS | null;
+  fallbackEligibleReasons: readonly FallbackEligibilityV4[];
   resourceLimits: typeof CONTEXT_V4_RESOURCE_LIMITS; deploymentState: "DEVELOPMENT_CANDIDATE_DEFAULT_OFF";
   sourceFingerprints: Readonly<Record<string, string>>;
 }>;
 export type DetailedContextDecisionV4 = Readonly<{
   decision: ContextDecisionV4 | null;
-  trace: Readonly<{ protectionReason: string | null; structural: StructuralResultV4 | null; candidates: readonly ContextCandidateV4[] }>;
+  trace: Readonly<{
+    protectionReason: string | null; structural: StructuralResultV4 | null; candidates: readonly ContextCandidateV4[];
+    fallback: FallbackTraceV4 | null;
+  }>;
 }>;
 export type StructuralParserV4 = (requests: readonly StructuralRequestV4[]) => StructuralResultV4[];
+
+export const CONTEXT_V4_FALLBACK_POLICY_VERSION = "ADLE_S8_V4_GATED_TRANSFORMER_FALLBACK_V1" as const;
+export const FALLBACK_ELIGIBILITY_V4 = Object.freeze({
+  THERE_CONTRACTION_STRUCTURAL_AMBIGUITY: "THERE_CONTRACTION_STRUCTURAL_AMBIGUITY",
+  TO_GOVERNED_INFINITIVE_STRUCTURAL_AMBIGUITY: "TO_GOVERNED_INFINITIVE_STRUCTURAL_AMBIGUITY",
+} as const);
+export type FallbackEligibilityV4 = typeof FALLBACK_ELIGIBILITY_V4[keyof typeof FALLBACK_ELIGIBILITY_V4];
+export type FallbackTraceV4 = Readonly<{
+  policyVersion: typeof CONTEXT_V4_FALLBACK_POLICY_VERSION;
+  eligibility: FallbackEligibilityV4;
+  primaryDecision: ContextDecisionV4;
+  primaryStructural: StructuralResultV4 | null;
+  primaryCandidates: readonly ContextCandidateV4[];
+  fallbackDecision: ContextDecisionV4 | null;
+  fallbackStructural: StructuralResultV4 | null;
+  fallbackCandidates: readonly ContextCandidateV4[];
+  accepted: boolean;
+  disposition: "ACCEPTED_SAME_GOVERNED_SCOPE" | "RETAINED_PRIMARY_UNCERTAIN" | "FALLBACK_EXECUTION_FAILED";
+}>;
 
 const POLICY_TASK_TERMS = new Set(["answer", "choice", "choose", "entered", "exercise", "label", "picture", "prompt", "question", "selected", "unseen", "worksheet"]);
 const AMBIGUOUS_CONTRACTION_PREDICATES = new Set(["due", "prepared"]);
@@ -285,20 +311,20 @@ export function analyseFamilyContextsV4WithParser(manifest: ContextManifestV4, i
   }));
   const structural = new Map(structuralParser(requests).map((result) => [Number(result.requestId), result]));
   return base.map((row) => {
-    if (!manifest.members.includes(row.observed)) return { decision: null, trace: { protectionReason: null, structural: null, candidates: [] } };
+    if (!manifest.members.includes(row.observed)) return { decision: null, trace: { protectionReason: null, structural: null, candidates: [], fallback: null } };
     const make = (status: ContextDecisionV4["status"], reasonCode: string, scope = "ordinary_writing_spacy_structural_context", alternative: string | null = null): ContextDecisionV4 => ({
       status, familyKey: manifest.familyKey, observedMember: row.observed, alternativeMember: alternative,
       assessedScope: scope, reasonCode, ruleId: `${manifest.analyserVersion}:${manifest.familyKey}:${reasonCode}`,
       analyserVersion: manifest.analyserVersion, manifestFingerprint,
     });
-    if (row.protection) return { decision: make("UNCERTAIN", row.protection), trace: { protectionReason: row.protection, structural: null, candidates: [] } };
+    if (row.protection) return { decision: make("UNCERTAIN", row.protection), trace: { protectionReason: row.protection, structural: null, candidates: [], fallback: null } };
     const parsed = structural.get(row.index);
     if (!parsed || parsed.status === "blocked" || manifest.members.some((member) => readyVariant(parsed, member) === null)) {
       const reason = parsed?.status === "blocked" ? parsed.reason : "STRUCTURAL_ALIGNMENT_OR_PARSE_FAILED";
-      return { decision: make("UNCERTAIN", reason), trace: { protectionReason: null, structural: parsed ?? null, candidates: [] } };
+      return { decision: make("UNCERTAIN", reason), trace: { protectionReason: null, structural: parsed ?? null, candidates: [], fallback: null } };
     }
     const postProtection = protectedFromStructure(manifest.familyKey, parsed, row.observed);
-    if (postProtection) return { decision: make("UNCERTAIN", postProtection), trace: { protectionReason: postProtection, structural: parsed, candidates: [] } };
+    if (postProtection) return { decision: make("UNCERTAIN", postProtection), trace: { protectionReason: postProtection, structural: parsed, candidates: [], fallback: null } };
     const candidates = manifest.familyKey === "THERE_THEIR_THEYRE" ? thereCandidates(parsed)
       : manifest.familyKey === "TO_TOO_TWO" ? toCandidates(parsed)
         : manifest.familyKey === "YOUR_YOURE" ? yourCandidates(parsed)
@@ -307,21 +333,109 @@ export function analyseFamilyContextsV4WithParser(manifest: ContextManifestV4, i
     const members = [...new Set(deduplicated.map((candidate) => candidate.member))];
     if (members.length !== 1) {
       const reason = members.length > 1 ? "COMPETING_STRUCTURAL_INTERPRETATIONS" : "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION";
-      return { decision: make("UNCERTAIN", reason), trace: { protectionReason: null, structural: parsed, candidates: deduplicated } };
+      return { decision: make("UNCERTAIN", reason), trace: { protectionReason: null, structural: parsed, candidates: deduplicated, fallback: null } };
     }
     const selected = members[0];
     const scopes = deduplicated.filter((candidate) => candidate.member === selected).map((candidate) => candidate.scope).sort().join("+");
     const valid = selected === row.observed;
     return {
       decision: make(valid ? "VALID" : "INVALID", valid ? "UNIQUE_SUPPORTED_STRUCTURE_V4" : "UNIQUE_FAMILY_COUNTERFACTUAL_V4", scopes, valid ? null : selected),
-      trace: { protectionReason: null, structural: parsed, candidates: deduplicated },
+      trace: { protectionReason: null, structural: parsed, candidates: deduplicated, fallback: null },
     };
   });
+}
+
+/** Typed ADLE fallback eligibility. A generic UNCERTAIN result is never enough. */
+export function fallbackEligibilityV4(
+  manifest: ContextManifestV4,
+  detail: DetailedContextDecisionV4,
+): FallbackEligibilityV4 | null {
+  if (detail.decision?.status !== "UNCERTAIN" || detail.decision.reasonCode !== "COMPETING_STRUCTURAL_INTERPRETATIONS" || detail.trace.protectionReason) return null;
+  const scopes = detail.trace.candidates.map((candidate) => candidate.scope);
+  if (manifest.familyKey === "THERE_THEIR_THEYRE" && scopes.some((scope) => scope.startsWith("they_are_contraction:"))) {
+    return FALLBACK_ELIGIBILITY_V4.THERE_CONTRACTION_STRUCTURAL_AMBIGUITY;
+  }
+  if (manifest.familyKey === "TO_TOO_TWO" && scopes.includes("infinitive:governed_infinitive")) {
+    return FALLBACK_ELIGIBILITY_V4.TO_GOVERNED_INFINITIVE_STRUCTURAL_AMBIGUITY;
+  }
+  return null;
+}
+
+function fallbackDecisionMatchesEligibility(decision: ContextDecisionV4 | null, eligibility: FallbackEligibilityV4) {
+  if (!decision || decision.status === "UNCERTAIN") return false;
+  if (eligibility === FALLBACK_ELIGIBILITY_V4.THERE_CONTRACTION_STRUCTURAL_AMBIGUITY) {
+    return decision.familyKey === "THERE_THEIR_THEYRE" && decision.assessedScope.startsWith("they_are_contraction:");
+  }
+  return decision.familyKey === "TO_TOO_TWO" && decision.assessedScope === "infinitive:governed_infinitive";
+}
+
+/**
+ * Frozen semantic hybrid seam. Parsers may be hosted in-process, sidecars, or
+ * bounded batch workers; their hosting cannot alter eligibility or ADLE's
+ * second arbitration pass.
+ */
+export function analyseFamilyContextsV4WithFallbackParsers(
+  manifest: ContextManifestV4,
+  inputs: readonly ContextInputV4[],
+  primaryParser: StructuralParserV4,
+  fallbackParser: StructuralParserV4,
+): DetailedContextDecisionV4[] {
+  const primary = analyseFamilyContextsV4WithParser(manifest, inputs, primaryParser);
+  const eligible = primary.flatMap((detail, index) => {
+    const eligibility = fallbackEligibilityV4(manifest, detail);
+    return eligibility && manifest.fallbackEligibleReasons.includes(eligibility) ? [{ index, eligibility }] : [];
+  });
+  if (!eligible.length) return primary;
+
+  const fallback: DetailedContextDecisionV4[] = [];
+  for (let offset = 0; offset < eligible.length; offset += CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.maxBatch) {
+    const batch = eligible.slice(offset, offset + CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.maxBatch);
+    try {
+      fallback.push(...analyseFamilyContextsV4WithParser(manifest, batch.map((row) => inputs[row.index]!), fallbackParser));
+    } catch {
+      fallback.push(...batch.map(() => ({ decision: null, trace: { protectionReason: null, structural: null, candidates: [], fallback: null } })));
+    }
+  }
+  const byIndex = new Map(eligible.map((row, localIndex) => [row.index, { ...row, detail: fallback[localIndex]! }]));
+  return primary.map((primaryDetail, index) => {
+    const attempt = byIndex.get(index);
+    if (!attempt || !primaryDetail.decision) return primaryDetail;
+    const fallbackDetail = attempt.detail;
+    const accepted = fallbackDecisionMatchesEligibility(fallbackDetail.decision, attempt.eligibility);
+    const failed = !fallbackDetail.decision || !fallbackDetail.trace.structural || fallbackDetail.trace.structural.status === "blocked";
+    const fallbackTrace: FallbackTraceV4 = {
+      policyVersion: CONTEXT_V4_FALLBACK_POLICY_VERSION,
+      eligibility: attempt.eligibility,
+      primaryDecision: primaryDetail.decision,
+      primaryStructural: primaryDetail.trace.structural,
+      primaryCandidates: primaryDetail.trace.candidates,
+      fallbackDecision: fallbackDetail.decision,
+      fallbackStructural: fallbackDetail.trace.structural,
+      fallbackCandidates: fallbackDetail.trace.candidates,
+      accepted,
+      disposition: accepted ? "ACCEPTED_SAME_GOVERNED_SCOPE" : failed ? "FALLBACK_EXECUTION_FAILED" : "RETAINED_PRIMARY_UNCERTAIN",
+    };
+    return {
+      decision: accepted ? fallbackDetail.decision : primaryDetail.decision,
+      trace: { ...primaryDetail.trace, fallback: fallbackTrace },
+    };
+  });
+}
+
+/** Default hybrid path used only by gated THERE/TO V4 development candidates. */
+export function analyseFamilyContextsV4WithFallback(manifest: ContextManifestV4, inputs: readonly ContextInputV4[]) {
+  return analyseFamilyContextsV4WithFallbackParsers(manifest, inputs, parseStructuralFeaturesV4, parseTransformerStructuralFeaturesV4);
 }
 
 export const CONTEXT_V4_STRUCTURE_SOURCE = Object.freeze({
   schema: CONTEXT_V4_STRUCTURE_SCHEMA, adapter: CONTEXT_V4_ADAPTER_VERSION,
   runtime: CONTEXT_V4_RUNTIME_IDENTITY, limits: CONTEXT_V4_RESOURCE_LIMITS,
+  fallback: {
+    policyVersion: CONTEXT_V4_FALLBACK_POLICY_VERSION,
+    runtime: CONTEXT_V4_FALLBACK_RUNTIME_IDENTITY,
+    limits: CONTEXT_V4_FALLBACK_RESOURCE_LIMITS,
+    eligibleReasons: FALLBACK_ELIGIBILITY_V4,
+  },
   retainedPolicyLists: {
     taskTerms: { values: [...POLICY_TASK_TERMS].sort(), reason: "ADLE task-dependent protection, not syntactic inference" },
     ambiguousContractionPredicates: { values: [...AMBIGUOUS_CONTRACTION_PREDICATES].sort(), reason: "ADLE semantic abstention for known parser-insufficient predicates" },

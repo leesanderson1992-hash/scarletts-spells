@@ -10,9 +10,20 @@ export const CONTEXT_V4_RUNTIME_IDENTITY = Object.freeze({
   modelVersion: "3.8.0", modelTreeSha256: "a07424822a13ad5bd9cb7a021e219c77279a907c58171c52846448b832107ed4",
   cpuOnly: true,
 });
+export const CONTEXT_V4_FALLBACK_RUNTIME_IDENTITY = Object.freeze({
+  pythonVersion: "3.12.14", spacyVersion: "3.8.16", modelName: "en_core_web_trf",
+  modelVersion: "3.8.0", modelTreeSha256: "0f6894e257827c6ad731b5cb9d1162bffd308fd0e99444d51b822890c4bb9d6e",
+  modelWheelSha256: "272a31e9d8530d1e075351d30a462d7e80e31da23574f1b274e200f3fff35bf5", parserBatchSize: 64,
+  pipeline: ["transformer", "tagger", "parser", "attribute_ruler", "lemmatizer", "ner"],
+  cpuOnly: true,
+});
 export const CONTEXT_V4_RESOURCE_LIMITS = Object.freeze({
   maxBatch: 2_000, maxSourceUtf16: 16_384, maxTokens: 512,
   timeoutMs: 120_000, maxBufferBytes: 128 * 1024 * 1024, restartRetries: 0,
+});
+export const CONTEXT_V4_FALLBACK_RESOURCE_LIMITS = Object.freeze({
+  maxBatch: 512, maxSourceUtf16: 16_384, maxTokens: 512,
+  timeoutMs: 300_000, maxBufferBytes: 128 * 1024 * 1024, restartRetries: 0,
 });
 
 export type AdleDependencyV4 =
@@ -63,6 +74,14 @@ function validIdentity(value: unknown): boolean {
   const row = value as Record<string, unknown>;
   return row.adapterSchemaVersion === CONTEXT_V4_STRUCTURE_SCHEMA && row.adapterVersion === CONTEXT_V4_ADAPTER_VERSION &&
     Object.entries(CONTEXT_V4_RUNTIME_IDENTITY).every(([key, expected]) => row[key] === expected);
+}
+function validFallbackIdentity(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const row = value as Record<string, unknown>;
+  return row.adapterSchemaVersion === CONTEXT_V4_STRUCTURE_SCHEMA && row.adapterVersion === CONTEXT_V4_ADAPTER_VERSION &&
+    Object.entries(CONTEXT_V4_FALLBACK_RUNTIME_IDENTITY).every(([key, expected]) =>
+      Array.isArray(expected) ? JSON.stringify(row[key]) === JSON.stringify(expected) : row[key] === expected,
+    );
 }
 function blocked(request: StructuralRequestV4, reason: string): StructuralResultV4 {
   return { requestId: request.requestId, status: "blocked", reason, variants: {} };
@@ -127,5 +146,55 @@ export function parseStructuralFeaturesV4(requests: readonly StructuralRequestV4
     });
   } catch {
     return requests.map((request) => blocked(request, "MALFORMED_STRUCTURAL_RESPONSE"));
+  }
+}
+
+/**
+ * Development-candidate transformer boundary. The fallback is optional and is
+ * never a submission authority: absence, timeout, identity drift, malformed
+ * output, or resource exhaustion returns blocked structural facts so ADLE can
+ * preserve the primary parser's UNCERTAIN result.
+ */
+export function parseTransformerStructuralFeaturesV4(requests: readonly StructuralRequestV4[]): StructuralResultV4[] {
+  if (requests.length > CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.maxBatch) return requests.map((request) => blocked(request, "FALLBACK_RESOURCE_LIMIT"));
+  const malformed = requests.some((request) =>
+    !request.requestId || request.sourceText.length > CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.maxSourceUtf16 ||
+    !Number.isInteger(request.startUtf16) || !Number.isInteger(request.endUtf16) || request.startUtf16 < 0 ||
+    request.endUtf16 <= request.startUtf16 || request.endUtf16 > request.sourceText.length ||
+    !request.familyMembers.includes(request.sourceText.slice(request.startUtf16, request.endUtf16).normalize("NFC").toLowerCase().replace(/[’ʼ]/g, "'")),
+  );
+  if (malformed) return requests.map((request) => blocked(request, "FALLBACK_SOURCE_SPAN_OR_REQUEST_INVALID"));
+  const python = process.env.S8_V4_TRANSFORMER_PYTHON;
+  if (!python) return requests.map((request) => blocked(request, "FALLBACK_STRUCTURAL_ADAPTER_UNAVAILABLE"));
+  const child = spawnSync(python, [resolve(process.cwd(), "python/s8-v4-spacy/transformer-adapter.py")], {
+    input: JSON.stringify({ schemaVersion: CONTEXT_V4_STRUCTURE_SCHEMA, requests }), encoding: "utf8",
+    timeout: CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.timeoutMs, maxBuffer: CONTEXT_V4_FALLBACK_RESOURCE_LIMITS.maxBufferBytes,
+    env: { ...process.env, PYTHONHASHSEED: "0", CUDA_VISIBLE_DEVICES: "" },
+  });
+  if (child.error || child.status !== 0) {
+    const timedOut = child.error && "code" in child.error && child.error.code === "ETIMEDOUT";
+    return requests.map((request) => blocked(request, timedOut ? "FALLBACK_STRUCTURAL_ADAPTER_TIMEOUT" : "FALLBACK_STRUCTURAL_ADAPTER_FAILURE"));
+  }
+  try {
+    const response = JSON.parse(child.stdout) as { schemaVersion?: unknown; identity?: unknown; results?: unknown };
+    if (response.schemaVersion !== CONTEXT_V4_STRUCTURE_SCHEMA || !validFallbackIdentity(response.identity) || !Array.isArray(response.results) || response.results.length !== requests.length) {
+      return requests.map((request) => blocked(request, "FALLBACK_STRUCTURAL_ADAPTER_IDENTITY_OR_SCHEMA_MISMATCH"));
+    }
+    const results = response.results as unknown[];
+    return requests.map((request, index) => {
+      const result = results[index] as StructuralResultV4;
+      if (!result || result.requestId !== request.requestId || !["ready", "blocked"].includes(result.status) || !result.variants || typeof result.variants !== "object") {
+        return blocked(request, "FALLBACK_MALFORMED_STRUCTURAL_RESPONSE");
+      }
+      if (result.status === "ready" && request.familyMembers.some((member) => !(member in result.variants))) {
+        return blocked(request, "FALLBACK_INCOMPLETE_COUNTERFACTUAL_RESPONSE");
+      }
+      if (result.status === "ready" && request.familyMembers.some((member) => !validVariant(result.variants[member], request.startUtf16, request.startUtf16 + member.length))) {
+        return blocked(request, "FALLBACK_MALFORMED_OR_MISALIGNED_COUNTERFACTUAL_RESPONSE");
+      }
+      return result;
+    });
+  } catch {
+    return requests.map((request) => blocked(request, "FALLBACK_MALFORMED_STRUCTURAL_RESPONSE"));
   }
 }

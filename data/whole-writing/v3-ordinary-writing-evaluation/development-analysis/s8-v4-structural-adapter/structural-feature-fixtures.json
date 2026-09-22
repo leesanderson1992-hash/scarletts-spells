@@ -21,9 +21,9 @@
         "alternativeMember": null,
         "assessedScope": "existential:embedded_existential",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "0",
@@ -761,9 +761,9 @@
         "alternativeMember": null,
         "assessedScope": "locative:adverbial_locative",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "1",
@@ -1555,9 +1555,9 @@
         "alternativeMember": null,
         "assessedScope": "possessive:possessive_subject_or_object",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "2",
@@ -2192,9 +2192,9 @@
         "alternativeMember": null,
         "assessedScope": "they_are_contraction:progressive_contraction",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "3",
@@ -2747,9 +2747,9 @@
         "alternativeMember": null,
         "assessedScope": "they_are_contraction:adjectival_contraction",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "4",
@@ -3258,9 +3258,9 @@
         "alternativeMember": null,
         "assessedScope": "they_are_contraction:passive_contraction",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "5",
@@ -3925,9 +3925,9 @@
         "alternativeMember": null,
         "assessedScope": "ordinary_writing_spacy_structural_context",
         "reasonCode": "GENUINE_PREDICATE_AMBIGUITY",
-        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:GENUINE_PREDICATE_AMBIGUITY",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+        "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:GENUINE_PREDICATE_AMBIGUITY",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
       },
       "structural": {
         "requestId": "6",
@@ -4497,9 +4497,9 @@
         "alternativeMember": null,
         "assessedScope": "infinitive:governed_infinitive",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "0",
@@ -5256,9 +5256,9 @@
         "alternativeMember": null,
         "assessedScope": "ordinary_writing_spacy_structural_context",
         "reasonCode": "PROTECTED_GERUND",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:PROTECTED_GERUND",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:PROTECTED_GERUND",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "1",
@@ -6033,9 +6033,9 @@
         "alternativeMember": null,
         "assessedScope": "preposition:destination_or_recipient_preposition",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "2",
@@ -6633,9 +6633,9 @@
         "alternativeMember": null,
         "assessedScope": "preposition:destination_or_recipient_preposition",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "3",
@@ -7268,9 +7268,9 @@
         "alternativeMember": null,
         "assessedScope": "infinitive:governed_infinitive",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "4",
@@ -7905,9 +7905,9 @@
         "alternativeMember": null,
         "assessedScope": "additive:clause_additive",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "5",
@@ -8476,9 +8476,9 @@
         "alternativeMember": null,
         "assessedScope": "degree:adjective_or_manner_degree",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "6",
@@ -9071,9 +9071,9 @@
         "alternativeMember": null,
         "assessedScope": "numeral:ordinary_count_numeral",
         "reasonCode": "UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
-        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-        "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+        "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:UNIQUE_SUPPORTED_STRUCTURE_V4",
+        "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+        "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
       },
       "structural": {
         "requestId": "7",
@@ -9591,5 +9591,5 @@
       }
     }
   ],
-  "fixtureFingerprint": "debeb67b1f799c8a9fa4d87d999b44ab51f8d409c9a7eb669e4003207c2043ae"
+  "fixtureFingerprint": "0f62a8e2903217c3bef5d351ae4fc56a18570d4eea483201392cc06c68d8d007"
 }

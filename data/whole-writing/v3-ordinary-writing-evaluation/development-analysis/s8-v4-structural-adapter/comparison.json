@@ -8,17 +8,17 @@
       "family": "THERE_THEIR_THEYRE",
       "releaseKey": "s8-v4-there-their-theyre",
       "releaseId": "81000000-0000-4000-8000-000000000013",
-      "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895",
+      "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70",
       "decisionCounts": {
-        "VALID": 198,
-        "INVALID": 149,
-        "UNCERTAIN": 182
+        "VALID": 206,
+        "INVALID": 156,
+        "UNCERTAIN": 167
       },
       "report": {
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "THERE_THEIR_THEYRE",
-        "releaseFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895",
+        "releaseFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70",
         "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
         "counts": {
           "valid": 180,
@@ -29,9 +29,9 @@
         "totalAnnotatedOccurrences": 529,
         "metrics": {
           "precision": 1,
-          "wilsonLower95": 0.9748663821299904,
-          "supportedRecall": 0.8662790697674418,
-          "validRecognition": 0.7983870967741935,
+          "wilsonLower95": 0.9759670685625849,
+          "supportedRecall": 0.9069767441860465,
+          "validRecognition": 0.8306451612903226,
           "falseValid": 0,
           "wrongAlternatives": 0,
           "protectedFailures": 0
@@ -54,8 +54,8 @@
           },
           "they_are_contraction": {
             "supported": 62,
-            "recalled": 48,
-            "recall": 0.7741935483870968
+            "recalled": 55,
+            "recall": 0.8870967741935484
           }
         },
         "bySubtype": {
@@ -86,22 +86,19 @@
           },
           "progressive_contraction": {
             "supported": 20,
-            "recalled": 13,
-            "recall": 0.65
+            "recalled": 20,
+            "recall": 1
           }
         },
         "issues": [
-          "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
-          "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
           "SUBTYPE_QUOTA_FAILED:not_applicable",
-          "TOP_LEVEL_QUOTA_FAILED:not_applicable",
-          "VALID_RECOGNITION_BELOW_POLICY"
+          "TOP_LEVEL_QUOTA_FAILED:not_applicable"
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "a9117f41d2fadbce8744b61e6a48358142574fdb89598ce6e8fd66271693bdbe"
+        "reportFingerprint": "53ff819d33e1a988d6753af8b18aa0c0eb31cd6967fd3edb5a4d2edfc46d4fdc"
       },
-      "conflictAdjustedValidRecognition": 0.7983870967741935,
+      "conflictAdjustedValidRecognition": 0.8306451612903226,
       "v3": {
         "releaseFingerprint": "4f593067a6d1b75bb64c34cea32ad33fb368ced50760e11aeee71ab4c2ac0910",
         "metrics": {
@@ -180,7 +177,7 @@
       "contractConflicts": [],
       "residualRootCauses": {
         "parser_alignment": 0,
-        "structural_parser_ambiguity": 41,
+        "structural_parser_ambiguity": 26,
         "parser_misleading_output": 0,
         "family_rule": 17,
         "protected_policy": 15,
@@ -195,17 +192,17 @@
       "family": "TO_TOO_TWO",
       "releaseKey": "s8-v4-to-too-two",
       "releaseId": "81000000-0000-4000-8000-000000000014",
-      "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4",
+      "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731",
       "decisionCounts": {
-        "VALID": 694,
-        "INVALID": 119,
-        "UNCERTAIN": 457
+        "VALID": 829,
+        "INVALID": 123,
+        "UNCERTAIN": 318
       },
       "report": {
         "schemaVersion": 1,
         "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
         "family": "TO_TOO_TWO",
-        "releaseFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4",
+        "releaseFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731",
         "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
         "counts": {
           "valid": 160,
@@ -216,9 +213,9 @@
         "totalAnnotatedOccurrences": 1270,
         "metrics": {
           "precision": 1,
-          "wilsonLower95": 0.9687283197580606,
-          "supportedRecall": 0.7933333333333333,
-          "validRecognition": 0.6803921568627451,
+          "wilsonLower95": 0.9697144856546903,
+          "supportedRecall": 0.82,
+          "validRecognition": 0.8127450980392157,
           "falseValid": 0,
           "wrongAlternatives": 0,
           "protectedFailures": 0
@@ -231,8 +228,8 @@
           },
           "infinitive": {
             "supported": 30,
-            "recalled": 26,
-            "recall": 0.8666666666666667
+            "recalled": 30,
+            "recall": 1
           },
           "additive": {
             "supported": 30,
@@ -258,8 +255,8 @@
           },
           "governed_infinitive": {
             "supported": 30,
-            "recalled": 26,
-            "recall": 0.8666666666666667
+            "recalled": 30,
+            "recall": 1
           },
           "clause_additive": {
             "supported": 30,
@@ -278,18 +275,16 @@
           }
         },
         "issues": [
-          "AGGREGATE_RECALL_BELOW_POLICY",
           "CONSTRUCTION_RECALL_BELOW_POLICY:numeral",
           "CONSTRUCTION_RECALL_BELOW_POLICY:ordinary_count_numeral",
           "SUBTYPE_QUOTA_FAILED:not_applicable",
-          "TOP_LEVEL_QUOTA_FAILED:not_applicable",
-          "VALID_RECOGNITION_BELOW_POLICY"
+          "TOP_LEVEL_QUOTA_FAILED:not_applicable"
         ],
         "findings": [],
         "disposition": "BLOCKED",
-        "reportFingerprint": "c612b4f2cf48f338dc4a46b58b2ed148f7d1fe84a0163f2a69fb008eba2bce50"
+        "reportFingerprint": "946b7362d1d8b20f43a68c6ed03ea3321d823a941dee9accd6f9fc4cc4c7f418"
       },
-      "conflictAdjustedValidRecognition": 0.7251828631138976,
+      "conflictAdjustedValidRecognition": 0.8662486938349008,
       "v3": {
         "releaseFingerprint": "2f94d99924cd312e934cb0afddb3681e17b31a8ce5dc2b1b03492082029218f8",
         "metrics": {
@@ -359,8 +354,8 @@
       "g2Metrics": {
         "cases": 400,
         "precision": 1,
-        "supportedRecall": 0.86,
-        "validRecognition": 0.8666666666666667,
+        "supportedRecall": 0.9,
+        "validRecognition": 0.9066666666666666,
         "falseValid": 0,
         "wrongAlternatives": 0,
         "protectedFailures": 0
@@ -873,7 +868,7 @@
       ],
       "residualRootCauses": {
         "parser_alignment": 0,
-        "structural_parser_ambiguity": 218,
+        "structural_parser_ambiguity": 79,
         "parser_misleading_output": 0,
         "family_rule": 19,
         "protected_policy": 37,
@@ -885,5 +880,5 @@
       }
     }
   ],
-  "comparisonFingerprint": "927903359fbfc5e6cc51242334499b93538305c04a2e590e6b906c560d2763c0"
+  "comparisonFingerprint": "996f1544a9af84cf4f2981ffbf9e074f2fc482880c2998911e11f2e43b700afa"
 }

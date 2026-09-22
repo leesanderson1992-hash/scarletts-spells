@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "purpose": "pinned_transformer_adapter_equals_selected_worker_normalized_features",
+  "families": [
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "cases": 54,
+      "normalizedResultsFingerprint": "b3e94bd7b407ac136668a8c59a468dbe52f76dcbe11dd12a422d1181fac34a38"
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "cases": 222,
+      "normalizedResultsFingerprint": "0b9253628819e9cc576c61efc3c40dd6f49a09a6f6e3ada35a324ae865358886"
+    }
+  ],
+  "equivalenceFingerprint": "159fd330bd3b695314ee33670651a8abdb540d4960813eca6a012554c5aa3066"
+}

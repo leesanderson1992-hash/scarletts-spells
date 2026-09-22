@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "evidenceQualification": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
+  "families": [
+    {
+      "family": "THERE_THEIR_THEYRE",
+      "fallbackAttempts": 54,
+      "acceptedFallbacks": 15,
+      "byEvidence": {
+        "ordinary_exposed": {
+          "cases": 529,
+          "decisions": {
+            "VALID": 206,
+            "INVALID": 156,
+            "UNCERTAIN": 167
+          },
+          "precision": 1,
+          "supportedRecall": 0.9069767441860465,
+          "validRecognition": 0.8306451612903226,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        },
+        "frozen_g2": {
+          "cases": 400,
+          "decisions": {
+            "VALID": 138,
+            "INVALID": 134,
+            "UNCERTAIN": 128
+          },
+          "precision": 1,
+          "supportedRecall": 0.8933333333333333,
+          "validRecognition": 0.92,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        }
+      },
+      "all": {
+        "cases": 929,
+        "decisions": {
+          "VALID": 344,
+          "INVALID": 290,
+          "UNCERTAIN": 295
+        },
+        "precision": 1,
+        "supportedRecall": 0.9006211180124224,
+        "validRecognition": 0.864321608040201,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      }
+    },
+    {
+      "family": "TO_TOO_TWO",
+      "fallbackAttempts": 222,
+      "acceptedFallbacks": 151,
+      "byEvidence": {
+        "ordinary_exposed": {
+          "cases": 1270,
+          "decisions": {
+            "VALID": 829,
+            "INVALID": 123,
+            "UNCERTAIN": 318
+          },
+          "precision": 1,
+          "supportedRecall": 0.82,
+          "validRecognition": 0.8127450980392157,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        },
+        "frozen_g2": {
+          "cases": 400,
+          "decisions": {
+            "VALID": 136,
+            "INVALID": 135,
+            "UNCERTAIN": 129
+          },
+          "precision": 1,
+          "supportedRecall": 0.9,
+          "validRecognition": 0.9066666666666666,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        }
+      },
+      "all": {
+        "cases": 1670,
+        "decisions": {
+          "VALID": 965,
+          "INVALID": 258,
+          "UNCERTAIN": 447
+        },
+        "precision": 1,
+        "supportedRecall": 0.86,
+        "validRecognition": 0.8247863247863247,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      }
+    },
+    {
+      "family": "YOUR_YOURE",
+      "fallbackAttempts": 0,
+      "acceptedFallbacks": 0,
+      "byEvidence": {
+        "ordinary_exposed": null,
+        "frozen_g2": {
+          "cases": 400,
+          "decisions": {
+            "VALID": 150,
+            "INVALID": 150,
+            "UNCERTAIN": 100
+          },
+          "precision": 1,
+          "supportedRecall": 1,
+          "validRecognition": 1,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        }
+      },
+      "all": {
+        "cases": 400,
+        "decisions": {
+          "VALID": 150,
+          "INVALID": 150,
+          "UNCERTAIN": 100
+        },
+        "precision": 1,
+        "supportedRecall": 1,
+        "validRecognition": 1,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      }
+    },
+    {
+      "family": "ITS_ITS",
+      "fallbackAttempts": 0,
+      "acceptedFallbacks": 0,
+      "byEvidence": {
+        "ordinary_exposed": null,
+        "frozen_g2": {
+          "cases": 400,
+          "decisions": {
+            "VALID": 146,
+            "INVALID": 146,
+            "UNCERTAIN": 108
+          },
+          "precision": 1,
+          "supportedRecall": 0.9733333333333334,
+          "validRecognition": 0.9733333333333334,
+          "falseValid": 0,
+          "wrongAlternatives": 0,
+          "protectedFailures": 0
+        }
+      },
+      "all": {
+        "cases": 400,
+        "decisions": {
+          "VALID": 146,
+          "INVALID": 146,
+          "UNCERTAIN": 108
+        },
+        "precision": 1,
+        "supportedRecall": 0.9733333333333334,
+        "validRecognition": 0.9733333333333334,
+        "falseValid": 0,
+        "wrongAlternatives": 0,
+        "protectedFailures": 0
+      }
+    }
+  ],
+  "unsafeBroadFallbackCases": [
+    "v3-to-too-two-0345-to-too-two-01",
+    "v3-to-too-two-0351-to-too-two-01",
+    "v3-to-too-two-0352-to-too-two-01",
+    "v3-to-too-two-0355-to-too-two-01",
+    "v3-to-too-two-0356-to-too-two-01"
+  ],
+  "failureBoundary": {
+    "unavailableRetainedUncertain": true,
+    "crashRetainedUncertain": true,
+    "timeoutReasonPreserved": true,
+    "malformedOrMissingResultRetainedUncertain": true,
+    "malformedResponseReasonRetainedUncertain": true,
+    "boundedBatchSizes": [
+      512,
+      1
+    ],
+    "failedBatchIsolated": true,
+    "excludedNumeralAmbiguities": 51
+  },
+  "regressionFingerprint": "ac3e635060cbc4cdb9c82c751648bf7f356fc74e4c4c23b5a7564dd598db6677"
+}

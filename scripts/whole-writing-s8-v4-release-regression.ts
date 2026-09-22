@@ -33,7 +33,8 @@ for (const candidate of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
   };
   assert.equal(contextAnalyserForRelease(persisted), null, `${candidate.manifest.releaseKey} must not be selectable`);
   const familyPins = CONTEXT_V4_SOURCE_PINS[candidate.manifest.familyKey];
-  assert.deepEqual(candidate.manifest.sourceFingerprints, { ...CONTEXT_V4_SOURCE_PINS.shared, ...familyPins });
+  const fallbackPins = candidate.manifest.familyKey === "THERE_THEIR_THEYRE" || candidate.manifest.familyKey === "TO_TOO_TWO" ? CONTEXT_V4_SOURCE_PINS.fallback : {};
+  assert.deepEqual(candidate.manifest.sourceFingerprints, { ...CONTEXT_V4_SOURCE_PINS.shared, ...fallbackPins, ...familyPins });
   for (const [path, expected] of Object.entries(candidate.manifest.sourceFingerprints)) assert.equal(sha256(readFileSync(path)), expected, path);
 }
 console.log(JSON.stringify({ releases: CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((candidate) => ({ releaseKey: candidate.manifest.releaseKey, releaseId: candidate.manifest.releaseId, manifestFingerprint: candidate.fingerprint })), selectableByPersistedReleaseDispatch: false, v3FingerprintsUnchanged: true }, null, 2));

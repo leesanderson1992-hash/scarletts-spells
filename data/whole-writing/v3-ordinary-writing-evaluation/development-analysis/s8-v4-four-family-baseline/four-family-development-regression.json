@@ -7,7 +7,7 @@
       "family": "THERE_THEIR_THEYRE",
       "releaseKey": "s8-v4-there-their-theyre",
       "releaseId": "81000000-0000-4000-8000-000000000013",
-      "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895",
+      "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70",
       "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
       "decisionCounts": {
         "VALID": 138,
@@ -60,9 +60,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -79,9 +79,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -98,9 +98,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -117,9 +117,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -136,9 +136,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -155,9 +155,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -174,9 +174,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -193,9 +193,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -212,9 +212,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -231,9 +231,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -250,9 +250,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -269,9 +269,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -288,9 +288,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -307,9 +307,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -326,9 +326,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -345,9 +345,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -364,9 +364,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -383,9 +383,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -402,9 +402,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -421,9 +421,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -440,9 +440,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -459,9 +459,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -478,9 +478,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -497,9 +497,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -516,9 +516,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -535,9 +535,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -554,9 +554,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -573,9 +573,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895"
+            "ruleId": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4:THERE_THEIR_THEYRE:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_THERE_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70"
           },
           "rootCause": "structural_ambiguity"
         }
@@ -627,7 +627,7 @@
       "family": "TO_TOO_TWO",
       "releaseKey": "s8-v4-to-too-two",
       "releaseId": "81000000-0000-4000-8000-000000000014",
-      "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4",
+      "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731",
       "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
       "decisionCounts": {
         "VALID": 130,
@@ -685,9 +685,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -704,9 +704,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -723,9 +723,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -742,9 +742,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -761,9 +761,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -780,9 +780,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -799,9 +799,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -818,9 +818,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -837,9 +837,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -856,9 +856,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -875,9 +875,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -894,9 +894,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -913,9 +913,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -932,9 +932,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -951,9 +951,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -970,9 +970,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -989,9 +989,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1008,9 +1008,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1027,9 +1027,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1046,9 +1046,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1065,9 +1065,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1084,9 +1084,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1103,9 +1103,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1122,9 +1122,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1141,9 +1141,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1160,9 +1160,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1179,9 +1179,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1198,9 +1198,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1217,9 +1217,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1236,9 +1236,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1255,9 +1255,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1274,9 +1274,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1293,9 +1293,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1312,9 +1312,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1331,9 +1331,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1350,9 +1350,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1369,9 +1369,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1388,9 +1388,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1407,9 +1407,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1426,9 +1426,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         },
@@ -1445,9 +1445,9 @@
             "alternativeMember": null,
             "assessedScope": "ordinary_writing_spacy_structural_context",
             "reasonCode": "COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
-            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4"
+            "ruleId": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4:TO_TOO_TWO:COMPETING_STRUCTURAL_INTERPRETATIONS",
+            "analyserVersion": "WHOLE_WRITING_CONTEXT_TO_SPACY_GATED_HYBRID_V4",
+            "manifestFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731"
           },
           "rootCause": "structural_ambiguity"
         }
@@ -1512,7 +1512,7 @@
       "family": "YOUR_YOURE",
       "releaseKey": "s8-v4-your-youre",
       "releaseId": "81000000-0000-4000-8000-000000000015",
-      "manifestFingerprint": "c4c8dd2745dfc8244c60feb81ea5d3e79360f5c760ab0e55e3d37add92f2272b",
+      "manifestFingerprint": "1bc1d382b991bebbdf393568fce813aad661c7044a0c8a98db0959682f8c2fea",
       "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
       "decisionCounts": {
         "VALID": 150,
@@ -1548,7 +1548,7 @@
       "family": "ITS_ITS",
       "releaseKey": "s8-v4-its-its",
       "releaseId": "81000000-0000-4000-8000-000000000016",
-      "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1",
+      "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da",
       "evidence": "DEVELOPMENT / REGRESSION — NOT APPROVAL EVIDENCE",
       "decisionCounts": {
         "VALID": 146,
@@ -1598,7 +1598,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1617,7 +1617,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1636,7 +1636,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1655,7 +1655,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1674,7 +1674,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1693,7 +1693,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1712,7 +1712,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         },
@@ -1731,7 +1731,7 @@
             "reasonCode": "UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "ruleId": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4:ITS_ITS:UNSUPPORTED_OR_UNRESOLVED_CONSTRUCTION",
             "analyserVersion": "WHOLE_WRITING_CONTEXT_ITS_SPACY_STRUCTURAL_V4",
-            "manifestFingerprint": "902d1b1cb832e73e3715492130cc60fb946cb6cfc8b65bfd98c6c9b1bd87bdc1"
+            "manifestFingerprint": "da03bebde5b8dc76619e6fc19af773ef105e182a646e13cf9ed35c202cc083da"
           },
           "rootCause": "family_rule_limitation"
         }
@@ -1754,5 +1754,5 @@
       ]
     }
   ],
-  "baselineFingerprint": "a4cf8a27694104a2471a1ea5b0dcdc3a0d1676ae200d6a1049f73a8759fc0d49"
+  "baselineFingerprint": "554125461a03c0982cc53e176a7172247ab44dd4e66ca6702f5cb39db5de23a4"
 }

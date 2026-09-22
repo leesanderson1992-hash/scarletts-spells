@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
   "family": "TO_TOO_TWO",
-  "releaseFingerprint": "e6e348ac0edaa69e0e09a6169aded176cc784bcddf7b1443e0d8a42c43f4c7f4",
+  "releaseFingerprint": "d6e6fe6ec73073e8f3601538a046aae7c183da90e6f4de523df157ec4bbf2731",
   "corpusFingerprint": "a5f1960568350ab6385d549db7797ff525ded35910b652e3679d5a03ef6ad8ac",
   "counts": {
     "valid": 160,
@@ -13,9 +13,9 @@
   "totalAnnotatedOccurrences": 1270,
   "metrics": {
     "precision": 1,
-    "wilsonLower95": 0.9687283197580606,
-    "supportedRecall": 0.7933333333333333,
-    "validRecognition": 0.6803921568627451,
+    "wilsonLower95": 0.9697144856546903,
+    "supportedRecall": 0.82,
+    "validRecognition": 0.8127450980392157,
     "falseValid": 0,
     "wrongAlternatives": 0,
     "protectedFailures": 0
@@ -28,8 +28,8 @@
     },
     "infinitive": {
       "supported": 30,
-      "recalled": 26,
-      "recall": 0.8666666666666667
+      "recalled": 30,
+      "recall": 1
     },
     "additive": {
       "supported": 30,
@@ -55,8 +55,8 @@
     },
     "governed_infinitive": {
       "supported": 30,
-      "recalled": 26,
-      "recall": 0.8666666666666667
+      "recalled": 30,
+      "recall": 1
     },
     "clause_additive": {
       "supported": 30,
@@ -75,14 +75,12 @@
     }
   },
   "issues": [
-    "AGGREGATE_RECALL_BELOW_POLICY",
     "CONSTRUCTION_RECALL_BELOW_POLICY:numeral",
     "CONSTRUCTION_RECALL_BELOW_POLICY:ordinary_count_numeral",
     "SUBTYPE_QUOTA_FAILED:not_applicable",
-    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
-    "VALID_RECOGNITION_BELOW_POLICY"
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable"
   ],
   "findings": [],
   "disposition": "BLOCKED",
-  "reportFingerprint": "c612b4f2cf48f338dc4a46b58b2ed148f7d1fe84a0163f2a69fb008eba2bce50"
+  "reportFingerprint": "946b7362d1d8b20f43a68c6ed03ea3321d823a941dee9accd6f9fc4cc4c7f418"
 }

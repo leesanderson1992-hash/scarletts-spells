@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "policyVersion": "WHOLE_WRITING_CONTEXT_ORDINARY_PROSE_EVALUATION_V3_2026_09_09",
   "family": "THERE_THEIR_THEYRE",
-  "releaseFingerprint": "c0c92cdf9c96d5eca4df3ca118c2203f22a6a8f61f866a28c5b6dbee8f287895",
+  "releaseFingerprint": "bafbde65cefab052a37d9cebdb8a5ffc74e4641a41c01450bbd3d5e3b0d42a70",
   "corpusFingerprint": "6678adccc32dcbab1faf202c675602ce3bc262f72ba7bf21dbff83bc80823fa9",
   "counts": {
     "valid": 180,
@@ -13,9 +13,9 @@
   "totalAnnotatedOccurrences": 529,
   "metrics": {
     "precision": 1,
-    "wilsonLower95": 0.9748663821299904,
-    "supportedRecall": 0.8662790697674418,
-    "validRecognition": 0.7983870967741935,
+    "wilsonLower95": 0.9759670685625849,
+    "supportedRecall": 0.9069767441860465,
+    "validRecognition": 0.8306451612903226,
     "falseValid": 0,
     "wrongAlternatives": 0,
     "protectedFailures": 0
@@ -38,8 +38,8 @@
     },
     "they_are_contraction": {
       "supported": 62,
-      "recalled": 48,
-      "recall": 0.7741935483870968
+      "recalled": 55,
+      "recall": 0.8870967741935484
     }
   },
   "bySubtype": {
@@ -70,18 +70,15 @@
     },
     "progressive_contraction": {
       "supported": 20,
-      "recalled": 13,
-      "recall": 0.65
+      "recalled": 20,
+      "recall": 1
     }
   },
   "issues": [
-    "CONSTRUCTION_RECALL_BELOW_POLICY:progressive_contraction",
-    "CONSTRUCTION_RECALL_BELOW_POLICY:they_are_contraction",
     "SUBTYPE_QUOTA_FAILED:not_applicable",
-    "TOP_LEVEL_QUOTA_FAILED:not_applicable",
-    "VALID_RECOGNITION_BELOW_POLICY"
+    "TOP_LEVEL_QUOTA_FAILED:not_applicable"
   ],
   "findings": [],
   "disposition": "BLOCKED",
-  "reportFingerprint": "a9117f41d2fadbce8744b61e6a48358142574fdb89598ce6e8fd66271693bdbe"
+  "reportFingerprint": "53ff819d33e1a988d6753af8b18aa0c0eb31cd6967fd3edb5a4d2edfc46d4fdc"
 }
