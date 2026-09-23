@@ -9,7 +9,7 @@ import { ordinaryEvaluationFingerprint } from "./lib/whole-writing-v3-ordinary-e
 import {
   bytesSha256, coverageLedger, HOLDOUT_V4_ADMIN_VERSION, inventorySources, lockGold,
   resolvedPassages, reviewPackets, sealAdjudication, sealDecision, sealSelection, sealSimilarityResolution,
-  similarityFlags, validateSelections, verifyInventory,
+  similarityFlags, validateSelections, verifyInventory, verifySingleAuthorScope,
   type AdjudicationRow, type DecisionRow, type InventoryRow, type SelectionRow, type SimilarityFlag,
   type SimilarityResolution, type SourceRow, type UncertainReason,
 } from "./lib/whole-writing-v4-holdout-admin";
@@ -270,6 +270,7 @@ function intake() {
   const existing = existsSync(inventoryPath) ? readInventory() : [];
   const combined = [...existing, ...newInventory].sort((a, b) => a.caseId.localeCompare(b.caseId));
   verifyInventory(combined);
+  verifySingleAuthorScope(combined);
   assert.equal(new Set(combined.map((row) => row.caseId)).size, combined.length, "Source duplicates an existing case");
   assert.equal(new Set([...existing, ...newInventory].map((row) => row.passageId)).size, new Set(existing.map((row) => row.passageId)).size + new Set(newInventory.map((row) => row.passageId)).size, "Source duplicates an existing passage");
   const manifest = existsSync(sourceManifestPath)
@@ -461,6 +462,8 @@ function lock() {
   verifySealed("seal-adjudications", option("adjudications-raw"), option("adjudications"));
   const rawInventory = readInventory();
   const allInventory = eligibleInventory();
+  verifySingleAuthorScope(rawInventory);
+  verifySingleAuthorScope(allInventory);
   const inventory = stage === "A" ? allInventory.filter((row) => row.stage === "A") : allInventory;
   const selections = readSelection(option("selections"));
   const primary = readJsonl<DecisionRow>(option("primary"));

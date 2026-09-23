@@ -9,7 +9,7 @@ import {
   type OrdinaryWritingV3Gold,
 } from "./whole-writing-v3-ordinary-evaluation";
 
-export const HOLDOUT_V4_ADMIN_VERSION = "S8_V4_HOLDOUT_ADMIN_V1_2026_09_23";
+export const HOLDOUT_V4_ADMIN_VERSION = "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23";
 export const HOLDOUT_V4_PROTECTED = ["fragment", "quotation", "gerund", "run_on", "task_dependent"] as const;
 export const HOLDOUT_V4_FAMILIES = CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => row.manifest.familyKey);
 export type ProtectedTag = typeof HOLDOUT_V4_PROTECTED[number];
@@ -181,6 +181,14 @@ export function verifyInventory(rows: readonly InventoryRow[]): void {
     assert(!knownAuthor || knownAuthor === row.authorId, `Snapshot has conflicting authors: ${row.writingSnapshotId}`);
     authorBySnapshot.set(row.writingSnapshotId, row.authorId);
   }
+}
+
+/** The approved qualification source is one identified learner across all waves and families. */
+export function verifySingleAuthorScope(rows: readonly Pick<InventoryRow, "authorId">[]): string {
+  assert(rows.length > 0, "Single-author scope requires source occurrences");
+  const authors = new Set(rows.map((row) => row.authorId));
+  assert.equal(authors.size, 1, "Single-author holdout cannot mix source authors");
+  return rows[0]!.authorId;
 }
 
 export function sealSelection(core: Omit<SelectionRow, "selectionFingerprint">): SelectionRow {

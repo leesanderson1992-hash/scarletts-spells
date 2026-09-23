@@ -1,6 +1,6 @@
 # S8 V4 fresh independent holdout administration
 
-Status: **tools only; no source corpus, labels, gold or evaluation exists here**. Do not copy V3/G2 prose or V4 engineering fixtures into this directory. The four frozen V4 releases remain development candidates, default-off. The separately versioned [administration/evaluator contract](../../../docs/implementation/whole-writing-s8-v4-fresh-holdout-administration-contract-2026-09-23.md) requires independent human approval before source intake.
+Status: **single-author administration/evaluator protocol registered in a private evaluation root; no source corpus, labels, gold or evaluation exists here**. Do not copy V3/G2 prose or V4 engineering fixtures into this directory. The four frozen V4 releases remain development candidates, default-off. The separately versioned [administration/evaluator contract](../../../docs/implementation/whole-writing-s8-v4-fresh-holdout-administration-contract-2026-09-23.md) governs source intake.
 
 The command is `npm run writing:s8-v4-holdout-admin -- <command> --root=<private-evaluation-root> ...`. Keep authentic learner writing and reviewer packets in a suitably private root; do not commit them merely because this README is tracked. Every generated immutable artifact is created with exclusive-write semantics. All IDs are machine-generated from source identity, independent of analyser results.
 
@@ -14,8 +14,8 @@ An identified governance owner and separate evaluator-contract reviewer must sig
   "approvedBy": "identified-human",
   "evaluatorContractApprovalId": "separate-reviewed-contract-reference",
   "evaluatorContractReviewedBy": "identified-human",
-  "adminVersion": "S8_V4_HOLDOUT_ADMIN_V1_2026_09_23",
-  "evaluatorPolicyVersion": "S8_V4_ORDINARY_WRITING_EVALUATOR_V1_PROTECTED_VALID_SEPARATE",
+  "adminVersion": "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23",
+  "evaluatorPolicyVersion": "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE",
   "stageAPrimaryPerFamily": 100,
   "stageBPrimaryPerFamily": 300,
   "stageBSourceInstructions": "approved independent ordinary-writing instructions",
@@ -30,7 +30,7 @@ An identified governance owner and separate evaluator-contract reviewer must sig
 }
 ```
 
-The placeholders above are **not approval** and fail manifest-pin validation. `pins` prints the exact frozen fingerprints without running an analyser. Register only an actually reviewed protocol with `register-protocol --source=<approved.json>`. Its exact bytes and fingerprint are preserved. Do not author or intake the qualification corpus before this approval.
+The placeholders above are **not approval** and fail manifest-pin validation. `pins` prints the exact frozen fingerprints without running an analyser. Register only an actually reviewed protocol with `register-protocol --source=<approved.json>`. Its exact bytes and fingerprint are preserved. The V2 evaluator requires one stable source author across all families and both waves. Do not author or intake the qualification corpus before this approval.
 
 ## 2. Intake source and resolve similarity
 
@@ -41,6 +41,8 @@ Use human-authored JSONL with one immutable writing passage per line:
 ```
 
 `intake --source=<stage-a.jsonl> --reference-root=<repository-root>` copies the raw bytes under their SHA-256 name, generates all governed occurrences with exact zero-based UTF-16 spans, and writes a complete inventory and development-leakage flags. The same command accepts later Stage B intake but refuses new Stage A source after Stage A gold lock. A source passage must contain at least one governed occurrence. The leakage scanner must find the frozen V3/G2/development references; it cannot silently run without them.
+
+All source rows must use one stable pseudonymous `authorId`. Multiple writing snapshots and sessions remain necessary for the primary-case and source-clustering checks. The final evidence speaks to that learner's writing distribution; it does not establish performance across authors.
 
 Run `similarity-template`, review **every** flag, and fill `resolution` with `INDEPENDENT_CONFIRMED` or `EXCLUDE`, plus `resolvedBy` and `reason`. `seal-similarity --source=<completed.csv> --out=<resolutions.jsonl>` validates and fingerprints the resolutions. Exclusions preserve raw source and inventory; they remove the entire passage from packets and gold. The completed resolution file must be supplied to `selection-template`, `packets` and `lock` as `--resolutions=<resolutions.jsonl>`.
 

@@ -9,7 +9,7 @@ import { ordinaryEvaluationFingerprint, type OrdinaryEvaluationDecision, type Or
 import {
   bytesSha256, coverageLedger, HOLDOUT_V4_PRIMARY_STRATA, inventorySources, lockGold, resolvedPassages, reviewPackets,
   sealAdjudication, sealDecision, sealSelection, sealSimilarityResolution,
-  similarityFlags, subtypeBelongsToConstruction, verifyInventory,
+  similarityFlags, subtypeBelongsToConstruction, verifyInventory, verifySingleAuthorScope,
   type DecisionRow, type InventoryRow, type SourceRow,
 } from "./lib/whole-writing-v4-holdout-admin";
 import { assessStageA, evaluateOrdinaryWritingV4 } from "./lib/whole-writing-v4-ordinary-evaluation";
@@ -25,12 +25,14 @@ const sources: SourceRow[] = [
   {
     writingSnapshotId: "fixture-snapshot-2", sourceReference: "IN_MEMORY_FIXTURE_2",
     sourceText: "There is a note here, but your friend wants two copies.",
-    authorId: "fixture-author-2", authoredBy: "ENGINEERING_FIXTURE_NOT_HUMAN_HOLDOUT",
+    authorId: "fixture-author-1", authoredBy: "ENGINEERING_FIXTURE_NOT_HUMAN_HOLDOUT",
     consentReference: "IN_MEMORY_ONLY", stage: "A",
   },
 ];
 const inventory = inventorySources(sources);
 verifyInventory(inventory);
+assert.equal(verifySingleAuthorScope(inventory), "fixture-author-1");
+assert.throws(() => verifySingleAuthorScope([...inventory, { ...inventory[0]!, authorId: "another-author" }]), /cannot mix source authors/);
 assert.deepEqual(inventorySources([...sources].reverse()), inventory, "Intake ordering must be canonical");
 assert.equal(inventory.filter((row) => row.family === "TO_TOO_TWO" && row.sourceReference === "IN_MEMORY_FIXTURE_1").length, 2);
 assert(inventory.some((row) => row.startUtf16 === sources[0]!.sourceText.indexOf("Their") && row.startUtf16 === 3 && row.focusSurface === "Their"));
@@ -176,7 +178,7 @@ for (const release of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
     const sourceText = `Engineering fixture ${index}: ${surface} appears in this test line.`;
     const inventoried = inventorySources([{
       writingSnapshotId: sourceReference, sourceReference, sourceText,
-      authorId: `arithmetic-author-${index % 20}`, authoredBy: "ENGINEERING_FIXTURE_NOT_HUMAN_HOLDOUT",
+      authorId: "arithmetic-single-author", authoredBy: "ENGINEERING_FIXTURE_NOT_HUMAN_HOLDOUT",
       consentReference: "IN_MEMORY_ONLY", stage: "B",
     }]);
     assert.equal(inventoried.length, 1);
@@ -221,6 +223,10 @@ for (const release of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
   assert.equal(passing.allOccurrences.falseValid, 0);
   assert.equal(passing.allOccurrences.wrongAlternatives, 0);
   assert.equal(passing.allOccurrences.protectedFailures, 0);
+  assert.equal(passing.clustering.distinctAuthors, 1);
+  assert.equal(passing.clustering.maximumAuthorPrimaryShare, 1);
+  assert.equal(passing.clustering.authorSensitivity.worstLeaveOneOut, null);
+  assert.equal(passing.sourcePopulationScope, "ONE_IDENTIFIED_LEARNER_WRITING_DISTRIBUTION");
 }
 console.log("S8 V4 four-family quota arithmetic regression passed (not approval evidence).");
 
@@ -234,14 +240,28 @@ try {
   writeFileSync(protocolPath, `${JSON.stringify({
     approvalId: "regression-authority-001", approvedBy: "Test Operator A",
     evaluatorContractApprovalId: "regression-authority-002", evaluatorContractReviewedBy: "Test Operator B",
-    adminVersion: "S8_V4_HOLDOUT_ADMIN_V1_2026_09_23",
-    evaluatorPolicyVersion: "S8_V4_ORDINARY_WRITING_EVALUATOR_V1_PROTECTED_VALID_SEPARATE",
+    adminVersion: "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23",
+    evaluatorPolicyVersion: "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE",
     stageAPrimaryPerFamily: 100, stageBPrimaryPerFamily: 300,
     stageBSourceInstructions: "fixture only", stageBSelectionRule: "fixture only",
     sourceIndependenceAttestation: "fixture only",
     releaseManifestFingerprints: Object.fromEntries(CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => [row.manifest.familyKey, row.fingerprint])),
   })}\n`);
   writeFileSync(sourcePath, `${sources.map((row) => JSON.stringify(row)).join("\n")}\n`);
+  const staleProtocolPath = join(temporary, "stale-protocol.json");
+  const currentProtocol = JSON.parse(readFileSync(protocolPath, "utf8")) as Record<string, unknown>;
+  writeFileSync(staleProtocolPath, `${JSON.stringify({
+    ...currentProtocol,
+    adminVersion: "S8_V4_HOLDOUT_ADMIN_V1_2026_09_23",
+    evaluatorPolicyVersion: "S8_V4_ORDINARY_WRITING_EVALUATOR_V1_PROTECTED_VALID_SEPARATE",
+  })}\n`);
+  const staleRoot = join(temporary, "stale-evaluation");
+  const staleRegistration = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/whole-writing-s8-v4-holdout-admin.ts", "register-protocol", `--root=${staleRoot}`, `--source=${staleProtocolPath}`], {
+    cwd: process.cwd(), encoding: "utf8", timeout: 30_000,
+  });
+  assert.notEqual(staleRegistration.status, 0, "Earlier multi-author versions must not register under the single-author workflow");
+  assert.match(staleRegistration.stderr, /Evaluator contract version mismatch|Administration version mismatch/);
+  assert.equal(existsSync(join(staleRoot, "governance/approved-protocol.raw.json")), false);
   const run = (...args: string[]) => {
     const result = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/whole-writing-s8-v4-holdout-admin.ts", ...args], {
       cwd: process.cwd(), encoding: "utf8", timeout: 120_000,
@@ -250,6 +270,17 @@ try {
   };
   run("register-protocol", `--root=${evaluationRoot}`, `--source=${protocolPath}`);
   run("intake", `--root=${evaluationRoot}`, `--source=${sourcePath}`, `--reference-root=${process.cwd()}`);
+  const mixedSourcePath = join(temporary, "mixed-author-source.jsonl");
+  writeFileSync(mixedSourcePath, `${JSON.stringify({
+    ...sources[0], writingSnapshotId: "fixture-snapshot-3", sourceReference: "IN_MEMORY_FIXTURE_3",
+    sourceText: "Their notes are here.", authorId: "another-learner",
+  })}\n`);
+  const mixedIntake = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/whole-writing-s8-v4-holdout-admin.ts", "intake", `--root=${evaluationRoot}`, `--source=${mixedSourcePath}`, `--reference-root=${process.cwd()}`], {
+    cwd: process.cwd(), encoding: "utf8", timeout: 30_000,
+  });
+  assert.notEqual(mixedIntake.status, 0, "Source from another learner must fail before intake writes");
+  assert.match(mixedIntake.stderr, /cannot mix source authors/);
+  assert.equal(JSON.parse(readFileSync(join(evaluationRoot, "source-intake/source-manifest.json"), "utf8")).sources.length, 1);
   const rawPreserved = readFileSync(join(evaluationRoot, "source-intake/raw", `${bytesSha256(readFileSync(sourcePath))}.jsonl`));
   assert.deepEqual(rawPreserved, readFileSync(sourcePath), "Intake must preserve source bytes exactly");
   run("similarity-template", `--root=${evaluationRoot}`);

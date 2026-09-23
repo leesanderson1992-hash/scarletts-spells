@@ -12,7 +12,7 @@ import { coverageLedger, HOLDOUT_V4_ADMIN_VERSION, type InventoryRow, type Uncer
 
 /** Separate V4 qualification contract. No V3 evaluator or historic report is changed. */
 export const HOLDOUT_V4_EVALUATOR_POLICY = Object.freeze({
-  version: "S8_V4_ORDINARY_WRITING_EVALUATOR_V1_PROTECTED_VALID_SEPARATE",
+  version: "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE",
   minimumPrimary: 400,
   minimumValid: 150,
   minimumInvalid: 150,
@@ -25,8 +25,7 @@ export const HOLDOUT_V4_EVALUATOR_POLICY = Object.freeze({
   minimumRecall: 0.8,
   minimumValidRecognition: 0.8,
   minimumFallbackAttempts: 10,
-  minimumAuthors: 20,
-  maximumAuthorPrimaryShare: 0.10,
+  requiredDistinctAuthors: 1,
 });
 
 type Row = Readonly<{
@@ -112,6 +111,7 @@ function measure(rows: readonly Row[]) {
 
 function clusterSensitivity(rows: readonly Row[], grouping: (row: Row) => string) {
   const groups = [...new Set(rows.map(grouping))].sort();
+  if (groups.length < 2) return { groupCount: groups.length, worstLeaveOneOut: null };
   const leaveOneOut = groups.map((group) => ({ group, metrics: measure(rows.filter((row) => grouping(row) !== group)) }));
   return {
     groupCount: groups.length,
@@ -196,8 +196,7 @@ export function evaluateOrdinaryWritingV4(args: {
   const byAuthor = new Map<string, number>();
   for (const row of primaryRows) byAuthor.set(row.inventory.authorId, (byAuthor.get(row.inventory.authorId) ?? 0) + 1);
   const maximumAuthorShare = Math.max(0, ...byAuthor.values()) / Math.max(primaryRows.length, 1);
-  if (byAuthor.size < HOLDOUT_V4_EVALUATOR_POLICY.minimumAuthors) issues.push("AUTHOR_DIVERSITY_REVIEW_REQUIRED");
-  if (maximumAuthorShare > HOLDOUT_V4_EVALUATOR_POLICY.maximumAuthorPrimaryShare) issues.push("AUTHOR_CONCENTRATION_REVIEW_REQUIRED");
+  if (byAuthor.size !== HOLDOUT_V4_EVALUATOR_POLICY.requiredDistinctAuthors) issues.push("SINGLE_AUTHOR_SCOPE_VIOLATION");
   const reportCore = {
     schemaVersion: 1 as const,
     policyVersion: HOLDOUT_V4_EVALUATOR_POLICY.version,
@@ -208,6 +207,7 @@ export function evaluateOrdinaryWritingV4(args: {
     manifestFingerprint: release.fingerprint,
     corpusFingerprint: args.corpusFingerprint,
     evidence: "FRESH_HUMAN_HOLDOUT_AFTER_GOLD_LOCK" as const,
+    sourcePopulationScope: "ONE_IDENTIFIED_LEARNER_WRITING_DISTRIBUTION" as const,
     ledger,
     uncertaintyReasonCounts: args.uncertaintyReasonCounts,
     allOccurrences: all,
