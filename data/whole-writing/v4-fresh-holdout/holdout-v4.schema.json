@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "S8 V4 fresh holdout administration records",
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writingSnapshotId", "sourceReference", "sourceText", "authorId", "authoredBy", "consentReference", "stage"],
+      "properties": {
+        "writingSnapshotId": { "type": "string", "minLength": 1 },
+        "sourceReference": { "type": "string", "minLength": 1 },
+        "sourceText": { "type": "string", "minLength": 1, "maxLength": 20000 },
+        "authorId": { "type": "string", "minLength": 1 },
+        "authoredBy": { "type": "string", "minLength": 1 },
+        "consentReference": { "type": "string", "minLength": 1 },
+        "stage": { "enum": ["A", "B"] }
+      }
+    },
+    "classification": { "enum": ["VALID", "INVALID", "UNCERTAIN"] },
+    "uncertainReason": { "enum": ["GENUINE_SEMANTIC_AMBIGUITY", "UNSUPPORTED_CONSTRUCTION_OR_MEANING", "OTHER_UNCERTAIN", null] },
+    "protectedTag": { "enum": ["fragment", "quotation", "gerund", "run_on", "task_dependent"] },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "decisionId", "reviewerId", "reviewerKind", "classification", "uncertainReason", "intendedAlternative", "supportedConstruction", "declaredConstruction", "declaredSubtype", "protectedSetTags", "decisionFingerprint"],
+      "properties": {
+        "caseId": { "type": "string", "minLength": 1 },
+        "decisionId": { "type": "string", "minLength": 1 },
+        "reviewerId": { "type": "string", "minLength": 1 },
+        "reviewerKind": { "enum": ["HUMAN", "AI"] },
+        "classification": { "$ref": "#/$defs/classification" },
+        "uncertainReason": { "$ref": "#/$defs/uncertainReason" },
+        "intendedAlternative": { "type": ["string", "null"] },
+        "supportedConstruction": { "type": "boolean" },
+        "declaredConstruction": { "type": "string", "minLength": 1 },
+        "declaredSubtype": { "type": "string", "minLength": 1 },
+        "protectedSetTags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/protectedTag" } },
+        "decisionFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "candidate": { "$ref": "../v3-ordinary-writing-evaluation/ordinary-writing-v3.schema.json#/$defs/candidate" },
+    "gold": { "$ref": "../v3-ordinary-writing-evaluation/ordinary-writing-v3.schema.json#/$defs/gold" }
+  }
+}
