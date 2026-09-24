@@ -5,7 +5,7 @@ default. This document does not approve V4 or authorise enablement.
 
 ## Before a production trial
 
-Record the named owner and separate independent advisory-use approval. Apply
+Record Katie Sanderson's sole-owner advisory-use approval. Apply
 and verify the additive migrations, run the disposable database and end-to-end
 parent/child proofs, confirm the pinned parser environment, and record the
 current deployment identity. Test disablement in a non-production environment
