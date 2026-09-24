@@ -4,6 +4,8 @@ import { type ButtonHTMLAttributes, useMemo, useState } from "react";
 
 import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-engine/persistence/learning-items";
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
+import type { ContextAdvisoryReviewRow } from "@/lib/writing-engine/whole-writing/context-advisory-review";
+import { ContextAdvisoryTableRow } from "./context-advisory-table-row";
 import {
   getWritingIssueFinalClassificationLabel,
   WRITING_ISSUE_FINAL_CLASSIFICATIONS,
@@ -30,6 +32,8 @@ const LEARNING_RELEVANT_OUTCOMES = new Set([
 
 type UnifiedSpellingReviewTableProps = {
   rows: UnifiedSpellingReviewItem[];
+  contextRows?: ContextAdvisoryReviewRow[];
+  contextReadOnly?: boolean;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   submissionId: string;
   redirectPath: string;
@@ -197,6 +201,7 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
       return "Awaiting canonical review";
     }
     if (row.terminalStatus === "resolved_known_match") return "Confirmed";
+    if (row.terminalStatus === "repair_only_confirmed") return "Repair confirmed · no learning credit";
     return "Needs learning route";
   }
 
@@ -441,6 +446,7 @@ function UnifiedSpellingReviewTableRow({
   const marker = sourceMarker(row);
   const sourceMisspellingId = row.sourceIds.misspellingInstanceId;
   const isAdleRow = row.source === "adle_parent_added_missed_word";
+  const isContextualRepair = row.provenance.sourceKind === "contextual_advisory_v4";
   const adlePhase = reviewWorkflowPhase === "adle_observational";
   const routeControlsAllowed = reviewWorkflowPhase === "returned_correction";
   const sourceRouteControlsAllowed =
@@ -460,6 +466,7 @@ function UnifiedSpellingReviewTableRow({
     row.state !== "locally_promoted";
   const returnedIssueOutcomeNeedsRoute =
     row.source === "returned_correction" &&
+    !isContextualRepair &&
     isLearningRelevantOutcome(
       row.correctionOutcome ?? row.draftFinalClassification ?? "",
     );
@@ -477,6 +484,7 @@ function UnifiedSpellingReviewTableRow({
   );
   const returnedRouteIsOpen =
     sourceRouteControlsAllowed &&
+    !isContextualRepair &&
     !row.knownMatchAutoResolution &&
     (returnedIssueOutcomeNeedsRoute || selectedOutcomeNeedsRoute) &&
     Boolean(row.sourceIds.originalWritingIssueId) &&
@@ -551,9 +559,9 @@ function UnifiedSpellingReviewTableRow({
     Boolean(row.sourceIds.correctionAttemptId);
   const editableRouteIsOpen = routeIsOpen || knownMatchEditOpen;
   const showRouteSelectors =
-    editableRouteIsOpen ||
+    !isContextualRepair && (editableRouteIsOpen ||
     Boolean(row.knownMatchAutoResolution) ||
-    showAdleConfirmedRoute;
+    showAdleConfirmedRoute);
   function handleOutcomeChange(
     nextOutcome: string,
     form: HTMLFormElement | null,
@@ -737,7 +745,8 @@ function UnifiedSpellingReviewTableRow({
                     Draft saved. Editable until approval.
                   </p>
                 ) : null}
-                {selectedOutcomeNeedsRoute && !existingAssignableRouteOption ? (
+                {isContextualRepair ? <p className="text-[11px] leading-4 text-[color:var(--mid)]">Prompted repair only; no mastery or reward credit.</p> : null}
+                {!isContextualRepair && selectedOutcomeNeedsRoute && !existingAssignableRouteOption ? (
                   <p className="text-[11px] leading-4 text-[color:var(--mid)]">
                     Choose a learning route or send it to admin before approval.
                   </p>
@@ -772,7 +781,7 @@ function UnifiedSpellingReviewTableRow({
         ) : null}
         {showRouteColumns ? (
           <td className="min-w-52 px-3 py-2 align-top">
-            {showRouteSelectors ? (
+            {isContextualRepair ? <p className="text-xs text-[color:var(--mid)]">No learning route in this pilot</p> : showRouteSelectors ? (
               <div className="grid gap-1">
                 <select
                   value={familyKey}
@@ -1287,6 +1296,8 @@ function UnifiedSpellingReviewTableRow({
 
 export function UnifiedSpellingReviewTable({
   rows,
+  contextRows = [],
+  contextReadOnly = false,
   options,
   submissionId,
   redirectPath,
@@ -1311,7 +1322,7 @@ export function UnifiedSpellingReviewTable({
   const showActionsColumn = showRouteColumns || showPrepareRetryActions;
   const adlePhase = reviewWorkflowPhase === "adle_observational";
 
-  if (rows.length === 0) {
+  if (rows.length === 0 && contextRows.length === 0) {
     return (
       <section className="brand-card min-w-0 rounded-3xl p-4 md:p-5">
         <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
@@ -1338,7 +1349,7 @@ export function UnifiedSpellingReviewTable({
           </p>
         </div>
         <span className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[color:var(--ink)]">
-          {rows.length} item{rows.length === 1 ? "" : "s"}
+          {rows.length + contextRows.length} item{rows.length + contextRows.length === 1 ? "" : "s"}
         </span>
       </div>
 
@@ -1381,6 +1392,15 @@ export function UnifiedSpellingReviewTable({
                 showPrepareRetryActions={showPrepareRetryActions}
                 adleContext={adleContext}
                 previewActions={previewActions}
+              />
+            ))}
+            {contextRows.map((row) => (
+              <ContextAdvisoryTableRow
+                key={row.occurrenceId}
+                row={row}
+                submissionId={submissionId}
+                readOnly={contextReadOnly || reviewWorkflowPhase === "read_only" || reviewWorkflowPhase === "adle_observational"}
+                colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
               />
             ))}
           </tbody>

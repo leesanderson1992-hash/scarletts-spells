@@ -71,6 +71,7 @@ import {
 import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 import { loadPendingContextReviewDeliveries } from "@/lib/writing-engine/whole-writing/context-review-repository";
 import { ContextualUseSuggestionsPanel } from "../contextual-use-suggestions-panel";
+import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 
 type CourseReviewDetailPageProps = {
   params: Promise<{ submissionId: string }>;
@@ -1022,6 +1023,7 @@ export default async function CourseReviewDetailPage({
     freeWritingEvidenceCandidates,
     parentIdentifiedOccurrences,
     contextReviewDeliveries,
+    contextAdvisory,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -1095,6 +1097,10 @@ export default async function CourseReviewDetailPage({
       parentUserId: user.id,
       childId: submission.child_id,
       taskSubmissionId: submission.id,
+    }),
+    loadContextAdvisoryReview({
+      client: createServiceRoleClient(), submissionId: submission.id,
+      parentUserId: user.id, childId: submission.child_id,
     }),
   ]);
   const reviewWorkflowPhase = getReviewWorkflowPhase({
@@ -1310,6 +1316,8 @@ export default async function CourseReviewDetailPage({
 
         <UnifiedSpellingReviewTable
           rows={unifiedSpellingReviewItems}
+          contextRows={contextAdvisory.rows}
+          contextReadOnly={!contextAdvisory.enabled}
           options={
             candidateCaptureMicroSkillProvider.status === "available"
               ? candidateCaptureMicroSkillProvider.options

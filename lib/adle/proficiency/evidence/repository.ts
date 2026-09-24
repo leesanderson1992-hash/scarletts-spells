@@ -112,7 +112,7 @@ export async function loadLearnerEvidenceProjection(params: {
     readAll<any>(client, "adle_review_sessions", "id,writing_submitted_at"),
     readAll<any>(client, "adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id"),
     readAll<any>(client, "writing_issue_correction_attempts", "id,writing_issue_id,child_id,task_submission_id,attempted_correction,created_at"),
-    readAll<any>(client, "writing_issues", "id,child_id,approved_replacement,suggested_replacement,task_submission_id,micro_skill_key"),
+    readAll<any>(client, "writing_issues", "id,child_id,approved_replacement,suggested_replacement,task_submission_id,micro_skill_key,metadata"),
     readAll<any>(client, "child_word_treasures", "id,corrected_word"),
     readAll<any>(client, "child_word_treasure_evidence_candidates", "id,treasure_id,child_id,task_submission_id,confirmation_status,created_at,metadata"),
   ]);
@@ -274,6 +274,7 @@ export async function loadLearnerEvidenceProjection(params: {
   ]));
   for (const row of learningEvidenceRows) {
     const issue = row.writing_issue_id ? issueById.get(row.writing_issue_id) : null;
+    if (issue?.metadata?.source_kind === "contextual_advisory_v4") continue;
     const wordText = readString(row.metadata, "matched_word")
       ?? readString(row.metadata, "target_word")
       ?? readString(row.metadata, "approved_replacement")
@@ -355,6 +356,7 @@ export async function loadLearnerEvidenceProjection(params: {
 
   for (const row of correctionAttemptRows) {
     const issue = issueById.get(row.writing_issue_id);
+    if (issue?.metadata?.source_kind === "contextual_advisory_v4") continue;
     const resolved = resolveCanonicalWordByText(wordLookup, issue?.approved_replacement ?? issue?.suggested_replacement);
     candidates.push(adaptWritingIssueCorrection({
       id: row.id,

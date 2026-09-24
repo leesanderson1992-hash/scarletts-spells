@@ -14,6 +14,7 @@ import {
 } from "@/lib/spelling/wordFamilies";
 import type { createClient } from "@/lib/supabase/server";
 import { findResolverVisibleTokenSafeCanonicalMappings } from "@/lib/writing-engine/persistence/spelling-canonical-mappings";
+import { isGovernedContextMember } from "@/lib/writing-engine/whole-writing/context-advisory-routing";
 import {
   mergeHeuristicAndCanonicalMisspellings,
   type CanonicalMisspellingDetectionProvenance,
@@ -362,7 +363,7 @@ export async function buildMisspellingRows(
     tokens,
     heuristicMisspellings: heuristicAnalysis.misspellings,
     canonicalMappings,
-  });
+  }).filter((item) => !isGovernedContextMember(item.token.raw));
   const existingByOccurrence = new Map(
     existingRows.map((row) => [buildOccurrenceKey(row), row]),
   );

@@ -10,6 +10,7 @@ import {
 } from "@/lib/lessons/responses";
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
 import { confirmFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
+import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -628,6 +629,22 @@ export async function finaliseWritingIssueClassificationImpl(
     );
   }
 
+  // Contextual repairs are prompted word-only attempts. Preserve the parent's
+  // outcome, but do not enter the spelling/ADLE finaliser or Word Treasure.
+  if (parseObjectMetadata(issue.metadata).source_kind === "contextual_advisory_v4") {
+    const result = await createServiceRoleClient().rpc("finalise_contextual_repair_only", {
+      p_writing_issue_id: writingIssueId,
+      p_parent_user_id: user.id,
+      p_child_id: issue.child_id,
+      p_outcome: finalClassification,
+    });
+    if (result.error) {
+      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "The contextual repair outcome could not be saved."));
+    }
+    revalidateReviewQueueAndDetail(safeRedirectPath);
+    redirect(buildRedirectWithMessage(safeRedirectPath, "saved", "Contextual repair outcome saved without learning credit."));
+  }
+
   if (
     issue.issue_status === "finalised" ||
     issue.final_classification !== null
@@ -945,6 +962,22 @@ export async function saveWritingIssueReasonDraftImpl(formData: FormData) {
         "That submission is no longer available for review.",
       ),
     );
+  }
+
+  const { data: contextualIssue } = await supabase.from("writing_issues")
+    .select("id,metadata,issue_status")
+    .eq("id", writingIssueId).eq("parent_user_id", user.id)
+    .eq("child_id", submission.child_id).maybeSingle();
+  if (parseObjectMetadata(contextualIssue?.metadata).source_kind === "contextual_advisory_v4") {
+    const saved = await createServiceRoleClient().rpc("finalise_contextual_repair_only", {
+      p_writing_issue_id: writingIssueId, p_parent_user_id: user.id,
+      p_child_id: submission.child_id, p_outcome: draftFinalClassification,
+    });
+    if (saved.error) {
+      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "The contextual repair outcome could not be saved."));
+    }
+    revalidateReviewQueueAndDetail(safeRedirectPath);
+    redirect(buildRedirectWithMessage(safeRedirectPath, "saved", "Contextual repair confirmed without learning credit."));
   }
 
   const { error } = await supabase.rpc("save_writing_issue_reason_draft", {
@@ -1377,6 +1410,16 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         "That submission no longer exists.",
       ),
     );
+  }
+
+  const contextualReview = await loadContextAdvisoryReview({
+    client: createServiceRoleClient(), submissionId: submission.id,
+    parentUserId: user.id, childId: submission.child_id,
+  });
+  if (contextualReview.sourceMissing || contextualReview.enabled && contextualReview.rows.some((row) =>
+    row.sourceStatus !== "ready" || row.parentClassification === null)) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "Review every contextual word-choice occurrence before approving."));
   }
 
   const selectedEvidenceCandidateIds =

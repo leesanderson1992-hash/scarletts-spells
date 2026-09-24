@@ -9,6 +9,7 @@ import {
 } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 import { readSnapshotField } from "@/lib/writing-engine/whole-writing/context-source";
 import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
+import { isGovernedContextMember } from "@/lib/writing-engine/whole-writing/context-advisory-routing";
 
 import {
   backfillPendingSubmissionSuggestionCanonicalMicroSkill,
@@ -182,6 +183,11 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (isGovernedContextMember(misspelledWord.trim())) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "That spelling is valid. Review this exact occurrence under Contextual word choice instead."));
   }
 
   const analysis = analyseParentAddedMisspellingPair({

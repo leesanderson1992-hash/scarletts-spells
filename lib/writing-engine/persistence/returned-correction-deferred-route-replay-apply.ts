@@ -312,7 +312,9 @@ async function loadCandidateIssues(input: {
     throw new Error(`Failed to load writing issues: ${error.message}`);
   }
 
-  return ((data ?? []) as unknown as ReturnedCorrectionRepairIssue[]).map((issue) => ({
+  return ((data ?? []) as unknown as ReturnedCorrectionRepairIssue[])
+    .filter((issue) => parseMetadata(issue.metadata).source_kind !== "contextual_advisory_v4")
+    .map((issue) => ({
     ...issue,
     metadata: parseMetadata(issue.metadata),
   }));
@@ -938,6 +940,10 @@ export async function applyReturnedCorrectionDeferredRouteReplayPlan(input: {
   catalogEntries: ReturnedCorrectionRepairCatalogEntry[];
   nowIso: string;
 }) {
+  if (parseMetadata(input.issue.metadata).source_kind === "contextual_advisory_v4") {
+    return { mutationCount: 0, repaired: false,
+      reason: "Contextual prompted repair is not ADLE learning evidence." };
+  }
   if (!input.plan.safeToApply) {
     return { mutationCount: 0, repaired: false, reason: "Plan is not safe to apply." };
   }

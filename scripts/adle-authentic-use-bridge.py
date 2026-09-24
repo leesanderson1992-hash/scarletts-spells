@@ -19,9 +19,8 @@ regression-covered pure model):
     not false-positive) is never a correct-use candidate
   - self-corrections bridge from writing_issue_correction_attempts
     (corrected_independently) joined to finalised, learning-relevant issues
-  - homophone-family words are caveat-flagged on the report (spelled-right
-    is not used-right); exact-form matching only — inflected forms of a
-    dictionary word do not match it (report header notes this)
+  - canonical contextual-family words are excluded at word level: spelled-right
+    is not used-right. Unrelated words in the same piece remain eligible.
 
 Dry-run is the default; --apply requires the confirmation token and the
 localhost:54322 guard, and inserts under an advisory-lock transaction with
@@ -44,6 +43,20 @@ CONFIRMATION_TOKEN = "ADLE-AUTHENTIC-USE-LOCAL-DEV"
 ADVISORY_LOCK_NAME = "adle_authentic_use_bridge"
 HOMOPHONE_FAMILY_KEY = "D4_HOM"
 TOKEN_RE = re.compile(r"[a-z]+")
+CONTEXT_MEMBER_RE = re.compile(r"[a-z]+(?:['’ʼ][a-z]+)*", re.IGNORECASE)
+CONTEXT_MEMBERS = frozenset({
+    "there", "their", "they're", "to", "too", "two",
+    "your", "you're", "its", "it's",
+})
+
+
+def contextual_exclusions(text: str) -> set[str]:
+    excluded: set[str] = set()
+    for match in CONTEXT_MEMBER_RE.finditer(text):
+        member = match.group().lower().replace("’", "'").replace("ʼ", "'")
+        if member in CONTEXT_MEMBERS:
+            excluded.update(TOKEN_RE.findall(member))
+    return excluded
 
 
 def require_local(db_url: str) -> None:
@@ -122,6 +135,7 @@ def extract(base: list[str]) -> dict:
         where a.corrected_independently = true
           and i.issue_status = 'finalised'
           and coalesce(i.final_classification, '') <> 'not_an_issue'
+          and coalesce(i.metadata->>'source_kind', '') <> 'contextual_advisory_v4'
     """)
     existing = run_sql_json(base, """
         select child_id, canonical_word_id, piece_ref, use_kind
@@ -172,9 +186,10 @@ def build_candidates(data: dict) -> dict:
     for sample in data["samples"]:
         piece_ref = f"ws:{sample['id']}"
         flagged = flagged_by_sample.get(sample["id"], set())
+        context_excluded = contextual_exclusions(sample["sample_text"] or "")
         tokens = {t for t in TOKEN_RE.findall((sample["sample_text"] or "").lower())}
         for token in sorted(tokens):
-            if token in flagged:
+            if token in flagged or token in context_excluded:
                 continue  # a flagged misspelling is never a correct use
             add(sample["child_id"], token, sample["occurred_on"], piece_ref,
                 piece_ref, "authentic_correct_use", bool(sample["parent_reviewed"]))
@@ -241,7 +256,7 @@ def main() -> int:
                           if (row["child_id"], row["canonical_word_id"], row["piece_ref"]) in wanted]
 
     report = {
-        "note": "exact-form matching only; inflected forms of a dictionary word do not match it; homophone-family candidates are caveat-flagged (spelled-right is not used-right)",
+        "note": "exact-form matching only; contextual-family words are excluded from authentic-use credit at word level (spelled-right is not used-right)",
         "reviewed_piece_events": result["events"],
         "preview_candidates_requiring_owner_confirmation": result["preview_candidates"],
         "confirmed_this_run": confirmed_rows,

@@ -16,6 +16,8 @@
     "writing:s7-db-proof": "node scripts/prove-whole-writing-s7-local.mjs",
     "writing:s7-staging-proof": "NODE_OPTIONS=--conditions=react-server node --import tsx scripts/whole-writing-s7-staging-proof.mjs",
     "writing:s8-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-regression.ts",
+    "writing:context-advisory-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-context-advisory-regression.ts",
+    "writing:context-advisory-db-proof": "node scripts/prove-writing-context-advisory-local.mjs",
     "writing:s8-four-family-integration-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-four-family-integration-regression.ts",
     "writing:s8-v3-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-regression.ts",
     "writing:s8-v3-evaluation-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-evaluation-regression.ts",

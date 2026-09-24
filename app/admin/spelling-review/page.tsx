@@ -376,6 +376,12 @@ export default async function AdminSpellingReviewPage() {
               summary={recommendationSummary}
               title="Parent recommended canonical mappings"
             />
+            <p className="text-sm">
+              <Link href="/admin/context-diagnostics" className="underline">
+                Open parent-promoted contextual analyser diagnostics
+              </Link>
+              {" "}— development evidence only, never qualification gold.
+            </p>
             <QueueSection
               description="Seed imports: external/operator candidate evidence awaiting read-only review."
               href="/admin/seed-import-review"

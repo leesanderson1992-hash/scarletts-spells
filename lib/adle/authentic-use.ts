@@ -37,6 +37,7 @@ import {
 } from "./review-scheduler";
 import type { DueReviewItem } from "./review-due-queue";
 import type { AuthenticUseEventFact, AuthenticUseKind } from "./evidence-pricing";
+import { governedEvidenceExclusionWords } from "../writing-engine/whole-writing/context-advisory-routing";
 
 export function authenticUseProviderFromFacts(
   facts: readonly AuthenticUseEventFact[],
@@ -232,10 +233,11 @@ export function extractAuthenticUseCandidates(
     piece.flaggedMisspellings.map((word) => normaliseObserved(word)).filter((word) => word !== ""),
   );
   const tokens = new Set(piece.sampleText.toLowerCase().match(TOKEN_PATTERN) ?? []);
+  const contextualExclusions = governedEvidenceExclusionWords(piece.sampleText);
   const pieceRef = `ws:${piece.writingSampleId}`;
   return [...tokens]
     .sort()
-    .filter((token) => !flagged.has(token))
+    .filter((token) => !flagged.has(token) && !contextualExclusions.has(token))
     .map((token) => ({
       childId: piece.childId,
       observedWord: token,

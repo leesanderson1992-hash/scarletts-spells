@@ -404,6 +404,11 @@ export async function applyReturnedCorrectionRepairPlan(input: {
   catalogEntries: ReturnedCorrectionRepairCatalogEntry[];
   nowIso: string;
 }) {
+  if (input.issue.metadata?.source_kind === "contextual_advisory_v4") {
+    return { mutationCount: 0, repaired: false,
+      reason: "Contextual prompted repair is not ADLE learning evidence.",
+      learningItemId: null, createdLearningItem: false };
+  }
   if (!input.plan.safeToApply) {
     return {
       mutationCount: 0,

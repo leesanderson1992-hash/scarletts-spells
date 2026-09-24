@@ -20,6 +20,7 @@ import {
 } from "./actions/positive-evidence-actions";
 import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verification-actions";
 import { resolveContextReviewSuggestionImpl } from "./actions/context-review-actions";
+import { recordContextAdvisoryParentDecisionImpl, promoteContextDiagnosticExampleImpl } from "./actions/context-advisory-decision-actions";
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
@@ -54,6 +55,14 @@ export async function recordReviewWorkVerificationAction(formData: FormData) {
 
 export async function resolveContextReviewSuggestion(formData: FormData) {
   return resolveContextReviewSuggestionImpl(formData);
+}
+
+export async function recordContextAdvisoryParentDecision(formData: FormData) {
+  return recordContextAdvisoryParentDecisionImpl(formData);
+}
+
+export async function promoteContextDiagnosticExample(formData: FormData) {
+  return promoteContextDiagnosticExampleImpl(formData);
 }
 
 export async function captureSubmissionSpellingCandidateMapping(formData: FormData) {

@@ -61,6 +61,7 @@ type WritingIssueRow = {
   micro_skill_key: string;
   final_classification: string | null;
   issue_status: string;
+  metadata: Record<string, unknown> | null;
 };
 
 type MisspellingFrequencyRow = {
@@ -197,7 +198,7 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
           input.supabase
             .from("writing_issues")
             .select(
-              "id, observed_text, suggested_replacement, approved_replacement, micro_skill_key, final_classification, issue_status",
+              "id, observed_text, suggested_replacement, approved_replacement, micro_skill_key, final_classification, issue_status, metadata",
             )
             .eq("issue_status", "finalised"),
         )
@@ -230,6 +231,7 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
 
   const historicalReviewedEvidence: WritingEngineStage2aReviewedEvidenceSignal[] =
     writingIssueRows.flatMap((row) => {
+      if (row.metadata?.source_kind === "contextual_advisory_v4") return [];
       const rowMisspelling = normalizeWord(row.observed_text);
       const rowCorrection = normalizeWord(row.approved_replacement ?? row.suggested_replacement);
 

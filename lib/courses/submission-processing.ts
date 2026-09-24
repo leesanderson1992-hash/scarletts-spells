@@ -12,6 +12,7 @@ import {
   type ReturnedCorrectionKnownMatchIssue,
 } from "@/lib/writing-engine/persistence/returned-correction-known-match";
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
+import { processContextualAdvisoryForSubmission } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 
 const MAX_ATTEMPTS = 8;
 const STALE_PROCESSING_MINUTES = 10;
@@ -158,6 +159,7 @@ async function processReturnedCorrections(
   if (eligibleResult.error) throw eligibleResult.error;
   if (existingAttemptsResult.error) throw existingAttemptsResult.error;
   const eligible = (eligibleResult.data ?? []) as ReturnedCorrectionKnownMatchIssue[];
+  const eligibleById = new Map(eligible.map((row) => [row.id, row]));
   const existingAttempts = existingAttemptsResult.data ?? [];
   const eligibleIds = new Set((eligible ?? []).map((row) => row.id));
   const existingIds = new Set((existingAttempts ?? []).map((row) => row.writing_issue_id));
@@ -169,6 +171,12 @@ async function processReturnedCorrections(
         approvedReplacement: issue.approved_replacement,
         attemptedCorrection,
       });
+      const sourceMetadata = eligibleById.get(issue.issue_id)?.metadata;
+      const contextualRepair = Boolean(
+        sourceMetadata && typeof sourceMetadata === "object" &&
+        !Array.isArray(sourceMetadata) &&
+        (sourceMetadata as Record<string, unknown>).source_kind === "contextual_advisory_v4",
+      );
       return {
         writing_issue_id: issue.issue_id,
         child_id: submission.child_id,
@@ -178,7 +186,10 @@ async function processReturnedCorrections(
         attempt_notes: null,
         corrected_independently: evidence.correctedIndependently,
         correction_outcome: evidence.correctionOutcome,
-        assistance_state: evidence.assistanceState,
+        // The child was prompted to repair this exact contextual word. The
+        // approved answer is not rendered by the retry control, but a parent
+        // note may reveal it, so answer visibility remains honestly unknown.
+        assistance_state: contextualRepair ? "scaffolded" : evidence.assistanceState,
         answer_visibility: evidence.answerVisibility,
         reflection: issue.reflection ?? "medium",
         metadata: {
@@ -189,6 +200,7 @@ async function processReturnedCorrections(
           reflection_source: issue.reflection ? "child_input" : "default",
           approved_replacement_match: evidence.markedFixed,
           independence_not_inferred_from_answer_match: true,
+          ...(contextualRepair ? { evidence_kind: "REPAIR_ONLY", prompt_scope: "targeted_word" } : {}),
         },
       };
     });
@@ -244,6 +256,23 @@ async function runJob(job: JobRow) {
     writingSampleId = sample.id;
     const analysis = await replaceAnalysisForSample(supabase, sample, submission.parent_user_id);
     if (analysis.error) throw analysis.error;
+  }
+
+  // This is advisory background work. Its failure cannot reject or rewrite a
+  // saved submission, and it never creates child-facing or learning evidence.
+  try {
+    await processContextualAdvisoryForSubmission({
+      client: supabase,
+      submissionId: submission.id,
+      parentUserId: submission.parent_user_id,
+      childId: submission.child_id,
+      runKey: `${job.id}:${job.attempt_count}`,
+    });
+  } catch (error) {
+    console.error("[context-advisory] processing unavailable", {
+      submissionId: submission.id,
+      reason: error instanceof Error ? error.message : "UNKNOWN",
+    });
   }
 
   await detectAndStoreFreeWritingEvidenceCandidates({

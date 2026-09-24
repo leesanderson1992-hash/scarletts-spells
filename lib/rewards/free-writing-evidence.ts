@@ -11,6 +11,7 @@ import {
 } from "./word-treasures";
 import { loadAdleCountedSampleKeys } from "./adle-reward-bridge";
 import { authenticUseDedupKey } from "./adle-reward-bridge-core";
+import { governedEvidenceExclusionWords, isGovernedContextMember } from "@/lib/writing-engine/whole-writing/context-advisory-routing";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -222,7 +223,11 @@ export async function detectAndStoreFreeWritingEvidenceCandidates(input: {
   const seenCandidateKeys = new Set<string>();
 
   for (const field of fields) {
+    const contextualExclusions = governedEvidenceExclusionWords(field.text);
     for (const treasure of treasures) {
+      if (isGovernedContextMember(treasure.corrected_word) || contextualExclusions.has(treasure.corrected_word_normalized)) {
+        continue;
+      }
       const occurrenceCount = getOccurrenceCount(field.text, treasure.corrected_word);
       if (occurrenceCount <= 0) {
         continue;
@@ -446,6 +451,14 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
 
   const candidates = ((candidateRows ?? []) as unknown) as FreeWritingEvidenceCandidateRow[];
   const nowIso = new Date().toISOString();
+  const sampleIds = Array.from(new Set(candidates.map((candidate) => candidate.writing_sample_id).filter((id): id is string => Boolean(id))));
+  const samples = sampleIds.length > 0 ? await input.supabase.from("writing_samples")
+    .select("id,sample_text").eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId).in("id", sampleIds) : { data: [], error: null };
+  if (samples.error) throw samples.error;
+  const excludedBySample = new Map((samples.data ?? []).map((sample) => [
+    sample.id, governedEvidenceExclusionWords(sample.sample_text),
+  ]));
 
   // ADLE Slice 7a (7a-C): cross-path dedup. The ADLE reward bridge may already
   // have credited a Golden-Bar use for a (word, writing sample); count it once
@@ -462,6 +475,17 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
       if (candidate.confirmed_awarded_golden_bar) {
         summary.goldenBarsAwardedCount += 1;
       }
+      continue;
+    }
+
+    // Revalidate old pending rows too: discovery-time screening alone is not
+    // enough to prevent a contextual member becoming reward evidence later.
+    if (isGovernedContextMember(candidate.matched_word) ||
+        (candidate.writing_sample_id && excludedBySample.get(candidate.writing_sample_id)?.has(candidate.matched_word_normalized))) {
+      const dismissed = await input.supabase.from("child_word_treasure_evidence_candidates")
+        .update({ confirmation_status: "dismissed" }).eq("id", candidate.id)
+        .eq("parent_user_id", input.parentUserId).eq("confirmation_status", "pending_parent_confirmation");
+      if (dismissed.error) throw dismissed.error;
       continue;
     }
 

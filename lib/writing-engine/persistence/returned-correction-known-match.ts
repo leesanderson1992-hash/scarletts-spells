@@ -55,6 +55,9 @@ export async function preResolveReturnedCorrectionKnownMatch(input: {
   persist?: boolean;
   canonicalLookup?: typeof findResolverVisibleExactPairMapping;
 }): Promise<ReturnedCorrectionKnownMatchResolutionResult> {
+  if (parseMetadata(input.issue.metadata).source_kind === "contextual_advisory_v4") {
+    return { status: "not_resolved", reason: "CONTEXTUAL_REPAIR_ONLY" };
+  }
   const correctedSpelling =
     input.issue.approved_replacement ?? input.issue.suggested_replacement;
   const canonicalLookup =
