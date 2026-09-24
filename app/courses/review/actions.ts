@@ -21,6 +21,7 @@ import {
 import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verification-actions";
 import { resolveContextReviewSuggestionImpl } from "./actions/context-review-actions";
 import { recordContextAdvisoryParentDecisionImpl, promoteContextDiagnosticExampleImpl } from "./actions/context-advisory-decision-actions";
+import { finaliseContextualLearningOutcomeImpl } from "./actions/contextual-learning-actions";
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
@@ -63,6 +64,10 @@ export async function recordContextAdvisoryParentDecision(formData: FormData) {
 
 export async function promoteContextDiagnosticExample(formData: FormData) {
   return promoteContextDiagnosticExampleImpl(formData);
+}
+
+export async function finaliseContextualLearningOutcome(formData: FormData) {
+  return finaliseContextualLearningOutcomeImpl(formData);
 }
 
 export async function captureSubmissionSpellingCandidateMapping(formData: FormData) {

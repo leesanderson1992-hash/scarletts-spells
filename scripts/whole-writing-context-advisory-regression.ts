@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 
 import { extractOccurrences, fingerprint } from "../lib/writing-engine/baseline/source";
 import { extractAuthenticUseCandidates } from "../lib/adle/authentic-use";
+import { CONTEXT_FAMILY_MANIFESTS, contextFamilyForMember } from "../lib/writing-engine/whole-writing/context";
 import {
   governedContextFamily,
   governedEvidenceExclusionWords,
@@ -14,6 +15,11 @@ assert.equal(governedContextFamily("They’re"), "THERE_THEIR_THEYRE");
 assert.equal(governedContextFamily("TOO"), "TO_TOO_TWO");
 assert.equal(governedContextFamily("you're"), "YOUR_YOURE");
 assert.equal(governedContextFamily("Itʼs"), "ITS_ITS");
+for (const manifest of CONTEXT_FAMILY_MANIFESTS) {
+  for (const member of manifest.members) {
+    assert.equal(governedContextFamily(member), contextFamilyForMember(member)?.familyKey);
+  }
+}
 for (const malformed of ["thier", "youre", "its'", "tooo"]) {
   assert.equal(isGovernedContextMember(malformed), false, malformed);
 }

@@ -29,7 +29,8 @@ export type LearningItemSourceKind =
   | "review_ejection"
   | "slippage_reentry"
   | "stretch_selection"
-  | "transfer_confirmation";
+  | "transfer_confirmation"
+  | "parent_verified_contextual_choice";
 
 export interface LearningItemFact {
   learningItemId: string;

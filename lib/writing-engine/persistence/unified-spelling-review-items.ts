@@ -73,6 +73,7 @@ export type UnifiedSpellingReviewCategorisationStatus =
 export type UnifiedSpellingReviewTerminalStatus =
   | "resolved_known_match"
   | "repair_only_confirmed"
+  | "contextual_learning_confirmed"
   | "sent_to_admin"
   | "not_an_issue";
 
@@ -1072,7 +1073,7 @@ export function buildUnifiedSpellingReviewItems(
       issue.draft_final_classification ?? null;
     const hasLearningReason = returnedFinalClassificationNeedsRoute(
       draftFinalClassification,
-    ) && sourceKind !== "contextual_advisory_v4";
+    );
     const knownMatchRouteIsCurrent = Boolean(
       knownMatchAutoResolution &&
         issue.micro_skill_key === knownMatchAutoResolution.microSkillKey,
@@ -1083,6 +1084,7 @@ export function buildUnifiedSpellingReviewItems(
     const readyForApproval = Boolean(
       !issue.final_classification &&
         draftFinalClassification &&
+        sourceKind !== "contextual_advisory_v4" &&
         (!hasLearningReason ||
           knownMatchRouteIsCurrent ||
           hasDurableAdminHandoff),
@@ -1114,7 +1116,9 @@ export function buildUnifiedSpellingReviewItems(
         knownMatchAutoResolution,
         terminalStatus:
           sourceKind === "contextual_advisory_v4" && issue.final_classification
-            ? "repair_only_confirmed"
+            ? ["concept_gap", "fragile_knowledge", "transfer_failure"].includes(issue.final_classification)
+              ? "contextual_learning_confirmed"
+              : "repair_only_confirmed"
             : issue.final_classification === "not_an_issue" ||
           issue.final_classification === "checking_only"
             ? "not_an_issue"

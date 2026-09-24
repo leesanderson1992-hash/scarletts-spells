@@ -1,11 +1,8 @@
-import { contextFamilyForMember, type ContextFamilyKey } from "./context";
+import { governedContextFamily } from "./context-advisory-family";
+export { governedContextFamily } from "./context-advisory-family";
 
 /** Match the exact written form. Spelling normalisation removes apostrophes and
  * must not turn malformed `youre` into the canonical member `you're`. */
-export function governedContextFamily(surface: string): ContextFamilyKey | null {
-  return contextFamilyForMember(surface)?.familyKey ?? null;
-}
-
 export function isGovernedContextMember(surface: string): boolean {
   return governedContextFamily(surface) !== null;
 }

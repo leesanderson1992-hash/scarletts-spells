@@ -6,6 +6,7 @@ import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-e
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import type { ContextAdvisoryReviewRow } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 import { ContextAdvisoryTableRow } from "./context-advisory-table-row";
+import { ContextualReturnedCorrectionRow } from "./contextual-returned-correction-row";
 import {
   getWritingIssueFinalClassificationLabel,
   WRITING_ISSUE_FINAL_CLASSIFICATIONS,
@@ -201,9 +202,11 @@ function statusLabel(row: UnifiedSpellingReviewItem) {
       return "Awaiting canonical review";
     }
     if (row.terminalStatus === "resolved_known_match") return "Confirmed";
-    if (row.terminalStatus === "repair_only_confirmed") return "Repair confirmed · no learning credit";
     return "Needs learning route";
   }
+
+  if (row.terminalStatus === "repair_only_confirmed") return "Repair confirmed · no learning credit";
+  if (row.terminalStatus === "contextual_learning_confirmed") return "Learning need confirmed · retry is repair only";
 
   if (row.terminalStatus === "sent_to_admin") {
     return "Admin route pending";
@@ -1380,7 +1383,15 @@ export function UnifiedSpellingReviewTable({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row) => row.source === "returned_correction" && row.provenance.sourceKind === "contextual_advisory_v4" ? (
+              <ContextualReturnedCorrectionRow
+                key={row.id}
+                row={row}
+                options={options}
+                submissionId={submissionId}
+                colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
+              />
+            ) : (
               <UnifiedSpellingReviewTableRow
                 key={row.id}
                 row={row}

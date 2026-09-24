@@ -629,9 +629,12 @@ export async function finaliseWritingIssueClassificationImpl(
     );
   }
 
-  // Contextual repairs are prompted word-only attempts. Preserve the parent's
-  // outcome, but do not enter the spelling/ADLE finaliser or Word Treasure.
+  // The dedicated contextual form is the only route that can assign the
+  // governed microskill and create a parent-confirmed learning need.
   if (parseObjectMetadata(issue.metadata).source_kind === "contextual_advisory_v4") {
+    if (doesFinalClassificationCreateLearningItem(finalClassification)) {
+      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "Use the contextual outcome form to confirm the homophone microskill."));
+    }
     const result = await createServiceRoleClient().rpc("finalise_contextual_repair_only", {
       p_writing_issue_id: writingIssueId,
       p_parent_user_id: user.id,
@@ -969,6 +972,9 @@ export async function saveWritingIssueReasonDraftImpl(formData: FormData) {
     .eq("id", writingIssueId).eq("parent_user_id", user.id)
     .eq("child_id", submission.child_id).maybeSingle();
   if (parseObjectMetadata(contextualIssue?.metadata).source_kind === "contextual_advisory_v4") {
+    if (doesFinalClassificationCreateLearningItem(draftFinalClassification)) {
+      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "Use the contextual outcome form to confirm the homophone microskill."));
+    }
     const saved = await createServiceRoleClient().rpc("finalise_contextual_repair_only", {
       p_writing_issue_id: writingIssueId, p_parent_user_id: user.id,
       p_child_id: submission.child_id, p_outcome: draftFinalClassification,

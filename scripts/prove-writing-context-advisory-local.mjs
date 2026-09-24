@@ -103,6 +103,81 @@ try {
   const cancelled = await db.query("select issue_status,final_classification from writing_issues where source_writing_occurrence_id=$1", [another]);
   assert.equal(cancelled.rows[0].issue_status, "finalised");
   assert.equal(cancelled.rows[0].final_classification, "not_an_issue");
+  await db.query(`
+    create table micro_skill_catalog(micro_skill_key text primary key,mastery_domain_key text,is_active boolean,is_assignable boolean);
+    create table canonical_teaching_dictionary_words(id uuid primary key default gen_random_uuid(),normalised_word text,row_status text,review_status text);
+    create table canonical_teaching_dictionary_word_support(canonical_word_id uuid,micro_skill_key text,row_status text,review_status text);
+    create table canonical_teaching_dictionary_content_versions(micro_skill_key text,is_active boolean,version_status text,final_readiness_review_status text);
+    create table adle_learning_items(id uuid primary key default gen_random_uuid(),child_id uuid,canonical_word_id uuid,
+      micro_skill_key text,item_status text,source_kind text,source_ref text,source_attempt_text text,
+      reteach_priority boolean,ejected_on date,intake_on date,row_status text,created_at timestamptz default now(),
+      constraint adle_learning_items_source_kind_check check(source_kind in
+        ('verified_misspelling','probe_miss','review_ejection','slippage_reentry','stretch_selection','transfer_confirmation')));
+    create unique index on adle_learning_items(child_id,canonical_word_id,micro_skill_key) where row_status='active';
+    create table learning_items(id uuid primary key default gen_random_uuid());
+    create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid);
+    create table learning_item_evidence(writing_issue_id uuid,source_context text,evidence_type text,metadata jsonb,updated_at timestamptz);
+    create or replace function public.finalise_writing_issue_classification_and_learning_item_pre_context_advisory(
+      p_issue uuid,p_parent uuid,p_child uuid,p_outcome text) returns jsonb language plpgsql as $$
+    declare v_item uuid;
+    begin
+      insert into learning_items default values returning id into v_item;
+      insert into learning_item_issue_links values(v_item,p_issue,p_child,p_parent);
+      insert into learning_item_evidence values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
+      update writing_issues set issue_status='finalised',final_classification=p_outcome where id=p_issue;
+      return jsonb_build_object('learning_item_id',v_item);
+    end $$;
+  `);
+  const learningMigration = readFileSync(new URL("../supabase/migrations/20260924130000_add_parent_confirmed_contextual_learning_handoff.sql", import.meta.url), "utf8");
+  await db.query(learningMigration);
+  const skill = "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE";
+  await db.query("insert into micro_skill_catalog values($1,'D4',true,true)", [skill]);
+  const word = (await db.query("insert into canonical_teaching_dictionary_words(normalised_word,row_status,review_status) values('there','active','approved_for_first_exposure') returning id")).rows[0].id;
+  await db.query("insert into canonical_teaching_dictionary_word_support values($1,$2,'active','approved_for_first_exposure')", [word, skill]);
+  await db.query("insert into canonical_teaching_dictionary_content_versions values($1,true,'active','signed_off')", [skill]);
+  const learningOccurrence = "context-advisory:learning-occurrence";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [learningOccurrence, captured.rows[0].id]);
+  await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there',null,'their should be')", [learningOccurrence, parent]);
+  const learningIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [learningOccurrence])).rows[0].id;
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [learningIssue]);
+  await assert.rejects(db.query("select finalise_contextual_repair_only($1,$2,$3,'concept_gap')", [learningIssue, parent, child]));
+  await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap','D4_WRONG')", [learningIssue, parent, child]));
+  const stillOpen = await db.query("select final_classification,micro_skill_key from writing_issues where id=$1", [learningIssue]);
+  assert.equal(stillOpen.rows[0].final_classification, null);
+  assert.equal(stillOpen.rows[0].micro_skill_key, "unknown");
+  const finalised = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [learningIssue, parent, child, skill]);
+  assert.equal(finalised.rows[0].result.handoff_state, "READY");
+  assert.equal(finalised.rows[0].result.retry_evidence_kind, "REPAIR_ONLY");
+  await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4)", [learningIssue, parent, child, skill]));
+  const repairEvidence = await db.query("select evidence_type,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
+  assert.equal(repairEvidence.rows[0].evidence_type, "corrected_after_prompt");
+  assert.equal(repairEvidence.rows[0].metadata.evidence_kind, "REPAIR_ONLY");
+  await db.query("update canonical_teaching_dictionary_content_versions set is_active=false where micro_skill_key=$1", [skill]);
+  const pendingOccurrence = "context-advisory:pending-content-occurrence";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [pendingOccurrence, captured.rows[0].id]);
+  await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there',null,'their should be')", [pendingOccurrence, parent]);
+  const pendingIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [pendingOccurrence])).rows[0].id;
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [pendingIssue]);
+  const pending = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [pendingIssue, parent, child, skill]);
+  assert.equal(pending.rows[0].result.handoff_state, "PENDING_TEACHING_CONTENT");
+  await db.query("update canonical_teaching_dictionary_content_versions set is_active=true where micro_skill_key=$1", [skill]);
+  const admitted = await db.query("select reconcile_contextual_adle_learning_need($1,$2,$3) as result", [pendingIssue, parent, child]);
+  assert.equal(admitted.rows[0].result.handoff_state, "READY");
+  await db.query("update adle_learning_items set item_status='resolved' where id=$1", [admitted.rows[0].result.adle_learning_item_id]);
+  const resolvedOccurrence = "context-advisory:resolved-item-occurrence";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [resolvedOccurrence, captured.rows[0].id]);
+  await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there',null,'their should be')", [resolvedOccurrence, parent]);
+  const resolvedIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [resolvedOccurrence])).rows[0].id;
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [resolvedIssue]);
+  const needsReentry = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [resolvedIssue, parent, child, skill]);
+  assert.equal(needsReentry.rows[0].result.handoff_state, "PENDING_EXISTING_ITEM_REVIEW");
+  assert.equal(needsReentry.rows[0].result.adle_learning_item_id, null);
+  await db.query("select disable_writing_context_advisory($1)", [parent]);
+  const switchState = await db.query("select enabled from writing_context_advisory_control where singleton=true");
+  assert.equal(switchState.rows[0].enabled, false);
+  await assert.rejects(db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there')", [learningOccurrence, parent]));
+  const durable = await db.query("select count(*)::int as n from writing_context_learning_handoffs where writing_issue_id=$1", [learningIssue]);
+  assert.equal(durable.rows[0].n, 1);
   console.log("context advisory disposable database proof passed");
 } catch (error) {
   if (started) {

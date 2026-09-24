@@ -6,14 +6,25 @@ S8 operational block remains in force until the owner and a separate reviewer
 approve an explicit advisory-use exception and the migration/runtime proof is
 complete.
 
-The proposed exception permits the exact frozen V4 candidates to generate
+The owner has approved the revised parent-authority learning workflow. The
+separate independent advisory-use review and enablement decision remain
+pending; the global switch is still off. The proposed exception permits the exact frozen V4 candidates to generate
 parent-visible observations for every canonical occurrence in a newly submitted
 writing snapshot. It does **not** permit the analyser to create a child-facing
 issue on its own. An identified parent must decide `VALID`, `INVALID` with a
 finite same-family alternative, `UNCERTAIN`, or `EXCLUDED`. Only a parent
-`INVALID` decision creates a prompted, word-only repair issue. The parent's
-repair outcome is stored as `REPAIR_ONLY` and cannot create Golden Nuggets,
-authentic-use credit, proficiency, microskill evidence, scheduling or rewards.
+`INVALID` decision creates a prompted, word-only repair issue. If the parent
+classifies the original contextual error as a concept gap, fragile knowledge
+or transfer failure and selects its governed homophone microskill, that
+parent-confirmed original error may create the ordinary learning need and
+Golden Nugget discovery record. The prompted retry remains `REPAIR_ONLY`:
+it is never independent authentic use, transfer or mastery evidence. A missing
+canonical word, word-to-skill support, or signed-off teaching content leaves
+the ADLE handoff visibly pending, not silently routed to an invented spelling
+mapping. Machine observation alone still has no learning consequence.
+If the corresponding ADLE item has already been resolved, the new need stays
+pending a separately governed re-entry decision; it does not silently reopen
+mastery or claim that another lesson is scheduled.
 
 The single global `writing_context_advisory_control.enabled` value is false by
 default. It has no per-child gate. Turning it off prevents new advisory intake
