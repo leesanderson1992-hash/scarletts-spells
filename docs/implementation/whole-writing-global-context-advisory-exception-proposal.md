@@ -1,6 +1,6 @@
 # Global contextual-review advisory exception — sole-owner approved, default off
 
-Status: **SOLE-OWNER ADVISORY APPROVAL / DEPLOYMENT PREFLIGHT PENDING / DEFAULT OFF**.
+Status: **SOLE-OWNER ADVISORY APPROVAL / PRODUCTION SCHEMA APPLIED / DEFAULT OFF**.
 Katie Sanderson approved the advisory-use proposal and implementation review
 in the current task on 2026-09-24. She also approved proceeding with
 non-production verification and agreed to the proposed end-to-end checks.
@@ -66,16 +66,24 @@ explicitly distinguished from approval to change its schema or live data.
 ## 2026-09-24 Preview preflight
 
 The requested Vercel Preview may use Production Supabase under Katie's
-sole-owner authorisation, but no deployment or enablement has occurred. A
-read-only check of the configured Production database found ordinary writing
-tables but no `writing_source_snapshots`, `writing_occurrences`,
-`writing_shadow_controls`, or contextual-advisory tables. The occurrence-link
-columns on ordinary writing tables are also absent. Applying the prerequisite
-migration chain is a separate Production schema change and has not occurred.
+sole-owner authorisation. The initial read-only check found ordinary writing
+tables but not the whole-writing and contextual-review schema. Katie then
+expressly authorised all prerequisites needed to get the Preview running.
+The hosted migration ledger contained applied version `20260901160000` whose
+source was absent from this branch; it was recovered from the hosted ledger,
+without altering that ledger, and fingerprinted as
+`51792f5a717ea997e7dab529557d1186ec302720a42c49fd0135bb9ed26a8f28`.
+The exact 15-migration dry run passed with no seeds or role imports. Those 15
+forward migrations (`20260906100000` through `20260924130000`) were then
+applied to Production Supabase. A read-only follow-up confirmed all 15 ledger
+entries, the snapshot/occurrence/parent-decision tables, zero parent decisions,
+and `writing_context_advisory_control.enabled = false`. The disposable
+PostgreSQL source/decision/repair proof passed before application. Production
+had a completed daily physical backup; point-in-time recovery was not enabled.
 
 The branch-scoped Preview environment currently lacks non-empty
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values and has
 no `S8_V4_PYTHON` or `S8_V4_TRANSFORMER_PYTHON` configuration. The frozen V4
 adapter fails closed without those parser runtimes. A Preview link from this
 configuration would not prove the intended parent-review flow. The global
-control remains off; no production data or release state was changed.
+control remains off; no V4 release state was changed.
