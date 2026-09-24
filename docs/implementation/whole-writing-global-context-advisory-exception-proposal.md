@@ -1,6 +1,6 @@
 # Global contextual-review advisory exception — sole-owner approved, default off
 
-Status: **SOLE-OWNER ADVISORY APPROVAL / PRODUCTION SCHEMA APPLIED / DEFAULT OFF**.
+Status: **SOLE-OWNER ADVISORY APPROVAL / PREVIEW DEPLOYED / DEFAULT OFF**.
 Katie Sanderson approved the advisory-use proposal and implementation review
 in the current task on 2026-09-24. She also approved proceeding with
 non-production verification and agreed to the proposed end-to-end checks.
@@ -81,9 +81,18 @@ and `writing_context_advisory_control.enabled = false`. The disposable
 PostgreSQL source/decision/repair proof passed before application. Production
 had a completed daily physical backup; point-in-time recovery was not enabled.
 
-The branch-scoped Preview environment currently lacks non-empty
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` values and has
-no `S8_V4_PYTHON` or `S8_V4_TRANSFORMER_PYTHON` configuration. The frozen V4
-adapter fails closed without those parser runtimes. A Preview link from this
-configuration would not prove the intended parent-review flow. The global
-control remains off; no V4 release state was changed.
+Branch-scoped Preview overrides for `NEXT_PUBLIC_SUPABASE_ANON_KEY` and
+`SUPABASE_SERVICE_ROLE_KEY` were added from the Production Supabase project's
+API keys; no global Preview or Production Vercel credential was replaced.
+The Preview deployment
+`https://scarletts-spells-qrl61cii6-leesanderson1992-hashs-projects.vercel.app`
+reached `READY` and its protected `/login` route returned HTTP 200. Browser
+inspection was stopped by Vercel deployment protection because the available
+browser session is signed into a different account; protection was not
+disabled. The branch still has no `S8_V4_PYTHON` or
+`S8_V4_TRANSFORMER_PYTHON` runtime. Frozen V4 fails closed without them, so
+this Preview does not yet prove the intended analyser-assisted parent flow.
+The global control remains off. The prerequisite S8 migration seeded four
+historical context-family release rows and twelve selection-event rows in
+Production, with zero approval events and zero active child shadow controls;
+no V4 release was approved or activated.
