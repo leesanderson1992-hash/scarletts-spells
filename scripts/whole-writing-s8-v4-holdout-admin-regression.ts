@@ -7,12 +7,16 @@ import { join } from "node:path";
 import { CONTEXT_V4_DEVELOPMENT_CANDIDATES } from "../lib/writing-engine/whole-writing/context-candidates-v4";
 import { ordinaryEvaluationFingerprint, type OrdinaryEvaluationDecision, type OrdinaryWritingV3Case, type OrdinaryWritingV3Gold } from "./lib/whole-writing-v3-ordinary-evaluation";
 import {
-  bytesSha256, coverageLedger, HOLDOUT_V4_PRIMARY_STRATA, inventorySources, lockGold, resolvedPassages, reviewPackets,
+  bytesSha256, coverageLedger, HOLDOUT_V4_ADMIN_VERSION, HOLDOUT_V4_BASE_ADMIN_VERSION,
+  HOLDOUT_V4_PRIMARY_STRATA, HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN, inventorySources, lockGold, resolvedPassages, reviewPackets,
   sealAdjudication, sealDecision, sealSelection, sealSimilarityResolution,
   similarityFlags, subtypeBelongsToConstruction, verifyInventory, verifySingleAuthorScope,
   type DecisionRow, type InventoryRow, type SourceRow,
 } from "./lib/whole-writing-v4-holdout-admin";
-import { assessStageA, evaluateOrdinaryWritingV4 } from "./lib/whole-writing-v4-ordinary-evaluation";
+import {
+  assessStageA, evaluateOrdinaryWritingV4, HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION,
+  HOLDOUT_V4_EVALUATOR_POLICY,
+} from "./lib/whole-writing-v4-ordinary-evaluation";
 
 // In-memory engineering fixtures only. These are never saved as human holdout.
 const sources: SourceRow[] = [
@@ -235,16 +239,32 @@ console.log("S8 V4 four-family quota arithmetic regression passed (not approval 
 const temporary = mkdtempSync(join(tmpdir(), "s8-v4-holdout-admin-fixture-"));
 try {
   const protocolPath = join(temporary, "protocol.json");
+  const amendmentPath = join(temporary, "protocol-amendment.json");
   const sourcePath = join(temporary, "source.jsonl");
   const evaluationRoot = join(temporary, "evaluation");
   writeFileSync(protocolPath, `${JSON.stringify({
     approvalId: "regression-authority-001", approvedBy: "Test Operator A",
     evaluatorContractApprovalId: "regression-authority-002", evaluatorContractReviewedBy: "Test Operator B",
-    adminVersion: "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23",
-    evaluatorPolicyVersion: "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE",
+    adminVersion: HOLDOUT_V4_BASE_ADMIN_VERSION,
+    evaluatorPolicyVersion: HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION,
     stageAPrimaryPerFamily: 100, stageBPrimaryPerFamily: 300,
     stageBSourceInstructions: "fixture only", stageBSelectionRule: "fixture only",
     sourceIndependenceAttestation: "fixture only",
+    releaseManifestFingerprints: Object.fromEntries(CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => [row.manifest.familyKey, row.fingerprint])),
+  })}\n`);
+  const protocolBytes = readFileSync(protocolPath);
+  writeFileSync(amendmentPath, `${JSON.stringify({
+    amendmentApprovalId: "regression-amendment-authority-003", amendmentApprovedBy: "Test Operator A",
+    evaluatorContractAmendmentApprovalId: "regression-amendment-authority-004", evaluatorContractAmendmentReviewedBy: "Test Operator B",
+    baseProtocolRawSha256: bytesSha256(protocolBytes),
+    supersedesAdminVersion: HOLDOUT_V4_BASE_ADMIN_VERSION,
+    supersedesEvaluatorPolicyVersion: HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION,
+    adminVersion: HOLDOUT_V4_ADMIN_VERSION,
+    evaluatorPolicyVersion: HOLDOUT_V4_EVALUATOR_POLICY.version,
+    stageAMinimumUncertainPerFamily: HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN,
+    finalMinimumUncertainPerFamily: HOLDOUT_V4_EVALUATOR_POLICY.minimumUncertain,
+    reason: "temporary regression amendment",
+    timingDisclosure: "temporary regression approval after fixture review and before analyser evaluation",
     releaseManifestFingerprints: Object.fromEntries(CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => [row.manifest.familyKey, row.fingerprint])),
   })}\n`);
   writeFileSync(sourcePath, `${sources.map((row) => JSON.stringify(row)).join("\n")}\n`);
@@ -269,6 +289,12 @@ try {
     assert.equal(result.status, 0, `CLI failed: ${args.join(" ")}\n${result.stderr}\n${result.stdout}`);
   };
   run("register-protocol", `--root=${evaluationRoot}`, `--source=${protocolPath}`);
+  const missingAmendment = spawnSync(process.execPath, ["--conditions=react-server", "--import", "tsx", "scripts/whole-writing-s8-v4-holdout-admin.ts", "intake", `--root=${evaluationRoot}`, `--source=${sourcePath}`, `--reference-root=${process.cwd()}`], {
+    cwd: process.cwd(), encoding: "utf8", timeout: 30_000,
+  });
+  assert.notEqual(missingAmendment.status, 0, "Current workflow must require the separately registered amendment");
+  assert.match(missingAmendment.stderr, /threshold amendment is missing/);
+  run("register-protocol-amendment", `--root=${evaluationRoot}`, `--source=${amendmentPath}`);
   run("intake", `--root=${evaluationRoot}`, `--source=${sourcePath}`, `--reference-root=${process.cwd()}`);
   const mixedSourcePath = join(temporary, "mixed-author-source.jsonl");
   writeFileSync(mixedSourcePath, `${JSON.stringify({

@@ -1,6 +1,6 @@
 # S8 V4 fresh independent holdout administration
 
-Status: **single-author administration/evaluator protocol registered in a private evaluation root; no source corpus, labels, gold or evaluation exists here**. Do not copy V3/G2 prose or V4 engineering fixtures into this directory. The four frozen V4 releases remain development candidates, default-off. The separately versioned [administration/evaluator contract](../../../docs/implementation/whole-writing-s8-v4-fresh-holdout-administration-contract-2026-09-23.md) governs source intake.
+Status: **single-author Stage A evidence locked and evaluated under the separately approved post-adjudication threshold amendment; all four families continue to Stage B; nothing is approved or active**. Do not copy V3/G2 prose or V4 engineering fixtures into this directory. The four frozen V4 releases remain development candidates, default-off. The separately versioned [administration/evaluator contract](../../../docs/implementation/whole-writing-s8-v4-fresh-holdout-administration-contract-2026-09-23.md), [Stage A amendment](../../../docs/implementation/whole-writing-s8-v4-stage-a-uncertain-threshold-amendment-2026-09-24.md) and [Stage A receipt](../../../docs/implementation/whole-writing-s8-v4-stage-a-evaluation-receipt-2026-09-24.md) govern the next wave.
 
 The command is `npm run writing:s8-v4-holdout-admin -- <command> --root=<private-evaluation-root> ...`. Keep authentic learner writing and reviewer packets in a suitably private root; do not commit them merely because this README is tracked. Every generated immutable artifact is created with exclusive-write semantics. All IDs are machine-generated from source identity, independent of analyser results.
 
@@ -30,7 +30,7 @@ An identified governance owner and separate evaluator-contract reviewer must sig
 }
 ```
 
-The placeholders above are **not approval** and fail manifest-pin validation. `pins` prints the exact frozen fingerprints without running an analyser. Register only an actually reviewed protocol with `register-protocol --source=<approved.json>`. Its exact bytes and fingerprint are preserved. The V2 evaluator requires one stable source author across all families and both waves. Do not author or intake the qualification corpus before this approval.
+The placeholders above are **not approval** and fail manifest-pin validation. `pins` prints the exact frozen fingerprints without running an analyser. Register only an actually reviewed base protocol with `register-protocol --source=<approved.json>`. Its exact bytes and fingerprint are preserved. The approved 2026-09-24 Stage A threshold change is then registered separately with `register-protocol-amendment --source=<approved-amendment.json>`; it binds the exact base protocol, both identified approvals and the frozen release pins. The amended evaluator still requires one stable source author across all families and both waves.
 
 ## 2. Intake source and resolve similarity
 

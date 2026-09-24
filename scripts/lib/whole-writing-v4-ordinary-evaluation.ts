@@ -8,11 +8,13 @@ import {
   type OrdinaryWritingV3Case,
   type OrdinaryWritingV3Gold,
 } from "./whole-writing-v3-ordinary-evaluation";
-import { coverageLedger, HOLDOUT_V4_ADMIN_VERSION, type InventoryRow, type UncertainReason } from "./whole-writing-v4-holdout-admin";
+import { coverageLedger, HOLDOUT_V4_ADMIN_VERSION, HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN, type InventoryRow, type UncertainReason } from "./whole-writing-v4-holdout-admin";
 
 /** Separate V4 qualification contract. No V3 evaluator or historic report is changed. */
+export const HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION = "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE";
 export const HOLDOUT_V4_EVALUATOR_POLICY = Object.freeze({
-  version: "S8_V4_ORDINARY_WRITING_EVALUATOR_V2_SINGLE_AUTHOR_PROTECTED_VALID_SEPARATE",
+  version: "S8_V4_ORDINARY_WRITING_EVALUATOR_V3_SINGLE_AUTHOR_STAGE_A_10_UNCERTAIN",
+  stageAMinimumUncertain: HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN,
   minimumPrimary: 400,
   minimumValid: 150,
   minimumInvalid: 150,

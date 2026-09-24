@@ -9,7 +9,9 @@ import {
   type OrdinaryWritingV3Gold,
 } from "./whole-writing-v3-ordinary-evaluation";
 
-export const HOLDOUT_V4_ADMIN_VERSION = "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23";
+export const HOLDOUT_V4_BASE_ADMIN_VERSION = "S8_V4_HOLDOUT_ADMIN_V2_SINGLE_AUTHOR_2026_09_23";
+export const HOLDOUT_V4_ADMIN_VERSION = "S8_V4_HOLDOUT_ADMIN_V3_SINGLE_AUTHOR_STAGE_A_10_UNCERTAIN_2026_09_24";
+export const HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN = 10;
 export const HOLDOUT_V4_PROTECTED = ["fragment", "quotation", "gerund", "run_on", "task_dependent"] as const;
 export const HOLDOUT_V4_FAMILIES = CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => row.manifest.familyKey);
 export type ProtectedTag = typeof HOLDOUT_V4_PROTECTED[number];

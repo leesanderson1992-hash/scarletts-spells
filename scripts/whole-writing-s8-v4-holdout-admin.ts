@@ -7,13 +7,17 @@ import type { DetailedContextDecisionV4 } from "../lib/writing-engine/whole-writ
 import type { OrdinaryEvaluationDecision, OrdinaryWritingV3Case, OrdinaryWritingV3Gold } from "./lib/whole-writing-v3-ordinary-evaluation";
 import { ordinaryEvaluationFingerprint } from "./lib/whole-writing-v3-ordinary-evaluation";
 import {
-  bytesSha256, coverageLedger, HOLDOUT_V4_ADMIN_VERSION, inventorySources, lockGold,
+  bytesSha256, coverageLedger, HOLDOUT_V4_ADMIN_VERSION, HOLDOUT_V4_BASE_ADMIN_VERSION,
+  HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN, inventorySources, lockGold,
   resolvedPassages, reviewPackets, sealAdjudication, sealDecision, sealSelection, sealSimilarityResolution,
   similarityFlags, validateSelections, verifyInventory, verifySingleAuthorScope,
   type AdjudicationRow, type DecisionRow, type InventoryRow, type SelectionRow, type SimilarityFlag,
   type SimilarityResolution, type SourceRow, type UncertainReason,
 } from "./lib/whole-writing-v4-holdout-admin";
-import { assessStageA, evaluateOrdinaryWritingV4, HOLDOUT_V4_EVALUATOR_POLICY } from "./lib/whole-writing-v4-ordinary-evaluation";
+import {
+  assessStageA, evaluateOrdinaryWritingV4, HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION,
+  HOLDOUT_V4_EVALUATOR_POLICY,
+} from "./lib/whole-writing-v4-ordinary-evaluation";
 
 const command = process.argv[2];
 const options = new Map(process.argv.slice(3).filter((arg) => arg.startsWith("--") && arg.includes("=")).map((arg) => {
@@ -28,6 +32,8 @@ const sourceManifestPath = join(sourceRoot, "source-manifest.json");
 const similarityPath = join(sourceRoot, "similarity-flags.jsonl");
 const protocolPath = join(root, "governance/approved-protocol.raw.json");
 const protocolReceiptPath = join(root, "governance/approved-protocol.receipt.json");
+const protocolAmendmentPath = join(root, "governance/approved-protocol.stage-a-threshold-amendment.raw.json");
+const protocolAmendmentReceiptPath = join(root, "governance/approved-protocol.stage-a-threshold-amendment.receipt.json");
 const fixtureMarker = "ENGINEERING_FIXTURE_NOT_HUMAN_HOLDOUT";
 
 function option(name: string): string {
@@ -152,19 +158,56 @@ function readInventory(): InventoryRow[] {
   verifyInventory(rows);
   return rows;
 }
-function verifyProtocol() {
+function verifyBaseProtocol() {
   const raw = readFileSync(protocolPath);
   const receipt = JSON.parse(readFileSync(protocolReceiptPath, "utf8")) as { rawSha256: string; protocolFingerprint: string };
   assert.equal(bytesSha256(raw), receipt.rawSha256, "Approved protocol bytes changed");
   const protocol = JSON.parse(raw.toString("utf8")) as Record<string, unknown>;
   assert.equal(ordinaryEvaluationFingerprint(protocol), receipt.protocolFingerprint, "Approved protocol fingerprint changed");
-  assert.equal(protocol.evaluatorPolicyVersion, HOLDOUT_V4_EVALUATOR_POLICY.version, "Evaluator policy differs from approved protocol");
-  assert.equal(protocol.adminVersion, HOLDOUT_V4_ADMIN_VERSION, "Administration version differs from approved protocol");
+  assert.equal(protocol.evaluatorPolicyVersion, HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION, "Base evaluator policy differs from approved protocol");
+  assert.equal(protocol.adminVersion, HOLDOUT_V4_BASE_ADMIN_VERSION, "Base administration version differs from approved protocol");
   for (const candidate of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
     const pins = protocol.releaseManifestFingerprints as Record<string, string>;
     assert.equal(pins[candidate.manifest.familyKey], candidate.fingerprint, `Frozen release pin changed: ${candidate.manifest.familyKey}`);
   }
-  return receipt;
+  return { raw, protocol, receipt };
+}
+
+function validateProtocolAmendment(amendment: Record<string, unknown>, baseRawSha256: string) {
+  for (const field of [
+    "amendmentApprovalId", "amendmentApprovedBy", "evaluatorContractAmendmentApprovalId",
+    "evaluatorContractAmendmentReviewedBy", "reason", "timingDisclosure",
+  ]) {
+    assert(typeof amendment[field] === "string" && (amendment[field] as string).trim().length > 0, `Approved amendment lacks ${field}`);
+  }
+  for (const field of ["amendmentApprovalId", "amendmentApprovedBy", "evaluatorContractAmendmentApprovalId", "evaluatorContractAmendmentReviewedBy"]) {
+    assert(!/fixture|pending|todo|placeholder|human-issued|identified-human/i.test(amendment[field] as string), `Amendment contains non-approval placeholder: ${field}`);
+  }
+  assert.notEqual(amendment.amendmentApprovedBy, amendment.evaluatorContractAmendmentReviewedBy, "Evaluator amendment requires a separately identified reviewer");
+  assert.equal(amendment.baseProtocolRawSha256, baseRawSha256, "Amendment is not bound to the registered base protocol");
+  assert.equal(amendment.supersedesAdminVersion, HOLDOUT_V4_BASE_ADMIN_VERSION, "Amendment supersedes the wrong administration version");
+  assert.equal(amendment.supersedesEvaluatorPolicyVersion, HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION, "Amendment supersedes the wrong evaluator policy");
+  assert.equal(amendment.adminVersion, HOLDOUT_V4_ADMIN_VERSION, "Amended administration version mismatch");
+  assert.equal(amendment.evaluatorPolicyVersion, HOLDOUT_V4_EVALUATOR_POLICY.version, "Amended evaluator policy version mismatch");
+  assert.equal(amendment.stageAMinimumUncertainPerFamily, HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN, "Amended Stage A UNCERTAIN minimum mismatch");
+  assert.equal(amendment.finalMinimumUncertainPerFamily, HOLDOUT_V4_EVALUATOR_POLICY.minimumUncertain, "Final UNCERTAIN minimum must remain unchanged");
+  for (const candidate of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
+    const pins = amendment.releaseManifestFingerprints as Record<string, string>;
+    assert.equal(pins[candidate.manifest.familyKey], candidate.fingerprint, `Amendment release pin mismatch: ${candidate.manifest.familyKey}`);
+  }
+}
+
+function verifyProtocol() {
+  const base = verifyBaseProtocol();
+  assert(existsSync(protocolAmendmentPath) && existsSync(protocolAmendmentReceiptPath), "Approved Stage A threshold amendment is missing");
+  const raw = readFileSync(protocolAmendmentPath);
+  const receipt = JSON.parse(readFileSync(protocolAmendmentReceiptPath, "utf8")) as { rawSha256: string; amendmentFingerprint: string; baseProtocolRawSha256: string };
+  assert.equal(bytesSha256(raw), receipt.rawSha256, "Approved amendment bytes changed");
+  const amendment = JSON.parse(raw.toString("utf8")) as Record<string, unknown>;
+  assert.equal(ordinaryEvaluationFingerprint(amendment), receipt.amendmentFingerprint, "Approved amendment fingerprint changed");
+  assert.equal(receipt.baseProtocolRawSha256, base.receipt.rawSha256, "Amendment receipt is not bound to the registered base protocol");
+  validateProtocolAmendment(amendment, base.receipt.rawSha256);
+  return { ...base.receipt, amendmentRawSha256: receipt.rawSha256, amendmentFingerprint: receipt.amendmentFingerprint };
 }
 
 function registerProtocol() {
@@ -179,8 +222,8 @@ function registerProtocol() {
   assert.notEqual(protocol.approvedBy, protocol.evaluatorContractReviewedBy, "Evaluator contract requires a separately identified reviewer");
   assert.equal(protocol.stageAPrimaryPerFamily, 100, "Stage A size must be 100 per family");
   assert.equal(protocol.stageBPrimaryPerFamily, 300, "Stage B size must be 300 per family");
-  assert.equal(protocol.evaluatorPolicyVersion, HOLDOUT_V4_EVALUATOR_POLICY.version, "Evaluator contract version mismatch");
-  assert.equal(protocol.adminVersion, HOLDOUT_V4_ADMIN_VERSION, "Administration version mismatch");
+  assert.equal(protocol.evaluatorPolicyVersion, HOLDOUT_V4_BASE_EVALUATOR_POLICY_VERSION, "Evaluator contract version mismatch");
+  assert.equal(protocol.adminVersion, HOLDOUT_V4_BASE_ADMIN_VERSION, "Administration version mismatch");
   for (const candidate of CONTEXT_V4_DEVELOPMENT_CANDIDATES) {
     const pins = protocol.releaseManifestFingerprints as Record<string, string>;
     assert.equal(pins[candidate.manifest.familyKey], candidate.fingerprint, `Release pin mismatch: ${candidate.manifest.familyKey}`);
@@ -189,6 +232,23 @@ function registerProtocol() {
   writeOnce(protocolPath, raw);
   writeOnce(protocolReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
   console.log(JSON.stringify({ command: "register-protocol", ...receipt }));
+}
+
+function registerProtocolAmendment() {
+  const base = verifyBaseProtocol();
+  const raw = readFileSync(resolve(option("source")));
+  const amendment = JSON.parse(raw.toString("utf8")) as Record<string, unknown>;
+  validateProtocolAmendment(amendment, base.receipt.rawSha256);
+  const receipt = {
+    rawSha256: bytesSha256(raw),
+    amendmentFingerprint: ordinaryEvaluationFingerprint(amendment),
+    baseProtocolRawSha256: base.receipt.rawSha256,
+    stageAMinimumUncertainPerFamily: HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN,
+    finalMinimumUncertainPerFamily: HOLDOUT_V4_EVALUATOR_POLICY.minimumUncertain,
+  };
+  writeOnce(protocolAmendmentPath, raw);
+  writeOnce(protocolAmendmentReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  console.log(JSON.stringify({ command: "register-protocol-amendment", ...receipt }));
 }
 function readSelection(path: string): SelectionRow[] {
   return readJsonl<SelectionRow>(path);
@@ -454,7 +514,7 @@ function adjudicationTemplate() {
 function lock() {
   const stage = option("stage");
   assert(stage === "A" || stage === "FINAL", "Lock stage must be A or FINAL");
-  verifyProtocol();
+  const protocolVerification = verifyProtocol();
   verifySealed("seal-similarity", option("similarity-raw"), option("resolutions"));
   verifySealed("seal-selection", option("selection-raw"), option("selections"));
   verifySealed("seal-review:HUMAN", option("primary-raw"), option("primary"));
@@ -496,7 +556,10 @@ function lock() {
   if (stage === "FINAL") assert(ledger.filter((row) => activeFamilies.includes(row.family)).every((row) => row.issues.length === 0), `Coverage incomplete: ${JSON.stringify(ledger.filter((row) => activeFamilies.includes(row.family)).map((row) => ({ family: row.family, issues: row.issues })) )}`);
   else for (const row of ledger) {
     assert.equal(row.totalPrimary, 100, `Stage A requires exactly 100 primary cases for ${row.family}`);
-    assert(row.counts.VALID >= 40 && row.counts.INVALID >= 40 && row.counts.UNCERTAIN >= 20, `Stage A class balance incomplete for ${row.family}`);
+    assert(
+      row.counts.VALID >= 40 && row.counts.INVALID >= 40 && row.counts.UNCERTAIN >= HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN,
+      `Stage A class balance incomplete for ${row.family}`,
+    );
     for (const [name, count] of Object.entries(row.subtype)) {
       assert(count.VALID >= 5 && count.INVALID >= 5, `Stage A subtype exposure incomplete: ${row.family}:${name}`);
     }
@@ -526,6 +589,7 @@ function lock() {
   }
   const receipt = {
     schemaVersion: 1, adminVersion: HOLDOUT_V4_ADMIN_VERSION, evaluatorPolicyVersion: HOLDOUT_V4_EVALUATOR_POLICY.version,
+    protocolVerification,
     stage, activeFamilies, sourceInventoryFingerprint: ordinaryEvaluationFingerprint(rawInventory),
     eligibleInventoryFingerprint: ordinaryEvaluationFingerprint(allInventory),
     sourceManifestSha256: bytesSha256(readFileSync(sourceManifestPath)),
@@ -623,9 +687,12 @@ switch (command) {
   case "pins": console.log(JSON.stringify({
     adminVersion: HOLDOUT_V4_ADMIN_VERSION,
     evaluatorPolicyVersion: HOLDOUT_V4_EVALUATOR_POLICY.version,
+    stageAMinimumUncertainPerFamily: HOLDOUT_V4_STAGE_A_MINIMUM_UNCERTAIN,
+    finalMinimumUncertainPerFamily: HOLDOUT_V4_EVALUATOR_POLICY.minimumUncertain,
     releaseManifestFingerprints: Object.fromEntries(CONTEXT_V4_DEVELOPMENT_CANDIDATES.map((row) => [row.manifest.familyKey, row.fingerprint])),
   }, null, 2)); break;
   case "register-protocol": registerProtocol(); break;
+  case "register-protocol-amendment": registerProtocolAmendment(); break;
   case "intake": intake(); break;
   case "similarity-template": similarityTemplate(); break;
   case "seal-similarity": sealSimilarityFile(); break;
@@ -637,5 +704,5 @@ switch (command) {
   case "seal-adjudications": sealAdjudicationFile(); break;
   case "lock": lock(); break;
   case "evaluate": evaluate(); break;
-  default: throw new Error("Usage: holdout-admin <pins|register-protocol|intake|similarity-template|seal-similarity|selection-template|seal-selection|packets|seal-review|adjudication-template|seal-adjudications|lock|evaluate> --root=... [command options]");
+  default: throw new Error("Usage: holdout-admin <pins|register-protocol|register-protocol-amendment|intake|similarity-template|seal-similarity|selection-template|seal-selection|packets|seal-review|adjudication-template|seal-adjudications|lock|evaluate> --root=... [command options]");
 }
