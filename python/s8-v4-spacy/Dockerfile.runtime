@@ -1,0 +1,28 @@
+# Isolated S8 V4 parser packaging proof. This does not alter ADLE decisions or
+# wire a runtime into the application. Build each model as a separate image.
+FROM python:3.12.14-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9
+
+ARG REQUIREMENTS=requirements.lock
+ARG ADAPTER=adapter.py
+ARG TARGETARCH
+
+ENV PYTHONHASHSEED=0 \
+    CUDA_VISIBLE_DEVICES="" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    S8_ADAPTER=${ADAPTER}
+
+WORKDIR /opt/s8-v4-spacy
+COPY requirements.lock requirements-transformer.lock ./
+RUN if [ "${REQUIREMENTS}" = "requirements-transformer.lock" ]; then \
+      case "${TARGETARCH}" in \
+        amd64) wheel='https://download-r2.pytorch.org/whl/cpu/torch-2.14.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=a09987c95ec4cffdb6df798d3d641558110a334cfccce22f2f046d83142bc260' ;; \
+        arm64) wheel='https://download-r2.pytorch.org/whl/cpu/torch-2.14.0%2Bcpu-cp312-cp312-manylinux_2_28_aarch64.whl#sha256=da8140c3d4a41500d29710e35bf8e66a4295ec31026487c69f54a3f583310f8d' ;; \
+        *) echo 'UNSUPPORTED_PARSER_IMAGE_ARCH' >&2; exit 1 ;; \
+      esac; \
+      python -m pip install --no-cache-dir --no-deps "torch @ ${wheel}"; \
+    fi
+RUN python -m pip install --no-cache-dir -r "${REQUIREMENTS}"
+COPY adapter.py transformer-adapter.py ./
+
+CMD ["sh", "-c", "exec python /opt/s8-v4-spacy/$S8_ADAPTER"]
