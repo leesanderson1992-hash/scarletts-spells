@@ -1,14 +1,20 @@
-# Global contextual-review advisory exception — proposed, not approved
+# Global contextual-review advisory exception — owner approved, independent review pending
 
-Status: **PROPOSED / DEFAULT OFF**. This document does not approve a V4
+Status: **OWNER APPROVED / INDEPENDENT REVIEW PENDING / DEFAULT OFF**.
+Katie Sanderson approved the advisory-use proposal and implementation review
+in the current task on 2026-09-24. She also approved proceeding with
+non-production verification and agreed to the proposed end-to-end checks.
+Those responses authorise the work; they do not assert that a migration,
+environment test or rollback drill has passed. The separately attributable
+independent review has not yet been recorded. This document does not approve a V4
 release, publish or select it, or authorise learning consequences. The current
 S8 operational block remains in force until the owner and a separate reviewer
 approve an explicit advisory-use exception and the migration/runtime proof is
 complete.
 
-The owner has approved the revised parent-authority learning workflow. The
-separate independent advisory-use review and enablement decision remain
-pending; the global switch is still off. The proposed exception permits the exact frozen V4 candidates to generate
+The separate independent advisory-use review and enablement decision remain
+pending; the global switch is still off. The proposed exception permits the
+exact frozen V4 candidates to generate
 parent-visible observations for every canonical occurrence in a newly submitted
 writing snapshot. It does **not** permit the analyser to create a child-facing
 issue on its own. An identified parent must decide `VALID`, `INVALID` with a
