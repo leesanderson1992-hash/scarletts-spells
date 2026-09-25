@@ -70,6 +70,51 @@ export function customId(caseId, effort) {
   return `ai-context-cal-v1__${caseId}__${effort}`;
 }
 
+export function validateInputFile(file, manifest) {
+  assert(file && file.object === "file", "Unexpected uploaded File object");
+  assert(typeof file.id === "string" && file.id.length > 0 && file.id.length <= 256 &&
+    file.id.trim() === file.id && !/[\u0000-\u001f\u007f]/.test(file.id), "Unexpected uploaded file ID");
+  assert.equal(file.purpose, "batch", "Unexpected uploaded file purpose");
+  assert.equal(file.filename, "input.jsonl", "Unexpected uploaded filename");
+  assert.equal(file.bytes, manifest.preflight.inputBytes, "Unexpected uploaded file byte count");
+  return file.id;
+}
+
+export function reconcileUploadedInput(current, file, remoteBytes, localBytes, manifest) {
+  assert.equal(current?.phase, "uploading", "No uncertain upload to reconcile");
+  assert.equal(current.inputSha256, manifest.inputSha256, "Uncertain upload/input mismatch");
+  const inputFileId = validateInputFile(file, manifest);
+  const remote = Buffer.from(remoteBytes);
+  const local = Buffer.from(localBytes);
+  assert.equal(remote.length, local.length, "Remote Batch input byte count differs");
+  assert.equal(sha(local), manifest.inputSha256, "Local Batch input fingerprint differs");
+  assert.equal(sha(remote), manifest.inputSha256, "Remote Batch input fingerprint differs");
+  assert(remote.equals(local), "Remote Batch input bytes differ");
+  const lines = remote.toString("utf8").trimEnd().split("\n");
+  assert.equal(lines.length, manifest.entries.length, "Remote Batch request count differs");
+  const expectedIds = new Set(manifest.entries.map((entry) => entry.customId));
+  const seenIds = new Set();
+  const seenPairs = new Set();
+  const effortCounts = { none: 0, low: 0, medium: 0 };
+  for (const line of lines) {
+    const request = JSON.parse(line);
+    assert(expectedIds.has(request.custom_id), "Unexpected remote custom_id");
+    assert(!seenIds.has(request.custom_id), "Duplicate remote custom_id");
+    seenIds.add(request.custom_id);
+    const entry = manifest.entries.find((item) => item.customId === request.custom_id);
+    assert.equal(request.body?.reasoning?.effort, entry.effort, "Remote effort mismatch");
+    assert(!seenPairs.has(`${entry.caseId}:${entry.effort}`), "Duplicate remote case/effort pair");
+    seenPairs.add(`${entry.caseId}:${entry.effort}`);
+    effortCounts[entry.effort]++;
+  }
+  assert.equal(seenIds.size, expectedIds.size, "Missing remote custom_id");
+  assert.deepEqual(effortCounts, { none: 240, low: 240, medium: 240 });
+  return { ...current, phase: "uploaded", inputFileId,
+    uploadedAt: new Date().toISOString(), reconciledFromUncertainUpload: true,
+    remoteInputSha256: sha(remote), remoteInputBytes: remote.length,
+    remoteFileCreatedAt: file.created_at ?? null };
+}
+
 export function buildBatch(rows = loadCases()) {
   const entries = [];
   const lines = [];
@@ -215,9 +260,31 @@ async function upload() {
   form.set("purpose", "batch");
   form.set("file", new Blob([readFileSync(inputPath)], { type: "application/jsonl" }), "input.jsonl");
   const response = await (await api("/files", { method: "POST", body: form })).json();
-  assert(/^file_[a-zA-Z0-9_-]+$/.test(response.id ?? "") && response.purpose === "batch", "Unexpected uploaded file identity");
-  writeState({ phase: "uploaded", inputSha256: manifest.inputSha256, inputFileId: response.id, uploadedAt: new Date().toISOString() });
-  return { phase: "uploaded", inputFileId: response.id };
+  const inputFileId = validateInputFile(response, manifest);
+  writeState({ phase: "uploaded", inputSha256: manifest.inputSha256, inputFileId, uploadedAt: new Date().toISOString() });
+  return { phase: "uploaded", inputFileId };
+}
+
+async function reconcile() {
+  const manifest = verified(); approved(manifest.inputSha256);
+  const current = state();
+  assert.equal(current?.phase, "uploading", "No uncertain upload to reconcile");
+  assert.equal(current.inputSha256, manifest.inputSha256);
+  const list = await (await api("/files?purpose=batch&limit=100")).json();
+  assert.equal(list.has_more, false, "File list is paginated; manual reconciliation required");
+  const claimed = Date.parse(current.claimedAt) / 1000;
+  assert(Number.isFinite(claimed), "Invalid upload claim time");
+  const candidates = (list.data ?? []).filter((file) => file.purpose === "batch" &&
+    file.filename === "input.jsonl" && file.bytes === manifest.preflight.inputBytes &&
+    file.created_at >= claimed - 60 && file.created_at <= claimed + 600);
+  assert.equal(candidates.length, 1, `Expected one plausible uploaded file; found ${candidates.length}`);
+  const candidate = candidates[0];
+  const remoteBytes = Buffer.from(await (await api(`/files/${encodeURIComponent(candidate.id)}/content`)).arrayBuffer());
+  const next = reconcileUploadedInput(current, candidate, remoteBytes, readFileSync(inputPath), manifest);
+  writeState(next);
+  return { phase: next.phase, inputFileId: next.inputFileId,
+    remoteInputSha256: next.remoteInputSha256, remoteInputBytes: next.remoteInputBytes,
+    reconciledFromUncertainUpload: true };
 }
 
 async function submit() {
@@ -320,9 +387,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const manifest = verified();
     console.log(JSON.stringify({ verified: true, inputSha256: manifest.inputSha256, preflight: manifest.preflight }, null, 2));
   } else if (command === "upload") console.log(JSON.stringify(await upload()));
+  else if (command === "reconcile") console.log(JSON.stringify(await reconcile()));
   else if (command === "submit") console.log(JSON.stringify(await submit()));
   else if (command === "status") console.log(JSON.stringify(await status()));
   else if (command === "collect") console.log(JSON.stringify(await collect()));
   else if (command === "score") console.log(JSON.stringify(offlineScore(), null, 2));
-  else throw new Error("Use prepare, verify, upload, submit, status, collect, or score");
+  else throw new Error("Use prepare, verify, upload, reconcile, submit, status, collect, or score");
 }

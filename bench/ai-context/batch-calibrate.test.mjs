@@ -2,9 +2,44 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { loadCases, requestFor } from "./calibrate.mjs";
-import { batchUsageAndCost, buildBatch, customId, validateBatchOutputLines } from "./batch-calibrate.mjs";
+import { batchUsageAndCost, buildBatch, customId, reconcileUploadedInput,
+  validateBatchOutputLines, validateInputFile } from "./batch-calibrate.mjs";
 
 const rows = loadCases();
+
+test("File identity accepts the returned hyphenated File object, but rejects mismatches", () => {
+  const { manifest } = buildBatch(rows);
+  const file = { id: "file-BEukDiwzYBTSPYvbFHRU4C", object: "file", purpose: "batch",
+    filename: "input.jsonl", bytes: manifest.preflight.inputBytes, created_at: 1790352572,
+    status: "processed" };
+  assert.equal(validateInputFile(file, manifest), file.id);
+  assert.equal(validateInputFile({ ...file, id: "opaque_future_identifier" }, manifest), "opaque_future_identifier");
+  for (const bad of [{ ...file, id: "" }, { ...file, id: "bad\nidentifier" }, { ...file, purpose: "fine-tune" },
+    { ...file, object: "batch" }, { ...file, bytes: file.bytes - 1 },
+    { ...file, filename: "other.jsonl" }]) {
+    assert.throws(() => validateInputFile(bad, manifest));
+  }
+});
+
+test("uncertain upload is recoverable only from exact remote input bytes", () => {
+  const { input, manifest } = buildBatch(rows);
+  const file = { id: "file-BEukDiwzYBTSPYvbFHRU4C", object: "file", purpose: "batch",
+    filename: "input.jsonl", bytes: manifest.preflight.inputBytes, created_at: 1790352572 };
+  const current = { phase: "uploading", inputSha256: manifest.inputSha256,
+    claimedAt: "2026-09-25T16:09:09.676Z" };
+  const bytes = Buffer.from(input);
+  const recovered = reconcileUploadedInput(current, file, bytes, bytes, manifest);
+  assert.equal(recovered.phase, "uploaded");
+  assert.equal(recovered.inputFileId, file.id);
+  assert.equal(recovered.remoteInputSha256, manifest.inputSha256);
+  assert.equal(recovered.reconciledFromUncertainUpload, true);
+  assert.deepEqual(current.phase, "uploading");
+  const changed = Buffer.from(bytes);
+  changed[100] = changed[100] === 65 ? 66 : 65;
+  assert.throws(() => reconcileUploadedInput(current, file, changed, bytes, manifest), /fingerprint differs/);
+  assert.throws(() => reconcileUploadedInput(current, file, bytes.subarray(1), bytes, manifest), /byte count differs/);
+  assert.throws(() => reconcileUploadedInput({ ...current, phase: "uploaded" }, file, bytes, bytes, manifest), /No uncertain upload/);
+});
 
 test("Batch JSONL is deterministic and transports the exact locked synchronous bodies", () => {
   const one = buildBatch(rows);
