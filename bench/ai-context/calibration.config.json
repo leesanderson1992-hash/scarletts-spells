@@ -1,0 +1,21 @@
+{
+  "provider": "openai",
+  "model": "gpt-6-luna",
+  "endpoint": "https://api.openai.com/v1/responses",
+  "service_tier": "default",
+  "reasoning_mode": "standard",
+  "reasoning_efforts": ["none", "low", "medium"],
+  "max_output_tokens": 2048,
+  "store": false,
+  "truncation": "disabled",
+  "prompt_cache_mode": "explicit",
+  "max_request_utf8_bytes": 8000,
+  "conservative_input_token_allowance_per_request": 10000,
+  "calibration_spend_ceiling_usd": 2.00,
+  "pricing_usd_per_million_tokens": {
+    "uncached_input": 0.10,
+    "cached_input": 0.01,
+    "cache_write_input": 0.125,
+    "output_including_reasoning": 0.50
+  }
+}

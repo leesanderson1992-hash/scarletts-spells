@@ -1,0 +1,2122 @@
+{
+  "schemaVersion": 1,
+  "purpose": "synthetic_g2_reasoning_effort_calibration_only",
+  "selection": "SHA-256 rank of ai-context-calibration-v1:<caseId>; per family 20 unprotected VALID, 20 unprotected INVALID, and 4 protected UNCERTAIN for each of five tags",
+  "sourceFiles": [
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/candidates/THERE_THEIR_THEYRE.jsonl",
+      "sha256": "6da9b2e3838983eaf52b1e21666489265779529153ba0f380abba6cca37075b7"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/gold/THERE_THEIR_THEYRE.final-gold.jsonl",
+      "sha256": "20aadfd8581fd1f79710a50d0dc317ed5dad268df6acbe3d73d46dfd60db6cd1"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/candidates/TO_TOO_TWO.jsonl",
+      "sha256": "f82c92f1c80a89254f938879379a910fc5aa9376865446cc8f6bdedafea1f983"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/gold/TO_TOO_TWO.final-gold.jsonl",
+      "sha256": "f1672c8b242eb06de65255e28c0d514e5c3523c123ab713e2b530522d8b1e9dd"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/candidates/YOUR_YOURE.jsonl",
+      "sha256": "22ddd9e30f804bfda4482a75a2860e16324b335ca851228f8376687f5982b855"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/gold/YOUR_YOURE.final-gold.jsonl",
+      "sha256": "1c365aa66ad0697d41ce18c0b78acd9b5c7e26e1c03610ad6a8933475ff876a7"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/candidates/ITS_ITS.jsonl",
+      "sha256": "0e79ca89c3c6939312e2d3592e113d01dc91ba6538001636f7d5a3a761ef5697"
+    },
+    {
+      "path": "data/whole-writing/g2-context-family-corpora/gold/ITS_ITS.final-gold.jsonl",
+      "sha256": "decaf2f6ed95250f803e42e3be812f53c805ae2a87471b82a71ca96554a717d1"
+    }
+  ],
+  "cases": [
+    {
+      "caseId": "g2-there-their-theyre-0140",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "4e4bebd169c406e652455ea0766aab193f449e0d77a3695857e9de200eff76c2",
+      "goldFingerprint": "dd495c24974f8977c7cbb1b9e7cac6929ef97f784473c0bb76ad4782d1f0ad5f"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0020",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cfecafa222d3e53bb500e351139a474ae646baae2c54d3182bd3ac9c0cb8856e",
+      "goldFingerprint": "e7c606a360e7c3658b87421072deac02aa999ffaf45e1b93a8ef10463d097868"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0075",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "6ba0f65527524c43a13888d7eaf917cba5ac435b0840967752d3643c6ac03b14",
+      "goldFingerprint": "78b2d70850ca1c4f332beef9972cdc76c0cdd26ac3042b2c577dba797c3a4820"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0107",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "eb78d0e1af8b658344ef7b6fa167904db63043c6f13233006330fb431b1472e8",
+      "goldFingerprint": "7cb61e0fd1b706350ffe98eeb9a907e2c2c086f24cdc8e3b6d715032b30a0053"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0022",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7cd599cce9da835a619e30bb590e8d641d793b945a57442e2c5ed1712a2003cf",
+      "goldFingerprint": "042f0e364f51acb0ac08605df2f931c21ac4acd13f058ebfe399327afd296071"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0084",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "47fc6d50578f45a558a5d69794e3a6f1fa45b8a558d222e0e8a66e09017b7951",
+      "goldFingerprint": "8daf952a75f4eb01ff0b510fd367b6a12964d22315c623fafca5fe94aa2264bd"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0010",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "844f208900c12c876bfb97a0ff3e797406f0c6e60fb709025499f62b841d84c7",
+      "goldFingerprint": "c9f6bd31966cf46d32a18708bdbff33194a8f22952b3cbf13631ec519bad7da6"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0101",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cc6569ff0b28133c0479c4f133931f58a1a337f493ad9e5494eb3f0c47628cc1",
+      "goldFingerprint": "af645f1aaaee8de4e4614dc0bb42c37cf98075288e481ae74ade63f7c92b2091"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0147",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "6dd052294023c6122efe57d67556b8d39c73eb5c45bbef03d97f09f7b2b4a47f",
+      "goldFingerprint": "62ddfc8b1b6834e4ee350b02fda360b98f13c892c368c88362c78a22a9437246"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0013",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "abc513bbbbaf2f4fedfc18d39faf46a7da9e3e80a8e0364f7b8053530d0b2417",
+      "goldFingerprint": "fb002dde7736094489c5919393f948143163a5afb21d445c89691b93fb3d79ad"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0080",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "aed5aa5260690c043c7e0976f1b0beeaf40809297b98de1c8afb56f771fbbcd3",
+      "goldFingerprint": "340ef5343d51ff686d92fb7ae9b83b27ba32360d384a5cc2b5196fc425a7884b"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0148",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "89ec06715a96c497ddc3875301978a9b59321549a443edb0ec318177b7fcc604",
+      "goldFingerprint": "31e60760c16f411e610871286ba89a8076e5b7146276b4b1922b77576b155d44"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0024",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0f0c6056b19a2cf1cc925c8dc103c8a8f5d906ae9a3edcffc976a5a021a76377",
+      "goldFingerprint": "71fc5b5ad760a1292432948fd1ff6b9e49922d931a4365114b9be1c80d833192"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0007",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0351ea695066eee267131f713b7123445ef3c4fa9c3fd56c7b56619b4549b08a",
+      "goldFingerprint": "df85155e35797751ca78a5efda712661c9ad227b4fd628d89eda3257e3f1608a"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0043",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a99cf24fb7dbfdf98964100b123745275c1919bac2d8fdd5e00105164b7469d2",
+      "goldFingerprint": "53ab3b67bcd7db8576064dc07d0e7d90acfbaf24fcb0bfb1d0081bf76866f68b"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0065",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f5381074568e13134554f686588b633eab9b6f0d6705e1aced98a57e398cf6f3",
+      "goldFingerprint": "93adc68806c08aeaaeab5a48f126b2be42ed4c32ba8d9a0c305a33d1a7f14b2e"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0124",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d5ce0da316c6317c5c418c6516266c23d37eb74b0af2e31f1bfad568b9031e69",
+      "goldFingerprint": "5665365bd0bb23269099a0d1fe87cd0e3b83307ab4ca4956ca4a153a8c0c8415"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0002",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "546da4350b80a43a274478a2356a70011b86f6a832da474ff1aabe286ad1e8c0",
+      "goldFingerprint": "138278f91f4b93571fa58dffad8a4ffb105773dfe9350fe26cf9441aaf7d150e"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0139",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "daac32caf16ff92359818f8f7cc266257f9e695d546c40312ef6fff37fe8f256",
+      "goldFingerprint": "c7e8507d518ca1b247805d9f1a18ebc8d9f0fecf18f087663ac8e381611a5765"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0086",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ea08b97e8bed4506a38f87e3ac8e26f43bc16267e6c8608b5bb3b8d6d62aa75f",
+      "goldFingerprint": "3f7cab3c467102ceb3b1ab977ca3adbcbea729f4dae8ea03a7dbd3eac52ef7ac"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0208",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "309d86f717142db6950b2b6f5c189c0b9a979cd09d62caa442c29ab0f34f121b",
+      "goldFingerprint": "e7e893e986b46d33e6a10dbf360f459ccbd64149cb41c5c313cc2f652bfd6f36"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0282",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "696913d3f824be8faacab79491997727d9603121d8eb25d43c980992605284f9",
+      "goldFingerprint": "f660b2c5f2054a7747fd3d48ef74629401a2cec03c3a4b2fe20d82abbc67c350"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0180",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "3b489f6a937866ef04539b5c6df036bce7cffd66ac794772ed51a215b6e4fd74",
+      "goldFingerprint": "1960f9815f950368bef6d5a128c75a1d68fb771c7049412212933a903691ff69"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0188",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8b194e0cfb6d6a47baec8d412deeb632a04c68ddd3e54af58174a9a1d00ab10b",
+      "goldFingerprint": "d13a77f0f0b6eae84f3a9523cbd88524a98e1630b1641f1298aaa4058581109b"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0280",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8e8979051b82aa5d9648054c5381657f27d3a6d1d4c3c9d0188f400e231095b3",
+      "goldFingerprint": "d30d108a621661f7a5107c98a7126cb069372cf5119e344b0b58dc96cb3a8cbf"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0246",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "39beb9355df8c327eac6133f2979c4b89f5cf26e383ddedc87eb1224b0038eca",
+      "goldFingerprint": "ccbce6ee2b8d953ef870ef442fec27b84ea2907987a1187d94850da9a767399e"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0199",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "54cb0b20a9c740f7319c858ee518c5125cb774cb354ad7d2e57bcbbaebd4254e",
+      "goldFingerprint": "eb032f52bd1c0ab0a12ca5b610ad93c4b7c167db6f034cca4af5fabd1baf4d09"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0210",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "25cdd1601c1a72f40d02cf2216a4997536ea54f2f1485e097878f10310f96289",
+      "goldFingerprint": "1e9c7c7f2875d3956d3a52542a4659a5db72281e1e8f4cb2bf002579b3634af6"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0226",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "07f3a49ea8b75ebe935e81d2237961a0451db26ad2913bee668ac62c017f12c5",
+      "goldFingerprint": "f4ae5f9864d6238b7cbd80cb8e91cb2ced4233da775cfff932dc125af253377f"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0285",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f5a2972d7a6ea9c1701298f614c183a778368740f6b5f622d83cbed1321ca4c4",
+      "goldFingerprint": "cc9d298cd2a48cfea55bb2a62b1ef25dcb82d98d96d9922b6ff2243fab327d96"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0207",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "b98cf3299c631e51ee4a9e52bc29993382b1e6bdad17efe42e5b38700e8dc204",
+      "goldFingerprint": "0d8645ac7ae4b74167987a4898d36d136fe9dd280d0b9e8da42555c528605949"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0264",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "02d85730e73443f4a0d4b59a5bbbb81e6c2d34b09987aafd994db00392aff624",
+      "goldFingerprint": "1ab9b3628bf47d0f5ad353314501c9dd2a9b494c9432b7f51e629c4f18a14d18"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0160",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "b7c35d0cdf3e3008f23b52cca1ca589f95ee4d1ed079cbf262ec32a6b5941530",
+      "goldFingerprint": "58ba1025fc861000110021d511178dc9d2a9df876c3888d5fdabe06f7b12e0b1"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0219",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "275504ae47dbb1b23ab34e2aee680859ce04d35c82a5eefbaacac7142a2927b8",
+      "goldFingerprint": "d2854fd143918cd4111dddfed0265ed38f06ec24d73a966b83f675a292fd600e"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0274",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "dff001fb2a335a602fc0d9a5e91668d6d94e9c68dc3f30000945acd607df08be",
+      "goldFingerprint": "0e135c9cc249bacee04bbf7daa609d75d1144f4c4d159e8c6096193dc005b37d"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0216",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "9ea67b2b1c239fdd6ee558b871ca3d660910b2136899b3c4d0edf20b68331109",
+      "goldFingerprint": "f0f76626ebbc086354935b3c7f51d6735e14c2d69545ded5c4b8dd70fad8d3f9"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0209",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d52b606790acb600abf0c1d2ae8e49a346f299b20cad1697446e998568d216da",
+      "goldFingerprint": "e7ad2c52943d97e26cc1054b31a674e1a98312d2647341b4585cd7e71b0cfc90"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0167",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d5055a25b795e8a10bc6ce56c19a738c58a7597319f4faa04f18f2357da6fd7f",
+      "goldFingerprint": "61ae6d543174ca2e5e7988763680a0f31e7b55c1271476e2337b7a0061171bc5"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0252",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "fb44f160ea6c2d679b2d5b67267608696a05f770e064aab861ba740d8231ed8e",
+      "goldFingerprint": "b0d3b15a118af096137141402764f8c95e99b1210066a8ca04e46249d1593169"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0245",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "046837ec8d176c1bf1e1b8273e675226f02461a89b6f1f73e9a2af7483018076",
+      "goldFingerprint": "6c29d4086dec05a83c85746d2679d8ace6ae4805a97dae2c1d4f2b3a1c0ad486"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0304",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "f301096a65acadca0a7824e69af2f0f4c5a29b91adb26816dccbdb2e4b70ecb6",
+      "goldFingerprint": "f6953b3a2ca82bf91ba9919def5466d8e57a0b1fc62490b35925cc09e26e1a43"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0310",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "7250a2607de4a2aa1b08b10ad4727dfc2b05463934b0a8fe7f51dab49fab6b2f",
+      "goldFingerprint": "f98234af0f11bd4984f711c487d811c036b30c541813ea7083ab7ec58ae826dc"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0305",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "743b54de3850f95d6ac347784366f63eb009619b3021ad1c02affb42672ed6f4",
+      "goldFingerprint": "9a5015d13af88e1e4fdf8284fdf6305c5bca30c654ba03720cf055be76d5a23f"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0316",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "ff4d8b198e19ce3a78b5feec3a28ccfa0b7e336818a19a021dfb316e44d4026c",
+      "goldFingerprint": "a2aece8c9d50025d892c0e781e4af78511422b21f18cd9f5378fb9458c283876"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0325",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "d41c9f3113ace0e3affe2a68d19c5a0dd2d985dc41f18ab70bbe2887483e103b",
+      "goldFingerprint": "86d2a29452c82475758f720d792ba1d9385dab39a33754bfd9531bd293d1c3fb"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0334",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "165bdf5d8e433c751075273cab3df0901c78031eeede98206fad19c8d0f7aefc",
+      "goldFingerprint": "05371fcf2cdbd94b2c40b26496a2a60441801e3166f4da80348cb49ab2ce96b7"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0330",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "eff0bb4ef3f6068d9e5a5779c7dfb79839821a0b158ed51d73a5021a63b756c3",
+      "goldFingerprint": "57f07e3c2afe45f0ecd55ad2a7f8ecb905c20efd4f69a47a7403561792ba35cc"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0338",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "f718a8accc3d4cb585676333527adefb72d74bd048950ac4e73e5133c1a86592",
+      "goldFingerprint": "a6ac1547639b160a43b690bb1aa6ca03d44538f07df33e2e9a5599d266579f59"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0347",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "633f2788ef0bfecbed7d0ee588db9c62c794d712e24c66f3a1fe0ec9eabf6f3a",
+      "goldFingerprint": "ec9ca6f34e7b01cad787eeec93793b1ba72e07b53b3273c4c495e6465a9c8b80"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0346",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "a8754fea0db2e45f714481dc675076bfb1cbf6d9dcc228e289f74ff799d26863",
+      "goldFingerprint": "2cc5c8ce4ecb89d4faa2f5bbbde542288144f19e8bbfef8d231eec5fea2853c4"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0341",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "2a28d892ec4facb38384a7ccec68ae50913daab21d44eb3c9228d41643c35b0c",
+      "goldFingerprint": "d2261781ef698156fb1adcf1043c3385677a53d53ae936b91b2b050295aec0e8"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0356",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "aa4ecc8c9f3b63805b316fb9ac9da467235d4efa9550c04a9f201e5ebc52eb0b",
+      "goldFingerprint": "400db8382e163dbd434554aab795bd3fb63b987d9bcd3c8ecab74528d50ab305"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0375",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "20b8a2c302bef799deaa77a975674a3f67bf8dfb0d159518dd8cd3d531ea3b39",
+      "goldFingerprint": "6c05c61e2e0b6cad16cbfa98622d231650cea4e57139031ad549c8fc365ed422"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0363",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "af8cb49ac656163c36eb6ccd6a1a742be25755649faf15fcbcbd1adad809ea1c",
+      "goldFingerprint": "bbfc725cfafae8e6f867bfc04bf500af096f43671d2c05c71d78f56d3f3932f0"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0368",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "3bf98ab1230d085a48d39e60c486301e9b4849f9e6e4a4f60f7abba8ab6a23ee",
+      "goldFingerprint": "b1559dc8297e49931eed2a4e2fa47511e1d4a1756edace3e8928b9c4f2327967"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0379",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "e56d7556deac22493c4d0bdf33d08f8b7ab20735c3442bdebfbce5ee58062fa1",
+      "goldFingerprint": "819ba1ee945623cd9e8bb08463c6222198facfafe05cf996524e046a00add63d"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0396",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "37cea2d04cd8fa5b98b0d1201d673f322c28aa342ff08facd93cb529ec6abeda",
+      "goldFingerprint": "d9b5726d3ca30aa07ef7056ad6e76d627f7d44401c405be56df25c1b1eb4d15c"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0399",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "61ef5159cc59fa7c8c3ffdd02984ad9fea89400d53009479b8de51d57318bb79",
+      "goldFingerprint": "ea10872e0e28bfb9e20503b82f1d922c13af9987b8d67546e2f2ee6b3a55a464"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0389",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "57dd2c09a0bab6addf12dcd8182aabd569f3c289bc68ce046896efab34b17c97",
+      "goldFingerprint": "132dd7fe0a1babf2c760ef53875ef37a55d2f8ca389539823f0d26e9437cf112"
+    },
+    {
+      "caseId": "g2-there-their-theyre-0394",
+      "family": "THERE_THEIR_THEYRE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "69e45c6682596f1bec87006bd157535c1736a452079fa00be9df5c8cbcbdb56b",
+      "goldFingerprint": "5cde305821e31e59a177da8b45dcd46c23d8ac22e2709683e6a7dddedd97bfa7"
+    },
+    {
+      "caseId": "g2-to-too-two-0118",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "15defed294210a16e7af092d65c663fc1fda399cc26c352010dd826335bea82d",
+      "goldFingerprint": "8d5018b33d4b3a464545b64d0edafca1af8ef2c118e3e1c20e057c734ad243c3"
+    },
+    {
+      "caseId": "g2-to-too-two-0054",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0ae63a0edbaf12ed83bec87b56ac72dcff9921d3321ec4f90a6924d866709b2c",
+      "goldFingerprint": "d834968a97066fb308c6564abea2f2abf0ec7899353552a74c6e4593c1b3a790"
+    },
+    {
+      "caseId": "g2-to-too-two-0124",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "e08706aad26d1da21e5b23d5467a0372354dca4c3b7af694521788d49819d269",
+      "goldFingerprint": "0a8ca9ef2179f198acea4190c508436d873990b5713ab3d68a698bbefbab86a3"
+    },
+    {
+      "caseId": "g2-to-too-two-0041",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "e9ef3617d00527d753b18478b58c1342c4859b80a52e4e73a0a094a74520aab4",
+      "goldFingerprint": "14024def9f5094baff1498737dec74f5e4d99bd1041b179f6337782f19b1f59c"
+    },
+    {
+      "caseId": "g2-to-too-two-0012",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a536873abbcfac77d29217b87fc0938d0f9a82a2f376a0f070226deaf841b0ac",
+      "goldFingerprint": "6341b191d6d6425b51ec6ce57bec6ea81784b1f9deb5f6bdec3a02f0b0f1a565"
+    },
+    {
+      "caseId": "g2-to-too-two-0109",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cb3eec7b903e9068a51692aee863dc00f211fd7daefea740bb21a1aa746afc2d",
+      "goldFingerprint": "b7886f7f12fa0def7143ccd2ffa5df3e71e0f52ddc79ca0b8ff813a731c7b187"
+    },
+    {
+      "caseId": "g2-to-too-two-0132",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "56991ff5711e259d6d5a88b1114934eb15ab2ac84576757c903ecdfb34e85025",
+      "goldFingerprint": "ad6277c958183f3631c1f169270549bfa6b996bac4e611c417e6ca087273346b"
+    },
+    {
+      "caseId": "g2-to-too-two-0110",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "785b4864adcd86da5d3ae5c6a2625c5696c14b06cb2f3e919ae1c24d6a3a8ea9",
+      "goldFingerprint": "df566377663afd9680fe774c794b3145c592ad81d87f52846756a8a91a2cdc7f"
+    },
+    {
+      "caseId": "g2-to-too-two-0083",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "53d29ebe6f498bc0064b591d6f28a7cc36b2400991cc2e7fdf2d3dad8ede9ee5",
+      "goldFingerprint": "a060996fe1689bfaa6184f43ca8bbadd6dc2823b7ebad468416e5c94805f7bd2"
+    },
+    {
+      "caseId": "g2-to-too-two-0111",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "25e0c9b6182de61790be00897f15cdd9bf989a6b3bbbcc2659971a6912ff9e6e",
+      "goldFingerprint": "abed8c267f8b522603957fa80719a7ed8e92c501b7ef3f6f38166e25d2c9cf3f"
+    },
+    {
+      "caseId": "g2-to-too-two-0019",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "542731a5b5179a1f8a56007bc2c1ded09ac28e68fdde89603a1dc3511fb4da7c",
+      "goldFingerprint": "7dfe1d1510e275ba2ee6f02ac6c94c1154679c5dd8992c3292bf95766f02e6e3"
+    },
+    {
+      "caseId": "g2-to-too-two-0042",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a154cd834ec4a5eadab82d438b1c6eb2235c91da57cd1ba136834bc1e6544243",
+      "goldFingerprint": "aa367741517eccfabe028881c4d7007ff4fa7c00fd3f4e7ab15bf7a9eda0bf98"
+    },
+    {
+      "caseId": "g2-to-too-two-0039",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8d7faa58fcefaf9c7559ba6c07e66c19fe1a2b3570dcdebec872b3d2eea4aa8c",
+      "goldFingerprint": "8361e0b7cfc10bb2fd94009d6e206eb3fce21bfc9005910b1ffd5b3e4c3849a9"
+    },
+    {
+      "caseId": "g2-to-too-two-0016",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0abde20f3bbc757092e15d92302805b427bc69d4b52acde1929db7cdc444f323",
+      "goldFingerprint": "8ea15597bf6de66a0c2fd09305ba371b74cf9ea4cc8a685343bfe5405e4006ed"
+    },
+    {
+      "caseId": "g2-to-too-two-0021",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7fda0c6172e633f8cb60a22c52c6f65ca588c29e112bf0dceed9eed9082c3656",
+      "goldFingerprint": "288b24b8b342f49f78a7c917a04235805ef2092d5f897f0bd0107b41f705341a"
+    },
+    {
+      "caseId": "g2-to-too-two-0080",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "fb743f7550132e4c4c5cb732a9210f93bc3bb169193a3112868ed88f434c6bd8",
+      "goldFingerprint": "303da06b9deb1047560fce76a6c968ce55108cb5840a4ce4124a3b4f80fe7d8c"
+    },
+    {
+      "caseId": "g2-to-too-two-0013",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "2c3d66bb2ea258c4e8a860f5fda7eb4dfe5e5b8eebfdf9714ca3d84f157e2a75",
+      "goldFingerprint": "40efdc24d8dad65e61b1a5b3853ca23df134a9db50b1d33a8ad4a2d82059f1a8"
+    },
+    {
+      "caseId": "g2-to-too-two-0022",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7c3a313f43a23f5d0333e24d683feade7c01498206f79f4497afd07224041606",
+      "goldFingerprint": "6d368e83ba01a5b6504dded8d1d75cef17735488b68c03ca4be95e7a96305668"
+    },
+    {
+      "caseId": "g2-to-too-two-0066",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "71fc0ddeaf946041b5a12d4d15a6c4df5f7fe408a0a711265089ef724c0fb50c",
+      "goldFingerprint": "bd4bc6b6e80d3bd210776484adec6f273699a9ebc4360424702615496aec0906"
+    },
+    {
+      "caseId": "g2-to-too-two-0136",
+      "family": "TO_TOO_TWO",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "1d0ea6457fd82d8c1407b0f54b7293377326cc85a205239fe6bcc032459f5eeb",
+      "goldFingerprint": "e101e18cab61dadabb76d1b3309d8996b7e54d3cd6e53456cecfb979bd8363d5"
+    },
+    {
+      "caseId": "g2-to-too-two-0234",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "62d5478f431696604e92e807e3446a40ed513b91a16ced9413effe18fb92b594",
+      "goldFingerprint": "b63125d72d7cf2dc609139a6c87d563a4884cc5137686846de4ff38469879540"
+    },
+    {
+      "caseId": "g2-to-too-two-0177",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "bc993dbdeec6f63764eba29a6d3cc5996229245f5eba46f2c06876b1f59553aa",
+      "goldFingerprint": "80fe6ffce0c94d3916d7c0fd60e5e0937ae2624a3a1c343485431c892fd9a884"
+    },
+    {
+      "caseId": "g2-to-too-two-0288",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a480a8449ead2ded144c8b7f579d27a713b1d95d5146748759cc3c91154aefa1",
+      "goldFingerprint": "5d66a8a1554988cc7b4772f32f0c6787ea465df4f49f4caf4d2d4fd36a72d386"
+    },
+    {
+      "caseId": "g2-to-too-two-0271",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d3c17f549143f28aef26aaedd439e4d50e79f54a5d4398e27011e60fd8b9cad8",
+      "goldFingerprint": "f61adb4365c90a62282167d913732403115b3fd0db31a9fff58ddeb84bde118c"
+    },
+    {
+      "caseId": "g2-to-too-two-0252",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "470371b8d961eb9661a1ef09d229e28390c6ae67ec07b0b66bbc21e051829a66",
+      "goldFingerprint": "1a8150cd3008ab18650f3fd493b30177c0866d1742d72c731890b7a5d2c3e8d0"
+    },
+    {
+      "caseId": "g2-to-too-two-0199",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "dbcd83b1c424abe3d1e27b88d01762af8afb61e49b0cbb58c9e8651dd99ecddf",
+      "goldFingerprint": "81d988f7a671899800d58ff8c490d326dd0822ff26e0ff0451dd3333030afab8"
+    },
+    {
+      "caseId": "g2-to-too-two-0268",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "e2073bf6cf379e84547170bbe30e1f8237245e1558029475f92438313d0888be",
+      "goldFingerprint": "1346e666b55bb585f51c2cd5853ef37a4a14aab78e577a5b7c03be3982eba3f7"
+    },
+    {
+      "caseId": "g2-to-too-two-0230",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8a07939b6a6ecab4e02e00769951f9c65d48868e637404751ec06a483dec8be4",
+      "goldFingerprint": "08e32db255fdffa94b03db0f4785df99d68972c3cf437d6d80009a21c04fca6a"
+    },
+    {
+      "caseId": "g2-to-too-two-0243",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "e5c1e584da8371e4822600397047ee0d39021aa2caabb4f89241c4dc44b3356e",
+      "goldFingerprint": "dd23a5ee868ea12ee5628bd9aa4a364a9543483e2bae08183b1ff73ed1d9d2a6"
+    },
+    {
+      "caseId": "g2-to-too-two-0298",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "65e89db649e0e11dd776574329f1dca006711ca8d1f1c9fd98c4e7b4d2ed7f85",
+      "goldFingerprint": "64ef7830031fc3b7f0bc6de3615b95b62bfb7819512a87166650b277a675da7c"
+    },
+    {
+      "caseId": "g2-to-too-two-0224",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d3cc531deec3befa3d6183fa50d7749a1ab9b388f2bff9b4374425f2913255f3",
+      "goldFingerprint": "9e853a564c75ad3f5e94263bc1e6e2d51d9da4748971645ddfcf5d056edb27e9"
+    },
+    {
+      "caseId": "g2-to-too-two-0241",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "177fc3aae5048a07f431e32ace9dbcf6a86d3db7988d477917fc9e915c69468b",
+      "goldFingerprint": "9a0ab0d2d36b5de5ceba473ad5fb0cc85aaa874fefc711792118a3838e4dbece"
+    },
+    {
+      "caseId": "g2-to-too-two-0197",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8f684e2b3d119e42bf1a3cc9b24634cf560457ad1bd3f8a66682ae0ab5508ca7",
+      "goldFingerprint": "a346ab736c5071bd684786e39b089d29b977782ab93d52ab72d9f67bd9e1790b"
+    },
+    {
+      "caseId": "g2-to-too-two-0202",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "2a3e6b2f8e0886d93ee75f155aba2d34305404c8401ed0e8f42927abb30b86da",
+      "goldFingerprint": "091a7b2e0830b848a765363fda7fa14b9d6dd21bdc799365c943c73a2f98accb"
+    },
+    {
+      "caseId": "g2-to-too-two-0297",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a7a4e4a0c5157680051cb8e3969ecaa315050962f4c4076fb7250ed2ce202190",
+      "goldFingerprint": "024a94a0906273818c3e678ff2ca3cd62cc8cc2953db8c97ba2fe9ae251446bb"
+    },
+    {
+      "caseId": "g2-to-too-two-0278",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "00ca3c1d1dbb09dae8b6f945be4947292d1949ef2f68d1697ea0b4faecb45f8f",
+      "goldFingerprint": "50ad960493dbbe6563901889287d3d0f28c7c36755b19b52c45f6ef6429adea9"
+    },
+    {
+      "caseId": "g2-to-too-two-0162",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7dcab9dcf5d3331b793c2abc1dae1d343bcda5729901c215d91016aaf7cd939c",
+      "goldFingerprint": "151d98153ce97220b9cc515245303755a0e9e26c15518d1e0a85200c5b481549"
+    },
+    {
+      "caseId": "g2-to-too-two-0159",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "02cfe0ecd7d7ab0a59898e49b5196cab5877b94523439e1d97a67afe3ab34f12",
+      "goldFingerprint": "60180f660ad2348d0aa381815612a2d52d937322fb64e7c1bf092f734d06cf0c"
+    },
+    {
+      "caseId": "g2-to-too-two-0207",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a650742207ba8ff853d3e0992e440a073ce19025e1a10c11dcc6f6ac95f940dd",
+      "goldFingerprint": "6f5927bbf3e10a59555c019017c9006f3e805f198d2e747676ae4f4a0258e212"
+    },
+    {
+      "caseId": "g2-to-too-two-0168",
+      "family": "TO_TOO_TWO",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "877d1eeeed3d7191c199bb7737ea81b192a1787ddf0195b2f17c378d483e80a3",
+      "goldFingerprint": "dad538e1665a583892457c55539c0a2aa96cc0beab306a9ee53d0f111f449d9d"
+    },
+    {
+      "caseId": "g2-to-too-two-0314",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "1946dc9d1f91b32396f3f9ca92b0f10b3a5a50bad101fbcc011119053d2dbd17",
+      "goldFingerprint": "b29abc4e3b15b308059590337f3eddd992934c0ca7f7a12182e2c7eaf9795454"
+    },
+    {
+      "caseId": "g2-to-too-two-0308",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "323678b7eef87bc484a1474169485ac5dcc8f604cb79256a4c73ba23bdc43c4f",
+      "goldFingerprint": "682099c36e9e7c7196dc6583841b58a56f8ab66f6e9e0847c1d02a6746a4ced4"
+    },
+    {
+      "caseId": "g2-to-too-two-0317",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "a915d2f8df56e122bae56268c62c9aec33b26b52fdf92389b67c1d1aabfe5c4e",
+      "goldFingerprint": "a4ea2ef2ab16ce58154f43bea029286a9fbbfea52adeebbebf882eed8b13d3d7"
+    },
+    {
+      "caseId": "g2-to-too-two-0307",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "3ee7cbb514cdb817cfc2b49b1df9b8a1fd2b175b8c925e74f8766b0a62d9938a",
+      "goldFingerprint": "121def40cda54e2c9f45a59abcc537068611f6b2e691635179be656e7a2e1e32"
+    },
+    {
+      "caseId": "g2-to-too-two-0327",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "6fb7ec3ac9dd077274f6d1eccae567500b4c4932783f1217ac841ace4cb5135c",
+      "goldFingerprint": "44bc939016ec52f9f1cdb280370261a0c5d5d0f97b7413dea3de0ffddb7cbaa1"
+    },
+    {
+      "caseId": "g2-to-too-two-0331",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "df979ca7fc9188145bfbdec85ead7c3dbfce850042d92e9067545b32cd629021",
+      "goldFingerprint": "4e435c8d97da8e4e20fe08715e8bf721978424f40dce0eb202835b290348e9a8"
+    },
+    {
+      "caseId": "g2-to-too-two-0338",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "79662e253a95913c39201ca20aad865f8b59628643802598fdb03662a3aaf2c1",
+      "goldFingerprint": "c6ccbcc716a8c0f8f622a9de467239744a3a51f465a433b5bb1cefb21ffe3acc"
+    },
+    {
+      "caseId": "g2-to-too-two-0328",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "e6c41f04b76ebc48e678b9e3e4a8ae2654100ba65b25eeb073bd77486ec4dcaa",
+      "goldFingerprint": "ccae01824153c302eecd8c52e13d637ec41c550dc2f584b5756e57d871d46321"
+    },
+    {
+      "caseId": "g2-to-too-two-0359",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "83844cba68485527945055bdde6b72783238b0d90f0ad349b87a1a5e5c5ff871",
+      "goldFingerprint": "96298088cd9bda066cc15e985b48f7961851275d6ecf1c4a1687fb399be28a1f"
+    },
+    {
+      "caseId": "g2-to-too-two-0347",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "cdf894c3384b150f850f7bd60c2adbb1b97265c36f42b881a91a8e352cb9bd8f",
+      "goldFingerprint": "b621d9d4b2a8907595cd5789172912c8435e6822a5d6456824535112279a7759"
+    },
+    {
+      "caseId": "g2-to-too-two-0342",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "1a10e3ad692eff00ac8c2b65d801df16811c6c01e11cd5030cbb9058d42408fc",
+      "goldFingerprint": "9f90ef1a39ac8fb6408f855ac6baa3339f7e18c5f1290c0d1ec6cb90542522e2"
+    },
+    {
+      "caseId": "g2-to-too-two-0356",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "cbb20f2a68f9a9d71d44fd61cb2198f97a4e79827349d4317c1ba97787e7f0a6",
+      "goldFingerprint": "3eb6ed52d8334ea85b4c94fcf76263cb9903272a4be46aaecfa943fa39af0df7"
+    },
+    {
+      "caseId": "g2-to-too-two-0369",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "d2b686bb8b3f5d6b721e9d3f94580fcc44d0a5bf6c35439131c4aec3bcc99aeb",
+      "goldFingerprint": "919344b535f4792efba158bbb1bced2bcb4118af96e8cab84ea7bb3ac551632b"
+    },
+    {
+      "caseId": "g2-to-too-two-0365",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "ac620a0ffdb74154fb0c650283d53f9037df7ff66d90064e980454b289a82e65",
+      "goldFingerprint": "ce634847b9c9bb066095c4688c64ded8e15e15e29828e5608b836b87cf320d50"
+    },
+    {
+      "caseId": "g2-to-too-two-0363",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "858c77777a02fe8116a3b34b1016fd1da746fd933d058b7bb7ec80c0f7f4327d",
+      "goldFingerprint": "f0c9094504cb93dd0e62e5fa07b98aa11106b9a40792083ccf0a49bf6059ce66"
+    },
+    {
+      "caseId": "g2-to-too-two-0371",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "7bc62b83c494742a3d9a7a288cf92cdf2d7580adaf5306bdb69eacdf2676bf7a",
+      "goldFingerprint": "144d27ceb658159aa23b7ab77a33ee91ebd8c84e82a67845cdac650fd0767522"
+    },
+    {
+      "caseId": "g2-to-too-two-0400",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "198b0176c703a58925ac040c44d2ccc9bf0799187919f6d1daeabf6af194915e",
+      "goldFingerprint": "b9b7e410c3fbc23aa5b3961111b68d5350417f6a02e62094c290d4b4d3dd3920"
+    },
+    {
+      "caseId": "g2-to-too-two-0399",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "cc7bcc213f5c4e99ded69530bbb142d1e879b61a29d2c8c8c99e0dc1ebe85174",
+      "goldFingerprint": "0a72b9817eade414323d715c0183897cb4ea1f6bc9eb55798382b1ef7f4290e9"
+    },
+    {
+      "caseId": "g2-to-too-two-0392",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "8d9f80d5aaa9dd1beb4173becec01c84e2680e897683dcc1371b9aa0a8f83225",
+      "goldFingerprint": "31c3aef965a19ff0050a9fbfdca6f5b022d8bfdf7e48abb217f6b5e66f87375e"
+    },
+    {
+      "caseId": "g2-to-too-two-0393",
+      "family": "TO_TOO_TWO",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "62bd93dfe175059f9d7c71aff74719450c07513f22dffb6bf670928ee517a934",
+      "goldFingerprint": "c4ac7338a7348d96db0c8f2edfaa9206a20e191f4f7bd8870330c306707b17be"
+    },
+    {
+      "caseId": "g2-your-youre-0145",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "63ffe93a7fee924bae3006430cc965bc4a566d1b822117c3f0f63ff276be575b",
+      "goldFingerprint": "6188c95856b746a819b5712ed9e6b8c766ae32588b18738f54f6628348962a01"
+    },
+    {
+      "caseId": "g2-your-youre-0116",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f6c3a0e1f975de0d3619a92d0134970c2f40f09e3d761349acf7b87f50b72209",
+      "goldFingerprint": "65704cd20ee948918baf1cf97a187490316c5fec3e1a74ef2c81d4aee0e13d8d"
+    },
+    {
+      "caseId": "g2-your-youre-0134",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7b258661d134f58ac0cabe4f9db0b02141c0be458bea7fa3e06b6ea8c9831b8a",
+      "goldFingerprint": "3ada2dac4457e8bcb346e4aba7552862e8bc3baece0198fec92aac365b6ac507"
+    },
+    {
+      "caseId": "g2-your-youre-0079",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "59cc6e793a19ec649e80619c24b7a4b7d6c560310b5db2b00830630b493285b0",
+      "goldFingerprint": "985b67aa1a9d9684c16c982c9a7ed7a433de05aff1fc66800fd89af7c08542dc"
+    },
+    {
+      "caseId": "g2-your-youre-0140",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a05a5aa53437d8185817a310167ebe5c34d2687928d42c9e08a6fa0a16cac876",
+      "goldFingerprint": "484ea9b84c837414d95b3669ff395441f63d80861d9e64ce124d91e322aa1dca"
+    },
+    {
+      "caseId": "g2-your-youre-0133",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "01876b9e2dcc4b713f0cafca0397f2c3b81d6bb02726812f88193baee9d17f20",
+      "goldFingerprint": "b83170934f4b719d16eea621714831bf2e114324bdc581d5189b440992cde8aa"
+    },
+    {
+      "caseId": "g2-your-youre-0012",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c71da592d4dd79ba338600c8d0619af9d7fa1b68f8668cc7847863ad398324cd",
+      "goldFingerprint": "593175df8596f1e4ce49451de061ed9233ad1c85382505182c41a813f8c9daff"
+    },
+    {
+      "caseId": "g2-your-youre-0076",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ef984609558c3d8eb9dff1d6676395b7b9509d9a742978c5873830fca0f5b568",
+      "goldFingerprint": "25210061696f6ab3d1b39ee7b4cd1bfbe516a058fb2ad6061c800f6b793c57af"
+    },
+    {
+      "caseId": "g2-your-youre-0013",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "6763701f676c248bf91dbc67ce2508a8b5f247aac273fa10362d40bee2dc51e0",
+      "goldFingerprint": "8bef9474314f56c6b0b36c2692b0d548ca19fda000e67b5b6ca3335e048c061f"
+    },
+    {
+      "caseId": "g2-your-youre-0077",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c36731d720d92995c1b0a308b1b3410bb5c9021651f0c8f158e745bfd8018689",
+      "goldFingerprint": "8f29ef355977e618f80e5a49114dad22cc3e85f53db8de0eb25393941b26d3ff"
+    },
+    {
+      "caseId": "g2-your-youre-0003",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "4b3668f8393c6e17dc88a4f1f37ac7d37d9b18ccd39d16eab8d35d0cd5cef80c",
+      "goldFingerprint": "e2144bf70f77be7b222d97d15d3f2bc60d70cc9ef479ad8b6d76ab188814fa1c"
+    },
+    {
+      "caseId": "g2-your-youre-0090",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "490a3a666a613e83e64f58a32d61eeba68bb75557b1fdd89ec92877aa8f2a047",
+      "goldFingerprint": "66b68dde93efae25dd7ce8e92c52e882e9187b3ffbe870b45c356be49fef06c0"
+    },
+    {
+      "caseId": "g2-your-youre-0048",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "acae54184cebed9d58cb7cc33a2ea195855e95a1faf61ac620dce673c88a2fde",
+      "goldFingerprint": "0f8d4241210f3257c03bba00dfb8a8e932826fb3a253ff909c441377f292c6f1"
+    },
+    {
+      "caseId": "g2-your-youre-0109",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "39756227dd05a6b817e5ded27ae513df7039e13d78b54711b56887a5cb3e6a28",
+      "goldFingerprint": "6ec7cd711ae47ac9177c16571006f30f099152ef4dac788e7ab37d33113ba0d1"
+    },
+    {
+      "caseId": "g2-your-youre-0073",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cbeefb7bad6947f0077d1fae8b852d100e76fc0d653c8ad1014aaea61df9b946",
+      "goldFingerprint": "dfceccbce52aa84b4e2e13679e18a8b535fa6a75e57201108beee76c86890242"
+    },
+    {
+      "caseId": "g2-your-youre-0115",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "e824587a6f0bb9e5dae07e280b7093006f3add0cbc721f67e4c56c5d65fb84c4",
+      "goldFingerprint": "17ef3f79eea5c542e25603820f596486a1eaf8266014532ed294b20c203aa48d"
+    },
+    {
+      "caseId": "g2-your-youre-0087",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f67f700cd27b82ad3edcdd736d036d31feaaf7d36528249f7bbf71e199499bec",
+      "goldFingerprint": "c1b94914d2c31b843c71947cb20a4304c98815c43d1a8957c69f49069668bccc"
+    },
+    {
+      "caseId": "g2-your-youre-0064",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "1ce53c0ab60c56f9321911b8b94b1dbab06810f1bd884188b9a154d21d2b7563",
+      "goldFingerprint": "ab33bb9e3530c4f971d71cc5b9c1fcea8309d6ef808b24d6aeb4a24343aeadf3"
+    },
+    {
+      "caseId": "g2-your-youre-0006",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "57d8925c94d2d3a7cfcb8fd682ef32f75702a11714211a74e84f2b650f175c70",
+      "goldFingerprint": "f8808acabda355fa57021a1cfaf1d118e4e39b241b5a17079300e8c5985f3b1f"
+    },
+    {
+      "caseId": "g2-your-youre-0020",
+      "family": "YOUR_YOURE",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "24e4ff9beb4c78bdfd6832f9ab8be3f78644093cde1caa16cf2ad08c20709a59",
+      "goldFingerprint": "2944949cd8f65d1fa872cbdb357d472481cc1ee0098d5e96062be93b5fd11b80"
+    },
+    {
+      "caseId": "g2-your-youre-0187",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "67938efbff260c32d1866d0b894d66196b8c552a176c62096cf2eba5202f3059",
+      "goldFingerprint": "fa3a7210b336c2a322cb2220e2378c05c1acfcfb7a55e1ad92fe61ec06532f24"
+    },
+    {
+      "caseId": "g2-your-youre-0252",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ed81076817bde633cd923fc3a381652d643f1da6e4b7ac1dfa8a4c8787ffdfe5",
+      "goldFingerprint": "48f98426800b2d5176555b1456947bff6e569d976e9a399e8fc530ff8e7d04c0"
+    },
+    {
+      "caseId": "g2-your-youre-0167",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c14de05dff997bc2139f910381ab1ef634a86fb4f1e809207ccd8937cfce2a62",
+      "goldFingerprint": "2bdfecabbd3c781b33cf7b83b8f63e16910fc184fb59e28fb6e2f88cfedf4935"
+    },
+    {
+      "caseId": "g2-your-youre-0297",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "1c1dbc5711d4334158676211f1a658ef7ea58faabe925a9dcd7e4301ce52b068",
+      "goldFingerprint": "588e90d8da50c8ef2d5a781d5fd6ea22dd3bed9ec652159fce0432929c00cb44"
+    },
+    {
+      "caseId": "g2-your-youre-0284",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "22a3b3f051e8b5dc74b65a1662c78c3d38e934b2e969e1ef450b5c7305dffb6a",
+      "goldFingerprint": "78ae29596f67bb7c2be040eb0c2908e3312814225a108fb17cc346753717364d"
+    },
+    {
+      "caseId": "g2-your-youre-0267",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "3aceab764d85b31abf290167526573929e7053e3cb6e11bb7b15646c7178b346",
+      "goldFingerprint": "a6e58e9d48cadd3ca1865f93412875ff5e829ff373a3eed2f6a4a8326d02a7f8"
+    },
+    {
+      "caseId": "g2-your-youre-0246",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cce51d8faff896f89fe84c352dfa76153282e9d616ac17cc42766a6611255d61",
+      "goldFingerprint": "ae53f7afe604a5d14ef4c23cf707973163dfb6bf0848055ed40fd134c3b7ef81"
+    },
+    {
+      "caseId": "g2-your-youre-0212",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "4139889df57d25cee7b880980677279194e028b96d24c829b35bcb5ef84c75cc",
+      "goldFingerprint": "556faa1c4555df629e4a0579398ad38b3f8aea46be4d792846f9029106347525"
+    },
+    {
+      "caseId": "g2-your-youre-0173",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "b7013087571316495304ba62c40fa4c1fb1459ed6129340fe427dba8fdf0d63a",
+      "goldFingerprint": "ba8ed88b3547a6032d3a84f1b2226446348f1be85527a90f74dfed8639f05f7b"
+    },
+    {
+      "caseId": "g2-your-youre-0188",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f0f28e8fab423a0757cca5f66ae92ce64ed119f5274bf3994cfd3116240278ad",
+      "goldFingerprint": "de8a747110c0551e4f2861b1ba830816b42c16e8e523526d01df6d7750877f27"
+    },
+    {
+      "caseId": "g2-your-youre-0151",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "54abe66292f14783a448b4715164d545f4999138f53a1c813f3d3b64658f822b",
+      "goldFingerprint": "52fd4ac8ff370a536f40af6cace46ffeee8e067d563800ee73ec3b1d887a77db"
+    },
+    {
+      "caseId": "g2-your-youre-0271",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "41a002f225288b0426c8ec9f62358dd6eb82852650d27fbfb9f926fbd43ab41f",
+      "goldFingerprint": "ace6e41f3c1d5df2f1a997631c528998a0be9531f214f2576dd5167b8d1fc7c5"
+    },
+    {
+      "caseId": "g2-your-youre-0197",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7d008df62ec2d29d3e946f3a0a485694eb18742e470e3d1293f6c9041e0570ef",
+      "goldFingerprint": "83bd6a6adebf889faf6fa75a51baed2919a4531fa0e41e0734cda64c251b1390"
+    },
+    {
+      "caseId": "g2-your-youre-0162",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "299664c90bb10781b7eff2413ffb0c1a8eb690f79b7e038b7e30252144457fd7",
+      "goldFingerprint": "5c2146f008a8fa4eb1e9af33cee77539cce6a19d5ce8e9b35bcbf35a2767db3c"
+    },
+    {
+      "caseId": "g2-your-youre-0232",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "09cd1c90a7d620c21e5f6a51100fdf3948faeec4d422a416258027bbb8ac9261",
+      "goldFingerprint": "7702e16ce38b2a045407ee94fcf760f6e0eef0eabfe0f9b5c5fe78fe51934f85"
+    },
+    {
+      "caseId": "g2-your-youre-0292",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "afbaeff007e6a3d62806dba76b9dcd6412281c1e7356b248894aab003d489587",
+      "goldFingerprint": "173e4bfe1e674891efa295ff8cd2fadc4b31b0358713380d00d180bde7be03b8"
+    },
+    {
+      "caseId": "g2-your-youre-0189",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0257dec01b34572083f03e26f97ead02c95b20e4e3ebc680a2effa0b42477e65",
+      "goldFingerprint": "c05350014edd2dac6a2edbb3ea02b7fe393005f6a4cd880053c0ad5be930060e"
+    },
+    {
+      "caseId": "g2-your-youre-0177",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "63892952ea29d7a9f3c6d655bcda08a7e5c99d03d6a7a43b9a23ea7b26df5edb",
+      "goldFingerprint": "944cf40eb29fdce13bca78a550cb4ec242885dfd4710447e093950e75fb51ef5"
+    },
+    {
+      "caseId": "g2-your-youre-0238",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "73733349156969a5686081b5042077340b54dc9fca71f56182e17e2c281eb98a",
+      "goldFingerprint": "63579d87bcec6d5957d08f3195d46e4c0b80cbda93c666db4de44e5948b28a88"
+    },
+    {
+      "caseId": "g2-your-youre-0224",
+      "family": "YOUR_YOURE",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "32fe8b645ce170a54eaa9514fb21089d01c5b19c15e5833f5acf3c6189e135e9",
+      "goldFingerprint": "b34eb54f750f2df515d222c27180378548ba9a4fc0c6916ce2393df372f57d28"
+    },
+    {
+      "caseId": "g2-your-youre-0318",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "4817f7ef75891cb26432eb2cf0188ef07a0946d5a56f647d78cfaba312723b9c",
+      "goldFingerprint": "ae038f39080efd54a64f1038f732b9c499f2e76f2f1147caffdb04cc17797c1a"
+    },
+    {
+      "caseId": "g2-your-youre-0315",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "28d2230e4479a7a3d3575dd39b119240cb3e5760a4baebc3ae5a08ec1228b7c5",
+      "goldFingerprint": "4a265b58c044e2ae726f052d4da519162a35fa6051089815ccb70b9b07b3ace7"
+    },
+    {
+      "caseId": "g2-your-youre-0320",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "45f2a47546d59d38721f16fe861d50c71858217341be9de3c58291abc0b64dfe",
+      "goldFingerprint": "5759188a884b0349c7685110b8f321422cfb2e96d589f1dad20f878ebfef54d2"
+    },
+    {
+      "caseId": "g2-your-youre-0307",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "ee8a0975e2c0f0fbae6b60a16ee573faf02ccedc2635575993193f54ffa61d9e",
+      "goldFingerprint": "01f5ac5bf0173969f9a100eccadc799ad0fa1f7be5509abbb1ea0dbc6f3bd929"
+    },
+    {
+      "caseId": "g2-your-youre-0339",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "526ac8816693092a6f1bbe568b57c4674855a10d135440e90c19312fde35752a",
+      "goldFingerprint": "ec4fb489533114799b446325ebba3a2bcbc7a2875290b531a28a36cda5b78617"
+    },
+    {
+      "caseId": "g2-your-youre-0335",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "d8638009a4841d5c476547d105e1f7c21a0ff5da2d2a203f7f38780529fb246d",
+      "goldFingerprint": "9caf512aa53481187ad8c8801464fe70a44a44cd2b1f12170112fb73510a9d5b"
+    },
+    {
+      "caseId": "g2-your-youre-0325",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "fe31b13ead46d861b89b091791dd30bbf22bec8745dd8e64cb2c98e47758400b",
+      "goldFingerprint": "5b5525dfb836645b10e23934b78664674ea3eb6a149780fd0643ef562ebcdf21"
+    },
+    {
+      "caseId": "g2-your-youre-0331",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "d30249d3159936bd71ab61130a304874dc5cad95db2e0c4213ec47208c3e31b1",
+      "goldFingerprint": "9402de757da3e7813ad46882acc8058ca2885b6e9ed5d10d6d6ae2a4a2c872c4"
+    },
+    {
+      "caseId": "g2-your-youre-0352",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "314e8481f30d06204dc6bbc650c05d4c513d2c76e51c00402505da8ca9e25926",
+      "goldFingerprint": "6f489abaf9132b62ccb7821f6c22d276cdee2e69e8075d2918f9dbf2601d59a3"
+    },
+    {
+      "caseId": "g2-your-youre-0342",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "a1c22f4687fd86b260d29778cd5af38b1c3f0925e46f17d3735bdc72367a6614",
+      "goldFingerprint": "55470d5119dd2aeaac4223925554ccebd062afb4d28ec92a12551facddbac53b"
+    },
+    {
+      "caseId": "g2-your-youre-0347",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "77c9ae4f6c16a9cbb7733f2c3e92959f88d55e1258841858dc8edb46b782256d",
+      "goldFingerprint": "3e6c8c0ab68ffb1d2515ace5af8a79aecc66211f3c413860ec70ce31877f6117"
+    },
+    {
+      "caseId": "g2-your-youre-0343",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "1792ed600e7602decd9c1bc90850588e75c13fe7a00261cc48c464b86f375b52",
+      "goldFingerprint": "f809250942d02dd14a76536dfd131e34a297036cd83383cd5e644e390c67ed8f"
+    },
+    {
+      "caseId": "g2-your-youre-0369",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "7cf4eb7902121a2248d0421145ddde5d7a38c74196ba6de0d84a39c92c6f96c1",
+      "goldFingerprint": "9ffe53467268683576e26d30741cebcb7c00cc58cefee723fca83187aa9e2b58"
+    },
+    {
+      "caseId": "g2-your-youre-0367",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "fe0d03cbbfeffdafc227b51276d3dc0b533705e7051acb7050651c62a39d095f",
+      "goldFingerprint": "0a90d0968f15194d83c94aa1a235ba737cdfa1aedcac812b7665e2473760320d"
+    },
+    {
+      "caseId": "g2-your-youre-0366",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "1cb2b84ae80b42dad548575cbe2e520557b2890dd1d9375ae21d3702cfe09275",
+      "goldFingerprint": "472e922e2abd8eb1ab9f842771ebd696a5e52630e2fb658e2b1acec4391080cb"
+    },
+    {
+      "caseId": "g2-your-youre-0377",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "c934fef0e90e9e629ce43a0c58d8d08fa25ed6f599f71851861e6a927b010b4d",
+      "goldFingerprint": "a027829c30fd8015491352486312411eb96541fe2fb18c741a2aa8d6251d5e25"
+    },
+    {
+      "caseId": "g2-your-youre-0397",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "8e9b38cd5e2fae68b4d12fc8742c89d524a919c32d1c4e519573bf19c84cbaf1",
+      "goldFingerprint": "a16c19e3b199c1934d1e2d961e5af058666b987d3e64c9f256e06c1877525401"
+    },
+    {
+      "caseId": "g2-your-youre-0391",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "ea48aa47ca7cc12d4e69cb63d5c54db98d2fcb4332781495a42a4ef56c1f81f5",
+      "goldFingerprint": "ab504f630b1102355ae6b894d095818fe4dd0ae084e0122327534a66ae8482c1"
+    },
+    {
+      "caseId": "g2-your-youre-0384",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "b8f7013e203c17c4e41961b08e12817ea68db48356e4ef326c3c26b6e7360122",
+      "goldFingerprint": "b68fbb381dac4eb8cf04f3f59a9fde56910edd23d5d7e344de5ce0708931c5b4"
+    },
+    {
+      "caseId": "g2-your-youre-0390",
+      "family": "YOUR_YOURE",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "6b0a4520f323567f5131c69133c5056a1acb07524abe825eac21cf09ec2adcf1",
+      "goldFingerprint": "d11aabe8fa41f41d1c3adefd399bd539a2b6c55f97422665a2e77852197b240e"
+    },
+    {
+      "caseId": "g2-its-its-0005",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c2c80f6b94c8dfd751f6bf12b47d7f0c8f6834f52dd706c88a44dc2131ecc8b2",
+      "goldFingerprint": "4a6247409f9d4d07377d3ff85726b171486406e3e68e0420ad15c462aeb511a6"
+    },
+    {
+      "caseId": "g2-its-its-0125",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ae84f6b5641a5f27e052f308a64f00b5c449b39d74b22353b3e856c8e1db6df0",
+      "goldFingerprint": "1004f5755589cd95de373ea391148282ef109ac1cca6d6de0298cee35c8358a8"
+    },
+    {
+      "caseId": "g2-its-its-0067",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "36ec420d31aaa0a5f8089625df38a1ecf5f774e589c90175e057a024670d4b7c",
+      "goldFingerprint": "795471a9fc3b68499c2a791ace78555c4f9175504f9ea57246615b460ace037e"
+    },
+    {
+      "caseId": "g2-its-its-0025",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "f0332e5fd2e50fb26f5e5899a532e417e46cac99d64e6431d28b1a523f6fddfc",
+      "goldFingerprint": "94914eda279d86ee9c7c2330c4a0844dd63d3e45f262f646993593d9cfcaeebd"
+    },
+    {
+      "caseId": "g2-its-its-0124",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "4236536539f0f60f674ef6f1e06e11b08b11241fbb28bff5acb8ffead685c1fb",
+      "goldFingerprint": "b4e63a30ad0ea86b82fb6340a644edb9d6aaa386d3ad89ad85415f423167fe2a"
+    },
+    {
+      "caseId": "g2-its-its-0116",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "7bfc151c38a9448ffce4f86d5448da7f12cc67d7090af28e2913080b556b7185",
+      "goldFingerprint": "c956e1b576c59995c41431f1b1e18438dae57388ffe4acc6856c9f5617d3a5e3"
+    },
+    {
+      "caseId": "g2-its-its-0098",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "1c995b13583b931996b178ec42d067cf3d56c5ec59a0c5a9ffdb5e009047bb6f",
+      "goldFingerprint": "ceb9244f6c13c7eb09bc3e60c863189a81563a9a36ca51c5307582edf18b19fd"
+    },
+    {
+      "caseId": "g2-its-its-0024",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "3e263c3b1d65d22758218ecbd0ce9da33df527d468b59a86d957295ae07170c4",
+      "goldFingerprint": "7b9e4782c022bf251ce9e4d6cc6320315d600e9a99df272f2e4f1330e4d8650b"
+    },
+    {
+      "caseId": "g2-its-its-0092",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ec799aecd38ec24f35de0a3ee0c185b4423bb50d31b0c2c2a04f5ccba3449323",
+      "goldFingerprint": "ecd4481d9efe3ed03315fefc779c5b150dc65de70709cd5ac6c55bf44810f2a4"
+    },
+    {
+      "caseId": "g2-its-its-0084",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "117e2459baf03b923cdd7842c5119b9b363409b3a81fd717aedbe26872127c25",
+      "goldFingerprint": "0a0aa36781a48f2ec15f6d57967f00d65c9ec0b72ae8190727e412fa828c11c1"
+    },
+    {
+      "caseId": "g2-its-its-0097",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "903b951bba184e2379c40d3160887713cbcd993c952f0f0a77a52982d07035fb",
+      "goldFingerprint": "2aa2fd21bd10e3b2377eca049f5215d3dc7d2e36792f7eaff90510021b44720f"
+    },
+    {
+      "caseId": "g2-its-its-0103",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c2b6095f93cce78377b8eec88c3d088a419d7ca620324e1072b4e7118d3f4740",
+      "goldFingerprint": "36077149b364bcc1c6834bf48197d8d36f2c2ea94251ec6559a42ff3456f88b7"
+    },
+    {
+      "caseId": "g2-its-its-0071",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c7e9f2994bebade72d32ee4c9d51c5675f0dc971cb465b27c8f4a539cc750ee7",
+      "goldFingerprint": "412e7a4fa31c5a303ee1deae2fbde19138cadfbf0d2c6b0bbf13344e63b7661c"
+    },
+    {
+      "caseId": "g2-its-its-0088",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "676d10ec0fdfdfe92b732c6d85cf652cc4beb1612d6b3338471a9ef72a5271e9",
+      "goldFingerprint": "c7eac98b057d34d740737859b8fe78c14ef145b0cb18a02f36235462b3abb1c0"
+    },
+    {
+      "caseId": "g2-its-its-0008",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cc899ae3264e9f2941123ebaa41be0a646b4f3b19c1a939974ab5446798003a1",
+      "goldFingerprint": "7256de9b625be31c61e667efcf79476b2f81121797ce394c287b2b9f29eb5b51"
+    },
+    {
+      "caseId": "g2-its-its-0016",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d5c481a0fa22cbaa0bdcae2f558f93522874e6c412a4a076b8a5817290256dcf",
+      "goldFingerprint": "d76c7d30a773e4b7df1c72a71062c943beedafbd7523336495c3c9f6d1cac3a6"
+    },
+    {
+      "caseId": "g2-its-its-0135",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "5fa3f28260569da8b621b1dc29cf8aa9bd924f1d8c1d0b98f774e0d6e40f0b2d",
+      "goldFingerprint": "a4c7552228eca9cfc27e0570b0d197ce013c2c65d76a0a9d92de8ff811151597"
+    },
+    {
+      "caseId": "g2-its-its-0052",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d2bdb8ab32933d546b9d66e98a068ae2bf6cff6ee351460d05d9ad7fe1ce6fb1",
+      "goldFingerprint": "fddb3a390461cc7cdbb8fcda5c64f5f1a3454dadf1d0d7289d725a20ade48bc3"
+    },
+    {
+      "caseId": "g2-its-its-0028",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "945326dddc687ffb81d223dd7f502dbf83940d962f0bde984cda988547b749f3",
+      "goldFingerprint": "f21ef0a9466b633dd16f9d27a8151b5ec13096e8fccb3c641bb7693aa2e7c628"
+    },
+    {
+      "caseId": "g2-its-its-0107",
+      "family": "ITS_ITS",
+      "stratum": "VALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "9d2054156a5f3d2222824db5d9581d811dc8af8cc0ade30ce2e4aa24e07cdc80",
+      "goldFingerprint": "76d803cea2eebbad79085e5f14c5390104d9d8e81e5b13a89a69e56f2808ed03"
+    },
+    {
+      "caseId": "g2-its-its-0216",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "ec8206068190d462799966876fb11459abe352642157dd8c129c7e6a5f8887ce",
+      "goldFingerprint": "a1c80b0dd0c2610d7e861f9a402aaa4d2a57ca776ecbc9d5e6f9007b1c57b7b8"
+    },
+    {
+      "caseId": "g2-its-its-0225",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "cca505934fe81da6208cffc22ec5d04e4b02d2d62c0207bd432d3d0399411e85",
+      "goldFingerprint": "e1fd85f36bb1532bbf98386fc9eea73af009c1ecd0d348eb8d8793a0dc265e36"
+    },
+    {
+      "caseId": "g2-its-its-0242",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c6cb4edafca87b2c44258ac5941ce054f23e38826fe5a6085ad7d44b01c1f6c6",
+      "goldFingerprint": "d6ee294592758bcc76f209b87f4224e43273af147e206741313228854c617d07"
+    },
+    {
+      "caseId": "g2-its-its-0231",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8dde15e3227634fa63eee8092563fa6c1adef5675c43ba945dc2d2c9f223b279",
+      "goldFingerprint": "4e21693aedcb851dca1409d89987d91b96da8355af20341fdd43f94d1e3b0e90"
+    },
+    {
+      "caseId": "g2-its-its-0183",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "bfc0cd05f823525a6585a6783e48977f6126164527eca68f4254cfb6eaa21859",
+      "goldFingerprint": "63e98cf2bbc1a7a09d9b21346d52a9a83933bb89eb492b8289513d0837ae37fb"
+    },
+    {
+      "caseId": "g2-its-its-0257",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "9cfd4be3ee939db69b4963a283cec116d156b96243159655df9075f13922c06b",
+      "goldFingerprint": "4c70e7b3c09fbf9d6d84b833f91202f38b3b7d3dadbe2b6f1c653e6e948c64dc"
+    },
+    {
+      "caseId": "g2-its-its-0189",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "8ec580e9d621a7c7577fde272664d693a9a5df004013c5f7b3d4127d80e56960",
+      "goldFingerprint": "fa9e5f9850358a98889e6ee246caf6d4c32e8a1908041d757eeb8d546493799c"
+    },
+    {
+      "caseId": "g2-its-its-0212",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "6346a127f1751a9a0888ab67199210f4f1ae97a14a6ed18976c601d1c0e2dabf",
+      "goldFingerprint": "ef646bc6b6f3c2f7085f4a9819c0c9ecd92ce54c2b1d3e33e83bfafdbd569edf"
+    },
+    {
+      "caseId": "g2-its-its-0287",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "c6315dee5f9ea0177bd4c63c4c94a6c90e7340d3103dfd8e239f17f92dd59656",
+      "goldFingerprint": "6f42ef1af861f83b9b8dce8dd74d23b3c45ce6e0b803abf2fa2b3a68cd219dfb"
+    },
+    {
+      "caseId": "g2-its-its-0265",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "88217ddb8af8e54a9e3a16fdb44e9cdbe03eaff6cdb0103a013f8c5f44d8cdab",
+      "goldFingerprint": "5d452f4c0105071d98ea94061740d4734b21e9a6f1d8d171e0da90a50908c72c"
+    },
+    {
+      "caseId": "g2-its-its-0232",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "84288d250baa7aacee0c354facab5b9db88a3101983e8b3dbebfd3d777edcb9e",
+      "goldFingerprint": "3713cc2c0f26ecdadf405937398b9be4050b1e28e81f8db4ebb8ec114f410b36"
+    },
+    {
+      "caseId": "g2-its-its-0193",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "d60dd1f3a4b7d61b2ba5aeb3c57a7f2d5f957ce440101bbefae0c8c99103fecf",
+      "goldFingerprint": "5d021c903306921af4f6c6cbcf86f6d12b2ed0123490131bbd27ae16d6d15370"
+    },
+    {
+      "caseId": "g2-its-its-0228",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "3d8b3f0f73784c7dd0a3b6c27c694108449644f408b7ea82c976dc50a10fe981",
+      "goldFingerprint": "8003769c0c7ecd6af34dd6e31c8d7a6ac4cbcb1507e48889b9f48c6c6a6fd114"
+    },
+    {
+      "caseId": "g2-its-its-0223",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "b4134acc8db0cd79f40fa178e293ebf968a7b9fd8e28047e550c87a4a6f534fd",
+      "goldFingerprint": "c563c62c65c8e065378a8e6340f233e9b439eaa1b262bf874a1328b0a4ea72d0"
+    },
+    {
+      "caseId": "g2-its-its-0184",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "a83d38514777e4d31f5ee7ef2e3297f4efb0d7f19caf8195973cc137451a2150",
+      "goldFingerprint": "53269674ccf768ab2f0c35c93a45634f087007b91c5c012969608b4008ee88e4"
+    },
+    {
+      "caseId": "g2-its-its-0238",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "de013935681db555af2a00050e9f7545f4ec39ab9353d7ff5ded31ca7cf59675",
+      "goldFingerprint": "b79dfe1a63b6e2b61d8eb361366aa1600a3451f1508621027a1dc13857017d30"
+    },
+    {
+      "caseId": "g2-its-its-0263",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "4e468a61ada0c15a13355a65147db9b5ba272bbf07dfc698efbdcc52bbea5427",
+      "goldFingerprint": "9f26e49d75de464ca0492691d64a2d6e6d68bc943c034731ef54db505d229762"
+    },
+    {
+      "caseId": "g2-its-its-0205",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "0dafab721163d3fa739f0a6b74a2977d5c46ef798d4ecbbbca2c910e398b01e1",
+      "goldFingerprint": "414b3d273a8b178cbc49894f7b4d2732e06415d36b94872bc9a4d5c4d57dbb10"
+    },
+    {
+      "caseId": "g2-its-its-0206",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "02b3c3a6c154a249b03355d4c45f102388728ce50f2481f594b0b50acfa2adba",
+      "goldFingerprint": "309ce72d93d0e442c82d80e0948c077040b632fdffade57575953c16c9cae887"
+    },
+    {
+      "caseId": "g2-its-its-0154",
+      "family": "ITS_ITS",
+      "stratum": "INVALID",
+      "protectedSetTags": [],
+      "candidateFingerprint": "2df4bb41b222e2c4948819f7d32bb6d7734bd4d60f438c9cf3b8d293940bb40b",
+      "goldFingerprint": "6e7a642251a64b0f697e37e4ccbfc9faa01cbe2a8a1ef3220383a7c8e6db01f0"
+    },
+    {
+      "caseId": "g2-its-its-0312",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "86440720cb106babdd7dfcdd5aa514d3fde80374075ff1eb669b3a4cfa49e1b3",
+      "goldFingerprint": "21e9d88e5a868281a116e000794aba73bad82a6f4e485e65504b3d5b50befd4f"
+    },
+    {
+      "caseId": "g2-its-its-0302",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "70d489912af1314c922259d3943c0e193702089d5afcab04bd67245d6716ad4d",
+      "goldFingerprint": "8b4ce612139a1b00030f4918efac07af12b5bb18d767ff611fb95d42d121fcc2"
+    },
+    {
+      "caseId": "g2-its-its-0303",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "54cdb9c0248dafde9558accfd35457af5d1826736b225af7a18ade8d9921fb95",
+      "goldFingerprint": "91c6946ad0706d8d87c2726cef1d790ddc7bfb0487014a199cc49db3287bc14e"
+    },
+    {
+      "caseId": "g2-its-its-0311",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "fragment"
+      ],
+      "candidateFingerprint": "9249cd3ef51b6ea27319cebb3d0b7d437905116d85b38930505bf4999399dba7",
+      "goldFingerprint": "b405db8a396850fd06ad0c9abd340dddce83921421d960b164f73d620103b724"
+    },
+    {
+      "caseId": "g2-its-its-0336",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "3f4ab46efe5dad93f1dcc832015e2abdf5b65facc9c22ad55357d4dccafae888",
+      "goldFingerprint": "2e7494f5ba3d43a8834dafb1b89f34610d0a0475e1b12a80bf9609977ed9108b"
+    },
+    {
+      "caseId": "g2-its-its-0340",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "389824fdf9c812ecf1994e101ed25ddaf5daee49136bc8f775355037444a0f21",
+      "goldFingerprint": "a3238af2914ef31976fa258f8e3347691b5b7c3e1c10b2b1f35fc0d4d08cd361"
+    },
+    {
+      "caseId": "g2-its-its-0331",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "a459eec41ce6080e630c28da80e6b042da3fbe83a41bea38e4986b7034bee426",
+      "goldFingerprint": "d57e230952e4e6b7031ad1c9b8c6547af4de3e275ede5baac5f1e66cec357e34"
+    },
+    {
+      "caseId": "g2-its-its-0335",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "quotation"
+      ],
+      "candidateFingerprint": "a851c3f840de1fdeaba4ae5d4df65de4b2dc7c66c0fea195c29c4766d9989372",
+      "goldFingerprint": "e1b68b6f448a65a04cba33fc152d0471a1f25a68f747aba39fb29751fa35a984"
+    },
+    {
+      "caseId": "g2-its-its-0349",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "7a6c68af68d2d805df69959c2f4ae6832b54e33bfe8b0b45e175d7bf2819183c",
+      "goldFingerprint": "55b2d55f79ac5e0e9679f95d9c6676478b04687afda6a6b6c5590d9895cdb01c"
+    },
+    {
+      "caseId": "g2-its-its-0352",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "64e535d75969ab41c7d4261888302e946e27b1cd06a29bc67783a58ee496a66c",
+      "goldFingerprint": "9a542b344a96402c1b1028f899935df4ba95cb8f01b6308050d15ed35f279bd3"
+    },
+    {
+      "caseId": "g2-its-its-0357",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "29572096d57d7fdd082a98ad934552af38dc6f3ec6e9630819f4ee437dbd57f4",
+      "goldFingerprint": "cbeaec7dfa67555b55ee9fa08f1f7a54936d45dc08a639ccc80eb7b21da75697"
+    },
+    {
+      "caseId": "g2-its-its-0343",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "gerund"
+      ],
+      "candidateFingerprint": "e260f1c5bd39816ae62d595bec8e1db4be08ffeaf990ede3817db0429b43d6a9",
+      "goldFingerprint": "3eabced8c8df57d488614a6a18ddcc71959d3a993da98d21fee053ae9343c1a6"
+    },
+    {
+      "caseId": "g2-its-its-0376",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "edb3b488bc57894034e81eea63414c2639b77daf29c783752610aa19a69c11d4",
+      "goldFingerprint": "34905a3fbc8519683db259582e662aa3f61298719646ac9f6cf27776944afc6a"
+    },
+    {
+      "caseId": "g2-its-its-0374",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "86cd0af3fe634811b1040aa235493cce5461272bc82c64e1ffd81f6cb8035ef6",
+      "goldFingerprint": "2a0321a6e4fc231b8acf9e53ad62006e8305881ff42634c6c06508804a872b41"
+    },
+    {
+      "caseId": "g2-its-its-0380",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "b468178daeb338f8f3e665965d1cd1224bb752db03333bf1a4fffacf329d0a14",
+      "goldFingerprint": "35032abc8054a5457a362f3d67121c878f928a751c136f041aa8a33e14e6a2cc"
+    },
+    {
+      "caseId": "g2-its-its-0377",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "run_on"
+      ],
+      "candidateFingerprint": "be67d98f953c336484c9bdd059adad917ba4b9a8e131f4a301059be9edd267d4",
+      "goldFingerprint": "4b06a5754a3bbae01b7658580d41a8426c41ff304e99178a2209a9745de07e00"
+    },
+    {
+      "caseId": "g2-its-its-0398",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "2639c2236341755bab299740e95306d3cc1bb89690a3775dd828621d9c5ae9d1",
+      "goldFingerprint": "8df8b5fe3fb940af6f95bedf12c51a1c0250195614ca05f612d720a5628c48b8"
+    },
+    {
+      "caseId": "g2-its-its-0386",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "e22e1aa86881de791656394d9a761cf1585ccdc4be261638b4da4beaeb6816b6",
+      "goldFingerprint": "66fe026fa075876784b5b382b60ff199e19a5544746f70d6e6074178ae20ca26"
+    },
+    {
+      "caseId": "g2-its-its-0385",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "489f048ef5348ad1c56b8b52dba064cac7933e5e91e81ca83c41016217f944b0",
+      "goldFingerprint": "caa12b46151a7df89b37c4b44742e24cd1ec471e397ce150deafeee6fabf0c67"
+    },
+    {
+      "caseId": "g2-its-its-0399",
+      "family": "ITS_ITS",
+      "stratum": "UNCERTAIN",
+      "protectedSetTags": [
+        "task_dependent"
+      ],
+      "candidateFingerprint": "86b04290fdaf208f3f60e8be2e14b58d4958d8b49c86d52372fe868d28ff4e26",
+      "goldFingerprint": "1b374f953af7a8ded5576aef4f83e4f06b291615fcacd2ceb32d8edb5e612910"
+    }
+  ],
+  "fingerprint": "102e70c44d49e55b02e29467c15e6b8779a1dd7028e938c62ee8e384ef9018a1"
+}
