@@ -86,9 +86,14 @@ output-token cap per case, with input charged at the cache-write rate).
 Together with prior calculated spend, that is **$2.01149480**, exceeding the
 existing **$2.00 local spending stop** by $0.01149480. The expected actual
 repeat cost is close to the primary's $0.11593175, but expectation does not
-override the stop. **Do not make any OpenAI API call for this repeat until the
-user explicitly approves a revised spending ceiling or another authorised
-resolution.** The conservative estimate is retained, not reduced to fit.
+override the stop. At the initial freeze, this blocked API execution. The
+conservative estimate was retained, not reduced to fit.
+
+**Approval addendum:** The user subsequently directed, “Raise the stop to 3.”
+The local experimental spending stop for this one final repeatability Batch is
+therefore **$3.00**. The unchanged $2.01149480 prior-plus-conservative-run
+envelope is within that approved stop. No scientific input, scoring or cost
+calculation changed as a result of this approval.
 
 Official references: [Luna model pricing and limits](https://developers.openai.com/api/docs/models/gpt-6-luna),
 [Batch API](https://developers.openai.com/api/docs/guides/batch).
