@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync } from "
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadCases, outputText, requestFor, score, usageAndCost, validateResult } from "./calibrate.mjs";
+import { isBenchmarkIntegrityValidationError, loadCases, outputText, requestFor, score, usageAndCost, validateResult } from "./calibrate.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const config = JSON.parse(readFileSync(join(here, "calibration.config.json"), "utf8"));
@@ -168,6 +168,12 @@ export function batchUsageAndCost(response) {
 }
 
 export function validateBatchOutputLines(outputTextLines, manifest, rows = loadCases(), batchId = "batch_test") {
+  const lockedManifest = buildBatch().manifest;
+  for (const field of ["subsetFingerprint", "promptSha256", "schemaSha256", "configSha256", "inputSha256"])
+    assert.equal(manifest[field], lockedManifest[field], `Locked ${field} mismatch`);
+  const lockedEntries = new Map(lockedManifest.entries.map((entry) => [entry.customId, entry]));
+  for (const entry of manifest.entries)
+    assert.deepEqual(entry, lockedEntries.get(entry.customId), `Locked request mapping mismatch for ${entry.customId}`);
   const byId = new Map(manifest.entries.map((entry) => [entry.customId, entry]));
   const rowById = new Map(rows.map((row) => [row.entry.caseId, row]));
   const seen = new Set();
@@ -187,11 +193,17 @@ export function validateBatchOutputLines(outputTextLines, manifest, rows = loadC
     const extracted = outputText(response);
     let parsed = null;
     let error = extracted.error;
+    let failureClass = null;
     if (!error) {
       try { parsed = JSON.parse(extracted.raw); }
       catch { error = "invalid_json"; }
-      if (parsed) assert.equal(parsed.case_id, entry.caseId, `Returned case identity mismatch for ${item.custom_id}`);
-      if (!error) error = validateResult(parsed, row);
+      if (!error) {
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed))
+          assert.equal(parsed.case_id, entry.caseId, `Returned case identity mismatch for ${item.custom_id}`);
+        error = validateResult(parsed, row);
+        assert(!isBenchmarkIntegrityValidationError(error), `Benchmark integrity failure for ${item.custom_id}: ${error}`);
+        if (error) failureClass = "MODEL_CONTRACT_VIOLATION";
+      }
     }
     records.push({ transport: "batch", provider: config.provider, requestedModel: config.model,
       returnedModel: response.model, effort: entry.effort, caseId: entry.caseId,
@@ -200,7 +212,7 @@ export function validateBatchOutputLines(outputTextLines, manifest, rows = loadC
       batchId, customId: entry.customId, batchRequestId: item.id ?? null,
       responseId: response.id ?? null, httpRequestId: item.response.request_id ?? null,
       returnedServiceTier: response.service_tier, responseStatus: response.status,
-      rawStructuredResult: extracted.raw, parsed, error, usage,
+      rawStructuredResult: extracted.raw, parsed, error, failureClass, usage,
       providerUsage: response.usage, latencyMs: null,
       expected: { decision: row.expected.classification, expectedForm: row.expected.expectedAlternative,
         protectedSetTags: row.entry.protectedSetTags },

@@ -97,6 +97,10 @@ export function validateResult(parsed, row) {
   return null;
 }
 
+export function isBenchmarkIntegrityValidationError(error) {
+  return ["case_id", "focus", "focus_fields", "focus_span_type", "focus_span_integrity"].includes(error);
+}
+
 export function usageAndCost(response) {
   const usage = response.usage ?? {};
   const inputTokens = usage.input_tokens;
@@ -144,9 +148,12 @@ function scoreGroup(records, rows) {
     const group = records.filter((record) => record.effort === effort);
     assert.equal(group.length, rows.length, `Missing ${effort} results`);
     assert.equal(new Set(group.map((record) => record.caseId)).size, rows.length, `Duplicate ${effort} result`);
-    const counts = { correctThreeWay: 0, truePositive: 0, predictedInvalid: 0, validToInvalid: 0, uncertainToInvalid: 0, protectedUncertainToInvalid: 0, wrongReplacementOnInvalid: 0, protectedAbstention: 0, protectedTotal: 0, malformedOrRefused: 0, focusSpanIntegrityFailures: 0 };
-    const decisionConfusion = Object.fromEntries(["VALID", "INVALID", "UNCERTAIN"].map((gold) => [gold, { VALID: 0, INVALID: 0, UNCERTAIN: 0, malformed: 0 }]));
-    const protectedByTag = Object.fromEntries(["fragment", "quotation", "gerund", "run_on", "task_dependent"].map((tag) => [tag, { total: 0, uncertain: 0, invalid: 0, malformed: 0 }]));
+    const counts = { correctThreeWay: 0, successfulModelOutcomes: 0, unavailableDecisions: 0, truePositive: 0, predictedInvalid: 0, validToInvalid: 0, uncertainToInvalid: 0, protectedUncertainToInvalid: 0, wrongReplacementOnInvalid: 0, protectedAbstention: 0, protectedTotal: 0, malformedOrRefused: 0, modelContractViolations: 0, focusSpanIntegrityFailures: 0 };
+    const decisionConfusion = Object.fromEntries(["VALID", "INVALID", "UNCERTAIN"].map((gold) => [gold, { VALID: 0, INVALID: 0, UNCERTAIN: 0 }]));
+    const outcomeConfusion = Object.fromEntries(["VALID", "INVALID", "UNCERTAIN"].map((gold) => [gold, { VALID: 0, INVALID: 0, UNCERTAIN: 0, malformed: 0, model_contract_violation: 0 }]));
+    const protectedByTag = Object.fromEntries(["fragment", "quotation", "gerund", "run_on", "task_dependent"].map((tag) => [tag, { total: 0, uncertain: 0, invalid: 0, malformed: 0, model_contract_violation: 0 }]));
+    const modelContractViolationCases = [];
+    const modelContractViolationsByReason = {};
     const latencies = [];
     const tokens = { input: 0, cachedInput: 0, output: 0, reasoning: 0 };
     let calculatedUsd = 0;
@@ -155,35 +162,52 @@ function scoreGroup(records, rows) {
       assert(row, record.caseId);
       const goldDecision = row.expected.classification;
       const protectedCase = row.entry.protectedSetTags.length > 0;
+      assert(!isBenchmarkIntegrityValidationError(record.error), `Benchmark integrity failure for ${record.caseId}: ${record.error}`);
+      const contractViolation = record.failureClass === "MODEL_CONTRACT_VIOLATION";
+      assert(!contractViolation || record.error, `Unclassified model contract violation for ${record.caseId}`);
       if (protectedCase) counts.protectedTotal++;
       for (const tag of row.entry.protectedSetTags) protectedByTag[tag].total++;
-      if (record.error) {
+      if (contractViolation) {
+        counts.modelContractViolations++;
+        modelContractViolationsByReason[record.error] = (modelContractViolationsByReason[record.error] ?? 0) + 1;
+        modelContractViolationCases.push({ caseId: record.caseId, reason: record.error,
+          declaredDecision: record.parsed?.decision ?? null, observedForm: record.parsed?.observed_form ?? null,
+          expectedForm: record.parsed?.expected_form ?? null, goldDecision });
+        outcomeConfusion[goldDecision].model_contract_violation++;
+        for (const tag of row.entry.protectedSetTags) protectedByTag[tag].model_contract_violation++;
+      } else if (record.error) {
         counts.malformedOrRefused++;
-        decisionConfusion[goldDecision].malformed++;
+        outcomeConfusion[goldDecision].malformed++;
         for (const tag of row.entry.protectedSetTags) protectedByTag[tag].malformed++;
-        if (record.error === "focus_span_integrity") counts.focusSpanIntegrityFailures++;
       } else {
         const predicted = record.parsed.decision;
-        decisionConfusion[goldDecision][predicted]++;
-        for (const tag of row.entry.protectedSetTags) {
-          if (predicted === "UNCERTAIN") protectedByTag[tag].uncertain++;
-          if (predicted === "INVALID") protectedByTag[tag].invalid++;
-        }
-        if (predicted === goldDecision) counts.correctThreeWay++;
-        if (predicted === "INVALID") {
-          counts.predictedInvalid++;
-          if (goldDecision === "VALID") counts.validToInvalid++;
-          if (goldDecision === "UNCERTAIN") {
-            counts.uncertainToInvalid++;
-            if (protectedCase) counts.protectedUncertainToInvalid++;
-          }
-          if (goldDecision === "INVALID") {
-            if (record.parsed.expected_form === row.expected.expectedAlternative) counts.truePositive++;
-            else counts.wrongReplacementOnInvalid++;
-          }
-        }
-        if (protectedCase && predicted === "UNCERTAIN") counts.protectedAbstention++;
+        outcomeConfusion[goldDecision][predicted]++;
       }
+      const declaredDecision = !record.error || contractViolation ? record.parsed?.decision : null;
+      if (["VALID", "INVALID", "UNCERTAIN"].includes(declaredDecision)) {
+        decisionConfusion[goldDecision][declaredDecision]++;
+        if (declaredDecision === goldDecision) counts.correctThreeWay++;
+        if (!record.error && declaredDecision === goldDecision &&
+            (goldDecision !== "INVALID" || record.parsed.expected_form === row.expected.expectedAlternative))
+          counts.successfulModelOutcomes++;
+      } else counts.unavailableDecisions++;
+      for (const tag of row.entry.protectedSetTags) {
+        if (declaredDecision === "UNCERTAIN" && !contractViolation) protectedByTag[tag].uncertain++;
+        if (declaredDecision === "INVALID") protectedByTag[tag].invalid++;
+      }
+      if (declaredDecision === "INVALID") {
+        counts.predictedInvalid++;
+        if (goldDecision === "VALID") counts.validToInvalid++;
+        if (goldDecision === "UNCERTAIN") {
+          counts.uncertainToInvalid++;
+          if (protectedCase) counts.protectedUncertainToInvalid++;
+        }
+        if (goldDecision === "INVALID") {
+          if (!record.error && record.parsed.expected_form === row.expected.expectedAlternative) counts.truePositive++;
+          else if (record.parsed?.expected_form !== row.expected.expectedAlternative) counts.wrongReplacementOnInvalid++;
+        }
+      }
+      if (protectedCase && declaredDecision === "UNCERTAIN" && !contractViolation) counts.protectedAbstention++;
       if (Number.isFinite(record.latencyMs)) latencies.push(record.latencyMs);
       if (record.usage) {
         tokens.input += record.usage.inputTokens;
@@ -198,14 +222,17 @@ function scoreGroup(records, rows) {
     const goldInvalid = rows.filter((row) => row.expected.classification === "INVALID").length;
     const goldNegative = rows.length - goldInvalid;
     report[effort] = {
-      cases: rows.length, ...counts, correctExpectedAlternativeOnGoldInvalid: counts.truePositive, decisionConfusion, protectedByTag,
+      cases: rows.length, ...counts, correctExpectedAlternativeOnGoldInvalid: counts.truePositive,
+      decisionConfusion, outcomeConfusion, protectedByTag, modelContractViolationsByReason, modelContractViolationCases,
       threeWayAccuracy: counts.correctThreeWay / rows.length,
+      successfulModelOutcomeRate: counts.successfulModelOutcomes / rows.length,
       invalidPrecision: counts.predictedInvalid ? counts.truePositive / counts.predictedInvalid : null,
       invalidRecall: counts.truePositive / goldInvalid,
       falsePositiveRateOnValidOrUncertain: (counts.validToInvalid + counts.uncertainToInvalid) / goldNegative,
       falseNegativeRate: (goldInvalid - counts.truePositive) / goldInvalid,
       protectedAbstentionRate: counts.protectedAbstention / counts.protectedTotal,
       malformedOrRefusedRate: counts.malformedOrRefused / rows.length,
+      modelContractViolationRate: counts.modelContractViolations / rows.length,
       latencyMs: { median: percentile(0.5), p95: percentile(0.95) },
       tokens, calculatedUsd,
     };
