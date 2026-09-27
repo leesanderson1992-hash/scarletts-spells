@@ -7,12 +7,6 @@ import { reconstructOccurrenceContext } from "@/lib/writing-engine/whole-writing
 import { normaliseParentIdentifiedOccurrenceWord } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
 
-function splitsSurrogate(text: string, offset: number) {
-  const left = text.charCodeAt(offset - 1);
-  const right = text.charCodeAt(offset);
-  return left >= 0xd800 && left <= 0xdbff && right >= 0xdc00 && right <= 0xdfff;
-}
-
 export async function addParentContextualMissImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
   const occurrenceId = formData.get("source_writing_occurrence_id");
@@ -54,8 +48,7 @@ export async function addParentContextualMissImpl(formData: FormData) {
     startUtf16: occurrence.start_utf16, endUtf16: occurrence.end_utf16,
     observedText: occurrence.observed_text,
   });
-  if (source.status !== "ready" || splitsSurrogate(source.fieldText, occurrence.start_utf16) ||
-      splitsSurrogate(source.fieldText, occurrence.end_utf16)) {
+  if (source.status !== "ready") {
     throw new Error("The immutable writing span no longer verifies.");
   }
   const saved = await service.rpc("record_parent_added_contextual_occurrence", {

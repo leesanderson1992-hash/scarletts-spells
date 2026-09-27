@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
 
 import { getFreeWritingEvidenceCandidatesForReview } from "../lib/rewards/free-writing-evidence";
+import { fingerprint } from "../lib/writing-engine/baseline/source";
+import { reconstructOccurrenceContext } from "../lib/writing-engine/whole-writing/context-source";
+
+const writing = "😀 peace";
+const snapshot = { envelope: { rawSubmissionText: writing } } as never;
+assert.equal(reconstructOccurrenceContext({ snapshot, fieldPath: "/rawSubmissionText",
+  fieldHash: fingerprint(writing), startUtf16: 3, endUtf16: 8,
+  observedText: "peace" }).status, "ready");
+assert.equal(reconstructOccurrenceContext({ snapshot, fieldPath: "/rawSubmissionText",
+  fieldHash: "wrong", startUtf16: 3, endUtf16: 8,
+  observedText: "peace" }).status, "blocked");
+assert.equal(reconstructOccurrenceContext({ snapshot, fieldPath: "/rawSubmissionText",
+  fieldHash: fingerprint(writing), startUtf16: 1, endUtf16: 2,
+  observedText: writing.slice(1, 2) }).status, "blocked");
 
 const tableCalls: string[] = [];
 const resultByTable: Record<string, unknown> = {
