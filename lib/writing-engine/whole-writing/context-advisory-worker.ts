@@ -88,10 +88,22 @@ export async function processContextualAdvisoryForSubmission(input: {
     })) throw new Error("CONTEXT_OCCURRENCE_IDENTITY_MISMATCH");
   }
 
+  const detectorRun = await input.client.rpc("record_writing_context_detector_run", {
+    p_snapshot_id: snapshot.id,
+    p_parent_user_id: input.parentUserId,
+    p_child_id: input.childId,
+    p_run_key: input.runKey.split(":")[0],
+    p_detector_version: CONTEXT_CANDIDATE_DETECTOR_VERSION,
+    p_registry_version: CONTEXT_FAMILY_REGISTRY_VERSION,
+    p_occurrence_ids: governed.filter((occurrence) =>
+      occurrence.provenance === "learner_response").map((occurrence) => occurrence.id),
+  });
+  if (detectorRun.error) throw new Error("CONTEXT_DETECTOR_RUN_WRITE_FAILED");
+
   if (governed.length === 0) return { status: "complete" as const, occurrences: 0 };
 
   if (aiMode === "shadow" || aiMode === "parent_advisory") {
-    await processAiOccurrences(input, snapshot, governed, aiMode);
+    await processAiOccurrences(input, snapshot, governed, aiMode, detectorRun.data as string);
     return { status: "complete" as const, occurrences: governed.length };
   }
 
@@ -158,6 +170,7 @@ async function processAiOccurrences(
   snapshot: SourceSnapshot,
   occurrences: AdvisoryOccurrence[],
   mode: "shadow" | "parent_advisory",
+  detectorRunId: string,
 ) {
   const deadline = Date.now() + 30_000;
   // The caller's suffix is the processing attempt count. Keep the AI run
@@ -205,6 +218,9 @@ async function processAiOccurrences(
       occurrence_id: occurrence.id, snapshot_id: snapshot.id,
       parent_user_id: input.parentUserId, child_id: input.childId,
       run_key: aiRunKey, mode, family_key: family,
+      detector_run_id: detectorRunId,
+      candidate_detector_version: CONTEXT_CANDIDATE_DETECTOR_VERSION,
+      family_registry_version: CONTEXT_FAMILY_REGISTRY_VERSION,
       result_status: result.status, alternative_member: result.alternative,
       reason_code: result.reasonCode, provider: "openai", model: provider?.model ?? AI_CONTEXT_MODEL,
       returned_model: provider?.returnedModel ?? null,
@@ -220,6 +236,7 @@ async function processAiOccurrences(
       output_tokens: provider?.outputTokens ?? null,
       calculated_cost_usd: provider?.calculatedCostUsd ?? null,
       pricing_version: provider?.pricingVersion ?? null,
+      provider_called: provider?.requestSent ?? false,
       declared_decision: provider?.value && typeof provider.value === "object" &&
         !Array.isArray(provider.value) &&
         ["VALID", "INVALID", "UNCERTAIN"].includes((provider.value as Record<string, unknown>).decision as string)

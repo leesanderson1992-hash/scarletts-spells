@@ -390,6 +390,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     is_parent_overridden: false,
     word_family_id: null,
     source_writing_occurrence_id: sourceWritingOccurrenceId,
+    parent_authored_feedback: true,
     context_text: sourceExcerpt ?? range?.raw ?? safeMisspelledWord,
     position_start: range?.start ?? null,
     position_end: range?.end ?? null,

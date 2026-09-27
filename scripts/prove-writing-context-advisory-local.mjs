@@ -228,6 +228,88 @@ try {
   await assert.rejects(db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there')", [learningOccurrence, parent]));
   const durable = await db.query("select count(*)::int as n from writing_context_learning_handoffs where writing_issue_id=$1", [learningIssue]);
   assert.equal(durable.rows[0].n, 1);
+  await db.query("alter table writing_occurrences add column provenance text not null default 'learner_response'");
+  await db.query(`
+    alter table writing_shadow_runs add column status text not null default 'completed';
+    create table writing_known_spelling_batches(id uuid primary key,run_id uuid,snapshot_id uuid,
+      detection_version text,mapping_authority_fingerprint text,occurrence_count integer,
+      eligible_occurrence_count integer);
+    create table writing_known_spelling_checks(id uuid primary key,batch_id uuid,occurrence_id text,
+      disposition text);
+    create table misspelling_instances(id uuid primary key,source_writing_occurrence_id text,
+      is_false_positive boolean);
+    create table writing_issue_suggestions(id uuid primary key,source_writing_occurrence_id text,
+      suggestion_status text);
+  `);
+  const feedbackMigration = readFileSync(new URL("../supabase/migrations/20260927130000_add_context_feedback_evidence.sql", import.meta.url), "utf8");
+  await db.query(feedbackMigration);
+  const historicalAi = await db.query("select ai_outcome,is_current from writing_context_feedback_decisions_v1 where occurrence_id=$1", [aiOccurrence]);
+  assert(historicalAi.rows.some((row) => row.ai_outcome === "AI_FALSE_INVALID" && !row.is_current));
+  assert(historicalAi.rows.some((row) => row.ai_outcome === "AGREED_INVALID" && row.is_current));
+  const shadowSnapshot = (await db.query("select id from writing_source_snapshots where submission_id=$1", [shadowSubmission])).rows[0].id;
+  const parentAddedGoverned = "context-feedback:governed";
+  const parentAddedUnknown = "context-feedback:unknown";
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',0,5,'their')", [parentAddedGoverned, shadowSnapshot]);
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',6,11,'peace')", [parentAddedUnknown, shadowSnapshot]);
+  const run = (await db.query("select record_writing_context_detector_run($1,$2,$3,'shadow-run','detector-v1','registry-v1',$4) as id", [shadowSnapshot,parent,child,[parentAddedGoverned]])).rows[0].id;
+  assert(run);
+  await assert.rejects(db.query("select record_writing_context_detector_run($1,$2,$3,'shadow-run','detector-v1','registry-v1',$4)", [shadowSnapshot,parent,child,[]]));
+  await assert.rejects(db.query("select record_writing_context_detector_run($1,$2,$3,'bad-run','detector-v1','registry-v1',$4)", [shadowSnapshot,parent,child,[parentAddedUnknown]]));
+  await db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     reason_code,provider,model,prompt_fingerprint,schema_fingerprint,config_fingerprint,
+     gate_version,detector_run_id,candidate_detector_version,family_registry_version)
+    values($1,$2,$3,$4,'shadow-run','shadow','THERE_THEIR_THEYRE','VALID',
+      'SUPPORTED_USE','openai','gpt-6-luna','prompt','schema','config','gate',$5,
+      'detector-v1','registry-v1')`, [parentAddedGoverned,shadowSnapshot,parent,child,run]);
+  const governedCase = (await db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','there') as id", [parentAddedGoverned,parent])).rows[0].id;
+  assert(governedCase);
+  const crossFamilyOccurrence = "context-feedback:cross-family";
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',12,17,'their')", [crossFamilyOccurrence,shadowSnapshot]);
+  await assert.rejects(db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','too')", [crossFamilyOccurrence,parent]));
+  await assert.rejects(db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','there')", [crossFamilyOccurrence,randomUUID()]));
+  const governedFact = await db.query("select governed_family_key,parent_decision_id,detector_run_id from writing_context_parent_added_cases where id=$1", [governedCase]);
+  assert.equal(governedFact.rows[0].governed_family_key, "THERE_THEIR_THEYRE");
+  assert(governedFact.rows[0].parent_decision_id);
+  assert.equal(governedFact.rows[0].detector_run_id, run);
+  const unknownCase = (await db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','peace','piece') as id", [parentAddedUnknown,parent])).rows[0].id;
+  const unknown = await db.query("select governed_family_key,writing_issue_id from writing_context_parent_added_cases where id=$1", [unknownCase]);
+  assert.equal(unknown.rows[0].governed_family_key, null);
+  const catalog = await db.query("select id from writing_context_catalog_review_cases where parent_added_case_id=$1", [unknownCase]);
+  assert.equal(catalog.rowCount, 1);
+  const privateFacts = await db.query("select has_table_privilege('authenticated','public.writing_context_detector_runs','SELECT') detector_read,has_table_privilege('authenticated','public.writing_context_research_candidates','SELECT') research_read");
+  assert.equal(privateFacts.rows[0].detector_read, false);
+  assert.equal(privateFacts.rows[0].research_read, false);
+  await db.query("begin");
+  await db.query("set local role authenticated");
+  await db.query("select set_config('request.jwt.claim.sub',$1,true)", [parent]);
+  const ownedFeedback = await db.query("select count(*)::int as n from writing_context_parent_added_cases");
+  assert.equal(ownedFeedback.rows[0].n, 2);
+  await db.query("select set_config('request.jwt.claim.sub',$1,true)", [randomUUID()]);
+  const otherFeedback = await db.query("select count(*)::int as n from writing_context_parent_added_cases");
+  assert.equal(otherFeedback.rows[0].n, 0);
+  await db.query("rollback");
+  await assert.rejects(db.query("insert into writing_context_learning_handoffs(writing_issue_id,parent_user_id,child_id,occurrence_id,micro_skill_key,handoff_state) values($1,$2,$3,$4,$5,'PENDING_CANONICAL_WORD')", [unknown.rows[0].writing_issue_id,parent,child,parentAddedUnknown,skill]));
+  await assert.rejects(db.query("insert into adle_learning_items(id,source_kind,source_ref) values($1,'parent_verified_contextual_choice',$2)", [randomUUID(),`contextual_writing_issue:${unknown.rows[0].writing_issue_id}`]));
+  await db.query("insert into writing_context_research_candidates(parent_added_case_id,category) values($1,'DETECTION_MISS')", [unknownCase]);
+  const catalogDecision = await db.query("select resolve_writing_context_catalog_case($1,$2,'reviewed') as id", [catalog.rows[0].id,parent]);
+  assert.equal(catalogDecision.rows[0].id, catalog.rows[0].id);
+  await assert.rejects(db.query("select resolve_writing_context_catalog_case($1,$2,'reviewed')", [catalog.rows[0].id,parent]));
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [unknown.rows[0].writing_issue_id]);
+  const repairOnly = await db.query("select finalise_parent_added_contextual_repair($1,$2,$3,'concept_gap') as id", [unknown.rows[0].writing_issue_id,parent,child]);
+  assert.equal(repairOnly.rows[0].id, unknown.rows[0].writing_issue_id);
+  const outcome = await db.query("select detector_outcome,ai_outcome from writing_context_feedback_decisions_v1 where decision_id=$1", [governedFact.rows[0].parent_decision_id]);
+  assert.equal(outcome.rows[0].detector_outcome, "SURFACED_CONFIRMED");
+  assert.equal(outcome.rows[0].ai_outcome, "AI_MISSED_INVALID");
+  const operations = await db.query("select count(*)::int as n from writing_context_feedback_operations_v1");
+  assert(operations.rows[0].n > 0);
+  const spellingRun = (await db.query("insert into writing_shadow_runs(snapshot_id) values($1) returning id", [shadowSnapshot])).rows[0].id;
+  const spellingBatch = randomUUID();
+  await db.query("insert into writing_known_spelling_batches values($1,$2,$3,'spelling-v1','mapping-v1',2,2)", [spellingBatch,spellingRun,shadowSnapshot]);
+  await db.query("insert into writing_known_spelling_checks values($1,$2,$3,'FINDING'),($4,$2,$5,'NO_MAPPING')", [randomUUID(),spellingBatch,parentAddedGoverned,randomUUID(),parentAddedUnknown]);
+  await db.query("insert into misspelling_instances values($1,$2,false,true)", [randomUUID(),parentAddedUnknown]);
+  const spellingMetrics = await db.query("select surfaced,parent_confirmed,parent_added_misses from writing_spelling_feedback_detector_metrics_v1 where batch_id=$1", [spellingBatch]);
+  assert.deepEqual(spellingMetrics.rows[0], { surfaced: 1, parent_confirmed: 1, parent_added_misses: 1 });
   console.log("context advisory disposable database proof passed");
 } catch (error) {
   if (started) {

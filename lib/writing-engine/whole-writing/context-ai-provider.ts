@@ -17,15 +17,17 @@ export type ProviderOutcome = {
   outputTokens: number | null;
   calculatedCostUsd: number | null;
   pricingVersion: string | null;
+  requestSent: boolean;
 };
 
 const MAX_REQUEST_BYTES = 8000;
 const TIMEOUT_MS = 8000;
 const MAX_RESPONSE_BYTES = 64_000;
-const fail = (failure: string, latencyMs: number, requestId: string | null = null): ProviderOutcome => ({
+const fail = (failure: string, latencyMs: number, requestId: string | null = null,
+  requestSent = false): ProviderOutcome => ({
   value: null, failure, model: AI_CONTEXT_MODEL, returnedModel: null, requestId, latencyMs,
   inputTokens: null, cachedInputTokens: null, outputTokens: null,
-  calculatedCostUsd: null, pricingVersion: null,
+  calculatedCostUsd: null, pricingVersion: null, requestSent,
 });
 
 function configuredCost(inputTokens: number, cachedInputTokens: number, outputTokens: number) {
@@ -83,7 +85,7 @@ export async function analyseAiContext(input: AiContextCase): Promise<ProviderOu
       });
     } catch {
       // A timeout or network error is ambiguous: the provider may have run it.
-      return fail("AI_PROVIDER_TRANSPORT_UNAVAILABLE", Date.now() - started);
+      return fail("AI_PROVIDER_TRANSPORT_UNAVAILABLE", Date.now() - started, null, true);
     }
     const rawRequestId = response.headers.get("x-request-id");
     const requestId = rawRequestId && /^[a-zA-Z0-9_-]{1,100}$/.test(rawRequestId) ? rawRequestId : null;
@@ -97,29 +99,29 @@ export async function analyseAiContext(input: AiContextCase): Promise<ProviderOu
           continue;
         }
       }
-      return fail(`AI_PROVIDER_HTTP_${response.status}`, Date.now() - started, requestId);
+      return fail(`AI_PROVIDER_HTTP_${response.status}`, Date.now() - started, requestId, true);
     }
     if (Number(response.headers.get("content-length")) > MAX_RESPONSE_BYTES) {
-      return fail("AI_PROVIDER_RESPONSE_TOO_LARGE", Date.now() - started, requestId);
+      return fail("AI_PROVIDER_RESPONSE_TOO_LARGE", Date.now() - started, requestId, true);
     }
     let payload: Record<string, unknown>;
     try {
       const raw = await response.text();
-      if (Buffer.byteLength(raw, "utf8") > MAX_RESPONSE_BYTES) return fail("AI_PROVIDER_RESPONSE_TOO_LARGE", Date.now() - started, requestId);
+      if (Buffer.byteLength(raw, "utf8") > MAX_RESPONSE_BYTES) return fail("AI_PROVIDER_RESPONSE_TOO_LARGE", Date.now() - started, requestId, true);
       payload = JSON.parse(raw) as Record<string, unknown>;
     } catch {
-      return fail("AI_PROVIDER_MALFORMED", Date.now() - started, requestId);
+      return fail("AI_PROVIDER_MALFORMED", Date.now() - started, requestId, true);
     }
     if (payload.model !== AI_CONTEXT_MODEL || payload.status !== "completed" || typeof payload.id !== "string") {
-      return fail("AI_PROVIDER_IDENTITY_MISMATCH", Date.now() - started, requestId);
+      return fail("AI_PROVIDER_IDENTITY_MISMATCH", Date.now() - started, requestId, true);
     }
     const output = Array.isArray(payload.output) ? payload.output : [];
     const messages = output.filter((item) => item && typeof item === "object" && item.type === "message");
     const contents = messages.flatMap((item) => Array.isArray(item.content) ? item.content : []);
-    if (contents.some((item) => item?.type === "refusal")) return fail("AI_PROVIDER_REFUSAL", Date.now() - started, requestId);
+    if (contents.some((item) => item?.type === "refusal")) return fail("AI_PROVIDER_REFUSAL", Date.now() - started, requestId, true);
     const texts = contents.filter((item) => item?.type === "output_text" && typeof item.text === "string");
     if (messages.length !== 1 || contents.length !== 1 || texts.length !== 1) {
-      return fail("AI_PROVIDER_OUTPUT_CONTRACT", Date.now() - started, requestId);
+      return fail("AI_PROVIDER_OUTPUT_CONTRACT", Date.now() - started, requestId, true);
     }
     const usage = payload.usage as Record<string, unknown> | undefined;
     const inputTokens = usage?.input_tokens;
@@ -131,11 +133,11 @@ export async function analyseAiContext(input: AiContextCase): Promise<ProviderOu
         !Number.isInteger(cachedInputTokens) || (inputTokens as number) < 0 ||
         (outputTokens as number) < 0 || (cachedInputTokens as number) < 0 ||
         (cachedInputTokens as number) > (inputTokens as number)) {
-      return fail("AI_PROVIDER_USAGE_UNAVAILABLE", Date.now() - started, requestId);
+      return fail("AI_PROVIDER_USAGE_UNAVAILABLE", Date.now() - started, requestId, true);
     }
     let value: unknown;
     try { value = JSON.parse(texts[0].text); }
-    catch { return fail("AI_PROVIDER_MALFORMED", Date.now() - started, requestId); }
+    catch { return fail("AI_PROVIDER_MALFORMED", Date.now() - started, requestId, true); }
     // Only a configured, versioned rate card yields an operational estimate.
     // The provider invoice remains authoritative.
     const cost = configuredCost(inputTokens as number, cachedInputTokens as number,
@@ -144,7 +146,7 @@ export async function analyseAiContext(input: AiContextCase): Promise<ProviderOu
       returnedModel: payload.model as string, requestId,
       latencyMs: Date.now() - started, inputTokens: inputTokens as number,
       cachedInputTokens: cachedInputTokens as number, outputTokens: outputTokens as number,
-      ...cost };
+      ...cost, requestSent: true };
   }
-  return fail("AI_PROVIDER_UNAVAILABLE", Date.now() - started);
+  return fail("AI_PROVIDER_UNAVAILABLE", Date.now() - started, null, true);
 }

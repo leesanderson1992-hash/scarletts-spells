@@ -53,6 +53,28 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
     throw new Error("The retry is not in this writing thread.");
   }
 
+  // A parent-added pair without a governed family is learner-local repair
+  // evidence. Even a concept-gap label cannot create a learning item here.
+  if (issue.metadata?.feedback_origin === "parent_added") {
+    const parentCase = await service.from("writing_context_parent_added_cases")
+      .select("id,governed_family_key")
+      .eq("writing_issue_id", issueId).eq("parent_user_id", user.id).maybeSingle();
+    if (parentCase.error || !parentCase.data) throw new Error("Parent feedback lineage is unavailable.");
+    if (parentCase.data.governed_family_key === null) {
+      if (skillKey) throw new Error("This pair has no governed microskill.");
+      if (!alreadyFinalised) {
+        const closed = await service.rpc("finalise_parent_added_contextual_repair", {
+          p_writing_issue_id: issueId,p_parent_user_id: user.id,
+          p_child_id: submission.child_id,p_outcome: outcome,
+        });
+        if (closed.error) throw new Error(`Contextual repair was not saved: ${closed.error.message}`);
+      }
+      revalidatePath(`/courses/review/${submissionId}`);
+      revalidatePath("/courses/review");
+      return;
+    }
+  }
+
   if (LEARNING_OUTCOMES.has(outcome)) {
     if (typeof skillKey !== "string" || !skillKey) throw new Error("Choose the governed microskill.");
     if (!issue.approved_replacement) throw new Error("A parent-confirmed replacement is required for a contextual learning need.");

@@ -751,6 +751,22 @@ that authority. Shadow and parent-advisory activation each require separate
 approval and proof. See the [implementation receipt](../implementation/whole-writing-context-ai-safety-gate-implementation-2026-09-27.md)
 and [repeatability receipt](../../bench/ai-context/repeatability-receipt-2026-09-26.md).
 
+Stage 0B adds parent-confirmed feedback lineage while the AI mode remains
+disabled. Exact immutable occurrences link versioned, complete detector runs,
+AI attempts and observations, parent decisions, repair issues, and separately
+governed learning handoffs. Disagreement labels and aggregate metrics are
+derived from these facts; they do not establish learner truth. A parent may
+add a missed spelling or contextual word choice at an exact writing span.
+Four governed contextual families retain their existing decision and learning
+policy. Other homophone/confusable pairs remain learner/event scoped, use
+repair-only child feedback, and enter the `No matching skill` Admin queue;
+they do not activate a global family or microskill. A parent may deliberately
+suggest a reviewed occurrence for research, but an additional privacy and
+human-adjudication process is required before frozen corpus admission.
+Prompted repair remains excluded from authentic independent use, Gold Bars,
+proficiency, and mastery. See the [Stage 0B receipt](../implementation/whole-writing-context-feedback-stage-0b-2026-09-27.md)
+and the [evidence contract](../contracts/writing-engine-mastery-and-evidence-contract.md).
+
 ## Admin/Internal Access Boundary
 
 Writing Engine admin/internal access defers to:

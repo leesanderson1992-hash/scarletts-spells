@@ -34,15 +34,16 @@ export function ContextualReturnedCorrectionRow({ row, options, submissionId, co
     .map((item) => [item.skillClusterKey ?? "", item.skillClusterDisplayName ?? "Function words"])).entries()];
   const skills = allowedOptions.filter((item) => item.skillFamilyKey === familyKey && (item.skillClusterKey ?? "") === clusterKey);
   const editable = row.state === "child_responded" && !row.correctionOutcome && Boolean(row.sourceIds.originalWritingIssueId);
-  const learning = LEARNING_OUTCOMES.has(outcome);
+  const learning = LEARNING_OUTCOMES.has(outcome) && Boolean(governedSkill);
 
   return <tr className="border-t border-[var(--border)] bg-sky-50/50">
     <td colSpan={colSpan} className="px-3 py-3">
       <div className="grid gap-2 text-sm">
         <p className="font-semibold text-[color:var(--ink)]">Contextual retry: {row.observedText} → {row.expectedCorrection ?? "unknown"}</p>
         <p>Child tried: {row.latestChildAttempt ?? "No attempt recorded"}</p>
-        {row.correctionOutcome ? <p>Parent outcome: {row.correctionOutcome.replaceAll("_", " ")}. The retry remains repair-only; ADLE lesson availability depends on governed curriculum readiness.</p> : null}
-        {row.correctionOutcome && LEARNING_OUTCOMES.has(row.correctionOutcome) && row.microSkillKey ? (
+        {!governedSkill ? <p className="text-xs text-amber-900">Parent-added contextual pair: the retry is repair-only. No governed microskill or Golden Nugget is assigned; Admin can review the pair under No matching skill.</p> : null}
+        {row.correctionOutcome ? <p>Parent outcome: {row.correctionOutcome.replaceAll("_", " ")}. The retry remains repair-only.{governedSkill ? " ADLE lesson availability depends on governed curriculum readiness." : " This pair has no learning handoff."}</p> : null}
+        {row.correctionOutcome && LEARNING_OUTCOMES.has(row.correctionOutcome) && governedSkill && row.microSkillKey && row.microSkillKey !== "unknown" ? (
           <details className="text-xs">
             <summary className="cursor-pointer">Learning record details</summary>
             <p>Use this only if the Golden Nugget write failed after the parent outcome was saved.</p>

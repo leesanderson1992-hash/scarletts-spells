@@ -2,6 +2,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 import { AdminCaseDecisionRow } from "./admin-decision-row";
+import { ContextualCatalogCases } from "./contextual-catalog-cases";
 
 export const dynamic = "force-dynamic";
 
@@ -673,6 +674,8 @@ export default async function AdminCatalogReviewPage({
           decisionStorageUnavailable={decisionStorageUnavailable}
           microSkillOptionsUnavailable={microSkillOptionsUnavailable}
         />
+
+        <ContextualCatalogCases />
 
         <section className="grid gap-4 sm:grid-cols-3" aria-label="Catalog review summary">
           <div className="brand-card rounded-2xl p-5">

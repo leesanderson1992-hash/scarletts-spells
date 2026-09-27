@@ -49,6 +49,8 @@ import {
   type UnifiedSpellingReviewWorkflowPhase,
 } from "../unified-spelling-review-table";
 import { ParentMissedWordForm } from "../parent-missed-word-form";
+import { ParentContextualMissForm } from "../parent-contextual-miss-form";
+import { ParentContextualFeedbackCases } from "../parent-contextual-feedback-cases";
 import {
   buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
   hasCanonicalMicroSkillKey,
@@ -56,6 +58,7 @@ import {
 
 import {
   addMissedWordToSubmissionReview,
+  addParentContextualMiss,
   approveSubmissionReview,
   returnSubmissionToChild,
 } from "../actions";
@@ -328,6 +331,8 @@ async function loadParentIdentifiedOccurrenceCandidates(input: {
 
 function LessonParentActionsSection(props: {
   submissionId: string;
+  parentUserId: string;
+  childId: string;
   redirectPath: string;
   parentReviewNote: string | null;
   reviewableFields: ReturnType<typeof extractReviewableLessonFields>;
@@ -449,6 +454,16 @@ function LessonParentActionsSection(props: {
         submissionId={props.submissionId}
         redirectPath={props.redirectPath}
         occurrences={props.parentIdentifiedOccurrences}
+      />
+      <ParentContextualMissForm
+        action={addParentContextualMiss}
+        submissionId={props.submissionId}
+        occurrences={props.parentIdentifiedOccurrences}
+      />
+      <ParentContextualFeedbackCases
+        submissionId={props.submissionId}
+        parentUserId={props.parentUserId}
+        childId={props.childId}
       />
 
       <div className="mt-4 grid gap-3">
@@ -1334,6 +1349,8 @@ export default async function CourseReviewDetailPage({
 
         <LessonParentActionsSection
           submissionId={submission.id}
+          parentUserId={user.id}
+          childId={submission.child_id}
           redirectPath={buildScopedPath(
             `/courses/review/${reviewEntryId}`,
             selectedChild.id,
