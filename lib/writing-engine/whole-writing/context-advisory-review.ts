@@ -19,6 +19,7 @@ export type ContextAdvisoryReviewRow = {
   machineAlternative: string | null;
   machineReason: string | null;
   machineDetails: Record<string, unknown> | null;
+  analysisSource: "frozen_v4" | "ai_provider" | null;
   parentClassification: "VALID" | "INVALID" | "UNCERTAIN" | "EXCLUDED" | null;
   parentDecisionId: string | null;
   parentAlternative: string | null;
@@ -73,7 +74,7 @@ export async function loadContextAdvisoryReview(input: {
   const ids = occurrences.map((item) => item.id);
   const [observations, decisions] = await Promise.all([
     input.client.from("writing_context_advisory_observations")
-      .select("id,occurrence_id,observation_status,alternative_member,reason_code,trace_fingerprint,manifest_fingerprint,release_key,created_at")
+      .select("id,occurrence_id,observation_status,alternative_member,reason_code,trace_fingerprint,manifest_fingerprint,release_key,analysis_source,diagnostics,created_at")
       .in("occurrence_id", ids).order("created_at", { ascending: false }),
     input.client.from("writing_context_current_parent_decisions")
       .select("id,occurrence_id,classification,intended_member")
@@ -104,10 +105,15 @@ export async function loadContextAdvisoryReview(input: {
       machineStatus: (observation?.observation_status as ContextAdvisoryReviewRow["machineStatus"]) ?? "NOT_ASSESSED",
       machineAlternative: typeof observation?.alternative_member === "string" ? observation.alternative_member : null,
       machineReason: typeof observation?.reason_code === "string" ? observation.reason_code : null,
+      analysisSource: observation?.analysis_source === "ai_provider" ? "ai_provider" : observation ? "frozen_v4" : null,
       machineDetails: observation ? {
         releaseKey: observation.release_key,
         manifestFingerprint: observation.manifest_fingerprint,
         traceFingerprint: observation.trace_fingerprint,
+        provider: observation.analysis_source === "ai_provider" ? "openai" : null,
+        model: observation.analysis_source === "ai_provider" && observation.diagnostics &&
+          typeof observation.diagnostics === "object" && !Array.isArray(observation.diagnostics)
+          ? (observation.diagnostics as Record<string, unknown>).model : null,
       } : null,
       parentClassification: (decision?.classification as ContextAdvisoryReviewRow["parentClassification"]) ?? null,
       parentDecisionId: decision?.id ?? null,

@@ -740,6 +740,17 @@ Stage `8` closeout preserves the same rule: it was a boundary-safety and
 parent-facing evidence-wording stage only, not a mastery-runtime stage, and it
 did not alter verification truth, mastery semantics, or workflow ownership.
 
+The contextual AI advisory route is implemented at Stage 0 with its global AI
+mode disabled. A provider result passes an application-owned exact-occurrence
+and family gate before it can become a parent-visible advisory observation.
+`NOT_ASSESSED` records source, provider, or contract failure separately from
+the model's `UNCERTAIN` judgement. AI output has no direct learner, Known
+Error, Golden Nugget, ADLE, proficiency, reward, or retirement authority;
+the existing identified parent decision and governed learning handoff retain
+that authority. Shadow and parent-advisory activation each require separate
+approval and proof. See the [implementation receipt](../implementation/whole-writing-context-ai-safety-gate-implementation-2026-09-27.md)
+and [repeatability receipt](../../bench/ai-context/repeatability-receipt-2026-09-26.md).
+
 ## Admin/Internal Access Boundary
 
 Writing Engine admin/internal access defers to:

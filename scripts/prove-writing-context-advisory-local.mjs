@@ -130,6 +130,10 @@ try {
   `);
   const learningMigration = readFileSync(new URL("../supabase/migrations/20260924130000_add_parent_confirmed_contextual_learning_handoff.sql", import.meta.url), "utf8");
   await db.query(learningMigration);
+  const aiMigration = readFileSync(new URL("../supabase/migrations/20260927120000_add_contextual_ai_advisory_boundary.sql", import.meta.url), "utf8");
+  await db.query(aiMigration);
+  const shadowPrivilege = await db.query("select has_table_privilege('authenticated','public.writing_context_ai_attempts','SELECT') as allowed");
+  assert.equal(shadowPrivilege.rows[0].allowed, false);
   const skill = "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE";
   await db.query("insert into micro_skill_catalog values($1,'D4',true,true)", [skill]);
   const word = (await db.query("insert into canonical_teaching_dictionary_words(normalised_word,row_status,review_status) values('there','active','approved_for_first_exposure') returning id")).rows[0].id;
@@ -172,9 +176,55 @@ try {
   const needsReentry = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [resolvedIssue, parent, child, skill]);
   assert.equal(needsReentry.rows[0].result.handoff_state, "PENDING_EXISTING_ITEM_REVIEW");
   assert.equal(needsReentry.rows[0].result.adle_learning_item_id, null);
+  await db.query("update writing_context_advisory_control set ai_mode='parent_advisory' where singleton=true");
+  const aiOccurrence = "context-advisory:ai-observation-only";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [aiOccurrence, captured.rows[0].id]);
+  const attempt = (await db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     alternative_member,reason_code,provider,model,prompt_fingerprint,schema_fingerprint,
+     config_fingerprint,gate_version)
+    values($1,$2,$3,$4,'run-1','parent_advisory','THERE_THEIR_THEYRE','INVALID',
+      'there','UNIQUE_REPLACEMENT','openai','gpt-6-luna','prompt','schema','config','gate') returning id`,
+    [aiOccurrence, captured.rows[0].id, parent, child])).rows[0].id;
+  await assert.rejects(db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     reason_code,provider,model,prompt_fingerprint,schema_fingerprint,config_fingerprint,gate_version)
+    values($1,$2,$3,$4,'run-2','shadow','THERE_THEIR_THEYRE','NOT_ASSESSED',
+      'AI_PROVIDER_UNAVAILABLE','openai','gpt-6-luna','prompt','schema','config','gate')`,
+    [aiOccurrence, captured.rows[0].id, randomUUID(), child]));
+  const aiObservation = (await db.query(`insert into writing_context_advisory_observations
+    (occurrence_id,snapshot_id,parent_user_id,child_id,family_key,release_key,release_id,
+     run_key,manifest_fingerprint,observation_status,observed_member,alternative_member,
+     reason_code,result_fingerprint,diagnostics,analysis_source,ai_attempt_id)
+    values($1,$2,$3,$4,'THERE_THEIR_THEYRE','ai-context-parent-advisory-v1',
+      'a1000000-0000-4000-8000-000000000001','run-1','config','INVALID','their',
+      'there','UNIQUE_REPLACEMENT','result','{}','ai_provider',$5) returning id`,
+    [aiOccurrence, captured.rows[0].id, parent, child, attempt])).rows[0].id;
+  const autonomous = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(autonomous.rows[0].n, 0);
+  await db.query("select record_writing_context_parent_decision($1,$2,$3,'VALID')", [aiOccurrence, aiObservation, parent]);
+  const disagreed = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(disagreed.rows[0].n, 0);
+  await db.query("select record_writing_context_parent_decision($1,$2,$3,'INVALID','there')", [aiOccurrence, aiObservation, parent]);
+  const confirmed = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(confirmed.rows[0].n, 1);
+  await assert.rejects(db.query("update writing_context_advisory_control set enabled=false where singleton=true"));
   await db.query("select disable_writing_context_advisory($1)", [parent]);
-  const switchState = await db.query("select enabled from writing_context_advisory_control where singleton=true");
+  const switchState = await db.query("select enabled,ai_mode from writing_context_advisory_control where singleton=true");
   assert.equal(switchState.rows[0].enabled, false);
+  assert.equal(switchState.rows[0].ai_mode, "disabled");
+  await db.query("update writing_context_advisory_control set ai_mode='shadow' where singleton=true");
+  const shadowSubmission = randomUUID();
+  await db.query("insert into task_submissions values($1,$2,$3,$4,now(),'their should be there')", [shadowSubmission, parent, child, task]);
+  await db.query("insert into task_submission_processing_jobs values($1,$2,$3,$4,$5,$6)", [
+    randomUUID(), shadowSubmission, parent, child, task,
+    { writingSourceCapture: { rawSubmissionText: "their should be there" } },
+  ]);
+  const shadow = await db.query("select envelope from writing_source_snapshots where submission_id=$1", [shadowSubmission]);
+  assert.equal(shadow.rows[0].envelope.contextAiShadowCapture, true);
+  assert.equal(shadow.rows[0].envelope.contextAdvisoryCapture, false);
+  assert.equal(shadow.rows[0].envelope.contextAiModeAtCapture, "shadow");
+  await db.query("select disable_writing_context_advisory($1)", [parent]);
   await assert.rejects(db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there')", [learningOccurrence, parent]));
   const durable = await db.query("select count(*)::int as n from writing_context_learning_handoffs where writing_issue_id=$1", [learningIssue]);
   assert.equal(durable.rows[0].n, 1);
