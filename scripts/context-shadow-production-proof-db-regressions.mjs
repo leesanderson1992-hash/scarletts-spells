@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { proveContextDigestQualification } from './context-shadow-digest-db-regressions.mjs';
 const hash = s => createHash('sha256').update(s).digest('hex');
 export async function proveProductionProofIsolation({db,parent,task}) {
   // Reduced database has no rewards/ADLE schema. Representative authorities exercise the same trigger,
@@ -10,13 +11,19 @@ export async function proveProductionProofIsolation({db,parent,task}) {
     'child_word_treasure_evidence_candidates','child_word_treasures','child_gold_coin_ledger_events','writing_samples'])
     await db.query(`create table if not exists ${table}(id uuid primary key default gen_random_uuid(),child_id uuid not null)`);
   const migration=readFileSync(new URL('../supabase/migrations/20260929140000_isolate_production_context_provider_proofs.sql',import.meta.url),'utf8');
-  await db.query(migration);
+  // Reproduce Production's broad inherited service grants, inside this disposable database only.
+  await db.query('alter default privileges in schema public grant all on tables to service_role');
+  try { await db.query(migration); }
+  finally { await db.query('alter default privileges in schema public revoke all on tables from service_role'); }
+  await proveContextDigestQualification({db,parent});
   assert.deepEqual((await db.query('select enabled,ai_mode from writing_context_advisory_control')).rows,[{enabled:false,ai_mode:'disabled'}]);
   assert.equal((await db.query('select dispatch_scope from writing_context_shadow_policy')).rows[0].dispatch_scope,'DENY');
   assert.equal((await db.query('select count(*)::int n from writing_context_provider_proof_learners')).rows[0].n,0);
   for (const role of ['anon','authenticated']) for (const privilege of ['SELECT','INSERT','UPDATE','DELETE'])
     assert.equal((await db.query('select has_table_privilege($1,$2,$3) ok',[role,'writing_context_provider_proof_learners',privilege])).rows[0].ok,false);
-  for (const privilege of ['UPDATE','DELETE']) assert.equal((await db.query('select has_table_privilege($1,$2,$3) ok',['service_role','writing_context_provider_proof_learners',privilege])).rows[0].ok,false);
+  for (const privilege of ['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'])
+    assert.equal((await db.query('select has_table_privilege($1,$2,$3) ok',['service_role','writing_context_provider_proof_learners',privilege])).rows[0].ok,true);
+  console.log('PASS: owner-approved broad service-role registration authority; client restrictions retained');
   for (const fn of ['context_provider_proof_child(uuid)','context_shadow_scope_authorised(uuid,uuid)',
     'writing_context_shadow_operations_for_scope(timestamptz,timestamptz,text)'])
     assert.equal((await db.query("select has_function_privilege('authenticated',$1,'EXECUTE') ok",[fn])).rows[0].ok,false);
@@ -25,9 +32,12 @@ export async function proveProductionProofIsolation({db,parent,task}) {
   const synthetic=randomUUID(),real=randomUUID(),wrongTask=randomUUID();
   await db.query('insert into children values($1,$3),($2,$3)',[synthetic,real,parent]);
   await db.query("insert into course_tasks values($1,$2,'lesson','Synthetic','Synthetic',null)",[wrongTask,parent]);
-  await db.query(`insert into writing_context_provider_proof_learners(child_id,parent_user_id,task_id,approved_by,evidence_ref,approved_at,expires_at)
+  await db.query('set role service_role');
+  try { await db.query(`insert into writing_context_provider_proof_learners(child_id,parent_user_id,task_id,approved_by,evidence_ref,approved_at,expires_at)
     values($1,$2,$3,$2,'local/proof',now()-interval '1 hour',now()+interval '1 day')`,[synthetic,parent,task]);
-  await assert.rejects(db.query('update writing_context_provider_proof_learners set task_id=$1 where child_id=$2',[wrongTask,synthetic]));
+    await assert.rejects(db.query('update writing_context_provider_proof_learners set task_id=$1 where child_id=$2',[wrongTask,synthetic]),
+      {code:'P0001',where:/reject_writing_fact_update/});
+  } finally { await db.query('reset role'); }
   const version='production-proof-card', approval=randomUUID(),realApproval=randomUUID(),config='a'.repeat(64),runtime='b'.repeat(64),deployment='c'.repeat(40);
   const cardFp=hash([version,'openai','gpt-6-luna','/v1/responses','default','USD',1000000,'0.1000000000','0.0100000000','0.1250000000','0.5000000000','CONTEXT_COST_USD_V1'].join('|'));
   await db.query(`insert into writing_context_ai_rate_cards(version,provider,model,endpoint,service_tier,currency,unit_tokens,input_rate,
@@ -120,6 +130,12 @@ export async function proveProductionProofIsolation({db,parent,task}) {
   assert.equal((await db.query("select count(*)::int n from writing_context_feedback_operations_v1 where pricing_version=$1",[version])).rows[0].n,0);
 
   const detectorBefore=(await db.query('select * from writing_context_feedback_detector_metrics_v1')).rows;
+  // Exercise the guard with a trusted service identity that really has INSERT authority.
+  await db.query('grant insert on adle_learning_items to service_role');
+  await db.query('set role service_role');
+  try { await assert.rejects(db.query('insert into adle_learning_items(child_id) values($1)',[synthetic]),
+    /AI_PROOF_EDUCATIONAL_WRITE_DENIED/); }
+  finally { await db.query('reset role'); }
   for (const table of ['adle_learning_items','adle_authentic_use_events','adle_review_retirement_decision_receipts',
     'child_word_treasure_evidence_candidates','child_word_treasures','child_gold_coin_ledger_events','writing_samples'])
     await assert.rejects(db.query(`insert into ${table}(child_id) values($1)`,[synthetic]),/AI_PROOF_EDUCATIONAL_WRITE_DENIED/);
@@ -166,10 +182,12 @@ export async function proveProductionProofIsolation({db,parent,task}) {
   const unsent=await source(),unsentJob=await queue(unsent),unsentDispatch=(await reserve(unsent,unsentJob)).id;assert(unsentDispatch);
   const afterReserve=(await db.query("select * from writing_context_shadow_consumption where environment='production' order by policy_revision_id")).rows;
   await db.query('select disable_writing_context_advisory($1)',[parent]);assert.equal(await begin(unsentDispatch,unsentJob),false);
+  await assert.rejects(db.query('delete from course_tasks where id=$1',[task]),{code:'23503'},'Proof task remains restricted until canonical learner cleanup');
   await db.query('delete from children where id=$1',[synthetic]);
   assert.equal(await begin(unsentDispatch,unsentJob),false);
   assert.equal((await db.query('select count(*)::int n from writing_context_provider_proof_learners where child_id=$1',[synthetic])).rows[0].n,0);
   assert.equal((await db.query('select count(*)::int n from writing_context_learner_authorisations where child_id=$1',[synthetic])).rows[0].n,0);
+  await db.query('delete from course_tasks where id=$1',[task]);
   assert.deepEqual((await db.query("select * from writing_context_shadow_consumption where environment='production' order by policy_revision_id")).rows,afterReserve);
   assert.deepEqual((await db.query('select enabled,ai_mode from writing_context_advisory_control')).rows,[{enabled:false,ai_mode:'disabled'}]);
   console.log('PASS: Production proof-only scope, trusted capture, admission rechecks, authorisation, identity/card pins, educational guards, separate metrics, shared durable budget, kill and synthetic deletion');

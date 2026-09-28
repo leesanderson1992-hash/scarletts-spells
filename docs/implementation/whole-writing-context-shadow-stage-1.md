@@ -1,6 +1,8 @@
 # Stage 1 implementation and activation gates
 
-Status: Production-only local prerequisite amendment; **provider dispatch remains disabled**.
+Status: Production-only prerequisites plus bounded local digest correction;
+**provider dispatch remains disabled**. The correction receipt is
+[Stage 1A local package](qa/whole-writing-context-shadow-stage-1-digest-local-receipt-2026-09-28.md).
 Baseline: `experiment/ai-context-benchmark`, frozen Stage 0B commit
 `ab5cc8da85f5563aa17c2692603ac11c19f34d28`. Original Stage 0A/0B migrations,
 prompt, schema, safety gate and corrected comparison semantics are unchanged.
@@ -15,9 +17,15 @@ migrations finish with `ai_mode='disabled'`; separate approved activation can
 set only `ai_mode='shadow'`. A database constraint rejects parent advisory and
 enabled=true. The worker has no observation, parent decision, repair, ADLE,
 learning, Gold, authentic-use, proficiency, mastery or retirement write path.
-The existing service role has broad application privileges: these restrictions
-are enforced by the Stage 1 route, private tables/RPCs, constraints and proofs,
-not a claim that service_role itself cannot mutate learning state.
+The owner explicitly accepts `service_role` as a fully trusted server/infrastructure
+identity with broad database authority. Database least-privilege grants do not
+protect against a compromised or misused service credential. Approved application/RPC
+paths retain ownership, immutable classification, educational guards, locking and
+accounting checks. Existing schema restrictions stay installed; no privilege-narrowing
+migration is required. PUBLIC, anonymous and authenticated browser/client roles remain
+restricted. Service credentials remain server-only, outside client bundles, HTML/RSC,
+API responses and logs. Authority tests prove the approved paths under this trust
+assumption, not containment of a malicious infrastructure identity.
 
 All otherwise eligible, currently authorised learners may participate. There
 is no learner allowlist or percentage rollout. A guardian authorisation is a
@@ -110,22 +118,40 @@ Apply pending files in repository order, once only:
 | 8 | `20260929120000_add_context_ai_cost_provenance.sql` | Immutable rate cards, new facts, admission locks and durable non-personal budget authority |
 | 9 | `20260929130000_add_context_shadow_operations.sql` | Monitoring/stops; both switches disabled |
 | 10 | `20260929140000_isolate_production_context_provider_proofs.sql` | Persisted synthetic proof scope, educational exclusions, separate metrics; both switches disabled |
+| 11 | `20260929150000_fix_context_digest_schema_qualification.sql` | Replace only the two final frozen function definitions with `extensions.digest(...)`; no grants, seeds or activation |
 
 Other earlier repository dependencies still apply; this is not permission to
-skip them. The Stage 1 files are transactional and contain no approval,
-authorisation, price seed or enabling operation. Each failure rolls back that
-file; stop, read back the actual schema/history, recover the bounded defect and
-resume only missing files. Do not drop immutable facts or mark a failed migration
-applied. Earlier successfully applied additive files can remain disabled. PITR
+skip them. Production discovery previously found the first four prerequisite files
+already applied and exactly eight pending files through order 10; refresh that
+evidence before execution. Order 11 is the new bounded correction requiring checksum
+review. Do not replay applied files or include unrelated pending migrations.
+The three pending Stage 0A/0B files require transactional runner execution;
+orders 6–11 contain explicit BEGIN/COMMIT. None contains approval, authorisation,
+price seeds or enabling operations. Table changes/FK validation/trigger installation
+lock live relations: agree a window, lock/statement timeouts and one migration operator.
+Backup/PITR availability, recovery points/retention, restoration owner and accepted
+recovery implications are execution prerequisites, with no invented thresholds.
+An SQL failure before commit rolls back that file. The native runner can record
+history after an authored COMMIT: schema success followed by ledger failure can leave
+unledgered schema. Stop and inspect actual schema/history; do not blindly rerun,
+repair history, insert ledger rows or mark failed migrations applied. Preserve
+immutable facts. Earlier successfully applied additive files can remain disabled. PITR
 is a separately approved last resort because restoring the database affects
 other writing/learning facts.
 
 Afterward run the **read-only**, operator-owned
 `scripts/verify-context-shadow-hosted.mjs` with a privately injected
 `CONTEXT_SHADOW_VERIFY_DATABASE_URL`; never print or put the URL in a command.
-It requires all schema versions, exactly one disabled control row, disabled mode
-default, Stage 1 constraint, private RLS/table/RPC privileges, singleton policy
-and all four diagnostic cascades. Record migration checksums, history/readback,
+It requires all schema versions including the correction, exactly one disabled control
+row, false/disabled defaults, validated Stage 1 constraint, client RLS/table/RPC
+restrictions, singleton policy, DENY scope defaults, qualified digest definitions,
+immutable proof trigger and all four diagnostic cascades. It records effective service
+table privileges and the explicit owner-approved trust assumption; broad proof-registration
+privileges are accepted. Consumption privilege assertions check the frozen installed
+restrictions only, not compromised-credential containment. It does not prove full
+ledger statement/checksum agreement, populated lifecycle behaviour, browser/RSC
+isolation, provider absence or concurrency. Perform those companion checks separately.
+Record migration checksums, parser-aware statement-array agreement, history/readback,
 control/default output, RLS/permissions and inspector identity/time. Then perform
 owner/other-parent/child/anon and service-role read probes against the normal Production website/database, using only operator-owned synthetic fixtures. Authenticated
 and anon must not read AI attempts, detector/private operations or approval data.
@@ -231,8 +257,10 @@ missing receipts keep admitted exposure unresolved, never zero-priced. Receipt
 settlement takes the same control lock, can finish after disable, and uses the
 original reservation day/revision. UTC rollover allocates a new day and does not
 reuse or rewrite prior consumption; late known-cost classification remains in its
-original day. Accounting has private RLS, service-role SELECT only, guarded
-monotonic updates and deletion rejection. Its non-personal operational/audit
+original day. Accounting retains private RLS, explicitly installed service-role
+SELECT-only grants, guarded monotonic updates and deletion rejection. Approved
+writes go through the accounting RPC/trigger path; these checks do not contain
+misuse of the fully trusted infrastructure credential. Its non-personal operational/audit
 retention is separate from learner evidence; no automatic accounting purge is
 introduced by learner lifecycle operations.
 
@@ -328,7 +356,19 @@ credentials: frozen Stage 0 code must not regain provider access under shadow.
 Keep additive schema and historical facts; destructive migration reversal is not
 the emergency switch. Resume only with a new explicit approval and fresh captures.
 
-Disposable synthetic Production deletion proof: populate source, snapshot,
+**Stage 1A disabled proof:** use only deliberately created, operator-owned synthetic
+fixtures. Register before submissions/education; prove trusted stamping, immutability,
+ownership and educational rejection with rollback-only probes. Do not manufacture
+parent decisions, learning/reward facts or research promotions to satisfy a test.
+Use uncalled NOT_ASSESSED diagnostics for populated source/private-work cascades;
+verify schema/guards for the prohibited educational/research paths read-only.
+Two connections hold the control lock, queue denied reservation/admission behind it,
+commit disablement and confirm no new capacity/admission. Stage 1A never installs
+live privacy/guardian approvals, rate cards, thresholds or shadow activation to make
+successful admission tests pass. Zero consumption does not prove retained nonzero
+consumption. Parent/child API, HTML/RSC and loader checks remain hosted proofs.
+
+**Stage 1B separately approved deletion/admission proof:** populate source, snapshot,
 occurrences, detector, sent/unsent/unknown-billing attempts, dispatch/job and proof
 permissions. Parent decisions, educational feedback, diagnostic promotions and
 research promotion must remain absent for these fixtures. Delete snapshot and then
@@ -342,7 +382,8 @@ Provider/operator approval/rate-card audit
 records and non-personal daily consumption contain no learner prose and survive
 source deletion; document their
 separate audit retention and infrastructure backup retention. Verify provider ZDR
-assumptions and operational log purge. Repeat the three-request/$0.03 reproduction:
+assumptions and operational log purge. The three-request/$0.03 case below is an
+isolated local synthetic regression, not a signed Production threshold:
 admit three, deny the fourth, delete successful/UNKNOWN/timeout source or learner
 facts, verify accounting remains three/$0.03 and the fourth remains denied. Repeat
 multiple deletions, final request/spend contention, policy revision, UTC rollover,
@@ -352,8 +393,8 @@ already retained by a provider or backup outside the approved policy.
 
 ## Persisted disposable proof isolation
 
-`writing_context_provider_proof_learners` is private, service-insert-only, immutable
-operator registration for a new, operator-owned disposable learner and dedicated
+`writing_context_provider_proof_learners` is private operator registration for a new,
+operator-owned disposable learner and dedicated
 lesson/test task. Registration must precede any submission or educational facts, and its dedicated task must have no previous submissions. Other learners cannot submit to that registered proof task.
 Only authorised infrastructure operators using private service/database access
 may register it; the approved owner must be the operator account, never a real
@@ -361,8 +402,12 @@ child's account. Keep the signed fixture dossier outside application prose logs.
 Registration and submission inserts serialize on the child row. The task reference
 is RESTRICT: cleanup deletes the synthetic learner before deleting its task.
 Neither expiry nor permission revocation removes its synthetic classification.
-The registration itself cascades only with governed learner/account deletion;
-service_role cannot update/delete it to relabel future writing.
+Approved application/RPC paths never directly delete/truncate registration to relabel
+a surviving learner. Immutable-update guards reject classification edits. Canonical
+learner/account deletion removes registration by cascade, followed by task deletion.
+The trusted service identity has broad effective grants, including DELETE/TRUNCATE;
+database least-privilege grants do not prevent credential misuse. Do not expose a
+relabelling operation or remove existing guards in response to this trust decision.
 
 Capture stamps immutable `source_purpose=DISPOSABLE_PROVIDER_PROOF` from the
 registration, never from payload metadata. Ordinary sources remain REAL_LEARNER.
@@ -411,8 +456,12 @@ capacity. Changing approved caps is a separately signed policy decision.
    earlier verification receipt. Review and freeze a new exact SHA before hosted work.
 2. **Stage 1A — Production infrastructure, AI disabled:** obtain explicit hosted
    migration/deployment authority for the normal Production project/site. Apply
-   only approved pending additive files in order and deploy the exact newly approved
-   SHA. Keep enabled=false, ai_mode=disabled, no live approval/pricing/authorisation
+   only approved pending additive files and the reviewed digest correction in order.
+   The selected application target remains frozen
+   `f2d563ef576d0ece30e68bff47ee8cf494f7cf95`; verification/migration/document changes
+   do not authorise a substitute application SHA, merge to main or Production branch
+   change. Migrate and read back disabled schema before releasing the website.
+   Keep enabled=false, ai_mode=disabled, no live approval/pricing/authorisation
    seeds and provider access unavailable. Verify migration history/checksums,
    schema/defaults, RLS/grants/RPCs, installed educational guards, parent/child read
    models, kill locking and lifecycle/deletion using operator-owned synthetic
