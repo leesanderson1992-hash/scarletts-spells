@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { proveContextFeedbackCorrections } from "./context-feedback-corrective-db-regressions.mjs";
 
 const require = createRequire(import.meta.url);
 const { Client } = require("pg");
@@ -47,13 +48,14 @@ try {
     create table public.writing_source_snapshots(id uuid primary key default gen_random_uuid(),submission_id uuid not null unique,
       parent_user_id uuid not null,child_id uuid not null,task_id uuid not null,occurred_at timestamptz not null,
       envelope jsonb not null,source_revision text not null default '1');
-    create table public.writing_shadow_runs(id uuid primary key default gen_random_uuid(),snapshot_id uuid not null unique);
-    create table public.writing_occurrences(id text primary key,snapshot_id uuid not null,field_path text not null,
+    create table public.writing_shadow_runs(id uuid primary key default gen_random_uuid(),snapshot_id uuid not null,
+      replay_key text not null default 'capture',unique(snapshot_id,replay_key));
+    create table public.writing_occurrences(id text primary key,snapshot_id uuid not null references public.writing_source_snapshots(id) on delete cascade,field_path text not null,
       field_hash text not null,start_utf16 integer not null,end_utf16 integer not null,observed_text text not null);
     create table public.writing_issues(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,
       task_submission_id uuid,issue_status text,final_classification text,observed_text text,suggested_replacement text,
       approved_replacement text,context_text text,source_field_key text,micro_skill_key text,parent_marked_at timestamptz,
-      metadata jsonb not null default '{}',source_writing_occurrence_id text,created_at timestamptz not null default now(),
+      metadata jsonb not null default '{}',source_writing_occurrence_id text references public.writing_occurrences(id) on delete set null,created_at timestamptz not null default now(),
       updated_at timestamptz,final_classified_at timestamptz);
     create function public.reject_writing_fact_update() returns trigger language plpgsql as $$ begin raise exception 'immutable'; end $$;
     create function public.finalise_writing_issue_classification_and_learning_item(uuid,uuid,uuid,text)
@@ -231,11 +233,11 @@ try {
   await db.query("alter table writing_occurrences add column provenance text not null default 'learner_response'");
   await db.query(`
     alter table writing_shadow_runs add column status text not null default 'completed';
-    create table writing_known_spelling_batches(id uuid primary key,run_id uuid,snapshot_id uuid,
+    create table writing_known_spelling_batches(id uuid primary key,run_id uuid unique references writing_shadow_runs(id) on delete cascade,snapshot_id uuid references writing_source_snapshots(id) on delete cascade,
       detection_version text,mapping_authority_fingerprint text,occurrence_count integer,
       eligible_occurrence_count integer);
-    create table writing_known_spelling_checks(id uuid primary key,batch_id uuid,occurrence_id text,
-      disposition text);
+    create table writing_known_spelling_checks(id uuid primary key,batch_id uuid references writing_known_spelling_batches(id) on delete cascade,occurrence_id text references writing_occurrences(id) on delete cascade,
+      disposition text,unique(batch_id,occurrence_id));
     create table misspelling_instances(id uuid primary key,source_writing_occurrence_id text,
       is_false_positive boolean);
     create table writing_issue_suggestions(id uuid primary key,source_writing_occurrence_id text,
@@ -310,6 +312,17 @@ try {
   await db.query("insert into misspelling_instances values($1,$2,false,true)", [randomUUID(),parentAddedUnknown]);
   const spellingMetrics = await db.query("select surfaced,parent_confirmed,parent_added_misses from writing_spelling_feedback_detector_metrics_v1 where batch_id=$1", [spellingBatch]);
   assert.deepEqual(spellingMetrics.rows[0], { surfaced: 1, parent_confirmed: 1, parent_added_misses: 1 });
+  // Preserve a real pre-correction counterexample. The old trigger attached v2
+  // to a decision still comparing the independently captured v1 shadow attempt.
+  const legacyNewerRun = (await db.query("select record_writing_context_detector_run($1,$2,$3,'legacy-newer','legacy-detector-v2','legacy-registry-v2',$4) id", [shadowSnapshot,parent,child,[parentAddedGoverned]])).rows[0].id;
+  const legacyDecision = (await db.query("insert into writing_context_parent_decisions(occurrence_id,parent_user_id,child_id,family_key,classification,supersedes_decision_id) values($1,$2,$3,'THERE_THEIR_THEYRE','VALID',$4) returning id", [parentAddedGoverned,parent,child,governedFact.rows[0].parent_decision_id])).rows[0].id;
+  assert.equal((await db.query("select detector_run_id from writing_context_feedback_decisions_v1 where decision_id=$1", [legacyDecision])).rows[0].detector_run_id, legacyNewerRun);
+  const correction = readFileSync(new URL("../supabase/migrations/20260928120000_correct_context_feedback_evidence.sql", import.meta.url), "utf8");
+  await db.query(correction);
+  assert.equal((await db.query("select detector_run_id from writing_context_feedback_decisions_v1 where decision_id=$1", [legacyDecision])).rows[0].detector_run_id, run);
+  assert.equal((await db.query("select detector_run_id from writing_context_parent_decisions where id=$1", [legacyDecision])).rows[0].detector_run_id, legacyNewerRun, "Original immutable facts must not be rewritten.");
+  console.log("PASS: pre-correction historical lineage derives from its original attempt without rewriting facts");
+  await proveContextFeedbackCorrections({ db, parent, child, task });
   console.log("context advisory disposable database proof passed");
 } catch (error) {
   if (started) {

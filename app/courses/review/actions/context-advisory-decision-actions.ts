@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 import { normaliseContextMember } from "@/lib/writing-engine/whole-writing/context";
+import { resolveReviewedContextObservation } from "@/lib/writing-engine/whole-writing/context-reviewed-observation";
 
 export async function recordContextAdvisoryParentDecisionImpl(formData: FormData) {
   const submissionId = formData.get("submission_id");
@@ -42,10 +43,13 @@ export async function recordContextAdvisoryParentDecisionImpl(formData: FormData
   } else if (intended) {
     throw new Error("Only an incorrect occurrence can have a replacement.");
   }
+  const reviewedObservationId = await resolveReviewedContextObservation({
+    client: service, submittedObservationId: observationId, occurrenceId,
+    parentUserId: user.id, childId: owned.data.child_id, family: row.family,
+  });
   const result = await service.rpc("record_writing_context_parent_decision", {
     p_occurrence_id: occurrenceId,
-    p_observation_id: typeof observationId === "string" && observationId === row.observationId
-      ? observationId : null,
+    p_observation_id: reviewedObservationId,
     p_parent_user_id: user.id,
     p_classification: classification,
     p_intended_member: intended,

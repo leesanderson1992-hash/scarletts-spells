@@ -755,7 +755,13 @@ Stage 0B adds parent-confirmed feedback lineage while the AI mode remains
 disabled. Exact immutable occurrences link versioned, complete detector runs,
 AI attempts and observations, parent decisions, repair issues, and separately
 governed learning handoffs. Disagreement labels and aggregate metrics are
-derived from these facts; they do not establish learner truth. A parent may
+derived from these facts; they do not establish learner truth.
+AI comparisons retain the exact reviewed observation/attempt and that attempt's
+detector/registry identity. Spelling recall requires explicit assessed membership
+in a completed batch, including for partial replays. Current recall follows
+current parent truth while superseded decisions remain historical evidence;
+total reviewed is coverage, separate from comparable AI counts. Research
+pointers are removed with their governed source. A parent may
 add a missed spelling or contextual word choice at an exact writing span.
 Four governed contextual families retain their existing decision and learning
 policy. Other homophone/confusable pairs remain learner/event scoped, use

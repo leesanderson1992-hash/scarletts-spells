@@ -35,10 +35,24 @@ const resultByTable: Record<string, unknown> = {
 const client = {
   from(table: string) {
     tableCalls.push(table);
+    let submissionId = "submission";
     const query = {
-      select() { return query; }, eq() { return query; }, in() { return query; },
-      order() { return Promise.resolve({ data: resultByTable[table], error: null }); },
-      maybeSingle() { return Promise.resolve({ data: resultByTable[table], error: null }); },
+      select() { return query; },
+      eq(key: string, value: string) {
+        if (key === "submission_id" || key === "task_submission_id") submissionId = value;
+        return query;
+      },
+      in() { return query; },
+      order() {
+        const data = table === "child_word_treasure_evidence_candidates" && submissionId === "future"
+          ? [{ id: "future-use", task_submission_id: "future", matched_word_normalized: "peace",
+            confirmation_status: "pending_parent_confirmation", duplicate_status: "unique_candidate" }]
+          : resultByTable[table];
+        return Promise.resolve({ data, error: null });
+      },
+      maybeSingle() { return Promise.resolve({
+        data: submissionId === "future" ? null : resultByTable[table], error: null,
+      }); },
       then(resolve: (value: unknown) => unknown) {
         return Promise.resolve({ data: resultByTable[table], error: null }).then(resolve);
       },
@@ -56,6 +70,11 @@ async function main() {
     ["wrong-word", false], ["intended-word", false], ["unrelated", true],
   ]);
   assert(tableCalls.includes("writing_context_parent_added_cases"));
+  const future = await getFreeWritingEvidenceCandidatesForReview({
+    supabase: client as never, parentUserId: "parent", childId: "child",
+    taskSubmissionId: "future",
+  });
+  assert.equal(future[0].canConfirm, true, "An earlier contextual pair must not suppress a future submission.");
   console.log("context feedback Gold exclusion regression passed");
 }
 void main();

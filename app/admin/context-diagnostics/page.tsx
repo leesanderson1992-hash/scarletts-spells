@@ -74,12 +74,14 @@ export default async function ContextDiagnosticsPage() {
     <p className="text-sm">Parent-reviewed authentic writing. Development/regression evidence only—not independent qualification gold.</p>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">AI versus parent · current decisions</h2>
-      <p className="text-xs">Each comparison uses the observation linked to that decision. Shadow comparisons exist only for independently parent-added cases. Pending reviews and NOT_ASSESSED are outside accuracy denominators.</p>
+      <p className="text-xs">Each comparison preserves its linked observation or independently bound shadow attempt. Total reviewed measures coverage. Comparable requires decisive parent truth and gate-passed VALID, INVALID or linguistic UNCERTAIN; NOT_ASSESSED and missing evidence are outside that denominator. Operational NOT_ASSESSED is also shown separately and can overlap excluded cases.</p>
       <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-xs">
-        <thead><tr><th>Family</th><th>Model</th><th>Mode</th><th>Reviewed</th><th>Agreed valid</th><th>Agreed invalid</th><th>False invalid</th><th>Missed invalid</th><th>Abstention resolved</th><th>Replacement changed</th><th>Not comparable</th></tr></thead>
+        <thead><tr><th>Family</th><th>Model</th><th>Mode</th><th>Total reviewed</th><th>Comparable</th><th>Excluded</th><th>Unresolved</th><th>Operational NOT_ASSESSED</th><th>Agreed valid</th><th>Agreed invalid</th><th>False invalid</th><th>Missed invalid</th><th>Abstention resolved</th><th>Replacement changed</th><th>Not comparable</th></tr></thead>
         <tbody>{(feedback.data ?? []).map((row) => <tr key={`${row.family_key}:${row.model}:${row.prompt_fingerprint}:${row.schema_fingerprint}:${row.gate_version}:${row.ai_mode}`} className="border-t">
-          <td>{row.family_key}</td><td>{row.model}</td><td>{row.ai_mode}</td>
-          <td>{row.reviewed_count}</td><td>{row.agreed_valid}</td><td>{row.agreed_invalid}</td>
+          <td>{row.family_key}</td><td>{row.model ?? "No AI evidence"}</td><td>{row.ai_mode ?? "—"}</td>
+          <td>{row.total_reviewed_count}</td><td>{row.comparable_count}</td><td>{row.excluded_count}</td>
+          <td>{row.unresolved_count}</td><td>{row.operational_not_assessed_count}</td>
+          <td>{row.agreed_valid}</td><td>{row.agreed_invalid}</td>
           <td>{row.false_invalid}</td><td>{row.missed_invalid}</td><td>{row.abstentions_resolved}</td>
           <td>{row.replacement_changed}</td><td>{row.not_comparable}</td>
         </tr>)}</tbody>
@@ -117,7 +119,7 @@ export default async function ContextDiagnosticsPage() {
     </section>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">Known-spelling detector feedback</h2>
-      <p className="text-xs">Completed full-snapshot S6 batches only. Exact parent-added missed words count when linked to an immutable occurrence. Legacy unlinked words and incomplete batches are excluded. Counts are a reviewed-scope proxy.</p>
+      <p className="text-xs">Completed S6 assessed scopes only, including bounded replays. A miss requires an exact occurrence check inside that batch with no surfaced finding. Sharing a snapshot is insufficient. Legacy unlinked words and incomplete batches are excluded. Recall uses confirmed / (confirmed + exact misses); reviewed false-positive rate uses rejected / (confirmed + rejected).</p>
       <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-xs">
         <thead><tr><th>Detector</th><th>Mapping authority</th><th>Eligible</th><th>Surfaced</th><th>Confirmed</th><th>Rejected</th><th>Exact misses</th><th>Recall proxy</th><th>Reviewed false-positive rate</th></tr></thead>
         <tbody>{[...spellingTotals.values()].map((row) => {
