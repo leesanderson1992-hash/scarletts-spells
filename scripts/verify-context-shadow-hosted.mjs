@@ -6,7 +6,7 @@ const url=process.env.CONTEXT_SHADOW_VERIFY_DATABASE_URL;
 if (!url) throw new Error('CONTEXT_SHADOW_VERIFY_DATABASE_URL_REQUIRED');
 const client=new Client({connectionString:url});
 const versions=['20260906100000','20260906110000','20260924120000','20260924130000',
-  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000'];
+  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000','20260929140000'];
 try {
   await client.connect(); await client.query('begin isolation level repeatable read read only');
   const history=(await client.query('select version from supabase_migrations.schema_migrations where version=any($1)',[versions])).rows.map(x=>x.version);
@@ -17,13 +17,15 @@ try {
   assert(constraint?.definition.includes('enabled = false') && constraint.definition.includes('shadow'),'STAGE1_BOUNDARY_MISSING');
   const privateTables=['writing_context_ai_attempts','writing_context_detector_runs','writing_context_detector_members',
     'writing_context_provider_approvals','writing_context_learner_authorisations','writing_context_approval_revocations',
-    'writing_context_shadow_policy','writing_context_shadow_jobs','writing_context_shadow_dispatches','writing_context_ai_rate_cards','writing_context_shadow_stops','writing_context_shadow_policy_history','writing_context_shadow_consumption'];
+    'writing_context_shadow_policy','writing_context_shadow_jobs','writing_context_shadow_dispatches','writing_context_ai_rate_cards','writing_context_shadow_stops','writing_context_shadow_policy_history','writing_context_shadow_consumption','writing_context_provider_proof_learners'];
   for (const table of privateTables) {
     assert.equal((await client.query('select relrowsecurity from pg_class where oid=$1::regclass',[table])).rows[0].relrowsecurity,true,'RLS_MISSING');
     for (const role of ['anon','authenticated']) {
       for (const privilege of ['SELECT','INSERT','UPDATE','DELETE']) assert.equal((await client.query('select has_table_privilege($1,$2,$3) ok',[role,table,privilege])).rows[0].ok,false,'PRIVATE_TABLE_GRANT');
     }
   }
+  for (const privilege of ['UPDATE','DELETE']) assert.equal((await client.query(
+    "select has_table_privilege('service_role','writing_context_provider_proof_learners',$1) ok",[privilege])).rows[0].ok,false,'PROOF_RELABEL_GRANT');
   for (const privilege of ['INSERT','UPDATE','DELETE']) assert.equal((await client.query(
     "select has_table_privilege('service_role','writing_context_shadow_consumption',$1) ok",[privilege])).rows[0].ok,false,'CONSUMPTION_DIRECT_MUTATION_GRANT');
   assert.deepEqual((await client.query("select confrelid::regclass::text ref from pg_constraint where conrelid='writing_context_shadow_consumption'::regclass and contype='f'")).rows,
@@ -31,6 +33,8 @@ try {
   for (const fn of ['disable_writing_context_advisory(uuid)','enqueue_writing_context_shadow(uuid)','claim_writing_context_shadow(uuid)',
     'reconcile_writing_context_shadow()','begin_writing_context_shadow_dispatch(uuid,uuid)','monitor_writing_context_shadow()',
     'context_shadow_job_eligible(uuid,uuid,text,text,text,text,text,text)',
+    'context_provider_proof_child(uuid)','context_shadow_scope_authorised(uuid,uuid)',
+    'writing_context_shadow_operations_for_scope(timestamptz,timestamptz,text)',
     'stop_writing_context_shadow(text)','writing_context_shadow_operations(timestamptz,timestamptz)']) {
     for (const role of ['anon','authenticated']) assert.equal((await client.query("select has_function_privilege($1,$2,'EXECUTE') ok",[role,fn])).rows[0].ok,false,'PRIVATE_RPC_GRANT');
     assert.equal((await client.query("select has_function_privilege('service_role',$1,'EXECUTE') ok",[fn])).rows[0].ok,true,'SERVICE_RPC_MISSING');
@@ -38,6 +42,24 @@ try {
   const defaults=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_advisory_control' and column_name='ai_mode'")).rows[0];
   assert(defaults?.column_default.includes('disabled'),'DEFAULT_MODE_INVALID');
   assert.equal((await client.query('select count(*)::int n from writing_context_shadow_policy where singleton')).rows[0].n,1,'POLICY_SINGLETON_INVALID');
+  const proofDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_shadow_policy' and column_name='dispatch_scope'")).rows[0];
+  assert(proofDefault?.column_default.includes('DENY'),'PROOF_SCOPE_DEFAULT_INVALID');
+  for (const [table,trigger] of [['writing_source_snapshots','context_source_purpose'],
+    ['writing_source_snapshots','context_source_purpose_immutable'],['task_submissions','context_submission_child'],
+    ['writing_context_provider_proof_learners','context_proof_registration'],
+    ['writing_context_research_candidates','context_proof_research']])
+    assert.equal((await client.query("select count(*)::int n from pg_trigger where tgrelid=$1::regclass and tgname=$2 and tgenabled='O'",[table,trigger])).rows[0].n,1,'PROOF_TRIGGER_MISSING');
+  // Check every educational authority present in the real schema, including optional later modules.
+  const unguarded=(await client.query(`select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public' and c.relkind='r' and
+      (c.relname like 'adle_%' or c.relname like 'learning_item%' or c.relname like 'child_word_treasure%'
+       or c.relname in ('writing_issues','writing_samples','misspelling_instances','word_progress',
+         'child_gold_coin_ledger_events','spelling_reward_events','spelling_reward_states',
+         'writing_context_advisory_observations','writing_context_parent_decisions','writing_context_parent_added_cases',
+         'writing_context_learning_handoffs','writing_shadow_projection_batches','writing_shadow_skill_evidence_projections'))
+      and exists(select 1 from pg_attribute a where a.attrelid=c.oid and not a.attisdropped and a.attname in ('child_id','learner_id','occurrence_id','snapshot_id','learning_item_id'))
+      and not exists(select 1 from pg_trigger t where t.tgrelid=c.oid and t.tgname='context_proof_educational_guard' and t.tgenabled='O')`)).rows;
+  assert.equal(unguarded.length,0,'PROOF_EDUCATIONAL_GUARD_MISSING');
   const cascade=(await client.query("select count(*)::int n from pg_constraint where conrelid='writing_context_diagnostic_promotions'::regclass and contype='f' and confdeltype='c'")).rows[0].n;
   assert.equal(cascade,4,'DIAGNOSTIC_CASCADE_INCOMPLETE');
   await client.query('rollback'); console.log('PASS: hosted schema versions, disabled singleton/defaults, Stage 1 constraint, RLS/RPC grants and diagnostic cascades');

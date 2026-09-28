@@ -6,6 +6,7 @@ export function object(value: unknown): Record<string, unknown> {
 }
 export type SourceSnapshot = {
   id: string; submission_id: string; child_id: string; parent_user_id: string;
+  source_purpose?: "REAL_LEARNER" | "DISPOSABLE_PROVIDER_PROOF";
   source_revision: string; occurred_at: string; envelope: Record<string, unknown>;
 };
 export type WholeWritingField = SourceField & {

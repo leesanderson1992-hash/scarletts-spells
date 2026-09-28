@@ -13,7 +13,7 @@ type ShadowOperations = {
 export default async function ContextDiagnosticsPage() {
   await requireAdminUser();
   const service = createServiceRoleClient();
-  const [metrics, scopes, promoted, feedback, detector, operations, spelling, shadowRead] = await Promise.all([
+  const [metrics, scopes, promoted, feedback, detector, operations, spelling, shadowRead, proofRead] = await Promise.all([
     service.from("writing_context_advisory_review_metrics").select("*")
       .order("family_key").order("child_id"),
     service.from("writing_context_advisory_scope_metrics").select("*")
@@ -29,8 +29,10 @@ export default async function ContextDiagnosticsPage() {
     service.from("writing_spelling_feedback_detector_metrics_v1").select("*")
       .order("detection_version"),
     service.rpc("writing_context_shadow_operations", { p_since: null, p_until: null }),
+    service.rpc("writing_context_shadow_operations_for_scope", { p_since: null, p_until: null, p_scope: "DISPOSABLE_PROVIDER_PROOF" }),
   ]);
   const shadow = !shadowRead.error && shadowRead.data ? shadowRead.data as ShadowOperations : null;
+  const proof = !proofRead.error && proofRead.data ? proofRead.data as ShadowOperations : null;
   if (metrics.error || scopes.error || promoted.error || feedback.error ||
       detector.error || operations.error || spelling.error) throw new Error("Context diagnostic evidence is unavailable.");
   const ids = (promoted.data ?? []).map((row) => row.occurrence_id);
@@ -92,7 +94,7 @@ export default async function ContextDiagnosticsPage() {
             ...shadow.totals }).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
         </dl>
         <h3 className="mt-3 font-semibold">Daily capacity · UTC</h3>
-        <p className="text-xs">Non-personal operational accounting survives learner/source deletion. Known usage does not refund reserved capacity. Unknown exposure includes admitted requests whose usage is unavailable or unsettled; unadmitted reservations are separate.</p>
+        <p className="text-xs">Combined Production capacity includes disposable proof requests. Non-personal operational accounting survives learner/source deletion. Known usage does not refund reserved capacity. Unknown exposure includes admitted requests whose usage is unavailable or unsettled; unadmitted reservations are separate.</p>
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
           {Object.entries(shadow.daily_capacity).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
         </dl>
@@ -133,6 +135,13 @@ export default async function ContextDiagnosticsPage() {
           </tr>;
         })}</tbody>
       </table></div>
+    </section>
+    <section className="rounded-xl border p-4">
+      <h2 className="text-xl font-semibold">Disposable provider proof operations</h2>
+      <p className="text-xs">Synthetic fixtures only. Excluded from real-learner outcomes, feedback accuracy, educational evidence and research promotion. Requests consume the shared Production daily capacity.</p>
+      {proof ? <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        {Object.entries(proof.totals).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
+      </dl> : <p className="mt-3 text-xs">Proof operations are unavailable until the isolation migration is verified.</p>}
     </section>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">Provider operations</h2>

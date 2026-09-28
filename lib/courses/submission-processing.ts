@@ -12,6 +12,7 @@ import {
   type ReturnedCorrectionKnownMatchIssue,
 } from "@/lib/writing-engine/persistence/returned-correction-known-match";
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
+import { enqueueDisposableProviderProof } from "@/lib/writing-engine/whole-writing/context-proof";
 import { enqueueContextShadowForSubmission } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 
 const MAX_ATTEMPTS = 8;
@@ -238,6 +239,8 @@ async function runJob(job: JobRow) {
     .single();
   if (error || !data) throw error ?? new Error("Submission was not found");
   const submission = data as SubmissionRow;
+  // Persisted operator registration, never a payload flag. Produce no educational/reward facts.
+  if (await enqueueDisposableProviderProof(supabase, submission.child_id, submission.id)) return;
   const payload = (job.payload ?? {}) as ProcessingPayload;
   const submittedAnswerText = payload.submissionText?.trim() ?? "";
   const sourceText = buildSpellcheckSourceText({

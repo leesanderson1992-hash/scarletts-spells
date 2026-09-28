@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { proveContextFeedbackCorrections } from "./context-feedback-corrective-db-regressions.mjs";
+import { proveProductionProofIsolation } from "./context-shadow-production-proof-db-regressions.mjs";
 import { proveContextShadowStage1 } from "./context-shadow-stage1-db-regressions.mjs";
 
 const require = createRequire(import.meta.url);
@@ -324,7 +325,10 @@ try {
   assert.equal((await db.query("select detector_run_id from writing_context_parent_decisions where id=$1", [legacyDecision])).rows[0].detector_run_id, legacyNewerRun, "Original immutable facts must not be rewritten.");
   console.log("PASS: pre-correction historical lineage derives from its original attempt without rewriting facts");
   await proveContextFeedbackCorrections({ db, parent, child, task });
-  if (process.argv.includes("--stage1")) await proveContextShadowStage1({ db, parent, child, task });
+  if (process.argv.includes("--stage1")) {
+    await proveContextShadowStage1({ db, parent, child, task });
+    await proveProductionProofIsolation({ db, parent, child, task });
+  }
   console.log("context advisory disposable database proof passed");
 } catch (error) {
   if (started) {

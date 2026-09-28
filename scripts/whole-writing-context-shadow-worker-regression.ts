@@ -4,12 +4,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { recoverContextShadowJobs, processContextualAdvisoryForSubmission } from "../lib/writing-engine/whole-writing/context-advisory-worker";
 import { configureContextShadowTest, testRateCard } from "./context-shadow-test-config";
 import { extractWholeWriting, type SourceSnapshot } from "../lib/writing-engine/whole-writing/source";
+import { enqueueDisposableProviderProof } from "../lib/writing-engine/whole-writing/context-proof";
+import { contextShadowIdentity } from "../lib/writing-engine/whole-writing/context-shadow-policy";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 
 type Row = Record<string, unknown>;
 function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean } = {}) {
   const snapshot: SourceSnapshot = { id: randomUUID(), submission_id: randomUUID(), child_id: randomUUID(), parent_user_id: randomUUID(),
-    source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
+    source_purpose: "DISPOSABLE_PROVIDER_PROOF", source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
       contextAiShadowCapture: true, contextAdvisoryCapture: false, rawSubmissionText: text,
       draftPayload: options.authored === false ? {} : { answer: text },
       taskContext: { lessonSchema: { blocks: [{ block_id: "answer", block_type: "question_textarea" }] } } } };
@@ -79,11 +81,34 @@ async function main() {
   const restore = configureContextShadowTest(); let calls = 0; const safeLogs: unknown[][] = [];
   console.error = (...args) => { safeLogs.push(args); };
   try {
+    assert(contextShadowIdentity(), "Production identity accepted only with all pins");
+    const originalEnvironment = process.env.VERCEL_ENV;
+    process.env.VERCEL_ENV = "preview";
+    assert.equal(contextShadowIdentity(), null, "Preview cannot authorise Production proof");
+    process.env.VERCEL_ENV = originalEnvironment;
+    for (const registered of [false, true]) {
+      const rpcs: string[] = [];
+      const client = { rpc: async (name: string) => {
+        rpcs.push(name);
+        return name === "context_provider_proof_child" ? { data: registered, error: null } : { data: null, error: null };
+      } } as unknown as SupabaseClient;
+      assert.equal(await enqueueDisposableProviderProof(client, "synthetic-child", "synthetic-submission"), registered);
+      assert.deepEqual(rpcs, registered ? ["context_provider_proof_child", "enqueue_writing_context_shadow"] : ["context_provider_proof_child"]);
+    }
+    const unavailable = { rpc: async () => ({ data: null, error: { message: "private text" } }) } as unknown as SupabaseClient;
+    await assert.rejects(enqueueDisposableProviderProof(unavailable, "child", "submission"), /CONTEXT_PROOF_CLASSIFICATION_UNAVAILABLE/);
+    const enqueueFailure = { rpc: async (name: string) => name === "context_provider_proof_child"
+      ? { data: true, error: null } : { data: null, error: { message: "private text" } } } as unknown as SupabaseClient;
+    assert.equal(await enqueueDisposableProviderProof(enqueueFailure, "child", "submission"), true, "Outbox failure cannot fall through to education");
+    assert.equal(calls, 0, "Classification/enqueue never makes a provider call");
     for (const decision of ["VALID", "INVALID", "UNCERTAIN", "BAD_GATE", "MALFORMED", "FAILURE", "TIMEOUT", "WRONG_MODEL"] as const) {
-      const f = fixture("Their cat is here."); const before = calls;
+      const f = fixture("Their cat is here."); const before: number = calls;
       globalThis.fetch = async (_url, options) => {
         calls++; const body = JSON.parse(String(options?.body)), data = JSON.parse(body.input[1].content);
         assert.equal(data.source_text, "Their cat is here.");
+        assert(!String(options?.body).includes("DISPOSABLE_PROVIDER_PROOF"), "Operational classification does not enter the provider payload");
+        for (const id of [f.snapshot.child_id, f.snapshot.parent_user_id, f.snapshot.submission_id])
+          assert(!String(options?.body).includes(id), "Application identity never enters provider payload");
         if (decision === "FAILURE") return new Response("private body", { status: 429 });
         if (decision === "TIMEOUT") return new Response(new ReadableStream({ start() {} }));
         const output = { case_id: decision === "BAD_GATE" ? "wrong" : data.case_id,
@@ -108,11 +133,16 @@ async function main() {
       assert.equal((await recoverContextShadowJobs(f.snapshot.submission_id, f.client)).status, "idle"); assert.equal(calls, before+1);
     }
     for (const options of [{ deny: "AI_LEARNER_NOT_AUTHORISED" }, { badIdentity: true }, { orphan: true }, { authored: false }]) {
-      const f = fixture("Their private-canary is here.", options); const before = calls;
+      const f = fixture("Their private-canary is here.", options); const before: number = calls;
       await recoverContextShadowJobs(f.snapshot.submission_id, f.client); assert.equal(calls, before);
       if (options.orphan) assert(f.stopped());
     }
-    const long = fixture(`Their ${"x".repeat(601)}`); const before = calls;
+    const missingPurpose = fixture("Their private-canary is here.");
+    delete missingPurpose.snapshot.source_purpose;
+    const beforeMissing: number = calls;
+    await recoverContextShadowJobs(missingPurpose.snapshot.submission_id, missingPurpose.client);
+    assert.equal(calls, beforeMissing, "Missing trusted source classification never dispatches");
+    const long = fixture(`Their ${"x".repeat(601)}`); const before: number = calls;
     await recoverContextShadowJobs(long.snapshot.submission_id, long.client); assert.equal(calls, before);
     assert.equal(long.tables.writing_context_ai_attempts[0].reason_code, "CONTEXT_WINDOW_TOO_LONG");
     const unknown = fixture("Unicorn private-canary");

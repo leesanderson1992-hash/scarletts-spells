@@ -1,6 +1,6 @@
 # Stage 1 implementation and activation gates
 
-Status: local prerequisite implementation; **provider dispatch remains disabled**.
+Status: Production-only local prerequisite amendment; **provider dispatch remains disabled**.
 Baseline: `experiment/ai-context-benchmark`, frozen Stage 0B commit
 `ab5cc8da85f5563aa17c2692603ac11c19f34d28`. Original Stage 0A/0B migrations,
 prompt, schema, safety gate and corrected comparison semantics are unchanged.
@@ -109,9 +109,10 @@ Apply pending files in repository order, once only:
 | 7 | `20260929110000_add_context_shadow_governance_and_dispatch.sql` | Deny-default approvals/policy/outbox/reservations |
 | 8 | `20260929120000_add_context_ai_cost_provenance.sql` | Immutable rate cards, new facts, admission locks and durable non-personal budget authority |
 | 9 | `20260929130000_add_context_shadow_operations.sql` | Monitoring/stops; both switches disabled |
+| 10 | `20260929140000_isolate_production_context_provider_proofs.sql` | Persisted synthetic proof scope, educational exclusions, separate metrics; both switches disabled |
 
 Other earlier repository dependencies still apply; this is not permission to
-skip them. The four new files are transactional and contain no approval,
+skip them. The Stage 1 files are transactional and contain no approval,
 authorisation, price seed or enabling operation. Each failure rolls back that
 file; stop, read back the actual schema/history, recover the bounded defect and
 resume only missing files. Do not drop immutable facts or mark a failed migration
@@ -126,22 +127,18 @@ It requires all schema versions, exactly one disabled control row, disabled mode
 default, Stage 1 constraint, private RLS/table/RPC privileges, singleton policy
 and all four diagnostic cascades. Record migration checksums, history/readback,
 control/default output, RLS/permissions and inspector identity/time. Then perform
-owner/other-parent/child/anon and service-role staging read probes. Authenticated
+owner/other-parent/child/anon and service-role read probes against the normal Production website/database, using only operator-owned synthetic fixtures. Authenticated
 and anon must not read AI attempts, detector/private operations or approval data.
 Parent/child read models must not project shadow attempts.
 
 ## Environment and price provenance
 
-Use dedicated staging and Production OpenAI projects/keys, Supabase databases
-and cron/service secrets. Preview receives only staging credentials on the
-approved branch/deployment. Production credentials never enter arbitrary Preview
-or local environments. Server-only keys: `OPENAI_API_KEY`,
+Use only the existing normal Production Supabase project and website. No separate staging database, staging website or long-lived staging environment is required. Provider project/key approvals bind to this actual Production runtime. Production credentials never enter Preview or local environments. Server-only keys: `OPENAI_API_KEY`,
 `SUPABASE_SERVICE_ROLE_KEY`, `TASK_SUBMISSION_CRON_SECRET`/`CRON_SECRET`.
 No `NEXT_PUBLIC_` AI configuration, browser bundle, raw environment dumps or
 secret logging. Confirm deployment scopes and RBAC with the operator.
 
-`CONTEXT_AI_ENVIRONMENT` is staging with `VERCEL_ENV=preview`, or production with
-`VERCEL_ENV=production`. Require the provider project reference, Vercel's actual
+`CONTEXT_AI_ENVIRONMENT=production` and `VERCEL_ENV=production` are required. Preview/staging identities fail closed on this Stage 1 dispatch path. Require the provider project reference, Vercel's actual
 40-character git SHA, model, prompt/schema/config/gate/runtime pins and immutable
 rate-card version/fingerprint. `npm run writing:context-shadow-manifest` prints
 only public pins. `.env.example` deliberately leaves all Stage 1 fields empty.
@@ -172,7 +169,7 @@ or uncertain admission is conservative exposure, not a proven HTTP request.
 
 ## Exact eligibility and independent dispatch
 
-Only a fresh immutable snapshot captured in shadow mode with advisory=false,
+For real-writing scope, only a fresh immutable snapshot captured in shadow mode with advisory=false,
 after the current activation and provider/guardian approval, can be sent. It
 must belong to the matching parent/child, lesson/test task, current latest pending
 submission, complete exact detector run and learner-authored supported field.
@@ -193,8 +190,8 @@ model resampling; an old capture is not made eligible by a new approval.
 
 Submission processing only enqueues; `after()` performs an independent claimed
 job. Existing authenticated daily cron reconciles up to 100 current missing
-outbox rows and recovers one job per invocation. Staging must demonstrate queue
-age/drain capacity before Production; this implementation adds no paid scheduler.
+outbox rows and recovers one job per invocation. The disposable synthetic Production proof must demonstrate queue
+age/drain capacity before real-writing activation; this implementation adds no paid scheduler.
 The daily recovery cadence is an explicit operational limitation if callbacks
 are dropped. Do not activate a workload its approved queue limit cannot support.
 
@@ -280,7 +277,7 @@ submission/review processing stays independent. The total deadline covers stream
 body consumption and enforces a 64KB response cap. Only deterministic schema/gate
 success yields VALID/INVALID/UNCERTAIN. Missing secrets/configuration is fail closed.
 
-The operator signs measured staging thresholds: window seconds (at most 31 days),
+The operator signs measured synthetic Production proof thresholds: window seconds (at most 31 days),
 minimum calls, maximum error/timeout/malformed/gate-failure rates, p95 latency,
 maximum queue age, per-request/day cost and daily request count. No Production
 numeric threshold is supplied by this implementation. `thresholds={}` denies
@@ -331,13 +328,17 @@ credentials: frozen Stage 0 code must not regain provider access under shadow.
 Keep additive schema and historical facts; destructive migration reversal is not
 the emergency switch. Resume only with a new explicit approval and fresh captures.
 
-Deletion staging proof: populate a snapshot, occurrences, detector, sent/unsent/
-unknown-billing attempts, dispatch/job, independently reviewed feedback, diagnostic
-promotion and research pointer. Delete snapshot and then a separate disposable
-learner fixture; verify cascading source/AI/feedback/research/private permission
-facts and no dangling pointers. Existing parent learning handoff RESTRICT
-boundaries remain intentional: follow canonical learning deletion rather than
-silently deleting learning evidence. Provider/operator approval/rate-card audit
+Disposable synthetic Production deletion proof: populate source, snapshot,
+occurrences, detector, sent/unsent/unknown-billing attempts, dispatch/job and proof
+permissions. Parent decisions, educational feedback, diagnostic promotions and
+research promotion must remain absent for these fixtures. Delete snapshot and then
+a separate disposable learner; verify source/AI/private-permission cascades, no
+orphan jobs and no later resend. Existing Stage 0B feedback/diagnostic/research
+cascade coverage remains in the isolated local historical-fixture proof; verify
+its FK definitions/grants read-only in Production rather than creating synthetic
+educational or research facts there. Existing governed learning RESTRICT boundaries
+remain intentional: follow canonical deletion without silently erasing learning.
+Provider/operator approval/rate-card audit
 records and non-personal daily consumption contain no learner prose and survive
 source deletion; document their
 separate audit retention and infrastructure backup retention. Verify provider ZDR
@@ -349,37 +350,122 @@ receipt replay and kill races. Privacy deletion and operational accounting have
 deliberately different lifecycles; application deletion cannot erase content
 already retained by a provider or backup outside the approved policy.
 
+## Persisted disposable proof isolation
+
+`writing_context_provider_proof_learners` is private, service-insert-only, immutable
+operator registration for a new, operator-owned disposable learner and dedicated
+lesson/test task. Registration must precede any submission or educational facts, and its dedicated task must have no previous submissions. Other learners cannot submit to that registered proof task.
+Only authorised infrastructure operators using private service/database access
+may register it; the approved owner must be the operator account, never a real
+child's account. Keep the signed fixture dossier outside application prose logs.
+Registration and submission inserts serialize on the child row. The task reference
+is RESTRICT: cleanup deletes the synthetic learner before deleting its task.
+Neither expiry nor permission revocation removes its synthetic classification.
+The registration itself cascades only with governed learner/account deletion;
+service_role cannot update/delete it to relabel future writing.
+
+Capture stamps immutable `source_purpose=DISPOSABLE_PROVIDER_PROOF` from the
+registration, never from payload metadata. Ordinary sources remain REAL_LEARNER.
+A response-field `learner_response` provenance describes structural input selection;
+it does not assert authentic child authorship. Synthetic proof is a separately
+registered operational exception, not a weakening of real-writing eligibility.
+No paragraph hash/span/family/prompt/schema or deterministic safety semantics change.
+
+Both provider approval and immutable policy revision bind a `dispatch_scope`:
+DENY (default), DISPOSABLE_PROVIDER_PROOF or REAL_LEARNER. During proof activation,
+ordinary sources cannot acquire AI capture flags, enqueue, reserve or gain final
+admission. Eligibility, reservation and final admission repeat scope, Production
+identity, ownership, task, expiry/revocation and authorisation checks. Proof requires
+OPERATOR_PROOF authorisation by the owning operator; real writing requires GUARDIAN
+authorisation. Proof permission cannot satisfy the real-writing scope. Every scope
+or approval change creates a new policy revision; old reservations cannot cross it.
+The runtime fingerprint is CONTEXT_SHADOW_DISPATCH_V2 and must be reapproved.
+
+Normal synthetic submission processing only enqueues shadow work. It skips writing
+sample analysis, free-writing candidates, returned repairs and check-in rewards.
+The legacy whole-writing worker completes the proof's run as excluded without
+educational projections/known errors. Database insert/update guards independently
+reject proof-child educational writes at existing ADLE, learning-item, treasure,
+reward, parent-context-decision, repair and evidence authorities. Research promotion
+is denied. A later research exception needs separate approval and implementation;
+this rollout provides no bypass. Do not exercise unrelated lesson/practice or reward
+flows with the fixture; its sole purpose is the named provider proof.
+
+Default operations and Stage 0B feedback/detector/provider analytics exclude proof
+sources before aggregation. The admin diagnostics show a separately labelled
+synthetic proof operations section. Threshold monitoring uses the active scope;
+unrecorded sends and configuration/privacy hard stops remain protective across
+scopes. Synthetic output distributions never represent real-world model performance
+or parent-reviewed accuracy. No synthetic parent review decision is created.
+
+Both scopes consume the same environment=production UTC daily accounting, summed
+across immutable policy revisions. Requests, reservation and ambiguous exposure
+survive proof source/learner deletion. Known cost, unknown admitted exposure and
+unadmitted reservations stay distinguishable; scope changes do not grant fresh
+capacity. Changing approved caps is a separately signed policy decision.
+
 ## Rollout and exact gates
 
-1. **Local implementation:** apply no hosted changes. Pass application/scripts
-   typechecks, frozen gate/routing/disabled/feedback/Gold regressions, mocked
-   provider/worker cases and disposable PostgreSQL proofs. Review the concrete diff.
-2. **Stage 1A, separate infrastructure approval:** apply/check the ordered hosted
-   migrations with AI disabled, verify RLS/defaults/lifecycle and deploy the exact
-   approved SHA with server scopes still denying provider dispatch.
-3. **Stage 1B, separate disposable staging/provider approval:** approve the provider
-   settings/dossier for this project/SHA, disposable fixture and test secrets/card/
-   limits. Activate staging shadow only. For exact occurrence → extractor/detector
-   → request → response → gate → ledger/operations, execute VALID, INVALID,
-   UNCERTAIN, 4xx/429/5xx, timeout, malformed/contract, gate/identity mismatch,
-   unknown family/authorship, bad hash/span, overlong paragraph, missing/revoked
-   permission, concurrency, crash/ledger ambiguity, cap breach and kill cases.
-   Deterministic fault injection remains test-only; the real provider proof records
-   its actual result without retrying for a desired vote. Verify request minimisation,
-   no parent/child result on reload/retry, no repairs/decisions/learning/Gold evidence,
-   telemetry canaries and deletion/purge. Finish only after the fixture's named
-   submission/review completion, reload/retry and verifier pass; retain receipts.
-4. **Stage 1C, separate real-writing approval:** privacy/operator approval, current
-   guardian permissions, Production-specific ZDR/key/project/SHA/card/policy,
-   passed staging receipt and signed limits/thresholds, hosted verification,
-   named on-call owner and successful rollback drill are all required before
-   any real writing is sent. Set enabled=false, ai_mode=shadow only. All otherwise
-   eligible authorised learners participate continuously; no percentage/allowlist.
-5. **Stage 1D:** expand approved throughput/budget only after operational thresholds
-   and invariant proofs pass for the signed observation window/minimum sample.
-   New policy/configuration/deployment approvals are explicit. No accuracy claim
-   without independent parent review, and no Stage 2/3 authority follows.
+1. **Local amendment:** run the complete prerequisite suite and Production proof
+   isolation regressions. Preserve frozen migrations/prompt/schema/gate and the
+   earlier verification receipt. Review and freeze a new exact SHA before hosted work.
+2. **Stage 1A — Production infrastructure, AI disabled:** obtain explicit hosted
+   migration/deployment authority for the normal Production project/site. Apply
+   only approved pending additive files in order and deploy the exact newly approved
+   SHA. Keep enabled=false, ai_mode=disabled, no live approval/pricing/authorisation
+   seeds and provider access unavailable. Verify migration history/checksums,
+   schema/defaults, RLS/grants/RPCs, installed educational guards, parent/child read
+   models, kill locking and lifecycle/deletion using operator-owned synthetic
+   fixtures. No provider call or authentic external writing. Retain hosted receipts.
+3. **Stage 1B — disposable synthetic provider proof within Production:** obtain
+   a separate signed proof approval covering actual OpenAI project/key ZDR and
+   privacy configuration, exact deployed SHA/fingerprints, operator-owned fixture,
+   current genuine rate card, proof-only policy, request/spend caps, concurrency=1,
+   expiry, thresholds and on-call owner. Register the learner/task and OPERATOR_PROOF
+   permission before capture; set scope=DISPOSABLE_PROVIDER_PROOF. Read back all
+   bindings before temporarily setting enabled=false, ai_mode=shadow. Prove the
+   ordinary submission → immutable source → exact occurrence/detector → independent
+   reservation/admission → provider → deterministic gate → receipt/operations path.
+   Negative controls must show an otherwise authorised real learner is denied by
+   proof-only scope (use only synthetic local/hosted negative fixtures, never actual
+   learner text as a provider experiment).
 
-Remaining gates are hosted/provider/privacy/product/operator evidence, not an
-environment flag or the fact that local tests pass. Until those gates are
-complete, Stage 1 is **not authorised for real learner text**.
+   Required scenario matrix: VALID, INVALID, UNCERTAIN; malformed/contract,
+   4xx/429/5xx/network/timeout and safety/identity rejection; unsupported family,
+   unknown authorship, bad hash/span, overlong paragraph, missing/revoked/expired/
+   mismatched approval; duplicates/concurrent claims, crash/ambiguous send/receipt,
+   stale recovery; cost/rate-card provenance, caps and kill races. Deterministic
+   outcome/failure coverage uses the existing local mocked provider/worker and
+   isolated PostgreSQL proofs; retain those receipts alongside hosted receipts.
+   Real Production provider calls record the actual response without resampling
+   for a desired vote. No arbitrary Production fault switch, endpoint override,
+   fabricated provider response/billing or weakened stop policy is introduced.
+   If a mandatory hosted fault cannot safely be exercised, the proof remains
+   incomplete pending a separately reviewed, fixture-only injection amendment.
+
+   Verify payload minimisation, store:false/no tools/no background, log/platform
+   redaction, parent/child reload/retry isolation, zero repairs/decisions/learning/
+   Gold/proficiency/mastery/retirement mutations, separated analytics and shared
+   durable capacity. Finish the proof only after the fixture submission completes,
+   reload/retry/verifiers pass, kill drill passes and synthetic deletion is proved.
+   Invoke disable_writing_context_advisory, read back enabled=false, ai_mode=disabled,
+   revoke proof permission, account for in-flight work without resend, then delete
+   synthetic source/learner facts and its dedicated task/account as applicable.
+   Confirm no orphan jobs/attempts/permissions/research pointers, no later resend,
+   budget unchanged and approved short-lived log purge. Retain bounded receipts,
+   immutable provider/rate-card/policy audit and non-personal consumption facts.
+4. **Stage 1C — real Production shadow:** require separate explicit approval only
+   after Stage 1A and Stage 1B receipts pass; actual project/key ZDR; privacy/legal/
+   guardian permissions; payload and logging/privacy proof; approved rate card,
+   request/spend/concurrency caps and thresholds; named on-call owner; successful
+   rollback/kill drill. Bind a fresh REAL_LEARNER approval and policy revision to
+   the actual SHA/runtime/project/card. Read back before enabled=false, ai_mode=shadow.
+   Only otherwise eligible authorised real learners participate. No backfill,
+   proof-to-real permission conversion or automatic activation follows the proof.
+5. **Broader shadow:** any throughput/budget expansion requires signed observation
+   evidence and fresh approval. No accuracy claim without independent parent review.
+   Stage 2 architecture/rollout approval and parent/child proof remain separate;
+   Stage 3 machine authority is absent.
+
+All hosted actions require explicit future authority. This local implementation
+alone authorises neither Stage 1A nor any provider call or authentic learner text.

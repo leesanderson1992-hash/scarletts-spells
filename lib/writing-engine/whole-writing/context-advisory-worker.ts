@@ -45,6 +45,8 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
   const loaded = await client.from("writing_source_snapshots").select("*").eq("id", job.snapshot_id).maybeSingle();
   if (loaded.error || !loaded.data) throw new Error("CONTEXT_SHADOW_SOURCE_UNAVAILABLE");
   const snapshot = loaded.data as SourceSnapshot;
+  if (!["REAL_LEARNER", "DISPOSABLE_PROVIDER_PROOF"].includes(snapshot.source_purpose ?? ""))
+    throw new Error("CONTEXT_SHADOW_PURPOSE_UNAVAILABLE");
   if (snapshot.envelope.contextAiModeAtCapture !== "shadow" || snapshot.envelope.contextAiShadowCapture !== true ||
     snapshot.envelope.contextAdvisoryCapture !== false) throw new Error("CONTEXT_SHADOW_CAPTURE_INELIGIBLE");
   const extraction = extractWholeWriting(snapshot);
