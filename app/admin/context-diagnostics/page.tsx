@@ -2,11 +2,18 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
+type ShadowOperations = {
+  totals: Record<string, number | null>; eligible_detector_occurrences: number; routing_excluded: number;
+  pending_jobs: number; failed_jobs: number; oldest_queue_seconds: number; unrecorded_sends: number; reserved_exposure_usd: number;
+  daily_capacity: Record<string, string | number | null>;
+  groups: { family_key: string; result_status: string; reason_code: string; model: string;
+    returned_model: string | null; rate_card_version: string | null; attempts: number; provider_calls: number }[];
+};
 
 export default async function ContextDiagnosticsPage() {
   await requireAdminUser();
   const service = createServiceRoleClient();
-  const [metrics, scopes, promoted, feedback, detector, operations, spelling] = await Promise.all([
+  const [metrics, scopes, promoted, feedback, detector, operations, spelling, shadowRead] = await Promise.all([
     service.from("writing_context_advisory_review_metrics").select("*")
       .order("family_key").order("child_id"),
     service.from("writing_context_advisory_scope_metrics").select("*")
@@ -21,7 +28,9 @@ export default async function ContextDiagnosticsPage() {
       .order("family_key"),
     service.from("writing_spelling_feedback_detector_metrics_v1").select("*")
       .order("detection_version"),
+    service.rpc("writing_context_shadow_operations", { p_since: null, p_until: null }),
   ]);
+  const shadow = !shadowRead.error && shadowRead.data ? shadowRead.data as ShadowOperations : null;
   if (metrics.error || scopes.error || promoted.error || feedback.error ||
       detector.error || operations.error || spelling.error) throw new Error("Context diagnostic evidence is unavailable.");
   const ids = (promoted.data ?? []).map((row) => row.occurrence_id);
@@ -72,6 +81,28 @@ export default async function ContextDiagnosticsPage() {
   return <main className="mx-auto max-w-6xl space-y-6 p-6">
     <h1 className="text-3xl font-semibold">Contextual diagnostics</h1>
     <p className="text-sm">Parent-reviewed authentic writing. Development/regression evidence only—not independent qualification gold.</p>
+    <section className="rounded-xl border p-4">
+      <h2 className="text-xl font-semibold">Stage 1 shadow operations · last 24 hours</h2>
+      <p className="text-xs">Output distributions measure operations, not accuracy. Indexed detector scope precedes privacy, learner authorisation and local paragraph eligibility. Unavailable billing remains unknown; reserved exposure is conservative and the provider invoice is authoritative.</p>
+      {shadow ? <>
+        <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          {Object.entries({ eligible_detector_occurrences: shadow.eligible_detector_occurrences, routing_excluded: shadow.routing_excluded,
+            pending_jobs: shadow.pending_jobs, failed_jobs: shadow.failed_jobs, oldest_queue_seconds: shadow.oldest_queue_seconds,
+            unrecorded_sends: shadow.unrecorded_sends, reserved_exposure_for_overlapping_utc_days_usd: shadow.reserved_exposure_usd,
+            ...shadow.totals }).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
+        </dl>
+        <h3 className="mt-3 font-semibold">Daily capacity · UTC</h3>
+        <p className="text-xs">Non-personal operational accounting survives learner/source deletion. Known usage does not refund reserved capacity. Unknown exposure includes admitted requests whose usage is unavailable or unsettled; unadmitted reservations are separate.</p>
+        <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          {Object.entries(shadow.daily_capacity).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
+        </dl>
+        <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-xs">
+          <thead><tr><th>Family</th><th>Outcome</th><th>Reason</th><th>Requested model</th><th>Returned model</th><th>Rate card</th><th>Attempts</th><th>Calls</th></tr></thead>
+          <tbody>{shadow.groups.map((r, i) => <tr key={i} className="border-t"><td>{r.family_key}</td><td>{r.result_status}</td>
+            <td>{r.reason_code}</td><td>{r.model}</td><td>{r.returned_model ?? "Unavailable"}</td><td>{r.rate_card_version ?? "Unavailable"}</td><td>{r.attempts}</td><td>{r.provider_calls}</td></tr>)}</tbody>
+        </table></div>
+      </> : <p className="mt-3 text-xs">Stage 1 operations are unavailable; confirm infrastructure migrations before activation.</p>}
+    </section>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">AI versus parent · current decisions</h2>
       <p className="text-xs">Each comparison preserves its linked observation or independently bound shadow attempt. Total reviewed measures coverage. Comparable requires decisive parent truth and gate-passed VALID, INVALID or linguistic UNCERTAIN; NOT_ASSESSED and missing evidence are outside that denominator. Operational NOT_ASSESSED is also shown separately and can overlap excluded cases.</p>

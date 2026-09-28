@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import {
   getDateOnly,
@@ -12,6 +13,7 @@ import {
   isTaskCompleteForProgress,
 } from "@/lib/courses/progress";
 import { processTaskSubmission } from "@/lib/courses/submission-processing";
+import { recoverContextShadowJobs } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 import {
   buildStructuredLessonResponse,
   buildStructuredLessonResponseFromFlatSubmission,
@@ -617,7 +619,7 @@ export async function submitTaskResponse(formData: FormData) {
     },
   });
   if (error || !data) {
-    console.error("[course-task-submission] atomic save failed", error);
+    console.error("[course-task-submission] atomic save failed", { code: "SUBMISSION_SAVE_UNAVAILABLE" });
     redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't save that work just yet. Your answers are still here, so please try again."));
   }
 
@@ -666,8 +668,7 @@ export async function submitTaskResponse(formData: FormData) {
     !confirmedPayload
   ) {
     console.error("[course-task-submission] persistence confirmation failed", {
-      confirmationError,
-      payloadConfirmationError,
+      code: "SUBMISSION_CONFIRMATION_UNAVAILABLE",
       submissionId: result.submissionId,
       outcome: result.outcome,
     });
@@ -683,6 +684,10 @@ export async function submitTaskResponse(formData: FormData) {
   // be dropped by a serverless response boundary, leaving Review Work stuck in
   // "Preparing" until the recovery cron eventually runs.
   const processingResult = await processTaskSubmission(result.submissionId);
+  after(async () => {
+    try { await recoverContextShadowJobs(result.submissionId); }
+    catch { console.error("[context-shadow] recovery unavailable", { code: "CONTEXT_SHADOW_RECOVERY_UNAVAILABLE" }); }
+  });
   if (processingResult.status === "failed") {
     console.error("[course-task-submission] immediate processing failed", {
       submissionId: result.submissionId,
