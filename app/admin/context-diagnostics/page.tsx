@@ -6,6 +6,8 @@ type ShadowOperations = {
   totals: Record<string, number | null>; eligible_detector_occurrences: number; routing_excluded: number;
   pending_jobs: number; failed_jobs: number; oldest_queue_seconds: number; unrecorded_sends: number; reserved_exposure_usd: number;
   daily_capacity: Record<string, string | number | null>;
+  evidence_kinds?: Record<string, number>; measurements?: Record<string, number | null>;
+  fault_dispatches?: { action: string; state: string; dispatches: number; receipts: number }[];
   groups: { family_key: string; result_status: string; reason_code: string; model: string;
     returned_model: string | null; rate_card_version: string | null; attempts: number; provider_calls: number }[];
 };
@@ -140,8 +142,22 @@ export default async function ContextDiagnosticsPage() {
       <h2 className="text-xl font-semibold">Disposable provider proof operations</h2>
       <p className="text-xs">Synthetic fixtures only. Excluded from real-learner outcomes, feedback accuracy, educational evidence and research promotion. Requests consume the shared Production daily capacity.</p>
       {proof ? <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        {Object.entries(proof.evidence_kinds ?? {}).map(([key,value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value}</dd></div>)}
         {Object.entries(proof.totals).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
       </dl> : <p className="mt-3 text-xs">Proof operations are unavailable until the isolation migration is verified.</p>}
+      <p className="mt-3 text-xs">No-send simulations and controlled timing requests are labelled separately. Threshold measurements exclude both; their reservations still consume shared capacity. Simulated errors are not observed OpenAI HTTP responses.</p>
+      {proof?.fault_dispatches?.length ? <table className="mt-3 w-full text-left text-xs">
+        <thead><tr><th>Proof action</th><th>Dispatch state</th><th>Dispatches</th><th>Receipts</th></tr></thead>
+        <tbody>{proof.fault_dispatches.map(row => <tr key={`${row.action}:${row.state}`}>
+          <td>{row.action}</td><td>{row.state}</td><td>{row.dispatches}</td><td>{row.receipts}</td>
+        </tr>)}</tbody>
+      </table> : null}
+      {proof?.measurements ? <>
+        <h3 className="mt-3 font-semibold">Genuine requests · threshold sample</h3>
+        <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+          {Object.entries(proof.measurements).map(([key,value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ?? "Unavailable"}</dd></div>)}
+        </dl>
+      </> : null}
     </section>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">Provider operations</h2>

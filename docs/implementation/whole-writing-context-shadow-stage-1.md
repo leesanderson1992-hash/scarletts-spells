@@ -1,14 +1,21 @@
 # Stage 1 implementation and activation gates
 
-Status: Production-only prerequisites plus bounded local digest correction;
-**provider dispatch remains disabled**. The correction receipt is
-[Stage 1A local package](qa/whole-writing-context-shadow-stage-1-digest-local-receipt-2026-09-28.md).
-Baseline: `experiment/ai-context-benchmark`, frozen Stage 0B commit
-`ab5cc8da85f5563aa17c2692603ac11c19f34d28`. Original Stage 0A/0B migrations,
-prompt, schema, safety gate and corrected comparison semantics are unchanged.
-This document supersedes the Stage 0 adapter's temporary retry/rate environment
-behaviour for Stage 1. No hosted migration, deployment, actual provider request,
-privacy approval or activation is implied by the local implementation.
+Stage 1A completed with AI disabled at Production application SHA
+`08008de437540311421223f11829b6c7bca594b5`; its nine migrations are recorded in the
+[execution receipt](qa/whole-writing-context-shadow-stage-1a-production-execution-receipt-2026-09-29.md).
+Deployment/completion facts come from that receipt, not earlier pending-release passages.
+
+[Stage 1B amendments](whole-writing-context-shadow-stage-1b-amendments.md) define the
+local disposable bootstrap/fault additions and supersede the runtime-V2 and
+measured-only first-call requirements below for that proof scope only. They require
+a new reviewed release; no hosted migration, credential, fixture or activation follows.
+Prompt/schema/four-family/privacy/educational-authority contracts remain unchanged.
+The [amendment local receipt](qa/whole-writing-context-shadow-stage-1b-amendments-local-receipt-2026-09-29.md)
+records local verification and remaining release gates.
+
+The discovery, earlier SHA/deployment targets, pending-migration tables and Stage 1A
+release instructions below are historical preparation records. Do not replay them or
+treat them as current Production state. Stage 1A windows/authority do not cover Stage 1B.
 
 ## Authority and scope
 

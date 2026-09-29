@@ -7,9 +7,12 @@ import { extractWholeWriting, type SourceSnapshot } from "../lib/writing-engine/
 import { enqueueDisposableProviderProof } from "../lib/writing-engine/whole-writing/context-proof";
 import { contextShadowIdentity } from "../lib/writing-engine/whole-writing/context-shadow-policy";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
+import type { ContextProofFaultAction } from "../lib/writing-engine/whole-writing/context-proof-fault";
 
 type Row = Record<string, unknown>;
-function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean } = {}) {
+function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean;
+  fault?: ContextProofFaultAction; faultDenied?: boolean; killAtBarrier?: boolean; unreleased?: boolean;
+  faultLostAtBarrier?: boolean; faultExpiresInMs?: number; rpcFailure?: string } = {}) {
   const snapshot: SourceSnapshot = { id: randomUUID(), submission_id: randomUUID(), child_id: randomUUID(), parent_user_id: randomUUID(),
     source_purpose: "DISPOSABLE_PROVIDER_PROOF", source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
       contextAiShadowCapture: true, contextAdvisoryCapture: false, rawSubmissionText: text,
@@ -43,10 +46,20 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
     },
     async rpc(name: string, args: Row = {}) {
       events.push(name);
+      if (name === options.rpcFailure) return { data: null, error: { message: text } };
       if (name === "enqueue_writing_context_shadow") return { data: job.id, error: null };
       if (name === "claim_writing_context_shadow") { if (claimed) return { data: null, error: null }; claimed = true; return { data: job, error: null }; }
       if (name === "record_writing_context_detector_run") return { data: randomUUID(), error: null };
       if (name === "monitor_writing_context_shadow") return { data: !stopped, error: null };
+      if (name === "bind_writing_context_proof_fault") return { data: options.faultDenied ? { kind: "DENIED" } : options.fault
+        ? { kind: "BOUND", action: options.fault, expires_at: new Date(Date.now()+(options.faultExpiresInMs??60000)).toISOString() } : { kind: "NONE" }, error: null };
+      if (name === "stop_failed_writing_context_bootstrap") { stopped = true; return { data: true, error: null }; }
+      if (name === "reconcile_writing_context_shadow") return { data: true, error: null };
+      if (name === "record_writing_context_proof_fault_phase") {
+        events.push(`phase:${args.p_phase}`);if(options.killAtBarrier) stopped=true;
+        return {data:true,error:null};
+      }
+      if (name === "writing_context_proof_fault_status") return {data:{authorised:!options.faultLostAtBarrier,released:!options.unreleased},error:null};
       if (name === "context_shadow_job_eligible") return { data: !options.deny, error: null };
       if (name === "reserve_writing_context_shadow") {
         assert.equal(args.p_job_id, job.id); assert.equal(args.p_claim_token, job.claim_token);
@@ -57,10 +70,15 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
         return { data: { id }, error: null };
       }
       if (name === "begin_writing_context_shadow_dispatch") {
+        if(stopped) return {data:false,error:null};
         const d = tables.writing_context_shadow_dispatches.find((d) => d.id === args.p_dispatch_id)!;
         assert.equal(d.state, "reserved"); d.state = "sent"; d.sent_at = new Date().toISOString(); return { data: !stopped, error: null };
       }
-      if (name === "finish_writing_context_shadow_dispatch") return { data: true, error: null };
+      if (name === "finish_writing_context_shadow_dispatch") {
+        const d=tables.writing_context_shadow_dispatches.find(d=>d.id===args.p_dispatch_id);
+        if(d) d.state=d.sent_at?'finished':'cancelled';
+        return { data: true, error: null };
+      }
       if (name === "finish_writing_context_shadow_job") {
         assert.equal(args.p_claim_token, job.claim_token); assert(!JSON.stringify(args.p_summary).includes(text)); return { data: true, error: null };
       }
@@ -148,6 +166,64 @@ async function main() {
     const unknown = fixture("Unicorn private-canary");
     await recoverContextShadowJobs(unknown.snapshot.submission_id, unknown.client); assert.equal(calls, before);
     assert.equal(unknown.tables.writing_context_ai_attempts.length, 0);
+    for(const fault of ['SIMULATE_TIMEOUT','SIMULATE_429','SIMULATE_5XX'] as const) {
+      const f=fixture('Their cat is here.',{fault});const before: number=calls;
+      const outcome=await recoverContextShadowJobs(f.snapshot.submission_id,f.client);
+      assert.equal(outcome.status,'complete');assert.equal(calls,before,'Simulation invokes no HTTP');
+      assert(!f.events.includes('begin_writing_context_shadow_dispatch'),'Simulation invokes no admission');
+      const attempt=f.tables.writing_context_ai_attempts[0];
+      assert.equal(attempt.reason_code,`AI_PROOF_${fault.replace('SIMULATE_','SIMULATED_')}`);
+      assert.equal(attempt.result_status,'NOT_ASSESSED');assert.equal(attempt.transport_attempted,false);assert.equal(attempt.provider_called,false);
+      for(const key of ['returned_model','provider_request_id','provider_response_id','input_tokens','output_tokens','calculated_cost_usd']) assert.equal(attempt[key],null);
+      assert.equal(f.tables.writing_context_shadow_dispatches[0].state,'cancelled');assert(f.stopped());
+    }
+    // Fake responses are confined to this local regression, never the hosted hooks.
+    globalThis.fetch=async(_url,options)=>{
+      calls++;const data=JSON.parse(JSON.parse(String(options?.body)).input[1].content);
+      return new Response(JSON.stringify({id:'resp-local-timing',model:'gpt-6-luna',status:'completed',service_tier:'default',
+        usage:{input_tokens:100,input_tokens_details:{cached_tokens:0},output_tokens:20,output_tokens_details:{reasoning_tokens:5}},
+        output:[{type:'message',content:[{type:'output_text',text:JSON.stringify({case_id:data.case_id,decision:'VALID',focus:data.focus,
+          observed_form:'their',expected_form:null,reason_category:'SUPPORTED_USE'})}]}]}));
+    };
+    for(const fault of ['PAUSE_BEFORE_ADMISSION','PAUSE_AFTER_FETCH','PAUSE_BEFORE_RECEIPT','INTERRUPT_AFTER_FETCH'] as const) {
+      const f=fixture('Their cat is here.',{fault,killAtBarrier:true}),before: number=calls;
+      const outcome=await recoverContextShadowJobs(f.snapshot.submission_id,f.client);
+      assert.equal(calls,before+(fault==='PAUSE_BEFORE_ADMISSION'?0:1));
+      if(fault==='INTERRUPT_AFTER_FETCH') {
+        assert.equal(outcome.status,'proof_interrupted');assert.equal(f.tables.writing_context_ai_attempts.length,0);
+        assert(!f.events.includes('finish_writing_context_shadow_job'),'Interrupted lease left for canonical recovery');
+      } else {
+        assert.equal(outcome.status,'complete');
+        const attempt=f.tables.writing_context_ai_attempts[0];
+        assert.equal(attempt.result_status,fault==='PAUSE_BEFORE_ADMISSION'?'NOT_ASSESSED':'VALID');
+        if(fault!=='PAUSE_BEFORE_ADMISSION') assert.equal(attempt.calculated_cost_usd,'0.00002000');
+      }
+      assert(f.stopped());
+    }
+    const deniedFault=fixture('Their cat is here.',{faultDenied:true}),beforeFault: number=calls;
+    await recoverContextShadowJobs(deniedFault.snapshot.submission_id,deniedFault.client);
+    assert.equal(calls,beforeFault);assert(deniedFault.stopped());assert.equal(deniedFault.tables.writing_context_ai_attempts[0].reason_code,'AI_PROOF_HOOK_UNAVAILABLE');
+    const lostReceiptBarrier=fixture('Their cat is here.',{fault:'PAUSE_BEFORE_RECEIPT',faultLostAtBarrier:true}),beforeLost: number=calls;
+    await recoverContextShadowJobs(lostReceiptBarrier.snapshot.submission_id,lostReceiptBarrier.client);
+    assert.equal(calls,beforeLost+1);assert(lostReceiptBarrier.stopped());
+    const knownFailure=lostReceiptBarrier.tables.writing_context_ai_attempts[0];
+    assert.equal(knownFailure.reason_code,'AI_PROOF_HOOK_UNAVAILABLE');assert.equal(knownFailure.result_status,'NOT_ASSESSED');
+    assert.equal(knownFailure.input_tokens,100);assert.equal(knownFailure.calculated_cost_usd,'0.00002000','Known usage survives a failed receipt barrier');
+    const unreleased=fixture('Their cat is here.',{fault:'PAUSE_BEFORE_RECEIPT',unreleased:true,faultExpiresInMs:1000}),beforeWait: number=calls;
+    const waitStarted=Date.now();await recoverContextShadowJobs(unreleased.snapshot.submission_id,unreleased.client);
+    assert.equal(calls,beforeWait+1);assert(unreleased.stopped());assert(Date.now()-waitStarted<2500,'Lost release is bounded by signed expiry');
+    assert.equal(unreleased.tables.writing_context_ai_attempts[0].calculated_cost_usd,'0.00002000');
+    assert.equal(unreleased.tables.writing_context_ai_attempts[0].reason_code,'AI_PROOF_HOOK_UNAVAILABLE');
+    const lostSimulation=fixture('Their cat is here.',{fault:'SIMULATE_429',faultLostAtBarrier:true}),beforeSim: number=calls;
+    await recoverContextShadowJobs(lostSimulation.snapshot.submission_id,lostSimulation.client);
+    assert.equal(calls,beforeSim);assert(lostSimulation.stopped());
+    assert.equal(lostSimulation.tables.writing_context_ai_attempts[0].reason_code,'AI_PROOF_HOOK_UNAVAILABLE');
+    for (const rpcFailure of ['enqueue_writing_context_shadow','reconcile_writing_context_shadow','claim_writing_context_shadow']) {
+      const early=fixture('Their private-canary is here.',{rpcFailure}),beforeEarly: number=calls;
+      const outcome=await recoverContextShadowJobs(rpcFailure==='reconcile_writing_context_shadow'?undefined:early.snapshot.submission_id,early.client);
+      assert.equal(outcome.status,'failed');assert(early.stopped());assert.equal(calls,beforeEarly);
+      assert(!early.events.includes('finish_writing_context_shadow_job'),'No fictitious claim is finished');
+    }
     const failedLedger = fixture("Their private-canary is here.", { ledgerFail: true });
     await recoverContextShadowJobs(failedLedger.snapshot.submission_id, failedLedger.client); assert(failedLedger.stopped());
     assert(!JSON.stringify(safeLogs).includes("private-canary"), "exception prose never enters structured logs");

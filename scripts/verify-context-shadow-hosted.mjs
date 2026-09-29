@@ -6,7 +6,7 @@ const url=process.env.CONTEXT_SHADOW_VERIFY_DATABASE_URL;
 if (!url) throw new Error('CONTEXT_SHADOW_VERIFY_DATABASE_URL_REQUIRED');
 const client=new Client({connectionString:url});
 const versions=['20260906100000','20260906110000','20260924120000','20260924130000',
-  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000','20260929140000','20260929150000'];
+  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000','20260929140000','20260929150000','20260929160000'];
 try {
   await client.connect(); await client.query('begin isolation level repeatable read read only');
   const history=(await client.query('select version from supabase_migrations.schema_migrations where version=any($1)',[versions])).rows.map(x=>x.version);
@@ -18,7 +18,8 @@ try {
   assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_advisory_control'::regclass and conname='context_stage1_shadow_only'")).rows[0]?.convalidated,true,'STAGE1_BOUNDARY_NOT_VALIDATED');
   const privateTables=['writing_context_ai_attempts','writing_context_detector_runs','writing_context_detector_members',
     'writing_context_provider_approvals','writing_context_learner_authorisations','writing_context_approval_revocations',
-    'writing_context_shadow_policy','writing_context_shadow_jobs','writing_context_shadow_dispatches','writing_context_ai_rate_cards','writing_context_shadow_stops','writing_context_shadow_policy_history','writing_context_shadow_consumption','writing_context_provider_proof_learners'];
+    'writing_context_shadow_policy','writing_context_shadow_jobs','writing_context_shadow_dispatches','writing_context_ai_rate_cards','writing_context_shadow_stops','writing_context_shadow_policy_history','writing_context_shadow_consumption','writing_context_provider_proof_learners',
+    'writing_context_bootstrap_failures','writing_context_proof_fault_plans','writing_context_proof_fault_consumptions','writing_context_proof_fault_events'];
   for (const table of privateTables) {
     assert.equal((await client.query('select relrowsecurity from pg_class where oid=$1::regclass',[table])).rows[0].relrowsecurity,true,'RLS_MISSING');
     for (const role of ['anon','authenticated']) {
@@ -45,7 +46,10 @@ try {
     'context_shadow_job_eligible(uuid,uuid,text,text,text,text,text,text)',
     'context_provider_proof_child(uuid)','context_shadow_scope_authorised(uuid,uuid)',
     'writing_context_shadow_operations_for_scope(timestamptz,timestamptz,text)',
-    'stop_writing_context_shadow(text)','writing_context_shadow_operations(timestamptz,timestamptz)']) {
+    'stop_writing_context_shadow(text)','writing_context_shadow_operations(timestamptz,timestamptz)',
+    'bind_writing_context_proof_fault(uuid,uuid)','record_writing_context_proof_fault_phase(uuid,uuid,text)',
+    'writing_context_proof_fault_status(uuid,uuid)','release_writing_context_proof_fault(uuid,uuid)',
+    'revoke_writing_context_proof_fault(uuid,uuid,text)','stop_failed_writing_context_bootstrap()']) {
     for (const role of ['anon','authenticated']) assert.equal((await client.query("select has_function_privilege($1,$2,'EXECUTE') ok",[role,fn])).rows[0].ok,false,'PRIVATE_RPC_GRANT');
     assert.equal((await client.query("select has_function_privilege('service_role',$1,'EXECUTE') ok",[fn])).rows[0].ok,true,'SERVICE_RPC_MISSING');
   }
@@ -54,6 +58,11 @@ try {
   const enabledDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_advisory_control' and column_name='enabled'")).rows[0];
   assert.equal(enabledDefault?.column_default,'false','DEFAULT_ENABLED_INVALID');
   assert.equal((await client.query('select count(*)::int n from writing_context_shadow_policy where singleton')).rows[0].n,1,'POLICY_SINGLETON_INVALID');
+  assert.deepEqual((await client.query('select execution_policy_kind,bootstrap_expires_at,dispatch_scope from writing_context_shadow_policy')).rows,
+    [{execution_policy_kind:'MEASURED',bootstrap_expires_at:null,dispatch_scope:'DENY'}],'POST_PROOF_POLICY_NOT_DENIED');
+  assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_shadow_policy'::regclass and conname='context_bootstrap_proof_only'")).rows[0]?.convalidated,true,'BOOTSTRAP_BOUNDARY_MISSING');
+  const bootstrapDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_shadow_policy' and column_name='execution_policy_kind'")).rows[0];
+  assert(bootstrapDefault?.column_default.includes('MEASURED'),'BOOTSTRAP_DEFAULT_NOT_MEASURED');
   const proofDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_shadow_policy' and column_name='dispatch_scope'")).rows[0];
   assert(proofDefault?.column_default.includes('DENY'),'PROOF_SCOPE_DEFAULT_INVALID');
   const approvalDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_provider_approvals' and column_name='dispatch_scope'")).rows[0];
@@ -73,7 +82,9 @@ try {
     ['writing_source_snapshots','context_source_purpose_immutable'],['task_submissions','context_submission_child'],
     ['writing_context_provider_proof_learners','context_proof_registration'],
     ['writing_context_provider_proof_learners','context_proof_registration_immutable'],
-    ['writing_context_research_candidates','context_proof_research']])
+    ['writing_context_research_candidates','context_proof_research'],
+    ['writing_context_proof_fault_plans','context_proof_fault_plan'],
+    ['writing_context_ai_attempts','zz_context_proof_attempt'],['writing_context_ai_attempts','context_bootstrap_failure']])
     assert.equal((await client.query("select count(*)::int n from pg_trigger where tgrelid=$1::regclass and tgname=$2 and tgenabled='O'",[table,trigger])).rows[0].n,1,'PROOF_TRIGGER_MISSING');
   // Check every educational authority present in the real schema, including optional later modules.
   const unguarded=(await client.query(`select c.relname from pg_class c join pg_namespace n on n.oid=c.relnamespace

@@ -10,6 +10,7 @@ import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT } from "./context-shadow-policy";
+import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
 
 export const CONTEXT_CANDIDATE_DETECTOR_VERSION = "CONTEXT_ROUTING_FOUR_FAMILY_V1";
 export const CONTEXT_FAMILY_REGISTRY_VERSION = "CONTEXT_FOUR_FAMILY_V1";
@@ -29,7 +30,10 @@ export async function processContextualAdvisoryForSubmission(input: {
 }
 export async function enqueueContextShadowForSubmission(client: SupabaseClient, submissionId: string) {
   const queued = await client.rpc("enqueue_writing_context_shadow", { p_submission_id: submissionId });
-  if (queued.error) throw new Error("CONTEXT_SHADOW_ENQUEUE_UNAVAILABLE");
+  if (queued.error) {
+    await client.rpc("stop_failed_writing_context_bootstrap");
+    throw new Error("CONTEXT_SHADOW_ENQUEUE_UNAVAILABLE");
+  }
 }
 function failureKind(provider: ProviderOutcome | null, result: AiGateResult) {
   const code = provider?.failure;
@@ -135,21 +139,49 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
         else if (!reserved.data?.id) reason = reserved.data?.reason ?? "AI_RESERVATION_UNAVAILABLE";
         else {
           dispatchId = reserved.data.id;
-          provider = await analyseAiContext(prepared.case, { rateCard: card, beforeSend: async () => {
+          let fault: Awaited<ReturnType<typeof bindContextProofFault>> = null;
+          try { fault = await bindContextProofFault(client, dispatchId!, job.claim_token, deadline); }
+          catch {
+            reason = "AI_PROOF_HOOK_UNAVAILABLE";
+            await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+          }
+          if (!reason && fault?.simulated) {
+            try { reason = await fault.simulate(); }
+            catch { reason = "AI_PROOF_HOOK_UNAVAILABLE"; }
+            await client.rpc("stop_writing_context_shadow", { p_code: "AI_OPERATIONAL_THRESHOLD_STOP" });
+          }
+          if (!reason) provider = await analyseAiContext(prepared.case, { rateCard: card, beforeSend: async () => {
+            await fault?.beforeAdmission();
             if (Date.now() + 8000 > deadline) return false;
             const admitted = await client.rpc("begin_writing_context_shadow_dispatch", { p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
             return !admitted.error && admitted.data === true && Date.now() + 8000 <= deadline;
-          } });
-          result = provider.failure ? { status: "NOT_ASSESSED", alternative: null, reasonCode: provider.failure }
-            : gateAiContextResponse(provider.value, prepared.case);
-          if (!provider.requestSent) {
+          }, afterFetch: fault ? (providerDeadline) => fault.afterFetch(providerDeadline) : undefined });
+          if (provider?.proofInterrupted) {
+            // Deliberately leave this one processing lease/dispatch without a receipt.
+            // Canonical stop + later abandonment/reconciliation retain exposure. No resend.
+            await client.rpc("stop_writing_context_shadow", { p_code: "AI_MISSING_PROVENANCE_STOP" });
+            throw new ContextProofInterruption();
+          }
+          if (provider && fault) {
+            try { await fault.beforeReceipt(); }
+            catch {
+              // Preserve already established usage/cost; never manufacture UNKNOWN.
+              provider.failure = "AI_PROOF_HOOK_UNAVAILABLE";
+              await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+            }
+            if (provider.failure) await client.rpc("stop_writing_context_shadow", { p_code: "AI_OPERATIONAL_THRESHOLD_STOP" });
+          }
+          result = provider ? provider.failure ? { status: "NOT_ASSESSED", alternative: null, reasonCode: provider.failure }
+            : gateAiContextResponse(provider.value, prepared.case)
+            : { status: "NOT_ASSESSED", alternative: null, reasonCode: reason ?? "AI_PROOF_HOOK_UNAVAILABLE" };
+          if (!provider?.requestSent) {
             const cancelled = await client.rpc("finish_writing_context_shadow_dispatch", { p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
             if (cancelled.error || cancelled.data !== true) throw new Error("CONTEXT_SHADOW_CANCEL_UNAVAILABLE");
           }
-          if (provider.requestSent) summary.provider_calls++;
-          if (["AI_PROVIDER_IDENTITY_MISMATCH", "AI_PROVIDER_CACHE_POLICY_MISMATCH"].includes(provider.failure ?? ""))
+          if (provider?.requestSent) summary.provider_calls++;
+          if (["AI_PROVIDER_IDENTITY_MISMATCH", "AI_PROVIDER_CACHE_POLICY_MISMATCH"].includes(provider?.failure ?? ""))
             await client.rpc("stop_writing_context_shadow", { p_code: "AI_MODEL_IDENTITY_STOP" });
-          if (provider.failure === "AI_PROVIDER_USAGE_UNAVAILABLE")
+          if (provider?.failure === "AI_PROVIDER_USAGE_UNAVAILABLE")
             await client.rpc("stop_writing_context_shadow", { p_code: "AI_MISSING_PROVENANCE_STOP" });
         }
       }
@@ -171,7 +203,7 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
       output_tokens: provider?.outputTokens ?? null, reasoning_tokens: provider?.reasoningTokens ?? null,
       dispatch_id: dispatchId, calculated_cost_usd: provider?.calculatedCostUsd ?? null,
       pricing_version: provider?.pricingVersion ?? null, provider_called: provider?.requestSent ?? Boolean(oldDispatch.data?.sent_at),
-      transport_attempted: provider ? provider.requestSent : dispatchId ? null : false,
+      transport_attempted: provider ? provider.requestSent : oldDispatch.data ? null : false,
       transport_started_at: provider?.startedAt ?? null,
       response_received_at: provider?.receivedAt ?? null, failure_kind: failureKind(provider, result),
       eligible_at_worker_check: jobEligible && prepared.case !== null,
@@ -202,28 +234,32 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
 /** Separate worker, also recovered by the authenticated existing cron. No learner response dependency. */
 export async function recoverContextShadowJobs(submissionId?: string, suppliedClient?: SupabaseClient) {
   const client = suppliedClient ?? createServiceRoleClient();
-  const control = await client.from("writing_context_advisory_control").select("enabled,ai_mode").eq("singleton", true).maybeSingle();
-  if (control.error || control.data?.enabled !== false || control.data.ai_mode !== "shadow") return { status: "disabled" as const };
-  // Reconcile a bounded set of current captures whose initial enqueue failed.
-  if (submissionId) await enqueueContextShadowForSubmission(client, submissionId);
-  else {
-    const reconciled = await client.rpc("reconcile_writing_context_shadow");
-    if (reconciled.error) throw new Error("CONTEXT_SHADOW_RECONCILIATION_UNAVAILABLE");
-  }
-  const claimed = await client.rpc("claim_writing_context_shadow", { p_submission_id: submissionId ?? null });
-  if (claimed.error) throw new Error("CONTEXT_SHADOW_CLAIM_UNAVAILABLE");
-  if (!claimed.data) return { status: "idle" as const };
-  const job = claimed.data as ShadowJob;
+  let job: ShadowJob | null = null;
   try {
+    const control = await client.from("writing_context_advisory_control").select("enabled,ai_mode").eq("singleton", true).maybeSingle();
+    if (control.error) throw new Error("CONTEXT_SHADOW_CONTROL_UNAVAILABLE");
+    if (control.data?.enabled !== false || control.data.ai_mode !== "shadow") return { status: "disabled" as const };
+    // Reconcile a bounded set of current captures whose initial enqueue failed.
+    if (submissionId) await enqueueContextShadowForSubmission(client, submissionId);
+    else {
+      const reconciled = await client.rpc("reconcile_writing_context_shadow");
+      if (reconciled.error) throw new Error("CONTEXT_SHADOW_RECONCILIATION_UNAVAILABLE");
+    }
+    const claimed = await client.rpc("claim_writing_context_shadow", { p_submission_id: submissionId ?? null });
+    if (claimed.error) throw new Error("CONTEXT_SHADOW_CLAIM_UNAVAILABLE");
+    if (!claimed.data) return { status: "idle" as const };
+    job = claimed.data as ShadowJob;
     const summary = await runShadowJob(client, job);
     const done = await client.rpc("finish_writing_context_shadow_job", { p_job_id: job.id, p_claim_token: job.claim_token,
       p_error_code: null, p_summary: summary });
     if (done.error || done.data !== true) throw new Error("CONTEXT_SHADOW_FINISH_UNAVAILABLE");
     return { status: "complete" as const, ...summary };
-  } catch {
-    await client.rpc("finish_writing_context_shadow_job", { p_job_id: job.id, p_claim_token: job.claim_token,
+  } catch (error) {
+    await client.rpc("stop_failed_writing_context_bootstrap");
+    if (error instanceof ContextProofInterruption) return { status: "proof_interrupted" as const };
+    if (job) await client.rpc("finish_writing_context_shadow_job", { p_job_id: job.id, p_claim_token: job.claim_token,
       p_error_code: contextShadowErrorCode(), p_summary: {} });
-    console.error("[context-shadow] worker unavailable", { jobId: job.id, code: contextShadowErrorCode() });
+    console.error("[context-shadow] worker unavailable", { jobId: job?.id, code: contextShadowErrorCode() });
     return { status: "failed" as const };
   }
 }

@@ -7,6 +7,8 @@ import { readFileSync } from "node:fs";
 import { proveContextFeedbackCorrections } from "./context-feedback-corrective-db-regressions.mjs";
 import { proveProductionProofIsolation } from "./context-shadow-production-proof-db-regressions.mjs";
 import { proveContextShadowStage1 } from "./context-shadow-stage1-db-regressions.mjs";
+import { proveContextShadowStage1B } from "./context-shadow-stage1b-db-regressions.mjs";
+import { startTmpfsContextPostgres } from "./context-local-postgres.mjs";
 
 const require = createRequire(import.meta.url);
 const { Client } = require("pg");
@@ -14,13 +16,19 @@ const container = `writing-context-advisory-proof-${randomUUID().slice(0, 8)}`;
 const options = { encoding: "utf8", timeout: 60_000, stdio: "pipe" };
 let db;
 let started = false;
+let tmpfs;
 try {
+  const localContainer=process.argv.find(x=>x.startsWith('--local-tmpfs-container='))?.split('=')[1];
+  let port;
+  if(localContainer) {
+    tmpfs=await startTmpfsContextPostgres(localContainer);port=tmpfs.port;
+  } else {
   execFileSync("docker", ["run", "--rm", "-d", "--name", container,
     "-e", "POSTGRES_PASSWORD=disposable-proof-only", "-p", "127.0.0.1::5432",
     "postgres:16-alpine"], options);
   started = true;
   const portOutput = execFileSync("docker", ["port", container, "5432/tcp"], options).trim();
-  const port = Number(portOutput.split(":").at(-1));
+  port = Number(portOutput.split(":").at(-1));
   assert(Number.isInteger(port) && port > 0, "isolated PostgreSQL port unavailable");
   for (let attempt = 0; attempt < 60; attempt += 1) {
     try {
@@ -31,6 +39,7 @@ try {
       if (attempt === 59) throw new Error("isolated PostgreSQL did not become ready");
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
+  }
   }
   db = new Client({ host: "127.0.0.1", port, user: "postgres", password: "disposable-proof-only", database: "postgres" });
   db.on("error", (error) => { process.stderr.write(`disposable PostgreSQL client error: ${error.message}\n`); });
@@ -328,6 +337,7 @@ try {
   if (process.argv.includes("--stage1")) {
     await proveContextShadowStage1({ db, parent, child, task });
     await proveProductionProofIsolation({ db, parent, child, task });
+    await proveContextShadowStage1B({ db, parent });
   }
   console.log("context advisory disposable database proof passed");
 } catch (error) {
@@ -339,4 +349,5 @@ try {
 } finally {
   if (db) await db.end().catch(() => {});
   if (started) execFileSync("docker", ["stop", container], options);
+  if (tmpfs) await tmpfs.close();
 }

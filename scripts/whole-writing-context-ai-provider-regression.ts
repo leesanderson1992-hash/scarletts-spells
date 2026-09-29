@@ -4,6 +4,7 @@ import { prepareAiContextCase, gateAiContextResponse } from "../lib/writing-engi
 import { analyseAiContext } from "../lib/writing-engine/whole-writing/context-ai-provider";
 import { calculateContextCost } from "../lib/writing-engine/whole-writing/context-ai-cost";
 import { configureContextShadowTest, testRateCard } from "./context-shadow-test-config";
+import { ContextProofFaultFailure, ContextProofInterruption } from "../lib/writing-engine/whole-writing/context-proof-fault";
 
 async function main() {
   const source = "Their cat is here.";
@@ -48,6 +49,27 @@ async function main() {
     globalThis.fetch = async () => { calls++; const p = payload(); p.output[0].content[0].text = "not-json"; return new Response(JSON.stringify(p)); };
     const malformed = await analyseAiContext(testCase, admission);
     assert.equal(malformed.failure, "AI_PROVIDER_MALFORMED"); assert.equal(malformed.calculatedCostUsd, "0.00002000");
+    for (const [value,expected] of [
+      [{...payload(),output:[{type:"message",content:[{type:"refusal",refusal:"local synthetic refusal"}]}]},"AI_PROVIDER_REFUSAL"],
+      [{...payload(),status:"incomplete"},"AI_PROVIDER_OUTPUT_CONTRACT"],
+      [{...payload(),usage:{}},"AI_PROVIDER_USAGE_UNAVAILABLE"],
+      [{...payload(),usage:{input_tokens:100,input_tokens_details:{cached_tokens:0}}},"AI_PROVIDER_USAGE_UNAVAILABLE"],
+      [{...payload(),service_tier:"flex"},"AI_PROVIDER_IDENTITY_MISMATCH"],
+      [{...payload(),usage:{...payload().usage,input_tokens_details:{cached_tokens:1}}},"AI_PROVIDER_CACHE_POLICY_MISMATCH"],
+      [{...payload(),usage:{...payload().usage,input_tokens_details:{cached_tokens:0,cache_write_tokens:1}}},"AI_PROVIDER_CACHE_POLICY_MISMATCH"],
+    ] as const) {
+      const before=calls;globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(value));};
+      const rejected=await analyseAiContext(testCase,admission);assert.equal(rejected.failure,expected);assert.equal(calls,before+1);
+      if(expected==='AI_PROVIDER_USAGE_UNAVAILABLE'||expected==='AI_PROVIDER_IDENTITY_MISMATCH') assert.equal(rejected.calculatedCostUsd,null);
+      else assert(rejected.calculatedCostUsd,'Genuine complete usage is retained despite contract/cache rejection');
+    }
+    globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(payload()));};
+    let beforeHook=calls;
+    const interrupted=await analyseAiContext(testCase,{...admission,afterFetch:async()=>{throw new ContextProofInterruption();}});
+    assert.equal(calls,beforeHook+1);assert.equal(interrupted.proofInterrupted,true);assert.equal(interrupted.inputTokens,null);assert.equal(interrupted.requestSent,true);
+    beforeHook=calls;
+    const deniedHook=await analyseAiContext(testCase,{...admission,beforeSend:async()=>{throw new ContextProofFaultFailure();}});
+    assert.equal(deniedHook.failure,'AI_PROOF_HOOK_UNAVAILABLE');assert.equal(calls,beforeHook);assert.equal(deniedHook.requestSent,false);
     globalThis.fetch = async () => { calls++; return new Response(new Uint8Array(65000)); };
     assert.equal((await analyseAiContext(testCase, admission)).failure, "AI_PROVIDER_RESPONSE_TOO_LARGE");
     const before = calls;
@@ -62,6 +84,9 @@ async function main() {
     const timeout = await analyseAiContext(testCase, admission);
     assert.equal(timeout.failure, "AI_PROVIDER_TIMEOUT"); assert(timeout.latencyMs >= 7900 && timeout.latencyMs < 9500);
     assert.equal(timeout.requestSent, true); assert.equal(timeout.calculatedCostUsd, null);
+    globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(payload()));};
+    const barrierTimeout=await analyseAiContext(testCase,{...admission,afterFetch:async()=>{await new Promise(resolve=>setTimeout(resolve,8200));}});
+    assert.equal(barrierTimeout.failure,'AI_PROVIDER_TIMEOUT');assert(barrierTimeout.latencyMs<9500,'Private barrier never extends provider deadline');
   } finally { restore(); globalThis.fetch = originalFetch; }
   console.log("context AI provider: minimal payload, one send, usage/cost, safe failures, admission and full-body timeout passed");
 }

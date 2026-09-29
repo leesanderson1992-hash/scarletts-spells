@@ -2,6 +2,7 @@ import "server-only";
 import { AI_CONTEXT_MODEL, AI_CONTEXT_PROMPT, AI_CONTEXT_SCHEMA, type AiContextCase } from "./context-ai-gate";
 import { calculateContextCost, validContextRateCard, type ContextRateCard } from "./context-ai-cost";
 import { contextShadowIdentity, CONTEXT_SHADOW_TIMEOUT_MS } from "./context-shadow-policy";
+import { ContextProofFaultFailure, ContextProofInterruption } from "./context-proof-fault";
 
 export type ProviderOutcome = {
   value: unknown | null; failure: string | null; model: string; returnedModel: string | null;
@@ -10,6 +11,7 @@ export type ProviderOutcome = {
   outputTokens: number | null; reasoningTokens: number | null;
   calculatedCostUsd: string | null; pricingVersion: string | null; requestSent: boolean;
   startedAt: string | null; receivedAt: string | null;
+  proofInterrupted?: boolean;
 };
 export function contextAiRequestBody(input: AiContextCase): string {
   return JSON.stringify({ model: AI_CONTEXT_MODEL, service_tier: "default",
@@ -30,6 +32,7 @@ const object = (value: unknown): Record<string, unknown> =>
  * the 8-second deadline covers fetch and streamed body reading. No raw output logging. */
 export async function analyseAiContext(input: AiContextCase, admission?: {
   rateCard: ContextRateCard; beforeSend: () => Promise<boolean>;
+  afterFetch?: (deadline: number) => Promise<void>;
 }): Promise<ProviderOutcome> {
   const result: ProviderOutcome = { value: null, failure: null, model: AI_CONTEXT_MODEL, returnedModel: null,
     requestId: null, responseId: null, serviceTier: null, latencyMs: 0, inputTokens: null,
@@ -45,7 +48,7 @@ export async function analyseAiContext(input: AiContextCase, admission?: {
   if (input.sourceText.length > 600 || Buffer.byteLength(input.sourceText, "utf8") > 4000 ||
     Buffer.byteLength(body, "utf8") > 8000) return fail("AI_REQUEST_TOO_LARGE");
   try { if (!await admission.beforeSend()) return fail("AI_CONTROL_DISABLED"); }
-  catch { return fail("AI_ADMISSION_UNAVAILABLE"); }
+  catch (error) { return fail(error instanceof ContextProofFaultFailure ? "AI_PROOF_HOOK_UNAVAILABLE" : "AI_ADMISSION_UNAVAILABLE"); }
   const started = Date.now();
   result.startedAt = new Date(started).toISOString();
   result.requestSent = true;
@@ -58,10 +61,15 @@ export async function analyseAiContext(input: AiContextCase, admission?: {
   });
   try {
     return await Promise.race([timeout, (async () => {
-      const response = await fetch("https://api.openai.com/v1/responses", { method: "POST",
+      const pendingResponse = fetch("https://api.openai.com/v1/responses", { method: "POST",
         headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}`, "content-type": "application/json",
           "OpenAI-Project": process.env.CONTEXT_AI_OPENAI_PROJECT_REF! },
         body, signal: controller.signal, cache: "no-store" });
+      // A request may reject during the private barrier. Observe that rejection now;
+      // await below still preserves it. No global transport override or second send.
+      void pendingResponse.catch(() => {});
+      await admission.afterFetch?.(started + CONTEXT_SHADOW_TIMEOUT_MS);
+      const response = await pendingResponse;
       if (controller.signal.aborted) throw new Error("deadline");
       result.receivedAt = new Date().toISOString();
       result.requestId = bounded(response.headers.get("x-request-id"));
@@ -111,7 +119,12 @@ export async function analyseAiContext(input: AiContextCase, admission?: {
       catch { return fail("AI_PROVIDER_MALFORMED"); }
       return result;
     })()]);
-  } catch {
+  } catch (error) {
+    if (error instanceof ContextProofInterruption) {
+      result.proofInterrupted = true;
+      return fail("AI_PROOF_INTERRUPTED_AFTER_FETCH");
+    }
+    if (error instanceof ContextProofFaultFailure) return fail("AI_PROOF_HOOK_UNAVAILABLE");
     return fail(controller.signal.aborted ? "AI_PROVIDER_TIMEOUT" : "AI_PROVIDER_TRANSPORT_UNAVAILABLE");
   } finally {
     clearTimeout(timer); controller.abort(); void reader?.cancel().catch(() => {});
