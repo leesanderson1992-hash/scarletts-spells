@@ -11,6 +11,7 @@ import type {
   CanonicalActivityNormalizationBlocker,
   CanonicalActivitySpec,
 } from "@/lib/adle/canonical-activity-spec";
+import { sentenceSuffixPayloadValid, transformTargetPayloadValid, pairedWordGapsPayloadValid } from "@/lib/adle/inflection/activity-contracts";
 
 export interface CanonicalActivityNavigation {
   complete: () => void;
@@ -272,6 +273,8 @@ const familyRevealLoader = moduleLoader(() => import("@/components/adle/morpholo
 const baseCleaveLoader = moduleLoader(() => import("@/components/adle/morphology/base-word-family-guided-lesson"), "Cleave");
 const splitHandleLoader = moduleLoader(() => import("@/components/adle/activities/shared/split-handle"), "SplitHandle");
 const definitionBuilderLoader = moduleLoader(() => import("@/components/adle/activities/shared/definition-word-builder"), "DefinitionWordBuilder");
+const sentenceSuffixLoader = moduleLoader(() => import("@/components/adle/activities/shared/sentence-suffix-builder"), "SentenceSuffixBuilder");
+const transformTargetLoader = moduleLoader(() => import("@/components/adle/activities/shared/split-handle"), "SplitHandle");
 const compoundJigsawLoader = moduleLoader(() => import("@/components/adle/morphology/compound-jigsaw-activity"), "CompoundJigsawActivity");
 const meaningConnectionLoader = moduleLoader(() => import("@/components/adle/morphology/meaning-connection-activity"), "MeaningConnectionActivity");
 const binSortLoader = moduleLoader(() => import("@/components/adle/activities/shared/bin-sort"), "BinSort");
@@ -306,8 +309,10 @@ const registrations = [
   registration("MEANING_DISCOVERY", "suffix", "Discovery", discoveryLoader, validateDiscovery),
   registration("WORD_FAMILY_REVEAL", "base_led_family", "FamilyReveal", familyRevealLoader, validateFamilyReveal),
   registration("CLEAVER", "find_boundaries", "SplitHandle", splitHandleLoader, validateSplitHandle),
+  registration("CLEAVER", "transform_target", "SplitHandle", transformTargetLoader, props => isRecord(props) && transformTargetPayloadValid(props) && functionValue(props.onContinue)),
   registration("CLEAVER", "isolate_component", "SplitHandle", baseCleaveLoader, validateBaseCleaveAdapter, "Cleave"),
   registration("WORD_ASSEMBLY", "definition_word_builder", "DefinitionWordBuilder", definitionBuilderLoader, validateDefinitionBuilder),
+  registration("WORD_ASSEMBLY", "sentence_suffix", "DefinitionWordBuilder", sentenceSuffixLoader, props => isRecord(props) && sentenceSuffixPayloadValid(props) && functionValue(props.onContinue), "SentenceSuffixBuilder"),
   registration("COMPOUND_JIGSAW", "jigsaw_multi_target", "CompoundJigsawActivity", compoundJigsawLoader, validateCompoundJigsaw),
   registration("MEANING_MATCH", "word_to_definition", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
   registration("MEANING_MATCH", "component_clues", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
@@ -317,6 +322,9 @@ const registrations = [
   registration("COVER_CHECK", "component_marked", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("COVER_CHECK", "ratio_close_policy", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("DICTATION", "whole_sentence", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
+  registration("DICTATION", "paired_word_gaps", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "paired_word_gaps" && pairedWordGapsPayloadValid(props)
+    && Array.isArray(props.values) && props.values.length === 2 && props.values.every(x => typeof x === "string") && typeof props.checked === "boolean"
+    && functionValue(props.onValuesChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
   registration("DICTATION", "target_token", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("DICTATION", "target_span", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("LESSON_REFLECTION", "standard_lesson_reflection", "LessonReflection", lessonReflectionLoader, validateLessonReflection),

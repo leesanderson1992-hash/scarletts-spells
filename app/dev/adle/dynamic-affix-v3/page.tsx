@@ -10,11 +10,9 @@ import { DynamicAffixV3InteractionFixture } from "./fixture";
 
 const ASSIGNMENT_ID = "dev-dynamic-affix-v3-g7-teaching-pages";
 
-export default function DynamicAffixV3DevPage() {
+export function DynamicAffixV3DevFixturePage(props: { packagePath: string; assignmentId: string }) {
   if (process.env.NODE_ENV === "production") notFound();
-  const fixture = loadReviewedAffixPackageFixture(
-    "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json",
-  );
+  const fixture = loadReviewedAffixPackageFixture(props.packagePath);
   const decision = compileDynamicAffixWordLabDecision(fixture.selection, {
     mode: "shared_authoritative",
     sourceKind: "reviewed_fixture",
@@ -53,9 +51,16 @@ export default function DynamicAffixV3DevPage() {
   );
   return (
     <DynamicAffixV3InteractionFixture
-      assignmentId={ASSIGNMENT_ID}
+      assignmentId={props.assignmentId}
       items={items}
       payload={runtime}
     />
   );
+}
+
+export default function DynamicAffixV3DevPage() {
+  return <DynamicAffixV3DevFixturePage
+    assignmentId={ASSIGNMENT_ID}
+    packagePath="docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json"
+  />;
 }

@@ -19,6 +19,8 @@ export interface LessonReflectionSpecialistRecap {
 export interface LessonReflectionProps {
   mistakes: readonly NormalizedLessonReflectionMistake[];
   prompt: string;
+  responseHelpText?: string | null;
+  responsePlaceholder?: string;
   response: string;
   onResponseChange: (value: string) => void;
   onComplete?: () => void;
@@ -57,6 +59,7 @@ export function LessonReflection(props: LessonReflectionProps) {
   const responseHelpId = `${instanceId}-response-help`;
   const statusId = `${instanceId}-response-status`;
   const responseReady = props.response.trim().length > 0;
+  const responseHelpText = props.responseHelpText === null ? null : props.responseHelpText ?? `Write about what you learned${props.mistakes.length ? " or what you will remember next time" : "."}`;
   const recaps = props.specialistRecaps ?? [];
   return (
     <div className="grid gap-5 text-cyan-50" data-lesson-reflection="canonical">
@@ -128,9 +131,7 @@ export function LessonReflection(props: LessonReflectionProps) {
 
       <label htmlFor={responseId} className="grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">
         {props.prompt}
-        <span id={responseHelpId} className="text-sm font-semibold text-cyan-100">
-          Write about what you learned{props.mistakes.length ? " or what you will remember next time" : "."}
-        </span>
+        {responseHelpText ? <span id={responseHelpId} className="text-sm font-semibold text-cyan-100">{responseHelpText}</span> : null}
         <textarea
           id={responseId}
           required
@@ -139,8 +140,8 @@ export function LessonReflection(props: LessonReflectionProps) {
           value={props.response}
           disabled={props.disabled || props.pending}
           onChange={(event) => props.onResponseChange(event.target.value)}
-          aria-describedby={`${responseHelpId} ${statusId}`}
-          placeholder="I learned that..."
+          aria-describedby={responseHelpText ? `${responseHelpId} ${statusId}` : statusId}
+          placeholder={props.responsePlaceholder ?? "I learned that..."}
           className="min-h-32 w-full rounded-2xl border-4 border-cyan-300 bg-white p-4 text-lg font-semibold text-slate-950 placeholder:text-slate-500 shadow-inner outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-200 disabled:opacity-70"
         />
         <span id={statusId} className="text-right text-xs font-semibold text-cyan-100" aria-live="polite">

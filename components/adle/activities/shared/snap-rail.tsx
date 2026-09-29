@@ -49,6 +49,8 @@ export function SnapRail(props: {
   recallNeutral?: boolean;
   muted?: boolean;
   checkMode?: "automatic" | "manual";
+  /** Sentence assembly checks placement in its owning activity, not on the rail. */
+  showCheckControl?: boolean;
   initialProgress?: SnapRailProgress;
   onProgress?: (progress: SnapRailProgress) => void;
   onComplete?: (word: string) => void;
@@ -143,7 +145,7 @@ export function SnapRail(props: {
     <div aria-label={props.label} className="flex flex-wrap items-center justify-center gap-2 rounded-3xl border border-cyan-300/60 bg-slate-950/40 p-4 text-white">
       {props.fixedTilesPosition === "before" ? <>{fixedTiles}{placedTiles}</> : <>{placedTiles}{fixedTiles}</>}
     </div>
-    {manual && full && !completed ? <button type="button" onClick={() => check(placed as string[])} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Check my word</button> : null}
+    {manual && props.showCheckControl !== false && full && !completed ? <button type="button" onClick={() => check(placed as string[])} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Check my word</button> : null}
     <p className="sr-only" aria-live="polite">{announcement}</p>
   </div>;
 }
