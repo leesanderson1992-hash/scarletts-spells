@@ -46,8 +46,9 @@ const DEFAULT_RELEASE_ROOT = resolve(
   "docs/implementation/seed-data/teaching-dictionary/releases",
 );
 const FINALIZER = resolve(ROOT, "scripts/finalize-next-teaching-dictionary-batch.py");
+const COMPARATIVE_FINALIZER = resolve(ROOT, "scripts/finalize-adle-comparative-dictionary.py");
 const VALIDATOR = resolve(ROOT, "scripts/validate-teaching-dictionary-csv.py");
-const RELEASE_ROLE = "teaching_dictionary_releaser";
+const RELEASE_ROLE = "canonical_word_releaser";
 const ADVISORY_LOCK = "canonical_teaching_dictionary_release";
 const UUID_NAMESPACE = "12345678-1234-5678-1234-567812345678";
 const CHUNK_SIZE = 100;
@@ -415,7 +416,9 @@ function assertReconciliationMatchesEvidence(
 
 async function prepare(): Promise<void> {
   const workbook = resolve(arg("--workbook") ?? fail("--workbook is required."));
-  const candidateCsv = resolve(arg("--candidate-csv") ?? fail("--candidate-csv is required."));
+  const profile = arg("--profile");
+  if (profile && profile !== "comparative-degree-v1") fail(`Unsupported preparation profile ${profile}.`);
+  const candidateCsv = profile ? null : resolve(arg("--candidate-csv") ?? fail("--candidate-csv is required."));
   const releaseId = arg("--release-id") ?? fail("--release-id is required.");
   if (!/^[a-z0-9][a-z0-9._-]{7,119}$/i.test(releaseId)) {
     fail("--release-id must be an explicit 8-120 character identifier.");
@@ -434,15 +437,9 @@ async function prepare(): Promise<void> {
   const tempPackage = resolve(tempRoot, "package");
   try {
     await mkdir(tempPackage, { recursive: true });
-    runPython([
-      FINALIZER,
-      "--workbook",
-      workbook,
-      "--candidate-csv",
-      candidateCsv,
-      "--output",
-      tempPackage,
-    ]);
+    runPython(profile === "comparative-degree-v1"
+      ? [COMPARATIVE_FINALIZER, "--workbook", workbook, "--output", tempPackage]
+      : [FINALIZER, "--workbook", workbook, "--candidate-csv", candidateCsv!, "--output", tempPackage]);
     const allowed = new Set<string>([...CANONICAL_REQUIRED_FILES, ...CANONICAL_OPTIONAL_FILES]);
     for (const fileName of await readdir(tempPackage)) {
       if (!allowed.has(fileName)) fail(`Finalizer emitted unsupported package file ${fileName}.`);
@@ -1928,6 +1925,7 @@ function usage(): string {
 Teaching Dictionary release CLI
 
   prepare    --workbook <xlsx> --candidate-csv <folder> --release-id <id> [--release-root <folder>]
+  prepare    --profile comparative-degree-v1 --workbook <xlsx> --release-id <id> [--release-root <folder>]
   prepare-repair --workbook <xlsx> --repairs <csv> --release-id <id> [--release-root <folder>]
   plan       --release <release-folder> --target staging|production
   release    --release <release-folder> --target staging|production --confirm <exact-token>

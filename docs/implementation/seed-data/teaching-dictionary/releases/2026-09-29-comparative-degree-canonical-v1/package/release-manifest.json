@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "canonical_word_release_manifest_v2",
+  "releaseId": "2026-09-29-comparative-degree-canonical-v1",
+  "packageType": "canonical_word_batch_v1",
+  "packageSchemaVersion": "v2",
+  "workbookSha256": "b7cc0a4cf8d0b2743954bc0dfd04b1bf5f8c71fe05bcab0020e5b157878c1046",
+  "sourceCommit": "1960e2830d123612b82675dfeedf54a895bd6cbc",
+  "requiredMigrationVersions": [
+    "20260724140000",
+    "20260726150000",
+    "20260726170000",
+    "20260726173000",
+    "20260726174000"
+  ],
+  "fileSha256": {
+    "canonical_words.csv": "c3cd0e9c7765cac885f0796e2b3bc3a2c3d881928009c5a93fe3df89bfb303c8",
+    "canonical_word_metadata.csv": "4448af8793e0342caa0f01d93a9555c239213f1728c44a597111ead96ffcd66e",
+    "canonical_word_morphology.csv": "77e2df726723202b73c8444eaf025e53b0888bf99e4b55660ad62ec59aa5e59d",
+    "dictation_sentences.csv": "dec8a585b9324a5443f040cd6a95411ad4366b9b8a7b01a7d0e0442e996d06e1",
+    "teaching_content_sources.csv": "6dc5d7eb062259ed2623491768333698c34e512244fd27fa791150d87192737c"
+  },
+  "rowCounts": {
+    "sources": 1,
+    "words": 25,
+    "metadata": 25,
+    "morphology": 25,
+    "dictations": 25,
+    "repairs": 0,
+    "deferredRepairIntents": 0
+  },
+  "reviewerSummary": {
+    "reviewers": [
+      "Katie Sanderson"
+    ],
+    "reviewedDates": [
+      "2026-09-29"
+    ]
+  },
+  "sourceApprovalSummary": {
+    "importable": 1,
+    "legalPassedOrNotRequired": 1
+  },
+  "expectedTargetTables": [
+    "canonical_teaching_dictionary_sources",
+    "canonical_teaching_dictionary_words",
+    "canonical_teaching_dictionary_word_metadata",
+    "canonical_teaching_dictionary_word_morphology",
+    "canonical_teaching_dictionary_dictation_sentences"
+  ],
+  "prohibitedTableFamilies": [
+    "learner",
+    "assignment",
+    "evidence",
+    "proficiency",
+    "reward",
+    "word_treasure"
+  ],
+  "deferredRepairIntentFile": null,
+  "deferredRepairIntentsSha256": null,
+  "packageSha256": "86f4e7bfc21a233eccd332601e179ba0fe7ce866a57506a99805949e0cb2598b"
+}

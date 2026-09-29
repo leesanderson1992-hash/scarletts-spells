@@ -318,6 +318,15 @@ async function main(): Promise<void> {
   assert.match(restriction, /canonical_teaching_dictionary_word_morphology/);
   assert.doesNotMatch(restriction, /'canonical_teaching_dictionary_word_support'/);
 
+  const canonicalOnlyRole = await readFile(
+    resolve(ROOT, "supabase/migrations/20260929122000_add_canonical_word_only_releaser.sql"),
+    "utf8",
+  );
+  assert.match(canonicalOnlyRole, /create role canonical_word_releaser nologin noinherit bypassrls/);
+  assert.match(canonicalOnlyRole, /revoke all privileges on table/);
+  assert.match(canonicalOnlyRole, /canonical_teaching_dictionary_dictation_sentences/);
+  assert.doesNotMatch(canonicalOnlyRole, /grant\s+(?:select|insert|update).*canonical_teaching_dictionary_base_word_families/i);
+
   console.log("teaching-dictionary-release-regression: ok");
 }
 
