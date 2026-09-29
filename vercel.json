@@ -1,4 +1,9 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "experiment/ai-context-benchmark": false
+    }
+  },
   "crons": [
     {
       "path": "/api/internal/task-submissions/process",
