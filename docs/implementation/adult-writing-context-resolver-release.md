@@ -1,13 +1,14 @@
 # Adult-writing context resolver
 
-Status: implementation released with AI disabled. The passage proof routing
-repair and pre-reservation diagnostics are released. Production rate-card
-bindings were corrected; a fresh website request then exceeded the original
-eight-second deadline. The owner approved a 15-second full-body deadline and
-45-second worker budget. This code-only amendment requires its own application
-SHA, runtime fingerprint and fresh synthetic website proof before normal adult
-activation. See the [diagnostic receipt](qa/luna-production-configuration-and-deadline-diagnostic-2026-09-30.md).
-Historical Stage 1A/1B receipts retain their original release identities.
+Status: the Production synthetic website proof passed for passage-wide Luna
+findings alongside spelling, including there/their/they're and confusables.
+The owner-approved 15-second provider deadline, indexed source-word contract and
+exact-occurrence focus/scroll repair are released. AI finishes disabled with
+policy scope DENY; this is not broad adult activation. See the
+[website receipt](qa/luna-synthetic-website-proof-2026-09-30.md) for exact application
+identities, costs, verification limits, remaining notice/spelling-review issues
+and the deliberately retained synthetic review fixture. Historical Stage 1A/1B
+receipts retain their original release identities.
 
 ## Product path
 
