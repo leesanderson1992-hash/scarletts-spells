@@ -36,7 +36,13 @@ Save records the reviewer’s correction and shows Confirmed, including after
 reload. The correction stays editable before send-back. The reviewer may dismiss
 with × or restore the suggestion. Non-dismissed
 findings become pending repair issues when Send back is pressed. The existing
-returned-work classification and Admin recommendation paths then apply.
+returned-work Review table shows context and spelling retries in the same Word,
+Correction, Retry, Source, Status, Reason, Learning route and Actions columns.
+Choosing a context reason saves an editable draft; confirming the outcome is a
+separate action against the original occurrence and the writer's retry. A governed
+family can use only its active assigned microskill. Other context pairs remain
+repair only and enter the existing No matching skill Admin queue. A prompted
+retry alone does not create mastery or reward credit.
 
 A definite HTTP 429/5xx response may offer one explicit, separately budgeted
 Try again action. Successful windows are not rescanned. A timeout, ambiguous

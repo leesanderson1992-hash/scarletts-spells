@@ -323,7 +323,7 @@ function phaseHeading(phase: UnifiedSpellingReviewWorkflowPhase) {
     case "returned_correction":
       return {
         eyebrow: "Choose outcome",
-        title: "Returned spelling corrections",
+        title: "Returned writing corrections",
         description: "What did the retry show?",
       };
     case "read_only":
@@ -1393,6 +1393,7 @@ export function UnifiedSpellingReviewTable({
                 row={row}
                 options={options}
                 submissionId={submissionId}
+                redirectPath={redirectPath}
                 colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
               />
             ) : (

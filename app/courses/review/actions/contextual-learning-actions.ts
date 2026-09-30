@@ -31,7 +31,7 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
     throw new Error("This submission is no longer open for parent review.");
   }
   const { data: issue, error: issueError } = await service.from("writing_issues")
-    .select("id,child_id,parent_user_id,task_submission_id,observed_text,approved_replacement,issue_status,final_classification,micro_skill_key,metadata,source_writing_occurrence_id")
+    .select("id,child_id,parent_user_id,task_submission_id,observed_text,approved_replacement,issue_status,final_classification,draft_final_classification,micro_skill_key,metadata,source_writing_occurrence_id")
     .eq("id", issueId).eq("parent_user_id", user.id).eq("child_id", submission.child_id).maybeSingle();
   const alreadyFinalised = issue?.issue_status === "finalised" && issue.final_classification === outcome;
   if (submission.parent_review_status === "approved" && !alreadyFinalised) {
@@ -41,6 +41,9 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
       (!alreadyFinalised && (issue.issue_status !== "child_responded" || issue.final_classification !== null)) ||
       !issue.source_writing_occurrence_id) {
     throw new Error("This contextual retry is not ready for parent classification.");
+  }
+  if (!alreadyFinalised && issue.draft_final_classification !== outcome) {
+    throw new Error("Save the contextual reason before confirming its outcome.");
   }
   const { data: attempts, error: attemptsError } = await service.from("writing_issue_correction_attempts")
     .select("id,task_submission_id")
