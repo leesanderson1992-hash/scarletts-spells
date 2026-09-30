@@ -13,7 +13,7 @@ type Row = Record<string, unknown>;
 function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean;
   adult?: boolean; proofPassage?: boolean;
   fault?: ContextProofFaultAction; faultDenied?: boolean; killAtBarrier?: boolean; unreleased?: boolean;
-  faultLostAtBarrier?: boolean; faultExpiresInMs?: number; rpcFailure?: string } = {}) {
+  faultLostAtBarrier?: boolean; faultExpiresInMs?: number; rpcFailure?: string; throwTable?: string } = {}) {
   const snapshot: SourceSnapshot = { id: randomUUID(), submission_id: randomUUID(), child_id: randomUUID(), parent_user_id: randomUUID(),
     source_purpose: options.adult ? "REAL_LEARNER" : "DISPOSABLE_PROVIDER_PROOF", source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
       contextAiShadowCapture: true, contextAdvisoryCapture: false, rawSubmissionText: text,
@@ -29,6 +29,7 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
   const events: string[] = []; let claimed = false; let stopped = false;
   const client = {
     from(table: string) {
+      if (table === options.throwTable) throw new Error(text);
       assert(table in tables, `shadow must never write learning/review/reward tables: ${table}`);
       const rows = tables[table]; let write: Row[] | null = null; const filters: [string, unknown][] = [];
       const execute = async (single = false) => {
@@ -100,10 +101,11 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
   return { client, snapshot, job, tables, events, stopped: () => stopped };
 }
 async function main() {
-  const previousFetch = globalThis.fetch, previousLog = console.error;
+  const previousFetch = globalThis.fetch, previousLog = console.error, previousInfo = console.info;
   globalThis.fetch = async () => { throw new Error("unconfigured mock"); };
-  const restore = configureContextShadowTest(); let calls = 0; const safeLogs: unknown[][] = [];
+  const restore = configureContextShadowTest(); let calls = 0; const safeLogs: unknown[][] = [], diagnostics: unknown[][] = [];
   console.error = (...args) => { safeLogs.push(args); };
+  console.info = (...args) => { diagnostics.push(args); };
   try {
     assert(contextShadowIdentity(), "Production identity accepted only with all pins");
     const originalEnvironment = process.env.VERCEL_ENV;
@@ -196,8 +198,79 @@ async function main() {
     };
     assert.equal((await recoverContextShadowJobs(proofPassage.snapshot.submission_id, proofPassage.client)).status, "complete");
     assert.equal(calls, proofBefore + 1, "registered proof scans outside the original four families");
+    assert.deepEqual(diagnostics.map((entry) => (entry[1] as {code: string}).code), [
+      "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK",
+      "PRE_RESERVATION_ELIGIBILITY_CHECK", "PRE_RESERVATION_READY_FOR_RESERVATION",
+    ]);
+    assert(proofPassage.events.indexOf("context_shadow_job_eligible") < proofPassage.events.indexOf("reserve_writing_context_shadow"));
     assert.equal(proofPassage.tables.writing_context_ai_attempts[0].family_key, "PASSAGE_SCAN");
     assert.equal(proofPassage.tables.writing_context_passage_findings[0].correction, "heard");
+    const checkRejection = async (f: ReturnType<typeof fixture>, expectedCodes: string[]) => {
+      const beforeCalls = calls, beforeDiagnostics = diagnostics.length;
+      assert.equal((await recoverContextShadowJobs(f.snapshot.submission_id, f.client)).status, "failed");
+      assert.equal(calls, beforeCalls, "pre-reservation rejection cannot invoke HTTP");
+      assert(!f.events.includes("reserve_writing_context_shadow"), "pre-reservation rejection cannot reserve");
+      assert.equal(f.tables.writing_context_shadow_dispatches.length, 0);
+      assert.equal(f.tables.writing_context_ai_attempts.length, 0);
+      assert(f.stopped(), "generic failure latch remains active");
+      assert(f.events.includes("stop_failed_writing_context_bootstrap"));
+      assert(f.events.includes("stop_writing_context_shadow"));
+      assert.deepEqual(diagnostics.slice(beforeDiagnostics).map((entry) => (entry[1] as {code: string}).code), expectedCodes);
+    };
+    const originalRuntimeFingerprint = process.env.CONTEXT_AI_RUNTIME_FINGERPRINT;
+    process.env.CONTEXT_AI_RUNTIME_FINGERPRINT = "f".repeat(64);
+    try {
+      await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true }), [
+        "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_IDENTITY_REJECTED",
+        "PRE_RESERVATION_RATE_CARD_CHECK",
+      ]);
+      const rejected = diagnostics.at(-2)?.[1] as {checks: Record<string, boolean>};
+      assert.equal(rejected.checks.runtime_fingerprint_match, false);
+    } finally { process.env.CONTEXT_AI_RUNTIME_FINGERPRINT = originalRuntimeFingerprint; }
+    const originalCardFingerprint = process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT;
+    process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT = "f".repeat(64);
+    try {
+      await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true }), [
+        "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK", "PRE_RESERVATION_RATE_CARD_REJECTED",
+      ]);
+      const rejected = diagnostics.at(-1)?.[1] as {checks: Record<string, boolean>};
+      assert.equal(rejected.checks.rate_card_fingerprint_match, false);
+    } finally { process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT = originalCardFingerprint; }
+    await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true, deny: "AI_PROOF_SCOPE_DENIED" }), [
+      "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK",
+      "PRE_RESERVATION_ELIGIBILITY_CHECK", "PRE_RESERVATION_ELIGIBILITY_REJECTED",
+    ]);
+    const eligibilityRejected = diagnostics.at(-1)?.[1] as {checks: Record<string, boolean>};
+    assert.equal(eligibilityRejected.checks.eligibility_rpc_ok, true);
+    assert.equal(eligibilityRejected.checks.eligibility_allowed, false);
+    await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true,
+      rpcFailure: "context_shadow_job_eligible" }), [
+      "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK",
+      "PRE_RESERVATION_ELIGIBILITY_CHECK", "PRE_RESERVATION_ELIGIBILITY_REJECTED",
+    ]);
+    const eligibilityUnavailable = diagnostics.at(-1)?.[1] as {checks: Record<string, boolean>};
+    assert.equal(eligibilityUnavailable.checks.eligibility_rpc_ok, false);
+    assert.equal(eligibilityUnavailable.checks.eligibility_allowed, false);
+    await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true,
+      throwTable: "writing_context_ai_rate_cards" }), [
+      "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK", "PRE_RESERVATION_UNEXPECTED_EXCEPTION",
+    ]);
+    const loggerFailure = fixture("I herd the private-canary bell.", { proofPassage: true, deny: "AI_PROOF_SCOPE_DENIED" });
+    console.info = () => { throw new Error("private-canary"); };
+    try {
+      const beforeCalls = calls;
+      assert.equal((await recoverContextShadowJobs(loggerFailure.snapshot.submission_id, loggerFailure.client)).status, "failed");
+      assert.equal(calls, beforeCalls);
+      assert(loggerFailure.stopped());
+      assert(!loggerFailure.events.includes("reserve_writing_context_shadow"));
+    } finally { console.info = (...args) => { diagnostics.push(args); }; }
+    for (const [prefix, event] of diagnostics) {
+      assert.equal(prefix, "[context-shadow-pre-reservation]");
+      assert.deepEqual(Object.keys(event as object).sort(), ["checks", "code"]);
+      assert(Object.values((event as {checks: Record<string, boolean>}).checks).every((value) => typeof value === "boolean"));
+    }
+    assert(!JSON.stringify(diagnostics).includes("private-canary"));
+    assert(!JSON.stringify(diagnostics).includes("disposable-key-never-sent"));
     const proof429 = fixture("I herd the bell at dawn.", { proofPassage: true });
     const proof429Before = calls;
     globalThis.fetch = async () => { calls++; return new Response("provider-private", { status: 429 }); };
@@ -293,7 +366,7 @@ async function main() {
     const failedLedger = fixture("Their private-canary is here.", { ledgerFail: true });
     await recoverContextShadowJobs(failedLedger.snapshot.submission_id, failedLedger.client); assert(failedLedger.stopped());
     assert(!JSON.stringify(safeLogs).includes("private-canary"), "exception prose never enters structured logs");
-  } finally { restore(); globalThis.fetch = previousFetch; console.error = previousLog; }
+  } finally { restore(); globalThis.fetch = previousFetch; console.error = previousLog; console.info = previousInfo; }
   console.log("context shadow worker: enqueue isolation, exact lineage, decisions, failure isolation, no resampling, eligibility and redaction passed");
 }
 void main();

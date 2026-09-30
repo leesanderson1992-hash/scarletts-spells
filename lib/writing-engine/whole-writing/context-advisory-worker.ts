@@ -10,6 +10,7 @@ import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT } from "./context-shadow-policy";
+import { emitPreReservationDiagnostic, preReservationIdentityChecks } from "./context-shadow-diagnostics";
 import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
 import { gatePassageFindings, passageFieldHashesMatch, passageRequestBody, planPassageWindows,
   type IndexedWord, type PassageWindow } from "./context-passage-scan";
@@ -252,6 +253,10 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
 
 async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapshot: SourceSnapshot,
   occurrences: IndexedWord[], summary: Summary): Promise<Summary> {
+  const proofDiagnostic = snapshot.source_purpose === "DISPOSABLE_PROVIDER_PROOF"
+    ? emitPreReservationDiagnostic : () => {};
+  let beforeReservation = true, expectedRejection = false;
+  try {
   const fields = new Map<string, { path: string; hash: string; text: string }>();
   for (const occurrence of occurrences.filter((o) => o.provenance === "learner_response")) {
     const text = readSnapshotField(snapshot, occurrence.fieldKey);
@@ -284,16 +289,29 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     p_detector_version: PASSAGE_CANDIDATE_DETECTOR_VERSION, p_registry_version: PASSAGE_FAMILY_REGISTRY_VERSION,
     p_occurrence_ids: eligibleOccurrences.map((o) => o.id) });
   if (detector.error || !detector.data) throw new Error("CONTEXT_PASSAGE_DETECTOR_UNAVAILABLE");
+  proofDiagnostic("PRE_RESERVATION_IDENTITY_CHECK", preReservationIdentityChecks);
   const identity = contextShadowIdentity();
+  if (!identity) proofDiagnostic("PRE_RESERVATION_IDENTITY_REJECTED", preReservationIdentityChecks);
+  proofDiagnostic("PRE_RESERVATION_RATE_CARD_CHECK");
   const cardRead = await client.from("writing_context_ai_rate_cards").select("*")
     .eq("version", process.env.CONTEXT_AI_RATE_CARD_VERSION ?? "").maybeSingle();
-  const card = !cardRead.error && cardRead.data && validContextRateCard(cardRead.data as ContextRateCard)
+  const cardIntegrity = !cardRead.error && Boolean(cardRead.data) && validContextRateCard(cardRead.data as ContextRateCard);
+  const card = cardIntegrity
     && cardRead.data.fingerprint === process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT
     ? cardRead.data as ContextRateCard : null;
+  if (!card) proofDiagnostic("PRE_RESERVATION_RATE_CARD_REJECTED", {
+    rate_card_read_ok: !cardRead.error,
+    rate_card_row_found: Boolean(cardRead.data),
+    rate_card_integrity_match: cardIntegrity,
+    rate_card_version_match: Boolean(cardRead.data) && cardRead.data.version === process.env.CONTEXT_AI_RATE_CARD_VERSION,
+    rate_card_fingerprint_match: Boolean(cardRead.data) && cardRead.data.fingerprint === process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT,
+  });
   if (!identity || !card) {
     await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+    expectedRejection = true;
     throw new Error("CONTEXT_PASSAGE_CONFIGURATION_UNAVAILABLE");
   }
+  proofDiagnostic("PRE_RESERVATION_ELIGIBILITY_CHECK");
   const eligibility = await client.rpc("context_shadow_job_eligible", {
     p_job_id: job.id, p_claim_token: job.claim_token, p_environment: identity.environment,
     p_project_ref: identity.projectRef, p_deployment_sha: identity.deploymentSha,
@@ -301,9 +319,14 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     p_runtime_fingerprint: CONTEXT_SHADOW_RUNTIME_FINGERPRINT, p_rate_card_fingerprint: card.fingerprint,
   });
   if (eligibility.error || eligibility.data !== true) {
+    proofDiagnostic("PRE_RESERVATION_ELIGIBILITY_REJECTED", {
+      eligibility_rpc_ok: !eligibility.error, eligibility_allowed: eligibility.data === true,
+    });
     await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+    expectedRejection = true;
     throw new Error("CONTEXT_PASSAGE_JOB_INELIGIBLE");
   }
+  proofDiagnostic("PRE_RESERVATION_READY_FOR_RESERVATION");
   const deadline = Date.now() + 30000;
   for (const { window, anchor } of anchored) {
     const completed = await client.from("writing_context_ai_attempts").select("id")
@@ -331,6 +354,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
       if (monitored.error || monitored.data !== true) reason = "AI_MONITOR_UNAVAILABLE";
     }
     if (!reason) {
+      beforeReservation = false;
       const reserved = await client.rpc("reserve_writing_context_shadow", { p_job_id: job.id,
         p_claim_token: job.claim_token, p_occurrence_id: anchor.id, p_detector_run_id: detector.data,
         p_window_fingerprint: window.windowFingerprint, p_request_bytes: Buffer.byteLength(requestBody, "utf8"),
@@ -415,6 +439,11 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     if (reason) throw new Error("CONTEXT_PASSAGE_OPERATIONAL_FAILURE");
   }
   return summary;
+  } catch (error) {
+    if (beforeReservation && !expectedRejection && !(error instanceof ContextPassageTooLong))
+      proofDiagnostic("PRE_RESERVATION_UNEXPECTED_EXCEPTION");
+    throw error;
+  }
 }
 
 /** Separate worker, also recovered by the authenticated existing cron. No learner response dependency. */
