@@ -1,14 +1,19 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 import {
-  AI_CONTEXT_PROMPT, AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA_FINGERPRINT,
+  AI_CONTEXT_PROMPT, AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA, AI_CONTEXT_SCHEMA_FINGERPRINT,
   gateAiContextResponse, prepareAiContextCase,
 } from "../lib/writing-engine/whole-writing/context-ai-gate";
 
-assert.equal(AI_CONTEXT_PROMPT_FINGERPRINT, "682fa2635019accc718d791a5c4473b62e48388f7cecb91b4ab29bf7cc17241c");
-assert.equal(AI_CONTEXT_SCHEMA_FINGERPRINT, "e6d48f8e85bc2e686d5d4829fa878dbd5c20a047cf9305ab2c90bb71501df540");
+assert.equal(createHash("sha256").update(AI_CONTEXT_PROMPT).digest("hex"),
+  "682fa2635019accc718d791a5c4473b62e48388f7cecb91b4ab29bf7cc17241c");
+assert.equal(createHash("sha256").update(JSON.stringify(AI_CONTEXT_SCHEMA)).digest("hex"),
+  "e6d48f8e85bc2e686d5d4829fa878dbd5c20a047cf9305ab2c90bb71501df540");
+assert.equal(AI_CONTEXT_PROMPT_FINGERPRINT, "224698fcb066e58cfb1260b92757535ebcfd5561dff7eb11c9c32aa003850bef");
+assert.equal(AI_CONTEXT_SCHEMA_FINGERPRINT, "ba0fd64ddab1c30b36b2c2c1ea5d96ae58574d5cb8bd6d8663b1142461adae84");
 assert.equal(AI_CONTEXT_PROMPT, readFileSync("bench/ai-context/prompt.txt", "utf8"));
 
 const text = "I went there.\n\nTheir cat is here.";

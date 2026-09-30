@@ -6,6 +6,8 @@ import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-e
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import type { ContextAdvisoryReviewRow } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 import { ContextAdvisoryTableRow } from "./context-advisory-table-row";
+import { PassageContextReviewRow } from "./passage-context-review-row";
+import type { PassageReviewRow } from "@/lib/writing-engine/whole-writing/context-passage-review";
 import { ContextualReturnedCorrectionRow } from "./contextual-returned-correction-row";
 import {
   getWritingIssueFinalClassificationLabel,
@@ -34,6 +36,7 @@ const LEARNING_RELEVANT_OUTCOMES = new Set([
 type UnifiedSpellingReviewTableProps = {
   rows: UnifiedSpellingReviewItem[];
   contextRows?: ContextAdvisoryReviewRow[];
+  passageRows?: PassageReviewRow[];
   contextReadOnly?: boolean;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   submissionId: string;
@@ -1300,6 +1303,7 @@ function UnifiedSpellingReviewTableRow({
 export function UnifiedSpellingReviewTable({
   rows,
   contextRows = [],
+  passageRows = [],
   contextReadOnly = false,
   options,
   submissionId,
@@ -1322,10 +1326,10 @@ export function UnifiedSpellingReviewTable({
         row.state !== "resolved" &&
         row.state !== "sent_to_admin",
     );
-  const showActionsColumn = showRouteColumns || showPrepareRetryActions;
+  const showActionsColumn = showRouteColumns || showPrepareRetryActions || passageRows.length > 0;
   const adlePhase = reviewWorkflowPhase === "adle_observational";
 
-  if (rows.length === 0 && contextRows.length === 0) {
+  if (rows.length === 0 && contextRows.length === 0 && passageRows.length === 0) {
     return (
       <section className="brand-card min-w-0 rounded-3xl p-4 md:p-5">
         <p className="brand-eyebrow">{phaseCopy.eyebrow}</p>
@@ -1352,7 +1356,7 @@ export function UnifiedSpellingReviewTable({
           </p>
         </div>
         <span className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[color:var(--ink)]">
-          {rows.length + contextRows.length} item{rows.length + contextRows.length === 1 ? "" : "s"}
+          {rows.length + contextRows.length + passageRows.length} item{rows.length + contextRows.length + passageRows.length === 1 ? "" : "s"}
         </span>
       </div>
 
@@ -1414,6 +1418,9 @@ export function UnifiedSpellingReviewTable({
                 colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}
               />
             ))}
+            {passageRows.map((row) => <PassageContextReviewRow key={row.findingId} row={row}
+              submissionId={submissionId} readOnly={reviewWorkflowPhase !== "prepare_retry"}
+              showRouteColumns={showRouteColumns} showActionsColumn={showActionsColumn} />)}
           </tbody>
         </table>
       </div>

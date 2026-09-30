@@ -1,5 +1,12 @@
 # Stage 1 implementation and activation gates
 
+> Historical Stage 1A/1B implementation record. The adult-authored writing
+> release is described in [Adult-writing context resolver](adult-writing-context-resolver-release.md).
+> Its standard API retention and one-owner adult submission policy supersede
+> this document's ZDR, guardian, four-family and proof-only requirements for
+> that future release. This does not change completed Stage 1A/1B receipts or
+> grant Production activation authority.
+
 Stage 1A completed with AI disabled at Production application SHA
 `08008de437540311421223f11829b6c7bca594b5`; its nine migrations are recorded in the
 [execution receipt](qa/whole-writing-context-shadow-stage-1a-production-execution-receipt-2026-09-29.md).

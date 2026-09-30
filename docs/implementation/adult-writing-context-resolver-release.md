@@ -1,0 +1,82 @@
+# Adult-writing context resolver
+
+Status: local implementation and isolated tests. Production migration, deployment,
+provider configuration and activation have **not** been performed by this change.
+The completed Stage 1A receipt and frozen Stage 1B amendment remain historical
+records. Do not use their application SHA as the identity of this release.
+
+## Product path
+
+This release is for adult-authored fictional writing. `child_id` and
+`parent_user_id` remain internal account/ownership names and visible Child/Parent
+wording remains for launch. The Luna request contains a bounded writing excerpt,
+an opaque case hash and the structured-output schema; it contains no account ID,
+parent note or task metadata. Internal account labels are not sent to OpenAI.
+If the product later serves minors, review actual use against the provider's
+[under-18 guidance](https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance).
+
+Submission writes the immutable source; spelling processing remains independent.
+The context worker indexes authored occurrences and scans at most two non-overlapping
+3,000 UTF-16-character windows per submission. Work that exceeds those bounds,
+cannot be proven authored, or fails source/hash/occurrence checks receives no
+partial Luna scan. The reviewer can still use Add word manually. A structured
+Luna response is accepted only if every finding matches an exact indexed source
+word and UTF-16 span. Spelling highlights remain yellow; validated context
+findings appear blue and link from the combined Review table to the exact answer.
+The reviewer may edit one correction word or dismiss with ×. Non-dismissed
+findings become pending repair issues when Send back is pressed. The existing
+returned-work classification and Admin recommendation paths then apply.
+
+A definite HTTP 429/5xx response may offer one explicit, separately budgeted
+Try again action. Successful windows are not rescanned. A timeout, ambiguous
+send, missing receipt, identity/cache mismatch or source failure cannot be
+retried through that action. No transport retry is automatic.
+
+## Provider and privacy basis
+
+This adult release uses **standard OpenAI API retention**, not ZDR. New provider
+approval rows state `retention_mode=STANDARD_API` and `zdr_verified=false`;
+historical ZDR rows retain their original truth. Standard API data is not used
+for model training without an opt-in. `store:false` avoids ordinary saved
+Responses state, but standard abuse-monitoring logs may contain customer content
+for up to 30 days, subject to documented exceptions. [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data)
+
+The owner records the actual OpenAI organisation/project, project-scoped key
+version reference, disabled voluntary data sharing, contractual/retention
+acceptance and a dated source for the genuine Luna default-tier rate card.
+Secret values never enter the repository, Preview, browser, API output or logs.
+The server-only request uses `/v1/responses`, `gpt-6-luna`, default tier,
+`store:false`, no tools/background mode, explicit cache mode, one HTTP send,
+an eight-second deadline and no automatic retry. The [model page](https://developers.openai.com/api/docs/models/gpt-6-luna)
+lists Responses and structured-output support; the [pricing page](https://developers.openai.com/api/docs/pricing)
+is the rate-card source, not the isolated test fixture.
+
+The writer sees a conditional OpenAI disclosure before submitting. The release
+assumes all active writers are adults and the submitted text is fiction. Authored
+text may itself contain personal details; account metadata is omitted from the
+request, but this is not a claim that every excerpt contains no personal data.
+
+## Owner release control
+
+The single owner configures the private `ADULT_RELEASE` policy with
+`dispatch_scope=REAL_LEARNER`, a current immutable provider approval and rate
+card, an expiry, `max_concurrent=1`, and a shared Production daily spend cap no
+greater than **$0.50 UTC**. The request-count cap cannot exceed the number of
+whole per-request reservations that fit under that daily cap. The per-request
+reservation must cover the worst-case 8,000-byte request, 2,048 output tokens
+and the highest input/cache rate on the signed card. Reservation and final
+admission repeat identity, ownership, source and budget checks. The database
+records the adult submission authority automatically; the reviewer has no
+separate guardian approval task. Revocation remains effective and cannot be
+recreated silently for the same policy version.
+
+The forward migration creates no approval, credential, card, fixture or active
+policy and finishes false/disabled. For release: verify exact SHA and migration
+hash, apply the additive migration with AI disabled, deploy that exact SHA,
+read back schema/control and access restrictions, configure server-only
+credentials and owner-signed policy, complete a synthetic website proof, then
+activate `ai_mode=shadow` for the adult scope. Stop via the canonical kill
+switch for leakage, duplicate send, accounting loss, model/tier/cache mismatch,
+budget breach, ownership failure or broken review/return behavior. Preserve
+durable consumption and immutable approval/card/policy history. No automatic
+application down migration or unreviewed provider request is a recovery step.

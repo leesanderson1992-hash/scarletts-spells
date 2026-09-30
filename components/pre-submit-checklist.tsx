@@ -59,6 +59,12 @@ export function PreSubmitChecklist({
         ))}
       </div>
 
+      <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
+        When context checking is on, excerpts of your writing are sent to OpenAI
+        for word-choice suggestions. Account details are not included. OpenAI may
+        retain API safety logs for up to 30 days.
+      </p>
+
       <div className="mt-4">
         <LessonSubmissionControls
           submitLabel={submitLabel}

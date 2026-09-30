@@ -48,8 +48,8 @@ import {
   UnifiedSpellingReviewTable,
   type UnifiedSpellingReviewWorkflowPhase,
 } from "../unified-spelling-review-table";
-import { ParentMissedWordForm } from "../parent-missed-word-form";
-import { ParentContextualMissForm } from "../parent-contextual-miss-form";
+import { ReviewAddWordForm } from "../review-add-word-form";
+import { ReviewWordSelectionProvider, SelectableOriginalWriting } from "../review-word-selection";
 import { ParentContextualFeedbackCases } from "../parent-contextual-feedback-cases";
 import {
   buildCanonicalSuggestedMicroSkillKeysByMisspellingId,
@@ -61,6 +61,7 @@ import {
   addParentContextualMiss,
   approveSubmissionReview,
   returnSubmissionToChild,
+  retryPassageContextScan,
 } from "../actions";
 import {
   buildSuggestedIssuePanelModel,
@@ -75,6 +76,7 @@ import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/w
 import { loadPendingContextReviewDeliveries } from "@/lib/writing-engine/whole-writing/context-review-repository";
 import { ContextualUseSuggestionsPanel } from "../contextual-use-suggestions-panel";
 import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
+import { loadPassageContextReview, type PassageReviewRow } from "@/lib/writing-engine/whole-writing/context-passage-review";
 
 type CourseReviewDetailPageProps = {
   params: Promise<{ submissionId: string }>;
@@ -340,9 +342,13 @@ function LessonParentActionsSection(props: {
   showZeroSuggestionGuidance: boolean;
   freeWritingEvidenceCandidates: FreeWritingEvidenceReviewCandidate[];
   parentIdentifiedOccurrences: ParentIdentifiedOccurrenceCandidate[];
+  passageReview: Awaited<ReturnType<typeof loadPassageContextReview>>;
 }) {
-  const approvalBlocked = !props.completionSummary.canComplete;
-  const blockingReasons = props.completionSummary.blockingReasons;
+  const passagePending = props.passageReview.readError || props.passageReview.status === "pending" ||
+    props.passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null);
+  const approvalBlocked = !props.completionSummary.canComplete || passagePending;
+  const blockingReasons = [...props.completionSummary.blockingReasons,
+    ...(passagePending ? ["Finish or dismiss the context suggestions before approval."] : [])];
   const confirmableEvidenceCandidates =
     props.freeWritingEvidenceCandidates.filter(
       (candidate) => candidate.canConfirm,
@@ -449,15 +455,11 @@ function LessonParentActionsSection(props: {
         </div>
       ) : null}
 
-      <ParentMissedWordForm
-        action={addMissedWordToSubmissionReview}
+      <ReviewAddWordForm
+        spellingAction={addMissedWordToSubmissionReview}
+        contextAction={addParentContextualMiss}
         submissionId={props.submissionId}
         redirectPath={props.redirectPath}
-        occurrences={props.parentIdentifiedOccurrences}
-      />
-      <ParentContextualMissForm
-        action={addParentContextualMiss}
-        submissionId={props.submissionId}
         occurrences={props.parentIdentifiedOccurrences}
       />
       <ParentContextualFeedbackCases
@@ -582,56 +584,34 @@ function LessonParentActionsSection(props: {
 function renderHighlightedText(
   text: string,
   misspellings: MisspellingReviewRow[],
+  contextRows: PassageReviewRow[] = [],
 ) {
-  const validRanges = [...misspellings]
-    .filter(
-      (row) =>
-        row.position_start !== null &&
-        row.position_end !== null &&
-        row.position_start >= 0 &&
-        row.position_end > row.position_start,
-    )
-    .sort(
-      (left, right) => (left.position_start ?? 0) - (right.position_start ?? 0),
-    );
-
-  if (validRanges.length === 0) {
-    return text;
-  }
-
+  const spelling = misspellings.filter((row) => row.position_start !== null && row.position_end !== null &&
+    row.position_start >= 0 && row.position_end > row.position_start && row.position_end <= text.length);
+  const context = contextRows.filter((row) => !row.dismissed && row.sourceStatus === "ready" &&
+    row.startUtf16 >= 0 && row.endUtf16 <= text.length && row.endUtf16 > row.startUtf16 &&
+    text.slice(row.startUtf16, row.endUtf16) === row.observed);
+  const boundaries = [...new Set([0, text.length,
+    ...spelling.flatMap((row) => [row.position_start!, row.position_end!]),
+    ...context.flatMap((row) => [row.startUtf16, row.endUtf16])])].sort((a, b) => a - b);
   const segments: ReactNode[] = [];
-  let cursor = 0;
-
-  validRanges.forEach((row) => {
-    const start = row.position_start ?? 0;
-    const end = row.position_end ?? 0;
-
-    if (start < cursor || start >= text.length) {
-      return;
+  for (let index = 0; index < boundaries.length - 1; index++) {
+    const start = boundaries[index], end = boundaries[index + 1];
+    if (start === end) continue;
+    const passage = context.find((row) => row.startUtf16 <= start && row.endUtf16 >= end);
+    if (passage) {
+      segments.push(<mark key={`context-${index}`} id={start === passage.startUtf16 ? `context-${passage.findingId}` : undefined}
+        className="rounded-md bg-sky-200 px-0.5 text-[color:var(--ink)] ring-1 ring-sky-400"
+        title={`${passage.observed} → ${passage.correction}`}>{text.slice(start, end)}</mark>);
+      continue;
     }
-
-    if (cursor < start) {
-      segments.push(text.slice(cursor, start));
-    }
-
-    segments.push(
-      <mark
-        key={row.id}
-        className="rounded-md bg-amber-100 px-1 py-0.5 text-[color:var(--ink)] ring-1 ring-amber-200"
-        title={`${row.misspelled_word} -> ${row.corrected_word}`}
-      >
-        {text.slice(start, Math.min(end, text.length))}
-      </mark>,
-    );
-
-    cursor = Math.min(end, text.length);
-  });
-
-  if (cursor < text.length) {
-    segments.push(text.slice(cursor));
+    const spellingRow = spelling.find((row) => row.position_start! <= start && row.position_end! >= end);
+    segments.push(spellingRow ? <mark key={`spelling-${index}`}
+      className="rounded-md bg-amber-100 px-0.5 text-[color:var(--ink)] ring-1 ring-amber-200"
+      title={`${spellingRow.misspelled_word} → ${spellingRow.corrected_word}`}>{text.slice(start, end)}</mark>
+      : text.slice(start, end));
   }
-
-  return segments;
+  return segments.length ? segments : text;
 }
 
 export default async function CourseReviewDetailPage({
@@ -1039,6 +1019,7 @@ export default async function CourseReviewDetailPage({
     parentIdentifiedOccurrences,
     contextReviewDeliveries,
     contextAdvisory,
+    passageReview,
   ] = await Promise.all([
     supabase
       .from("course_tasks")
@@ -1114,6 +1095,10 @@ export default async function CourseReviewDetailPage({
       taskSubmissionId: submission.id,
     }),
     loadContextAdvisoryReview({
+      client: createServiceRoleClient(), submissionId: submission.id,
+      parentUserId: user.id, childId: submission.child_id,
+    }),
+    loadPassageContextReview({
       client: createServiceRoleClient(), submissionId: submission.id,
       parentUserId: user.id, childId: submission.child_id,
     }),
@@ -1214,6 +1199,8 @@ export default async function CourseReviewDetailPage({
     draftRow?.draft_payload ?? null,
     lessonSchema,
   );
+  const displayedWritingText = linkedSample?.sample_text ?? parsedSubmission.writtenResponse ?? "";
+  const displayedSourceField = passageReview.sourceFields.find((field) => field.text === displayedWritingText);
 
   return (
     <AppShell
@@ -1223,7 +1210,7 @@ export default async function CourseReviewDetailPage({
       availableChildren={children}
       userEmail={user.email}
     >
-      <section className="grid gap-4">
+      <ReviewWordSelectionProvider><section className="grid gap-4">
         <div className="brand-card rounded-3xl p-4 md:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -1301,13 +1288,24 @@ export default async function CourseReviewDetailPage({
             {panelModel.originalWritingDescription}
           </p>
           <div className="mt-4 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
-            <p className="whitespace-pre-wrap text-sm leading-7 text-[color:var(--ink)]">
-              {linkedSample?.sample_text
-                ? renderHighlightedText(linkedSample.sample_text, misspellings)
-                : parsedSubmission.writtenResponse ||
-                  "No written response on this submission."}
-            </p>
+            <SelectableOriginalWriting text={displayedWritingText}
+              fieldPath={displayedSourceField?.path ?? "/rawSubmissionText"}
+              occurrences={parentIdentifiedOccurrences}
+              className="whitespace-pre-wrap text-sm leading-7 text-[color:var(--ink)]">
+              {displayedWritingText ? renderHighlightedText(displayedWritingText, misspellings,
+                passageReview.rows.filter((row) => row.fieldPath === displayedSourceField?.path))
+                : "No written response on this submission."}
+            </SelectableOriginalWriting>
           </div>
+          {passageReview.sourceFields.filter((field) => field.path !== displayedSourceField?.path).map((field, index) =>
+            <div key={field.path} className="mt-3 rounded-2xl border border-sky-200 bg-white px-4 py-4">
+              <p className="mb-2 text-xs font-medium text-sky-800">Original answer {index + 1}</p>
+              <SelectableOriginalWriting text={field.text} fieldPath={field.path}
+                occurrences={parentIdentifiedOccurrences}
+                className="whitespace-pre-wrap text-sm leading-7 text-[color:var(--ink)]">
+                {renderHighlightedText(field.text, [], passageReview.rows.filter((row) => row.fieldPath === field.path))}
+              </SelectableOriginalWriting>
+            </div>)}
           {submission.parent_review_note?.trim() ? (
             <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[rgba(255,247,220,0.18)] px-4 py-4">
               <p className="text-xs uppercase tracking-[0.16em] text-[color:var(--mid)]">
@@ -1329,9 +1327,21 @@ export default async function CourseReviewDetailPage({
           )}
         />
 
+        {passageReview.status === "pending" ? <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Context checking is still running. <Link className="underline" href={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}>Refresh status</Link> before sending work back.
+        </div> : null}
+        {passageReview.status === "failed" ? <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          Luna could not finish checking this writing. You can add a contextual word manually and continue.
+          {passageReview.canRetry ? <form action={retryPassageContextScan} className="mt-2">
+            <input type="hidden" name="submission_id" value={submission.id} />
+            <button className="rounded border border-sky-300 bg-white px-3 py-1 font-medium">Try again</button>
+          </form> : null}
+        </div> : null}
+
         <UnifiedSpellingReviewTable
           rows={unifiedSpellingReviewItems}
           contextRows={contextAdvisory.rows}
+          passageRows={passageReview.rows}
           contextReadOnly={!contextAdvisory.enabled}
           options={
             candidateCaptureMicroSkillProvider.status === "available"
@@ -1366,8 +1376,9 @@ export default async function CourseReviewDetailPage({
           }
           freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
           parentIdentifiedOccurrences={parentIdentifiedOccurrences}
+          passageReview={passageReview}
         />
-      </section>
+      </section></ReviewWordSelectionProvider>
     </AppShell>
   );
 }

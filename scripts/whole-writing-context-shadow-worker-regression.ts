@@ -11,17 +11,18 @@ import type { ContextProofFaultAction } from "../lib/writing-engine/whole-writin
 
 type Row = Record<string, unknown>;
 function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean;
+  adult?: boolean;
   fault?: ContextProofFaultAction; faultDenied?: boolean; killAtBarrier?: boolean; unreleased?: boolean;
   faultLostAtBarrier?: boolean; faultExpiresInMs?: number; rpcFailure?: string } = {}) {
   const snapshot: SourceSnapshot = { id: randomUUID(), submission_id: randomUUID(), child_id: randomUUID(), parent_user_id: randomUUID(),
-    source_purpose: "DISPOSABLE_PROVIDER_PROOF", source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
+    source_purpose: options.adult ? "REAL_LEARNER" : "DISPOSABLE_PROVIDER_PROOF", source_revision: "1", occurred_at: new Date().toISOString(), envelope: { contextAiModeAtCapture: "shadow",
       contextAiShadowCapture: true, contextAdvisoryCapture: false, rawSubmissionText: text,
-      draftPayload: options.authored === false ? {} : { answer: text },
+      draftPayload: options.adult || options.authored === false ? {} : { answer: text },
       taskContext: { lessonSchema: { blocks: [{ block_id: "answer", block_type: "question_textarea" }] } } } };
   const job = { id: randomUUID(), snapshot_id: snapshot.id, run_key: randomUUID(), claim_token: randomUUID() };
   const tables: Record<string, Row[]> = { writing_context_advisory_control: [{ singleton: true, enabled: false, ai_mode: "shadow" }],
     writing_source_snapshots: [snapshot], writing_occurrences: [], writing_context_ai_rate_cards: [testRateCard],
-    writing_context_ai_attempts: [], writing_context_shadow_dispatches: [] };
+    writing_context_ai_attempts: [], writing_context_shadow_dispatches: [], writing_context_passage_findings: [] };
   const events: string[] = []; let claimed = false; let stopped = false;
   const client = {
     from(table: string) {
@@ -32,14 +33,16 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
           events.push(`write:${table}`);
           if (table === "writing_context_ai_attempts" && options.ledgerFail) return { data: null, error: { message: text } };
           for (const row of write) if (!rows.some((r) => table === "writing_occurrences" ? r.id === row.id :
-            r.occurrence_id === row.occurrence_id && r.run_key === row.run_key)) rows.push(row);
+            r.occurrence_id === row.occurrence_id && r.run_key === row.run_key)) rows.push({ id: row.id ?? randomUUID(), ...row });
         }
         let data = rows.filter((row) => filters.every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
         if (table === "writing_occurrences" && options.badIdentity) data = data.map((r) => ({ ...r, extractor_version: "wrong" }));
         return { data: single ? data[0] ?? null : data, error: null };
       };
       const query = { select() { return query; }, eq(key: string, value: unknown) { filters.push([key, value]); return query; },
+        limit() { return query; },
         in(key: string, value: unknown[]) { filters.push([key, value]); return query; },
+        insert(value: Row | Row[]) { write = Array.isArray(value) ? value : [value]; return query; },
         upsert(value: Row | Row[]) { write = Array.isArray(value) ? value : [value]; return query; },
         maybeSingle() { return execute(true); }, then(resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) { return execute().then(resolve, reject); } };
       return query;
@@ -150,6 +153,42 @@ async function main() {
       assert(!JSON.stringify(attempt).includes("Their cat is here."), "ledger contains fingerprints, never paragraphs");
       assert.equal((await recoverContextShadowJobs(f.snapshot.submission_id, f.client)).status, "idle"); assert.equal(calls, before+1);
     }
+    const adult = fixture("The moon was full, and their was peace.", { adult: true });
+    const adultBefore = calls;
+    globalThis.fetch = async (_url, options) => {
+      calls++;
+      const body = JSON.parse(String(options?.body));
+      const sent = JSON.parse(body.input[1].content);
+      assert.equal(sent.source_text, "The moon was full, and their was peace.");
+      assert(!String(options?.body).includes(adult.snapshot.child_id));
+      assert(!String(options?.body).includes(adult.snapshot.parent_user_id));
+      assert(!String(options?.body).includes("DISPOSABLE_PROVIDER_PROOF"));
+      const start = sent.source_text.indexOf("their");
+      return new Response(JSON.stringify({ id: "resp-adult-local", model: "gpt-6-luna", status: "completed", service_tier: "default",
+        usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
+          output_tokens_details: { reasoning_tokens: 5 } },
+        output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ case_id: sent.case_id,
+          findings: [{ start_utf16: start, end_utf16: start + 5, observed: "their", correction: "there" }] }) }] }] }));
+    };
+    assert.equal((await recoverContextShadowJobs(adult.snapshot.submission_id, adult.client)).status, "complete");
+    assert.equal(calls, adultBefore + 1, "adult passage uses one pinned request");
+    assert.equal(adult.tables.writing_context_ai_attempts[0].result_status, "SCANNED");
+    assert.equal(adult.tables.writing_context_passage_findings.length, 1);
+    assert.equal(adult.tables.writing_context_passage_findings[0].correction, "there");
+    assert.equal((await recoverContextShadowJobs(adult.snapshot.submission_id, adult.client)).status, "idle");
+    assert.equal(calls, adultBefore + 1, "recovery never resends the accepted scan");
+    const adult429 = fixture("Their house was quiet.", { adult: true });
+    const before429 = calls;
+    globalThis.fetch = async () => { calls++; return new Response("provider-private", { status: 429 }); };
+    assert.equal((await recoverContextShadowJobs(adult429.snapshot.submission_id, adult429.client)).status, "retryable");
+    assert.equal(calls, before429 + 1);
+    assert.equal(adult429.tables.writing_context_ai_attempts[0].result_status, "NOT_ASSESSED");
+    assert(!adult429.stopped(), "definite 429 leaves the owner-controlled retry available");
+    const adultLong = fixture(`An adult wrote ${"ordinary words ".repeat(500)}`, { adult: true });
+    const beforeLong = calls;
+    assert.equal((await recoverContextShadowJobs(adultLong.snapshot.submission_id, adultLong.client)).status, "manual_review");
+    assert.equal(calls, beforeLong, "oversize writing is never sent or partially scanned");
+    assert(!adultLong.stopped(), "a long passage leaves the release available for other submissions");
     for (const options of [{ deny: "AI_LEARNER_NOT_AUTHORISED" }, { badIdentity: true }, { orphan: true }, { authored: false }]) {
       const f = fixture("Their private-canary is here.", options); const before: number = calls;
       await recoverContextShadowJobs(f.snapshot.submission_id, f.client); assert.equal(calls, before);

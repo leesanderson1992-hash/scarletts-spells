@@ -11,11 +11,17 @@ import { readSnapshotField } from "./context-source";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT } from "./context-shadow-policy";
 import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
+import { gatePassageFindings, passageFieldHashesMatch, passageRequestBody, planPassageWindows,
+  type IndexedWord, type PassageWindow } from "./context-passage-scan";
 
 export const CONTEXT_CANDIDATE_DETECTOR_VERSION = "CONTEXT_ROUTING_FOUR_FAMILY_V1";
 export const CONTEXT_FAMILY_REGISTRY_VERSION = "CONTEXT_FOUR_FAMILY_V1";
+export const PASSAGE_CANDIDATE_DETECTOR_VERSION = "CONTEXT_PASSAGE_WINDOW_V1";
+export const PASSAGE_FAMILY_REGISTRY_VERSION = "CONTEXT_PASSAGE_SCAN_V1";
 type ShadowJob = { id: string; snapshot_id: string; run_key: string; claim_token: string };
 type Summary = { indexed: number; governed: number; routing_excluded: number; attempts: number; provider_calls: number };
+class ContextPassageRetryable extends Error {}
+class ContextPassageTooLong extends Error {}
 
 /** Compatibility entry point only enqueues. Provider work must have an independent claim. */
 export async function processContextualAdvisoryForSubmission(input: {
@@ -35,7 +41,7 @@ export async function enqueueContextShadowForSubmission(client: SupabaseClient, 
     throw new Error("CONTEXT_SHADOW_ENQUEUE_UNAVAILABLE");
   }
 }
-function failureKind(provider: ProviderOutcome | null, result: AiGateResult) {
+function failureKind(provider: ProviderOutcome | null, result: { status: string }) {
   const code = provider?.failure;
   if (code === "AI_PROVIDER_TIMEOUT") return "timeout";
   if (code && ["AI_PROVIDER_MALFORMED", "AI_PROVIDER_OUTPUT_CONTRACT", "AI_PROVIDER_REFUSAL", "AI_PROVIDER_RESPONSE_TOO_LARGE", "AI_PROVIDER_USAGE_UNAVAILABLE"].includes(code)) return "contract";
@@ -72,6 +78,9 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
       const stored = read.data?.find((x) => x.id === r.id);
       return !stored || Object.entries(r).some(([key, value]) => (stored as Record<string, unknown>)[key] !== value);
     })) throw new Error("CONTEXT_SHADOW_IDENTITY_MISMATCH");
+  }
+  if (snapshot.source_purpose === "REAL_LEARNER") {
+    return runAdultPassageJob(client, job, snapshot, extraction.occurrences as IndexedWord[], summary);
   }
   const detector = await client.rpc("record_writing_context_detector_run", { p_snapshot_id: snapshot.id,
     p_parent_user_id: snapshot.parent_user_id, p_child_id: snapshot.child_id, p_run_key: job.run_key,
@@ -231,6 +240,173 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
   return summary;
 }
 
+async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapshot: SourceSnapshot,
+  occurrences: IndexedWord[], summary: Summary): Promise<Summary> {
+  const fields = new Map<string, { path: string; hash: string; text: string }>();
+  for (const occurrence of occurrences.filter((o) => o.provenance === "learner_response")) {
+    const text = readSnapshotField(snapshot, occurrence.fieldKey);
+    if (text === null) throw new Error("CONTEXT_PASSAGE_SOURCE_UNAVAILABLE");
+    const previous = fields.get(occurrence.fieldKey);
+    if (previous && (previous.hash !== occurrence.textHash || previous.text !== text))
+      throw new Error("CONTEXT_PASSAGE_SOURCE_MISMATCH");
+    fields.set(occurrence.fieldKey, { path: occurrence.fieldKey, hash: occurrence.textHash, text });
+  }
+  const windows = planPassageWindows({ fields: [...fields.values()] });
+  if (windows === null) {
+    if (passageFieldHashesMatch([...fields.values()])) throw new ContextPassageTooLong();
+    throw new Error("CONTEXT_PASSAGE_SOURCE_HASH_MISMATCH");
+  }
+  const anchored: { window: PassageWindow; anchor: IndexedWord }[] = windows.map((window) => {
+    const anchor = occurrences.find((o) => o.provenance === "learner_response" &&
+      o.fieldKey === window.fieldPath && o.textHash === window.fieldHash &&
+      o.start >= window.startUtf16 && o.end <= window.endUtf16);
+    if (!anchor) throw new Error("CONTEXT_PASSAGE_ANCHOR_UNAVAILABLE");
+    return { window, anchor };
+  });
+  const eligibleOccurrences = occurrences.filter((o) => o.provenance === "learner_response" &&
+    windows.some((window) => o.fieldKey === window.fieldPath && o.textHash === window.fieldHash &&
+      o.start >= window.startUtf16 && o.end <= window.endUtf16));
+  summary.governed = eligibleOccurrences.length;
+  summary.routing_excluded = summary.indexed - eligibleOccurrences.length;
+  if (!anchored.length) return summary;
+  const detector = await client.rpc("record_writing_context_detector_run", { p_snapshot_id: snapshot.id,
+    p_parent_user_id: snapshot.parent_user_id, p_child_id: snapshot.child_id, p_run_key: job.run_key,
+    p_detector_version: PASSAGE_CANDIDATE_DETECTOR_VERSION, p_registry_version: PASSAGE_FAMILY_REGISTRY_VERSION,
+    p_occurrence_ids: eligibleOccurrences.map((o) => o.id) });
+  if (detector.error || !detector.data) throw new Error("CONTEXT_PASSAGE_DETECTOR_UNAVAILABLE");
+  const identity = contextShadowIdentity();
+  const cardRead = await client.from("writing_context_ai_rate_cards").select("*")
+    .eq("version", process.env.CONTEXT_AI_RATE_CARD_VERSION ?? "").maybeSingle();
+  const card = !cardRead.error && cardRead.data && validContextRateCard(cardRead.data as ContextRateCard)
+    && cardRead.data.fingerprint === process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT
+    ? cardRead.data as ContextRateCard : null;
+  if (!identity || !card) {
+    await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+    throw new Error("CONTEXT_PASSAGE_CONFIGURATION_UNAVAILABLE");
+  }
+  const eligibility = await client.rpc("context_shadow_job_eligible", {
+    p_job_id: job.id, p_claim_token: job.claim_token, p_environment: identity.environment,
+    p_project_ref: identity.projectRef, p_deployment_sha: identity.deploymentSha,
+    p_config_fingerprint: AI_CONTEXT_CONFIG_FINGERPRINT,
+    p_runtime_fingerprint: CONTEXT_SHADOW_RUNTIME_FINGERPRINT, p_rate_card_fingerprint: card.fingerprint,
+  });
+  if (eligibility.error || eligibility.data !== true) {
+    await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
+    throw new Error("CONTEXT_PASSAGE_JOB_INELIGIBLE");
+  }
+  const deadline = Date.now() + 30000;
+  for (const { window, anchor } of anchored) {
+    const completed = await client.from("writing_context_ai_attempts").select("id")
+      .eq("occurrence_id", anchor.id).eq("mode", "shadow").eq("family_key", "PASSAGE_SCAN")
+      .eq("result_status", "SCANNED").limit(1);
+    if (completed.error) throw new Error("CONTEXT_PASSAGE_LEDGER_UNAVAILABLE");
+    if (completed.data?.length) continue;
+    const previous = await client.from("writing_context_ai_attempts").select("id")
+      .eq("occurrence_id", anchor.id).eq("run_key", job.run_key).eq("mode", "shadow").maybeSingle();
+    if (previous.error) throw new Error("CONTEXT_PASSAGE_LEDGER_UNAVAILABLE");
+    if (previous.data) continue;
+    const oldDispatch = await client.from("writing_context_shadow_dispatches").select("id,sent_at")
+      .eq("job_id", job.id).eq("occurrence_id", anchor.id).maybeSingle();
+    if (oldDispatch.error) throw new Error("CONTEXT_PASSAGE_RESERVATION_UNAVAILABLE");
+    const requestBody = passageRequestBody(window);
+    let reason: string | null = oldDispatch.data ? "AI_RESERVED_OUTCOME_AMBIGUOUS"
+      : Buffer.byteLength(requestBody, "utf8") > 8000 ? "AI_REQUEST_TOO_LARGE"
+      : Date.now() + 9000 > deadline ? "AI_WORKER_BUDGET" : null;
+    let dispatchId: string | null = oldDispatch.data?.id ?? null;
+    let provider: ProviderOutcome | null = null;
+    let findings: ReturnType<typeof gatePassageFindings>["findings"] = null;
+    if (oldDispatch.data?.sent_at) await client.rpc("stop_writing_context_shadow", { p_code: "AI_MISSING_PROVENANCE_STOP" });
+    if (!reason) {
+      const monitored = await client.rpc("monitor_writing_context_shadow");
+      if (monitored.error || monitored.data !== true) reason = "AI_MONITOR_UNAVAILABLE";
+    }
+    if (!reason) {
+      const reserved = await client.rpc("reserve_writing_context_shadow", { p_job_id: job.id,
+        p_claim_token: job.claim_token, p_occurrence_id: anchor.id, p_detector_run_id: detector.data,
+        p_window_fingerprint: window.windowFingerprint, p_request_bytes: Buffer.byteLength(requestBody, "utf8"),
+        p_environment: identity.environment, p_project_ref: identity.projectRef,
+        p_deployment_sha: identity.deploymentSha, p_config_fingerprint: AI_CONTEXT_CONFIG_FINGERPRINT,
+        p_runtime_fingerprint: CONTEXT_SHADOW_RUNTIME_FINGERPRINT, p_rate_card_fingerprint: card.fingerprint });
+      if (reserved.error || !reserved.data?.id) reason = reserved.data?.reason ?? "AI_RESERVATION_UNAVAILABLE";
+      else dispatchId = reserved.data.id;
+    }
+    if (!reason && dispatchId) {
+      provider = await analyseAiContext({ sourceText: window.text, requestBody }, {
+        rateCard: card, beforeSend: async () => {
+          if (Date.now() + 8000 > deadline) return false;
+          const admitted = await client.rpc("begin_writing_context_shadow_dispatch", {
+            p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
+          return !admitted.error && admitted.data === true && Date.now() + 8000 <= deadline;
+        },
+      });
+      if (provider.failure) reason = provider.failure;
+      else {
+        const gated = gatePassageFindings(provider.value, window, occurrences);
+        reason = gated.reason;
+        findings = gated.findings;
+      }
+      if (!provider.requestSent) {
+        const cancelled = await client.rpc("finish_writing_context_shadow_dispatch", {
+          p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
+        if (cancelled.error || cancelled.data !== true) throw new Error("CONTEXT_PASSAGE_CANCEL_UNAVAILABLE");
+      } else summary.provider_calls++;
+    }
+    const resultStatus = reason ? "NOT_ASSESSED" : "SCANNED";
+    const attempt = await client.from("writing_context_ai_attempts").upsert({
+      record_version: 1, occurrence_id: anchor.id, snapshot_id: snapshot.id,
+      parent_user_id: snapshot.parent_user_id, child_id: snapshot.child_id, run_key: job.run_key,
+      mode: "shadow", family_key: "PASSAGE_SCAN", detector_run_id: detector.data,
+      candidate_detector_version: PASSAGE_CANDIDATE_DETECTOR_VERSION,
+      family_registry_version: PASSAGE_FAMILY_REGISTRY_VERSION,
+      result_status: resultStatus, alternative_member: null,
+      reason_code: reason ?? "AI_PASSAGE_SCANNED", provider: "openai", model: AI_CONTEXT_MODEL,
+      returned_model: provider?.returnedModel ?? null, provider_request_id: provider?.requestId ?? null,
+      provider_response_id: provider?.responseId ?? null, service_tier: provider?.serviceTier ?? null,
+      prompt_fingerprint: AI_CONTEXT_PROMPT_FINGERPRINT, schema_fingerprint: AI_CONTEXT_SCHEMA_FINGERPRINT,
+      config_fingerprint: AI_CONTEXT_CONFIG_FINGERPRINT, runtime_fingerprint: CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+      gate_version: AI_CONTEXT_GATE_VERSION, window_fingerprint: window.windowFingerprint,
+      latency_ms: provider?.latencyMs ?? null, input_tokens: provider?.inputTokens ?? null,
+      cached_input_tokens: provider?.cachedInputTokens ?? null, cache_write_tokens: provider?.cacheWriteTokens ?? null,
+      output_tokens: provider?.outputTokens ?? null, reasoning_tokens: provider?.reasoningTokens ?? null,
+      dispatch_id: dispatchId, calculated_cost_usd: provider?.calculatedCostUsd ?? null,
+      pricing_version: provider?.pricingVersion ?? null,
+      provider_called: provider?.requestSent ?? Boolean(oldDispatch.data?.sent_at),
+      transport_attempted: provider ? provider.requestSent : oldDispatch.data ? null : false,
+      transport_started_at: provider?.startedAt ?? null, response_received_at: provider?.receivedAt ?? null,
+      failure_kind: failureKind(provider, { status: resultStatus }),
+      eligible_at_worker_check: true, declared_decision: null,
+    }, { onConflict: "occurrence_id,run_key,mode", ignoreDuplicates: true }).select("id");
+    if (attempt.error || attempt.data?.length !== 1) {
+      await client.rpc("stop_writing_context_shadow", { p_code: "AI_MISSING_PROVENANCE_STOP" });
+      throw new Error("CONTEXT_PASSAGE_LEDGER_UNAVAILABLE");
+    }
+    summary.attempts++;
+    if (findings?.length) {
+      const saved = await client.from("writing_context_passage_findings").insert(findings.map((finding) => ({
+        attempt_id: attempt.data![0].id, occurrence_id: finding.occurrenceId,
+        snapshot_id: snapshot.id, parent_user_id: snapshot.parent_user_id, child_id: snapshot.child_id,
+        field_hash: finding.fieldHash, start_utf16: finding.startUtf16, end_utf16: finding.endUtf16,
+        observed_text: finding.observed, correction: finding.correction,
+      })));
+      if (saved.error) {
+        await client.rpc("stop_writing_context_shadow", { p_code: "AI_MISSING_PROVENANCE_STOP" });
+        throw new Error("CONTEXT_PASSAGE_FINDINGS_UNAVAILABLE");
+      }
+    }
+    if (dispatchId && !oldDispatch.data) {
+      const finished = await client.rpc("finish_writing_context_shadow_dispatch", {
+        p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
+      if (finished.error || finished.data !== true) throw new Error("CONTEXT_PASSAGE_FINISH_UNAVAILABLE");
+    }
+    if (reason && provider?.responseId === null && provider?.receivedAt &&
+      /^AI_PROVIDER_HTTP_(429|5\d\d)$/.test(reason)) {
+      throw new ContextPassageRetryable();
+    }
+    if (reason) throw new Error("CONTEXT_PASSAGE_OPERATIONAL_FAILURE");
+  }
+  return summary;
+}
+
 /** Separate worker, also recovered by the authenticated existing cron. No learner response dependency. */
 export async function recoverContextShadowJobs(submissionId?: string, suppliedClient?: SupabaseClient) {
   const client = suppliedClient ?? createServiceRoleClient();
@@ -255,8 +431,21 @@ export async function recoverContextShadowJobs(submissionId?: string, suppliedCl
     if (done.error || done.data !== true) throw new Error("CONTEXT_SHADOW_FINISH_UNAVAILABLE");
     return { status: "complete" as const, ...summary };
   } catch (error) {
+    if (error instanceof ContextPassageTooLong && job) {
+      const failed = await client.rpc("finish_writing_context_shadow_job", {
+        p_job_id: job.id, p_claim_token: job.claim_token,
+        p_error_code: "AI_PASSAGE_TOO_LONG", p_summary: {} });
+      if (!failed.error && failed.data === true) return { status: "manual_review" as const };
+    }
+    if (error instanceof ContextPassageRetryable && job) {
+      const failed = await client.rpc("finish_writing_context_shadow_job", {
+        p_job_id: job.id, p_claim_token: job.claim_token,
+        p_error_code: "AI_PROVIDER_UNAVAILABLE", p_summary: {} });
+      if (!failed.error && failed.data === true) return { status: "retryable" as const };
+    }
     await client.rpc("stop_failed_writing_context_bootstrap");
     if (error instanceof ContextProofInterruption) return { status: "proof_interrupted" as const };
+    await client.rpc("stop_writing_context_shadow", { p_code: "AI_CONFIGURATION_STOP" });
     if (job) await client.rpc("finish_writing_context_shadow_job", { p_job_id: job.id, p_claim_token: job.claim_token,
       p_error_code: contextShadowErrorCode(), p_summary: {} });
     console.error("[context-shadow] worker unavailable", { jobId: job?.id, code: contextShadowErrorCode() });

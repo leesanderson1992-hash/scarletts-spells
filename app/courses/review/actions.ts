@@ -24,6 +24,7 @@ import { recordContextAdvisoryParentDecisionImpl, promoteContextDiagnosticExampl
 import { finaliseContextualLearningOutcomeImpl } from "./actions/contextual-learning-actions";
 import { addParentContextualMissImpl } from "./actions/parent-added-context-actions";
 import { promoteParentContextualCaseImpl } from "./actions/context-feedback-research-actions";
+import { recordPassageReviewEventImpl, retryPassageContextScanImpl } from "./actions/passage-context-actions";
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
@@ -46,6 +47,14 @@ export async function addMissedWordToSubmissionReview(formData: FormData) {
 
 export async function addParentContextualMiss(formData: FormData) {
   return addParentContextualMissImpl(formData);
+}
+
+export async function recordPassageReviewEvent(formData: FormData) {
+  return recordPassageReviewEventImpl(formData);
+}
+
+export async function retryPassageContextScan(formData: FormData) {
+  return retryPassageContextScanImpl(formData);
 }
 
 export async function promoteParentContextualCase(formData: FormData) {

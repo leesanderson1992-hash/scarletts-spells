@@ -11,6 +11,8 @@ import {
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
 import { confirmFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
 import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
+import { preparePassageContextReturn } from "./passage-context-actions";
+import { loadPassageContextReview } from "@/lib/writing-engine/whole-writing/context-passage-review";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -1065,6 +1067,16 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     );
   }
 
+  const passagePrepared = await preparePassageContextReturn({
+    submissionId: submission.id, parentUserId: user.id, childId: submission.child_id,
+  });
+  if (passagePrepared !== "ready") {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      passagePrepared === "pending"
+        ? "The context scan is still running. Reload before sending the work back."
+        : "The context suggestions could not be linked to the original writing. The work was not sent back."));
+  }
+
   const selectedEvidenceCandidateIds =
     parseFreeWritingEvidenceCandidateIds(formData);
   if (selectedEvidenceCandidateIds.length > 0) {
@@ -1416,6 +1428,14 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         "That submission no longer exists.",
       ),
     );
+  }
+
+  const passageReview = await loadPassageContextReview({ client: createServiceRoleClient(),
+    submissionId: submission.id, parentUserId: user.id, childId: submission.child_id });
+  if (passageReview.readError || passageReview.status === "pending" ||
+    passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null)) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "Finish or dismiss the context suggestions before approving this writing."));
   }
 
   const contextualReview = await loadContextAdvisoryReview({

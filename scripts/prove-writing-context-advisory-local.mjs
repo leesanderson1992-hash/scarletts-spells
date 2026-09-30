@@ -8,6 +8,7 @@ import { proveContextFeedbackCorrections } from "./context-feedback-corrective-d
 import { proveProductionProofIsolation } from "./context-shadow-production-proof-db-regressions.mjs";
 import { proveContextShadowStage1 } from "./context-shadow-stage1-db-regressions.mjs";
 import { proveContextShadowStage1B } from "./context-shadow-stage1b-db-regressions.mjs";
+import { proveAdultContextRelease } from "./context-adult-db-regressions.mjs";
 import { startTmpfsContextPostgres } from "./context-local-postgres.mjs";
 
 const require = createRequire(import.meta.url);
@@ -338,6 +339,7 @@ try {
     await proveContextShadowStage1({ db, parent, child, task });
     await proveProductionProofIsolation({ db, parent, child, task });
     await proveContextShadowStage1B({ db, parent });
+    if (process.argv.includes("--adult")) await proveAdultContextRelease({ db, parent });
   }
   console.log("context advisory disposable database proof passed");
 } catch (error) {

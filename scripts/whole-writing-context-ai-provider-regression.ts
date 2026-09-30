@@ -75,10 +75,10 @@ async function main() {
     const before = calls;
     assert.equal((await analyseAiContext(testCase, { ...admission, beforeSend: async () => false })).failure, "AI_CONTROL_DISABLED");
     assert.equal((await analyseAiContext(testCase)).failure, "AI_RATE_CARD_MISMATCH");
-    delete process.env.CONTEXT_AI_PROVIDER_RETENTION_APPROVED;
+    delete process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED;
     assert.equal((await analyseAiContext(testCase, admission)).failure, "AI_CONFIGURATION_UNAVAILABLE");
     assert.equal(calls, before, "kill, missing admission and missing approval do not call");
-    process.env.CONTEXT_AI_PROVIDER_RETENTION_APPROVED = "approved";
+    process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED = "accepted";
     // Body deadline includes a provider that sends headers then never completes its stream.
     globalThis.fetch = async () => { calls++; return new Response(new ReadableStream({ start() {} })); };
     const timeout = await analyseAiContext(testCase, admission);

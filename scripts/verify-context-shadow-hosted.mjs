@@ -6,7 +6,7 @@ const url=process.env.CONTEXT_SHADOW_VERIFY_DATABASE_URL;
 if (!url) throw new Error('CONTEXT_SHADOW_VERIFY_DATABASE_URL_REQUIRED');
 const client=new Client({connectionString:url});
 const versions=['20260906100000','20260906110000','20260924120000','20260924130000',
-  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000','20260929140000','20260929150000','20260929160000'];
+  '20260927120000','20260927130000','20260928120000','20260929100000','20260929110000','20260929120000','20260929130000','20260929140000','20260929150000','20260929160000','20260929170000'];
 try {
   await client.connect(); await client.query('begin isolation level repeatable read read only');
   const history=(await client.query('select version from supabase_migrations.schema_migrations where version=any($1)',[versions])).rows.map(x=>x.version);
@@ -19,7 +19,8 @@ try {
   const privateTables=['writing_context_ai_attempts','writing_context_detector_runs','writing_context_detector_members',
     'writing_context_provider_approvals','writing_context_learner_authorisations','writing_context_approval_revocations',
     'writing_context_shadow_policy','writing_context_shadow_jobs','writing_context_shadow_dispatches','writing_context_ai_rate_cards','writing_context_shadow_stops','writing_context_shadow_policy_history','writing_context_shadow_consumption','writing_context_provider_proof_learners',
-    'writing_context_bootstrap_failures','writing_context_proof_fault_plans','writing_context_proof_fault_consumptions','writing_context_proof_fault_events'];
+    'writing_context_bootstrap_failures','writing_context_proof_fault_plans','writing_context_proof_fault_consumptions','writing_context_proof_fault_events',
+    'writing_context_passage_findings','writing_context_passage_review_events'];
   for (const table of privateTables) {
     assert.equal((await client.query('select relrowsecurity from pg_class where oid=$1::regclass',[table])).rows[0].relrowsecurity,true,'RLS_MISSING');
     for (const role of ['anon','authenticated']) {
@@ -49,7 +50,9 @@ try {
     'stop_writing_context_shadow(text)','writing_context_shadow_operations(timestamptz,timestamptz)',
     'bind_writing_context_proof_fault(uuid,uuid)','record_writing_context_proof_fault_phase(uuid,uuid,text)',
     'writing_context_proof_fault_status(uuid,uuid)','release_writing_context_proof_fault(uuid,uuid)',
-    'revoke_writing_context_proof_fault(uuid,uuid,text)','stop_failed_writing_context_bootstrap()']) {
+    'revoke_writing_context_proof_fault(uuid,uuid,text)','stop_failed_writing_context_bootstrap()',
+    'retry_writing_context_passage(uuid,uuid)',
+    'commit_reviewed_context_passage_finding(uuid,uuid,text)']) {
     for (const role of ['anon','authenticated']) assert.equal((await client.query("select has_function_privilege($1,$2,'EXECUTE') ok",[role,fn])).rows[0].ok,false,'PRIVATE_RPC_GRANT');
     assert.equal((await client.query("select has_function_privilege('service_role',$1,'EXECUTE') ok",[fn])).rows[0].ok,true,'SERVICE_RPC_MISSING');
   }
@@ -60,7 +63,9 @@ try {
   assert.equal((await client.query('select count(*)::int n from writing_context_shadow_policy where singleton')).rows[0].n,1,'POLICY_SINGLETON_INVALID');
   assert.deepEqual((await client.query('select execution_policy_kind,bootstrap_expires_at,dispatch_scope from writing_context_shadow_policy')).rows,
     [{execution_policy_kind:'MEASURED',bootstrap_expires_at:null,dispatch_scope:'DENY'}],'POST_PROOF_POLICY_NOT_DENIED');
-  assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_shadow_policy'::regclass and conname='context_bootstrap_proof_only'")).rows[0]?.convalidated,true,'BOOTSTRAP_BOUNDARY_MISSING');
+  assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_shadow_policy'::regclass and conname='context_execution_scope_check'")).rows[0]?.convalidated,true,'EXECUTION_SCOPE_BOUNDARY_MISSING');
+  assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_shadow_policy'::regclass and conname='context_adult_daily_spend_cap'")).rows[0]?.convalidated,true,'ADULT_DAILY_CAP_MISSING');
+  assert.equal((await client.query("select convalidated from pg_constraint where conrelid='writing_context_provider_approvals'::regclass and conname='context_provider_retention_evidence_check'")).rows[0]?.convalidated,true,'RETENTION_MODE_BOUNDARY_MISSING');
   const bootstrapDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_shadow_policy' and column_name='execution_policy_kind'")).rows[0];
   assert(bootstrapDefault?.column_default.includes('MEASURED'),'BOOTSTRAP_DEFAULT_NOT_MEASURED');
   const proofDefault=(await client.query("select column_default from information_schema.columns where table_schema='public' and table_name='writing_context_shadow_policy' and column_name='dispatch_scope'")).rows[0];

@@ -30,7 +30,7 @@ const object = (value: unknown): Record<string, unknown> =>
 
 /** Requires a persisted reservation and fresh DB admission. Exactly one HTTP send;
  * the 8-second deadline covers fetch and streamed body reading. No raw output logging. */
-export async function analyseAiContext(input: AiContextCase, admission?: {
+export async function analyseAiContext(input: AiContextCase | { sourceText: string; requestBody: string }, admission?: {
   rateCard: ContextRateCard; beforeSend: () => Promise<boolean>;
   afterFetch?: (deadline: number) => Promise<void>;
 }): Promise<ProviderOutcome> {
@@ -44,8 +44,8 @@ export async function analyseAiContext(input: AiContextCase, admission?: {
   if (!admission || !validContextRateCard(admission.rateCard) ||
     admission.rateCard.version !== process.env.CONTEXT_AI_RATE_CARD_VERSION ||
     admission.rateCard.fingerprint !== process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT) return fail("AI_RATE_CARD_MISMATCH");
-  const body = contextAiRequestBody(input);
-  if (input.sourceText.length > 600 || Buffer.byteLength(input.sourceText, "utf8") > 4000 ||
+  const body = "requestBody" in input ? input.requestBody : contextAiRequestBody(input);
+  if (input.sourceText.length > ("requestBody" in input ? 3000 : 600) || Buffer.byteLength(input.sourceText, "utf8") > 4000 ||
     Buffer.byteLength(body, "utf8") > 8000) return fail("AI_REQUEST_TOO_LARGE");
   try { if (!await admission.beforeSend()) return fail("AI_CONTROL_DISABLED"); }
   catch (error) { return fail(error instanceof ContextProofFaultFailure ? "AI_PROOF_HOOK_UNAVAILABLE" : "AI_ADMISSION_UNAVAILABLE"); }

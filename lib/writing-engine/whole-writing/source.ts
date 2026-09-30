@@ -109,7 +109,13 @@ export function extractWholeWriting(snapshot: SourceSnapshot) {
     });
   }
   if (fields.length === 0) {
-    if (typeof envelope.rawSubmissionText === "string") add("/rawSubmissionText", envelope.rawSubmissionText, "unknown", "UNSEGMENTED_AUTHORSHIP_UNKNOWN");
+    if (typeof envelope.rawSubmissionText === "string") {
+      const adultSubmission = snapshot.source_purpose === "REAL_LEARNER" &&
+        envelope.contextAiShadowCapture === true && envelope.contextAiModeAtCapture === "shadow";
+      add("/rawSubmissionText", envelope.rawSubmissionText,
+        adultSubmission ? "learner_response" : "unknown",
+        adultSubmission ? "AUTHENTICATED_ADULT_SUBMISSION" : "UNSEGMENTED_AUTHORSHIP_UNKNOWN");
+    }
     else if (typeof envelope.legacySubmissionText === "string") add("/legacySubmissionText", envelope.legacySubmissionText, "unknown", "LEGACY_CAPTURE");
   }
   // Metadata may be unsupported, but raw snapshots always retain it for replay.

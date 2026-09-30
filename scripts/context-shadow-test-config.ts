@@ -9,7 +9,7 @@ export const testRateCard: ContextRateCard = { version: "disposable-card-v1", pr
 testRateCard.fingerprint = contextRateCardFingerprint(testRateCard);
 /** Mock fetch is installed by each caller before enabling these synthetic values. */
 export function configureContextShadowTest() {
-  const values = { OPENAI_API_KEY: "disposable-key-never-sent", CONTEXT_AI_PROVIDER_RETENTION_APPROVED: "approved",
+  const values = { OPENAI_API_KEY: "disposable-key-never-sent", CONTEXT_AI_STANDARD_RETENTION_ACCEPTED: "accepted",
     CONTEXT_AI_ENVIRONMENT: "production", VERCEL_ENV: "production", VERCEL_GIT_COMMIT_SHA: "c".repeat(40),
     CONTEXT_AI_OPENAI_PROJECT_REF: "proj_disposable", CONTEXT_AI_MODEL: AI_CONTEXT_MODEL,
     CONTEXT_AI_PROMPT_FINGERPRINT: AI_CONTEXT_PROMPT_FINGERPRINT, CONTEXT_AI_SCHEMA_FINGERPRINT: AI_CONTEXT_SCHEMA_FINGERPRINT,

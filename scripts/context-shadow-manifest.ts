@@ -6,6 +6,6 @@ console.log(JSON.stringify({ model:AI_CONTEXT_MODEL,promptFingerprint:AI_CONTEXT
   schemaFingerprint:AI_CONTEXT_SCHEMA_FINGERPRINT,configFingerprint:AI_CONTEXT_CONFIG_FINGERPRINT,
   gateVersion:AI_CONTEXT_GATE_VERSION,runtimeVersion:CONTEXT_SHADOW_RUNTIME_VERSION,
   runtimeFingerprint:CONTEXT_SHADOW_RUNTIME_FINGERPRINT,timeoutMs:8000,retries:0,
-  executionPolicies:['MEASURED','DISPOSABLE_BOOTSTRAP'],defaultExecutionPolicy:'MEASURED',
+  executionPolicies:['MEASURED','DISPOSABLE_BOOTSTRAP','ADULT_RELEASE'],defaultExecutionPolicy:'MEASURED',
   bootstrap:'DISPOSABLE_BOOTSTRAP_FAIL_STOP_V1',faults:'REGISTERED_ONE_SHOT_PROOF_FAULTS_V1',
   defaultControl:{enabled:false,ai_mode:'disabled'} },null,2));
