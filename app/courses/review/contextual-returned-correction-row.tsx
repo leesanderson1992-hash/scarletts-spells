@@ -117,9 +117,10 @@ export function ContextualReturnedCorrectionRow({ row, options, submissionId, re
             {skills.map((item) => <option key={item.microSkillKey} value={item.microSkillKey}>{item.displayName}</option>)}
           </select>
           {allowedOptions.length === 0 ? <p className="text-xs text-amber-900">The governed skill is not active and assignable yet.</p> : null}
-        </div> : learning && !governedSkill ? <p className="text-xs leading-5 text-[color:var(--mid)]">
+        </div> : !governedSkill ? <p className="text-xs leading-5 text-[color:var(--mid)]">
           No matching skill · sent to Admin. This retry remains repair only.
-        </p> : row.correctionOutcome && row.microSkillKey && row.microSkillKey !== "unknown"
+        </p> : !outcome ? <p className="text-xs leading-5 text-[color:var(--mid)]">Choose a reason to see the learning route.</p>
+          : row.correctionOutcome && row.microSkillKey && row.microSkillKey !== "unknown"
           ? <p className="text-xs leading-5 text-[color:var(--mid)]">{allowedOptions[0]?.displayName ?? row.microSkillKey}</p>
           : <p className="text-xs leading-5 text-[color:var(--mid)]">No learning route needed for this outcome.</p>}
       </td>
