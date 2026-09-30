@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { AI_CONTEXT_CONFIG_FINGERPRINT, AI_CONTEXT_GATE_VERSION, AI_CONTEXT_MODEL,
   AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA_FINGERPRINT } from "./context-ai-gate";
 
-export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V6";
+export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V7";
 export const CONTEXT_SHADOW_TIMEOUT_MS = 15000;
 export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 45000;
 export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JSON.stringify({
@@ -13,6 +13,7 @@ export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JS
   privacy: "STANDARD_API_ADULT_WRITING", source_scope: "PRODUCTION_PERSISTED_PROOF_V1", metadata: "NONE", prompt_cache: "EXPLICIT_NO_BREAKPOINTS",
   bootstrap: "DISPOSABLE_BOOTSTRAP_FAIL_STOP_V1", faults: "REGISTERED_ONE_SHOT_PROOF_FAULTS_V1",
   proof_passage: "REGISTERED_PROOF_POLICY_PASSAGE_V1",
+  passage_coordinates: "IMMUTABLE_INDEXED_WORD_REFERENCES_V1",
 })).digest("hex");
 export function contextShadowIdentity() {
   const environment = process.env.CONTEXT_AI_ENVIRONMENT;

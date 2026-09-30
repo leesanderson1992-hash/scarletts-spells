@@ -342,7 +342,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     const oldDispatch = await client.from("writing_context_shadow_dispatches").select("id,sent_at")
       .eq("job_id", job.id).eq("occurrence_id", anchor.id).maybeSingle();
     if (oldDispatch.error) throw new Error("CONTEXT_PASSAGE_RESERVATION_UNAVAILABLE");
-    const requestBody = passageRequestBody(window);
+    const requestBody = passageRequestBody(window, occurrences);
     let reason: string | null = oldDispatch.data ? "AI_RESERVED_OUTCOME_AMBIGUOUS"
       : Buffer.byteLength(requestBody, "utf8") > 8000 ? "AI_REQUEST_TOO_LARGE"
       : Date.now() + CONTEXT_SHADOW_TIMEOUT_MS + 1000 > deadline ? "AI_WORKER_BUDGET" : null;

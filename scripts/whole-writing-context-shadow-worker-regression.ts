@@ -168,12 +168,11 @@ async function main() {
       assert(!String(options?.body).includes(adult.snapshot.child_id));
       assert(!String(options?.body).includes(adult.snapshot.parent_user_id));
       assert(!String(options?.body).includes("DISPOSABLE_PROVIDER_PROOF"));
-      const start = sent.source_text.indexOf("their");
       return new Response(JSON.stringify({ id: "resp-adult-local", model: "gpt-6-luna", status: "completed", service_tier: "default",
         usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
           output_tokens_details: { reasoning_tokens: 5 } },
         output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ case_id: sent.case_id,
-          findings: [{ start_utf16: start, end_utf16: start + 5, observed: "their", correction: "there" }] }) }] }] }));
+          findings: [{ word_index: sent.indexed_words.find((pair: [number, string]) => pair[1] === "their")?.[0], observed: "their", correction: "there" }] }) }] }] }));
     };
     assert.equal((await recoverContextShadowJobs(adult.snapshot.submission_id, adult.client)).status, "complete");
     assert.equal(calls, adultBefore + 1, "adult passage uses one pinned request");
@@ -189,12 +188,11 @@ async function main() {
       const sent = JSON.parse(JSON.parse(String(options?.body)).input[1].content);
       assert.equal(sent.source_text, "I herd the bell at dawn.");
       assert(!String(options?.body).includes(proofPassage.snapshot.child_id));
-      const start = sent.source_text.indexOf("herd");
       return new Response(JSON.stringify({ id: "resp-proof-local", model: "gpt-6-luna", status: "completed", service_tier: "default",
         usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
           output_tokens_details: { reasoning_tokens: 5 } },
         output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ case_id: sent.case_id,
-          findings: [{ start_utf16: start, end_utf16: start + 4, observed: "herd", correction: "heard" }] }) }] }] }));
+          findings: [{ word_index: sent.indexed_words.find((pair: [number, string]) => pair[1] === "herd")?.[0], observed: "herd", correction: "heard" }] }) }] }] }));
     };
     assert.equal((await recoverContextShadowJobs(proofPassage.snapshot.submission_id, proofPassage.client)).status, "complete");
     assert.equal(calls, proofBefore + 1, "registered proof scans outside the original four families");

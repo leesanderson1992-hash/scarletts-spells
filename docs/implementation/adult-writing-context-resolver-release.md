@@ -24,8 +24,12 @@ The context worker indexes authored occurrences and scans at most two non-overla
 3,000 UTF-16-character windows per submission. Work that exceeds those bounds,
 cannot be proven authored, or fails source/hash/occurrence checks receives no
 partial Luna scan. The reviewer can still use Add word manually. A structured
-Luna response is accepted only if every finding matches an exact indexed source
-word and UTF-16 span. Spelling highlights remain yellow; validated context
+Luna receives the bounded passage plus an ordered list of its authored words.
+It returns a zero-based request-local word index, observed word and correction;
+the server validates that reference against the immutable source occurrence and
+uses the stored UTF-16 span. The model never calculates character coordinates.
+Duplicate references, mismatched words, source/hash failures and invalid
+corrections reject the whole response. Spelling highlights remain yellow; validated context
 findings appear blue and link from the combined Review table to the exact answer.
 The reviewer may edit one correction word or dismiss with ×. Non-dismissed
 findings become pending repair issues when Send back is pressed. The existing
