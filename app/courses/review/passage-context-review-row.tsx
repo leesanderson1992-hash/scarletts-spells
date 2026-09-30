@@ -1,5 +1,7 @@
 "use client";
 
+import type { MouseEvent } from "react";
+
 import type { PassageReviewRow } from "@/lib/writing-engine/whole-writing/context-passage-review";
 import { recordPassageReviewEvent } from "./actions";
 
@@ -7,6 +9,17 @@ export function PassageContextReviewRow({ row, submissionId, readOnly, showRoute
   row: PassageReviewRow; submissionId: string; readOnly: boolean;
   showRouteColumns: boolean; showActionsColumn: boolean;
 }) {
+  function locateOccurrence(event: MouseEvent<HTMLAnchorElement>) {
+    // Preserve normal open-in-new-tab behavior and the native hash fallback.
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const targetId = `context-${row.findingId}`;
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    event.preventDefault();
+    window.history.replaceState(window.history.state, "", `#${targetId}`);
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+  }
   const editable = !readOnly && row.sourceStatus === "ready" && row.issueStatus === null;
   const common = <>
     <input type="hidden" name="submission_id" value={submissionId} />
@@ -15,8 +28,8 @@ export function PassageContextReviewRow({ row, submissionId, readOnly, showRoute
   return <tr className="border-t border-sky-200 bg-sky-50/40 text-sm">
     <td className="px-3 py-2 font-medium">
       {row.dismissed || row.sourceStatus !== "ready" ? row.observed : <a href={`#context-${row.findingId}`}
-        className="text-sky-800 underline underline-offset-2"
-        title="Show this occurrence in the original writing">{row.observed}</a>}
+        onClick={locateOccurrence} className="text-sky-800 underline underline-offset-2"
+        title="Locate and highlight this occurrence in the original writing">{row.observed}</a>}
     </td>
     <td className="px-3 py-2">
       {editable && !row.dismissed ? <form action={recordPassageReviewEvent} className="flex items-center gap-1">

@@ -601,7 +601,8 @@ function renderHighlightedText(
     const passage = context.find((row) => row.startUtf16 <= start && row.endUtf16 >= end);
     if (passage) {
       segments.push(<mark key={`context-${index}`} id={start === passage.startUtf16 ? `context-${passage.findingId}` : undefined}
-        className="rounded-md bg-sky-200 px-0.5 text-[color:var(--ink)] ring-1 ring-sky-400"
+        tabIndex={start === passage.startUtf16 ? -1 : undefined}
+        className="rounded-md bg-sky-200 px-0.5 text-[color:var(--ink)] ring-1 ring-sky-400 focus:bg-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-800 target:bg-sky-300 target:ring-2 target:ring-sky-800"
         title={`${passage.observed} → ${passage.correction}`}>{text.slice(start, end)}</mark>);
       continue;
     }
