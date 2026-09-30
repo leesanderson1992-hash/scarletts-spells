@@ -14,6 +14,8 @@ No automatic retry or resend of an ambiguous source was authorised or performed.
 - Its Production deployment: `dpl_BDG6Pq2Eqo5FxhgXQ86dnPJe22Eo`.
 - Passage-location UI application: `d1f184f9afdb0ccdbce8a0dfae17dd740ea99c20`.
 - Its Production deployment: `dpl_CcThHHFm1y7gSfsU8J8mLhPpAaPK`.
+- Save-confirmation UI application: `89e74d80a13867e0f4751769d9ea5d4c2bc7c42b`.
+- Its Production deployment: `dpl_FPtY1tTjgFZ4qFyJp4rr2KAKsXZi` (READY).
 - Runtime: `CONTEXT_SHADOW_DISPATCH_V7`.
 - Runtime fingerprint: `a1744e7620e625bbf961eee8652a29b9d1c29b8b2cf23af39a1b312dd57a5baf`.
 - Prompt fingerprint: `a0280520a2a2b99efafe3162d9581088c9477d916af682739c7dd07a0550d542`.
@@ -111,7 +113,7 @@ Historical raw provider logs/content retention is not disproved by these checks.
 The hosted structured-lesson submission screen did not display the OpenAI
 retention notice already present in `PreSubmitChecklist`; structured lessons use
 a different submit control. That notice gap remains to close before broad adult
-activation. This proof does not establish Send back, returned-work classification,
+activation. At the initial proof boundary this did not establish Send back, returned-work classification,
 Admin promotion, cross-account/anonymous browser access or a long-passage latency
 policy. Existing isolated regressions cover source/authority and failure cases;
 those results are not substitutes for unperformed hosted scenarios.
@@ -156,3 +158,50 @@ All registered disposable provider-proof fixtures from this investigation were
 removed. No authentic learner work was inspected or submitted to Luna. No broad
 adult activation, merge to main, educational/research promotion or provider retry
 follows from this receipt.
+
+## Owner-requested Save, send-back and writer retry follow-up
+
+Verified 2026-09-30, ending at 21:20 UTC, against the Save-confirmation application
+listed above. The owner reported that Save did not confirm context suggestions.
+The action already persisted `EDIT` events, including unchanged corrections;
+the read model/UI always labelled those rows Suggested. The bounded repair derives
+Confirmed from the persisted correction event. It changes no provider, authority,
+accounting or issue-creation path and requires no migration or environment change.
+
+All seven synthetic context corrections were saved and displayed Confirmed after
+reload. Send back created seven exact-occurrence context repair issues plus the
+spelling repair for `freind`, and the original submission became Returned. The
+writer's lesson displayed eight Try again/Stick with this controls and an editable
+passage. The context cards currently appear in the unmatched-feedback section
+above the passage, labelled Fix these spellings; the spelling card is attached to
+the answer. This layout/wording limitation does not prevent the tested retry.
+
+The writer entered each correction and corrected the passage, retaining the
+correct original word `waited`. Save lesson work produced a fresh Pending review
+submission, `f1c02eb0-41c4-421f-a0dd-a775f70c7dfc`. The submitted read-only lesson
+retained the corrected passage after reload. The reviewer saw all seven contextual
+retries with their corresponding Child tried values and the spelling retry
+`freind → friend`, whose known dictionary mapping supplied a resolved learning
+route. Database readback confirmed eight `child_responded` issues and eight
+correction attempts attached to that new submission. Final contextual outcome
+and spelling reason selection remain for the human reviewer; no outcome or
+educational/research promotion was manufactured by this test.
+
+The owner also dismissed the separate `waited → wanted` false positive before
+this follow-up; it displayed Done and was excluded from the eight returned issues.
+That supersedes the initial unconfirmed dismissal observation above. The spelling
+engine's false positive itself remains a separate issue.
+
+Focused persisted-confirmation and returned-lesson-resubmission regressions,
+application/script TypeScript checks, diff check and changed-file credential
+scan passed. Local screenshots of Confirmed rows and submitted corrected work
+contain only synthetic product evidence; raw provider bodies and credentials
+are excluded.
+
+Final readbacks: `enabled=false`, `ai_mode=disabled`, scope DENY. The retained
+synthetic learner still has exactly one context attempt and one context job.
+The retry has no AI source capture. Shared Production daily consumption remains
+four reserved/admitted requests, $0.012 exposure and $0.00079150 known actual cost.
+No additional provider request, activation, migration or environment change
+occurred. The fixture now includes both original and retry submissions; both
+remain intentionally retained for owner review, with canonical cleanup deferred.
