@@ -82,6 +82,16 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
   if (snapshot.source_purpose === "REAL_LEARNER") {
     return runAdultPassageJob(client, job, snapshot, extraction.occurrences as IndexedWord[], summary);
   }
+  const proofPolicy = await client.from("writing_context_shadow_policy")
+    .select("dispatch_scope,execution_policy_kind,proof_scan_kind").eq("singleton", true).maybeSingle();
+  if (proofPolicy.error || !proofPolicy.data) throw new Error("CONTEXT_PROOF_SCAN_POLICY_UNAVAILABLE");
+  if (proofPolicy.data.proof_scan_kind === "PASSAGE") {
+    if (proofPolicy.data.dispatch_scope !== "DISPOSABLE_PROVIDER_PROOF" ||
+      proofPolicy.data.execution_policy_kind !== "DISPOSABLE_BOOTSTRAP")
+      throw new Error("CONTEXT_PROOF_SCAN_POLICY_INVALID");
+    return runAdultPassageJob(client, job, snapshot, extraction.occurrences as IndexedWord[], summary);
+  }
+  if (proofPolicy.data.proof_scan_kind !== "FOUR_FAMILY") throw new Error("CONTEXT_PROOF_SCAN_POLICY_INVALID");
   const detector = await client.rpc("record_writing_context_detector_run", { p_snapshot_id: snapshot.id,
     p_parent_user_id: snapshot.parent_user_id, p_child_id: snapshot.child_id, p_run_key: job.run_key,
     p_detector_version: CONTEXT_CANDIDATE_DETECTOR_VERSION, p_registry_version: CONTEXT_FAMILY_REGISTRY_VERSION,
@@ -438,10 +448,17 @@ export async function recoverContextShadowJobs(submissionId?: string, suppliedCl
       if (!failed.error && failed.data === true) return { status: "manual_review" as const };
     }
     if (error instanceof ContextPassageRetryable && job) {
-      const failed = await client.rpc("finish_writing_context_shadow_job", {
-        p_job_id: job.id, p_claim_token: job.claim_token,
-        p_error_code: "AI_PROVIDER_UNAVAILABLE", p_summary: {} });
-      if (!failed.error && failed.data === true) return { status: "retryable" as const };
+      const source = await client.from("writing_source_snapshots").select("source_purpose")
+        .eq("id", job.snapshot_id).maybeSingle();
+      if (source.error || source.data?.source_purpose !== "REAL_LEARNER") {
+        await client.rpc("stop_failed_writing_context_bootstrap");
+        await client.rpc("stop_writing_context_shadow", { p_code: "AI_OPERATIONAL_THRESHOLD_STOP" });
+      } else {
+        const failed = await client.rpc("finish_writing_context_shadow_job", {
+          p_job_id: job.id, p_claim_token: job.claim_token,
+          p_error_code: "AI_PROVIDER_UNAVAILABLE", p_summary: {} });
+        if (!failed.error && failed.data === true) return { status: "retryable" as const };
+      }
     }
     await client.rpc("stop_failed_writing_context_bootstrap");
     if (error instanceof ContextProofInterruption) return { status: "proof_interrupted" as const };

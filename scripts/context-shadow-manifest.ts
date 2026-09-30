@@ -8,4 +8,5 @@ console.log(JSON.stringify({ model:AI_CONTEXT_MODEL,promptFingerprint:AI_CONTEXT
   runtimeFingerprint:CONTEXT_SHADOW_RUNTIME_FINGERPRINT,timeoutMs:8000,retries:0,
   executionPolicies:['MEASURED','DISPOSABLE_BOOTSTRAP','ADULT_RELEASE'],defaultExecutionPolicy:'MEASURED',
   bootstrap:'DISPOSABLE_BOOTSTRAP_FAIL_STOP_V1',faults:'REGISTERED_ONE_SHOT_PROOF_FAULTS_V1',
+  proofPassage:'REGISTERED_PROOF_POLICY_PASSAGE_V1',
   defaultControl:{enabled:false,ai_mode:'disabled'} },null,2));

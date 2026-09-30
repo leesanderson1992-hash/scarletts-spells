@@ -11,7 +11,7 @@ import type { ContextProofFaultAction } from "../lib/writing-engine/whole-writin
 
 type Row = Record<string, unknown>;
 function fixture(text: string, options: { badIdentity?: boolean; deny?: string; orphan?: boolean; ledgerFail?: boolean; authored?: boolean;
-  adult?: boolean;
+  adult?: boolean; proofPassage?: boolean;
   fault?: ContextProofFaultAction; faultDenied?: boolean; killAtBarrier?: boolean; unreleased?: boolean;
   faultLostAtBarrier?: boolean; faultExpiresInMs?: number; rpcFailure?: string } = {}) {
   const snapshot: SourceSnapshot = { id: randomUUID(), submission_id: randomUUID(), child_id: randomUUID(), parent_user_id: randomUUID(),
@@ -22,6 +22,9 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
   const job = { id: randomUUID(), snapshot_id: snapshot.id, run_key: randomUUID(), claim_token: randomUUID() };
   const tables: Record<string, Row[]> = { writing_context_advisory_control: [{ singleton: true, enabled: false, ai_mode: "shadow" }],
     writing_source_snapshots: [snapshot], writing_occurrences: [], writing_context_ai_rate_cards: [testRateCard],
+    writing_context_shadow_policy: [{ singleton: true, dispatch_scope: options.proofPassage ? "DISPOSABLE_PROVIDER_PROOF" : "DENY",
+      execution_policy_kind: options.proofPassage ? "DISPOSABLE_BOOTSTRAP" : "MEASURED",
+      proof_scan_kind: options.proofPassage ? "PASSAGE" : "FOUR_FAMILY" }],
     writing_context_ai_attempts: [], writing_context_shadow_dispatches: [], writing_context_passage_findings: [] };
   const events: string[] = []; let claimed = false; let stopped = false;
   const client = {
@@ -177,6 +180,30 @@ async function main() {
     assert.equal(adult.tables.writing_context_passage_findings[0].correction, "there");
     assert.equal((await recoverContextShadowJobs(adult.snapshot.submission_id, adult.client)).status, "idle");
     assert.equal(calls, adultBefore + 1, "recovery never resends the accepted scan");
+    const proofPassage = fixture("I herd the bell at dawn.", { proofPassage: true });
+    const proofBefore = calls;
+    globalThis.fetch = async (_url, options) => {
+      calls++;
+      const sent = JSON.parse(JSON.parse(String(options?.body)).input[1].content);
+      assert.equal(sent.source_text, "I herd the bell at dawn.");
+      assert(!String(options?.body).includes(proofPassage.snapshot.child_id));
+      const start = sent.source_text.indexOf("herd");
+      return new Response(JSON.stringify({ id: "resp-proof-local", model: "gpt-6-luna", status: "completed", service_tier: "default",
+        usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
+          output_tokens_details: { reasoning_tokens: 5 } },
+        output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ case_id: sent.case_id,
+          findings: [{ start_utf16: start, end_utf16: start + 4, observed: "herd", correction: "heard" }] }) }] }] }));
+    };
+    assert.equal((await recoverContextShadowJobs(proofPassage.snapshot.submission_id, proofPassage.client)).status, "complete");
+    assert.equal(calls, proofBefore + 1, "registered proof scans outside the original four families");
+    assert.equal(proofPassage.tables.writing_context_ai_attempts[0].family_key, "PASSAGE_SCAN");
+    assert.equal(proofPassage.tables.writing_context_passage_findings[0].correction, "heard");
+    const proof429 = fixture("I herd the bell at dawn.", { proofPassage: true });
+    const proof429Before = calls;
+    globalThis.fetch = async () => { calls++; return new Response("provider-private", { status: 429 }); };
+    assert.equal((await recoverContextShadowJobs(proof429.snapshot.submission_id, proof429.client)).status, "failed");
+    assert.equal(calls, proof429Before + 1);
+    assert(proof429.stopped(), "a proof transport failure latches the bootstrap instead of offering adult retry");
     const adult429 = fixture("Their house was quiet.", { adult: true });
     const before429 = calls;
     globalThis.fetch = async () => { calls++; return new Response("provider-private", { status: 429 }); };

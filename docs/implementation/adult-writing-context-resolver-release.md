@@ -1,9 +1,11 @@
 # Adult-writing context resolver
 
-Status: local implementation and isolated tests. Production migration, deployment,
-provider configuration and activation have **not** been performed by this change.
-The completed Stage 1A receipt and frozen Stage 1B amendment remain historical
-records. Do not use their application SHA as the identity of this release.
+Status: implementation released with AI disabled; a disposable Production proof
+found that the passage-wide worker did not run for registered proof sources.
+The follow-up proof routing change must use its own migration, application SHA
+and runtime fingerprint before a fresh synthetic proof. The completed Stage 1A
+receipt and frozen Stage 1B amendment remain historical records. Do not use
+their application SHA as the identity of this release.
 
 ## Product path
 
@@ -31,6 +33,21 @@ A definite HTTP 429/5xx response may offer one explicit, separately budgeted
 Try again action. Successful windows are not rescanned. A timeout, ambiguous
 send, missing receipt, identity/cache mismatch or source failure cannot be
 retried through that action. No transport retry is automatic.
+
+## Disposable passage proof
+
+The private `proof_scan_kind` policy field defaults to `FOUR_FAMILY`, retaining
+the original Stage 1B fault-proof route. `PASSAGE` is allowed only with
+`DISPOSABLE_BOOTSTRAP` and `DISPOSABLE_PROVIDER_PROOF`. The database stamps
+proof-source classification from a prior operator-owned registration; the
+worker repeats the policy check and reservation/admission repeat the registered
+source, owner and task checks. A proof-only passage scan can therefore use the
+same worker and provider adapter as adult writing while ordinary sources remain
+outside the proof policy. A proof 429/5xx is an operational bootstrap failure
+and stops processing; the adult-only explicit Try again action is unavailable
+to a disposable source. The canonical stop leaves AI disabled and retains the
+immutable audit and non-personal consumption records. A later policy reset
+must set `proof_scan_kind=FOUR_FAMILY` along with `dispatch_scope=DENY`.
 
 ## Provider and privacy basis
 

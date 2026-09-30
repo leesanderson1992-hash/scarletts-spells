@@ -9,6 +9,7 @@ export async function proveAdultContextRelease({db,parent}) {
   await db.query('alter table writing_issues add column if not exists position_start integer, add column if not exists position_end integer');
   const migration=readFileSync(new URL('../supabase/migrations/20260929170000_allow_standard_context_api_retention.sql',import.meta.url),'utf8');
   await db.query(migration);
+  await db.query(readFileSync(new URL('../supabase/migrations/20260929180000_allow_disposable_context_passage_proof.sql',import.meta.url),'utf8'));
   assert.deepEqual((await db.query('select enabled,ai_mode from writing_context_advisory_control')).rows,
     [{enabled:false,ai_mode:'disabled'}]);
   assert.equal((await db.query("select count(*)::int n from writing_context_provider_approvals where retention_mode='ZDR' and zdr_verified")).rows[0].n>=0,true);
@@ -18,6 +19,18 @@ export async function proveAdultContextRelease({db,parent}) {
       assert.equal((await db.query('select has_table_privilege($1,$2,$3) ok',[role,table,privilege])).rows[0].ok,false);
   }
   await assert.rejects(db.query("update writing_context_shadow_policy set dispatch_scope='REAL_LEARNER',execution_policy_kind='DISPOSABLE_BOOTSTRAP'"),{code:'23514'});
+  await assert.rejects(db.query("update writing_context_shadow_policy set proof_scan_kind='PASSAGE'"),{code:'23514'});
+  assert.equal((await db.query("select proof_scan_kind from writing_context_shadow_policy")).rows[0].proof_scan_kind,'FOUR_FAMILY');
+  await db.query('begin');
+  try {
+    await db.query("update writing_context_shadow_policy set execution_policy_kind='DISPOSABLE_BOOTSTRAP',dispatch_scope='DISPOSABLE_PROVIDER_PROOF',bootstrap_expires_at=clock_timestamp()+interval '1 hour',proof_scan_kind='PASSAGE'");
+    const proof=(await db.query('select revision_id,proof_scan_kind from writing_context_shadow_policy')).rows[0];
+    assert.equal(proof.proof_scan_kind,'PASSAGE');
+    assert.equal((await db.query('select policy->>\'proof_scan_kind\' kind from writing_context_shadow_policy_history where id=$1',[proof.revision_id])).rows[0].kind,'PASSAGE');
+    await db.query('savepoint real_scope');
+    await assert.rejects(db.query("update writing_context_shadow_policy set dispatch_scope='REAL_LEARNER'"),{code:'23514'});
+    await db.query('rollback to savepoint real_scope');
+  } finally {await db.query('rollback');}
   await assert.rejects(db.query("update writing_context_shadow_policy set dispatch_scope='REAL_LEARNER',execution_policy_kind='ADULT_RELEASE',max_usd_per_day=.51"),{code:'23514'});
   assert.equal((await db.query("select count(*)::int n from pg_constraint where conname='context_provider_retention_evidence_check'")).rows[0].n,1);
   await db.query('begin');
