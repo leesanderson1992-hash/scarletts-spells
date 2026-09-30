@@ -32,7 +32,9 @@ uses the stored UTF-16 span. The model never calculates character coordinates.
 Duplicate references, mismatched words, source/hash failures and invalid
 corrections reject the whole response. Spelling highlights remain yellow; validated context
 findings appear blue and link from the combined Review table to the exact answer.
-The reviewer may edit one correction word or dismiss with ×. Non-dismissed
+Save records the reviewer’s correction and shows Confirmed, including after
+reload. The correction stays editable before send-back. The reviewer may dismiss
+with × or restore the suggestion. Non-dismissed
 findings become pending repair issues when Send back is pressed. The existing
 returned-work classification and Admin recommendation paths then apply.
 

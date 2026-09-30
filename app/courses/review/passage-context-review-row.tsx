@@ -43,7 +43,7 @@ export function PassageContextReviewRow({ row, submissionId, readOnly, showRoute
     <td className="px-2 py-2 text-center" title="Luna context suggestion">C</td>
     <td className="px-3 py-2">{row.sourceStatus !== "ready" ? "Source unavailable"
       : row.issueStatus === "sent_back_to_child" ? "Sent back"
-      : row.dismissed ? "Not an issue" : "Suggested"}</td>
+      : row.dismissed ? "Not an issue" : row.confirmed ? "Confirmed" : "Suggested"}</td>
     {showRouteColumns ? <><td className="px-3 py-2">Context</td><td className="px-3 py-2">Reviewer confirms after return</td></> : null}
     {showActionsColumn ? <td className="px-3 py-2">
       {editable ? <form action={recordPassageReviewEvent}>

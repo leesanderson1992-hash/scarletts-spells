@@ -7,7 +7,7 @@ import { extractWholeWriting, type SourceSnapshot } from "./source";
 export type PassageReviewRow = {
   findingId: string; occurrenceId: string; observed: string; correction: string;
   suggestedCorrection: string; fieldPath: string; startUtf16: number; endUtf16: number;
-  fieldHash: string; excerpt: string; dismissed: boolean; sourceStatus: "ready" | "blocked";
+  fieldHash: string; excerpt: string; dismissed: boolean; confirmed: boolean; sourceStatus: "ready" | "blocked";
   issueStatus: string | null; issueCorrection: string | null; issueSourceKind: string | null;
 };
 export type PassageReview = { status: "unavailable" | "pending" | "complete" | "failed";
@@ -83,7 +83,9 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
       correction: edited.get(f.id) ?? f.correction, suggestedCorrection: f.correction,
       fieldPath: occurrence?.field_path ?? "", startUtf16: f.start_utf16, endUtf16: f.end_utf16,
       fieldHash: f.field_hash, excerpt: context?.status === "ready" ? context.excerpt : f.observed_text,
-      dismissed: latest.get(f.id)?.action === "DISMISS", sourceStatus: ready ? "ready" : "blocked",
+      dismissed: latest.get(f.id)?.action === "DISMISS",
+      confirmed: edited.has(f.id) && latest.get(f.id)?.action !== "DISMISS",
+      sourceStatus: ready ? "ready" : "blocked",
       issueStatus: issue.get(f.occurrence_id)?.issue_status ?? null,
       issueCorrection: issue.get(f.occurrence_id)?.approved_replacement ?? null,
       issueSourceKind: (issue.get(f.occurrence_id)?.metadata as Record<string, unknown> | null)?.source_kind as string ?? null };
