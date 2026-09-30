@@ -118,7 +118,7 @@ export function ContextualReturnedCorrectionRow({ row, options, submissionId, re
           </select>
           {allowedOptions.length === 0 ? <p className="text-xs text-amber-900">The governed skill is not active and assignable yet.</p> : null}
         </div> : !governedSkill ? <p className="text-xs leading-5 text-[color:var(--mid)]">
-          No matching skill · sent to Admin. This retry remains repair only.
+          No matching skill · sent to Admin
         </p> : !outcome ? <p className="text-xs leading-5 text-[color:var(--mid)]">Choose a reason to see the learning route.</p>
           : row.correctionOutcome && row.microSkillKey && row.microSkillKey !== "unknown"
           ? <p className="text-xs leading-5 text-[color:var(--mid)]">{allowedOptions[0]?.displayName ?? row.microSkillKey}</p>
