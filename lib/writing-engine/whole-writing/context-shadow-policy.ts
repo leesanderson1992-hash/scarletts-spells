@@ -3,12 +3,13 @@ import { createHash } from "node:crypto";
 import { AI_CONTEXT_CONFIG_FINGERPRINT, AI_CONTEXT_GATE_VERSION, AI_CONTEXT_MODEL,
   AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA_FINGERPRINT } from "./context-ai-gate";
 
-export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V5";
-export const CONTEXT_SHADOW_TIMEOUT_MS = 8000;
+export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V6";
+export const CONTEXT_SHADOW_TIMEOUT_MS = 15000;
+export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 45000;
 export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JSON.stringify({
   version: CONTEXT_SHADOW_RUNTIME_VERSION, config: AI_CONTEXT_CONFIG_FINGERPRINT,
   timeout_ms: CONTEXT_SHADOW_TIMEOUT_MS, retries: 0, max_requests_per_submission: 32,
-  worker_budget_ms: 30000, max_request_bytes: 8000, max_response_bytes: 64000,
+  worker_budget_ms: CONTEXT_SHADOW_WORKER_BUDGET_MS, max_request_bytes: 8000, max_response_bytes: 64000,
   privacy: "STANDARD_API_ADULT_WRITING", source_scope: "PRODUCTION_PERSISTED_PROOF_V1", metadata: "NONE", prompt_cache: "EXPLICIT_NO_BREAKPOINTS",
   bootstrap: "DISPOSABLE_BOOTSTRAP_FAIL_STOP_V1", faults: "REGISTERED_ONE_SHOT_PROOF_FAULTS_V1",
   proof_passage: "REGISTERED_PROOF_POLICY_PASSAGE_V1",

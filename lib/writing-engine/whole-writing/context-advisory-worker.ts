@@ -9,7 +9,8 @@ import { validContextRateCard, type ContextRateCard } from "./context-ai-cost";
 import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
-import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT } from "./context-shadow-policy";
+import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+  CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS } from "./context-shadow-policy";
 import { emitPreReservationDiagnostic, preReservationIdentityChecks } from "./context-shadow-diagnostics";
 import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
 import { gatePassageFindings, passageFieldHashesMatch, passageRequestBody, planPassageWindows,
@@ -122,7 +123,7 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
       throw new Error("CONTEXT_SHADOW_LEDGER_UNAVAILABLE");
     }
   }
-  const deadline = Date.now() + 30000;
+  const deadline = Date.now() + CONTEXT_SHADOW_WORKER_BUDGET_MS;
   for (let index = 0; index < governed.length; index++) {
     const occurrence = governed[index], family = governedContextFamily(occurrence.observedText)!;
     const previous = index < 32 ? await client.from("writing_context_ai_attempts").select("id")
@@ -133,7 +134,7 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
       fieldText: readSnapshotField(snapshot, occurrence.fieldKey), fieldHash: occurrence.textHash,
       startUtf16: occurrence.start, endUtf16: occurrence.end, observedText: occurrence.observedText,
       family, provenance: occurrence.provenance });
-    let reason = prepared.reasonCode ?? (index >= 32 ? "AI_SUBMISSION_LIMIT" : Date.now() + 9000 > deadline ? "AI_WORKER_BUDGET"
+    let reason = prepared.reasonCode ?? (index >= 32 ? "AI_SUBMISSION_LIMIT" : Date.now() + CONTEXT_SHADOW_TIMEOUT_MS + 1000 > deadline ? "AI_WORKER_BUDGET"
       : !identity ? "AI_CONFIGURATION_UNAVAILABLE" : !card ? "AI_RATE_CARD_MISMATCH" : !jobEligible ? "AI_JOB_NOT_ELIGIBLE" : null);
     let dispatchId: string | null = null;
     let provider: ProviderOutcome | null = null;
@@ -172,9 +173,9 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
           }
           if (!reason) provider = await analyseAiContext(prepared.case, { rateCard: card, beforeSend: async () => {
             await fault?.beforeAdmission();
-            if (Date.now() + 8000 > deadline) return false;
+            if (Date.now() + CONTEXT_SHADOW_TIMEOUT_MS > deadline) return false;
             const admitted = await client.rpc("begin_writing_context_shadow_dispatch", { p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
-            return !admitted.error && admitted.data === true && Date.now() + 8000 <= deadline;
+            return !admitted.error && admitted.data === true && Date.now() + CONTEXT_SHADOW_TIMEOUT_MS <= deadline;
           }, afterFetch: fault ? (providerDeadline) => fault.afterFetch(providerDeadline) : undefined });
           if (provider?.proofInterrupted) {
             // Deliberately leave this one processing lease/dispatch without a receipt.
@@ -327,7 +328,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     throw new Error("CONTEXT_PASSAGE_JOB_INELIGIBLE");
   }
   proofDiagnostic("PRE_RESERVATION_READY_FOR_RESERVATION");
-  const deadline = Date.now() + 30000;
+  const deadline = Date.now() + CONTEXT_SHADOW_WORKER_BUDGET_MS;
   for (const { window, anchor } of anchored) {
     const completed = await client.from("writing_context_ai_attempts").select("id")
       .eq("occurrence_id", anchor.id).eq("mode", "shadow").eq("family_key", "PASSAGE_SCAN")
@@ -344,7 +345,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     const requestBody = passageRequestBody(window);
     let reason: string | null = oldDispatch.data ? "AI_RESERVED_OUTCOME_AMBIGUOUS"
       : Buffer.byteLength(requestBody, "utf8") > 8000 ? "AI_REQUEST_TOO_LARGE"
-      : Date.now() + 9000 > deadline ? "AI_WORKER_BUDGET" : null;
+      : Date.now() + CONTEXT_SHADOW_TIMEOUT_MS + 1000 > deadline ? "AI_WORKER_BUDGET" : null;
     let dispatchId: string | null = oldDispatch.data?.id ?? null;
     let provider: ProviderOutcome | null = null;
     let findings: ReturnType<typeof gatePassageFindings>["findings"] = null;
@@ -367,10 +368,10 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     if (!reason && dispatchId) {
       provider = await analyseAiContext({ sourceText: window.text, requestBody }, {
         rateCard: card, beforeSend: async () => {
-          if (Date.now() + 8000 > deadline) return false;
+          if (Date.now() + CONTEXT_SHADOW_TIMEOUT_MS > deadline) return false;
           const admitted = await client.rpc("begin_writing_context_shadow_dispatch", {
             p_dispatch_id: dispatchId, p_claim_token: job.claim_token });
-          return !admitted.error && admitted.data === true && Date.now() + 8000 <= deadline;
+          return !admitted.error && admitted.data === true && Date.now() + CONTEXT_SHADOW_TIMEOUT_MS <= deadline;
         },
       });
       if (provider.failure) reason = provider.failure;

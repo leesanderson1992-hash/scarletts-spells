@@ -1,11 +1,13 @@
 # Adult-writing context resolver
 
-Status: implementation released with AI disabled; a disposable Production proof
-found that the passage-wide worker did not run for registered proof sources.
-The follow-up proof routing change must use its own migration, application SHA
-and runtime fingerprint before a fresh synthetic proof. The completed Stage 1A
-receipt and frozen Stage 1B amendment remain historical records. Do not use
-their application SHA as the identity of this release.
+Status: implementation released with AI disabled. The passage proof routing
+repair and pre-reservation diagnostics are released. Production rate-card
+bindings were corrected; a fresh website request then exceeded the original
+eight-second deadline. The owner approved a 15-second full-body deadline and
+45-second worker budget. This code-only amendment requires its own application
+SHA, runtime fingerprint and fresh synthetic website proof before normal adult
+activation. See the [diagnostic receipt](qa/luna-production-configuration-and-deadline-diagnostic-2026-09-30.md).
+Historical Stage 1A/1B receipts retain their original release identities.
 
 ## Product path
 
@@ -64,7 +66,7 @@ acceptance and a dated source for the genuine Luna default-tier rate card.
 Secret values never enter the repository, Preview, browser, API output or logs.
 The server-only request uses `/v1/responses`, `gpt-6-luna`, default tier,
 `store:false`, no tools/background mode, explicit cache mode, one HTTP send,
-an eight-second deadline and no automatic retry. The [model page](https://developers.openai.com/api/docs/models/gpt-6-luna)
+a 15-second full-body deadline and 45-second worker budget and no automatic retry. The [model page](https://developers.openai.com/api/docs/models/gpt-6-luna)
 lists Responses and structured-output support; the [pricing page](https://developers.openai.com/api/docs/pricing)
 is the rate-card source, not the isolated test fixture.
 

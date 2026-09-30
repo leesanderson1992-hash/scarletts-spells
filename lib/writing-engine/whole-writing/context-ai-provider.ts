@@ -29,7 +29,7 @@ const object = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 
 /** Requires a persisted reservation and fresh DB admission. Exactly one HTTP send;
- * the 8-second deadline covers fetch and streamed body reading. No raw output logging. */
+ * the fixed runtime deadline covers fetch and streamed body reading. No raw output logging. */
 export async function analyseAiContext(input: AiContextCase | { sourceText: string; requestBody: string }, admission?: {
   rateCard: ContextRateCard; beforeSend: () => Promise<boolean>;
   afterFetch?: (deadline: number) => Promise<void>;

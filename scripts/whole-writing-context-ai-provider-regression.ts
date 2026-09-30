@@ -6,7 +6,12 @@ import { calculateContextCost } from "../lib/writing-engine/whole-writing/contex
 import { configureContextShadowTest, testRateCard } from "./context-shadow-test-config";
 import { ContextProofFaultFailure, ContextProofInterruption } from "../lib/writing-engine/whole-writing/context-proof-fault";
 
+import { CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS } from "../lib/writing-engine/whole-writing/context-shadow-policy";
+
 async function main() {
+  assert.equal(CONTEXT_SHADOW_TIMEOUT_MS, 15000);
+  assert.equal(CONTEXT_SHADOW_WORKER_BUDGET_MS, 45000);
+  assert(CONTEXT_SHADOW_WORKER_BUDGET_MS < 60000, "Worker budget remains within the database claim lease");
   const source = "Their cat is here.";
   const prepared = prepareAiContextCase({ occurrenceId: "opaque-occurrence", fieldText: source, fieldHash: fingerprint(source),
     startUtf16: 0, endUtf16: 5, observedText: "Their", family: "THERE_THEIR_THEYRE", provenance: "learner_response" });
@@ -79,14 +84,26 @@ async function main() {
     assert.equal((await analyseAiContext(testCase, admission)).failure, "AI_CONFIGURATION_UNAVAILABLE");
     assert.equal(calls, before, "kill, missing admission and missing approval do not call");
     process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED = "accepted";
+    // Reproduce a response that exceeded the former eight-second budget.
+    const beforeDelayed = calls;
+    globalThis.fetch = async () => {
+      calls++;
+      await new Promise(resolve => setTimeout(resolve, 8500));
+      return new Response(JSON.stringify(payload()));
+    };
+    const delayed = await analyseAiContext(testCase, admission);
+    assert.equal(delayed.failure, null);
+    assert.equal(delayed.calculatedCostUsd, "0.00002000");
+    assert.equal(calls, beforeDelayed + 1, "Slow response still sends once");
+    assert(delayed.latencyMs >= 8400 && delayed.latencyMs < CONTEXT_SHADOW_TIMEOUT_MS);
     // Body deadline includes a provider that sends headers then never completes its stream.
     globalThis.fetch = async () => { calls++; return new Response(new ReadableStream({ start() {} })); };
     const timeout = await analyseAiContext(testCase, admission);
-    assert.equal(timeout.failure, "AI_PROVIDER_TIMEOUT"); assert(timeout.latencyMs >= 7900 && timeout.latencyMs < 9500);
+    assert.equal(timeout.failure, "AI_PROVIDER_TIMEOUT"); assert(timeout.latencyMs >= CONTEXT_SHADOW_TIMEOUT_MS - 100 && timeout.latencyMs < CONTEXT_SHADOW_TIMEOUT_MS + 1500);
     assert.equal(timeout.requestSent, true); assert.equal(timeout.calculatedCostUsd, null);
     globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(payload()));};
-    const barrierTimeout=await analyseAiContext(testCase,{...admission,afterFetch:async()=>{await new Promise(resolve=>setTimeout(resolve,8200));}});
-    assert.equal(barrierTimeout.failure,'AI_PROVIDER_TIMEOUT');assert(barrierTimeout.latencyMs<9500,'Private barrier never extends provider deadline');
+    const barrierTimeout=await analyseAiContext(testCase,{...admission,afterFetch:async()=>{await new Promise(resolve=>setTimeout(resolve,CONTEXT_SHADOW_TIMEOUT_MS + 200));}});
+    assert.equal(barrierTimeout.failure,'AI_PROVIDER_TIMEOUT');assert(barrierTimeout.latencyMs<CONTEXT_SHADOW_TIMEOUT_MS + 1500,'Private barrier never extends provider deadline');
   } finally { restore(); globalThis.fetch = originalFetch; }
   console.log("context AI provider: minimal payload, one send, usage/cost, safe failures, admission and full-body timeout passed");
 }
