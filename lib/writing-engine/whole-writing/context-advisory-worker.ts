@@ -10,7 +10,7 @@ import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
-  CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS } from "./context-shadow-policy";
+  CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS, CONTEXT_SHADOW_MAX_REQUEST_BYTES } from "./context-shadow-policy";
 import { emitPreReservationDiagnostic, preReservationIdentityChecks } from "./context-shadow-diagnostics";
 import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
 import { gatePassageFindings, passageFieldHashesMatch, passageRequestBody, planPassageWindows,
@@ -344,7 +344,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
     if (oldDispatch.error) throw new Error("CONTEXT_PASSAGE_RESERVATION_UNAVAILABLE");
     const requestBody = passageRequestBody(window, occurrences);
     let reason: string | null = oldDispatch.data ? "AI_RESERVED_OUTCOME_AMBIGUOUS"
-      : Buffer.byteLength(requestBody, "utf8") > 8000 ? "AI_REQUEST_TOO_LARGE"
+      : Buffer.byteLength(requestBody, "utf8") > CONTEXT_SHADOW_MAX_REQUEST_BYTES ? "AI_REQUEST_TOO_LARGE"
       : Date.now() + CONTEXT_SHADOW_TIMEOUT_MS + 1000 > deadline ? "AI_WORKER_BUDGET" : null;
     let dispatchId: string | null = oldDispatch.data?.id ?? null;
     let provider: ProviderOutcome | null = null;

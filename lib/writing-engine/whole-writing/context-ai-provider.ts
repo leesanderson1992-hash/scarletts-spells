@@ -1,7 +1,7 @@
 import "server-only";
 import { AI_CONTEXT_MODEL, AI_CONTEXT_PROMPT, AI_CONTEXT_SCHEMA, type AiContextCase } from "./context-ai-gate";
 import { calculateContextCost, validContextRateCard, type ContextRateCard } from "./context-ai-cost";
-import { contextShadowIdentity, CONTEXT_SHADOW_TIMEOUT_MS } from "./context-shadow-policy";
+import { contextShadowIdentity, CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_MAX_REQUEST_BYTES } from "./context-shadow-policy";
 import { ContextProofFaultFailure, ContextProofInterruption } from "./context-proof-fault";
 
 export type ProviderOutcome = {
@@ -46,7 +46,7 @@ export async function analyseAiContext(input: AiContextCase | { sourceText: stri
     admission.rateCard.fingerprint !== process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT) return fail("AI_RATE_CARD_MISMATCH");
   const body = "requestBody" in input ? input.requestBody : contextAiRequestBody(input);
   if (input.sourceText.length > ("requestBody" in input ? 3000 : 600) || Buffer.byteLength(input.sourceText, "utf8") > 4000 ||
-    Buffer.byteLength(body, "utf8") > 8000) return fail("AI_REQUEST_TOO_LARGE");
+    Buffer.byteLength(body, "utf8") > CONTEXT_SHADOW_MAX_REQUEST_BYTES) return fail("AI_REQUEST_TOO_LARGE");
   try { if (!await admission.beforeSend()) return fail("AI_CONTROL_DISABLED"); }
   catch (error) { return fail(error instanceof ContextProofFaultFailure ? "AI_PROOF_HOOK_UNAVAILABLE" : "AI_ADMISSION_UNAVAILABLE"); }
   const started = Date.now();

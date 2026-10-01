@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 import { prepareAiContextCase, gateAiContextResponse } from "../lib/writing-engine/whole-writing/context-ai-gate";
-import { analyseAiContext } from "../lib/writing-engine/whole-writing/context-ai-provider";
+import { analyseAiContext, contextAiRequestBody } from "../lib/writing-engine/whole-writing/context-ai-provider";
 import { calculateContextCost } from "../lib/writing-engine/whole-writing/context-ai-cost";
 import { configureContextShadowTest, testRateCard } from "./context-shadow-test-config";
 import { ContextProofFaultFailure, ContextProofInterruption } from "../lib/writing-engine/whole-writing/context-proof-fault";
@@ -10,7 +10,9 @@ import { CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS } from "../l
 
 async function main() {
   assert.equal(CONTEXT_SHADOW_TIMEOUT_MS, 15000);
-  assert.equal(CONTEXT_SHADOW_WORKER_BUDGET_MS, 45000);
+  assert.equal(CONTEXT_SHADOW_WORKER_BUDGET_MS, 50000);
+  assert(CONTEXT_SHADOW_WORKER_BUDGET_MS >= 3 * CONTEXT_SHADOW_TIMEOUT_MS + 5000,
+    "Three provider deadlines leave time for worker overhead");
   assert(CONTEXT_SHADOW_WORKER_BUDGET_MS < 60000, "Worker budget remains within the database claim lease");
   const source = "Their cat is here.";
   const prepared = prepareAiContextCase({ occurrenceId: "opaque-occurrence", fieldText: source, fieldHash: fingerprint(source),
@@ -39,6 +41,18 @@ async function main() {
     const result = await analyseAiContext(testCase, admission);
     assert.equal(result.failure, null); assert.equal(result.calculatedCostUsd, "0.00002000"); assert.equal(result.reasoningTokens, 5);
     assert.equal(gateAiContextResponse(result.value, testCase).status, "UNCERTAIN");
+    const boundedBody = contextAiRequestBody(testCase).padEnd(16000, " ");
+    const beforeBoundary = calls;
+    assert.equal((await analyseAiContext({ sourceText: source, requestBody: boundedBody }, admission)).failure, null);
+    assert.equal(calls, beforeBoundary + 1, "Exactly 16,000 bytes can be admitted once");
+    let boundaryAdmitted = false;
+    const oversized = await analyseAiContext({ sourceText: source, requestBody: boundedBody + " " }, {
+      ...admission, beforeSend: async () => { boundaryAdmitted = true; return true; },
+    });
+    assert.equal(oversized.failure, "AI_REQUEST_TOO_LARGE");
+    assert.equal(oversized.requestSent, false);
+    assert.equal(boundaryAdmitted, false, "Oversize requests never reach admission");
+    assert.equal(calls, beforeBoundary + 1, "Oversize requests never invoke HTTP");
     assert.equal(calculateContextCost(testRateCard, { input: 100, cached: 30, cacheWrite: 20, output: 20, reasoning: 5 }), "0.00001780");
     for (const status of [400, 401, 403, 429, 500, 502, 503, 504]) {
       const before = calls; globalThis.fetch = async () => { calls++; return new Response("private body", { status }); };

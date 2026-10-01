@@ -10,6 +10,11 @@ export async function proveAdultContextRelease({db,parent}) {
   const migration=readFileSync(new URL('../supabase/migrations/20260929170000_allow_standard_context_api_retention.sql',import.meta.url),'utf8');
   await db.query(migration);
   await db.query(readFileSync(new URL('../supabase/migrations/20260929180000_allow_disposable_context_passage_proof.sql',import.meta.url),'utf8'));
+  const reservationSignature='public.reserve_writing_context_shadow(uuid,uuid,text,uuid,text,integer,text,text,text,text,text,text)';
+  const reservationAuthority=async()=> (await db.query('select proowner,proacl,prosecdef,proconfig from pg_proc where oid=$1::regprocedure',[reservationSignature])).rows[0];
+  const authorityBefore=await reservationAuthority();
+  await db.query(readFileSync(new URL('../supabase/migrations/20261001100000_increase_context_request_cap.sql',import.meta.url),'utf8'));
+  assert.deepEqual(await reservationAuthority(),authorityBefore,'Request amendment preserves owner, ACL and function security');
   assert.deepEqual((await db.query('select enabled,ai_mode from writing_context_advisory_control')).rows,
     [{enabled:false,ai_mode:'disabled'}]);
   assert.equal((await db.query("select count(*)::int n from writing_context_provider_approvals where retention_mode='ZDR' and zdr_verified")).rows[0].n>=0,true);
@@ -75,9 +80,25 @@ export async function proveAdultContextRelease({db,parent}) {
     const eligible=(await db.query('select context_shadow_job_eligible($1,$2,$3,$4,$5,$6,$7,$8) ok',
       [job.id,job.claim_token,'production','adult_fixture',sha,config,runtime,card.fingerprint])).rows[0].ok;
     assert.equal(eligible,true);
-    const reserved=(await db.query('select reserve_writing_context_shadow($1,$2,$3,$4,$5,5000,$6,$7,$8,$9,$10,$11) r',
+    const reservationArgs=[job.id,job.claim_token,occurrence,run,hash(text),'production','adult_fixture',sha,config,runtime,card.fingerprint];
+    const consumptionBefore=(await db.query('select sum(requests_reserved)::text requests,sum(reserved_usd)::text spend from writing_context_shadow_consumption')).rows[0];
+    for(const bytes of [null,0,-1,16001]) {
+      const denied=(await db.query('select reserve_writing_context_shadow($1,$2,$3,$4,$5,$12,$6,$7,$8,$9,$10,$11) r',
+        [...reservationArgs,bytes])).rows[0].r;
+      assert.equal(denied.reason,'AI_REQUEST_TOO_LARGE');
+    }
+    await db.query(`update writing_context_shadow_policy set max_usd_per_request=(
+      select (8000*greatest(input_rate,cached_input_rate,cache_write_rate)+2048*output_rate)/unit_tokens
+      from writing_context_ai_rate_cards where version=$1)`,[card.version]);
+    const undersizedCap=(await db.query('select reserve_writing_context_shadow($1,$2,$3,$4,$5,16000,$6,$7,$8,$9,$10,$11) r',reservationArgs)).rows[0].r;
+    assert.equal(undersizedCap.reason,'AI_REQUEST_COST_CAP_TOO_SMALL','Old 8KB cost reservation cannot admit the new maximum');
+    assert.deepEqual((await db.query('select sum(requests_reserved)::text requests,sum(reserved_usd)::text spend from writing_context_shadow_consumption')).rows[0],consumptionBefore,
+      'Rejected requests consume no capacity');
+    await db.query('update writing_context_shadow_policy set max_usd_per_request=.01');
+    const reserved=(await db.query('select reserve_writing_context_shadow($1,$2,$3,$4,$5,16000,$6,$7,$8,$9,$10,$11) r',
       [job.id,job.claim_token,occurrence,run,hash(text),'production','adult_fixture',sha,config,runtime,card.fingerprint])).rows[0].r;
     assert(reserved.id,JSON.stringify({reserved,used}));
+    assert.equal((await db.query('select request_bytes from writing_context_shadow_dispatches where id=$1',[reserved.id])).rows[0].request_bytes,16000);
     assert.equal((await db.query('select begin_writing_context_shadow_dispatch($1,$2) ok',[reserved.id,job.claim_token])).rows[0].ok,true);
     const acceptedAttempt=(await db.query(`insert into writing_context_ai_attempts
       (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,

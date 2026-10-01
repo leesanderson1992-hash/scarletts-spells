@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 
 import { CONTEXT_FAMILY_MANIFESTS, normaliseContextMember, type ContextFamilyKey } from "./context";
 import { governedContextFamily } from "./context-advisory-family";
-import { PASSAGE_CONTEXT_PROMPT, PASSAGE_CONTEXT_SCHEMA } from "./context-passage-scan";
+import { PASSAGE_CONTEXT_MAX_WINDOWS, PASSAGE_CONTEXT_PROMPT, PASSAGE_CONTEXT_SCHEMA } from "./context-passage-scan";
 
 export const AI_CONTEXT_GATE_VERSION = "CONTEXT_AI_SAFETY_GATE_V1";
 export const AI_CONTEXT_RELEASE_ID = "a1000000-0000-4000-8000-000000000001";
@@ -46,7 +46,7 @@ export const AI_CONTEXT_CONFIG_FINGERPRINT = sha256(JSON.stringify({
   prompt_cache_options: { mode: "explicit" },
   passage_prompt: sha256(PASSAGE_CONTEXT_PROMPT), passage_schema: sha256(JSON.stringify(PASSAGE_CONTEXT_SCHEMA)),
   window_max_utf16: 600, passage_window_max_utf16: 3000,
-  passage_window_max_utf8: 4000, passage_max_windows: 2,
+  passage_window_max_utf8: 4000, passage_max_windows: PASSAGE_CONTEXT_MAX_WINDOWS,
   gate: AI_CONTEXT_GATE_VERSION,
 }));
 

@@ -36,8 +36,13 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
         if (write) {
           events.push(`write:${table}`);
           if (table === "writing_context_ai_attempts" && options.ledgerFail) return { data: null, error: { message: text } };
+          const inserted: Row[] = [];
           for (const row of write) if (!rows.some((r) => table === "writing_occurrences" ? r.id === row.id :
-            r.occurrence_id === row.occurrence_id && r.run_key === row.run_key)) rows.push({ id: row.id ?? randomUUID(), ...row });
+            r.occurrence_id === row.occurrence_id && r.run_key === row.run_key)) {
+            const stored = { id: row.id ?? randomUUID(), ...row };
+            rows.push(stored); inserted.push(stored);
+          }
+          return { data: single ? inserted[0] ?? null : inserted, error: null };
         }
         let data = rows.filter((row) => filters.every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
         if (table === "writing_occurrences" && options.badIdentity) data = data.map((r) => ({ ...r, extractor_version: "wrong" }));
@@ -181,6 +186,42 @@ async function main() {
     assert.equal(adult.tables.writing_context_passage_findings[0].correction, "there");
     assert.equal((await recoverContextShadowJobs(adult.snapshot.submission_id, adult.client)).status, "idle");
     assert.equal(calls, adultBefore + 1, "recovery never resends the accepted scan");
+    const threeWindowText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(115) +
+      "At dawn, their was a light in the tower.";
+    const threeWindow = fixture(threeWindowText, { adult: true });
+    const threeWindowBefore = calls;
+    const previousNow = Date.now;
+    let simulatedNow = previousNow();
+    Date.now = () => simulatedNow;
+    try {
+      globalThis.fetch = async (_url, options) => {
+        calls++;
+        const body = String(options?.body);
+        assert(Buffer.byteLength(body, "utf8") <= 16000);
+        const sent = JSON.parse(JSON.parse(body).input[1].content);
+        const focus = sent.indexed_words.find((pair: [number, string]) => pair[1] === "their");
+        simulatedNow += 14000;
+        return new Response(JSON.stringify({ id: `resp-three-window-${calls}`, model: "gpt-6-luna",
+          status: "completed", service_tier: "default",
+          usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
+            output_tokens_details: { reasoning_tokens: 5 } },
+          output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({
+            case_id: sent.case_id, findings: focus ? [{ word_index: focus[0], observed: "their", correction: "there" }] : [],
+          }) }] }] }));
+      };
+      assert.equal((await recoverContextShadowJobs(threeWindow.snapshot.submission_id, threeWindow.client)).status, "complete",
+        JSON.stringify({ events: threeWindow.events, attempts: threeWindow.tables.writing_context_ai_attempts.map(a => a.reason_code),
+          calls: calls - threeWindowBefore }));
+      assert.equal(calls, threeWindowBefore + 3, "All three slow windows reach the provider once");
+      assert.equal(threeWindow.tables.writing_context_ai_attempts.length, 3);
+      assert(threeWindow.tables.writing_context_ai_attempts.every(a => a.result_status === "SCANNED"));
+      assert.equal(threeWindow.tables.writing_context_passage_findings.length, 1);
+      assert.equal(threeWindow.tables.writing_context_passage_findings[0].start_utf16, threeWindowText.indexOf("their"));
+      assert.equal((await recoverContextShadowJobs(threeWindow.snapshot.submission_id, threeWindow.client)).status, "idle");
+      assert.equal(calls, threeWindowBefore + 3, "Recovery never resends any of the three windows");
+    } finally {
+      Date.now = previousNow;
+    }
     const proofPassage = fixture("I herd the bell at dawn.", { proofPassage: true });
     const proofBefore = calls;
     globalThis.fetch = async (_url, options) => {
@@ -282,7 +323,7 @@ async function main() {
     assert.equal(calls, before429 + 1);
     assert.equal(adult429.tables.writing_context_ai_attempts[0].result_status, "NOT_ASSESSED");
     assert(!adult429.stopped(), "definite 429 leaves the owner-controlled retry available");
-    const adultLong = fixture(`An adult wrote ${"ordinary words ".repeat(500)}`, { adult: true });
+    const adultLong = fixture(`An adult wrote ${"ordinary words ".repeat(700)}`, { adult: true });
     const beforeLong = calls;
     assert.equal((await recoverContextShadowJobs(adultLong.snapshot.submission_id, adultLong.client)).status, "manual_review");
     assert.equal(calls, beforeLong, "oversize writing is never sent or partially scanned");

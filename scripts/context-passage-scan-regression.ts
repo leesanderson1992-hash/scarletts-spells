@@ -44,18 +44,19 @@ assert.equal(gatePassageFindings({ case_id: window.caseId, findings: [finding] }
 assert.equal(gatePassageFindings({ case_id: window.caseId, findings: [finding] }, window,
   occurrences.map(o => ({ ...o, textHash: "other" }))).findings, null);
 // A later window must retain global immutable coordinates, not window-relative offsets.
-const longText = "x ".repeat(1500) + text;
+const longText = "x ".repeat(3000) + text;
 const later = planPassageWindows({ fields: [{ path: window.fieldPath, hash: hash(JSON.stringify(longText)), text: longText }] });
-assert(later?.length === 2);
+assert(later?.length === 3);
+assert.equal(later.map(w => w.text).join(""), longText, "Every character is covered exactly once");
 const laterWords = [...longText.matchAll(/[\p{L}][\p{L}'’ʼ-]*/gu)].map((m, i) => ({ id: `later-${i}`,
-  fieldKey: window.fieldPath, textHash: later[1].fieldHash, start: m.index!, end: m.index! + m[0].length,
+  fieldKey: window.fieldPath, textHash: later[2].fieldHash, start: m.index!, end: m.index! + m[0].length,
   observedText: m[0], provenance: "learner_response" }));
-const laterIndex = indexedPassageWords(later[1], laterWords).findIndex(o => o.observedText === "threw");
-assert.equal(gatePassageFindings({ case_id: later[1].caseId, findings: [{ ...finding, word_index: laterIndex }] },
-  later[1], laterWords).findings?.[0].startUtf16, longText.indexOf("threw"));
+const laterIndex = indexedPassageWords(later[2], laterWords).findIndex(o => o.observedText === "threw");
+assert.equal(gatePassageFindings({ case_id: later[2].caseId, findings: [{ ...finding, word_index: laterIndex }] },
+  later[2], laterWords).findings?.[0].startUtf16, longText.indexOf("threw"));
 assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: "0".repeat(64), text }] }), null);
-assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: hash(JSON.stringify("x ".repeat(4000))),
-  text: "x ".repeat(4000) }] }), null, "Overlong work fails closed without a partial scan");
+assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: hash(JSON.stringify("x ".repeat(5000))),
+  text: "x ".repeat(5000) }] }), null, "Four-window work fails closed without a partial scan");
 const body = JSON.parse(passageRequestBody(window, occurrences));
 assert.equal(body.store, false); assert.equal(body.service_tier, "default");
 assert.deepEqual(body.prompt_cache_options, { mode: "explicit" });
