@@ -1,5 +1,6 @@
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { GET as getPreReservationDiagnosis } from "@/app/api/internal/context-shadow/diagnose/route";
 
 export const dynamic = "force-dynamic";
 type ShadowOperations = {
@@ -14,6 +15,9 @@ type ShadowOperations = {
 
 export default async function ContextDiagnosticsPage() {
   await requireAdminUser();
+  const diagnosticResponse = await getPreReservationDiagnosis();
+  const preReservationChecks = diagnosticResponse.ok
+    ? (await diagnosticResponse.json() as { checks: Record<string, boolean> }).checks : null;
   const service = createServiceRoleClient();
   const [metrics, scopes, promoted, feedback, detector, operations, spelling, shadowRead, proofRead] = await Promise.all([
     service.from("writing_context_advisory_review_metrics").select("*")
@@ -84,6 +88,13 @@ export default async function ContextDiagnosticsPage() {
   }
   return <main className="mx-auto max-w-6xl space-y-6 p-6">
     <h1 className="text-3xl font-semibold">Contextual diagnostics</h1>
+    <section className="rounded-xl border p-4">
+      <h2 className="text-xl font-semibold">Disabled pre-reservation binding check</h2>
+      <p className="text-xs">Read-only comparisons against the revoked failed-proof approval. Boolean results only; no provider request or AI activation.</p>
+      {preReservationChecks ? <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        {Object.entries(preReservationChecks).map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{value ? "Match" : "Rejected"}</dd></div>)}
+      </dl> : <p className="mt-3 text-xs">Unavailable unless AI is disabled.</p>}
+    </section>
     <p className="text-sm">Parent-reviewed authentic writing. Development/regression evidence only—not independent qualification gold.</p>
     <section className="rounded-xl border p-4">
       <h2 className="text-xl font-semibold">Stage 1 shadow operations · last 24 hours</h2>
