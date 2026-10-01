@@ -60,6 +60,15 @@ async function main() {
   assert.equal(result.issue.before + result.issue.focus + result.issue.after, writing,
     "The excerpt reconstructs the immutable source for this short fixture");
   assert.match(result.issue.before, /^Their coats were dry, but $/);
+  const longWriting = `${"Earlier ".repeat(30)}their bags were wet.${" Later".repeat(30)}`;
+  const longStart = longWriting.indexOf("their bags");
+  const longResult = await load({
+    occurrence: { field_hash: fingerprint(longWriting), start_utf16: longStart,
+      end_utf16: longStart + 5 },
+    snapshot: { envelope: { rawSubmissionText: longWriting } },
+  });
+  assert.match(longResult.issue.before, /^…Earlier /, "A long excerpt starts at a word boundary");
+  assert.match(longResult.issue.after, /Later…$/, "A long excerpt ends after a complete word");
   assert.deepEqual(await load({ issueIds: ["other"] }), {}, "Unrequested issues remain hidden");
   assert.deepEqual(await load({ issue: { parent_user_id: "other" } }), {}, "Wrong owner is denied");
   assert.deepEqual(await load({ snapshot: { task_id: "other" } }), {}, "Wrong task is denied");

@@ -65,12 +65,18 @@ export async function loadReturnedContextExcerpts(input: {
       observedText: occurrence.observed_text,
     });
     if (context.status === "ready") {
-      const start = occurrence.start_utf16 - context.excerptStartUtf16;
-      const end = occurrence.end_utf16 - context.excerptStartUtf16;
+      let excerptStart = context.excerptStartUtf16;
+      let excerptEnd = context.excerptEndUtf16;
+      while (excerptStart > 0 &&
+        occurrence.start_utf16 - excerptStart < 100 &&
+        !/\s/u.test(context.fieldText[excerptStart - 1])) excerptStart--;
+      while (excerptEnd < context.fieldText.length &&
+        excerptEnd - occurrence.end_utf16 < 100 &&
+        !/\s/u.test(context.fieldText[excerptEnd])) excerptEnd++;
       excerpts[issue.id] = {
-        before: context.excerpt.slice(0, start),
-        focus: context.excerpt.slice(start, end),
-        after: context.excerpt.slice(end),
+        before: `${excerptStart > 0 ? "…" : ""}${context.fieldText.slice(excerptStart, occurrence.start_utf16)}`,
+        focus: context.fieldText.slice(occurrence.start_utf16, occurrence.end_utf16),
+        after: `${context.fieldText.slice(occurrence.end_utf16, excerptEnd)}${excerptEnd < context.fieldText.length ? "…" : ""}`,
       };
     }
   }
