@@ -178,6 +178,25 @@ try {
   assert.equal(stillOpen.rows[0].micro_skill_key, "unknown");
   const fixMigration = readFileSync(new URL("../supabase/migrations/20261001110000_fix_contextual_learning_item_finalisation.sql", import.meta.url), "utf8");
   await db.query(fixMigration);
+  await db.query(`
+    create function public.ensure_parent_approved_spelling_occurrence_source(uuid,uuid,uuid,text)
+      returns jsonb language plpgsql as $$ begin raise exception 'spelling source invoked'; end $$;
+    create function public.materialize_spelling_occurrence_source_on_finalisation()
+      returns trigger language plpgsql as $$
+      begin
+        if new.issue_status='finalised' and new.final_classification is not null
+          and (tg_op='INSERT' or old.issue_status is distinct from new.issue_status
+            or old.final_classification is distinct from new.final_classification) then
+          perform public.ensure_parent_approved_spelling_occurrence_source(new.id,new.parent_user_id,new.child_id,new.final_classification);
+        end if;
+        return new;
+      end $$;
+    create trigger writing_issues_materialize_spelling_occurrence_source
+      after update of issue_status,final_classification on public.writing_issues
+      for each row execute function public.materialize_spelling_occurrence_source_on_finalisation();
+  `);
+  const triggerFixMigration = readFileSync(new URL("../supabase/migrations/20261001120000_exclude_contextual_finalisation_from_spelling_trigger.sql", import.meta.url), "utf8");
+  await db.query(triggerFixMigration);
   const finalised = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [learningIssue, parent, child, skill]);
   assert.equal(finalised.rows[0].result.handoff_state, "READY");
   assert.equal(finalised.rows[0].result.retry_evidence_kind, "REPAIR_ONLY");
