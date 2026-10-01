@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 import { loadPassageContextReview } from "../lib/writing-engine/whole-writing/context-passage-review";
@@ -39,6 +40,10 @@ async function load(events: Event[], options: { proof?: boolean; corrupt?: boole
   return review;
 }
 async function main() {
+  const reviewTable = readFileSync(new URL("../app/courses/review/unified-spelling-review-table.tsx", import.meta.url), "utf8");
+  assert.match(reviewTable,
+    /readOnly=\{reviewWorkflowPhase === "read_only" \|\| reviewWorkflowPhase === "adle_observational"\}/,
+    "Reviewer flow keeps fresh passage suggestions actionable before approval");
   const edit = { finding_id: "finding", action: "EDIT", correction: "through" };
   assert.equal((await load([])).rows[0].confirmed, false, "Unreviewed model output is only Suggested");
   const saved = (await load([edit])).rows[0];

@@ -1425,7 +1425,8 @@ export function UnifiedSpellingReviewTable({
               />
             ))}
             {passageRows.map((row) => <PassageContextReviewRow key={row.findingId} row={row}
-              submissionId={submissionId} readOnly={reviewWorkflowPhase !== "prepare_retry"}
+              submissionId={submissionId}
+              readOnly={reviewWorkflowPhase === "read_only" || reviewWorkflowPhase === "adle_observational"}
               showRouteColumns={showRouteColumns} showActionsColumn={showActionsColumn} />)}
           </tbody>
         </table>
