@@ -1,20 +1,19 @@
 # Adult-writing context resolver
 
-Status: the Production synthetic website proof passed for passage-wide Luna
-findings alongside spelling, including there/their/they're and confusables.
-The owner-approved 15-second provider deadline, indexed source-word contract and
-exact-occurrence focus/scroll repair are released. AI finishes disabled with
-policy scope DENY; this is not broad adult activation. See the
-[website receipt](qa/luna-synthetic-website-proof-2026-09-30.md) for exact application
-identities, costs, verification limits, remaining notice/spelling-review issues
-and the deliberately retained synthetic review fixture. Historical Stage 1A/1B
-receipts retain their original release identities.
+Status: the V10 adult-writing Review and retry release is active in Production
+at application SHA `8c4f5bd8f50bccf7afd6aa8f3fe0cc4e8bb20f68`, with
+`enabled=false`, `ai_mode=shadow`, and a bounded `REAL_LEARNER` policy. The
+[2026-10-01 release receipt](qa/adult-writing-context-resolver-production-release-2026-10-01.md)
+records the fresh synthetic website proof, deployment, approval expiry and
+operational readbacks. The earlier
+[website receipt](qa/luna-synthetic-website-proof-2026-09-30.md) establishes
+the historical V7 proof only. Historical Stage 1A/1B receipts retain their
+original release identities.
 
-The source and documentation audit on 2026-10-01 is recorded in
+The pre-release source and documentation audit on 2026-10-01 is recorded in
 [the current-state audit](qa/adult-writing-context-resolver-current-state-audit-2026-10-01.md).
-It distinguishes the V7 website proof from the later V10 source implementation.
-Do not infer a V10 Production migration, deployment, or active policy from the
-source branch alone.
+It distinguishes the V7 website proof from the later V10 source implementation;
+the subsequent Production release receipt is the authority for the live state.
 
 ## Product path
 
