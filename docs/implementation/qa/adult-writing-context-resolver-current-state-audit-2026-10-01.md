@@ -63,11 +63,16 @@ record was changed during this audit.
 }
 ```
 
-The branch includes these unverified-for-Production forward migrations:
+The branch includes these forward migrations:
 
 - `20261001100000_increase_context_request_cap.sql`
 - `20261001110000_fix_contextual_learning_item_finalisation.sql`
 - `20261001120000_exclude_contextual_finalisation_from_spelling_trigger.sql`
+
+At 2026-10-01 19:23 UTC, read-only Supabase CLI migration-list output showed
+147 local/remote rows and matched local and remote versions for all three
+migrations above. This verifies ledger presence, not statement hashes or every
+live function definition.
 
 ## Confirmed local coverage
 
@@ -93,9 +98,16 @@ to READY Production deployment `dpl_7FpnGFtF9Z6o3XjbQWGFxCNRzYPj`. The returned
 deployment metadata did not include an application Git SHA. The authenticated
 admin operations page showed no pending jobs or unrecorded sends; it showed
 one historical passage contract failure among nine provider calls in its
-24-hour aggregate. Its disabled-only binding comparison was unavailable, so
-this page did not establish current control state, V10 deployment identity,
-schema ledger, or an active approval. No new provider request was made.
+24-hour aggregate. Its disabled-only binding comparison was unavailable. A
+subsequent read-only database query found the singleton at `enabled=false`,
+`ai_mode=shadow`, with `ADULT_RELEASE`/`REAL_LEARNER` policy, concurrency one,
+12 requests per UTC day, a $0.50 daily cap and $0.0031 per-request reservation.
+The referenced standard-retention approval was not revoked, but it expired at
+2026-10-01 18:03:45 UTC and names application SHA
+`b510f43e3953b7d319eb45f96d380e6699e391c3`. The policy binds the genuine
+`openai-gpt6-luna-default-20260930` default-tier card and V10 runtime
+fingerprint. These checks still do not establish the live deployment's Git SHA
+or current sensitive environment values. No new provider request was made.
 
 ## Release prerequisites still being closed
 
@@ -105,11 +117,15 @@ schema ledger, or an active approval. No new provider request was made.
    a reviewed release SHA and hosted confirmation before broader activation.
 
 2. **Perform an exact Production release readback before broader activation.**
-   Verify the deployed SHA, V10 public fingerprints, the three forward
-   migrations, current rate card and policy, ownership restrictions and disabled
-   control state. The historical V7 proof cannot establish this later runtime.
-   After release, repeat a synthetic website proof through submission, Review,
-   Send back and return before enabling ordinary adult scans.
+   The three migration ledger versions and rate-card/policy metadata have been
+   read back. The live deployment Git SHA and sensitive environment values
+   remain unverified. The referenced approval has expired and names an earlier
+   SHA, while the control remains in shadow mode; a new release needs a fresh
+   binding and a controlled disabled-state preflight. Verify ownership
+   restrictions and the exact live schema before activation. The historical V7
+   proof cannot establish this later runtime. After release, repeat a synthetic
+   website proof through submission, Review, Send back and return before
+   enabling ordinary adult scans.
 
 ## Follow-on ADLE work, not a context-resolver launch gate
 
