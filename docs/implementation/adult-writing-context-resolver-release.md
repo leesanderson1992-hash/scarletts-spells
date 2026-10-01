@@ -56,6 +56,27 @@ Try again action. Successful windows are not rescanned. A timeout, ambiguous
 send, missing receipt, identity/cache mismatch or source failure cannot be
 retried through that action. No transport retry is automatic.
 
+## Pending contextual ADLE handoffs (local amendment, awaiting release)
+
+Parent-confirmed contextual concept gaps that lack an approved canonical word,
+approved word/skill support, or signed-off teaching content remain in
+`writing_context_learning_handoffs`. The existing database reconciliation RPC
+is the only authority that can turn one of these into an ADLE learning item.
+The amendment revisits pending handoffs through a separate authenticated daily
+cron and immediately before a guarded Today’s ADLE lesson generation for that
+child. The existing canonical spelling intake scheduler remains unchanged.
+`PENDING_EXISTING_ITEM_REVIEW` still requires governed review rather than
+automatic reentry.
+
+The composer continues to require two distinct active unresolved word-scoped
+learning items for one micro-skill. Reconciliation does not create teaching
+content or an assignment. Once content is released and the two-item gate plus
+all route and snapshot requirements pass, the existing guarded Today’s ADLE
+action creates the lesson the writer can open. A missing route, incomplete
+content, due Review precedence, or one word still leaves no new lesson. The
+child-facing assignment page remains read-only; the child’s existing Open
+Today’s ADLE action invokes guarded generation.
+
 ## Disposable passage proof
 
 The private `proof_scan_kind` policy field defaults to `FOUR_FAMILY`, retaining

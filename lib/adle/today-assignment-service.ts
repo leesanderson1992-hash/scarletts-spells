@@ -13,6 +13,7 @@ import {
   type ExistingAssignmentHeaderFact,
 } from "./assignment-persistence";
 import { selectPartTwoSkill } from "./composer-skill-selection";
+import { reconcilePendingContextualHandoffs } from "./contextual-handoff-reconciliation";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "./curriculum-readiness/route-registry";
 import { composeDailyPlan } from "./daily-assignment-composer";
 import { authorCompleteGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-forward-authoring";
@@ -351,6 +352,14 @@ export async function ensureParentAdleTodayAssignment(params: {
 
   let routeId: string | undefined;
   try {
+    const handoffs = await reconcilePendingContextualHandoffs({
+      serviceClient: params.serviceClient,
+      childId: params.childId,
+      limit: 999,
+    });
+    if (handoffs.hasMore) {
+      throw new Error("contextual_handoff_child_sweep_incomplete");
+    }
     const { facts } = await loadDailyPlanFacts(params.serviceClient, {
       childId: params.childId,
       today: practiceDate as IsoDate,
