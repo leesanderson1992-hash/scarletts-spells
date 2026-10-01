@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { gatePassageFindings, indexedPassageWords, passageRequestBody, planPassageWindows } from
+import { gatePassageFindings, indexedPassageWords, passageContextSchema, passageRequestBody, planPassageWindows } from
   "../lib/writing-engine/whole-writing/context-passage-scan";
 
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -59,6 +59,9 @@ assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: hash(
   text: "x ".repeat(5000) }] }), null, "Four-window work fails closed without a partial scan");
 const body = JSON.parse(passageRequestBody(window, occurrences));
 assert.equal(body.store, false); assert.equal(body.service_tier, "default");
+assert.deepEqual(body.text.format.schema.properties.case_id.enum, [window.caseId],
+  "Provider schema binds the response to the exact window case");
+assert.throws(() => passageContextSchema("invalid"), /CASE_ID_INVALID/);
 assert.deepEqual(body.prompt_cache_options, { mode: "explicit" });
 const request = JSON.parse(body.input[1].content);
 assert.deepEqual(Object.keys(request).sort(), ["case_id", "dialect", "indexed_words", "source_text"]);

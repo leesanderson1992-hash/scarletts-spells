@@ -45,6 +45,7 @@ export const AI_CONTEXT_CONFIG_FINGERPRINT = sha256(JSON.stringify({
   max_output_tokens: 2048, store: false, truncation: "disabled",
   prompt_cache_options: { mode: "explicit" },
   passage_prompt: sha256(PASSAGE_CONTEXT_PROMPT), passage_schema: sha256(JSON.stringify(PASSAGE_CONTEXT_SCHEMA)),
+  passage_case_id_binding: "REQUEST_CASE_ID_ENUM_V1",
   window_max_utf16: 600, passage_window_max_utf16: 3000,
   passage_window_max_utf8: 4000, passage_max_windows: PASSAGE_CONTEXT_MAX_WINDOWS,
   gate: AI_CONTEXT_GATE_VERSION,
