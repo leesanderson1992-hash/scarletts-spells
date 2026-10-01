@@ -1,6 +1,6 @@
 # Adult-writing context resolver
 
-Status: the V10 adult-writing Review and retry release is active in Production
+The 2026-10-01 V10 adult-writing Review and retry release ran in Production
 at application SHA `8c4f5bd8f50bccf7afd6aa8f3fe0cc4e8bb20f68`, with
 `enabled=false`, `ai_mode=shadow`, and a bounded `REAL_LEARNER` policy. The
 [2026-10-01 release receipt](qa/adult-writing-context-resolver-production-release-2026-10-01.md)
@@ -9,6 +9,14 @@ operational readbacks. The earlier
 [website receipt](qa/luna-synthetic-website-proof-2026-09-30.md) establishes
 the historical V7 proof only. Historical Stage 1A/1B receipts retain their
 original release identities.
+
+The Luna resolver is the selected adult-writing context path in this source
+tree. The earlier V4 analyser, parser, evaluation tooling and research evidence
+are preserved at Git tag `archive/context-v4-2026-09-25`, pointing to commit
+`4d0f547ee062abe0c1261d652bcae582ddec8a8a`. V4-only files are absent
+from the integrated application tree; this does not erase their Git history or
+change the historical migration ledger. The ADLE template development branch
+remains separate from this integration.
 
 The pre-release source and documentation audit on 2026-10-01 is recorded in
 [the current-state audit](qa/adult-writing-context-resolver-current-state-audit-2026-10-01.md).

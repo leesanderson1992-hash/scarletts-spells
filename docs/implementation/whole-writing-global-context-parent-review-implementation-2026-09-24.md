@@ -3,10 +3,10 @@
 Branch: `codex/global-contextual-parent-review`. Baseline:
 `6a8b02ec7b6d4e41afda3086bb27c5ee3ac4e1c3`.
 
-Status: **implemented, globally default off; not authorised for live use**.
-The separate advisory-use exception in
-`whole-writing-global-context-advisory-exception-proposal.md` remains
-**proposed**. No V4 release, manifest, parser, fallback policy, frozen evidence,
+Historical status at this receipt: **implemented, globally default off; not authorised for live use**.
+The then-proposed advisory-use exception is preserved with this historical
+work at Git tag `archive/context-v4-2026-09-25` (commit `4d0f547`).
+No V4 release, manifest, parser, fallback policy, frozen evidence,
 selection, approval or activation was changed. No migration was applied to
 staging or Production. The new ADLE contextual evidence bridge (Phase 5) is
 not implemented; it requires its own policy and regression approval.
