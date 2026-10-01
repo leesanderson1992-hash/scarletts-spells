@@ -12,8 +12,8 @@ assert.equal(createHash("sha256").update(AI_CONTEXT_PROMPT).digest("hex"),
   "682fa2635019accc718d791a5c4473b62e48388f7cecb91b4ab29bf7cc17241c");
 assert.equal(createHash("sha256").update(JSON.stringify(AI_CONTEXT_SCHEMA)).digest("hex"),
   "e6d48f8e85bc2e686d5d4829fa878dbd5c20a047cf9305ab2c90bb71501df540");
-assert.equal(AI_CONTEXT_PROMPT_FINGERPRINT, "224698fcb066e58cfb1260b92757535ebcfd5561dff7eb11c9c32aa003850bef");
-assert.equal(AI_CONTEXT_SCHEMA_FINGERPRINT, "ba0fd64ddab1c30b36b2c2c1ea5d96ae58574d5cb8bd6d8663b1142461adae84");
+assert.equal(AI_CONTEXT_PROMPT_FINGERPRINT, "7a50377c7452b274c30ed863d57834889487741b531265dc6d204b3c3af73509");
+assert.equal(AI_CONTEXT_SCHEMA_FINGERPRINT, "18b68be7b62ebc1551bfed4e1fbdb85f842cd7dcbdf5ee2216183e4d6ed213e0");
 assert.equal(AI_CONTEXT_PROMPT, readFileSync("bench/ai-context/prompt.txt", "utf8"));
 
 const text = "I went there.\n\nTheir cat is here.";

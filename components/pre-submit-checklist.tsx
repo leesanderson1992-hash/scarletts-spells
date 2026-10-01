@@ -16,6 +16,16 @@ const CHECKS = [
   "I read it back once",
 ] as const;
 
+export function ContextAiSubmissionNotice() {
+  return (
+    <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
+      When context checking is on, excerpts of your writing are sent to OpenAI
+      for word-choice suggestions. Account details are not included. OpenAI may
+      retain API safety logs for up to 30 days.
+    </p>
+  );
+}
+
 export function PreSubmitChecklist({
   submitLabel,
   onBeforeSubmit,
@@ -59,11 +69,7 @@ export function PreSubmitChecklist({
         ))}
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
-        When context checking is on, excerpts of your writing are sent to OpenAI
-        for word-choice suggestions. Account details are not included. OpenAI may
-        retain API safety logs for up to 30 days.
-      </p>
+      <ContextAiSubmissionNotice />
 
       <div className="mt-4">
         <LessonSubmissionControls

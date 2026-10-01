@@ -10,6 +10,12 @@ identities, costs, verification limits, remaining notice/spelling-review issues
 and the deliberately retained synthetic review fixture. Historical Stage 1A/1B
 receipts retain their original release identities.
 
+The source and documentation audit on 2026-10-01 is recorded in
+[the current-state audit](qa/adult-writing-context-resolver-current-state-audit-2026-10-01.md).
+It distinguishes the V7 website proof from the later V10 source implementation.
+Do not infer a V10 Production migration, deployment, or active policy from the
+source branch alone.
+
 ## Product path
 
 This release is for adult-authored fictional writing. `child_id` and
@@ -56,17 +62,32 @@ Try again action. Successful windows are not rescanned. A timeout, ambiguous
 send, missing receipt, identity/cache mismatch or source failure cannot be
 retried through that action. No transport retry is automatic.
 
-## Pending contextual ADLE handoffs (local amendment, awaiting release)
+## Pending contextual ADLE handoffs
+
+An ADLE lesson for the homophone category has not been created. Automatic
+assignment of such a lesson and visibility of pending contextual handoffs in
+Parent Insights are follow-on ADLE work, not prerequisites for releasing the
+adult-writing context Review and retry flow. The release must still preserve
+the recorded learning need and handoff without claiming an ADLE lesson exists.
 
 Parent-confirmed contextual concept gaps that lack an approved canonical word,
 approved word/skill support, or signed-off teaching content remain in
 `writing_context_learning_handoffs`. The existing database reconciliation RPC
 is the only authority that can turn one of these into an ADLE learning item.
-The amendment revisits pending handoffs through a separate authenticated daily
-cron and immediately before a guarded Today’s ADLE lesson generation for that
-child. The existing canonical spelling intake scheduler remains unchanged.
+The implementation revisits pending handoffs through a separate authenticated
+daily cron and immediately before a guarded Today’s ADLE lesson generation for
+that child. The existing canonical spelling intake scheduler remains unchanged.
 `PENDING_EXISTING_ITEM_REVIEW` still requires governed review rather than
 automatic reentry.
+
+Parent Insights' **Pending ADLE learning** page lists only active
+`adle_learning_items`: it does not show unresolved contextual handoffs or their
+blocker. A contextual learning need can therefore be visible in the review
+record and the micro-skill insights before it is visible as an ADLE queued word.
+The blocker is one of a missing approved canonical word, missing approved
+word-to-skill support, missing signed-off teaching content, or governed review
+of a resolved existing item. Showing these pending handoffs to the parent is
+separate product work.
 
 The composer continues to require two distinct active unresolved word-scoped
 learning items for one micro-skill. Reconciliation does not create teaching
@@ -108,15 +129,17 @@ Secret values never enter the repository, Preview, browser, API output or logs.
 The server-only request uses `/v1/responses`, `gpt-6-luna`, default tier,
 `store:false`, no tools/background mode, explicit cache mode, one HTTP send,
 a 15-second full-body deadline and 50-second worker budget and no automatic retry.
-The three-window limit, 16,000-byte request cap and worker budget are a local amendment awaiting release;
-the historical website proof above establishes the previous two-window runtime.
-The amended runtime is `CONTEXT_SHADOW_DISPATCH_V8` and requires matching configuration
-and runtime fingerprints in the deployment and its approval/policy before activation.
-Deployment method: unique forward migration
-`20261001100000_increase_context_request_cap.sql`, followed by matching application
-and configuration release while AI remains disabled. The migration aligns the
-dispatch constraint and conservative cost reservation with the larger request;
-existing spend caps must cover that bound before any new admission.
+The current source implementation is `CONTEXT_SHADOW_DISPATCH_V10`: three
+windows, the 16,000-byte complete-request cap, a 15-second full-body deadline,
+a 50-second worker budget, zero automatic retries and 32 maximum requests per
+submission. Its public pins are recorded in the current-state audit. The V7
+website proof establishes the earlier deployed runtime only. Before any later
+activation, Production must read back the V10 deployment SHA, migration ledger,
+configuration and runtime fingerprint; the V10 source branch is not that
+evidence. The forward migration
+`20261001100000_increase_context_request_cap.sql` aligns the dispatch constraint
+and conservative cost reservation with the larger request; existing spend caps
+must cover that bound before any new admission.
 The [model page](https://developers.openai.com/api/docs/models/gpt-6-luna)
 lists Responses and structured-output support; the [pricing page](https://developers.openai.com/api/docs/pricing)
 is the rate-card source, not the isolated test fixture.

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { buildRawLessonSourceDraft } from "@/lib/lessons/source-capture";
 
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
+import { ContextAiSubmissionNotice } from "@/components/pre-submit-checklist";
 import {
   LessonSubmissionControls,
   readPreservedSubmissionValue,
@@ -1265,6 +1266,7 @@ export function StructuredLessonResponse({
           />
           <input ref={draftPayloadRef} type="hidden" name="draft_payload" />
           <input type="hidden" name="writing_source_draft_payload" value={JSON.stringify(buildRawLessonSourceDraft({ answerMap, taskId: draftContext.taskId, childId: draftContext.childId }))} />
+          <ContextAiSubmissionNotice />
           <div className="mt-4">
             <LessonSubmissionControls
               submitLabel={submitLabel}
