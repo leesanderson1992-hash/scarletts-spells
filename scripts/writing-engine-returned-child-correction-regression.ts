@@ -106,8 +106,8 @@ assert.match(
 );
 assert.match(
   structuredLessonResponse,
-  /const unmatchedReturnedIssues = useMemo\([\s\S]*!issue\.source_field_key[\s\S]*!returnedIssueInlineKeys\.has\(issue\.source_field_key\)/,
-  "Returned issues without a source_field_key match must be collected for fallback rendering.",
+  /const unmatchedReturnedIssues = useMemo\([\s\S]*const fieldKey = returnedIssueFieldKey\(issue, returnedContextExcerpts\)[\s\S]*!fieldKey \|\| !returnedIssueInlineKeys\.has\(fieldKey\)/,
+  "Returned issues without a verified answer-field match must be collected for fallback rendering.",
 );
 assert.match(
   structuredLessonResponse,

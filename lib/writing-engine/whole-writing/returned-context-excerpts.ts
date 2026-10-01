@@ -2,11 +2,69 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { reconstructOccurrenceContext } from "./context-source";
-import type { SourceSnapshot } from "./source";
+import { readSnapshotField, reconstructOccurrenceContext } from "./context-source";
+import { object, type SourceSnapshot } from "./source";
 
 /** Read only historical context for issues in this owner's task thread. */
-export type ReturnedContextExcerpt = { before: string; focus: string; after: string };
+export type ReturnedContextExcerpt = {
+  before: string;
+  focus: string;
+  after: string;
+  /** Verified source answer block, for placing feedback beside that answer. */
+  answerBlockId: string | null;
+};
+
+function sourceAnswerBlockId(snapshot: SourceSnapshot, fieldPath: string): string | null {
+  const envelope = snapshot.envelope;
+  const blocks = object(object(envelope.taskContext).lessonSchema).blocks;
+  const blockRows = Array.isArray(blocks) ? blocks.map(object) : [];
+  const draft = object(envelope.draftPayload);
+  const payloads = Array.isArray(envelope.structuredPayloads)
+    ? envelope.structuredPayloads.map(object) : [];
+  const embeddedAnswers = object(draft.__structured_lesson_response).answers;
+  const savedResponses = payloads.filter((payload) =>
+    payload.type === "structured_lesson_response" || payload.type === "structured_test_response");
+  const savedAnswers = savedResponses.length === 1 ? object(savedResponses[0].value).answers : null;
+  const primaryAnswers = Array.isArray(embeddedAnswers)
+    ? embeddedAnswers : Array.isArray(savedAnswers) ? savedAnswers : [];
+  const fieldText = readSnapshotField(snapshot, fieldPath);
+  if (fieldText === null) return null;
+
+  let blockId: unknown = null;
+  const flatMatch = /^\/draftPayload\/([^/]+)$/.exec(fieldPath);
+  const embeddedMatch = /^\/draftPayload\/__structured_lesson_response\/answers\/(\d+)\/value$/.exec(fieldPath);
+  const durableMatch = /^\/structuredPayloads\/(\d+)\/value\/answers\/(\d+)\/value$/.exec(fieldPath);
+  if (flatMatch) {
+    const key = flatMatch[1].replace(/~1/g, "/").replace(/~0/g, "~");
+    const mirroredAnswers = primaryAnswers.map(object).filter((answer) => answer.block_id === key);
+    if (draft[key] === fieldText && mirroredAnswers.length === 1 &&
+        mirroredAnswers[0].value === fieldText) blockId = key;
+  } else if (embeddedMatch) {
+    const answers = Array.isArray(embeddedAnswers) ? embeddedAnswers.map(object) : [];
+    const answer = answers[Number(embeddedMatch[1])] ?? {};
+    if (answer.value === fieldText &&
+        answers.filter((row) => row.block_id === answer.block_id).length === 1) blockId = answer.block_id;
+  } else if (durableMatch) {
+    const payload = payloads[Number(durableMatch[1])];
+    const rows = object(payload?.value).answers;
+    const answers = Array.isArray(rows) ? rows.map(object) : [];
+    const answer = answers[Number(durableMatch[2])] ?? {};
+    if (answer.value === fieldText &&
+        answers.filter((row) => row.block_id === answer.block_id).length === 1) blockId = answer.block_id;
+  } else if (fieldPath === "/rawSubmissionText" &&
+      object(envelope.captureMetadata).structuredResponseOrigin === "derived_from_flat") {
+    const answers = primaryAnswers;
+    if (answers.length === 1) {
+      const answer = object(answers[0]);
+      if (answer.value === fieldText) blockId = answer.block_id;
+    }
+  }
+
+  if (typeof blockId !== "string" || !blockId) return null;
+  const matches = blockRows.filter((block) => block.block_id === blockId &&
+    (block.block_type === "question_text" || block.block_type === "question_textarea"));
+  return matches.length === 1 ? blockId : null;
+}
 
 export async function loadReturnedContextExcerpts(input: {
   client: SupabaseClient;
@@ -77,6 +135,7 @@ export async function loadReturnedContextExcerpts(input: {
         before: `${excerptStart > 0 ? "…" : ""}${context.fieldText.slice(excerptStart, occurrence.start_utf16)}`,
         focus: context.fieldText.slice(occurrence.start_utf16, occurrence.end_utf16),
         after: `${context.fieldText.slice(occurrence.end_utf16, excerptEnd)}${excerptEnd < context.fieldText.length ? "…" : ""}`,
+        answerBlockId: sourceAnswerBlockId(snapshot as SourceSnapshot, occurrence.field_path),
       };
     }
   }

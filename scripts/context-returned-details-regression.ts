@@ -19,7 +19,7 @@ const occurrence = {
 const snapshot = {
   id: "snapshot", submission_id: "original", task_id: "task", parent_user_id: "owner",
   child_id: "writer", source_revision: "1", occurred_at: "2026-09-30T00:00:00Z",
-  envelope: { rawSubmissionText: writing },
+  envelope: { rawSubmissionText: writing } as Record<string, unknown>,
 };
 
 function client(tables: Record<string, Array<Record<string, unknown>>>) {
@@ -60,6 +60,81 @@ async function main() {
   assert.equal(result.issue.before + result.issue.focus + result.issue.after, writing,
     "The excerpt reconstructs the immutable source for this short fixture");
   assert.match(result.issue.before, /^Their coats were dry, but $/);
+  assert.equal(result.issue.answerBlockId, null, "Unstructured text has no answer box to attach to");
+
+  const firstAnswer = "There are two bags.";
+  const secondAnswer = "Their bags were wet, but their coats were dry.";
+  const secondTarget = secondAnswer.lastIndexOf("their");
+  const structuredEnvelope = {
+    taskContext: { lessonSchema: { blocks: [
+      { block_id: "first", block_type: "question_textarea" },
+      { block_id: "second", block_type: "question_textarea" },
+    ] } },
+    draftPayload: { __structured_lesson_response: { answers: [
+      { block_id: "first", value: firstAnswer },
+      { block_id: "second", value: secondAnswer },
+    ] } },
+  };
+  const structuredResult = await load({
+    occurrence: {
+      field_path: "/draftPayload/__structured_lesson_response/answers/1/value",
+      field_hash: fingerprint(secondAnswer), start_utf16: secondTarget,
+      end_utf16: secondTarget + 5,
+    },
+    snapshot: { envelope: structuredEnvelope },
+  });
+  assert.equal(structuredResult.issue.answerBlockId, "second",
+    "A verified occurrence attaches to its own answer despite the same word in another answer");
+  assert.equal(structuredResult.issue.focus, "their");
+  assert.match(structuredResult.issue.before, /^Their bags were wet, but $/,
+    "The second instance in the answer is identified exactly");
+
+  const flatResult = await load({
+    occurrence: { field_path: "/draftPayload/second", field_hash: fingerprint(secondAnswer),
+      start_utf16: secondTarget, end_utf16: secondTarget + 5 },
+    snapshot: { envelope: { ...structuredEnvelope,
+      draftPayload: { ...structuredEnvelope.draftPayload, second: secondAnswer } } },
+  });
+  assert.equal(flatResult.issue.answerBlockId, "second", "Flat answer mirrors attach to the same box");
+  assert.equal((await load({
+    occurrence: { field_path: "/draftPayload/second", field_hash: fingerprint(secondAnswer),
+      start_utf16: secondTarget, end_utf16: secondTarget + 5 },
+    snapshot: { envelope: { ...structuredEnvelope,
+      draftPayload: { __structured_lesson_response: { answers: [
+        { block_id: "second", value: "A different saved answer." },
+      ] }, second: secondAnswer } } },
+  })).issue.answerBlockId, null, "A conflicting answer mirror cannot place a retry card");
+  assert.equal((await load({
+    occurrence: { field_path: "/draftPayload/__structured_lesson_response/answers/1/value",
+      field_hash: fingerprint(secondAnswer), start_utf16: secondTarget,
+      end_utf16: secondTarget + 5 },
+    snapshot: { envelope: { ...structuredEnvelope,
+      draftPayload: { __structured_lesson_response: { answers: [
+        { block_id: "second", value: firstAnswer },
+        { block_id: "second", value: secondAnswer },
+      ] } } } },
+  })).issue.answerBlockId, null, "Duplicate answer IDs cannot place a retry card");
+
+  const rawResult = await load({
+    occurrence: { field_hash: fingerprint(secondAnswer), start_utf16: secondTarget,
+      end_utf16: secondTarget + 5 },
+    snapshot: { envelope: { ...structuredEnvelope, rawSubmissionText: secondAnswer,
+      captureMetadata: { structuredResponseOrigin: "derived_from_flat" },
+      draftPayload: { __structured_lesson_response: { answers: [
+        { block_id: "second", value: secondAnswer },
+      ] } } } },
+  });
+  assert.equal(rawResult.issue.answerBlockId, "second", "Derived raw answers retain a unique box");
+  assert.equal((await load({
+    occurrence: { field_path: "/draftPayload/__structured_lesson_response/answers/1/value",
+      field_hash: fingerprint(secondAnswer), start_utf16: secondTarget,
+      end_utf16: secondTarget + 5 },
+    snapshot: { envelope: { ...structuredEnvelope,
+      taskContext: { lessonSchema: { blocks: [
+        { block_id: "first", block_type: "question_textarea" },
+        { block_id: "second", block_type: "rich_text" },
+      ] } } } },
+  })).issue.answerBlockId, null, "Non-answer blocks cannot receive retry cards");
   const longWriting = `${"Earlier ".repeat(30)}their bags were wet.${" Later".repeat(30)}`;
   const longStart = longWriting.indexOf("their bags");
   const longResult = await load({

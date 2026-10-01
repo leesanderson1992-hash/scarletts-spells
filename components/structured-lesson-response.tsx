@@ -14,6 +14,7 @@ import {
   getStructuredLessonResponseFromPayload,
 } from "@/lib/lessons/responses";
 import type { ReturnedWritingIssueDraftPayload } from "@/lib/lessons/responses";
+import type { ReturnedContextExcerpt } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
 import {
   getLessonUnderstandingBand,
   type LessonComprehensionQuizGroupBlock,
@@ -39,6 +40,7 @@ type StructuredLessonResponseProps = {
   initialResponse?: StructuredLessonResponse | null;
   initialFieldFeedback?: FeedbackMap;
   returnedIssueFeedback?: ReturnedWritingIssueDraftPayload[];
+  returnedContextExcerpts?: Record<string, ReturnedContextExcerpt>;
   saveDraftAction: (formData: FormData) => void | Promise<void>;
   saveDraftSilentlyAction?: (
     formData: FormData,
@@ -50,6 +52,13 @@ type StructuredLessonResponseProps = {
 type AnswerMap = Record<string, StructuredLessonAnswerValue>;
 type FeedbackMap = Record<string, string>;
 type SaveState = "idle" | "saving" | "saved" | "error";
+
+function returnedIssueFieldKey(
+  issue: ReturnedWritingIssueDraftPayload,
+  excerpts: Record<string, ReturnedContextExcerpt>,
+) {
+  return excerpts[issue.issue_id]?.answerBlockId ?? issue.source_field_key;
+}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -285,6 +294,7 @@ export function StructuredLessonResponse({
   initialResponse,
   initialFieldFeedback,
   returnedIssueFeedback = [],
+  returnedContextExcerpts = {},
   saveDraftAction,
   saveDraftSilentlyAction,
   draftContext,
@@ -342,12 +352,11 @@ export function StructuredLessonResponse({
   }, [orderedBlocks]);
   const unmatchedReturnedIssues = useMemo(
     () =>
-      returnedIssueFeedback.filter(
-        (issue) =>
-          !issue.source_field_key ||
-          !returnedIssueInlineKeys.has(issue.source_field_key),
-      ),
-    [returnedIssueFeedback, returnedIssueInlineKeys],
+      returnedIssueFeedback.filter((issue) => {
+        const fieldKey = returnedIssueFieldKey(issue, returnedContextExcerpts);
+        return !fieldKey || !returnedIssueInlineKeys.has(fieldKey);
+      }),
+    [returnedIssueFeedback, returnedIssueInlineKeys, returnedContextExcerpts],
   );
   const isReturnedForReview = initialResponse?.status === "returned";
 
@@ -596,6 +605,7 @@ export function StructuredLessonResponse({
     label: string,
   ) {
     const childNote = getChildSafeReturnedIssueNote(issue.child_note);
+    const originalContextExcerpt = returnedContextExcerpts[issue.issue_id];
 
     return (
       <div
@@ -611,7 +621,7 @@ export function StructuredLessonResponse({
               {childNote ? (
                 <p className="min-w-0 break-words">{childNote}</p>
               ) : null}
-              {issue.observed_text ? (
+              {issue.observed_text && !originalContextExcerpt ? (
                 <p className="min-w-0 break-words text-sm text-amber-900/90">
                   Look at:{" "}
                   <mark className="rounded-md bg-white px-1.5 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-200 break-words">
@@ -619,7 +629,16 @@ export function StructuredLessonResponse({
                   </mark>
                 </p>
               ) : null}
-              {issue.context_text ? (
+              {originalContextExcerpt ? (
+                <p className="min-w-0 whitespace-pre-wrap break-words rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
+                  <span className="block text-xs font-semibold text-amber-800">In your first answer:</span>
+                  {originalContextExcerpt.before}
+                  <strong className="rounded bg-sky-100 px-0.5 font-bold text-sky-950">
+                    {originalContextExcerpt.focus}
+                  </strong>
+                  {originalContextExcerpt.after}
+                </p>
+              ) : issue.context_text ? (
                 <p className="min-w-0 whitespace-pre-wrap break-words rounded-2xl bg-white/80 px-3 py-2 text-sm text-[color:var(--ink)]">
                   {issue.context_text}
                 </p>
@@ -637,7 +656,7 @@ export function StructuredLessonResponse({
 
   function renderReturnedIssueFeedback(feedbackKey: string) {
     const matchingIssues = returnedIssueFeedback.filter(
-      (issue) => issue.source_field_key === feedbackKey,
+      (issue) => returnedIssueFieldKey(issue, returnedContextExcerpts) === feedbackKey,
     );
 
     if (matchingIssues.length === 0) {

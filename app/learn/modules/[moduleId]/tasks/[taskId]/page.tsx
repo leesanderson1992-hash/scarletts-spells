@@ -48,6 +48,7 @@ import {
   type CourseTaskRow,
 } from "@/lib/courses/types";
 import { createClient } from "@/lib/supabase/server";
+import { loadReturnedContextExcerpts } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
 
 import {
   addTaskToWeekSelection,
@@ -453,6 +454,13 @@ export default async function LearnModuleTaskPage({
     latestSubmission?.parent_review_status === "returned"
       ? getReturnedWritingIssueFeedback(latestDraft?.draft_payload)
       : [];
+  const returnedContextExcerpts = await loadReturnedContextExcerpts({
+    client: supabase,
+    issueIds: returnedWritingIssues.map((issue) => issue.issue_id),
+    parentUserId: user.id,
+    childId: selectedChild.id,
+    taskId: task.id,
+  });
   const recurringSummary = getRecurringTaskProgressSummary(
     task,
     detail.completions,
@@ -709,6 +717,7 @@ export default async function LearnModuleTaskPage({
                       initialResponse={structuredInitialResponse}
                       initialFieldFeedback={latestStructuredFieldFeedback}
                       returnedIssueFeedback={returnedWritingIssues}
+                      returnedContextExcerpts={returnedContextExcerpts}
                       draftContext={{
                         taskId: task.id,
                         courseId: detail.course.id,
@@ -833,6 +842,17 @@ export default async function LearnModuleTaskPage({
                     ))}
                   </fieldset>
                 ) : null}
+                <textarea
+                  name="submission_text"
+                  rows={task.task_type === "lesson" ? 5 : 4}
+                  className="brand-input rounded-2xl px-4 py-3 text-base"
+                  defaultValue={latestDraft?.draft_text ?? ""}
+                  placeholder={
+                    task.task_type === "test"
+                      ? "Write your answers here"
+                      : "Write your lesson response here"
+                  }
+                />
                 {latestSubmission?.parent_review_status === "returned" &&
                 returnedWritingIssues.length > 0 ? (
                   <div className="grid min-w-0 gap-3 rounded-[1.75rem] border border-amber-200 bg-amber-50/70 px-4 py-4">
@@ -854,23 +874,22 @@ export default async function LearnModuleTaskPage({
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700">
                             Word {index + 1}
                           </p>
+                          {returnedContextExcerpts[issue.issue_id] ? (
+                            <p className="min-w-0 whitespace-pre-wrap break-words rounded-xl bg-sky-50 px-3 py-2">
+                              <span className="block text-xs font-semibold text-sky-900">In your first answer:</span>
+                              {returnedContextExcerpts[issue.issue_id].before}
+                              <strong className="rounded bg-sky-100 px-0.5 font-bold text-sky-950">
+                                {returnedContextExcerpts[issue.issue_id].focus}
+                              </strong>
+                              {returnedContextExcerpts[issue.issue_id].after}
+                            </p>
+                          ) : null}
                           <ReturnedIssueRetryControls issue={issue} />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : null}
-                <textarea
-                  name="submission_text"
-                  rows={task.task_type === "lesson" ? 5 : 4}
-                  className="brand-input rounded-2xl px-4 py-3 text-base"
-                  defaultValue={latestDraft?.draft_text ?? ""}
-                  placeholder={
-                    task.task_type === "test"
-                      ? "Write your answers here"
-                      : "Write your lesson response here"
-                  }
-                />
                 <PreSubmitChecklist
                   submitLabel={
                     task.task_type === "test" ? "Submit test" : "Submit lesson"
