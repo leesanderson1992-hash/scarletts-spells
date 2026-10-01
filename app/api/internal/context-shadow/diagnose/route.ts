@@ -50,7 +50,11 @@ export async function GET() {
       provider_key_present: Boolean(process.env.OPENAI_API_KEY?.trim()),
       environment_match: a?.environment === "production" && process.env.CONTEXT_AI_ENVIRONMENT === a.environment
         && process.env.VERCEL_ENV === a.environment,
+      explicit_deployment_sha_present: process.env.CONTEXT_AI_DEPLOYMENT_SHA !== undefined,
+      vercel_git_sha_present: process.env.VERCEL_GIT_COMMIT_SHA !== undefined,
+      deployment_sha_format_match: /^[a-f0-9]{40}$/.test(deployedSha ?? ""),
       deployment_sha_match: Boolean(a) && deployedSha === a?.deployment_sha,
+      deployment_sha_trimmed_match: Boolean(a) && deployedSha?.trim() === a?.deployment_sha,
       project_ref_match: Boolean(a) && process.env.CONTEXT_AI_OPENAI_PROJECT_REF === a?.project_ref,
       model_match: a?.model === AI_CONTEXT_MODEL && process.env.CONTEXT_AI_MODEL === AI_CONTEXT_MODEL,
       endpoint_match: a?.endpoint === "/v1/responses",
