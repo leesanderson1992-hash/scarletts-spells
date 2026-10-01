@@ -113,6 +113,18 @@ async function main() {
   console.info = (...args) => { diagnostics.push(args); };
   try {
     assert(contextShadowIdentity(), "Production identity accepted only with all pins");
+    const originalGitSha = process.env.VERCEL_GIT_COMMIT_SHA;
+    const originalDeploymentSha = process.env.CONTEXT_AI_DEPLOYMENT_SHA;
+    process.env.VERCEL_GIT_COMMIT_SHA = "";
+    process.env.CONTEXT_AI_DEPLOYMENT_SHA = "d".repeat(40);
+    try {
+      assert(contextShadowIdentity(), "Owner-bound deployment SHA authorises a direct Production deployment");
+    } finally {
+      if (originalGitSha === undefined) delete process.env.VERCEL_GIT_COMMIT_SHA;
+      else process.env.VERCEL_GIT_COMMIT_SHA = originalGitSha;
+      if (originalDeploymentSha === undefined) delete process.env.CONTEXT_AI_DEPLOYMENT_SHA;
+      else process.env.CONTEXT_AI_DEPLOYMENT_SHA = originalDeploymentSha;
+    }
     const originalEnvironment = process.env.VERCEL_ENV;
     process.env.VERCEL_ENV = "preview";
     assert.equal(contextShadowIdentity(), null, "Preview cannot authorise Production proof");

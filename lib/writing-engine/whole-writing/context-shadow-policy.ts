@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { AI_CONTEXT_CONFIG_FINGERPRINT, AI_CONTEXT_GATE_VERSION, AI_CONTEXT_MODEL,
   AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA_FINGERPRINT } from "./context-ai-gate";
 
-export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V8";
+export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V9";
 export const CONTEXT_SHADOW_TIMEOUT_MS = 15000;
 export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 50000;
 export const CONTEXT_SHADOW_MAX_REQUEST_BYTES = 16000;
@@ -18,7 +18,10 @@ export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JS
 })).digest("hex");
 export function contextShadowIdentity() {
   const environment = process.env.CONTEXT_AI_ENVIRONMENT;
-  const deploymentSha = process.env.VERCEL_GIT_COMMIT_SHA;
+  // CLI deployments are not Git-triggered, so Vercel does not set the Git
+  // system variable for them. The approved server-only binding supplies the
+  // exact reviewed application commit in that case.
+  const deploymentSha = process.env.CONTEXT_AI_DEPLOYMENT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA;
   const projectRef = process.env.CONTEXT_AI_OPENAI_PROJECT_REF;
   const valid = process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED === "accepted" &&
     Boolean(process.env.OPENAI_API_KEY?.trim()) &&
