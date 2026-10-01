@@ -38,6 +38,10 @@ with × or restore the suggestion. Non-dismissed
 findings become pending repair issues when Send back is pressed. The existing
 returned-work Review table shows context and spelling retries in the same Word,
 Correction, Retry, Source, Status, Reason, Learning route and Actions columns.
+Returned context Details reconstructs a short excerpt around the exact original
+occurrence from its saved source, after ownership, task, hash and span checks.
+The retry remains a separate submission and its writing is not marked with
+historical findings.
 Choosing a context reason saves an editable draft; confirming the outcome is a
 separate action against the original occurrence and the writer's retry. A governed
 family can use only its active assigned microskill. Other context pairs remain

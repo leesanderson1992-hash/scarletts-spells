@@ -25,6 +25,7 @@
     "writing:context-shadow-manifest": "NODE_OPTIONS=--conditions=react-server tsx scripts/context-shadow-manifest.ts",
     "writing:context-feedback-gold-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-context-feedback-gold-regression.ts",
     "writing:context-feedback-lineage-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-context-feedback-lineage-regression.ts",
+    "writing:context-returned-details-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/context-returned-details-regression.ts",
     "writing:context-advisory-db-proof": "node scripts/prove-writing-context-advisory-local.mjs",
     "writing:s8-four-family-integration-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-four-family-integration-regression.ts",
     "writing:s8-v3-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-s8-v3-regression.ts",

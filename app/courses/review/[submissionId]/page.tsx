@@ -77,6 +77,7 @@ import { loadPendingContextReviewDeliveries } from "@/lib/writing-engine/whole-w
 import { ContextualUseSuggestionsPanel } from "../contextual-use-suggestions-panel";
 import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
 import { loadPassageContextReview, type PassageReviewRow } from "@/lib/writing-engine/whole-writing/context-passage-review";
+import { loadReturnedContextExcerpts } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
 
 type CourseReviewDetailPageProps = {
   params: Promise<{ submissionId: string }>;
@@ -1111,6 +1112,17 @@ export default async function CourseReviewDetailPage({
   const unifiedCompletionSummary = summarizeUnifiedSpellingReviewCompletion(
     unifiedSpellingReviewItems,
   );
+  const returnedContextExcerpts = await loadReturnedContextExcerpts({
+    client: supabase,
+    issueIds: unifiedSpellingReviewItems
+      .filter((row) => row.source === "returned_correction" &&
+        row.provenance.sourceKind === "contextual_advisory_v4")
+      .map((row) => row.sourceIds.originalWritingIssueId)
+      .filter((id): id is string => Boolean(id)),
+    parentUserId: user.id,
+    childId: submission.child_id,
+    taskId: submission.task_id,
+  });
 
   const { data: module } = task?.module_id
     ? await supabase
@@ -1341,6 +1353,7 @@ export default async function CourseReviewDetailPage({
 
         <UnifiedSpellingReviewTable
           rows={unifiedSpellingReviewItems}
+          returnedContextExcerpts={returnedContextExcerpts}
           contextRows={contextAdvisory.rows}
           passageRows={passageReview.rows}
           contextReadOnly={!contextAdvisory.enabled}

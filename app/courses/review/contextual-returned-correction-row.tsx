@@ -6,6 +6,7 @@ import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-e
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import { governedContextFamily } from "@/lib/writing-engine/whole-writing/context-advisory-family";
 import { getWritingIssueFinalClassificationLabel } from "@/lib/writing-practice/types";
+import type { ReturnedContextExcerpt } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
 import { finaliseContextualLearningOutcome, saveWritingIssueReasonDraft } from "./actions";
 
 const SKILL_BY_FAMILY = {
@@ -17,12 +18,13 @@ const SKILL_BY_FAMILY = {
 
 const LEARNING_OUTCOMES = new Set(["concept_gap", "fragile_knowledge", "transfer_failure"]);
 
-export function ContextualReturnedCorrectionRow({ row, options, submissionId, redirectPath, colSpan }: {
+export function ContextualReturnedCorrectionRow({ row, options, submissionId, redirectPath, colSpan, originalContextExcerpt }: {
   row: UnifiedSpellingReviewItem;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   submissionId: string;
   redirectPath: string;
   colSpan: number;
+  originalContextExcerpt: ReturnedContextExcerpt | null;
 }) {
   const [outcome, setOutcome] = useState(row.draftFinalClassification ?? row.correctionOutcome ?? "");
   const contextFamily = governedContextFamily(row.observedText);
@@ -43,8 +45,6 @@ export function ContextualReturnedCorrectionRow({ row, options, submissionId, re
   const reasonSaved = row.draftFinalClassification === outcome && Boolean(outcome);
   const formId = `context-outcome-${row.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const detailsId = `${formId}-details`;
-  const contextText = typeof row.provenance.metadata.context_text === "string"
-    ? row.provenance.metadata.context_text : null;
 
   return <>
     <tr className="border-t border-[var(--border)] align-middle bg-sky-50/40">
@@ -140,7 +140,11 @@ export function ContextualReturnedCorrectionRow({ row, options, submissionId, re
     {detailsOpen ? <tr className="border-t border-[var(--border)] bg-[rgba(255,247,220,0.18)]">
       <td id={detailsId} colSpan={colSpan} className="px-3 py-2 text-xs leading-5 text-[color:var(--mid)]">
         <div className="grid gap-1 whitespace-pre-wrap break-words">
-          {contextText ? <p>Original context: {contextText}</p> : null}
+          <p>Original context: {originalContextExcerpt ? <>
+            {originalContextExcerpt.before}<mark className="rounded bg-sky-200 px-0.5 font-semibold text-[color:var(--ink)]">
+              {originalContextExcerpt.focus}
+            </mark>{originalContextExcerpt.after}
+          </> : "Unavailable for this correction."}</p>
           {row.childReflection ? <p>Reflection: {row.childReflection}</p> : null}
           {row.parentNote ? <p>Reviewer note: {row.parentNote}</p> : null}
           <p>The child retry is repair evidence. A learning need requires the reviewer’s confirmation of the original context.</p>
