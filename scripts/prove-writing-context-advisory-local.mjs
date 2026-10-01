@@ -67,7 +67,8 @@ try {
     create table public.writing_issues(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,
       task_submission_id uuid,issue_status text,final_classification text,observed_text text,suggested_replacement text,
       approved_replacement text,context_text text,source_field_key text,micro_skill_key text,parent_marked_at timestamptz,
-      metadata jsonb not null default '{}',source_writing_occurrence_id text references public.writing_occurrences(id) on delete set null,created_at timestamptz not null default now(),
+      metadata jsonb not null default '{}',source_writing_occurrence_id text references public.writing_occurrences(id) on delete set null,
+      source_misspelling_instance_id uuid,theme_key text,created_at timestamptz not null default now(),
       updated_at timestamptz,final_classified_at timestamptz);
     create function public.reject_writing_fact_update() returns trigger language plpgsql as $$ begin raise exception 'immutable'; end $$;
     create function public.finalise_writing_issue_classification_and_learning_item(uuid,uuid,uuid,text)
@@ -118,7 +119,8 @@ try {
   assert.equal(cancelled.rows[0].issue_status, "finalised");
   assert.equal(cancelled.rows[0].final_classification, "not_an_issue");
   await db.query(`
-    create table micro_skill_catalog(micro_skill_key text primary key,mastery_domain_key text,is_active boolean,is_assignable boolean);
+    create table micro_skill_catalog(id uuid primary key default gen_random_uuid(),micro_skill_key text unique,mastery_domain_key text,is_active boolean,is_assignable boolean,
+      skill_family_key text default 'D4_HOM',skill_cluster_key text default 'D4_HOM_FUNCTION_WORD_HOMOPHONES',practice_route text default 'writing');
     create table canonical_teaching_dictionary_words(id uuid primary key default gen_random_uuid(),normalised_word text,row_status text,review_status text);
     create table canonical_teaching_dictionary_word_support(canonical_word_id uuid,micro_skill_key text,row_status text,review_status text);
     create table canonical_teaching_dictionary_content_versions(micro_skill_key text,is_active boolean,version_status text,final_readiness_review_status text);
@@ -128,16 +130,26 @@ try {
       constraint adle_learning_items_source_kind_check check(source_kind in
         ('verified_misspelling','probe_miss','review_ejection','slippage_reentry','stretch_selection','transfer_confirmation')));
     create unique index on adle_learning_items(child_id,canonical_word_id,micro_skill_key) where row_status='active';
-    create table learning_items(id uuid primary key default gen_random_uuid());
-    create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid);
-    create table learning_item_evidence(writing_issue_id uuid,source_context text,evidence_type text,metadata jsonb,updated_at timestamptz);
+    create table learning_items(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,source_writing_issue_id uuid unique,
+      micro_skill_key text,mastery_domain_key text,skill_family_key text,skill_cluster_key text,practice_route text,current_competency_level integer,
+      theme_key text,progress_state text,is_active boolean,metadata jsonb,created_at timestamptz,updated_at timestamptz);
+    create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid,link_role text,metadata jsonb,created_at timestamptz,updated_at timestamptz,
+      unique(learning_item_id,writing_issue_id));
+    create table learning_item_evidence(learning_item_id uuid,child_id uuid,parent_user_id uuid,writing_issue_id uuid,task_submission_id uuid,
+      evidence_type text,competency_signal integer,source_context text,metadata jsonb,created_at timestamptz,updated_at timestamptz);
+    create table writing_issue_correction_attempts(id uuid primary key default gen_random_uuid(),writing_issue_id uuid,parent_user_id uuid,child_id uuid,
+      task_submission_id uuid,corrected_independently boolean,reflection text,metadata jsonb,created_at timestamptz default now());
+    create function public.initial_learning_item_competency_for_final_classification(p_outcome text) returns integer language sql immutable as $$ select 1 $$;
+    create function public.learning_item_evidence_type_for_final_classification(p_outcome text) returns text language sql immutable as $$ select 'incorrect_use' $$;
+    create function public.learning_item_evidence_type_for_correction_attempt(p_fixed boolean,p_reflection text,p_independent boolean) returns text language sql immutable as $$ select case when p_fixed then 'corrected_after_prompt' else 'incorrect_use' end $$;
+    create function public.apply_learning_item_review_state_from_evidence(uuid,text,integer,timestamptz,text) returns void language sql as $$ select null::void $$;
     create or replace function public.finalise_writing_issue_classification_and_learning_item_pre_context_advisory(
       p_issue uuid,p_parent uuid,p_child uuid,p_outcome text) returns jsonb language plpgsql as $$
     declare v_item uuid;
     begin
       insert into learning_items default values returning id into v_item;
-      insert into learning_item_issue_links values(v_item,p_issue,p_child,p_parent);
-      insert into learning_item_evidence values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
+      insert into learning_item_issue_links(learning_item_id,writing_issue_id,child_id,parent_user_id) values(v_item,p_issue,p_child,p_parent);
+      insert into learning_item_evidence(writing_issue_id,source_context,evidence_type,metadata,updated_at) values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
       update writing_issues set issue_status='finalised',final_classification=p_outcome where id=p_issue;
       return jsonb_build_object('learning_item_id',v_item);
     end $$;
@@ -149,7 +161,7 @@ try {
   const shadowPrivilege = await db.query("select has_table_privilege('authenticated','public.writing_context_ai_attempts','SELECT') as allowed");
   assert.equal(shadowPrivilege.rows[0].allowed, false);
   const skill = "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE";
-  await db.query("insert into micro_skill_catalog values($1,'D4',true,true)", [skill]);
+  await db.query("insert into micro_skill_catalog(micro_skill_key,mastery_domain_key,is_active,is_assignable) values($1,'D4',true,true)", [skill]);
   const word = (await db.query("insert into canonical_teaching_dictionary_words(normalised_word,row_status,review_status) values('there','active','approved_for_first_exposure') returning id")).rows[0].id;
   await db.query("insert into canonical_teaching_dictionary_word_support values($1,$2,'active','approved_for_first_exposure')", [word, skill]);
   await db.query("insert into canonical_teaching_dictionary_content_versions values($1,true,'active','signed_off')", [skill]);
@@ -158,18 +170,22 @@ try {
   await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there',null,'their should be')", [learningOccurrence, parent]);
   const learningIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [learningOccurrence])).rows[0].id;
   await db.query("update writing_issues set issue_status='child_responded' where id=$1", [learningIssue]);
+  await db.query("insert into writing_issue_correction_attempts(writing_issue_id,parent_user_id,child_id,task_submission_id,corrected_independently,reflection,metadata) values($1,$2,$3,$4,false,'hard','{\"marked_fixed\":false}'::jsonb)", [learningIssue,parent,child,submission]);
   await assert.rejects(db.query("select finalise_contextual_repair_only($1,$2,$3,'concept_gap')", [learningIssue, parent, child]));
   await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap','D4_WRONG')", [learningIssue, parent, child]));
   const stillOpen = await db.query("select final_classification,micro_skill_key from writing_issues where id=$1", [learningIssue]);
   assert.equal(stillOpen.rows[0].final_classification, null);
   assert.equal(stillOpen.rows[0].micro_skill_key, "unknown");
+  const fixMigration = readFileSync(new URL("../supabase/migrations/20261001110000_fix_contextual_learning_item_finalisation.sql", import.meta.url), "utf8");
+  await db.query(fixMigration);
   const finalised = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [learningIssue, parent, child, skill]);
   assert.equal(finalised.rows[0].result.handoff_state, "READY");
   assert.equal(finalised.rows[0].result.retry_evidence_kind, "REPAIR_ONLY");
   await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4)", [learningIssue, parent, child, skill]));
-  const repairEvidence = await db.query("select evidence_type,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
-  assert.equal(repairEvidence.rows[0].evidence_type, "corrected_after_prompt");
-  assert.equal(repairEvidence.rows[0].metadata.evidence_kind, "REPAIR_ONLY");
+  const repairEvidence = await db.query("select evidence_type,source_context,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
+  const retryEvidence = repairEvidence.rows.find((row) => row.source_context === "child_correction_attempt");
+  assert.equal(retryEvidence.evidence_type, "incorrect_use");
+  assert.equal(retryEvidence.metadata.evidence_kind, "REPAIR_ONLY");
   await db.query("update canonical_teaching_dictionary_content_versions set is_active=false where micro_skill_key=$1", [skill]);
   const pendingOccurrence = "context-advisory:pending-content-occurrence";
   await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [pendingOccurrence, captured.rows[0].id]);
