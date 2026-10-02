@@ -33,10 +33,11 @@ assert.deepEqual(
     "dynamic_prefix_word_lab:v2",
     "dynamic_affix_word_lab:v3",
     "compound_word_lab:v2",
+    "comparative_superlative_word_lab:v1",
   ]),
 );
 
-const productionMorphologySkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
+const productionSpecialistSkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
   (route) =>
     route.implementationState === "registered" &&
     route.newAssignmentCapable &&
@@ -44,14 +45,14 @@ const productionMorphologySkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
     route.compatibilityScope.kind === "declared_micro_skills",
 ).flatMap((route) => route.supportedMicroSkillKeys);
 assert.equal(
-  new Set(productionMorphologySkills).size,
-  21,
-  "all production-enabled morphology skills have exactly one current route",
+  new Set(productionSpecialistSkills).size,
+  25,
+  "all production-enabled specialist skills have exactly one current route",
 );
 assert.equal(
-  productionMorphologySkills.length,
-  21,
-  "production morphology route declarations must not overlap",
+  productionSpecialistSkills.length,
+  25,
+  "production specialist route declarations must not overlap",
 );
 
 const compoundV2 = getCurriculumRouteDefinition("compound_word_lab", "v2");
