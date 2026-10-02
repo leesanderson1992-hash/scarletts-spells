@@ -11,6 +11,11 @@ import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "../lib/adle/curriculum-readiness
 import { ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS } from "../lib/adle/composable-lesson/route-resolution";
 
 const expected = {
+  comparative_superlative_word_lab: {
+    route: "v1",
+    recipe: "comparative_superlative_word_lab:v1",
+    payload: "comparative_superlative_lesson_v1:1",
+  },
   generic_composer: {
     route: "v1",
     recipe: "generic_first_exposure:v1",
@@ -44,8 +49,10 @@ assert.deepEqual(
 );
 
 for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
-  const metadata = createPersistedRouteMetadata(routeId);
-  assert.equal(metadata.metadataSchemaVersion, 1);
+  const metadata = routeId === "comparative_superlative_word_lab" ? createPersistedRouteMetadataV2(routeId,{
+    activationRevisionId:"11111111-1111-4111-8111-111111111111",releaseManifestId:"22222222-2222-4222-8222-222222222222",releaseKey:"comparative-test-only",releaseManifestSha256:"a".repeat(64),dependencyFingerprint:"b".repeat(64),
+  }) : createPersistedRouteMetadata(routeId);
+  assert.equal(metadata.metadataSchemaVersion, routeId === "comparative_superlative_word_lab" ? 2 : 1);
   assert.equal(metadata.route.routeId, routeId);
   assert.equal(metadata.route.routeVersion, expected[routeId].route);
   assert.equal(
@@ -64,6 +71,7 @@ for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
     ok: true,
   });
 }
+assert.throws(()=>createPersistedRouteMetadata("comparative_superlative_word_lab"),/require curriculum release metadata v2/);
 
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "fixed_un_prefix_word_lab"));
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "closed_compound_word_lab"));

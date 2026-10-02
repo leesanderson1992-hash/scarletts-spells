@@ -1,5 +1,20 @@
 # Decision Log
 
+## 2026-09-29 — Comparative/superlative reuse-first implementation
+
+The user explicitly requested one recipe for the four comparative/superlative
+rules, two distinct adjective families/six forms, complete selected queued
+target coverage and only three bounded activity extensions. Implemented locally
+as `comparative_superlative_word_lab:v1`; no generic inflection activation,
+separate lesson runners, quiz framework or new drag engine.
+
+Selection/snapshot ownership is amended in the Composer Contract; reviewed
+family/readiness metadata in the Canonical Word-Map Contract; interaction modes
+in the Instructional Activity Registry Contract. Existing review, proficiency,
+evidence and reward policies are unchanged. The operational registry labels
+this capability local/inactive, not released. Dictionary review and full staging
+proofs remain gates; Production requires separate explicit approval.
+
 ## 2026-09-09 — G2 corpus human-review requirement revised
 
 ### Decision

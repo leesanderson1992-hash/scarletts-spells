@@ -44,6 +44,29 @@ truth for taxonomy, resolver behavior, mastery, assignments, or child progress.
 
 ## Current Phase 5 Teaching Dictionary boundary
 
+### Reviewed adjective-degree family v1 (2026-09-29)
+
+`AdjectiveFamilyV1` is versioned curriculum metadata for the four requested
+comparative/superlative rules. It binds three existing canonical word IDs,
+the exact micro-skill, British adjective meaning, explicit adjective/gradability/
+`-er/-est` eligibility, child suitability, reviewed transformations, complete teaching tasks and
+source/reviewer/approval provenance. Doubling additionally requires verified
+short-vowel, one-syllable conditions and excludes final `w`, `x` and `y`.
+
+Bulk spelling generation and Hunspell flags/attestation produce candidates,
+not lexical approval. Review must distinguish approved complete families,
+missing forms/content, ambiguity and incompatibility. Hold irregular,
+more/most-only and uncertain adjectives. Missing identity, approval, task
+content or required word-audio text blocks readiness and publication; it is
+not permission to substitute another word.
+
+Checksummed, immutable release packages carry the family, teaching and paired
+dictionary/audio closure authorities. Publication does not activate a route.
+The requested initial corpus is six reviewed families per rule (24 families,
+72 forms); local drafts are not published content. See the implementation
+receipt for candidate inventory and remaining review gates. This metadata does
+not create mappings, learner needs, scheduling, proficiency or reward effects.
+
 Phase 5 Teaching Dictionary CSV review is a separate simplification pass. It
 does not add `canonical_misspellings.csv` and it does not adopt diagnostic rows
 as Teaching Dictionary content.

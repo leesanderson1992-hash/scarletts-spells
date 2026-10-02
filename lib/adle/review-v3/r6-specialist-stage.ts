@@ -1,4 +1,6 @@
 import "server-only";
+import { prepareComparativeAssignment } from "../inflection/readiness-loader";
+import type { ComparativeMicroSkill } from "../inflection/contracts";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -83,7 +85,8 @@ async function append(input: {
       blockerCode: validation.blockers.map((entry) => entry.code).join(","),
     };
   }
-  const result = await input.client.rpc("append_adle_specialist_stage_r6", {
+  const isComparative = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId === "comparative_superlative_word_lab";
+  const result = await input.client.rpc(isComparative ? "append_adle_comparative_stage_r6" : "append_adle_specialist_stage_r6", {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,
     p_items: input.items,
@@ -134,6 +137,13 @@ async function ensureSpecialistStageR6Internal(input: {
 
   const routeId = resolveParentManualAdleRoute(selection.microSkillKey);
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
+  if (routeId === "comparative_superlative_word_lab") {
+    const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
+    const prepared = await prepareComparativeAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
+      date: input.assignmentDate, microSkillKey: selection.microSkillKey as ComparativeMicroSkill, learningItems: facts.learningItems, environmentKey });
+    if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
+    return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot, items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
+  }
   if (routeId === "dynamic_prefix_word_lab") {
     const prepared = await prepareDynamicPrefixAssignment({
       userClient: input.userClient,

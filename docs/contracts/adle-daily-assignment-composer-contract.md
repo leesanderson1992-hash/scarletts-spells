@@ -176,6 +176,25 @@ Rules:
 
 ## Canonical-intake boundary
 
+### Comparative/superlative selection v1 (2026-09-29)
+
+The requested `comparative_superlative_word_lab:v1` capability is restricted to
+the four `D4_INF_COMPARATIVE_SUPERLATIVE` micro-skills. It remains inactive until
+its reviewed release and explicit activation gates pass.
+
+For this route, existing queue priority selects two distinct reviewed adjective
+families in one micro-skill. Two forms from one family do not activate a lesson.
+Freeze base/comparative/superlative for each family: exactly six lesson words.
+Include every queued derived target in those families, in deterministic queue
+order; defer other families. Base and unqueued companion forms retain content
+provenance but acquire neither learner needs nor scheduling/transition rights.
+
+Snapshot v3 freezes words, family records, teaching, questions, sentences,
+audio ordering, activity bindings and exact target lineage. The new route has
+no legacy/mutable-content fallback. Existing snapshots retain their readers.
+The lesson uses one shared shell; its mode contracts belong to the
+Instructional Activity Registry, not a second composer.
+
 Canonical intake may create or reuse an active word-scoped ADLE learning item
 only through its own governed workflow. The composer reads activated items. It
 must not:
