@@ -13,12 +13,35 @@
 .adle-admin-tab:hover, .adle-admin-tab.is-active { color: #c2185b; }
 .adle-admin-tab.is-active { border-bottom-color: #c2185b; }
 .adle-admin-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 0; }
+.adle-admin-overview { display: grid; grid-template-columns: 180px 180px minmax(300px, 1fr); gap: 12px; margin-top: 22px; }
+.adle-admin-summary-card, .adle-admin-needs-attention { border: 1px solid #dfe3e7; border-radius: 14px; background: #fff; padding: 16px; }
+.adle-admin-summary-card { display: flex; flex-direction: column; justify-content: center; gap: 9px; }
+.adle-admin-summary-card span { color: #59616b; font-size: .78rem; font-weight: 700; }
+.adle-admin-summary-card strong { color: #c2185b; font-size: 1.8rem; line-height: 1; }
+.adle-admin-needs-attention h2 { margin-bottom: 10px; font-size: .85rem; font-weight: 700; }
+.adle-admin-needs-attention ol { display: grid; gap: 8px; }
+.adle-admin-needs-attention li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .78rem; }
+.adle-admin-needs-attention li span:first-child { display: flex; min-width: 0; flex-direction: column; }
+.adle-admin-needs-attention small { overflow: hidden; color: #69717b; text-overflow: ellipsis; white-space: nowrap; }
+.adle-admin-needs-attention p { color: #69717b; font-size: .8rem; }
+.adle-admin-filter-form { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: 8px; }
+.adle-admin-select { min-height: 40px; max-width: 250px; border: 1px solid #cdd3d9; border-radius: 10px; background: #fff; padding: 7px 10px; font-size: .875rem; }
+.adle-admin-toolbar-end { display: flex; align-items: center; gap: 12px; }
+.adle-admin-export { position: relative; }
+.adle-admin-export summary { cursor: pointer; list-style: none; }
+.adle-admin-export summary::-webkit-details-marker { display: none; }
+.adle-admin-export-options { position: absolute; z-index: 20; right: 0; width: 250px; margin-top: 5px; border: 1px solid #dfe3e7; border-radius: 10px; background: #fff; padding: 5px; box-shadow: 0 12px 28px rgba(32,36,42,.16); }
+.adle-admin-export-options a { display: block; border-radius: 7px; padding: 10px; font-size: .85rem; }
+.adle-admin-export-options a:hover { background: #fdeaf2; color: #9a1247; }
 .adle-admin-search { width: min(100%, 350px); min-width: 220px; border: 1px solid #cdd3d9; border-radius: 10px; padding: 8px 12px; font-size: .875rem; }
 .adle-admin-search:focus, .adle-admin-page :focus-visible { outline: 3px solid #f4a7c6; outline-offset: 2px; }
 .adle-admin-table-wrap { border: 1px solid #dfe3e7; border-radius: 14px; overflow: auto; background: white; }
 .adle-admin-table { width: 100%; min-width: 1130px; border-collapse: separate; border-spacing: 0; font-size: .83rem; }
 .adle-admin-table th, .adle-admin-table td { border-bottom: 1px solid #e9ecef; padding: 13px 11px; text-align: left; vertical-align: middle; }
 .adle-admin-table thead th { background: #f7f8fa; color: #414a55; font-weight: 700; white-space: nowrap; }
+.adle-admin-sort-link { display: inline-flex; align-items: center; gap: 5px; color: inherit; }
+.adle-admin-sort-link:hover, .adle-admin-sort-arrows.is-active { color: #c2185b; }
+.adle-admin-sort-arrows { color: #929aa3; font-size: 1rem; }
 .adle-admin-table tbody tr:hover { background: #fffafd; }
 .adle-admin-table tbody tr:last-child > * { border-bottom: none; }
 .adle-admin-table .word { position: sticky; left: 0; z-index: 2; width: 120px; min-width: 120px; max-width: 120px; background: #fff; font-weight: 700; }
@@ -35,8 +58,8 @@
 .adle-admin-options-button { border-radius: 8px; padding: 3px 8px; font-size: 1.5rem; font-weight: 700; line-height: 1; }
 .adle-admin-options-button:hover { background: #fdeaf2; }
 .adle-admin-dropdown { position: fixed; z-index: 70; width: 172px; padding: 5px; border: 1px solid #dfe3e7; border-radius: 10px; background: #fff; box-shadow: 0 12px 28px rgba(32, 36, 42, .16); text-align: left; }
-.adle-admin-dropdown button, .adle-admin-menu-note { display: block; width: 100%; padding: 10px 11px; border-radius: 7px; color: #20242a; text-align: left; font-size: .875rem; }
-.adle-admin-dropdown button:hover { background: #fdeaf2; color: #9a1247; }
+.adle-admin-dropdown button, .adle-admin-dropdown a, .adle-admin-menu-note { display: block; width: 100%; padding: 10px 11px; border-radius: 7px; color: #20242a; text-align: left; font-size: .875rem; }
+.adle-admin-dropdown button:hover, .adle-admin-dropdown a:hover { background: #fdeaf2; color: #9a1247; }
 .adle-admin-dropdown button:disabled { color: #8b929a; cursor: not-allowed; }
 .adle-admin-dropdown button:disabled:hover { background: transparent; color: #8b929a; }
 .adle-admin-menu-note { color: #7c8590; }
@@ -46,6 +69,8 @@
 .adle-admin-detail-section h4 { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .92rem; font-weight: 700; color: #20242a; }
 .adle-admin-dialog-close { border: 1px solid #d9dee3; border-radius: 9px; padding: 8px 14px; color: #20242a; font-size: .875rem; font-weight: 700; }
 .adle-admin-dialog-close:hover { border-color: #c2185b; color: #c2185b; }
+@media (max-width: 850px) { .adle-admin-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adle-admin-needs-attention { grid-column: 1 / -1; } }
+@media (max-width: 580px) { .adle-admin-filter-form > * { max-width: none; width: 100%; } .adle-admin-toolbar-end { width: 100%; justify-content: space-between; } }
 @media (max-width: 1190px) {
   .adle-admin-table .skill { position: sticky; left: 120px; z-index: 2; background: #fff; }
   .adle-admin-table thead th:nth-child(2) { position: sticky; left: 120px; z-index: 3; }

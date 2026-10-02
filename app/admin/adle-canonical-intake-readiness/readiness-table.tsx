@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AppDialog } from "@/components/app-dialog";
+import Link from "next/link";
 
 import { enqueueIntakeDemandRecheck, setIntakeDemandArchived } from "./actions";
 import { FACET_KEYS, type Facet, type FacetKey } from "./readiness-projection";
 import type { ReadinessRow, ReadinessView } from "./read-model";
+import { readinessHref, type ReadinessControls, type SortKey } from "./readiness-controls";
 
 const LABELS: Record<FacetKey, string> = {
   resolver: "Resolver", teaching: "Teaching content", dictionary: "Dictionary",
@@ -54,12 +56,31 @@ function DetailDialog({ row, onClose }: { row: ReadinessRow; onClose: () => void
   </AppDialog>;
 }
 
-export function ReadinessTable({ rows, view, preview = false }: { rows: ReadinessRow[]; view: ReadinessView; preview?: boolean }) {
+function SortHeading({ field, label, className = "", controls, view, search }: {
+  field: SortKey; label: string; className?: string; controls: ReadinessControls;
+  view: ReadinessView; search: string;
+}) {
+  const active = controls.sort === field;
+  const direction = active && controls.direction === "asc" ? "desc" : "asc";
+  return <th scope="col" className={className} aria-sort={active ? controls.direction === "asc" ? "ascending" : "descending" : "none"}>
+    <Link className="adle-admin-sort-link" href={readinessHref({ ...controls, view, search, sort: field, direction })}
+      aria-label={`Sort ${label} ${direction === "asc" ? "ascending" : "descending"}`}>
+      {label}<span className={`adle-admin-sort-arrows ${active ? "is-active" : ""}`} aria-hidden="true">
+        {active ? controls.direction === "asc" ? "↑" : "↓" : "↕"}</span>
+    </Link>
+  </th>;
+}
+
+export function ReadinessTable({ rows, view, controls = {
+  microSkill: "", without: "all", sort: "usersWaiting", direction: "desc",
+}, search = "", preview = false }: { rows: ReadinessRow[]; view: ReadinessView;
+  controls?: ReadinessControls; search?: string; preview?: boolean }) {
   const [selected, setSelected] = useState<ReadinessRow | null>(null);
   const [optionsMenu, setOptionsMenu] = useState<{
     row: ReadinessRow; top: number; left: number;
   } | null>(null);
   const optionsMenuRef = useRef<HTMLDivElement | null>(null);
+  const optionsTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!optionsMenu) return;
@@ -67,12 +88,14 @@ export function ReadinessTable({ rows, view, preview = false }: { rows: Readines
       if (!optionsMenuRef.current?.contains(event.target as Node)) setOptionsMenu(null);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOptionsMenu(null);
+      if (event.key === "Escape") { setOptionsMenu(null); optionsTriggerRef.current?.focus(); }
     };
     const closeOnScroll = () => setOptionsMenu(null);
     document.addEventListener("mousedown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
     window.addEventListener("scroll", closeOnScroll, true);
+    const firstItem = optionsMenuRef.current?.querySelector<HTMLElement>('[role="menuitem"]:not([disabled])');
+    firstItem?.focus();
     return () => {
       document.removeEventListener("mousedown", closeOnOutsidePointer);
       document.removeEventListener("keydown", closeOnEscape);
@@ -84,9 +107,11 @@ export function ReadinessTable({ rows, view, preview = false }: { rows: Readines
     <div className="adle-admin-table-wrap" role="region" aria-label="ADLE word readiness table" tabIndex={0}>
       <table className="adle-admin-table">
         <thead><tr>
-          <th scope="col">Word</th><th scope="col">Micro skill</th><th scope="col" className="number">Occurrences</th>
-          <th scope="col" className="number">Users Waiting</th>
-          {FACET_KEYS.map((key) => <th key={key} scope="col" className="check">{LABELS[key]}</th>)}
+          <SortHeading field="word" label="Word" controls={controls} view={view} search={search} />
+          <SortHeading field="microSkillKey" label="Micro skill" controls={controls} view={view} search={search} />
+          <SortHeading field="occurrences" label="Occurrences" className="number" controls={controls} view={view} search={search} />
+          <SortHeading field="usersWaiting" label="Users Waiting" className="number" controls={controls} view={view} search={search} />
+          {FACET_KEYS.map((key) => <SortHeading key={key} field={key} label={LABELS[key]} className="check" controls={controls} view={view} search={search} />)}
           <th scope="col" className="options"><span className="sr-only">Options</span></th>
         </tr></thead>
         <tbody>{rows.map((row) => <tr key={row.key}>
@@ -100,6 +125,7 @@ export function ReadinessTable({ rows, view, preview = false }: { rows: Readines
               aria-haspopup="menu" onClick={(event) => {
                 if (optionsMenu?.row.key === row.key) return setOptionsMenu(null);
                 const bounds = event.currentTarget.getBoundingClientRect();
+                optionsTriggerRef.current = event.currentTarget;
                 setOptionsMenu({ row, top: bounds.bottom + 6, left: Math.max(12, bounds.right - 172) });
               }}>⋯</button>
           </div></td>
@@ -108,8 +134,20 @@ export function ReadinessTable({ rows, view, preview = false }: { rows: Readines
       {!rows.length ? <p className="adle-admin-empty">No words match this view. Try another filter or search.</p> : null}
     </div>
     {optionsMenu ? createPortal(<div ref={optionsMenuRef} className="adle-admin-dropdown" role="menu"
+      onKeyDown={(event) => {
+        if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+        const items = [...(optionsMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])') ?? [])];
+        if (!items.length) return;
+        event.preventDefault();
+        const current = items.indexOf(document.activeElement as HTMLElement);
+        const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 :
+          event.key === "ArrowDown" ? (current + 1) % items.length : (current - 1 + items.length) % items.length;
+        items[next].focus();
+      }}
       aria-label={`Options for ${optionsMenu.row.word}`} style={{ top: optionsMenu.top, left: optionsMenu.left }}>
       <button type="button" role="menuitem" onClick={() => { setSelected(optionsMenu.row); setOptionsMenu(null); }}>View details</button>
+      {!preview && optionsMenu.row.facets.dictionary.state === "complete" && optionsMenu.row.facets.resolver.state === "missing" ?
+        <Link role="menuitem" href={`/admin/canonical-mappings/resolve?word=${encodeURIComponent(optionsMenu.row.word)}&skill=${encodeURIComponent(optionsMenu.row.microSkillKey)}`}>Add to resolver</Link> : null}
       {preview ? <button type="button" role="menuitem" disabled title="Unavailable in sample preview">Recheck · sample only</button> :
         optionsMenu.row.waitingCandidates > 0 ? <form action={enqueueIntakeDemandRecheck}>
         <input type="hidden" name="word" value={optionsMenu.row.word} /><input type="hidden" name="micro_skill_key" value={optionsMenu.row.microSkillKey} />

@@ -12,7 +12,8 @@ import {
   type Facets,
   type RouteFact,
 } from "./readiness-projection";
-import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, type ReadinessView } from "./readiness-groups";
+import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, summarizeReadiness, type ReadinessView } from "./readiness-groups";
+import { compareReadinessRows, matchesWithoutFilter, type ReadinessControls } from "./readiness-controls";
 
 export type { ReadinessView } from "./readiness-groups";
 export type ReadinessRow = {
@@ -29,6 +30,11 @@ export type ReadinessRow = {
   lastEvaluatedAt: string | null;
   lastSeenAt: string | null;
   history: Array<{ id: string; type: string; at: string }>;
+};
+export type ReadinessOverview = {
+  occurrencesTotal: number;
+  usersWaiting: number;
+  topThree: ReadinessRow[];
 };
 
 type Demand = {
@@ -76,7 +82,10 @@ export async function loadReadinessRows(params: {
   view: ReadinessView;
   search: string;
   page: number;
-}): Promise<{ rows: ReadinessRow[]; total: number }> {
+  controls?: ReadinessControls;
+  all?: boolean;
+}): Promise<{ rows: ReadinessRow[]; total: number; overview: ReadinessOverview; microSkills: string[] }> {
+  const controls = params.controls ?? { microSkill: "", without: "all", sort: "usersWaiting", direction: "desc" } as const;
   const db = createServiceRoleClient() as any;
   const [demands, candidates, links] = await Promise.all([
     readAll(db, "adle_canonical_intake_demands", "id,normalized_target_token,micro_skill_key,route_id,route_version,lifecycle_status,archived_at,last_seen_at"),
@@ -113,18 +122,13 @@ export async function loadReadinessRows(params: {
   }
   const allGroups = [...groups.values()];
   const search = params.search.trim().toLowerCase();
-  const filtered = allGroups.filter((group) => groupMatchesView(group, params.view) &&
-    (!search || group.word.includes(search) || group.skill.toLowerCase().includes(search)))
-    .sort((a, b) => {
-      const byWaiting = distinctUsersWaiting(b.waiting) - distinctUsersWaiting(a.waiting);
-      return byWaiting || (latest(b.demands.map((d) => d.last_seen_at)) ?? "").localeCompare(latest(a.demands.map((d) => d.last_seen_at)) ?? "") || a.word.localeCompare(b.word);
-    });
-  // Current blockers must be decided from today's facts, not from a stored
-  // demand state. Evaluate the complete matching set before paging it.
-  const pageGroups = params.view === "current" || params.view === "other"
-    ? filtered
-    : filtered.slice((params.page - 1) * PAGE_SIZE, params.page * PAGE_SIZE);
-  if (!pageGroups.length) return { rows: [], total: filtered.length };
+  const viewGroups = allGroups.filter((group) => groupMatchesView(group, params.view));
+  const microSkills = [...new Set(viewGroups.map((group) => group.skill))].sort();
+  const pageGroups = viewGroups.filter((group) =>
+    (!controls.microSkill || group.skill === controls.microSkill) &&
+    (!search || group.word.includes(search) || group.skill.toLowerCase().includes(search)));
+  const emptyOverview = { occurrencesTotal: 0, usersWaiting: 0, topThree: [] };
+  if (!pageGroups.length) return { rows: [], total: 0, overview: emptyOverview, microSkills };
 
   const targets = [...new Set(pageGroups.map((group) => group.word))];
   const skillKeys = [...new Set(pageGroups.map((group) => group.skill))];
@@ -220,17 +224,17 @@ export async function loadReadinessRows(params: {
       lastEvaluatedAt: latest(group.candidates.map((candidate) => candidate.last_evaluated_at)),
       lastSeenAt: latest(group.demands.map((demand) => demand.last_seen_at)), history };
   });
-  if (params.view === "current") {
-    const blockedRows = rows.filter((row) => matchesProjectedUnresolvedView({ waitingCandidates: row.waitingCandidates,
-      states: Object.values(row.facets).map((facet) => facet.state) }, "current"));
-    return { rows: blockedRows.slice((params.page - 1) * PAGE_SIZE, params.page * PAGE_SIZE),
-      total: blockedRows.length };
-  }
-  if (params.view === "other") {
-    const otherRows = rows.filter((row) => matchesProjectedUnresolvedView({ waitingCandidates: row.waitingCandidates,
-      states: Object.values(row.facets).map((facet) => facet.state) }, "other"));
-    return { rows: otherRows.slice((params.page - 1) * PAGE_SIZE, params.page * PAGE_SIZE),
-      total: otherRows.length };
-  }
-  return { rows, total: filtered.length };
+  const visibleRows = rows.filter((row) =>
+    (params.view !== "current" && params.view !== "other" ||
+      matchesProjectedUnresolvedView({ waitingCandidates: row.waitingCandidates,
+        states: Object.values(row.facets).map((facet) => facet.state) }, params.view)) &&
+    matchesWithoutFilter(row, controls.without));
+  const visibleKeys = new Set(visibleRows.map((row) => row.key));
+  const visibleGroups = pageGroups.filter((group) => visibleKeys.has(group.key));
+  const overview = summarizeReadiness(visibleRows,
+    new Map(visibleGroups.map((group) => [group.key, group.candidates])),
+    new Map(visibleGroups.map((group) => [group.key, group.waiting])));
+  visibleRows.sort((a, b) => compareReadinessRows(a, b, controls));
+  return { rows: params.all ? visibleRows : visibleRows.slice((params.page - 1) * PAGE_SIZE, params.page * PAGE_SIZE),
+    total: visibleRows.length, overview, microSkills };
 }

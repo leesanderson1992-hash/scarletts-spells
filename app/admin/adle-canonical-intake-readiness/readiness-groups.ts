@@ -13,6 +13,23 @@ export function distinctUsersWaiting(candidates: GroupCandidate[]): number {
   return new Set(candidates.map((candidate) => candidate.child_id)).size;
 }
 
+export function summarizeReadiness<T extends {
+  key: string; word: string; microSkillKey: string; occurrences: number; usersWaiting: number;
+}>(rows: T[], candidatesByKey: Map<string, GroupCandidate[]>, waitingByKey: Map<string, GroupCandidate[]>) {
+  const occurrenceIds = new Set<string>();
+  const childIds = new Set<string>();
+  for (const row of rows) {
+    for (const candidate of candidatesByKey.get(row.key) ?? []) occurrenceIds.add(candidate.source_candidate_mapping_id);
+    for (const candidate of waitingByKey.get(row.key) ?? []) childIds.add(candidate.child_id);
+  }
+  return {
+    occurrencesTotal: occurrenceIds.size,
+    usersWaiting: childIds.size,
+    topThree: [...rows].sort((a, b) => b.occurrences - a.occurrences || b.usersWaiting - a.usersWaiting ||
+      a.word.localeCompare(b.word) || a.microSkillKey.localeCompare(b.microSkillKey)).slice(0, 3),
+  };
+}
+
 export function groupIsArchived(demands: GroupDemand[]): boolean {
   const unresolved = demands.filter((demand) => !TERMINAL.has(demand.lifecycle_status));
   return unresolved.length > 0 && unresolved.every((demand) => Boolean(demand.archived_at));
