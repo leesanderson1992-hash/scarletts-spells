@@ -11,6 +11,8 @@ import { buildComparativeReleasePackage, comparativeReleasePackageValid } from "
 import type { LearningItemFact } from "../lib/adle/learning-items";
 import { sentenceSuffixPayloadValid, transformTargetPayloadValid, pairedWordGapsPayloadValid } from "../lib/adle/inflection/activity-contracts";
 import { comparativeReadinessFacts } from "../lib/adle/inflection/readiness-facts";
+import { isComparativeLessonPresentation } from "../lib/adle/inflection/presentation";
+import { createPersistedRouteMetadata, createPersistedRouteMetadataV2 } from "../lib/adle/composable-lesson/persisted-route-metadata";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY, getNewAssignmentCurriculumRouteForMicroSkill, validateCurriculumRouteRegistry } from "../lib/adle/curriculum-readiness/route-registry";
 
 let checks = 0;
@@ -75,6 +77,9 @@ const selection = selectDegreeFamilies("child", families[0].microSkillKey, famil
 assert.ok(selection.ok);
 const lesson = compileComparativeLesson(selection, "test");
 const refs = { activationRevisionId: randomUUID(), releaseManifestId: randomUUID(), releaseKey: "test", releaseManifestSha256: "a".repeat(64), dependencyFingerprint: "b".repeat(64) };
+check(isComparativeLessonPresentation(null, createPersistedRouteMetadataV2("comparative_superlative_word_lab", refs)), "completed comparative route retains child-facing chrome");
+check(!isComparativeLessonPresentation(null, createPersistedRouteMetadata("generic_composer")), "other completed routes retain their own chrome");
+check(!isComparativeLessonPresentation(null, null), "missing route metadata never guesses comparative identity");
 const contentAuthorities = ["release_manifest","activation_revision","dependency_set","adjective_degree_families","teaching_content","teaching_dictionary_closure","recipe_content"].map(kind => ({ authorityType: kind, authorityId: kind === "release_manifest" ? refs.releaseManifestId : kind === "activation_revision" ? refs.activationRevisionId : randomUUID(), version: "1", sourceHash: kind === "release_manifest" ? refs.releaseManifestSha256 : kind === "dependency_set" ? refs.dependencyFingerprint : "c".repeat(64) })) as Parameters<typeof compileComparativeSnapshotV3>[0]["contentAuthorities"];
 const compiled = compileComparativeSnapshotV3({ lesson, release: refs, contentAuthorities, childId: "child", parentUserId: "parent", date: "2026-09-29" });
 const readiness = comparativeReadinessFacts(lesson,refs,"child");

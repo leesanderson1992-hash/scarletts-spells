@@ -1,4 +1,6 @@
-import type { ComparativeLessonV1 } from "./contracts";
+import type { LessonRouteResolutionResult } from "../composable-lesson/route-resolution";
+import { parsePersistedLessonRouteMetadata } from "../composable-lesson/persisted-route-metadata";
+import { COMPARATIVE_ROUTE_ID, type ComparativeLessonV1 } from "./contracts";
 import { DEGREE_RULE_COPY } from "./content";
 import type { TeachingPagesConfig } from "../../../components/adle/first-impression/teaching-pages";
 
@@ -14,4 +16,15 @@ export function comparativeTeachingPages(lesson: Pick<ComparativeLessonV1, "fami
     meetWords: { title: "Today’s six words", introduction: "Two families. A base, a comparative and a superlative in each.",
       words: lesson.words.map(w => ({ id: w.canonicalWordId, word: w.word, label: `${w.degree} · ${lesson.families.find(f => f.familyKey === w.familyKey)!.words[0].word} family`, detail: lesson.families.find(f => f.familyKey === w.familyKey)!.meaning })) },
   };
+}
+
+/** Keep comparative lesson chrome consistent after the runtime enters session_complete. */
+export function isComparativeLessonPresentation(
+  routeResolution: LessonRouteResolutionResult | null,
+  lessonRouteMetadata: unknown,
+): boolean {
+  if (routeResolution?.status === "resolved_explicit" &&
+      routeResolution.runtime.adapterKey === "comparative_superlative_v1") return true;
+  const persisted = parsePersistedLessonRouteMetadata(lessonRouteMetadata);
+  return persisted.ok && persisted.metadata.route.routeId === COMPARATIVE_ROUTE_ID;
 }
