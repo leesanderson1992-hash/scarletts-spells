@@ -1,0 +1,49 @@
+.adle-admin-page { background: #fff; color: #20242a; font-family: Arial, Helvetica, sans-serif; }
+.adle-admin-eyebrow { color: #c2185b; font-size: .75rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.adle-admin-primary, .adle-admin-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; border-radius: 10px; padding: 0 15px; font-size: .875rem; font-weight: 700; }
+.adle-admin-primary { background: #c2185b; color: white; }
+.adle-admin-primary:hover { background: #a9144f; }
+.adle-admin-secondary { border: 1px solid #d9dee3; background: white; color: #20242a; }
+.adle-admin-secondary:hover { border-color: #c2185b; color: #c2185b; }
+.adle-admin-alert, .adle-admin-success { margin: 0 0 16px; border-radius: 10px; padding: 12px 15px; font-size: .875rem; }
+.adle-admin-alert { border: 1px solid #efb2c8; background: #fff0f6; }
+.adle-admin-success { border: 1px solid #a9dbc1; background: #f0fbf5; }
+.adle-admin-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #e5e8eb; }
+.adle-admin-tab { display: inline-flex; gap: 8px; align-items: center; padding: 12px 13px; border-bottom: 3px solid transparent; color: #59616b; font-size: .875rem; font-weight: 700; }
+.adle-admin-tab:hover, .adle-admin-tab.is-active { color: #c2185b; }
+.adle-admin-tab.is-active { border-bottom-color: #c2185b; }
+.adle-admin-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 0; }
+.adle-admin-search { width: min(100%, 350px); min-width: 220px; border: 1px solid #cdd3d9; border-radius: 10px; padding: 8px 12px; font-size: .875rem; }
+.adle-admin-search:focus, .adle-admin-page :focus-visible { outline: 3px solid #f4a7c6; outline-offset: 2px; }
+.adle-admin-table-wrap { border: 1px solid #dfe3e7; border-radius: 14px; overflow: auto; background: white; }
+.adle-admin-table { width: 100%; min-width: 1130px; border-collapse: separate; border-spacing: 0; font-size: .83rem; }
+.adle-admin-table th, .adle-admin-table td { border-bottom: 1px solid #e9ecef; padding: 13px 11px; text-align: left; vertical-align: middle; }
+.adle-admin-table thead th { background: #f7f8fa; color: #414a55; font-weight: 700; white-space: nowrap; }
+.adle-admin-table tbody tr:hover { background: #fffafd; }
+.adle-admin-table tbody tr:last-child > * { border-bottom: none; }
+.adle-admin-table .word { position: sticky; left: 0; z-index: 2; width: 120px; min-width: 120px; max-width: 120px; background: #fff; font-weight: 700; }
+.adle-admin-table thead th:first-child { position: sticky; left: 0; z-index: 3; }
+.adle-admin-table .skill { width: 175px; min-width: 175px; max-width: 175px; color: #59616b; line-height: 1.3; }
+.adle-admin-table .number { width: 100px; text-align: center; font-variant-numeric: tabular-nums; }
+.adle-admin-table .check { width: 105px; text-align: center; }
+.adle-admin-table .options { width: 50px; text-align: center; }
+.adle-admin-indicator { display: inline-flex; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 50%; font-size: .93rem; font-weight: 800; }
+.adle-admin-indicator.is-complete { background: #e4f6eb; color: #168149; }
+.adle-admin-indicator.is-missing { background: #fde7ef; color: #a9144f; }
+.adle-admin-indicator.is-unknown { background: #f0f2f4; color: #7c8590; }
+.adle-admin-options-button { border-radius: 8px; padding: 3px 8px; font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.adle-admin-options-button:hover { background: #fdeaf2; }
+.adle-admin-options-list button, .adle-admin-menu-note { display: block; width: 100%; padding: 12px; border-radius: 8px; color: #20242a; text-align: left; font-size: .9rem; }
+.adle-admin-options-list button:hover { background: #fdeaf2; color: #9a1247; }
+.adle-admin-menu-note { color: #7c8590; }
+.adle-admin-empty { padding: 45px 20px; text-align: center; color: #59616b; font-size: .9rem; }
+.adle-admin-dialog-body { max-height: min(65vh, 620px); overflow-y: auto; padding-right: 5px; }
+.adle-admin-detail-section { margin-top: 12px; padding: 14px; border: 1px solid #e5e8eb; border-radius: 10px; }
+.adle-admin-detail-section h4 { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .92rem; font-weight: 700; color: #20242a; }
+.adle-admin-dialog-close { border: 1px solid #d9dee3; border-radius: 9px; padding: 8px 14px; color: #20242a; font-size: .875rem; font-weight: 700; }
+.adle-admin-dialog-close:hover { border-color: #c2185b; color: #c2185b; }
+@media (max-width: 1190px) {
+  .adle-admin-table .skill { position: sticky; left: 120px; z-index: 2; background: #fff; }
+  .adle-admin-table thead th:nth-child(2) { position: sticky; left: 120px; z-index: 3; }
+}
+@media (max-width: 640px) { .adle-admin-search { min-width: 0; flex: 1; } .adle-admin-tab { padding: 10px 7px; font-size: .8rem; } }
