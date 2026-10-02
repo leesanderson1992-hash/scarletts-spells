@@ -32,6 +32,38 @@ function questionPair(rule: DegreeRule, key: string): readonly [DegreeQuestion, 
 export function createDraftDegreeFamilies(): AdjectiveFamilyV1[] {
   return COMPARATIVE_MICRO_SKILLS.flatMap(skill => DEGREE_FAMILY_SEEDS[degreeRuleForSkill(skill)].map(seed => draftFamily(skill, seed)));
 }
+
+/** Resolve a reviewed family once, carrying canonical identity into the paired
+ * dictation bindings as well as the visible word triplet. */
+export function bindDegreeFamilyCanonicalWords(
+  family: AdjectiveFamilyV1,
+  canonicalWordIdByWord: ReadonlyMap<string, string>,
+): AdjectiveFamilyV1 {
+  const words = family.words.map(word => {
+    const canonicalWordId = canonicalWordIdByWord.get(word.word);
+    if (!canonicalWordId) throw new Error(`comparative_canonical_word_missing:${word.word}`);
+    return { ...word, canonicalWordId };
+  }) as AdjectiveFamilyV1["words"];
+  const canonicalWordIdFor = (word: string) => {
+    const canonicalWordId = canonicalWordIdByWord.get(word);
+    if (!canonicalWordId) throw new Error(`comparative_canonical_word_missing:${word}`);
+    return canonicalWordId;
+  };
+  return {
+    ...family,
+    words,
+    content: {
+      ...family.content,
+      pairedSentence: {
+        ...family.content.pairedSentence,
+        targets: family.content.pairedSentence.targets.map(target => ({
+          ...target,
+          canonicalWordId: canonicalWordIdFor(target.word),
+        })) as AdjectiveFamilyV1["content"]["pairedSentence"]["targets"],
+      },
+    },
+  };
+}
 function draftFamily(microSkillKey: ComparativeMicroSkill, [base, meaning, noun, plural, people = false, qualifier = ""]: Seed): AdjectiveFamilyV1 {
   const rule = degreeRuleForSkill(microSkillKey);
   const key = `degree:en-GB:${base}`;
