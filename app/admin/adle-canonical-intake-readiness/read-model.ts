@@ -12,7 +12,7 @@ import {
   type Facets,
   type RouteFact,
 } from "./readiness-projection";
-import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, summarizeReadiness, type ReadinessView } from "./readiness-groups";
+import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, summarizeReadiness, type MicroSkillDemand, type ReadinessView } from "./readiness-groups";
 import { compareReadinessRows, matchesWithoutFilter, type ReadinessControls } from "./readiness-controls";
 
 export type { ReadinessView } from "./readiness-groups";
@@ -34,7 +34,7 @@ export type ReadinessRow = {
 export type ReadinessOverview = {
   occurrencesTotal: number;
   usersWaiting: number;
-  topThree: ReadinessRow[];
+  topThree: MicroSkillDemand[];
 };
 
 type Demand = {

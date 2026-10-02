@@ -62,7 +62,8 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
           <div className="adle-admin-summary-card"><span>Users Waiting</span><strong>{result.overview.usersWaiting}</strong></div>
           <div className="adle-admin-needs-attention"><h2>Needs Attention · Top 3 Most Demanded ADLE</h2>
             {result.overview.topThree.length ? <ol>{result.overview.topThree.map((row) =>
-              <li key={row.key}><span><strong>{row.word}</strong><small>{row.microSkillKey.replaceAll("_", " ")}</small></span>
+              <li key={row.microSkillKey}><span><strong>{row.microSkillKey.replaceAll("_", " ")}</strong>
+                <small>{row.wordCount} {row.wordCount === 1 ? "word" : "words"} in queue</small></span>
                 <span>{row.occurrences} {row.occurrences === 1 ? "occurrence" : "occurrences"}</span></li>)}</ol> :
               <p>No matching words need attention.</p>}
           </div>

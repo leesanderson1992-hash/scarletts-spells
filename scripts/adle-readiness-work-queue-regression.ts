@@ -13,9 +13,9 @@ const states = (overrides: Partial<Record<FacetKey, FacetState>> = {}) => ({
 });
 const rows = [
   { key: "a", word: "apple", microSkillKey: "D4_a", occurrences: 3, usersWaiting: 2, facets: states({ teaching: "missing" }) },
-  { key: "b", word: "berry", microSkillKey: "D4_b", occurrences: 4, usersWaiting: 1, facets: states({ dictionary: "missing" }) },
-  { key: "c", word: "cherry", microSkillKey: "D4_c", occurrences: 4, usersWaiting: 2, facets: states({ teaching: "unknown" }) },
-  { key: "d", word: "date", microSkillKey: "D4_d", occurrences: 1, usersWaiting: 0, facets: states({ teaching: "missing" }) },
+  { key: "b", word: "berry", microSkillKey: "D4_a", occurrences: 4, usersWaiting: 1, facets: states({ dictionary: "missing" }) },
+  { key: "c", word: "cherry", microSkillKey: "D4_b", occurrences: 4, usersWaiting: 2, facets: states({ teaching: "unknown" }) },
+  { key: "d", word: "date", microSkillKey: "D4_c", occurrences: 1, usersWaiting: 0, facets: states({ teaching: "missing" }) },
 ];
 
 assert.deepEqual(rows.filter((row) => matchesWithoutFilter(row, "teaching")).map((row) => row.key), ["a", "d"]);
@@ -44,7 +44,9 @@ const waiting = new Map([
 const overview = summarizeReadiness(rows, candidates, waiting);
 assert.equal(overview.occurrencesTotal, 5, "source occurrences are distinct across rows");
 assert.equal(overview.usersWaiting, 2, "waiting children are distinct across rows");
-assert.deepEqual(overview.topThree.map((row) => row.key), ["c", "b", "a"]);
+assert.deepEqual(overview.topThree.map((row) => row.microSkillKey), ["D4_a", "D4_b", "D4_c"]);
+assert.deepEqual(overview.topThree[0], { microSkillKey: "D4_a", wordCount: 2, occurrences: 3, usersWaiting: 2 },
+  "Needs Attention groups separate word rows under one micro skill");
 const filtered = summarizeReadiness(rows.filter((row) => matchesWithoutFilter(row, "teaching")), candidates, waiting);
 assert.equal(filtered.occurrencesTotal, 3);
 assert.equal(filtered.usersWaiting, 2);

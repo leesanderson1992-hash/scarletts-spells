@@ -2,6 +2,12 @@ export type ReadinessView = "current" | "other" | "resolved" | "archived";
 
 export type GroupDemand = { lifecycle_status: string; archived_at: string | null };
 export type GroupCandidate = { child_id: string; source_candidate_mapping_id: string };
+export type MicroSkillDemand = {
+  microSkillKey: string;
+  wordCount: number;
+  occurrences: number;
+  usersWaiting: number;
+};
 
 const TERMINAL = new Set(["activated", "rejected", "superseded"]);
 
@@ -18,15 +24,29 @@ export function summarizeReadiness<T extends {
 }>(rows: T[], candidatesByKey: Map<string, GroupCandidate[]>, waitingByKey: Map<string, GroupCandidate[]>) {
   const occurrenceIds = new Set<string>();
   const childIds = new Set<string>();
+  const demandByMicroSkill = new Map<string, { words: Set<string>; occurrences: Set<string>; usersWaiting: Set<string> }>();
   for (const row of rows) {
-    for (const candidate of candidatesByKey.get(row.key) ?? []) occurrenceIds.add(candidate.source_candidate_mapping_id);
-    for (const candidate of waitingByKey.get(row.key) ?? []) childIds.add(candidate.child_id);
+    const demand = demandByMicroSkill.get(row.microSkillKey) ?? { words: new Set(), occurrences: new Set(), usersWaiting: new Set() };
+    demand.words.add(row.word);
+    for (const candidate of candidatesByKey.get(row.key) ?? []) {
+      occurrenceIds.add(candidate.source_candidate_mapping_id);
+      demand.occurrences.add(candidate.source_candidate_mapping_id);
+    }
+    for (const candidate of waitingByKey.get(row.key) ?? []) {
+      childIds.add(candidate.child_id);
+      demand.usersWaiting.add(candidate.child_id);
+    }
+    demandByMicroSkill.set(row.microSkillKey, demand);
   }
+  const topThree: MicroSkillDemand[] = [...demandByMicroSkill].map(([microSkillKey, demand]) => ({
+    microSkillKey, wordCount: demand.words.size, occurrences: demand.occurrences.size,
+    usersWaiting: demand.usersWaiting.size,
+  })).sort((a, b) => b.occurrences - a.occurrences || b.usersWaiting - a.usersWaiting ||
+    a.microSkillKey.localeCompare(b.microSkillKey)).slice(0, 3);
   return {
     occurrencesTotal: occurrenceIds.size,
     usersWaiting: childIds.size,
-    topThree: [...rows].sort((a, b) => b.occurrences - a.occurrences || b.usersWaiting - a.usersWaiting ||
-      a.word.localeCompare(b.word) || a.microSkillKey.localeCompare(b.microSkillKey)).slice(0, 3),
+    topThree,
   };
 }
 
