@@ -31,7 +31,7 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
     throw new Error("This submission is no longer open for parent review.");
   }
   const { data: issue, error: issueError } = await service.from("writing_issues")
-    .select("id,child_id,parent_user_id,task_submission_id,observed_text,approved_replacement,issue_status,final_classification,micro_skill_key,metadata,source_writing_occurrence_id")
+    .select("id,child_id,parent_user_id,task_submission_id,observed_text,approved_replacement,issue_status,final_classification,draft_final_classification,micro_skill_key,metadata,source_writing_occurrence_id")
     .eq("id", issueId).eq("parent_user_id", user.id).eq("child_id", submission.child_id).maybeSingle();
   const alreadyFinalised = issue?.issue_status === "finalised" && issue.final_classification === outcome;
   if (submission.parent_review_status === "approved" && !alreadyFinalised) {
@@ -42,6 +42,9 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
       !issue.source_writing_occurrence_id) {
     throw new Error("This contextual retry is not ready for parent classification.");
   }
+  if (!alreadyFinalised && issue.draft_final_classification !== outcome) {
+    throw new Error("Save the contextual reason before confirming its outcome.");
+  }
   const { data: attempts, error: attemptsError } = await service.from("writing_issue_correction_attempts")
     .select("id,task_submission_id")
     .eq("writing_issue_id", issueId).eq("parent_user_id", user.id).eq("child_id", submission.child_id);
@@ -51,6 +54,28 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
   if (!sourceSubmission || sourceSubmission.task_id !== submission.task_id ||
       !attempts.some((attempt) => attempt.task_submission_id === submissionId)) {
     throw new Error("The retry is not in this writing thread.");
+  }
+
+  // A parent-added pair without a governed family is learner-local repair
+  // evidence. Even a concept-gap label cannot create a learning item here.
+  if (issue.metadata?.feedback_origin === "parent_added") {
+    const parentCase = await service.from("writing_context_parent_added_cases")
+      .select("id,governed_family_key")
+      .eq("writing_issue_id", issueId).eq("parent_user_id", user.id).maybeSingle();
+    if (parentCase.error || !parentCase.data) throw new Error("Parent feedback lineage is unavailable.");
+    if (parentCase.data.governed_family_key === null) {
+      if (skillKey) throw new Error("This pair has no governed microskill.");
+      if (!alreadyFinalised) {
+        const closed = await service.rpc("finalise_parent_added_contextual_repair", {
+          p_writing_issue_id: issueId,p_parent_user_id: user.id,
+          p_child_id: submission.child_id,p_outcome: outcome,
+        });
+        if (closed.error) throw new Error(`Contextual repair was not saved: ${closed.error.message}`);
+      }
+      revalidatePath(`/courses/review/${submissionId}`);
+      revalidatePath("/courses/review");
+      return;
+    }
   }
 
   if (LEARNING_OUTCOMES.has(outcome)) {

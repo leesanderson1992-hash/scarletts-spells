@@ -5,9 +5,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { recoverTaskSubmissionJobs } from "@/lib/courses/submission-processing";
 import { recoverWritingShadowRuns } from "@/lib/writing-engine/whole-writing/worker";
 import { recoverWritingContextJobs } from "@/lib/writing-engine/whole-writing/context-worker";
+import { recoverContextShadowJobs } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 function safeEquals(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
@@ -28,6 +30,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  // Shadow recovery is independent of core submission recovery failures.
+  const contextShadowPending = recoverContextShadowJobs().catch(() => {
+    console.error("[context-shadow] recovery unavailable", { code: "CONTEXT_SHADOW_RECOVERY_UNAVAILABLE" });
+    return { status: "unavailable" as const };
+  });
   try {
     const summary = await recoverTaskSubmissionJobs(20);
     let writingShadow: Awaited<ReturnType<typeof recoverWritingShadowRuns>> | { status: "unavailable" };
@@ -44,9 +51,11 @@ export async function GET(request: NextRequest) {
       writingContext = { status: "unavailable" };
       console.error("[writing-context] recovery unavailable", { code: "CONTEXT_RECOVERY_UNAVAILABLE" });
     }
-    return NextResponse.json({ ...summary, writingShadow, writingContext }, { headers: { "Cache-Control": "no-store" } });
-  } catch (error) {
-    console.error("[task-submission-processing] recovery failed", error);
+    const contextShadow = await contextShadowPending;
+    return NextResponse.json({ ...summary, writingShadow, writingContext, contextShadow }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    await contextShadowPending;
+    console.error("[task-submission-processing] recovery failed", { code: "SUBMISSION_RECOVERY_UNAVAILABLE" });
     return NextResponse.json({ error: "Submission recovery failed." }, { status: 500 });
   }
 }

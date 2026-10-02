@@ -740,6 +740,39 @@ Stage `8` closeout preserves the same rule: it was a boundary-safety and
 parent-facing evidence-wording stage only, not a mastery-runtime stage, and it
 did not alter verification truth, mastery semantics, or workflow ownership.
 
+The contextual AI advisory route is implemented at Stage 0 with its global AI
+mode disabled. A provider result passes an application-owned exact-occurrence
+and family gate before it can become a parent-visible advisory observation.
+`NOT_ASSESSED` records source, provider, or contract failure separately from
+the model's `UNCERTAIN` judgement. AI output has no direct learner, Known
+Error, Golden Nugget, ADLE, proficiency, reward, or retirement authority;
+the existing identified parent decision and governed learning handoff retain
+that authority. Shadow and parent-advisory activation each require separate
+approval and proof. See the [implementation receipt](../implementation/whole-writing-context-ai-safety-gate-implementation-2026-09-27.md)
+and [repeatability receipt](../../bench/ai-context/repeatability-receipt-2026-09-26.md).
+
+Stage 0B adds parent-confirmed feedback lineage while the AI mode remains
+disabled. Exact immutable occurrences link versioned, complete detector runs,
+AI attempts and observations, parent decisions, repair issues, and separately
+governed learning handoffs. Disagreement labels and aggregate metrics are
+derived from these facts; they do not establish learner truth.
+AI comparisons retain the exact reviewed observation/attempt and that attempt's
+detector/registry identity. Spelling recall requires explicit assessed membership
+in a completed batch, including for partial replays. Current recall follows
+current parent truth while superseded decisions remain historical evidence;
+total reviewed is coverage, separate from comparable AI counts. Research
+pointers are removed with their governed source. A parent may
+add a missed spelling or contextual word choice at an exact writing span.
+Four governed contextual families retain their existing decision and learning
+policy. Other homophone/confusable pairs remain learner/event scoped, use
+repair-only child feedback, and enter the `No matching skill` Admin queue;
+they do not activate a global family or microskill. A parent may deliberately
+suggest a reviewed occurrence for research, but an additional privacy and
+human-adjudication process is required before frozen corpus admission.
+Prompted repair remains excluded from authentic independent use, Gold Bars,
+proficiency, and mastery. See the [Stage 0B receipt](../implementation/whole-writing-context-feedback-stage-0b-2026-09-27.md)
+and the [evidence contract](../contracts/writing-engine-mastery-and-evidence-contract.md).
+
 ## Admin/Internal Access Boundary
 
 Writing Engine admin/internal access defers to:

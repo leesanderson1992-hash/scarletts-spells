@@ -7,7 +7,7 @@ import {
   resolveParentIdentifiedOccurrence,
   type ParentIdentifiedOccurrenceCandidate,
 } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
-import { readSnapshotField } from "@/lib/writing-engine/whole-writing/context-source";
+import { reconstructOccurrenceContext } from "@/lib/writing-engine/whole-writing/context-source";
 import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
 import { isGovernedContextMember } from "@/lib/writing-engine/whole-writing/context-advisory-routing";
 
@@ -255,6 +255,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     field_path: string;
     start_utf16: number;
     end_utf16: number;
+    field_hash: string;
     provenance: "learner_response" | "unknown";
   };
   const occurrenceRows: OccurrenceRow[] = [];
@@ -266,7 +267,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     if (selectedOccurrenceId) {
       const { data } = await supabase
         .from("writing_occurrences")
-        .select("id,observed_text,field_path,start_utf16,end_utf16,provenance")
+        .select("id,observed_text,field_path,start_utf16,end_utf16,field_hash,provenance")
         .eq("snapshot_id", sourceSnapshot.id)
         .eq("id", selectedOccurrenceId)
         .eq("provenance", "learner_response")
@@ -277,7 +278,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
         const { data, error } = await supabase
           .from("writing_occurrences")
           .select(
-            "id,observed_text,field_path,start_utf16,end_utf16,provenance",
+            "id,observed_text,field_path,start_utf16,end_utf16,field_hash,provenance",
           )
           .eq("snapshot_id", sourceSnapshot.id)
           .eq("provenance", "learner_response")
@@ -362,17 +363,22 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     );
   }
 
-  const sourceFieldText = sourceOccurrence && sourceSnapshot
-    ? readSnapshotField(sourceSnapshot as unknown as SourceSnapshot, sourceOccurrence.field_path)
-    : null;
-  const sourceExcerpt = sourceOccurrence && sourceFieldText !== null &&
-      sourceFieldText.slice(sourceOccurrence.start_utf16, sourceOccurrence.end_utf16) === sourceOccurrence.observed_text
-    ? sourceFieldText.slice(
-        Math.max(0, sourceOccurrence.start_utf16 - 80),
-        Math.min(sourceFieldText.length, sourceOccurrence.end_utf16 + 80),
-      )
-    : null;
-  const exactSampleRange = sourceOccurrence && sourceFieldText === sample.sample_text
+  const sourceContext = sourceOccurrence && sourceSnapshot
+    ? reconstructOccurrenceContext({
+        snapshot: sourceSnapshot as unknown as SourceSnapshot,
+        fieldPath: sourceOccurrence.field_path,
+        fieldHash: sourceOccurrence.field_hash,
+        startUtf16: sourceOccurrence.start_utf16,
+        endUtf16: sourceOccurrence.end_utf16,
+        observedText: sourceOccurrence.observed_text,
+      }) : null;
+  if (sourceWritingOccurrenceId && sourceContext?.status !== "ready") {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "The selected writing occurrence no longer verifies. Review the word and try again."));
+  }
+  const sourceExcerpt = sourceContext?.status === "ready" ? sourceContext.excerpt : null;
+  const exactSampleRange = sourceOccurrence && sourceContext?.status === "ready" &&
+      sourceContext.fieldText === sample.sample_text
     ? { raw: sourceOccurrence.observed_text, start: sourceOccurrence.start_utf16, end: sourceOccurrence.end_utf16 }
     : null;
   const range = sourceWritingOccurrenceId ? exactSampleRange : findWordRange(sample.sample_text, safeMisspelledWord);
@@ -390,6 +396,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     is_parent_overridden: false,
     word_family_id: null,
     source_writing_occurrence_id: sourceWritingOccurrenceId,
+    parent_authored_feedback: true,
     context_text: sourceExcerpt ?? range?.raw ?? safeMisspelledWord,
     position_start: range?.start ?? null,
     position_end: range?.end ?? null,

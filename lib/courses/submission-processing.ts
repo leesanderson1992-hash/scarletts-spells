@@ -12,7 +12,8 @@ import {
   type ReturnedCorrectionKnownMatchIssue,
 } from "@/lib/writing-engine/persistence/returned-correction-known-match";
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
-import { processContextualAdvisoryForSubmission } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
+import { enqueueDisposableProviderProof } from "@/lib/writing-engine/whole-writing/context-proof";
+import { enqueueContextShadowForSubmission } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 
 const MAX_ATTEMPTS = 8;
 const STALE_PROCESSING_MINUTES = 10;
@@ -47,9 +48,8 @@ type SubmissionRow = {
   submitted_at: string;
 };
 
-function sanitizedError(error: unknown) {
-  const message = error instanceof Error ? error.message : "Unknown processing error";
-  return message.replace(/[\r\n\t]+/g, " ").slice(0, 500);
+function sanitizedError() {
+  return "TASK_SUBMISSION_PROCESSING_UNAVAILABLE";
 }
 
 function retryDelaySeconds(attemptCount: number) {
@@ -239,6 +239,8 @@ async function runJob(job: JobRow) {
     .single();
   if (error || !data) throw error ?? new Error("Submission was not found");
   const submission = data as SubmissionRow;
+  // Persisted operator registration, never a payload flag. Produce no educational/reward facts.
+  if (await enqueueDisposableProviderProof(supabase, submission.child_id, submission.id)) return;
   const payload = (job.payload ?? {}) as ProcessingPayload;
   const submittedAnswerText = payload.submissionText?.trim() ?? "";
   const sourceText = buildSpellcheckSourceText({
@@ -258,21 +260,11 @@ async function runJob(job: JobRow) {
     if (analysis.error) throw analysis.error;
   }
 
-  // This is advisory background work. Its failure cannot reject or rewrite a
-  // saved submission, and it never creates child-facing or learning evidence.
+  // Enqueue only. The independent shadow worker cannot delay this job with a provider call.
   try {
-    await processContextualAdvisoryForSubmission({
-      client: supabase,
-      submissionId: submission.id,
-      parentUserId: submission.parent_user_id,
-      childId: submission.child_id,
-      runKey: `${job.id}:${job.attempt_count}`,
-    });
-  } catch (error) {
-    console.error("[context-advisory] processing unavailable", {
-      submissionId: submission.id,
-      reason: error instanceof Error ? error.message : "UNKNOWN",
-    });
+    await enqueueContextShadowForSubmission(supabase, submission.id);
+  } catch {
+    console.error("[context-shadow] enqueue unavailable", { code: "CONTEXT_SHADOW_ENQUEUE_UNAVAILABLE" });
   }
 
   await detectAndStoreFreeWritingEvidenceCandidates({
@@ -354,7 +346,7 @@ export async function processTaskSubmission(submissionId: string) {
       })
       .eq("id", job.id);
     return { status: "completed" as const };
-  } catch (error) {
+  } catch {
     const delay = retryDelaySeconds(job.attempt_count);
     await supabase
       .from("task_submission_processing_jobs")
@@ -362,14 +354,14 @@ export async function processTaskSubmission(submissionId: string) {
         status: "failed",
         next_retry_at: new Date(Date.now() + delay * 1000).toISOString(),
         processing_started_at: null,
-        last_error: sanitizedError(error),
+        last_error: sanitizedError(),
         updated_at: new Date().toISOString(),
       })
       .eq("id", job.id);
     console.error("[task-submission-processing] job failed", {
       submissionId,
       attempt: job.attempt_count,
-      error: sanitizedError(error),
+      error: sanitizedError(),
     });
     return { status: "failed" as const };
   }

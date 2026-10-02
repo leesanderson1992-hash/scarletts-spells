@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "decision", "focus", "observed_form", "expected_form", "reason_category"],
+  "properties": {
+    "case_id": { "type": "string" },
+    "decision": { "type": "string", "enum": ["VALID", "INVALID", "UNCERTAIN"] },
+    "focus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_utf16", "end_utf16", "text"],
+      "properties": {
+        "start_utf16": { "type": "integer" },
+        "end_utf16": { "type": "integer" },
+        "text": { "type": "string" }
+      }
+    },
+    "observed_form": { "type": "string" },
+    "expected_form": { "type": ["string", "null"] },
+    "reason_category": {
+      "type": "string",
+      "enum": ["SUPPORTED_USE", "UNIQUE_REPLACEMENT", "FRAGMENT", "QUOTATION", "GERUND", "RUN_ON", "TASK_DEPENDENT", "SEMANTIC_AMBIGUITY", "UNSUPPORTED_CONSTRUCTION", "INSUFFICIENT_CONTEXT"]
+    }
+  }
+}

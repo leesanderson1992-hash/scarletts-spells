@@ -5,6 +5,12 @@ function decodePointerSegment(value: string) {
   return value.replace(/~1/g, "/").replace(/~0/g, "~");
 }
 
+function splitsSurrogate(text: string, offset: number) {
+  const left = text.charCodeAt(offset - 1);
+  const right = text.charCodeAt(offset);
+  return left >= 0xd800 && left <= 0xdbff && right >= 0xdc00 && right <= 0xdfff;
+}
+
 export function readSnapshotField(snapshot: SourceSnapshot, fieldPath: string) {
   if (!fieldPath.startsWith("/")) return null;
   let value: unknown = snapshot.envelope;
@@ -37,6 +43,8 @@ export function reconstructOccurrenceContext(input: {
     input.startUtf16 < 0 ||
     input.endUtf16 <= input.startUtf16 ||
     input.endUtf16 > fieldText.length ||
+    splitsSurrogate(fieldText, input.startUtf16) ||
+    splitsSurrogate(fieldText, input.endUtf16) ||
     fieldText.slice(input.startUtf16, input.endUtf16) !== input.observedText
   ) {
     return { status: "blocked" as const, reason: "SOURCE_SPAN_MISMATCH" as const };

@@ -22,6 +22,9 @@ import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verific
 import { resolveContextReviewSuggestionImpl } from "./actions/context-review-actions";
 import { recordContextAdvisoryParentDecisionImpl, promoteContextDiagnosticExampleImpl } from "./actions/context-advisory-decision-actions";
 import { finaliseContextualLearningOutcomeImpl } from "./actions/contextual-learning-actions";
+import { addParentContextualMissImpl } from "./actions/parent-added-context-actions";
+import { promoteParentContextualCaseImpl } from "./actions/context-feedback-research-actions";
+import { recordPassageReviewEventImpl, retryPassageContextScanImpl } from "./actions/passage-context-actions";
 import {
   captureSubmissionSpellingCandidateMappingImpl,
   promoteParentLocalCandidateMappingImpl,
@@ -40,6 +43,22 @@ import {
 
 export async function addMissedWordToSubmissionReview(formData: FormData) {
   return addMissedWordToSubmissionReviewImpl(formData);
+}
+
+export async function addParentContextualMiss(formData: FormData) {
+  return addParentContextualMissImpl(formData);
+}
+
+export async function recordPassageReviewEvent(formData: FormData) {
+  return recordPassageReviewEventImpl(formData);
+}
+
+export async function retryPassageContextScan(formData: FormData) {
+  return retryPassageContextScanImpl(formData);
+}
+
+export async function promoteParentContextualCase(formData: FormData) {
+  return promoteParentContextualCaseImpl(formData);
 }
 
 export async function acceptSubmissionReviewIssue(formData: FormData) {

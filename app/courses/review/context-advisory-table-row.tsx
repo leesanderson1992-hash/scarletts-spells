@@ -9,11 +9,12 @@ export function ContextAdvisoryTableRow({ row, submissionId, readOnly, colSpan }
   readOnly: boolean;
   colSpan: number;
 }) {
+  const analyser = row.analysisSource === "ai_provider" ? "AI suggestion" : "Context Resolver";
   const machine = row.machineStatus === "INVALID" && row.machineAlternative
-    ? `Context Resolver suggests: ${row.machineAlternative}`
-    : row.machineStatus === "VALID" ? "Context Resolver: looks correct"
-    : row.machineStatus === "UNCERTAIN" ? "Context Resolver: uncertain"
-    : "Context Resolver: not assessed";
+    ? `${analyser}: ${row.machineAlternative} — parent review required`
+    : row.machineStatus === "VALID" ? `${analyser}: looks correct — parent review required`
+    : row.machineStatus === "UNCERTAIN" ? `${analyser}: uncertain — parent review required`
+    : `${analyser}: not assessed`;
   const common = <>
     <input type="hidden" name="submission_id" value={submissionId} />
     <input type="hidden" name="occurrence_id" value={row.occurrenceId} />

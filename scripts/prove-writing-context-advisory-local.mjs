@@ -4,6 +4,12 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { proveContextFeedbackCorrections } from "./context-feedback-corrective-db-regressions.mjs";
+import { proveProductionProofIsolation } from "./context-shadow-production-proof-db-regressions.mjs";
+import { proveContextShadowStage1 } from "./context-shadow-stage1-db-regressions.mjs";
+import { proveContextShadowStage1B } from "./context-shadow-stage1b-db-regressions.mjs";
+import { proveAdultContextRelease } from "./context-adult-db-regressions.mjs";
+import { startTmpfsContextPostgres } from "./context-local-postgres.mjs";
 
 const require = createRequire(import.meta.url);
 const { Client } = require("pg");
@@ -11,13 +17,19 @@ const container = `writing-context-advisory-proof-${randomUUID().slice(0, 8)}`;
 const options = { encoding: "utf8", timeout: 60_000, stdio: "pipe" };
 let db;
 let started = false;
+let tmpfs;
 try {
+  const localContainer=process.argv.find(x=>x.startsWith('--local-tmpfs-container='))?.split('=')[1];
+  let port;
+  if(localContainer) {
+    tmpfs=await startTmpfsContextPostgres(localContainer);port=tmpfs.port;
+  } else {
   execFileSync("docker", ["run", "--rm", "-d", "--name", container,
     "-e", "POSTGRES_PASSWORD=disposable-proof-only", "-p", "127.0.0.1::5432",
     "postgres:16-alpine"], options);
   started = true;
   const portOutput = execFileSync("docker", ["port", container, "5432/tcp"], options).trim();
-  const port = Number(portOutput.split(":").at(-1));
+  port = Number(portOutput.split(":").at(-1));
   assert(Number.isInteger(port) && port > 0, "isolated PostgreSQL port unavailable");
   for (let attempt = 0; attempt < 60; attempt += 1) {
     try {
@@ -28,6 +40,7 @@ try {
       if (attempt === 59) throw new Error("isolated PostgreSQL did not become ready");
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
+  }
   }
   db = new Client({ host: "127.0.0.1", port, user: "postgres", password: "disposable-proof-only", database: "postgres" });
   db.on("error", (error) => { process.stderr.write(`disposable PostgreSQL client error: ${error.message}\n`); });
@@ -47,13 +60,15 @@ try {
     create table public.writing_source_snapshots(id uuid primary key default gen_random_uuid(),submission_id uuid not null unique,
       parent_user_id uuid not null,child_id uuid not null,task_id uuid not null,occurred_at timestamptz not null,
       envelope jsonb not null,source_revision text not null default '1');
-    create table public.writing_shadow_runs(id uuid primary key default gen_random_uuid(),snapshot_id uuid not null unique);
-    create table public.writing_occurrences(id text primary key,snapshot_id uuid not null,field_path text not null,
+    create table public.writing_shadow_runs(id uuid primary key default gen_random_uuid(),snapshot_id uuid not null,
+      replay_key text not null default 'capture',unique(snapshot_id,replay_key));
+    create table public.writing_occurrences(id text primary key,snapshot_id uuid not null references public.writing_source_snapshots(id) on delete cascade,field_path text not null,
       field_hash text not null,start_utf16 integer not null,end_utf16 integer not null,observed_text text not null);
     create table public.writing_issues(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,
       task_submission_id uuid,issue_status text,final_classification text,observed_text text,suggested_replacement text,
       approved_replacement text,context_text text,source_field_key text,micro_skill_key text,parent_marked_at timestamptz,
-      metadata jsonb not null default '{}',source_writing_occurrence_id text,created_at timestamptz not null default now(),
+      metadata jsonb not null default '{}',source_writing_occurrence_id text references public.writing_occurrences(id) on delete set null,
+      source_misspelling_instance_id uuid,theme_key text,created_at timestamptz not null default now(),
       updated_at timestamptz,final_classified_at timestamptz);
     create function public.reject_writing_fact_update() returns trigger language plpgsql as $$ begin raise exception 'immutable'; end $$;
     create function public.finalise_writing_issue_classification_and_learning_item(uuid,uuid,uuid,text)
@@ -104,7 +119,8 @@ try {
   assert.equal(cancelled.rows[0].issue_status, "finalised");
   assert.equal(cancelled.rows[0].final_classification, "not_an_issue");
   await db.query(`
-    create table micro_skill_catalog(micro_skill_key text primary key,mastery_domain_key text,is_active boolean,is_assignable boolean);
+    create table micro_skill_catalog(id uuid primary key default gen_random_uuid(),micro_skill_key text unique,mastery_domain_key text,is_active boolean,is_assignable boolean,
+      skill_family_key text default 'D4_HOM',skill_cluster_key text default 'D4_HOM_FUNCTION_WORD_HOMOPHONES',practice_route text default 'writing');
     create table canonical_teaching_dictionary_words(id uuid primary key default gen_random_uuid(),normalised_word text,row_status text,review_status text);
     create table canonical_teaching_dictionary_word_support(canonical_word_id uuid,micro_skill_key text,row_status text,review_status text);
     create table canonical_teaching_dictionary_content_versions(micro_skill_key text,is_active boolean,version_status text,final_readiness_review_status text);
@@ -114,24 +130,38 @@ try {
       constraint adle_learning_items_source_kind_check check(source_kind in
         ('verified_misspelling','probe_miss','review_ejection','slippage_reentry','stretch_selection','transfer_confirmation')));
     create unique index on adle_learning_items(child_id,canonical_word_id,micro_skill_key) where row_status='active';
-    create table learning_items(id uuid primary key default gen_random_uuid());
-    create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid);
-    create table learning_item_evidence(writing_issue_id uuid,source_context text,evidence_type text,metadata jsonb,updated_at timestamptz);
+    create table learning_items(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,source_writing_issue_id uuid unique,
+      micro_skill_key text,mastery_domain_key text,skill_family_key text,skill_cluster_key text,practice_route text,current_competency_level integer,
+      theme_key text,progress_state text,is_active boolean,metadata jsonb,created_at timestamptz,updated_at timestamptz);
+    create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid,link_role text,metadata jsonb,created_at timestamptz,updated_at timestamptz,
+      unique(learning_item_id,writing_issue_id));
+    create table learning_item_evidence(learning_item_id uuid,child_id uuid,parent_user_id uuid,writing_issue_id uuid,task_submission_id uuid,
+      evidence_type text,competency_signal integer,source_context text,metadata jsonb,created_at timestamptz,updated_at timestamptz);
+    create table writing_issue_correction_attempts(id uuid primary key default gen_random_uuid(),writing_issue_id uuid,parent_user_id uuid,child_id uuid,
+      task_submission_id uuid,corrected_independently boolean,reflection text,metadata jsonb,created_at timestamptz default now());
+    create function public.initial_learning_item_competency_for_final_classification(p_outcome text) returns integer language sql immutable as $$ select 1 $$;
+    create function public.learning_item_evidence_type_for_final_classification(p_outcome text) returns text language sql immutable as $$ select 'incorrect_use' $$;
+    create function public.learning_item_evidence_type_for_correction_attempt(p_fixed boolean,p_reflection text,p_independent boolean) returns text language sql immutable as $$ select case when p_fixed then 'corrected_after_prompt' else 'incorrect_use' end $$;
+    create function public.apply_learning_item_review_state_from_evidence(uuid,text,integer,timestamptz,text) returns void language sql as $$ select null::void $$;
     create or replace function public.finalise_writing_issue_classification_and_learning_item_pre_context_advisory(
       p_issue uuid,p_parent uuid,p_child uuid,p_outcome text) returns jsonb language plpgsql as $$
     declare v_item uuid;
     begin
       insert into learning_items default values returning id into v_item;
-      insert into learning_item_issue_links values(v_item,p_issue,p_child,p_parent);
-      insert into learning_item_evidence values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
+      insert into learning_item_issue_links(learning_item_id,writing_issue_id,child_id,parent_user_id) values(v_item,p_issue,p_child,p_parent);
+      insert into learning_item_evidence(writing_issue_id,source_context,evidence_type,metadata,updated_at) values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
       update writing_issues set issue_status='finalised',final_classification=p_outcome where id=p_issue;
       return jsonb_build_object('learning_item_id',v_item);
     end $$;
   `);
   const learningMigration = readFileSync(new URL("../supabase/migrations/20260924130000_add_parent_confirmed_contextual_learning_handoff.sql", import.meta.url), "utf8");
   await db.query(learningMigration);
+  const aiMigration = readFileSync(new URL("../supabase/migrations/20260927120000_add_contextual_ai_advisory_boundary.sql", import.meta.url), "utf8");
+  await db.query(aiMigration);
+  const shadowPrivilege = await db.query("select has_table_privilege('authenticated','public.writing_context_ai_attempts','SELECT') as allowed");
+  assert.equal(shadowPrivilege.rows[0].allowed, false);
   const skill = "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE";
-  await db.query("insert into micro_skill_catalog values($1,'D4',true,true)", [skill]);
+  await db.query("insert into micro_skill_catalog(micro_skill_key,mastery_domain_key,is_active,is_assignable) values($1,'D4',true,true)", [skill]);
   const word = (await db.query("insert into canonical_teaching_dictionary_words(normalised_word,row_status,review_status) values('there','active','approved_for_first_exposure') returning id")).rows[0].id;
   await db.query("insert into canonical_teaching_dictionary_word_support values($1,$2,'active','approved_for_first_exposure')", [word, skill]);
   await db.query("insert into canonical_teaching_dictionary_content_versions values($1,true,'active','signed_off')", [skill]);
@@ -140,18 +170,41 @@ try {
   await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there',null,'their should be')", [learningOccurrence, parent]);
   const learningIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [learningOccurrence])).rows[0].id;
   await db.query("update writing_issues set issue_status='child_responded' where id=$1", [learningIssue]);
+  await db.query("insert into writing_issue_correction_attempts(writing_issue_id,parent_user_id,child_id,task_submission_id,corrected_independently,reflection,metadata) values($1,$2,$3,$4,false,'hard','{\"marked_fixed\":false}'::jsonb)", [learningIssue,parent,child,submission]);
   await assert.rejects(db.query("select finalise_contextual_repair_only($1,$2,$3,'concept_gap')", [learningIssue, parent, child]));
   await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap','D4_WRONG')", [learningIssue, parent, child]));
   const stillOpen = await db.query("select final_classification,micro_skill_key from writing_issues where id=$1", [learningIssue]);
   assert.equal(stillOpen.rows[0].final_classification, null);
   assert.equal(stillOpen.rows[0].micro_skill_key, "unknown");
+  const fixMigration = readFileSync(new URL("../supabase/migrations/20261001110000_fix_contextual_learning_item_finalisation.sql", import.meta.url), "utf8");
+  await db.query(fixMigration);
+  await db.query(`
+    create function public.ensure_parent_approved_spelling_occurrence_source(uuid,uuid,uuid,text)
+      returns jsonb language plpgsql as $$ begin raise exception 'spelling source invoked'; end $$;
+    create function public.materialize_spelling_occurrence_source_on_finalisation()
+      returns trigger language plpgsql as $$
+      begin
+        if new.issue_status='finalised' and new.final_classification is not null
+          and (tg_op='INSERT' or old.issue_status is distinct from new.issue_status
+            or old.final_classification is distinct from new.final_classification) then
+          perform public.ensure_parent_approved_spelling_occurrence_source(new.id,new.parent_user_id,new.child_id,new.final_classification);
+        end if;
+        return new;
+      end $$;
+    create trigger writing_issues_materialize_spelling_occurrence_source
+      after update of issue_status,final_classification on public.writing_issues
+      for each row execute function public.materialize_spelling_occurrence_source_on_finalisation();
+  `);
+  const triggerFixMigration = readFileSync(new URL("../supabase/migrations/20261001120000_exclude_contextual_finalisation_from_spelling_trigger.sql", import.meta.url), "utf8");
+  await db.query(triggerFixMigration);
   const finalised = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [learningIssue, parent, child, skill]);
   assert.equal(finalised.rows[0].result.handoff_state, "READY");
   assert.equal(finalised.rows[0].result.retry_evidence_kind, "REPAIR_ONLY");
   await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4)", [learningIssue, parent, child, skill]));
-  const repairEvidence = await db.query("select evidence_type,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
-  assert.equal(repairEvidence.rows[0].evidence_type, "corrected_after_prompt");
-  assert.equal(repairEvidence.rows[0].metadata.evidence_kind, "REPAIR_ONLY");
+  const repairEvidence = await db.query("select evidence_type,source_context,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
+  const retryEvidence = repairEvidence.rows.find((row) => row.source_context === "child_correction_attempt");
+  assert.equal(retryEvidence.evidence_type, "incorrect_use");
+  assert.equal(retryEvidence.metadata.evidence_kind, "REPAIR_ONLY");
   await db.query("update canonical_teaching_dictionary_content_versions set is_active=false where micro_skill_key=$1", [skill]);
   const pendingOccurrence = "context-advisory:pending-content-occurrence";
   await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [pendingOccurrence, captured.rows[0].id]);
@@ -160,9 +213,22 @@ try {
   await db.query("update writing_issues set issue_status='child_responded' where id=$1", [pendingIssue]);
   const pending = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [pendingIssue, parent, child, skill]);
   assert.equal(pending.rows[0].result.handoff_state, "PENDING_TEACHING_CONTENT");
+  const secondWord = (await db.query("insert into canonical_teaching_dictionary_words(normalised_word,row_status,review_status) values($1,'active','approved_for_first_exposure') returning id", ["they're"])).rows[0].id;
+  await db.query("insert into canonical_teaching_dictionary_word_support values($1,$2,'active','approved_for_first_exposure')", [secondWord, skill]);
+  const secondOccurrence = "context-advisory:second-pending-content-occurrence";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [secondOccurrence, captured.rows[0].id]);
+  await db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID',$3,null,'their should be')", [secondOccurrence, parent, "they're"]);
+  const secondIssue = (await db.query("select id from writing_issues where source_writing_occurrence_id=$1", [secondOccurrence])).rows[0].id;
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [secondIssue]);
+  const secondPending = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [secondIssue, parent, child, skill]);
+  assert.equal(secondPending.rows[0].result.handoff_state, "PENDING_TEACHING_CONTENT");
   await db.query("update canonical_teaching_dictionary_content_versions set is_active=true where micro_skill_key=$1", [skill]);
   const admitted = await db.query("select reconcile_contextual_adle_learning_need($1,$2,$3) as result", [pendingIssue, parent, child]);
   assert.equal(admitted.rows[0].result.handoff_state, "READY");
+  const secondAdmitted = await db.query("select reconcile_contextual_adle_learning_need($1,$2,$3) as result", [secondIssue, parent, child]);
+  assert.equal(secondAdmitted.rows[0].result.handoff_state, "READY");
+  const twoWordQueue = await db.query("select count(distinct canonical_word_id)::int as n from adle_learning_items where child_id=$1 and micro_skill_key=$2 and row_status='active' and item_status='pending'", [child, skill]);
+  assert.equal(twoWordQueue.rows[0].n, 2, "two distinct words in one skill become selectable after content release");
   await db.query("update adle_learning_items set item_status='resolved' where id=$1", [admitted.rows[0].result.adle_learning_item_id]);
   const resolvedOccurrence = "context-advisory:resolved-item-occurrence";
   await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [resolvedOccurrence, captured.rows[0].id]);
@@ -172,12 +238,157 @@ try {
   const needsReentry = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [resolvedIssue, parent, child, skill]);
   assert.equal(needsReentry.rows[0].result.handoff_state, "PENDING_EXISTING_ITEM_REVIEW");
   assert.equal(needsReentry.rows[0].result.adle_learning_item_id, null);
+  await db.query("update writing_context_advisory_control set ai_mode='parent_advisory' where singleton=true");
+  const aiOccurrence = "context-advisory:ai-observation-only";
+  await db.query("insert into writing_occurrences values($1,$2,'/envelope','hash',0,5,'their')", [aiOccurrence, captured.rows[0].id]);
+  const attempt = (await db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     alternative_member,reason_code,provider,model,prompt_fingerprint,schema_fingerprint,
+     config_fingerprint,gate_version)
+    values($1,$2,$3,$4,'run-1','parent_advisory','THERE_THEIR_THEYRE','INVALID',
+      'there','UNIQUE_REPLACEMENT','openai','gpt-6-luna','prompt','schema','config','gate') returning id`,
+    [aiOccurrence, captured.rows[0].id, parent, child])).rows[0].id;
+  await assert.rejects(db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     reason_code,provider,model,prompt_fingerprint,schema_fingerprint,config_fingerprint,gate_version)
+    values($1,$2,$3,$4,'run-2','shadow','THERE_THEIR_THEYRE','NOT_ASSESSED',
+      'AI_PROVIDER_UNAVAILABLE','openai','gpt-6-luna','prompt','schema','config','gate')`,
+    [aiOccurrence, captured.rows[0].id, randomUUID(), child]));
+  const aiObservation = (await db.query(`insert into writing_context_advisory_observations
+    (occurrence_id,snapshot_id,parent_user_id,child_id,family_key,release_key,release_id,
+     run_key,manifest_fingerprint,observation_status,observed_member,alternative_member,
+     reason_code,result_fingerprint,diagnostics,analysis_source,ai_attempt_id)
+    values($1,$2,$3,$4,'THERE_THEIR_THEYRE','ai-context-parent-advisory-v1',
+      'a1000000-0000-4000-8000-000000000001','run-1','config','INVALID','their',
+      'there','UNIQUE_REPLACEMENT','result','{}','ai_provider',$5) returning id`,
+    [aiOccurrence, captured.rows[0].id, parent, child, attempt])).rows[0].id;
+  const autonomous = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(autonomous.rows[0].n, 0);
+  await db.query("select record_writing_context_parent_decision($1,$2,$3,'VALID')", [aiOccurrence, aiObservation, parent]);
+  const disagreed = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(disagreed.rows[0].n, 0);
+  await db.query("select record_writing_context_parent_decision($1,$2,$3,'INVALID','there')", [aiOccurrence, aiObservation, parent]);
+  const confirmed = await db.query("select count(*)::int as n from writing_issues where source_writing_occurrence_id=$1", [aiOccurrence]);
+  assert.equal(confirmed.rows[0].n, 1);
+  await assert.rejects(db.query("update writing_context_advisory_control set enabled=false where singleton=true"));
   await db.query("select disable_writing_context_advisory($1)", [parent]);
-  const switchState = await db.query("select enabled from writing_context_advisory_control where singleton=true");
+  const switchState = await db.query("select enabled,ai_mode from writing_context_advisory_control where singleton=true");
   assert.equal(switchState.rows[0].enabled, false);
+  assert.equal(switchState.rows[0].ai_mode, "disabled");
+  await db.query("update writing_context_advisory_control set ai_mode='shadow' where singleton=true");
+  const shadowSubmission = randomUUID();
+  await db.query("insert into task_submissions values($1,$2,$3,$4,now(),'their should be there')", [shadowSubmission, parent, child, task]);
+  await db.query("insert into task_submission_processing_jobs values($1,$2,$3,$4,$5,$6)", [
+    randomUUID(), shadowSubmission, parent, child, task,
+    { writingSourceCapture: { rawSubmissionText: "their should be there" } },
+  ]);
+  const shadow = await db.query("select envelope from writing_source_snapshots where submission_id=$1", [shadowSubmission]);
+  assert.equal(shadow.rows[0].envelope.contextAiShadowCapture, true);
+  assert.equal(shadow.rows[0].envelope.contextAdvisoryCapture, false);
+  assert.equal(shadow.rows[0].envelope.contextAiModeAtCapture, "shadow");
+  await db.query("select disable_writing_context_advisory($1)", [parent]);
   await assert.rejects(db.query("select record_writing_context_parent_decision($1,null,$2,'INVALID','there')", [learningOccurrence, parent]));
   const durable = await db.query("select count(*)::int as n from writing_context_learning_handoffs where writing_issue_id=$1", [learningIssue]);
   assert.equal(durable.rows[0].n, 1);
+  await db.query("alter table writing_occurrences add column provenance text not null default 'learner_response'");
+  await db.query(`
+    alter table writing_shadow_runs add column status text not null default 'completed';
+    create table writing_known_spelling_batches(id uuid primary key,run_id uuid unique references writing_shadow_runs(id) on delete cascade,snapshot_id uuid references writing_source_snapshots(id) on delete cascade,
+      detection_version text,mapping_authority_fingerprint text,occurrence_count integer,
+      eligible_occurrence_count integer);
+    create table writing_known_spelling_checks(id uuid primary key,batch_id uuid references writing_known_spelling_batches(id) on delete cascade,occurrence_id text references writing_occurrences(id) on delete cascade,
+      disposition text,unique(batch_id,occurrence_id));
+    create table misspelling_instances(id uuid primary key,source_writing_occurrence_id text,
+      is_false_positive boolean);
+    create table writing_issue_suggestions(id uuid primary key,source_writing_occurrence_id text,
+      suggestion_status text);
+  `);
+  const feedbackMigration = readFileSync(new URL("../supabase/migrations/20260927130000_add_context_feedback_evidence.sql", import.meta.url), "utf8");
+  await db.query(feedbackMigration);
+  const historicalAi = await db.query("select ai_outcome,is_current from writing_context_feedback_decisions_v1 where occurrence_id=$1", [aiOccurrence]);
+  assert(historicalAi.rows.some((row) => row.ai_outcome === "AI_FALSE_INVALID" && !row.is_current));
+  assert(historicalAi.rows.some((row) => row.ai_outcome === "AGREED_INVALID" && row.is_current));
+  const shadowSnapshot = (await db.query("select id from writing_source_snapshots where submission_id=$1", [shadowSubmission])).rows[0].id;
+  const parentAddedGoverned = "context-feedback:governed";
+  const parentAddedUnknown = "context-feedback:unknown";
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',0,5,'their')", [parentAddedGoverned, shadowSnapshot]);
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',6,11,'peace')", [parentAddedUnknown, shadowSnapshot]);
+  const run = (await db.query("select record_writing_context_detector_run($1,$2,$3,'shadow-run','detector-v1','registry-v1',$4) as id", [shadowSnapshot,parent,child,[parentAddedGoverned]])).rows[0].id;
+  assert(run);
+  await assert.rejects(db.query("select record_writing_context_detector_run($1,$2,$3,'shadow-run','detector-v1','registry-v1',$4)", [shadowSnapshot,parent,child,[]]));
+  await assert.rejects(db.query("select record_writing_context_detector_run($1,$2,$3,'bad-run','detector-v1','registry-v1',$4)", [shadowSnapshot,parent,child,[parentAddedUnknown]]));
+  await db.query(`insert into writing_context_ai_attempts
+    (occurrence_id,snapshot_id,parent_user_id,child_id,run_key,mode,family_key,result_status,
+     reason_code,provider,model,prompt_fingerprint,schema_fingerprint,config_fingerprint,
+     gate_version,detector_run_id,candidate_detector_version,family_registry_version)
+    values($1,$2,$3,$4,'shadow-run','shadow','THERE_THEIR_THEYRE','VALID',
+      'SUPPORTED_USE','openai','gpt-6-luna','prompt','schema','config','gate',$5,
+      'detector-v1','registry-v1')`, [parentAddedGoverned,shadowSnapshot,parent,child,run]);
+  const governedCase = (await db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','there') as id", [parentAddedGoverned,parent])).rows[0].id;
+  assert(governedCase);
+  const crossFamilyOccurrence = "context-feedback:cross-family";
+  await db.query("insert into writing_occurrences(id,snapshot_id,field_path,field_hash,start_utf16,end_utf16,observed_text) values($1,$2,'/rawSubmissionText','hash',12,17,'their')", [crossFamilyOccurrence,shadowSnapshot]);
+  await assert.rejects(db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','too')", [crossFamilyOccurrence,parent]));
+  await assert.rejects(db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','their','there')", [crossFamilyOccurrence,randomUUID()]));
+  const governedFact = await db.query("select governed_family_key,parent_decision_id,detector_run_id from writing_context_parent_added_cases where id=$1", [governedCase]);
+  assert.equal(governedFact.rows[0].governed_family_key, "THERE_THEIR_THEYRE");
+  assert(governedFact.rows[0].parent_decision_id);
+  assert.equal(governedFact.rows[0].detector_run_id, run);
+  const unknownCase = (await db.query("select record_parent_added_contextual_occurrence($1,$2,'hash','peace','piece') as id", [parentAddedUnknown,parent])).rows[0].id;
+  const unknown = await db.query("select governed_family_key,writing_issue_id from writing_context_parent_added_cases where id=$1", [unknownCase]);
+  assert.equal(unknown.rows[0].governed_family_key, null);
+  const catalog = await db.query("select id from writing_context_catalog_review_cases where parent_added_case_id=$1", [unknownCase]);
+  assert.equal(catalog.rowCount, 1);
+  const privateFacts = await db.query("select has_table_privilege('authenticated','public.writing_context_detector_runs','SELECT') detector_read,has_table_privilege('authenticated','public.writing_context_research_candidates','SELECT') research_read");
+  assert.equal(privateFacts.rows[0].detector_read, false);
+  assert.equal(privateFacts.rows[0].research_read, false);
+  await db.query("begin");
+  await db.query("set local role authenticated");
+  await db.query("select set_config('request.jwt.claim.sub',$1,true)", [parent]);
+  const ownedFeedback = await db.query("select count(*)::int as n from writing_context_parent_added_cases");
+  assert.equal(ownedFeedback.rows[0].n, 2);
+  await db.query("select set_config('request.jwt.claim.sub',$1,true)", [randomUUID()]);
+  const otherFeedback = await db.query("select count(*)::int as n from writing_context_parent_added_cases");
+  assert.equal(otherFeedback.rows[0].n, 0);
+  await db.query("rollback");
+  await assert.rejects(db.query("insert into writing_context_learning_handoffs(writing_issue_id,parent_user_id,child_id,occurrence_id,micro_skill_key,handoff_state) values($1,$2,$3,$4,$5,'PENDING_CANONICAL_WORD')", [unknown.rows[0].writing_issue_id,parent,child,parentAddedUnknown,skill]));
+  await assert.rejects(db.query("insert into adle_learning_items(id,source_kind,source_ref) values($1,'parent_verified_contextual_choice',$2)", [randomUUID(),`contextual_writing_issue:${unknown.rows[0].writing_issue_id}`]));
+  await db.query("insert into writing_context_research_candidates(parent_added_case_id,category) values($1,'DETECTION_MISS')", [unknownCase]);
+  const catalogDecision = await db.query("select resolve_writing_context_catalog_case($1,$2,'reviewed') as id", [catalog.rows[0].id,parent]);
+  assert.equal(catalogDecision.rows[0].id, catalog.rows[0].id);
+  await assert.rejects(db.query("select resolve_writing_context_catalog_case($1,$2,'reviewed')", [catalog.rows[0].id,parent]));
+  await db.query("update writing_issues set issue_status='child_responded' where id=$1", [unknown.rows[0].writing_issue_id]);
+  const repairOnly = await db.query("select finalise_parent_added_contextual_repair($1,$2,$3,'concept_gap') as id", [unknown.rows[0].writing_issue_id,parent,child]);
+  assert.equal(repairOnly.rows[0].id, unknown.rows[0].writing_issue_id);
+  const outcome = await db.query("select detector_outcome,ai_outcome from writing_context_feedback_decisions_v1 where decision_id=$1", [governedFact.rows[0].parent_decision_id]);
+  assert.equal(outcome.rows[0].detector_outcome, "SURFACED_CONFIRMED");
+  assert.equal(outcome.rows[0].ai_outcome, "AI_MISSED_INVALID");
+  const operations = await db.query("select count(*)::int as n from writing_context_feedback_operations_v1");
+  assert(operations.rows[0].n > 0);
+  const spellingRun = (await db.query("insert into writing_shadow_runs(snapshot_id) values($1) returning id", [shadowSnapshot])).rows[0].id;
+  const spellingBatch = randomUUID();
+  await db.query("insert into writing_known_spelling_batches values($1,$2,$3,'spelling-v1','mapping-v1',2,2)", [spellingBatch,spellingRun,shadowSnapshot]);
+  await db.query("insert into writing_known_spelling_checks values($1,$2,$3,'FINDING'),($4,$2,$5,'NO_MAPPING')", [randomUUID(),spellingBatch,parentAddedGoverned,randomUUID(),parentAddedUnknown]);
+  await db.query("insert into misspelling_instances values($1,$2,false,true)", [randomUUID(),parentAddedUnknown]);
+  const spellingMetrics = await db.query("select surfaced,parent_confirmed,parent_added_misses from writing_spelling_feedback_detector_metrics_v1 where batch_id=$1", [spellingBatch]);
+  assert.deepEqual(spellingMetrics.rows[0], { surfaced: 1, parent_confirmed: 1, parent_added_misses: 1 });
+  // Preserve a real pre-correction counterexample. The old trigger attached v2
+  // to a decision still comparing the independently captured v1 shadow attempt.
+  const legacyNewerRun = (await db.query("select record_writing_context_detector_run($1,$2,$3,'legacy-newer','legacy-detector-v2','legacy-registry-v2',$4) id", [shadowSnapshot,parent,child,[parentAddedGoverned]])).rows[0].id;
+  const legacyDecision = (await db.query("insert into writing_context_parent_decisions(occurrence_id,parent_user_id,child_id,family_key,classification,supersedes_decision_id) values($1,$2,$3,'THERE_THEIR_THEYRE','VALID',$4) returning id", [parentAddedGoverned,parent,child,governedFact.rows[0].parent_decision_id])).rows[0].id;
+  assert.equal((await db.query("select detector_run_id from writing_context_feedback_decisions_v1 where decision_id=$1", [legacyDecision])).rows[0].detector_run_id, legacyNewerRun);
+  const correction = readFileSync(new URL("../supabase/migrations/20260928120000_correct_context_feedback_evidence.sql", import.meta.url), "utf8");
+  await db.query(correction);
+  assert.equal((await db.query("select detector_run_id from writing_context_feedback_decisions_v1 where decision_id=$1", [legacyDecision])).rows[0].detector_run_id, run);
+  assert.equal((await db.query("select detector_run_id from writing_context_parent_decisions where id=$1", [legacyDecision])).rows[0].detector_run_id, legacyNewerRun, "Original immutable facts must not be rewritten.");
+  console.log("PASS: pre-correction historical lineage derives from its original attempt without rewriting facts");
+  await proveContextFeedbackCorrections({ db, parent, child, task });
+  if (process.argv.includes("--stage1")) {
+    await proveContextShadowStage1({ db, parent, child, task });
+    await proveProductionProofIsolation({ db, parent, child, task });
+    await proveContextShadowStage1B({ db, parent });
+    if (process.argv.includes("--adult")) await proveAdultContextRelease({ db, parent });
+  }
   console.log("context advisory disposable database proof passed");
 } catch (error) {
   if (started) {
@@ -188,4 +399,5 @@ try {
 } finally {
   if (db) await db.end().catch(() => {});
   if (started) execFileSync("docker", ["stop", container], options);
+  if (tmpfs) await tmpfs.close();
 }

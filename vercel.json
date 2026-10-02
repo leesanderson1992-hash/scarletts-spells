@@ -1,8 +1,17 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "experiment/ai-context-benchmark": false
+    }
+  },
   "crons": [
     {
       "path": "/api/internal/task-submissions/process",
       "schedule": "20 6 * * *"
+    },
+    {
+      "path": "/api/internal/adle-contextual-handoffs/reconcile",
+      "schedule": "40 6 * * *"
     }
   ]
 }

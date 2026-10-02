@@ -263,12 +263,10 @@ export async function recoverWritingContextJobs(
       });
       if (saved.error || saved.data !== true) throw new Error("CONTEXT_RESULT_SAVE_FAILED");
       completed += 1;
-    } catch (error) {
+    } catch {
       failed += 1;
       console.error("[writing-context] bounded job failed", {
-        code: error instanceof Error && /^[A-Z0-9_]+$/.test(error.message)
-          ? error.message
-          : "CONTEXT_UNCLASSIFIED_FAILURE",
+        code: "CONTEXT_ANALYSIS_UNAVAILABLE",
       });
       await finishFailure(client, job, "ANALYSIS_FAILED");
     }

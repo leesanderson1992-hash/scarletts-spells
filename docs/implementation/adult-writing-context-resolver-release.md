@@ -1,0 +1,182 @@
+# Adult-writing context resolver
+
+The 2026-10-01 V10 adult-writing Review and retry release ran in Production
+at application SHA `8c4f5bd8f50bccf7afd6aa8f3fe0cc4e8bb20f68`, with
+`enabled=false`, `ai_mode=shadow`, and a bounded `REAL_LEARNER` policy. The
+[2026-10-01 release receipt](qa/adult-writing-context-resolver-production-release-2026-10-01.md)
+records the fresh synthetic website proof, deployment, approval expiry and
+operational readbacks. The earlier
+[website receipt](qa/luna-synthetic-website-proof-2026-09-30.md) establishes
+the historical V7 proof only. Historical Stage 1A/1B receipts retain their
+original release identities.
+
+The Luna resolver is the selected adult-writing context path in this source
+tree. The earlier V4 analyser, parser, evaluation tooling and research evidence
+are preserved at Git tag `archive/context-v4-2026-09-25`, pointing to commit
+`4d0f547ee062abe0c1261d652bcae582ddec8a8a`. V4-only files are absent
+from the integrated application tree; this does not erase their Git history or
+change the historical migration ledger. The ADLE template development branch
+remains separate from this integration.
+
+The pre-release source and documentation audit on 2026-10-01 is recorded in
+[the current-state audit](qa/adult-writing-context-resolver-current-state-audit-2026-10-01.md).
+It distinguishes the V7 website proof from the later V10 source implementation;
+the subsequent Production release receipt is the authority for the live state.
+
+## Product path
+
+This release is for adult-authored fictional writing. `child_id` and
+`parent_user_id` remain internal account/ownership names and visible Child/Parent
+wording remains for launch. The Luna request contains a bounded writing excerpt,
+an opaque case hash and the structured-output schema; it contains no account ID,
+parent note or task metadata. Internal account labels are not sent to OpenAI.
+If the product later serves minors, review actual use against the provider's
+[under-18 guidance](https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance).
+
+Submission writes the immutable source; spelling processing remains independent.
+The context worker indexes authored occurrences and scans at most three non-overlapping
+3,000 UTF-16-character windows per submission. Work that exceeds those bounds,
+cannot be proven authored, or fails source/hash/occurrence checks receives no
+partial Luna scan. The reviewer can still use Add word manually. A structured
+Luna receives the bounded passage plus an ordered list of its authored words.
+Each complete request, including indexed words, prompt and schema, must also fit
+the 16,000-byte request cap. Three text windows do not by themselves
+establish that a submission fits that separate bound.
+It returns a zero-based request-local word index, observed word and correction;
+the server validates that reference against the immutable source occurrence and
+uses the stored UTF-16 span. The model never calculates character coordinates.
+Duplicate references, mismatched words, source/hash failures and invalid
+corrections reject the whole response. Spelling highlights remain yellow; validated context
+findings appear blue and link from the combined Review table to the exact answer.
+Save records the reviewer’s correction and shows Confirmed, including after
+reload. The correction stays editable before send-back. The reviewer may dismiss
+with × or restore the suggestion. Non-dismissed
+findings become pending repair issues when Send back is pressed. The existing
+returned-work Review table shows context and spelling retries in the same Word,
+Correction, Retry, Source, Status, Reason, Learning route and Actions columns.
+Returned context Details reconstructs a short excerpt around the exact original
+occurrence from its saved source, after ownership, task, hash and span checks.
+The retry remains a separate submission and its writing is not marked with
+historical findings.
+Choosing a context reason saves an editable draft; confirming the outcome is a
+separate action against the original occurrence and the writer's retry. A governed
+family can use only its active assigned microskill. Other context pairs remain
+repair only and enter the existing No matching skill Admin queue. A prompted
+retry alone does not create mastery or reward credit.
+
+A definite HTTP 429/5xx response may offer one explicit, separately budgeted
+Try again action. Successful windows are not rescanned. A timeout, ambiguous
+send, missing receipt, identity/cache mismatch or source failure cannot be
+retried through that action. No transport retry is automatic.
+
+## Pending contextual ADLE handoffs
+
+An ADLE lesson for the homophone category has not been created. Automatic
+assignment of such a lesson and visibility of pending contextual handoffs in
+Parent Insights are follow-on ADLE work, not prerequisites for releasing the
+adult-writing context Review and retry flow. The release must still preserve
+the recorded learning need and handoff without claiming an ADLE lesson exists.
+
+Parent-confirmed contextual concept gaps that lack an approved canonical word,
+approved word/skill support, or signed-off teaching content remain in
+`writing_context_learning_handoffs`. The existing database reconciliation RPC
+is the only authority that can turn one of these into an ADLE learning item.
+The implementation revisits pending handoffs through a separate authenticated
+daily cron and immediately before a guarded Today’s ADLE lesson generation for
+that child. The existing canonical spelling intake scheduler remains unchanged.
+`PENDING_EXISTING_ITEM_REVIEW` still requires governed review rather than
+automatic reentry.
+
+Parent Insights' **Pending ADLE learning** page lists only active
+`adle_learning_items`: it does not show unresolved contextual handoffs or their
+blocker. A contextual learning need can therefore be visible in the review
+record and the micro-skill insights before it is visible as an ADLE queued word.
+The blocker is one of a missing approved canonical word, missing approved
+word-to-skill support, missing signed-off teaching content, or governed review
+of a resolved existing item. Showing these pending handoffs to the parent is
+separate product work.
+
+The composer continues to require two distinct active unresolved word-scoped
+learning items for one micro-skill. Reconciliation does not create teaching
+content or an assignment. Once content is released and the two-item gate plus
+all route and snapshot requirements pass, the existing guarded Today’s ADLE
+action creates the lesson the writer can open. A missing route, incomplete
+content, due Review precedence, or one word still leaves no new lesson. The
+child-facing assignment page remains read-only; the child’s existing Open
+Today’s ADLE action invokes guarded generation.
+
+## Disposable passage proof
+
+The private `proof_scan_kind` policy field defaults to `FOUR_FAMILY`, retaining
+the original Stage 1B fault-proof route. `PASSAGE` is allowed only with
+`DISPOSABLE_BOOTSTRAP` and `DISPOSABLE_PROVIDER_PROOF`. The database stamps
+proof-source classification from a prior operator-owned registration; the
+worker repeats the policy check and reservation/admission repeat the registered
+source, owner and task checks. A proof-only passage scan can therefore use the
+same worker and provider adapter as adult writing while ordinary sources remain
+outside the proof policy. A proof 429/5xx is an operational bootstrap failure
+and stops processing; the adult-only explicit Try again action is unavailable
+to a disposable source. The canonical stop leaves AI disabled and retains the
+immutable audit and non-personal consumption records. A later policy reset
+must set `proof_scan_kind=FOUR_FAMILY` along with `dispatch_scope=DENY`.
+
+## Provider and privacy basis
+
+This adult release uses **standard OpenAI API retention**, not ZDR. New provider
+approval rows state `retention_mode=STANDARD_API` and `zdr_verified=false`;
+historical ZDR rows retain their original truth. Standard API data is not used
+for model training without an opt-in. `store:false` avoids ordinary saved
+Responses state, but standard abuse-monitoring logs may contain customer content
+for up to 30 days, subject to documented exceptions. [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data)
+
+The owner records the actual OpenAI organisation/project, project-scoped key
+version reference, disabled voluntary data sharing, contractual/retention
+acceptance and a dated source for the genuine Luna default-tier rate card.
+Secret values never enter the repository, Preview, browser, API output or logs.
+The server-only request uses `/v1/responses`, `gpt-6-luna`, default tier,
+`store:false`, no tools/background mode, explicit cache mode, one HTTP send,
+a 15-second full-body deadline and 50-second worker budget and no automatic retry.
+The current source implementation is `CONTEXT_SHADOW_DISPATCH_V10`: three
+windows, the 16,000-byte complete-request cap, a 15-second full-body deadline,
+a 50-second worker budget, zero automatic retries and 32 maximum requests per
+submission. Its public pins are recorded in the current-state audit. The V7
+website proof establishes the earlier deployed runtime only. Before any later
+activation, Production must read back the V10 deployment SHA, migration ledger,
+configuration and runtime fingerprint; the V10 source branch is not that
+evidence. The forward migration
+`20261001100000_increase_context_request_cap.sql` aligns the dispatch constraint
+and conservative cost reservation with the larger request; existing spend caps
+must cover that bound before any new admission.
+The [model page](https://developers.openai.com/api/docs/models/gpt-6-luna)
+lists Responses and structured-output support; the [pricing page](https://developers.openai.com/api/docs/pricing)
+is the rate-card source, not the isolated test fixture.
+
+The writer sees a conditional OpenAI disclosure before submitting. The release
+assumes all active writers are adults and the submitted text is fiction. Authored
+text may itself contain personal details; account metadata is omitted from the
+request, but this is not a claim that every excerpt contains no personal data.
+
+## Owner release control
+
+The single owner configures the private `ADULT_RELEASE` policy with
+`dispatch_scope=REAL_LEARNER`, a current immutable provider approval and rate
+card, an expiry, `max_concurrent=1`, and a shared Production daily spend cap no
+greater than **$0.50 UTC**. The request-count cap cannot exceed the number of
+whole per-request reservations that fit under that daily cap. The per-request
+reservation must cover the worst-case 16,000-byte request, 2,048 output tokens
+and the highest input/cache rate on the signed card. Reservation and final
+admission repeat identity, ownership, source and budget checks. The database
+records the adult submission authority automatically; the reviewer has no
+separate guardian approval task. Revocation remains effective and cannot be
+recreated silently for the same policy version.
+
+The forward migration creates no approval, credential, card, fixture or active
+policy and finishes false/disabled. For release: verify exact SHA and migration
+hash, apply the additive migration with AI disabled, deploy that exact SHA,
+read back schema/control and access restrictions, configure server-only
+credentials and owner-signed policy, complete a synthetic website proof, then
+activate `ai_mode=shadow` for the adult scope. Stop via the canonical kill
+switch for leakage, duplicate send, accounting loss, model/tier/cache mismatch,
+budget breach, ownership failure or broken review/return behavior. Preserve
+durable consumption and immutable approval/card/policy history. No automatic
+application down migration or unreviewed provider request is a recovery step.

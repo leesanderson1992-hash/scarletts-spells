@@ -170,6 +170,43 @@ async function getConfirmedEvidenceFieldKeys(input: {
   );
 }
 
+/** Free-writing candidates are word-level. When a parent has identified an
+ * exact contextual error, conservatively exclude both members throughout
+ * that submission until an occurrence-aware positive bridge exists. */
+async function loadParentAddedContextWords(input: {
+  supabase: SupabaseServerClient;
+  parentUserId: string;
+  childId: string;
+  taskSubmissionId: string;
+}) {
+  const snapshot = await input.supabase.from("writing_source_snapshots")
+    .select("id").eq("submission_id", input.taskSubmissionId)
+    .eq("parent_user_id", input.parentUserId).eq("child_id", input.childId)
+    .maybeSingle();
+  if (snapshot.error) throw snapshot.error;
+  if (!snapshot.data) return new Set<string>();
+  const cases = await input.supabase.from("writing_context_parent_added_cases")
+    .select("occurrence_id,intended_member")
+    .eq("snapshot_id", snapshot.data.id).eq("parent_user_id", input.parentUserId)
+    .eq("child_id", input.childId);
+  if (cases.error) throw cases.error;
+  const words = new Set<string>();
+  for (const item of cases.data ?? []) {
+    words.add(normaliseWordTreasureWord(item.intended_member));
+  }
+  const ids = (cases.data ?? []).map((item) => item.occurrence_id);
+  if (ids.length) {
+    const occurrences = await input.supabase.from("writing_occurrences")
+      .select("observed_text").in("id", ids);
+    if (occurrences.error) throw occurrences.error;
+    for (const item of occurrences.data ?? []) {
+      words.add(normaliseWordTreasureWord(item.observed_text));
+    }
+  }
+  words.delete("");
+  return words;
+}
+
 export async function detectAndStoreFreeWritingEvidenceCandidates(input: {
   supabase: SupabaseServerClient;
   parentUserId: string;
@@ -219,13 +256,19 @@ export async function detectAndStoreFreeWritingEvidenceCandidates(input: {
     supabase: input.supabase,
     treasureIds: treasures.map((treasure) => treasure.id),
   });
+  const parentContextExclusions = await loadParentAddedContextWords({
+    supabase: input.supabase, parentUserId: input.parentUserId,
+    childId: input.childId, taskSubmissionId: input.taskSubmissionId,
+  });
   const rows: Array<Record<string, unknown>> = [];
   const seenCandidateKeys = new Set<string>();
 
   for (const field of fields) {
     const contextualExclusions = governedEvidenceExclusionWords(field.text);
     for (const treasure of treasures) {
-      if (isGovernedContextMember(treasure.corrected_word) || contextualExclusions.has(treasure.corrected_word_normalized)) {
+      if (isGovernedContextMember(treasure.corrected_word) ||
+          contextualExclusions.has(treasure.corrected_word_normalized) ||
+          parentContextExclusions.has(treasure.corrected_word_normalized)) {
         continue;
       }
       const occurrenceCount = getOccurrenceCount(field.text, treasure.corrected_word);
@@ -322,12 +365,15 @@ export async function getFreeWritingEvidenceCandidatesForReview(input: {
     throw error;
   }
 
+  const parentContextExclusions = await loadParentAddedContextWords(input);
+
   return (((data ?? []) as unknown) as FreeWritingEvidenceCandidateRow[]).map(
     (candidate) => ({
       ...candidate,
       canConfirm:
         candidate.confirmation_status === "pending_parent_confirmation" &&
-        candidate.duplicate_status === "unique_candidate",
+        candidate.duplicate_status === "unique_candidate" &&
+        !parentContextExclusions.has(candidate.matched_word_normalized),
     }),
   );
 }
@@ -450,6 +496,13 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
   }
 
   const candidates = ((candidateRows ?? []) as unknown) as FreeWritingEvidenceCandidateRow[];
+  const parentContextBySubmission = new Map<string, Set<string>>();
+  for (const submissionId of new Set(candidates.map((candidate) => candidate.task_submission_id))) {
+    parentContextBySubmission.set(submissionId, await loadParentAddedContextWords({
+      supabase: input.supabase, parentUserId: input.parentUserId,
+      childId: input.childId, taskSubmissionId: submissionId,
+    }));
+  }
   const nowIso = new Date().toISOString();
   const sampleIds = Array.from(new Set(candidates.map((candidate) => candidate.writing_sample_id).filter((id): id is string => Boolean(id))));
   const samples = sampleIds.length > 0 ? await input.supabase.from("writing_samples")
@@ -481,6 +534,7 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
     // Revalidate old pending rows too: discovery-time screening alone is not
     // enough to prevent a contextual member becoming reward evidence later.
     if (isGovernedContextMember(candidate.matched_word) ||
+        parentContextBySubmission.get(candidate.task_submission_id)?.has(candidate.matched_word_normalized) ||
         (candidate.writing_sample_id && excludedBySample.get(candidate.writing_sample_id)?.has(candidate.matched_word_normalized))) {
       const dismissed = await input.supabase.from("child_word_treasure_evidence_candidates")
         .update({ confirmation_status: "dismissed" }).eq("id", candidate.id)

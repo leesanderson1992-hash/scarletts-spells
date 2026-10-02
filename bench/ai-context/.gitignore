@@ -1,0 +1,6 @@
+.env*
+!.env.example
+env.local/
+runs/
+batch/
+primary-batch/

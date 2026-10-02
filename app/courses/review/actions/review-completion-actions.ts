@@ -11,6 +11,8 @@ import {
 import { maybeAwardTaskSubmissionApprovalCoins } from "@/lib/rewards/course-coins";
 import { confirmFreeWritingEvidenceCandidates } from "@/lib/rewards/free-writing-evidence";
 import { loadContextAdvisoryReview } from "@/lib/writing-engine/whole-writing/context-advisory-review";
+import { preparePassageContextReturn } from "./passage-context-actions";
+import { loadPassageContextReview } from "@/lib/writing-engine/whole-writing/context-passage-review";
 import { createOrUpdateGoldenNuggetFromParentApproval } from "@/lib/rewards/word-treasures";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -967,25 +969,6 @@ export async function saveWritingIssueReasonDraftImpl(formData: FormData) {
     );
   }
 
-  const { data: contextualIssue } = await supabase.from("writing_issues")
-    .select("id,metadata,issue_status")
-    .eq("id", writingIssueId).eq("parent_user_id", user.id)
-    .eq("child_id", submission.child_id).maybeSingle();
-  if (parseObjectMetadata(contextualIssue?.metadata).source_kind === "contextual_advisory_v4") {
-    if (doesFinalClassificationCreateLearningItem(draftFinalClassification)) {
-      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "Use the contextual outcome form to confirm the homophone microskill."));
-    }
-    const saved = await createServiceRoleClient().rpc("finalise_contextual_repair_only", {
-      p_writing_issue_id: writingIssueId, p_parent_user_id: user.id,
-      p_child_id: submission.child_id, p_outcome: draftFinalClassification,
-    });
-    if (saved.error) {
-      redirect(buildRedirectWithMessage(safeRedirectPath, "error", "The contextual repair outcome could not be saved."));
-    }
-    revalidateReviewQueueAndDetail(safeRedirectPath);
-    redirect(buildRedirectWithMessage(safeRedirectPath, "saved", "Contextual repair confirmed without learning credit."));
-  }
-
   const { error } = await supabase.rpc("save_writing_issue_reason_draft", {
     p_writing_issue_id: writingIssueId,
     p_current_submission_id: submission.id,
@@ -1063,6 +1046,16 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
         "That submission no longer exists.",
       ),
     );
+  }
+
+  const passagePrepared = await preparePassageContextReturn({
+    submissionId: submission.id, parentUserId: user.id, childId: submission.child_id,
+  });
+  if (passagePrepared !== "ready") {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      passagePrepared === "pending"
+        ? "The context scan is still running. Reload before sending the work back."
+        : "The context suggestions could not be linked to the original writing. The work was not sent back."));
   }
 
   const selectedEvidenceCandidateIds =
@@ -1416,6 +1409,14 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         "That submission no longer exists.",
       ),
     );
+  }
+
+  const passageReview = await loadPassageContextReview({ client: createServiceRoleClient(),
+    submissionId: submission.id, parentUserId: user.id, childId: submission.child_id });
+  if (passageReview.readError || passageReview.status === "pending" ||
+    passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null)) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "Finish or dismiss the context suggestions before approving this writing."));
   }
 
   const contextualReview = await loadContextAdvisoryReview({
