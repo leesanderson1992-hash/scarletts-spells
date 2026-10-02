@@ -176,11 +176,11 @@ begin
 exception when others then return false;
 end $$;
 
--- Preserve each historical branch and add only this discriminator.
+-- Production retired the v2 validator in 20260829133000.  Preserve the
+-- current v3-only aggregate and add only this route discriminator.
 create or replace function public.adle_lesson_snapshot_is_structurally_valid(p_snapshot jsonb)
 returns boolean language sql immutable set search_path=public,pg_temp as $$
- select case p_snapshot->>'snapshotSchemaVersion' when '2' then public.adle_generic_lesson_snapshot_is_structurally_valid_v2(p_snapshot)
- when '3' then case p_snapshot#>>'{route,routeId}'
+ select case p_snapshot->>'snapshotSchemaVersion' when '3' then case p_snapshot#>>'{route,routeId}'
   when 'generic_composer' then public.adle_generic_lesson_snapshot_is_structurally_valid_v3(p_snapshot)
   when 'compound_word_lab' then public.adle_specialist_lesson_snapshot_is_structurally_valid_v3(p_snapshot)
   when 'dynamic_affix_word_lab' then public.adle_dynamic_affix_specialist_snapshot_is_structurally_valid_v3(p_snapshot)
