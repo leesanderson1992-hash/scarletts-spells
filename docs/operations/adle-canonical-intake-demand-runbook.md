@@ -40,8 +40,14 @@ notification without creating an assignment.
 
 ## Operations and privacy
 
-- The event queue is primary; the five-minute safety sweep is the missed-event
-  fallback.
+- The event queue is primary. The scheduler claims event jobs every five
+  minutes. Its missed-event fallback only rechecks blocked candidates whose
+  last evaluation is at least 24 hours old (or whose explicit retry time is
+  due), so unchanged mapping and content demands do not create a fresh job on
+  every invocation. A mapping or governed content release still enqueues an
+  immediate recheck. The worker allows up to 60 seconds for a bounded batch.
+  Monitor `safetySweepQueued`, queue growth, and scheduler HTTP completion after
+  deployment.
 - On the staging Vercel Hobby project, Supabase Cron invokes the stable staging
   application route every five minutes. The route remains application-owned
   and requires its existing bearer secret; Supabase Vault also supplies the

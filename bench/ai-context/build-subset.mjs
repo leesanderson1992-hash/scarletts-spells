@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "../..");
-const corpus = join(root, "data/whole-writing/g2-context-family-corpora");
 const families = ["THERE_THEIR_THEYRE", "TO_TOO_TWO", "YOUR_YOURE", "ITS_ITS"];
 const tags = ["fragment", "quotation", "gerund", "run_on", "task_dependent"];
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
