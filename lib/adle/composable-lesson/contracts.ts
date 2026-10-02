@@ -25,14 +25,16 @@ export type LessonRouteId =
   | "base_word_lab"
   | "dynamic_prefix_word_lab"
   | "dynamic_affix_word_lab"
-  | "compound_word_lab";
+  | "compound_word_lab"
+  | "comparative_superlative_word_lab";
 
 export type LessonPayloadKind =
   | "composed_daily_plan"
   | "dynamic_prefix_lesson_v2"
   | "dynamic_affix_lesson_v3"
   | "compound_word_lesson_v2"
-  | "base_word_family_snapshot_v1";
+  | "base_word_family_snapshot_v1"
+  | "comparative_superlative_lesson_v1";
 
 export type VersionedLessonRouteReference = {
   routeId: LessonRouteId;
@@ -81,13 +83,15 @@ export type LessonRuntimeAdapterKey =
   | "dynamic_prefix_v2"
   | "dynamic_affix_v3"
   | "compound_word_v2"
-  | "base_word_family_v1";
+  | "base_word_family_v1"
+  | "comparative_superlative_v1";
 
 export type LessonRendererKey =
   | "generic_session"
   | "morphology_guided"
   | "compound_word_guided"
-  | "base_word_family_guided";
+  | "base_word_family_guided"
+  | "comparative_superlative_guided";
 
 export type LessonRouteResolutionSource =
   | "persisted_metadata"

@@ -5,6 +5,7 @@ import type {
   LessonRendererKey,
   LessonRuntimeAdapterKey,
 } from "../composable-lesson/contracts";
+import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 
 /**
  * Declarative implementation inventory for the central curriculum-readiness
@@ -78,6 +79,17 @@ export interface CurriculumRouteDefinition {
 }
 
 export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[] = [
+  {
+    routeId: "comparative_superlative_word_lab", routeVersion: "v1", supportedMicroSkillKeys: [...COMPARATIVE_MICRO_SKILLS].sort(),
+    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,
+    requiresAuthenticSelectableItem: true, payloadKind: "comparative_superlative_lesson_v1", payloadVersions: [1],
+    activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",
+    compatibilityScope: { kind: "declared_micro_skills" }, recipes: [{ recipeKey: "comparative_superlative_word_lab", recipeVersion: "v1" }],
+    runtimeAdapterKey: "comparative_superlative_v1", rendererKey: "comparative_superlative_guided", legacyDetectionRules: [],
+    requiredActivities: ["introduction", "word_build", "meaning_sort", "cleaver", "cover_check", "dictation", "reflection"],
+    intentionalItemCounts: [22, 23, 24], wordCounts: { lesson: [6, 6], authentic: [2, 4], transfer: [2, 4] },
+    coverageRequirements: ["family_sections", "distinct_forms", "unique_dictation_sentences"],
+  },
   {
     routeId: "generic_composer",
     routeVersion: "v1",

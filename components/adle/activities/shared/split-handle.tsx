@@ -3,8 +3,50 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "./motion";
 import { playInteractionSound } from "./sound";
+import { SpellingTransformationReveal } from "./spelling-transformation-reveal";
+import type { DegreeQuestion, DegreeTransformation } from "@/lib/adle/inflection/contracts";
 
 const STRIKE_MS = 220;
+
+export interface TransformTargetProps {
+  transformation: DegreeTransformation;
+  question: DegreeQuestion;
+  stepLabel: string;
+  muted?: boolean;
+  initialProgress?: { revealed: boolean; questionShown: boolean; selectedOptionId: string | null; splitMisses?: number };
+  onProgress?: (progress: NonNullable<TransformTargetProps["initialProgress"]>) => void;
+  onContinue: () => void;
+}
+/** CLEAVER.transform_target@1. Shared boundary interaction, then source restoration. */
+export function TransformTarget(props: TransformTargetProps) {
+  const [progress, setProgress] = useState(props.initialProgress ?? { revealed: false, questionShown: false, selectedOptionId: null });
+  function change(next: typeof progress) { setProgress(next); props.onProgress?.(next); }
+  const t = props.transformation;
+  const correct = progress.selectedOptionId === props.question.correctOptionId;
+  return <section className="grid gap-5 text-center" data-transform-target-state={progress.questionShown ? "question" : "demonstration"}>
+    <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
+    {!progress.revealed ? <BoundarySplitHandle
+      word={t.result} splitPoints={[t.stem.length]} components={[t.stem, t.ending]}
+      misses={progress.splitMisses ?? 0} correct={false} muted={props.muted}
+      prompt="Find where the base spelling ends and -er or -est begins."
+      missMessage="Try again. Find the ending -er or -est."
+      repeatedMissMessage="Strike the glowing gap before the ending."
+      onMiss={splitMisses => change({ ...progress, splitMisses })}
+      onCorrect={() => change({ ...progress, revealed: true })} onContinue={() => undefined}
+    /> : !progress.questionShown ? <SpellingTransformationReveal mode="degree_to_base" transformation={t}
+      onContinue={() => change({ ...progress, questionShown: true })} /> : <>
+      <p className="text-3xl font-black text-white">{props.transformation.result}</p>
+      <h2 className="text-xl font-bold text-cyan-100">{props.question.prompt}</h2>
+      <div role="group" aria-label="Choose the spelling rule" className="grid gap-3">
+        {props.question.options.map(option => <button key={option.id} type="button" disabled={correct} aria-pressed={progress.selectedOptionId === option.id}
+          onClick={() => { playInteractionSound(option.id === props.question.correctOptionId ? "snap" : "resist", props.muted); change({ ...progress, selectedOptionId: option.id }); }}
+          className={`min-h-16 rounded-2xl border p-4 text-left font-bold focus-visible:ring-4 focus-visible:ring-cyan-300 ${progress.selectedOptionId === option.id ? correct ? "bg-emerald-100 text-emerald-950" : "bg-rose-100 text-rose-950" : "border-cyan-300/40 bg-white/10 text-white"}`}>{option.text}</button>)}
+      </div>
+      <p aria-live="polite" className="min-h-6 text-cyan-100">{progress.selectedOptionId === null ? "Choose one answer." : `${correct ? "Correct." : "Not quite. Try again."} ${props.question.explanation}`}</p>
+      {correct ? <button type="button" autoFocus onClick={props.onContinue} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Continue</button> : null}
+    </>}
+  </section>;
+}
 
 export function splitHandleDisplayParts(
   word: string,
@@ -64,7 +106,11 @@ export interface SplitHandleProps {
   onContinue: () => void;
 }
 
-export function SplitHandle(props: SplitHandleProps) {
+export function SplitHandle(props: SplitHandleProps | TransformTargetProps) {
+  return "transformation" in props ? <TransformTarget {...props} /> : <BoundarySplitHandle {...props} />;
+}
+
+function BoundarySplitHandle(props: SplitHandleProps) {
   const reducedMotion = useReducedMotion();
   const requiredBoundaries = [...new Set(props.splitPoints)]
     .filter((point) => Number.isInteger(point) && point > 0 && point < props.word.length)
@@ -76,7 +122,7 @@ export function SplitHandle(props: SplitHandleProps) {
   const foundBoundaries = props.selectedBoundaries === undefined ? internalBoundaries : restoredBoundaries;
   const remainingBoundaries = requiredBoundaries.filter((point) => !foundBoundaries.includes(point));
   const nextRemainingBoundary = remainingBoundaries[0];
-  const [activeBoundary, setActiveBoundary] = useState(remainingBoundaries[0] ?? 1);
+  const [activeBoundary, setActiveBoundary] = useState<number | null>(null);
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
@@ -197,8 +243,10 @@ export function SplitHandle(props: SplitHandleProps) {
               type="button"
               aria-label={`Split at boundary ${point}. Split between ${props.word.slice(0, point)} and ${props.word.slice(point)}${found ? ", found" : ""}`}
               onPointerEnter={() => !disabled && setActiveBoundary(point)}
+              onPointerLeave={() => setActiveBoundary((current) => current === point ? null : current)}
               onPointerDown={() => !disabled && setActiveBoundary(point)}
               onFocus={() => setActiveBoundary(point)}
+              onBlur={() => setActiveBoundary((current) => current === point ? null : current)}
               onKeyDown={(event) => {
                 if (event.key !== "Enter" && event.key !== " ") return;
                 event.preventDefault();

@@ -53,6 +53,34 @@ import {
   type CanonicalSentenceDictationTargetBinding,
 } from "@/lib/adle/sentence-dictation-contract";
 import type { AdleSpecialistCheckpointR6View } from "@/lib/adle/review-v3/r6-session-contracts";
+import { completeComparativeLessonAction } from "@/app/learn/week/adle/comparative-actions";
+import type { ComparativeLessonV1 } from "@/lib/adle/inflection/contracts";
+import { comparativeProgressValid, type ComparativeProgressV1 } from "@/lib/adle/inflection/resume";
+
+const ComparativeGuidedLesson = dynamic(() => import("@/components/adle/morphology/comparative-guided-lesson").then(m => m.ComparativeGuidedLesson), { ssr: false });
+function ComparativePart({ session, lesson }: { session: AdleSessionRunnerProps; lesson: ComparativeLessonV1 }) {
+  const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+  function save(progress: ComparativeProgressV1) {
+    if (timer.current !== null) { window.clearTimeout(timer.current); timer.current = null; }
+    const next = chain.current.catch(() => undefined).then(async () => {
+      const r = await persistAdleSpecialistCheckpointR6Action({ assignmentId: session.assignmentId, adapterKey: "comparative_superlative_v1", checkpointSchemaVersion: "comparative_progress_v1", lessonSnapshotFingerprint: session.snapshotFingerprint, checkpointPayload: { state: progress }, expectedStateVersion: version.current });
+      version.current = r.stateVersion;
+    });
+    chain.current = next; return next;
+  }
+  const restored = session.r6SpecialistCheckpoint?.checkpointPayload.state;
+  return <ComparativeGuidedLesson lesson={lesson} initialProgress={comparativeProgressValid(restored, lesson) ? restored : undefined}
+    onProgress={progress => { if (progress.finished) return; if (timer.current !== null) window.clearTimeout(timer.current); timer.current = window.setTimeout(() => { void save(progress).catch(() => console.error("[adle-comparative] progress save failed")); }, 350); }}
+    onCheckpoint={save} onFinish={async progress => {
+      // A lost response after commit must still be retryable; the server compares
+      // frozen raw answers before admitting either a new Finish or its replay.
+      try { await save({ ...progress, finished: false }); } catch { /* Completion rejects any missing or different frozen checkpoint. */ }
+      await completeComparativeLessonAction({ assignmentId: session.assignmentId, snapshotFingerprint: session.snapshotFingerprint, progress });
+    }} />;
+}
 
 const MorphologyGuidedLesson = dynamic(
   () =>
@@ -784,7 +812,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        runtime.rendererKey === "morphology_guided" ? (
+        runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />

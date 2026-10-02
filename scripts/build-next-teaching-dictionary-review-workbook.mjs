@@ -80,6 +80,30 @@ for (const [sheetName, matrix] of Object.entries(data)) {
   }
 }
 
+if (data["Overview & instructions"]?.[1]?.[1]?.includes("25 new canonical word candidates")) {
+  const overview = workbook.worksheets.getItem("Overview & instructions");
+  overview.getRange(`B1:B${data["Overview & instructions"].length}`).format.columnWidth = 90;
+  const canonical = workbook.worksheets.getItem("Canonical word review");
+  canonical.getRange("E1:E26").format.columnWidth = 56;
+  canonical.getRange("O1:O26").format.columnWidth = 55;
+  canonical.getRange("U1:U26").format.columnWidth = 48;
+  const morphology = workbook.worksheets.getItem("Linguistic morphology & word sums".slice(0, 31));
+  morphology.getRange("E1:E26").format.columnWidth = 48;
+  morphology.getRange("F1:F26").format.columnWidth = 52;
+  morphology.getRange("I1:J26").format.columnWidth = 48;
+  morphology.getRange("A2:Q26").format.rowHeight = 42;
+  const dictation = workbook.worksheets.getItem("Dictation review");
+  dictation.getRange("E1:E26").format.columnWidth = 67;
+  dictation.getRange("G1:G26").format.columnWidth = 67;
+  const sources = workbook.worksheets.getItem("Sources & licence");
+  sources.getRange("A1:A7").format.columnWidth = 40;
+  sources.getRange("B1:B7").format.columnWidth = 80;
+  sources.getRange("C1:C7").format.columnWidth = 54;
+  sources.getRange("D1:D7").format.columnWidth = 55;
+  sources.getRange("A2:G7").format.rowHeight = 36;
+}
+
+workbook.recalculate();
 await fs.mkdir(path.dirname(path.resolve(outputPath)), { recursive: true });
 const output = await SpreadsheetFile.exportXlsx(workbook);
 await output.save(outputPath);

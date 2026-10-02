@@ -42,6 +42,22 @@ npm run teaching-dictionary:prepare -- \
   --release-id "YYYY-MM-DD-descriptive-release-v1"
 ```
 
+For the approved 25-word comparative/superlative workbook, use the bounded
+`comparative-degree-v1` preparation profile instead of the legacy 1,000-word
+candidate CSV finaliser:
+
+```bash
+TEACHING_DICTIONARY_PYTHON=/path/to/review-venv/bin/python \
+npm run teaching-dictionary:prepare -- \
+  --profile comparative-degree-v1 \
+  --workbook "outputs/comparative-superlative-2026-09-29/comparative-dictionary-approved.xlsx" \
+  --release-id "2026-09-29-comparative-degree-canonical-v2"
+```
+
+This profile enforces 25 matching, named-approved word/morphology/dictation
+rows and six approved evidence-source rows. It emits only reviewed internal
+dictionary facts; raw external MorphoLex evidence stays in the workbook.
+
 Preparation:
 
 - re-runs the workbook finaliser;
@@ -82,11 +98,12 @@ Then apply `20260726150000`, `20260726170000`, `20260726173000` and
 `20260726174000` through the normal forward migration mechanism.
 Never insert migration ledger rows manually.
 
-The final migration restricts `teaching_dictionary_releaser` to the import
-batch ledger plus the five canonical-word package tables. A canonical-word
-release must fail preflight if that role can read or write support links,
-teaching-content versions, selector profiles, or any other non-package
-Teaching Dictionary table.
+The historical `teaching_dictionary_releaser` is also used by the Base Word
+family publisher, which deliberately grants it two family-table INSERT rights.
+Migration `20260929122000` creates the separate `canonical_word_releaser`
+role. The canonical-word importer must fail preflight if that dedicated role
+can read or write support links, family tables, teaching-content versions,
+selector profiles, or any other non-package Teaching Dictionary table.
 
 ## Plan and stage
 

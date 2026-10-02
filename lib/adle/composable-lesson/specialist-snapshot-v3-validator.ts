@@ -19,6 +19,7 @@ import { validateDynamicAffixWordLabPayload } from "../morphology/affix-word-lab
 import { resolveDynamicAffixLessonAuthorityV3 } from "../morphology/dynamic-affix-runtime";
 import { resolveDynamicPrefixLessonAuthorityV2 } from "../morphology/dynamic-prefix-runtime";
 import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
+import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "../inflection/snapshot";
 
 const CONTRACTS = new Set([
   "INTRODUCTION.teaching_page@1",
@@ -361,6 +362,7 @@ export function validateCompiledSpecialistSnapshotV3(
   value: unknown,
   context: SpecialistSnapshotV3ValidationContext = {},
 ): SpecialistSnapshotV3ValidationResult {
+  if (isComparativeSnapshotV3(value)) return validateComparativeSnapshotV3(value, context);
   if (record(value) && record(value.route) && (value.route.routeId === "dynamic_prefix_word_lab" || value.route.routeId === "base_word_lab")) {
     return validatePrefixOrBaseSnapshot(value, context);
   }
@@ -460,5 +462,5 @@ export function isBaseWordSpecialistSnapshotV3(value: unknown): value is Compile
 }
 
 export function isSpecialistSnapshotV3(value: unknown): value is CompiledSpecialistSnapshotV3 {
-  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value);
+  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value);
 }
