@@ -207,6 +207,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     completedReflection = completedDetails.reflection;
   }
 
+  const isComparativeLesson = routeResolution?.status === "resolved_explicit" && routeResolution.runtime.adapterKey === "comparative_superlative_v1";
   return (
     <AppShell
       currentPath="/learn/week/adle"
@@ -215,7 +216,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       availableChildren={children}
       userEmail={user.email}
       layout="focus"
-      hideBrandEyebrow={routeResolution?.status === "resolved_explicit" && routeResolution.runtime.adapterKey === "comparative_superlative_v1"}
+      hideBrandEyebrow={isComparativeLesson}
+      hideLearnerIdentity={isComparativeLesson}
     >
       <section className="grid gap-4">
         <AdlePlanHeader planDate={readModel.planDate} backPath={backPath} saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />

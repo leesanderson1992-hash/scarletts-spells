@@ -122,7 +122,7 @@ function BoundarySplitHandle(props: SplitHandleProps) {
   const foundBoundaries = props.selectedBoundaries === undefined ? internalBoundaries : restoredBoundaries;
   const remainingBoundaries = requiredBoundaries.filter((point) => !foundBoundaries.includes(point));
   const nextRemainingBoundary = remainingBoundaries[0];
-  const [activeBoundary, setActiveBoundary] = useState(remainingBoundaries[0] ?? 1);
+  const [activeBoundary, setActiveBoundary] = useState<number | null>(null);
   const [struckBoundary, setStruckBoundary] = useState<number | null>(null);
   const [lastWrongBoundary, setLastWrongBoundary] = useState<number | null>(null);
   const [striking, setStriking] = useState(false);
@@ -243,8 +243,10 @@ function BoundarySplitHandle(props: SplitHandleProps) {
               type="button"
               aria-label={`Split at boundary ${point}. Split between ${props.word.slice(0, point)} and ${props.word.slice(point)}${found ? ", found" : ""}`}
               onPointerEnter={() => !disabled && setActiveBoundary(point)}
+              onPointerLeave={() => setActiveBoundary((current) => current === point ? null : current)}
               onPointerDown={() => !disabled && setActiveBoundary(point)}
               onFocus={() => setActiveBoundary(point)}
+              onBlur={() => setActiveBoundary((current) => current === point ? null : current)}
               onKeyDown={(event) => {
                 if (event.key !== "Enter" && event.key !== " ") return;
                 event.preventDefault();

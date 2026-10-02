@@ -75,6 +75,8 @@ test("sort tile stays above the buckets and drops into its destination", async (
   const progress = { ...initialComparativeProgress(lesson), stageId: "activity:degree-sort", sortPreludeComplete: true };
   await page.addInitScript(state => localStorage.setItem("adle:comparative:preview:v1", JSON.stringify(state)), { lesson, progress, finishWrites: 0 });
   await page.goto("/dev/adle/comparative-superlative");
+  await expect(page.locator('[data-testid="bin-sort-active"]')).not.toContainText("Compare two — -er");
+  await expect(page.locator('[data-testid="bin-sort-active"]')).not.toContainText("Compare a group — -est");
   const first = lesson.words.find(word => word.degree !== "base")!;
   const tile = page.getByRole("button", { name: first.word, exact: true });
   const bin = page.getByRole("button", { name: new RegExp(`^${first.degree === "comparative" ? "Comparative" : "Superlative"}`) });
@@ -107,6 +109,12 @@ test("cleaver demonstrates the actual target then retries one rule question", as
   const transformation = lesson.cleaverTasks[0].transformation;
   const rail = page.getByRole("group", { name: `Choose where to split ${transformation.result}`, exact: true });
   await expect(rail).toBeVisible();
+  const firstGap = rail.getByRole("button", { name: /^Split at boundary 1\./ });
+  await expect(firstGap.locator("svg").locator("..")).toHaveClass(/opacity-0/);
+  await firstGap.hover();
+  await expect(firstGap.locator("svg").locator("..")).toHaveClass(/opacity-100/);
+  await page.mouse.move(0, 0);
+  await expect(firstGap.locator("svg").locator("..")).toHaveClass(/opacity-0/);
   await page.locator('[data-transform-target-state]').screenshot({ path: "/tmp/adle-cleaver-happier.png" });
   await rail.getByRole("button", { name: /^Split at boundary 1\./ }).press("Enter");
   await expect(page.getByText("Try again. Find the ending -er or -est.", { exact: true })).toBeVisible();
@@ -123,6 +131,18 @@ test("cleaver demonstrates the actual target then retries one rule question", as
   await expect(page.getByText(/Not quite. Try again./)).toBeVisible();
   await page.getByRole("button",{name:q.options.find(o=>o.id===q.correctOptionId)!.text,exact:true}).click();
   await expect(page.getByRole("button",{name:"Continue",exact:true})).toBeVisible();
+});
+
+test("shared cleaver starts unhighlighted for prefix, suffix, and base-word lessons", async ({ page }) => {
+  for (const fixture of ["prefix-standard", "suffix-standard", "base-single"]) {
+    await page.goto(`/dev/adle/group4-convergence?fixture=${fixture}`);
+    const rail = page.getByRole("group", { name: /^Choose where to split / });
+    await expect(rail).toBeVisible();
+    await expect(rail.locator("span.opacity-100 > svg")).toHaveCount(0);
+    const firstGap = rail.getByRole("button", { name: /^Split at boundary 1\./ });
+    await firstGap.focus();
+    await expect(firstGap.locator("svg").locator("..")).toHaveClass(/opacity-100/);
+  }
 });
 
 for (const [skillIndex, caption] of [[1, "e returns to the base."], [3, "The extra g disappears."]] as const) test(`target-first cleaver restores ${caption}`, async ({ page }) => {

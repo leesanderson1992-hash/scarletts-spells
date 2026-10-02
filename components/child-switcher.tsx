@@ -12,6 +12,7 @@ type ChildSwitcherProps = {
   redirectPath: string;
   compact?: boolean;
   className?: string;
+  summaryLabel?: string;
 };
 
 function getChildName(child: ChildOption) {
@@ -24,6 +25,7 @@ export function ChildSwitcher({
   redirectPath,
   compact = false,
   className,
+  summaryLabel,
 }: ChildSwitcherProps) {
   if (childOptions.length <= 1) {
     return null;
@@ -35,7 +37,7 @@ export function ChildSwitcher({
     return (
       <details className={`relative ${className ?? ""}`.trim()}>
         <summary className="brand-secondary-btn flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-full px-3 text-xs font-medium sm:text-sm">
-          <span className="max-w-44 truncate">{activeChild ? getChildName(activeChild) : "Choose learner"}</span>
+          <span className="max-w-44 truncate">{summaryLabel ?? (activeChild ? getChildName(activeChild) : "Choose learner")}</span>
           <span aria-hidden="true" className="text-[10px]">⌄</span>
           <span className="sr-only">Switch learner</span>
         </summary>

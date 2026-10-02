@@ -68,7 +68,7 @@ export function ComparativeGuidedLesson(props: ComparativeGuidedLessonProps) {
         { id: "degree-sort", type: "meaning_sort", label: "Sort", render: navigation => progress.sortPreludeComplete ? <BinSort
           items={lesson.words.filter(w => w.degree !== "base").map(w => ({ id: w.canonicalWordId, text: w.word, destination: w.degree }))}
           bins={[{ id: "comparative", label: "Comparative", description: "Compare two — -er" }, { id: "superlative", label: "Superlative", description: "Compare a group — -est" }]}
-          instruction="Put each word into the right comparison bucket." muted={muted} initialComplete={progress.sortComplete}
+          instruction="Put each word into the right comparison bucket." muted={muted} initialComplete={progress.sortComplete} showBinDescriptions={false}
           onComplete={() => change({ sortComplete: true })} onContinue={() => navigation.complete()} /> : <section className="grid gap-5 text-center text-cyan-50">
           <h2 className="text-2xl font-black">Two comparison buckets</h2><p>Comparative compares two things or people: -er.</p><p>Superlative compares a group of three or more: -est.</p>
           <button type="button" autoFocus onClick={() => change({ sortPreludeComplete: true })} className="mx-auto min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950">Let&apos;s go</button>
