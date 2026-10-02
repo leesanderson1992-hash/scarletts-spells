@@ -39,11 +39,12 @@ export function bindDegreeFamilyCanonicalWords(
   family: AdjectiveFamilyV1,
   canonicalWordIdByWord: ReadonlyMap<string, string>,
 ): AdjectiveFamilyV1 {
-  const words = family.words.map(word => {
+  const bindWord = (word: AdjectiveFamilyV1["words"][number]) => {
     const canonicalWordId = canonicalWordIdByWord.get(word.word);
     if (!canonicalWordId) throw new Error(`comparative_canonical_word_missing:${word.word}`);
     return { ...word, canonicalWordId };
-  }) as AdjectiveFamilyV1["words"];
+  };
+  const words = [bindWord(family.words[0]), bindWord(family.words[1]), bindWord(family.words[2])] as AdjectiveFamilyV1["words"];
   const canonicalWordIdFor = (word: string) => {
     const canonicalWordId = canonicalWordIdByWord.get(word);
     if (!canonicalWordId) throw new Error(`comparative_canonical_word_missing:${word}`);
@@ -56,10 +57,10 @@ export function bindDegreeFamilyCanonicalWords(
       ...family.content,
       pairedSentence: {
         ...family.content.pairedSentence,
-        targets: family.content.pairedSentence.targets.map(target => ({
+        targets: [family.content.pairedSentence.targets[0], family.content.pairedSentence.targets[1]].map(target => ({
           ...target,
           canonicalWordId: canonicalWordIdFor(target.word),
-        })) as AdjectiveFamilyV1["content"]["pairedSentence"]["targets"],
+        })) as unknown as AdjectiveFamilyV1["content"]["pairedSentence"]["targets"],
       },
     },
   };
