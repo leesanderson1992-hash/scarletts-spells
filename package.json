@@ -165,6 +165,7 @@
     "adle:canonical-intake-readiness-regression": "npx tsx scripts/adle-canonical-intake-readiness-regression.ts",
     "adle:canonical-intake-demand-regression": "npx tsx scripts/adle-canonical-intake-demand-regression.ts",
     "adle:canonical-intake-reconciliation-regression": "npx tsx scripts/adle-canonical-intake-reconciliation-regression.ts",
+    "adle:canonical-intake-sweep-efficiency-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-canonical-intake-sweep-efficiency-regression.ts",
     "adle:blocked-word-auto-resume-regression": "npx tsx scripts/adle-governed-blocked-word-auto-resume-regression.ts",
     "adle:blocked-word-auto-resume-sql-proof": "npx tsx scripts/prove-governed-blocked-word-auto-resume-local.ts -- PROVE_GOVERNED_BLOCKED_WORD_AUTO_RESUME_LOCALLY",
     "adle:blocked-word-auto-resume-production-audit": "npx tsx scripts/audit-governed-blocked-word-auto-resume-production.ts -- AUDIT_GOVERNED_BLOCKED_WORD_AUTO_RESUME_READ_ONLY",
