@@ -70,7 +70,7 @@ test("sentence word can be dragged to its one target", async ({ page },info) => 
   }
 });
 
-test("sort tile stays above the buckets and drops into its destination", async ({ page }) => {
+test("sort tile stays above the buckets and drops into its destination", async ({ page }, info) => {
   const lesson = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[0], 2, "sort-drag-fixture");
   const progress = { ...initialComparativeProgress(lesson), stageId: "activity:degree-sort", sortPreludeComplete: true };
   await page.addInitScript(state => localStorage.setItem("adle:comparative:preview:v1", JSON.stringify(state)), { lesson, progress, finishWrites: 0 });
@@ -81,11 +81,22 @@ test("sort tile stays above the buckets and drops into its destination", async (
   await tile.scrollIntoViewIfNeeded();
   const from = await tile.boundingBox(), to = await bin.boundingBox();
   expect(from).not.toBeNull(); expect(to).not.toBeNull();
-  await page.mouse.move(from!.x + from!.width / 2, from!.y + from!.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(to!.x + to!.width / 2, to!.y + to!.height / 2, { steps: 12 });
-  if (!page.viewportSize()?.width || page.viewportSize()!.width >= 640) await expect(page.getByRole("button", { name: new RegExp(`^${first.word}, lifted$`) })).toHaveCSS("z-index", "50");
-  await page.mouse.up();
+  const origin = { x: from!.x + from!.width / 2, y: from!.y + from!.height / 2 };
+  const destination = { x: to!.x + to!.width / 2, y: to!.y + to!.height / 2 };
+  if (info.project.use.hasTouch) {
+    const touch = await page.context().newCDPSession(page);
+    await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ ...origin, id: 1 }] });
+    for (let step = 1; step <= 12; step++) await touch.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: origin.x + (destination.x - origin.x) * step / 12, y: origin.y + (destination.y - origin.y) * step / 12, id: 1 }] });
+    await expect(page.getByRole("button", { name: new RegExp(`^${first.word}, lifted$`) })).toHaveCSS("z-index", "50");
+    await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await touch.detach();
+  } else {
+    await page.mouse.move(origin.x, origin.y);
+    await page.mouse.down();
+    await page.mouse.move(destination.x, destination.y, { steps: 12 });
+    await expect(page.getByRole("button", { name: new RegExp(`^${first.word}, lifted$`) })).toHaveCSS("z-index", "50");
+    await page.mouse.up();
+  }
   await expect(page.locator('[data-testid="bin-sort-active"]')).toContainText("Word 2 of 4");
 });
 
