@@ -14,18 +14,19 @@ export function ComparativeModePreviews() {
     <label className="grid max-w-md gap-1 text-sm">Preview rule<select aria-label="Preview rule" className="brand-input rounded-xl p-2" value={skill} onChange={e => setSkill(e.target.value as ComparativeMicroSkill)}>{COMPARATIVE_MICRO_SKILLS.map(s => <option key={s} value={s}>{s.replace("D4_INF_COMPARATIVE_SUPERLATIVE_", "").replaceAll("_", " ")}</option>)}</select></label>
     <div className="flex flex-wrap gap-2">{(["sentence_suffix", "transform_target", "paired_word_gaps"] as const).map((m, i) => <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)} className={`min-h-11 rounded-xl border px-4 ${mode === m ? "bg-cyan-100" : "bg-white"}`}>Task {[1, 3, 5][i]} · {m.replaceAll("_", " ")}</button>)}</div>
     <ModeFixture key={`${skill}:${mode}`} skill={skill} mode={mode} />
-    <Link href="/dev/adle/comparative-superlative" className="text-sm underline">Open the full six-task lesson preview</Link>
+    <Link href="/dev/adle/comparative-superlative" className="text-sm underline">Open the full lesson preview</Link>
   </section>;
 }
 function ModeFixture(props: { skill: ComparativeMicroSkill; mode: "sentence_suffix" | "transform_target" | "paired_word_gaps" }) {
   const lesson = comparativePreviewFixture(props.skill);
+  const sentenceFamily = lesson.families.find(family => family.familyKey === lesson.sentenceTasks[0].familyKey)!;
   const [values, setValues] = useState<[string, string]>(["", ""]);
   const [checked, setChecked] = useState(false);
   const [complete, setComplete] = useState(false);
   const concept = props.mode === "sentence_suffix" ? "WORD_ASSEMBLY" : props.mode === "transform_target" ? "CLEAVER" : "DICTATION";
   const binding = createCanonicalActivityBinding({ id: "degree-mode-fixture", label: props.mode, concept, mode: props.mode, contractVersion: 1,
     createProps: () => ({ stepLabel: "Interactive fixture", onContinue: () => setComplete(true),
-      ...(props.mode === "sentence_suffix" ? { sentence: lesson.sentenceTasks[0], baseWord: lesson.families[0].words[0].word, forms: lesson.families[0].words.slice(1), transformations: lesson.families[0].transformations }
+      ...(props.mode === "sentence_suffix" ? { sentence: lesson.sentenceTasks[0], baseWord: sentenceFamily.words[0].word, forms: sentenceFamily.words.slice(1), transformations: sentenceFamily.transformations }
         : props.mode === "transform_target" ? { transformation: lesson.cleaverTasks[0].transformation, question: lesson.cleaverTasks[0].question }
           : { mode: "paired_word_gaps", sentence: lesson.dictationTasks[0], audioOrder: lesson.dictationTasks[0].audioOrder, values, checked, onValuesChange: setValues, onCheck: () => setChecked(true) }),
     }) });

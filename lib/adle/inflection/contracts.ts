@@ -80,6 +80,8 @@ export interface SelectedDegreeWord extends DegreeWord {
 }
 export interface ComparativeLessonV1 {
   schemaVersion: 1;
+  /** Absent on lessons frozen before the four-question sequence was released. */
+  taskSequenceVersion?: 2;
   routeKey: typeof COMPARATIVE_ROUTE_KEY;
   microSkillKey: ComparativeMicroSkill;
   assignmentKey: string;

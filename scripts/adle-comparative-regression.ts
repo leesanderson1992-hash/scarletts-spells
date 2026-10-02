@@ -35,8 +35,13 @@ for (const skill of COMPARATIVE_MICRO_SKILLS) {
     assert.ok(s.ok);
     const lesson = compileComparativeLesson(s, "test:assignment");
     check(validateComparativeLesson(lesson), "valid compiled lesson");
-    check(lesson.words.length === 6 && lesson.cleaverTasks.length === count && lesson.deferredLearningItemIds.length === 1, "six forms/all queued targets/third deferred");
-    check(lesson.sentenceTasks.filter(t => t.degree === "comparative").length === 3 && lesson.sentenceTasks.filter(t => t.degree === "superlative").length === 3, "six balanced gaps");
+    check(lesson.words.length === 6 && lesson.cleaverTasks.length === 4 && lesson.deferredLearningItemIds.length === 1, "six forms/four cleavers/third family deferred");
+    check(lesson.sentenceTasks.length === 4 && lesson.sentenceTasks.filter(t => t.degree === "comparative").length === 2 && lesson.sentenceTasks.filter(t => t.degree === "superlative").length === 2, "four balanced gaps");
+    check(new Set(lesson.sentenceTasks.map(t => `${t.familyKey}:${t.degree}`)).size === 4
+      && new Set(lesson.cleaverTasks.map(t => `${t.target.familyKey}:${t.target.degree}`)).size === 4, "both degrees in each family once");
+    check(lesson.sentenceTasks.some((t, i) => i > 0 && t.degree !== lesson.sentenceTasks[i - 1].degree), "mixed sentence order");
+    const legacy = compileComparativeLesson(s, "test:legacy", "reviewed_content", 1);
+    check(validateComparativeLesson(legacy) && legacy.sentenceTasks.length === 6 && legacy.cleaverTasks.length === count, "frozen legacy lesson still validates");
     const transformed = JSON.parse(JSON.stringify(lesson, (_k, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).reverse()) : value));
     check(validateComparativeLesson(transformed), "jsonb key order survives replay");
   }
@@ -74,7 +79,7 @@ const contentAuthorities = ["release_manifest","activation_revision","dependency
 const compiled = compileComparativeSnapshotV3({ lesson, release: refs, contentAuthorities, childId: "child", parentUserId: "parent", date: "2026-09-29" });
 const readiness = comparativeReadinessFacts(lesson,refs,"child");
 check(readiness.routeSelections.length===3 && readiness.routeContent.every(f=>f.dependencyFingerprint===refs.dependencyFingerprint), "exact release-scoped readiness facts");
-check(validateComparativeSnapshotV3(compiled.snapshot).ok && compiled.items.length === 23, "v3 frozen snapshot");
+check(validateComparativeSnapshotV3(compiled.snapshot).ok && compiled.items.length === 22, "v3 frozen snapshot");
 const corrupt = clone(compiled.snapshot); corrupt.payload.resolvedLesson.words[0].word = "broken";
 check(!validateComparativeSnapshotV3(corrupt).ok, "tamper fails");
 console.log(`comparative regression: ${checks} checks passed`);

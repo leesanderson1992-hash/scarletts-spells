@@ -3,6 +3,19 @@ import { COMPARATIVE_MICRO_SKILLS, type ComparativeLessonV1 } from "../../lib/ad
 import { comparativePreviewFixture } from "../../lib/adle/inflection/preview-fixture";
 import { initialComparativeProgress } from "../../lib/adle/inflection/resume";
 
+test("six teaching words read down two family columns", async ({ page }) => {
+  const lesson = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[0], 2, "family-columns-fixture");
+  const progress = { ...initialComparativeProgress(lesson), teachingPageIndex: 2 };
+  await page.addInitScript(state => localStorage.setItem("adle:comparative:preview:v1", JSON.stringify(state)), { lesson, progress, finishWrites: 0 });
+  await page.goto("/dev/adle/comparative-superlative");
+  const columns = page.locator('[aria-label="Lesson word families"] > section');
+  await expect(columns).toHaveCount(2);
+  for (const [index, family] of lesson.families.entries()) {
+    await expect(columns.nth(index).locator("li")).toHaveCount(3);
+    for (const [degreeIndex, word] of family.words.entries()) await expect(columns.nth(index).locator("li").nth(degreeIndex)).toContainText(word.word);
+  }
+});
+
 test("paired answers stay hidden on checkpoint failure, retry freezes both", async ({ page }) => {
   const lesson = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[1],3,"failure-fixture");
   const progress = {...initialComparativeProgress(lesson),stageId:"dictation"};
@@ -31,9 +44,12 @@ test("sentence word can be dragged to its one target", async ({ page },info) => 
   const progress={...initialComparativeProgress(lesson),stageId:"activity:sentence-build"};
   await page.addInitScript(state=>localStorage.setItem("adle:comparative:preview:v1",JSON.stringify(state)),{lesson,progress,finishWrites:0});
   await page.goto("/dev/adle/comparative-superlative");
-  await page.getByRole("button",{name:"er",exact:true}).click();
-  await page.getByRole("button",{name:"Place er in block 1",exact:true}).click();
-  const tile=page.getByRole("button",{name:lesson.families[0].words[1].word,exact:true});
+  const first = lesson.sentenceTasks[0];
+  const firstEnding = first.degree === "comparative" ? "er" : "est";
+  const firstFamily = lesson.families.find(family => family.familyKey === first.familyKey)!;
+  await page.getByRole("button",{name:firstEnding,exact:true}).click();
+  await page.getByRole("button",{name:`Place ${firstEnding} in block 1`,exact:true}).click();
+  const tile=page.getByRole("button",{name:firstFamily.words.find(word => word.degree === first.degree)!.word,exact:true});
   const gap=page.getByRole("button",{name:"Place the selected word in the sentence"});
   await tile.scrollIntoViewIfNeeded();
   const from=await tile.boundingBox(),to=await gap.boundingBox();
@@ -43,12 +59,34 @@ test("sentence word can be dragged to its one target", async ({ page },info) => 
   await expect(page.locator('[data-sentence-suffix-state]')).toHaveAttribute("data-sentence-suffix-state","complete");
   if (info.project.use.hasTouch) {
     await page.getByRole("button",{name:"Continue",exact:true}).tap();
-    await page.getByRole("button",{name:"er",exact:true}).tap();
-    await page.getByRole("button",{name:"Place er in block 1",exact:true}).tap();
-    await page.getByRole("button",{name:lesson.families[1].words[1].word,exact:true}).tap();
+    const second = lesson.sentenceTasks[1];
+    const secondEnding = second.degree === "comparative" ? "er" : "est";
+    const secondFamily = lesson.families.find(family => family.familyKey === second.familyKey)!;
+    await page.getByRole("button",{name:secondEnding,exact:true}).tap();
+    await page.getByRole("button",{name:`Place ${secondEnding} in block 1`,exact:true}).tap();
+    await page.getByRole("button",{name:secondFamily.words.find(word => word.degree === second.degree)!.word,exact:true}).tap({ force: true });
     await page.getByRole("button",{name:"Place the selected word in the sentence"}).tap();
     await expect(page.locator('[data-sentence-suffix-state]')).toHaveAttribute("data-sentence-suffix-state","complete");
   }
+});
+
+test("sort tile stays above the buckets and drops into its destination", async ({ page }) => {
+  const lesson = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[0], 2, "sort-drag-fixture");
+  const progress = { ...initialComparativeProgress(lesson), stageId: "activity:degree-sort", sortPreludeComplete: true };
+  await page.addInitScript(state => localStorage.setItem("adle:comparative:preview:v1", JSON.stringify(state)), { lesson, progress, finishWrites: 0 });
+  await page.goto("/dev/adle/comparative-superlative");
+  const first = lesson.words.find(word => word.degree !== "base")!;
+  const tile = page.getByRole("button", { name: first.word, exact: true });
+  const bin = page.getByRole("button", { name: new RegExp(`^${first.degree === "comparative" ? "Comparative" : "Superlative"}`) });
+  await tile.scrollIntoViewIfNeeded();
+  const from = await tile.boundingBox(), to = await bin.boundingBox();
+  expect(from).not.toBeNull(); expect(to).not.toBeNull();
+  await page.mouse.move(from!.x + from!.width / 2, from!.y + from!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(to!.x + to!.width / 2, to!.y + to!.height / 2, { steps: 12 });
+  if (!page.viewportSize()?.width || page.viewportSize()!.width >= 640) await expect(page.getByRole("button", { name: new RegExp(`^${first.word}, lifted$`) })).toHaveCSS("z-index", "50");
+  await page.mouse.up();
+  await expect(page.locator('[data-testid="bin-sort-active"]')).toContainText("Word 2 of 4");
 });
 
 test("cleaver demonstrates the actual target then retries one rule question", async ({ page }) => {
@@ -90,9 +128,11 @@ test("sentence builder visibly transforms before the formed word can be placed",
   const lesson = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[2], 3, "build-animation");
   await page.addInitScript(state => { if (!localStorage.getItem("adle:comparative:preview:v1")) localStorage.setItem("adle:comparative:preview:v1", JSON.stringify(state)); }, { lesson, progress: { ...initialComparativeProgress(lesson), stageId: "activity:sentence-build" }, finishWrites: 0 });
   await page.goto("/dev/adle/comparative-superlative");
-  await page.getByRole("button", { name: "er", exact: true }).click();
-  await page.getByRole("button", { name: "Place er in block 1", exact: true }).click();
-  const word = lesson.families[0].words[1].word;
+  const ending = lesson.sentenceTasks[0].degree === "comparative" ? "er" : "est";
+  await page.getByRole("button", { name: ending, exact: true }).click();
+  await page.getByRole("button", { name: `Place ${ending} in block 1`, exact: true }).click();
+  const sentenceFamily = lesson.families.find(family => family.familyKey === lesson.sentenceTasks[0].familyKey)!;
+  const word = sentenceFamily.words.find(candidate => candidate.degree === lesson.sentenceTasks[0].degree)!.word;
   await expect(page.locator('[data-spelling-change="build"]')).toBeVisible();
   await expect(page.getByRole("button", { name: word, exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: word, exact: true })).toBeVisible();
@@ -102,7 +142,6 @@ test("sentence builder visibly transforms before the formed word can be placed",
   await expect(surface.getByText("Your word is ready:", { exact: true })).toHaveCount(0);
   await expect(surface.getByText("y changes to i.", { exact: true })).toHaveCount(0);
   await expect(surface.getByRole("button", { name: /^Move er from block/ })).toHaveCount(0);
-  await surface.screenshot({ path: "/tmp/adle-task1-single-transformed-tile.png" });
   await page.reload();
   await page.getByRole("button", { name: word, exact: true }).press("Enter");
   await page.getByRole("button", { name: "Place the selected word in the sentence" }).press("Enter");
@@ -168,10 +207,11 @@ test("menu switches to the real target-first cleaver", async ({ page }) => {
   await page.getByLabel("Preview rule", { exact: true }).selectOption(COMPARATIVE_MICRO_SKILLS[2]);
   await page.getByRole("button", { name: "Task 3 · transform target", exact: true }).click();
   await expect(page.getByRole("button", { name: "Task 3 · transform target", exact: true })).toHaveAttribute("aria-pressed", "true");
-  const rail = page.getByRole("group", { name: "Choose where to split happier", exact: true });
+  const target = comparativePreviewFixture(COMPARATIVE_MICRO_SKILLS[2]).cleaverTasks[0].transformation;
+  const rail = page.getByRole("group", { name: `Choose where to split ${target.result}`, exact: true });
   await expect(rail).toBeVisible();
-  await rail.getByRole("button", { name: /^Split at boundary 5\./ }).click();
-  await expect(page.getByText("Yes — happy is the base word.", { exact: true })).toBeVisible();
+  await rail.getByRole("button", { name: new RegExp(`^Split at boundary ${target.stem.length}\\.`) }).click();
+  await expect(page.getByText(`Yes — ${target.base} is the base word.`, { exact: true })).toBeVisible();
 });
 
 test("paired dictation fails closed without browser audio", async ({ page }) => {

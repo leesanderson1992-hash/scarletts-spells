@@ -215,6 +215,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       availableChildren={children}
       userEmail={user.email}
       layout="focus"
+      hideBrandEyebrow={routeResolution?.status === "resolved_explicit" && routeResolution.runtime.adapterKey === "comparative_superlative_v1"}
     >
       <section className="grid gap-4">
         <AdlePlanHeader planDate={readModel.planDate} backPath={backPath} saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />

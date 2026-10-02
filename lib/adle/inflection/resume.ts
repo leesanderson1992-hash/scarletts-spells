@@ -38,7 +38,7 @@ export function comparativeProgressValid(value: unknown, lesson: ComparativeLess
   if (p.schemaVersion !== 1 || p.assignmentKey !== lesson.assignmentKey
     || !["teaching", "activity:sentence-build", "activity:degree-sort", "activity:cleaver", "cover", "dictation", "reflection"].includes(p.stageId)
     || !Number.isInteger(p.teachingPageIndex) || p.teachingPageIndex < 0 || p.teachingPageIndex > 2
-    || !Number.isInteger(p.sentenceIndex) || p.sentenceIndex < 0 || p.sentenceIndex > 5
+    || !Number.isInteger(p.sentenceIndex) || p.sentenceIndex < 0 || p.sentenceIndex >= lesson.sentenceTasks.length
     || !Number.isInteger(p.cleaverIndex) || p.cleaverIndex < 0 || p.cleaverIndex >= lesson.cleaverTasks.length
     || !Number.isInteger(p.coverIndex) || p.coverIndex < 0 || p.coverIndex > 5
     || !Number.isInteger(p.dictationIndex) || p.dictationIndex < 0 || p.dictationIndex > 1

@@ -20,6 +20,7 @@ type AppShellProps = {
   userEmail?: string | null;
   layout?: "default" | "focus";
   showAdminNav?: boolean;
+  hideBrandEyebrow?: boolean;
 };
 
 type NavItem = {
@@ -120,6 +121,7 @@ export function AppShell({
   userEmail,
   layout = "default",
   showAdminNav = false,
+  hideBrandEyebrow = false,
 }: AppShellProps) {
   const navSections = getNavSections(mode, showAdminNav);
   const scopedCurrentPath = buildScopedPath(currentPath, activeChildId, mode);
@@ -163,7 +165,7 @@ export function AppShell({
               S
             </div>
             <div className="min-w-0">
-              <p className="brand-eyebrow">Scarlett&apos;s Spells</p>
+              {!hideBrandEyebrow ? <p className="brand-eyebrow">Scarlett&apos;s Spells</p> : null}
               <p className={`brand-title font-semibold ${isFocusLayout ? "text-lg" : "text-xl"}`}>Spelling Studio</p>
             </div>
           </Link>

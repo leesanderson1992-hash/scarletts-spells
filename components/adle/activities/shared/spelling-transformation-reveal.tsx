@@ -50,9 +50,9 @@ export function AnimatedSpellingChange(props: {
   useEffect(() => { onComplete.current = props.onComplete; }, [props.onComplete]);
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase("changing"), reducedMotion ? 0 : 450),
-      ...(props.direction === "build" ? [window.setTimeout(() => setPhase("joining"), reducedMotion ? 0 : 1700)] : []),
-      window.setTimeout(() => { setPhase("complete"); onComplete.current?.(); }, reducedMotion ? 0 : props.direction === "build" ? 2250 : 1850),
+      window.setTimeout(() => setPhase("changing"), reducedMotion ? 0 : props.direction === "build" ? 100 : 450),
+      ...(props.direction === "build" ? [window.setTimeout(() => setPhase("joining"), reducedMotion ? 0 : 420)] : []),
+      window.setTimeout(() => { setPhase("complete"); onComplete.current?.(); }, reducedMotion ? 0 : props.direction === "build" ? 750 : 1850),
     ];
     return () => timers.forEach(timer => window.clearTimeout(timer));
   }, [reducedMotion, props.direction]);
@@ -71,15 +71,15 @@ export function AnimatedSpellingChange(props: {
         : props.direction === "restore" ? `${newLetters} returns to the base.` : `${newLetters} is added to the base spelling.`;
   return <div className="grid gap-4 text-center" data-spelling-change={props.direction} data-spelling-change-state={phase}>
     {phase === "complete" && props.completedContent ? props.completedContent : <>
-    <div aria-hidden="true" className={`mx-auto flex max-w-full items-center justify-center text-3xl font-black sm:text-4xl ${joining ? "rounded-2xl bg-cyan-100" : ""}`} style={{ gap: joining ? 0 : ".75rem", transition: reducedMotion ? "none" : "gap 500ms ease-in-out" }}>
-      <span className="inline-flex items-center rounded-2xl bg-cyan-100 py-4 pl-5 text-cyan-950" style={{ paddingRight: joining ? 0 : "1.25rem", transition: reducedMotion ? "none" : "padding-right 500ms ease-in-out" }}>
+    <div aria-hidden="true" className={`mx-auto flex min-h-24 max-w-full items-center justify-center text-3xl font-black sm:text-4xl ${joining ? "rounded-2xl bg-cyan-100" : ""}`} style={{ gap: joining ? 0 : ".75rem", transition: reducedMotion ? "none" : "gap 250ms ease-out" }}>
+      <span className="inline-flex items-center rounded-2xl bg-cyan-100 py-4 pl-5 text-cyan-950" style={{ paddingRight: joining ? 0 : "1.25rem", transition: reducedMotion ? "none" : "padding-right 250ms ease-out" }}>
         {from.slice(0, sharedLength)}
-        <span className="relative inline-block h-[1.2em] overflow-hidden align-bottom motion-reduce:transition-none" style={{ width: `${(changed ? newLetters.length : oldLetters.length) * .65}em`, transition: reducedMotion ? "none" : "width 1200ms ease-in-out" }}>
-          <span className="absolute inset-0 text-amber-700" style={{ opacity: changed ? 0 : 1, transform: changed ? "translateY(-.4em)" : "translateY(0)", transition: reducedMotion ? "none" : "opacity 1200ms ease-in-out, transform 1200ms ease-in-out" }}>{oldLetters}</span>
-          <span className="absolute inset-0 text-emerald-700" style={{ opacity: changed ? 1 : 0, transform: changed ? "translateY(0)" : "translateY(.4em)", transition: reducedMotion ? "none" : "opacity 1200ms ease-in-out, transform 1200ms ease-in-out" }}>{newLetters}</span>
+        <span className="relative inline-block h-[1.2em] overflow-hidden align-bottom motion-reduce:transition-none" style={{ width: `${(changed ? newLetters.length : oldLetters.length) * .65}em`, transition: reducedMotion ? "none" : "width 220ms ease-out" }}>
+          <span className="absolute inset-0 text-amber-700" style={{ opacity: changed ? 0 : 1, transform: changed ? "translateY(-.4em)" : "translateY(0)", transition: reducedMotion ? "none" : "opacity 220ms ease-out, transform 220ms ease-out" }}>{oldLetters}</span>
+          <span className="absolute inset-0 text-emerald-700" style={{ opacity: changed ? 1 : 0, transform: changed ? "translateY(0)" : "translateY(.4em)", transition: reducedMotion ? "none" : "opacity 220ms ease-out, transform 220ms ease-out" }}>{newLetters}</span>
         </span>
       </span>
-      <span className={`rounded-2xl py-4 pr-5 ${joining ? "bg-cyan-100 text-cyan-950" : "bg-white text-slate-950"}`} style={{ paddingLeft: joining ? 0 : "1.25rem", marginLeft: props.direction === "restore" ? changed ? ".5rem" : 0 : changed ? 0 : ".5rem", transition: reducedMotion ? "none" : "margin-left 450ms ease-out, padding-left 500ms ease-in-out, background-color 500ms ease-in-out" }}>{t.ending}</span>
+      <span className={`rounded-2xl py-4 pr-5 ${joining ? "bg-cyan-100 text-cyan-950" : "bg-white text-slate-950"}`} style={{ paddingLeft: joining ? 0 : "1.25rem", marginLeft: props.direction === "restore" ? changed ? ".5rem" : 0 : changed ? 0 : ".5rem", transition: reducedMotion ? "none" : "margin-left 250ms ease-out, padding-left 250ms ease-out, background-color 250ms ease-out" }}>{t.ending}</span>
     </div>
     <p role="status" className="font-semibold text-cyan-100">{phase === "complete" ? caption : props.direction === "restore" ? "Watch the ending move aside and the base return." : "Watch the base spelling change before the ending joins."}</p>
     <p className="sr-only">{phase === "complete" ? `${to} plus ${t.ending}${props.direction === "build" ? ` makes ${t.result}` : `; ${t.base} is the base word`}.` : `${from} plus ${t.ending}.`}</p>

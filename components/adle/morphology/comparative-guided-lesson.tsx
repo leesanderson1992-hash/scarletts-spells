@@ -61,9 +61,9 @@ export function ComparativeGuidedLesson(props: ComparativeGuidedLessonProps) {
       onStageChange={stageId => change({ stageId })}
       activities={[
         { id: "sentence-build", type: "word_build", label: "Compare", binding: binding("sentence-build", "WORD_ASSEMBLY", "sentence_suffix", navigation => ({
-          sentence, baseWord: sentenceFamily.words[0].word, forms: sentenceFamily.words.slice(1), transformations: sentenceFamily.transformations, stepLabel: `Sentence ${progress.sentenceIndex + 1} of 6`,
+          sentence, baseWord: sentenceFamily.words[0].word, forms: sentenceFamily.words.slice(1), transformations: sentenceFamily.transformations, stepLabel: `Sentence ${progress.sentenceIndex + 1} of ${lesson.sentenceTasks.length}`,
           muted, initialProgress: progress.sentenceProgress[sentence.id], onProgress: (value: ComparativeProgressV1["sentenceProgress"][string]) => change({ sentenceProgress: { ...current.current.sentenceProgress, [sentence.id]: value } }),
-          onContinue: () => progress.sentenceIndex < 5 ? change({ sentenceIndex: progress.sentenceIndex + 1 }) : navigation.complete(),
+          onContinue: () => progress.sentenceIndex + 1 < lesson.sentenceTasks.length ? change({ sentenceIndex: progress.sentenceIndex + 1 }) : navigation.complete(),
         }), sentence.id) },
         { id: "degree-sort", type: "meaning_sort", label: "Sort", render: navigation => progress.sortPreludeComplete ? <BinSort
           items={lesson.words.filter(w => w.degree !== "base").map(w => ({ id: w.canonicalWordId, text: w.word, destination: w.degree }))}

@@ -85,7 +85,7 @@ export function validateComparativeSnapshotV3(value: unknown, context: { lessonR
       || s.route.routeVersion !== "v1" || s.recipe.recipeKey !== "comparative_superlative_word_lab" || s.recipe.recipeVersion !== "v1"
       || s.payload.kind !== "comparative_superlative_lesson_v1" || s.payload.version !== 1 || !validateComparativeLesson(s.payload.resolvedLesson)
       || s.runtime.adapterKey !== "comparative_superlative_v1" || s.runtime.rendererKey !== "comparative_superlative_guided"
-      || s.assignment.generationSource !== "adle_composer_v1" || s.assignment.itemCount !== 20 + s.payload.resolvedLesson.queuedTargets.length
+      || s.assignment.generationSource !== "adle_composer_v1" || s.assignment.itemCount !== (s.payload.resolvedLesson.taskSequenceVersion === 2 ? 22 : 20 + s.payload.resolvedLesson.queuedTargets.length)
       || s.taxonomy.microSkillKey !== s.payload.resolvedLesson.microSkillKey
       || (context.assignmentGenerationSource !== undefined && context.assignmentGenerationSource !== "adle_composer_v1")) return bad("specialist_payload_mismatch");
     const metadata = context.lessonRouteMetadata as AssignmentHeaderDraft["lessonRouteMetadata"];

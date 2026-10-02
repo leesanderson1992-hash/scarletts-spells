@@ -4,18 +4,23 @@ import { comparativeTeachingPages } from "./presentation";
 import { DEGREE_RULE_COPY } from "./content";
 import { semanticJson } from "./semantic-json";
 
-export function compileComparativeLesson(selection: Extract<DegreeFamilySelection, { ok: true }>, assignmentKey: string, authority: ComparativeLessonV1["authority"] = "reviewed_content"): ComparativeLessonV1 {
+export function compileComparativeLesson(selection: Extract<DegreeFamilySelection, { ok: true }>, assignmentKey: string, authority: ComparativeLessonV1["authority"] = "reviewed_content", taskSequenceVersion: 1 | 2 = 2): ComparativeLessonV1 {
   if (!assignmentKey || selection.families.some(f => adjectiveFamilyBlockers(f, authority === "dev_fixture").length)) throw new Error("comparative_content_not_ready");
   const [a, b] = selection.families;
   if (a.familyKey === b.familyKey || a.microSkillKey !== b.microSkillKey) throw new Error("comparative_family_mismatch");
   const gap = (family: typeof a, degree: "comparative" | "superlative", index: number) => ({ ...family.content.gaps.filter(g => g.degree === degree)[index], familyKey: family.familyKey });
+  const variant = Array.from(assignmentKey).reduce((value, character) => value + character.charCodeAt(0), 0) % 2;
+  const fourGaps = variant === 0 ? [gap(a, "comparative", 0), gap(b, "superlative", 0), gap(b, "comparative", 0), gap(a, "superlative", 0)]
+    : [gap(b, "superlative", 0), gap(a, "comparative", 0), gap(a, "superlative", 0), gap(b, "comparative", 0)];
+  const fourTargets = variant === 0 ? [selection.words[1], selection.words[5], selection.words[2], selection.words[4]]
+    : [selection.words[4], selection.words[2], selection.words[5], selection.words[1]];
   const lesson: ComparativeLessonV1 = {
-    schemaVersion: 1, routeKey: COMPARATIVE_ROUTE_KEY, microSkillKey: a.microSkillKey, assignmentKey, authority,
+    schemaVersion: 1, ...(taskSequenceVersion === 2 ? { taskSequenceVersion } : {}), routeKey: COMPARATIVE_ROUTE_KEY, microSkillKey: a.microSkillKey, assignmentKey, authority,
     teaching: comparativeTeachingPages(selection), reflectionPrompt: DEGREE_RULE_COPY[a.rule].reflection,
     families: selection.families, words: selection.words, queuedTargets: selection.queuedTargets,
     deferredLearningItemIds: selection.deferredLearningItemIds,
-    sentenceTasks: [gap(a, "comparative", 0), gap(b, "comparative", 0), gap(a, "comparative", 1), gap(b, "superlative", 0), gap(a, "superlative", 0), gap(b, "superlative", 1)],
-    cleaverTasks: selection.queuedTargets.map((target, index) => {
+    sentenceTasks: taskSequenceVersion === 2 ? fourGaps : [gap(a, "comparative", 0), gap(b, "comparative", 0), gap(a, "comparative", 1), gap(b, "superlative", 0), gap(a, "superlative", 0), gap(b, "superlative", 1)],
+    cleaverTasks: (taskSequenceVersion === 2 ? fourTargets : selection.queuedTargets).map((target, index) => {
       const family = selection.families.find(f => f.familyKey === target.familyKey)!;
       const transformation = family.transformations[target.degree === "comparative" ? 0 : 1];
       const question = family.content.questions[index % 2];
@@ -58,7 +63,8 @@ export function validateComparativeLesson(value: unknown, allowFixture = false):
       || p.teaching.meetWords.words.some((card, index) => card.id !== p.words[index].canonicalWordId || card.word !== p.words[index].word
         || typeof card.label !== "string" || !card.label.includes(p.words[index].degree))
       || typeof p.reflectionPrompt !== "string" || !p.reflectionPrompt.trim()) return false;
-    const expected = compileComparativeLesson({ ok: true, families: p.families, words: p.words, queuedTargets: p.queuedTargets, deferredLearningItemIds: p.deferredLearningItemIds }, p.assignmentKey, p.authority);
+    if (p.taskSequenceVersion !== undefined && p.taskSequenceVersion !== 2) return false;
+    const expected = compileComparativeLesson({ ok: true, families: p.families, words: p.words, queuedTargets: p.queuedTargets, deferredLearningItemIds: p.deferredLearningItemIds }, p.assignmentKey, p.authority, p.taskSequenceVersion ?? 1);
     // Authored teaching is frozen; later copy edits must not rewrite saved assignments.
     return semanticJson({ ...expected, teaching: p.teaching, reflectionPrompt: p.reflectionPrompt }) === semanticJson(p);
   } catch { return false; }
