@@ -186,7 +186,7 @@ function throwQuery(
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
 }
 
-async function routeActivationFacts(client: AdleClient, childId: string) {
+export async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
