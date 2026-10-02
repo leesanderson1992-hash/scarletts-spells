@@ -31,10 +31,14 @@
 .adle-admin-indicator.is-complete { background: #e4f6eb; color: #168149; }
 .adle-admin-indicator.is-missing { background: #fde7ef; color: #a9144f; }
 .adle-admin-indicator.is-unknown { background: #f0f2f4; color: #7c8590; }
+.adle-admin-options-anchor { position: relative; display: inline-block; }
 .adle-admin-options-button { border-radius: 8px; padding: 3px 8px; font-size: 1.5rem; font-weight: 700; line-height: 1; }
 .adle-admin-options-button:hover { background: #fdeaf2; }
-.adle-admin-options-list button, .adle-admin-menu-note { display: block; width: 100%; padding: 12px; border-radius: 8px; color: #20242a; text-align: left; font-size: .9rem; }
-.adle-admin-options-list button:hover { background: #fdeaf2; color: #9a1247; }
+.adle-admin-dropdown { position: fixed; z-index: 70; width: 172px; padding: 5px; border: 1px solid #dfe3e7; border-radius: 10px; background: #fff; box-shadow: 0 12px 28px rgba(32, 36, 42, .16); text-align: left; }
+.adle-admin-dropdown button, .adle-admin-menu-note { display: block; width: 100%; padding: 10px 11px; border-radius: 7px; color: #20242a; text-align: left; font-size: .875rem; }
+.adle-admin-dropdown button:hover { background: #fdeaf2; color: #9a1247; }
+.adle-admin-dropdown button:disabled { color: #8b929a; cursor: not-allowed; }
+.adle-admin-dropdown button:disabled:hover { background: transparent; color: #8b929a; }
 .adle-admin-menu-note { color: #7c8590; }
 .adle-admin-empty { padding: 45px 20px; text-align: center; color: #59616b; font-size: .9rem; }
 .adle-admin-dialog-body { max-height: min(65vh, 620px); overflow-y: auto; padding-right: 5px; }

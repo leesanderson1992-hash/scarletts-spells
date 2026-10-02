@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { AppDialog } from "@/components/app-dialog";
 
@@ -53,9 +54,32 @@ function DetailDialog({ row, onClose }: { row: ReadinessRow; onClose: () => void
   </AppDialog>;
 }
 
-export function ReadinessTable({ rows, view }: { rows: ReadinessRow[]; view: ReadinessView }) {
+export function ReadinessTable({ rows, view, preview = false }: { rows: ReadinessRow[]; view: ReadinessView; preview?: boolean }) {
   const [selected, setSelected] = useState<ReadinessRow | null>(null);
-  const [optionsRow, setOptionsRow] = useState<ReadinessRow | null>(null);
+  const [optionsMenu, setOptionsMenu] = useState<{
+    row: ReadinessRow; top: number; left: number;
+  } | null>(null);
+  const optionsMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!optionsMenu) return;
+    const closeOnOutsidePointer = (event: MouseEvent) => {
+      if (!optionsMenuRef.current?.contains(event.target as Node)) setOptionsMenu(null);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOptionsMenu(null);
+    };
+    const closeOnScroll = () => setOptionsMenu(null);
+    document.addEventListener("mousedown", closeOnOutsidePointer);
+    document.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("scroll", closeOnScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsidePointer);
+      document.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("scroll", closeOnScroll, true);
+    };
+  }, [optionsMenu]);
+
   return <>
     <div className="adle-admin-table-wrap" role="region" aria-label="ADLE word readiness table" tabIndex={0}>
       <table className="adle-admin-table">
@@ -70,28 +94,34 @@ export function ReadinessTable({ rows, view }: { rows: ReadinessRow[]; view: Rea
           <td className="skill" title={row.microSkillKey}>{row.microSkillKey.replace(/^D4_/, "").replaceAll("_", " ").toLowerCase()}</td>
           <td className="number">{row.occurrences}</td><td className="number">{row.usersWaiting}</td>
           {FACET_KEYS.map((key) => <td key={key} className="check"><Indicator facet={row.facets[key]} label={LABELS[key]} /></td>)}
-          <td className="options"><button type="button" className="adle-admin-options-button"
-            aria-label={`Options for ${row.word}, ${row.microSkillKey}`} onClick={() => setOptionsRow(row)}>⋯</button></td>
+          <td className="options"><div className="adle-admin-options-anchor">
+            <button type="button" className="adle-admin-options-button"
+              aria-label={`Options for ${row.word}, ${row.microSkillKey}`} aria-expanded={optionsMenu?.row.key === row.key}
+              aria-haspopup="menu" onClick={(event) => {
+                if (optionsMenu?.row.key === row.key) return setOptionsMenu(null);
+                const bounds = event.currentTarget.getBoundingClientRect();
+                setOptionsMenu({ row, top: bounds.bottom + 6, left: Math.max(12, bounds.right - 172) });
+              }}>⋯</button>
+          </div></td>
         </tr>)}</tbody>
       </table>
       {!rows.length ? <p className="adle-admin-empty">No words match this view. Try another filter or search.</p> : null}
     </div>
-    {optionsRow ? <AppDialog open onOpenChange={(open) => { if (!open) setOptionsRow(null); }}
-      title={`Options for ${optionsRow.word}`} eyebrow={optionsRow.microSkillKey} size="sm"
-      footer={<button type="button" className="adle-admin-dialog-close" onClick={() => setOptionsRow(null)}>Close</button>}>
-      <div className="adle-admin-options-list">
-        <button type="button" onClick={() => { setSelected(optionsRow); setOptionsRow(null); }}>View details</button>
-        {optionsRow.waitingCandidates > 0 ? <form action={enqueueIntakeDemandRecheck}>
-          <input type="hidden" name="word" value={optionsRow.word} /><input type="hidden" name="micro_skill_key" value={optionsRow.microSkillKey} />
-          <button type="submit">Recheck</button>
-        </form> : <span className="adle-admin-menu-note">No users to recheck</span>}
-        {view !== "resolved" ? <form action={setIntakeDemandArchived}>
-          <input type="hidden" name="word" value={optionsRow.word} /><input type="hidden" name="micro_skill_key" value={optionsRow.microSkillKey} />
-          <input type="hidden" name="archive" value={optionsRow.archived ? "false" : "true"} />
-          <button type="submit">{optionsRow.archived ? "Restore" : "Archive"}</button>
-        </form> : null}
-      </div>
-    </AppDialog> : null}
+    {optionsMenu ? createPortal(<div ref={optionsMenuRef} className="adle-admin-dropdown" role="menu"
+      aria-label={`Options for ${optionsMenu.row.word}`} style={{ top: optionsMenu.top, left: optionsMenu.left }}>
+      <button type="button" role="menuitem" onClick={() => { setSelected(optionsMenu.row); setOptionsMenu(null); }}>View details</button>
+      {preview ? <button type="button" role="menuitem" disabled title="Unavailable in sample preview">Recheck · sample only</button> :
+        optionsMenu.row.waitingCandidates > 0 ? <form action={enqueueIntakeDemandRecheck}>
+        <input type="hidden" name="word" value={optionsMenu.row.word} /><input type="hidden" name="micro_skill_key" value={optionsMenu.row.microSkillKey} />
+        <button type="submit" role="menuitem">Recheck</button>
+      </form> : <span className="adle-admin-menu-note">No users to recheck</span>}
+      {preview ? <button type="button" role="menuitem" disabled title="Unavailable in sample preview">Archive · sample only</button> :
+        view !== "resolved" ? <form action={setIntakeDemandArchived}>
+        <input type="hidden" name="word" value={optionsMenu.row.word} /><input type="hidden" name="micro_skill_key" value={optionsMenu.row.microSkillKey} />
+        <input type="hidden" name="archive" value={optionsMenu.row.archived ? "false" : "true"} />
+        <button type="submit" role="menuitem">{optionsMenu.row.archived ? "Restore" : "Archive"}</button>
+      </form> : null}
+    </div>, document.body) : null}
     {selected ? <DetailDialog row={selected} onClose={() => setSelected(null)} /> : null}
   </>;
 }
