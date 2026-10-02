@@ -2,8 +2,8 @@
 
 ## Current Hosted State
 
-Baseline reconciliation is complete for local, staging and production. The
-active foundation is:
+Baseline reconciliation was completed for local, the former staging project,
+and production. The active foundation is:
 
 ```text
 20260525123937_baseline_current_production_schema
@@ -13,8 +13,14 @@ Historical duplicate/date-only migrations are archived audit material and must
 not be replayed. All database changes after the baseline use unique
 `YYYYMMDDHHMMSS` forward migrations and an explicit hosted-ledger preflight.
 
-Staging project `jlhotktspjvffslvuyfz` and production project
-`wwohrqtunajrbwxyssjf` remain separate release targets.
+Production project `wwohrqtunajrbwxyssjf` is the only long-lived hosted
+database. The former staging project `jlhotktspjvffslvuyfz` was retired on
+2026-10-02 after a verified recovery dump and a disposable preview proof.
+
+Database changes are now proved on ephemeral Supabase branches created from
+production and associated with the relevant Git branch. Preview branches must
+exclude production data, use synthetic fixtures, and be deleted after the
+proof or pull request closes.
 
 ## Historical Migration Risk
 
@@ -54,6 +60,28 @@ Every DB-changing slice must declare one deployment method before work begins:
 Production DB deployment requires an explicit migration-ledger check before
 applying any migration.
 
+## Disposable Preview Database Workflow
+
+For a database-changing branch:
+
+1. Create a non-persistent Supabase preview branch from production without
+   production data.
+2. Confirm the preview schema and migration ledger match the production
+   baseline before applying new migrations. Stop if either is empty or has
+   drifted; reconcile from a trusted production schema and the exact
+   production ledger rather than replaying historical migrations.
+3. Apply only the branch's pending forward migrations and confirm a second dry
+   run is empty.
+4. Add bounded synthetic fixtures and connect only that Git branch's Vercel
+   Preview variables to the preview database.
+5. Run the relevant browser, action, audit, and rollback checks.
+6. Delete the Vercel preview deployment, branch-scoped credentials, and
+   Supabase preview branch when the proof is complete.
+
+Local development continues to use local Supabase and synthetic data. A
+persistent shared staging database should be introduced only for a named
+integration need that cannot be exercised in an ephemeral preview.
+
 ## Schema migrations versus content releases
 
 Schema migrations create or change database structures. Reviewed Teaching
@@ -64,7 +92,7 @@ Teaching Dictionary content uses
 
 - prepare and fingerprint the approved workbook package;
 - require the relevant forward-migration ledger versions;
-- release and verify staging;
+- release and verify a disposable preview branch;
 - release the identical package to production.
 
 The Supabase Dashboard SQL Editor is an emergency diagnostic surface, not a
