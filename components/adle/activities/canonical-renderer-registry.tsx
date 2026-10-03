@@ -330,7 +330,7 @@ const registrations = [
   registration("DICTATION", "paired_word_gaps", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "paired_word_gaps" && pairedWordGapsPayloadValid(props)
     && Array.isArray(props.values) && props.values.length === 2 && props.values.every(x => typeof x === "string") && typeof props.checked === "boolean"
     && functionValue(props.onValuesChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
-  registration("DICTATION", "single_word_gap", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "single_word_gap" && nonEmptyString(props.word) && nonEmptyString(props.sentence)
+  registration("DICTATION", "single_word_gap", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "single_word_gap" && nonEmptyString(props.word) && nonEmptyString(props.sentence) && nonEmptyString(props.audioText)
     && typeof props.value === "string" && typeof props.checked === "boolean" && functionValue(props.onValueChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
   registration("DICTATION", "target_token", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("DICTATION", "target_span", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),

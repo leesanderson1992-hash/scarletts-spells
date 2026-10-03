@@ -7,6 +7,7 @@ import { ING_RULE_COPY, ingTransformation, validateIngLesson } from "@/lib/adle/
 import { ingProgressValid, initialIngProgress, type IngProgressV1 } from "@/lib/adle/ing/progress";
 import { initialIngScrabbleBoard } from "@/lib/adle/ing/scrabble";
 import type { IngLessonV1 } from "@/lib/adle/ing/contracts";
+import { ingDictationAudioText } from "@/lib/adle/ing/pronunciation";
 import type { NormalizedLessonReflectionMistake } from "@/lib/adle/lesson-reflection";
 
 export interface IngGuidedLessonProps {
@@ -101,7 +102,7 @@ export function IngGuidedLesson(props: IngGuidedLessonProps) {
         onContinue: () => progress.coverIndex < 5 ? change({ coverIndex: progress.coverIndex + 1 }) : navigation.complete(),
       }), cover.canonicalWordId)}
       dictationActivity={binding("dictation", "DICTATION", "single_word_gap", navigation => ({
-        mode: "single_word_gap", word: dictation.word, sentence: dictation.dictationSentence, value: progress.dictationValues[dictation.canonicalWordId] ?? "",
+        mode: "single_word_gap", word: dictation.word, sentence: dictation.dictationSentence, audioText: ingDictationAudioText(dictation), value: progress.dictationValues[dictation.canonicalWordId] ?? "",
         checked: progress.dictationChecked.includes(dictation.canonicalWordId), stepLabel: `Dictation ${progress.dictationIndex + 1} of 6`, muted,
         onValueChange: (value: string) => change({ dictationValues: { ...current.current.dictationValues, [dictation.canonicalWordId]: value } }),
         onCheck: () => checkpoint({ dictationChecked: [...new Set([...current.current.dictationChecked, dictation.canonicalWordId])] }),

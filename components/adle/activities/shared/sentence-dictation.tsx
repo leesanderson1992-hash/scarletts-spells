@@ -35,6 +35,7 @@ export interface SingleWordGapProps {
   mode: "single_word_gap";
   word: string;
   sentence: string;
+  audioText: string;
   value: string;
   checked: boolean;
   stepLabel: string;
@@ -169,7 +170,7 @@ function SingleWordGap(props: SingleWordGapProps) {
   return <section className="grid gap-5" data-single-word-dictation-state={props.checked ? "checked" : "writing"}>
     <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
     <h2 className="text-center text-2xl font-black text-white">Listen, then spell the missing action word</h2>
-    <div className="flex justify-center"><HearWordButton word={props.sentence} label="Hear sentence" kind="dictation" muted={props.muted} /></div>
+    <div className="flex justify-center"><HearWordButton word={props.audioText} label="Hear sentence" kind="dictation" muted={props.muted} /></div>
     {props.muted ? <p role="status" className="text-center text-amber-100">Turn on sound to hear the sentence.</p> : null}
     {!audioAvailable ? <p role="alert" className="text-center text-amber-100">Audio is unavailable in this browser. Dictation cannot be checked without audio.</p> : null}
     <div className="rounded-3xl bg-white p-5 text-center text-lg font-bold leading-loose text-slate-950">{before}<input autoFocus aria-label="Missing action word" spellCheck={false} autoComplete="off" autoCapitalize="none" readOnly={props.checked || saving} value={props.value} maxLength={80} onChange={event => props.onValueChange(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void check(); } }} className="mx-2 min-h-12 w-40 rounded-xl border-2 border-cyan-600 bg-slate-50 px-2 text-slate-950 focus-visible:ring-4 focus-visible:ring-cyan-300" />{after}</div>
