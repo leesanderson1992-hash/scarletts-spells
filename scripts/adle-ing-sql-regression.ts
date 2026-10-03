@@ -60,7 +60,7 @@ async function main() {
     await db.exec(readFileSync("supabase/migrations/20260930120000_add_comparative_superlative_adle_v1.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20260930121000_add_comparative_superlative_finish_v1.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20261002110000_comparative_four_question_sequence.sql", "utf8"));
-    for (const filename of ["20261002120000_add_ing_endings_adle_v1.sql", "20261002121000_add_ing_endings_assignment_v1.sql", "20261002122000_add_ing_endings_finish_v1.sql"]) await db.exec(readFileSync(`supabase/migrations/${filename}`, "utf8"));
+    for (const filename of ["20261002120000_add_ing_endings_adle_v1.sql", "20261002121000_add_ing_endings_assignment_v1.sql", "20261002122000_add_ing_endings_finish_v1.sql", "20261003200000_fix_ing_session_orchestration.sql"]) await db.exec(readFileSync(`supabase/migrations/${filename}`, "utf8"));
     const collationProbe = { reviewerRef: "Katie Sanderson", reviewStatus: "approved_for_first_exposure" };
     assert.equal((await db.query("select adle_ing_snapshot_json_sha256_v1($1) hash", [collationProbe])).rows[0].hash, fingerprintSnapshotValue(collationProbe));
     const approved = ING_MICRO_SKILLS.flatMap(skill => ingPreviewPool(skill).map(word => ({ ...word, canonicalWordId: randomUUID(), rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const, reviewerRef: "sql-test-only", approvalRef: "sql-test-only", sourceRefs: ["sql-test-only"] })));
@@ -107,6 +107,7 @@ async function main() {
       const args = [parent, child, "2026-10-02", compiled.header, compiled.items, [], compiled.snapshot];
       const assignment = (await db.query("select persist_adle_ing_daily_plan_v3($1,$2,$3,$4,$5,$6,$7) id", args)).rows[0].id;
       assert.equal((await db.query("select persist_adle_ing_daily_plan_v3($1,$2,$3,$4,$5,$6,$7) id", args)).rows[0].id, assignment);
+      assert.equal((await db.query("select count(*)::integer n from adle_today_session_orchestrations where daily_assignment_id=$1 and major_stage='specialist_lesson' and specialist_generation_status='ready'", [assignment])).rows[0].n, 1);
       const progress = initialIngProgress(lesson);
       progress.stageId = "reflection"; progress.teachingPageIndex = 2; progress.reflection = "I will check the ending.";
       progress.meaningConnected = [0, 2, 4].map(index => lesson.words[index].canonicalWordId);
