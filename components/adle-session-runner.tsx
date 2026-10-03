@@ -839,7 +839,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        runtime.adapterKey === "ing_endings_v1" ? <IngPart session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
+        runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />

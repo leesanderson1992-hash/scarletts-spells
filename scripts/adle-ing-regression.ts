@@ -15,6 +15,7 @@ const rendererRegistrySource = readFileSync("components/adle/activities/canonica
 const appShellSource = readFileSync("components/app-shell.tsx", "utf8");
 assert(sessionRunnerSource.includes('import { IngGuidedLesson } from "@/components/adle/morphology/ing-guided-lesson"'), "the -ing lesson ships with the session runner instead of waiting for a client-only chunk");
 assert(!sessionRunnerSource.includes('import("@/components/adle/morphology/ing-guided-lesson")'), "the -ing lesson has no nested client-only import waterfall");
+assert(sessionRunnerSource.includes('<IngPart key={props.assignmentId} session={props} lesson={runtime.payload} />'), "switching learner assignments remounts -ing progress and checkpoint state");
 assert(rendererRegistrySource.includes('["INTRODUCTION.teaching_page@1", teachingPagesRenderer]'), "the opening teaching page uses the eager canonical renderer");
 assert(appShellSource.includes('isFocusLayout ? "grid-cols-1"'), "focus mode stays single-column at wide viewports");
 assert(appShellSource.includes('isFocusLayout ? "hidden" : ""'), "focus mode keeps the learner sidebar hidden at every viewport");
