@@ -42,7 +42,10 @@ export default async function CanonicalMisspellingResolverPage({ searchParams }:
             Review spelling evidence, confirm canonical corrections, and control resolver use in one place.
           </p>
         </div>
-        <Link href="/admin/spelling-review" className="adle-admin-secondary">Spelling review</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/no-matching-skill" className="adle-admin-secondary">No Matching Skill</Link>
+          <Link href="/admin/spelling-review" className="adle-admin-secondary">Spelling review</Link>
+        </div>
       </header>
 
       {params.saved ? <p role="status" className="adle-admin-success">{params.saved}</p> : null}

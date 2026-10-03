@@ -33,6 +33,8 @@ assert.match(
   /spelling_catalog_review_cases/,
   "Hub page must show the catalog gaps queue source.",
 );
+assert.match(hubPage, /spelling_no_matching_skill_cases/);
+assert.match(hubPage, /href="\/admin\/no-matching-skill"/);
 assert.match(
   hubPage,
   /spelling_canonical_mapping_recommendations/,
@@ -69,6 +71,7 @@ assert.match(
   /label: "Canonical Misspelling Resolver", href: "\/admin\/canonical-mappings"/,
   "Admin navigation must include the unified resolver link.",
 );
+assert.match(appShell, /label: "No Matching Skill", href: "\/admin\/no-matching-skill"/);
 assert.doesNotMatch(appShell, /href: "\/admin\/(catalog-review|canonical-recommendations|seed-import-review)"/);
 assert.match(
   appShell,

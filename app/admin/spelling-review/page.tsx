@@ -115,6 +115,20 @@ async function getCatalogGapSummary() {
   );
 }
 
+async function getNoMatchingSkillSummary() {
+  const supabase = createServiceRoleClient();
+  const { data, error } = await supabase
+    .from("spelling_no_matching_skill_cases")
+    .select("case_status, moved_at, returned_at")
+    .order("moved_at", { ascending: false })
+    .limit(250);
+  if (error) throw error;
+  return buildSummary((data ?? []).map((row) => ({
+    status: row.case_status,
+    updated_at: row.returned_at ?? row.moved_at,
+  })), new Set(["open"]));
+}
+
 async function getCanonicalRecommendationSummary() {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
@@ -292,6 +306,7 @@ export default async function AdminSpellingReviewPage() {
   await requireAdminUser();
 
   let catalogGapSummary: QueueSummary | null = null;
+  let noMatchingSkillSummary: QueueSummary | null = null;
   let recommendationSummary: QueueSummary | null = null;
   let seedImportRowSummary: QueueSummary | null = null;
   let unresolvedIntakeDemandCount: number | null = null;
@@ -300,12 +315,14 @@ export default async function AdminSpellingReviewPage() {
   try {
     [
       catalogGapSummary,
+      noMatchingSkillSummary,
       recommendationSummary,
       seedImportRowSummary,
       unresolvedIntakeDemandCount,
     ] =
       await Promise.all([
         getCatalogGapSummary(),
+        getNoMatchingSkillSummary(),
         getCanonicalRecommendationSummary(),
         getSeedImportRowSummary(),
         getUnresolvedIntakeDemandCount(),
@@ -353,18 +370,27 @@ export default async function AdminSpellingReviewPage() {
 
         {hasError ||
         !catalogGapSummary ||
+        !noMatchingSkillSummary ||
         !recommendationSummary ||
         !seedImportRowSummary ? (
           <ErrorState />
         ) : (
           <>
             <QueueSection
+              description="Spelling pairs waiting for a suitable teaching skill, kept out of the canonical resolver queue."
+              href="/admin/no-matching-skill"
+              linkLabel="Open No Matching Skill"
+              sourceTable="spelling_no_matching_skill_cases"
+              summary={noMatchingSkillSummary}
+              title="No Matching Skill"
+            />
+            <QueueSection
               description="Catalog gaps: parent could not find a suitable existing skill."
               href="/admin/canonical-mappings?status=pending"
               linkLabel="Open resolver"
               sourceTable="spelling_catalog_review_cases"
               summary={catalogGapSummary}
-              title="Catalog gaps / No matching skill cases"
+              title="Parent catalog review cases"
             />
             <QueueSection
               description="Recommended mappings: parent selected an existing skill and recommends the word/correction pairing for admin review."

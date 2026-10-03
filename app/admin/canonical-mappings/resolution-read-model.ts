@@ -10,7 +10,7 @@ export type ResolutionFilters = {
   family: string;
   cluster: string;
   skill: string;
-  status: "open" | "pending" | "confirmed" | "closed" | "all";
+  status: "open" | "pending" | "confirmed" | "closed" | "all" | "no_matching_skill";
   resolver: "all" | "yes" | "no";
 };
 
@@ -43,7 +43,7 @@ export type ResolutionRow = {
   familyName: string | null;
   clusterKey: string | null;
   clusterName: string | null;
-  status: "pending" | "confirmed" | "closed";
+  status: "pending" | "confirmed" | "closed" | "no_matching_skill";
   resolverEnabled: boolean;
   mappingId: string | null;
   mappingStatus: string | null;
@@ -131,8 +131,9 @@ export async function loadResolutionPage(filters: ResolutionFilters) {
 
   let query = db.from("spelling_resolution_items")
     .select("id, misspelling, correction, dialect_code, micro_skill_key, mapping_id, review_status, resolver_enabled, updated_at", { count: "exact" });
-  if (filters.status === "open") query = query.neq("review_status", "closed");
-  else if (filters.status !== "all") query = query.eq("review_status", filters.status);
+  if (filters.status === "open") query = query.in("review_status", ["pending", "confirmed"]);
+  else if (filters.status === "all") query = query.in("review_status", ["pending", "confirmed", "closed"]);
+  else query = query.eq("review_status", filters.status);
   if (filters.resolver !== "all") query = query.eq("resolver_enabled", filters.resolver === "yes");
   if (filters.family || filters.cluster) {
     if (matchingSkills.length === 0) return { rows: [], total: 0, skills, families, clusters };

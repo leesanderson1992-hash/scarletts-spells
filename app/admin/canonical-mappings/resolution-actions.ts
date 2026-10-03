@@ -138,3 +138,16 @@ export async function deleteResolution(formData: FormData) {
   if (error) message("error", error.message);
   message("saved", "Spelling resolution and linked admin evidence permanently deleted.");
 }
+
+export async function moveResolutionToNoMatchingSkill(formData: FormData) {
+  const admin = await requireAdminUser();
+  const db = createServiceRoleClient();
+  const { error } = await db.rpc("move_spelling_resolution_to_no_matching_skill_admin", {
+    p_item_id: value(formData, "item_id", 80),
+    p_admin_user_id: admin.id,
+    p_admin_email: admin.email ?? null,
+  });
+  if (error) message("error", error.message);
+  revalidatePath("/admin/no-matching-skill");
+  message("saved", "Moved to No Matching Skill.");
+}

@@ -10,6 +10,7 @@ import { SeedImportUploadPanel } from "../seed-import-review/upload-panel";
 import {
   confirmResolution,
   deleteResolution,
+  moveResolutionToNoMatchingSkill,
   reopenResolution,
   saveResolutionDraft,
   setResolutionResolverVisibility,
@@ -18,7 +19,7 @@ import type { ResolutionFilters, ResolutionRow, SkillOption } from "./resolution
 
 type Family = { skill_family_key: string; display_name: string };
 type Cluster = { skill_family_key: string; skill_cluster_key: string; display_name: string };
-type DialogKind = "details" | "edit" | "confirm" | "reopen" | "visibility" | "delete";
+type DialogKind = "details" | "edit" | "confirm" | "reopen" | "visibility" | "noSkill" | "delete";
 
 function displayDate(value: string | null) {
   if (!value) return "Not recorded";
@@ -89,12 +90,13 @@ function EditForm({ row, skills, families, clusters, readOnlyPreview }: {
 
 function ActionDialog({ kind, row, onClose, onPreviewAction, skills, families, clusters, readOnlyPreview }: {
   kind: DialogKind; row: ResolutionRow; onClose: () => void;
-  onPreviewAction: (kind: "confirm" | "reopen" | "visibility", row: ResolutionRow) => void;
+  onPreviewAction: (kind: "confirm" | "reopen" | "visibility" | "noSkill", row: ResolutionRow) => void;
   skills: SkillOption[]; families: Family[]; clusters: Cluster[]; readOnlyPreview: boolean;
 }) {
   const title = {
     details: "Spelling details", edit: "Edit pending mapping", confirm: "Confirm canonical mapping",
     reopen: "Reopen confirmed mapping", visibility: row.resolverEnabled ? "Remove from Resolver" : "Add to Resolver",
+    noSkill: "No Matching Skill",
     delete: "Permanently delete spelling evidence",
   }[kind];
   return <AppDialog open onOpenChange={(open) => { if (!open) onClose(); }}
@@ -127,6 +129,12 @@ function ActionDialog({ kind, row, onClose, onPreviewAction, skills, families, c
         <p>{row.resolverEnabled ? "Remove this confirmed pair from resolver use." : "Make this confirmed pair available to the resolver."}</p>
         <button type={readOnlyPreview ? "button" : "submit"} onClick={readOnlyPreview ? () => onPreviewAction("visibility", row) : undefined}
           className="adle-admin-primary">{row.resolverEnabled ? "Remove from Resolver" : "Add to Resolver"}</button>
+      </form> : null}
+      {kind === "noSkill" ? <form action={moveResolutionToNoMatchingSkill} className="resolution-dialog-form">
+        <input type="hidden" name="item_id" value={row.id} />
+        <p>Move <strong>{row.misspelling} → {row.correction}</strong> to the No Matching Skill table? This removes it from the canonical resolver queue while preserving its linked evidence.</p>
+        <button type={readOnlyPreview ? "button" : "submit"} onClick={readOnlyPreview ? () => onPreviewAction("noSkill", row) : undefined}
+          className="adle-admin-primary">Move to No Matching Skill</button>
       </form> : null}
       {kind === "delete" ? <form action={deleteResolution} className="resolution-dialog-form">
         <input type="hidden" name="item_id" value={row.id} />
@@ -167,9 +175,9 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
     (!previewFilters || previewFilters.status === "all" || previewFilters.status === "open" && row.status !== "closed" || row.status === previewFilters.status) &&
     (!previewFilters || previewFilters.resolver === "all" || row.resolverEnabled === (previewFilters.resolver === "yes")))
     .sort((left, right) => previewSortGroup(left) - previewSortGroup(right) || right.updatedAt.localeCompare(left.updatedAt)) : rows;
-  const onPreviewAction = (kind: "confirm" | "reopen" | "visibility", row: ResolutionRow) => {
+  const onPreviewAction = (kind: "confirm" | "reopen" | "visibility" | "noSkill", row: ResolutionRow) => {
     if (!readOnlyPreview) return;
-    setPreviewRows((current) => current.map((item) => item.id !== row.id ? item : kind === "confirm" ? {
+    setPreviewRows((current) => kind === "noSkill" ? current.filter((item) => item.id !== row.id) : current.map((item) => item.id !== row.id ? item : kind === "confirm" ? {
       ...item, status: "confirmed", resolverEnabled: false, mappingId: item.mappingId ?? `preview-${item.id}`,
       mappingStatus: "active", visibilityStatus: "hidden", updatedAt: new Date().toISOString(),
     } : kind === "reopen" ? {
@@ -247,6 +255,7 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
       role="menu" style={{ top: menu.top, left: menu.left }}>
       {menu.row.status === "pending" ? <button type="button" role="menuitem" onClick={() => show("confirm", menu.row)}>Confirm</button> : null}
       {menu.row.status === "pending" ? <button type="button" role="menuitem" onClick={() => show("edit", menu.row)}>Edit</button> : null}
+      {menu.row.status === "pending" && !menu.row.mappingId ? <button type="button" role="menuitem" onClick={() => show("noSkill", menu.row)}>No Matching Skill</button> : null}
       {menu.row.status === "confirmed" ? <button type="button" role="menuitem" onClick={() => show("reopen", menu.row)}>Edit</button> : null}
       {menu.row.status === "confirmed" && menu.row.mappingId ? <button type="button" role="menuitem"
         onClick={() => show("visibility", menu.row)}>{menu.row.resolverEnabled ? "Remove from Resolver" : "Add to Resolver"}</button> : null}
