@@ -323,16 +323,14 @@ export default async function AdminSpellingReviewPage() {
             Spelling Review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            One place to see the spelling admin queues. The queues remain
-            separate so catalog gaps, parent recommendations, seed imports,
-            canonical mapping storage, and resolver visibility keep their
-            current boundaries.
+            Review catalog gaps, parent recommendations, seed imports, and
+            canonical mappings in the Canonical Misspelling Resolver.
           </p>
           <Link
             href="/admin/canonical-mappings"
             className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
           >
-            Open canonical mappings
+            Open Canonical Misspelling Resolver
           </Link>
           <Link
             href="/admin/spelling-canonical-resolver-readiness"
@@ -362,16 +360,16 @@ export default async function AdminSpellingReviewPage() {
           <>
             <QueueSection
               description="Catalog gaps: parent could not find a suitable existing skill."
-              href="/admin/catalog-review"
-              linkLabel="Open catalog gaps"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_catalog_review_cases"
               summary={catalogGapSummary}
               title="Catalog gaps / No matching skill cases"
             />
             <QueueSection
               description="Recommended mappings: parent selected an existing skill and recommends the word/correction pairing for admin review."
-              href="/admin/canonical-recommendations"
-              linkLabel="Open recommendations"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_canonical_mapping_recommendations"
               summary={recommendationSummary}
               title="Parent recommended canonical mappings"
@@ -384,8 +382,8 @@ export default async function AdminSpellingReviewPage() {
             </p>
             <QueueSection
               description="Seed imports: external/operator candidate evidence awaiting read-only review."
-              href="/admin/seed-import-review"
-              linkLabel="Open seed imports"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_seed_import_rows"
               summary={seedImportRowSummary}
               title="Imported seed candidate rows"

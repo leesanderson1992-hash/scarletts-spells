@@ -73,13 +73,7 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
       href: "/admin/spelling-review",
       children: [
         { label: "Spelling Review", href: "/admin/spelling-review" },
-        { label: "Catalog Review", href: "/admin/catalog-review" },
-        {
-          label: "Canonical Recommendations",
-          href: "/admin/canonical-recommendations",
-        },
-        { label: "Seed Import Review", href: "/admin/seed-import-review" },
-        { label: "Canonical Mappings", href: "/admin/canonical-mappings" },
+        { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings" },
         { label: "Word–skill Review", href: "/admin/word-skill-review" },
         { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence" },
         {

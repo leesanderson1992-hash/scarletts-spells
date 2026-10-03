@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   confirmSeedImportUpload,
@@ -20,6 +21,7 @@ function formatStatus(value: string) {
 }
 
 export function SeedImportUploadPanel() {
+  const router = useRouter();
   const [previewState, previewAction, previewPending] = useActionState(
     previewSeedImportUpload,
     initialState,
@@ -30,6 +32,10 @@ export function SeedImportUploadPanel() {
   );
   const state = confirmState.saved || confirmState.error ? confirmState : previewState;
   const preview = previewState.preview;
+
+  useEffect(() => {
+    if (confirmState.saved) router.refresh();
+  }, [confirmState.saved, router]);
 
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-white/90 p-5 shadow-[var(--shadow-soft)]">

@@ -40,24 +40,15 @@ assert.match(
 );
 assert.match(
   hubPage,
-  /href="\/admin\/catalog-review"/,
-  "Hub page must preserve the catalog-review route link.",
-);
-assert.match(
-  hubPage,
-  /href="\/admin\/canonical-recommendations"/,
-  "Hub page must preserve the canonical-recommendations route link.",
+  /href="\/admin\/canonical-mappings\?status=pending"/,
+  "Hub page must send unresolved catalog cases to the unified resolver.",
 );
 assert.match(
   hubPage,
   /spelling_seed_import_rows/,
   "Hub page must show the seed import row queue source.",
 );
-assert.match(
-  hubPage,
-  /href="\/admin\/seed-import-review"/,
-  "Hub page must include the seed-import review route link.",
-);
+assert.doesNotMatch(hubPage, /href="\/admin\/(catalog-review|canonical-recommendations|seed-import-review)"/);
 assert.match(
   hubPage,
   /Catalog gaps: parent could not find a suitable existing skill\./,
@@ -75,24 +66,10 @@ assert.match(
 );
 assert.match(
   appShell,
-  /label: "Catalog Review", href: "\/admin\/catalog-review"/,
-  "Admin navigation must preserve the catalog-review link.",
+  /label: "Canonical Misspelling Resolver", href: "\/admin\/canonical-mappings"/,
+  "Admin navigation must include the unified resolver link.",
 );
-assert.match(
-  appShell,
-  /label: "Canonical Recommendations"[\s\S]*href: "\/admin\/canonical-recommendations"/,
-  "Admin navigation must preserve the canonical-recommendations link.",
-);
-assert.match(
-  appShell,
-  /label: "Seed Import Review", href: "\/admin\/seed-import-review"/,
-  "Admin navigation must include the seed-import review link.",
-);
-assert.match(
-  appShell,
-  /label: "Canonical Mappings", href: "\/admin\/canonical-mappings"/,
-  "Admin navigation must include the canonical-mappings link.",
-);
+assert.doesNotMatch(appShell, /href: "\/admin\/(catalog-review|canonical-recommendations|seed-import-review)"/);
 assert.match(
   appShell,
   /label: "Resolver Readiness"[\s\S]*href: "\/admin\/spelling-canonical-resolver-readiness"/,
