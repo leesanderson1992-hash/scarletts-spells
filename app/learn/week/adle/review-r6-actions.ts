@@ -33,6 +33,8 @@ import type { CompiledReviewSnapshotV3, ReviewChallengeType } from "@/lib/adle/r
 import { ensureSpecialistStageR6 } from "@/lib/adle/review-v3/r6-specialist-stage";
 import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "@/lib/adle/inflection/snapshot";
 import { comparativeProgressTransitionValid, comparativeCheckpointReplayVersion } from "@/lib/adle/inflection/resume";
+import { isIngSnapshotV3, validateIngSnapshotV3 } from "@/lib/adle/ing/snapshot";
+import { ingProgressTransitionValid, ingCheckpointReplayVersion } from "@/lib/adle/ing/progress";
 
 type ReviewActionEnvelope = {
   assignmentId: string;
@@ -237,6 +239,17 @@ export async function persistAdleSpecialistCheckpointR6Action(request: {
     throw new Error("adle_specialist_checkpoint_assignment_not_owned");
   }
   const serviceClient = createServiceRoleClient();
+  if (isIngSnapshotV3(header.data.compiled_lesson_snapshot) || request.adapterKey === "ing_endings_v1") {
+    const validated = validateIngSnapshotV3(header.data.compiled_lesson_snapshot);
+    if (!validated.ok || !isIngSnapshotV3(validated.snapshot) || request.adapterKey !== "ing_endings_v1"
+      || request.checkpointSchemaVersion !== "ing_progress_v1" || request.lessonSnapshotFingerprint !== validated.snapshot.provenance.sourceFingerprint) throw new Error("ing_checkpoint_contract_invalid");
+    const previous = await serviceClient.from("adle_specialist_stage_checkpoints").select("checkpoint_payload,state_version,adapter_key,checkpoint_schema_version,lesson_snapshot_fingerprint").eq("daily_assignment_id", request.assignmentId).maybeSingle();
+    if (previous.error || !ingProgressTransitionValid(previous.data?.checkpoint_payload?.state, request.checkpointPayload.state, validated.snapshot.payload.resolvedLesson)) throw new Error("ing_checkpoint_answer_lock_conflict");
+    if (previous.data?.adapter_key === request.adapterKey && previous.data.checkpoint_schema_version === request.checkpointSchemaVersion && previous.data.lesson_snapshot_fingerprint === request.lessonSnapshotFingerprint) {
+      const replayVersion = ingCheckpointReplayVersion(previous.data.checkpoint_payload, request.checkpointPayload, previous.data.state_version, request.expectedStateVersion);
+      if (replayVersion !== null) return { stateVersion: replayVersion };
+    }
+  }
   if (isComparativeSnapshotV3(header.data.compiled_lesson_snapshot) || request.adapterKey === "comparative_superlative_v1") {
     const validated = validateComparativeSnapshotV3(header.data.compiled_lesson_snapshot);
     if (!validated.ok || !isComparativeSnapshotV3(validated.snapshot) || request.adapterKey !== "comparative_superlative_v1"

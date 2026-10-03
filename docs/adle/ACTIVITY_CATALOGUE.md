@@ -26,6 +26,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `WORD_FAMILY_REVEAL` | Reveal related words around a stable base so the child sees a reusable spelling anchor. | When a familiar base anchors several related spellings. | Yes | No | `CANONICAL` |
 | `CLEAVER` | Find meaningful boundaries, or reveal a reviewed transformation in the explicit transform_target mode. | To locate meaningful morpheme or word-part boundaries. | Yes | No | `CANONICAL` |
 | `WORD_ASSEMBLY` | Build a word by selecting or dragging governed word-part tiles into order. | When the learning action is choosing and ordering word parts. | Yes | No | `CANONICAL` |
+| `SCRABBLE` | Transform a movable base verb into its reviewed -ing form using letter tiles. | For the -ing letter transformation after Meaning Match. | Yes | No | `CANONICAL` |
 | `COMPOUND_JIGSAW` | Join compound components in governed order while preserving spaces and hyphens. | For compound structure where puzzle joining is itself pedagogically meaningful. | Yes | No | `CANONICAL` |
 | `MEANING_MATCH` | Connect each word to its whole-word definition. | When each word must be paired with a distinct definition. | Yes | No | `CANONICAL` |
 | `MEANING_SORT` | Sort words into reusable meaning or affix-form groups. | When several words share meaningful categories. | Yes | No | `CANONICAL` |
@@ -43,7 +44,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 22 governed concepts, 15 with canonical status, and 50 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 23 governed concepts, 16 with canonical status, and 53 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -61,7 +62,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `meet_words`: Required final page using the accepted word-card presentation without audio or evidence.
 - `historical_generic_read_only`: Replays immutable generic intro copy through the explicit IntroActivity compatibility adapter.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `generic composer catalogue`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 
 **Canonical implementation:** `TeachingPages` in `components/adle/first-impression/teaching-pages.tsx`
 
@@ -167,8 +168,9 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `identify_components`: After success, display supplied component strings and tailored explanation.
 - `isolate_component`: Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.
 - `transform_target`: Split the full comparative or superlative before its ending, slowly restore its base spelling, then answer one governed three-option rule question.
+- `ing_transform_target`: Split a reviewed -ing target before its ending, restore the base verb, then answer its rule question.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `comparative_superlative_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 
 **Canonical implementation:** `SplitHandle` in `components/adle/activities/shared/split-handle.tsx`
 
@@ -210,6 +212,31 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 **Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
 
 **Notes:** DefinitionWordBuilder and CompoundJigsawActivity share OrderedBuildEngine mechanics. The inactive comparative route uses sentence_suffix@1 with a base, approved forms and sentence gap, without a definition-first screen.
+
+## SCRABBLE — Scrabble
+
+**Pedagogical purpose:** Transform a movable base verb into its reviewed -ing form using letter tiles.
+
+**Interaction family:** `tile_assembly`
+
+**Best used for:** For the -ing letter transformation after Meaning Match.
+
+**Do not use when:** For suffix part selection or sentence placement; use WORD_ASSEMBLY.
+
+**Modes:**
+
+- `ing_tiles`: Base tiles start on the board; the bank has every required changed or added letter and three distractors.
+
+**Current users:** Routes `ing_endings_word_lab:v1`. Micro-skills `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
+
+**Canonical implementation:** `IngScrabble` in `components/adle/activities/shared/ing-scrabble.tsx`
+
+**Architectural status:** `CANONICAL`
+
+**Inputs:** Required: `base verb`, `reviewed -ing target`, `canonical word identity`. Optional: `restored board`, `sound mute`.
+
+**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio Yes · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
+
 
 ## COMPOUND_JIGSAW — Compound jigsaw
 
@@ -253,7 +280,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `component_clues`: Shows component meanings as clues.
 - `historical_free_response`: Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction.
 
-**Current users:** Routes `compound_word_lab:v2`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `generic_composer:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `generic homophone/morphology skills`.
+**Current users:** Routes `compound_word_lab:v2`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `ing_endings_word_lab:v1`, `generic_composer:v1`. Micro-skills `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`, `generic homophone/morphology skills`.
 
 **Canonical implementation:** `MeaningConnectionActivity` in `components/adle/morphology/meaning-connection-activity.tsx`
 
@@ -337,7 +364,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `component_marked`: Show governed components separated visually.
 - `ratio_close_policy`: Require a configured proportion of the shutter track.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`. Micro-skills `historical generic compatibility`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `historical generic compatibility`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 
 **Canonical implementation:** `CoverShutter` in `components/adle/activities/shared/cover-shutter.tsx`
 
@@ -391,8 +418,9 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 - `target_token`: Route adapter extracts one governed token for correctness/evidence.
 - `target_span`: Route adapter extracts an exact governed multi-token span.
 - `paired_word_gaps`: Two authored word-audio buttons and two gaps; freeze both together, then grade spelling and placement separately.
+- `single_word_gap`: Hear an authored sentence and spell its one hidden -ing target; freeze the word before comparison.
 
-**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`.
+**Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 
 **Canonical implementation:** `SentenceDictation` in `components/adle/activities/shared/sentence-dictation.tsx`
 
@@ -470,7 +498,7 @@ The catalogue currently has 22 governed concepts, 15 with canonical status, and 
 
 - `standard_lesson_reflection`: Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter.
 
-**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`.
+**Current users:** Routes `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 
 **Canonical implementation:** `LessonReflection` in `components/adle/activities/lesson-reflection.tsx`
 

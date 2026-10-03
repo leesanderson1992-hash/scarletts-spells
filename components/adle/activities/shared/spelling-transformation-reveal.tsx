@@ -29,7 +29,7 @@ export interface ForwardTransformationProps {
 }
 interface RestoreDegreeProps {
   mode: "degree_to_base";
-  transformation: DegreeTransformation;
+  transformation: Pick<DegreeTransformation, "base" | "stem" | "ending" | "result" | "explanation"> | { base: string; stem: string; ending: "ing"; result: string; explanation: string };
   onContinue: () => void;
 }
 export function SpellingTransformationReveal(props: SourceRevealProps | ForwardTransformationProps | RestoreDegreeProps) {
@@ -39,7 +39,7 @@ export function SpellingTransformationReveal(props: SourceRevealProps | ForwardT
 
 /** Shared letter-level presentation; all spellings come from the reviewed family. */
 export function AnimatedSpellingChange(props: {
-  transformation: DegreeTransformation;
+  transformation: RestoreDegreeProps["transformation"];
   direction: "build" | "restore";
   onComplete?: () => void;
   completedContent?: ReactNode;

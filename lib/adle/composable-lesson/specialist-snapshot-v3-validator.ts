@@ -20,6 +20,7 @@ import { resolveDynamicAffixLessonAuthorityV3 } from "../morphology/dynamic-affi
 import { resolveDynamicPrefixLessonAuthorityV2 } from "../morphology/dynamic-prefix-runtime";
 import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
 import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "../inflection/snapshot";
+import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
 
 const CONTRACTS = new Set([
   "INTRODUCTION.teaching_page@1",
@@ -363,6 +364,7 @@ export function validateCompiledSpecialistSnapshotV3(
   context: SpecialistSnapshotV3ValidationContext = {},
 ): SpecialistSnapshotV3ValidationResult {
   if (isComparativeSnapshotV3(value)) return validateComparativeSnapshotV3(value, context);
+  if (isIngSnapshotV3(value)) return validateIngSnapshotV3(value, context);
   if (record(value) && record(value.route) && (value.route.routeId === "dynamic_prefix_word_lab" || value.route.routeId === "base_word_lab")) {
     return validatePrefixOrBaseSnapshot(value, context);
   }

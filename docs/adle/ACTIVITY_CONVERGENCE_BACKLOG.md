@@ -13,7 +13,7 @@ This is a migration backlog, not authority to refactor, activate routes, change 
 - Current implementations: `canonical renderer registry for specialist and normalized generic routes`, `immutable Generic Snapshot v3 compiler/validator/replay`, `metadata-free historical generic normalization`
 - Target: Activity Catalogue capability mapping feeding one versioned canonical renderer registry
 - Intended modes: `existing canonical activity contracts`, `behaviour-identical specialist routing`, `explicit historical normalization`
-- Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`
+- Routes affected: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Regression requirements: catalogue-to-registration totality; payload validation; lazy renderer loading; route replay; resume/completion/evidence parity; fail-closed unknown contracts
 - Learner/runtime risk: `high`
 - Model C release change required: No

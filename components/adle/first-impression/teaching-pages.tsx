@@ -9,6 +9,7 @@ export interface TeachingPageExample {
 
 export interface TeachingPageSection {
   heading?: string;
+  tone?: "standard" | "gold";
   paragraphs: readonly string[];
   examples?: readonly TeachingPageExample[];
 }
@@ -138,9 +139,9 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       ) : null}
       {page.examples?.length ? <ExampleGrid examples={page.examples} /> : null}
       {page.sections?.map((section, index) => (
-        <section key={section.heading ?? index} className="grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5">
-          {section.heading ? <h2 className="text-xl font-black text-white">{section.heading}</h2> : null}
-          {section.paragraphs.map((paragraph) => <p key={paragraph} className="leading-relaxed text-cyan-50">{paragraph}</p>)}
+        <section key={section.heading ?? index} className={section.tone === "gold" ? "grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
+          {section.heading ? <h2 className={section.tone === "gold" ? "text-xl font-black text-amber-950" : "text-xl font-black text-white"}>{section.heading}</h2> : null}
+          {section.paragraphs.map((paragraph) => <p key={paragraph} className={section.tone === "gold" ? "leading-relaxed text-amber-950" : "leading-relaxed text-cyan-50"}>{paragraph}</p>)}
           {section.examples?.length ? <ExampleGrid examples={section.examples} /> : null}
         </section>
       ))}

@@ -9,7 +9,7 @@ import type { DegreeQuestion, DegreeTransformation } from "@/lib/adle/inflection
 const STRIKE_MS = 220;
 
 export interface TransformTargetProps {
-  transformation: DegreeTransformation;
+  transformation: Pick<DegreeTransformation, "base" | "stem" | "ending" | "result" | "explanation"> | { base: string; stem: string; ending: "ing"; result: string; explanation: string };
   question: DegreeQuestion;
   stepLabel: string;
   muted?: boolean;
@@ -22,14 +22,15 @@ export function TransformTarget(props: TransformTargetProps) {
   const [progress, setProgress] = useState(props.initialProgress ?? { revealed: false, questionShown: false, selectedOptionId: null });
   function change(next: typeof progress) { setProgress(next); props.onProgress?.(next); }
   const t = props.transformation;
+  const endingLabel = t.ending === "ing" ? "-ing" : "-er or -est";
   const correct = progress.selectedOptionId === props.question.correctOptionId;
   return <section className="grid gap-5 text-center" data-transform-target-state={progress.questionShown ? "question" : "demonstration"}>
     <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
     {!progress.revealed ? <BoundarySplitHandle
       word={t.result} splitPoints={[t.stem.length]} components={[t.stem, t.ending]}
       misses={progress.splitMisses ?? 0} correct={false} muted={props.muted}
-      prompt="Find where the base spelling ends and -er or -est begins."
-      missMessage="Try again. Find the ending -er or -est."
+      prompt={`Find where the base spelling ends and ${endingLabel} begins.`}
+      missMessage={`Try again. Find the ending ${endingLabel}.`}
       repeatedMissMessage="Strike the glowing gap before the ending."
       onMiss={splitMisses => change({ ...progress, splitMisses })}
       onCorrect={() => change({ ...progress, revealed: true })} onContinue={() => undefined}

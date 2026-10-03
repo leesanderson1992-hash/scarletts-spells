@@ -1,0 +1,169 @@
+{
+  "actual_import_run": false,
+  "blocked_rows": [],
+  "csv_folder": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells-adle-templates/docs/implementation/seed-data/teaching-dictionary/candidates/2026-10-03-ing-endings-canonical-registration/csv",
+  "duplicate_conflict_summary": {
+    "database_conflicts": "not_checked_in_dry_run",
+    "workbook_duplicates": {
+      "canonical_teaching_dictionary_base_word_families": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "base_family_key"
+        ]
+      },
+      "canonical_teaching_dictionary_base_word_family_members": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "base_word_family_id",
+          "canonical_word_id"
+        ]
+      },
+      "canonical_teaching_dictionary_content_versions": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "micro_skill_key",
+          "content_version"
+        ]
+      },
+      "canonical_teaching_dictionary_dictation_sentences": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "canonical_word_id"
+        ]
+      },
+      "canonical_teaching_dictionary_field_reviews": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "teaching_content_version_id",
+          "field_key",
+          "review_gate"
+        ]
+      },
+      "canonical_teaching_dictionary_readiness_reports": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "teaching_content_version_id"
+        ]
+      },
+      "canonical_teaching_dictionary_sources": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "source_key"
+        ]
+      },
+      "canonical_teaching_dictionary_word_metadata": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "canonical_word_id"
+        ]
+      },
+      "canonical_teaching_dictionary_word_morphology": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "canonical_word_id"
+        ]
+      },
+      "canonical_teaching_dictionary_word_support": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "canonical_word_id",
+          "micro_skill_key",
+          "support_role"
+        ]
+      },
+      "canonical_teaching_dictionary_words": {
+        "duplicate_count": 0,
+        "duplicates": [],
+        "unique_key_fields": [
+          "word_key"
+        ]
+      }
+    }
+  },
+  "mode": "dry_run",
+  "planned_inserts_by_table": {
+    "canonical_teaching_dictionary_base_word_families": 0,
+    "canonical_teaching_dictionary_base_word_family_members": 0,
+    "canonical_teaching_dictionary_content_versions": 0,
+    "canonical_teaching_dictionary_dictation_sentences": 50,
+    "canonical_teaching_dictionary_field_reviews": 0,
+    "canonical_teaching_dictionary_readiness_reports": 0,
+    "canonical_teaching_dictionary_sources": 1,
+    "canonical_teaching_dictionary_word_metadata": 50,
+    "canonical_teaching_dictionary_word_morphology": 50,
+    "canonical_teaching_dictionary_word_support": 0,
+    "canonical_teaching_dictionary_words": 50
+  },
+  "planned_micro_skill_keys": [],
+  "read_only": true,
+  "readiness_summary": {
+    "archived": 0,
+    "content_gap": 0,
+    "errors": 0,
+    "needs_manual_review": 0,
+    "ready_for_first_exposure": 0,
+    "ready_for_guided_review_only": 0,
+    "rejected": 0,
+    "source_or_license_gap": 0,
+    "superseded": 0,
+    "teaching_content_versions": 0,
+    "warnings": 0
+  },
+  "row_counts_by_csv": {
+    "base_word_families.csv": 0,
+    "base_word_family_members.csv": 0,
+    "canonical_word_metadata.csv": 50,
+    "canonical_word_morphology.csv": 50,
+    "canonical_words.csv": 50,
+    "dictation_sentences.csv": 50,
+    "micro_skill_word_support.csv": 0,
+    "teaching_content_field_reviews.csv": 0,
+    "teaching_content_sources.csv": 1,
+    "teaching_content_versions.csv": 0
+  },
+  "source_commit": "838861f",
+  "source_folder_sha256": "b3264a0e7dad70185e58ce8794aaa834868989a200d44a8b7604bfd19ddd3094",
+  "status": "ready_for_local_preflight",
+  "validation": {
+    "dry_run_only": true,
+    "generated_at": "1970-01-01T00:00:00+00:00",
+    "hard_boundaries": [
+      "dry-run only",
+      "no Supabase writes",
+      "no migrations",
+      "no imports",
+      "no assignment generation",
+      "no resolver changes",
+      "no evidence/proficiency writes",
+      "no Word Treasure changes"
+    ],
+    "input_folder": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells-adle-templates/docs/implementation/seed-data/teaching-dictionary/candidates/2026-10-03-ing-endings-canonical-registration/csv",
+    "issues": [],
+    "schema_version": "version_3_phase_5c_teaching_dictionary_csv_v4",
+    "summary": {
+      "archived": 0,
+      "content_gap": 0,
+      "errors": 0,
+      "needs_manual_review": 0,
+      "ready_for_first_exposure": 0,
+      "ready_for_guided_review_only": 0,
+      "rejected": 0,
+      "source_or_license_gap": 0,
+      "superseded": 0,
+      "teaching_content_versions": 0,
+      "warnings": 0
+    },
+    "versions": []
+  },
+  "validator_version": "version_3_phase_5c_teaching_dictionary_csv_v4"
+}
