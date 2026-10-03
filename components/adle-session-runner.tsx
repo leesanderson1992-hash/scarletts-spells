@@ -59,8 +59,8 @@ import { comparativeProgressValid, type ComparativeProgressV1 } from "@/lib/adle
 import { completeIngLessonAction } from "@/app/learn/week/adle/ing-actions";
 import type { IngLessonV1 } from "@/lib/adle/ing/contracts";
 import { ingProgressValid, type IngProgressV1 } from "@/lib/adle/ing/progress";
+import { IngGuidedLesson } from "@/components/adle/morphology/ing-guided-lesson";
 
-const IngGuidedLesson = dynamic(() => import("@/components/adle/morphology/ing-guided-lesson").then(module => module.IngGuidedLesson), { ssr: false });
 function IngPart({ session, lesson }: { session: AdleSessionRunnerProps; lesson: IngLessonV1 }) {
   const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
   const chain = useRef<Promise<void>>(Promise.resolve());

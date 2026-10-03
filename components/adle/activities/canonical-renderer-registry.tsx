@@ -12,6 +12,7 @@ import type {
   CanonicalActivitySpec,
 } from "@/lib/adle/canonical-activity-spec";
 import { sentenceSuffixPayloadValid, transformTargetPayloadValid, pairedWordGapsPayloadValid } from "@/lib/adle/inflection/activity-contracts";
+import { TeachingPages } from "@/components/adle/first-impression/teaching-pages";
 
 export interface CanonicalActivityNavigation {
   complete: () => void;
@@ -267,7 +268,8 @@ function moduleLoader(
   };
 }
 
-const teachingPagesLoader = moduleLoader(() => import("@/components/adle/first-impression/teaching-pages"), "TeachingPages");
+const teachingPagesRenderer = TeachingPages as ComponentType<Record<string, unknown>>;
+const teachingPagesLoader = async (): Promise<RendererModule> => ({ default: teachingPagesRenderer });
 const discoveryLoader = moduleLoader(() => import("@/components/adle/morphology/morphology-guided-lesson"), "Discovery");
 const familyRevealLoader = moduleLoader(() => import("@/components/adle/morphology/base-word-family-guided-lesson"), "FamilyReveal");
 const baseCleaveLoader = moduleLoader(() => import("@/components/adle/morphology/base-word-family-guided-lesson"), "Cleave");
@@ -354,11 +356,15 @@ function CanonicalActivityLoadingState() {
 // next/dynamic needs stable, module-level component identities so Next can
 // preload the corresponding chunks and React can preserve hydration state.
 const dynamicRenderers = new Map<string, ComponentType<Record<string, unknown>>>(
-  registrations.map((entry) => [
+  registrations.filter((entry) => canonicalActivityContractKey(entry) !== "INTRODUCTION.teaching_page@1").map((entry) => [
     canonicalActivityContractKey(entry),
     dynamic(entry.load, { loading: CanonicalActivityLoadingState }),
   ]),
 );
+
+const eagerRenderers = new Map<string, ComponentType<Record<string, unknown>>>([
+  ["INTRODUCTION.teaching_page@1", teachingPagesRenderer],
+]);
 
 export function listCanonicalActivityRendererRegistrations(): readonly RendererRegistration[] {
   return registrations;
@@ -403,7 +409,7 @@ function LazyCanonicalActivity(props: { binding: CanonicalActivityBinding; navig
   if (!registered) return <CanonicalActivityBlockedState failure={{ code: "ADLE_ACTIVITY_UNKNOWN_CONTRACT", activityId: props.binding.id, contractKey, detail: "No canonical renderer is registered for this activity." }} />;
   const failure = validateCanonicalActivityBinding(props.binding);
   if (failure) return <CanonicalActivityBlockedState failure={failure} />;
-  const Renderer = dynamicRenderers.get(contractKey);
+  const Renderer = eagerRenderers.get(contractKey) ?? dynamicRenderers.get(contractKey);
   if (!Renderer) return <CanonicalActivityBlockedState failure={{ code: "ADLE_ACTIVITY_UNKNOWN_CONTRACT", activityId: props.binding.id, contractKey, detail: "No canonical renderer is available for this activity." }} />;
   const activity = createElement(Renderer, {
     ...(props.binding.createProps(props.navigation) as Record<string, unknown>),
