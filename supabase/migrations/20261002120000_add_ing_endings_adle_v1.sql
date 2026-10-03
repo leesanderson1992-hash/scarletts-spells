@@ -27,7 +27,12 @@ begin
     then return false; end if;
   if rule='drop_e' and (right(base,1)<>'e' or right(base,2)='ie') then return false; end if;
   if rule='ie_to_y' and right(base,2)<>'ie' then return false; end if;
-  if rule='double_final_consonant' and (char_length(base)>4 or char_length(regexp_replace(base,'[^aeiou]','','g'))<>1 or base!~'[aeiou][b-df-hj-np-tv-z]$') then return false; end if;
+  if rule='double_final_consonant' and (
+    base!~'[aeiou][b-df-hj-np-tv-z]$'
+    or w->>'doublingPattern' not in ('short_cvc','stressed_final_syllable')
+    or (w->>'doublingPattern'='short_cvc' and (char_length(base)>4 or char_length(regexp_replace(base,'[^aeiou]','','g'))<>1))
+    or (w->>'doublingPattern'='stressed_final_syllable' and char_length(base)<=4)
+  ) then return false; end if;
   expected:=case rule when 'drop_e' then left(base,-1)||'ing' when 'ie_to_y' then left(base,-2)||'ying'
     when 'double_final_consonant' then base||right(base,1)||'ing' else base||'ing' end;
   if spelling<>expected or (select count(*) from regexp_matches(lower(w->>'dictationSentence'),'\m'||spelling||'\M','g'))<>1 then return false; end if;
