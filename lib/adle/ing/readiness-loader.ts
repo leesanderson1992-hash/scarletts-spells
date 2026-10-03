@@ -30,7 +30,14 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
   const kinds = ["ing_word_members", "teaching_content", "teaching_dictionary_closure"] as const;
   if (bindings.length !== 3 || kinds.some(kind => bindings.filter(binding => binding.authority_type === kind).length !== 1)) return blocked("ing_dependency_set_incomplete");
   const authorities: any[] = await read(input.client.from("adle_curriculum_dependency_authorities").select("*").in("id", bindings.map(binding => binding.authority_id)));
-  const exact = kinds.map(kind => { const binding = bindings.find(candidate => candidate.authority_type === kind); return authorities.find(authority => authority.id === binding.authority_id && authority.authority_type === kind && authority.authority_key === binding.authority_key && authority.schema_version === 1 && authority.semantic_fingerprint === binding.semantic_fingerprint && fingerprintSnapshotValue(authority.semantic_projection) === binding.semantic_fingerprint && authority.semantic_projection.microSkillKey === input.microSkillKey); });
+  // These immutable fingerprints are database-owned constraints. Recompute
+  // them with the database canonicalizer so verification is collation-stable.
+  const authorityHashes = new Map<string, string>();
+  await Promise.all(authorities.map(async authority => {
+    const hash = await read(input.client.rpc("adle_generic_snapshot_json_sha256_v1", { p_value: authority.semantic_projection }));
+    if (typeof hash === "string") authorityHashes.set(authority.id, hash);
+  }));
+  const exact = kinds.map(kind => { const binding = bindings.find(candidate => candidate.authority_type === kind); return authorities.find(authority => authority.id === binding.authority_id && authority.authority_type === kind && authority.authority_key === binding.authority_key && authority.schema_version === 1 && authority.semantic_fingerprint === binding.semantic_fingerprint && authorityHashes.get(authority.id) === binding.semantic_fingerprint && authority.semantic_projection.microSkillKey === input.microSkillKey); });
   if (exact.some(authority => !authority)) return blocked("ing_dependency_fingerprint_mismatch");
   const [wordAuthority, teachingAuthority, closureAuthority] = exact;
   const words: IngDictionaryWordV1[] = wordAuthority.semantic_projection.words;

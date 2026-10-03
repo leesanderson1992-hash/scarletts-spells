@@ -97,6 +97,29 @@ begin
   return rid;
 end $$;
 
+-- Snapshot fingerprints use an explicit bytewise key order. Release authority
+-- fingerprints retain the established database canonicalizer.
+create or replace function public.adle_ing_snapshot_canonical_json_text_v1(p_value jsonb)
+returns text language plpgsql immutable strict set search_path=public as $$
+declare v_type text:=jsonb_typeof(p_value); v_result text;
+begin
+  if v_type='object' then
+    select '{'||coalesce(string_agg(to_jsonb(e.key)::text||':'||public.adle_ing_snapshot_canonical_json_text_v1(e.value),',' order by e.key collate "C"),'')||'}'
+      into v_result from jsonb_each(p_value) e;
+    return v_result;
+  elsif v_type='array' then
+    select '['||coalesce(string_agg(public.adle_ing_snapshot_canonical_json_text_v1(e.value),',' order by e.ordinality),'')||']'
+      into v_result from jsonb_array_elements(p_value) with ordinality e(value,ordinality);
+    return v_result;
+  end if;
+  return p_value::text;
+end $$;
+
+create or replace function public.adle_ing_snapshot_json_sha256_v1(p_value jsonb)
+returns text language sql immutable strict set search_path=public,extensions as $$
+  select encode(extensions.digest(convert_to(public.adle_ing_snapshot_canonical_json_text_v1(p_value),'utf8'),'sha256'),'hex')
+$$;
+
 create or replace function public.adle_ing_snapshot_valid_v3(p jsonb) returns boolean
 language plpgsql immutable set search_path=public,pg_temp as $$
 declare l jsonb:=p#>'{payload,resolvedLesson}'; n integer; a jsonb;
@@ -115,7 +138,7 @@ begin
     or exists(select 1 from jsonb_array_elements(l->'queuedTargets') t where not exists(select 1 from jsonb_array_elements(l->'words') w where w.value->>'canonicalWordId'=t.value->>'canonicalWordId' and w.value->>'learningItemId'=t.value->>'learningItemId'))
     or exists(select 1 from jsonb_array_elements(l->'words') w where (w.value->>'learningItemId' is not null) <> exists(select 1 from jsonb_array_elements(l->'queuedTargets') t where t.value->>'canonicalWordId'=w.value->>'canonicalWordId' and t.value->>'learningItemId'=w.value->>'learningItemId'))
     or jsonb_array_length(p->'contentVersions')<>7
-    or public.adle_generic_snapshot_json_sha256_v1(p#-'{provenance,sourceFingerprint}')<>p#>>'{provenance,sourceFingerprint}' then return false; end if;
+    or public.adle_ing_snapshot_json_sha256_v1(p#-'{provenance,sourceFingerprint}')<>p#>>'{provenance,sourceFingerprint}' then return false; end if;
   for a in select value from jsonb_array_elements(p->'activities') loop
     if concat(a#>>'{canonical,concept}','.',a#>>'{canonical,mode}','@',a#>>'{canonical,contractVersion}') not in
       ('INTRODUCTION.teaching_page@1','MEANING_MATCH.word_to_definition@1','SCRABBLE.ing_tiles@1','CLEAVER.ing_transform_target@1','COVER_CHECK.whole_word@1','DICTATION.single_word_gap@1','LESSON_REFLECTION.standard_lesson_reflection@1') then return false; end if;

@@ -61,6 +61,8 @@ async function main() {
     await db.exec(readFileSync("supabase/migrations/20260930121000_add_comparative_superlative_finish_v1.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20261002110000_comparative_four_question_sequence.sql", "utf8"));
     for (const filename of ["20261002120000_add_ing_endings_adle_v1.sql", "20261002121000_add_ing_endings_assignment_v1.sql", "20261002122000_add_ing_endings_finish_v1.sql"]) await db.exec(readFileSync(`supabase/migrations/${filename}`, "utf8"));
+    const collationProbe = { reviewerRef: "Katie Sanderson", reviewStatus: "approved_for_first_exposure" };
+    assert.equal((await db.query("select adle_ing_snapshot_json_sha256_v1($1) hash", [collationProbe])).rows[0].hash, fingerprintSnapshotValue(collationProbe));
     const approved = ING_MICRO_SKILLS.flatMap(skill => ingPreviewPool(skill).map(word => ({ ...word, canonicalWordId: randomUUID(), rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const, reviewerRef: "sql-test-only", approvalRef: "sql-test-only", sourceRefs: ["sql-test-only"] })));
     for (const word of approved) {
       await db.query("insert into micro_skill_catalog values($1) on conflict do nothing", [word.microSkillKey]);
