@@ -16,6 +16,11 @@ const itemsFor = (skill: typeof ING_MICRO_SKILLS[number], count: number): Learni
 }));
 
 let checks = 0;
+function databaseOrdered(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(databaseOrdered);
+  if (value !== null && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([left], [right]) => left.localeCompare(right, "en-GB")).map(([key, entry]) => [key, databaseOrdered(entry)]));
+  return value;
+}
 for (const skill of ING_MICRO_SKILLS) {
   const pool = ingPreviewPool(skill);
   for (const queued of [1, 3, 6, 7]) {
@@ -27,6 +32,7 @@ for (const skill of ING_MICRO_SKILLS) {
     assert.equal(selected.deferredLearningItemIds.length, Math.max(0, queued - 6)); checks++;
     const lesson = compileIngLesson(selected, `fixture:${skill}:${queued}`, "dev_fixture");
     assert(validateIngLesson(lesson, true)); checks++;
+    assert(validateIngLesson(databaseOrdered(lesson), true)); checks++;
     const forgedFill = { ...lesson, words: lesson.words.map((word, index) => index === 5 ? { ...word, learningItemId: "forged:fill" } : word) };
     if (lesson.queuedTargets.length < 6) { assert(!validateIngLesson(forgedFill, true)); checks++; }
     assert(ingProgressValid(initialIngProgress(lesson), lesson)); checks++;

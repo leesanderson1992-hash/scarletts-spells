@@ -1,5 +1,6 @@
 import { selectableLearningItems, type LearningItemFact } from "../learning-items";
 import { COMPARATIVE_REFLECTION_PROMPT } from "../inflection/content";
+import { semanticJson } from "../inflection/semantic-json";
 import { ING_MICRO_SKILLS, ING_ROUTE_KEY, ING_RULE_FOR_SKILL, ingStem, ingWordBlockers, type IngDictionaryWordV1, type IngLessonV1, type IngMicroSkill, type IngRule, type IngSelectionResult } from "./contracts";
 
 export const ING_RULE_COPY: Record<IngRule, { title: string; explanation: string; example: string }> = {
@@ -63,9 +64,9 @@ export function validateIngLesson(value: unknown, fixture = false): value is Ing
       || !lesson.reflectionPrompt?.trim()) return false;
     const selected = { ok: true as const, words: lesson.words, queuedTargets: lesson.queuedTargets, deferredLearningItemIds: lesson.deferredLearningItemIds };
     const expected = compileIngLesson(selected, lesson.assignmentKey, lesson.authority);
-    return JSON.stringify(lesson.teaching.meetWords) === JSON.stringify(expected.teaching.meetWords)
+    return semanticJson(lesson.teaching.meetWords) === semanticJson(expected.teaching.meetWords)
       && lesson.teaching.pages.every(page => !!page.title?.trim())
-      && JSON.stringify({ ...expected, teaching: lesson.teaching, reflectionPrompt: lesson.reflectionPrompt }) === JSON.stringify(lesson);
+      && semanticJson({ ...expected, teaching: lesson.teaching, reflectionPrompt: lesson.reflectionPrompt }) === semanticJson(lesson);
   } catch { return false; }
 }
 
