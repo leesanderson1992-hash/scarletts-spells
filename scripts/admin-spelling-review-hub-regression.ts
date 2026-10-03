@@ -33,7 +33,7 @@ assert.match(
   /spelling_catalog_review_cases/,
   "Hub page must show the catalog gaps queue source.",
 );
-assert.match(hubPage, /spelling_no_matching_skill_cases/);
+assert.match(hubPage, /spelling_no_matching_skill_queue/);
 assert.match(hubPage, /href="\/admin\/no-matching-skill"/);
 assert.match(
   hubPage,

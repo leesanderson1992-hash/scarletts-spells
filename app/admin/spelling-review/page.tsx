@@ -118,15 +118,15 @@ async function getCatalogGapSummary() {
 async function getNoMatchingSkillSummary() {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
-    .from("spelling_no_matching_skill_cases")
-    .select("case_status, moved_at, returned_at")
-    .order("moved_at", { ascending: false })
+    .from("spelling_no_matching_skill_queue")
+    .select("case_status, updated_at")
+    .order("updated_at", { ascending: false })
     .limit(250);
   if (error) throw error;
   return buildSummary((data ?? []).map((row) => ({
     status: row.case_status,
-    updated_at: row.returned_at ?? row.moved_at,
-  })), new Set(["open"]));
+    updated_at: row.updated_at,
+  })), new Set(["open", "needs_new_micro_skill", "word_level_only"]));
 }
 
 async function getCanonicalRecommendationSummary() {
@@ -380,7 +380,7 @@ export default async function AdminSpellingReviewPage() {
               description="Spelling pairs waiting for a suitable teaching skill, kept out of the canonical resolver queue."
               href="/admin/no-matching-skill"
               linkLabel="Open No Matching Skill"
-              sourceTable="spelling_no_matching_skill_cases"
+              sourceTable="spelling_no_matching_skill_queue"
               summary={noMatchingSkillSummary}
               title="No Matching Skill"
             />
