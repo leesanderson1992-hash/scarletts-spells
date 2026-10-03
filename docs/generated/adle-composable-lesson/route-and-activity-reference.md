@@ -9,6 +9,7 @@
 | Route | Recipe | Payload | Adapter | Renderer | State | Skills | Items | Activities |
 |---|---|---|---|---|---|---:|---|---|
 | base_word_lab:v2 | base_word_family:v1 | base_word_family_snapshot_v1 1 | base_word_family_v1 | base_word_family_guided | registered | 4 | 18 | introduction, family_reveal, cleaver, word_build, cover_check, dictation, reflection |
+| comparative_superlative_word_lab:v1 | comparative_superlative_word_lab:v1 | comparative_superlative_lesson_v1 1 | comparative_superlative_v1 | comparative_superlative_guided | registered | 4 | 22/23/24 | introduction, word_build, meaning_sort, cleaver, cover_check, dictation, reflection |
 | compound_word_lab:v2 | compound_word_lab:v2 | compound_word_lesson_v2 2 | compound_word_v2 | compound_word_guided | registered | 2 | 18 | introduction, compound_jigsaw, meaning_match, cover_check, dictation, reflection |
 | dynamic_affix_word_lab:v3 | dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | dynamic_affix_v3 | morphology_guided | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
 | dynamic_prefix_word_lab:v2 | dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | dynamic_prefix_v2 | morphology_guided | registered | 5 | 16/18/20 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |

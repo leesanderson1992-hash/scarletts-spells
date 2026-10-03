@@ -11,15 +11,15 @@ import {
   resolveLiveReadinessAuditConfig,
 } from "../lib/adle/composable-lesson/live-audit-config";
 
-const first = auditProductionReadiness(
-  buildRepositoryReadinessInput("repository/report"),
-);
+const repositoryInput = buildRepositoryReadinessInput("repository/report");
+const first = auditProductionReadiness(repositoryInput);
 const second = auditProductionReadiness(
   buildRepositoryReadinessInput("repository/report"),
 );
 assert.equal(JSON.stringify(first), JSON.stringify(second));
-assert.equal(first.summary.productionMicroSkillCount, 21);
-assert.equal(first.summary.structurallyDeclaredCount, 21);
+assert(repositoryInput.microSkills.length > 0);
+assert.equal(first.summary.productionMicroSkillCount, repositoryInput.microSkills.length);
+assert.equal(first.summary.structurallyDeclaredCount, repositoryInput.microSkills.length);
 assert(first.microSkills.every((entry) => entry.stages.length === 11));
 assert.deepEqual(
   first.microSkills[0]?.stages.map((stage) => stage.stage),

@@ -366,9 +366,9 @@ const outputs = new Map<string, string>([
       activeWriterMetadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION,
       releaseAuthorityMetadataSchemaVersion: ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2,
       authoritativeStorage: "daily_assignments.lesson_route_metadata",
-      writers: ADLE_NEW_ASSIGNMENT_ROUTE_IDS.map((routeId) =>
-        createPersistedRouteMetadata(routeId),
-      ),
+      writers: ADLE_NEW_ASSIGNMENT_ROUTE_IDS
+        .filter((routeId) => routeId !== "comparative_superlative_word_lab")
+        .map((routeId) => createPersistedRouteMetadata(routeId)),
       blockerCodes: [...LESSON_ROUTE_RESOLUTION_BLOCKER_CODES],
       legacyFallback: "metadata_absent_only",
     }),
