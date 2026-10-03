@@ -60,7 +60,16 @@ async function main() {
     await db.exec(readFileSync("supabase/migrations/20260930120000_add_comparative_superlative_adle_v1.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20260930121000_add_comparative_superlative_finish_v1.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20261002110000_comparative_four_question_sequence.sql", "utf8"));
-    for (const filename of ["20261002120000_add_ing_endings_adle_v1.sql", "20261002121000_add_ing_endings_assignment_v1.sql", "20261002122000_add_ing_endings_finish_v1.sql", "20261003200000_fix_ing_session_orchestration.sql"]) await db.exec(readFileSync(`supabase/migrations/${filename}`, "utf8"));
+    for (const filename of ["20261002120000_add_ing_endings_adle_v1.sql", "20261002121000_add_ing_endings_assignment_v1.sql", "20261002122000_add_ing_endings_finish_v1.sql", "20261003200000_fix_ing_session_orchestration.sql", "20261003210000_fix_ing_finish_checkpoint_guard.sql"]) await db.exec(readFileSync(`supabase/migrations/${filename}`, "utf8"));
+    await db.exec(`
+      create function test_converge_ing_completion() returns trigger language plpgsql as $$begin
+        if old.status is distinct from 'completed' and new.status='completed' then
+          update adle_specialist_stage_checkpoints set completed_at=coalesce(completed_at,clock_timestamp()) where daily_assignment_id=new.id;
+        end if;
+        return new;
+      end$$;
+      create trigger test_converge_ing_completion after update on daily_assignments for each row execute function test_converge_ing_completion();
+    `);
     const collationProbe = { reviewerRef: "Katie Sanderson", reviewStatus: "approved_for_first_exposure" };
     assert.equal((await db.query("select adle_ing_snapshot_json_sha256_v1($1) hash", [collationProbe])).rows[0].hash, fingerprintSnapshotValue(collationProbe));
     const approved = ING_MICRO_SKILLS.flatMap(skill => ingPreviewPool(skill).map(word => ({ ...word, canonicalWordId: randomUUID(), rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const, reviewerRef: "sql-test-only", approvalRef: "sql-test-only", sourceRefs: ["sql-test-only"] })));
