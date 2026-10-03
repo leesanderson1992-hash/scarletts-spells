@@ -464,5 +464,5 @@ export function isBaseWordSpecialistSnapshotV3(value: unknown): value is Compile
 }
 
 export function isSpecialistSnapshotV3(value: unknown): value is CompiledSpecialistSnapshotV3 {
-  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value);
+  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value) || isIngSnapshotV3(value);
 }

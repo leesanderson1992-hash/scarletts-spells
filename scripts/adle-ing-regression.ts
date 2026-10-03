@@ -5,6 +5,9 @@ import { compileIngLesson, selectIngWords, validateIngLesson } from "../lib/adle
 import { initialIngScrabbleBoard, ingScrabbleSpelling, moveIngTile, validIngScrabbleBoard } from "../lib/adle/ing/scrabble";
 import { initialIngProgress, ingProgressValid, ingProgressTransitionValid } from "../lib/adle/ing/progress";
 import type { LearningItemFact } from "../lib/adle/learning-items";
+import { isSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-validator";
+
+assert(isSpecialistSnapshotV3({ snapshotSchemaVersion: 3, route: { routeId: "ing_endings_word_lab" } }));
 
 const itemsFor = (skill: typeof ING_MICRO_SKILLS[number], count: number): LearningItemFact[] => ingPreviewPool(skill).slice(0, count).map((word, index) => ({
   learningItemId: `item:${index}`, childId: "child", canonicalWordId: word.canonicalWordId, microSkillKey: skill,
