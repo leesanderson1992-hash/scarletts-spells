@@ -86,9 +86,11 @@ async function prove(skill: string, date: string) {
   await db.query(`insert into public.adle_specialist_stage_checkpoints(daily_assignment_id,child_id,parent_user_id,adapter_key,checkpoint_schema_version,lesson_snapshot_fingerprint,checkpoint_payload)
     values($1,$2,$3,'comparative_superlative_v1','comparative_progress_v1',$4,$5::jsonb) on conflict (daily_assignment_id) do nothing`,
     [assignmentId, CHILD, PARENT, compiled.snapshot.provenance.sourceFingerprint, json({ state: progress })]);
-  const assignmentItems = (await db.query(`select id,metadata,prompt_data,template_key,target_word from public.assignment_items where daily_assignment_id=$1 order by position`, [assignmentId])).rows.map((row) => ({
-    id: row.id, canonicalWordId: row.metadata.canonicalWordId, microSkillKey: row.metadata.microSkillKey, sectionKey: row.metadata.sectionKey,
-    templateKey: row.template_key, targetWord: row.target_word, promptData: row.prompt_data,
+  const assignmentItems = (await db.query(`select id,source_entity_id,position,status,metadata,prompt_data,template_key,target_word from public.assignment_items where daily_assignment_id=$1 order by position`, [assignmentId])).rows.map((row) => ({
+    id: row.id, sourceEntityId: row.source_entity_id ?? "", position: row.position, status: row.status,
+    canonicalWordId: row.metadata?.canonicalWordId ?? null, microSkillKey: row.metadata?.microSkillKey ?? null,
+    sectionKey: row.metadata?.sectionKey ?? "", adleLearningItemRef: row.metadata?.adleLearningItemRef ?? null,
+    templateKey: row.template_key ?? "", targetWord: row.target_word, promptData: row.prompt_data ?? {},
   }));
   const finished = { ...progress, finished: true };
   const facts = comparativeCompletionFacts(lesson, finished);
