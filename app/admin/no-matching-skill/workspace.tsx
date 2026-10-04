@@ -43,14 +43,14 @@ function SearchPicker({ label, name, value, onChange, options, create = false, r
   </label>;
 }
 
-function CreateDialog({ row, skills, families, clusters, membersBySkill, onClose }: {
+function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedSkillKey, onClose }: {
   row: NoSkillRow; skills: Skill[]; families: Family[]; clusters: Cluster[];
-  membersBySkill: Record<string, string[]>; onClose: () => void;
+  membersBySkill: Record<string, string[]>; mappedSkillKey?: string; onClose: () => void;
 }) {
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [classification, setClassification] = useState<"context" | "spelling">(
     row.source_type === "parent_context" ? "context" : "spelling");
-  const [skill, setSkill] = useState("");
+  const [skill, setSkill] = useState(mappedSkillKey ?? "");
   const [family, setFamily] = useState(families.some((item) => item.skill_family_key === "D4_HOM") ? "D4_HOM" : "");
   const [cluster, setCluster] = useState("");
   const [members, setMembers] = useState(`${row.misspelling}, ${row.correction}`);
@@ -76,6 +76,9 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, onClose
         <label className="flex items-center gap-2 text-sm"><input type="radio" checked={mode === "new"}
           onChange={() => setMode("new")} />Create New Micro Skill</label>
       </fieldset>
+      {mappedSkillKey ? <p className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">
+        This spelling pair already has an active canonical mapping to {skills.find((item) => item.micro_skill_key === mappedSkillKey)?.display_name ?? mappedSkillKey} · {mappedSkillKey}. Select that skill to link this case without creating another mapping.
+      </p> : null}
       <fieldset className="grid gap-2">
         <legend className="text-sm font-semibold">Error type</legend>
         <label className="flex items-center gap-2 text-sm"><input type="radio" checked={context}
@@ -143,9 +146,9 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, onClose
   </AppDialog>;
 }
 
-export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, membersBySkill }: {
+export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, membersBySkill, mappedSkillsByQueueId }: {
   rows: NoSkillRow[]; skills: Skill[]; families: Family[]; clusters: Cluster[];
-  membersBySkill: Record<string, string[]>;
+  membersBySkill: Record<string, string[]>; mappedSkillsByQueueId: Record<string, string>;
 }) {
   const [menu, setMenu] = useState<{ row: NoSkillRow; top: number; left: number } | null>(null);
   const [dialog, setDialog] = useState<{ kind: "create" | "delete"; row: NoSkillRow } | null>(null);
@@ -203,7 +206,8 @@ export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, mem
         onClick={() => { setConfirmed(false); setDialog({ kind: "delete", row: menu.row }); setMenu(null); }}>Delete</button>
     </div>, document.body) : null}
     {dialog?.kind === "create" ? <CreateDialog key={dialog.row.queue_id} row={dialog.row} skills={skills}
-      families={families} clusters={clusters} membersBySkill={membersBySkill} onClose={() => setDialog(null)} /> : null}
+      families={families} clusters={clusters} membersBySkill={membersBySkill}
+      mappedSkillKey={mappedSkillsByQueueId[dialog.row.queue_id]} onClose={() => setDialog(null)} /> : null}
     {dialog?.kind === "delete" ? <AppDialog open onOpenChange={(open) => { if (!open) setDialog(null); }}
       title="Delete admin case" description={`Remove ${dialog.row.misspelling} → ${dialog.row.correction} from No Matching Skill?`}>
       <form action={deleteNoMatchingSkillCase} className="grid gap-4 text-sm">

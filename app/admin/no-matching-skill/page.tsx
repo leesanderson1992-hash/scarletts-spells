@@ -84,6 +84,22 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as NoSkillRow[];
+  const mappedSkillsByQueueId: Record<string, string> = {};
+  const spellingRows = rows.filter((row) => row.source_type === "parent_catalog");
+  if (spellingRows.length) {
+    const observedWords = [...new Set(spellingRows.map((row) => row.misspelling.toLowerCase()))];
+    const { data: mappings, error: mappingError } = await db.from("spelling_canonical_mappings")
+      .select("misspelling_normalized,correct_spelling_normalized,micro_skill_key")
+      .in("misspelling_normalized", observedWords)
+      .eq("mapping_status", "active").eq("resolver_visibility_status", "visible");
+    if (mappingError) throw new Error(mappingError.message);
+    for (const row of spellingRows) {
+      const mapping = (mappings ?? []).find((item) =>
+        item.misspelling_normalized === row.misspelling.toLowerCase()
+        && item.correct_spelling_normalized === row.correction.toLowerCase());
+      if (mapping?.micro_skill_key) mappedSkillsByQueueId[row.queue_id] = mapping.micro_skill_key;
+    }
+  }
   const [skillResult, familyResult, clusterResult, memberResult] = await Promise.all([
     db.from("micro_skill_catalog")
       .select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
@@ -141,7 +157,7 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
       <p className="mb-3 text-sm text-[#59616b]">{total} {total === 1 ? "case" : "cases"}</p>
       <NoMatchingSkillWorkspace rows={rows} skills={skillResult.data ?? []}
         families={familyResult.data ?? []} clusters={clusterResult.data ?? []}
-        membersBySkill={membersBySkill} />
+        membersBySkill={membersBySkill} mappedSkillsByQueueId={mappedSkillsByQueueId} />
       <nav aria-label="Table pages" className="mt-5 flex items-center justify-end gap-3 text-sm">
         {page > 1 ? <Link href={pageHref(q, page - 1)} className="adle-admin-secondary">Previous</Link> : null}
         <span>Page {page} of {totalPages}</span>

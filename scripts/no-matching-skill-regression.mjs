@@ -30,12 +30,12 @@ create table writing_context_parent_decisions(id uuid primary key,occurrence_id 
 create view writing_context_current_parent_decisions as select * from writing_context_parent_decisions;
 create table writing_context_parent_added_cases(id uuid primary key,occurrence_id text,child_id uuid,parent_user_id uuid,intended_member text,writing_issue_id uuid,governed_family_key text);
 create table writing_context_catalog_review_cases(id uuid primary key,parent_added_case_id uuid,case_status text,created_at timestamptz,reviewed_at timestamptz);
-create table spelling_canonical_mappings(id uuid primary key,misspelling_normalized text,correct_spelling_normalized text,dialect_code text,mapping_status text,resolver_visibility_status text);
+create table spelling_canonical_mappings(id uuid primary key,misspelling_normalized text,correct_spelling_normalized text,dialect_code text,micro_skill_key text,mapping_status text,resolver_visibility_status text,created_at timestamptz default now());
 create table spelling_resolution_items(id uuid primary key,misspelling text,correction text,dialect_code text,review_status text,mapping_id uuid,micro_skill_key text,created_at timestamptz default now(),updated_at timestamptz);
 create table spelling_no_matching_skill_cases(resolution_item_id uuid,case_status text);
 create table spelling_resolution_item_sources(item_id uuid,source_type text,source_id uuid);
 create table spelling_catalog_review_cases(id uuid primary key,child_id uuid,source_misspelling_instance_id uuid,misspelling_normalized text,correct_spelling_normalized text,case_status text,updated_at timestamptz,parent_note text,metadata jsonb);
-create table spelling_catalog_review_case_decisions(id uuid primary key,case_id uuid,admin_user_id uuid,linked_micro_skill_key text,decision_type text,created_at timestamptz);
+create table spelling_catalog_review_case_decisions(id uuid primary key default gen_random_uuid(),case_id uuid,admin_user_id uuid,admin_email text,linked_micro_skill_key text,decision_type text,previous_status text,new_status text,decision_note text,metadata jsonb default '{}'::jsonb,created_at timestamptz default now());
 create function reconcile_contextual_adle_learning_need(uuid,uuid,uuid) returns jsonb language sql as $$ select '{}'::jsonb $$;
 create function finalise_contextual_learning_item(uuid,uuid,uuid,text) returns jsonb language sql as $$ select jsonb_build_object('learning_item_id',gen_random_uuid()) $$;
 create function return_no_matching_skill_to_resolution_admin(uuid,uuid) returns uuid language plpgsql as $$begin update spelling_resolution_items set review_status='pending' where id=$1; return $1; end$$;
@@ -52,6 +52,11 @@ await db.query('insert into spelling_catalog_review_case_decisions(id,case_id,ad
 const source = readFileSync('supabase/migrations/20261004120000_no_matching_skill_creation.sql','utf8');
 try { await db.exec(source); console.log('Migration DDL parsed and applied in disposable PGlite fixture'); }
 catch(e) { console.error(e.message); process.exitCode=1; }
+if (!process.exitCode) {
+  const followup = readFileSync('supabase/migrations/20261004220000_reuse_existing_canonical_mapping_for_catalog_case.sql','utf8');
+  try { await db.exec(followup); console.log('Existing-mapping catalog correction migration parsed and applied'); }
+  catch(e) { console.error(e.message); process.exitCode=1; }
+}
 
 if (!process.exitCode) {
   const seeded=await db.query('select count(*)::integer pair_count from contextual_micro_skill_pairs where micro_skill_key=$1',['D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO']);
@@ -118,6 +123,23 @@ if (!process.exitCode) {
   const spelling=await db.query('select review_status,micro_skill_key from spelling_resolution_items where id=$1',[misspellingRow]);
   if (spelling.rows[0].review_status!=='confirmed' || spelling.rows[0].micro_skill_key!==payload.micro_skill_key) throw new Error(JSON.stringify(spelling.rows[0]));
   console.log('Genuine misspelling takes atomic confirm-and-enable route');
+  for (const [observed,intended] of [['natrual','natural'],['buisness','business']]) {
+    const caseId=randomUUID(), itemId=randomUUID(), mappingId=randomUUID();
+    await db.query('insert into spelling_canonical_mappings(id,misspelling_normalized,correct_spelling_normalized,dialect_code,micro_skill_key,mapping_status,resolver_visibility_status) values($1,$2,$3,$4,$5,$6,$7)',[mappingId,observed,intended,'en-GB',payload.micro_skill_key,'active','visible']);
+    await db.query('insert into spelling_resolution_items(id,misspelling,correction,dialect_code,review_status,mapping_id,updated_at) values($1,$2,$3,$4,$5,$6,now())',[itemId,observed,intended,'en-GB','confirmed',mappingId]);
+    await db.query('insert into spelling_catalog_review_cases(id,child_id,source_misspelling_instance_id,misspelling_normalized,correct_spelling_normalized,case_status,updated_at,metadata) values($1,$2,$3,$4,$5,$6,now(),$7)',[caseId,child,randomUUID(),observed,intended,'needs_new_micro_skill',{}]);
+    await db.query('insert into spelling_resolution_item_sources(item_id,source_type,source_id) values($1,$2,$3)',[itemId,'catalog',caseId]);
+    await db.query('select resolve_no_matching_skill_admin($1,$2,$3,$4)',[`catalog:${caseId}`,admin,'admin@example.test',{mode:'existing',classification:'spelling',micro_skill_key:payload.micro_skill_key}]);
+    const linked=await db.query('select (select case_status from spelling_catalog_review_cases where id=$1) status,(select count(*)::integer from spelling_catalog_review_case_decisions where case_id=$1 and decision_type=$2) decision_count,(select count(*)::integer from spelling_canonical_mappings where misspelling_normalized=$3 and correct_spelling_normalized=$4) mapping_count',[caseId,'linked_existing_skill',observed,intended]);
+    if (linked.rows[0].status!=='linked_existing_skill' || linked.rows[0].decision_count!==1 || linked.rows[0].mapping_count!==1) throw new Error(JSON.stringify(linked.rows[0]));
+  }
+  const mismatchedCase=randomUUID();
+  await db.query('insert into spelling_catalog_review_cases(id,child_id,source_misspelling_instance_id,misspelling_normalized,correct_spelling_normalized,case_status,updated_at,metadata) values($1,$2,$3,$4,$5,$6,now(),$7)',[mismatchedCase,child,randomUUID(),'natrual','natural','needs_new_micro_skill',{}]);
+  rejected=false;
+  try { await db.query('select resolve_no_matching_skill_admin($1,$2,$3,$4)',[`catalog:${mismatchedCase}`,admin,'admin@example.test',{mode:'existing',classification:'spelling',micro_skill_key:'D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO'}]); }
+  catch(e) { rejected=String(e.message).includes('canonical_pair_already_linked_to_skill'); }
+  if (!rejected) throw new Error('catalog case re-routed an already mapped spelling pair');
+  console.log('Natural and business reuse existing resolver mappings; conflicting skill selection is rejected');
   const conflictIssue=randomUUID(), conflictParent=randomUUID(), conflictReview=randomUUID();
   await db.query('insert into writing_occurrences(id,observed_text) values($1,$2)',['occ-new-pair','sun']);
   await db.query('insert into writing_issues(id) values($1)',[conflictIssue]);
