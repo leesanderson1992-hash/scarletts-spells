@@ -42,12 +42,12 @@ begin
   get diagnostics v_metadata_count = row_count;
 
   update public.canonical_teaching_dictionary_dictation_sentences
-  set audio_text = 'She is re-tying her loose shoelace.',
+  set audio_text = 'She is ree tying her loose shoelace.',
       source_metadata = jsonb_set(
         jsonb_set(
           coalesce(source_metadata, '{}'::jsonb),
           '{row_source,audio_text}',
-          to_jsonb('She is re-tying her loose shoelace.'::text),
+          to_jsonb('She is ree tying her loose shoelace.'::text),
           true
         ),
         '{pronunciation_correction}',
@@ -62,7 +62,7 @@ begin
       ),
       source_row_hash = public.adle_canonical_json_sha256_v1(jsonb_build_object(
         'wordKey', 'retying_en_gb',
-        'audioText', 'She is re-tying her loose shoelace.',
+        'audioText', 'She is ree tying her loose shoelace.',
         'approvedOn', '2026-10-03'
       )),
       updated_at = now()

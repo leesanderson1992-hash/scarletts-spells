@@ -14,7 +14,7 @@ assert(isSpecialistSnapshotV3({ snapshotSchemaVersion: 3, route: { routeId: "ing
 const sessionRunnerSource = readFileSync("components/adle-session-runner.tsx", "utf8");
 const rendererRegistrySource = readFileSync("components/adle/activities/canonical-renderer-registry.tsx", "utf8");
 const appShellSource = readFileSync("components/app-shell.tsx", "utf8");
-assert.equal(ingDictationAudioText({ word: "retying", audioText: "She is retying her loose shoelace." }), "She is re-tying her loose shoelace.");
+assert.equal(ingDictationAudioText({ word: "retying", audioText: "She is retying her loose shoelace." }), "She is ree tying her loose shoelace.");
 assert.equal(ingDictationAudioText({ word: "tying", audioText: "She is tying her shoelaces." }), "She is tying her shoelaces.");
 assert(sessionRunnerSource.includes('import { IngGuidedLesson } from "@/components/adle/morphology/ing-guided-lesson"'), "the -ing lesson ships with the session runner instead of waiting for a client-only chunk");
 assert(!sessionRunnerSource.includes('import("@/components/adle/morphology/ing-guided-lesson")'), "the -ing lesson has no nested client-only import waterfall");

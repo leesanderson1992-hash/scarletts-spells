@@ -161,7 +161,7 @@ def main() -> None:
         sentence = row["provided_simple_dictation_sentence"]
         dictations.append({
             "word_key": row["word_key"], "display_word": word, "age_band": age, "complexity_band": complexity_band,
-            "dictation_sentence": sentence, "dictation_target_token_index": str(target_index(sentence, word)), "audio_text": sentence.replace("retying", "re-tying") if word == "retying" else sentence,
+            "dictation_sentence": sentence, "dictation_target_token_index": str(target_index(sentence, word)), "audio_text": sentence.replace("retying", "ree tying") if word == "retying" else sentence,
             **common, "reviewed_by": args.approved_by or "", "reviewed_at": args.approved_at or "", "review_notes": "Content-owner approved." if approved else "Approved source sheet; add named release review before publication.",
         })
 

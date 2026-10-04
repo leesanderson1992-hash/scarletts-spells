@@ -2,7 +2,7 @@ import type { IngLessonWordV1 } from "./contracts";
 
 const SPOKEN_WORD_OVERRIDES: Readonly<Record<string, string>> = {
   // Content-owner approved: retying is pronounced ree-TIE-ing.
-  retying: "re-tying",
+  retying: "ree tying",
 };
 
 export function ingDictationAudioText(word: Pick<IngLessonWordV1, "word" | "audioText">): string {
