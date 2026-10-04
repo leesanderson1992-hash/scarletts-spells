@@ -1,6 +1,8 @@
 import "server-only";
 import { prepareComparativeAssignment } from "../inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "../inflection/contracts";
+import { prepareIngAssignment } from "../ing/readiness-loader";
+import type { IngMicroSkill } from "../ing/contracts";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -85,8 +87,9 @@ async function append(input: {
       blockerCode: validation.blockers.map((entry) => entry.code).join(","),
     };
   }
-  const isComparative = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId === "comparative_superlative_word_lab";
-  const result = await input.client.rpc(isComparative ? "append_adle_comparative_stage_r6" : "append_adle_specialist_stage_r6", {
+  const routeId = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId;
+  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : "append_adle_specialist_stage_r6";
+  const result = await input.client.rpc(rpc, {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,
     p_items: input.items,
@@ -137,6 +140,13 @@ async function ensureSpecialistStageR6Internal(input: {
 
   const routeId = resolveParentManualAdleRoute(selection.microSkillKey);
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
+  if (routeId === "ing_endings_word_lab") {
+    const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
+    const prepared = await prepareIngAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
+      date: input.assignmentDate, microSkillKey: selection.microSkillKey as IngMicroSkill, learningItems: facts.learningItems, environmentKey });
+    if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
+    return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot, items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
+  }
   if (routeId === "comparative_superlative_word_lab") {
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
     const prepared = await prepareComparativeAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,

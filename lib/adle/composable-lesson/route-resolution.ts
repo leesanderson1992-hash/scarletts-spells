@@ -50,6 +50,8 @@ import { resolveCompoundWordFirstImpressionConfig, type ResolvedCompoundWordFirs
 import { isCompoundWordSpecialistSnapshotV3, isDynamicAffixSpecialistSnapshotV3, isDynamicPrefixSpecialistSnapshotV3, isBaseWordSpecialistSnapshotV3, validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
 import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "../inflection/snapshot";
 import type { ComparativeLessonV1 } from "../inflection/contracts";
+import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
+import type { IngLessonV1 } from "../ing/contracts";
 
 export interface LessonRouteResolutionItem {
   id: string;
@@ -76,10 +78,12 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   "compound_word_v2",
   "base_word_family_v1",
   "comparative_superlative_v1",
+  "ing_endings_v1",
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
 
 export type ResolvedLessonRuntime =
   | { adapterKey: "comparative_superlative_v1"; rendererKey: "comparative_superlative_guided"; payload: ComparativeLessonV1 }
+  | { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided"; payload: IngLessonV1 }
   | {
       adapterKey: "generic_composer_v1";
       rendererKey: "generic_session";
@@ -236,6 +240,7 @@ function runAdapter(
 ): AdapterResult {
   switch (route.runtimeAdapterKey) {
     case "comparative_superlative_v1":
+    case "ing_endings_v1":
       return { ok: false, blocker: "persisted_payload_missing" };
     case "generic_composer_v1":
       return {
@@ -468,6 +473,15 @@ export function resolvePersistedLessonRoute(input: {
     if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
     return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
       runtime: { adapterKey: "comparative_superlative_v1", rendererKey: "comparative_superlative_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
+  }
+  if (route.routeId === "ing_endings_word_lab") {
+    if (parsed.metadata.metadataSchemaVersion !== 2 || !isIngSnapshotV3(input.compiledLessonSnapshot)) return blocked("persisted_metadata", "persisted_payload_missing");
+    const validation = validateIngSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1", items: items.map(i => ({ sourceEntityId: i.sourceEntityId ?? "", position: i.position ?? 0, sectionKey: i.sectionKey,
+        canonicalWordId: i.canonicalWordId, templateKey: i.templateKey, targetWord: i.targetWord, promptData: i.promptData, metadata: i.itemMetadata })) });
+    if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
+    return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
+      runtime: { adapterKey: "ing_endings_v1", rendererKey: "ing_endings_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
   }
   let adapterItems = items;
   let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;

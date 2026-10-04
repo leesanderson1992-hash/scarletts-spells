@@ -1,0 +1,31 @@
+{
+  "inputRows": 85,
+  "existingCanonicalRows": 35,
+  "newCandidateRows": 50,
+  "validTransformations": 85,
+  "unresolvedTransformations": [],
+  "dictationsWithExactlyOneTarget": 85,
+  "stressedFinalSyllableCandidates": [
+    "admitting",
+    "beginning",
+    "committing",
+    "forgetting",
+    "occurring",
+    "referring",
+    "transferring"
+  ],
+  "requiresBritishFinalLRule": [
+    "travelling"
+  ],
+  "lexicalCoverage": {
+    "targetMorphoLex": 83,
+    "targetBritishIpa": 82,
+    "targetCmuDict": 83,
+    "targetAoA": 39
+  },
+  "missingBritishIpa": [
+    "retying",
+    "putting",
+    "reading"
+  ]
+}

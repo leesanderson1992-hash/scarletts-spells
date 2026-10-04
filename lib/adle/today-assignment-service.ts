@@ -44,6 +44,8 @@ import { ensureReviewAssignmentR6 } from "./review-v3/r6-generation";
 import { adoptSpecialistOnlySessionR6 } from "./review-v3/r6-persistence";
 import { prepareComparativeAssignment } from "./inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "./inflection/contracts";
+import { prepareIngAssignment } from "./ing/readiness-loader";
+import type { IngMicroSkill } from "./ing/contracts";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "./composable-lesson/specialist-snapshot-v3-persistence";
 
 type Client = SupabaseClient;
@@ -479,7 +481,14 @@ export async function ensureParentAdleTodayAssignment(params: {
       process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
-    if (routeId === "comparative_superlative_word_lab") {
+    if (routeId === "ing_endings_word_lab") {
+      const prepared = await prepareIngAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
+        microSkillKey: selection.microSkillKey as IngMicroSkill, learningItems: facts.learningItems,
+        environmentKey: allowStagingProfiles ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" });
+      if (prepared.status !== "ready") blockerCode = prepared.reason;
+      else generatedAssignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { parentUserId: params.parentUserId, childId: params.childId, planDate: practiceDate,
+        header: prepared.header, items: prepared.items, snapshot: prepared.snapshot, intakes: [] });
+    } else if (routeId === "comparative_superlative_word_lab") {
       const prepared = await prepareComparativeAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
         microSkillKey: selection.microSkillKey as ComparativeMicroSkill, learningItems: facts.learningItems,
         environmentKey: allowStagingProfiles ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" });

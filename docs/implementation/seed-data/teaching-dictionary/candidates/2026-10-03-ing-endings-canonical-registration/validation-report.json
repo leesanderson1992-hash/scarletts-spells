@@ -1,0 +1,31 @@
+{
+  "dry_run_only": true,
+  "generated_at": "2026-10-03T07:51:22.065818+00:00",
+  "hard_boundaries": [
+    "dry-run only",
+    "no Supabase writes",
+    "no migrations",
+    "no imports",
+    "no assignment generation",
+    "no resolver changes",
+    "no evidence/proficiency writes",
+    "no Word Treasure changes"
+  ],
+  "input_folder": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells-adle-templates/docs/implementation/seed-data/teaching-dictionary/candidates/2026-10-03-ing-endings-canonical-registration/csv",
+  "issues": [],
+  "schema_version": "version_3_phase_5c_teaching_dictionary_csv_v4",
+  "summary": {
+    "archived": 0,
+    "content_gap": 0,
+    "errors": 0,
+    "needs_manual_review": 0,
+    "ready_for_first_exposure": 0,
+    "ready_for_guided_review_only": 0,
+    "rejected": 0,
+    "source_or_license_gap": 0,
+    "superseded": 0,
+    "teaching_content_versions": 0,
+    "warnings": 0
+  },
+  "versions": []
+}

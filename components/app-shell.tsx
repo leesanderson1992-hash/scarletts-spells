@@ -275,9 +275,9 @@ export function AppShell({
       <div className={`mx-auto w-full px-4 sm:px-6 ${shellWidthClass} ${
         isFocusLayout ? "py-4" : "py-6"
       }`}>
-        <div className={`grid gap-5 ${isFocusLayout ? "lg:grid-cols-[220px_minmax(0,1fr)]" : isParentMode ? "lg:grid-cols-[224px_minmax(0,1fr)]" : "lg:grid-cols-[280px_minmax(0,1fr)]"}`}>
+        <div className={`grid gap-5 ${isFocusLayout ? "grid-cols-1" : isParentMode ? "lg:grid-cols-[224px_minmax(0,1fr)]" : "lg:grid-cols-[280px_minmax(0,1fr)]"}`}>
         <aside className={`brand-sidebar brand-card-soft self-start rounded-[24px] ${isParentMode ? "p-3" : "p-4"} lg:sticky lg:top-24 ${
-          isFocusLayout ? "hidden xl:block" : ""
+          isFocusLayout ? "hidden" : ""
         }`}>
           <div className="hidden lg:block">
             {isParentMode ? (

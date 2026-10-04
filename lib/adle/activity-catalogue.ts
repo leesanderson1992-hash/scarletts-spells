@@ -82,12 +82,13 @@ export interface ActivityConvergenceBacklogItem {
 }
 
 import { COMPARATIVE_MICRO_SKILLS, COMPARATIVE_ROUTE_KEY } from "./inflection/contracts";
+import { ING_MICRO_SKILLS, ING_ROUTE_KEY } from "./ing/contracts";
 const GENERIC_ROUTE = "generic_composer:v1";
 const PREFIX_ROUTES = ["dynamic_prefix_word_lab:v2"] as const;
 const AFFIX_ROUTE = "dynamic_affix_word_lab:v3";
 const BASE_ROUTE = "base_word_lab:v2";
 const COMPOUND_ROUTES = ["compound_word_lab:v2"] as const;
-const ALL_SPECIALIST_ROUTES = [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, ...COMPOUND_ROUTES, COMPARATIVE_ROUTE_KEY] as const;
+const ALL_SPECIALIST_ROUTES = [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, ...COMPOUND_ROUTES, COMPARATIVE_ROUTE_KEY, ING_ROUTE_KEY] as const;
 
 const PREFIX_SKILLS = [
   "D4_MOR_PREFIXES_UN",
@@ -111,7 +112,7 @@ const COMPOUND_SKILLS = [
   "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
 ] as const;
 const MORPHOLOGY_SKILLS = [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPOUND_SKILLS] as const;
-const SPECIALIST_SKILLS = [...MORPHOLOGY_SKILLS, ...COMPARATIVE_MICRO_SKILLS] as const;
+const SPECIALIST_SKILLS = [...MORPHOLOGY_SKILLS, ...COMPARATIVE_MICRO_SKILLS, ...ING_MICRO_SKILLS] as const;
 
 function activity(
   input: Pick<ActivityCatalogueEntry,
@@ -188,13 +189,14 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "CLEAVER", displayName: "Cleaver", interactionFamily: "boundary_split",
     pedagogicalPurpose: "Find meaningful boundaries, or reveal a reviewed transformation in the explicit transform_target mode.",
     canonicalComponent: "SplitHandle", canonicalComponentPath: "components/adle/activities/shared/split-handle.tsx",
-    supportedModes: ["find_boundaries", "identify_components", "isolate_component", "transform_target"], modeDescriptions: {
+    supportedModes: ["find_boundaries", "identify_components", "isolate_component", "transform_target", "ing_transform_target"], modeDescriptions: {
       transform_target: "Split the full comparative or superlative before its ending, slowly restore its base spelling, then answer one governed three-option rule question.",
+      ing_transform_target: "Split a reviewed -ing target before its ending, restore the base verb, then answer its rule question.",
       find_boundaries: "Strike all governed split points, with optional two-miss scaffold.",
       identify_components: "After success, display supplied component strings and tailored explanation.",
       isolate_component: "Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.",
     }, requiredInputs: ["word", "splitPoints"], optionalInputs: ["components", "selected boundaries", "isolated component index", "feedback copy", "scaffold policy"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, COMPARATIVE_ROUTE_KEY], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPARATIVE_MICRO_SKILLS],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, COMPARATIVE_ROUTE_KEY, ING_ROUTE_KEY], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPARATIVE_MICRO_SKILLS, ...ING_MICRO_SKILLS],
     templateKeys: ["MOR_STRIP_BUILD"], status: "CANONICAL", whenToUse: "To locate meaningful morpheme or word-part boundaries.",
     whenNotToUse: "To reorder parts into a word; use WORD_ASSEMBLY.",
     notes: "Group 4 converged Prefix, Affix and Base Word on one stateful SplitHandle. The inactive comparative route derives its ending boundary from the reviewed stem and composes that same rail with source restoration and a rule question; existing boundary modes are unchanged.",
@@ -215,6 +217,15 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     notes: "DefinitionWordBuilder and CompoundJigsawActivity share OrderedBuildEngine mechanics. The inactive comparative route uses sentence_suffix@1 with a base, approved forms and sentence gap, without a definition-first screen.",
   }),
   activity({
+    activityKey: "SCRABBLE", displayName: "Scrabble", interactionFamily: "tile_assembly",
+    pedagogicalPurpose: "Transform a movable base verb into its reviewed -ing form using letter tiles.",
+    canonicalComponent: "IngScrabble", canonicalComponentPath: "components/adle/activities/shared/ing-scrabble.tsx",
+    supportedModes: ["ing_tiles"], modeDescriptions: { ing_tiles: "Base tiles start on the board; the bank has every required changed or added letter and three distractors." },
+    requiredInputs: ["base verb", "reviewed -ing target", "canonical word identity"], optionalInputs: ["restored board", "sound mute"],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [ING_ROUTE_KEY], usedByMicroSkills: [...ING_MICRO_SKILLS], status: "CANONICAL",
+    whenToUse: "For the -ing letter transformation after Meaning Match.", whenNotToUse: "For suffix part selection or sentence placement; use WORD_ASSEMBLY.",
+  }),
+  activity({
     activityKey: "COMPOUND_JIGSAW", displayName: "Compound jigsaw", interactionFamily: "tile_assembly",
     pedagogicalPurpose: "Join compound components in governed order while preserving spaces and hyphens.",
     canonicalComponent: "CompoundJigsawActivity", canonicalComponentPath: "components/adle/morphology/compound-jigsaw-activity.tsx",
@@ -231,7 +242,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     canonicalComponent: "MeaningConnectionActivity", canonicalComponentPath: "components/adle/morphology/meaning-connection-activity.tsx",
     supportedModes: ["word_to_definition", "component_clues", "historical_free_response"], modeDescriptions: { word_to_definition: "Select a word then its definition.", component_clues: "Shows component meanings as clues.", historical_free_response: "Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction." },
     requiredInputs: ["words", "definitions"], optionalInputs: ["component meanings", "component-to-whole explanation"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, "generic homophone/morphology skills"],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, ING_ROUTE_KEY, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, ...ING_MICRO_SKILLS, "generic homophone/morphology skills"],
     templateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], status: "CANONICAL",
     whenToUse: "When each word must be paired with a distinct definition.", whenNotToUse: "When words belong in reusable semantic groups; use MEANING_SORT.",
     notes: "word_to_definition@1 and component_clues@1 are both complete v3 contracts when every governed definition is present. Definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.",
@@ -284,8 +295,9 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "DICTATION", displayName: "Dictation", interactionFamily: "typed_recall",
     pedagogicalPurpose: "Transcribe a governed authored sentence from audio, then lock and compare.",
     canonicalComponent: "SentenceDictation", canonicalComponentPath: "components/adle/activities/shared/sentence-dictation.tsx",
-    supportedModes: ["whole_sentence", "target_token", "target_span", "paired_word_gaps"], modeDescriptions: {
+    supportedModes: ["whole_sentence", "target_token", "target_span", "paired_word_gaps", "single_word_gap"], modeDescriptions: {
       paired_word_gaps: "Two authored word-audio buttons and two gaps; freeze both together, then grade spelling and placement separately.",
+      single_word_gap: "Hear an authored sentence and spell its one hidden -ing target; freeze the word before comparison.",
       whole_sentence: "Transcribe and compare the whole authored sentence.", target_token: "Route adapter extracts one governed token for correctness/evidence.", target_span: "Route adapter extracts an exact governed multi-token span.",
     }, requiredInputs: ["authored sentence", "audio text", "target binding"], optionalInputs: ["target token index", "target span", "resume state"],
     capturesAttempt: true, evidenceBearing: true, supportsAudio: true, usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["future generic curriculum with authored sentence contract", ...SPECIALIST_SKILLS],

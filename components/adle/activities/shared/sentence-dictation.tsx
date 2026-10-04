@@ -31,8 +31,21 @@ export interface PairedWordGapsProps {
   onCheck: () => void | Promise<void>;
   onContinue: () => void;
 }
-export function SentenceDictation(props: SentenceDictationProps | PairedWordGapsProps) {
-  return "mode" in props ? <PairedWordGaps {...props} /> : <WholeSentenceDictation {...props} />;
+export interface SingleWordGapProps {
+  mode: "single_word_gap";
+  word: string;
+  sentence: string;
+  audioText: string;
+  value: string;
+  checked: boolean;
+  stepLabel: string;
+  muted?: boolean;
+  onValueChange: (value: string) => void;
+  onCheck: () => void | Promise<void>;
+  onContinue: () => void;
+}
+export function SentenceDictation(props: SentenceDictationProps | PairedWordGapsProps | SingleWordGapProps) {
+  return "mode" in props ? props.mode === "single_word_gap" ? <SingleWordGap {...props} /> : <PairedWordGaps {...props} /> : <WholeSentenceDictation {...props} />;
 }
 function WholeSentenceDictation(props: SentenceDictationProps) {
   const inputId = useId();
@@ -136,6 +149,35 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
 const subscribeAudioCapability = () => () => undefined;
 const browserAudioAvailable = () => typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 const serverAudioAvailable = () => false;
+function SingleWordGap(props: SingleWordGapProps) {
+  const audioAvailable = useSyncExternalStore(subscribeAudioCapability, browserAudioAvailable, serverAudioAvailable);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const requested = useRef(false);
+  const target = props.word.toLocaleLowerCase("en-GB");
+  const token = [...props.sentence.toLocaleLowerCase("en-GB").matchAll(/[a-z]+(?:'[a-z]+)*/g)].find(match => match[0] === target);
+  const index = token?.index ?? -1;
+  if (index < 0) return <p role="alert">This dictation sentence needs review.</p>;
+  const before = props.sentence.slice(0, index);
+  const after = props.sentence.slice(index + props.word.length);
+  async function check() {
+    if (props.checked || requested.current || saving || !props.value.trim() || !audioAvailable || props.muted) return;
+    requested.current = true; setSaving(true); setError(null);
+    try { await props.onCheck(); }
+    catch { requested.current = false; setError("We couldn't save this word yet. Please try again."); }
+    finally { setSaving(false); }
+  }
+  return <section className="grid gap-5" data-single-word-dictation-state={props.checked ? "checked" : "writing"}>
+    <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
+    <h2 className="text-center text-2xl font-black text-white">Listen, then spell the missing action word</h2>
+    <div className="flex justify-center"><HearWordButton word={props.audioText} label="Hear sentence" kind="dictation" muted={props.muted} /></div>
+    {props.muted ? <p role="status" className="text-center text-amber-100">Turn on sound to hear the sentence.</p> : null}
+    {!audioAvailable ? <p role="alert" className="text-center text-amber-100">Audio is unavailable in this browser. Dictation cannot be checked without audio.</p> : null}
+    <div className="rounded-3xl bg-white p-5 text-center text-lg font-bold leading-loose text-slate-950">{before}<input autoFocus aria-label="Missing action word" spellCheck={false} autoComplete="off" autoCapitalize="none" readOnly={props.checked || saving} value={props.value} maxLength={80} onChange={event => props.onValueChange(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void check(); } }} className="mx-2 min-h-12 w-40 rounded-xl border-2 border-cyan-600 bg-slate-50 px-2 text-slate-950 focus-visible:ring-4 focus-visible:ring-cyan-300" />{after}</div>
+    {!props.checked ? <button type="button" disabled={saving || props.muted || !audioAvailable || !props.value.trim()} onClick={() => void check()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">Check word</button> : <><DiffReveal attempt={props.value} expected={props.word} mode="word" /><button type="button" autoFocus onClick={props.onContinue} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">Continue</button></>}
+    {error ? <p role="alert" className="text-rose-100">{error}</p> : null}
+  </section>;
+}
 function PairedWordGaps(props: PairedWordGapsProps) {
   const audioAvailable = useSyncExternalStore(subscribeAudioCapability, browserAudioAvailable, serverAudioAvailable);
   const id = useId();

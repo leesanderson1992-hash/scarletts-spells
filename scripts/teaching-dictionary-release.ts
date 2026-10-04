@@ -544,6 +544,86 @@ async function prepare(): Promise<void> {
   }
 }
 
+/**
+ * Freeze an already-approved CSV source and its validated canonical package.
+ * This is used when the content owner supplied an approved CSV rather than a
+ * review workbook. It retains the same manifest, validation, and immutability
+ * guarantees as workbook preparation.
+ */
+async function prepareApprovedCsv(): Promise<void> {
+  const approvedSource = resolve(arg("--approved-source") ?? fail("--approved-source is required."));
+  const candidateCsv = resolve(arg("--candidate-csv") ?? fail("--candidate-csv is required."));
+  const releaseId = arg("--release-id") ?? fail("--release-id is required.");
+  if (!/^[a-z0-9][a-z0-9._-]{7,119}$/i.test(releaseId)) {
+    fail("--release-id must be an explicit 8-120 character identifier.");
+  }
+  const releaseRoot = resolve(arg("--release-root") ?? DEFAULT_RELEASE_ROOT);
+  const releaseDir = resolve(releaseRoot, releaseId);
+  if (relative(releaseRoot, releaseDir).startsWith("..")) fail("Release path escapes the release root.");
+  try {
+    await readdir(releaseDir);
+    fail(`Release ${releaseId} already exists. Approved releases are immutable; use a new release ID.`);
+  } catch (error) {
+    if (error instanceof Error && !("code" in error && error.code === "ENOENT")) throw error;
+  }
+
+  const allowed = new Set<string>([...CANONICAL_REQUIRED_FILES, ...CANONICAL_OPTIONAL_FILES]);
+  const csv: Record<string, CsvRow[]> = {};
+  const fileSha256: Record<string, string> = {};
+  for (const fileName of await readdir(candidateCsv)) {
+    if (!allowed.has(fileName)) continue;
+    const content = await readFile(resolve(candidateCsv, fileName), "utf8");
+    csv[fileName] = parseCsv(content);
+    fileSha256[fileName] = sha256Bytes(content);
+  }
+  for (const required of CANONICAL_REQUIRED_FILES) {
+    if (!csv[required]) fail(`--candidate-csv is missing ${required}.`);
+  }
+  const counts = validateCanonicalCsv(csv);
+  const sources = csv["teaching_content_sources.csv"];
+  const fingerprint: ReleaseManifestFingerprint = {
+    schemaVersion: CANONICAL_PACKAGE_SCHEMA,
+    releaseId,
+    packageType: CANONICAL_PACKAGE_TYPE,
+    packageSchemaVersion: "v2",
+    // The source was supplied as CSV. This established manifest field stores
+    // the immutable source-artifact fingerprint for both workbook and CSV
+    // intake, preserving the release-ledger schema.
+    workbookSha256: await sha256File(approvedSource),
+    approvalArtifactFile: "approved-source.csv",
+    sourceCommit: sourceCommit(),
+    requiredMigrationVersions: [...REQUIRED_MIGRATION_VERSIONS],
+    fileSha256,
+    rowCounts: counts,
+    reviewerSummary: reviewersFrom(csv),
+    sourceApprovalSummary: {
+      importable: sources.filter((row) => row.importability_status === "importable").length,
+      legalPassedOrNotRequired: sources.filter((row) => ["passed", "not_required"].includes(row.legal_review_status)).length,
+    },
+    expectedTargetTables: Object.values(TABLE_SPECS).map((spec) => spec.table),
+    prohibitedTableFamilies: [...PROHIBITED_TABLE_FAMILIES],
+    deferredRepairIntentFile: null,
+    deferredRepairIntentsSha256: null,
+  };
+  const manifest: ReleaseManifest = { ...fingerprint, packageSha256: packageSha256(fingerprint) };
+  await mkdir(resolve(releaseDir, "package"), { recursive: true });
+  await mkdir(resolve(releaseDir, "receipts"), { recursive: true });
+  await copyFile(approvedSource, resolve(releaseDir, "approved-source.csv"));
+  for (const fileName of Object.keys(fileSha256)) {
+    await copyFile(resolve(candidateCsv, fileName), resolve(releaseDir, "package", fileName));
+  }
+  await writeFile(resolve(releaseDir, "package", "release-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  await loadCanonicalPackage(releaseDir);
+  console.log(JSON.stringify({
+    status: "prepared_and_verified",
+    releaseDir,
+    releaseId,
+    packageSha256: manifest.packageSha256,
+    rowCounts: counts,
+    approvalArtifact: "approved-source.csv",
+  }, null, 2));
+}
+
 /** Prepare an immutable, metadata-only factual repair release. */
 async function prepareRepair(): Promise<void> {
   const workbook = resolve(arg("--workbook") ?? fail("--workbook is required."));
@@ -742,6 +822,21 @@ async function verifyStagingProof(pkg: LoadedCanonicalPackage): Promise<Record<s
   } finally {
     await client.end();
   }
+}
+
+function controlledProductionProof(pkg: LoadedCanonicalPackage, target: TargetEnvironment): Record<string, unknown> | undefined {
+  const supplied = arg("--controlled-production-proof");
+  if (!supplied) return undefined;
+  if (target !== "production") fail("--controlled-production-proof is valid only for Production.");
+  const expected = `controlled-production:${pkg.manifest.releaseId}`;
+  if (supplied !== expected) fail(`Exact controlled Production proof reference required: ${expected}`);
+  return {
+    proofMode: "controlled_production",
+    proofReference: supplied,
+    approvedSourceArtifact: pkg.manifest.approvalArtifactFile ?? "approved-workbook.xlsx",
+    scope: "canonical_dictionary_only",
+    excludedWrites: [...PROHIBITED_TABLE_FAMILIES],
+  };
 }
 
 async function schemaPreflight(
@@ -1113,7 +1208,7 @@ async function repairWordIds(
   return new Map(result.rows.map((row) => [row.word_key, row.id]));
 }
 
-async function buildTableRows(
+export async function buildTableRows(
   client: pg.Client,
   pkg: LoadedCanonicalPackage,
   plan: DatabasePlan,
@@ -1564,7 +1659,9 @@ async function planCommand(): Promise<void> {
   if (pkg.manifest.productionBaselineReconciliation && target !== "production") {
     fail("Production baseline reconciliation packages cannot be applied to staging.");
   }
-  const stagingProof = target === "production" ? await verifyStagingProof(pkg) : undefined;
+  const stagingProof = target === "production"
+    ? controlledProductionProof(pkg, target) ?? await verifyStagingProof(pkg)
+    : undefined;
   const client = clientFor(target);
   await client.connect();
   try {
@@ -1592,7 +1689,9 @@ async function releaseCommand(): Promise<void> {
   if (confirmation !== confirmationToken(pkg, target)) {
     fail(`Exact confirmation required: ${confirmationToken(pkg, target)}`);
   }
-  const stagingProof = target === "production" ? await verifyStagingProof(pkg) : undefined;
+  const stagingProof = target === "production"
+    ? controlledProductionProof(pkg, target) ?? await verifyStagingProof(pkg)
+    : undefined;
   const client = clientFor(target);
   await client.connect();
   let plan: DatabasePlan | undefined;
@@ -1926,6 +2025,7 @@ Teaching Dictionary release CLI
 
   prepare    --workbook <xlsx> --candidate-csv <folder> --release-id <id> [--release-root <folder>]
   prepare    --profile comparative-degree-v1 --workbook <xlsx> --release-id <id> [--release-root <folder>]
+  prepare-approved-csv --approved-source <csv> --candidate-csv <folder> --release-id <id> [--release-root <folder>]
   prepare-repair --workbook <xlsx> --repairs <csv> --release-id <id> [--release-root <folder>]
   plan       --release <release-folder> --target staging|production
   release    --release <release-folder> --target staging|production --confirm <exact-token>
@@ -1945,6 +2045,9 @@ export async function main(): Promise<void> {
   switch (command()) {
     case "prepare":
       await prepare();
+      break;
+    case "prepare-approved-csv":
+      await prepareApprovedCsv();
       break;
     case "prepare-repair":
       await prepareRepair();

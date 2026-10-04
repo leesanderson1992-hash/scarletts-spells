@@ -60,6 +60,8 @@ export type ReleaseManifest = {
   packageSchemaVersion: "v2";
   packageSha256: string;
   workbookSha256: string;
+  /** Defaults to the historical approved-workbook.xlsx artifact. */
+  approvalArtifactFile?: "approved-workbook.xlsx" | "approved-source.csv";
   sourceCommit: string | null;
   requiredMigrationVersions: string[];
   fileSha256: Record<string, string>;
@@ -546,9 +548,10 @@ export async function loadCanonicalPackage(releasePath: string): Promise<LoadedC
   if (canonicalJson(fileSha256) !== canonicalJson(manifest.fileSha256)) {
     throw new Error("Release package file hashes do not match the manifest.");
   }
-  const workbookSha = await sha256File(resolve(releaseDir, "approved-workbook.xlsx"));
+  const approvalArtifact = manifest.approvalArtifactFile ?? "approved-workbook.xlsx";
+  const workbookSha = await sha256File(resolve(releaseDir, approvalArtifact));
   if (workbookSha !== manifest.workbookSha256) {
-    throw new Error("Approved workbook SHA-256 does not match the manifest.");
+    throw new Error("Approved source artifact SHA-256 does not match the manifest.");
   }
   if (manifest.deferredRepairIntentFile) {
     if (!manifest.deferredRepairIntentsSha256) {

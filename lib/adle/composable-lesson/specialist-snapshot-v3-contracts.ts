@@ -11,6 +11,7 @@ import type { ResolvedBaseWordFamilyLessonV2 } from "../morphology/resolved-base
 import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
 import type { CompiledLessonSnapshotV3 } from "./generic-snapshot-v3-contracts";
 import type { ComparativeLessonV1 } from "../inflection/contracts";
+import type { IngLessonV1 } from "../ing/contracts";
 
 export const SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION =
   "adle_specialist_snapshot_compiler_v3" as const;
@@ -45,6 +46,7 @@ export type SpecialistSnapshotAuthorityV3 = {
     | "dependency_set"
     | "compound_structure"
     | "adjective_degree_families"
+    | "ing_word_members"
     | "teaching_content"
     | "teaching_dictionary_closure"
     | "affix_profile_content"
@@ -155,7 +157,17 @@ export type CompiledSpecialistSnapshotV3 =
   | CompiledDynamicAffixSpecialistSnapshotV3
   | CompiledDynamicPrefixSpecialistSnapshotV3
   | CompiledBaseWordSpecialistSnapshotV3
-  | CompiledComparativeSpecialistSnapshotV3;
+  | CompiledComparativeSpecialistSnapshotV3
+  | CompiledIngSpecialistSnapshotV3;
+
+export type CompiledIngSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
+  "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
+  route: { routeId: "ing_endings_word_lab"; routeVersion: "v1" };
+  recipe: { recipeKey: "ing_endings_word_lab"; recipeVersion: "v1" };
+  payload: { kind: "ing_endings_lesson_v1"; version: 1; resolvedLesson: IngLessonV1 };
+  runtime: { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided" };
+  assignment: { generationSource: "adle_composer_v1"; itemCount: number };
+};
 
 export type CompiledComparativeSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
   "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
