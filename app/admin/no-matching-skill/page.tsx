@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { requireAdminUser } from "@/lib/admin/access";
+import { isKnownWordLike } from "@/lib/spelling/lexicon";
+import { isKnownWord } from "@/lib/spelling/suggestCorrection";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { NoMatchingSkillWorkspace, type NoSkillRow } from "./workspace";
 import "../adle-canonical-intake-readiness/readiness.css";
@@ -84,10 +86,20 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (error) throw new Error(error.message);
   const rows = (data ?? []) as NoSkillRow[];
+  const observedWords = [...new Set(rows.map((row) => row.misspelling.toLowerCase()))];
+  const { data: approvedWords, error: wordError } = observedWords.length
+    ? await db.from("canonical_teaching_dictionary_words").select("normalised_word")
+      .in("normalised_word", observedWords).eq("row_status", "active")
+    : { data: [], error: null };
+  if (wordError) throw new Error(wordError.message);
+  const approvedWordSet = new Set((approvedWords ?? []).map((word) => word.normalised_word));
+  for (const row of rows) {
+    const observed = row.misspelling.toLowerCase().replace(/[’ʼ]/g, "'");
+    row.observed_is_valid_word = approvedWordSet.has(observed) || isKnownWordLike(observed) || isKnownWord(observed);
+  }
   const mappedSkillsByQueueId: Record<string, string> = {};
   const spellingRows = rows.filter((row) => row.source_type === "parent_catalog");
   if (spellingRows.length) {
-    const observedWords = [...new Set(spellingRows.map((row) => row.misspelling.toLowerCase()))];
     const { data: mappings, error: mappingError } = await db.from("spelling_canonical_mappings")
       .select("misspelling_normalized,correct_spelling_normalized,micro_skill_key")
       .in("misspelling_normalized", observedWords)

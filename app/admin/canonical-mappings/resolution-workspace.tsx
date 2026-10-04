@@ -133,6 +133,7 @@ function ActionDialog({ kind, row, onClose, onPreviewAction, skills, families, c
       {kind === "noSkill" ? <form action={moveResolutionToNoMatchingSkill} className="resolution-dialog-form">
         <input type="hidden" name="item_id" value={row.id} />
         <p>Move <strong>{row.misspelling} → {row.correction}</strong> to the No Matching Skill table? This removes it from the canonical resolver queue while preserving its linked evidence.</p>
+        {row.mappingId ? <p>The disabled historical mapping stays disabled and remains available for audit.</p> : null}
         <button type={readOnlyPreview ? "button" : "submit"} onClick={readOnlyPreview ? () => onPreviewAction("noSkill", row) : undefined}
           className="adle-admin-primary">Move to No Matching Skill</button>
       </form> : null}
@@ -255,7 +256,9 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
       role="menu" style={{ top: menu.top, left: menu.left }}>
       {menu.row.status === "pending" ? <button type="button" role="menuitem" onClick={() => show("confirm", menu.row)}>Confirm</button> : null}
       {menu.row.status === "pending" ? <button type="button" role="menuitem" onClick={() => show("edit", menu.row)}>Edit</button> : null}
-      {menu.row.status === "pending" && !menu.row.mappingId ? <button type="button" role="menuitem" onClick={() => show("noSkill", menu.row)}>No Matching Skill</button> : null}
+      {menu.row.status === "pending" && (!menu.row.mappingId ||
+        (menu.row.mappingStatus === "disabled" && menu.row.visibilityStatus === "disabled"))
+        ? <button type="button" role="menuitem" onClick={() => show("noSkill", menu.row)}>No Matching Skill</button> : null}
       {menu.row.status === "confirmed" ? <button type="button" role="menuitem" onClick={() => show("reopen", menu.row)}>Edit</button> : null}
       {menu.row.status === "confirmed" && menu.row.mappingId ? <button type="button" role="menuitem"
         onClick={() => show("visibility", menu.row)}>{menu.row.resolverEnabled ? "Remove from Resolver" : "Add to Resolver"}</button> : null}

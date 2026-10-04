@@ -43,7 +43,11 @@ export async function createOrLinkMicroSkill(formData: FormData) {
       .eq("queue_id", id).maybeSingle();
     if (queueError || !queued) redirect("/admin/no-matching-skill?error=Case%20is%20no%20longer%20open");
     const observed = queued.misspelling.normalize("NFC").toLowerCase().replace(/[’ʼ]/g, "'");
-    if (isKnownWordLike(observed) || isKnownWord(observed)) {
+    const { data: approvedWord, error: wordError } = await createServiceRoleClient()
+      .from("canonical_teaching_dictionary_words").select("id")
+      .eq("normalised_word", observed).eq("row_status", "active").limit(1);
+    if (wordError) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(wordError.message)}`);
+    if (isKnownWordLike(observed) || isKnownWord(observed) || Boolean(approvedWord?.length)) {
       redirect("/admin/no-matching-skill?error=Valid%20words%20must%20use%20the%20context%20route");
     }
   }

@@ -15,6 +15,7 @@ export type NoSkillRow = {
   updated_at: string;
   parent_note: string | null;
   source_evidence: Array<{ type: string; id: string }>;
+  observed_is_valid_word?: boolean;
 };
 type Skill = { micro_skill_key: string; display_name: string; skill_family_key: string; skill_cluster_key: string | null };
 type Family = { skill_family_key: string; display_name: string };
@@ -49,7 +50,7 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
 }) {
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [classification, setClassification] = useState<"context" | "spelling">(
-    row.source_type === "parent_context" ? "context" : "spelling");
+    row.source_type === "parent_context" || row.observed_is_valid_word ? "context" : "spelling");
   const [skill, setSkill] = useState(mappedSkillKey ?? "");
   const [family, setFamily] = useState(families.some((item) => item.skill_family_key === "D4_HOM") ? "D4_HOM" : "");
   const [cluster, setCluster] = useState("");
@@ -84,7 +85,9 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
         <label className="flex items-center gap-2 text-sm"><input type="radio" checked={context}
           disabled={row.source_type === "parent_context"} onChange={() => setClassification("context")} />Contextual word choice</label>
         <label className="flex items-center gap-2 text-sm"><input type="radio" checked={!context}
-          disabled={row.source_type === "parent_context"} onChange={() => setClassification("spelling")} />Genuine misspelling</label>
+          disabled={row.source_type === "parent_context" || row.observed_is_valid_word}
+          onChange={() => setClassification("spelling")} />Genuine misspelling</label>
+        {row.observed_is_valid_word ? <p className="text-xs text-[#59616b]">The observed word is a valid word, so this pair needs contextual skill review.</p> : null}
         <p className="text-xs text-[#59616b]">Contextual choices link to ADLE without a global spelling replacement. Genuine misspellings are added to the Canonical Misspelling Resolver.</p>
       </fieldset>
       {mode === "existing" ? <SearchPicker label="Micro skill" name="micro_skill_key" value={skill} create

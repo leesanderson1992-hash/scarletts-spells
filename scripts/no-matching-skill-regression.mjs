@@ -31,8 +31,8 @@ create view writing_context_current_parent_decisions as select * from writing_co
 create table writing_context_parent_added_cases(id uuid primary key,occurrence_id text,child_id uuid,parent_user_id uuid,intended_member text,writing_issue_id uuid,governed_family_key text);
 create table writing_context_catalog_review_cases(id uuid primary key,parent_added_case_id uuid,case_status text,created_at timestamptz,reviewed_at timestamptz);
 create table spelling_canonical_mappings(id uuid primary key,misspelling_normalized text,correct_spelling_normalized text,dialect_code text,micro_skill_key text,mapping_status text,resolver_visibility_status text,created_at timestamptz default now());
-create table spelling_resolution_items(id uuid primary key,misspelling text,correction text,dialect_code text,review_status text,mapping_id uuid,micro_skill_key text,created_at timestamptz default now(),updated_at timestamptz);
-create table spelling_no_matching_skill_cases(resolution_item_id uuid,case_status text);
+create table spelling_resolution_items(id uuid primary key,misspelling text,correction text,dialect_code text,review_status text,mapping_id uuid,micro_skill_key text,resolver_enabled boolean default false,created_at timestamptz default now(),updated_at timestamptz);
+create table spelling_no_matching_skill_cases(resolution_item_id uuid unique,case_status text default 'open',moved_by_admin_user_id uuid,moved_by_admin_email text,moved_at timestamptz default now(),returned_at timestamptz);
 create table spelling_resolution_item_sources(item_id uuid,source_type text,source_id uuid);
 create table spelling_catalog_review_cases(id uuid primary key,child_id uuid,source_misspelling_instance_id uuid,misspelling_normalized text,correct_spelling_normalized text,case_status text,updated_at timestamptz,parent_note text,metadata jsonb);
 create table spelling_catalog_review_case_decisions(id uuid primary key default gen_random_uuid(),case_id uuid,admin_user_id uuid,admin_email text,linked_micro_skill_key text,decision_type text,previous_status text,new_status text,decision_note text,metadata jsonb default '{}'::jsonb,created_at timestamptz default now());
@@ -57,6 +57,11 @@ if (!process.exitCode) {
   try { await db.exec(followup); console.log('Existing-mapping catalog correction migration parsed and applied'); }
   catch(e) { console.error(e.message); process.exitCode=1; }
 }
+if (!process.exitCode) {
+  const followup = readFileSync('supabase/migrations/20261004230000_move_disabled_mapping_to_no_matching_skill.sql','utf8');
+  try { await db.exec(followup); console.log('Disabled-mapping No Matching Skill migration parsed and applied'); }
+  catch(e) { console.error(e.message); process.exitCode=1; }
+}
 
 if (!process.exitCode) {
   const seeded=await db.query('select count(*)::integer pair_count from contextual_micro_skill_pairs where micro_skill_key=$1',['D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO']);
@@ -66,6 +71,20 @@ if (!process.exitCode) {
   console.log('Existing to/too/two micro skill migrated into the reviewed pair registry');
   const admin='11111111-1111-4111-8111-111111111111';
   const child='22222222-2222-4222-8222-222222222222';
+  const brakeMapping=randomUUID(), brakeItem=randomUUID();
+  await db.query('insert into spelling_canonical_mappings(id,misspelling_normalized,correct_spelling_normalized,dialect_code,mapping_status,resolver_visibility_status) values($1,$2,$3,$4,$5,$6)',[brakeMapping,'brake','break','en-GB','disabled','disabled']);
+  await db.query('insert into spelling_resolution_items(id,misspelling,correction,dialect_code,review_status,mapping_id) values($1,$2,$3,$4,$5,$6)',[brakeItem,'brake','break','en-GB','pending',brakeMapping]);
+  await db.query('select move_spelling_resolution_to_no_matching_skill_admin($1,$2,$3)',[brakeItem,admin,'admin@example.test']);
+  const moved=await db.query('select (select review_status from spelling_resolution_items where id=$1) status,(select mapping_id is null from spelling_resolution_items where id=$1) detached,(select case_status from spelling_no_matching_skill_cases where resolution_item_id=$1) queue_status,(select mapping_status from spelling_canonical_mappings where id=$2) historical_status',[brakeItem,brakeMapping]);
+  if (moved.rows[0].status!=='no_matching_skill' || !moved.rows[0].detached || moved.rows[0].queue_status!=='open' || moved.rows[0].historical_status!=='disabled') throw new Error(JSON.stringify(moved.rows[0]));
+  const activeMapping=randomUUID(), activeItem=randomUUID();
+  await db.query('insert into spelling_canonical_mappings(id,misspelling_normalized,correct_spelling_normalized,dialect_code,mapping_status,resolver_visibility_status) values($1,$2,$3,$4,$5,$6)',[activeMapping,'sun','son','en-GB','active','visible']);
+  await db.query('insert into spelling_resolution_items(id,misspelling,correction,dialect_code,review_status,mapping_id,resolver_enabled) values($1,$2,$3,$4,$5,$6,$7)',[activeItem,'sun','son','en-GB','pending',activeMapping,true]);
+  let moveRejected=false;
+  try { await db.query('select move_spelling_resolution_to_no_matching_skill_admin($1,$2,$3)',[activeItem,admin,'admin@example.test']); }
+  catch(e) { moveRejected=String(e.message).includes('Only pending, resolver-inactive'); }
+  if (!moveRejected) throw new Error('active resolver mapping was moved to No Matching Skill');
+  console.log('Brake/break moves with disabled mapping history preserved; active mappings stay protected');
   const issue='33333333-3333-4333-8333-333333333333';
   const parentCase='44444444-4444-4444-8444-444444444444';
   const review='55555555-5555-4555-8555-555555555555';
