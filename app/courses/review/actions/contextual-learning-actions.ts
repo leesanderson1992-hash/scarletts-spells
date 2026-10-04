@@ -56,14 +56,26 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
     throw new Error("The retry is not in this writing thread.");
   }
 
-  // A parent-added pair without a governed family is learner-local repair
-  // evidence. Even a concept-gap label cannot create a learning item here.
+  // Parent-added evidence needs an admin-approved contextual pair before it
+  // can take the learning route.
   if (issue.metadata?.feedback_origin === "parent_added") {
     const parentCase = await service.from("writing_context_parent_added_cases")
       .select("id,governed_family_key")
       .eq("writing_issue_id", issueId).eq("parent_user_id", user.id).maybeSingle();
     if (parentCase.error || !parentCase.data) throw new Error("Parent feedback lineage is unavailable.");
+    let linkedSkill: string | null = null;
     if (parentCase.data.governed_family_key === null) {
+      const review = await service.from("writing_context_catalog_review_cases")
+        .select("id").eq("parent_added_case_id", parentCase.data.id).maybeSingle();
+      if (review.error) throw new Error("Contextual skill review is unavailable.");
+      if (review.data) {
+        const link = await service.from("contextual_micro_skill_case_links")
+          .select("micro_skill_key").eq("catalog_case_id", review.data.id).maybeSingle();
+        if (link.error) throw new Error("Contextual skill link is unavailable.");
+        linkedSkill = link.data?.micro_skill_key ?? null;
+      }
+    }
+    if (parentCase.data.governed_family_key === null && linkedSkill === null) {
       if (skillKey) throw new Error("This pair has no governed microskill.");
       if (!alreadyFinalised) {
         const closed = await service.rpc("finalise_parent_added_contextual_repair", {
@@ -101,8 +113,14 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
       }
       learningItemId = finalised.data.learning_item_id;
     }
-    // This is discovery of a need, not a reward for the prompted retry.
-    await createOrUpdateGoldenNuggetFromParentApproval({
+    const demand = await service.from("contextual_micro_skill_demands")
+      .select("confirmed_count,demand_status").eq("child_id", submission.child_id)
+      .eq("micro_skill_key", skillKey).maybeSingle();
+    if (demand.error) throw new Error("Could not check the contextual lesson threshold.");
+    if (demand.data?.confirmed_count && demand.data.confirmed_count >= 3 && demand.data.demand_status === "READY") {
+      // The original confirmations reached the lesson threshold; retries are
+      // retained as repair evidence and never increase that count.
+      await createOrUpdateGoldenNuggetFromParentApproval({
       supabase: service, childId: submission.child_id,parentUserId: user.id,
       correctedWord: issue.approved_replacement,originalMisspelling: null,
       sourceIssueId: issueId,sourceLearningItemId: learningItemId,
@@ -111,7 +129,8 @@ export async function finaliseContextualLearningOutcomeImpl(formData: FormData) 
         source_occurrence_id: issue.source_writing_occurrence_id,
         observed_member: issue.observed_text,final_classification: outcome,
         retry_evidence_kind: "REPAIR_ONLY" },
-    });
+      });
+    }
   } else {
     if (skillKey) throw new Error("A non-learning outcome cannot assign a microskill.");
     if (!alreadyFinalised) {

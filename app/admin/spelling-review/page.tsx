@@ -377,7 +377,7 @@ export default async function AdminSpellingReviewPage() {
         ) : (
           <>
             <QueueSection
-              description="Spelling pairs waiting for a suitable teaching skill, kept out of the canonical resolver queue."
+              description="Parent-confirmed contextual choices and spelling pairs waiting for a suitable teaching skill."
               href="/admin/no-matching-skill"
               linkLabel="Open No Matching Skill"
               sourceTable="spelling_no_matching_skill_queue"
