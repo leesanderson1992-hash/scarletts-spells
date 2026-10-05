@@ -1,3 +1,4 @@
+import { loadAuthenticUseControl } from "@/lib/authentic-use/review";
 /**
  * ADLE Slice 7a (7a-C): the ADLE → Word Treasure reward bridge.
  *
@@ -219,6 +220,8 @@ export async function recordAdleAuthenticUsesForRewards(input: {
     goldenBarsAwarded: 0,
     barWords: [],
   };
+
+  if ((await loadAuthenticUseControl(input.serviceClient, input.parentUserId, input.childId)).mode === "enabled") return result;
 
   // 1. Parent-verified ADLE authentic uses for this child.
   const { data: eventRows, error: eventError } = await input.serviceClient

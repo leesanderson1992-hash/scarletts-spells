@@ -1,3 +1,4 @@
+import { loadAuthenticUseControl } from "@/lib/authentic-use/review";
 import {
   extractSpellcheckFieldsFromDraftPayload,
   stripNonSpellingSections,
@@ -479,6 +480,8 @@ export async function confirmFreeWritingEvidenceCandidates(input: {
     duplicateCount: 0,
     goldenBarsAwardedCount: 0,
   };
+
+  if ((await loadAuthenticUseControl(input.supabase, input.parentUserId, input.childId)).mode === "enabled") return summary;
 
   if (candidateIds.length === 0) {
     return summary;

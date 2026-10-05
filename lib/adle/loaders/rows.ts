@@ -439,7 +439,7 @@ export interface AuthenticUseEventRow {
   piece_ref: string;
   source_ref: string;
   row_status: string;
-  provenance_kind?: "independent_or_parent_verified_application" | "prompted_review_writing_application";
+  provenance_kind?: "independent_or_parent_verified_application" | "prompted_review_writing_application" | "parent_verified_supplied_spelling_application";
 }
 
 export function authenticUseEventFromRow(row: AuthenticUseEventRow): AuthenticUseEventFact {

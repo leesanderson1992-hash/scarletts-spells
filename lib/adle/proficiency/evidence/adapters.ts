@@ -322,12 +322,14 @@ export function adaptAuthenticUse(row: AuthenticUseAdapterRow): RawLearnerEviden
     outcome: row.useKind === "authentic_correct_use" ? "correct" : "unknown",
     environment: row.useKind === "self_correction_in_writing" ? "REPAIR" : "AUTHENTIC_WRITING",
     verificationState: row.rowStatus === "rejected" ? "rejected" : row.parentVerified ? "verified" : "suspected",
-    independence: row.useKind === "self_correction_in_writing" ? "scaffolded" : "independent",
+    independence: row.useKind === "self_correction_in_writing" || row.provenanceKind === "parent_verified_supplied_spelling_application" ? "scaffolded" : "independent",
     performanceLineageKey: `authentic-writing-piece:${row.childId}:${row.canonicalWordId}:${row.pieceRef}`,
     representationRole: "source_event",
     classificationReasons: [row.useKind === "self_correction_in_writing"
       ? "same-piece self-correction is repair metadata"
-      : "learner-chosen writing with authentic-use provenance"],
+      : row.provenanceKind === "parent_verified_supplied_spelling_application"
+        ? "original sentence with supplied spelling; parent-verified context"
+        : "learner-chosen writing with authentic-use provenance"],
     verificationEntityId: row.parentVerified ? row.sourceRef : null,
     verifiedAt: row.verifiedAt,
     sourceState: ["superseded", "draft"].includes(row.rowStatus) ? "inactive" : row.rowStatus === "rejected" ? "rejected" : "active",

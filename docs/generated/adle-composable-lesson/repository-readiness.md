@@ -6,13 +6,13 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `dd4bf20d69fd8994356b1c52ce6ca2cad8ffc4fd744d22e9edff1ea4206d88e8`
+Input fingerprint: `7e03bf24146252c079346adafb800548fba256c7e9651d03122a9f913fab340a`
 
-Production morphology micro-skills: 25
-Structurally declared: 25
+Production morphology micro-skills: 29
+Structurally declared: 29
 Ready: 0
 Blocked: 0
-Not assessed: 25
+Not assessed: 29
 
 | Micro-skill | Route | Status | Blockers |
 |---|---|---|---|
@@ -20,6 +20,10 @@ Not assessed: 25
 | D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E | comparative_superlative_word_lab:v1 | not_assessed | none |
 | D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR | comparative_superlative_word_lab:v1 | not_assessed | none |
 | D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I | comparative_superlative_word_lab:v1 | not_assessed | none |
+| D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT | ing_endings_word_lab:v1 | not_assessed | none |
+| D4_INF_ING_ENDINGS_DROP_E | ing_endings_word_lab:v1 | not_assessed | none |
+| D4_INF_ING_ENDINGS_IE_TO_Y | ing_endings_word_lab:v1 | not_assessed | none |
+| D4_INF_ING_ENDINGS_REGULAR | ing_endings_word_lab:v1 | not_assessed | none |
 | D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_IDENTIFY_BASE | base_word_lab:v2 | not_assessed | none |

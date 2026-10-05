@@ -47,7 +47,7 @@ export interface AuthenticUseEventFact {
   /** R5 prompted Review-writing evidence is deliberately distinguishable
    * from independent/parent-verified authentic use. Optional preserves the
    * compatibility reader for pre-R5 rows. */
-  provenanceKind?: "independent_or_parent_verified_application" | "prompted_review_writing_application";
+  provenanceKind?: "independent_or_parent_verified_application" | "prompted_review_writing_application" | "parent_verified_supplied_spelling_application";
 }
 
 /** Row shape of adle_slippage_events. */

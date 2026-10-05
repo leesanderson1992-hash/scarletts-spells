@@ -1,6 +1,7 @@
 import { extractOccurrences, fingerprint, type BaselineSource, type SourceField } from "../baseline/source";
 
 export const EXTRACTION_VERSION = "WHOLE_WRITING_EXTRACTION_V1";
+export const AUTHENTIC_USE_EXTRACTION_VERSION = "AUTHENTIC_USE_EXTRACTION_V1";
 export function object(value: unknown): Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
@@ -19,7 +20,7 @@ const pointer = (value: string) => value.replace(/~/g, "~0").replace(/\//g, "~1"
 
 /** No text-based deduplication: only known structured/flat representations of
  * the same answer block are aliases. Nested authored leaves keep their paths. */
-export function extractWholeWriting(snapshot: SourceSnapshot) {
+export function extractWholeWriting(snapshot: SourceSnapshot, options: { authenticUse?: boolean } = {}) {
   const envelope = snapshot.envelope;
   const draft = object(envelope.draftPayload);
   const blocks = object(object(envelope.taskContext).lessonSchema).blocks;
@@ -44,6 +45,10 @@ export function extractWholeWriting(snapshot: SourceSnapshot) {
     else for (const [childKey, entry] of Object.entries(object(value))) leaves(entry, `${path}/${pointer(childKey)}`, visit, childKey);
   }
   function classify(block: Record<string, unknown>, key: string): [WholeWritingField["provenance"], string] {
+    if (options.authenticUse && (block.authentic_use_excluded === true || block.copied === true || block.dictated === true ||
+      ["DICTATION", "COPIED", "FIXED_ANSWER", "EXPOSURE_ONLY"].includes(String(block.response_environment ?? "")))) {
+      return ["excluded", "NON_AUTHENTIC_WRITING"];
+    }
     if (block.exclude_from_spelling === true) return ["excluded", "SCHEMA_EXCLUSION"];
     const type = block.block_type;
     if (type === "question_text" || type === "question_textarea") return ["learner_response", "SCHEMA_TEXT_FIELD"];
@@ -52,7 +57,8 @@ export function extractWholeWriting(snapshot: SourceSnapshot) {
       const entries = collection.map(object).filter((entry) => (entry.column_id ?? entry.question_id) === key);
       if (entries.length !== 1) return ["unknown", "NESTED_FIELD_UNRESOLVED"];
       const entry = entries[0];
-      if (entry.exclude_from_spelling === true || entry.input_type === "select") return ["excluded", "SCHEMA_NESTED_EXCLUSION"];
+      if (entry.exclude_from_spelling === true || entry.input_type === "select" || (options.authenticUse && (entry.authentic_use_excluded === true || entry.copied === true || entry.dictated === true ||
+        ["DICTATION", "COPIED", "FIXED_ANSWER", "EXPOSURE_ONLY"].includes(String(entry.response_environment ?? ""))))) return ["excluded", "SCHEMA_NESTED_EXCLUSION"];
       return type === "question_repeatable_interview" || entry.input_type === "text" || entry.input_type === "textarea"
         ? ["learner_response", "SCHEMA_NESTED_FIELD"] : ["unknown", "UNSUPPORTED_INPUT_TYPE"];
     }
@@ -111,12 +117,17 @@ export function extractWholeWriting(snapshot: SourceSnapshot) {
   if (fields.length === 0) {
     if (typeof envelope.rawSubmissionText === "string") {
       const adultSubmission = snapshot.source_purpose === "REAL_LEARNER" &&
-        envelope.contextAiShadowCapture === true && envelope.contextAiModeAtCapture === "shadow";
+        ((envelope.contextAiShadowCapture === true && envelope.contextAiModeAtCapture === "shadow") || (options.authenticUse && (envelope.authenticUseCapture === true || object(envelope.processingPayload).authenticUseCapture === true)));
       add("/rawSubmissionText", envelope.rawSubmissionText,
         adultSubmission ? "learner_response" : "unknown",
         adultSubmission ? "AUTHENTICATED_ADULT_SUBMISSION" : "UNSEGMENTED_AUTHORSHIP_UNKNOWN");
     }
     else if (typeof envelope.legacySubmissionText === "string") add("/legacySubmissionText", envelope.legacySubmissionText, "unknown", "LEGACY_CAPTURE");
+  }
+  // Review summaries are authored text, distinct from the flattened answer mirror.
+  const summary = object(envelope.captureMetadata).rawLessonReviewSummary;
+  if (options.authenticUse && typeof summary === "string" && summary.trim()) {
+    add("/captureMetadata/rawLessonReviewSummary", summary, "learner_response", "CHILD_REVIEW_SUMMARY");
   }
   // Metadata may be unsupported, but raw snapshots always retain it for replay.
   if (!fields.length) diagnostics.push("NO_SUPPORTED_WRITING_FIELDS");
@@ -126,5 +137,5 @@ export function extractWholeWriting(snapshot: SourceSnapshot) {
   };
   const occurrences = fields.filter((field) => field.provenance !== "excluded").flatMap((field) =>
     extractOccurrences(source, field).map((occurrence) => ({ ...occurrence, textHash: field.textHash, provenance: field.provenance })));
-  return { version: EXTRACTION_VERSION, fields, occurrences, diagnostics };
+  return { version: options.authenticUse ? AUTHENTIC_USE_EXTRACTION_VERSION : EXTRACTION_VERSION, fields, occurrences, diagnostics };
 }

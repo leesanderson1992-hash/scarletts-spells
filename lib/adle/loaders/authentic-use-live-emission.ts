@@ -1,3 +1,4 @@
+import { loadAuthenticUseControl } from "@/lib/authentic-use/review";
 /**
  * ADLE Slice 6: live authentic-use emission from Review Work approval — the
  * hook Slice 4 open-question-3 deferred here. Runs inside
@@ -43,6 +44,8 @@ export async function emitAdleAuthenticUseFromApprovedSubmission(
   params: EmitAuthenticUseParams,
 ): Promise<EmitAuthenticUseResult> {
   const { userClient, serviceClient, parentUserId, childId, submissionId } = params;
+
+  if ((await loadAuthenticUseControl(serviceClient, parentUserId, childId)).mode === "enabled") return { insertedEvents: 0, matchedEvents: 0, unmatchedWords: 0 };
 
   const { data: samples, error: samplesError } = await userClient
     .from("writing_samples")

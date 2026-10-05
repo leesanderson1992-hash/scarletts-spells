@@ -144,8 +144,8 @@ async function main() {
         microSkillKey: skill, adleLearningItemRef: (row.metadata as Record<string, unknown>).adleLearningItemRef, promptData: row.prompt_data,
         templateKey: row.template_key, targetWord: row.target_word, status: row.status }));
       const attempts = buildLessonAttemptEvents({ context: { childId: child, parentUserId: parent, assignmentId: assignment, planDate: "2026-10-02" }, sourceRef, items: items as Parameters<typeof buildLessonAttemptEvents>[0]["items"],
-        controlledAttempts: facts.controlledAttempts, dictationAttempts: facts.dictationAttempts, guidedAttempts: new Map(items.filter(item => item.sectionKey === "lesson_intro" || item.sectionKey === "guided_practice").map(item => [item.id as string, "completed"])), probeAttempts: new Map() });
-      const finishArgs = [parent, child, assignment, "2026-10-02", skill, sourceRef, items.map(item => item.id), attempts, completion,
+        controlledAttempts: facts.controlledAttempts, dictationAttempts: facts.dictationAttempts, guidedAttempts: new Map(items.filter((item: { sectionKey: unknown }) => item.sectionKey === "lesson_intro" || item.sectionKey === "guided_practice").map((item: { id: unknown }) => [item.id as string, "completed"])), probeAttempts: new Map() });
+      const finishArgs = [parent, child, assignment, "2026-10-02", skill, sourceRef, items.map((item: { id: unknown }) => item.id), attempts, completion,
         { reflectionText: progress.reflection, promptText: lesson.reflectionPrompt, promptKey: `ing:${skill}:reflection:v1`, contentVersion: "ing_endings_word_lab:v1" }];
       const finishSql = "select complete_adle_ing_lesson_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) result";
       assert.equal((await db.query(finishSql, finishArgs)).rows[0].result.status, "completed");

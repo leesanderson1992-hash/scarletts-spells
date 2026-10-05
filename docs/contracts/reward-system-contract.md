@@ -236,6 +236,34 @@ Free-writing Gold Bar evidence:
 - canonical Gold Bars require confirmed evidence and a single
   `golden_bar_awarded` event at the required threshold
 
+### First-submission authentic use (controlled cohort)
+
+For learners explicitly enabled in `authentic_use_controls`,
+`FIRST_SUBMISSION_AUTHENTIC_USE_V1_2026_10_05` supersedes the legacy task-field
+free-writing rules above. The implementation remains default off until the
+named production-child canary is activated. Children without a control row stay
+on the existing reward path.
+
+- All original lesson writing and child review-summary words are indexed,
+  whether or not a dictionary/skill mapping currently exists.
+- The first parent Send back or Mark complete action finalises one credit per
+  child × submission chain × word, across all eligible fields. Retries and
+  general-improvement rewrites in that chain cannot add credit.
+- Confirmed spelling/context errors block both the observed form and confirmed
+  intended form across the piece. Unresolved findings block their observed
+  words; dismissed suggestions do not. Incomplete checks require explicit
+  manual parent review.
+- Supplied target words in original sentences retain supplied-spelling provenance.
+  Copied examples, dictation, fixed answers and parent feedback are excluded.
+- Gold and proficiency have independent delivery receipts. Gold uses the
+  original writing time strictly after Forge entry, the existing five-use
+  threshold, and one stable treasure award identity for its event and ledger.
+- Verified history can be projected into newly published skill relationships
+  without repeating gold deliveries or creating Gold Coins.
+
+Implementation, monitoring, verification and rollout limits:
+`docs/implementation/first-submission-authentic-use.md`.
+
 ## Micro-Skill Level System
 
 Micro-skill levels are separate from word treasure.

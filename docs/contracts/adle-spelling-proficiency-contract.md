@@ -31,6 +31,22 @@ This documentation pass authorises no scoring change, schema migration, learner
 data rewrite, resolver mutation, support population, Review change, Word
 Treasure change, allocation recomputation, Production write, or deployment.
 
+## Controlled authentic-use integration
+
+The default-off first-submission authentic-use cohort feeds verified word
+history to the released `PROFICIENCY_POLICY_V1` calculation. For that cohort,
+published positive word-to-skill relationships supply the links; existing
+state-priced breadth, dictionary/child-band eligibility, global complexity
+bands, allocation denominators and level gates remain in force. Progress may
+change without a secure-level change. Saved reports retain source credit IDs,
+calculation fingerprints, policy version and prior/new reports.
+
+`parent_verified_supplied_spelling_application` distinguishes supplied target
+spellings from independent productions in the future evidence adapter. This
+integration does **not** release `ADLE_PROFICIENCY_MODEL_V1` or its target maths.
+See `docs/implementation/first-submission-authentic-use.md` for delivery and
+historical relationship recomputation.
+
 ## Purpose
 
 The educational objective is to maximise the number and range of words a child

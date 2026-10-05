@@ -399,6 +399,76 @@
           8
         ]
       }
+    },
+    {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
+        "distinct_forms",
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": true,
+      "payloadKind": "ing_endings_lesson_v1",
+      "payloadVersions": [
+        1
+      ],
+      "recipes": [
+        {
+          "recipeKey": "ing_endings_word_lab",
+          "recipeVersion": "v1"
+        }
+      ],
+      "rendererKey": "ing_endings_guided",
+      "requiredActivities": [
+        "introduction",
+        "meaning_match",
+        "word_build",
+        "cleaver",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "ing_endings_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
+      "routeVersion": "v1",
+      "runtimeAdapterKey": "ing_endings_v1",
+      "supportedMicroSkillKeys": [
+        "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+        "D4_INF_ING_ENDINGS_DROP_E",
+        "D4_INF_ING_ENDINGS_IE_TO_Y",
+        "D4_INF_ING_ENDINGS_REGULAR"
+      ],
+      "wordCounts": {
+        "authentic": [
+          1,
+          6
+        ],
+        "lesson": [
+          6,
+          6
+        ],
+        "transfer": [
+          0,
+          5
+        ]
+      },
+      "wordSupportAuthority": "route_content"
     }
   ]
 }

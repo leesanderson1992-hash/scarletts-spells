@@ -34,6 +34,7 @@ assert.deepEqual(
     "dynamic_affix_word_lab:v3",
     "compound_word_lab:v2",
     "comparative_superlative_word_lab:v1",
+    "ing_endings_word_lab:v1",
   ]),
 );
 
@@ -46,12 +47,12 @@ const productionSpecialistSkills = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
 ).flatMap((route) => route.supportedMicroSkillKeys);
 assert.equal(
   new Set(productionSpecialistSkills).size,
-  25,
+  29,
   "all production-enabled specialist skills have exactly one current route",
 );
 assert.equal(
   productionSpecialistSkills.length,
-  25,
+  29,
   "production specialist route declarations must not overlap",
 );
 
