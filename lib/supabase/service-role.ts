@@ -6,10 +6,11 @@ import { getSupabaseEnv } from "./env";
 
 export function createServiceRoleClient() {
   const { url } = getSupabaseEnv();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+    || process.env.SB_SERVICE_ROLE_KEY?.trim();
 
   if (!serviceRoleKey) {
-    throw new Error("Missing Supabase service role key: SUPABASE_SERVICE_ROLE_KEY");
+    throw new Error("Missing Supabase service role key: SUPABASE_SERVICE_ROLE_KEY or SB_SERVICE_ROLE_KEY");
   }
 
   return createClient(url, serviceRoleKey, {
