@@ -2,15 +2,13 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
-import { getSupabaseEnv } from "./env";
-
 export function createServiceRoleClient() {
-  const { url } = getSupabaseEnv();
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
     || process.env.SB_SERVICE_ROLE_KEY?.trim();
 
-  if (!serviceRoleKey) {
-    throw new Error("Missing Supabase service role key: SUPABASE_SERVICE_ROLE_KEY or SB_SERVICE_ROLE_KEY");
+  if (!url || !serviceRoleKey) {
+    throw new Error("Missing Supabase URL or service role key");
   }
 
   return createClient(url, serviceRoleKey, {
