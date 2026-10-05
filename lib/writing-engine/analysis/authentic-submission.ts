@@ -59,7 +59,7 @@ export function normalizeAuthenticWritingSubmissionSource(
   };
 }
 
-function buildAuthenticWritingSourceEntityId(input: {
+export function buildAuthenticWritingSourceEntityId(input: {
   taskSubmissionId: string;
   writingSampleId: string | null;
   positionStart: number;

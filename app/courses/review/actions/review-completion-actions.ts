@@ -1,7 +1,8 @@
 import { loadAuthenticUseControl, prepareAuthenticUseParentAction } from "@/lib/authentic-use/review";
-import { recoverAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
+import { drainAuthenticUseDeliveries, recoverAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import {
   buildStructuredLessonResponseFromSubmissionSummary,
@@ -48,6 +49,19 @@ import {
   isParentAuthoredMisspellingRow,
   isSuppressedFalsePositivePair,
 } from "../review-utils";
+
+async function deliverAuthenticUseAfterFinalisation() {
+  const first = await recoverAuthenticUseDeliveries().catch(() => {
+    console.error("[authentic-use] delivery deferred to recovery");
+    return null;
+  });
+  if (first && !("status" in first) && first.claimed === 100) {
+    after(async () => {
+      await drainAuthenticUseDeliveries({ timeBudgetMs: 45_000 }).catch(() =>
+        console.error("[authentic-use] continuation deferred to recovery"));
+    });
+  }
+}
 
 function getStructuredSubmissionPayloadTypeForReview(task: {
   task_type: string;
@@ -1310,7 +1324,7 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
   }
 
   if (authenticUseControl.mode === "enabled") {
-    await recoverAuthenticUseDeliveries().catch(() => console.error("[authentic-use] delivery deferred to recovery"));
+    await deliverAuthenticUseAfterFinalisation();
   }
 
   if (hydratedIssuesToSendBack.length > 0) {
@@ -1647,7 +1661,7 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   }
 
   if (authenticUseControl.mode === "enabled") {
-    await recoverAuthenticUseDeliveries().catch(() => console.error("[authentic-use] delivery deferred to recovery"));
+    await deliverAuthenticUseAfterFinalisation();
   }
 
   // ADLE Slice 6: live authentic-use emission (Slice 4 open-question-3).

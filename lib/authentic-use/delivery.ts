@@ -105,3 +105,51 @@ export async function recoverAuthenticUseDeliveries(limit = 100, client: Supabas
   }
   return summary;
 }
+
+export type AuthenticUseDrainSummary = {
+  claimed: number;
+  delivered: number;
+  ineligible: number;
+  failed: number;
+  refreshedChildren: number;
+  refreshFailures: number;
+  remaining: number;
+  batches: number;
+  timedOut: boolean;
+  status?: "not_installed";
+};
+
+/** Drain repeated receipt batches while leaving each consumer's lease, retry
+ * schedule and idempotency boundary inside the existing batch processor. */
+export async function drainAuthenticUseDeliveries(input: {
+  batchSize?: number;
+  timeBudgetMs?: number;
+  client?: SupabaseClient;
+  calculate?: typeof calculateAuthenticUseProficiency;
+} = {}): Promise<AuthenticUseDrainSummary> {
+  const batchSize = Math.max(1, Math.min(input.batchSize ?? 100, 100));
+  const deadline = Date.now() + Math.max(1, input.timeBudgetMs ?? 45_000);
+  const client = input.client ?? createServiceRoleClient();
+  const calculate = input.calculate ?? calculateAuthenticUseProficiency;
+  const total: AuthenticUseDrainSummary = { claimed: 0, delivered: 0, ineligible: 0, failed: 0,
+    refreshedChildren: 0, refreshFailures: 0, remaining: 0, batches: 0, timedOut: false };
+
+  while (Date.now() < deadline) {
+    const batch = await recoverAuthenticUseDeliveries(batchSize, client, calculate);
+    if ("status" in batch && batch.status === "not_installed") return { ...total, status: "not_installed" };
+    total.batches++;
+    total.claimed += batch.claimed;
+    total.delivered += batch.delivered;
+    total.ineligible += batch.ineligible;
+    total.failed += batch.failed;
+    total.refreshedChildren += batch.refreshedChildren;
+    total.refreshFailures += batch.refreshFailures;
+    if (batch.claimed < batchSize) break;
+  }
+
+  const backlog = await client.rpc("count_authentic_use_delivery_backlog");
+  if (backlog.error) throw new Error("AUTHENTIC_USE_BACKLOG_COUNT_FAILED");
+  total.remaining = Number(backlog.data ?? 0);
+  total.timedOut = Date.now() >= deadline && total.remaining > 0;
+  return total;
+}
