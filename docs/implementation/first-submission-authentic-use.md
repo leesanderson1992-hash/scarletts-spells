@@ -1,6 +1,6 @@
 # First-submission authentic use
 
-Status: implemented behind default-off cohort controls; not deployed or enabled.
+Status: deployed to Production; enabled only for the named Test-child canary.
 Policy: `FIRST_SUBMISSION_AUTHENTIC_USE_V1_2026_10_05`.
 
 ## Evidence and finalisation
@@ -167,3 +167,32 @@ recovery `refreshFailures`, and `authentic_use_review_action_events` duplicate/r
 outcomes. Repeated mapping/read failures remain failed receipts rather than
 silent success. Disable each consumer separately for investigation; retain source
 credits. Requeue only its failed receipts, respecting original writing dates.
+
+## Production canary receipt — 5 October 2026
+
+The default-off schema compiled in a rolled-back production transaction before
+application. Applying it created zero controls, chains and credits. The matching
+application was then deployed before the named child was attached.
+
+Shadow proof used a fresh, labelled lesson fixture after the activation cutoff.
+It indexed 17 unique words across the answer and child review summary, required
+manual review because no passage AI scan was present, and finalised Send back
+with zero credits or deliveries. Replaying that action produced one duplicate
+suppression event; a retry joined the same chain and produced one retry
+suppression event. Neither created reward evidence.
+
+Enabled proof used a second fresh, labelled lesson fixture with task coin and
+bar rewards disabled. Send back created 21 credits and 42 independent delivery
+receipts. Delivery completed with no failures or open receipts:
+
+- Gold: 1 delivered to an existing post-Forge Word Treasure; 20 explicitly
+  ineligible with `NO_WORD_TREASURE`.
+- Proficiency: 15 delivered; 6 retained as `WORD_UNMAPPED`.
+- All 21 credit IDs reached a terminal outcome in both consumers.
+- Fifteen ADLE authentic-use events and eight released-policy microskill
+  calculations were saved. Existing gates correctly kept progress and levels
+  unchanged for this evidence set.
+- No Golden Bar ledger entry or coin conversion was created.
+
+All other children remain outside `authentic_use_controls` and therefore stay
+on the previous production path.
