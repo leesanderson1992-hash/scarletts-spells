@@ -4,7 +4,7 @@
     "auditVersion": "adle_readiness_audit_v1",
     "containsLearnerIdentity": false,
     "containsRawAttempts": false,
-    "inputFingerprint": "dd4bf20d69fd8994356b1c52ce6ca2cad8ffc4fd744d22e9edff1ea4206d88e8",
+    "inputFingerprint": "7e03bf24146252c079346adafb800548fba256c7e9651d03122a9f913fab340a",
     "knownReportOnlyFindings": [
       {
         "code": "transfer_not_approved",
@@ -394,6 +394,422 @@
               "itemCount=22",
               "itemCount=23",
               "itemCount=24"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "ca90f4936bdd1746ae524425a93b6436cc45b05754ab35ecf70857f70767c1aa",
+        "microSkillKey": "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+        "routeId": "ing_endings_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=ing_endings_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=20",
+              "itemCount=21",
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24",
+              "itemCount=25"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "50c771da31b9e0708d650128f179880e973c9150d7d5ddc11428a8bbed2700a5",
+        "microSkillKey": "D4_INF_ING_ENDINGS_DROP_E",
+        "routeId": "ing_endings_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=ing_endings_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=20",
+              "itemCount=21",
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24",
+              "itemCount=25"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "d9c7f268cb80754171d39d41dacad8d1ba417f8d95db66877ec47eec6dffb8cb",
+        "microSkillKey": "D4_INF_ING_ENDINGS_IE_TO_Y",
+        "routeId": "ing_endings_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=ing_endings_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=20",
+              "itemCount=21",
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24",
+              "itemCount=25"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "2ec6356cf629597f503301aab8ab86973583b55ed31308d5d990f624f7cfc557",
+        "microSkillKey": "D4_INF_ING_ENDINGS_REGULAR",
+        "routeId": "ing_endings_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=ing_endings_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_match",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=20",
+              "itemCount=21",
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24",
+              "itemCount=25"
             ],
             "stage": "assignment_construction",
             "status": "ready"
@@ -2529,10 +2945,10 @@
     "mutationPerformed": false,
     "summary": {
       "blockedCount": 0,
-      "notAssessedCount": 25,
-      "productionMicroSkillCount": 25,
+      "notAssessedCount": 29,
+      "productionMicroSkillCount": 29,
       "readyCount": 0,
-      "structurallyDeclaredCount": 25
+      "structurallyDeclaredCount": 29
     }
   }
 }

@@ -14,6 +14,7 @@
 | dynamic_affix_word_lab:v3 | dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | dynamic_affix_v3 | morphology_guided | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
 | dynamic_prefix_word_lab:v2 | dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | dynamic_prefix_v2 | morphology_guided | registered | 5 | 16/18/20 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |
 | generic_composer:v1 | generic_first_exposure:v1 | composed_daily_plan 1 | generic_composer_v1 | generic_session | registered | fallback | variable | introduction, guided_prompt, cover_check, dictation |
+| ing_endings_word_lab:v1 | ing_endings_word_lab:v1 | ing_endings_lesson_v1 1 | ing_endings_v1 | ing_endings_guided | registered | 4 | 20/21/22/23/24/25 | introduction, meaning_match, word_build, cleaver, cover_check, dictation, reflection |
 
 ## Dark common Word Lab recipes
 

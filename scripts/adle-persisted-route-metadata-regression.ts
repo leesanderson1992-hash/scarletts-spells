@@ -77,8 +77,8 @@ for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
     ok: true,
   });
 }
-assert.throws(()=>createPersistedRouteMetadata("comparative_superlative_word_lab"),/require curriculum release metadata v2/);
-assert.throws(()=>createPersistedRouteMetadata("ing_endings_word_lab"),/require curriculum release metadata v2/);
+assert.throws(()=>createPersistedRouteMetadata("comparative_superlative_word_lab"),/requires curriculum release metadata v2/);
+assert.throws(()=>createPersistedRouteMetadata("ing_endings_word_lab"),/requires curriculum release metadata v2/);
 
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "fixed_un_prefix_word_lab"));
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "closed_compound_word_lab"));
