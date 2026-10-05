@@ -29,6 +29,11 @@ import type { ReviewWordFact } from "../daily-assignment-composer";
 import { COMPOSER_POLICY_V1 } from "../composer-policy";
 import { EVIDENCE_POLICY_V1 } from "../evidence-policy";
 import { PROFICIENCY_POLICY_V1 } from "../proficiency-policy";
+import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
+import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
+import { readProficiencyFactRows, type FactQuery } from "../../authentic-use/paged-facts";
+import { fingerprint } from "../../writing-engine/baseline/source";
 import { priceWordEvidence } from "../evidence-pricing";
 import { computeWordEvidenceState, type WordEvidenceStateResult } from "../word-evidence-state";
 import type { TargetRetirementReceiptFact } from "../word-evidence-state";
@@ -121,6 +126,10 @@ export async function loadActiveReviewPolicy(client: AdleClient): Promise<Review
 }
 
 export interface DailyPlanFactsLoad {
+  /** Released proficiency calculation; reusable by evidence consumers. */
+  proficiencyRelationships: { canonicalWordId: string; microSkillKey: string }[];
+  proficiencyReports: ReturnType<typeof computeAllSkillProficiency>;
+  proficiencyFingerprint: string;
   facts: DailyPlanFacts;
   /** canonical_word_id -> primary micro_skill_key (also the completion
    * helpers' microSkillKeyByWordId input). */
@@ -144,6 +153,18 @@ export async function loadDailyPlanFacts(
   params: LoadDailyPlanFactsParams,
 ): Promise<DailyPlanFactsLoad> {
   const { childId, today } = params;
+  const authenticControl = await client.from("authentic_use_controls").select("mode,proficiency_enabled").eq("child_id", childId).maybeSingle();
+  if (authenticControl.error && !["42P01", "PGRST205"].includes(authenticControl.error.code)) {
+    throw new Error("loadDailyPlanFacts: authentic-use control unavailable");
+  }
+
+  const completeProficiencyHistory = authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled;
+  const pagedContexts = new Set(["words", "supports", "bandings", "overrides", "allocations", "taughtHistory", "outcomeEvents", "authenticUse", "slippage", "retirementReceipts"]);
+  const factRows = <T>(query: FactQuery, context: string): Promise<T[]> =>
+    completeProficiencyHistory && pagedContexts.has(context.split(":")[1])
+      ? readProficiencyFactRows<T>(query, context, context.endsWith(":supports") ? ["canonical_word_id", "micro_skill_key", "support_role"] : ["id"])
+      : rows<T>(query, context);
+
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
   const sharedRoutesEnabled = isCanonicalIntakeEnabled();
   const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
@@ -179,7 +200,7 @@ export async function loadDailyPlanFacts(
     reviewedMorphologyRows,
   ] = await Promise.all([
     loadActiveReviewPolicy(client),
-    rows<ReviewBundleRow>(
+    factRows<ReviewBundleRow>(
       client
         .from("adle_review_bundles")
         .select("id, child_id, source_ref, interval_index, next_due_on, schedule_policy_version, bundle_status, row_status")
@@ -187,11 +208,11 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:bundles",
     ),
-    rows<ScheduleWordRow>(
+    factRows<ScheduleWordRow>(
       scheduleWordQuery,
       "loadDailyPlanFacts:scheduleWords",
     ),
-    rows<LearningItemRow>(
+    factRows<LearningItemRow>(
       client
         .from("adle_learning_items")
         .select(
@@ -200,14 +221,14 @@ export async function loadDailyPlanFacts(
         .eq("child_id", childId),
       "loadDailyPlanFacts:learningItems",
     ),
-    rows<FamilyMethodRow>(
+    factRows<FamilyMethodRow>(
       client
         .from("adle_family_methods")
         .select("family_key, family_name, guided_question_sequence, review_sort_dimension, production_task, content_version, import_batch_id, row_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:familyMethods",
     ),
-    rows<ActivityTemplateRow>(
+    factRows<ActivityTemplateRow>(
       client
         .from("adle_activity_templates")
         .select(
@@ -216,14 +237,14 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:activityTemplates",
     ),
-    rows<TeachingContentRow>(
+    factRows<TeachingContentRow>(
       client
         .from("canonical_teaching_dictionary_content_versions")
         .select("micro_skill_key, teaching_objective, reflection_prompt_key, reflection_prompt_text, child_friendly_explanation, rule_explanation, common_misconceptions, content_version, source_row_hash, import_batch_id, canonical_teaching_dictionary_field_reviews(field_key, review_status)")
         .eq("is_active", true),
       "loadDailyPlanFacts:teachingContent",
     ),
-    rows<{
+    factRows<{
       canonical_word_id: string;
       dictation_sentence: string;
       dictation_target_token_index: number;
@@ -237,53 +258,53 @@ export async function loadDailyPlanFacts(
         .eq("review_status", "approved_for_first_exposure"),
       "loadDailyPlanFacts:genericV3Dictation",
     ),
-    rows<{ micro_skill_key: string; skill_family_key: string }>(
+    factRows<{ micro_skill_key: string; skill_family_key: string }>(
       client.from("micro_skill_catalog").select("micro_skill_key, skill_family_key").eq("is_active", true),
       "loadDailyPlanFacts:microSkillCatalog",
     ),
-    rows<DictionaryWordRow>(
+    factRows<DictionaryWordRow>(
       client
         .from("canonical_teaching_dictionary_words")
         .select("id, word_key, normalised_word, display_word, row_status, review_status, frequency_band, age_band")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:words",
     ),
-    rows<WordSupportRow>(
+    factRows<WordSupportRow>(
       client
         .from("canonical_teaching_dictionary_word_support")
         .select("canonical_word_id, micro_skill_key, support_role, row_status, review_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:supports",
     ),
-    rows<WordBandingRow>(
+    factRows<WordBandingRow>(
       client
         .from("canonical_teaching_dictionary_word_banding")
         .select("canonical_word_id, banding_version, structural_score, complexity_level, row_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:bandings",
     ),
-    rows<BandingOverrideRow>(
+    factRows<BandingOverrideRow>(
       client
         .from("canonical_teaching_dictionary_banding_overrides")
         .select("canonical_word_id, override_level, override_reason, row_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:overrides",
     ),
-    rows<BandingVersionRow>(
+    factRows<BandingVersionRow>(
       client
         .from("canonical_teaching_dictionary_banding_versions")
         .select("banding_version, is_active, level_count")
         .eq("is_active", true),
       "loadDailyPlanFacts:bandingVersion",
     ),
-    rows<SkillLevelAllocationRow>(
+    factRows<SkillLevelAllocationRow>(
       client
         .from("canonical_teaching_dictionary_skill_level_allocation")
         .select("micro_skill_key, complexity_level, allocation, banding_version, row_status")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:allocations",
     ),
-    rows<ProbeRunRow>(
+    factRows<ProbeRunRow>(
       client
         .from("adle_probe_runs")
         .select("child_id, micro_skill_key, run_on, row_status")
@@ -291,14 +312,14 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:probeRuns",
     ),
-    rows<TaughtHistoryRow>(
+    factRows<TaughtHistoryRow>(
       client
         .from("adle_taught_word_history")
         .select("child_id, canonical_word_id, event_kind, occurred_on, source_ref, row_status, attempt_text")
         .eq("child_id", childId),
       "loadDailyPlanFacts:taughtHistory",
     ),
-    rows<OutcomeEventRow & { id: string }>(
+    factRows<OutcomeEventRow & { id: string }>(
       client
         .from("adle_review_outcome_events")
         .select(
@@ -307,7 +328,7 @@ export async function loadDailyPlanFacts(
         .eq("child_id", childId),
       "loadDailyPlanFacts:outcomeEvents",
     ),
-    rows<AuthenticUseEventRow>(
+    factRows<AuthenticUseEventRow>(
       client
         .from("adle_authentic_use_events")
         .select("child_id, canonical_word_id, occurred_on, use_kind, parent_verified, piece_ref, source_ref, row_status, provenance_kind")
@@ -315,7 +336,7 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:authenticUse",
     ),
-    rows<SlippageEventRow>(
+    factRows<SlippageEventRow>(
       client
         .from("adle_slippage_events")
         .select(
@@ -325,7 +346,7 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:slippage",
     ),
-    rows<{
+    factRows<{
       id: string;
       schedule_word_id: string;
       child_id: string;
@@ -346,7 +367,7 @@ export async function loadDailyPlanFacts(
         .eq("decision", "RETIRE"),
       "loadDailyPlanFacts:retirementReceipts",
     ),
-    rows<{
+    factRows<{
       micro_skill_key: string;
       selector_kind: "affix" | "base_word_family";
       feature_type: "prefix" | "suffix" | "base" | "root";
@@ -365,7 +386,7 @@ export async function loadDailyPlanFacts(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:transferSelectorProfiles",
     ),
-    rows<{
+    factRows<{
       canonical_word_id: string;
       morphology_parts: unknown;
       feature_keys: unknown;
@@ -394,7 +415,26 @@ export async function loadDailyPlanFacts(
   const scheduleWords = scheduleWordRows.map(scheduleWordFromRow);
   const learningItems = learningItemRows.map(learningItemFromRow);
   const words = wordRows.map(dictionaryWordFromRow);
-  const supports = supportRows.map(wordSupportFromRow);
+  let supports = supportRows.map(wordSupportFromRow);
+  if (authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled) {
+    const environmentKey = resolveAdleRouteActivationEnvironment();
+    if (!environmentKey) throw new Error("loadDailyPlanFacts: relationship environment unavailable");
+    const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
+      explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey) });
+    // Published demonstrates relationships are projected through the released
+    // calculation, including its dictionary/child-band/complexity gates.
+    const admitted = new Set(authority.relationships.map(r => `${r.canonicalWordId}:${r.microSkillKey}`));
+    supports = supports.filter(s => s.supportRole !== "contrast" && admitted.has(`${s.canonicalWordId}:${s.microSkillKey}`));
+    const supportPairs = new Set(supports.map(s => `${s.canonicalWordId}:${s.microSkillKey}`));
+    for (const relationship of authority.relationships) {
+      const pair = `${relationship.canonicalWordId}:${relationship.microSkillKey}`;
+      if (!supportPairs.has(pair)) {
+        supports.push({ canonicalWordId: relationship.canonicalWordId, microSkillKey: relationship.microSkillKey,
+          supportRole: "support_example", rowStatus: "active", reviewStatus: "approved_for_first_exposure" });
+        supportPairs.add(pair);
+      }
+    }
+  }
   const bandings = bandingRows.map(wordBandingFromRow);
   const overrides = overrideRows.map(bandingOverrideFromRow);
   const activeBandingVersion = bandingVersionFromRow(bandingVersionRows[0]);
@@ -699,6 +739,9 @@ export async function loadDailyPlanFacts(
   };
 
   return {
+    proficiencyRelationships: supports.filter(s => s.rowStatus === "active" && s.supportRole !== "contrast").map(s => ({ canonicalWordId: s.canonicalWordId, microSkillKey: s.microSkillKey })),
+    proficiencyReports,
+    proficiencyFingerprint: fingerprint({ wordStates, words, supports, bandings, overrides, activeBandingVersion, childBand, allocations, policy: PROFICIENCY_POLICY_V1 }),
     facts,
     microSkillKeyByWordId,
     microSkillKeysByWordId,

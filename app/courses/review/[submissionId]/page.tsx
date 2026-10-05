@@ -1,3 +1,4 @@
+import { loadAuthenticUseReview, type AuthenticUseReview } from "@/lib/authentic-use/review";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound, redirect } from "next/navigation";
@@ -343,13 +344,16 @@ function LessonParentActionsSection(props: {
   showZeroSuggestionGuidance: boolean;
   freeWritingEvidenceCandidates: FreeWritingEvidenceReviewCandidate[];
   parentIdentifiedOccurrences: ParentIdentifiedOccurrenceCandidate[];
+  authenticUse: AuthenticUseReview;
   passageReview: Awaited<ReturnType<typeof loadPassageContextReview>>;
 }) {
   const passagePending = props.passageReview.readError || props.passageReview.status === "pending" ||
     props.passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null);
-  const approvalBlocked = !props.completionSummary.canComplete || passagePending;
+  const authenticActive = props.authenticUse.control.mode !== "off";
+  const manualRequired = props.authenticUse.preview?.requiresManualReview || props.authenticUse.sourceMissing || passagePending;
+  const approvalBlocked = !props.completionSummary.canComplete || (passagePending && !authenticActive);
   const blockingReasons = [...props.completionSummary.blockingReasons,
-    ...(passagePending ? ["Finish or dismiss the context suggestions before approval."] : [])];
+    ...(passagePending && !authenticActive ? ["Finish or dismiss the context suggestions before approval."] : [])];
   const confirmableEvidenceCandidates =
     props.freeWritingEvidenceCandidates.filter(
       (candidate) => candidate.canConfirm,
@@ -359,7 +363,7 @@ function LessonParentActionsSection(props: {
       (candidate) => !candidate.canConfirm,
     );
   const renderEvidenceConfirmationInputs = () =>
-    confirmableEvidenceCandidates.length > 0 ? (
+    props.authenticUse.control.mode !== "enabled" && confirmableEvidenceCandidates.length > 0 ? (
       <div className="grid gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
         <p className="text-sm font-semibold text-amber-950">
           Confirm free-writing Gold Bar evidence
@@ -393,6 +397,19 @@ function LessonParentActionsSection(props: {
       </div>
     ) : null;
 
+  const renderAuthenticConfirmation = () => authenticActive && !props.authenticUse.finalised ? (
+    <div className="grid gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm">
+      <label className="flex items-start gap-2">
+        <input type="checkbox" name="authentic_use_review_confirmed" value="true" required />
+        <span>I have checked the child&apos;s original lesson writing and review text, and recorded any spelling or context errors.</span>
+      </label>
+      {manualRequired ? <label className="flex items-start gap-2">
+        <input type="checkbox" name="authentic_use_manual_review" value="true" required />
+        <span>The automatic checks are incomplete. I have manually reviewed the original writing. Unresolved findings will still exclude affected words.</span>
+      </label> : null}
+    </div>
+  ) : null;
+
   return (
     <section className="brand-card rounded-3xl p-4 md:p-5">
       <div>
@@ -420,7 +437,20 @@ function LessonParentActionsSection(props: {
         </div>
       ) : null}
 
-      {props.freeWritingEvidenceCandidates.length > 0 ? (
+      {authenticActive ? <div className="mt-4 grid gap-2 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm">
+        <p className="font-semibold">Authentic use {props.authenticUse.control.mode === "shadow" ? "preview (shadow)" : "from original writing"}</p>
+        <p>{props.authenticUse.finalised ? "The first review is finalised. Further reviews and retries add no credits." :
+          !props.authenticUse.firstAttempt ? "This is a retry. It earns no new authentic-use credit." :
+          props.authenticUse.control.mode === "shadow" ? "This preview does not award gold or skill credit." :
+          props.authenticUse.eligibleForAwards ? "Each qualifying word receives one credit when you first send back or mark complete. Gold and skill eligibility are checked separately." :
+          "This writing predates activation and will not receive new credits."}</p>
+        {props.authenticUse.sourceMissing ? <p>The original writing snapshot is unavailable; no words can receive credit.</p> : <>
+          <p>{props.authenticUse.preview?.candidates.length ?? 0} qualifying words: {props.authenticUse.preview?.candidates.map(word => word.observedWord).join(", ") || "None"}.</p>
+          <p>Excluded by confirmed or unresolved findings: {props.authenticUse.preview?.blocked.map(word => word.wordKey).join(", ") || "None"}.</p>
+        </>}
+      </div> : null}
+
+      {props.authenticUse.control.mode !== "enabled" && props.freeWritingEvidenceCandidates.length > 0 ? (
         <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
           <div>
             <p className="text-sm font-medium text-[color:var(--ink)]">
@@ -482,6 +512,7 @@ function LessonParentActionsSection(props: {
             value={props.redirectPath}
           />
           {renderEvidenceConfirmationInputs()}
+          {renderAuthenticConfirmation()}
           <button
             className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
@@ -516,6 +547,7 @@ function LessonParentActionsSection(props: {
             value={props.redirectPath}
           />
           {renderEvidenceConfirmationInputs()}
+          {renderAuthenticConfirmation()}
           <label className="grid gap-1 text-sm text-[color:var(--ink)]">
             <span className="font-medium">Parent note</span>
             <textarea
@@ -1008,6 +1040,8 @@ export default async function CourseReviewDetailPage({
     notFound();
   }
 
+  const authenticUse = await loadAuthenticUseReview({ submissionId: submission.id, parentUserId: user.id, childId: submission.child_id });
+
   const [
     { data: task },
     { data: course },
@@ -1390,6 +1424,7 @@ export default async function CourseReviewDetailPage({
           }
           freeWritingEvidenceCandidates={freeWritingEvidenceCandidates}
           parentIdentifiedOccurrences={parentIdentifiedOccurrences}
+          authenticUse={authenticUse}
           passageReview={passageReview}
         />
       </section></ReviewWordSelectionProvider>

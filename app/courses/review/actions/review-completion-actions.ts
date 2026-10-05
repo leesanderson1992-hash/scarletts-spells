@@ -1,3 +1,5 @@
+import { loadAuthenticUseControl, prepareAuthenticUseParentAction } from "@/lib/authentic-use/review";
+import { recoverAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -1048,10 +1050,13 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     );
   }
 
+  const authenticUseControl = await loadAuthenticUseControl(createServiceRoleClient(), user.id, submission.child_id);
+  const manualAuthenticReview = authenticUseControl.mode !== "off" && formData.get("authentic_use_manual_review") === "true";
+
   const passagePrepared = await preparePassageContextReturn({
     submissionId: submission.id, parentUserId: user.id, childId: submission.child_id,
   });
-  if (passagePrepared !== "ready") {
+  if (passagePrepared !== "ready" && !manualAuthenticReview) {
     redirect(buildRedirectWithMessage(safeRedirectPath, "error",
       passagePrepared === "pending"
         ? "The context scan is still running. Reload before sending the work back."
@@ -1060,7 +1065,7 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
 
   const selectedEvidenceCandidateIds =
     parseFreeWritingEvidenceCandidateIds(formData);
-  if (selectedEvidenceCandidateIds.length > 0) {
+  if (selectedEvidenceCandidateIds.length > 0 && authenticUseControl.mode !== "enabled") {
     await confirmFreeWritingEvidenceCandidates({
       supabase,
       parentUserId: user.id,
@@ -1285,15 +1290,14 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
     );
   }
 
-  const { error } = await supabase
-    .from("task_submissions")
-    .update({
-      parent_review_status: "returned",
-      parent_review_note: safeParentNote,
-      parent_reviewed_at: new Date().toISOString(),
-    })
-    .eq("id", submission.id)
-    .eq("parent_user_id", user.id);
+  const authenticReturn = await prepareAuthenticUseParentAction({ submissionId: submission.id,
+    parentUserId: user.id, childId: submission.child_id, formData });
+  const { error } = authenticReturn.review.control.mode !== "off"
+    ? await supabase.rpc("finalise_authentic_use_parent_action", { p_submission_id: submission.id,
+        p_preparation_id: authenticReturn.preparationId, p_action: "returned", p_parent_note: safeParentNote })
+    : await supabase.from("task_submissions").update({ parent_review_status: "returned",
+        parent_review_note: safeParentNote, parent_reviewed_at: new Date().toISOString() })
+        .eq("id", submission.id).eq("parent_user_id", user.id);
 
   if (error) {
     redirect(
@@ -1303,6 +1307,10 @@ export async function returnSubmissionToChildImpl(formData: FormData) {
         "We couldn't send that submission back just yet.",
       ),
     );
+  }
+
+  if (authenticUseControl.mode === "enabled") {
+    await recoverAuthenticUseDeliveries().catch(() => console.error("[authentic-use] delivery deferred to recovery"));
   }
 
   if (hydratedIssuesToSendBack.length > 0) {
@@ -1411,10 +1419,13 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     );
   }
 
+  const authenticUseControl = await loadAuthenticUseControl(createServiceRoleClient(), user.id, submission.child_id);
+  const manualAuthenticReview = authenticUseControl.mode !== "off" && formData.get("authentic_use_manual_review") === "true";
+
   const passageReview = await loadPassageContextReview({ client: createServiceRoleClient(),
     submissionId: submission.id, parentUserId: user.id, childId: submission.child_id });
-  if (passageReview.readError || passageReview.status === "pending" ||
-    passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null)) {
+  if (!manualAuthenticReview && (passageReview.readError || passageReview.status === "pending" ||
+    passageReview.rows.some((row) => !row.dismissed && row.issueStatus === null))) {
     redirect(buildRedirectWithMessage(safeRedirectPath, "error",
       "Finish or dismiss the context suggestions before approving this writing."));
   }
@@ -1423,15 +1434,15 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     client: createServiceRoleClient(), submissionId: submission.id,
     parentUserId: user.id, childId: submission.child_id,
   });
-  if (contextualReview.sourceMissing || contextualReview.enabled && contextualReview.rows.some((row) =>
-    row.sourceStatus !== "ready" || row.parentClassification === null)) {
+  if (!manualAuthenticReview && (contextualReview.sourceMissing || contextualReview.enabled && contextualReview.rows.some((row) =>
+    row.sourceStatus !== "ready" || row.parentClassification === null))) {
     redirect(buildRedirectWithMessage(safeRedirectPath, "error",
       "Review every contextual word-choice occurrence before approving."));
   }
 
   const selectedEvidenceCandidateIds =
     parseFreeWritingEvidenceCandidateIds(formData);
-  if (selectedEvidenceCandidateIds.length > 0) {
+  if (selectedEvidenceCandidateIds.length > 0 && authenticUseControl.mode !== "enabled") {
     await confirmFreeWritingEvidenceCandidates({
       supabase,
       parentUserId: user.id,
@@ -1541,14 +1552,13 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
     }
   }
 
-  const { data: approvalResult, error: approvalError } = await supabase.rpc(
-    "approve_task_submission_with_reason_drafts",
-    {
-      p_submission_id: submission.id,
-      p_parent_user_id: user.id,
-      p_child_id: submission.child_id,
-    },
-  );
+  const authenticApproval = await prepareAuthenticUseParentAction({ submissionId: submission.id,
+    parentUserId: user.id, childId: submission.child_id, formData });
+  const { data: approvalResult, error: approvalError } = authenticApproval.review.control.mode !== "off"
+    ? await supabase.rpc("finalise_authentic_use_parent_action", { p_submission_id: submission.id,
+        p_preparation_id: authenticApproval.preparationId, p_action: "approved", p_parent_note: null })
+    : await supabase.rpc("approve_task_submission_with_reason_drafts", { p_submission_id: submission.id,
+        p_parent_user_id: user.id, p_child_id: submission.child_id });
 
   if (approvalError) {
     redirect(
@@ -1634,6 +1644,10 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
         );
       }
     }
+  }
+
+  if (authenticUseControl.mode === "enabled") {
+    await recoverAuthenticUseDeliveries().catch(() => console.error("[authentic-use] delivery deferred to recovery"));
   }
 
   // ADLE Slice 6: live authentic-use emission (Slice 4 open-question-3).

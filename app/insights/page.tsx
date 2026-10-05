@@ -1,3 +1,4 @@
+import { AuthenticUseProgress } from "@/components/authentic-use-progress";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -742,6 +743,8 @@ export default async function InsightsPage({
               ) : null}
             </section>
 
+            <AuthenticUseProgress client={supabase} childId={selectedChild.id} parentUserId={user.id} />
+
             <GoldForgePanel
               nuggetCount={nuggetCount}
               inMachineCount={inMachineCount}
@@ -1172,6 +1175,8 @@ export default async function InsightsPage({
             </p>
           ) : null}
         </section>
+
+        <AuthenticUseProgress client={supabase} childId={selectedChild.id} parentUserId={user.id} />
 
         {pendingAdleLearning ? (
           <PendingAdleLearningSection

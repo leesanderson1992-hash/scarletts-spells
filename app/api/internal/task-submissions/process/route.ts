@@ -1,3 +1,4 @@
+import { recoverAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
 import { timingSafeEqual } from "node:crypto";
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -31,6 +32,10 @@ export async function GET(request: NextRequest) {
   }
 
   // Shadow recovery is independent of core submission recovery failures.
+  const authenticUsePending = recoverAuthenticUseDeliveries().catch(() => {
+    console.error("[authentic-use] recovery unavailable", { code: "AUTHENTIC_USE_RECOVERY_UNAVAILABLE" });
+    return { status: "unavailable" as const };
+  });
   const contextShadowPending = recoverContextShadowJobs().catch(() => {
     console.error("[context-shadow] recovery unavailable", { code: "CONTEXT_SHADOW_RECOVERY_UNAVAILABLE" });
     return { status: "unavailable" as const };
@@ -52,9 +57,9 @@ export async function GET(request: NextRequest) {
       console.error("[writing-context] recovery unavailable", { code: "CONTEXT_RECOVERY_UNAVAILABLE" });
     }
     const contextShadow = await contextShadowPending;
-    return NextResponse.json({ ...summary, writingShadow, writingContext, contextShadow }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ ...summary, writingShadow, writingContext, contextShadow, authenticUse: await authenticUsePending }, { headers: { "Cache-Control": "no-store" } });
   } catch {
-    await contextShadowPending;
+    await Promise.allSettled([contextShadowPending, authenticUsePending]);
     console.error("[task-submission-processing] recovery failed", { code: "SUBMISSION_RECOVERY_UNAVAILABLE" });
     return NextResponse.json({ error: "Submission recovery failed." }, { status: 500 });
   }
