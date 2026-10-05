@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { calculateAuthenticUsePreview, AUTHENTIC_USE_POLICY, type AuthenticUseFinding, type AuthenticUsePreview } from "@/lib/writing-engine/whole-writing/authentic-use-credit";
 import { extractWholeWriting, object, type SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
+import { buildAuthenticWritingSourceEntityId } from "@/lib/writing-engine/analysis/authentic-submission";
 
 type Row = Record<string, unknown>;
 const rows = (value: unknown): Row[] => Array.isArray(value) ? value.map(object) : [];
@@ -22,28 +23,77 @@ export async function loadAuthenticUseControl(client: SupabaseClient, parentUser
 /** Normalize existing findings only. Never run a new spelling or AI analyser. */
 export function findingsFromReviewFacts(facts: Row): AuthenticUseFinding[] {
   const issues = rows(facts.issues);
+  const suggestions = rows(facts.suggestions);
+  const misspellings = rows(facts.misspellings);
   const verifications = new Map<string, Row>();
   for (const row of rows(facts.verifications)) verifications.set(string(row.source_entity_id), row);
-  const disposition = (issue: Row): AuthenticUseFinding["disposition"] => {
+  const submissionId = string(object(facts.submission).id);
+  const suggestionByMisspellingId = new Map(suggestions.filter(row => string(row.misspelling_instance_id))
+    .map(row => [string(row.misspelling_instance_id), row]));
+  const misspellingById = new Map(misspellings.map(row => [string(row.id), row]));
+  const verificationByMisspellingId = new Map<string, Row>();
+  for (const misspelling of misspellings) {
+    const suggestion = suggestionByMisspellingId.get(string(misspelling.id));
+    const targetText = string(suggestion?.suggested_replacement) || string(misspelling.suggested_word) || string(misspelling.corrected_word) || null;
+    const hasStart = typeof misspelling.position_start === "number" || typeof misspelling.position_start === "string" && misspelling.position_start.trim() !== "";
+    const hasEnd = typeof misspelling.position_end === "number" || typeof misspelling.position_end === "string" && misspelling.position_end.trim() !== "";
+    const positionStart = Number(misspelling.position_start), positionEnd = Number(misspelling.position_end);
+    if (!submissionId || !hasStart || !hasEnd || !Number.isSafeInteger(positionStart) || !Number.isSafeInteger(positionEnd)) continue;
+    const sourceEntityId = buildAuthenticWritingSourceEntityId({ taskSubmissionId: submissionId,
+      writingSampleId: string(misspelling.writing_sample_id) || null, positionStart, positionEnd,
+      observedText: string(misspelling.misspelled_word), targetText });
+    const verification = verifications.get(sourceEntityId);
+    if (verification) verificationByMisspellingId.set(string(misspelling.id), verification);
+  }
+  const verificationForSuggestion = (suggestion: Row) => verificationByMisspellingId.get(string(suggestion.misspelling_instance_id))
+    ?? verifications.get(string(suggestion.id));
+  const verificationForIssue = (issue: Row) => verificationByMisspellingId.get(string(issue.source_misspelling_instance_id))
+    ?? verificationForSuggestion(suggestions.find(suggestion => suggestion.id === issue.source_suggestion_id) ?? {})
+    ?? verifications.get(string(issue.id));
+  const verifiedDisposition = (verification: Row | undefined): AuthenticUseFinding["disposition"] | null => {
+    const decision = string(verification?.decision);
+    if (["false_positive", "not_a_learning_issue"].includes(decision)) return "dismissed";
+    if (["accepted", "overridden"].includes(decision)) return "error";
+    return null;
+  };
+  const issueDisposition = (issue: Row): AuthenticUseFinding["disposition"] => {
+    const parentDecision = verifiedDisposition(verificationForIssue(issue));
+    if (parentDecision) return parentDecision;
+    if (string(issue.source_misspelling_instance_id) || string(issue.source_suggestion_id)) return "unresolved";
     if (issue.final_classification === "not_an_issue" || issue.draft_final_classification === "not_an_issue") return "dismissed";
     return issue.parent_marked_at || issue.approved_replacement || issue.final_classification || issue.draft_final_classification ? "error" : "unresolved";
   };
-  const result: AuthenticUseFinding[] = issues.map(issue => ({ id: string(issue.id), observed: string(issue.observed_text),
-    intended: string(issue.approved_replacement) || null, disposition: disposition(issue), occurrenceId: string(issue.source_writing_occurrence_id) || null }));
-  for (const suggestion of rows(facts.suggestions)) {
+  const intendedForIssue = (issue: Row) => {
+    const misspelling = misspellingById.get(string(issue.source_misspelling_instance_id));
+    const suggestion = suggestions.find(row => row.id === issue.source_suggestion_id)
+      ?? suggestionByMisspellingId.get(string(misspelling?.id));
+    return string(issue.approved_replacement) || string(suggestion?.suggested_replacement)
+      || string(misspelling?.suggested_word) || string(misspelling?.corrected_word) || null;
+  };
+  const result: AuthenticUseFinding[] = issues.map(issue => {
+    const disposition = issueDisposition(issue);
+    return { id: string(issue.id), observed: string(issue.observed_text),
+      intended: disposition === "error" ? intendedForIssue(issue) : null, disposition,
+      occurrenceId: string(issue.source_writing_occurrence_id) || null };
+  });
+  for (const suggestion of suggestions) {
     if (issues.some(issue => issue.source_suggestion_id === suggestion.id)) continue;
-    const verification = verifications.get(string(suggestion.id));
-    const dismissed = suggestion.suggestion_status === "rejected" || suggestion.suggestion_status === "superseded" || verification?.decision === "false_positive";
+    const verification = verificationForSuggestion(suggestion);
+    const parentDisposition = verifiedDisposition(verification);
+    const hasLinkedMisspelling = Boolean(string(suggestion.misspelling_instance_id));
+    const dismissed = parentDisposition === "dismissed" || !hasLinkedMisspelling && ["rejected", "superseded"].includes(string(suggestion.suggestion_status));
+    const error = parentDisposition === "error" || !hasLinkedMisspelling && suggestion.suggestion_status === "accepted";
     result.push({ id: string(suggestion.id), observed: string(suggestion.observed_text),
-      intended: suggestion.suggestion_status === "accepted" ? string(suggestion.suggested_replacement) || null : null,
-      disposition: dismissed ? "dismissed" : suggestion.suggestion_status === "accepted" ? "error" : "unresolved" });
+      intended: error ? string(suggestion.suggested_replacement) || null : null,
+      disposition: dismissed ? "dismissed" : error ? "error" : "unresolved" });
   }
-  for (const misspelling of rows(facts.misspellings)) {
-    if (issues.some(issue => issue.source_misspelling_instance_id === misspelling.id) || rows(facts.suggestions).some(s => s.misspelling_instance_id === misspelling.id)) continue;
-    const verification = verifications.get(string(misspelling.id));
+  for (const misspelling of misspellings) {
+    if (issues.some(issue => issue.source_misspelling_instance_id === misspelling.id) || suggestions.some(s => s.misspelling_instance_id === misspelling.id)) continue;
+    const verification = verificationByMisspellingId.get(string(misspelling.id)) ?? verifications.get(string(misspelling.id));
+    const parentDisposition = verifiedDisposition(verification);
     result.push({ id: string(misspelling.id), observed: string(misspelling.misspelled_word),
-      intended: verification && ["accepted", "overridden"].includes(string(verification.decision)) ? string(misspelling.corrected_word) || null : null,
-      disposition: misspelling.is_false_positive || verification?.decision === "false_positive" ? "dismissed" : verification ? "error" : "unresolved" });
+      intended: parentDisposition === "error" ? string(misspelling.suggested_word) || string(misspelling.corrected_word) || null : null,
+      disposition: parentDisposition ?? "unresolved" });
   }
   const passageDecisions = new Map<string, Row>();
   const passageCorrections = new Map<string, string>();
@@ -96,7 +146,8 @@ export async function prepareAuthenticUseParentAction(input: { submissionId: str
   if (review.control.mode === "off" || review.finalised) return { review, preparationId: null };
   if (input.formData.get("authentic_use_review_confirmed") !== "true") throw new Error("Confirm that you reviewed the original writing before awarding authentic uses.");
   const manualReview = input.formData.get("authentic_use_manual_review") === "true";
-  const preview = review.preview ?? { policyVersion: AUTHENTIC_USE_POLICY, snapshotId: "", candidates: [], blocked: [], excludedFields: [], requiresManualReview: true };
+  const preview = review.preview ?? { policyVersion: AUTHENTIC_USE_POLICY, snapshotId: "", candidates: [], blocked: [], excludedFields: [], requiresManualReview: true,
+    contextCoverage: { status: "incomplete" as const, expectedWindowCount: null, scannedWindowCount: 0, missingWindowFingerprints: [] } };
   if (preview.requiresManualReview && !manualReview) throw new Error("The automatic checks are incomplete. Confirm a manual review of the original writing before continuing.");
   if (review.preview?.snapshotId) {
     const source = await client.from("writing_source_snapshots").select("*").eq("id", review.preview.snapshotId)

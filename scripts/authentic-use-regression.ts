@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { readProficiencyFactRows } from "../lib/authentic-use/paged-facts";
-import { recoverAuthenticUseDeliveries } from "../lib/authentic-use/delivery";
+import { drainAuthenticUseDeliveries, recoverAuthenticUseDeliveries } from "../lib/authentic-use/delivery";
 import { calculateAuthenticUsePreview, type AuthenticUseFinding } from "../lib/writing-engine/whole-writing/authentic-use-credit";
 import { extractWholeWriting, type SourceSnapshot } from "../lib/writing-engine/whole-writing/source";
 import { planPassageWindows } from "../lib/writing-engine/whole-writing/context-passage-scan";
@@ -35,6 +35,8 @@ function preview(findings: AuthenticUseFinding[] = []) {
 }
 const clean = preview();
 assert.equal(clean.requiresManualReview, false);
+assert.deepEqual(clean.contextCoverage, { status: "complete", expectedWindowCount: windows.length,
+  scannedWindowCount: windows.length, missingWindowFingerprints: [] });
 assert.deepEqual(clean.candidates.map(c => c.wordKey), ["becaus", "because", "it's", "its", "joy", "novel"]);
 assert.equal(clean.candidates.find(c => c.wordKey === "novel")!.occurrenceIds.length, 3);
 assert.equal(clean.candidates.find(c => c.wordKey === "novel")!.suppliedSpelling, true);
@@ -55,6 +57,7 @@ const its = extracted.occurrences.find(o => o.observedText === "its")!;
 assert(!preview([{ id: "context", observed: "", occurrenceId: its.id, intended: "it's", disposition: "error" }]).candidates.some(c => ["its", "it's"].includes(c.wordKey)));
 assert(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: false, scannedWindows: [] }).requiresManualReview);
 assert(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: true, scannedWindows: [] }).requiresManualReview);
+assert.equal(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: true, scannedWindows: [] }).contextCoverage?.status, "incomplete");
 const facts = findingsFromReviewFacts({
   issues: [{ id: "manual", observed_text: "becaus", approved_replacement: "because", parent_marked_at: "now" }],
   suggestions: [{ id: "dismiss", observed_text: "novel", suggestion_status: "rejected" }, { id: "pending", observed_text: "joy", suggestion_status: "pending" }],
@@ -69,6 +72,27 @@ assert.equal(facts.find(f => f.id === "passage")!.disposition, "dismissed");
 assert.equal(facts.find(f => f.id === "uncertain")!.disposition, "unresolved");
 const independentFindings = findingsFromReviewFacts({ issues: [{ id: "dismissed-spelling", source_writing_occurrence_id: its.id, final_classification: "not_an_issue" }], passage_findings: [{ id: "context-remains", occurrence_id: its.id, observed_text: "its" }] });
 assert.equal(independentFindings.find(f => f.id === "context-remains")!.disposition, "unresolved");
+function spellingFacts(decision?: "false_positive" | "not_a_learning_issue" | "accepted" | "overridden") {
+  const sourceEntityId = "authentic_writing::first::sample::8-13::while::whole";
+  return findingsFromReviewFacts({
+    submission: { id: "first" },
+    misspellings: [{ id: "misspelling", writing_sample_id: "sample", position_start: 8, position_end: 13,
+      misspelled_word: "while", corrected_word: "whole" }],
+    suggestions: [{ id: "suggestion", misspelling_instance_id: "misspelling", observed_text: "while",
+      suggested_replacement: "whole", suggestion_status: "pending" }],
+    issues: [{ id: "promoted", source_suggestion_id: "suggestion", source_misspelling_instance_id: "misspelling",
+      observed_text: "while", final_classification: "learning_gap" }],
+    verifications: decision ? [{ id: `verification-${decision}`, source_entity_id: sourceEntityId, decision }] : [],
+  });
+}
+assert.equal(spellingFacts("false_positive")[0].disposition, "dismissed");
+assert.equal(spellingFacts("not_a_learning_issue")[0].disposition, "dismissed");
+for (const decision of ["accepted", "overridden"] as const) {
+  const finding = spellingFacts(decision)[0];
+  assert.equal(finding.disposition, "error");
+  assert.equal(finding.intended, "whole");
+}
+assert.equal(spellingFacts()[0].disposition, "unresolved");
 const supplied = adaptAuthenticUse({ id: "event", childId: "child", canonicalWordId: "word", occurredOn: "2026-10-05",
   verifiedAt: "2026-10-05T10:00:00Z", useKind: "authentic_correct_use", parentVerified: true, pieceRef: "first-submission:chain",
   sourceRef: "authentic-use:credit", rowStatus: "active", provenanceKind: "parent_verified_supplied_spelling_application", reviewEncounterId: null, linkedReviewAttempt: null });
@@ -102,6 +126,21 @@ async function runDeliveryChecks() {
   assert.equal(complete.at(-1)!.id, 1200);
   await deliveryFailure("gold");
   await deliveryFailure("proficiency");
-  console.log("Authentic-use candidate, finding, provenance and independent consumer regressions passed.");
+  const pending = Array.from({ length: 184 }, (_, index) => ({ consumer: index % 2 ? "gold" : "proficiency",
+    credit_id: `credit-${Math.floor(index / 2)}`, child_id: "one-child", parent_user_id: "one-parent", claim_token: `lease-${index}` }));
+  const builder = { select: () => builder, eq: () => builder, order: () => builder, limit: async () => ({ data: [], error: null }) };
+  const drainClient = {
+    from: () => builder,
+    rpc: async (name: string, params: Record<string, unknown> = {}) => {
+      if (name === "claim_authentic_use_deliveries") return { data: pending.splice(0, Number(params.p_limit)), error: null };
+      if (name === "count_authentic_use_delivery_backlog") return { data: pending.length, error: null };
+      return { data: { status: name === "stage_authentic_use_proficiency" ? "staged" : "delivered" }, error: null };
+    },
+  } as unknown as SupabaseClient;
+  const drained = await drainAuthenticUseDeliveries({ client: drainClient, calculate: async () => [], timeBudgetMs: 60_000 });
+  assert.deepEqual({ claimed: drained.claimed, delivered: drained.delivered, remaining: drained.remaining,
+    batches: drained.batches, failed: drained.failed, timedOut: drained.timedOut },
+  { claimed: 184, delivered: 184, remaining: 0, batches: 2, failed: 0, timedOut: false });
+  console.log("Authentic-use candidate, parent-decision, coverage, 184-receipt drain and independent consumer regressions passed.");
 }
 runDeliveryChecks().catch(error => { console.error(error); process.exitCode = 1; });

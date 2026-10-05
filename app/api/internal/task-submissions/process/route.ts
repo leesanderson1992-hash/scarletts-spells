@@ -1,4 +1,4 @@
-import { recoverAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
+import { drainAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
 import { timingSafeEqual } from "node:crypto";
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Shadow recovery is independent of core submission recovery failures.
-  const authenticUsePending = recoverAuthenticUseDeliveries().catch(() => {
+  const authenticUsePending = drainAuthenticUseDeliveries({ timeBudgetMs: 45_000 }).catch(() => {
     console.error("[authentic-use] recovery unavailable", { code: "AUTHENTIC_USE_RECOVERY_UNAVAILABLE" });
     return { status: "unavailable" as const };
   });

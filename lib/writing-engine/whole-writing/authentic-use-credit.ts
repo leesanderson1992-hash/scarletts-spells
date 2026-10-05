@@ -16,6 +16,12 @@ export type AuthenticUsePreview = {
   policyVersion: string; snapshotId: string; candidates: AuthenticUseCreditCandidate[];
   blocked: { wordKey: string; findingIds: string[] }[];
   excludedFields: string[]; requiresManualReview: boolean;
+  contextCoverage?: {
+    status: "complete" | "incomplete";
+    expectedWindowCount: number | null;
+    scannedWindowCount: number;
+    missingWindowFingerprints: string[];
+  };
 };
 
 /** Recognition is deliberately separate from correctness and skill membership.
@@ -31,6 +37,14 @@ export function calculateAuthenticUsePreview(input: {
   const occurrences = extracted.occurrences.filter(o => eligiblePaths.has(o.fieldKey));
   const expectedWindows = planPassageWindows({ fields: fields.map(f => ({ path: f.key, hash: f.textHash, text: f.rawText })) });
   const scanned = new Set(input.scannedWindows.filter(w => w.status === "SCANNED").map(w => w.windowFingerprint));
+  const missingWindowFingerprints = expectedWindows?.filter(window => !scanned.has(window.windowFingerprint))
+    .map(window => window.windowFingerprint) ?? [];
+  const contextCoverage = {
+    status: expectedWindows !== null && missingWindowFingerprints.length === 0 ? "complete" as const : "incomplete" as const,
+    expectedWindowCount: expectedWindows?.length ?? null,
+    scannedWindowCount: expectedWindows?.filter(window => scanned.has(window.windowFingerprint)).length ?? 0,
+    missingWindowFingerprints,
+  };
   const blocked = new Map<string, Set<string>>();
   const block = (text: string, id: string) => {
     // Multiword findings block their observed span. Only explicit intended forms
@@ -74,7 +88,8 @@ export function calculateAuthenticUsePreview(input: {
     candidates: [...candidates.values()].sort((a, b) => a.wordKey.localeCompare(b.wordKey)),
     blocked: [...blocked].map(([wordKey, ids]) => ({ wordKey, findingIds: [...ids].sort() })).sort((a,b) => a.wordKey.localeCompare(b.wordKey)),
     excludedFields: extracted.fields.filter(f => f.provenance !== "learner_response").map(f => f.key),
-    requiresManualReview: input.findings.some(f => f.disposition === "unresolved") || !input.spellingComplete || expectedWindows === null || expectedWindows.some(w => !scanned.has(w.windowFingerprint)) ||
+    requiresManualReview: input.findings.some(f => f.disposition === "unresolved") || !input.spellingComplete || contextCoverage.status === "incomplete" ||
       extracted.fields.some(f => f.provenance === "unknown"),
+    contextCoverage,
   };
 }
