@@ -1157,6 +1157,10 @@ export default async function CourseReviewDetailPage({
     childId: submission.child_id,
     taskId: submission.task_id,
   });
+  const contextSkillPairsResult = await createServiceRoleClient()
+    .from("contextual_micro_skill_pairs")
+    .select("member_a,member_b,micro_skill_key");
+  if (contextSkillPairsResult.error) throw new Error(contextSkillPairsResult.error.message);
 
   const { data: module } = task?.module_id
     ? await supabase
@@ -1387,6 +1391,7 @@ export default async function CourseReviewDetailPage({
 
         <UnifiedSpellingReviewTable
           rows={unifiedSpellingReviewItems}
+          contextPairs={contextSkillPairsResult.data ?? []}
           returnedContextExcerpts={returnedContextExcerpts}
           contextRows={contextAdvisory.rows}
           passageRows={passageReview.rows}

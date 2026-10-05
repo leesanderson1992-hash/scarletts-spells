@@ -20,6 +20,8 @@ export const ADLE_NEW_ASSIGNMENT_ROUTE_IDS = [
   "dynamic_prefix_word_lab",
   "dynamic_affix_word_lab",
   "compound_word_lab",
+  "comparative_superlative_word_lab",
+  "ing_endings_word_lab",
 ] as const satisfies readonly LessonRouteId[];
 
 export type PersistedRouteMetadataParseResult =
@@ -132,7 +134,7 @@ export function createPersistedRouteMetadataV2(
   if (!validCurriculumReleaseAuthority(curriculumRelease)) {
     throw new Error("Invalid ADLE curriculum release authority.");
   }
-  const v1 = createPersistedRouteMetadata(routeId);
+  const v1 = buildRouteMetadataShape(routeId);
   const route = getCurriculumRouteDefinition(
     v1.route.routeId,
     v1.route.routeVersion,
@@ -150,6 +152,11 @@ export function createPersistedRouteMetadataV2(
 export function createPersistedRouteMetadata(
   routeId: (typeof ADLE_NEW_ASSIGNMENT_ROUTE_IDS)[number],
 ): PersistedLessonRouteMetadataV1 {
+  if (routeId === "comparative_superlative_word_lab" || routeId === "ing_endings_word_lab") throw new Error("This lesson requires curriculum release metadata v2.");
+  return buildRouteMetadataShape(routeId);
+}
+
+function buildRouteMetadataShape(routeId: (typeof ADLE_NEW_ASSIGNMENT_ROUTE_IDS)[number]): PersistedLessonRouteMetadataV1 {
   const matches = ADLE_CURRICULUM_ROUTE_REGISTRY.filter(
     (route) => route.routeId === routeId,
   );
@@ -205,6 +212,7 @@ export function validatePersistedRouteMetadataCompatibility(
       blocker: routeIdExists ? "unsupported_route_version" : "unknown_route",
     };
   }
+  if ((route.routeId === "comparative_superlative_word_lab" || route.routeId === "ing_endings_word_lab") && metadata.metadataSchemaVersion !== 2) return { ok: false, blocker: "route_unavailable" };
   if (
     metadata.metadataSchemaVersion === ADLE_ROUTE_METADATA_SCHEMA_VERSION_V2 &&
     route.activationAuthority !== "database_route_activation"

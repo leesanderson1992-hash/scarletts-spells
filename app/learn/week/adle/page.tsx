@@ -29,6 +29,7 @@ import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefi
 import { isDynamicPrefixQaAuthorizedForUser } from "@/lib/adle/morphology/dynamic-prefix-qa-access";
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import { isBaseWordFamilyPilotEnabledForChild } from "@/lib/adle/morphology/base-word-family-pilot-access";
+import { isComparativeLessonPresentation } from "@/lib/adle/inflection/presentation";
 import { type ChildLearningReflection } from "@/lib/adle/morphology/reflections";
 import { ClearCompletedMorphologyResume } from "@/components/adle/morphology/clear-completed-resume";
 import { WordLabCompletionPerformanceObserver } from "@/components/adle/morphology/completion-performance-observer";
@@ -207,6 +208,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     completedReflection = completedDetails.reflection;
   }
 
+  const isComparativeLesson = isComparativeLessonPresentation(routeResolution, readModel.lessonRouteMetadata);
   return (
     <AppShell
       currentPath="/learn/week/adle"
@@ -215,6 +217,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       availableChildren={children}
       userEmail={user.email}
       layout="focus"
+      hideBrandEyebrow={isComparativeLesson}
+      hideLearnerIdentity={isComparativeLesson}
     >
       <section className="grid gap-4">
         <AdlePlanHeader planDate={readModel.planDate} backPath={backPath} saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />

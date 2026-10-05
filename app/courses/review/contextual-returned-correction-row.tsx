@@ -4,31 +4,31 @@ import { useState } from "react";
 
 import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-engine/persistence/learning-items";
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
-import { governedContextFamily } from "@/lib/writing-engine/whole-writing/context-advisory-family";
 import { getWritingIssueFinalClassificationLabel } from "@/lib/writing-practice/types";
 import type { ReturnedContextExcerpt } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
 import { finaliseContextualLearningOutcome, saveWritingIssueReasonDraft } from "./actions";
 
-const SKILL_BY_FAMILY = {
-  THERE_THEIR_THEYRE: "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
-  TO_TOO_TWO: "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
-  YOUR_YOURE: "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
-  ITS_ITS: "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
-} as const;
+export type ContextSkillPair = { member_a: string; member_b: string; micro_skill_key: string };
+
+const normalizeMember = (word: string) => word.normalize("NFC").toLowerCase().replace(/[’ʼ]/g, "'");
 
 const LEARNING_OUTCOMES = new Set(["concept_gap", "fragile_knowledge", "transfer_failure"]);
 
-export function ContextualReturnedCorrectionRow({ row, options, submissionId, redirectPath, colSpan, originalContextExcerpt }: {
+export function ContextualReturnedCorrectionRow({ row, options, contextPairs, submissionId, redirectPath, colSpan, originalContextExcerpt }: {
   row: UnifiedSpellingReviewItem;
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
+  contextPairs: ContextSkillPair[];
   submissionId: string;
   redirectPath: string;
   colSpan: number;
   originalContextExcerpt: ReturnedContextExcerpt | null;
 }) {
   const [outcome, setOutcome] = useState(row.draftFinalClassification ?? row.correctionOutcome ?? "");
-  const contextFamily = governedContextFamily(row.observedText);
-  const governedSkill = contextFamily ? SKILL_BY_FAMILY[contextFamily] : null;
+  const observed = normalizeMember(row.observedText);
+  const intended = normalizeMember(row.expectedCorrection ?? "");
+  const governedSkill = contextPairs.find((pair) =>
+    pair.member_a === observed && pair.member_b === intended ||
+    pair.member_b === observed && pair.member_a === intended)?.micro_skill_key ?? null;
   const allowedOptions = options.filter((item) => item.microSkillKey === governedSkill);
   const initialOption = allowedOptions[0];
   const [familyKey, setFamilyKey] = useState(initialOption?.skillFamilyKey ?? "");

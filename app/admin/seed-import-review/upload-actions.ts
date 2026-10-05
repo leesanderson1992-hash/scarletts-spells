@@ -309,6 +309,7 @@ export async function confirmSeedImportUpload(
     const protectedCountsAfter = await fetchProtectedCounts(supabase);
     assertProtectedCountsUnchanged(protectedCountsBefore, protectedCountsAfter);
     revalidatePath(ADMIN_SEED_IMPORT_REVIEW_PATH);
+    revalidatePath("/admin/canonical-mappings");
     return {
       saved: `Imported ${plan.rows.length} seed rows. ${preview.summary.manual_review_rows} need manual review.`,
     };

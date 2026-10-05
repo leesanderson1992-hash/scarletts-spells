@@ -54,11 +54,11 @@ assert.match(
   /grant execute on function public\.adle_record_canonical_intake_blocked[\s\S]*to service_role/,
 );
 
-assert.match(page, /Teaching Dictionary content is required for/);
-assert.match(page, /Mapping identity:/);
-assert.match(page, /resolved and resolver-visible/);
-assert.match(page, /Required reviewed content/);
-assert.match(page, /This context does not create, approve or publish teaching facts/);
+assert.match(page, /Current blockers/);
+assert.match(page, /Other unresolved/);
+assert.match(page, /Resolved history/);
+assert.match(page, /Archived/);
+assert.match(page, /ReadinessTable/);
 assert.doesNotMatch(page, /child_name|parent_email|raw_answer/i);
 assert.doesNotMatch(actions, /adle_persist_canonical_intake|daily_assignments|assignment_items/);
 assert.doesNotMatch(actions, /mark.{0,10}ready|create.{0,10}assignment/i);

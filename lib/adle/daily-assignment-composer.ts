@@ -177,6 +177,8 @@ export interface DailyPlanFacts {
    */
   genericV3Reflection?: ReadonlyMap<string, GenericV3ReflectionFact>;
   skillFamilyKeyBySkill: ReadonlyMap<string, string>;
+  /** Skills governed by approved contextual word pairs, across any D4 family. */
+  contextualSkillKeys?: ReadonlySet<string>;
   learningItems: readonly LearningItemFact[];
   prerequisiteKeysBySkill: ReadonlyMap<string, readonly string[]>;
   /** Slice 6 wiring of the Slice 5 (5D) extension: injected by the loader
@@ -365,7 +367,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
   const productionItems: PlanItemCandidate[] = [];
   for (const entry of reviewable) {
     const productionKey =
-      entry.word.requiresSentenceContext || entry.familyKey === HOMOPHONE_FAMILY_KEY
+      entry.word.requiresSentenceContext || facts.contextualSkillKeys?.has(entry.word.microSkillKey) || entry.familyKey === HOMOPHONE_FAMILY_KEY
         ? "DICTATION_SENTENCE_CONTEXT"
         : "REVIEW_DICTATION";
     const productionTemplate = templates.get(productionKey);
@@ -710,7 +712,8 @@ function assembleLesson(
     return result;
   }
   const dictationKey =
-    familyKey === HOMOPHONE_FAMILY_KEY ? "DICTATION_SENTENCE_CONTEXT" : "DICTATION_NO_IMAGE";
+    familyKey === HOMOPHONE_FAMILY_KEY || facts.contextualSkillKeys?.has(microSkillKey)
+      ? "DICTATION_SENTENCE_CONTEXT" : "DICTATION_NO_IMAGE";
   const dictationTemplate = templates.get(dictationKey);
   const probeTemplate = templates.get("DIAGNOSTIC_DICTATION_PROBE");
   if (result.probePlan !== null && probeTemplate === undefined) {

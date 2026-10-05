@@ -6,16 +6,20 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `21d4042cc40163ea51c54894b88476938164cf6b310fc17abc5e4f3819197ed8`
+Input fingerprint: `dd4bf20d69fd8994356b1c52ce6ca2cad8ffc4fd744d22e9edff1ea4206d88e8`
 
-Production morphology micro-skills: 21
-Structurally declared: 21
+Production morphology micro-skills: 25
+Structurally declared: 25
 Ready: 0
 Blocked: 0
-Not assessed: 21
+Not assessed: 25
 
 | Micro-skill | Route | Status | Blockers |
 |---|---|---|---|
+| D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT | comparative_superlative_word_lab:v1 | not_assessed | none |
+| D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E | comparative_superlative_word_lab:v1 | not_assessed | none |
+| D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR | comparative_superlative_word_lab:v1 | not_assessed | none |
+| D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I | comparative_superlative_word_lab:v1 | not_assessed | none |
 | D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX | base_word_lab:v2 | not_assessed | none |
 | D4_MOR_BASE_WORDS_IDENTIFY_BASE | base_word_lab:v2 | not_assessed | none |

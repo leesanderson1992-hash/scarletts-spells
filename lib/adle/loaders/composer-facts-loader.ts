@@ -405,6 +405,12 @@ export async function loadDailyPlanFacts(
     ),
   ]);
 
+  const contextualPairRows = await rows<{ micro_skill_key: string }>(
+    client.from("contextual_micro_skill_pairs").select("micro_skill_key"),
+    "loadDailyPlanFacts:contextualSkillPairs",
+  );
+  const contextualSkillKeys = new Set(contextualPairRows.map((row) => row.micro_skill_key));
+
   if (bandingVersionRows.length !== 1) {
     throw new Error(
       `loadDailyPlanFacts: expected exactly one active banding version, found ${bandingVersionRows.length}`,
@@ -594,7 +600,7 @@ export async function loadDailyPlanFacts(
         microSkillKey: route.micro_skill_key,
         attachmentOrdinal: route.attachment_ordinal,
         attachedOn: route.attached_on,
-        requiresSentenceContext: skillFamilyKeyBySkill.get(route.micro_skill_key) === "D4_HOM",
+        requiresSentenceContext: contextualSkillKeys.has(route.micro_skill_key) || skillFamilyKeyBySkill.get(route.micro_skill_key) === "D4_HOM",
         rowStatus: route.row_status as "active" | "superseded",
       }));
     const routePolicy = resolveSharedWordReviewPolicy({
@@ -706,6 +712,7 @@ export async function loadDailyPlanFacts(
       },
     ])),
     skillFamilyKeyBySkill,
+    contextualSkillKeys,
     learningItems,
     // No taxonomy prerequisite storage exists yet; the tier is pinned
     // fail-open on empty facts (Slice 6 pin).

@@ -186,7 +186,7 @@ function throwQuery(
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
 }
 
-async function routeActivationFacts(client: AdleClient, childId: string) {
+export async function routeActivationFacts(client: AdleClient, childId: string) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
@@ -879,6 +879,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
 
 export interface CanonicalIntakeSweepResult {
   enabled: boolean;
+  safetySweepQueued: number;
   claimed: number;
   completed: number;
   retried: number;
@@ -887,6 +888,18 @@ export interface CanonicalIntakeSweepResult {
   strengthened: number;
   pendingMapping: number;
   pendingContent: number;
+}
+
+// Release and mapping changes enqueue their own event jobs. The fallback only
+// needs to revisit unchanged blocked candidates once per day; the five-minute
+// scheduler still claims event jobs promptly.
+const SAFETY_SWEEP_RECHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+export function canonicalIntakeSafetySweepDueFilter(now: Date): string {
+  const recheckBefore = new Date(
+    now.getTime() - SAFETY_SWEEP_RECHECK_INTERVAL_MS,
+  ).toISOString();
+  return `last_evaluated_at.is.null,last_evaluated_at.lte.${recheckBefore},next_retry_at.lte.${now.toISOString()}`;
 }
 
 /** Bounded event/safety-sweep worker. It reuses the same source-scoped
@@ -900,6 +913,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
 }): Promise<CanonicalIntakeSweepResult> {
   const summary: CanonicalIntakeSweepResult = {
     enabled: isCanonicalIntakeEnabled(),
+    safetySweepQueued: 0,
     claimed: 0,
     completed: 0,
     retried: 0,
@@ -913,6 +927,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
 
   const client = params.serviceClient;
   const limit = Math.max(1, Math.min(params.limit ?? 25, 100));
+  const dueFilter = canonicalIntakeSafetySweepDueFilter(new Date());
   const { data: unresolved, error: unresolvedError } = await client
     .from("adle_canonical_intake_candidates")
     .select("id")
@@ -921,6 +936,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
       "pending_content",
       "error_retryable",
     ])
+    .or(dueFilter)
     .order("priority", { ascending: false })
     .order("first_seen_at", { ascending: true })
     .limit(limit);
@@ -936,6 +952,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
       },
     );
     if (error) throwQuery("canonical intake safety sweep enqueue", error);
+    summary.safetySweepQueued += 1;
   }
 
   const { data: jobs, error: claimError } = await client.rpc(

@@ -1,0 +1,890 @@
+{
+  "schemaVersion": 1,
+  "routeStatus": "inactive",
+  "source": "no_live_dictionary_inventory",
+  "dictionaryWordCount": 0,
+  "bothDegreeFlagCandidateCount": 1326,
+  "dictionaryFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "candidateFingerprint": "4a0a1c93c7788d1b2fa5ebd1330d78e42daa25874daea1d384c803c4b84ff57f",
+  "families": [
+    {
+      "familyKey": "degree:en-GB:fast",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "fast",
+        "faster",
+        "fastest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:tall",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "tall",
+        "taller",
+        "tallest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:small",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "small",
+        "smaller",
+        "smallest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:long",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "long",
+        "longer",
+        "longest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:old",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "old",
+        "older",
+        "oldest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:cold",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "words": [
+        "cold",
+        "colder",
+        "coldest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:nice",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "nice",
+        "nicer",
+        "nicest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:large",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "large",
+        "larger",
+        "largest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:brave",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "brave",
+        "braver",
+        "bravest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:wide",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "wide",
+        "wider",
+        "widest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:safe",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "safe",
+        "safer",
+        "safest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:close",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "words": [
+        "close",
+        "closer",
+        "closest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:happy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "happy",
+        "happier",
+        "happiest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:funny",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "funny",
+        "funnier",
+        "funniest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:busy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "busy",
+        "busier",
+        "busiest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:easy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "easy",
+        "easier",
+        "easiest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:heavy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "heavy",
+        "heavier",
+        "heaviest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:pretty",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "words": [
+        "pretty",
+        "prettier",
+        "prettiest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:big",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "big",
+        "bigger",
+        "biggest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:hot",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "hot",
+        "hotter",
+        "hottest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:sad",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "sad",
+        "sadder",
+        "saddest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:thin",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "thin",
+        "thinner",
+        "thinnest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:wet",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "wet",
+        "wetter",
+        "wettest"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:red",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "words": [
+        "red",
+        "redder",
+        "reddest"
+      ]
+    }
+  ],
+  "report": [
+    {
+      "familyKey": "degree:en-GB:fast",
+      "base": "fast",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "fast": null,
+        "faster": null,
+        "fastest": null
+      },
+      "missingForms": [
+        "fast",
+        "faster",
+        "fastest"
+      ],
+      "lexicalAttestation": {
+        "fast": true,
+        "faster": true,
+        "fastest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:tall",
+      "base": "tall",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "tall": null,
+        "taller": null,
+        "tallest": null
+      },
+      "missingForms": [
+        "tall",
+        "taller",
+        "tallest"
+      ],
+      "lexicalAttestation": {
+        "tall": true,
+        "taller": true,
+        "tallest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:small",
+      "base": "small",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "small": null,
+        "smaller": null,
+        "smallest": null
+      },
+      "missingForms": [
+        "small",
+        "smaller",
+        "smallest"
+      ],
+      "lexicalAttestation": {
+        "small": true,
+        "smaller": true,
+        "smallest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:long",
+      "base": "long",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "long": null,
+        "longer": null,
+        "longest": null
+      },
+      "missingForms": [
+        "long",
+        "longer",
+        "longest"
+      ],
+      "lexicalAttestation": {
+        "long": true,
+        "longer": true,
+        "longest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:old",
+      "base": "old",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "old": null,
+        "older": null,
+        "oldest": null
+      },
+      "missingForms": [
+        "old",
+        "older",
+        "oldest"
+      ],
+      "lexicalAttestation": {
+        "old": true,
+        "older": true,
+        "oldest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:cold",
+      "base": "cold",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "cold": null,
+        "colder": null,
+        "coldest": null
+      },
+      "missingForms": [
+        "cold",
+        "colder",
+        "coldest"
+      ],
+      "lexicalAttestation": {
+        "cold": true,
+        "colder": true,
+        "coldest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:nice",
+      "base": "nice",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "nice": null,
+        "nicer": null,
+        "nicest": null
+      },
+      "missingForms": [
+        "nice",
+        "nicer",
+        "nicest"
+      ],
+      "lexicalAttestation": {
+        "nice": true,
+        "nicer": true,
+        "nicest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:large",
+      "base": "large",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "large": null,
+        "larger": null,
+        "largest": null
+      },
+      "missingForms": [
+        "large",
+        "larger",
+        "largest"
+      ],
+      "lexicalAttestation": {
+        "large": true,
+        "larger": true,
+        "largest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:brave",
+      "base": "brave",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "brave": null,
+        "braver": null,
+        "bravest": null
+      },
+      "missingForms": [
+        "brave",
+        "braver",
+        "bravest"
+      ],
+      "lexicalAttestation": {
+        "brave": true,
+        "braver": true,
+        "bravest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:wide",
+      "base": "wide",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "wide": null,
+        "wider": null,
+        "widest": null
+      },
+      "missingForms": [
+        "wide",
+        "wider",
+        "widest"
+      ],
+      "lexicalAttestation": {
+        "wide": true,
+        "wider": true,
+        "widest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:safe",
+      "base": "safe",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "safe": null,
+        "safer": null,
+        "safest": null
+      },
+      "missingForms": [
+        "safe",
+        "safer",
+        "safest"
+      ],
+      "lexicalAttestation": {
+        "safe": true,
+        "safer": true,
+        "safest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:close",
+      "base": "close",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "close": null,
+        "closer": null,
+        "closest": null
+      },
+      "missingForms": [
+        "close",
+        "closer",
+        "closest"
+      ],
+      "lexicalAttestation": {
+        "close": true,
+        "closer": true,
+        "closest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:happy",
+      "base": "happy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "happy": null,
+        "happier": null,
+        "happiest": null
+      },
+      "missingForms": [
+        "happy",
+        "happier",
+        "happiest"
+      ],
+      "lexicalAttestation": {
+        "happy": true,
+        "happier": true,
+        "happiest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:funny",
+      "base": "funny",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "funny": null,
+        "funnier": null,
+        "funniest": null
+      },
+      "missingForms": [
+        "funny",
+        "funnier",
+        "funniest"
+      ],
+      "lexicalAttestation": {
+        "funny": true,
+        "funnier": true,
+        "funniest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:busy",
+      "base": "busy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "busy": null,
+        "busier": null,
+        "busiest": null
+      },
+      "missingForms": [
+        "busy",
+        "busier",
+        "busiest"
+      ],
+      "lexicalAttestation": {
+        "busy": true,
+        "busier": true,
+        "busiest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:easy",
+      "base": "easy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "easy": null,
+        "easier": null,
+        "easiest": null
+      },
+      "missingForms": [
+        "easy",
+        "easier",
+        "easiest"
+      ],
+      "lexicalAttestation": {
+        "easy": true,
+        "easier": true,
+        "easiest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:heavy",
+      "base": "heavy",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "heavy": null,
+        "heavier": null,
+        "heaviest": null
+      },
+      "missingForms": [
+        "heavy",
+        "heavier",
+        "heaviest"
+      ],
+      "lexicalAttestation": {
+        "heavy": true,
+        "heavier": true,
+        "heaviest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:pretty",
+      "base": "pretty",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "pretty": null,
+        "prettier": null,
+        "prettiest": null
+      },
+      "missingForms": [
+        "pretty",
+        "prettier",
+        "prettiest"
+      ],
+      "lexicalAttestation": {
+        "pretty": true,
+        "prettier": true,
+        "prettiest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:big",
+      "base": "big",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "big": null,
+        "bigger": null,
+        "biggest": null
+      },
+      "missingForms": [
+        "big",
+        "bigger",
+        "biggest"
+      ],
+      "lexicalAttestation": {
+        "big": true,
+        "bigger": true,
+        "biggest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:hot",
+      "base": "hot",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "hot": null,
+        "hotter": null,
+        "hottest": null
+      },
+      "missingForms": [
+        "hot",
+        "hotter",
+        "hottest"
+      ],
+      "lexicalAttestation": {
+        "hot": true,
+        "hotter": true,
+        "hottest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:sad",
+      "base": "sad",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "sad": null,
+        "sadder": null,
+        "saddest": null
+      },
+      "missingForms": [
+        "sad",
+        "sadder",
+        "saddest"
+      ],
+      "lexicalAttestation": {
+        "sad": true,
+        "sadder": true,
+        "saddest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:thin",
+      "base": "thin",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "thin": null,
+        "thinner": null,
+        "thinnest": null
+      },
+      "missingForms": [
+        "thin",
+        "thinner",
+        "thinnest"
+      ],
+      "lexicalAttestation": {
+        "thin": true,
+        "thinner": true,
+        "thinnest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:wet",
+      "base": "wet",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "wet": null,
+        "wetter": null,
+        "wettest": null
+      },
+      "missingForms": [
+        "wet",
+        "wetter",
+        "wettest"
+      ],
+      "lexicalAttestation": {
+        "wet": true,
+        "wetter": true,
+        "wettest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    },
+    {
+      "familyKey": "degree:en-GB:red",
+      "base": "red",
+      "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+      "status": "missing_forms_or_content",
+      "canonicalIds": {
+        "red": null,
+        "redder": null,
+        "reddest": null
+      },
+      "missingForms": [
+        "red",
+        "redder",
+        "reddest"
+      ],
+      "lexicalAttestation": {
+        "red": true,
+        "redder": true,
+        "reddest": true
+      },
+      "blockers": [
+        "family_not_approved",
+        "canonical_identity_unresolved",
+        "lexical_eligibility_unverified",
+        "doubling_condition_unverified",
+        "adjective_use_requires_review"
+      ]
+    }
+  ],
+  "limitations": [
+    "Flags and exact word attestation are candidate facts, not grammar approval.",
+    "Unresolved lexical eligibility, IDs, sources and teaching content require review.",
+    "No database writes, learner intakes or route activation."
+  ],
+  "generatedOn": "2026-09-29",
+  "lexicalSource": "repository Hunspell en_GB-large 2026.02.25 (.dic + .aff)"
+}

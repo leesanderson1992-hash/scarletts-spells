@@ -7,6 +7,9 @@ const canonicalRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
 const adminActionsPath = "app/admin/canonical-mappings/actions.ts";
 const adminPagePath = "app/admin/canonical-mappings/page.tsx";
+const resolutionWorkspacePath = "app/admin/canonical-mappings/resolution-workspace.tsx";
+const resolutionActionsPath = "app/admin/canonical-mappings/resolution-actions.ts";
+const resolutionReadModelPath = "app/admin/canonical-mappings/resolution-read-model.ts";
 const adminReadModelPath = "app/admin/canonical-mappings/read-model.ts";
 const adminExportRoutePath = "app/admin/canonical-mappings/export/route.ts";
 const spellingReviewPagePath = "app/admin/spelling-review/page.tsx";
@@ -27,6 +30,9 @@ const migration = readFileSync(migrationPath, "utf8");
 const canonicalRepository = readFileSync(canonicalRepositoryPath, "utf8");
 const adminActions = readFileSync(adminActionsPath, "utf8");
 const adminPage = readFileSync(adminPagePath, "utf8");
+const resolutionWorkspace = readFileSync(resolutionWorkspacePath, "utf8");
+const resolutionActions = readFileSync(resolutionActionsPath, "utf8");
+const resolutionReadModel = readFileSync(resolutionReadModelPath, "utf8");
 const adminReadModel = readFileSync(adminReadModelPath, "utf8");
 const adminExportRoute = readFileSync(adminExportRoutePath, "utf8");
 const spellingReviewPage = readFileSync(spellingReviewPagePath, "utf8");
@@ -180,58 +186,53 @@ assert.match(
 );
 assert.match(
   adminPage,
-  /parseCanonicalMappingOperationsFilters/,
-  "Slice 4H admin page must parse operations filters.",
+  /parseResolutionFilters/,
+  "Unified resolver page must parse workspace filters.",
 );
 assert.match(
   adminPage,
-  /PaginationControls[\s\S]*page\.pageCount[\s\S]*page\.totalCount/,
-  "Slice 4H admin page must show pagination and matching counts.",
+  /Page \{filters\.page\} of \{totalPages\}/,
+  "Unified resolver page must show pagination.",
 );
 assert.match(
-  adminPage,
-  /Export filtered CSV[\s\S]*CANONICAL_MAPPING_OPERATIONS_EXPORT_LIMIT/,
-  "Slice 4H admin page must expose a capped filtered audit export.",
+  resolutionWorkspace,
+  /\/admin\/canonical-mappings\/export/,
+  "Unified resolver must retain the canonical CSV export.",
 );
 assert.match(
-  adminPage,
-  /SourceLineage[\s\S]*PCRM[\s\S]*Seed row/,
-  "Slice 4H admin page must show source lineage for catalog, PCRM, and seed mappings.",
+  resolutionWorkspace,
+  /SourceList[\s\S]*View details/,
+  "Unified resolver must show source lineage in details.",
 );
 assert.match(
-  adminPage,
-  /AuditSummary[\s\S]*event_count[\s\S]*latest_event_type/,
-  "Slice 4H admin page must show canonical mapping audit summaries.",
+  resolutionWorkspace,
+  /Recent audit history/,
+  "Unified resolver must show mapping audit events.",
 );
 assert.match(
-  adminPage,
-  /resolver_visibility_status/,
-  "R2 admin page must display resolver visibility status.",
+  resolutionWorkspace,
+  /Resolver Enabled[\s\S]*resolverEnabled/,
+  "Unified resolver must display resolver visibility status.",
 );
 assert.match(
-  adminPage,
-  /required[\s\S]*name="note"|name="note"[\s\S]*required/,
-  "R2 admin page must require a note for visibility changes.",
+  resolutionActions,
+  /Added to resolver in the unified canonical resolver[\s\S]*Removed from resolver in the unified canonical resolver/,
+  "Unified resolver must generate audited visibility notes server-side.",
 );
 assert.match(
-  adminPage,
-  /mapping\.mapping_status === "active"[\s\S]*resolver_visibility_status === "hidden"[\s\S]*resolver_visibility_status === "disabled"/,
-  "R2 admin page must show enable only for active hidden/disabled mappings.",
+  resolutionWorkspace,
+  /row\.status === "confirmed" && menu\.row\.mappingId[\s\S]*Remove from Resolver[\s\S]*Add to Resolver/,
+  "Unified resolver must offer visibility changes only for confirmed mappings.",
 );
 assert.match(
-  adminPage,
-  /mapping\.mapping_status === "active"[\s\S]*resolver_visibility_status === "visible"/,
-  "R2 admin page must show disable only for active visible mappings.",
+  resolutionActions,
+  /enableResolverVisibilityForCanonicalMappingAdmin[\s\S]*disableResolverVisibilityForCanonicalMappingAdmin/,
+  "Unified resolver must reuse audited visibility helpers.",
 );
 assert.match(
-  adminPage,
-  /Disabling resolver visibility removes resolver use while preserving[\s\S]*canonical mapping truth and audit history/,
-  "Slice 4H rollback copy must clarify that disabling visibility preserves mapping truth and audit history.",
-);
-assert.doesNotMatch(
-  adminPage,
-  /archive|reopen|edit mapping|findResolverVisibleExactPairMapping/i,
-  "R2 admin page must not add lifecycle edit/archive controls or resolver runtime calls.",
+  resolutionReadModel,
+  /order\("review_status", \{ ascending: false \}\)[\s\S]*order\("resolver_enabled", \{ ascending: true \}\)/,
+  "Unified resolver must keep pending, confirmed hidden, then confirmed enabled order before pagination.",
 );
 assert.match(
   adminReadModel,

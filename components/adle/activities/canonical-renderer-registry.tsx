@@ -11,6 +11,8 @@ import type {
   CanonicalActivityNormalizationBlocker,
   CanonicalActivitySpec,
 } from "@/lib/adle/canonical-activity-spec";
+import { sentenceSuffixPayloadValid, transformTargetPayloadValid, pairedWordGapsPayloadValid } from "@/lib/adle/inflection/activity-contracts";
+import { TeachingPages } from "@/components/adle/first-impression/teaching-pages";
 
 export interface CanonicalActivityNavigation {
   complete: () => void;
@@ -266,12 +268,16 @@ function moduleLoader(
   };
 }
 
-const teachingPagesLoader = moduleLoader(() => import("@/components/adle/first-impression/teaching-pages"), "TeachingPages");
+const teachingPagesRenderer = TeachingPages as ComponentType<Record<string, unknown>>;
+const teachingPagesLoader = async (): Promise<RendererModule> => ({ default: teachingPagesRenderer });
 const discoveryLoader = moduleLoader(() => import("@/components/adle/morphology/morphology-guided-lesson"), "Discovery");
 const familyRevealLoader = moduleLoader(() => import("@/components/adle/morphology/base-word-family-guided-lesson"), "FamilyReveal");
 const baseCleaveLoader = moduleLoader(() => import("@/components/adle/morphology/base-word-family-guided-lesson"), "Cleave");
 const splitHandleLoader = moduleLoader(() => import("@/components/adle/activities/shared/split-handle"), "SplitHandle");
 const definitionBuilderLoader = moduleLoader(() => import("@/components/adle/activities/shared/definition-word-builder"), "DefinitionWordBuilder");
+const sentenceSuffixLoader = moduleLoader(() => import("@/components/adle/activities/shared/sentence-suffix-builder"), "SentenceSuffixBuilder");
+const ingScrabbleLoader = moduleLoader(() => import("@/components/adle/activities/shared/ing-scrabble"), "IngScrabble");
+const transformTargetLoader = moduleLoader(() => import("@/components/adle/activities/shared/split-handle"), "SplitHandle");
 const compoundJigsawLoader = moduleLoader(() => import("@/components/adle/morphology/compound-jigsaw-activity"), "CompoundJigsawActivity");
 const meaningConnectionLoader = moduleLoader(() => import("@/components/adle/morphology/meaning-connection-activity"), "MeaningConnectionActivity");
 const binSortLoader = moduleLoader(() => import("@/components/adle/activities/shared/bin-sort"), "BinSort");
@@ -306,8 +312,12 @@ const registrations = [
   registration("MEANING_DISCOVERY", "suffix", "Discovery", discoveryLoader, validateDiscovery),
   registration("WORD_FAMILY_REVEAL", "base_led_family", "FamilyReveal", familyRevealLoader, validateFamilyReveal),
   registration("CLEAVER", "find_boundaries", "SplitHandle", splitHandleLoader, validateSplitHandle),
+  registration("CLEAVER", "transform_target", "SplitHandle", transformTargetLoader, props => isRecord(props) && transformTargetPayloadValid(props) && functionValue(props.onContinue)),
+  registration("CLEAVER", "ing_transform_target", "SplitHandle", transformTargetLoader, props => isRecord(props) && isRecord(props.transformation) && props.transformation.ending === "ing" && nonEmptyString(props.transformation.base) && nonEmptyString(props.transformation.result) && isRecord(props.question) && functionValue(props.onContinue)),
   registration("CLEAVER", "isolate_component", "SplitHandle", baseCleaveLoader, validateBaseCleaveAdapter, "Cleave"),
   registration("WORD_ASSEMBLY", "definition_word_builder", "DefinitionWordBuilder", definitionBuilderLoader, validateDefinitionBuilder),
+  registration("WORD_ASSEMBLY", "sentence_suffix", "DefinitionWordBuilder", sentenceSuffixLoader, props => isRecord(props) && sentenceSuffixPayloadValid(props) && functionValue(props.onContinue), "SentenceSuffixBuilder"),
+  registration("SCRABBLE", "ing_tiles", "IngScrabble", ingScrabbleLoader, props => isRecord(props) && isRecord(props.word) && nonEmptyString(props.word.base) && nonEmptyString(props.word.word) && functionValue(props.onComplete) && functionValue(props.onContinue)),
   registration("COMPOUND_JIGSAW", "jigsaw_multi_target", "CompoundJigsawActivity", compoundJigsawLoader, validateCompoundJigsaw),
   registration("MEANING_MATCH", "word_to_definition", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
   registration("MEANING_MATCH", "component_clues", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
@@ -317,6 +327,11 @@ const registrations = [
   registration("COVER_CHECK", "component_marked", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("COVER_CHECK", "ratio_close_policy", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("DICTATION", "whole_sentence", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
+  registration("DICTATION", "paired_word_gaps", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "paired_word_gaps" && pairedWordGapsPayloadValid(props)
+    && Array.isArray(props.values) && props.values.length === 2 && props.values.every(x => typeof x === "string") && typeof props.checked === "boolean"
+    && functionValue(props.onValuesChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
+  registration("DICTATION", "single_word_gap", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "single_word_gap" && nonEmptyString(props.word) && nonEmptyString(props.sentence) && nonEmptyString(props.audioText)
+    && typeof props.value === "string" && typeof props.checked === "boolean" && functionValue(props.onValueChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
   registration("DICTATION", "target_token", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("DICTATION", "target_span", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
   registration("LESSON_REFLECTION", "standard_lesson_reflection", "LessonReflection", lessonReflectionLoader, validateLessonReflection),
@@ -341,11 +356,15 @@ function CanonicalActivityLoadingState() {
 // next/dynamic needs stable, module-level component identities so Next can
 // preload the corresponding chunks and React can preserve hydration state.
 const dynamicRenderers = new Map<string, ComponentType<Record<string, unknown>>>(
-  registrations.map((entry) => [
+  registrations.filter((entry) => canonicalActivityContractKey(entry) !== "INTRODUCTION.teaching_page@1").map((entry) => [
     canonicalActivityContractKey(entry),
     dynamic(entry.load, { loading: CanonicalActivityLoadingState }),
   ]),
 );
+
+const eagerRenderers = new Map<string, ComponentType<Record<string, unknown>>>([
+  ["INTRODUCTION.teaching_page@1", teachingPagesRenderer],
+]);
 
 export function listCanonicalActivityRendererRegistrations(): readonly RendererRegistration[] {
   return registrations;
@@ -390,7 +409,7 @@ function LazyCanonicalActivity(props: { binding: CanonicalActivityBinding; navig
   if (!registered) return <CanonicalActivityBlockedState failure={{ code: "ADLE_ACTIVITY_UNKNOWN_CONTRACT", activityId: props.binding.id, contractKey, detail: "No canonical renderer is registered for this activity." }} />;
   const failure = validateCanonicalActivityBinding(props.binding);
   if (failure) return <CanonicalActivityBlockedState failure={failure} />;
-  const Renderer = dynamicRenderers.get(contractKey);
+  const Renderer = eagerRenderers.get(contractKey) ?? dynamicRenderers.get(contractKey);
   if (!Renderer) return <CanonicalActivityBlockedState failure={{ code: "ADLE_ACTIVITY_UNKNOWN_CONTRACT", activityId: props.binding.id, contractKey, detail: "No canonical renderer is available for this activity." }} />;
   const activity = createElement(Renderer, {
     ...(props.binding.createProps(props.navigation) as Record<string, unknown>),

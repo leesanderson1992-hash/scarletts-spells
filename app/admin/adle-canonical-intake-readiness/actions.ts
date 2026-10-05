@@ -153,31 +153,79 @@ export async function updateIntakeDemandStatus(formData: FormData) {
 export async function enqueueIntakeDemandRecheck(formData: FormData) {
   const admin = await requireAdminUser();
   const db = createServiceRoleClient() as any;
-  const demandId = text(formData, "demand_id", 80);
-  if (!demandId) finish("error", "Choose a valid demand.");
-  await demandById(db, demandId);
-  const { data: links, error: linkError } = await db
-    .from("adle_canonical_intake_candidate_demands")
-    .select("candidate_id")
-    .eq("demand_id", demandId)
-    .eq("link_status", "waiting")
-    .limit(500);
-  if (linkError) finish("error", "Waiting candidates could not be read.");
-  for (const link of links ?? []) {
+  const word = text(formData, "word", 200).toLowerCase();
+  const microSkillKey = text(formData, "micro_skill_key", 200);
+  if (!word || !microSkillKey) finish("error", "Choose a valid word and micro skill.");
+  const { data: demands, error: demandError } = await db
+    .from("adle_canonical_intake_demands")
+    .select("id")
+    .eq("normalized_target_token", word)
+    .eq("micro_skill_key", microSkillKey);
+  if (demandError || !demands?.length) finish("error", "The word demand could not be found.");
+  const demandIds = demands.map((demand: { id: string }) => demand.id);
+  const candidateIdsSet = new Set<string>();
+  for (let start = 0; ; start += 1000) {
+    const { data: links, error: linkError } = await db
+      .from("adle_canonical_intake_candidate_demands")
+      .select("id,candidate_id")
+      .in("demand_id", demandIds)
+      .eq("link_status", "waiting")
+      .order("id")
+      .range(start, start + 999);
+    if (linkError) finish("error", "Waiting candidates could not be read.");
+    for (const link of links ?? []) candidateIdsSet.add(link.candidate_id);
+    if ((links ?? []).length < 1000) break;
+  }
+  const candidateIds = [...candidateIdsSet];
+  if (!candidateIds.length) finish("error", "No waiting candidates remain for this word.");
+  for (const candidateId of candidateIds) {
     const { error } = await db.rpc("adle_enqueue_canonical_intake_candidate", {
-      p_candidate_id: link.candidate_id,
+      p_candidate_id: candidateId,
       p_trigger_type: "admin_recheck",
-      p_source_ref: `admin-demand:${demandId}`,
+      p_source_ref: `admin-word:${word}:${microSkillKey}`,
     });
     if (error) finish("error", "The readiness recheck could not be queued.");
   }
-  await appendAdminEvent({
-    db,
-    demandId,
-    adminUserId: admin.id,
+  for (const demandId of demandIds) await appendAdminEvent({
+    db, demandId, adminUserId: admin.id,
     eventType: "reconciliation_enqueued",
-    payload: { waitingCandidateCount: (links ?? []).length },
+    payload: { waitingCandidateCount: candidateIds.length },
   });
   revalidatePath(PATH);
   finish("saved", "Readiness reconciliation queued.");
+}
+
+export async function setIntakeDemandArchived(formData: FormData) {
+  const admin = await requireAdminUser();
+  const db = createServiceRoleClient() as any;
+  const word = text(formData, "word", 200).toLowerCase();
+  const microSkillKey = text(formData, "micro_skill_key", 200);
+  const archive = text(formData, "archive", 5) === "true";
+  if (!word || !microSkillKey) finish("error", "Choose a valid word and micro skill.");
+  const { data: demands, error: demandError } = await db
+    .from("adle_canonical_intake_demands")
+    .select("id,lifecycle_status")
+    .eq("normalized_target_token", word)
+    .eq("micro_skill_key", microSkillKey);
+  if (demandError || !demands?.length) finish("error", "The word demand could not be found.");
+  const unresolvedIds = demands
+    .filter((demand: { lifecycle_status: string }) => !["activated", "rejected", "superseded"].includes(demand.lifecycle_status))
+    .map((demand: { id: string }) => demand.id);
+  if (!unresolvedIds.length) finish("error", "Only unresolved demands can be archived or restored.");
+  const { data, error } = await db
+    .from("adle_canonical_intake_demands")
+    .update({
+      archived_at: archive ? new Date().toISOString() : null,
+      archived_by_user_id: archive ? admin.id : null,
+      updated_at: new Date().toISOString(),
+    })
+    .in("id", unresolvedIds)
+    .select("id");
+  if (error || !data || data.length !== unresolvedIds.length) finish("error", "The archive setting could not be saved.");
+  for (const demandId of unresolvedIds) await appendAdminEvent({
+    db, demandId, adminUserId: admin.id,
+    eventType: archive ? "demand_archived" : "demand_restored",
+  });
+  revalidatePath(PATH);
+  finish("saved", archive ? "Word archived from this view." : "Word restored to the active view.");
 }

@@ -12,6 +12,8 @@ const repositoryPath =
 const adoptionActionPath = "app/admin/seed-import-review/adoption-actions.ts";
 const decisionActionPath = "app/admin/seed-import-review/actions.ts";
 const pagePath = "app/admin/seed-import-review/page.tsx";
+const workspacePath = "app/admin/canonical-mappings/resolution-workspace.tsx";
+const resolutionActionsPath = "app/admin/canonical-mappings/resolution-actions.ts";
 const smokePath =
   "scripts/writing-engine-seed-import-hidden-canonical-adoption-local-smoke.ts";
 const packagePath = "package.json";
@@ -28,6 +30,8 @@ for (const path of [
   adoptionActionPath,
   decisionActionPath,
   pagePath,
+  workspacePath,
+  resolutionActionsPath,
   smokePath,
   packagePath,
   seedStorageMigrationPath,
@@ -40,6 +44,8 @@ const repository = readFileSync(repositoryPath, "utf8");
 const adoptionAction = readFileSync(adoptionActionPath, "utf8");
 const decisionAction = readFileSync(decisionActionPath, "utf8");
 const page = readFileSync(pagePath, "utf8");
+const workspace = readFileSync(workspacePath, "utf8");
+const resolutionActions = readFileSync(resolutionActionsPath, "utf8");
 const smoke = readFileSync(smokePath, "utf8");
 const packageJson = readFileSync(packagePath, "utf8");
 const seedStorageMigration = readFileSync(seedStorageMigrationPath, "utf8");
@@ -268,23 +274,23 @@ assert.doesNotMatch(
 
 assert.match(
   page,
-  /Adopt for canonical review[\s\S]*Reject/,
-  "Admin UI must expose the simplified adopt/reject queue actions.",
+  /redirect\("\/admin\/canonical-mappings"\)/,
+  "Legacy seed review must redirect to the unified resolver.",
 );
 assert.match(
-  page,
-  /\.not\("row_status", "in", "\(rejected,adopted_hidden_canonical\)"\)/,
-  "Admin UI must hide rejected and adopted rows from the active queue.",
+  workspace,
+  /Confirm mapping[\s\S]*Remove from Resolver|Remove from Resolver[\s\S]*Confirm mapping/,
+  "Unified resolver must offer confirmation and audited visibility controls.",
 );
 assert.match(
-  page,
-  /resolver visibility remains disabled/i,
-  "Admin UI must say resolver visibility remains disabled.",
+  resolutionActions,
+  /confirm_spelling_resolution_admin[\s\S]*Resolver use remains off until enabled/,
+  "Unified confirmation must keep resolver use off until separately enabled.",
 );
 assert.doesNotMatch(
-  page,
+  `${page}\n${workspace}`,
   /\.(insert|update|upsert|delete)\(/,
-  "Admin page must not write to Supabase directly.",
+  "Admin pages must not write to Supabase directly.",
 );
 
 assert.doesNotMatch(

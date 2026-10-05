@@ -81,12 +81,14 @@ export interface ActivityConvergenceBacklogItem {
   consolidationOpportunity: string;
 }
 
+import { COMPARATIVE_MICRO_SKILLS, COMPARATIVE_ROUTE_KEY } from "./inflection/contracts";
+import { ING_MICRO_SKILLS, ING_ROUTE_KEY } from "./ing/contracts";
 const GENERIC_ROUTE = "generic_composer:v1";
 const PREFIX_ROUTES = ["dynamic_prefix_word_lab:v2"] as const;
 const AFFIX_ROUTE = "dynamic_affix_word_lab:v3";
 const BASE_ROUTE = "base_word_lab:v2";
 const COMPOUND_ROUTES = ["compound_word_lab:v2"] as const;
-const ALL_SPECIALIST_ROUTES = [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, ...COMPOUND_ROUTES] as const;
+const ALL_SPECIALIST_ROUTES = [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, ...COMPOUND_ROUTES, COMPARATIVE_ROUTE_KEY, ING_ROUTE_KEY] as const;
 
 const PREFIX_SKILLS = [
   "D4_MOR_PREFIXES_UN",
@@ -110,6 +112,7 @@ const COMPOUND_SKILLS = [
   "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
 ] as const;
 const MORPHOLOGY_SKILLS = [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPOUND_SKILLS] as const;
+const SPECIALIST_SKILLS = [...MORPHOLOGY_SKILLS, ...COMPARATIVE_MICRO_SKILLS, ...ING_MICRO_SKILLS] as const;
 
 function activity(
   input: Pick<ActivityCatalogueEntry,
@@ -144,7 +147,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
       meet_words: "Required final page using the accepted word-card presentation without audio or evidence.",
       historical_generic_read_only: "Replays immutable generic intro copy through the explicit IntroActivity compatibility adapter.",
     }, requiredInputs: ["one to three authored teaching pages", "governed lesson words"], optionalInputs: ["callout", "model", "examples", "sections", "provenance"],
-    usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["generic composer catalogue", ...MORPHOLOGY_SKILLS],
+    usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["generic composer catalogue", ...SPECIALIST_SKILLS],
     templateKeys: ["MICRO_READ_ONLY_INTRO", "LESSON_WORDS_INTRO"], status: "CANONICAL",
     whenToUse: "At the start of every First Impression lesson for authored teaching followed by required Meet the Words.",
     whenNotToUse: "For interactive family exploration; use WORD_FAMILY_REVEAL as a configured middle activity.",
@@ -184,31 +187,43 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
   }),
   activity({
     activityKey: "CLEAVER", displayName: "Cleaver", interactionFamily: "boundary_split",
-    pedagogicalPurpose: "Find one or more meaningful boundaries inside a written word.",
+    pedagogicalPurpose: "Find meaningful boundaries, or reveal a reviewed transformation in the explicit transform_target mode.",
     canonicalComponent: "SplitHandle", canonicalComponentPath: "components/adle/activities/shared/split-handle.tsx",
-    supportedModes: ["find_boundaries", "identify_components", "isolate_component"], modeDescriptions: {
+    supportedModes: ["find_boundaries", "identify_components", "isolate_component", "transform_target", "ing_transform_target"], modeDescriptions: {
+      transform_target: "Split the full comparative or superlative before its ending, slowly restore its base spelling, then answer one governed three-option rule question.",
+      ing_transform_target: "Split a reviewed -ing target before its ending, restore the base verb, then answer its rule question.",
       find_boundaries: "Strike all governed split points, with optional two-miss scaffold.",
       identify_components: "After success, display supplied component strings and tailored explanation.",
       isolate_component: "Strike only the governed adjacent boundaries, restore selected cuts, and highlight the isolated component.",
     }, requiredInputs: ["word", "splitPoints"], optionalInputs: ["components", "selected boundaries", "isolated component index", "feedback copy", "scaffold policy"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, COMPARATIVE_ROUTE_KEY, ING_ROUTE_KEY], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPARATIVE_MICRO_SKILLS, ...ING_MICRO_SKILLS],
     templateKeys: ["MOR_STRIP_BUILD"], status: "CANONICAL", whenToUse: "To locate meaningful morpheme or word-part boundaries.",
     whenNotToUse: "To reorder parts into a word; use WORD_ASSEMBLY.",
-    notes: "Group 4 converged Prefix, Affix and Base Word on one stateful SplitHandle. Spelling transformations are composed after Split completes.",
+    notes: "Group 4 converged Prefix, Affix and Base Word on one stateful SplitHandle. The inactive comparative route derives its ending boundary from the reviewed stem and composes that same rail with source restoration and a rule question; existing boundary modes are unchanged.",
   }),
   activity({
     activityKey: "WORD_ASSEMBLY", displayName: "Word assembly", interactionFamily: "tile_assembly",
     pedagogicalPurpose: "Build a word by selecting or dragging governed word-part tiles into order.",
     canonicalComponent: "DefinitionWordBuilder", canonicalComponentPath: "components/adle/activities/shared/definition-word-builder.tsx",
-    supportedModes: ["definition_word_builder", "manual_check", "fixed_prefix", "fixed_suffix", "governed_joins"], modeDescriptions: {
+    supportedModes: ["definition_word_builder", "manual_check", "fixed_prefix", "fixed_suffix", "governed_joins", "sentence_suffix"], modeDescriptions: {
+      sentence_suffix: "Choose -er or -est, watch the reviewed family spelling change, then place the formed word in one sentence gap; reuses SnapRail, the shared letter-change presentation and DraggableTile.",
       definition_word_builder: "Shows meaning first, then candidate parts, manual construction, word sum and resulting meaning.", manual_check: "Lets the child rearrange then check.",
       fixed_prefix: "Places immutable parts before the selectable bank.", fixed_suffix: "Places immutable parts after the selectable bank.",
       governed_joins: "Assembles none, space, or hyphen joins.",
     }, requiredInputs: ["definition", "tiles", "expectedIds", "wordSum", "resultingMeaning"], optionalInputs: ["fixedTiles", "joins", "restored progress", "feedback policy"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, BASE_ROUTE, COMPARATIVE_ROUTE_KEY], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...BASE_SKILLS, ...COMPARATIVE_MICRO_SKILLS],
     templateKeys: ["MOR_BUILD_WORD"], status: "CANONICAL", whenToUse: "When the learning action is choosing and ordering word parts.",
     whenNotToUse: "For several simultaneous targets in one mixed puzzle bank; use COMPOUND_JIGSAW.",
-    notes: "DefinitionWordBuilder and CompoundJigsawActivity share OrderedBuildEngine placement, reordering, validation and restoration mechanics.",
+    notes: "DefinitionWordBuilder and CompoundJigsawActivity share OrderedBuildEngine mechanics. The inactive comparative route uses sentence_suffix@1 with a base, approved forms and sentence gap, without a definition-first screen.",
+  }),
+  activity({
+    activityKey: "SCRABBLE", displayName: "Scrabble", interactionFamily: "tile_assembly",
+    pedagogicalPurpose: "Transform a movable base verb into its reviewed -ing form using letter tiles.",
+    canonicalComponent: "IngScrabble", canonicalComponentPath: "components/adle/activities/shared/ing-scrabble.tsx",
+    supportedModes: ["ing_tiles"], modeDescriptions: { ing_tiles: "Base tiles start on the board; the bank has every required changed or added letter and three distractors." },
+    requiredInputs: ["base verb", "reviewed -ing target", "canonical word identity"], optionalInputs: ["restored board", "sound mute"],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [ING_ROUTE_KEY], usedByMicroSkills: [...ING_MICRO_SKILLS], status: "CANONICAL",
+    whenToUse: "For the -ing letter transformation after Meaning Match.", whenNotToUse: "For suffix part selection or sentence placement; use WORD_ASSEMBLY.",
   }),
   activity({
     activityKey: "COMPOUND_JIGSAW", displayName: "Compound jigsaw", interactionFamily: "tile_assembly",
@@ -227,7 +242,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     canonicalComponent: "MeaningConnectionActivity", canonicalComponentPath: "components/adle/morphology/meaning-connection-activity.tsx",
     supportedModes: ["word_to_definition", "component_clues", "historical_free_response"], modeDescriptions: { word_to_definition: "Select a word then its definition.", component_clues: "Shows component meanings as clues.", historical_free_response: "Preserves a definition-less persisted typed-response contract without claiming a rich meaning interaction." },
     requiredInputs: ["words", "definitions"], optionalInputs: ["component meanings", "component-to-whole explanation"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, "generic homophone/morphology skills"],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...COMPOUND_ROUTES, ...PREFIX_ROUTES, AFFIX_ROUTE, ING_ROUTE_KEY, GENERIC_ROUTE], usedByMicroSkills: [...COMPOUND_SKILLS, ...PREFIX_SKILLS, ...AFFIX_SKILLS, ...ING_MICRO_SKILLS, "generic homophone/morphology skills"],
     templateKeys: ["HOM_MEANING_MATCH", "MOR_MEANING_MATCH", "MOR_COMPOUND_MEANING_CONNECTION"], status: "CANONICAL",
     whenToUse: "When each word must be paired with a distinct definition.", whenNotToUse: "When words belong in reusable semantic groups; use MEANING_SORT.",
     notes: "word_to_definition@1 and component_clues@1 are both complete v3 contracts when every governed definition is present. Definition-less immutable historical payloads normalize to a compatibility-only GuidedActivity at the dispatch boundary.",
@@ -239,8 +254,9 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     supportedModes: ["meaning", "prefix_form", "immediate_feedback", "success_sparkle", "completion_overview"], modeDescriptions: {
       meaning: "Sort by semantic group.", prefix_form: "Sort base words by the prefix form they take.", immediate_feedback: "Respond after each choice.", success_sparkle: "Brief presentation-only correct-placement celebration before automatic advance.", completion_overview: "Read-only grouping of every governed word after the final correct placement.",
     }, requiredInputs: ["items with destinations", "bins"], optionalInputs: ["feedback policy", "specialist teaching cards"],
-    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS],
+    supportsPointer: true, supportsAudio: true, usedByRoutes: [...PREFIX_ROUTES, AFFIX_ROUTE, COMPARATIVE_ROUTE_KEY], usedByMicroSkills: [...PREFIX_SKILLS, ...AFFIX_SKILLS, ...COMPARATIVE_MICRO_SKILLS],
     status: "CANONICAL", whenToUse: "When several words share meaningful categories.", whenNotToUse: "For word-to-definition pairing; use MEANING_MATCH. The completion overview is a state of this activity, not another activity.",
+    notes: "The inactive comparative route sorts four derived forms into Comparative and Superlative using the existing meaning mode.",
   }),
   activity({
     activityKey: "REVIEW_SORT", displayName: "Historical review-sort key", interactionFamily: "compatibility_key",
@@ -260,7 +276,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     supportedModes: ["whole_word", "component_marked", "ratio_close_policy"], modeDescriptions: { whole_word: "Show and cover a whole word.", component_marked: "Show governed components separated visually.", ratio_close_policy: "Require a configured proportion of the shutter track." },
     requiredInputs: ["word", "splitPoints"], optionalInputs: ["components", "closePolicy", "resume state", "progress label", "continue callback"],
     capturesAttempt: true, evidenceBearing: true, supportsPointer: true, supportsAudio: true,
-    usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["historical generic compatibility", ...MORPHOLOGY_SKILLS], status: "CANONICAL", reviewEligible: false,
+    usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["historical generic compatibility", ...SPECIALIST_SKILLS], status: "CANONICAL", reviewEligible: false,
     whenToUse: "For supported study-cover-recall practice where a teaching view is intentional.", whenNotToUse: "For cold dictation or diagnostic retrieval.",
     notes: "Forward v3 uses COVER_CHECK.whole_word@1 with optional governed components and closePolicy. component_marked and ratio_close_policy remain specialist registry identities for unchanged persisted route bindings, not separate future generic learner actions. Historical CONTROLLED_SPELLING keys remain compatibility metadata.",
   }),
@@ -279,10 +295,12 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "DICTATION", displayName: "Dictation", interactionFamily: "typed_recall",
     pedagogicalPurpose: "Transcribe a governed authored sentence from audio, then lock and compare.",
     canonicalComponent: "SentenceDictation", canonicalComponentPath: "components/adle/activities/shared/sentence-dictation.tsx",
-    supportedModes: ["whole_sentence", "target_token", "target_span"], modeDescriptions: {
+    supportedModes: ["whole_sentence", "target_token", "target_span", "paired_word_gaps", "single_word_gap"], modeDescriptions: {
+      paired_word_gaps: "Two authored word-audio buttons and two gaps; freeze both together, then grade spelling and placement separately.",
+      single_word_gap: "Hear an authored sentence and spell its one hidden -ing target; freeze the word before comparison.",
       whole_sentence: "Transcribe and compare the whole authored sentence.", target_token: "Route adapter extracts one governed token for correctness/evidence.", target_span: "Route adapter extracts an exact governed multi-token span.",
     }, requiredInputs: ["authored sentence", "audio text", "target binding"], optionalInputs: ["target token index", "target span", "resume state"],
-    capturesAttempt: true, evidenceBearing: true, supportsAudio: true, usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["future generic curriculum with authored sentence contract", ...MORPHOLOGY_SKILLS],
+    capturesAttempt: true, evidenceBearing: true, supportsAudio: true, usedByRoutes: [GENERIC_ROUTE, ...ALL_SPECIALIST_ROUTES], usedByMicroSkills: ["future generic curriculum with authored sentence contract", ...SPECIALIST_SKILLS],
     templateKeys: ["DICTATION_NO_IMAGE", "DICTATION_SENTENCE_CONTEXT"],
     status: "CANONICAL", reviewEligible: false, whenToUse: "For every first-impression Dictation activity with governed authored sentence content.", whenNotToUse: "For single-word review/diagnostic recall or visible study practice.",
     compatibilityImplementations: ["legacy template-key normalization"],
@@ -315,7 +333,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     canonicalComponent: "LessonReflection", canonicalComponentPath: "components/adle/activities/lesson-reflection.tsx",
     supportedModes: ["standard_lesson_reflection"], modeDescriptions: { standard_lesson_reflection: "Compare normalized attempted and correct spellings, answer one governed lesson-specific question, and complete through the owning route adapter." },
     requiredInputs: ["normalized mistake summary", "lesson-specific prompt", "controlled child response", "completion callback or submit boundary"], optionalInputs: ["context recap", "specialist recap", "route-specific success message"],
-    capturesAttempt: true, evidenceBearing: true, usedByRoutes: [...ALL_SPECIALIST_ROUTES], usedByMicroSkills: [...MORPHOLOGY_SKILLS],
+    capturesAttempt: true, evidenceBearing: true, usedByRoutes: [...ALL_SPECIALIST_ROUTES], usedByMicroSkills: [...SPECIALIST_SKILLS],
     status: "CANONICAL", reviewEligible: false,
     whenToUse: "Once, at the end of every first-impression lesson.", whenNotToUse: "For retrying one misspelling or authoring a mnemonic.",
     compatibilityImplementations: ["Common Word Lab FixtureActivity reflection"],
@@ -345,7 +363,7 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "TRANSFORMATION", displayName: "Spelling transformation", interactionFamily: "transformation",
     pedagogicalPurpose: "Show a governed source form after the child has identified the visible word-part boundary.",
     canonicalComponent: "SpellingTransformationReveal", canonicalComponentPath: "components/adle/activities/shared/spelling-transformation-reveal.tsx",
-    supportedModes: ["surface_to_source"], modeDescriptions: { surface_to_source: "Reveal a governed source form after Split completes; the live Base Word case restores final y from visible i." },
+    supportedModes: ["surface_to_source", "base_to_degree", "degree_to_base"], modeDescriptions: { surface_to_source: "Reveal a governed source form after Split completes; the live Base Word case restores final y from visible i.", base_to_degree: "Presentation of an approved base-to-degree change; retained for existing callers.", degree_to_base: "Nested after CLEAVER.transform_target: slowly restore y, remove the doubled consonant, return final e, or retain an unchanged base." },
     requiredInputs: ["source text", "surface text", "explanation"], optionalInputs: ["action copy", "continuation copy"], supportsPointer: true, supportsAudio: true,
     usedByRoutes: [BASE_ROUTE], usedByMicroSkills: [...BASE_SKILLS], status: "CANONICAL_MODE",
     whenToUse: "When the spelling change itself must be noticed or rehearsed.", whenNotToUse: "For a simple unchanged join.",

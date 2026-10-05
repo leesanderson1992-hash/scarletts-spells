@@ -78,6 +78,74 @@
         "kind": "declared_micro_skills"
       },
       "coverageRequirements": [
+        "family_sections",
+        "distinct_forms",
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
+        22,
+        23,
+        24
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": true,
+      "payloadKind": "comparative_superlative_lesson_v1",
+      "payloadVersions": [
+        1
+      ],
+      "recipes": [
+        {
+          "recipeKey": "comparative_superlative_word_lab",
+          "recipeVersion": "v1"
+        }
+      ],
+      "rendererKey": "comparative_superlative_guided",
+      "requiredActivities": [
+        "introduction",
+        "word_build",
+        "meaning_sort",
+        "cleaver",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "comparative_superlative_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
+      "routeVersion": "v1",
+      "runtimeAdapterKey": "comparative_superlative_v1",
+      "supportedMicroSkillKeys": [
+        "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+        "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+        "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+        "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I"
+      ],
+      "wordCounts": {
+        "authentic": [
+          2,
+          4
+        ],
+        "lesson": [
+          6,
+          6
+        ],
+        "transfer": [
+          2,
+          4
+        ]
+      },
+      "wordSupportAuthority": "route_content"
+    },
+    {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
         "unique_dictation_sentences"
       ],
       "implementationState": "registered",

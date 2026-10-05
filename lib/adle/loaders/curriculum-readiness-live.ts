@@ -46,7 +46,7 @@ export async function loadCurriculumReadinessFacts(params: {
   routeContent?: readonly RouteContentFact[];
 }): Promise<CurriculumReadinessFacts> {
   const client = params.client;
-  const [candidateRows, canonicalRows, wordRows, skillRows, supportRows, itemRows, lineageRows, scheduleRows, routeRows] = await Promise.all([
+  const [candidateRows, canonicalRows, wordRows, skillRows, supportRows, itemRows, lineageRows, scheduleRows, routeRows, contextualPairRows] = await Promise.all([
     readAllById<any>(client, "parent_verified_spelling_candidate_mappings", "id,parent_user_id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,candidate_status,updated_at", (query) => query.in("candidate_status", ["parent_local_promoted", "global_canonical_promoted"])),
     readAllById<any>(client, "spelling_canonical_mappings", "id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,created_at", (query) => query.eq("mapping_status", "active")),
     readAllById<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status,review_status,frequency_band,age_band"),
@@ -56,11 +56,13 @@ export async function loadCurriculumReadinessFacts(params: {
     readAllById<any>(client, "adle_learning_item_sources", "id,learning_item_id,source_ref,parent_verified_candidate_mapping_id,canonical_mapping_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key", (query) => query.eq("row_status", "active")),
     readAllById<any>(client, "adle_review_schedule_words", "id,child_id,canonical_word_id,row_status", (query) => query.eq("row_status", "active")),
     readAllById<any>(client, "adle_review_schedule_word_routes", "id,schedule_word_id,learning_item_id,micro_skill_key,attached_on,attachment_ordinal,row_status", (query) => query.eq("row_status", "active")),
+    readAllById<any>(client, "contextual_micro_skill_pairs", "id,micro_skill_key"),
   ]);
   const mappingIds = canonicalRows.map((row) => row.id as string);
   const visibilityRows = mappingIds.length === 0 ? [] : await readAllById<any>(client, "spelling_canonical_mapping_events", "id,mapping_id,event_type,new_resolver_visibility_status", (query) => query.in("mapping_id", mappingIds).eq("event_type", "resolver_visibility_enabled").eq("new_resolver_visibility_status", "visible"));
   const visibleIds = new Set(visibilityRows.map((row) => row.mapping_id as string));
   const skillFamilyByKey = new Map(skillRows.map((row) => [row.micro_skill_key as string, row.skill_family_key as string]));
+  const contextualSkills = new Set(contextualPairRows.map((row) => row.micro_skill_key as string));
   const scheduleById = new Map(scheduleRows.map((row) => [row.id as string, row]));
   const sharedRoutes = new Map<string, SharedWordRouteFact[]>();
   for (const row of routeRows) {
@@ -72,7 +74,7 @@ export async function loadCurriculumReadinessFacts(params: {
       microSkillKey: row.micro_skill_key,
       attachedOn: row.attached_on,
       attachmentOrdinal: row.attachment_ordinal,
-      requiresSentenceContext: skillFamilyByKey.get(row.micro_skill_key) === "D4_HOM",
+      requiresSentenceContext: contextualSkills.has(row.micro_skill_key) || skillFamilyByKey.get(row.micro_skill_key) === "D4_HOM",
       rowStatus: row.row_status,
     }]);
   }

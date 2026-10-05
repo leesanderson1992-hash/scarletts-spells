@@ -2,6 +2,20 @@
 
 Updated: 2026-08-30
 
+## 2026-09-29 local implementation — comparative/superlative inactive
+
+`comparative_superlative_word_lab:v1` now has a local shared lesson renderer,
+reviewed-family readiness/selection, frozen Snapshot v3, checkpoint/Finish
+integration and two unapplied additive migrations. All four rule profiles are
+available as explicitly synthetic localhost fixtures. This is **not a staging
+or Production release** and changes no released activation head.
+
+The 24-family/72-form candidate pool is unapproved. Human lexical/content
+review, canonical ID reconciliation, inactive staging publication, deployment
+and four complete persisted-state staging proofs remain required. Production
+publication/activation needs separate explicit authority. Evidence and commands
+are recorded in `docs/implementation/adle-comparative-superlative-v1.md`.
+
 ## Proficiency authority marker and 2026-08-30 revalidation
 
 `CURRENT_RUNTIME`: this registry describes released lesson/read/write

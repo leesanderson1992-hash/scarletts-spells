@@ -150,7 +150,7 @@ Expected shape:
 - parent reviews
 - approved items enter child practice automatically
 
-Do not bypass parent review in documentation or UI wording unless that behavior is intentionally being changed.
+Do not bypass parent review in documentation or UI wording unless that behavior is intentionally being changed. A controlled Production proof may bypass it only for disposable fixtures and must state that it does not validate the ordinary parent-review or Golden Nugget journey.
 
 ## Spelling golden path rule
 

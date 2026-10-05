@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "canonical_word_release_manifest_v2",
+  "releaseId": "2026-10-03-ing-endings-canonical-v2",
+  "packageType": "canonical_word_batch_v1",
+  "packageSchemaVersion": "v2",
+  "workbookSha256": "db4bcd354611174ba024cfe445c297eaaed2070439970594d79517826d864ba4",
+  "approvalArtifactFile": "approved-source.csv",
+  "sourceCommit": "838861f52f0289568faca935b84c8362f3ce2844",
+  "requiredMigrationVersions": [
+    "20260724140000",
+    "20260726150000",
+    "20260726170000",
+    "20260726173000",
+    "20260726174000",
+    "20260929122000"
+  ],
+  "fileSha256": {
+    "canonical_word_metadata.csv": "8ba74ae210124a235586f387c69f0899b63d758eb33642626c940532ccd5823a",
+    "canonical_word_morphology.csv": "6922b2448dc793c2f0cd5d111281cd320511b6991e297ad6681cb7d5e96f9242",
+    "canonical_words.csv": "6313a0df6f6436474750ba0322eb838cd08129a143f8747c8b61f5ec84bc3646",
+    "dictation_sentences.csv": "6d2302679a346c54f31a7513032b57e11e4061df5976af56603b306617db0c45",
+    "teaching_content_sources.csv": "5bed3d2e20c73e7329cd98cddaa207a0e1172ce301eff79cef9c78034d8680e7"
+  },
+  "rowCounts": {
+    "sources": 1,
+    "words": 50,
+    "metadata": 50,
+    "morphology": 50,
+    "dictations": 50,
+    "repairs": 0,
+    "deferredRepairIntents": 0
+  },
+  "reviewerSummary": {
+    "reviewers": [
+      "Katie Sanderson"
+    ],
+    "reviewedDates": [
+      "2026-10-03T00:00:00Z"
+    ]
+  },
+  "sourceApprovalSummary": {
+    "importable": 1,
+    "legalPassedOrNotRequired": 1
+  },
+  "expectedTargetTables": [
+    "canonical_teaching_dictionary_sources",
+    "canonical_teaching_dictionary_words",
+    "canonical_teaching_dictionary_word_metadata",
+    "canonical_teaching_dictionary_word_morphology",
+    "canonical_teaching_dictionary_dictation_sentences"
+  ],
+  "prohibitedTableFamilies": [
+    "learner",
+    "assignment",
+    "evidence",
+    "proficiency",
+    "reward",
+    "word_treasure"
+  ],
+  "deferredRepairIntentFile": null,
+  "deferredRepairIntentsSha256": null,
+  "packageSha256": "711b26c9930042acdc934d4d3028701043e0a926f2335f044fd39b3c53d5847e"
+}

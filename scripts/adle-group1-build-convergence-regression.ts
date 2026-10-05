@@ -189,8 +189,11 @@ assert(snapRailSource.includes("useOrderedBuildEngine") && jigsawSource.includes
 
 const wordAssembly = ADLE_ACTIVITY_CATALOGUE.find((entry) => entry.activityKey === "WORD_ASSEMBLY")!;
 assert.equal(wordAssembly.canonicalComponent, "DefinitionWordBuilder");
-assert.equal(wordAssembly.usedByMicroSkills.length, 19, "all five Prefix, ten Affix and four Base Word microskills resolve to the shared Definition Word Builder");
-assert.equal(new Set(wordAssembly.usedByMicroSkills).size, 19, "the 19 configured specialist microskills are unique");
+const definitionSkills = wordAssembly.usedByMicroSkills.filter(skill => skill.startsWith("D4_MOR_"));
+assert.equal(definitionSkills.length, 19, "all five Prefix, ten Affix and four Base Word microskills retain the shared Definition Word Builder");
+assert.equal(new Set(definitionSkills).size, 19, "the existing 19 configured specialist microskills remain unique");
+assert.equal(wordAssembly.usedByMicroSkills.filter(skill => skill.startsWith("D4_INF_COMPARATIVE_SUPERLATIVE_")).length, 4);
+assert(wordAssembly.supportedModes.includes("sentence_suffix"), "comparative support is an explicit compatible extension, not definition-first configuration");
 
 const reviewedPrefixManifest = JSON.parse(readFileSync(
   "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-03-dynamic-prefix-pedagogy-v1/manifest.json",

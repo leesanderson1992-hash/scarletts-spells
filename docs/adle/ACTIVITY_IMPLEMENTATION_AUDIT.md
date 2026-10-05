@@ -50,8 +50,8 @@ Architecture documents inspected:
 
 | Implementation | File | Concept | Routes | Template keys | Candidate | Classification | Risk | Historical replay | Action |
 |---|---|---|---|---|---|---|---|---|---|
-| TeachingPages | `components/adle/first-impression/teaching-pages.tsx` | `INTRODUCTION / READING_PAGE / MEET_WORDS` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | TeachingPages | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| MeetWords presentation | `components/adle/first-impression/teaching-pages.tsx` | `MEET_WORDS` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | TeachingPages | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
+| TeachingPages | `components/adle/first-impression/teaching-pages.tsx` | `INTRODUCTION / READING_PAGE / MEET_WORDS` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | TeachingPages | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| MeetWords presentation | `components/adle/first-impression/teaching-pages.tsx` | `MEET_WORDS` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | TeachingPages | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | IntroActivity compatibility renderer | `components/adle/activities/intro-activity.tsx` | `INTRODUCTION` | generic_composer:v1 | MICRO_READ_ONLY_INTRO, LESSON_WORDS_INTRO | TeachingPages | `COMPATIBILITY_ONLY` | low | Yes | Retain only for immutable generic composer assignments until their compatibility renderer is normalized at the boundary. |
 | GuidedActivity | `components/adle/activities/guided-activity.tsx` | `MEMORY_CUE / HISTORICAL_FREE_RESPONSE` | generic_composer:v1 | MEMORY_CUE, definition-less historical meaning keys, MUST_USE_FREEWRITING, REVIEW_MUST_USE_WRITING | GuidedActivity | `COMPATIBILITY_ONLY` | medium | Yes | Do not add new usage before the backlog action is complete. |
 | REVIEW_QUICK_SORT compatibility mapping | `lib/adle/generic-activity-compatibility.ts` | `REVIEW_SORT` | historical generic assignments only | REVIEW_QUICK_SORT | none | `COMPATIBILITY_ONLY` | low | Yes | Do not add new usage before the backlog action is complete. |
@@ -64,11 +64,11 @@ Architecture documents inspected:
 | DefinitionWordBuilder | `components/adle/activities/shared/definition-word-builder.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | BinSort | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
 | BinSortOverview | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT completion view` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
-| CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | CONTROLLED_SPELLING, HIDE_WRITE | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| SentenceDictation | `components/adle/activities/shared/sentence-dictation.tsx` | `DICTATION.whole_sentence` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT | SentenceDictation | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | CONTROLLED_SPELLING, HIDE_WRITE | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| SentenceDictation | `components/adle/activities/shared/sentence-dictation.tsx` | `DICTATION.whole_sentence` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT | SentenceDictation | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | ColdWordRecall | `components/adle/activities/shared/cold-word-recall.tsx` | `REVIEW_DICTATION / DIAGNOSTIC_DICTATION_PROBE` | generic_composer:v1 | REVIEW_DICTATION, DIAGNOSTIC_DICTATION_PROBE | ColdWordRecall | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| HearWordButton | `components/adle/activities/shared/authored-audio.tsx` | `AUDIO_SUPPORT` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | CoverShutter / SentenceDictation / ColdWordRecall | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
-| DiffReveal | `components/adle/activities/shared/diff-reveal.tsx` | `POST_ATTEMPT_COMPARISON` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | COVER_CHECK / DICTATION | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
+| HearWordButton | `components/adle/activities/shared/authored-audio.tsx` | `AUDIO_SUPPORT` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | CoverShutter / SentenceDictation / ColdWordRecall | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
+| DiffReveal | `components/adle/activities/shared/diff-reveal.tsx` | `POST_ATTEMPT_COMPARISON` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | COVER_CHECK / DICTATION | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Discovery | `components/adle/morphology/morphology-guided-lesson.tsx` | `MEANING_DISCOVERY` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | Discovery | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SplitBuild | `components/adle/morphology/morphology-guided-lesson.tsx` | `CLEAVER` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | SplitHandle | `THIN_ADAPTER` | high | No | Retain as state-free curriculum translation into the canonical component. |
 | Morphology Cover Check adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `COVER_CHECK adapter` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | CoverShutter | `CANONICAL_MODE` | high | Yes | Retain and route new work through the catalogue. |
@@ -88,14 +88,14 @@ Architecture documents inspected:
 | Compound Cover Check adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `COVER_CHECK adapter` | compound_word_lab:v2 | none | CoverShutter | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | Compound Sentence Dictation adapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `DICTATION.whole_sentence adapter` | compound_word_lab:v2 | none | SentenceDictation | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | CompoundLessonReflectionAdapter | `components/adle/morphology/closed-compound-guided-lesson.tsx` | `LESSON_REFLECTION adapter` | compound_word_lab:v2 | none | LessonReflection | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
-| LessonReflection | `components/adle/activities/lesson-reflection.tsx` | `LESSON_REFLECTION` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | LessonReflection | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| LessonReflection | `components/adle/activities/lesson-reflection.tsx` | `LESSON_REFLECTION` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | LessonReflection | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | FixtureActivity | `components/adle/word-lab/activity-registry.tsx` | `COMMON_WORD_LAB_PLACEHOLDER` | /dev/adle/common-word-lab only | none | real per-kind Word Lab plugins | `COMPATIBILITY_ONLY` | low | No | Keep the dark fixture runnable, but do not treat its five registrations as production activity implementations. |
 | WordLabActivityHost | `components/adle/word-lab/activity-registry.tsx` | `RUNTIME_DISPATCH` | /dev/adle/common-word-lab only | none | WordLabActivityHost | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | CommonWordLabShell | `components/adle/word-lab/common-word-lab-shell.tsx` | `LESSON_SHELL` | /dev/adle/common-word-lab only | none | FirstImpressionLesson | `DEVELOPMENT_REFERENCE` | low | No | Retain for governed development inspection only; do not route learner interaction through it. |
-| CanonicalActivityRenderer registry | `components/adle/activities/canonical-renderer-registry.tsx` | `RUNTIME_DISPATCH` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | CanonicalActivityRenderer registry | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| FirstImpressionLesson | `components/adle/first-impression/first-impression-lesson.tsx` | `LESSON_SHELL` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | FirstImpressionLesson | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
-| WordLabScene | `components/adle/morphology/word-lab-scene.tsx` | `LESSON_SCENE` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | FirstImpressionLesson | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
-| LessonGuide | `components/adle/morphology/lesson-guide.tsx` | `GUIDED_PROMPT_SHELL` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2 | none | WordLabScene | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
+| CanonicalActivityRenderer registry | `components/adle/activities/canonical-renderer-registry.tsx` | `RUNTIME_DISPATCH` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | CanonicalActivityRenderer registry | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| FirstImpressionLesson | `components/adle/first-impression/first-impression-lesson.tsx` | `LESSON_SHELL` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | FirstImpressionLesson | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
+| WordLabScene | `components/adle/morphology/word-lab-scene.tsx` | `LESSON_SCENE` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | FirstImpressionLesson | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
+| LessonGuide | `components/adle/morphology/lesson-guide.tsx` | `GUIDED_PROMPT_SHELL` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | none | WordLabScene | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | AdleSessionCelebration | `components/adle/adle-session-celebration.tsx` | `SESSION_COMPLETION_SHELL` | /learn/week/adle completed state | none | AdleSessionRunner | `CANONICAL_MODE` | medium | No | Retain and route new work through the catalogue. |
 | AdleSessionRunner | `components/adle-session-runner.tsx` | `RUNTIME_DISPATCH` | /learn/week/adle | none | AdleSessionRunner | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | MorphologyGuidedLesson adapter | `components/adle/morphology/morphology-guided-lesson.tsx` | `LESSON_RUNTIME_ADAPTER` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | FirstImpressionLesson | `THIN_ADAPTER` | high | Yes | Retain as state-free curriculum translation into the canonical component. |
@@ -156,7 +156,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/first-impression/teaching-pages.tsx`
 - Concept / family: `INTRODUCTION / READING_PAGE / MEET_WORDS` / `introduction / reading_page / meet_words`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
@@ -175,7 +175,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/first-impression/teaching-pages.tsx`
 - Concept / family: `MEET_WORDS` / `meet_words`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
@@ -422,7 +422,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/shared/cover-shutter.tsx`
 - Concept / family: `COVER_CHECK` / `cover_check`
-- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: `CONTROLLED_SPELLING`, `HIDE_WRITE`
 - Props/config differences: See component props and route adapter.
@@ -441,7 +441,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/shared/sentence-dictation.tsx`
 - Concept / family: `DICTATION.whole_sentence` / `dictation.whole_sentence`
-- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: `DICTATION_NO_IMAGE`, `DICTATION_SENTENCE_CONTEXT`
 - Props/config differences: Authored audio and correct sentence are separate inputs; routes control value, checked state and continuation.
@@ -479,7 +479,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/shared/authored-audio.tsx`
 - Concept / family: `AUDIO_SUPPORT` / `audio_support`
-- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `runtime-selected generic micro-skills`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
@@ -498,7 +498,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/shared/diff-reveal.tsx`
 - Concept / family: `POST_ATTEMPT_COMPARISON` / `post_attempt_comparison`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: Word and sentence modes; optional split points.
@@ -878,7 +878,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/lesson-reflection.tsx`
 - Concept / family: `LESSON_REFLECTION` / `lesson_reflection`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: One neutral normalized mistake, context recap, specialist recap, governed prompt and controlled response contract.
@@ -954,7 +954,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/activities/canonical-renderer-registry.tsx`
 - Concept / family: `RUNTIME_DISPATCH` / `runtime_dispatch`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: Nineteen versioned concept/mode contracts lazily load the existing canonical Group 1–7 learner components and validate route-adapted props before mount.
@@ -973,7 +973,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/first-impression/first-impression-lesson.tsx`
 - Concept / family: `LESSON_SHELL` / `lesson_shell`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
@@ -992,7 +992,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/morphology/word-lab-scene.tsx`
 - Concept / family: `LESSON_SCENE` / `lesson_scene`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.
@@ -1011,7 +1011,7 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 
 - File: `components/adle/morphology/lesson-guide.tsx`
 - Concept / family: `GUIDED_PROMPT_SHELL` / `guided_prompt_shell`
-- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`
+- Routes: `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`
 - Micro-skills: `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`
 - Registry/template keys: None
 - Props/config differences: See component props and route adapter.

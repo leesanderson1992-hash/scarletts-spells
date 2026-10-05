@@ -5,6 +5,7 @@ import {
   buildSeedUploadImportPlan,
   buildSeedUploadPreview,
 } from "../lib/writing-engine/seed-import-upload";
+import { SEED_IMPORT_TEMPLATE_HEADER } from "../lib/writing-engine/seed-import-columns";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) {
@@ -25,6 +26,16 @@ const inactiveSkill = {
   is_active: false,
   is_assignable: true,
 };
+
+const templateRoundTrip = buildSeedUploadPreview({
+  csvText: `${SEED_IMPORT_TEMPLATE_HEADER}\nfreind,friend,${activeSkill.micro_skill_key},high,upload_regression,Template round trip,en-GB,,,,,,,`,
+  fileName: "seed-import-template.csv",
+  microSkills: [activeSkill],
+  now: new Date("2026-06-22T12:00:00.000Z"),
+});
+assert(templateRoundTrip.summary.total_rows === 1, "Filled template must parse as one row.");
+assert(templateRoundTrip.summary.importable_rows === 1, "Filled template must be importable.");
+assert(templateRoundTrip.warnings.length === 0, "Template must contain only supported columns.");
 
 const csv = [
   "misspelling,correction,suggested_micro_skill_key,confidence,source,note,dialect,source_dataset,source_row_id,import_batch_name,pattern_hint,route_hint",

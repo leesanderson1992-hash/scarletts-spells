@@ -1,31 +1,15 @@
 import fs from "fs";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
+import { SEED_IMPORT_OPTIONAL_COLUMNS, SEED_IMPORT_REQUIRED_COLUMNS } from "../lib/writing-engine/seed-import-columns";
 
 const SCHEMA_VERSION = "version_2_slice_4a_4";
 const NORMALIZATION_VERSION = "spelling_normalize_v1";
 const DEFAULT_DIALECT_CODE = "en-GB";
 const DEFAULT_OUT_DIR = ".tmp/writing-engine-seed-import-dry-run";
 
-const REQUIRED_COLUMNS = [
-  "misspelling",
-  "correction",
-  "suggested_micro_skill_key",
-  "confidence",
-  "source",
-  "note",
-] as const;
-
-const OPTIONAL_COLUMNS = [
-  "dialect",
-  "age_band",
-  "source_url",
-  "source_dataset",
-  "pattern_hint",
-  "route_hint",
-  "source_row_id",
-  "import_batch_name",
-] as const;
+const REQUIRED_COLUMNS = SEED_IMPORT_REQUIRED_COLUMNS;
+const OPTIONAL_COLUMNS = SEED_IMPORT_OPTIONAL_COLUMNS;
 
 const KNOWN_COLUMNS = new Set<string>([...REQUIRED_COLUMNS, ...OPTIONAL_COLUMNS]);
 

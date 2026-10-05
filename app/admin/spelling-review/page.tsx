@@ -115,6 +115,20 @@ async function getCatalogGapSummary() {
   );
 }
 
+async function getNoMatchingSkillSummary() {
+  const supabase = createServiceRoleClient();
+  const { data, error } = await supabase
+    .from("spelling_no_matching_skill_queue")
+    .select("case_status, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(250);
+  if (error) throw error;
+  return buildSummary((data ?? []).map((row) => ({
+    status: row.case_status,
+    updated_at: row.updated_at,
+  })), new Set(["open", "needs_new_micro_skill", "word_level_only"]));
+}
+
 async function getCanonicalRecommendationSummary() {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
@@ -292,6 +306,7 @@ export default async function AdminSpellingReviewPage() {
   await requireAdminUser();
 
   let catalogGapSummary: QueueSummary | null = null;
+  let noMatchingSkillSummary: QueueSummary | null = null;
   let recommendationSummary: QueueSummary | null = null;
   let seedImportRowSummary: QueueSummary | null = null;
   let unresolvedIntakeDemandCount: number | null = null;
@@ -300,12 +315,14 @@ export default async function AdminSpellingReviewPage() {
   try {
     [
       catalogGapSummary,
+      noMatchingSkillSummary,
       recommendationSummary,
       seedImportRowSummary,
       unresolvedIntakeDemandCount,
     ] =
       await Promise.all([
         getCatalogGapSummary(),
+        getNoMatchingSkillSummary(),
         getCanonicalRecommendationSummary(),
         getSeedImportRowSummary(),
         getUnresolvedIntakeDemandCount(),
@@ -323,16 +340,14 @@ export default async function AdminSpellingReviewPage() {
             Spelling Review
           </h1>
           <p className="brand-copy mt-4 max-w-3xl text-sm leading-6">
-            One place to see the spelling admin queues. The queues remain
-            separate so catalog gaps, parent recommendations, seed imports,
-            canonical mapping storage, and resolver visibility keep their
-            current boundaries.
+            Review catalog gaps, parent recommendations, seed imports, and
+            canonical mappings in the Canonical Misspelling Resolver.
           </p>
           <Link
             href="/admin/canonical-mappings"
             className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[var(--mist)] focus:outline-none focus:ring-2 focus:ring-[var(--scarlett)] focus:ring-offset-2"
           >
-            Open canonical mappings
+            Open Canonical Misspelling Resolver
           </Link>
           <Link
             href="/admin/spelling-canonical-resolver-readiness"
@@ -355,23 +370,32 @@ export default async function AdminSpellingReviewPage() {
 
         {hasError ||
         !catalogGapSummary ||
+        !noMatchingSkillSummary ||
         !recommendationSummary ||
         !seedImportRowSummary ? (
           <ErrorState />
         ) : (
           <>
             <QueueSection
+              description="Parent-confirmed contextual choices and spelling pairs waiting for a suitable teaching skill."
+              href="/admin/no-matching-skill"
+              linkLabel="Open No Matching Skill"
+              sourceTable="spelling_no_matching_skill_queue"
+              summary={noMatchingSkillSummary}
+              title="No Matching Skill"
+            />
+            <QueueSection
               description="Catalog gaps: parent could not find a suitable existing skill."
-              href="/admin/catalog-review"
-              linkLabel="Open catalog gaps"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_catalog_review_cases"
               summary={catalogGapSummary}
-              title="Catalog gaps / No matching skill cases"
+              title="Parent catalog review cases"
             />
             <QueueSection
               description="Recommended mappings: parent selected an existing skill and recommends the word/correction pairing for admin review."
-              href="/admin/canonical-recommendations"
-              linkLabel="Open recommendations"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_canonical_mapping_recommendations"
               summary={recommendationSummary}
               title="Parent recommended canonical mappings"
@@ -384,8 +408,8 @@ export default async function AdminSpellingReviewPage() {
             </p>
             <QueueSection
               description="Seed imports: external/operator candidate evidence awaiting read-only review."
-              href="/admin/seed-import-review"
-              linkLabel="Open seed imports"
+              href="/admin/canonical-mappings?status=pending"
+              linkLabel="Open resolver"
               sourceTable="spelling_seed_import_rows"
               summary={seedImportRowSummary}
               title="Imported seed candidate rows"

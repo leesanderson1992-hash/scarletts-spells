@@ -4,7 +4,7 @@
     "auditVersion": "adle_readiness_audit_v1",
     "containsLearnerIdentity": false,
     "containsRawAttempts": false,
-    "inputFingerprint": "21d4042cc40163ea51c54894b88476938164cf6b310fc17abc5e4f3819197ed8",
+    "inputFingerprint": "dd4bf20d69fd8994356b1c52ce6ca2cad8ffc4fd744d22e9edff1ea4206d88e8",
     "knownReportOnlyFindings": [
       {
         "code": "transfer_not_approved",
@@ -18,6 +18,410 @@
       }
     ],
     "microSkills": [
+      {
+        "dependencyFingerprint": "2af9f0eb5d9f0f7ca9d73d66faac50423836ea16857666c8723b76100049679e",
+        "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+        "routeId": "comparative_superlative_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=comparative_superlative_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_sort",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "90e4e2375f9270f2960655018782dd0178ef6ab0b8e2e4ee0f974a73ff8945bf",
+        "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E",
+        "routeId": "comparative_superlative_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=comparative_superlative_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_sort",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "8fc78f01aaf3dc9577d646168be32671f4acdf4315c0a15bc141ede91e65fb65",
+        "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+        "routeId": "comparative_superlative_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=comparative_superlative_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_sort",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
+      {
+        "dependencyFingerprint": "a0ecf215215a5172ca4f738835822e6dcad66addf8e8b3aa1faaaf11f696758d",
+        "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I",
+        "routeId": "comparative_superlative_word_lab",
+        "routeVersion": "v1",
+        "stages": [
+          {
+            "blockers": [],
+            "evidence": [
+              "profileDeclared=true",
+              "profileProductionEnabled=true",
+              "route=comparative_superlative_word_lab:v1",
+              "taxonomyActive=true"
+            ],
+            "stage": "taxonomy_and_route",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "wordAssessmentCount=0"
+            ],
+            "stage": "canonical_word_facts",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "word_microskill_support",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleAuthenticWordCount=not_assessed"
+            ],
+            "stage": "authentic_target_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "eligibleTransferWordCount=not_assessed"
+            ],
+            "stage": "transfer_eligibility",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "activity=cleaver",
+              "activity=cover_check",
+              "activity=dictation",
+              "activity=introduction",
+              "activity=meaning_sort",
+              "activity=reflection",
+              "activity=word_build"
+            ],
+            "stage": "activity_requirements",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "group_composition",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "itemCount=22",
+              "itemCount=23",
+              "itemCount=24"
+            ],
+            "stage": "assignment_construction",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [
+              "payloadVersion=1"
+            ],
+            "stage": "persisted_payload_validation",
+            "status": "ready"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "runtime_reconstruction",
+            "status": "not_assessed"
+          },
+          {
+            "blockers": [],
+            "evidence": [],
+            "stage": "activity_binding_resolution",
+            "status": "ready"
+          }
+        ],
+        "status": "not_assessed",
+        "wordAssessments": []
+      },
       {
         "dependencyFingerprint": "b6cd069e23ea427cc7d6e0aa19a5b3c39cec363072787b15259cd8bd93d6ea81",
         "microSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
@@ -2125,10 +2529,10 @@
     "mutationPerformed": false,
     "summary": {
       "blockedCount": 0,
-      "notAssessedCount": 21,
-      "productionMicroSkillCount": 21,
+      "notAssessedCount": 25,
+      "productionMicroSkillCount": 25,
       "readyCount": 0,
-      "structurallyDeclaredCount": 21
+      "structurallyDeclaredCount": 25
     }
   }
 }

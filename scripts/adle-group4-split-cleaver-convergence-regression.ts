@@ -47,11 +47,13 @@ assert.equal(cleaver?.canonicalComponent, "SplitHandle");
 assert(cleaver?.supportedModes.includes("isolate_component"));
 assert.deepEqual(cleaver?.duplicateImplementations, []);
 assert.equal(transformation?.canonicalComponent, "SpellingTransformationReveal");
-assert.deepEqual(transformation?.supportedModes, ["surface_to_source"]);
+assert.deepEqual(transformation?.supportedModes, ["surface_to_source", "base_to_degree", "degree_to_base"]);
+assert(cleaver?.supportedModes.includes("transform_target"), "target transformation mode must be explicit");
+assert(split.includes("<SpellingTransformationReveal mode=\"degree_to_base\""), "target split composes the shared base-restoration presentation");
 assert(!ADLE_ACTIVITY_CONVERGENCE_BACKLOG.some((item) => item.title === "Converge the Cleaver family"), "completed Cleaver convergence must leave the active backlog");
 assert.equal(ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.find((row) => row.implementationName === "SplitBuild")?.classification, "THIN_ADAPTER");
 assert.equal(ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.find((row) => row.implementationName === "Cleave (Base Word adapter)")?.classification, "THIN_ADAPTER");
-assert.equal(ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.find((row) => row.implementationName === "MorphemeSequence")?.classification, "DEVELOPMENT_REFERENCE");
+assert(!ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.some((row) => row.implementationName === "MorphemeSequence"), "already-retired MorphemeSequence must not re-enter the live audit inventory");
 assert(!ADLE_ACTIVITY_IMPLEMENTATION_AUDIT.some((row) => ["BaseWordCleaver", "WordSplitView", "TransformationAnimation", "TransformationView"].includes(row.implementationName)), "retired implementations must leave the live audit inventory");
 
 console.log("PASS: Group 4 canonical SplitHandle, thin route adapters, separated source-form reveal, resume/evidence parity, and retired duplicate mechanics");

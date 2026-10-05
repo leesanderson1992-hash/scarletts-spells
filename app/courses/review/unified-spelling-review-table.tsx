@@ -9,7 +9,7 @@ import { ContextAdvisoryTableRow } from "./context-advisory-table-row";
 import { PassageContextReviewRow } from "./passage-context-review-row";
 import type { PassageReviewRow } from "@/lib/writing-engine/whole-writing/context-passage-review";
 import type { ReturnedContextExcerpt } from "@/lib/writing-engine/whole-writing/returned-context-excerpts";
-import { ContextualReturnedCorrectionRow } from "./contextual-returned-correction-row";
+import { ContextualReturnedCorrectionRow, type ContextSkillPair } from "./contextual-returned-correction-row";
 import {
   getWritingIssueFinalClassificationLabel,
   WRITING_ISSUE_FINAL_CLASSIFICATIONS,
@@ -37,6 +37,7 @@ const LEARNING_RELEVANT_OUTCOMES = new Set([
 type UnifiedSpellingReviewTableProps = {
   rows: UnifiedSpellingReviewItem[];
   contextRows?: ContextAdvisoryReviewRow[];
+  contextPairs?: ContextSkillPair[];
   passageRows?: PassageReviewRow[];
   returnedContextExcerpts?: Record<string, ReturnedContextExcerpt>;
   contextReadOnly?: boolean;
@@ -1305,6 +1306,7 @@ function UnifiedSpellingReviewTableRow({
 export function UnifiedSpellingReviewTable({
   rows,
   contextRows = [],
+  contextPairs = [],
   passageRows = [],
   returnedContextExcerpts = {},
   contextReadOnly = false,
@@ -1395,6 +1397,7 @@ export function UnifiedSpellingReviewTable({
                 key={row.id}
                 row={row}
                 options={options}
+                contextPairs={contextPairs}
                 submissionId={submissionId}
                 redirectPath={redirectPath}
                 colSpan={adlePhase ? 7 : showRouteColumns ? 8 : showActionsColumn ? 6 : 5}

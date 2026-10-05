@@ -20,6 +20,8 @@ type AppShellProps = {
   userEmail?: string | null;
   layout?: "default" | "focus";
   showAdminNav?: boolean;
+  hideBrandEyebrow?: boolean;
+  hideLearnerIdentity?: boolean;
 };
 
 type NavItem = {
@@ -71,13 +73,8 @@ function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
       href: "/admin/spelling-review",
       children: [
         { label: "Spelling Review", href: "/admin/spelling-review" },
-        { label: "Catalog Review", href: "/admin/catalog-review" },
-        {
-          label: "Canonical Recommendations",
-          href: "/admin/canonical-recommendations",
-        },
-        { label: "Seed Import Review", href: "/admin/seed-import-review" },
-        { label: "Canonical Mappings", href: "/admin/canonical-mappings" },
+        { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings" },
+        { label: "No Matching Skill", href: "/admin/no-matching-skill" },
         { label: "Word–skill Review", href: "/admin/word-skill-review" },
         { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence" },
         {
@@ -120,6 +117,8 @@ export function AppShell({
   userEmail,
   layout = "default",
   showAdminNav = false,
+  hideBrandEyebrow = false,
+  hideLearnerIdentity = false,
 }: AppShellProps) {
   const navSections = getNavSections(mode, showAdminNav);
   const scopedCurrentPath = buildScopedPath(currentPath, activeChildId, mode);
@@ -128,6 +127,7 @@ export function AppShell({
   const activeChildName = activeChild
     ? [activeChild.first_name, activeChild.last_name].filter(Boolean).join(" ")
     : null;
+  const displayedChildName = hideLearnerIdentity ? "Current lesson" : activeChildName;
   const parentModePath = buildScopedPath("/dashboard", activeChildId, "parent");
   const childModePath = buildScopedPath("/learn/week", activeChildId, "child");
   const homePath = buildScopedPath(
@@ -163,7 +163,7 @@ export function AppShell({
               S
             </div>
             <div className="min-w-0">
-              <p className="brand-eyebrow">Scarlett&apos;s Spells</p>
+              {!hideBrandEyebrow ? <p className="brand-eyebrow">Scarlett&apos;s Spells</p> : null}
               <p className={`brand-title font-semibold ${isFocusLayout ? "text-lg" : "text-xl"}`}>Spelling Studio</p>
             </div>
           </Link>
@@ -175,6 +175,7 @@ export function AppShell({
                 activeChildId={activeChildId}
                 redirectPath={scopedCurrentPath}
                 compact
+                summaryLabel={hideLearnerIdentity ? "Switch learner" : undefined}
               />
             ) : (
               <p className="brand-copy text-sm">Add a child profile to get started.</p>
@@ -207,11 +208,11 @@ export function AppShell({
 
             <div className="hidden text-right lg:block">
               <p className="brand-copy text-xs uppercase tracking-[0.18em]">
-                {mode === "child" ? "Current learner" : "Signed in"}
+                {hideLearnerIdentity ? "Lesson" : mode === "child" ? "Current learner" : "Signed in"}
               </p>
               <p className="text-sm font-medium text-[var(--mid)]">
                 {mode === "child"
-                  ? activeChildName ?? "Choose a child"
+                  ? displayedChildName ?? "Choose a child"
                   : userEmail ?? "Parent"}
               </p>
             </div>
@@ -228,7 +229,7 @@ export function AppShell({
                   {mode === "child" ? "Child mode" : "Parent mode"}
                 </p>
                 <p className="text-sm font-medium text-[var(--mid)]">
-                  {activeChildName ?? "No active child selected"}
+                  {displayedChildName ?? "No active child selected"}
                 </p>
                 <p className="brand-copy mt-1 text-xs">{modeDescription}</p>
               </div>
@@ -264,6 +265,7 @@ export function AppShell({
                 redirectPath={scopedCurrentPath}
                 compact
                 className="mt-3"
+                summaryLabel={hideLearnerIdentity ? "Switch learner" : undefined}
               />
             ) : null}
           </div>
@@ -273,9 +275,9 @@ export function AppShell({
       <div className={`mx-auto w-full px-4 sm:px-6 ${shellWidthClass} ${
         isFocusLayout ? "py-4" : "py-6"
       }`}>
-        <div className={`grid gap-5 ${isFocusLayout ? "lg:grid-cols-[220px_minmax(0,1fr)]" : isParentMode ? "lg:grid-cols-[224px_minmax(0,1fr)]" : "lg:grid-cols-[280px_minmax(0,1fr)]"}`}>
+        <div className={`grid gap-5 ${isFocusLayout ? "grid-cols-1" : isParentMode ? "lg:grid-cols-[224px_minmax(0,1fr)]" : "lg:grid-cols-[280px_minmax(0,1fr)]"}`}>
         <aside className={`brand-sidebar brand-card-soft self-start rounded-[24px] ${isParentMode ? "p-3" : "p-4"} lg:sticky lg:top-24 ${
-          isFocusLayout ? "hidden xl:block" : ""
+          isFocusLayout ? "hidden" : ""
         }`}>
           <div className="hidden lg:block">
             {isParentMode ? (
@@ -284,16 +286,16 @@ export function AppShell({
                   Current child
                 </p>
                 <p className="mt-1 text-base font-semibold text-[color:var(--ink)]">
-                  {activeChildName ?? "Choose a child"}
+                  {displayedChildName ?? "Choose a child"}
                 </p>
               </div>
             ) : (
               <div className="rounded-3xl border border-[var(--border)] bg-white/60 p-4">
                 <p className="brand-copy text-xs uppercase tracking-[0.18em]">
-                  Current learner
+                  {hideLearnerIdentity ? "Lesson" : "Current learner"}
                 </p>
                 <p className="brand-title mt-2 text-2xl font-semibold">
-                  {activeChildName ?? "Choose a child"}
+                  {displayedChildName ?? "Choose a child"}
                 </p>
                 <p className="brand-copy mt-2 text-sm leading-6">
                   {modeDescription}

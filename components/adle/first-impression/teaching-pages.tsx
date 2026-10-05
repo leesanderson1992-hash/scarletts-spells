@@ -9,6 +9,7 @@ export interface TeachingPageExample {
 
 export interface TeachingPageSection {
   heading?: string;
+  tone?: "standard" | "gold";
   paragraphs: readonly string[];
   examples?: readonly TeachingPageExample[];
 }
@@ -138,9 +139,9 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       ) : null}
       {page.examples?.length ? <ExampleGrid examples={page.examples} /> : null}
       {page.sections?.map((section, index) => (
-        <section key={section.heading ?? index} className="grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5">
-          {section.heading ? <h2 className="text-xl font-black text-white">{section.heading}</h2> : null}
-          {section.paragraphs.map((paragraph) => <p key={paragraph} className="leading-relaxed text-cyan-50">{paragraph}</p>)}
+        <section key={section.heading ?? index} className={section.tone === "gold" ? "grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
+          {section.heading ? <h2 className={section.tone === "gold" ? "text-xl font-black text-amber-950" : "text-xl font-black text-white"}>{section.heading}</h2> : null}
+          {section.paragraphs.map((paragraph) => <p key={paragraph} className={section.tone === "gold" ? "leading-relaxed text-amber-950" : "leading-relaxed text-cyan-50"}>{paragraph}</p>)}
           {section.examples?.length ? <ExampleGrid examples={section.examples} /> : null}
         </section>
       ))}
@@ -158,6 +159,15 @@ function ExampleGrid(props: { examples: readonly TeachingPageExample[] }) {
 }
 
 function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber: number; pageCount: number }) {
+  const words = props.config.words;
+  const familyColumns = words.length === 6 && [0, 3].every(start =>
+    ["base", "comparative", "superlative"].every((degree, offset) => words[start + offset].label?.startsWith(`${degree} · `)));
+  const card = (word: MeetWordConfig) => <li key={word.id} className="rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)]">
+    {word.label ? <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.label}</p> : null}
+    <p className="mt-1 text-2xl font-black">{word.wordParts?.length ? <><span className="text-cyan-800">{word.wordParts.join(" + ")}</span><span aria-hidden="true" className="mx-2 text-slate-400">→</span></> : null}{word.word}</p>
+    {word.detail ? <p className="mt-1 text-sm font-semibold text-slate-600">{word.detail}</p> : null}
+    {word.provenance ? <p className="mt-2 text-xs font-bold text-amber-700">{word.provenance}</p> : null}
+  </li>;
   return (
     <section className="grid gap-5 text-center" aria-labelledby="meet-the-words-title" data-teaching-page-type="meet_words">
       <header>
@@ -165,16 +175,11 @@ function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber
         <h1 id="meet-the-words-title" className="mt-2 text-3xl font-black text-white md:text-4xl">{props.config.title ?? "Today’s words"}</h1>
         {props.config.introduction ? <p className="mx-auto mt-3 max-w-2xl text-lg leading-8 text-cyan-50">{props.config.introduction}</p> : null}
       </header>
-      <ul className="grid gap-3 sm:grid-cols-2" aria-label="Lesson words">
-        {props.config.words.map((word) => (
-          <li key={word.id} className="rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)]">
-            {word.label ? <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.label}</p> : null}
-            <p className="mt-1 text-2xl font-black">{word.wordParts?.length ? <><span className="text-cyan-800">{word.wordParts.join(" + ")}</span><span aria-hidden="true" className="mx-2 text-slate-400">→</span></> : null}{word.word}</p>
-            {word.detail ? <p className="mt-1 text-sm font-semibold text-slate-600">{word.detail}</p> : null}
-            {word.provenance ? <p className="mt-2 text-xs font-bold text-amber-700">{word.provenance}</p> : null}
-          </li>
-        ))}
-      </ul>
+      {familyColumns ? <div className="grid gap-4 sm:grid-cols-2" aria-label="Lesson word families">
+        {[0, 3].map(start => <section key={words[start].id} aria-label={`${words[start].word} family`}>
+          <ul className="grid gap-3" aria-label={`${words[start].word}: base, comparative, superlative`}>{words.slice(start, start + 3).map(card)}</ul>
+        </section>)}
+      </div> : <ul className="grid gap-3 sm:grid-cols-2" aria-label="Lesson words">{words.map(card)}</ul>}
     </section>
   );
 }

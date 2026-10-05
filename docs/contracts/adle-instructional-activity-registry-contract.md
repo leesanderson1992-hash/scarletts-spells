@@ -20,6 +20,27 @@ deployment is authorized by this file.
 
 ## Ownership
 
+### Comparative/superlative activity modes v1 (2026-09-29)
+
+The explicitly requested inactive release reuses `FirstImpressionLesson` and
+the existing Introduction, Meaning Sort, Cover Check and Reflection templates.
+Only these bounded, explicitly validated modes are added:
+
+| Binding | Interaction boundary |
+|---|---|
+| `WORD_ASSEMBLY.sentence_suffix@1` | Existing rail/tile movement; choose an ending, construct an approved form, place it in one sentence gap. No definition-first screen. |
+| `CLEAVER.transform_target@1` | Reviewed forward transformation plus one three-option rule question. No invented boundary challenge or separate quiz activity. |
+| `DICTATION.paired_word_gaps@1` | Two neutral, frozen-order word-audio controls and two sentence gaps; lock both attempts before any correction reveal. |
+
+Existing modes remain unchanged. Guided building, sorting, transformation and
+questions are not independent spelling evidence. Cover Check retains separate
+hidden-production attempts. Paired dictation attributes words one-to-one and
+records spelling separately from placement: a correctly spelt swap is not a
+misspelling. Failed checkpoints reveal no answers and permit retry. Missing
+browser audio blocks the paired check, without displaying the answers as an
+audio fallback. Existing evidence, review, proficiency and reward policies
+remain the governing authorities.
+
 This contract owns:
 - instructional activity identities
 - instructional phase classification
