@@ -146,6 +146,9 @@ export interface LoadDailyPlanFactsParams {
   childId: string;
   today: IsoDate;
   childBand?: ChildBandProfile;
+  /** A caller with its own deployment boundary may provide the reviewed
+   * relationship environment without changing the application's global route gate. */
+  relationshipEnvironment?: "local" | "staging" | "production";
 }
 
 export async function loadDailyPlanFacts(
@@ -423,7 +426,7 @@ export async function loadDailyPlanFacts(
   const words = wordRows.map(dictionaryWordFromRow);
   let supports = supportRows.map(wordSupportFromRow);
   if (authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled) {
-    const environmentKey = resolveAdleRouteActivationEnvironment();
+    const environmentKey = params.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
     if (!environmentKey) throw new Error("loadDailyPlanFacts: relationship environment unavailable");
     const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
       explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey) });

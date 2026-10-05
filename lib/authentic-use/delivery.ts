@@ -23,7 +23,11 @@ async function readAll<T>(client: SupabaseClient, table: string, columns: string
 /** Both initial deliveries and future published mappings use the released
  * report calculator. Evidence IDs and prior reports are retained separately. */
 export async function calculateAuthenticUseProficiency(client: SupabaseClient, childId: string) {
-  const loaded = await loadDailyPlanFacts(client, { childId, today: new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }) });
+  const loaded = await loadDailyPlanFacts(client, {
+    childId,
+    today: new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }),
+    relationshipEnvironment: process.env.VERCEL_ENV === "production" ? "production" : undefined,
+  });
   const events = await readAll<{ source_ref: string; row_status: string }>(client, "adle_authentic_use_events", "id,source_ref,row_status", childId);
   const projected = new Set(events.filter(event => event.row_status === "active").map(event => event.source_ref));
   const credits = await readAll<Credit>(client, "authentic_use_credits", "id,canonical_word_id", childId);
