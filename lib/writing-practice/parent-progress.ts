@@ -84,7 +84,6 @@ function summariseEvidence(
     ).length,
     latestEvidenceAt: latestRow?.created_at ?? null,
     latestEvidenceType: latestRow?.evidence_type ?? null,
-    latestCompetencySignal: latestRow?.competency_signal ?? null,
     latestSourceContext: latestRow?.source_context ?? null,
   };
 }
@@ -95,7 +94,6 @@ function getParentProgressStatus(input: {
   nowIso: string;
 }) {
   const { learningItem, evidenceSummary, nowIso } = input;
-  const currentCompetency = learningItem.current_competency_level;
   const hasMeaningfulFailure =
     learningItem.last_meaningful_failure_at !== null &&
     (learningItem.last_meaningful_success_at === null ||
@@ -104,21 +102,13 @@ function getParentProgressStatus(input: {
   const isOverdue =
     learningItem.review_due_at !== null && learningItem.review_due_at < nowIso;
 
-  if (
-    currentCompetency === null ||
-    currentCompetency <= 2 ||
-    learningItem.progress_state === "golden_nugget"
-  ) {
-    return hasMeaningfulFailure || isOverdue || evidenceSummary.recentFailureCount > 0
-      ? "needs_support"
-      : "watching";
-  }
-
-  if (hasMeaningfulFailure || (isOverdue && currentCompetency <= 3)) {
+  if (hasMeaningfulFailure && evidenceSummary.recentSuccessCount > 0) {
     return "regressing";
   }
-
-  if (currentCompetency >= 4 && !isOverdue) {
+  if (hasMeaningfulFailure || isOverdue || evidenceSummary.recentFailureCount > 0) {
+    return "needs_support";
+  }
+  if (evidenceSummary.recentSuccessCount >= 2) {
     return "performing_well";
   }
 
@@ -212,8 +202,6 @@ function buildParentProgressStream(input: {
     progressStateLabel: getLearningItemProgressStateLabel(
       input.learningItem.progress_state,
     ),
-    currentCompetencyLevel: input.learningItem.current_competency_level,
-    targetCompetencyLevel: input.learningItem.target_competency_level,
     reviewDueAt: input.learningItem.review_due_at,
     lastMeaningfulSuccessAt: input.learningItem.last_meaningful_success_at,
     lastMeaningfulFailureAt: input.learningItem.last_meaningful_failure_at,

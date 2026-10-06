@@ -131,26 +131,28 @@ try {
         ('verified_misspelling','probe_miss','review_ejection','slippage_reentry','stretch_selection','transfer_confirmation')));
     create unique index on adle_learning_items(child_id,canonical_word_id,micro_skill_key) where row_status='active';
     create table learning_items(id uuid primary key default gen_random_uuid(),child_id uuid,parent_user_id uuid,source_writing_issue_id uuid unique,
-      micro_skill_key text,mastery_domain_key text,skill_family_key text,skill_cluster_key text,practice_route text,current_competency_level integer,
-      theme_key text,progress_state text,is_active boolean,metadata jsonb,created_at timestamptz,updated_at timestamptz);
+      micro_skill_key text,mastery_domain_key text,skill_family_key text,skill_cluster_key text,practice_route text,
+      theme_key text,progress_state text,is_active boolean,metadata jsonb,created_at timestamptz,updated_at timestamptz,
+      current_competency_level integer,target_competency_level integer,review_due_at timestamptz,
+      last_meaningful_success_at timestamptz,last_meaningful_failure_at timestamptz);
     create table learning_item_issue_links(learning_item_id uuid,writing_issue_id uuid,child_id uuid,parent_user_id uuid,link_role text,metadata jsonb,created_at timestamptz,updated_at timestamptz,
       unique(learning_item_id,writing_issue_id));
     create table learning_item_evidence(learning_item_id uuid,child_id uuid,parent_user_id uuid,writing_issue_id uuid,task_submission_id uuid,
       evidence_type text,competency_signal integer,source_context text,metadata jsonb,created_at timestamptz,updated_at timestamptz);
     create table writing_issue_correction_attempts(id uuid primary key default gen_random_uuid(),writing_issue_id uuid,parent_user_id uuid,child_id uuid,
       task_submission_id uuid,corrected_independently boolean,reflection text,metadata jsonb,created_at timestamptz default now());
-    create function public.initial_learning_item_competency_for_final_classification(p_outcome text) returns integer language sql immutable as $$ select 1 $$;
     create function public.learning_item_evidence_type_for_final_classification(p_outcome text) returns text language sql immutable as $$ select 'incorrect_use' $$;
     create function public.learning_item_evidence_type_for_correction_attempt(p_fixed boolean,p_reflection text,p_independent boolean) returns text language sql immutable as $$ select case when p_fixed then 'corrected_after_prompt' else 'incorrect_use' end $$;
-    create function public.apply_learning_item_review_state_from_evidence(uuid,text,integer,timestamptz,text) returns void language sql as $$ select null::void $$;
+    create function public.learning_item_evidence_type_for_controlled_practice(p_correct boolean) returns text language sql immutable as $$ select case when p_correct then 'controlled_practice_success' else 'incorrect_use' end $$;
+    create function public.apply_learning_item_review_state_from_evidence(uuid,text,timestamptz,text) returns void language sql as $$ select null::void $$;
     create or replace function public.finalise_writing_issue_classification_and_learning_item_pre_context_advisory(
-      p_issue uuid,p_parent uuid,p_child uuid,p_outcome text) returns jsonb language plpgsql as $$
+      p_writing_issue_id uuid,p_parent_user_id uuid,p_child_id uuid,p_final_classification text) returns jsonb language plpgsql as $$
     declare v_item uuid;
     begin
       insert into learning_items default values returning id into v_item;
-      insert into learning_item_issue_links(learning_item_id,writing_issue_id,child_id,parent_user_id) values(v_item,p_issue,p_child,p_parent);
-      insert into learning_item_evidence(writing_issue_id,source_context,evidence_type,metadata,updated_at) values(p_issue,'child_correction_attempt','corrected_independently','{}',now());
-      update writing_issues set issue_status='finalised',final_classification=p_outcome where id=p_issue;
+      insert into learning_item_issue_links(learning_item_id,writing_issue_id,child_id,parent_user_id) values(v_item,p_writing_issue_id,p_child_id,p_parent_user_id);
+      insert into learning_item_evidence(writing_issue_id,source_context,evidence_type,metadata,updated_at) values(p_writing_issue_id,'child_correction_attempt','corrected_independently','{}',now());
+      update writing_issues set issue_status='finalised',final_classification=p_final_classification where id=p_writing_issue_id;
       return jsonb_build_object('learning_item_id',v_item);
     end $$;
   `);
@@ -178,6 +180,25 @@ try {
   assert.equal(stillOpen.rows[0].micro_skill_key, "unknown");
   const fixMigration = readFileSync(new URL("../supabase/migrations/20261001110000_fix_contextual_learning_item_finalisation.sql", import.meta.url), "utf8");
   await db.query(fixMigration);
+  const levelRemovalMigration = readFileSync(new URL("../supabase/migrations/20261006120000_remove_legacy_learning_item_levels.sql", import.meta.url), "utf8");
+  await db.query(levelRemovalMigration);
+  const removedLevelColumns = await db.query(`
+    select table_name,column_name from information_schema.columns
+    where table_schema='public' and (
+      (table_name='learning_items' and column_name in ('current_competency_level','target_competency_level'))
+      or (table_name='learning_item_evidence' and column_name='competency_signal')
+    )
+  `);
+  assert.equal(removedLevelColumns.rowCount, 0, "legacy learning-item level columns are removed");
+  const removedLevelFunctions = await db.query(`
+    select proname from pg_proc join pg_namespace on pg_namespace.oid=pg_proc.pronamespace
+    where nspname='public' and proname in (
+      'initial_learning_item_competency_for_final_classification',
+      'next_learning_item_competency_for_controlled_practice',
+      'review_interval_for_learning_item_competency'
+    )
+  `);
+  assert.equal(removedLevelFunctions.rowCount, 0, "legacy learning-item level functions are removed");
   await db.query(`
     create function public.ensure_parent_approved_spelling_occurrence_source(uuid,uuid,uuid,text)
       returns jsonb language plpgsql as $$ begin raise exception 'spelling source invoked'; end $$;
@@ -200,6 +221,20 @@ try {
   const finalised = await db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4) as result", [learningIssue, parent, child, skill]);
   assert.equal(finalised.rows[0].result.handoff_state, "READY");
   assert.equal(finalised.rows[0].result.retry_evidence_kind, "REPAIR_ONLY");
+  const practiceAt = "2026-10-06T09:00:00.000Z";
+  const practiceResult = await db.query(
+    "select record_controlled_practice_learning_item_evidence($1,$2,$3,$4,'there','there',true,false,'typed',$5) as result",
+    [finalised.rows[0].result.learning_item_id, parent, child, randomUUID(), practiceAt],
+  );
+  assert.equal(practiceResult.rows[0].result.evidence_written, true);
+  assert.equal(practiceResult.rows[0].result.competency_signal, undefined);
+  const practiceState = await db.query(
+    "select progress_state,review_due_at,last_meaningful_success_at from learning_items where id=$1",
+    [finalised.rows[0].result.learning_item_id],
+  );
+  assert.equal(practiceState.rows[0].progress_state, "in_machine");
+  assert.equal(practiceState.rows[0].review_due_at.toISOString(), "2026-10-09T09:00:00.000Z");
+  assert.equal(practiceState.rows[0].last_meaningful_success_at.toISOString(), practiceAt);
   await assert.rejects(db.query("select finalise_parent_confirmed_contextual_learning_need($1,$2,$3,'concept_gap',$4)", [learningIssue, parent, child, skill]));
   const repairEvidence = await db.query("select evidence_type,source_context,metadata from learning_item_evidence where writing_issue_id=$1", [learningIssue]);
   const retryEvidence = repairEvidence.rows.find((row) => row.source_context === "child_correction_attempt");

@@ -2,7 +2,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   getReturnedCorrectionRepairAttemptEvidenceType,
-  getReturnedCorrectionRepairInitialCompetencyLevel,
   type ReturnedCorrectionRepairCatalogEntry,
   type ReturnedCorrectionRepairEvidence,
   type ReturnedCorrectionRepairIssue,
@@ -144,9 +143,6 @@ async function findOrCreateLearningItem(input: {
     return { learningItemId: existing.id, created: false, mutationCount: 1 };
   }
 
-  const initialCompetency = getReturnedCorrectionRepairInitialCompetencyLevel(
-    input.issue.final_classification,
-  );
   const { data: inserted, error: insertError } = await input.supabase
     .from("learning_items")
     .insert({
@@ -158,7 +154,6 @@ async function findOrCreateLearningItem(input: {
       skill_family_key: input.catalog.skill_family_key,
       skill_cluster_key: input.catalog.skill_cluster_key,
       practice_route: input.catalog.practice_route,
-      current_competency_level: initialCompetency,
       theme_key: input.issue.theme_key,
       progress_state: "golden_nugget",
       is_active: true,
@@ -278,9 +273,6 @@ async function ensureEvidence(input: {
   const existingEvidence = (
     (existingRows ?? []) as ReturnedCorrectionRepairEvidence[]
   ).map((row) => ({ ...row, metadata: parseMetadata(row.metadata) }));
-  const initialCompetency = getReturnedCorrectionRepairInitialCompetencyLevel(
-    input.issue.final_classification,
-  );
   let mutationCount = 0;
 
   if (
@@ -297,7 +289,6 @@ async function ensureEvidence(input: {
         writing_issue_id: input.issue.id,
         task_submission_id: input.issue.task_submission_id,
         evidence_type: "incorrect_use",
-        competency_signal: initialCompetency,
         source_context: "finalised_issue_outcome",
         metadata: {
           final_classification: input.issue.final_classification,
@@ -321,7 +312,6 @@ async function ensureEvidence(input: {
       {
         p_learning_item_id: input.learningItemId,
         p_evidence_type: "incorrect_use",
-        p_competency_signal: initialCompetency,
         p_occurred_at: input.nowIso,
         p_source_context: "finalised_issue_outcome",
       },
@@ -366,7 +356,6 @@ async function ensureEvidence(input: {
           reflection: attempt.reflection,
           correctedIndependently: attempt.corrected_independently,
         }),
-        competency_signal: null,
         source_context: "child_correction_attempt",
         metadata: {
           ...metadata,

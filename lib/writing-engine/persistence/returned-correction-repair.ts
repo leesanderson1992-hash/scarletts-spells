@@ -166,21 +166,6 @@ function uniqueValues<T>(values: T[]) {
   return [...new Set(values)];
 }
 
-function getInitialCompetencyLevel(
-  finalClassification: ReturnedCorrectionRepairFinalClassification | null,
-) {
-  switch (finalClassification) {
-    case "concept_gap":
-      return 1;
-    case "fragile_knowledge":
-      return 2;
-    case "transfer_failure":
-      return 3;
-    default:
-      return null;
-  }
-}
-
 function getCorrectionAttemptEvidenceType(input: {
   markedFixed: boolean;
   reflection: string | null;
@@ -578,12 +563,6 @@ export function summarizeReturnedCorrectionRepairPlans(
     alreadyRepaired: plans.filter((plan) => plan.bucket === "already_repaired")
       .length,
   };
-}
-
-export function getReturnedCorrectionRepairInitialCompetencyLevel(
-  finalClassification: ReturnedCorrectionRepairFinalClassification | null,
-) {
-  return getInitialCompetencyLevel(finalClassification);
 }
 
 export function getReturnedCorrectionRepairAttemptEvidenceType(input: {

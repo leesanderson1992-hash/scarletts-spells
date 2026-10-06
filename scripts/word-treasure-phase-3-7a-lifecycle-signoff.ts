@@ -943,7 +943,7 @@ async function main() {
 
     const { data: learningItemAfter, error: learningItemAfterError } = await supabase
       .from("learning_items")
-      .select("progress_state, current_competency_level")
+      .select("progress_state")
       .eq("id", finalisedIssue.learningItemId)
       .single();
     assertNoError(
@@ -955,11 +955,6 @@ async function main() {
       learningItemAfter.progress_state,
       "golden_nugget",
       "Evidence confirmation must not infer learning item mastery.",
-    );
-    assert.notEqual(
-      learningItemAfter.current_competency_level,
-      5,
-      "Evidence confirmation must not infer micro-skill mastery level.",
     );
 
     const readModel = await getChildRewardReadModel({

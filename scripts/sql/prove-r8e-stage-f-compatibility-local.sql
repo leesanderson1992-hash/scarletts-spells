@@ -166,13 +166,13 @@ from r8e_stage_f_authority authority;
 
 insert into public.learning_items(
   id,child_id,parent_user_id,source_writing_issue_id,micro_skill_key,
-  mastery_domain_key,skill_family_key,practice_route,current_competency_level
+  mastery_domain_key,skill_family_key,practice_route
 )
 select
   gen_random_uuid(),'e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e',
   'a28d4885-8328-4853-ba11-6c676619b9ea',authority.writing_issue_id,
   authority.micro_skill_key,'D4',split_part(authority.micro_skill_key,'_',2),
-  'grouped_set_practice',1
+  'grouped_set_practice'
 from r8e_stage_f_authority authority;
 
 insert into public.learning_item_issue_links(
@@ -189,11 +189,11 @@ where item.source_writing_issue_id in (
 
 insert into public.learning_item_evidence(
   learning_item_id,child_id,parent_user_id,writing_issue_id,
-  task_submission_id,evidence_type,competency_signal,source_context,metadata
+  task_submission_id,evidence_type,source_context,metadata
 )
 select
   item.id,item.child_id,item.parent_user_id,item.source_writing_issue_id,
-  '63446883-2b8d-4437-8b28-1f48ff43f814','incorrect_use',1,
+  '63446883-2b8d-4437-8b28-1f48ff43f814','incorrect_use',
   'finalised_issue_outcome',jsonb_build_object('stage_f_fixture',true)
 from public.learning_items item
 where item.source_writing_issue_id in (

@@ -100,11 +100,6 @@ export const LEARNING_ITEM_EVIDENCE_SOURCE_CONTEXTS = [
 export type LearningItemEvidenceSourceContext =
   (typeof LEARNING_ITEM_EVIDENCE_SOURCE_CONTEXTS)[number];
 
-export const LEARNING_ITEM_COMPETENCY_LEVELS = [1, 2, 3, 4, 5] as const;
-
-export type LearningItemCompetencyLevel =
-  (typeof LEARNING_ITEM_COMPETENCY_LEVELS)[number];
-
 // Slice 7A boundary:
 // these canonical records define learning truth for Targeted Writing Practice,
 // while daily_assignments remains the transitional delivery surface.
@@ -213,8 +208,6 @@ export type LearningItemRow = {
   skill_family_key: string | null;
   skill_cluster_key: string | null;
   practice_route: LearningItemPracticeRoute | null;
-  current_competency_level: LearningItemCompetencyLevel | null;
-  target_competency_level: LearningItemCompetencyLevel | null;
   theme_key: string | null;
   progress_state: LearningItemProgressState;
   is_active: boolean;
@@ -287,7 +280,6 @@ export type LearningItemEvidenceRow = {
   writing_issue_id: string | null;
   task_submission_id: string | null;
   evidence_type: LearningItemEvidenceType;
-  competency_signal: LearningItemCompetencyLevel | null;
   source_context: LearningItemEvidenceSourceContext | null;
   metadata: Record<string, unknown>;
   created_at: string;
@@ -374,7 +366,6 @@ export type ParentProgressEvidenceSummary = {
   recentFailureCount: number;
   latestEvidenceAt: string | null;
   latestEvidenceType: LearningItemEvidenceType | null;
-  latestCompetencySignal: LearningItemCompetencyLevel | null;
   latestSourceContext: LearningItemEvidenceSourceContext | null;
 };
 
@@ -401,8 +392,6 @@ export type ParentProgressStream = {
   practiceRoute: LearningItemPracticeRoute | null;
   progressState: LearningItemProgressState;
   progressStateLabel: string;
-  currentCompetencyLevel: LearningItemCompetencyLevel | null;
-  targetCompetencyLevel: LearningItemCompetencyLevel | null;
   reviewDueAt: string | null;
   lastMeaningfulSuccessAt: string | null;
   lastMeaningfulFailureAt: string | null;
@@ -436,23 +425,6 @@ export type ParentProgressReadModel = {
   streams: ParentProgressStream[];
   domains: ParentProgressDomainSummary[];
 };
-
-export const POSITIVE_EVIDENCE_COMPLEXITY_BANDS = [
-  "easy",
-  "medium",
-  "hard",
-] as const;
-
-export type PositiveEvidenceComplexityBand =
-  (typeof POSITIVE_EVIDENCE_COMPLEXITY_BANDS)[number];
-
-export const POSITIVE_EVIDENCE_COMPLEXITY_SOURCES = [
-  "seed_word_bank",
-  "fallback_heuristic",
-] as const;
-
-export type PositiveEvidenceComplexitySource =
-  (typeof POSITIVE_EVIDENCE_COMPLEXITY_SOURCES)[number];
 
 export function isWritingIssueFinalised(status: WritingIssueStatus) {
   return status === "finalised";
