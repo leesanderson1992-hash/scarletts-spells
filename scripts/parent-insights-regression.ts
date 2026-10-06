@@ -31,16 +31,18 @@ levelFixture.levels = [1, 2, 3].map((level) => ({
   target: level === 3 ? null : 2, credit: level === 1 ? 2 : 0.4,
   progress: level === 3 ? null : level === 1 ? 1 : 0.2, limitedAllocation: true,
   words: level === 2 ? [
-    { id: "unseen", word: "where", state: "unseen", credit: 0 },
-    { id: "produced", word: "wear", state: "produced", credit: 0.4 },
-    { id: "retired", word: "were", state: "review_retired", credit: 1 },
+    { id: "unseen", word: "where", state: "unseen", credit: 0, eligible: true },
+    { id: "produced", word: "wear", state: "produced", credit: 0.4, eligible: true },
+    { id: "retired", word: "were", state: "review_retired", credit: 1, eligible: true },
+    { id: "outside", word: "whether", state: "secure", credit: 0, eligible: false },
   ] : [],
 }));
 assert.deepEqual(proficiencyLevelNumbers([levelFixture]), [1, 2, 3]);
 assert.equal(selectedProficiencyLevel([levelFixture], "homophones", 2)?.level.level, 2);
 assert.equal(selectedProficiencyLevel([levelFixture], "homophones", 3), null, "unpopulated levels cannot be opened");
-assert.deepEqual(sortedLevelWords(levelFixture.levels[1]).map((word) => word.word), ["were", "wear", "where"]);
-assert.equal(sortedLevelWords(levelFixture.levels[1]).at(-1)?.credit, 0, "unseen words remain visible");
+assert.deepEqual(sortedLevelWords(levelFixture.levels[1]).map((word) => word.word), ["were", "wear", "where", "whether"]);
+assert.equal(sortedLevelWords(levelFixture.levels[1]).at(-2)?.credit, 0, "unseen words remain visible");
+assert.equal(levelFixture.levels[1].words.find((word) => word.word === "whether")?.eligible, false, "out-of-band mapped words remain visible with zero credit");
 assert.equal(evidenceStage("review_retired"), "secure");
 
 const row = {

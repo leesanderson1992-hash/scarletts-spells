@@ -12,7 +12,7 @@ export type InsightLevel = {
   credit: number;
   progress: number | null;
   limitedAllocation: boolean;
-  words: { id: string; word: string; state: string; credit: number }[];
+  words: { id: string; word: string; state: string; credit: number; eligible: boolean }[];
 };
 
 export type InsightSkill = {
@@ -121,11 +121,12 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
         credit: level.creditSum,
         progress: level.progress,
         limitedAllocation: level.limitedAllocation,
-        words: level.creditedWords.map((word) => ({
+        words: level.mappedWords.map((word) => ({
           id: word.canonicalWordId,
           word: displayWordByWordId.get(word.canonicalWordId) ?? "Word unavailable",
           state: word.state,
           credit: word.credit,
+          eligible: word.eligible,
         })),
       })),
     } satisfies InsightSkill;

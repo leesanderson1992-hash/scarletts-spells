@@ -18,6 +18,6 @@ const stageRank: Record<string, number> = { mastered: 5, secure: 4, review_retir
 
 export function sortedLevelWords(level: InsightLevel) {
   return [...level.words].sort((a, b) =>
-    (stageRank[b.state] ?? 0) - (stageRank[a.state] ?? 0) || a.word.localeCompare(b.word),
+    Number(b.eligible) - Number(a.eligible) || (stageRank[b.state] ?? 0) - (stageRank[a.state] ?? 0) || a.word.localeCompare(b.word),
   );
 }
