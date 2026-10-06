@@ -6,6 +6,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 export type InsightLevel = {
   level: number;
   populated: boolean;
+  allocation: number;
   badge: string;
   target: number | null;
   credit: number;
@@ -114,6 +115,7 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
       levels: report.levels.map((level) => ({
         level: level.level,
         populated: level.populated,
+        allocation: level.allocation,
         badge: level.badge,
         target: level.target,
         credit: level.creditSum,
