@@ -48,7 +48,6 @@ export function buildMasteryEvidenceCommand(
     sourceRef: outcome.verification.sourceRef,
     wasParentVerified: true,
     verificationDecision: outcome.verification.decision,
-    competencySignal: null,
     metadata: {
       parent_verification_id: outcome.verification.id,
       verification_decision: outcome.verification.decision,

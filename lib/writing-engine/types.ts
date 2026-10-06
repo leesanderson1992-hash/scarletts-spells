@@ -155,7 +155,6 @@ export type MasteryEvidenceCommand = {
   sourceRef: WritingEngineSourceRef;
   wasParentVerified: boolean;
   verificationDecision: WritingEngineVerificationDecision;
-  competencySignal: number | null;
   metadata: WritingEngineSourceMetadata;
 };
 

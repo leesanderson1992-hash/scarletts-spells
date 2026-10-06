@@ -12,8 +12,6 @@ import {
   NuggetIcon,
 } from "@/components/reward-icons";
 import {
-  bulkConfirmInsightsPositiveEvidence,
-  confirmInsightsPositiveEvidence,
   convertGoldBarsToCoins,
   decideGoldCoinTransferRequest,
   requestGoldCoinTransfer,
@@ -50,14 +48,13 @@ import { createClient } from "@/lib/supabase/server";
 import { loadPendingAdleLearningForChild } from "@/lib/adle/loaders/pending-learning";
 import { getCanonicalParentProgressForChild } from "@/lib/writing-practice/parent-progress";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
-import { getPositiveEvidenceCandidatesForSuggestions } from "@/lib/writing-practice/positive-evidence";
 import {
   getParentProgressStatusLabel,
+  getWritingIssueFinalClassificationLabel,
   PARENT_PROGRESS_STATUSES,
   type ParentProgressDomainSummary,
   type ParentProgressStatus,
   type ParentProgressStream,
-  type ReviewWritingIssueSuggestionDetailProjection,
 } from "@/lib/writing-practice/types";
 import { parseAnalysisRow } from "@/lib/writing-engine/spelling/legacy-analysis";
 
@@ -232,29 +229,14 @@ function getParentProgressCardClasses(status: ParentProgressStatus) {
   }
 }
 
-function getCompetencyLabel(level: number | null) {
-  return level === null ? "Not set yet" : `Level ${level}`;
-}
-
-function getCompetencyDots(level: number | null, status: ParentProgressStatus) {
-  const activeCount = level ?? 0;
-  const activeClass =
-    status === "performing_well"
-      ? "bg-emerald-500"
-      : status === "watching"
-        ? "bg-sky-500"
-        : status === "regressing"
-          ? "bg-amber-500"
-          : "bg-rose-500";
-
-  return Array.from({ length: 5 }, (_, index) => (
-    <span
-      key={`dot-${index + 1}`}
-      className={`h-2.5 w-2.5 rounded-full ${
-        index < activeCount ? activeClass : "bg-zinc-200"
-      }`}
-    />
-  ));
+function getDiagnosisLabel(stream: ParentProgressStream | null) {
+  if (!stream) return "Awaiting diagnosis";
+  const classifications = [...new Set(stream.linkedIssues
+    .map((issue) => issue.finalClassification)
+    .filter((value): value is NonNullable<typeof value> => value !== null))];
+  return classifications.length
+    ? classifications.map(getWritingIssueFinalClassificationLabel).join(" · ")
+    : "Learning need recorded";
 }
 
 function getParentStatusHeadline(status: ParentProgressStatus) {
@@ -327,8 +309,8 @@ function getFocusHint(stream: ParentProgressStream | null, status: ParentProgres
   return "Watch for a little more evidence before changing course.";
 }
 
-function getStreamCompetencyWidth(level: number | null) {
-  return `${((level ?? 0) / 5) * 100}%`;
+function getStreamEvidenceWidth(stream: ParentProgressStream) {
+  return `${Math.min(100, (stream.evidenceSummary.totalEvidenceCount / 5) * 100)}%`;
 }
 
 function getEvidenceMaturityLabel(stream: ParentProgressStream | null) {
@@ -546,21 +528,6 @@ export default async function InsightsPage({
     mode === "parent"
       ? await loadPendingAdleLearningForChild(selectedChild.id)
       : null;
-  const { data: transferSuggestionRows } =
-    mode === "parent"
-      ? await supabase
-          .from("writing_issue_suggestions")
-          .select(
-            "id, task_submission_id, misspelling_instance_id, suggestion_status, source_type, observed_text, suggested_replacement, suggested_micro_skill_key, notes, metadata",
-          )
-          .eq("parent_user_id", user.id)
-          .eq("child_id", selectedChild.id)
-          .eq("source_type", "micro_skill_watchlist")
-          .in("suggestion_status", ["pending", "accepted"])
-          .order("created_at", { ascending: false })
-          .limit(24)
-      : { data: [] };
-
   const parsedMisspellings: ParsedMisspellingItem[] = misspellingRows
     .map((row) => ({
       row,
@@ -587,19 +554,6 @@ export default async function InsightsPage({
   const recentMisspellings = parsedMisspellings.slice(0, 6);
   const hasCanonicalParentProgress =
     (canonicalParentProgress?.streams.length ?? 0) > 0;
-  const positiveEvidenceCandidates =
-    mode === "parent"
-      ? await getPositiveEvidenceCandidatesForSuggestions({
-          supabase,
-          parentUserId: user.id,
-          childId: selectedChild.id,
-          suggestions:
-            (transferSuggestionRows ?? []) as ReviewWritingIssueSuggestionDetailProjection[],
-        })
-      : [];
-  const mediumEvidenceCandidates = positiveEvidenceCandidates
-    .filter((candidate) => candidate.complexityBand === "medium")
-    .slice(0, 3);
   const parentTransferRequests = (parentRewardHistory?.transferRequests ?? []) as GoldCoinTransferRequestRow[];
   const parentGoldCoinLedgerEvents =
     (parentRewardHistory?.goldCoinLedgerEvents ?? []) as GoldCoinLedgerEventRow[];
@@ -625,9 +579,6 @@ export default async function InsightsPage({
     (sharedCompletionsResult.data ?? []) as TaskCompletionInsightRow[];
   const sharedTaskSubmissions =
     (sharedSubmissionsResult.data ?? []) as TaskSubmissionInsightRow[];
-  const sharedSubmissionById = new Map(
-    sharedTaskSubmissions.map((submission) => [submission.id, submission]),
-  );
   const sharedCourseTitleById = new Map<string, string>(
     childCourses.map((course: CourseRow) => [course.id, course.title]),
   );
@@ -1110,18 +1061,10 @@ export default async function InsightsPage({
     parentProgressStreams,
     "performing_well",
   );
-  const streamsWithCompetency = parentProgressStreams.filter(
-    (stream) => stream.currentCompetencyLevel !== null,
+  const totalLearningEvidence = parentProgressStreams.reduce(
+    (sum, stream) => sum + stream.evidenceSummary.totalEvidenceCount,
+    0,
   );
-  const averageCompetency =
-    streamsWithCompetency.length > 0
-      ? (
-          streamsWithCompetency.reduce(
-            (sum, stream) => sum + (stream.currentCompetencyLevel ?? 0),
-            0,
-          ) / streamsWithCompetency.length
-        ).toFixed(1)
-      : null;
 
   return (
     <AppShell currentPath="/insights" mode={mode} activeChildId={selectedChild.id} availableChildren={activeChildren} userEmail={user.email}>
@@ -1222,7 +1165,8 @@ export default async function InsightsPage({
                     {parentProgressDomains.length === 1 ? "" : "s"}
                   </span>
                   <span className="rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
-                    Avg signal {averageCompetency ?? "—"}
+                    {totalLearningEvidence} evidence record
+                    {totalLearningEvidence === 1 ? "" : "s"}
                   </span>
                   <span className="rounded-full border border-white/80 bg-white/85 px-3 py-1.5 text-xs font-medium text-[color:var(--ink)]">
                     Evidence maturity is advisory
@@ -1307,7 +1251,7 @@ export default async function InsightsPage({
                     </span>
                     <span>→</span>
                     <span className="rounded-full border border-zinc-200 bg-[rgba(248,247,243,0.95)] px-2.5 py-1">
-                      Level 1-5
+                      Diagnosis and evidence
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-6 text-[color:var(--mid)]">
@@ -1356,15 +1300,9 @@ export default async function InsightsPage({
                     </div>
 
                     <div className="mt-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        {getCompetencyDots(
-                          stream?.currentCompetencyLevel ?? null,
-                          resolvedStatus,
-                        )}
-                        <span className="text-xs font-medium text-[color:var(--ink)]">
-                          {getCompetencyLabel(stream?.currentCompetencyLevel ?? null)}
-                        </span>
-                      </div>
+                      <span className="text-xs font-medium text-[color:var(--ink)]">
+                        {getDiagnosisLabel(stream)}
+                      </span>
                       <span className="text-[11px] text-[color:var(--mid)]">
                         {getStatusTrendLabel(stream)}
                       </span>
@@ -1390,113 +1328,6 @@ export default async function InsightsPage({
                 );
               })}
             </section>
-
-            {mediumEvidenceCandidates.length > 0 ? (
-              <section className="rounded-[1.6rem] border border-[rgba(36,34,68,0.08)] bg-white p-4 shadow-sm">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[color:var(--mid)]">
-                      Confirmable evidence signals
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">
-                      Medium-complexity real-writing signals that may count toward Level 4 or Level 5. Recent contradiction can pause level movement without blocking evidence confirmation.
-                    </p>
-                  </div>
-                  {mediumEvidenceCandidates.filter(
-                    (candidate) => candidate.canConfirm && !candidate.isConfirmed,
-                  ).length > 1 ? (
-                    <form action={bulkConfirmInsightsPositiveEvidence}>
-                      <input type="hidden" name="child_id" value={selectedChild.id} />
-                      <input type="hidden" name="mode" value={mode} />
-                      <input
-                        type="hidden"
-                        name="suggestion_ids"
-                        value={mediumEvidenceCandidates
-                          .filter(
-                            (candidate) => candidate.canConfirm && !candidate.isConfirmed,
-                          )
-                          .map((candidate) => candidate.suggestionId)
-                          .join(",")}
-                      />
-                      <button className="rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700" type="submit">
-                        Confirm visible matches
-                      </button>
-                    </form>
-                  ) : null}
-                </div>
-
-                <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                  {mediumEvidenceCandidates.map((candidate) => {
-                    const sourceSubmission = sharedSubmissionById.get(candidate.taskSubmissionId);
-                    const sourceReviewPath = buildScopedPath(
-                      `/courses/review/${candidate.taskSubmissionId}`,
-                      selectedChild.id,
-                      mode,
-                    );
-
-                    return (
-                      <article
-                        key={candidate.suggestionId}
-                        className="rounded-[1.1rem] border border-[rgba(36,34,68,0.08)] bg-[rgba(248,247,243,0.8)] p-3"
-                      >
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-800">
-                            medium
-                          </span>
-                          <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-zinc-700">
-                            Level {candidate.visibleLevelTarget}
-                          </span>
-                        </div>
-                        <p className="mt-3 text-sm font-semibold text-[color:var(--ink)]">
-                          {candidate.matchedWord}
-                        </p>
-                        <p className="mt-1 text-xs text-[color:var(--mid)]">
-                          {candidate.microSkillLabel}
-                        </p>
-                        <p className="mt-3 text-xs leading-5 text-[color:var(--mid)]">
-                          {candidate.isConfirmed
-                            ? "Already confirmed as real-writing evidence."
-                            : candidate.visibleLevelTarget === 4
-                              ? "Counts toward the 5 distinct authentic words needed for Level 4."
-                              : "Counts toward retained authentic success across later submissions for Level 5."}
-                        </p>
-                        {candidate.promotionPausedReasonLabel ? (
-                          <p className="mt-2 text-xs font-medium text-amber-700">
-                            {candidate.promotionPausedReasonLabel}
-                          </p>
-                        ) : null}
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          {candidate.isConfirmed ? (
-                            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
-                              Confirmed
-                            </span>
-                          ) : candidate.canConfirm ? (
-                            <form action={confirmInsightsPositiveEvidence}>
-                              <input type="hidden" name="child_id" value={selectedChild.id} />
-                              <input type="hidden" name="mode" value={mode} />
-                              <input type="hidden" name="suggestion_id" value={candidate.suggestionId} />
-                              <button className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700" type="submit">
-                                ✓ Confirm
-                              </button>
-                            </form>
-                          ) : (
-                            <span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-zinc-700">
-                              Unavailable
-                            </span>
-                          )}
-                          <Link
-                            href={sourceReviewPath}
-                            className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-zinc-700"
-                          >
-                            {sourceSubmission ? `Open ${formatDate(sourceSubmission.submitted_at)}` : "Open work"}
-                          </Link>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              </section>
-            ) : null}
 
             <article className="rounded-[2rem] border border-[rgba(36,34,68,0.08)] bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -1632,17 +1463,9 @@ export default async function InsightsPage({
                                       </div>
 
                                       <div className="mt-3 flex items-center justify-between gap-3">
-                                        <div className="flex items-center gap-2">
-                                          {getCompetencyDots(
-                                            stream.currentCompetencyLevel,
-                                            stream.parentStatus,
-                                          )}
-                                          <span className="text-[11px] font-medium text-[color:var(--ink)]">
-                                            {getCompetencyLabel(
-                                              stream.currentCompetencyLevel,
-                                            )}
-                                          </span>
-                                        </div>
+                                        <span className="text-[11px] font-medium text-[color:var(--ink)]">
+                                          {getDiagnosisLabel(stream)}
+                                        </span>
                                         <span className="text-[11px] text-[color:var(--mid)]">
                                           {getStatusTrendLabel(stream)}
                                         </span>
@@ -1660,9 +1483,7 @@ export default async function InsightsPage({
                                                   : "bg-rose-500"
                                           }`}
                                           style={{
-                                            width: getStreamCompetencyWidth(
-                                              stream.currentCompetencyLevel,
-                                            ),
+                                            width: getStreamEvidenceWidth(stream),
                                           }}
                                         />
                                       </div>
@@ -1698,6 +1519,12 @@ export default async function InsightsPage({
                                               {stream.developmentalFoundation}
                                             </p>
                                           ) : null}
+                                          <p>
+                                            <span className="font-semibold text-[color:var(--ink)]">
+                                              Diagnosis:
+                                            </span>{" "}
+                                            {getDiagnosisLabel(stream)}
+                                          </p>
                                           <p>
                                             <span className="font-semibold text-[color:var(--ink)]">
                                               Evidence:

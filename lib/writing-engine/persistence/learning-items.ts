@@ -241,7 +241,6 @@ export function createSupabaseLearningItemRepository(
           writing_issue_id: null,
           task_submission_id: input.command.sourceRef.taskSubmissionId ?? null,
           evidence_type: "incorrect_use",
-          competency_signal: input.command.competencySignal,
           source_context: input.command.sourceContext,
           metadata: {
             writing_engine_evidence_type: input.command.evidenceType,

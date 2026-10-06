@@ -231,11 +231,7 @@ function chooseHelperCandidate(input: {
   });
 
   if (recurrence) {
-    const sourceType =
-      learningItem.current_competency_level !== null &&
-      learningItem.current_competency_level >= 3
-        ? "transfer_failure_watchlist"
-        : "historic_mistake";
+    const sourceType = "historic_mistake" as const;
     const matchedWord = recurrence.correctedWord ?? recurrence.misspelledWord ?? "watch match";
     const signature = [
       learningItem.id,

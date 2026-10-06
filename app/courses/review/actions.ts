@@ -12,12 +12,6 @@ import {
   returnSubmissionToChildImpl,
   saveWritingIssueReasonDraftImpl,
 } from "./actions/review-completion-actions";
-import {
-  bulkConfirmSubmissionPositiveEvidenceImpl,
-  bulkDismissSubmissionPositiveEvidenceImpl,
-  confirmSubmissionPositiveEvidenceImpl,
-  dismissSubmissionPositiveEvidenceImpl,
-} from "./actions/positive-evidence-actions";
 import { recordReviewWorkVerificationActionImpl } from "./actions/parent-verification-actions";
 import { resolveContextReviewSuggestionImpl } from "./actions/context-review-actions";
 import { recordContextAdvisoryParentDecisionImpl, promoteContextDiagnosticExampleImpl } from "./actions/context-advisory-decision-actions";
@@ -111,22 +105,6 @@ export async function revertParentLocalCandidateMapping(formData: FormData) {
 
 export async function deleteSubmissionFromReview(formData: FormData) {
   return deleteSubmissionFromReviewImpl(formData);
-}
-
-export async function confirmSubmissionPositiveEvidence(formData: FormData) {
-  return confirmSubmissionPositiveEvidenceImpl(formData);
-}
-
-export async function bulkConfirmSubmissionPositiveEvidence(formData: FormData) {
-  return bulkConfirmSubmissionPositiveEvidenceImpl(formData);
-}
-
-export async function dismissSubmissionPositiveEvidence(formData: FormData) {
-  return dismissSubmissionPositiveEvidenceImpl(formData);
-}
-
-export async function bulkDismissSubmissionPositiveEvidence(formData: FormData) {
-  return bulkDismissSubmissionPositiveEvidenceImpl(formData);
 }
 
 export async function finaliseWritingIssueClassification(formData: FormData) {

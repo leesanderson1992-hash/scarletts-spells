@@ -30,8 +30,6 @@ export async function getActiveLearningItemsForChild(
         "skill_family_key",
         "skill_cluster_key",
         "practice_route",
-        "current_competency_level",
-        "target_competency_level",
         "theme_key",
         "progress_state",
         "is_active",
@@ -121,7 +119,7 @@ export async function getLearningItemEvidenceRows(
   const { data } = await supabase
     .from("learning_item_evidence")
     .select(
-      "id, learning_item_id, child_id, parent_user_id, writing_issue_id, task_submission_id, evidence_type, competency_signal, source_context, metadata, created_at, updated_at",
+      "id, learning_item_id, child_id, parent_user_id, writing_issue_id, task_submission_id, evidence_type, source_context, metadata, created_at, updated_at",
     )
     .eq("parent_user_id", parentUserId)
     .in("learning_item_id", learningItemIds)

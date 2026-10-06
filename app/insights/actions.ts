@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import { buildScopedPath, normaliseAppMode } from "@/lib/children";
 import { awardGoldCoins, spendGoldCoins } from "@/lib/rewards/course-coins";
 import { getChildRewardLedgerReadModel, GOLD_BAR_TO_GOLD_COIN_RATE } from "@/lib/rewards/read-model";
-import { confirmPositiveEvidenceSuggestions } from "@/lib/writing-practice/positive-evidence";
 import { markGoldBarConverted } from "@/lib/rewards/spelling-rewards";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,110 +23,6 @@ function buildRedirectWithMessage(
 
 function revalidateInsightsOnly() {
   revalidatePath("/insights");
-}
-
-function parseSuggestionIdList(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") {
-    return [] as string[];
-  }
-
-  return Array.from(
-    new Set(
-      value
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter(Boolean),
-    ),
-  );
-}
-
-export async function confirmInsightsPositiveEvidence(formData: FormData) {
-  const childId = formData.get("child_id");
-  const mode = formData.get("mode");
-  const suggestionId = formData.get("suggestion_id");
-  const safeMode = normaliseAppMode(typeof mode === "string" ? mode : undefined);
-
-  if (
-    typeof childId !== "string" ||
-    !childId ||
-    typeof suggestionId !== "string" ||
-    !suggestionId
-  ) {
-    redirect("/insights?error=We%20couldn%27t%20find%20that%20transfer%20evidence.");
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const summary = await confirmPositiveEvidenceSuggestions({
-    supabase,
-    parentUserId: user.id,
-    childId,
-    suggestionIds: [suggestionId],
-    surface: "insights",
-    maxConfirmCount: 1,
-  });
-
-  revalidateInsightsOnly();
-
-  redirect(
-    buildRedirectWithMessage(
-      buildScopedPath("/insights", childId, safeMode),
-      summary.confirmedCount > 0 ? "saved" : "error",
-      summary.confirmedCount > 0
-        ? "Transfer evidence confirmed from insights."
-        : "That transfer evidence could not be confirmed here.",
-    ),
-  );
-}
-
-export async function bulkConfirmInsightsPositiveEvidence(formData: FormData) {
-  const childId = formData.get("child_id");
-  const mode = formData.get("mode");
-  const suggestionIds = parseSuggestionIdList(formData.get("suggestion_ids"));
-  const safeMode = normaliseAppMode(typeof mode === "string" ? mode : undefined);
-
-  if (typeof childId !== "string" || !childId || suggestionIds.length === 0) {
-    redirect("/insights?error=We%20couldn%27t%20find%20those%20transfer%20matches.");
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const summary = await confirmPositiveEvidenceSuggestions({
-    supabase,
-    parentUserId: user.id,
-    childId,
-    suggestionIds,
-    surface: "insights",
-    maxConfirmCount: 3,
-  });
-
-  revalidateInsightsOnly();
-
-  redirect(
-    buildRedirectWithMessage(
-      buildScopedPath("/insights", childId, safeMode),
-      summary.confirmedCount > 0 ? "saved" : "error",
-      summary.confirmedCount > 0
-        ? `Confirmed ${summary.confirmedCount} transfer match${
-            summary.confirmedCount === 1 ? "" : "es"
-          } from insights.`
-        : "No eligible transfer matches were ready to confirm.",
-    ),
-  );
 }
 
 export async function convertGoldBarsToCoins(formData: FormData) {
