@@ -225,7 +225,7 @@ function AppShellFrame({
     </>;
   }
 
-  return <div className={"app-shell brand-shell " + (collapsed ? "sidebar-collapsed " : "") + (focus ? "focus-layout " : "") + (mode === "parent" ? "parent-mode" : "child-mode")}>
+  return <div className={"app-shell brand-shell " + (collapsed ? "sidebar-collapsed " : "") + (focus ? "focus-layout " : "") + (mode === "parent" ? "parent-mode" : "child-mode") + (mode === "parent" && pathname.startsWith("/insights") ? " insights-scroll-shell" : "")}>
     <header className="app-topbar brand-topbar" inert={drawerOpen}>
       <button ref={hamburgerRef} type="button" className="app-icon-button" aria-label={drawerOpen ? "Close navigation" : "Toggle navigation"} aria-expanded={drawerOpen}
         aria-controls="app-sidebar" onClick={toggleSidebar}><span aria-hidden="true">☰</span></button>
