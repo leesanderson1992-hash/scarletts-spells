@@ -58,7 +58,8 @@ async function ProficiencySection({ childId, today, reviewPromise }: {
       loadParentInsightSkills(childId),
       loadSnapshots(childId),
     ]);
-  } catch {
+  } catch (error) {
+    console.error("Failed to load parent insight proficiency", error);
     skills = null;
   }
   if (!skills) {
