@@ -313,8 +313,21 @@ async function main() {
     assert.equal(eligibilityUnavailable.checks.eligibility_allowed, false);
     await checkRejection(fixture("I herd the private-canary bell.", { proofPassage: true,
       throwTable: "writing_context_ai_rate_cards" }), [
-      "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK", "PRE_RESERVATION_UNEXPECTED_EXCEPTION",
-    ]);
+        "PRE_RESERVATION_IDENTITY_CHECK", "PRE_RESERVATION_RATE_CARD_CHECK", "PRE_RESERVATION_UNEXPECTED_EXCEPTION",
+      ]);
+    const adultLedgerFailure = fixture("I herd the adult-private-canary bell.", {
+      adult: true, throwTable: "writing_context_ai_attempts",
+    });
+    const adultDiagnosticStart = diagnostics.length;
+    const adultCallsBeforeFailure = calls;
+    assert.equal((await recoverContextShadowJobs(adultLedgerFailure.snapshot.submission_id,
+      adultLedgerFailure.client)).status, "failed");
+    assert.equal(calls, adultCallsBeforeFailure, "adult ledger failure cannot invoke HTTP");
+    assert.equal(adultLedgerFailure.tables.writing_context_shadow_dispatches.length, 0);
+    assert(adultLedgerFailure.stopped());
+    assert.deepEqual(diagnostics.slice(adultDiagnosticStart).map((entry) =>
+      (entry[1] as {code: string}).code), ["PRE_RESERVATION_LEDGER_EXCEPTION"]);
+    assert(!JSON.stringify(diagnostics.slice(adultDiagnosticStart)).includes("adult-private-canary"));
     const loggerFailure = fixture("I herd the private-canary bell.", { proofPassage: true, deny: "AI_PROOF_SCOPE_DENIED" });
     console.info = () => { throw new Error("private-canary"); };
     try {
