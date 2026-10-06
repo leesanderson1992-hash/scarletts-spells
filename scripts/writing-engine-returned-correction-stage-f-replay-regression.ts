@@ -326,8 +326,8 @@ assert.doesNotMatch(
 );
 
 const appSources = [
-  "app/courses/review/unified-spelling-review-table.tsx",
-  "app/courses/review/adle-writing-issue-picker.tsx",
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx",
+  "app/(authenticated)/courses/review/adle-writing-issue-picker.tsx",
 ].map((path) => readFileSync(path, "utf8"));
 for (const source of appSources) {
   assert.match(source, /^"use client";/);

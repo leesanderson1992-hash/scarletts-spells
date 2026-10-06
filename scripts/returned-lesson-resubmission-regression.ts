@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const actions = readFileSync("app/learn/actions.ts", "utf8");
-const reviewPage = readFileSync("app/courses/review/page.tsx", "utf8");
-const reviewUtils = readFileSync("app/courses/review/review-utils.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/actions.ts", "utf8");
+const reviewPage = readFileSync("app/(authenticated)/courses/review/page.tsx", "utf8");
+const reviewUtils = readFileSync("app/(authenticated)/courses/review/review-utils.ts", "utf8");
 const childQueries = readFileSync("lib/courses/queries.ts", "utf8");
 const unifiedReviewItems = readFileSync(
   "lib/writing-engine/persistence/unified-spelling-review-items.ts",

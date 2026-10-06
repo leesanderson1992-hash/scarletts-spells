@@ -177,8 +177,8 @@ assert(
   "a recognised corrupt historical payload never falls through to generic",
 );
 
-const pageSource = readFileSync("app/learn/week/adle/page.tsx", "utf8");
-const actionSource = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const pageSource = readFileSync("app/(authenticated)/learn/week/adle/page.tsx", "utf8");
+const actionSource = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const runnerSource = readFileSync("components/adle-session-runner.tsx", "utf8");
 assert(pageSource.includes("This Word Lab needs a grown-up check before it can continue."));
 assert(pageSource.includes("routeResolution?.status === \"blocked\""));

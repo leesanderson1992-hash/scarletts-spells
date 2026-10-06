@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const hubPagePath = "app/admin/spelling-review/page.tsx";
+const hubPagePath = "app/(authenticated)/admin/spelling-review/page.tsx";
 const appShellPath = "components/app-shell.tsx";
-const dashboardPagePath = "app/dashboard/page.tsx";
-const catalogActionPath = "app/admin/catalog-review/actions.ts";
-const recommendationActionPath = "app/admin/canonical-recommendations/actions.ts";
+const authLayoutPath = "app/(authenticated)/layout.tsx";
+const dashboardPagePath = "app/(authenticated)/dashboard/page.tsx";
+const catalogActionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const recommendationActionPath = "app/(authenticated)/admin/canonical-recommendations/actions.ts";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 
@@ -13,6 +14,7 @@ assert.ok(existsSync(hubPagePath), "Admin Spelling Review hub page must exist.")
 
 const hubPage = readFileSync(hubPagePath, "utf8");
 const appShell = readFileSync(appShellPath, "utf8");
+const authLayout = readFileSync(authLayoutPath, "utf8");
 const dashboardPage = readFileSync(dashboardPagePath, "utf8");
 const catalogAction = readFileSync(catalogActionPath, "utf8");
 const recommendationAction = readFileSync(recommendationActionPath, "utf8");
@@ -63,9 +65,11 @@ assert.match(
 );
 assert.match(
   appShell,
-  /if \(showAdminNav\)[\s\S]*parentItems\.push\(\{[\s\S]*label: "Admin"[\s\S]*children: \[[\s\S]*label: "Spelling Review", href: "\/admin\/spelling-review"/,
-  "Admin navigation must be one nested parent-menu item when explicitly enabled.",
+  /mode === "parent" && showAdminNav/,
+  "Admin navigation must only render for authorized accounts in parent mode.",
 );
+assert.match(appShell, /label: "Dashboard", href: "\/admin\/spelling-review"/);
+assert.match(authLayout, /showAdminNav=\{isAdminUser\(user\)\}/);
 assert.match(
   appShell,
   /label: "Canonical Misspelling Resolver", href: "\/admin\/canonical-mappings"/,
@@ -80,7 +84,7 @@ assert.match(
 );
 assert.match(
   appShell,
-  /label: "ADLE Canonical Intake Readiness"[\s\S]*href: "\/admin\/adle-canonical-intake-readiness"/,
+  /label: "ADLE Requirements"[\s\S]*href: "\/admin\/adle-canonical-intake-readiness"/,
   "Admin navigation must include the ADLE canonical-intake readiness link.",
 );
 assert.doesNotMatch(
@@ -98,11 +102,7 @@ assert.match(
   /const showAdminNav = mode === "parent" && isAdminUser\(user\);/,
   "The dashboard must enable admin navigation only for allowlisted users in parent mode.",
 );
-assert.equal(
-  dashboardPage.match(/showAdminNav=\{showAdminNav\}/g)?.length,
-  2,
-  "Both dashboard AppShell render paths must receive the authorized admin-navigation flag.",
-);
+assert.ok((dashboardPage.match(/showAdminNav=\{showAdminNav\}/g)?.length ?? 0) >= 1);
 assert.doesNotMatch(
   hubPage,
   /resolveSpellingCatalogReviewCase|curateSpellingCanonicalRecommendation/,

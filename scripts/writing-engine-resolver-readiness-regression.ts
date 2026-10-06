@@ -10,18 +10,18 @@ import {
 const classifierPath =
   "lib/writing-engine/spelling/resolver-visibility-readiness.ts";
 const readinessPagePath =
-  "app/admin/spelling-canonical-resolver-readiness/page.tsx";
-const hubPagePath = "app/admin/spelling-review/page.tsx";
+  "app/(authenticated)/admin/spelling-canonical-resolver-readiness/page.tsx";
+const hubPagePath = "app/(authenticated)/admin/spelling-review/page.tsx";
 const appShellPath = "components/app-shell.tsx";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const stage2aPath =
   "lib/writing-engine/spelling/stage2a-content-resolver.ts";
-const reviewWorkPagePath = "app/courses/review/page.tsx";
+const reviewWorkPagePath = "app/(authenticated)/courses/review/page.tsx";
 const assignmentPath = "lib/writing-engine/assignments/service.ts";
 const masteryPath = "lib/writing-engine/mastery/service.ts";
 const rewardsPath = "lib/rewards/ledger.ts";
-const dashboardPath = "app/dashboard/page.tsx";
+const dashboardPath = "app/(authenticated)/dashboard/page.tsx";
 const analyticsPath = "lib/writing-engine/analytics/events.ts";
 const scoringPath = "lib/writing-engine/core/verification.ts";
 const templatesPath =

@@ -40,11 +40,11 @@ assert.deepEqual(DYNAMIC_PREFIX_QA_PROFILES.map((profile) => profile.expectedIte
 assert.equal(DYNAMIC_PREFIX_QA_PROFILES[2]?.meaningEvidenceLabel, "Prefix Form Sort (equivalent)");
 
 const writer = readFileSync("lib/adle/morphology/dynamic-prefix-assignment-writer.ts", "utf8");
-const actions = readFileSync("app/admin/adle-dynamic-prefix-qa/actions.ts", "utf8");
-const page = readFileSync("app/admin/adle-dynamic-prefix-qa/page.tsx", "utf8");
-const launcher = readFileSync("app/admin/adle-dynamic-prefix-qa/launcher.tsx", "utf8");
+const actions = readFileSync("app/(authenticated)/admin/adle-dynamic-prefix-qa/actions.ts", "utf8");
+const page = readFileSync("app/(authenticated)/admin/adle-dynamic-prefix-qa/page.tsx", "utf8");
+const launcher = readFileSync("app/(authenticated)/admin/adle-dynamic-prefix-qa/launcher.tsx", "utf8");
 const access = readFileSync("lib/adle/morphology/dynamic-prefix-qa-access.ts", "utf8");
-const layout = readFileSync("app/admin/layout.tsx", "utf8");
+const layout = readFileSync("app/(authenticated)/admin/layout.tsx", "utf8");
 const proxy = readFileSync("proxy.ts", "utf8");
 
 for (const boundary of [

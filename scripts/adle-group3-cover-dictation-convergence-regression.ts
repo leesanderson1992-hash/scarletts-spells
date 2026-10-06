@@ -14,7 +14,7 @@ const runner = read("components/adle-session-runner.tsx");
 const morphology = read("components/adle/morphology/morphology-guided-lesson.tsx");
 const base = read("components/adle/morphology/base-word-family-guided-lesson.tsx");
 const compound = read("components/adle/morphology/closed-compound-guided-lesson.tsx");
-const actions = read("app/learn/week/adle/actions.ts");
+const actions = read("app/(authenticated)/learn/week/adle/actions.ts");
 const reflection = read("components/adle/activities/lesson-reflection.tsx");
 
 assert(cover.includes("stepLabel") && cover.includes("onContinue"), "CoverShutter owns the standard progress/continue presentation");

@@ -40,7 +40,7 @@ async function load(events: Event[], options: { proof?: boolean; corrupt?: boole
   return review;
 }
 async function main() {
-  const reviewTable = readFileSync(new URL("../app/courses/review/unified-spelling-review-table.tsx", import.meta.url), "utf8");
+  const reviewTable = readFileSync(new URL("../app/(authenticated)/courses/review/unified-spelling-review-table.tsx", import.meta.url), "utf8");
   assert.match(reviewTable,
     /readOnly=\{reviewWorkflowPhase === "read_only" \|\| reviewWorkflowPhase === "adle_observational"\}/,
     "Reviewer flow keeps fresh passage suggestions actionable before approval");

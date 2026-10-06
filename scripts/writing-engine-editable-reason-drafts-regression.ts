@@ -85,7 +85,7 @@ function main() {
   );
 
   const tableSource = readFileSync(
-    "app/courses/review/unified-spelling-review-table.tsx",
+    "app/(authenticated)/courses/review/unified-spelling-review-table.tsx",
     "utf8",
   );
   assert.match(tableSource, /action=\{saveWritingIssueReasonDraft\}/);
@@ -152,11 +152,11 @@ function main() {
   );
 
   const candidateActionSource = readFileSync(
-    "app/courses/review/actions/candidate-mapping-actions.ts",
+    "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
     "utf8",
   );
   const catalogActionSource = readFileSync(
-    "app/courses/review/actions/catalog-review-case-actions.ts",
+    "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts",
     "utf8",
   );
   assert.doesNotMatch(

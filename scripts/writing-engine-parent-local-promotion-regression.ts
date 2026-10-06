@@ -127,11 +127,11 @@ function createHarness(overrides: Partial<HarnessState> = {}) {
   const workspaceRoot = process.cwd();
   const actionSourcePath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/candidate-mapping-actions.ts",
+    "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   );
   const canonicalBackfillSourcePath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/canonical-spelling-backfill-actions.ts",
+    "app/(authenticated)/courses/review/actions/canonical-spelling-backfill-actions.ts",
   );
 
   class FakeQueryBuilder {
@@ -889,7 +889,7 @@ function testReviewWorkSourceGuardrails() {
   const workspaceRoot = process.cwd();
   const suggestedIssuesPanelPath = path.join(
     workspaceRoot,
-    "app/courses/review/suggested-issues-panel.tsx",
+    "app/(authenticated)/courses/review/suggested-issues-panel.tsx",
   );
   const pageSource = readFileSync(suggestedIssuesPanelPath, "utf8");
 

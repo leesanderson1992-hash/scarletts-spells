@@ -31,7 +31,7 @@ async function main() {
     await assert.rejects(resolveReviewedContextObservation({ ...input, ...mismatch }));
   }
   assert.equal(await resolveReviewedContextObservation({ ...input, submittedObservationId: null }), null);
-  const action = readFileSync("app/courses/review/actions/context-advisory-decision-actions.ts", "utf8");
+  const action = readFileSync("app/(authenticated)/courses/review/actions/context-advisory-decision-actions.ts", "utf8");
   assert.match(action, /p_observation_id: reviewedObservationId/);
   assert.doesNotMatch(action, /observationId === row\.observationId/);
   console.log("context feedback historical observation linkage regression passed");

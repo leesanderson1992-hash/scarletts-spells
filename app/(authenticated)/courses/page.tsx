@@ -84,8 +84,8 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="brand-eyebrow">Courses</p>
-              <h1 className="mt-1 text-xl font-semibold tracking-tight text-[color:var(--ink)]">
-                Learning structure
+              <h1 className="brand-title mt-1 text-3xl font-bold tracking-tight text-[color:var(--ink)]">
+                Course Creator
               </h1>
             </div>
             <div className="rounded-full border border-[var(--border)] bg-white px-3 py-1 text-xs font-medium text-[color:var(--mid)]">
@@ -139,7 +139,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
         </div>
 
         <section className="brand-card overflow-hidden rounded-3xl p-0">
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] bg-white/70 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--mid)]">
+          <div className="course-index-head grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] bg-white/70 px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--mid)]">
             <span>Course</span>
             <span>Notes</span>
             <span>Structure</span>
@@ -154,9 +154,9 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
             return (
               <div
                 key={course.id}
-                className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] px-4 py-3 last:border-b-0"
+                className="course-index-row grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_160px_92px] gap-3 border-b border-[var(--border)] px-4 py-3 last:border-b-0"
               >
-                <div className="min-w-0">
+                <div className="course-index-cell min-w-0" data-label="Course">
                   {isEditing ? (
                     <>
                       <input type="hidden" name="course_id" value={course.id} form={formId} />
@@ -174,7 +174,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                     <p className="pt-2 text-sm font-semibold text-[color:var(--ink)]">{course.title}</p>
                   )}
                 </div>
-                <div className="min-w-0">
+                <div className="course-index-cell min-w-0" data-label="Notes">
                   {isEditing ? (
                     <input
                       type="text"
@@ -191,7 +191,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                     </p>
                   )}
                 </div>
-                <div className="pt-2 text-sm text-[color:var(--mid)]">
+                <div className="course-index-cell pt-2 text-sm text-[color:var(--mid)]" data-label="Structure">
                   {isEditing ? (
                     <div className="grid gap-2">
                       <select
@@ -257,7 +257,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                     </>
                   )}
                 </div>
-                <div className="flex items-center">
+                <div className="course-index-cell flex items-center" data-label="Parent view">
                   <form action={updateCourseParentVisibility} className="flex items-center gap-3">
                     <input type="hidden" name="course_id" value={course.id} />
                     <input type="hidden" name="redirect_path" value={scopedCurrentPath} />
@@ -293,7 +293,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                     </span>
                   </form>
                 </div>
-                <div className="flex items-center justify-end gap-2">
+                <div className="course-index-cell flex items-center justify-end gap-2" data-label="Actions">
                   {isEditing ? (
                     <>
                       <button

@@ -5,7 +5,7 @@ function assert(value: unknown, message: string): asserts value {
 }
 
 const action = readFileSync(
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
 const importIndex = action.indexOf("intakeApprovedExactSubmissionCorrections");

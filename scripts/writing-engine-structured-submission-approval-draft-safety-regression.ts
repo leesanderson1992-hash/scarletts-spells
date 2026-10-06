@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const reviewCompletionPath =
-  "app/courses/review/actions/review-completion-actions.ts";
-const learnActionsPath = "app/learn/actions.ts";
-const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
-const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
+const taskPagePath = "app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
+const reviewPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const atomicSubmissionMigrationPath =
   "supabase/migrations/20260717153000_add_idempotent_course_task_submission.sql";
 

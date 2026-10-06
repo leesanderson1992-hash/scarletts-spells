@@ -13,7 +13,7 @@ const shell = read("components/adle/first-impression/first-impression-lesson.tsx
 const morphology = read("components/adle/morphology/morphology-guided-lesson.tsx");
 const base = read("components/adle/morphology/base-word-family-guided-lesson.tsx");
 const compound = read("components/adle/morphology/closed-compound-guided-lesson.tsx");
-const sessionPage = read("app/learn/week/adle/page.tsx");
+const sessionPage = read("app/(authenticated)/learn/week/adle/page.tsx");
 
 for (const contract of ["TeachingPageConfig", 'type: "teaching"', "MeetWordConfig", "Meet the Words", "Back", "Next page", "onPageChange", "focusRef.current?.focus", "sm:grid-cols-2"]) {
   assert(teaching.includes(contract), `TeachingPages contract missing ${contract}`);

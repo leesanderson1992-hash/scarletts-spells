@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const actions = readFileSync("app/learn/actions.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/actions.ts", "utf8");
 const migration = readFileSync(
   "supabase/migrations/20260717153000_add_idempotent_course_task_submission.sql",
   "utf8",
 );
 const processor = readFileSync("lib/courses/submission-processing.ts", "utf8");
 const controls = readFileSync("components/lesson-submission-controls.tsx", "utf8");
-const taskPage = readFileSync("app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx", "utf8");
-const reviewPage = readFileSync("app/courses/review/page.tsx", "utf8");
+const taskPage = readFileSync("app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx", "utf8");
+const reviewPage = readFileSync("app/(authenticated)/courses/review/page.tsx", "utf8");
 
 const submitStart = actions.indexOf("export async function submitTaskResponse");
 const saveDraftStart = actions.indexOf("export async function saveTaskDraft");

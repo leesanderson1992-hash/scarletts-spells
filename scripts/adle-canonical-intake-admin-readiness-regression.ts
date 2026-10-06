@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/admin/adle-canonical-intake-readiness/readiness-groups";
-import { projectReadiness, type ProjectionInput } from "../app/admin/adle-canonical-intake-readiness/readiness-projection";
+import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
+import { projectReadiness, type ProjectionInput } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-projection";
 
 const ready = (): ProjectionInput => ({
   target: "unlocked", microSkillKey: "D4_MOR_PREFIXES_UN", routeId: "adle_word_level",

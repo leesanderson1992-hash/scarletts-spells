@@ -14,7 +14,7 @@ const read = (path: string) => readFileSync(resolve(root, path), "utf8");
 
 const composer = read("lib/adle/daily-assignment-composer.ts");
 const generator = read("lib/adle/today-assignment-service.ts");
-const action = read("app/learn/week/adle/actions.ts");
+const action = read("app/(authenticated)/learn/week/adle/actions.ts");
 const persistence = read("lib/adle/loaders/session-completion-loader.ts");
 const runner = read("components/adle-session-runner.tsx");
 

@@ -77,7 +77,7 @@ const promotionRepository = readFileSync(
   "utf8",
 );
 const candidateAction = readFileSync(
-  "app/courses/review/actions/candidate-mapping-actions.ts",
+  "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   "utf8",
 );
 const sqlProof = readFileSync(

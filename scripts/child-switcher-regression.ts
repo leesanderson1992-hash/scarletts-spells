@@ -25,7 +25,7 @@ assert.equal(
 );
 
 const childActionsSource = readFileSync(
-  new URL("../app/children/actions.ts", import.meta.url),
+  new URL("../app/(authenticated)/children/actions.ts", import.meta.url),
   "utf8",
 );
 

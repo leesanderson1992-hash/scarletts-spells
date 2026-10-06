@@ -187,20 +187,20 @@ async function main() {
 
   const parentForm = readFileSync(
     new URL(
-      "../app/courses/review/parent-missed-word-form.tsx",
+      "../app/(authenticated)/courses/review/parent-missed-word-form.tsx",
       import.meta.url,
     ),
     "utf8",
   );
   const reviewAction = readFileSync(
     new URL(
-      "../app/courses/review/actions/lesson-submission-review-actions.ts",
+      "../app/(authenticated)/courses/review/actions/lesson-submission-review-actions.ts",
       import.meta.url,
     ),
     "utf8",
   );
   const adminAction = readFileSync(
-    new URL("../app/admin/catalog-review/actions.ts", import.meta.url),
+    new URL("../app/(authenticated)/admin/catalog-review/actions.ts", import.meta.url),
     "utf8",
   );
   assert.match(parentForm, /Where it appeared/);

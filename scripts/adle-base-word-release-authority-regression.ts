@@ -82,8 +82,8 @@ const migration = readFileSync("supabase/migrations/20260809150000_integrate_bas
 const intake = readFileSync("lib/adle/loaders/canonical-intake-live.ts", "utf8");
 const assignment = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 const readModelSource = readFileSync("lib/adle/loaders/base-word-family-lesson-read-model.ts", "utf8");
-const runtimePage = readFileSync("app/learn/week/adle/page.tsx", "utf8");
-const completion = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const runtimePage = readFileSync("app/(authenticated)/learn/week/adle/page.tsx", "utf8");
+const completion = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const selector = readFileSync("lib/adle/base-word-family-selection.ts", "utf8");
 const baseWordIntakeBranch = intake.slice(
   intake.indexOf("if (isBaseWordFamilyPilotEnabledForChild(childId))"),

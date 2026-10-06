@@ -10,11 +10,11 @@ const blockedFunctionCorrection = readFileSync(
   "utf8",
 );
 const page = readFileSync(
-  "app/admin/adle-canonical-intake-readiness/page.tsx",
+  "app/(authenticated)/admin/adle-canonical-intake-readiness/page.tsx",
   "utf8",
 );
 const actions = readFileSync(
-  "app/admin/adle-canonical-intake-readiness/actions.ts",
+  "app/(authenticated)/admin/adle-canonical-intake-readiness/actions.ts",
   "utf8",
 );
 

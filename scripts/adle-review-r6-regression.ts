@@ -334,7 +334,7 @@ assert.match(migration, /v_initialized <> \(v_before#>>'\{counts,legacyAuthorita
 const todayService = readFileSync(resolve(import.meta.dirname, "../lib/adle/today-assignment-service.ts"), "utf8");
 assert.ok(todayService.indexOf("ensureReviewAssignmentR6") < todayService.indexOf("const existing = statusResult"),
   "Review resolution must precede the same-day specialist header path");
-const learnerPage = readFileSync(resolve(import.meta.dirname, "../app/learn/week/page.tsx"), "utf8");
+const learnerPage = readFileSync(resolve(import.meta.dirname, "../app/(authenticated)/learn/week/page.tsx"), "utf8");
 assert.match(learnerPage, /form action=\{openTodayAdleSessionAction\}/,
   "Today's Lesson must enter through a POST server action");
 assert.doesNotMatch(learnerPage, /href=\{buildScopedPath\("\/learn\/week\/adle"/,

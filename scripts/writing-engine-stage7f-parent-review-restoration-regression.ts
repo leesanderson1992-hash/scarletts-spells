@@ -5,31 +5,31 @@ import path from "node:path";
 const workspaceRoot = process.cwd();
 const reviewDetailPagePath = path.join(
   workspaceRoot,
-  "app/courses/review/[submissionId]/page.tsx",
+  "app/(authenticated)/courses/review/[submissionId]/page.tsx",
 );
 const reviewQueuePagePath = path.join(
   workspaceRoot,
-  "app/courses/review/page.tsx",
+  "app/(authenticated)/courses/review/page.tsx",
 );
 const manualSampleSectionsPath = path.join(
   workspaceRoot,
-  "app/courses/review/manual-sample-sections.tsx",
+  "app/(authenticated)/courses/review/manual-sample-sections.tsx",
 );
 const manualSampleReviewUtilsPath = path.join(
   workspaceRoot,
-  "app/courses/review/manual-sample-review-utils.ts",
+  "app/(authenticated)/courses/review/manual-sample-review-utils.ts",
 );
 const manualSampleActionsPath = path.join(
   workspaceRoot,
-  "app/courses/review/manual-sample-actions.ts",
+  "app/(authenticated)/courses/review/manual-sample-actions.ts",
 );
 const reviewCompletionActionsPath = path.join(
   workspaceRoot,
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
 );
 const reviewUtilsPath = path.join(
   workspaceRoot,
-  "app/courses/review/review-utils.ts",
+  "app/(authenticated)/courses/review/review-utils.ts",
 );
 
 type MisspellingReviewLookupRow = {

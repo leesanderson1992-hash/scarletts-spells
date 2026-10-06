@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
-const action = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const action = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const runner = readFileSync("components/adle-session-runner.tsx", "utf8");
 const loader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 const migration = readFileSync("supabase/migrations/20260720090000_make_base_word_reflection_atomic.sql", "utf8");

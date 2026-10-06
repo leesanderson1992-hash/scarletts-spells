@@ -166,11 +166,11 @@ assert.equal(
 );
 
 const reviewCompletionActions = readFileSync(
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
 const candidateMappingActions = readFileSync(
-  "app/courses/review/actions/candidate-mapping-actions.ts",
+  "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   "utf8",
 );
 const diagnostics = readFileSync(
@@ -178,7 +178,7 @@ const diagnostics = readFileSync(
   "utf8",
 );
 const unifiedSpellingReviewTable = readFileSync(
-  "app/courses/review/unified-spelling-review-table.tsx",
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx",
   "utf8",
 );
 

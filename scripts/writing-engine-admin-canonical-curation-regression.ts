@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { readArchivedMigrationOrActiveBaseline } from "./migration-sql-contract-source";
 
-const actionPath = "app/admin/catalog-review/actions.ts";
-const decisionRowPath = "app/admin/catalog-review/admin-decision-row.tsx";
-const pagePath = "app/admin/catalog-review/page.tsx";
-const reviewActionsPath = "app/courses/review/actions/catalog-review-case-actions.ts";
-const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
+const actionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const decisionRowPath = "app/(authenticated)/admin/catalog-review/admin-decision-row.tsx";
+const pagePath = "app/(authenticated)/admin/catalog-review/page.tsx";
+const reviewActionsPath = "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts";
+const reviewPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const mappingSourcePath =

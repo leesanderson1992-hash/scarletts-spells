@@ -3,24 +3,24 @@ import { existsSync, readFileSync } from "node:fs";
 
 import {
   validateSeedImportHiddenCanonicalAdoptionInput,
-} from "../app/admin/seed-import-review/adoption-rules";
+} from "../app/(authenticated)/admin/seed-import-review/adoption-rules";
 
 const migrationPath =
   "supabase/migrations/20260618120000_add_seed_import_hidden_canonical_adoption_rpc.sql";
 const repositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
-const adoptionActionPath = "app/admin/seed-import-review/adoption-actions.ts";
-const decisionActionPath = "app/admin/seed-import-review/actions.ts";
-const pagePath = "app/admin/seed-import-review/page.tsx";
-const workspacePath = "app/admin/canonical-mappings/resolution-workspace.tsx";
-const resolutionActionsPath = "app/admin/canonical-mappings/resolution-actions.ts";
+const adoptionActionPath = "app/(authenticated)/admin/seed-import-review/adoption-actions.ts";
+const decisionActionPath = "app/(authenticated)/admin/seed-import-review/actions.ts";
+const pagePath = "app/(authenticated)/admin/seed-import-review/page.tsx";
+const workspacePath = "app/(authenticated)/admin/canonical-mappings/resolution-workspace.tsx";
+const resolutionActionsPath = "app/(authenticated)/admin/canonical-mappings/resolution-actions.ts";
 const smokePath =
   "scripts/writing-engine-seed-import-hidden-canonical-adoption-local-smoke.ts";
 const packagePath = "package.json";
 const seedStorageMigrationPath =
   "supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql";
-const resolverPriorityPath = "app/courses/review/resolver-visible-priority.ts";
-const reviewWorkPagePath = "app/courses/review/[submissionId]/page.tsx";
+const resolverPriorityPath = "app/(authenticated)/courses/review/resolver-visible-priority.ts";
+const reviewWorkPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 

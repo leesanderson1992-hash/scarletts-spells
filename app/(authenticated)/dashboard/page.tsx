@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { GoldForgePanel } from "@/components/gold-forge-panel";
 import { isAdminUser } from "@/lib/admin/access";
+import { getAuthenticatedContext } from "@/lib/authenticated-context";
 import {
   buildScopedPath,
   getActiveChildIdFromCookies,
@@ -26,17 +27,20 @@ import {
 } from "@/lib/progress/stateModel";
 import { getChildRewardReadModel } from "@/lib/rewards/read-model";
 import { getWordFamilyById } from "@/lib/spelling/wordFamilies";
-import { createClient } from "@/lib/supabase/server";
 import { parseAnalysisRow } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { getCanonicalActivePracticeWordsForChild } from "@/lib/writing-practice/practice-runtime";
 import { CreateChildForm } from "./create-child-form";
 import { TodaysAdleSection, type TodayAdleChildRow } from "./todays-adle-section";
 import { loadParentAdleTodayStatuses } from "@/lib/adle/today-assignment-service";
+import { ParentDashboard } from "./parent-dashboard";
+import type { DedicationPeriod } from "@/lib/dashboard/dedication";
 
 type DashboardPageProps = {
   searchParams?: Promise<{
     child?: string;
     mode?: string;
+    scope?: string;
+    period?: string;
   }>;
 };
 
@@ -306,10 +310,7 @@ function summariseAnalysis(rows: AnalysisSummaryRow[]): AnalysisSummary {
 export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user, children } = await getAuthenticatedContext();
 
   if (!user) {
     redirect("/login");
@@ -320,13 +321,7 @@ export default async function DashboardPage({
   const showAdminNav = mode === "parent" && isAdminUser(user);
   const activeChildIdFromCookie = await getActiveChildIdFromCookies();
 
-  const { data: children } = await supabase
-    .from("children")
-    .select("id, first_name, last_name, date_of_birth, is_archived")
-    .eq("parent_user_id", user.id)
-    .order("created_at", { ascending: true });
-
-  const activeChildren = (children ?? []).filter((child) => !child.is_archived);
+  const activeChildren = children.filter((child) => !child.is_archived);
   const selectedChild = selectChildById(
     activeChildren,
     resolvedSearchParams?.child ?? activeChildIdFromCookie,
@@ -334,6 +329,20 @@ export default async function DashboardPage({
 
   const activeScopedChild =
     activeChildren.length > 0 ? selectedChild ?? activeChildren[0] : null;
+
+  if (resolvedSearchParams?.mode !== "child") {
+    const rawName = user.user_metadata?.full_name ?? user.user_metadata?.first_name;
+    const parentName = typeof rawName === "string" && rawName.trim()
+      ? rawName.trim().split(/\s+/)[0] : "Parent";
+    const period: DedicationPeriod = resolvedSearchParams?.period === "month" ||
+      resolvedSearchParams?.period === "last-month" ||
+      resolvedSearchParams?.period === "six-months" ? resolvedSearchParams.period : "week";
+    return <AppShell currentPath="/dashboard" mode="parent" activeChildId={activeScopedChild?.id ?? null}
+      availableChildren={activeChildren} userEmail={user.email} showAdminNav={showAdminNav}>
+      <ParentDashboard parentId={user.id} parentName={parentName} childOptions={activeChildren}
+        selectedChildId={activeScopedChild?.id ?? null} allChildren={resolvedSearchParams?.scope === "all"} period={period} />
+    </AppShell>;
+  }
 
   const adleTodayStatusesPromise = mode === "parent" && activeChildren.length > 0
     ? loadParentAdleTodayStatuses({

@@ -60,7 +60,7 @@ assert.ok(submissionHtml.indexOf("excerpts of your writing are sent to OpenAI") 
   submissionHtml.indexOf("Submit lesson"),
 "The structured submission shows the same OpenAI notice before its submit control");
 
-const page = readFileSync("app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx", "utf8");
+const page = readFileSync("app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx", "utf8");
 assert.match(page, /loadReturnedContextExcerpts\([\s\S]*issueIds: returnedWritingIssues\.map\([\s\S]*parentUserId: user\.id,[\s\S]*childId: selectedChild\.id,[\s\S]*taskId: task\.id/,
   "The child page must request excerpts only for the authenticated owner's returned task");
 assert.match(page, /returnedContextExcerpts=\{returnedContextExcerpts\}/);

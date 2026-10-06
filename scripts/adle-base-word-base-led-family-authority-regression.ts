@@ -49,7 +49,7 @@ assert.equal("memberRole" in member, false, "family-authority v2 carries no perm
 const authorityMigration = readFileSync("supabase/migrations/20260810200000_add_base_led_family_authority_v2.sql", "utf8");
 const bindingMigration = readFileSync("supabase/migrations/20260810201000_bind_base_led_family_selection.sql", "utf8");
 const selector = readFileSync("lib/adle/base-word-family-selection.ts", "utf8");
-const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 
 assert.match(authorityMigration, /publish_adle_base_word_family_membership_authority_v2/);
 assert.match(authorityMigration, /skillClusterKey/);

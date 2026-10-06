@@ -261,7 +261,7 @@ function loadRecordReviewWorkVerificationAction(state: Required<HarnessState>): 
   result: HarnessResult;
 } {
   const workspaceRoot = process.cwd();
-  const actionSourcePath = path.join(workspaceRoot, "app/courses/review/actions.ts");
+  const actionSourcePath = path.join(workspaceRoot, "app/(authenticated)/courses/review/actions.ts");
 
   const redirects: RedirectSignal[] = [];
   const recordCalls: ParentVerificationCall[] = [];

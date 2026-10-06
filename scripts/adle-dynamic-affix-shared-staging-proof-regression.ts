@@ -11,8 +11,8 @@ import {
 } from "./lib/adle-staging-proof-serialization";
 
 const proof = readFileSync("scripts/adle-dynamic-affix-shared-staging-proof.ts", "utf8");
-const readinessPage = readFileSync("app/learn/week/adle/dynamic-suffix/page.tsx", "utf8");
-const writerAction = readFileSync("app/learn/week/adle/dynamic-suffix/actions.ts", "utf8");
+const readinessPage = readFileSync("app/(authenticated)/learn/week/adle/dynamic-suffix/page.tsx", "utf8");
+const writerAction = readFileSync("app/(authenticated)/learn/week/adle/dynamic-suffix/actions.ts", "utf8");
 assert(proof.includes('const STAGING_REF = "jlhotktspjvffslvuyfz"'));
 assert(proof.includes('const STAGING_VERCEL_PROJECT_ID = "prj_oJkffstOtacc4juYloXajHpjJUha"'));
 assert(proof.includes('const PRODUCTION_REF = "wwohrqtunajrbwxyssjf"'));

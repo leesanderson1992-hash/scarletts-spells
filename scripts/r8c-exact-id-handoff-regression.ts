@@ -215,7 +215,7 @@ assert.equal(renew.candidateState, "pending_content");
 assert.equal(renew.blockers[0]?.code, "canonical_word_missing");
 
 const reviewAction = readFileSync(
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
 const liveLoader = readFileSync(

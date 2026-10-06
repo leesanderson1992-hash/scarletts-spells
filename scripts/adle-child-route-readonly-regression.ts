@@ -6,7 +6,7 @@ function assert(condition: unknown, message: string): void {
   }
 }
 
-const page = readFileSync("app/learn/week/adle/page.tsx", "utf8");
+const page = readFileSync("app/(authenticated)/learn/week/adle/page.tsx", "utf8");
 
 assert(
   !page.includes("ensureAdleDailyPlan"),

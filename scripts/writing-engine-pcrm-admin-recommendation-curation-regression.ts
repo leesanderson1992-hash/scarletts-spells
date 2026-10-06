@@ -1,17 +1,17 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const actionPath = "app/admin/canonical-recommendations/actions.ts";
-const rowPath = "app/admin/canonical-recommendations/admin-recommendation-row.tsx";
-const pagePath = "app/admin/canonical-recommendations/page.tsx";
+const actionPath = "app/(authenticated)/admin/canonical-recommendations/actions.ts";
+const rowPath = "app/(authenticated)/admin/canonical-recommendations/admin-recommendation-row.tsx";
+const pagePath = "app/(authenticated)/admin/canonical-recommendations/page.tsx";
 const recommendationRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-recommendations.ts";
 const completionHelperPath =
   "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 const reviewCompletionActionPath =
-  "app/courses/review/actions/review-completion-actions.ts";
-const catalogReviewActionPath = "app/admin/catalog-review/actions.ts";
-const catalogReviewPagePath = "app/admin/catalog-review/page.tsx";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
+const catalogReviewActionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const catalogReviewPagePath = "app/(authenticated)/admin/catalog-review/page.tsx";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const mappingSourcePath =

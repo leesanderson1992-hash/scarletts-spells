@@ -7,20 +7,20 @@ const appShellPath = "components/app-shell.tsx";
 const structuredLessonResponsePath = "components/structured-lesson-response.tsx";
 const returnedIssueRetryControlsPath = "components/returned-issue-retry-controls.tsx";
 const lessonResponsesPath = "lib/lessons/responses.ts";
-const learnActionsPath = "app/learn/actions.ts";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
 const submissionProcessingPath = "lib/courses/submission-processing.ts";
-const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
-const reviewDetailPagePath = "app/courses/review/[submissionId]/page.tsx";
+const taskPagePath = "app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
+const reviewDetailPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
-  "app/courses/review/actions/review-completion-actions.ts";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
 const candidateMappingActionsPath =
-  "app/courses/review/actions/candidate-mapping-actions.ts";
+  "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts";
 const catalogReviewCaseActionsPath =
-  "app/courses/review/actions/catalog-review-case-actions.ts";
+  "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts";
 const returnedCorrectionRouteHelpersPath =
-  "app/courses/review/actions/returned-correction-route-helpers.ts";
+  "app/(authenticated)/courses/review/actions/returned-correction-route-helpers.ts";
 const unifiedSpellingReviewTablePath =
-  "app/courses/review/unified-spelling-review-table.tsx";
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx";
 const unifiedSpellingReviewItemsPath =
   "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 

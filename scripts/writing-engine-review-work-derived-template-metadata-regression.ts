@@ -5,15 +5,15 @@ import path from "node:path";
 const workspaceRoot = process.cwd();
 const suggestedIssuesPanelPath = path.join(
   workspaceRoot,
-  "app/courses/review/suggested-issues-panel.tsx",
+  "app/(authenticated)/courses/review/suggested-issues-panel.tsx",
 );
 const reviewActionsPath = path.join(
   workspaceRoot,
-  "app/courses/review/actions/parent-verification-actions.ts",
+  "app/(authenticated)/courses/review/actions/parent-verification-actions.ts",
 );
 const reviewUtilsPath = path.join(
   workspaceRoot,
-  "app/courses/review/review-utils.ts",
+  "app/(authenticated)/courses/review/review-utils.ts",
 );
 const learningItemsPath = path.join(
   workspaceRoot,
