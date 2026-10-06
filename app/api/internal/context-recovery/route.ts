@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { recoverContextShadowJobs } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
 import { recoverAdleReviewContextJobs } from "@/lib/writing-engine/whole-writing/adle-review-context-worker";
+import { CONTEXT_SHADOW_RUNTIME_FINGERPRINT } from "@/lib/writing-engine/whole-writing/context-shadow-policy";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -20,5 +21,10 @@ export async function GET(request: NextRequest) {
   const [course, adle] = await Promise.all([
     recoverContextShadowJobs(), recoverAdleReviewContextJobs(),
   ]);
-  return NextResponse.json({ course, adle }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({
+    deploymentSha: process.env.CONTEXT_AI_DEPLOYMENT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+    runtimeFingerprint: CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+    releaseHold: process.env.CONTEXT_AI_RELEASE_HOLD === "enabled",
+    course, adle,
+  }, { headers: { "Cache-Control": "no-store" } });
 }
