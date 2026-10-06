@@ -1,23 +1,26 @@
 import type { InsightSkill } from "./proficiency";
 
+export function averageAchievedLevel(skills: readonly InsightSkill[]) {
+  const reportable = skills.filter((skill) => skill.firstPopulatedLevel !== null);
+  if (!reportable.length) return null;
+  return {
+    average: reportable.reduce((sum, skill) => sum + (skill.achievedLevel ?? 0), 0) / reportable.length,
+    count: reportable.length,
+  };
+}
+
 export function familyAverages(skills: readonly InsightSkill[]) {
-  const totals = new Map<string, { familyKey: string; familyLabel: string; total: number; count: number; policyVersion: string; bandingVersion: string }>();
+  const groups = new Map<string, InsightSkill[]>();
   for (const skill of skills) {
-    if (skill.firstPopulatedLevel === null) continue;
-    const entry = totals.get(skill.familyKey) ?? {
-      familyKey: skill.familyKey, familyLabel: skill.familyLabel, total: 0, count: 0,
-      policyVersion: skill.policyVersion, bandingVersion: skill.bandingVersion,
-    };
-    entry.total += skill.achievedLevel ?? 0;
-    entry.count += 1;
-    totals.set(skill.familyKey, entry);
+    const group = groups.get(skill.familyKey) ?? [];
+    group.push(skill);
+    groups.set(skill.familyKey, group);
   }
-  return [...totals.values()].map((entry) => ({
-    familyKey: entry.familyKey,
-    familyLabel: entry.familyLabel,
-    average: entry.total / entry.count,
-    count: entry.count,
-    policyVersion: entry.policyVersion,
-    bandingVersion: entry.bandingVersion,
-  })).sort((a, b) => a.familyLabel.localeCompare(b.familyLabel));
+  return [...groups.entries()].flatMap(([familyKey, members]) => {
+    const result = averageAchievedLevel(members);
+    if (!result) return [];
+    const first = members.find((skill) => skill.firstPopulatedLevel !== null)!;
+    return [{ familyKey, familyLabel: first.familyLabel, ...result,
+      policyVersion: first.policyVersion, bandingVersion: first.bandingVersion }];
+  }).sort((a, b) => a.familyLabel.localeCompare(b.familyLabel));
 }

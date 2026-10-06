@@ -9,6 +9,7 @@
     "no-matching-skill:regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/no-matching-skill-regression.mjs'",
     "authentic-use:regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/authentic-use-regression.ts",
     "authentic-use:sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/authentic-use-repair-sql-regression.mjs'",
+    "authentic-use:all-children-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/authentic-use-all-children-regression.mjs'",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "adle:comparative-regression": "tsx scripts/adle-comparative-regression.ts",
     "adle:comparative-browser-regression": "playwright test --config=playwright.comparative.config.ts tests/adle/comparative-superlative.spec.ts",

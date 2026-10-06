@@ -13,6 +13,7 @@ type ChildSwitcherProps = {
   compact?: boolean;
   className?: string;
   summaryLabel?: string;
+  showSingleChild?: boolean;
 };
 
 function getChildName(child: ChildOption) {
@@ -26,12 +27,19 @@ export function ChildSwitcher({
   compact = false,
   className,
   summaryLabel,
+  showSingleChild = false,
 }: ChildSwitcherProps) {
-  if (childOptions.length <= 1) {
+  if (childOptions.length === 0 || (childOptions.length === 1 && !showSingleChild)) {
     return null;
   }
 
   const activeChild = childOptions.find((child) => child.id === activeChildId) ?? null;
+
+  if (childOptions.length === 1) {
+    return <button type="button" className={`brand-secondary-btn min-h-10 rounded-full px-3 text-xs sm:text-sm ${className ?? ""}`.trim()} disabled aria-label={`Learner: ${getChildName(childOptions[0])}`}>
+      {getChildName(childOptions[0])}
+    </button>;
+  }
 
   if (compact) {
     return (

@@ -1,17 +1,19 @@
 import "server-only";
 
 import { loadDailyPlanFacts } from "@/lib/adle/loaders/composer-facts-loader";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type InsightLevel = {
   level: number;
   populated: boolean;
+  allocation: number;
   badge: string;
   target: number | null;
   credit: number;
   progress: number | null;
   limitedAllocation: boolean;
-  words: { id: string; word: string; state: string; credit: number }[];
+  words: { id: string; word: string; state: string; credit: number; eligible: boolean }[];
 };
 
 export type InsightSkill = {
@@ -75,7 +77,11 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
   }).formatToParts(new Date());
   const datePart = (type: string) => dateParts.find((part) => part.type === type)?.value ?? "";
   const today = `${datePart("year")}-${datePart("month")}-${datePart("day")}`;
-  const { proficiencyReports, displayWordByWordId } = await loadDailyPlanFacts(service, { childId, today });
+  const relationshipEnvironment = resolveAdleRouteActivationEnvironment()
+    ?? (process.env.VERCEL_ENV === "preview" ? "production" : undefined);
+  const { proficiencyReports, displayWordByWordId } = await loadDailyPlanFacts(service, {
+    childId, today, relationshipEnvironment,
+  });
   const keys = proficiencyReports.map((report) => report.microSkillKey);
   if (keys.length === 0) return [];
   const catalogResult = await service.from("micro_skill_catalog")
@@ -114,16 +120,18 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
       levels: report.levels.map((level) => ({
         level: level.level,
         populated: level.populated,
+        allocation: level.allocation,
         badge: level.badge,
         target: level.target,
         credit: level.creditSum,
         progress: level.progress,
         limitedAllocation: level.limitedAllocation,
-        words: level.creditedWords.map((word) => ({
+        words: level.mappedWords.map((word) => ({
           id: word.canonicalWordId,
           word: displayWordByWordId.get(word.canonicalWordId) ?? "Word unavailable",
           state: word.state,
           credit: word.credit,
+          eligible: word.eligible,
         })),
       })),
     } satisfies InsightSkill;

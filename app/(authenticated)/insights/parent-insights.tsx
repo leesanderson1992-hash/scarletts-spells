@@ -33,10 +33,10 @@ export function ParentInsights({ child, childOptions }: { child: Child | null; c
       <div>
         <p className="brand-eyebrow">Parent insights</p>
         <h1 className="brand-title">{child.first_name}&apos;s spelling progress</h1>
-        <p className="brand-copy">See the level each microskill has achieved and the evidence behind the next step.</p>
+        <p className="brand-copy">See the level each microskill has achieved and the words behind each level.</p>
       </div>
       <div className="parent-insights-actions">
-        <ChildSwitcher activeChildId={child.id} childOptions={childOptions} redirectPath="/insights" />
+        <ChildSwitcher activeChildId={child.id} childOptions={childOptions} redirectPath="/insights" compact showSingleChild />
         <Link className="brand-secondary-btn" href={buildScopedPath("/insights/details", child.id, "parent")}>More insights and tools</Link>
       </div>
     </header>
@@ -58,7 +58,8 @@ async function ProficiencySection({ childId, today, reviewPromise }: {
       loadParentInsightSkills(childId),
       loadSnapshots(childId),
     ]);
-  } catch {
+  } catch (error) {
+    console.error("Failed to load parent insight proficiency", error);
     skills = null;
   }
   if (!skills) {
@@ -67,7 +68,7 @@ async function ProficiencySection({ childId, today, reviewPromise }: {
       <p className="brand-copy mt-2">Please try this page again. Your learning records have not changed.</p>
     </section>;
   }
-  return <InsightsWorkspace families={groupInsightSkills(skills)} skills={skills} snapshots={snapshots} today={today}
+  return <InsightsWorkspace key={childId} families={groupInsightSkills(skills)} skills={skills} snapshots={snapshots} today={today}
     reviewSlot={<Suspense fallback={<div className="insights-skeleton" aria-busy="true" aria-label="Loading review cycle" />}>
       <ReviewCycleSection promise={reviewPromise} />
     </Suspense>} />;

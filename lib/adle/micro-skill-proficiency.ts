@@ -59,6 +59,13 @@ export interface CreditedWord {
   levelSource: "override" | "computed";
 }
 
+export interface MappedLevelWord {
+  canonicalWordId: string;
+  state: WordEvidenceState;
+  credit: number;
+  eligible: boolean;
+}
+
 export interface LevelProficiency {
   level: number;
   populated: boolean;
@@ -67,6 +74,10 @@ export interface LevelProficiency {
   target: number | null;
   creditSum: number;
   creditedWords: CreditedWord[];
+  /** Every active non-contrast mapped word at this complexity level, including
+   * words outside the child's breadth band. Display only; creditSum remains
+   * based on creditedWords. */
+  mappedWords: MappedLevelWord[];
   /** creditSum / target, capped at 1.0 for reporting; null when unpopulated. */
   progress: number | null;
   /** Uncapped creditSum / target, for the audit trail. */
@@ -159,6 +170,7 @@ export function computeSkillProficiency(
 
   // Bucket credited words by effective level.
   const byLevel = new Map<number, CreditedWord[]>();
+  const mappedByLevel = new Map<number, MappedLevelWord[]>();
   let excludedOutOfBand = 0;
   let excludedUnbanded = 0;
   for (const wordId of qualifyingWordIds) {
@@ -166,14 +178,21 @@ export function computeSkillProficiency(
     if (word === undefined) {
       continue;
     }
-    // Status-5 gate: mastery-breadth-eligible (evidence-eligible + in band).
-    if (!isMasteryBreadthEligible(word, inputs.supports, childBand)) {
-      excludedOutOfBand += 1;
-      continue;
-    }
     const banding = bandingById.get(wordId) ?? null;
     const override = overrideById.get(wordId) ?? null;
     const level = effectiveComplexityLevel(banding, override, activeBandingVersion);
+    const eligible = isMasteryBreadthEligible(word, inputs.supports, childBand);
+    if (level !== null) {
+      const state = stateById.get(wordId) ?? "unseen";
+      const mapped = mappedByLevel.get(level) ?? [];
+      mapped.push({ canonicalWordId: wordId, state, eligible, credit: eligible ? stateCredit(policy, state) : 0 });
+      mappedByLevel.set(level, mapped);
+    }
+    // Status-5 gate: mastery-breadth-eligible (evidence-eligible + in band).
+    if (!eligible) {
+      excludedOutOfBand += 1;
+      continue;
+    }
     if (level === null) {
       excludedUnbanded += 1;
       continue;
@@ -216,6 +235,7 @@ export function computeSkillProficiency(
       target,
       creditSum,
       creditedWords: words,
+      mappedWords: (mappedByLevel.get(level) ?? []).sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId)),
       progress,
       rawProgress,
       secured: false,

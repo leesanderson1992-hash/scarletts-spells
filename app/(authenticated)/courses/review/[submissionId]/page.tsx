@@ -397,7 +397,7 @@ function LessonParentActionsSection(props: {
       </div>
     ) : null;
 
-  const renderAuthenticConfirmation = () => authenticActive && !props.authenticUse.finalised ? (
+  const renderAuthenticConfirmation = () => props.authenticUse.eligibleForAwards ? (
     <div className="grid gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm">
       <label className="flex items-start gap-2">
         <input type="checkbox" name="authentic_use_review_confirmed" value="true" required />

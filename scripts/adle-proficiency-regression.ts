@@ -203,6 +203,8 @@ assert(levelTarget(policy, 40) === 20, "allocation 40 -> target 20 (cap binds)")
   const rep = computeSkillProficiency(policy, inp, "SK_A");
   approx(rep.levels[0].creditSum, 1.0, "out-of-band mastered word earns zero breadth (status-5 gate)");
   assert(rep.levels[0].creditedWords.length === 1 && rep.levels[0].creditedWords[0].canonicalWordId === "w1", "only in-band word credits");
+  assert(rep.levels[0].mappedWords.length === 2, "the mapped-word display retains both allocated words");
+  assert(rep.levels[0].mappedWords.find((entry) => entry.canonicalWordId === "w2")?.credit === 0, "out-of-band mastered word appears with zero credit");
 }
 
 // --- 6. override-aware level + unbanded exclusion ---------------------------
