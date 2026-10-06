@@ -52,6 +52,11 @@ jobs:
           npx tsx scripts/adle-dynamic-prefix-runtime-regression.ts
           npx tsx scripts/adle-dynamic-prefix-word-lab-regression.ts
 
+      - name: Verify authentic-use rollout
+        run: |
+          npm run authentic-use:regression
+          npm run authentic-use:all-children-regression
+
       - name: Protect ADLE production semantics
         run: npm run adle:semantic-production-baseline
 

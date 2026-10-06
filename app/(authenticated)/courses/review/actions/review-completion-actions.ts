@@ -1722,18 +1722,20 @@ export async function approveSubmissionReviewImpl(formData: FormData) {
   // ADLE authentic uses (reward-owned consumer). Synchronous on approval
   // (owner-resolved), idempotent, and deduped by writing sample against the
   // free-writing path so a use counts exactly once. Never blocks approval.
-  try {
-    await recordAdleAuthenticUsesForRewards({
-      supabase: adleServiceClient,
-      serviceClient: adleServiceClient,
-      parentUserId: user.id,
-      childId: submission.child_id,
-    });
-  } catch (adleRewardError) {
-    console.error(
-      `[adle-reward-bridge] authentic-use reward recording failed for submission ${submission.id} (approval unaffected)`,
-      adleRewardError,
-    );
+  if (authenticApproval.review.control.mode !== "enabled") {
+    try {
+      await recordAdleAuthenticUsesForRewards({
+        supabase: adleServiceClient,
+        serviceClient: adleServiceClient,
+        parentUserId: user.id,
+        childId: submission.child_id,
+      });
+    } catch (adleRewardError) {
+      console.error(
+        `[adle-reward-bridge] authentic-use reward recording failed for submission ${submission.id} (approval unaffected)`,
+        adleRewardError,
+      );
+    }
   }
 
   const structuredPayloadType =

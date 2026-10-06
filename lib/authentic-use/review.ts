@@ -144,12 +144,12 @@ export async function prepareAuthenticUseParentAction(input: { submissionId: str
   const client = createServiceRoleClient();
   const review = await loadAuthenticUseReview({ ...input, client });
   if (review.control.mode === "off" || review.finalised) return { review, preparationId: null };
-  if (input.formData.get("authentic_use_review_confirmed") !== "true") throw new Error("Confirm that you reviewed the original writing before awarding authentic uses.");
+  if (review.eligibleForAwards && input.formData.get("authentic_use_review_confirmed") !== "true") throw new Error("Confirm that you reviewed the original writing before awarding authentic uses.");
   const manualReview = input.formData.get("authentic_use_manual_review") === "true";
   const preview = review.preview ?? { policyVersion: AUTHENTIC_USE_POLICY, snapshotId: "", candidates: [], blocked: [], excludedFields: [], requiresManualReview: true,
     contextCoverage: { status: "incomplete" as const, expectedWindowCount: null, scannedWindowCount: 0, missingWindowFingerprints: [] } };
-  if (preview.requiresManualReview && !manualReview) throw new Error("The automatic checks are incomplete. Confirm a manual review of the original writing before continuing.");
-  if (review.preview?.snapshotId) {
+  if (review.eligibleForAwards && preview.requiresManualReview && !manualReview) throw new Error("The automatic checks are incomplete. Confirm a manual review of the original writing before continuing.");
+  if (review.eligibleForAwards && review.preview?.snapshotId) {
     const source = await client.from("writing_source_snapshots").select("*").eq("id", review.preview.snapshotId)
       .eq("parent_user_id", input.parentUserId).eq("child_id", input.childId).single();
     if (source.error) throw new Error("The original writing index is unavailable.");
