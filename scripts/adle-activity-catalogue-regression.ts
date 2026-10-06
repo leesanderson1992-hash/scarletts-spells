@@ -115,7 +115,7 @@ assert(
   "specialist render closures must no longer be listed as current renderer-selection authority",
 );
 
-const galleryPath = join(root, "app/admin/adle/activity-catalogue/activity-catalogue-gallery.tsx");
+const galleryPath = join(root, "app/(authenticated)/admin/adle/activity-catalogue/activity-catalogue-gallery.tsx");
 const gallery = readFileSync(galleryPath, "utf8");
 for (const forbidden of [
   "completeAdleLessonPartAction", "completeAdleReviewPartAction", "createServiceRoleClient",

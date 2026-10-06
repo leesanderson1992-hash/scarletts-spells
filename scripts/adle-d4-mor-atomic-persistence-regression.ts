@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const wordLabLoader = readFileSync("lib/adle/loaders/word-lab-completion-loader.ts", "utf8");
 const baseWordLoader = readFileSync("lib/adle/loaders/base-word-family-pilot-loader.ts", "utf8");
 const genericPersistence = readFileSync("lib/adle/composable-lesson/generic-snapshot-v3-persistence.ts", "utf8");

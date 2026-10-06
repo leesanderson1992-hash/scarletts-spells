@@ -7,7 +7,7 @@ const migration = readArchivedMigrationOrActiveBaseline(
 );
 const compactMigration = migration.replace(/\s+/g, " ").toLowerCase();
 
-const approvalFlowPaths = ["app/courses/review/actions/review-completion-actions.ts"];
+const approvalFlowPaths = ["app/(authenticated)/courses/review/actions/review-completion-actions.ts"];
 
 function assertMigrationIncludes(value: string, message: string) {
   assert.ok(

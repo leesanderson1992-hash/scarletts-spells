@@ -8,13 +8,13 @@ const normalizationHardeningMigrationPath =
 const repositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
 const adoptionActionPath =
-  "app/admin/canonical-recommendations/adoption-actions.ts";
-const curationActionPath = "app/admin/canonical-recommendations/actions.ts";
+  "app/(authenticated)/admin/canonical-recommendations/adoption-actions.ts";
+const curationActionPath = "app/(authenticated)/admin/canonical-recommendations/actions.ts";
 const rowPath =
-  "app/admin/canonical-recommendations/admin-recommendation-row.tsx";
-const pagePath = "app/admin/canonical-recommendations/page.tsx";
-const resolverPriorityPath = "app/courses/review/resolver-visible-priority.ts";
-const reviewWorkPagePath = "app/courses/review/[submissionId]/page.tsx";
+  "app/(authenticated)/admin/canonical-recommendations/admin-recommendation-row.tsx";
+const pagePath = "app/(authenticated)/admin/canonical-recommendations/page.tsx";
+const resolverPriorityPath = "app/(authenticated)/courses/review/resolver-visible-priority.ts";
+const reviewWorkPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 
 for (const path of [
   migrationPath,

@@ -20,6 +20,6 @@ async function main() {
   if (childError || !child) throw new Error(childError?.message ?? "Could not create verification child.");
   const { error: itemError } = await db.from("adle_learning_items").insert({ child_id: child.id, canonical_word_id: word.id, micro_skill_key: PROFILE, item_status: "pending", source_kind: "verified_misspelling", source_ref: `owner-verification:${child.id}`, source_attempt_text: "equalty", reteach_priority: false, intake_on: new Date().toISOString().slice(0, 10), row_status: "active" });
   if (itemError) { await db.from("children").delete().eq("id", child.id); throw itemError; }
-  console.log(JSON.stringify({ childId: child.id, profileKey: PROFILE, url: `https://scarletts-spells-staged.vercel.app/learn/week/adle/dynamic-suffix?child=${child.id}&mode=child`, productionEnabled: false }, null, 2));
+  console.log(JSON.stringify({ childId: child.id, profileKey: PROFILE, url: `https://scarletts-spells-staged.vercel.app/(authenticated)/learn/week/adle/dynamic-suffix?child=${child.id}&mode=child`, productionEnabled: false }, null, 2));
 }
 main().catch((error) => { console.error(error instanceof Error ? error.message : error); process.exitCode = 1; });

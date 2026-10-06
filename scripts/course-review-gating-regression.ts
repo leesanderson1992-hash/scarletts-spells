@@ -31,7 +31,7 @@ assert.equal(getCourseTaskProgressState(lesson, [], approvedLesson), "complete")
 assert.equal(isTaskCompleteForProgress(lesson, [], approvedLesson), true);
 
 const approvalSource = readFileSync(
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
 assert.match(approvalSource, /approve_task_submission_with_reason_drafts/);

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 
-import { compareReadinessRows, matchesWithoutFilter, parseReadinessControls, readinessHref } from "../app/admin/adle-canonical-intake-readiness/readiness-controls";
-import { summarizeReadiness, type GroupCandidate } from "../app/admin/adle-canonical-intake-readiness/readiness-groups";
-import type { FacetKey, FacetState } from "../app/admin/adle-canonical-intake-readiness/readiness-projection";
+import { compareReadinessRows, matchesWithoutFilter, parseReadinessControls, readinessHref } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-controls";
+import { summarizeReadiness, type GroupCandidate } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
+import type { FacetKey, FacetState } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-projection";
 
 const states = (overrides: Partial<Record<FacetKey, FacetState>> = {}) => ({
   resolver: { state: overrides.resolver ?? "complete" },

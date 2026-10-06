@@ -7,11 +7,11 @@ import {
   type SeedImportReviewDecisionInput,
   type SeedImportReviewDecisionRow,
   validateSeedImportReviewDecision,
-} from "../app/admin/seed-import-review/decision-rules";
+} from "../app/(authenticated)/admin/seed-import-review/decision-rules";
 
-const actionPath = "app/admin/seed-import-review/actions.ts";
-const rulesPath = "app/admin/seed-import-review/decision-rules.ts";
-const pagePath = "app/admin/seed-import-review/page.tsx";
+const actionPath = "app/(authenticated)/admin/seed-import-review/actions.ts";
+const rulesPath = "app/(authenticated)/admin/seed-import-review/decision-rules.ts";
+const pagePath = "app/(authenticated)/admin/seed-import-review/page.tsx";
 const migrationPath =
   "supabase/migrations/20260614120000_add_spelling_seed_import_storage.sql";
 

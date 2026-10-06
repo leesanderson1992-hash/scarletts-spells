@@ -151,7 +151,7 @@ assert(
   "Migration must not mention authenticated grants.",
 );
 
-const actionPath = path.join(process.cwd(), "app/admin/seed-import-review/upload-actions.ts");
+const actionPath = path.join(process.cwd(), "app/(authenticated)/admin/seed-import-review/upload-actions.ts");
 const actionSource = fs.readFileSync(actionPath, "utf8");
 assert(
   actionSource.includes("await requireAdminUser();\n    const supabase = createServiceRoleClient();"),

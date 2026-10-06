@@ -368,7 +368,7 @@ function buildHarness(overrides: Partial<HarnessState> = {}) {
   }>(
     path.resolve(
       process.cwd(),
-      "app/courses/review/actions/candidate-mapping-actions.ts",
+      "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
     ),
     { stubModules },
   );

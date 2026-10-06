@@ -194,7 +194,7 @@ assert.equal(state.state, "active");
 
 const splitHandle = readFileSync("components/adle/activities/shared/split-handle.tsx", "utf8");
 const renderer = readFileSync("components/adle/morphology/morphology-guided-lesson.tsx", "utf8");
-const completionAction = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const completionAction = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 assert(!splitHandle.includes("Look for the prefix un-"));
 assert(!splitHandle.includes("un- is the first two letters"));
 assert(splitHandle.includes("revealCorrectBoundaryAfterMisses !== false"));

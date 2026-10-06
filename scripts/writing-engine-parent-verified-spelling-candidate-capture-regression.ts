@@ -332,7 +332,7 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
   const workspaceRoot = process.cwd();
   const actionSourcePath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/candidate-mapping-actions.ts",
+    "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   );
 
   const result: HarnessResult = {
@@ -836,7 +836,7 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
   const workspaceRoot = process.cwd();
   const actionSourcePath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/lesson-submission-review-actions.ts",
+    "app/(authenticated)/courses/review/actions/lesson-submission-review-actions.ts",
   );
 
   const result: AddMissedWordHarnessResult = {
@@ -1456,23 +1456,23 @@ function testSourceGuardrailsStayIntact() {
   const workspaceRoot = process.cwd();
   const reviewDetailPagePath = path.join(
     workspaceRoot,
-    "app/courses/review/[submissionId]/page.tsx",
+    "app/(authenticated)/courses/review/[submissionId]/page.tsx",
   );
   const suggestedIssuesPanelPath = path.join(
     workspaceRoot,
-    "app/courses/review/suggested-issues-panel.tsx",
+    "app/(authenticated)/courses/review/suggested-issues-panel.tsx",
   );
   const candidateMappingActionsPath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/candidate-mapping-actions.ts",
+    "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   );
   const lessonSubmissionReviewActionsPath = path.join(
     workspaceRoot,
-    "app/courses/review/actions/lesson-submission-review-actions.ts",
+    "app/(authenticated)/courses/review/actions/lesson-submission-review-actions.ts",
   );
   const reviewUtilsPath = path.join(
     workspaceRoot,
-    "app/courses/review/review-utils.ts",
+    "app/(authenticated)/courses/review/review-utils.ts",
   );
   const slice1MappingPath = path.join(
     workspaceRoot,

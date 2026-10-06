@@ -2,7 +2,6 @@ import { AuthenticUseProgress } from "@/components/authentic-use-progress";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { AppShell } from "@/components/app-shell";
 import { ChildSwitcher } from "@/components/child-switcher";
 import { GoldForgePanel } from "@/components/gold-forge-panel";
 import { PendingAdleLearningSection } from "@/components/pending-adle-learning-section";
@@ -346,7 +345,7 @@ function getTopStreamByStatus(
   return streams.find((stream) => stream.parentStatus === status) ?? null;
 }
 
-export default async function InsightsPage({
+export async function LegacyInsightsPage({
   searchParams,
 }: InsightsPageProps) {
   const supabase = await createClient();
@@ -370,7 +369,6 @@ export default async function InsightsPage({
 
   if (!children || children.length === 0) {
     return (
-      <AppShell currentPath="/insights" mode={mode} activeChildId={null} availableChildren={[]} userEmail={user.email}>
       <div className="brand-page px-6 py-12">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
           <section className="brand-card rounded-3xl p-6">
@@ -392,7 +390,6 @@ export default async function InsightsPage({
           </section>
         </div>
       </div>
-      </AppShell>
     );
   }
 
@@ -409,7 +406,6 @@ export default async function InsightsPage({
 
   if (activeChildren.length === 0) {
     return (
-      <AppShell currentPath="/insights" mode={mode} activeChildId={null} availableChildren={[]} userEmail={user.email}>
       <div className="brand-page px-6 py-12">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
           <section className="brand-card rounded-3xl p-6">
@@ -431,7 +427,6 @@ export default async function InsightsPage({
           </section>
         </div>
       </div>
-      </AppShell>
     );
   }
 
@@ -656,7 +651,6 @@ export default async function InsightsPage({
     });
 
     return (
-      <AppShell currentPath="/insights" mode={mode} activeChildId={selectedChild.id} availableChildren={activeChildren} userEmail={user.email}>
         <div className="brand-page px-6 py-8">
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
             <section className="brand-card rounded-[1.75rem] px-5 py-4">
@@ -1001,7 +995,6 @@ export default async function InsightsPage({
             </section>
           </div>
         </div>
-      </AppShell>
     );
   }
 
@@ -1067,7 +1060,6 @@ export default async function InsightsPage({
   );
 
   return (
-    <AppShell currentPath="/insights" mode={mode} activeChildId={selectedChild.id} availableChildren={activeChildren} userEmail={user.email}>
     <div className="brand-page px-6 py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <section className="brand-card rounded-3xl p-6">
@@ -2104,6 +2096,5 @@ export default async function InsightsPage({
         </section>
       </div>
     </div>
-    </AppShell>
   );
 }

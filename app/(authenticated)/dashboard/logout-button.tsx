@@ -4,8 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
+import { NavIcon } from "@/components/ui/nav-icon";
 
-export function LogoutButton() {
+export function LogoutButton({ menuItem = false }: { menuItem?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -14,6 +15,7 @@ export function LogoutButton() {
     <div className="flex flex-col items-start gap-2 sm:items-end">
       <button
         type="button"
+        role={menuItem ? "menuitem" : undefined}
         onClick={() => {
           setError(null);
 
@@ -31,9 +33,10 @@ export function LogoutButton() {
           });
         }}
         disabled={isPending}
-        className="brand-secondary-btn min-h-10 px-4 disabled:cursor-not-allowed disabled:opacity-60"
+        className="brand-secondary-btn min-h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isPending ? "Signing out..." : "Log out"}
+        <NavIcon name="logout" />
+        <span className="app-logout-label">{isPending ? "Signing out..." : "Log out"}</span>
       </button>
 
       {error ? <p className="text-sm text-rose-600">{error}</p> : null}

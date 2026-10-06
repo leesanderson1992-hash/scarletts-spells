@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
-const learnActionsPath = "app/learn/actions.ts";
+const taskPagePath = "app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
 
 const taskPage = readFileSync(taskPagePath, "utf8");
 const learnActions = readFileSync(learnActionsPath, "utf8");

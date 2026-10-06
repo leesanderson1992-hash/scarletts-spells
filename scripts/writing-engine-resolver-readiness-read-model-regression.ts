@@ -8,18 +8,18 @@ import {
 
 const migrationPath =
   "supabase/migrations/20260618183000_add_resolver_readiness_admin_read_model.sql";
-const pagePath = "app/admin/spelling-canonical-resolver-readiness/page.tsx";
+const pagePath = "app/(authenticated)/admin/spelling-canonical-resolver-readiness/page.tsx";
 const classifierPath =
   "lib/writing-engine/spelling/resolver-visibility-readiness.ts";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const stage2aPath =
   "lib/writing-engine/spelling/stage2a-content-resolver.ts";
-const reviewWorkPath = "app/courses/review/page.tsx";
+const reviewWorkPath = "app/(authenticated)/courses/review/page.tsx";
 const assignmentPath = "lib/writing-engine/assignments/service.ts";
 const masteryPath = "lib/writing-engine/mastery/service.ts";
 const rewardsPath = "lib/rewards/ledger.ts";
-const dashboardPath = "app/dashboard/page.tsx";
+const dashboardPath = "app/(authenticated)/dashboard/page.tsx";
 const analyticsPath = "lib/writing-engine/analytics/events.ts";
 const scoringPath = "lib/writing-engine/core/verification.ts";
 const templatesPath =

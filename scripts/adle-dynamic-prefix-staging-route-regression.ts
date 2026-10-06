@@ -6,8 +6,8 @@ function assert(condition: unknown, message: string): asserts condition {
 
 const access = readFileSync("lib/adle/morphology/dynamic-prefix-staging-access.ts", "utf8");
 const gate = readFileSync("lib/adle/morphology/dynamic-prefix-route-gate.ts", "utf8");
-const route = readFileSync("app/learn/week/adle/dynamic-prefix/page.tsx", "utf8");
-const legacy = readFileSync("app/learn/week/adle/page.tsx", "utf8");
+const route = readFileSync("app/(authenticated)/learn/week/adle/dynamic-prefix/page.tsx", "utf8");
+const legacy = readFileSync("app/(authenticated)/learn/week/adle/page.tsx", "utf8");
 const resolver = readFileSync("lib/adle/composable-lesson/route-resolution.ts", "utf8");
 
 assert(access.includes('export { isDynamicPrefixRouteEnabled } from "./dynamic-prefix-route-gate"'), "Staging access must delegate to the single Dynamic Prefix route gate.");

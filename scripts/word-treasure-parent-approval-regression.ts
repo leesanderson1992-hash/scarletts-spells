@@ -6,13 +6,13 @@ import {
   returnedCorrectionMatchesApprovedReplacement,
 } from "../lib/lessons/returned-correction-evidence";
 
-const learnActionsPath = "app/learn/actions.ts";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
 const reviewCompletionActionsPath =
-  "app/courses/review/actions/review-completion-actions.ts";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
 const wordTreasuresPath = "lib/rewards/word-treasures.ts";
 const submissionProcessingPath = "lib/courses/submission-processing.ts";
 const candidateMappingActionsPath =
-  "app/courses/review/actions/candidate-mapping-actions.ts";
+  "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts";
 
 const learnActions = readFileSync(learnActionsPath, "utf8");
 const reviewCompletionActions = readFileSync(reviewCompletionActionsPath, "utf8");

@@ -122,6 +122,7 @@
     "adle:group1-build-convergence-regression": "tsx scripts/adle-group1-build-convergence-regression.ts",
     "adle:group1-build-interaction-regression": "playwright test --config=playwright.adle.config.ts tests/adle/group1-build-convergence.spec.ts",
     "child-switcher:regression": "tsx scripts/child-switcher-regression.ts",
+    "parent-redesign:regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/parent-redesign-regression.ts",
     "course-review-gating:regression": "tsx scripts/course-review-gating-regression.ts",
     "adle:review-work-regression": "tsx scripts/adle-review-work-regression.ts",
     "adle:phase-e:no-legacy-writes": "tsx scripts/adle-phase-e-no-legacy-writes-regression.ts",

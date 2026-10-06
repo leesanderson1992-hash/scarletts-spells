@@ -21,13 +21,13 @@ const resolverPath =
 const mappingSourcePath =
   "lib/writing-engine/spelling/stage2c-mapping-source-boundary.ts";
 const candidateMappingActionPath =
-  "app/courses/review/actions/candidate-mapping-actions.ts";
-const reviewActionBarrelPath = "app/courses/review/actions.ts";
+  "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts";
+const reviewActionBarrelPath = "app/(authenticated)/courses/review/actions.ts";
 const unifiedSpellingReviewTablePath =
-  "app/courses/review/unified-spelling-review-table.tsx";
-const suggestedIssuesPanelPath = "app/courses/review/suggested-issues-panel.tsx";
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx";
+const suggestedIssuesPanelPath = "app/(authenticated)/courses/review/suggested-issues-panel.tsx";
 const catalogReviewCaseActionPath =
-  "app/courses/review/actions/catalog-review-case-actions.ts";
+  "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts";
 
 assert.ok(existsSync(migrationPath), "Expected PCRM-B migration to exist.");
 assert.ok(existsSync(repositoryPath), "Expected PCRM-B repository to exist.");

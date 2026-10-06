@@ -86,7 +86,7 @@ assert.equal(
   "adle_review_submitted_writing_parent_identified:session-1:4-13:imposible:impossible",
 );
 
-const actions = read("app/courses/review/actions/adle-review-work-actions.ts");
+const actions = read("app/(authenticated)/courses/review/actions/adle-review-work-actions.ts");
 const submitAction = actions.slice(
   actions.indexOf("export async function submitAdleReviewWorkInspection"),
   actions.indexOf("function parseOccurrence"),
@@ -141,16 +141,16 @@ assert.match(readModel, /learnerReviewCompleted: true/);
 assert.match(readModel, /available_to_review/);
 assert.doesNotMatch(readModel, /parent_review_status/);
 
-const queue = read("app/courses/review/page.tsx");
+const queue = read("app/(authenticated)/courses/review/page.tsx");
 assert.match(queue, /New completed Review/);
 assert.match(queue, /learner Review already complete/);
 assert.match(queue, /sourceType: "lesson_submission"/);
 
-const detail = read("app/courses/review/[submissionId]/page.tsx");
+const detail = read("app/(authenticated)/courses/review/[submissionId]/page.tsx");
 assert.match(detail, /Parent inspection does not affect completion, schedules or rewards/);
 assert.match(detail, /reviewEntry\.sourceType === "adle_review_v3"/);
 
-const sections = read("app/courses/review/adle-review-sections.tsx");
+const sections = read("app/(authenticated)/courses/review/adle-review-sections.tsx");
 assert.match(sections, /UnifiedSpellingReviewTable/);
 assert.match(sections, /reviewWorkflowPhase="adle_observational"/);
 assert.match(sections, /View Target Word details/);
@@ -160,7 +160,7 @@ assert.match(sections, /label: "Missed"/);
 assert.match(sections, />\s*Submit\s*</);
 assert.doesNotMatch(sections, /Mark reviewed|Confirm spelling issue/);
 
-const unifiedTable = read("app/courses/review/unified-spelling-review-table.tsx");
+const unifiedTable = read("app/(authenticated)/courses/review/unified-spelling-review-table.tsx");
 assert.match(unifiedTable, /adle_parent_added_missed_word/);
 assert.match(unifiedTable, /adle_observational/);
 assert.match(unifiedTable, /sendAdleReviewParentSpellingCandidateToCatalog/);
@@ -239,7 +239,7 @@ for (const forbidden of [
   assert.doesNotMatch(adminRoute, new RegExp(`\\.from\\(["']${forbidden}["']\\)`));
 }
 
-const adminCatalogActions = read("app/admin/catalog-review/actions.ts");
+const adminCatalogActions = read("app/(authenticated)/admin/catalog-review/actions.ts");
 assert.match(adminCatalogActions, /applyAdleCatalogReviewDecision/);
 assert.match(
   adminCatalogActions,

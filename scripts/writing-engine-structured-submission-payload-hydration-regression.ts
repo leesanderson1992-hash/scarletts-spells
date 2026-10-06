@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
-const learnActionsPath = "app/learn/actions.ts";
+const taskPagePath = "app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
 const reviewCompletionPath =
-  "app/courses/review/actions/review-completion-actions.ts";
-const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
+const reviewPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const payloadPersistencePath =
   "lib/lessons/persistence/submission-payloads.ts";
 

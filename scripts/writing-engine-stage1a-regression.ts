@@ -317,11 +317,11 @@ function testAnalyticsEventShape() {
 
 function testRetiredRuntimeSurfacesAreGone() {
   const retiredFiles = [
-    "app/analyse/analysis.ts",
-    "app/analyse/types.ts",
-    "app/analyse/review/page.tsx",
-    "app/practice/actions.ts",
-    "app/practice/practice-session.tsx",
+    "app/(authenticated)/analyse/analysis.ts",
+    "app/(authenticated)/analyse/types.ts",
+    "app/(authenticated)/analyse/review/page.tsx",
+    "app/(authenticated)/practice/actions.ts",
+    "app/(authenticated)/practice/practice-session.tsx",
     "components/analyse-bulk-review.tsx",
     "lib/spelling/ensureDailyAssignment.ts",
     "lib/spelling/generateDailyAssignment.ts",
@@ -336,11 +336,11 @@ function testRetiredRuntimeSurfacesAreGone() {
   }
 
   const analysePage = fs.readFileSync(
-    path.join(process.cwd(), "app/analyse/page.tsx"),
+    path.join(process.cwd(), "app/(authenticated)/analyse/page.tsx"),
     "utf8",
   );
   const analyseActions = fs.readFileSync(
-    path.join(process.cwd(), "app/analyse/actions.ts"),
+    path.join(process.cwd(), "app/(authenticated)/analyse/actions.ts"),
     "utf8",
   );
 

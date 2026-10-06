@@ -329,8 +329,8 @@ assert.doesNotMatch(
 );
 
 const clientOrRouteHelperSources = [
-  "app/courses/review/actions/returned-correction-route-helpers.ts",
-  "app/courses/review/unified-spelling-review-table.tsx",
+  "app/(authenticated)/courses/review/actions/returned-correction-route-helpers.ts",
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx",
 ].map((path) => readFileSync(path, "utf8"));
 for (const source of clientOrRouteHelperSources) {
   assert.doesNotMatch(
@@ -341,7 +341,7 @@ for (const source of clientOrRouteHelperSources) {
 }
 
 const reviewCompletionActionsSource = readFileSync(
-  "app/courses/review/actions/review-completion-actions.ts",
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts",
   "utf8",
 );
 assert.match(

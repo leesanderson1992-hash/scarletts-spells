@@ -9,14 +9,14 @@ const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const stage3aAnalysisPath =
   "lib/writing-engine/spelling/stage3a-authentic-submission-analysis.ts";
-const resolverPriorityPath = "app/courses/review/resolver-visible-priority.ts";
+const resolverPriorityPath = "app/(authenticated)/courses/review/resolver-visible-priority.ts";
 const canonicalBackfillPath =
-  "app/courses/review/actions/canonical-spelling-backfill-actions.ts";
+  "app/(authenticated)/courses/review/actions/canonical-spelling-backfill-actions.ts";
 const canonicalSubmissionActionsPath =
-  "app/courses/review/canonical-submission-spelling-actions.ts";
-const adminCatalogActionPath = "app/admin/catalog-review/actions.ts";
-const adminPcrmActionPath = "app/admin/canonical-recommendations/actions.ts";
-const reviewWorkPagePath = "app/courses/review/[submissionId]/page.tsx";
+  "app/(authenticated)/courses/review/canonical-submission-spelling-actions.ts";
+const adminCatalogActionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const adminPcrmActionPath = "app/(authenticated)/admin/canonical-recommendations/actions.ts";
+const reviewWorkPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 
 const migration = readFileSync(migrationPath, "utf8");
 const canonicalRepository = readFileSync(canonicalRepositoryPath, "utf8");

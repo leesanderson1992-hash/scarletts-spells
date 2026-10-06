@@ -20,7 +20,7 @@ import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-f
 
 const packageFile = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json");
 const guidedLessonSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
-const completionActionSource = readFileSync(resolve("app/learn/week/adle/actions.ts"), "utf8");
+const completionActionSource = readFileSync(resolve("app/(authenticated)/learn/week/adle/actions.ts"), "utf8");
 const reviewed = JSON.parse(readFileSync(packageFile, "utf8"));
 const meaningStatement = "-ment turns something you do into the name of the action or result.";
 assert.equal(reviewed.profile.introContent.meaningStatement, meaningStatement);

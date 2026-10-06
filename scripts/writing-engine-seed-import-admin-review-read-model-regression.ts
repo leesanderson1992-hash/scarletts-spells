@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const pagePath = "app/admin/seed-import-review/page.tsx";
-const hubPagePath = "app/admin/spelling-review/page.tsx";
+const pagePath = "app/(authenticated)/admin/seed-import-review/page.tsx";
+const hubPagePath = "app/(authenticated)/admin/spelling-review/page.tsx";
 const appShellPath = "components/app-shell.tsx";
 
 assert.ok(existsSync(pagePath), "Seed import admin review page must exist.");

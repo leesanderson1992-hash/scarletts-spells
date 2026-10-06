@@ -39,7 +39,7 @@ function TodayAdleRow({ row }: { row: TodayAdleChildRow }) {
             We couldn&apos;t prepare today&apos;s lesson. Try again.
           </p>
         ) : (
-          <p className="mt-1 text-sm text-[color:var(--mid)]">No lesson generated yet</p>
+          <p className="mt-1 text-sm text-[color:var(--mid)]">Generate today&apos;s ADLE lesson when you&apos;re ready.</p>
         )}
       </div>
 
@@ -59,7 +59,7 @@ function TodayAdleRow({ row }: { row: TodayAdleChildRow }) {
             disabled={isPending}
             className="brand-primary-btn shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isPending ? "Generating…" : "Generate today’s lesson"}
+            {isPending ? "Generating…" : "Generate today’s ADLE lesson"}
           </button>
         </form>
       )}
@@ -71,9 +71,9 @@ export function TodaysAdleSection({ rows }: { rows: TodayAdleChildRow[] }) {
   return (
     <section className="brand-card overflow-hidden rounded-3xl">
       <div className="px-5 py-4">
-        <p className="brand-eyebrow">Today&apos;s ADLE</p>
+        <p className="brand-eyebrow">What matters now</p>
         <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
-          Today&apos;s spelling lessons
+          Ready for you
         </h2>
       </div>
       <ul className="border-t border-[var(--border)]">

@@ -6,7 +6,7 @@ import { isAttemptCorrect } from "../lib/adle/session-correctness";
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
 
 const lesson = readFileSync("components/adle/morphology/base-word-family-guided-lesson.tsx", "utf8");
-const action = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const action = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 
 assert(lesson.includes("extractAuthoredTargetToken") && lesson.includes("isAttemptCorrect"), "reflection outcomes use the authoritative target-token and correctness helpers");
 assert(lesson.includes("baseWordLessonReflectionModel") && lesson.includes("<LessonReflection"), "Base Word normalizes target-token misses and sentence feedback into the canonical LessonReflection");

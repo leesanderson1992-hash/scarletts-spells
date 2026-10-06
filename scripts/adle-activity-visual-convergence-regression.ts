@@ -36,9 +36,9 @@ for (const coldId of ["review-cold-recall", "diagnostic-cold-recall"]) {
   assert(candidateIds.has(coldId), `${coldId} must remain visibly reviewable through the canonical ColdWordRecall`);
 }
 
-const routeSource = readFileSync(join(root, "app/admin/adle/activity-catalogue/page.tsx"), "utf8");
-const labSource = readFileSync(join(root, "app/admin/adle/activity-catalogue/visual-convergence-lab.tsx"), "utf8");
-const previewSource = readFileSync(join(root, "app/admin/adle/activity-catalogue/visual-convergence-candidates.tsx"), "utf8");
+const routeSource = readFileSync(join(root, "app/(authenticated)/admin/adle/activity-catalogue/page.tsx"), "utf8");
+const labSource = readFileSync(join(root, "app/(authenticated)/admin/adle/activity-catalogue/visual-convergence-lab.tsx"), "utf8");
+const previewSource = readFileSync(join(root, "app/(authenticated)/admin/adle/activity-catalogue/visual-convergence-candidates.tsx"), "utf8");
 const devRouteSource = readFileSync(join(root, "app/dev/adle/activity-convergence/page.tsx"), "utf8");
 assert(routeSource.includes("VisualConvergenceLab"), "admin catalogue route must render the Visual Convergence Lab");
 assert(devRouteSource.includes('process.env.NODE_ENV === "production"') && devRouteSource.includes("notFound()"), "local visual-review alias must fail closed in Production");

@@ -1,16 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import { LogoutButton } from "@/app/dashboard/logout-button";
-import { buildScopedPath, type AppMode } from "@/lib/children";
+import { setActiveChildContext } from "@/app/children/actions";
+import { NavIcon, type NavIconName } from "@/components/ui/nav-icon";
+import { buildScopedPath, normaliseAppMode, type AppMode } from "@/lib/children-shared";
 
-import { ChildSwitcher } from "./child-switcher";
-
-type ChildOption = {
-  id: string;
-  first_name: string;
-  last_name: string | null;
-};
-
+type ChildOption = { id: string; first_name: string; last_name: string | null };
 type AppShellProps = {
   children: React.ReactNode;
   currentPath: string;
@@ -23,369 +22,256 @@ type AppShellProps = {
   hideBrandEyebrow?: boolean;
   hideLearnerIdentity?: boolean;
 };
+type NavItem = { label: string; href: string; icon: string | NavIconName };
 
-type NavItem = {
-  label: string;
-  href: string;
-  children?: NavItem[];
-};
+const parentNav: NavItem[] = [
+  { label: "Dashboard", href: "/dashboard", icon: "⌂" },
+  { label: "Course Creator", href: "/courses", icon: "course" },
+  { label: "Analytics", href: "/insights", icon: "analytics" },
+  { label: "Review Work", href: "/courses/review", icon: "review" },
+  { label: "Settings", href: "/settings", icon: "settings" },
+];
+const parentMore: NavItem[] = [
+  { label: "Analyse Writing", href: "/analyse", icon: "✎" },
+  { label: "Children", href: "/children", icon: "♧" },
+  { label: "ADLE Spelling", href: "/learn/week/adle", icon: "✧" },
+];
+const childNav: NavItem[] = [
+  { label: "This Week", href: "/learn/week", icon: "◷" },
+  { label: "ADLE Spelling", href: "/learn/week/adle", icon: "✧" },
+  { label: "My Learning", href: "/learn", icon: "course" },
+  { label: "My Progress", href: "/insights", icon: "analytics" },
+];
+const adminNav: NavItem[] = [
+  { label: "Dashboard", href: "/admin/spelling-review", icon: "⌂" },
+  { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings", icon: "✎" },
+  { label: "No Matching Skill", href: "/admin/no-matching-skill", icon: "◇" },
+  { label: "ADLE Requirements", href: "/admin/adle-canonical-intake-readiness", icon: "▤" },
+];
+const adminMore: NavItem[] = [
+  { label: "Word–skill Review", href: "/admin/word-skill-review", icon: "✓" },
+  { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence", icon: "▥" },
+  { label: "Resolver Readiness", href: "/admin/spelling-canonical-resolver-readiness", icon: "◇" },
+  { label: "Context Diagnostics", href: "/admin/context-diagnostics", icon: "⌕" },
+  { label: "Activity Catalogue", href: "/admin/adle/activity-catalogue", icon: "▤" },
+];
 
-type NavSection = {
-  title: string;
-  items: NavItem[];
-};
+function childName(child: ChildOption) {
+  return [child.first_name, child.last_name].filter(Boolean).join(" ");
+}
 
-function getNavSections(mode: AppMode, showAdminNav: boolean): NavSection[] {
-  if (mode === "child") {
-    return [
-      {
-        title: "Child mode",
-        items: [
-          { label: "This Week", href: "/learn/week" },
-          { label: "ADLE Spelling", href: "/learn/week/adle" },
-          { label: "My Learning", href: "/learn" },
-          { label: "My Progress", href: "/insights" },
-        ],
-      },
-    ];
+const ShellMountedContext = createContext(false);
+
+export function AppShell(props: AppShellProps) {
+  const alreadyMounted = useContext(ShellMountedContext);
+  if (alreadyMounted) return <>{props.children}</>;
+  return <AppShellFrame {...props} />;
+}
+
+function AppShellFrame({
+  children, currentPath: pagePath, mode: initialMode, activeChildId: initialChildId, availableChildren, userEmail,
+  layout = "default", showAdminNav = false, hideLearnerIdentity = false,
+}: AppShellProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const search = useSearchParams();
+  const isLayoutShell = pagePath === "/";
+  const currentPath = isLayoutShell ? pathname : pagePath;
+  const mode = isLayoutShell
+    ? normaliseAppMode(search.get("mode") ?? (pathname.startsWith("/learn") ? "child" : null))
+    : initialMode;
+  const requestedChildId = isLayoutShell ? search.get("child") : null;
+  const activeChildId = requestedChildId && availableChildren.some((child) => child.id === requestedChildId)
+    ? requestedChildId : initialChildId;
+  const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedOverride, setSelectedOverride] = useState<{ base: string | null; id: string } | null>(null);
+  const [adminOpen, setAdminOpen] = useState(true);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setCollapsed(localStorage.getItem("scarlett-sidebar-collapsed") === "true"));
+    for (const item of mode === "parent" ? parentNav.slice(0, 3) : childNav.slice(0, 2)) {
+      router.prefetch(buildScopedPath(item.href, activeChildId, mode));
+    }
+    return () => cancelAnimationFrame(frame);
+  }, [activeChildId, mode, router]);
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [drawerOpen]);
+  useEffect(() => {
+    if (!profileOpen) return;
+    profileMenuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    const onPointer = (event: PointerEvent) => {
+      if (!profileRef.current?.contains(event.target as Node)) setProfileOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setProfileOpen(false);
+        profileButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [profileOpen]);
+  useEffect(() => {
+    if (!drawerOpen) return;
+    drawerRef.current?.querySelector<HTMLElement>("a,button")?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDrawerOpen(false);
+        requestAnimationFrame(() => hamburgerRef.current?.focus());
+      }
+      if (event.key === "Tab" && drawerRef.current) {
+        const items = Array.from(drawerRef.current.querySelectorAll<HTMLElement>("a,button")).filter((item) => !item.hasAttribute("disabled"));
+        if (!items.length) return;
+        if (event.shiftKey && document.activeElement === items[0]) {
+          event.preventDefault();
+          items[items.length - 1].focus();
+        } else if (!event.shiftKey && document.activeElement === items[items.length - 1]) {
+          event.preventDefault();
+          items[0].focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [drawerOpen]);
+
+  const selectedId = selectedOverride?.base === activeChildId ? selectedOverride.id : activeChildId;
+  const currentChild = availableChildren.find((child) => child.id === selectedId);
+  const displayName = hideLearnerIdentity ? "Current lesson" : currentChild ? childName(currentChild) : "Choose a child";
+  const parentHref = buildScopedPath("/dashboard", selectedId, "parent");
+  const childHref = buildScopedPath("/learn/week", selectedId, "child");
+  const scopedPath = buildScopedPath(currentPath, selectedId, mode);
+  const accountName = userEmail?.split("@")[0]?.replace(/[._-]+/g, " ") || "Parent";
+  const nav = mode === "child" ? childNav : parentNav;
+  const focus = layout === "focus";
+
+  function toggleSidebar() {
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      setDrawerOpen((value) => !value);
+    } else {
+      setCollapsed((value) => {
+        localStorage.setItem("scarlett-sidebar-collapsed", String(!value));
+        return !value;
+      });
+    }
   }
-
-  const parentItems: NavItem[] = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "ADLE Spelling", href: "/learn/week/adle" },
-    {
-      label: "Courses",
-      href: "/courses",
-      children: [
-        { label: "Courses", href: "/courses" },
-        { label: "Review Work", href: "/courses/review" },
-        { label: "Analyse Writing", href: "/analyse" },
-      ],
-    },
-    { label: "Insights", href: "/insights" },
-    { label: "Settings", href: "/settings" },
-    { label: "Children", href: "/children" },
-  ];
-
-  if (showAdminNav) {
-    parentItems.push({
-      label: "Admin",
-      href: "/admin/spelling-review",
-      children: [
-        { label: "Spelling Review", href: "/admin/spelling-review" },
-        { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings" },
-        { label: "No Matching Skill", href: "/admin/no-matching-skill" },
-        { label: "Word–skill Review", href: "/admin/word-skill-review" },
-        { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence" },
-        {
-          label: "Resolver Readiness",
-          href: "/admin/spelling-canonical-resolver-readiness",
-        },
-        {
-          label: "ADLE Canonical Intake Readiness",
-          href: "/admin/adle-canonical-intake-readiness",
-        },
-      ],
+  function closeDrawer() {
+    setDrawerOpen(false);
+    requestAnimationFrame(() => hamburgerRef.current?.focus());
+  }
+  function onMenuKeys(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    const items = Array.from(profileMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+    const index = items.indexOf(document.activeElement as HTMLElement);
+    event.preventDefault();
+    items[(index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
+  }
+  function navLinks(items: NavItem[], extraClass = "") {
+    return items.map((item) => {
+      const href = buildScopedPath(item.href, selectedId, mode);
+      const active = currentPath === item.href || currentPath.startsWith(item.href + "/");
+      return <Link key={item.href} href={href} prefetch onClick={() => setDrawerOpen(false)}
+        title={collapsed ? item.label : undefined} aria-current={active ? "page" : undefined}
+        className={"app-nav-link " + (active ? "is-active " : "") + extraClass}>
+        <span className="app-nav-icon" aria-hidden="true">{
+          item.icon === "course" || item.icon === "analytics" || item.icon === "settings" || item.icon === "review"
+            ? <NavIcon name={item.icon} /> : item.icon
+        }</span>
+        <span className="app-nav-label">{item.label}</span>
+      </Link>;
     });
   }
-
-  return [
-    {
-      title: "Parent mode",
-      items: parentItems,
-    },
-  ];
-}
-
-function isCurrentNavItem(currentPath: string, href: string) {
-  if (
-    href === "/learn/week" &&
-    currentPath.startsWith("/learn/week/adle")
-  ) {
-    return false;
+  function sidebar() {
+    return <>
+      <nav aria-label={mode === "child" ? "Child navigation" : "Parent navigation"} className="app-nav-list">
+        {navLinks(nav)}
+        {mode === "parent" ? (
+          <details className="app-nav-more">
+            <summary className="app-nav-link"><span className="app-nav-icon" aria-hidden="true">···</span><span className="app-nav-label">More parent tools</span></summary>
+            <div className="app-nav-sublist">{navLinks(parentMore)}</div>
+          </details>
+        ) : null}
+        <div className="app-nav-logout"><LogoutButton /></div>
+      </nav>
+      {mode === "parent" && showAdminNav ? (
+        <div className="app-admin-nav">
+          <button type="button" onClick={() => setAdminOpen((value) => !value)} aria-expanded={adminOpen} className="app-nav-section-title">
+            <span>Admin</span><span aria-hidden="true">{adminOpen ? "⌄" : "›"}</span>
+          </button>
+          {adminOpen ? <nav aria-label="Admin navigation" className="app-nav-list">
+            {navLinks(adminNav)}
+            <details className="app-nav-more">
+              <summary className="app-nav-link"><span className="app-nav-icon" aria-hidden="true">···</span><span className="app-nav-label">More admin tools</span></summary>
+              <div className="app-nav-sublist">{navLinks(adminMore)}</div>
+            </details>
+          </nav> : null}
+        </div>
+      ) : null}
+    </>;
   }
 
-  return currentPath === href || currentPath.startsWith(`${href}/`);
-}
-
-export function AppShell({
-  children,
-  currentPath,
-  mode,
-  activeChildId,
-  availableChildren,
-  userEmail,
-  layout = "default",
-  showAdminNav = false,
-  hideBrandEyebrow = false,
-  hideLearnerIdentity = false,
-}: AppShellProps) {
-  const navSections = getNavSections(mode, showAdminNav);
-  const scopedCurrentPath = buildScopedPath(currentPath, activeChildId, mode);
-  const activeChild =
-    availableChildren.find((child) => child.id === activeChildId) ?? null;
-  const activeChildName = activeChild
-    ? [activeChild.first_name, activeChild.last_name].filter(Boolean).join(" ")
-    : null;
-  const displayedChildName = hideLearnerIdentity ? "Current lesson" : activeChildName;
-  const parentModePath = buildScopedPath("/dashboard", activeChildId, "parent");
-  const childModePath = buildScopedPath("/learn/week", activeChildId, "child");
-  const homePath = buildScopedPath(
-    mode === "child" ? "/learn/week" : "/dashboard",
-    activeChildId,
-    mode,
-  );
-  const modeDescription =
-    mode === "child"
-      ? "A simpler view focused on this week's training and current learning."
-      : "Parent tools for review, course progress, and spelling insight.";
-  const isFocusLayout = layout === "focus";
-  const isParentMode = mode === "parent";
-  const shellWidthClass = isFocusLayout
-    ? "max-w-[96rem]"
-    : isParentMode
-      ? "max-w-none"
-      : "max-w-7xl";
-
-  return (
-    <div className="brand-shell min-h-screen">
-      <header className="brand-topbar sticky top-0 z-30 border-b border-[var(--border)] backdrop-blur-xl">
-        <div className={`mx-auto flex w-full flex-wrap items-center gap-4 px-4 sm:px-6 ${
-          isFocusLayout ? "py-3" : "py-4"
-        } ${shellWidthClass}`}>
-          <Link
-            href={homePath}
-            className="flex min-w-0 items-center gap-3"
-          >
-            <div className={`flex items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] font-semibold text-white shadow-[0_12px_24px_rgba(194,24,91,0.18)] ${
-              isFocusLayout ? "h-10 w-10 text-base" : "h-11 w-11 text-lg"
-            }`}>
-              S
-            </div>
-            <div className="min-w-0">
-              {!hideBrandEyebrow ? <p className="brand-eyebrow">Scarlett&apos;s Spells</p> : null}
-              <p className={`brand-title font-semibold ${isFocusLayout ? "text-lg" : "text-xl"}`}>Spelling Studio</p>
-            </div>
-          </Link>
-
-          <div className="hidden min-w-0 flex-1 items-center justify-center xl:flex">
-            {activeChildId ? (
-              <ChildSwitcher
-                childOptions={availableChildren}
-                activeChildId={activeChildId}
-                redirectPath={scopedCurrentPath}
-                compact
-                summaryLabel={hideLearnerIdentity ? "Switch learner" : undefined}
-              />
-            ) : (
-              <p className="brand-copy text-sm">Add a child profile to get started.</p>
-            )}
-          </div>
-
-          <div className="ml-auto flex items-center gap-3">
-            <div className="brand-card-soft hidden rounded-full p-1 md:flex">
-              <Link
-                href={parentModePath}
-                className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition ${
-                  mode === "parent"
-                    ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_10px_20px_rgba(194,24,91,0.18)]"
-                    : "text-[var(--mid)]"
-                }`}
-              >
-                Parent mode
-              </Link>
-              <Link
-                href={childModePath}
-                className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition ${
-                  mode === "child"
-                    ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_10px_20px_rgba(194,24,91,0.18)]"
-                    : "text-[var(--mid)]"
-                }`}
-              >
-                Child mode
-              </Link>
-            </div>
-
-            <div className="hidden text-right lg:block">
-              <p className="brand-copy text-xs uppercase tracking-[0.18em]">
-                {hideLearnerIdentity ? "Lesson" : mode === "child" ? "Current learner" : "Signed in"}
-              </p>
-              <p className="text-sm font-medium text-[var(--mid)]">
-                {mode === "child"
-                  ? displayedChildName ?? "Choose a child"
-                  : userEmail ?? "Parent"}
-              </p>
-            </div>
-
-            <LogoutButton />
-          </div>
+  return <div className={"app-shell brand-shell " + (collapsed ? "sidebar-collapsed " : "") + (focus ? "focus-layout " : "") + (mode === "parent" ? "parent-mode" : "child-mode") + (mode === "parent" && pathname.startsWith("/insights") ? " insights-scroll-shell" : "")}>
+    <header className="app-topbar brand-topbar" inert={drawerOpen}>
+      <button ref={hamburgerRef} type="button" className="app-icon-button" aria-label={drawerOpen ? "Close navigation" : "Toggle navigation"} aria-expanded={drawerOpen}
+        aria-controls="app-sidebar" onClick={toggleSidebar}><span aria-hidden="true">☰</span></button>
+      <Link href={mode === "child" ? childHref : parentHref} className="app-wordmark" prefetch>
+        <span aria-hidden="true" className="app-wordmark-mark">✧</span><span>Scarlett Spells</span>
+      </Link>
+      <div className="app-topbar-actions">
+        <div className="app-mode-switch" aria-label="Experience mode">
+          <Link href={parentHref} prefetch aria-current={mode === "parent" ? "page" : undefined}>Parent Mode</Link>
+          <Link href={childHref} prefetch aria-current={mode === "child" ? "page" : undefined}>Child Mode</Link>
         </div>
-
-        <div className={`mx-auto flex w-full flex-col gap-3 px-4 pb-4 sm:px-6 xl:hidden ${shellWidthClass}`}>
-          <div className="brand-card-soft rounded-3xl px-4 py-3">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="brand-copy text-xs uppercase tracking-[0.18em]">
-                  {mode === "child" ? "Child mode" : "Parent mode"}
-                </p>
-                <p className="text-sm font-medium text-[var(--mid)]">
-                  {displayedChildName ?? "No active child selected"}
-                </p>
-                <p className="brand-copy mt-1 text-xs">{modeDescription}</p>
-              </div>
-
-              <div className="brand-card-soft rounded-full p-1">
-                <Link
-                  href={parentModePath}
-                  className={`inline-flex min-h-11 items-center rounded-full px-3 py-2 text-xs font-medium transition ${
-                    mode === "parent"
-                      ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white"
-                      : "text-[var(--mid)]"
-                  }`}
-                >
-                  Parent
-                </Link>
-                <Link
-                  href={childModePath}
-                  className={`inline-flex min-h-11 items-center rounded-full px-3 py-2 text-xs font-medium transition ${
-                    mode === "child"
-                      ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white"
-                      : "text-[var(--mid)]"
-                  }`}
-                >
-                  Child
-                </Link>
-              </div>
-            </div>
-
-            {activeChildId ? (
-              <ChildSwitcher
-                childOptions={availableChildren}
-                activeChildId={activeChildId}
-                redirectPath={scopedCurrentPath}
-                compact
-                className="mt-3"
-                summaryLabel={hideLearnerIdentity ? "Switch learner" : undefined}
-              />
-            ) : null}
-          </div>
-        </div>
-      </header>
-
-      <div className={`mx-auto w-full px-4 sm:px-6 ${shellWidthClass} ${
-        isFocusLayout ? "py-4" : "py-6"
-      }`}>
-        <div className={`grid gap-5 ${isFocusLayout ? "grid-cols-1" : isParentMode ? "lg:grid-cols-[224px_minmax(0,1fr)]" : "lg:grid-cols-[280px_minmax(0,1fr)]"}`}>
-        <aside className={`brand-sidebar brand-card-soft self-start rounded-[24px] ${isParentMode ? "p-3" : "p-4"} lg:sticky lg:top-24 ${
-          isFocusLayout ? "hidden" : ""
-        }`}>
-          <div className="hidden lg:block">
-            {isParentMode ? (
-              <div className="px-2 pb-2 pt-1">
-                <p className="brand-copy text-[11px] uppercase tracking-[0.18em]">
-                  Current child
-                </p>
-                <p className="mt-1 text-base font-semibold text-[color:var(--ink)]">
-                  {displayedChildName ?? "Choose a child"}
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-[var(--border)] bg-white/60 p-4">
-                <p className="brand-copy text-xs uppercase tracking-[0.18em]">
-                  {hideLearnerIdentity ? "Lesson" : "Current learner"}
-                </p>
-                <p className="brand-title mt-2 text-2xl font-semibold">
-                  {displayedChildName ?? "Choose a child"}
-                </p>
-                <p className="brand-copy mt-2 text-sm leading-6">
-                  {modeDescription}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <nav className={`mt-0 flex gap-2 overflow-x-auto pb-1 ${isParentMode ? "lg:mt-2" : "lg:mt-4"} lg:flex-col lg:overflow-visible lg:pb-0`}>
-            {navSections.map((section) => (
-              <div key={section.title} className="min-w-max lg:min-w-0">
-                <p className={`brand-copy hidden ${isParentMode ? "px-2 pb-1.5 pt-1 text-[11px]" : "px-3 pb-2 pt-2 text-xs"} uppercase tracking-[0.18em] lg:block`}>
-                  {section.title}
-                </p>
-                <div className="flex gap-2 lg:flex-col">
-                  {section.items.map((item) => {
-                    const href = buildScopedPath(item.href, activeChildId, mode);
-                    const isCurrent = isCurrentNavItem(currentPath, item.href);
-                    const childLinks = item.children?.map((child) => ({
-                      ...child,
-                      href: buildScopedPath(child.href, activeChildId, mode),
-                      isCurrent: isCurrentNavItem(currentPath, child.href),
-                    }));
-                    const hasCurrentChild = childLinks?.some((child) => child.isCurrent) ?? false;
-
-                    if (childLinks && childLinks.length > 0) {
-                      return (
-                        <details
-                          key={item.href}
-                          open={isCurrent || hasCurrentChild}
-                          className={`group ${isParentMode ? "rounded-[18px] bg-white/35 p-0.5" : "rounded-[22px] bg-white/50 p-1"}`}
-                        >
-                          <summary
-                            className={`flex cursor-pointer list-none items-center justify-between ${isParentMode ? "rounded-[16px] px-3 py-2.5 text-[13px]" : "rounded-2xl px-4 py-3 text-sm"} font-medium transition ${
-                              isCurrent || hasCurrentChild
-                                ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_14px_28px_rgba(194,24,91,0.18)]"
-                                : "text-[var(--mid)] hover:bg-white/80 hover:text-[var(--scarlett)]"
-                            }`}
-                          >
-                            <span>{item.label}</span>
-                            <svg
-                              aria-hidden="true"
-                              viewBox="0 0 20 20"
-                              className="h-4 w-4 fill-current transition group-open:rotate-180"
-                            >
-                              <path d="M5.2 7.2a1 1 0 0 1 1.4 0L10 10.6l3.4-3.4a1 1 0 1 1 1.4 1.4l-4.1 4.1a1 1 0 0 1-1.4 0L5.2 8.6a1 1 0 0 1 0-1.4Z" />
-                            </svg>
-                          </summary>
-                          <div className={`mt-1 grid gap-1 ${isParentMode ? "px-0.5 pb-0.5" : "px-1 pb-1"}`}>
-                            {childLinks.map((child) => (
-                              <Link
-                                key={child.href}
-                                href={child.href}
-                                className={`${isParentMode ? "rounded-[14px] px-3 py-2 text-[13px]" : "rounded-2xl px-4 py-2.5 text-sm"} transition ${
-                                  child.isCurrent
-                                    ? "bg-white text-[var(--scarlett)] shadow-sm"
-                                    : "text-[var(--mid)] hover:bg-white/80 hover:text-[var(--scarlett)]"
-                                }`}
-                              >
-                                {child.label}
-                              </Link>
-                            ))}
-                          </div>
-                        </details>
-                      );
-                    }
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={href}
-                        className={`${isParentMode ? "rounded-[16px] px-3 py-2.5 text-[13px]" : "rounded-2xl px-4 py-3 text-sm"} font-medium whitespace-nowrap transition ${
-                          isCurrent
-                            ? "bg-[linear-gradient(135deg,var(--scarlett),#d53d81)] text-white shadow-[0_14px_28px_rgba(194,24,91,0.18)]"
-                            : "text-[var(--mid)] hover:bg-white/80 hover:text-[var(--scarlett)]"
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </nav>
-        </aside>
-
-        <div className="min-w-0">{children}</div>
+        <div className="app-profile" ref={profileRef}>
+          <button ref={profileButtonRef} type="button" className="app-profile-trigger" aria-label={"Open profile menu for " + accountName} aria-haspopup="menu" aria-expanded={profileOpen} aria-controls="app-profile-menu"
+            onClick={() => setProfileOpen((value) => !value)}>
+            <span className="app-avatar" aria-hidden="true">{accountName.slice(0, 1).toUpperCase()}</span>
+            <span className="app-profile-label"><strong>{accountName}</strong><small>{mode === "child" ? displayName : "Parent"}</small></span>
+            <span aria-hidden="true">⌄</span>
+          </button>
+          {profileOpen ? <div id="app-profile-menu" className="app-profile-menu" role="menu" ref={profileMenuRef} onKeyDown={onMenuKeys}>
+            <p className="app-menu-account">{userEmail ?? "Parent account"}</p>
+            <p className="app-menu-heading">Children</p>
+            {availableChildren.map((child) => <form key={child.id} action={setActiveChildContext}>
+              <input type="hidden" name="child_id" value={child.id} /><input type="hidden" name="redirect_path" value={scopedPath} />
+              <button role="menuitem" type="submit" className="app-menu-item" onClick={() => { setSelectedOverride({ base: activeChildId, id: child.id }); setProfileOpen(false); }}>
+                <span>{childName(child)}</span>{selectedId === child.id ? <span aria-label="Selected child">✓</span> : null}
+              </button>
+            </form>)}
+            {mode === "parent" ? <Link role="menuitem" className="app-menu-item app-menu-accent" href="/children" onClick={() => setProfileOpen(false)}>+ Add Child</Link> : null}
+            <p className="app-menu-heading">Mode</p>
+            <Link role="menuitem" className="app-menu-item" href={parentHref} onClick={() => setProfileOpen(false)}>Parent Mode {mode === "parent" ? "✓" : ""}</Link>
+            <Link role="menuitem" className="app-menu-item" href={childHref} onClick={() => setProfileOpen(false)}>Child Mode {mode === "child" ? "✓" : ""}</Link>
+            <div className="app-menu-divider" />
+            <Link role="menuitem" className="app-menu-item" href={buildScopedPath("/settings", selectedId, mode)} onClick={() => setProfileOpen(false)}>Account Settings</Link>
+            <div className="app-menu-logout"><LogoutButton menuItem /></div>
+          </div> : null}
         </div>
       </div>
-    </div>
-  );
+    </header>
+    {drawerOpen ? <button type="button" className="app-drawer-backdrop" aria-label="Close navigation" onClick={closeDrawer} tabIndex={-1} /> : null}
+    <aside id="app-sidebar" ref={drawerRef} className={"app-sidebar " + (drawerOpen ? "drawer-open" : "")} aria-label="Application navigation"
+      role={drawerOpen ? "dialog" : undefined} aria-modal={drawerOpen ? true : undefined}>
+      <div className="app-sidebar-header"><span>{mode === "child" ? "Child Mode" : "Parent Mode"}</span><span className="app-sidebar-child">{displayName}</span>
+        <button type="button" className="app-drawer-close" aria-label="Close navigation" onClick={closeDrawer}>×</button>
+      </div>
+      {sidebar()}
+    </aside>
+    <main className="app-main" id="main-content" inert={drawerOpen}><ShellMountedContext.Provider value={true}>{children}</ShellMountedContext.Provider></main>
+  </div>;
 }

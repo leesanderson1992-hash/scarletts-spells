@@ -78,12 +78,12 @@ const inventory = Object.fromEntries(
   }),
 );
 
-const childRoute = sourceByPath.get("app/learn/week/adle/page.tsx") ?? "";
+const childRoute = sourceByPath.get("app/(authenticated)/learn/week/adle/page.tsx") ?? "";
 assert.doesNotMatch(childRoute, /ensureAdleDailyPlan|persistComposedAdleDailyPlan/);
 
 for (const retiredSurface of [
-  "app/learn/week/practice/page.tsx",
-  "app/learn/week/practice/actions.ts",
+  "app/(authenticated)/learn/week/practice/page.tsx",
+  "app/(authenticated)/learn/week/practice/actions.ts",
   "components/daily-spelling-practice-viewer.tsx",
   "lib/writing-practice/daily-spelling-practice-read-model.ts",
   "lib/writing-practice/daily-spelling-practice-completion.ts",
@@ -136,8 +136,8 @@ const vercelConfiguration = readFileSync(resolve(root, "vercel.json"), "utf8");
 assert.doesNotMatch(vercelConfiguration, /daily-spelling-practice\/generate/);
 
 for (const protectedPath of [
-  "app/dashboard/todays-adle-actions.ts",
-  "app/learn/week/todays-adle-action.ts",
+  "app/(authenticated)/dashboard/todays-adle-actions.ts",
+  "app/(authenticated)/learn/week/todays-adle-action.ts",
   "lib/rewards/read-model.ts",
   "lib/rewards/word-treasures.ts",
 ]) {

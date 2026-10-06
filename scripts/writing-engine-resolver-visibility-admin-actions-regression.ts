@@ -5,26 +5,26 @@ const migrationPath =
   "supabase/migrations/20260605144500_add_resolver_visibility_admin_rpc.sql";
 const canonicalRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
-const adminActionsPath = "app/admin/canonical-mappings/actions.ts";
-const adminPagePath = "app/admin/canonical-mappings/page.tsx";
-const resolutionWorkspacePath = "app/admin/canonical-mappings/resolution-workspace.tsx";
-const resolutionActionsPath = "app/admin/canonical-mappings/resolution-actions.ts";
-const resolutionReadModelPath = "app/admin/canonical-mappings/resolution-read-model.ts";
-const adminReadModelPath = "app/admin/canonical-mappings/read-model.ts";
-const adminExportRoutePath = "app/admin/canonical-mappings/export/route.ts";
-const spellingReviewPagePath = "app/admin/spelling-review/page.tsx";
-const adminCatalogActionPath = "app/admin/catalog-review/actions.ts";
-const adminPcrmActionPath = "app/admin/canonical-recommendations/actions.ts";
+const adminActionsPath = "app/(authenticated)/admin/canonical-mappings/actions.ts";
+const adminPagePath = "app/(authenticated)/admin/canonical-mappings/page.tsx";
+const resolutionWorkspacePath = "app/(authenticated)/admin/canonical-mappings/resolution-workspace.tsx";
+const resolutionActionsPath = "app/(authenticated)/admin/canonical-mappings/resolution-actions.ts";
+const resolutionReadModelPath = "app/(authenticated)/admin/canonical-mappings/resolution-read-model.ts";
+const adminReadModelPath = "app/(authenticated)/admin/canonical-mappings/read-model.ts";
+const adminExportRoutePath = "app/(authenticated)/admin/canonical-mappings/export/route.ts";
+const spellingReviewPagePath = "app/(authenticated)/admin/spelling-review/page.tsx";
+const adminCatalogActionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const adminPcrmActionPath = "app/(authenticated)/admin/canonical-recommendations/actions.ts";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const stage3aAnalysisPath =
   "lib/writing-engine/spelling/stage3a-authentic-submission-analysis.ts";
-const resolverPriorityPath = "app/courses/review/resolver-visible-priority.ts";
+const resolverPriorityPath = "app/(authenticated)/courses/review/resolver-visible-priority.ts";
 const canonicalBackfillPath =
-  "app/courses/review/actions/canonical-spelling-backfill-actions.ts";
+  "app/(authenticated)/courses/review/actions/canonical-spelling-backfill-actions.ts";
 const canonicalSubmissionActionsPath =
-  "app/courses/review/canonical-submission-spelling-actions.ts";
-const reviewWorkPagePath = "app/courses/review/[submissionId]/page.tsx";
+  "app/(authenticated)/courses/review/canonical-submission-spelling-actions.ts";
+const reviewWorkPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 
 const migration = readFileSync(migrationPath, "utf8");
 const canonicalRepository = readFileSync(canonicalRepositoryPath, "utf8");

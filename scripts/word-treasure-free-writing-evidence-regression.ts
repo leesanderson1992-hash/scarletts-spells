@@ -6,12 +6,12 @@ import { extractSpellcheckFieldsFromDraftPayload } from "../lib/courses/spelling
 const migrationPath =
   "supabase/migrations/20260628120000_add_word_treasure_free_writing_evidence.sql";
 const freeWritingEvidencePath = "lib/rewards/free-writing-evidence.ts";
-const learnActionsPath = "app/learn/actions.ts";
+const learnActionsPath = "app/(authenticated)/learn/actions.ts";
 const submissionProcessorPath = "lib/courses/submission-processing.ts";
-const reviewDetailPath = "app/courses/review/[submissionId]/page.tsx";
+const reviewDetailPath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const reviewCompletionActionsPath =
-  "app/courses/review/actions/review-completion-actions.ts";
-const taskPagePath = "app/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
+  "app/(authenticated)/courses/review/actions/review-completion-actions.ts";
+const taskPagePath = "app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx";
 
 const migration = readFileSync(migrationPath, "utf8");
 const freeWritingEvidence = readFileSync(freeWritingEvidencePath, "utf8");

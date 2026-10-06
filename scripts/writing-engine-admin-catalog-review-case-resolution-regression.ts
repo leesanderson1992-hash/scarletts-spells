@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 
 const migrationPath =
   "supabase/migrations/20260522_add_spelling_catalog_review_case_decisions.sql";
-const actionPath = "app/admin/catalog-review/actions.ts";
-const pagePath = "app/admin/catalog-review/page.tsx";
-const decisionRowPath = "app/admin/catalog-review/admin-decision-row.tsx";
+const actionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const pagePath = "app/(authenticated)/admin/catalog-review/page.tsx";
+const decisionRowPath = "app/(authenticated)/admin/catalog-review/admin-decision-row.tsx";
 
 const migration = readFileSync(migrationPath, "utf8");
 const action = readFileSync(actionPath, "utf8");

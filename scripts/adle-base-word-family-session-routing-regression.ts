@@ -14,9 +14,9 @@ assert(resolveBaseWordFamilyPilotRuntime(true, items) !== null, "validated 18-it
 assert(resolveBaseWordFamilyPilotRuntime(false, items) === null, "disabled base-word gate uses the normal safe fallback");
 assert(resolveBaseWordFamilyPilotRuntime(true, [...items, { ...items[0], id: "duplicate" }]) === null, "duplicate binding fails closed");
 
-const page = readFileSync("app/learn/week/adle/page.tsx", "utf8");
+const page = readFileSync("app/(authenticated)/learn/week/adle/page.tsx", "utf8");
 const runner = readFileSync("components/adle-session-runner.tsx", "utf8");
-const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const resolver = readFileSync("lib/adle/composable-lesson/route-resolution.ts", "utf8");
 const migration = readFileSync("supabase/migrations/20260718110000_add_adle_base_word_family_pilot_guard.sql", "utf8");
 const sharedRouteMigration = readFileSync("supabase/migrations/20260722200000_add_shared_route_base_word_completion.sql", "utf8");

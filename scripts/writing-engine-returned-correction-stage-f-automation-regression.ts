@@ -281,17 +281,17 @@ assert.match(migration, /grant all on table public\.returned_correction_replay_r
 assert.doesNotMatch(migration, /grant .* authenticated/i);
 assert.doesNotMatch(migration, /create policy/i);
 
-const adminAction = readFileSync("app/admin/catalog-review/actions.ts", "utf8");
+const adminAction = readFileSync("app/(authenticated)/admin/catalog-review/actions.ts", "utf8");
 assert.match(adminAction, /surfaceReturnedCorrectionReplayRecommendations/);
 assert.match(adminAction, /triggerSource: "admin_hook"/);
 
-const canonicalPage = readFileSync("app/admin/canonical-mappings/page.tsx", "utf8");
+const canonicalPage = readFileSync("app/(authenticated)/admin/canonical-mappings/page.tsx", "utf8");
 assert.match(canonicalPage, /Deferred learning replay available/);
 assert.match(canonicalPage, /Safe to apply manually/);
 assert.doesNotMatch(canonicalPage, /SUPABASE_SERVICE_ROLE_KEY|createServiceRoleClient|service-role/i);
 
 const canonicalReadModel = readFileSync(
-  "app/admin/canonical-mappings/read-model.ts",
+  "app/(authenticated)/admin/canonical-mappings/read-model.ts",
   "utf8",
 );
 assert.match(canonicalReadModel, /server-only/);

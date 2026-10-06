@@ -81,7 +81,7 @@ function loadHarness(overrides: Partial<HarnessState> = {}) {
   };
   const modulePath = path.join(
     process.cwd(),
-    "app/courses/review/resolver-visible-priority.ts",
+    "app/(authenticated)/courses/review/resolver-visible-priority.ts",
   );
   const loadedModule = loadTsModule<{
     resolveScopedMicroSkillForSubmissionSuggestion: (input: {
@@ -362,7 +362,7 @@ async function testInvalidResolverVisibleStatesDoNotFallThrough() {
 
 function testApprovedRuntimeWiringOnly() {
   const prioritySource = readFileSync(
-    "app/courses/review/resolver-visible-priority.ts",
+    "app/(authenticated)/courses/review/resolver-visible-priority.ts",
     "utf8",
   );
   const stage2cSource = readFileSync(
@@ -374,16 +374,16 @@ function testApprovedRuntimeWiringOnly() {
     "utf8",
   );
   const reviewWorkPage = readFileSync(
-    "app/courses/review/[submissionId]/page.tsx",
+    "app/(authenticated)/courses/review/[submissionId]/page.tsx",
     "utf8",
   );
   const lessonSubmissionActions = readFileSync(
-    "app/courses/review/actions/lesson-submission-review-actions.ts",
+    "app/(authenticated)/courses/review/actions/lesson-submission-review-actions.ts",
     "utf8",
   );
   const adminSources = [
-    readFileSync("app/admin/catalog-review/actions.ts", "utf8"),
-    readFileSync("app/admin/canonical-recommendations/actions.ts", "utf8"),
+    readFileSync("app/(authenticated)/admin/catalog-review/actions.ts", "utf8"),
+    readFileSync("app/(authenticated)/admin/canonical-recommendations/actions.ts", "utf8"),
   ].join("\n");
 
   assert.match(
@@ -429,11 +429,11 @@ async function testHiddenDisabledPcrmParentNotesAndOpenCasesAreNotConsumed() {
     "utf8",
   );
   const prioritySource = readFileSync(
-    "app/courses/review/resolver-visible-priority.ts",
+    "app/(authenticated)/courses/review/resolver-visible-priority.ts",
     "utf8",
   );
   const pcrmSource = readFileSync(
-    "app/admin/canonical-recommendations/actions.ts",
+    "app/(authenticated)/admin/canonical-recommendations/actions.ts",
     "utf8",
   );
 

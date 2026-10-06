@@ -12,11 +12,11 @@ import {
 const helperPath = "lib/writing-engine/persistence/unified-spelling-review-items.ts";
 const helperSource = readFileSync(helperPath, "utf8");
 const tableSource = readFileSync(
-  "app/courses/review/unified-spelling-review-table.tsx",
+  "app/(authenticated)/courses/review/unified-spelling-review-table.tsx",
   "utf8",
 );
 const reviewPageSource = readFileSync(
-  "app/courses/review/[submissionId]/page.tsx",
+  "app/(authenticated)/courses/review/[submissionId]/page.tsx",
   "utf8",
 );
 

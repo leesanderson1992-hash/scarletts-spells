@@ -25,9 +25,9 @@ const morphology = readFileSync("components/adle/morphology/morphology-guided-le
 const base = readFileSync("components/adle/morphology/base-word-family-guided-lesson.tsx", "utf8");
 const compound = readFileSync("components/adle/morphology/closed-compound-guided-lesson.tsx", "utf8");
 const resolvedCompound = readFileSync("lib/adle/morphology/resolved-compound-word-lesson-v2.ts", "utf8");
-const actions = readFileSync("app/learn/week/adle/actions.ts", "utf8");
+const actions = readFileSync("app/(authenticated)/learn/week/adle/actions.ts", "utf8");
 const errorRepair = readFileSync("components/adle/activities/reflection-activity.tsx", "utf8");
-const gallery = readFileSync("app/admin/adle/activity-catalogue/visual-convergence-candidates.tsx", "utf8");
+const gallery = readFileSync("app/(authenticated)/admin/adle/activity-catalogue/visual-convergence-candidates.tsx", "utf8");
 
 for (const copy of ["What went wrong", "You wrote", "Correct spelling", "Correct sentence:", "I learned that..."]) {
   assert(shared.includes(copy), `LessonReflection must retain selected visual/copy baseline: ${copy}`);

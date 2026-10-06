@@ -50,7 +50,7 @@ const prefixWriter = readFileSync(
   "utf8",
 );
 const prefixRouteAction = readFileSync(
-  "app/learn/week/adle/dynamic-prefix/actions.ts",
+  "app/(authenticated)/learn/week/adle/dynamic-prefix/actions.ts",
   "utf8",
 );
 const affixWriter = readFileSync(
@@ -58,7 +58,7 @@ const affixWriter = readFileSync(
   "utf8",
 );
 const affixRouteAction = readFileSync(
-  "app/learn/week/adle/dynamic-suffix/actions.ts",
+  "app/(authenticated)/learn/week/adle/dynamic-suffix/actions.ts",
   "utf8",
 );
 const migrationTracker = readFileSync(

@@ -58,8 +58,8 @@ assert.equal(isRecognizedAdleTodayHeader({
 }), false);
 
 const root = resolve(import.meta.dirname, "..");
-const action = readFileSync(resolve(root, "app/dashboard/todays-adle-actions.ts"), "utf8");
-const ui = readFileSync(resolve(root, "app/dashboard/todays-adle-section.tsx"), "utf8");
+const action = readFileSync(resolve(root, "app/(authenticated)/dashboard/todays-adle-actions.ts"), "utf8");
+const ui = readFileSync(resolve(root, "app/(authenticated)/dashboard/todays-adle-section.tsx"), "utf8");
 const service = readFileSync(resolve(root, "lib/adle/today-assignment-service.ts"), "utf8");
 const migration = readFileSync(
   resolve(root, "supabase/migrations/20260807120000_enforce_one_adle_session_per_child_day.sql"),

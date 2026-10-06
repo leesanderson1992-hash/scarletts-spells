@@ -4,9 +4,9 @@ import { readArchivedMigrationOrActiveBaseline } from "./migration-sql-contract-
 
 const canonicalRepositoryPath =
   "lib/writing-engine/persistence/spelling-canonical-mappings.ts";
-const adminActionPath = "app/admin/catalog-review/actions.ts";
-const reviewActionsPath = "app/courses/review/actions/catalog-review-case-actions.ts";
-const reviewPagePath = "app/courses/review/[submissionId]/page.tsx";
+const adminActionPath = "app/(authenticated)/admin/catalog-review/actions.ts";
+const reviewActionsPath = "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts";
+const reviewPagePath = "app/(authenticated)/courses/review/[submissionId]/page.tsx";
 const resolverPath =
   "lib/writing-engine/spelling/stage2c-primary-mapping-resolver.ts";
 const mappingSourcePath =

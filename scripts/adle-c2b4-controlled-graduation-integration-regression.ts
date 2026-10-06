@@ -360,7 +360,7 @@ async function main(): Promise<void> {
 
   // 11-12. The only completion adjustment is exact target exclusion. C2B.6
   // admits only pinned, hydrated target rows; the v1-only path remains exact.
-  const actions = readFileSync(resolve("app/learn/week/adle/actions.ts"), "utf8");
+  const actions = readFileSync(resolve("app/(authenticated)/learn/week/adle/actions.ts"), "utf8");
   assert.match(actions, /scheduleEligible: !pinnedTargetSchedules\.has/);
   assert.match(actions, /if \(pinnedTargetSchedules\.size === 0\) return/);
   const r6 = readFileSync(resolve("lib/adle/review-v3/r6-generation.ts"), "utf8");

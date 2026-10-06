@@ -4,8 +4,8 @@ import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
 const BUILD_ROOT = ".next";
-const ROUTE_ROOT = join(BUILD_ROOT, "server/app/learn/week/adle/page");
-const CLIENT_MANIFEST = join(BUILD_ROOT, "server/app/learn/week/adle/page_client-reference-manifest.js");
+const ROUTE_ROOT = join(BUILD_ROOT, "server/app/(authenticated)/learn/week/adle/page");
+const CLIENT_MANIFEST = join(BUILD_ROOT, "server/app/(authenticated)/learn/week/adle/page_client-reference-manifest.js");
 const DYNAMIC_MANIFEST = join(ROUTE_ROOT, "react-loadable-manifest.json");
 const BUDGET_BYTES = 150 * 1024;
 const WORD_LAB_MARKERS = ["Rebuild the word", "un- is the first two letters"];
