@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
-  const secret = process.env.TASK_SUBMISSION_CRON_SECRET || process.env.CRON_SECRET;
+  const secret = process.env.CONTEXT_RECOVERY_CRON_SECRET;
   const [scheme, token] = (request.headers.get("authorization") ?? "").split(" ");
   const left = Buffer.from(token ?? ""), right = Buffer.from(secret ?? "");
   if (!secret || scheme?.toLowerCase() !== "bearer" || !token ||
