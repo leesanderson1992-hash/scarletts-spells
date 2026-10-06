@@ -1,6 +1,7 @@
 import "server-only";
 
 import { loadDailyPlanFacts } from "@/lib/adle/loaders/composer-facts-loader";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type InsightLevel = {
@@ -76,7 +77,11 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
   }).formatToParts(new Date());
   const datePart = (type: string) => dateParts.find((part) => part.type === type)?.value ?? "";
   const today = `${datePart("year")}-${datePart("month")}-${datePart("day")}`;
-  const { proficiencyReports, displayWordByWordId } = await loadDailyPlanFacts(service, { childId, today });
+  const relationshipEnvironment = resolveAdleRouteActivationEnvironment()
+    ?? (process.env.VERCEL_ENV === "preview" ? "production" : undefined);
+  const { proficiencyReports, displayWordByWordId } = await loadDailyPlanFacts(service, {
+    childId, today, relationshipEnvironment,
+  });
   const keys = proficiencyReports.map((report) => report.microSkillKey);
   if (keys.length === 0) return [];
   const catalogResult = await service.from("micro_skill_catalog")
