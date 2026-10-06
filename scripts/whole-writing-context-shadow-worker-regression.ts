@@ -72,7 +72,7 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
         return {data:true,error:null};
       }
       if (name === "writing_context_proof_fault_status") return {data:{authorised:!options.faultLostAtBarrier,released:!options.unreleased},error:null};
-      if (name === "context_shadow_job_eligible") return { data: !options.deny, error: null };
+      if (name === "context_shadow_job_eligible") return { data: !options.deny || options.deny === "AI_DAILY_CAP_DEFERRED", error: null };
       if (name === "reserve_writing_context_shadow") {
         assert.equal(args.p_job_id, job.id); assert.equal(args.p_claim_token, job.claim_token);
         assert(!String(args.p_window_fingerprint).includes(text));
@@ -93,6 +93,10 @@ function fixture(text: string, options: { badIdentity?: boolean; deny?: string; 
       }
       if (name === "finish_writing_context_shadow_job") {
         assert.equal(args.p_claim_token, job.claim_token); assert(!JSON.stringify(args.p_summary).includes(text)); return { data: true, error: null };
+      }
+      if (name === "defer_writing_context_shadow_job") {
+        assert.equal(args.p_job_id, job.id); assert.equal(args.p_claim_token, job.claim_token);
+        return { data: true, error: null };
       }
       if (name === "stop_writing_context_shadow") { stopped = true; return { data: true, error: null }; }
       throw new Error(`unexpected RPC: ${name}`);
@@ -144,6 +148,11 @@ async function main() {
       ? { data: true, error: null } : { data: null, error: { message: "private text" } } } as unknown as SupabaseClient;
     assert.equal(await enqueueDisposableProviderProof(enqueueFailure, "child", "submission"), true, "Outbox failure cannot fall through to education");
     assert.equal(calls, 0, "Classification/enqueue never makes a provider call");
+    const capped = fixture("Their cat is here.", { adult: true, deny: "AI_DAILY_CAP_DEFERRED" });
+    assert.equal((await recoverContextShadowJobs(capped.snapshot.submission_id, capped.client)).status, "deferred");
+    assert.equal(capped.tables.writing_context_ai_attempts.length, 0, "Cap deferral creates no failed attempt");
+    assert.equal(capped.tables.writing_context_shadow_dispatches.length, 0, "Cap deferral spends no reservation");
+    assert.equal(capped.stopped(), false, "Cap deferral does not trip the emergency stop");
     for (const decision of ["VALID", "INVALID", "UNCERTAIN", "BAD_GATE", "MALFORMED", "FAILURE", "TIMEOUT", "WRONG_MODEL"] as const) {
       const f = fixture("Their cat is here."); const before: number = calls;
       globalThis.fetch = async (_url, options) => {

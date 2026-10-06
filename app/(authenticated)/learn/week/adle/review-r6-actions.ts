@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { validateCompiledReviewSnapshotV3 } from "@/lib/adle/review-v3/snapshot-validator";
+import { after } from "next/server";
+import { recoverAdleReviewContextJobs } from "@/lib/writing-engine/whole-writing/adle-review-context-worker";
 import {
   answerReviewR31AttemptQuestionDurably,
   confirmReviewR31SuggestionDurably,
@@ -110,10 +112,14 @@ export async function reviewR6GatewayAction(request: ReviewR6GatewayRequest): Pr
   };
   switch (request.action) {
     case "hydrate_r3": return hydrateReviewR3Session(common);
-    case "submit_writing": return submitReviewR3WritingDurably({
-      ...common,
-      submission: { finalWriting: request.finalWriting, idempotencyKey: request.idempotencyKey },
-    });
+    case "submit_writing": {
+      const result = await submitReviewR3WritingDurably({
+        ...common,
+        submission: { finalWriting: request.finalWriting, idempotencyKey: request.idempotencyKey },
+      });
+      after(async () => { await recoverAdleReviewContextJobs(request.reviewSessionId); });
+      return result;
+    }
     case "submit_audio": return submitReviewR3AudioCheckDurably({
       ...common,
       submission: { encounterId: request.encounterId, response: request.response, idempotencyKey: request.idempotencyKey },

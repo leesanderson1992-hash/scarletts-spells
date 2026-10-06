@@ -1012,6 +1012,9 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
                 </div>
               </div>
             ) : null}
+            <p className="text-sm leading-6 text-[color:var(--review-muted)]">
+              When you continue, your finished writing may be sent to OpenAI to check word choice in context. A parent reviews any suggestions. Drafts are not sent.
+            </p>
             <button
               type="button"
               className="review-primary justify-self-start"

@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { AI_CONTEXT_CONFIG_FINGERPRINT, AI_CONTEXT_GATE_VERSION, AI_CONTEXT_MODEL,
   AI_CONTEXT_PROMPT_FINGERPRINT, AI_CONTEXT_SCHEMA_FINGERPRINT } from "./context-ai-gate";
 
-export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V10";
+export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V11_SITEWIDE_ADLE";
 export const CONTEXT_SHADOW_TIMEOUT_MS = 15000;
 export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 50000;
 export const CONTEXT_SHADOW_MAX_REQUEST_BYTES = 16000;
@@ -15,6 +15,8 @@ export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JS
   bootstrap: "DISPOSABLE_BOOTSTRAP_FAIL_STOP_V1", faults: "REGISTERED_ONE_SHOT_PROOF_FAULTS_V1",
   proof_passage: "REGISTERED_PROOF_POLICY_PASSAGE_V1",
   passage_coordinates: "IMMUTABLE_INDEXED_WORD_REFERENCES_V1",
+  adle_source: "IMMUTABLE_REVIEW_SESSION_HASH_V1",
+  daily_cap: "DEFERRED_UTC_ROLLOVER_V1",
 })).digest("hex");
 export function contextShadowIdentity() {
   const environment = process.env.CONTEXT_AI_ENVIRONMENT;
@@ -25,7 +27,8 @@ export function contextShadowIdentity() {
   const projectRef = process.env.CONTEXT_AI_OPENAI_PROJECT_REF;
   const valid = process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED === "accepted" &&
     Boolean(process.env.OPENAI_API_KEY?.trim()) &&
-    (environment === "production" && process.env.VERCEL_ENV === "production") &&
+    ((environment === "production" && process.env.VERCEL_ENV === "production") ||
+      (environment === "staging" && process.env.VERCEL_ENV === "preview")) &&
     /^[a-f0-9]{40}$/.test(deploymentSha ?? "") && /^[A-Za-z0-9_-]{1,100}$/.test(projectRef ?? "") &&
     process.env.CONTEXT_AI_MODEL === AI_CONTEXT_MODEL &&
     process.env.CONTEXT_AI_PROMPT_FINGERPRINT === AI_CONTEXT_PROMPT_FINGERPRINT &&

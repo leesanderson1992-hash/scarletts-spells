@@ -1,0 +1,32 @@
+# Site-wide adult context resolver: release readiness
+
+Status on 2026-10-06: source implementation and local proof complete. Supabase Preview branching requires a paid Pro upgrade. The owner directed the hosted proof to run on Production instead, using synthetic writing with the resolver on an explicit release hold. Production migration/deployment readback and the separate spend/activation approval remain pending. No provider approval, scheduler, replay grant, or provider dispatch was changed during this work.
+
+## Scope
+
+- New adult course **lesson** submissions use the existing immutable snapshot and bounded passage path. Course tests, ADLE Word Lab reflections, and manual writing samples remain outside the new capture scope.
+- ADLE Review captures only the saved final writing in the R3 transaction. Its immutable source, job, dispatch, attempt, finding, decision, and replay ledgers are keyed by Review session. The same Luna passage planner, exact UTF-16 validation, Production approval, identity, rate card, request limits, shared spend counter, and emergency stop govern both sources.
+- Parent Review Work shows pending, terminal failure, and exact blue findings. Inspection waits for a pending scan and completed findings to be decided. Confirmed mapped pairs enter governed contextual demand; unmatched pairs enter ADLE catalog review. Existing Review outcomes, schedules, repairs, and rewards are not updated by context decisions.
+- Daily cap and concurrent claim exhaustion defer the next unspent window. Completed windows remain recorded. Supabase Cron is configured but inert until a deployment-bound activation; its authenticated route claims at most one job of each source type per tick.
+
+## Measured capacity for owner decision
+
+Read-only inventory of 30 days of Production writing on 2026-10-06 found a peak of **29 eligible or conservatively forecast windows** in one UTC day. The trailing seven-day forecast peak was **11**. The formula `max(32, ceil(1.25 × max(29, 11)))` gives **37 requests per UTC day**. The signed current worst-case reservation is **$0.0031 per request**, yielding a proposed shared ceiling of **$0.1147 per UTC day**. These are proposed limits, not active limits. Recompute from current writing and signed rate card immediately before owner approval. While new work is queued, at most 25% of the daily request ceiling is reserved for replay; replay may use unused capacity.
+
+The read-only named-learner dry run found **seven uninspected completed ADLE Reviews** whose final-writing hashes can receive exact grants after release. It found **three latest pending live lesson submissions** without reliable captured authorship; those remain manual review and receive no provider call. The dry run created no grants or jobs. Re-run it after staging and Production readback because Review Work can change. Only current, unarchived, latest pending work for `e4f9fc37-3f85-4eb5-9fbd-4eabf4f2528e` is eligible. Returned work is scanned on resubmission.
+
+## Local evidence
+
+- All new forward SQL applied to a disposable copy of the retired staging schema. The Supabase Cron migration applied to the disposable `postgres` database because `pg_cron` requires that database locally.
+- Transactional SQL proof verified final-only atomic ADLE capture, immutable SHA, exact UTF-16 span after an emoji, idempotent parent confirmation, catalog case creation, pending inspection block, terminal failure manual inspection, midnight cap rollover, and read-only status/inventory RPCs. Fixtures were rolled back.
+- `npm run writing:context-ai-regression`, `npm run writing:context-shadow-worker-regression`, `npm run writing:adle-review-context-regression`, `npx tsc --project tsconfig.scripts.json --noEmit`, `npx tsc --noEmit`, and `npm run build` passed. ADLE Review Work browser interactions passed 9/10 in the first run; the one desktop route timeout passed on focused rerun. The new catalog action and replayed-disabled-source queue fix have build/type checks but still require browser staging proof.
+
+## Required hosted proof and release sequence
+
+1. Preflight the hosted Production migration ledger and schema; apply only the unique forward migrations. The migration-only CLI dry run must name exactly the 15 new versions. Keep `CONTEXT_AI_RELEASE_HOLD=enabled` on the new deployment during the changeover, `enabled=false`, and `ai_mode=shadow`.
+2. Deploy the tested SHA to Production. Read back the SHA, migration versions, runtime/config fingerprints, scheduler status, current approval and expiry, rate card, request/spend limits, queue age, deferred jobs, provider calls, and unrecorded sends.
+3. Use synthetic adult accounts and writing to prove both lesson and ADLE Review flows on Production. A provider-backed proof needs its own new deployment-bound approval; do not use the earlier V10 approval to authorize V11 sends. Check final-only capture, pending pill, exact blue spans, parent edit/dismiss/confirm, governed handoff and unmatched catalog route, manual failure, cap rollover, partial-window continuation, duplicate protection, and emergency stop. Verify Review evidence and rewards are unchanged.
+4. Present the readback, synthetic evidence, and recalculated capacity to the owner for **separate site-wide Production activation and spend-ceiling approval**. Keep the older advisory mode disabled.
+5. After approval, remove the explicit release hold, activate the site-wide adult policy and Supabase Cron, verify fresh submissions from two adult accounts, re-run the named learner inventory, issue exact immutable grants only for still-eligible sources, and monitor queue age, deferred jobs, shared spend, and unrecorded sends.
+
+Hosted staging proof is currently blocked by the Supabase plan. After the owner signed in on 2026-10-06, the Production project `wwohrqtunajrbwxyssjf` showed a Preview branch control, but its creation dialog required **Upgrade to Pro** and disabled Create branch. The read-only Production migration ledger showed `20261006190000_authentic_use_all_children_rollout` as its latest migration, matching the expected pre-release boundary; full schema drift has not yet been checked. The Production-only Vercel environment was used for **read-only** capacity and replay inventory. No hosted schema change, billing change, Preview deployment, or Production activation has been attempted.
