@@ -370,7 +370,11 @@ export default async function LearnModuleTaskPage({
         : null;
   const shouldHydrateFromSubmittedPayload =
     Boolean(structuredLesson && structuredSubmissionPayloadType) &&
-    latestSubmission !== null;
+    latestSubmission !== null &&
+    (latestSubmission.parent_review_status !== "returned" ||
+      !hasMeaningfulStructuredLessonResponse(
+        getStructuredLessonResponseFromPayload(latestDraft?.draft_payload),
+      ));
   let latestSubmittedPayload: { payload_json: unknown } | null = null;
 
   if (
@@ -712,8 +716,6 @@ export default async function LearnModuleTaskPage({
                       saveDraftAction={saveTaskDraft}
                       saveDraftSilentlyAction={saveTaskDraftSilently}
                       initialResponse={structuredInitialResponse}
-                      originalResponse={latestSubmission?.parent_review_status === "returned"
-                        ? submittedStructuredInitialResponse : null}
                       initialFieldFeedback={latestStructuredFieldFeedback}
                       returnedIssueFeedback={returnedWritingIssues}
                       returnedContextExcerpts={returnedContextExcerpts}

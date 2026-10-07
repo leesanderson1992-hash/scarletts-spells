@@ -39,7 +39,6 @@ type StructuredLessonResponseProps = {
   lesson: StructuredLessonDocument;
   submitLabel: string;
   initialResponse?: StructuredLessonResponse | null;
-  originalResponse?: StructuredLessonResponse | null;
   initialFieldFeedback?: FeedbackMap;
   returnedIssueFeedback?: ReturnedWritingIssueDraftPayload[];
   returnedContextExcerpts?: Record<string, ReturnedContextExcerpt>;
@@ -294,7 +293,6 @@ export function StructuredLessonResponse({
   lesson,
   submitLabel,
   initialResponse,
-  originalResponse,
   initialFieldFeedback,
   returnedIssueFeedback = [],
   returnedContextExcerpts = {},
@@ -594,9 +592,9 @@ export function StructuredLessonResponse({
     }
 
     return (
-      <div className="my-3 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
-          Feedback
+      <div className="mt-3 rounded-[1.5rem] border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-950">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-900">
+          Parent feedback
         </p>
         <p className="mt-2">{feedback}</p>
       </div>
@@ -613,8 +611,7 @@ export function StructuredLessonResponse({
     return (
       <div
         key={issue.issue_id}
-        id={`returned-word-${issue.issue_id}`}
-        className="w-full min-w-0 scroll-mt-24 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
+        className="w-full min-w-0 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950"
       >
         <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
           <div className="min-w-0 flex-1">
@@ -674,44 +671,6 @@ export function StructuredLessonResponse({
         )}
       </div>
     );
-  }
-
-  function renderOriginalAnswerWithMarks(feedbackKey: string) {
-    if (!isReturnedForReview || readOnly) return null;
-    const original = originalResponse?.answers.find((answer) => answer.block_id === feedbackKey)?.value;
-    if (typeof original !== "string" || !original) return null;
-    const linked = returnedIssueFeedback
-      .filter((issue) => returnedIssueFieldKey(issue, returnedContextExcerpts) === feedbackKey)
-      .map((issue, index) => ({ issue, index,
-        start: issue.position_start, end: issue.position_end }))
-      .filter((item): item is typeof item & { start: number; end: number } =>
-        typeof item.start === "number" && typeof item.end === "number" &&
-        item.start >= 0 && item.end > item.start && item.end <= original.length &&
-        original.slice(item.start, item.end) === item.issue.observed_text)
-      .sort((left, right) => left.start - right.start);
-    const exact = linked.filter((item, index) => index === 0 || item.start >= linked[index - 1].end);
-    if (!exact.length) return null;
-    const parts: React.ReactNode[] = [];
-    let cursor = 0;
-    for (const item of exact) {
-      if (item.start > cursor) parts.push(original.slice(cursor, item.start));
-      const context = Boolean(returnedContextExcerpts[item.issue.issue_id]);
-      parts.push(<a key={item.issue.issue_id} href={`#returned-word-${item.issue.issue_id}`}
-        aria-label={`Word ${item.index + 1}: ${item.issue.observed_text}. Jump to its review card.`}
-        className="rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--scarlett)]">
-        <mark className={`rounded px-0.5 font-semibold text-[var(--ink)] ring-1 ${context
-          ? "bg-sky-200 ring-sky-500" : "bg-amber-100 ring-amber-400"}`}>
-          {original.slice(item.start, item.end)}
-        </mark><sup className="ml-0.5 text-[10px] font-bold text-[var(--ink)]">{item.index + 1}</sup>
-      </a>);
-      cursor = item.end;
-    }
-    if (cursor < original.length) parts.push(original.slice(cursor));
-    return <div className="mb-3 rounded-2xl border border-sky-200 bg-sky-50/70 px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sky-950">Your submitted answer</p>
-      <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-[var(--ink)]">{parts}</p>
-      <p className="mt-2 text-xs text-sky-950">Highlighted words link to the matching review steps below.</p>
-    </div>;
   }
 
   function renderUnmatchedReturnedIssueFeedback() {
@@ -857,8 +816,6 @@ export function StructuredLessonResponse({
       case "question_text":
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
-            {renderOriginalAnswerWithMarks(block.block_id)}
-            {isReturnedForReview ? renderFeedback(block.block_id) : null}
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[color:var(--ink)]">
                 {block.label}
@@ -874,17 +831,15 @@ export function StructuredLessonResponse({
                 className="brand-input h-11 rounded-2xl px-4 text-sm"
               />
             </label>
+            {renderFeedback(block.block_id)}
             {renderQuestionCheck(block.block_id)}
             {renderSaveStatus(block.block_id)}
-            {!isReturnedForReview ? renderFeedback(block.block_id) : null}
             {renderReturnedIssueFeedback(block.block_id)}
           </div>
         );
       case "question_textarea":
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
-            {renderOriginalAnswerWithMarks(block.block_id)}
-            {isReturnedForReview ? renderFeedback(block.block_id) : null}
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[color:var(--ink)]">
                 {block.label}
@@ -900,9 +855,9 @@ export function StructuredLessonResponse({
                 className="brand-input rounded-2xl px-4 py-3 text-sm"
               />
             </label>
+            {renderFeedback(block.block_id)}
             {renderQuestionCheck(block.block_id)}
             {renderSaveStatus(block.block_id)}
-            {!isReturnedForReview ? renderFeedback(block.block_id) : null}
             {renderReturnedIssueFeedback(block.block_id)}
           </div>
         );
