@@ -10,7 +10,7 @@ import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
 import { indexSnapshotOccurrences } from "./occurrence-index";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
-import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+import { contextShadowIdentity, contextShadowErrorCode, contextShadowPreviewHeld, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
   CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS, CONTEXT_SHADOW_MAX_REQUEST_BYTES } from "./context-shadow-policy";
 import { emitPreReservationDiagnostic, preReservationIdentityChecks } from "./context-shadow-diagnostics";
 import { bindContextProofFault, ContextProofInterruption } from "./context-proof-fault";
@@ -464,6 +464,7 @@ async function runAdultPassageJob(client: SupabaseClient, job: ShadowJob, snapsh
 
 /** Separate worker, also recovered by the authenticated existing cron. No learner response dependency. */
 export async function recoverContextShadowJobs(submissionId?: string, suppliedClient?: SupabaseClient) {
+  if (contextShadowPreviewHeld()) return { status: "held" as const };
   const client = suppliedClient ?? createServiceRoleClient();
   let job: ShadowJob | null = null;
   try {

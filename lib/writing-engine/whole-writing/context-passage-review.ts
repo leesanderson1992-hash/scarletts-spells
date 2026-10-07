@@ -45,7 +45,8 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
   const leaseStale = typeof job.data?.claimed_at === "string" &&
     Date.parse(job.data.claimed_at) < Date.now() - 60000;
   const status = job.data?.status === "complete" ? "complete" as const
-    : job.data?.status === "failed" || (!processingEnabled &&
+    : !job.data ? "unavailable" as const
+    : job.data.status === "failed" || (!processingEnabled &&
       (job.data?.status !== "processing" || leaseStale))
       ? "failed" as const : "pending" as const;
   const canRetry = processingEnabled && status === "failed" && job.data?.error_code === "AI_PROVIDER_UNAVAILABLE";

@@ -7,6 +7,10 @@ export const CONTEXT_SHADOW_RUNTIME_VERSION = "CONTEXT_SHADOW_DISPATCH_V11_SITEW
 export const CONTEXT_SHADOW_TIMEOUT_MS = 15000;
 export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 50000;
 export const CONTEXT_SHADOW_MAX_REQUEST_BYTES = 16000;
+/** A preview wired to Production data must never claim a Production provider job. */
+export function contextShadowPreviewHeld() {
+  return process.env.VERCEL_ENV === "preview" && process.env.CONTEXT_AI_ENVIRONMENT !== "staging";
+}
 export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JSON.stringify({
   version: CONTEXT_SHADOW_RUNTIME_VERSION, config: AI_CONTEXT_CONFIG_FINGERPRINT,
   timeout_ms: CONTEXT_SHADOW_TIMEOUT_MS, retries: 0, max_requests_per_submission: 32,

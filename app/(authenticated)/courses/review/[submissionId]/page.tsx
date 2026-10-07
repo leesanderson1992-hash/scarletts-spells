@@ -999,8 +999,9 @@ export default async function CourseReviewDetailPage({
                 <ContextualUseSuggestionsPanel rows={contextReviewDeliveries}
                   redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)} />
                 {passageReview.status === "pending" ? <p role="status" className="rounded-xl bg-sky-50 p-3 text-sm text-sky-900">Context checking is still running. Refresh before sending work back.</p> : null}
+                {passageReview.status === "complete" ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">AI context analysis is complete. {passageReview.rows.length ? "Review the findings below." : "No context choices were suggested."}</p> : null}
                 {passageReview.status === "unavailable" ? <p role="status" className="rounded-xl bg-slate-50 p-3 text-sm text-slate-800">AI context analysis was unavailable for this submission. If the writing has verified word positions, you can add a contextual word in Original writing.</p> : null}
-                {passageReview.status === "failed" ? <div className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900">
+                {passageReview.status === "failed" ? <div role="status" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900">
                   Luna could not finish checking this writing. You can add a contextual word manually and continue.
                   {passageReview.canRetry ? <form action={retryPassageContextScan} className="mt-2">
                     <input type="hidden" name="submission_id" value={submission.id} />

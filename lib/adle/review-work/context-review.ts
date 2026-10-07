@@ -34,7 +34,9 @@ export async function loadAdleContextReview(input: {
   }
   const jobRead = await input.client.from("adle_review_context_jobs")
     .select("id,status,error_code").eq("source_id", source.id).maybeSingle();
-  if (jobRead.error || !jobRead.data) throw new Error("ADLE_CONTEXT_JOB_UNAVAILABLE");
+  if (jobRead.error) throw new Error("ADLE_CONTEXT_JOB_UNAVAILABLE");
+  if (!jobRead.data) return { status: "unavailable",
+    reason: "No AI context scan was scheduled for this writing. You can inspect it manually.", findings: [] };
   const job = jobRead.data;
   if (job.status === "failed")
     return { status: "failed", reason: job.error_code ?? "AI_ADLE_WORKER_UNAVAILABLE", findings: [] };

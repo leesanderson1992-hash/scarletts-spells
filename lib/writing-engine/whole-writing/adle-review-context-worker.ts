@@ -7,7 +7,7 @@ import { analyseAiContext } from "./context-ai-provider";
 import { validContextRateCard, type ContextRateCard } from "./context-ai-cost";
 import { AI_CONTEXT_CONFIG_FINGERPRINT } from "./context-ai-gate";
 import { CONTEXT_SHADOW_MAX_REQUEST_BYTES, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
-  CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS, contextShadowIdentity } from "./context-shadow-policy";
+  CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS, contextShadowIdentity, contextShadowPreviewHeld } from "./context-shadow-policy";
 import { gatePassageFindings, passageRequestBody, planPassageWindows,
   type IndexedWord } from "./context-passage-scan";
 
@@ -24,6 +24,7 @@ function sha256(text: string) { return createHash("sha256").update(text).digest(
 /** One claimed Review job per invocation. The database serializes admissions
  * with course lessons and prevents another claim from resending a window. */
 export async function recoverAdleReviewContextJobs(reviewSessionId?: string, suppliedClient?: SupabaseClient) {
+  if (contextShadowPreviewHeld()) return { status: "held" as const };
   const client = suppliedClient ?? createServiceRoleClient();
   if (process.env.CONTEXT_AI_RELEASE_HOLD === "enabled") return { status: "held" as const };
   let job: Job | null = null;

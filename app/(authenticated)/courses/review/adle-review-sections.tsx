@@ -228,8 +228,9 @@ export function AdleReviewSections(props: {
           { id: "context", title: "Context analysis", summary: "Context choices", count: props.contextReview.findings.length + props.parentContext.length, content: (
             <div className="grid gap-3">
               {props.contextReview.status === "pending" ? <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-950">Context analysis is still running.</p> : null}
-              {props.contextReview.status === "failed" ? <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-950">The scan could not finish ({props.contextReview.reason}). Continue with manual inspection.</p> : null}
-              {props.contextReview.status === "unavailable" ? <p className="text-sm text-[var(--mid)]">{props.contextReview.reason ?? "This review has no AI context scan. You can inspect it manually."}</p> : null}
+              {props.contextReview.status === "complete" ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">AI context analysis is complete. {props.contextReview.findings.length ? "Review the findings below." : "No context choices were suggested."}</p> : null}
+              {props.contextReview.status === "failed" ? <p role="status" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-950">The scan could not finish ({props.contextReview.reason}). Continue with manual inspection.</p> : null}
+              {props.contextReview.status === "unavailable" ? <p role="status" className="text-sm text-[var(--mid)]">{props.contextReview.reason ?? "This review has no AI context scan. You can inspect it manually."}</p> : null}
               {props.contextReview.findings.length + props.parentContext.length > 0 ?
                 <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-white">
                   <table className="w-full min-w-[760px] border-collapse text-left text-sm">
