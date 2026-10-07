@@ -6,6 +6,7 @@ export const RESOLUTION_PAGE_SIZE = 25;
 
 export type ResolutionFilters = {
   page: number;
+  size: 25 | 50;
   q: string;
   family: string;
   cluster: string;
@@ -59,6 +60,7 @@ export function parseResolutionFilters(input: Record<string, string | undefined>
   const parsedPage = Number.parseInt(input.page ?? "1", 10);
   return {
     page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+    size: input.size === "50" ? 50 : 25,
     q: (input.q ?? "").trim().slice(0, 100),
     family: (input.family ?? "").trim().slice(0, 120),
     cluster: (input.cluster ?? "").trim().slice(0, 120),
@@ -76,6 +78,7 @@ export function resolutionHref(filters: ResolutionFilters, page = filters.page) 
   if (filters.skill) params.set("skill", filters.skill);
   if (filters.status !== "open") params.set("status", filters.status);
   if (filters.resolver !== "all") params.set("resolver", filters.resolver);
+  if (filters.size !== RESOLUTION_PAGE_SIZE) params.set("size", String(filters.size));
   if (page > 1) params.set("page", String(page));
   const suffix = params.toString();
   return `/admin/canonical-mappings${suffix ? `?${suffix}` : ""}`;
@@ -148,7 +151,7 @@ export async function loadResolutionPage(filters: ResolutionFilters) {
     .order("review_status", { ascending: false })
     .order("resolver_enabled", { ascending: true })
     .order("updated_at", { ascending: false })
-    .range((filters.page - 1) * RESOLUTION_PAGE_SIZE, filters.page * RESOLUTION_PAGE_SIZE - 1);
+    .range((filters.page - 1) * filters.size, filters.page * filters.size - 1);
   if (error) throw new Error(error.message);
   const items = (data ?? []) as ItemRecord[];
   if (!items.length) return { rows: [], total: count ?? 0, skills, families, clusters };

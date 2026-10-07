@@ -176,6 +176,9 @@ export default async function ResolverPreviewPage({ searchParams }: {
           <select className="adle-admin-select" name="resolver" aria-label="Resolver enabled" defaultValue={filters.resolver}>
             <option value="all">Resolver: all</option><option value="yes">Resolver enabled</option><option value="no">Resolver off</option>
           </select>
+          <select className="adle-admin-select" name="size" aria-label="Rows per page" defaultValue={filters.size}>
+            <option value="25">25 per page</option><option value="50">50 per page</option>
+          </select>
           <button className="adle-admin-primary" type="submit">Apply</button>
         </form>
       </div>

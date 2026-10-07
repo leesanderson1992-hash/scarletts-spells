@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AppDialog } from "@/components/app-dialog";
 import { SEED_IMPORT_TEMPLATE_HEADER } from "@/lib/writing-engine/seed-import-columns";
 import { SeedImportUploadPanel } from "../seed-import-review/upload-panel";
 import {
+  applyBulkResolution,
   confirmResolution,
   deleteResolution,
   moveResolutionToNoMatchingSkill,
@@ -15,11 +17,24 @@ import {
   saveResolutionDraft,
   setResolutionResolverVisibility,
 } from "./resolution-actions";
+import { isBulkResolutionEligible, type BulkResolutionAction } from "./bulk-resolution";
 import type { ResolutionFilters, ResolutionRow, SkillOption } from "./resolution-read-model";
 
 type Family = { skill_family_key: string; display_name: string };
 type Cluster = { skill_family_key: string; skill_cluster_key: string; display_name: string };
 type DialogKind = "details" | "edit" | "confirm" | "reopen" | "visibility" | "noSkill" | "delete";
+
+const bulkLabels: Record<BulkResolutionAction, string> = {
+  confirm: "Confirm", noSkill: "No Matching Skill", activate: "Activate in Resolver",
+};
+
+function BulkIcon({ action }: { action: BulkResolutionAction }) {
+  if (action === "confirm") return <span aria-hidden="true" className="resolution-double-tick">✓✓</span>;
+  if (action === "noSkill") return <span aria-hidden="true" className="resolution-cross">✕</span>;
+  return <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2">
+    <circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 5 5" />
+  </svg>;
+}
 
 function displayDate(value: string | null) {
   if (!value) return "Not recorded";
@@ -167,15 +182,72 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
   rows: ResolutionRow[]; skills: SkillOption[]; families: Family[]; clusters: Cluster[]; total: number;
   readOnlyPreview?: boolean; previewFilters?: ResolutionFilters;
 }) {
+  const router = useRouter();
   const [previewRows, setPreviewRows] = useState(rows);
   const [importOpen, setImportOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selected, setSelected] = useState<{ kind: DialogKind; row: ResolutionRow } | null>(null);
   const [menu, setMenu] = useState<{ row: ResolutionRow; top: number; left: number } | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [bulkAction, setBulkAction] = useState<BulkResolutionAction | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkFeedback, setBulkFeedback] = useState<{
+    succeeded: number; skipped: number; failures: Array<{ label: string; reason: string }>;
+    warnings: Array<{ label: string; reason: string }>;
+  } | null>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
   const visibleRows = readOnlyPreview ? previewRows.filter((row) =>
     (!previewFilters || previewFilters.status === "all" || previewFilters.status === "open" && row.status !== "closed" || row.status === previewFilters.status) &&
     (!previewFilters || previewFilters.resolver === "all" || row.resolverEnabled === (previewFilters.resolver === "yes")))
     .sort((left, right) => previewSortGroup(left) - previewSortGroup(right) || right.updatedAt.localeCompare(left.updatedAt)) : rows;
+  const selectedRows = visibleRows.filter((row) => selectedIds.has(row.id));
+  const allSelected = visibleRows.length > 0 && selectedRows.length === visibleRows.length;
+  useEffect(() => {
+    if (selectAllRef.current) selectAllRef.current.indeterminate = selectedRows.length > 0 && !allSelected;
+  }, [selectedRows.length, allSelected]);
+  const eligibleFor = (action: BulkResolutionAction, row: ResolutionRow) => isBulkResolutionEligible(action, {
+    status: row.status, resolverEnabled: row.resolverEnabled, mappingId: row.mappingId,
+    mappingStatus: row.mappingStatus, visibilityStatus: row.visibilityStatus,
+    skillReady: Boolean(row.skillKey && row.skillName),
+  });
+  const bulkEligible = bulkAction ? selectedRows.filter((row) => eligibleFor(bulkAction, row)) : [];
+  const toggleRow = (id: string) => setSelectedIds((current) => {
+    if (current.has(id)) return new Set([...current].filter((selectedId) => selectedId !== id));
+    return new Set([...current, id]);
+  });
+  const toggleAll = () => setSelectedIds(allSelected ? new Set() : new Set(visibleRows.map((row) => row.id)));
+  const runBulkAction = async () => {
+    if (!bulkAction || bulkBusy || !bulkEligible.length) return;
+    setBulkBusy(true);
+    setBulkFeedback(null);
+    try {
+      if (readOnlyPreview) {
+        const eligibleIds = new Set(bulkEligible.map((row) => row.id));
+        setPreviewRows((current) => current.flatMap((row) => {
+          if (!eligibleIds.has(row.id)) return [row];
+          if (bulkAction === "noSkill") return [];
+          if (bulkAction === "confirm") return [{ ...row, status: "confirmed" as const,
+            resolverEnabled: false, mappingId: row.mappingId ?? `preview-${row.id}`,
+            mappingStatus: "active", visibilityStatus: "hidden", updatedAt: new Date().toISOString() }];
+          return [{ ...row, resolverEnabled: true, visibilityStatus: "visible", updatedAt: new Date().toISOString() }];
+        }));
+        setBulkFeedback({ succeeded: bulkEligible.length, skipped: selectedRows.length - bulkEligible.length,
+          failures: [], warnings: [] });
+      } else {
+        const result = await applyBulkResolution(bulkAction, selectedRows.map((row) => row.id));
+        setBulkFeedback(result);
+        router.refresh();
+      }
+      setSelectedIds(new Set());
+      setBulkAction(null);
+    } catch (cause) {
+      setBulkFeedback({ succeeded: 0, skipped: 0, failures: [{ label: "Bulk action",
+        reason: cause instanceof Error ? cause.message : "The bulk action failed." }], warnings: [] });
+      setBulkAction(null);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
   const onPreviewAction = (kind: "confirm" | "reopen" | "visibility" | "noSkill", row: ResolutionRow) => {
     if (!readOnlyPreview) return;
     setPreviewRows((current) => kind === "noSkill" ? current.filter((item) => item.id !== row.id) : current.map((item) => item.id !== row.id ? item : kind === "confirm" ? {
@@ -209,6 +281,14 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
   }, [menu]);
   const show = (kind: DialogKind, row: ResolutionRow) => { setMenu(null); setSelected({ kind, row }); };
   return <>
+    {bulkFeedback ? <div role={bulkFeedback.failures.length || bulkFeedback.warnings.length ? "alert" : "status"}
+      className={bulkFeedback.failures.length || bulkFeedback.warnings.length ? "adle-admin-alert resolution-bulk-feedback" : "adle-admin-success resolution-bulk-feedback"}>
+      <p>{bulkFeedback.succeeded} updated, {bulkFeedback.skipped} skipped, {bulkFeedback.failures.length} failed.</p>
+      {bulkFeedback.failures.length ? <ul>{bulkFeedback.failures.map((failure, index) =>
+        <li key={`${index}:${failure.label}`}>{failure.label}: {failure.reason}</li>)}</ul> : null}
+      {bulkFeedback.warnings.length ? <ul>{bulkFeedback.warnings.map((warning, index) =>
+        <li key={`${index}:${warning.label}`}>{warning.label}: {warning.reason}</li>)}</ul> : null}
+    </div> : null}
     <div className="resolution-table-top">
       <p>{readOnlyPreview ? visibleRows.length : total} {(readOnlyPreview ? visibleRows.length : total) === 1 ? "spelling pair" : "spelling pairs"}</p>
       <div className="resolution-table-actions">
@@ -230,12 +310,17 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
     <div className="adle-admin-table-wrap">
       <table className="adle-admin-table resolution-table">
         <thead><tr>
+          <th scope="col" className="resolution-select-cell"><input ref={selectAllRef} type="checkbox"
+            aria-label="Select all spelling pairs on this page" checked={allSelected} disabled={!visibleRows.length}
+            onChange={toggleAll} /></th>
           <th scope="col">Misspelling</th><th scope="col">Correction</th><th scope="col">Family</th>
           <th scope="col">Cluster</th><th scope="col">Skill</th><th scope="col">Status</th>
           <th scope="col">Source</th><th scope="col" className="check">Resolver Enabled</th>
           <th scope="col" className="options">Actions</th>
         </tr></thead>
         <tbody>{visibleRows.map((row) => <tr key={row.id} className={row.status === "pending" ? "resolution-pending-row" : row.status === "closed" ? "resolution-closed-row" : ""}>
+          <td className="resolution-select-cell"><input type="checkbox" checked={selectedIds.has(row.id)}
+            aria-label={`Select ${row.misspelling} to ${row.correction}`} onChange={() => toggleRow(row.id)} /></td>
           <th scope="row" className="word">{row.misspelling}</th>
           <td>{row.correction}</td><td>{row.familyName ?? "—"}</td><td>{row.clusterName ?? "—"}</td>
           <td>{row.skillName ?? <span className="text-[#9a1247]">Needs skill</span>}</td>
@@ -252,6 +337,17 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
       </table>
       {!visibleRows.length ? <div className="adle-admin-empty">No spelling pairs match these filters.</div> : null}
     </div>
+    {selectedRows.length ? <div className="resolution-bulk-bar" role="toolbar" aria-label="Bulk spelling actions">
+      <span className="resolution-bulk-count">{selectedRows.length} selected</span>
+      {(["confirm", "noSkill", "activate"] as const).map((action) => {
+        const count = selectedRows.filter((row) => eligibleFor(action, row)).length;
+        return <button key={action} type="button" disabled={!count || bulkBusy} onClick={() => setBulkAction(action)}
+          aria-label={`${bulkLabels[action]} ${count} eligible spelling ${count === 1 ? "pair" : "pairs"}`}>
+          <BulkIcon action={action} /><span>{bulkLabels[action]}</span><strong>{count}</strong>
+        </button>;
+      })}
+      <button type="button" className="resolution-bulk-clear" onClick={() => setSelectedIds(new Set())}>Clear</button>
+    </div> : null}
     {menu && typeof document !== "undefined" ? createPortal(<div className="adle-admin-dropdown resolution-row-menu"
       role="menu" style={{ top: menu.top, left: menu.left }}>
       {menu.row.status === "pending" ? <button type="button" role="menuitem" onClick={() => show("confirm", menu.row)}>Confirm</button> : null}
@@ -268,6 +364,23 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
     {selected ? <ActionDialog key={`${selected.row.id}:${selected.kind}`} kind={selected.kind} row={selected.row}
       onClose={() => setSelected(null)} onPreviewAction={onPreviewAction} skills={skills} families={families} clusters={clusters}
       readOnlyPreview={readOnlyPreview} /> : null}
+    <AppDialog open={bulkAction !== null} onOpenChange={(open) => { if (!open && !bulkBusy) setBulkAction(null); }}
+      title={bulkAction ? `${bulkLabels[bulkAction]} selected spelling pairs` : "Bulk action"} size="lg">
+      {bulkAction ? <div className="adle-admin-dialog-body resolution-bulk-dialog">
+        <p><strong>{bulkEligible.length}</strong> of {selectedRows.length} selected spelling pairs are eligible.
+          {selectedRows.length > bulkEligible.length ? ` ${selectedRows.length - bulkEligible.length} will be skipped.` : ""}</p>
+        {bulkAction === "confirm" ? <p>Confirm these canonical mappings. Resolver use will remain off until activated separately.</p> : null}
+        {bulkAction === "noSkill" ? <p>Move these pairs to No Matching Skill while preserving their linked evidence.</p> : null}
+        {bulkAction === "activate" ? <p>Make these confirmed pairs available to the resolver.</p> : null}
+        <ul className="resolution-bulk-pairs">{bulkEligible.map((row) =>
+          <li key={row.id}>{row.misspelling} → {row.correction}</li>)}</ul>
+        <div className="resolution-bulk-dialog-actions">
+          <button type="button" className="adle-admin-secondary" disabled={bulkBusy} onClick={() => setBulkAction(null)}>Cancel</button>
+          <button type="button" className="adle-admin-primary" disabled={!bulkEligible.length || bulkBusy}
+            onClick={runBulkAction}>{bulkBusy ? "Applying…" : `${bulkLabels[bulkAction]} ${bulkEligible.length}`}</button>
+        </div>
+      </div> : null}
+    </AppDialog>
     <AppDialog open={uploadOpen} onOpenChange={setUploadOpen} title="Import seed candidates" size="lg">
       <div className="adle-admin-dialog-body">{readOnlyPreview ?
         <p className="adle-admin-alert">Upload requires the authenticated workspace and a connected Supabase database.</p> :

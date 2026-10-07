@@ -1,11 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 
 import {
   loadResolutionPage,
   parseResolutionFilters,
-  RESOLUTION_PAGE_SIZE,
   resolutionHref,
 } from "./resolution-read-model";
 import { ResolutionWorkspace } from "./resolution-workspace";
@@ -30,7 +30,8 @@ export default async function CanonicalMisspellingResolverPage({ searchParams }:
     console.error("[canonical-misspelling-resolver] load failed", cause);
     loadError = "Misspelling records could not be loaded. Try again shortly.";
   }
-  const totalPages = result ? Math.max(1, Math.ceil(result.total / RESOLUTION_PAGE_SIZE)) : 1;
+  const totalPages = result ? Math.max(1, Math.ceil(result.total / filters.size)) : 1;
+  if (result && filters.page > totalPages) redirect(resolutionHref(filters, totalPages));
 
   return <main className="adle-admin-page resolution-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
     <div className="mx-auto max-w-[1500px]">
@@ -91,10 +92,15 @@ export default async function CanonicalMisspellingResolverPage({ searchParams }:
               <option value="yes">Resolver enabled</option>
               <option value="no">Resolver off</option>
             </select>
+            <label htmlFor="resolution-size" className="sr-only">Rows per page</label>
+            <select id="resolution-size" name="size" defaultValue={filters.size} className="adle-admin-select">
+              <option value="25">25 per page</option>
+              <option value="50">50 per page</option>
+            </select>
             <button type="submit" className="adle-admin-primary">Apply</button>
           </form>
         </div>
-        <ResolutionWorkspace rows={result.rows} skills={result.skills} families={result.families}
+        <ResolutionWorkspace key={JSON.stringify(filters)} rows={result.rows} skills={result.skills} families={result.families}
           clusters={result.clusters} total={result.total} />
         <nav aria-label="Table pages" className="mt-5 flex items-center justify-end gap-3 text-sm">
           {filters.page > 1 ? <Link href={resolutionHref(filters, filters.page - 1)} className="adle-admin-secondary">Previous</Link> : null}
