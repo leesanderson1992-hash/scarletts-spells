@@ -376,7 +376,9 @@ export function createSupabaseSpellingCandidateMappingRepositoryBase(
         .single();
 
       if (error || !data) {
-        throw new Error("Failed to create pending spelling candidate mapping.");
+        throw new Error("Failed to create pending spelling candidate mapping.", {
+          cause: error ?? undefined,
+        });
       }
 
       const record = toParentLocalPendingRecord(
