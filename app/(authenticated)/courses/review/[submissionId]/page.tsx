@@ -47,9 +47,10 @@ import {
   type UnifiedSpellingReviewWorkflowPhase,
 } from "../unified-spelling-review-table";
 import { ReviewAddWordForm } from "../review-add-word-form";
-import { ReviewWordSelectionProvider, SelectableOriginalWriting } from "../review-word-selection";
+import { ReviewWordSelectionProvider, SelectableOriginalWriting, type ReviewWritingHighlight } from "../review-word-selection";
 import { ReviewGuidedSections } from "../review-guided-sections";
 import { ReviewActionSubmitButton } from "../review-action-submit-button";
+import { ReviewSendBackButton } from "../review-send-back-button";
 import { ParentContextualFeedbackCases } from "../parent-contextual-feedback-cases";
 
 import {
@@ -307,7 +308,7 @@ function LessonReviewActionFooter(props: LessonReviewActionsProps) {
       <form id={`lesson-send-back-${props.submissionId}`} action={returnSubmissionToChild}
         className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-4">
         {hiddenInputs}{confirmations()}
-        <button type="submit" className="brand-secondary-btn justify-center">Send back to child</button>
+        <ReviewSendBackButton />
         <p className="text-xs text-[var(--mid)]">Sends the parent note and answer feedback to the child.</p>
       </form>
       <form action={approveSubmissionReview}
@@ -914,6 +915,60 @@ export default async function CourseReviewDetailPage({
   );
   const displayedWritingText = linkedSample?.sample_text ?? parsedSubmission.writtenResponse ?? "";
   const displayedSourceField = passageReview.sourceFields.find((field) => field.text === displayedWritingText);
+  // These small reads restore the original review's resolver marks. Coordinates
+  // are checked against the immutable field before a mark is rendered.
+  const [spellingMarksResult, contextMarksResult] = await Promise.all([
+    linkedSample ? supabase.from("misspelling_instances")
+      .select("id,misspelled_word,corrected_word,is_false_positive,position_start,position_end,source_writing_occurrence_id,parent_authored_feedback")
+      .eq("writing_sample_id", linkedSample.id).eq("parent_user_id", user.id)
+      .order("position_start").limit(500) : Promise.resolve({ data: [], error: null }),
+    supabase.from("writing_issues")
+      .select("id,observed_text,approved_replacement,suggested_replacement,source_writing_occurrence_id,metadata,final_classification")
+      .eq("task_submission_id", submission.id).eq("parent_user_id", user.id)
+      .order("created_at", { ascending: false }).limit(500),
+  ]);
+  const occurrenceById = new Map(parentIdentifiedOccurrences.map((item) => [item.id, item]));
+  const writingHighlights: ReviewWritingHighlight[] = [
+    ...(spellingMarksResult.data ?? []).flatMap((row) => {
+      if (row.is_false_positive) return [];
+      const occurrence = row.source_writing_occurrence_id
+        ? occurrenceById.get(row.source_writing_occurrence_id) : null;
+      const fieldPath = occurrence?.fieldPath ?? displayedSourceField?.path ?? "/rawSubmissionText";
+      const start = occurrence?.startUtf16 ?? row.position_start;
+      const end = occurrence?.endUtf16 ?? row.position_end;
+      return fieldPath && typeof start === "number" && typeof end === "number"
+        ? [{ fieldPath, start, end, observed: occurrence?.observedText ?? row.misspelled_word,
+          intended: row.corrected_word, kind: "spelling" as const,
+          origin: row.parent_authored_feedback ? "parent" as const : "resolver" as const }] : [];
+    }),
+    ...(contextMarksResult.data ?? []).flatMap((row) => {
+      const metadata = row.metadata as Record<string, unknown> | null;
+      if (metadata?.source_kind !== "contextual_advisory_v4" ||
+          row.final_classification === "not_a_learning_issue") return [];
+      const occurrence = row.source_writing_occurrence_id
+        ? occurrenceById.get(row.source_writing_occurrence_id) : null;
+      return occurrence ? [{ fieldPath: occurrence.fieldPath, start: occurrence.startUtf16,
+        end: occurrence.endUtf16, observed: occurrence.observedText,
+        intended: row.approved_replacement ?? row.suggested_replacement ?? "review",
+        kind: "context" as const,
+        origin: metadata?.feedback_origin === "parent_added" ? "parent" as const : "resolver" as const }] : [];
+    }),
+    ...contextAdvisory.rows.flatMap((row) => {
+      const occurrence = occurrenceById.get(row.occurrenceId);
+      if (!occurrence || row.sourceStatus !== "ready" ||
+          row.parentClassification === "VALID" || row.parentClassification === "EXCLUDED" ||
+          (row.parentClassification !== "INVALID" &&
+            row.machineStatus !== "INVALID" && row.machineStatus !== "UNCERTAIN")) return [];
+      return [{ fieldPath: occurrence.fieldPath, start: occurrence.startUtf16,
+        end: occurrence.endUtf16, observed: occurrence.observedText,
+        intended: row.parentAlternative ?? row.machineAlternative ?? "review",
+        kind: "context" as const, origin: row.parentClassification === "INVALID" ? "parent" as const : "resolver" as const }];
+    }),
+    ...passageReview.rows.filter((row) => !row.dismissed && row.sourceStatus === "ready")
+      .map((row) => ({ fieldPath: row.fieldPath, start: row.startUtf16, end: row.endUtf16,
+        observed: row.observed, intended: row.correction, kind: "context" as const,
+        origin: row.confirmed ? "parent" as const : "resolver" as const })),
+  ];
 
   return (
     <AppShell
@@ -963,7 +1018,7 @@ export default async function CourseReviewDetailPage({
               : authenticUse?.eligibleForAwards ? "authentic" : "feedback"
             : "writing"}
           sections={[
-            { id: "writing", title: "Original writing & Add Word", summary: "Select a word in the submitted writing", content: (
+            { id: "writing", title: "Original writing & Add Word", summary: "Select a word in the submitted writing", keepMounted: true, content: (
               <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
                 <div className="min-w-0">
                   <p className="text-sm leading-6 text-[var(--mid)]">Select an exact word in the submitted writing to add spelling or context feedback.</p>
@@ -971,24 +1026,21 @@ export default async function CourseReviewDetailPage({
                     <SelectableOriginalWriting text={displayedWritingText}
                       fieldPath={displayedSourceField?.path ?? "/rawSubmissionText"}
                       occurrences={parentIdentifiedOccurrences}
-                      className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
-                      {displayedWritingText ? renderHighlightedText(displayedWritingText, [],
-                        passageReview.rows.filter((row) => row.fieldPath === displayedSourceField?.path))
-                        : "No written response on this submission."}
-                    </SelectableOriginalWriting>
+                      highlights={writingHighlights}
+                      className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]" />
                   </div>
                   {passageReview.sourceFields.filter((field) => field.path !== displayedSourceField?.path).map((field, index) =>
                     <div key={field.path} className="mt-3 rounded-2xl border border-[var(--border)] bg-white p-4">
                       <p className="mb-2 text-xs font-medium text-[var(--mid)]">Original answer {index + 1}</p>
                       <SelectableOriginalWriting text={field.text} fieldPath={field.path}
                         occurrences={parentIdentifiedOccurrences}
-                        className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
-                        {renderHighlightedText(field.text, [], passageReview.rows.filter((row) => row.fieldPath === field.path))}
-                      </SelectableOriginalWriting>
+                        highlights={writingHighlights}
+                        className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]" />
                     </div>)}
                 </div>
                 <ReviewAddWordForm spellingAction={addMissedWordToSubmissionReview}
                   contextAction={addParentContextualMiss} submissionId={submission.id}
+                  sampleFieldPath={displayedSourceField?.path ?? "/rawSubmissionText"}
                   redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)}
                   occurrences={parentIdentifiedOccurrences} sourceFields={passageReview.sourceFields} />
                 {parentOccurrenceIndex.reason ? <p role="status" className="text-sm text-amber-900">{parentOccurrenceIndex.reason}</p> : null}

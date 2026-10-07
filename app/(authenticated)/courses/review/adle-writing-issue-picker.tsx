@@ -15,7 +15,7 @@ export type AdleWritingHighlight = {
   start: number;
   end: number;
   label: string;
-  tone: "success" | "repaired" | "not_secured" | "context";
+  tone: "success" | "repaired" | "not_secured" | "context" | "spelling";
 };
 
 export type AdleWritingIssuePickerAddInput = {
@@ -30,41 +30,35 @@ export type AdleWritingIssuePickerAddResult =
   | { ok: false; message: string };
 
 function renderHighlightedWriting(text: string, highlights: AdleWritingHighlight[]) {
-  const sorted = [...highlights]
-    .filter(
-      (highlight) =>
-        highlight.start >= 0 &&
-        highlight.end > highlight.start &&
-        highlight.end <= text.length,
-    )
-    .sort((left, right) => left.start - right.start);
-  const safeHighlights = sorted.filter(
-    (highlight, index) => index === 0 || highlight.start >= sorted[index - 1].end,
-  );
+  const valid = highlights.filter((item) => item.start >= 0 && item.end > item.start && item.end <= text.length);
+  const boundaries = [...new Set([0, text.length, ...valid.flatMap((item) => [item.start, item.end])])]
+    .sort((left, right) => left - right);
   const parts: ReactNode[] = [];
-  let cursor = 0;
   const tones = {
     success: "bg-emerald-100 decoration-emerald-500",
     repaired: "bg-amber-100 decoration-amber-500",
     not_secured: "bg-rose-100 decoration-rose-500",
     context: "bg-blue-100 decoration-blue-600",
+    spelling: "bg-amber-100 decoration-amber-600",
   } as const;
-
-  safeHighlights.forEach((highlight) => {
-    if (highlight.start > cursor) parts.push(text.slice(cursor, highlight.start));
+  for (let index = 0; index < boundaries.length - 1; index++) {
+    const start = boundaries[index], end = boundaries[index + 1];
+    const matching = valid.filter((item) => item.start <= start && item.end >= end);
+    if (!matching.length) { parts.push(text.slice(start, end)); continue; }
+    const highlight = matching.find((item) => item.tone === "context") ??
+      matching.find((item) => item.tone === "spelling") ?? matching[0];
+    const label = matching.map((item) => item.label).join("; ");
     parts.push(
       <mark
-        key={`${highlight.start}-${highlight.end}`}
-        title={highlight.label}
-        aria-label={highlight.label}
+        key={`${start}-${end}`}
+        title={label}
+        aria-label={label}
         className={`rounded px-0.5 text-inherit underline decoration-2 underline-offset-2 ${tones[highlight.tone]}`}
       >
-        {text.slice(highlight.start, highlight.end)}
+        {text.slice(start, end)}
       </mark>,
     );
-    cursor = highlight.end;
-  });
-  if (cursor < text.length) parts.push(text.slice(cursor));
+  }
   return parts;
 }
 
@@ -86,6 +80,7 @@ export function AdleWritingIssuePicker(props: {
   const [selectedOccurrence, setSelectedOccurrence] = useState<AdleWritingOccurrence | null>(null);
   const [notice, setNotice] = useState<AdleWritingIssuePickerAddResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [addedHighlights, setAddedHighlights] = useState<AdleWritingHighlight[]>([]);
   const occurrences = useMemo(
     () => findAdleWritingOccurrences(props.submittedWritingText, observed),
     [observed, props.submittedWritingText],
@@ -147,6 +142,11 @@ export function AdleWritingIssuePicker(props: {
       if (!result) return;
       setNotice(result);
       if (result.ok) {
+        setAddedHighlights((current) => [...current, {
+          start: effectiveSelected.start, end: effectiveSelected.end,
+          tone: mode === "context" ? "context" : "spelling",
+          label: `Added ${mode}: ${observed} → ${correct}`,
+        }]);
         if ("added" in result && result.added) {
           window.dispatchEvent(new CustomEvent("review-word-added", { detail: { section: result.section } }));
         }
@@ -172,7 +172,7 @@ export function AdleWritingIssuePicker(props: {
           onMouseUp={props.readOnly ? undefined : captureSelection}
           onKeyUp={props.readOnly ? undefined : captureSelection}
           className="mt-3 whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-white p-4 text-sm leading-7 text-[var(--ink)] selection:bg-pink-200">
-          {renderHighlightedWriting(props.submittedWritingText, props.highlights)}
+          {renderHighlightedWriting(props.submittedWritingText, [...props.highlights, ...addedHighlights])}
         </p>
       </div>
       {!props.readOnly ? <div className="rounded-2xl border border-[var(--border)] bg-white p-4">

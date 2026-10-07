@@ -5,12 +5,17 @@ import { useMemo, useState, type FormEvent } from "react";
 import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 import { normaliseParentIdentifiedOccurrenceWord } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
 import { sentenceContext } from "@/lib/writing-engine/whole-writing/sentence-context";
-import { useReviewWordSelection } from "./review-word-selection";
+import { useReviewWordSelection, type ReviewWritingHighlight } from "./review-word-selection";
+
+type AddWordResult = { ok: boolean; message: string; section: "words" | "context"; added: boolean;
+  savedItem?: { id: string; observed: string; intended: string; occurrenceId: string | null;
+    start?: number | null; end?: number | null; sentence?: string } };
 
 export function ReviewAddWordForm(props: {
-  spellingAction: (formData: FormData) => Promise<{ ok: boolean; message: string; section: "words"; added: boolean } | void>;
-  contextAction: (formData: FormData) => Promise<{ ok: boolean; message: string; section: "context"; added: boolean } | void>;
+  spellingAction: (formData: FormData) => Promise<AddWordResult | void>;
+  contextAction: (formData: FormData) => Promise<AddWordResult | void>;
   submissionId: string; redirectPath: string;
+  sampleFieldPath: string;
   occurrences: ParentIdentifiedOccurrenceCandidate[];
   sourceFields: { path: string; text: string }[];
 }) {
@@ -45,7 +50,19 @@ export function ReviewAddWordForm(props: {
       if (!result) return;
       setNotice(result);
       if (result.ok && result.added) {
-        window.dispatchEvent(new CustomEvent("review-word-added", { detail: { section: result.section } }));
+        const saved = result.savedItem;
+        const occurrence = props.occurrences.find((item) => item.id === saved?.occurrenceId);
+        const highlight: ReviewWritingHighlight | undefined = saved && occurrence
+          ? { fieldPath: occurrence.fieldPath,
+            start: occurrence.startUtf16, end: occurrence.endUtf16,
+            observed: saved.observed, intended: saved.intended,
+            kind: mode, origin: "parent" }
+          : saved && saved.start !== null && saved.start !== undefined &&
+            saved.end !== null && saved.end !== undefined
+            ? { fieldPath: props.sampleFieldPath, start: saved.start, end: saved.end,
+              observed: saved.observed, intended: saved.intended, kind: mode, origin: "parent" }
+            : undefined;
+        window.dispatchEvent(new CustomEvent("review-word-added", { detail: { section: result.section, highlight } }));
         setTyped("");
         setSelected(null);
         setSelectedText(null);

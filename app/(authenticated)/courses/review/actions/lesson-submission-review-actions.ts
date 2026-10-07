@@ -147,7 +147,8 @@ export async function markSuggestionReviewedAsAccepted(input: {
 }
 
 type InlineAddResult = { ok: boolean; message: string; section: "words"; added: boolean;
-  savedItem?: { id: string; observed: string; intended: string; occurrenceId: string | null } };
+  savedItem?: { id: string; observed: string; intended: string; occurrenceId: string | null;
+    start: number | null; end: number | null } };
 
 class InlineAddOutcome extends Error {
   constructor(readonly result: InlineAddResult) { super(result.message); }
@@ -398,7 +399,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData): P
     `${safeRedirectPath}${safeRedirectPath.includes("?") ? "&" : "?"}section=words`,
     "saved", "Missed word added to the review list below.", true,
     { id: savedRow.id, observed: safeMisspelledWord, intended: safeCorrectedWord,
-      occurrenceId: sourceWritingOccurrenceId });
+      occurrenceId: sourceWritingOccurrenceId, start: range?.start ?? null, end: range?.end ?? null });
   } catch (error) {
     if (error instanceof InlineAddOutcome) return error.result;
     throw error;

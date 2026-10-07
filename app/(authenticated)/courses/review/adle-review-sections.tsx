@@ -217,11 +217,16 @@ export function AdleReviewSections(props: {
       <ReviewGuidedSections storageKey={`adle-review-${props.detail.reviewSessionId}`}
         initialSection="writing"
         sections={[
-          { id: "writing", title: "Original writing & Add Word", summary: "Select a word in the submitted writing", content: (
+          { id: "writing", title: "Original writing & Add Word", summary: "Select a word in the submitted writing", keepMounted: true, content: (
             <AdleWritingIssuePicker submittedWritingText={props.detail.submittedWritingText}
               highlights={[...buildWritingHighlights(props.detail),
                 ...props.contextReview.findings.map((f) => ({ start: f.startUtf16, end: f.endUtf16,
-                  tone: "context" as const, label: `Context suggestion: ${f.observed} → ${f.intended}` }))]}
+                  tone: "context" as const, label: `Context suggestion: ${f.observed} → ${f.intended}` })),
+                ...props.detail.parentIssues.map((issue) => ({ start: issue.positionStart, end: issue.positionEnd,
+                  tone: "spelling" as const, label: `Added spelling: ${issue.observedSpelling} → ${issue.correctSpelling}` })),
+                ...props.parentContext.filter((choice) => choice.decision !== "dismissed").map((choice) => ({
+                  start: choice.startUtf16, end: choice.endUtf16, tone: "context" as const,
+                  label: `Added context: ${choice.observed} → ${choice.intended}` }))]}
               sourceId={props.detail.sourceId} childId={props.detail.childId}
               redirectPath={props.redirectPath} readOnly={readOnly} />
           ) },
