@@ -87,3 +87,20 @@ export async function deleteNoMatchingSkillCase(formData: FormData) {
   revalidatePath("/admin/canonical-mappings");
   redirect("/admin/no-matching-skill?saved=Admin%20case%20deleted");
 }
+
+export async function linkAdleContextCatalogCase(formData: FormData) {
+  const admin = await requireAdminUser();
+  const caseId = formData.get("case_id");
+  const skillKey = formData.get("micro_skill_key");
+  if (typeof caseId !== "string" || !/^[0-9a-f-]{36}$/i.test(caseId) ||
+    typeof skillKey !== "string" || !/^D4_[A-Z0-9_]+$/.test(skillKey)) {
+    redirect("/admin/no-matching-skill?error=Invalid%20ADLE%20context%20selection");
+  }
+  const { error } = await createServiceRoleClient().rpc("link_adle_review_context_catalog_case", {
+    p_case_id: caseId, p_micro_skill_key: skillKey, p_admin_user_id: admin.id,
+  });
+  if (error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(error.message)}`);
+  revalidatePath("/admin/no-matching-skill");
+  revalidatePath("/courses/review");
+  redirect("/admin/no-matching-skill?saved=ADLE%20context%20pair%20linked");
+}

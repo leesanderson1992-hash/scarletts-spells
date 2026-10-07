@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { loadAdleContextReview } from "@/lib/adle/review-work/context-review";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -75,6 +76,16 @@ async function authorizeCompletedReview(formData: FormData): Promise<{
 
 export async function submitAdleReviewWorkInspection(formData: FormData) {
   const context = await authorizeCompletedReview(formData);
+  const contextReview = await loadAdleContextReview({
+    client: context.serviceClient, reviewSessionId: context.detail.reviewSessionId,
+    parentUserId: context.detail.parentUserId, childId: context.detail.childId,
+    submittedText: context.detail.submittedWritingText,
+  });
+  if (contextReview.status === "pending") redirectWithMessage(context.redirectPath,
+    "error", "Pending Context Analysis must finish before inspection can be submitted.");
+  if (contextReview.status === "complete" && contextReview.findings.some(f =>
+    f.decision !== "confirmed" && f.decision !== "dismissed")) redirectWithMessage(
+    context.redirectPath, "error", "Confirm or dismiss every context suggestion before submitting inspection.");
   const unresolvedResult = await context.serviceClient
     .from("adle_review_parent_issue_links")
     .select("id")
@@ -122,6 +133,33 @@ export async function submitAdleReviewWorkInspection(formData: FormData) {
     "saved",
     "Submitted. Learner completion, schedules and rewards were not changed.",
   );
+}
+
+export async function recordAdleReviewContextDecision(formData: FormData) {
+  const context = await authorizeCompletedReview(formData);
+  if (context.detail.observationalStatus === "reviewed") redirectWithMessage(
+    context.redirectPath, "error", "This inspection is read-only.");
+  const findingId = String(formData.get("finding_id") ?? "");
+  const action = String(formData.get("context_action") ?? "");
+  const intended = String(formData.get("intended_word") ?? "").trim();
+  if (!/^[a-f0-9-]{36}$/.test(findingId) || !["edit", "dismiss", "confirm"].includes(action)) {
+    redirectWithMessage(context.redirectPath, "error", "That context decision is invalid.");
+  }
+  const review = await loadAdleContextReview({ client: context.serviceClient,
+    reviewSessionId: context.detail.reviewSessionId, parentUserId: context.detail.parentUserId,
+    childId: context.detail.childId, submittedText: context.detail.submittedWritingText });
+  if (review.status !== "complete" || !review.findings.some(f => f.id === findingId))
+    redirectWithMessage(context.redirectPath, "error", "That context suggestion is unavailable.");
+  const result = await context.serviceClient.rpc("record_adle_review_context_decision", {
+    p_finding_id: findingId, p_parent_user_id: context.detail.parentUserId,
+    p_child_id: context.detail.childId, p_action: action,
+    p_intended_word: action === "dismiss" ? null : intended,
+  });
+  if (result.error) redirectWithMessage(context.redirectPath, "error", "The context decision could not be saved.");
+  revalidatePath(context.redirectPath.split("?")[0]);
+  redirectWithMessage(context.redirectPath, "saved", action === "confirm"
+    ? "Context choice confirmed for governed learning review."
+    : action === "dismiss" ? "Context suggestion dismissed." : "Context correction saved.");
 }
 
 function parseOccurrence(formData: FormData) {

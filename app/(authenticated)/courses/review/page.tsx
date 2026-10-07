@@ -585,6 +585,31 @@ export default async function CourseReviewPage({
     (sample) => sample.review_completed_at !== null,
   );
   const adleReviewSummaries = await adleReviewSummariesPromise;
+  const liveAdleSessionIds = adleReviewSummaries.filter(r => r.observationalStatus === "available_to_review")
+    .map(r => r.reviewSessionId);
+  const pendingAdleContextSessions = new Set<string>();
+  if (liveAdleSessionIds.length) {
+    const serviceClient = createServiceRoleClient();
+    const sourceRead = await serviceClient.from("adle_review_context_sources")
+      .select("id,review_session_id,capture_mode")
+      .eq("parent_user_id", user.id).eq("child_id", selectedChild.id)
+      .in("review_session_id", liveAdleSessionIds);
+    if (sourceRead.error) throw new Error("ADLE_CONTEXT_QUEUE_UNAVAILABLE");
+    // A disabled historical source can become active through an exact replay grant.
+    // Only a job makes it pending, so include every source when reading jobs.
+    const activeSources = sourceRead.data ?? [];
+    if (activeSources.length) {
+      const jobRead = await serviceClient.from("adle_review_context_jobs")
+        .select("source_id,status").in("source_id", activeSources.map(s => s.id));
+      if (jobRead.error) throw new Error("ADLE_CONTEXT_QUEUE_UNAVAILABLE");
+      const statusBySource = new Map((jobRead.data ?? []).map(j => [j.source_id, j.status]));
+      for (const source of activeSources) {
+        if (["pending", "processing", "deferred"].includes(statusBySource.get(source.id) ??
+          (source.capture_mode === "shadow" ? "pending" : "")))
+          pendingAdleContextSessions.add(source.review_session_id);
+      }
+    }
+  }
   const liveReviewEntries: LiveReviewQueueEntry[] = [
     ...adleReviewSummaries
       .filter((review) => review.observationalStatus === "available_to_review")
@@ -701,6 +726,11 @@ export default async function CourseReviewPage({
                             <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
                               New completed Review
                             </span>
+                            {pendingAdleContextSessions.has(review.reviewSessionId) ? (
+                              <span className="rounded-full border border-rose-300 bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-800">
+                                Pending Context Analysis
+                              </span>
+                            ) : null}
                           </div>
                           <p className="mt-1 text-sm text-[color:var(--mid)]">
                             Optional parent inspection · learner Review already complete

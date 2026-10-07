@@ -2,6 +2,8 @@ import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-e
 import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence/unified-spelling-review-items";
 import { readAttributedOccurrence } from "@/lib/adle/review-work/additional-spelling";
 import type { AdleReviewWorkDetail } from "@/lib/adle/review-work/read-model";
+import type { AdleContextReview } from "@/lib/adle/review-work/context-review";
+import { recordAdleReviewContextDecision } from "./actions/adle-review-work-actions";
 
 import { submitAdleReviewWorkInspection } from "./actions";
 import {
@@ -194,23 +196,71 @@ function TargetWordDetails({ detail }: { detail: AdleReviewWorkDetail }) {
 
 export function AdleReviewSections(props: {
   detail: AdleReviewWorkDetail;
+  contextReview: AdleContextReview;
   rows: UnifiedSpellingReviewItem[];
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   redirectPath: string;
 }) {
   const readOnly = props.detail.observationalStatus === "reviewed";
   const unresolvedRows = props.rows.filter((row) => !row.terminalStatus);
+  const unresolvedContext = props.contextReview.findings.filter(f =>
+    f.decision !== "confirmed" && f.decision !== "dismissed");
 
   return (
     <>
       <AdleWritingIssuePicker
         submittedWritingText={props.detail.submittedWritingText}
-        highlights={buildWritingHighlights(props.detail)}
+        highlights={[...buildWritingHighlights(props.detail),
+          ...props.contextReview.findings.map(f => ({ start: f.startUtf16, end: f.endUtf16,
+            tone: "context" as const, label: `Context suggestion: ${f.observed} → ${f.intended}` }))]}
         sourceId={props.detail.sourceId}
         childId={props.detail.childId}
         redirectPath={props.redirectPath}
         readOnly={readOnly}
       />
+
+      <section className="brand-card rounded-3xl p-4 md:p-5">
+        <h2 className="font-semibold text-[color:var(--ink)]">Context analysis</h2>
+        {props.contextReview.status === "pending" ? (
+          <p className="mt-3 inline-flex rounded-full border border-rose-300 bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-800">
+            Pending Context Analysis
+          </p>
+        ) : props.contextReview.status === "failed" ? (
+          <p className="mt-3 text-sm text-rose-800">The scan could not finish ({props.contextReview.reason}). Continue with manual inspection.</p>
+        ) : props.contextReview.status === "unavailable" ? (
+          <p className="mt-3 text-sm text-[color:var(--mid)]">{props.contextReview.reason ?? "This Review has no context scan. Inspect it manually."}</p>
+        ) : props.contextReview.findings.length === 0 ? (
+          <p className="mt-3 text-sm text-[color:var(--mid)]">Scan complete. No context suggestions.</p>
+        ) : (
+          <div className="mt-3 grid gap-3">
+            {props.contextReview.findings.map(f => (
+              <article key={f.id} className="rounded-2xl border border-blue-200 bg-blue-50 p-3">
+                <p className="text-sm text-[color:var(--ink)]">
+                  {props.detail.submittedWritingText.slice(Math.max(0, f.startUtf16 - 45), f.startUtf16)}
+                  <mark className="rounded bg-blue-200 px-0.5 text-blue-950 underline decoration-blue-700 decoration-2" title="Exact context span">
+                    {props.detail.submittedWritingText.slice(f.startUtf16, f.endUtf16)}
+                  </mark>
+                  {props.detail.submittedWritingText.slice(f.endUtf16, Math.min(props.detail.submittedWritingText.length, f.endUtf16 + 45))}
+                </p>
+                <p className="mt-2 text-xs text-blue-900">Suggested: {f.correction} · {f.decision === "pending" ? "Awaiting parent decision" : f.decision}</p>
+                {!readOnly && f.decision !== "confirmed" && f.decision !== "dismissed" ? (
+                  <form action={recordAdleReviewContextDecision} className="mt-2 flex flex-wrap items-end gap-2">
+                    <HiddenContext detail={props.detail} redirectPath={props.redirectPath} />
+                    <input type="hidden" name="finding_id" value={f.id} />
+                    <label className="text-sm">Intended word
+                      <input name="intended_word" defaultValue={f.intended} maxLength={60}
+                        className="ml-2 rounded border border-blue-300 bg-white px-2 py-1" />
+                    </label>
+                    <button type="submit" name="context_action" value="edit" className="review-secondary">Save edit</button>
+                    <button type="submit" name="context_action" value="dismiss" className="review-secondary">Dismiss</button>
+                    <button type="submit" name="context_action" value="confirm" className="review-primary">Confirm</button>
+                  </form>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <TargetWordDetails detail={props.detail} />
 
@@ -245,7 +295,7 @@ export function AdleReviewSections(props: {
               <button
                 type="submit"
                 className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={unresolvedRows.length > 0}
+                disabled={unresolvedRows.length > 0 || props.contextReview.status === "pending" || unresolvedContext.length > 0}
               >
                 Submit
               </button>
@@ -256,6 +306,9 @@ export function AdleReviewSections(props: {
                 {unresolvedRows.length === 1 ? "" : "s"} before submitting.
               </p>
             ) : null}
+            {unresolvedContext.length > 0 ? <p className="mt-2 text-xs uppercase tracking-[0.14em] text-[color:var(--mid)]">
+              Confirm or dismiss {unresolvedContext.length} context suggestion{unresolvedContext.length === 1 ? "" : "s"} before submitting.
+            </p> : null}
           </>
         )}
       </section>

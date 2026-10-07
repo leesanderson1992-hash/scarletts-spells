@@ -13,7 +13,7 @@ export type AdleWritingHighlight = {
   start: number;
   end: number;
   label: string;
-  tone: "success" | "repaired" | "not_secured";
+  tone: "success" | "repaired" | "not_secured" | "context";
 };
 
 export type AdleWritingIssuePickerAddInput = {
@@ -45,6 +45,7 @@ function renderHighlightedWriting(text: string, highlights: AdleWritingHighlight
     success: "bg-emerald-100 decoration-emerald-500",
     repaired: "bg-amber-100 decoration-amber-500",
     not_secured: "bg-rose-100 decoration-rose-500",
+    context: "bg-blue-100 decoration-blue-600",
   } as const;
 
   safeHighlights.forEach((highlight) => {

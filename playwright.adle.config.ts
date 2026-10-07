@@ -21,7 +21,7 @@ export default defineConfig({
   },
   webServer: {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${adlePort}`,
-    url: `${adleBaseUrl}/dev/adle/morphology-primitives`,
+    url: `${adleBaseUrl}/dev/adle/review-work`,
     reuseExistingServer,
     timeout: 120_000,
   },

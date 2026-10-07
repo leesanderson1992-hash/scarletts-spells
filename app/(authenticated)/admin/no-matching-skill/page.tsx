@@ -5,6 +5,7 @@ import { isKnownWordLike } from "@/lib/spelling/lexicon";
 import { isKnownWord } from "@/lib/spelling/suggestCorrection";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { NoMatchingSkillWorkspace, type NoSkillRow } from "./workspace";
+import { linkAdleContextCatalogCase } from "./actions";
 import "../adle-canonical-intake-readiness/readiness.css";
 import "../canonical-mappings/resolution.css";
 
@@ -130,6 +131,13 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
   }
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  let adleCasesQuery = db.from("adle_review_context_catalog_cases")
+    .select("id,observed_normalized,intended_normalized,created_at", { count: "exact" })
+    .eq("case_status", "open");
+  if (safe) adleCasesQuery = adleCasesQuery.or(
+    `observed_normalized.ilike.%${safe}%,intended_normalized.ilike.%${safe}%`);
+  const adleCasesRead = await adleCasesQuery.order("created_at", { ascending: false }).limit(PAGE_SIZE);
+  if (adleCasesRead.error) throw new Error(adleCasesRead.error.message);
 
   return <main className="adle-admin-page resolution-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
     <div className="mx-auto max-w-[1500px]">
@@ -170,6 +178,24 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
       <NoMatchingSkillWorkspace rows={rows} skills={skillResult.data ?? []}
         families={familyResult.data ?? []} clusters={clusterResult.data ?? []}
         membersBySkill={membersBySkill} mappedSkillsByQueueId={mappedSkillsByQueueId} />
+      <section aria-labelledby="adle-context-catalog-heading" className="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-5">
+        <h2 id="adle-context-catalog-heading" className="text-lg font-semibold">ADLE Review context pairs</h2>
+        <p className="mt-1 text-sm text-[#59616b]">{adleCasesRead.count ?? 0} open parent-confirmed pairs need a contextual micro skill. Select an active skill to approve and link the pair; teaching readiness is reviewed separately.</p>
+        <div className="mt-4 grid gap-3">
+          {(adleCasesRead.data ?? []).map((reviewCase) => <form key={reviewCase.id}
+            action={linkAdleContextCatalogCase} className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3">
+            <strong className="text-sm">{reviewCase.observed_normalized} → {reviewCase.intended_normalized}</strong>
+            <input type="hidden" name="case_id" value={reviewCase.id} />
+            <label className="text-sm">Contextual skill <select name="micro_skill_key" required
+              defaultValue="" className="ml-2 rounded border bg-white px-2 py-1">
+              <option value="">Choose a skill</option>
+              {(skillResult.data ?? []).map((skill) => <option key={skill.micro_skill_key}
+                value={skill.micro_skill_key}>{skill.display_name}</option>)}
+            </select></label>
+            <button type="submit" className="adle-admin-primary">Link pair</button>
+          </form>)}
+        </div>
+      </section>
       <nav aria-label="Table pages" className="mt-5 flex items-center justify-end gap-3 text-sm">
         {page > 1 ? <Link href={pageHref(q, page - 1)} className="adle-admin-secondary">Previous</Link> : null}
         <span>Page {page} of {totalPages}</span>
