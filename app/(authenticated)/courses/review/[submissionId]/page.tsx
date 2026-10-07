@@ -928,6 +928,9 @@ export default async function CourseReviewDetailPage({
       .order("created_at", { ascending: false }).limit(500),
   ]);
   const occurrenceById = new Map(parentIdentifiedOccurrences.map((item) => [item.id, item]));
+  const clearedContextOccurrences = new Set(contextAdvisory.rows
+    .filter((row) => row.parentClassification === "VALID" || row.parentClassification === "EXCLUDED")
+    .map((row) => row.occurrenceId));
   const writingHighlights: ReviewWritingHighlight[] = [
     ...(spellingMarksResult.data ?? []).flatMap((row) => {
       if (row.is_false_positive) return [];
@@ -944,6 +947,7 @@ export default async function CourseReviewDetailPage({
     ...(contextMarksResult.data ?? []).flatMap((row) => {
       const metadata = row.metadata as Record<string, unknown> | null;
       if (metadata?.source_kind !== "contextual_advisory_v4" ||
+          clearedContextOccurrences.has(row.source_writing_occurrence_id ?? "") ||
           row.final_classification === "not_a_learning_issue") return [];
       const occurrence = row.source_writing_occurrence_id
         ? occurrenceById.get(row.source_writing_occurrence_id) : null;

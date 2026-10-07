@@ -142,11 +142,13 @@ export function AdleWritingIssuePicker(props: {
       if (!result) return;
       setNotice(result);
       if (result.ok) {
-        setAddedHighlights((current) => [...current, {
-          start: effectiveSelected.start, end: effectiveSelected.end,
-          tone: mode === "context" ? "context" : "spelling",
-          label: `Added ${mode}: ${observed} → ${correct}`,
-        }]);
+        if (!("added" in result) || result.added) {
+          setAddedHighlights((current) => [...current, {
+            start: effectiveSelected.start, end: effectiveSelected.end,
+            tone: mode === "context" ? "context" : "spelling",
+            label: `Added ${mode}: ${observed} → ${correct}`,
+          }]);
+        }
         if ("added" in result && result.added) {
           window.dispatchEvent(new CustomEvent("review-word-added", { detail: { section: result.section } }));
         }
