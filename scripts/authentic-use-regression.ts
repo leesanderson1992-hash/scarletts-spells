@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { readProficiencyFactRows } from "../lib/authentic-use/paged-facts";
 import { drainAuthenticUseDeliveries, recoverAuthenticUseDeliveries } from "../lib/authentic-use/delivery";
-import { calculateAuthenticUsePreview, type AuthenticUseFinding } from "../lib/writing-engine/whole-writing/authentic-use-credit";
+import { calculateAuthenticUsePreview, calculateAuthenticUseFromOccurrences, extractAdleAuthenticWriting,
+  type AuthenticUseFinding } from "../lib/writing-engine/whole-writing/authentic-use-credit";
 import { extractWholeWriting, type SourceSnapshot } from "../lib/writing-engine/whole-writing/source";
 import { planPassageWindows } from "../lib/writing-engine/whole-writing/context-passage-scan";
 import { findingsFromReviewFacts } from "../lib/authentic-use/review";
@@ -58,6 +59,21 @@ assert(!preview([{ id: "context", observed: "", occurrenceId: its.id, intended: 
 assert(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: false, scannedWindows: [] }).requiresManualReview);
 assert(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: true, scannedWindows: [] }).requiresManualReview);
 assert.equal(calculateAuthenticUsePreview({ snapshot, findings: [], spellingComplete: true, scannedWindows: [] }).contextCoverage?.status, "incomplete");
+const adleText = "The child wrote because she wanted to. She wrote becaus once.";
+const adle = extractAdleAuthenticWriting({ sourceId: "review-session", sourceHash: "a".repeat(64), text: adleText });
+const adleWindows = planPassageWindows({ fields: [{ path: adle.field.key, hash: adle.field.textHash, text: adleText }] })!;
+const adlePreview = (findings: AuthenticUseFinding[], scanned = true) => calculateAuthenticUseFromOccurrences({
+  sourceId: "source", fields: [adle.field], occurrences: adle.occurrences, findings,
+  scannedWindows: scanned ? adleWindows.map(w => ({ windowFingerprint: w.windowFingerprint, status: "SCANNED" })) : [],
+  spellingComplete: scanned, suppliedWords: ["because"],
+});
+assert.equal(adlePreview([]).requiresManualReview, false);
+assert(adlePreview([]).candidates.some(c => c.wordKey === "because" && c.suppliedSpelling));
+const adleError = adlePreview([{ id: "parent", observed: "becaus", intended: "because", disposition: "error" }]);
+assert(!adleError.candidates.some(c => ["because", "becaus"].includes(c.wordKey)));
+assert(adlePreview([{ id: "context", observed: "becaus", intended: null, disposition: "unresolved" }]).requiresManualReview);
+assert(adlePreview([], false).requiresManualReview);
+for (const occurrence of adle.occurrences) assert.equal(adleText.slice(occurrence.start, occurrence.end), occurrence.observedText);
 const facts = findingsFromReviewFacts({
   issues: [{ id: "manual", observed_text: "becaus", approved_replacement: "because", parent_marked_at: "now" }],
   suggestions: [{ id: "dismiss", observed_text: "novel", suggestion_status: "rejected" }, { id: "pending", observed_text: "joy", suggestion_status: "pending" }],

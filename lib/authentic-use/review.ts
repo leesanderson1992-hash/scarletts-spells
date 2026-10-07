@@ -133,11 +133,20 @@ export async function loadAuthenticUseReview(input: { submissionId: string; pare
   const firstAttempt = chain.first_submission_id === input.submissionId;
   const snapshot = facts.snapshot as SourceSnapshot | null;
   if (!snapshot) return { ...empty, firstAttempt, finalised, sourceMissing: true, fingerprint: string(data.fingerprint) };
+  let historicalGrant = false;
+  if (Date.parse(snapshot.occurred_at) < Date.parse(control.activation_cutoff)) {
+    const grant = await client.from("authentic_use_historical_grants").select("id")
+      .eq("source_type", "course_lesson").eq("source_id", snapshot.id)
+      .eq("parent_user_id", input.parentUserId).eq("child_id", input.childId).maybeSingle();
+    if (grant.error) throw new Error("AUTHENTIC_USE_HISTORICAL_GRANT_UNAVAILABLE");
+    historicalGrant = !!grant.data;
+  }
   const preview = finalised ? object(facts.review).preview as AuthenticUsePreview : calculateAuthenticUsePreview({ snapshot,
     findings: findingsFromReviewFacts(facts), spellingComplete: facts.processing_complete === true,
     scannedWindows: rows(facts.ai_attempts).map(a => ({ windowFingerprint: string(a.window_fingerprint), status: string(a.result_status) })) });
   return { control, preview, fingerprint: string(data.fingerprint), firstAttempt, finalised, sourceMissing: false,
-    eligibleForAwards: firstAttempt && !finalised && control.mode === "enabled" && Date.parse(snapshot.occurred_at) >= Date.parse(control.activation_cutoff) };
+    eligibleForAwards: firstAttempt && !finalised && control.mode === "enabled" &&
+      (Date.parse(snapshot.occurred_at) >= Date.parse(control.activation_cutoff) || historicalGrant) };
 }
 
 export async function prepareAuthenticUseParentAction(input: { submissionId: string; parentUserId: string; childId: string; formData: FormData }): Promise<{ review: AuthenticUseReview; preparationId: string | null }> {

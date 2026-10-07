@@ -3,6 +3,7 @@ import type { UnifiedSpellingReviewItem } from "@/lib/writing-engine/persistence
 import { readAttributedOccurrence } from "@/lib/adle/review-work/additional-spelling";
 import type { AdleReviewWorkDetail } from "@/lib/adle/review-work/read-model";
 import type { AdleContextReview } from "@/lib/adle/review-work/context-review";
+import type { AdleAuthenticUseReview } from "@/lib/authentic-use/adle-review";
 import { recordAdleReviewContextDecision } from "./actions/adle-review-work-actions";
 
 import { submitAdleReviewWorkInspection } from "./actions";
@@ -197,6 +198,7 @@ function TargetWordDetails({ detail }: { detail: AdleReviewWorkDetail }) {
 export function AdleReviewSections(props: {
   detail: AdleReviewWorkDetail;
   contextReview: AdleContextReview;
+  authenticUse: AdleAuthenticUseReview;
   rows: UnifiedSpellingReviewItem[];
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
   redirectPath: string;
@@ -277,9 +279,26 @@ export function AdleReviewSections(props: {
         }}
       />
 
+      {props.authenticUse.enabled ? <section className="brand-card rounded-3xl p-4 md:p-5">
+        <h2 className="font-semibold text-[color:var(--ink)]">Authentic use from original writing</h2>
+        {props.authenticUse.sourceMissing ? <p className="mt-2 text-sm">The original source is unavailable; no automatic credit can be awarded.</p> : <>
+          <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+            {props.authenticUse.eligibleForAwards
+              ? "These words can receive credit after you resolve errors and confirm the original writing."
+              : props.authenticUse.finalised ? "The original writing has already been reviewed."
+                : "This writing predates activation and has no historical credit grant."}
+          </p>
+          <p className="mt-2 text-sm">Qualifying words: {props.authenticUse.preview?.candidates.map(c => c.observedWord).join(", ") || "None"}.</p>
+          <p className="mt-1 text-sm">Excluded by spelling or context findings: {props.authenticUse.preview?.blocked.map(c => c.wordKey).join(", ") || "None"}.</p>
+          {props.authenticUse.preview?.requiresManualReview && !readOnly ? <p className="mt-2 text-sm text-amber-800">Automatic coverage is incomplete. Review the whole original writing before submitting.</p> : null}
+        </>}
+      </section> : null}
+
       <section className="brand-card rounded-3xl p-4 md:p-5">
         <p className="text-sm leading-6 text-[color:var(--mid)]">
-          Submit records only that the parent has finished inspecting this completed Review. It does not affect learner completion, Target Word outcomes, schedules, lessons or rewards.
+          {props.authenticUse.enabled
+            ? "Submit records that the parent has finished inspecting this completed Review. Authentic-use credit, when eligible, is verified from the original writing. Learner completion, Target Word outcomes and schedules stay as recorded."
+            : "Submit records that the parent has finished inspecting this completed Review. Learner completion, Target Word outcomes, schedules and rewards stay as recorded."}
         </p>
         <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
           A confirmed additional spelling may enter the child learning queue when canonical intake and curriculum content are ready. Under the current governed rules, this observation does not create a Golden Nugget.
@@ -292,6 +311,14 @@ export function AdleReviewSections(props: {
           <>
             <form action={submitAdleReviewWorkInspection} className="mt-3">
               <HiddenContext detail={props.detail} redirectPath={props.redirectPath} />
+              {props.authenticUse.enabled && !props.authenticUse.sourceMissing ? <div className="mb-3 grid gap-2 rounded-2xl border border-sky-200 bg-sky-50 p-3 text-sm">
+                <label className="flex items-start gap-2"><input type="checkbox" name="authentic_use_review_confirmed" value="true" required />
+                  <span>I checked the child’s original Review writing and recorded any spelling or context errors.</span></label>
+                {props.authenticUse.preview?.requiresManualReview ? <label className="flex items-start gap-2">
+                  <input type="checkbox" name="authentic_use_manual_review" value="true" required />
+                  <span>I manually reviewed the whole writing because automatic checks are incomplete.</span>
+                </label> : null}
+              </div> : null}
               <button
                 type="submit"
                 className="brand-primary-btn disabled:cursor-not-allowed disabled:opacity-60"

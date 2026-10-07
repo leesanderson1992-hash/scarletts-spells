@@ -23,6 +23,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadAdleReviewWorkDetail } from "@/lib/adle/review-work/read-model";
 import { loadAdleContextReview } from "@/lib/adle/review-work/context-review";
+import { loadAdleAuthenticUseReview } from "@/lib/authentic-use/adle-review";
 import { loadAdleUnifiedSpellingReviewItems } from "@/lib/adle/review-work/unified-spelling";
 import {
   getReviewWorkCandidateCaptureMicroSkillProvider,
@@ -693,13 +694,14 @@ export default async function CourseReviewDetailPage({
       sourceId: reviewEntry.id,
     });
     if (!detail) notFound();
-    const [adleSpellingRows, candidateCaptureMicroSkillProvider, adleContextReview] =
+    const [adleSpellingRows, candidateCaptureMicroSkillProvider, adleContextReview, adleAuthenticUseReview] =
       await Promise.all([
         loadAdleUnifiedSpellingReviewItems({ serviceClient, detail }),
         getReviewWorkCandidateCaptureMicroSkillProvider({ supabase }),
         loadAdleContextReview({ client: serviceClient, reviewSessionId: detail.reviewSessionId,
           parentUserId: detail.parentUserId, childId: detail.childId,
           submittedText: detail.submittedWritingText }),
+        loadAdleAuthenticUseReview({ client: serviceClient, detail }),
       ]);
     const originalSuccessCount = detail.targets.filter(
       (target) => target.originalOutcome === "success",
@@ -786,6 +788,7 @@ export default async function CourseReviewDetailPage({
           <AdleReviewSections
             detail={detail}
             contextReview={adleContextReview}
+            authenticUse={adleAuthenticUseReview}
             rows={adleSpellingRows}
             options={
               candidateCaptureMicroSkillProvider.status === "available"

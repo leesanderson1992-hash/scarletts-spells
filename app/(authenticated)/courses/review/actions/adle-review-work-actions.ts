@@ -2,6 +2,8 @@
 
 import { randomUUID } from "node:crypto";
 import { loadAdleContextReview } from "@/lib/adle/review-work/context-review";
+import { loadAdleAuthenticUseReview } from "@/lib/authentic-use/adle-review";
+import { drainAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -108,30 +110,50 @@ export async function submitAdleReviewWorkInspection(formData: FormData) {
       "Finish or dismiss every added misspelling before submitting this inspection.",
     );
   }
-  const { error } = await context.serviceClient
-    .from("adle_review_parent_reviews")
-    .upsert(
-      {
-        review_session_id: context.detail.reviewSessionId,
-        parent_user_id: context.detail.parentUserId,
-        child_id: context.detail.childId,
-        reviewed_by_user_id: context.detail.parentUserId,
-      },
-      { onConflict: "review_session_id", ignoreDuplicates: true },
-    );
-  if (error) {
-    redirectWithMessage(
-      context.redirectPath,
-      "error",
-      "The parent review receipt could not be saved.",
-    );
+  const authentic = await loadAdleAuthenticUseReview({ client: context.serviceClient, detail: context.detail });
+  if (authentic.finalised) redirectWithMessage(context.redirectPath, "saved", "This inspection was already submitted.");
+  if (authentic.enabled && !authentic.finalised && !authentic.sourceMissing) {
+    if (formData.get("authentic_use_review_confirmed") !== "true") redirectWithMessage(
+      context.redirectPath, "error", "Confirm that you reviewed the original writing before submitting inspection.");
+    const manualReview = formData.get("authentic_use_manual_review") === "true";
+    if (authentic.preview?.requiresManualReview && !manualReview) redirectWithMessage(
+      context.redirectPath, "error", "The automatic checks are incomplete. Confirm your manual review of the original writing.");
+    const prepared = await context.serviceClient.rpc("prepare_adle_authentic_use_review", {
+      p_review_session_id: context.detail.reviewSessionId,
+      p_parent_user_id: context.detail.parentUserId,
+      p_child_id: context.detail.childId,
+      p_fingerprint: authentic.fingerprint,
+      p_preview: authentic.preview,
+      p_occurrences: authentic.occurrences,
+      p_manual_review: manualReview,
+    });
+    if (prepared.error || !prepared.data) redirectWithMessage(context.redirectPath,
+      "error", "The writing review changed. Reload it and check the authentic-use words before submitting.");
+    const finalised = await context.serviceClient.rpc("finalise_adle_authentic_use_review", {
+      p_review_session_id: context.detail.reviewSessionId,
+      p_parent_user_id: context.detail.parentUserId,
+      p_child_id: context.detail.childId,
+      p_preparation_id: prepared.data,
+    });
+    if (finalised.error) redirectWithMessage(context.redirectPath,
+      "error", "The parent inspection and authentic-use credit could not be saved together.");
+    try { await drainAuthenticUseDeliveries({ client: context.serviceClient, timeBudgetMs: 5_000 }); }
+    catch { console.error("[authentic-use] ADLE delivery deferred to recovery"); }
+  } else {
+    const { error } = await context.serviceClient.from("adle_review_parent_reviews").upsert({
+      review_session_id: context.detail.reviewSessionId,
+      parent_user_id: context.detail.parentUserId,
+      child_id: context.detail.childId,
+      reviewed_by_user_id: context.detail.parentUserId,
+    }, { onConflict: "review_session_id", ignoreDuplicates: true });
+    if (error) redirectWithMessage(context.redirectPath, "error", "The parent review receipt could not be saved.");
   }
   revalidatePath("/courses/review");
   revalidatePath(context.redirectPath.split("?")[0]);
   redirectWithMessage(
     context.redirectPath,
     "saved",
-    "Submitted. Learner completion, schedules and rewards were not changed.",
+    "Submitted. Original Review outcomes and schedules were not changed.",
   );
 }
 
