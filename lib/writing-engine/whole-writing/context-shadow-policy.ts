@@ -9,7 +9,12 @@ export const CONTEXT_SHADOW_WORKER_BUDGET_MS = 50000;
 export const CONTEXT_SHADOW_MAX_REQUEST_BYTES = 16000;
 /** A preview wired to Production data must never claim a Production provider job. */
 export function contextShadowPreviewHeld() {
-  return process.env.VERCEL_ENV === "preview" && process.env.CONTEXT_AI_ENVIRONMENT !== "staging";
+  if (process.env.VERCEL_ENV !== "preview") return false;
+  let projectHost: string | null = null;
+  try { projectHost = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname; }
+  catch { /* No verified staging connection. */ }
+  return projectHost === "wwohrqtunajrbwxyssjf.supabase.co" ||
+    process.env.CONTEXT_AI_ENVIRONMENT !== "staging";
 }
 export const CONTEXT_SHADOW_RUNTIME_FINGERPRINT = createHash("sha256").update(JSON.stringify({
   version: CONTEXT_SHADOW_RUNTIME_VERSION, config: AI_CONTEXT_CONFIG_FINGERPRINT,
