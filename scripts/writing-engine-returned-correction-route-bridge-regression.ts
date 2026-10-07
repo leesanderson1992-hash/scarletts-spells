@@ -86,6 +86,13 @@ assert.equal(
 );
 assert.equal(
   resolve({
+    candidateMappings: [promotedMapping({ task_submission_id: "original-submission-1" })],
+  }).status,
+  "bridged",
+  "An occurrence-anchored candidate still bridges through its explicit correction attempt",
+);
+assert.equal(
+  resolve({
     candidateMappings: [
       promotedMapping({
         metadata: {
@@ -173,6 +180,10 @@ const candidateMappingActions = readFileSync(
   "app/(authenticated)/courses/review/actions/candidate-mapping-actions.ts",
   "utf8",
 );
+const catalogReviewCaseActions = readFileSync(
+  "app/(authenticated)/courses/review/actions/catalog-review-case-actions.ts",
+  "utf8",
+);
 const diagnostics = readFileSync(
   "lib/writing-engine/persistence/returned-correction-learning-route-diagnostics.ts",
   "utf8",
@@ -186,6 +197,16 @@ assert.match(
   candidateMappingActions,
   /buildReturnedCorrectionRepairPlan\([\s\S]*if \(!plan\.safeToApply\)[\s\S]*applyReturnedCorrectionRepairPlan\([\s\S]*if \(!result\.repaired \|\| !result\.learningItemId\)/,
   "Candidate handoff repair must build and validate the governed repair plan before applying it and requiring a durable learning item.",
+);
+assert.match(
+  candidateMappingActions,
+  /candidateMappingRepository\.insertPending\(\{[\s\S]*?taskSubmissionId: routeContext\.issue\.task_submission_id/,
+  "The candidate source must use the immutable occurrence's original submission",
+);
+assert.equal(
+  (catalogReviewCaseActions.match(/task_submission_id: routeContext\.issue\.task_submission_id/g) ?? []).length,
+  2,
+  "Catalog case insert and retry update must use the occurrence's original submission",
 );
 assert.match(
   candidateMappingActions,

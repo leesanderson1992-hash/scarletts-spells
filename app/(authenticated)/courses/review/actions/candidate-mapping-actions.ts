@@ -824,7 +824,7 @@ async function captureReturnedCorrectionCandidateMapping(input: {
       parentUserId: input.parentUserId,
       childId: input.submission.child_id,
       parentVerificationId,
-      taskSubmissionId: input.submission.id,
+      taskSubmissionId: routeContext.issue.task_submission_id,
       writingSampleId: routeContext.misspelling.writing_sample_id,
       sourceSuggestionId: routeContext.issue.source_suggestion_id,
       sourceMisspellingInstanceId: routeContext.misspelling.id,

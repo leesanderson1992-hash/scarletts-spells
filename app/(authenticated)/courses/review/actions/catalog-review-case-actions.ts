@@ -154,7 +154,7 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
     const { error: updateError } = await input.supabase
       .from("spelling_catalog_review_cases")
       .update({
-        task_submission_id: input.submission.id,
+        task_submission_id: routeContext.issue.task_submission_id,
         writing_sample_id: routeContext.misspelling.writing_sample_id,
         source_suggestion_id: routeContext.issue.source_suggestion_id,
         reviewed_event_source_entity_id:
@@ -186,7 +186,7 @@ async function captureReturnedCorrectionCatalogReviewCase(input: {
       .insert({
         parent_user_id: input.parentUserId,
         child_id: input.submission.child_id,
-        task_submission_id: input.submission.id,
+        task_submission_id: routeContext.issue.task_submission_id,
         writing_sample_id: routeContext.misspelling.writing_sample_id,
         source_suggestion_id: routeContext.issue.source_suggestion_id,
         source_misspelling_instance_id: routeContext.misspelling.id,
