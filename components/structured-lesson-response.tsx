@@ -594,7 +594,7 @@ export function StructuredLessonResponse({
     }
 
     return (
-      <div className="mt-3 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+      <div className="my-3 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
           Feedback
         </p>
@@ -858,6 +858,7 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             {renderOriginalAnswerWithMarks(block.block_id)}
+            {isReturnedForReview ? renderFeedback(block.block_id) : null}
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[color:var(--ink)]">
                 {block.label}
@@ -875,7 +876,7 @@ export function StructuredLessonResponse({
             </label>
             {renderQuestionCheck(block.block_id)}
             {renderSaveStatus(block.block_id)}
-            {renderFeedback(block.block_id)}
+            {!isReturnedForReview ? renderFeedback(block.block_id) : null}
             {renderReturnedIssueFeedback(block.block_id)}
           </div>
         );
@@ -883,6 +884,7 @@ export function StructuredLessonResponse({
         return (
           <div className="rounded-[1.5rem] border border-[var(--border)] bg-white px-4 py-4">
             {renderOriginalAnswerWithMarks(block.block_id)}
+            {isReturnedForReview ? renderFeedback(block.block_id) : null}
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-[color:var(--ink)]">
                 {block.label}
@@ -900,7 +902,7 @@ export function StructuredLessonResponse({
             </label>
             {renderQuestionCheck(block.block_id)}
             {renderSaveStatus(block.block_id)}
-            {renderFeedback(block.block_id)}
+            {!isReturnedForReview ? renderFeedback(block.block_id) : null}
             {renderReturnedIssueFeedback(block.block_id)}
           </div>
         );

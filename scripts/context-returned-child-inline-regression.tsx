@@ -55,6 +55,7 @@ const markedHtml = renderToStaticMarkup(<StructuredLessonResponse
     answers: [{ block_id: "first", value: "The child has begun a new answer." }] }}
   originalResponse={{ task_id: "task", child_id: "child", status: "submitted",
     answers: [{ block_id: "first", value: submittedAnswer }] }}
+  initialFieldFeedback={{ first: "Please explain your word choices." }}
   returnedIssueFeedback={returnedIssues}
   returnedContextExcerpts={Object.fromEntries(returnedIssues
     .filter((_, index) => returnedWords[index][1] === "context")
@@ -67,6 +68,9 @@ assert.equal((markedHtml.match(/Jump to its review card/g) ?? []).length, 5,
   "Each verified original occurrence links to one matching retry card");
 assert.ok(markedHtml.indexOf("Your submitted answer") < markedHtml.indexOf("The child has begun a new answer."),
   "Immutable submitted writing appears before the editable returned answer");
+assert.ok(markedHtml.indexOf("Your submitted answer") < markedHtml.indexOf("Please explain your word choices.") &&
+  markedHtml.indexOf("Please explain your word choices.") < markedHtml.indexOf("The child has begun a new answer."),
+"The parent note sits beside the submitted answer before the child edits it");
 assert.match(markedHtml, /href="#returned-word-word-4"[\s\S]*?<mark[^>]*>their<\/mark>/,
   "The contextual issue highlights its exact original occurrence");
 
