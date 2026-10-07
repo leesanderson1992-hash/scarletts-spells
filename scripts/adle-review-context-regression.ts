@@ -101,7 +101,7 @@ async function main() {
         assert.equal(data.source_text, text);
         const observed = text.includes("herd") ? "herd" : "too";
         const correction = observed === "herd" ? "heard" : "to";
-        const index = data.indexed_words.find(([_, word]: [number, string]) => word === observed)?.[0];
+        const index = data.indexed_words.find(([, word]: [number, string]) => word === observed)?.[0];
         return new Response(JSON.stringify({ id: "resp-synthetic", model: "gpt-6-luna",
           status: "completed", service_tier: "default",
           usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 },
