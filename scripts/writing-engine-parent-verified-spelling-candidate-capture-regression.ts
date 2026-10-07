@@ -650,6 +650,11 @@ function loadCaptureSubmissionSpellingCandidateMapping(state: Required<HarnessSt
         return "{}";
       },
     },
+    "@/lib/writing-engine/whole-writing/context-source": { reconstructOccurrenceContext() { return { status: "missing" }; } },
+    "@/lib/writing-engine/whole-writing/parent-identified-errors": {
+      resolveParentIdentifiedOccurrence() { return { status: "not_found" }; },
+    },
+    "@/lib/writing-engine/whole-writing/context-advisory-routing": { isGovernedContextMember() { return false; } },
     "@/lib/writing-engine/spelling/parent-added-misspelling-analysis": {
       analyseParentAddedMisspellingPair() {
         return null;
@@ -775,6 +780,14 @@ class FakeAddMissedWordQueryBuilder {
   insert(value: Record<string, unknown>) {
     this.pendingInsert = value;
     return this;
+  }
+
+  single() {
+    if (this.pendingInsert) {
+      this.applyInsert();
+      return Promise.resolve({ data: { id: "saved-misspelling-id" }, error: null });
+    }
+    return Promise.resolve({ data: this.resolveSingle(), error: null });
   }
 
   then(resolve: (value: { error: null }) => unknown, reject?: (reason: unknown) => unknown) {
@@ -1060,6 +1073,11 @@ function loadAddMissedWordToSubmissionReview(state: Required<HarnessState>) {
         return JSON.stringify(input);
       },
     },
+    "@/lib/writing-engine/whole-writing/context-source": { reconstructOccurrenceContext() { return { status: "missing" }; } },
+    "@/lib/writing-engine/whole-writing/parent-identified-errors": {
+      resolveParentIdentifiedOccurrence() { return { status: "not_found" }; },
+    },
+    "@/lib/writing-engine/whole-writing/context-advisory-routing": { isGovernedContextMember() { return false; } },
     "@/lib/writing-engine/spelling/parent-added-misspelling-analysis": {
       analyseParentAddedMisspellingPair(input: {
         observedSpelling: string;
@@ -1419,6 +1437,7 @@ async function testAddMissedWordPersistsParentAddedReviewInput() {
       is_parent_overridden: false,
       word_family_id: null,
       source_writing_occurrence_id: null,
+      parent_authored_feedback: true,
       context_text: "natral",
       position_start: 2,
       position_end: 8,
@@ -1519,7 +1538,7 @@ function testSourceGuardrailsStayIntact() {
   );
   assert.match(
     pageSource,
-    /parent_verified_spelling_candidate_mappings/,
+    /DeferredLessonSpellingReviewContent[\s\S]*rowsPromise=\{unifiedRowsPromise\}/,
   );
   assert.match(
     candidateMappingActionsSource,

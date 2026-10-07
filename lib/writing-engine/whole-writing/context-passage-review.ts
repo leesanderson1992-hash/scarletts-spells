@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { reconstructOccurrenceContext } from "./context-source";
+import { sentenceContext } from "./sentence-context";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 
 export type PassageReviewRow = {
@@ -82,7 +83,9 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
     return { findingId: f.id, occurrenceId: f.occurrence_id, observed: f.observed_text,
       correction: edited.get(f.id) ?? f.correction, suggestedCorrection: f.correction,
       fieldPath: occurrence?.field_path ?? "", startUtf16: f.start_utf16, endUtf16: f.end_utf16,
-      fieldHash: f.field_hash, excerpt: context?.status === "ready" ? context.excerpt : f.observed_text,
+      fieldHash: f.field_hash, excerpt: context?.status === "ready"
+        ? sentenceContext(context.fieldText, f.start_utf16, f.end_utf16)?.text ?? context.excerpt
+        : f.observed_text,
       dismissed: latest.get(f.id)?.action === "DISMISS",
       confirmed: edited.has(f.id) && latest.get(f.id)?.action !== "DISMISS",
       sourceStatus: ready ? "ready" : "blocked",

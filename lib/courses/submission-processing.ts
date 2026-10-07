@@ -14,6 +14,8 @@ import {
 import { replaceAnalysisForSample } from "@/lib/writing-engine/spelling/legacy-analysis";
 import { enqueueDisposableProviderProof } from "@/lib/writing-engine/whole-writing/context-proof";
 import { enqueueContextShadowForSubmission } from "@/lib/writing-engine/whole-writing/context-advisory-worker";
+import { indexSnapshotOccurrences } from "@/lib/writing-engine/whole-writing/occurrence-index";
+import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
 
 const MAX_ATTEMPTS = 8;
 const STALE_PROCESSING_MINUTES = 10;
@@ -241,6 +243,17 @@ async function runJob(job: JobRow) {
   const submission = data as SubmissionRow;
   // Persisted operator registration, never a payload flag. Produce no educational/reward facts.
   if (await enqueueDisposableProviderProof(supabase, submission.child_id, submission.id)) return;
+  // Prepare exact positions before spelling analysis or provider dispatch. A failed
+  // index can still be retried from the immutable snapshot on review open.
+  try {
+    const snapshot = await supabase.from("writing_source_snapshots").select("*")
+      .eq("submission_id", submission.id).eq("parent_user_id", submission.parent_user_id)
+      .eq("child_id", submission.child_id).maybeSingle();
+    if (snapshot.error) throw snapshot.error;
+    if (snapshot.data) await indexSnapshotOccurrences(supabase, snapshot.data as SourceSnapshot);
+  } catch {
+    console.error("[writing-occurrences] index unavailable", { code: "WRITING_OCCURRENCE_INDEX_UNAVAILABLE" });
+  }
   const payload = (job.payload ?? {}) as ProcessingPayload;
   const submittedAnswerText = payload.submissionText?.trim() ?? "";
   const sourceText = buildSpellcheckSourceText({

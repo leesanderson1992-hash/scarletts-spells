@@ -60,6 +60,17 @@ export async function loadAdleAuthenticUseReview(input: {
       disposition: action === "dismiss" ? "dismissed" : action === "confirm" ? "error" : "unresolved",
       occurrenceId: occurrenceAt(start, end) });
   }
+  for (const choice of rows(facts.parent_context_choices)) {
+    const start = Number(choice.start_utf16), end = Number(choice.end_utf16);
+    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end <= start ||
+      detail.submittedWritingText.slice(start, end) !== choice.observed_text || choice.source_hash !== sourceHash)
+      throw new Error("ADLE_AUTHENTIC_USE_PARENT_CONTEXT_SPAN");
+    const decision = string(choice.decision);
+    findings.push({ id: string(choice.id), observed: string(choice.observed_text),
+      intended: decision === "confirmed" ? string(choice.intended_word) : null,
+      disposition: decision === "dismissed" ? "dismissed" : decision === "confirmed" ? "error" : "unresolved",
+      occurrenceId: occurrenceAt(start, end) });
+  }
   for (const issue of rows(facts.parent_issues)) {
     const start = Number(issue.position_start), end = Number(issue.position_end);
     const observed = detail.submittedWritingText.slice(start, end);

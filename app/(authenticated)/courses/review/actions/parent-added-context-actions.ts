@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { reconstructOccurrenceContext } from "@/lib/writing-engine/whole-writing/context-source";
 import { normaliseParentIdentifiedOccurrenceWord } from "@/lib/writing-engine/whole-writing/parent-identified-errors";
+import { sentenceContext } from "@/lib/writing-engine/whole-writing/sentence-context";
 import type { SourceSnapshot } from "@/lib/writing-engine/whole-writing/source";
 
 export async function addParentContextualMissImpl(formData: FormData) {
@@ -51,6 +52,8 @@ export async function addParentContextualMissImpl(formData: FormData) {
   if (source.status !== "ready") {
     throw new Error("The immutable writing span no longer verifies.");
   }
+  const sentence = sentenceContext(source.fieldText, occurrence.start_utf16, occurrence.end_utf16);
+  if (!sentence) throw new Error("The sentence around this word could not be verified.");
   const saved = await service.rpc("record_parent_added_contextual_occurrence", {
     p_occurrence_id: occurrence.id,
     p_parent_user_id: user.id,
@@ -61,4 +64,16 @@ export async function addParentContextualMissImpl(formData: FormData) {
   if (saved.error) throw new Error("Could not save parent contextual feedback.");
   revalidatePath(`/courses/review/${submissionId}`);
   revalidatePath("/courses/review");
+  if (formData.get("__inline_add") === "true") {
+    return { ok: true, message: "Context choice added to the context review.", section: "context" as const, added: true,
+      savedItem: { id: String(saved.data), observed: occurrence.observed_text,
+        intended: intended.trim(), occurrenceId: occurrence.id, sentence: sentence.text } };
+  }
+  const redirectPath = formData.get("redirect_path");
+  const path = typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+    ? redirectPath : `/courses/review/${submissionId}`;
+  const url = new URL(path, "https://review.local");
+  url.searchParams.set("section", "context");
+  url.searchParams.set("saved", "Context choice added to the context review.");
+  redirect(`${url.pathname}${url.search}`);
 }

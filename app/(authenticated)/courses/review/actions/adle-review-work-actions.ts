@@ -1,6 +1,6 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { loadAdleContextReview } from "@/lib/adle/review-work/context-review";
 import { loadAdleAuthenticUseReview } from "@/lib/authentic-use/adle-review";
 import { drainAuthenticUseDeliveries } from "@/lib/authentic-use/delivery";
@@ -30,6 +30,9 @@ import {
   recordStage7dParentVerificationWithoutPromotion,
 } from "@/lib/writing-engine/review/stage7d-parent-verification";
 import { analyseParentAddedMisspellingPair } from "@/lib/writing-engine/spelling/parent-added-misspelling-analysis";
+import { loadAdleParentContextChoices } from "@/lib/adle/review-work/parent-context";
+import { isGovernedContextMember } from "@/lib/writing-engine/whole-writing/context-advisory-routing";
+import { sentenceContext } from "@/lib/writing-engine/whole-writing/sentence-context";
 
 function safeRedirectPath(value: FormDataEntryValue | null) {
   const path = typeof value === "string" ? value : "";
@@ -43,6 +46,27 @@ function redirectWithMessage(
 ): never {
   const separator = path.includes("?") ? "&" : "?";
   redirect(`${path}${separator}${key}=${encodeURIComponent(message)}`);
+}
+
+type InlineAdleAddResult = { ok: boolean; message: string; section: "context" | "words"; added: boolean;
+  savedItem?: { id: string; observed: string; intended: string; start: number; end: number; sentence?: string } };
+
+class InlineAdleAddOutcome extends Error {
+  constructor(readonly result: InlineAdleAddResult) { super(result.message); }
+}
+
+function finishAdleAdd(formData: FormData, path: string, key: "saved" | "error", message: string,
+  section: "context" | "words", added = false, savedItem?: InlineAdleAddResult["savedItem"]): never {
+  if (formData.get("__inline_add") === "true") {
+    throw new InlineAdleAddOutcome({ ok: key === "saved", message, section, added, savedItem });
+  }
+  redirectWithMessage(path, key, message);
+}
+
+function inReviewSection(path: string, section: "context" | "words") {
+  const url = new URL(path, "https://review.local");
+  url.searchParams.set("section", section);
+  return `${url.pathname}${url.search}`;
 }
 
 async function authorizeCompletedReview(formData: FormData): Promise<{
@@ -88,6 +112,11 @@ export async function submitAdleReviewWorkInspection(formData: FormData) {
   if (contextReview.status === "complete" && contextReview.findings.some(f =>
     f.decision !== "confirmed" && f.decision !== "dismissed")) redirectWithMessage(
     context.redirectPath, "error", "Confirm or dismiss every context suggestion before submitting inspection.");
+  const parentContext = await loadAdleParentContextChoices({ client: context.serviceClient,
+    reviewSessionId: context.detail.reviewSessionId, parentUserId: context.detail.parentUserId,
+    childId: context.detail.childId });
+  if (parentContext.some((choice) => choice.decision === "pending")) redirectWithMessage(
+    context.redirectPath, "error", "Confirm or dismiss every parent-added context choice before submitting inspection.");
   const unresolvedResult = await context.serviceClient
     .from("adle_review_parent_issue_links")
     .select("id")
@@ -184,6 +213,75 @@ export async function recordAdleReviewContextDecision(formData: FormData) {
     : action === "dismiss" ? "Context suggestion dismissed." : "Context correction saved.");
 }
 
+export async function addAdleReviewParentContextChoice(formData: FormData) {
+  try {
+  const context = await authorizeCompletedReview(formData);
+  if (context.detail.observationalStatus === "reviewed") finishAdleAdd(formData,
+    context.redirectPath, "error", "This inspection is read-only.", "context", false);
+  const occurrence = parseOccurrence(formData);
+  if (!occurrence) finishAdleAdd(formData, context.redirectPath, "error",
+    "Select an exact word and enter a different intended word.", "context", false);
+  if (occurrence.observedSpelling.length > 60 || occurrence.correctSpelling.length > 60)
+    finishAdleAdd(formData, context.redirectPath, "error", "Context words must be 60 characters or fewer.", "context", false);
+  const text = context.detail.submittedWritingText;
+  if (normalizeObservedSpelling(text.slice(occurrence.positionStart, occurrence.positionEnd)) !== occurrence.observedSpelling)
+    finishAdleAdd(formData, context.redirectPath, "error", "The selected word no longer matches the original writing.", "context", false);
+  const aiReview = await loadAdleContextReview({ client: context.serviceClient,
+    reviewSessionId: context.detail.reviewSessionId, parentUserId: context.detail.parentUserId,
+    childId: context.detail.childId, submittedText: text });
+  if (aiReview.findings.some((finding) => finding.startUtf16 === occurrence.positionStart &&
+    finding.endUtf16 === occurrence.positionEnd)) finishAdleAdd(formData,
+    inReviewSection(context.redirectPath, "context"), "error",
+    "This word is already in Context analysis. Review that row instead.", "context", false);
+  const sentence = sentenceContext(text, occurrence.positionStart, occurrence.positionEnd);
+  if (!sentence) finishAdleAdd(formData, context.redirectPath, "error",
+    "The sentence around this word could not be verified.", "context", false);
+  const existing = await context.serviceClient.from("adle_review_parent_context_choices")
+    .select("id").eq("review_session_id", context.detail.reviewSessionId)
+    .eq("start_utf16", occurrence.positionStart).eq("end_utf16", occurrence.positionEnd)
+    .maybeSingle();
+  if (existing.error) finishAdleAdd(formData, context.redirectPath, "error", "The context choice could not be checked.", "context", false);
+  if (existing.data) finishAdleAdd(formData, inReviewSection(context.redirectPath, "context"), "saved", "That context choice is already in review.", "context", false);
+  const saved = await context.serviceClient.from("adle_review_parent_context_choices").insert({
+    review_session_id: context.detail.reviewSessionId,
+    parent_user_id: context.detail.parentUserId,
+    child_id: context.detail.childId,
+    source_hash: createHash("sha256").update(text).digest("hex"),
+    start_utf16: occurrence.positionStart,
+    end_utf16: occurrence.positionEnd,
+    observed_text: text.slice(occurrence.positionStart, occurrence.positionEnd),
+    intended_word: occurrence.correctSpelling,
+    sentence_excerpt: sentence.text,
+  }).select("id").single();
+  if (saved.error) finishAdleAdd(formData, context.redirectPath, "error", "The context choice could not be saved.", "context", false);
+  revalidatePath(context.redirectPath.split("?")[0]);
+  finishAdleAdd(formData, inReviewSection(context.redirectPath, "context"), "saved", "Context choice added to the context table.", "context", true,
+    { id: saved.data.id, observed: text.slice(occurrence.positionStart, occurrence.positionEnd),
+      intended: occurrence.correctSpelling, start: occurrence.positionStart, end: occurrence.positionEnd,
+      sentence: sentence.text });
+  } catch (error) {
+    if (error instanceof InlineAdleAddOutcome) return error.result;
+    throw error;
+  }
+}
+
+export async function decideAdleReviewParentContextChoice(formData: FormData) {
+  const context = await authorizeCompletedReview(formData);
+  if (context.detail.observationalStatus === "reviewed") redirectWithMessage(
+    context.redirectPath, "error", "This inspection is read-only.");
+  const id = String(formData.get("choice_id") ?? "");
+  const decision = String(formData.get("decision") ?? "");
+  if (!/^[a-f0-9-]{36}$/.test(id) || !["confirmed", "dismissed"].includes(decision))
+    redirectWithMessage(context.redirectPath, "error", "That context decision is invalid.");
+  const saved = await context.serviceClient.from("adle_review_parent_context_choices")
+    .update({ decision }).eq("id", id).eq("review_session_id", context.detail.reviewSessionId)
+    .eq("parent_user_id", context.detail.parentUserId).eq("child_id", context.detail.childId)
+    .eq("decision", "pending").select("id").maybeSingle();
+  if (saved.error || !saved.data) redirectWithMessage(context.redirectPath, "error", "The context decision could not be saved.");
+  revalidatePath(context.redirectPath.split("?")[0]);
+  redirectWithMessage(inReviewSection(context.redirectPath, "context"), "saved", "Context decision saved.");
+}
+
 function parseOccurrence(formData: FormData) {
   const observedSpelling = normalizeObservedSpelling(
     String(formData.get("observed_spelling") ?? ""),
@@ -208,32 +306,35 @@ function parseOccurrence(formData: FormData) {
 }
 
 export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
+  try {
   const context = await authorizeCompletedReview(formData);
   const occurrence = parseOccurrence(formData);
   if (!occurrence) {
-    redirectWithMessage(
+    finishAdleAdd(formData,
       context.redirectPath,
       "error",
       "Choose an exact misspelling occurrence and enter a different correct spelling.",
-    );
+    "words", false);
   }
+  if (isGovernedContextMember(occurrence.observedSpelling)) finishAdleAdd(formData,
+    context.redirectPath, "error", "This spelling is valid. Add its exact occurrence in Context instead.", "words", false);
   if (context.detail.observationalStatus === "reviewed") {
-    redirectWithMessage(
+    finishAdleAdd(formData,
       context.redirectPath,
       "error",
       "This parent inspection has already been submitted and is now read-only.",
-    );
+    "words", false);
   }
   const exactText = context.detail.submittedWritingText.slice(
     occurrence.positionStart,
     occurrence.positionEnd,
   );
   if (normalizeObservedSpelling(exactText) !== occurrence.observedSpelling) {
-    redirectWithMessage(
+    finishAdleAdd(formData,
       context.redirectPath,
       "error",
       "That occurrence no longer matches the immutable submitted writing.",
-    );
+    "words", false);
   }
 
   const dedupe = classifyAdditionalSpellingOccurrence({
@@ -248,11 +349,11 @@ export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
     ),
   });
   if (dedupe.status === "already_captured") {
-    redirectWithMessage(
+    finishAdleAdd(formData,
       context.redirectPath,
       "error",
       "Already captured by this ADLE Review. No additional learning or schedule event was created.",
-    );
+    "words", false);
   }
 
   const analysis = analyseParentAddedMisspellingPair({
@@ -260,11 +361,11 @@ export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
     correctSpelling: occurrence.correctSpelling,
   });
   if (!analysis) {
-    redirectWithMessage(
+    finishAdleAdd(formData,
       context.redirectPath,
       "error",
       "Add two different spellings before saving this misspelling.",
-    );
+    "words", false);
   }
 
   const existingResult = await context.serviceClient
@@ -277,10 +378,10 @@ export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
     .eq("correct_spelling_normalized", occurrence.correctSpelling)
     .maybeSingle();
   if (existingResult.error) {
-    redirectWithMessage(context.redirectPath, "error", "The spelling candidate could not be checked.");
+    finishAdleAdd(formData, context.redirectPath, "error", "The spelling candidate could not be checked.", "words", false);
   }
   if (existingResult.data) {
-    redirectWithMessage(context.redirectPath, "saved", "That exact spelling occurrence is already in review.");
+    finishAdleAdd(formData, context.redirectPath, "saved", "That exact spelling occurrence is already in review.", "words", false);
   }
 
   const suggestionId = randomUUID();
@@ -320,7 +421,7 @@ export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
       },
     });
   if (suggestionError) {
-    redirectWithMessage(context.redirectPath, "error", "The spelling candidate could not be saved.");
+    finishAdleAdd(formData, context.redirectPath, "error", "The spelling candidate could not be saved.", "words", false);
   }
   const { error: linkError } = await context.serviceClient
     .from("adle_review_parent_issue_links")
@@ -347,14 +448,19 @@ export async function addAdleReviewParentSpellingCandidate(formData: FormData) {
       .delete()
       .eq("id", suggestionId)
       .eq("parent_user_id", context.detail.parentUserId);
-    redirectWithMessage(context.redirectPath, "error", "The spelling occurrence could not be linked.");
+    finishAdleAdd(formData, context.redirectPath, "error", "The spelling occurrence could not be linked.", "words", false);
   }
   revalidatePath(context.redirectPath.split("?")[0]);
-  redirectWithMessage(
-    context.redirectPath,
+  finishAdleAdd(formData,
+    inReviewSection(context.redirectPath, "words"),
     "saved",
     "Misspelling added to the spelling review table below.",
-  );
+  "words", true, { id: suggestionId, observed: exactText, intended: occurrence.correctSpelling,
+    start: occurrence.positionStart, end: occurrence.positionEnd });
+  } catch (error) {
+    if (error instanceof InlineAdleAddOutcome) return error.result;
+    throw error;
+  }
 }
 
 async function loadOwnedIssue(

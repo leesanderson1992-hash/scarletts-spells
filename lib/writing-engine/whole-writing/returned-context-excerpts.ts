@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { readSnapshotField, reconstructOccurrenceContext } from "./context-source";
+import { sentenceContext } from "./sentence-context";
 import { object, type SourceSnapshot } from "./source";
 
 /** Read only historical context for issues in this owner's task thread. */
@@ -123,18 +124,13 @@ export async function loadReturnedContextExcerpts(input: {
       observedText: occurrence.observed_text,
     });
     if (context.status === "ready") {
-      let excerptStart = context.excerptStartUtf16;
-      let excerptEnd = context.excerptEndUtf16;
-      while (excerptStart > 0 &&
-        occurrence.start_utf16 - excerptStart < 100 &&
-        !/\s/u.test(context.fieldText[excerptStart - 1])) excerptStart--;
-      while (excerptEnd < context.fieldText.length &&
-        excerptEnd - occurrence.end_utf16 < 100 &&
-        !/\s/u.test(context.fieldText[excerptEnd])) excerptEnd++;
+      const sentence = sentenceContext(context.fieldText,
+        occurrence.start_utf16, occurrence.end_utf16);
+      if (!sentence) continue;
       excerpts[issue.id] = {
-        before: `${excerptStart > 0 ? "…" : ""}${context.fieldText.slice(excerptStart, occurrence.start_utf16)}`,
+        before: context.fieldText.slice(sentence.startUtf16, occurrence.start_utf16),
         focus: context.fieldText.slice(occurrence.start_utf16, occurrence.end_utf16),
-        after: `${context.fieldText.slice(occurrence.end_utf16, excerptEnd)}${excerptEnd < context.fieldText.length ? "…" : ""}`,
+        after: context.fieldText.slice(occurrence.end_utf16, sentence.endUtf16),
         answerBlockId: sourceAnswerBlockId(snapshot as SourceSnapshot, occurrence.field_path),
       };
     }

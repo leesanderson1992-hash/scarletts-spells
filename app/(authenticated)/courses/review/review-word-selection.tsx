@@ -7,11 +7,13 @@ import type { ParentIdentifiedOccurrenceCandidate } from "@/lib/writing-engine/w
 type Selection = ParentIdentifiedOccurrenceCandidate;
 const ReviewSelection = createContext<{
   selected: Selection | null; setSelected: (value: Selection | null) => void;
+  selectedText: string | null; setSelectedText: (value: string | null) => void;
 } | null>(null);
 
 export function ReviewWordSelectionProvider({ children }: { children: ReactNode }) {
   const [selected, setSelected] = useState<Selection | null>(null);
-  return <ReviewSelection.Provider value={{ selected, setSelected }}>{children}</ReviewSelection.Provider>;
+  const [selectedText, setSelectedText] = useState<string | null>(null);
+  return <ReviewSelection.Provider value={{ selected, setSelected, selectedText, setSelectedText }}>{children}</ReviewSelection.Provider>;
 }
 
 export function useReviewWordSelection() {
@@ -25,7 +27,7 @@ export function SelectableOriginalWriting({ children, text, fieldPath, occurrenc
   occurrences: ParentIdentifiedOccurrenceCandidate[]; className: string;
 }) {
   const paragraph = useRef<HTMLParagraphElement>(null);
-  const { setSelected } = useReviewWordSelection();
+  const { setSelected, setSelectedText } = useReviewWordSelection();
   function captureSelection() {
     const container = paragraph.current;
     const selection = window.getSelection();
@@ -41,9 +43,11 @@ export function SelectableOriginalWriting({ children, text, fieldPath, occurrenc
     const exact = occurrences.find((item) => item.fieldPath === fieldPath && item.startUtf16 === start &&
       item.endUtf16 === start + chosen.length && item.observedText === chosen &&
       item.provenance === "learner_response" && text.slice(start, start + chosen.length) === chosen);
-    if (exact) setSelected(exact);
+    setSelected(exact ?? null);
+    setSelectedText(chosen);
   }
-  return <p ref={paragraph} onMouseUp={captureSelection} onKeyUp={captureSelection} className={className}>
+  return <p ref={paragraph} tabIndex={0} aria-label="Original writing. Select one word to fill Add Word."
+    onMouseUp={captureSelection} onKeyUp={captureSelection} className={className}>
     {children}
   </p>;
 }

@@ -597,6 +597,7 @@ export function buildStructuredLessonCapture({
       answers.map((answer) => [answer.block_id, flattenDraftValue(answer.value)]),
     ),
     __field_meta: fieldMeta,
+    __field_feedback: feedbackMap ?? {},
     __structured_lesson_response: structuredResponse,
   };
 

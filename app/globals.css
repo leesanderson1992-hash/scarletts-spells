@@ -148,6 +148,16 @@ button, input, select, textarea { font: inherit; }
   box-shadow: 0 16px 28px rgba(194, 24, 91, 0.24);
 }
 
+/* Review controls use the darker brand shade so white labels meet AA contrast. */
+.review-work .brand-primary-btn {
+  background: #9f185b;
+  color: #fff;
+}
+
+.review-work .brand-primary-btn:hover {
+  background: #8d1650;
+}
+
 @keyframes review-wheel-pointer-tick {
   0%, 100% { transform: translateX(-50%) rotate(0deg); }
   48% { transform: translateX(-50%) rotate(-5deg) translateY(2px); }

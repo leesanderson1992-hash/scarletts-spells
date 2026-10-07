@@ -146,7 +146,23 @@ export async function markSuggestionReviewedAsAccepted(input: {
   }
 }
 
-export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
+type InlineAddResult = { ok: boolean; message: string; section: "words"; added: boolean;
+  savedItem?: { id: string; observed: string; intended: string; occurrenceId: string | null } };
+
+class InlineAddOutcome extends Error {
+  constructor(readonly result: InlineAddResult) { super(result.message); }
+}
+
+function finishAddWord(formData: FormData, path: string, key: "saved" | "error", message: string, added = false,
+  savedItem?: InlineAddResult["savedItem"]): never {
+  if (formData.get("__inline_add") === "true") {
+    throw new InlineAddOutcome({ ok: key === "saved", message, section: "words", added, savedItem });
+  }
+  redirect(buildRedirectWithMessage(path, key, message));
+}
+
+export async function addMissedWordToSubmissionReviewImpl(formData: FormData): Promise<InlineAddResult | void> {
+  try {
   const submissionId = formData.get("submission_id");
   const redirectPath = formData.get("redirect_path");
   const misspelledWord = formData.get("misspelled_word");
@@ -167,13 +183,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     typeof correctedWord !== "string" ||
     !correctedWord.trim()
   ) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "Add both the word the child wrote and the correct spelling.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "Add both the word the child wrote and the correct spelling.");
   }
 
   const supabase = await createClient();
@@ -186,8 +196,8 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   }
 
   if (isGovernedContextMember(misspelledWord.trim())) {
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
-      "That spelling is valid. Review this exact occurrence under Contextual word choice instead."));
+    finishAddWord(formData, safeRedirectPath, "error",
+      "That spelling is valid. Review this exact occurrence under Contextual word choice instead.");
   }
 
   const analysis = analyseParentAddedMisspellingPair({
@@ -196,13 +206,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   });
 
   if (!analysis) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "Add two different spellings before saving this missed word.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "Add two different spellings before saving this missed word.");
   }
 
   const safeMisspelledWord = analysis.observedSpelling;
@@ -216,13 +220,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     .maybeSingle();
 
   if (!submission) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "We couldn't find that submission anymore.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "We couldn't find that submission anymore.");
   }
 
   const { data: sample } = await supabase
@@ -233,13 +231,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     .maybeSingle();
 
   if (!sample) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "That submission does not have a writing sample to review.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "That submission does not have a writing sample to review.");
   }
 
   const { data: sourceSnapshot } = await supabase
@@ -310,25 +302,13 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   });
 
   if (occurrenceResolution.status === "ambiguous") {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "Choose where this repeated spelling appeared before adding it.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "Choose where this repeated spelling appeared before adding it.");
   }
   if (
     occurrenceResolution.status === "invalid_explicit_occurrence" ||
     occurrenceResolution.status === "observed_spelling_mismatch"
   ) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "The selected occurrence no longer matches that spelling. Review the word and try again.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "The selected occurrence no longer matches that spelling. Review the word and try again.");
   }
   const sourceWritingOccurrenceId =
     occurrenceResolution.status === "resolved"
@@ -354,13 +334,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
   const { data: existing } = await existingQuery.limit(1).maybeSingle();
 
   if (existing) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "saved",
-        "That missed word is already on the review list.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "saved", "That missed word is already on the review list.");
   }
 
   const sourceContext = sourceOccurrence && sourceSnapshot
@@ -373,8 +347,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
         observedText: sourceOccurrence.observed_text,
       }) : null;
   if (sourceWritingOccurrenceId && sourceContext?.status !== "ready") {
-    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
-      "The selected writing occurrence no longer verifies. Review the word and try again."));
+    finishAddWord(formData, safeRedirectPath, "error", "The selected writing occurrence no longer verifies. Review the word and try again.");
   }
   const sourceExcerpt = sourceContext?.status === "ready" ? sourceContext.excerpt : null;
   const exactSampleRange = sourceOccurrence && sourceContext?.status === "ready" &&
@@ -382,7 +355,7 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
     ? { raw: sourceOccurrence.observed_text, start: sourceOccurrence.start_utf16, end: sourceOccurrence.end_utf16 }
     : null;
   const range = sourceWritingOccurrenceId ? exactSampleRange : findWordRange(sample.sample_text, safeMisspelledWord);
-  const { error } = await supabase.from("misspelling_instances").insert({
+  const { data: savedRow, error } = await supabase.from("misspelling_instances").insert({
     writing_sample_id: sample.id,
     child_id: sample.child_id,
     parent_user_id: user.id,
@@ -413,27 +386,23 @@ export async function addMissedWordToSubmissionReviewImpl(formData: FormData) {
       detectionSource: null,
       canonicalDetection: null,
     }),
-  });
+  }).select("id").single();
 
   if (error) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "We couldn't add that missed word just yet.",
-      ),
-    );
+    finishAddWord(formData, safeRedirectPath, "error", "We couldn't add that missed word just yet.");
   }
 
   revalidateReviewQueueAndDetailBestEffort(safeRedirectPath);
 
-  redirect(
-    buildRedirectWithMessage(
-      safeRedirectPath,
-      "saved",
-      "Missed word added to the review list below.",
-    ),
-  );
+  finishAddWord(formData,
+    `${safeRedirectPath}${safeRedirectPath.includes("?") ? "&" : "?"}section=words`,
+    "saved", "Missed word added to the review list below.", true,
+    { id: savedRow.id, observed: safeMisspelledWord, intended: safeCorrectedWord,
+      occurrenceId: sourceWritingOccurrenceId });
+  } catch (error) {
+    if (error instanceof InlineAddOutcome) return error.result;
+    throw error;
+  }
 }
 
 export async function acceptSubmissionReviewIssueImpl(formData: FormData) {

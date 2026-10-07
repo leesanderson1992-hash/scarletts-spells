@@ -23,6 +23,7 @@ import type {
 } from "@/lib/writing-practice/types";
 import { getManualReviewSampleStatus } from "./manual-sample-review-utils";
 import { AdlePausedWordsSection } from "@/components/adle-paused-words-section";
+import { retrySubmissionProcessing } from "./actions";
 
 import {
   buildReviewWorkEntryId,
@@ -792,7 +793,7 @@ export default async function CourseReviewPage({
                         </div>
                         <Link
                           href={reviewPath}
-                          className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--scarlett)] bg-[var(--scarlett)] px-4 text-sm font-medium text-white transition hover:opacity-90"
+                          className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#9f185b] px-4 text-sm font-medium text-white transition hover:bg-[#8d1650]"
                         >
                           Open review
                         </Link>
@@ -830,7 +831,8 @@ export default async function CourseReviewPage({
                 const queueStatus = submission.sharedQueueStatus;
                 const parsed = parseSubmissionReview(submission.submission_text);
                 const processingStatus = processingStatusBySubmissionId.get(submission.id);
-                const isPreparing = Boolean(processingStatus && processingStatus !== "completed");
+                const isPreparing = processingStatus === "pending" || processingStatus === "processing";
+                const preparationFailed = processingStatus === "failed";
 
                 return (
                   <article
@@ -856,6 +858,11 @@ export default async function CourseReviewPage({
                               Preparing spelling review…
                             </span>
                           ) : null}
+                          {preparationFailed ? (
+                            <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-800">
+                              Spelling review needs retry
+                            </span>
+                          ) : null}
                         </div>
                         <p className="mt-1 text-sm text-[color:var(--mid)]">
                           {submission.courseTitle} ·{" "}
@@ -868,10 +875,15 @@ export default async function CourseReviewPage({
                         <span className="inline-flex h-9 items-center justify-center rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-medium text-sky-700">
                           Preparing…
                         </span>
+                      ) : preparationFailed ? (
+                        <form action={retrySubmissionProcessing}>
+                          <input type="hidden" name="submission_id" value={submission.id} />
+                          <button type="submit" className="brand-secondary-btn">Retry preparation</button>
+                        </form>
                       ) : (
                         <Link
                           href={reviewPath}
-                          className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--scarlett)] bg-[var(--scarlett)] px-4 text-sm font-medium text-white transition hover:opacity-90"
+                          className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#9f185b] px-4 text-sm font-medium text-white transition hover:bg-[#8d1650]"
                         >
                           Open review
                         </Link>

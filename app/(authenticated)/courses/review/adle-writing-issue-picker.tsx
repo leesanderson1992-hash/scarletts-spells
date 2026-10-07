@@ -6,8 +6,10 @@ import {
   findAdleWritingOccurrences,
   type AdleWritingOccurrence,
 } from "@/lib/adle/review-work/additional-spelling";
+import { sentenceContext } from "@/lib/writing-engine/whole-writing/sentence-context";
 
 import { addAdleReviewParentSpellingCandidate } from "./actions";
+import { addAdleReviewParentContextChoice } from "./actions/adle-review-work-actions";
 
 export type AdleWritingHighlight = {
   start: number;
@@ -54,10 +56,10 @@ function renderHighlightedWriting(text: string, highlights: AdleWritingHighlight
       <mark
         key={`${highlight.start}-${highlight.end}`}
         title={highlight.label}
+        aria-label={highlight.label}
         className={`rounded px-0.5 text-inherit underline decoration-2 underline-offset-2 ${tones[highlight.tone]}`}
       >
         {text.slice(highlight.start, highlight.end)}
-        <span className="sr-only"> ({highlight.label})</span>
       </mark>,
     );
     cursor = highlight.end;
@@ -79,6 +81,7 @@ export function AdleWritingIssuePicker(props: {
 }) {
   const responseRef = useRef<HTMLParagraphElement>(null);
   const [observed, setObserved] = useState("");
+  const [mode, setMode] = useState<"spelling" | "context">("spelling");
   const [correct, setCorrect] = useState("");
   const [selectedOccurrence, setSelectedOccurrence] = useState<AdleWritingOccurrence | null>(null);
   const [notice, setNotice] = useState<AdleWritingIssuePickerAddResult | null>(null);
@@ -126,144 +129,101 @@ export function AdleWritingIssuePicker(props: {
     setNotice(null);
   }
 
-  async function handlePreviewSubmit(event: React.FormEvent<HTMLFormElement>) {
-    if (!props.onPreviewAdd) return;
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!effectiveSelected || !correct.trim()) return;
+    if (!effectiveSelected || !correct.trim() || submitting) return;
 
+    const data = new FormData(event.currentTarget);
+    data.set("__inline_add", "true");
     setSubmitting(true);
     try {
-      const result = await props.onPreviewAdd({
+      const result = props.onPreviewAdd ? await props.onPreviewAdd({
         observedSpelling: observed,
         correctSpelling: correct,
         positionStart: effectiveSelected.start,
         positionEnd: effectiveSelected.end,
-      });
+      }) : await (mode === "spelling" ? addAdleReviewParentSpellingCandidate(data)
+        : addAdleReviewParentContextChoice(data));
+      if (!result) return;
       setNotice(result);
       if (result.ok) {
+        if ("added" in result && result.added) {
+          window.dispatchEvent(new CustomEvent("review-word-added", { detail: { section: result.section } }));
+        }
         setObserved("");
         setCorrect("");
         setSelectedOccurrence(null);
       }
+    } catch (error) {
+      setNotice({ ok: false, message: error instanceof Error ? error.message : "Could not add this word. Try again." });
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <>
-      <section className="brand-card rounded-3xl p-4 md:p-5">
-        <p className="brand-eyebrow">Learner response</p>
-        <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-          Immutable submitted writing
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
-          Select a misspelled word to prefill the form. Green marks an originally correct Target Word, amber a repaired Target Word, and rose a Target Word not secured.
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+      <div className="min-w-0">
+        <p className="text-sm leading-6 text-[var(--mid)]">
+          Select one word in the immutable submitted writing. Target and context marks remain visible.
         </p>
-        <p
-          ref={responseRef}
+        <p ref={responseRef} tabIndex={props.readOnly ? undefined : 0}
+          aria-label="Original writing. Select one word to fill Add Word."
           onMouseUp={props.readOnly ? undefined : captureSelection}
-          className="mt-4 whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-white px-4 py-4 text-sm leading-7 text-[color:var(--ink)] selection:bg-sky-200"
-        >
+          onKeyUp={props.readOnly ? undefined : captureSelection}
+          className="mt-3 whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-white p-4 text-sm leading-7 text-[var(--ink)] selection:bg-pink-200">
           {renderHighlightedWriting(props.submittedWritingText, props.highlights)}
         </p>
-      </section>
-
-      {!props.readOnly ? (
-        <section className="brand-card rounded-3xl p-4 md:p-5">
-          <p className="brand-eyebrow">Check the rest of the writing</p>
-          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-            Add a missed spelling
-          </h2>
-          <form
-            action={props.onPreviewAdd ? undefined : addAdleReviewParentSpellingCandidate}
-            onSubmit={props.onPreviewAdd ? handlePreviewSubmit : undefined}
-            className="mt-4 grid gap-3"
-          >
-            <input type="hidden" name="source_id" value={props.sourceId} />
-            <input type="hidden" name="child_id" value={props.childId} />
-            <input type="hidden" name="redirect_path" value={props.redirectPath} />
-            <input type="hidden" name="position_start" value={effectiveSelected?.start ?? ""} />
-            <input type="hidden" name="position_end" value={effectiveSelected?.end ?? ""} />
-            <div className="grid gap-3 md:grid-cols-2">
-              <label className="grid gap-1 text-sm text-[color:var(--ink)]">
-                <span className="font-medium">Word child wrote</span>
-                <input
-                  name="observed_spelling"
-                  value={observed}
-                  onChange={(event) => {
-                    setObserved(event.target.value);
-                    setSelectedOccurrence(null);
-                    setNotice(null);
-                  }}
-                  className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2"
-                  autoComplete="off"
-                />
-              </label>
-              <label className="grid gap-1 text-sm text-[color:var(--ink)]">
-                <span className="font-medium">Correct spelling</span>
-                <input
-                  name="correct_spelling"
-                  value={correct}
-                  onChange={(event) => setCorrect(event.target.value)}
-                  className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2"
-                  autoComplete="off"
-                />
-              </label>
-            </div>
-            {occurrences.length > 1 ? (
-              <fieldset className="grid gap-2 rounded-2xl border border-[var(--border)] bg-white p-3">
-                <legend className="px-1 text-sm font-medium text-[color:var(--ink)]">
-                  Choose the exact occurrence
-                </legend>
-                {occurrences.map((occurrence) => (
-                  <label key={`${occurrence.start}-${occurrence.end}`} className="flex items-start gap-2 text-sm">
-                    <input
-                      type="radio"
-                      name="occurrence_choice"
-                      checked={
-                        effectiveSelected?.start === occurrence.start &&
-                        effectiveSelected.end === occurrence.end
-                      }
-                      onChange={() => setSelectedOccurrence(occurrence)}
-                      className="mt-1"
-                    />
-                    <span>…{occurrence.context}…</span>
-                  </label>
-                ))}
-              </fieldset>
-            ) : observed.trim() && occurrences.length === 0 ? (
-              <p className="text-sm text-rose-700">
-                That exact spelling does not occur in the submitted response.
-              </p>
-            ) : null}
-            <p className="text-sm leading-6 text-[color:var(--mid)]">
-              This adds a separate parent observation to the spelling table. It does not change the completed Review.
-            </p>
-            {notice ? (
-              <p
-                role={notice.ok ? "status" : "alert"}
-                className={`rounded-2xl border px-3 py-2 text-sm ${
-                  notice.ok
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : "border-rose-200 bg-rose-50 text-rose-800"
-                }`}
-              >
-                {notice.message ?? "Misspelling added to the review table."}
-              </p>
-            ) : null}
-            <div>
-              <button
-                type="submit"
-                className="brand-secondary-btn"
-                disabled={!effectiveSelected || !correct.trim() || submitting}
-              >
-                {submitting ? "Adding…" : "Add misspelling"}
-              </button>
-            </div>
-          </form>
-        </section>
-      ) : null}
-    </>
+      </div>
+      {!props.readOnly ? <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+        <h3 className="font-semibold text-[var(--ink)]">Add Word</h3>
+        <p className="mt-1 text-xs text-[var(--mid)]">Select a word, then enter the correction.</p>
+        <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--ink)]">
+          <label><input type="radio" name="adle_add_word_mode" checked={mode === "spelling"} onChange={() => setMode("spelling")} /> Misspelling</label>
+          <label><input type="radio" name="adle_add_word_mode" checked={mode === "context"} onChange={() => setMode("context")} /> Context</label>
+        </div>
+        <form onSubmit={handleSubmit}
+          className="mt-4 grid gap-3">
+          <input type="hidden" name="source_id" value={props.sourceId} />
+          <input type="hidden" name="child_id" value={props.childId} />
+          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <input type="hidden" name="position_start" value={effectiveSelected?.start ?? ""} />
+          <input type="hidden" name="position_end" value={effectiveSelected?.end ?? ""} />
+          <label className="grid gap-1 text-sm text-[var(--ink)]">Word in writing
+            <input name="observed_spelling" value={observed} onChange={(event) => {
+              setObserved(event.target.value); setSelectedOccurrence(null); setNotice(null);
+            }} className="rounded-xl border border-[var(--border)] px-3 py-2" autoComplete="off" />
+          </label>
+          <label className="grid gap-1 text-sm text-[var(--ink)]">
+            {mode === "context" ? "Intended word" : "Correct spelling"}
+            <input name="correct_spelling" value={correct} onChange={(event) => setCorrect(event.target.value)}
+              className="rounded-xl border border-[var(--border)] px-3 py-2" autoComplete="off" />
+          </label>
+          {occurrences.length > 1 ? <fieldset className="grid gap-2 rounded-xl border border-[var(--border)] p-3">
+            <legend className="px-1 text-sm font-medium">Choose the exact occurrence</legend>
+            {occurrences.map((occurrence) => <label key={`${occurrence.start}-${occurrence.end}`} className="flex gap-2 text-sm">
+              <input type="radio" name="occurrence_choice"
+                checked={effectiveSelected?.start === occurrence.start && effectiveSelected.end === occurrence.end}
+                onChange={() => setSelectedOccurrence(occurrence)} />
+              <span>…{occurrence.context}…</span>
+            </label>)}
+          </fieldset> : null}
+          {mode === "context" && effectiveSelected ? <p className="rounded-xl bg-[var(--mist)] p-3 text-sm text-[var(--ink)]">
+            <span className="font-medium">Sentence context: </span>
+            {sentenceContext(props.submittedWritingText, effectiveSelected.start, effectiveSelected.end)?.text}
+          </p> : null}
+          {observed.trim() && !occurrences.length ? <p className="text-sm text-[var(--danger)]">
+            That exact word does not occur in the submitted response.
+          </p> : null}
+          {notice ? <p role={notice.ok ? "status" : "alert"} className="text-sm text-[var(--ink)]">
+            {notice.message ?? "Word added to review."}
+          </p> : null}
+          <button type="submit" className="brand-secondary-btn w-fit disabled:opacity-50"
+            disabled={!effectiveSelected || !correct.trim() || submitting}>
+            {submitting ? "Adding…" : "Add Word"}
+          </button>
+        </form>
+      </div> : null}
+    </div>
   );
 }

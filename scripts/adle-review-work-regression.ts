@@ -101,10 +101,11 @@ for (const forbidden of [
   "adle_review_schedule_words",
   "adle_review_outcome_events",
   "coin_ledger",
-  "authentic_use",
 ]) {
   assert.doesNotMatch(submitAction, new RegExp(forbidden));
 }
+assert.match(submitAction, /finalise_adle_authentic_use_review/,
+  "Parent inspection retains the existing authentic-use finalisation path");
 
 assert.match(actions, /analyseParentAddedMisspellingPair/);
 assert.match(actions, /analysis_payload/);
@@ -112,6 +113,10 @@ assert.match(actions, /resolution_status: "confirmed"/);
 assert.match(actions, /resolution_status: "sent_to_admin"/);
 assert.match(actions, /resolution_status: "not_a_learning_issue"/);
 assert.match(actions, /intakeApprovedAdleReviewCorrection/);
+assert.match(actions, /export async function addAdleReviewParentContextChoice/);
+assert.match(actions, /export async function decideAdleReviewParentContextChoice/);
+assert.match(actions, /text\.slice\(occurrence\.positionStart, occurrence\.positionEnd\)/,
+  "Parent context must verify the exact immutable writing span");
 
 for (const forbiddenImport of [
   "review-completion-actions",
@@ -147,7 +152,7 @@ assert.match(queue, /learner Review already complete/);
 assert.match(queue, /sourceType: "lesson_submission"/);
 
 const detail = read("app/(authenticated)/courses/review/[submissionId]/page.tsx");
-assert.match(detail, /Parent inspection does not affect completion, schedules or rewards/);
+assert.match(detail, /Parent inspection does not affect completion, schedules or\s+rewards/);
 assert.match(detail, /reviewEntry\.sourceType === "adle_review_v3"/);
 
 const sections = read("app/(authenticated)/courses/review/adle-review-sections.tsx");
@@ -157,7 +162,9 @@ assert.match(sections, /View Target Word details/);
 assert.match(sections, /label: "Successful"/);
 assert.match(sections, /label: "Repaired"/);
 assert.match(sections, /label: "Missed"/);
-assert.match(sections, />\s*Submit\s*</);
+assert.match(sections, /parentContext\.map\(\(choice\)/,
+  "Parent-added context belongs in the same review table as AI findings");
+assert.match(sections, />\s*Submit review\s*</);
 assert.doesNotMatch(sections, /Mark reviewed|Confirm spelling issue/);
 
 const unifiedTable = read("app/(authenticated)/courses/review/unified-spelling-review-table.tsx");

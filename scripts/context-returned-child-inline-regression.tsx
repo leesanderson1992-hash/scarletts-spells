@@ -4,7 +4,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { StructuredLessonResponse } from "../components/structured-lesson-response";
-import type { ReturnedWritingIssueDraftPayload } from "../lib/lessons/responses";
+import { buildStructuredLessonCapture, getStructuredFieldFeedback, type ReturnedWritingIssueDraftPayload } from "../lib/lessons/responses";
 import type { StructuredLessonDocument } from "../lib/lessons/schema";
 
 const lesson: StructuredLessonDocument = {
@@ -59,6 +59,12 @@ const submissionHtml = renderToStaticMarkup(<StructuredLessonResponse
 assert.ok(submissionHtml.indexOf("excerpts of your writing are sent to OpenAI") <
   submissionHtml.indexOf("Submit lesson"),
 "The structured submission shows the same OpenAI notice before its submit control");
+
+const captured = buildStructuredLessonCapture({ lesson, answerMap: { second: "My answer" },
+  feedbackMap: { second: "Explain the answer", "quiz::question-1": "Try this question again" },
+  taskId: "task", childId: "child" });
+assert.equal(getStructuredFieldFeedback(captured.draftPayload)["quiz::question-1"],
+  "Try this question again", "Autosaving a returned lesson retains per-question feedback");
 
 const page = readFileSync("app/(authenticated)/learn/modules/[moduleId]/tasks/[taskId]/page.tsx", "utf8");
 assert.match(page, /loadReturnedContextExcerpts\([\s\S]*issueIds: returnedWritingIssues\.map\([\s\S]*parentUserId: user\.id,[\s\S]*childId: selectedChild\.id,[\s\S]*taskId: task\.id/,

@@ -57,8 +57,9 @@ async function load(overrides: {
 async function main() {
   const result = await load();
   assert.equal(result.issue.focus, "their", "The exact second occurrence is selected");
-  assert.equal(result.issue.before + result.issue.focus + result.issue.after, writing,
-    "The excerpt reconstructs the immutable source for this short fixture");
+  assert.equal(result.issue.before + result.issue.focus + result.issue.after,
+    "Their coats were dry, but their bags were wet.",
+    "The exact surrounding sentence is reconstructed from the immutable source");
   assert.match(result.issue.before, /^Their coats were dry, but $/);
   assert.equal(result.issue.answerBlockId, null, "Unstructured text has no answer box to attach to");
 
@@ -142,8 +143,8 @@ async function main() {
       end_utf16: longStart + 5 },
     snapshot: { envelope: { rawSubmissionText: longWriting } },
   });
-  assert.match(longResult.issue.before, /^…Earlier /, "A long excerpt starts at a word boundary");
-  assert.match(longResult.issue.after, /Later…$/, "A long excerpt ends after a complete word");
+  assert.match(longResult.issue.before, /^Earlier /, "The full sentence starts at its source boundary");
+  assert.equal(longResult.issue.after, " bags were wet.", "The excerpt ends with the selected sentence");
   assert.deepEqual(await load({ issueIds: ["other"] }), {}, "Unrequested issues remain hidden");
   assert.deepEqual(await load({ issue: { parent_user_id: "other" } }), {}, "Wrong owner is denied");
   assert.deepEqual(await load({ snapshot: { task_id: "other" } }), {}, "Wrong task is denied");

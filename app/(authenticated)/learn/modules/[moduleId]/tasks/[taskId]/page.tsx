@@ -706,6 +706,7 @@ export default async function LearnModuleTaskPage({
                       value={scopedCurrentPath}
                     />
                     <StructuredLessonResponseForm
+                      key={`${latestSubmission?.id ?? "draft"}:${latestSubmission?.parent_review_status ?? "draft"}:${latestDraft?.updated_at ?? ""}`}
                       lesson={structuredLesson}
                       submitLabel={
                         task.task_type === "test"

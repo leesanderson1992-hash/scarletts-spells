@@ -8,6 +8,7 @@ import { analyseAiContext, contextAiRequestBody, type ProviderOutcome } from "./
 import { validContextRateCard, type ContextRateCard } from "./context-ai-cost";
 import { governedContextFamily } from "./context-advisory-family";
 import { readSnapshotField } from "./context-source";
+import { indexSnapshotOccurrences } from "./occurrence-index";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 import { contextShadowIdentity, contextShadowErrorCode, CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
   CONTEXT_SHADOW_TIMEOUT_MS, CONTEXT_SHADOW_WORKER_BUDGET_MS, CONTEXT_SHADOW_MAX_REQUEST_BYTES } from "./context-shadow-policy";
@@ -75,21 +76,7 @@ async function runShadowJob(client: SupabaseClient, job: ShadowJob): Promise<Sum
   const governed = extraction.occurrences.filter((o) => o.provenance === "learner_response" && governedContextFamily(o.observedText));
   summary.indexed = extraction.occurrences.length; summary.governed = governed.length;
   summary.routing_excluded = summary.indexed - summary.governed;
-  for (let offset = 0; offset < extraction.occurrences.length; offset += 100) {
-    const rows = extraction.occurrences.slice(offset, offset + 100).map((o) => ({ id: o.id, snapshot_id: snapshot.id,
-      field_path: o.fieldKey, start_utf16: o.start, end_utf16: o.end, observed_text: o.observedText,
-      field_hash: o.textHash, provenance: o.provenance === "learner_response" ? "learner_response" : "unknown",
-      extractor_version: extraction.version }));
-    const saved = await client.from("writing_occurrences").upsert(rows, { onConflict: "id", ignoreDuplicates: true });
-    if (saved.error) throw new Error("CONTEXT_SHADOW_INDEX_UNAVAILABLE");
-    const read = await client.from("writing_occurrences")
-      .select("id,snapshot_id,field_path,start_utf16,end_utf16,observed_text,field_hash,provenance,extractor_version")
-      .in("id", rows.map((r) => r.id));
-    if (read.error || read.data?.length !== rows.length || rows.some((r) => {
-      const stored = read.data?.find((x) => x.id === r.id);
-      return !stored || Object.entries(r).some(([key, value]) => (stored as Record<string, unknown>)[key] !== value);
-    })) throw new Error("CONTEXT_SHADOW_IDENTITY_MISMATCH");
-  }
+  await indexSnapshotOccurrences(client, snapshot);
   if (snapshot.source_purpose === "REAL_LEARNER") {
     return runAdultPassageJob(client, job, snapshot, extraction.occurrences as IndexedWord[], summary);
   }

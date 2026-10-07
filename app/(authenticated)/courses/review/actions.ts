@@ -34,6 +34,11 @@ import {
   sendAdleReviewParentSpellingCandidateToCatalog as sendAdleReviewParentSpellingCandidateToCatalogImpl,
   submitAdleReviewWorkInspection as submitAdleReviewWorkInspectionImpl,
 } from "./actions/adle-review-work-actions";
+import { retrySubmissionProcessingImpl } from "./actions/retry-submission-processing-action";
+
+export async function retrySubmissionProcessing(formData: FormData) {
+  return retrySubmissionProcessingImpl(formData);
+}
 
 export async function addMissedWordToSubmissionReview(formData: FormData) {
   return addMissedWordToSubmissionReviewImpl(formData);
