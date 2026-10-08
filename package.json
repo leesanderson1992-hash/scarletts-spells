@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "lesson:autosave-regression": "tsx scripts/lesson-draft-autosave-regression.ts",
     "start": "next start",
     "no-matching-skill:regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/no-matching-skill-regression.mjs'",
     "authentic-use:regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/authentic-use-regression.ts",

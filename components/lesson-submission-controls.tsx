@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { useFormStatus } from "react-dom";
 
 type PreservedFormEntry = { name: string; value: string };
@@ -109,9 +109,9 @@ function restoreForm(form: HTMLFormElement) {
 type LessonSubmissionControlsProps = {
   submitLabel: string;
   canSubmit?: boolean;
-  onBeforeSubmit?: () => void;
+  onBeforeSubmit?: () => void | Promise<void>;
   saveDraftAction?: (formData: FormData) => void | Promise<void>;
-  onBeforeSaveDraft?: () => void;
+  onBeforeSaveDraft?: () => void | Promise<void>;
 };
 
 export function LessonSubmissionControls({
@@ -123,6 +123,9 @@ export function LessonSubmissionControls({
 }: LessonSubmissionControlsProps) {
   const { pending } = useFormStatus();
   const requestIdRef = useRef<HTMLInputElement | null>(null);
+  const preparingRef = useRef(false);
+  const [preparing, setPreparing] = useState(false);
+  const [preparationError, setPreparationError] = useState(false);
   const [pendingKind, setPendingKind] = useState<"submission" | "draft">(
     "submission",
   );
@@ -140,6 +143,43 @@ export function LessonSubmissionControls({
       restoreForm(form);
   }, []);
 
+  function beginFormAction(
+    event: MouseEvent<HTMLButtonElement>,
+    kind: "submission" | "draft",
+    onBeforeAction?: () => void | Promise<void>,
+  ) {
+    if (preparingRef.current) {
+      event.preventDefault();
+      return;
+    }
+    ensureRequestId();
+    setPendingKind(kind);
+    setPreparationError(false);
+    if (!onBeforeAction) {
+      preserveForm(requestIdRef.current?.form ?? null);
+      return;
+    }
+
+    event.preventDefault();
+    const button = event.currentTarget;
+    preparingRef.current = true;
+    setPreparing(true);
+    void (async () => {
+      try {
+        await onBeforeAction();
+        const form = button.form;
+        if (!form) throw new Error("Lesson form is unavailable");
+        preserveForm(form);
+        form.requestSubmit(button);
+      } catch {
+        setPreparationError(true);
+      } finally {
+        preparingRef.current = false;
+        setPreparing(false);
+      }
+    })();
+  }
+
   return (
     <div className="grid gap-3">
       <input
@@ -148,7 +188,7 @@ export function LessonSubmissionControls({
         name="submission_request_id"
         defaultValue=""
       />
-      {pending ? (
+      {pending || preparing ? (
         <div
           role="status"
           aria-live="polite"
@@ -165,38 +205,32 @@ export function LessonSubmissionControls({
               : "Your work is safe. Please wait."}
           </p>
         </div>
-      ) : (
-        <div className="flex flex-wrap gap-3">
-          {saveDraftAction ? (
-            <button
-              type="submit"
-              formAction={saveDraftAction}
-              onClick={() => {
-                ensureRequestId();
-                setPendingKind("draft");
-                onBeforeSaveDraft?.();
-                preserveForm(requestIdRef.current?.form ?? null);
-              }}
-              className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)] disabled:cursor-wait disabled:opacity-50"
-            >
-              Save draft
-            </button>
-          ) : null}
+      ) : null}
+      {preparationError ? (
+        <p role="alert" className="text-sm text-rose-700">
+          Could not start that action. Your answers are still here; please try again.
+        </p>
+      ) : null}
+      <div className={`flex flex-wrap gap-3 ${pending || preparing ? "hidden" : ""}`}>
+        {saveDraftAction ? (
           <button
             type="submit"
-            disabled={!canSubmit}
-            onClick={() => {
-              ensureRequestId();
-              setPendingKind("submission");
-              onBeforeSubmit?.();
-              preserveForm(requestIdRef.current?.form ?? null);
-            }}
-            className="brand-primary-btn w-fit disabled:cursor-not-allowed disabled:opacity-50"
+            formAction={saveDraftAction}
+            onClick={(event) => beginFormAction(event, "draft", onBeforeSaveDraft)}
+            className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[color:var(--ink)] transition hover:text-[var(--scarlett)] disabled:cursor-wait disabled:opacity-50"
           >
-            {submitLabel}
+            Save draft
           </button>
-        </div>
-      )}
+        ) : null}
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          onClick={(event) => beginFormAction(event, "submission", onBeforeSubmit)}
+          className="brand-primary-btn w-fit disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {submitLabel}
+        </button>
+      </div>
     </div>
   );
 }

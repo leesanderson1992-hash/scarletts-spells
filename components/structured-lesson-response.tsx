@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { LessonDraftAutosave, type DraftAutosaveStatus } from "@/lib/lessons/draft-autosave";
 import { buildRawLessonSourceDraft } from "@/lib/lessons/source-capture";
 
 import { ReturnedIssueRetryControls } from "@/components/returned-issue-retry-controls";
@@ -33,6 +34,7 @@ type DraftContext = {
   courseId: string;
   childId: string;
   redirectPath: string;
+  sessionId?: string;
 };
 
 type StructuredLessonResponseProps = {
@@ -53,6 +55,62 @@ type StructuredLessonResponseProps = {
 type AnswerMap = Record<string, StructuredLessonAnswerValue>;
 type FeedbackMap = Record<string, string>;
 type SaveState = "idle" | "saving" | "saved" | "error";
+
+const DRAFT_STORAGE_PREFIX = "lesson-autosave:v1:";
+
+function getDraftStorageKey(context: DraftContext) {
+  return `${DRAFT_STORAGE_PREFIX}${context.childId}:${context.taskId}:${context.sessionId ?? "draft"}`;
+}
+
+function writePendingAnswers(key: string, answers: AnswerMap) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ version: 1, answers }));
+  } catch {
+    // Never leave an older local copy that could replace newer server work.
+    try { sessionStorage.removeItem(key); } catch { /* Storage is unavailable. */ }
+  }
+}
+
+function readPendingAnswers(key: string, lesson: StructuredLessonDocument): AnswerMap | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isPlainObject(parsed) || parsed.version !== 1 || !isPlainObject(parsed.answers)) {
+      return null;
+    }
+    const answerKeys = new Set(lesson.blocks.map((block) => block.block_id));
+    return Object.fromEntries(
+      Object.entries(parsed.answers).filter(([blockId]) => answerKeys.has(blockId)),
+    ) as AnswerMap;
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingAnswers(key: string, expectedAnswers?: AnswerMap) {
+  try {
+    if (expectedAnswers) {
+      const parsed = sessionStorage.getItem(key);
+      if (parsed && JSON.stringify(JSON.parse(parsed).answers) !== JSON.stringify(expectedAnswers)) return;
+    }
+    sessionStorage.removeItem(key);
+  } catch {
+    // A storage failure must not interrupt the lesson.
+  }
+}
+
+function clearTaskPendingAnswers(childId: string, taskId: string) {
+  try {
+    const prefix = `${DRAFT_STORAGE_PREFIX}${childId}:${taskId}:`;
+    for (let index = sessionStorage.length - 1; index >= 0; index -= 1) {
+      const key = sessionStorage.key(index);
+      if (key?.startsWith(prefix)) sessionStorage.removeItem(key);
+    }
+  } catch {
+    // A storage failure must not interrupt the lesson.
+  }
+}
 
 function returnedIssueFieldKey(
   issue: ReturnedWritingIssueDraftPayload,
@@ -318,10 +376,19 @@ export function StructuredLessonResponse({
   const submissionRef = useRef<HTMLInputElement | null>(null);
   const reviewSummaryRef = useRef<HTMLInputElement | null>(null);
   const draftPayloadRef = useRef<HTMLInputElement | null>(null);
-  const hasMountedRef = useRef(false);
-  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autosaveVersionRef = useRef(0);
+  const writingSourceDraftPayloadRef = useRef<HTMLInputElement | null>(null);
+  const answerMapRef = useRef(answerMap);
+  const lessonRef = useRef(lesson);
+  const autosaveRef = useRef<LessonDraftAutosave<{
+    captured: ReturnType<typeof buildStructuredLessonCapture>;
+    answers: AnswerMap;
+  }> | null>(null);
   const saveDraftSilentlyActionRef = useRef(saveDraftSilentlyAction);
+  const storageKey = getDraftStorageKey(draftContext);
+
+  useEffect(() => {
+    lessonRef.current = lesson;
+  }, [lesson]);
 
   const orderedBlocks = useMemo(() => lesson.blocks, [lesson.blocks]);
   const returnedIssueInlineKeys = useMemo(() => {
@@ -362,40 +429,101 @@ export function StructuredLessonResponse({
   const isReturnedForReview = initialResponse?.status === "returned";
 
   useEffect(() => {
-    if (readOnly || !new URLSearchParams(window.location.search).has("error"))
-      return;
-    const preservedPayload = readPreservedSubmissionValue(
-      draftContext.taskId,
-      draftContext.childId,
-      "draft_payload",
-    );
-    if (!preservedPayload) return;
-    try {
-      const response = getStructuredLessonResponseFromPayload(
-        JSON.parse(preservedPayload),
-      );
-      if (response) {
-        const frame = window.requestAnimationFrame(() => {
-          setAnswerMap(getInitialAnswerMap(response));
-        });
-        return () => window.cancelAnimationFrame(frame);
-      }
-    } catch {
-      // The server-side draft remains the fallback for malformed local recovery data.
-    }
-  }, [draftContext.childId, draftContext.taskId, readOnly]);
-
-  useEffect(() => {
     saveDraftSilentlyActionRef.current = saveDraftSilentlyAction;
   }, [saveDraftSilentlyAction]);
 
+  useEffect(() => {
+    if (readOnly || !saveDraftSilentlyActionRef.current) return;
+
+    const autosave = new LessonDraftAutosave({
+      capture: () => ({
+        captured: buildStructuredLessonCapture({
+          lesson: lessonRef.current,
+          answerMap: answerMapRef.current,
+          feedbackMap,
+          taskId: draftContext.taskId,
+          childId: draftContext.childId,
+          status: "draft",
+        }),
+        answers: answerMapRef.current,
+      }),
+      save: async ({ captured }) => {
+        const formData = new FormData();
+        formData.set("task_id", draftContext.taskId);
+        formData.set("course_id", draftContext.courseId);
+        formData.set("child_id", draftContext.childId);
+        formData.set("redirect_path", draftContext.redirectPath);
+        formData.set("submission_text", captured.submissionText);
+        formData.set("lesson_review_summary", captured.reviewSummary);
+        formData.set("draft_payload", JSON.stringify(captured.draftPayload));
+        const result = await saveDraftSilentlyActionRef.current?.(formData);
+        return result?.ok === true;
+      },
+      onStatus: (status: DraftAutosaveStatus) => {
+        setSaveState(status);
+        setSaveMessage(status === "saved"
+          ? "Saved"
+          : status === "error"
+            ? "Could not save yet. Your answer is still here; retrying."
+            : "Saving your latest answer...");
+      },
+      onSaved: ({ answers }) => clearPendingAnswers(storageKey, answers),
+    });
+    autosaveRef.current = autosave;
+    return () => {
+      autosave.dispose();
+      if (autosaveRef.current === autosave) autosaveRef.current = null;
+    };
+  }, [draftContext.childId, draftContext.courseId, draftContext.redirectPath, draftContext.taskId, feedbackMap, readOnly, storageKey]);
+
+  useEffect(() => {
+    if (readOnly) {
+      clearTaskPendingAnswers(draftContext.childId, draftContext.taskId);
+      return;
+    }
+
+    let recovered = readPendingAnswers(storageKey, lesson);
+    if (recovered && JSON.stringify(recovered) === JSON.stringify(answerMapRef.current)) {
+      clearPendingAnswers(storageKey, recovered);
+      recovered = null;
+    }
+    if (!recovered && new URLSearchParams(window.location.search).has("error")) {
+      const preservedPayload = readPreservedSubmissionValue(
+        draftContext.taskId,
+        draftContext.childId,
+        "draft_payload",
+      );
+      if (preservedPayload) {
+        try {
+          const response = getStructuredLessonResponseFromPayload(JSON.parse(preservedPayload));
+          recovered = response ? getInitialAnswerMap(response) : null;
+        } catch {
+          // The server-side draft remains the fallback for malformed recovery data.
+        }
+      }
+    }
+    if (!recovered) return;
+
+    const initialAnswers = answerMapRef.current;
+    const frame = window.requestAnimationFrame(() => {
+      if (answerMapRef.current !== initialAnswers) return;
+      answerMapRef.current = recovered;
+      setAnswerMap(recovered);
+      writePendingAnswers(storageKey, recovered);
+      autosaveRef.current?.edited();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [draftContext.childId, draftContext.taskId, lesson, readOnly, storageKey]);
+
   function setAnswer(blockId: string, value: StructuredLessonAnswerValue) {
-    setAnswerMap((current) => ({
-      ...current,
+    const nextAnswers = {
+      ...answerMapRef.current,
       [blockId]: value,
-    }));
-    setSaveState("saving");
-    setSaveMessage("Saving your latest answer...");
+    };
+    answerMapRef.current = nextAnswers;
+    setAnswerMap(nextAnswers);
+    writePendingAnswers(storageKey, nextAnswers);
+    autosaveRef.current?.edited();
   }
 
   function setTableCell(
@@ -404,7 +532,7 @@ export function StructuredLessonResponse({
     columnId: string,
     value: string,
   ) {
-    const rows = getTableRows(answerMap, block);
+    const rows = getTableRows(answerMapRef.current, block);
     rows[rowIndex] = {
       ...rows[rowIndex],
       [columnId]: value,
@@ -418,7 +546,7 @@ export function StructuredLessonResponse({
     questionId: string,
     value: string,
   ) {
-    const rows = getInterviewRows(answerMap, block);
+    const rows = getInterviewRows(answerMapRef.current, block);
     rows[rowIndex] = {
       ...rows[rowIndex],
       [questionId]: value,
@@ -431,7 +559,7 @@ export function StructuredLessonResponse({
     questionId: string,
     optionId: string,
   ) {
-    const currentQuizValue = getQuizValue(answerMap, block);
+    const currentQuizValue = getQuizValue(answerMapRef.current, block);
     const selectedAnswers = {
       ...currentQuizValue.selected_answers,
       [questionId]: optionId,
@@ -446,98 +574,35 @@ export function StructuredLessonResponse({
     }));
   }
 
-  const buildCapturedResponse = useMemo(
-    () => () =>
-      buildStructuredLessonCapture({
-        lesson,
-        answerMap,
-        feedbackMap,
-        taskId: draftContext.taskId,
-        childId: draftContext.childId,
-        status: "draft",
-      }),
-    [answerMap, draftContext.childId, draftContext.taskId, feedbackMap, lesson],
-  );
-
-  function captureResponse() {
+  async function prepareAndCaptureResponse() {
+    await autosaveRef.current?.prepareForFormAction();
     if (
       !submissionRef.current ||
       !reviewSummaryRef.current ||
       !draftPayloadRef.current
     ) {
-      return true;
+      return;
     }
 
-    const captured = buildCapturedResponse();
+    const captured = buildStructuredLessonCapture({
+      lesson: lessonRef.current,
+      answerMap: answerMapRef.current,
+      feedbackMap,
+      taskId: draftContext.taskId,
+      childId: draftContext.childId,
+      status: "draft",
+    });
     submissionRef.current.value = captured.submissionText;
     reviewSummaryRef.current.value = captured.reviewSummary;
     draftPayloadRef.current.value = JSON.stringify(captured.draftPayload);
-    return true;
+    if (writingSourceDraftPayloadRef.current) {
+      writingSourceDraftPayloadRef.current.value = JSON.stringify(buildRawLessonSourceDraft({
+        answerMap: answerMapRef.current,
+        taskId: draftContext.taskId,
+        childId: draftContext.childId,
+      }));
+    }
   }
-
-  useEffect(() => {
-    if (readOnly || !saveDraftSilentlyActionRef.current) {
-      return;
-    }
-
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      return;
-    }
-
-    if (autosaveTimerRef.current) {
-      clearTimeout(autosaveTimerRef.current);
-    }
-
-    autosaveTimerRef.current = setTimeout(() => {
-      const captured = buildCapturedResponse();
-      const formData = new FormData();
-      formData.set("task_id", draftContext.taskId);
-      formData.set("course_id", draftContext.courseId);
-      formData.set("child_id", draftContext.childId);
-      formData.set("redirect_path", draftContext.redirectPath);
-      formData.set("submission_text", captured.submissionText);
-      formData.set("lesson_review_summary", captured.reviewSummary);
-      formData.set("draft_payload", JSON.stringify(captured.draftPayload));
-
-      const saveVersion = ++autosaveVersionRef.current;
-
-      void (async () => {
-        try {
-          const result = await saveDraftSilentlyActionRef.current?.(formData);
-          if (saveVersion !== autosaveVersionRef.current) {
-            return;
-          }
-          if (result?.ok) {
-            setSaveState("saved");
-            setSaveMessage("Saved");
-          } else {
-            setSaveState("error");
-            setSaveMessage("Could not save. Try the Save draft button.");
-          }
-        } catch {
-          if (saveVersion !== autosaveVersionRef.current) {
-            return;
-          }
-          setSaveState("error");
-          setSaveMessage("Could not save. Try the Save draft button.");
-        }
-      })();
-    }, 800);
-
-    return () => {
-      if (autosaveTimerRef.current) {
-        clearTimeout(autosaveTimerRef.current);
-      }
-    };
-  }, [
-    buildCapturedResponse,
-    draftContext.childId,
-    draftContext.courseId,
-    draftContext.redirectPath,
-    draftContext.taskId,
-    readOnly,
-  ]);
 
   function renderSaveStatus(blockId: string) {
     if (readOnly) return null;
@@ -1265,14 +1330,14 @@ export function StructuredLessonResponse({
             name="lesson_review_summary"
           />
           <input ref={draftPayloadRef} type="hidden" name="draft_payload" />
-          <input type="hidden" name="writing_source_draft_payload" value={JSON.stringify(buildRawLessonSourceDraft({ answerMap, taskId: draftContext.taskId, childId: draftContext.childId }))} />
+          <input ref={writingSourceDraftPayloadRef} type="hidden" name="writing_source_draft_payload" value={JSON.stringify(buildRawLessonSourceDraft({ answerMap, taskId: draftContext.taskId, childId: draftContext.childId }))} />
           <ContextAiSubmissionNotice />
           <div className="mt-4">
             <LessonSubmissionControls
               submitLabel={submitLabel}
               saveDraftAction={saveDraftAction}
-              onBeforeSaveDraft={captureResponse}
-              onBeforeSubmit={captureResponse}
+              onBeforeSaveDraft={prepareAndCaptureResponse}
+              onBeforeSubmit={prepareAndCaptureResponse}
             />
           </div>
         </div>

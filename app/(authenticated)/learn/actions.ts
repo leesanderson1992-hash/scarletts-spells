@@ -883,9 +883,6 @@ export async function saveTaskDraftSilently(formData: FormData) {
     return { ok: false, error: "save-failed" };
   }
 
-  revalidatePath("/learn");
-  revalidatePath("/learn/week");
-  revalidatePath("/dashboard");
   return { ok: true };
 }
 
