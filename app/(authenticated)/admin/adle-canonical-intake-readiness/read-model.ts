@@ -133,16 +133,14 @@ export async function loadReadinessRows(params: {
   const targets = [...new Set(pageGroups.map((group) => group.word))];
   const skillKeys = [...new Set(pageGroups.map((group) => group.skill))];
   const sourceIds = [...new Set(pageGroups.flatMap((group) => group.candidates.map((candidate) => candidate.source_candidate_mapping_id)))];
-  const demandIds = pageGroups.flatMap((group) => group.demands.map((demand) => demand.id));
-  const [wordResult, skillResult, sourceResult, contentResult, supportResult, eventResult] = await Promise.all([
+  const [wordResult, skillResult, sourceResult, contentResult, supportResult] = await Promise.all([
     db.from("canonical_teaching_dictionary_words").select("id,normalised_word,row_status,review_status,age_band,frequency_band").in("normalised_word", targets),
     db.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,skill_cluster_key,is_active,is_assignable").in("micro_skill_key", skillKeys),
     sourceIds.length ? db.from("parent_verified_spelling_candidate_mappings").select("id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key").in("id", sourceIds) : Promise.resolve({ data: [], error: null }),
     db.from("canonical_teaching_dictionary_content_versions").select("micro_skill_key,version_status,is_active,final_readiness_review_status,child_friendly_explanation,rule_explanation").in("micro_skill_key", skillKeys),
     db.from("canonical_teaching_dictionary_word_support").select("canonical_word_id,micro_skill_key,support_role,row_status,review_status").in("micro_skill_key", skillKeys),
-    db.from("adle_canonical_intake_events").select("id,demand_id,event_type,created_at").in("demand_id", demandIds).order("created_at", { ascending: false }).limit(1000),
   ]);
-  for (const result of [wordResult, skillResult, sourceResult, contentResult, supportResult, eventResult])
+  for (const result of [wordResult, skillResult, sourceResult, contentResult, supportResult])
     if (result.error) throw new Error(`Readiness facts: ${result.error.message}`);
   const sources = sourceResult.data ?? [];
   const misspellings = [...new Set(sources.map((source: any) => source.misspelling_normalized))];
@@ -214,15 +212,13 @@ export async function loadReadinessRows(params: {
       allowedAgeBands: ADLE_PILOT_CHILD_BAND.allowedAgeBands,
       allowedFrequencyBands: ADLE_PILOT_CHILD_BAND.allowedFrequencyBands,
     });
-    const history = (eventResult.data ?? []).filter((event: any) => group.demands.some((demand) => demand.id === event.demand_id))
-      .slice(0, 12).map((event: any) => ({ id: event.id, type: event.event_type, at: event.created_at }));
     return { key: group.key, word: group.word, microSkillKey: group.skill,
       routeId: route.routeId, routeVersion: route.routeVersion,
       occurrences: distinctOccurrences(group.candidates),
       usersWaiting: distinctUsersWaiting(group.waiting),
       waitingCandidates: group.waiting.length, archived: group.archived, facets,
       lastEvaluatedAt: latest(group.candidates.map((candidate) => candidate.last_evaluated_at)),
-      lastSeenAt: latest(group.demands.map((demand) => demand.last_seen_at)), history };
+      lastSeenAt: latest(group.demands.map((demand) => demand.last_seen_at)), history: [] };
   });
   const visibleRows = rows.filter((row) =>
     (params.view !== "current" && params.view !== "other" ||

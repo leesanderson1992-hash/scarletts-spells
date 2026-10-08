@@ -32,7 +32,23 @@ function Indicator({ facet, label }: { facet: Facet; label: string }) {
   </span>;
 }
 
-function DetailDialog({ row, onClose }: { row: ReadinessRow; onClose: () => void }) {
+function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: () => void; preview: boolean }) {
+  const [history, setHistory] = useState<ReadinessRow["history"] | null>(preview ? row.history : null);
+  const [historyError, setHistoryError] = useState(false);
+  useEffect(() => {
+    if (preview) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ word: row.word, skill: row.microSkillKey });
+    void fetch(`/admin/adle-canonical-intake-readiness/history?${params}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("History request failed");
+        const result = await response.json() as { history?: ReadinessRow["history"] };
+        if (!Array.isArray(result.history)) throw new Error("Invalid history response");
+        setHistory(result.history);
+      })
+      .catch(() => { if (!controller.signal.aborted) setHistoryError(true); });
+    return () => controller.abort();
+  }, [preview, row.word, row.microSkillKey]);
   const incomplete = FACET_KEYS.filter((key) => row.facets[key].state !== "complete");
   return <AppDialog open onOpenChange={(open) => { if (!open) onClose(); }}
     title={`${row.word} · readiness details`} eyebrow={row.microSkillKey} size="lg"
@@ -48,9 +64,11 @@ function DetailDialog({ row, onClose }: { row: ReadinessRow; onClose: () => void
       <div className="mt-5 border-t border-[#e5e8eb] pt-4 text-sm text-[#59616b]">
         <p><strong>{row.occurrences}</strong> authentic occurrences · <strong>{row.usersWaiting}</strong> users waiting · Last seen {date(row.lastSeenAt)}</p>
         <h4 className="mt-4 font-semibold text-[#20242a]">Recent audit history</h4>
-        {row.history.length ? <ul className="mt-2 space-y-1">
-          {row.history.map((item) => <li key={item.id}>{item.type.replaceAll("_", " ")} · {date(item.at)}</li>)}
-        </ul> : <p className="mt-2">No events recorded.</p>}
+        {historyError ? <p className="mt-2" role="alert">The audit history could not be loaded.</p> :
+          history === null ? <p className="mt-2" role="status">Loading audit history…</p> :
+            history.length ? <ul className="mt-2 space-y-1">
+              {history.map((item) => <li key={item.id}>{item.type.replaceAll("_", " ")} · {date(item.at)}</li>)}
+            </ul> : <p className="mt-2">No events recorded.</p>}
       </div>
     </div>
   </AppDialog>;
@@ -160,6 +178,6 @@ export function ReadinessTable({ rows, view, controls = {
         <button type="submit" role="menuitem">{optionsMenu.row.archived ? "Restore" : "Archive"}</button>
       </form> : null}
     </div>, document.body) : null}
-    {selected ? <DetailDialog row={selected} onClose={() => setSelected(null)} /> : null}
+    {selected ? <DetailDialog key={selected.key} row={selected} preview={preview} onClose={() => setSelected(null)} /> : null}
   </>;
 }
