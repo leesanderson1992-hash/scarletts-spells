@@ -1,5 +1,8 @@
 import "server-only";
 
+import type { CompiledReviewSnapshotV3 } from "./contracts";
+import { isReviewCompletionReady } from "./outcome-state";
+
 import { reviewWritingChallengeDevSnapshot } from "./dev-snapshot";
 import { evaluateSubmittedReviewWriting } from "./r3-evaluation";
 import {
@@ -41,7 +44,6 @@ import {
   type ReviewR4StoredState,
 } from "./r4-state";
 
-const snapshot = reviewWritingChallengeDevSnapshot();
 const DEV_GOVERNED_MAPPINGS = [
   {
     mappingId: "dev-governed-neccesary",
@@ -69,27 +71,33 @@ const DEV_SUGGESTIONS = [{
   source: "heuristic_correction_resolver" as const,
 }];
 
-declare global {
-  // Development-only server memory lets browser checks prove fresh-page hydration.
-  var __adleReviewR3DevState: ReviewR3StoredState | undefined;
-  var __adleReviewR4DevState: ReviewR4StoredState | undefined;
+export interface ReviewDevelopmentStoredState {
+  r3: ReviewR3StoredState;
+  r4: ReviewR4StoredState;
 }
 
+/** Existing development adapter, reusable with isolated snapshots and storage. */
+export function createReviewDevelopmentStore(
+  snapshot: CompiledReviewSnapshotV3,
+  initial?: ReviewDevelopmentStoredState,
+) {
+  let r3 = initial?.r3 ?? createReviewR3StoredState(snapshot);
+  let r4 = initial?.r4 ?? createReviewR4StoredState();
 function currentState(): ReviewR3StoredState {
-  globalThis.__adleReviewR3DevState ??= createReviewR3StoredState(snapshot);
-  return globalThis.__adleReviewR3DevState;
+  r3 ??= createReviewR3StoredState(snapshot);
+  return r3;
 }
 
 function currentRepairState(): ReviewR4StoredState {
-  globalThis.__adleReviewR4DevState ??= createReviewR4StoredState();
-  return globalThis.__adleReviewR4DevState;
+  r4 ??= createReviewR4StoredState();
+  return r4;
 }
 
-export function hydrateReviewR3DevSession(): ReviewR3SessionView {
+function hydrateReviewR3DevSession(): ReviewR3SessionView {
   return reviewR3SessionView(snapshot, currentState());
 }
 
-export function hydrateReviewR4DevSession(): ReviewR4SessionView {
+function hydrateReviewR4DevSession(): ReviewR4SessionView {
   return reviewR4SessionView({
     snapshot,
     reviewSession: hydrateReviewR3DevSession(),
@@ -102,13 +110,13 @@ function persistRepairTransition(transition: {
   result: ReviewR4GatewayResult;
 }) {
   if (!transition.result.ok) return transition.result;
-  globalThis.__adleReviewR4DevState = transition.state;
+  r4 = transition.state;
   const repairByEncounter = new Map(transition.state.repairs.map((repair) => [
     repair.encounterId,
     repair,
   ]));
   const r3State = currentState();
-  globalThis.__adleReviewR3DevState = {
+  r3 = {
     ...r3State,
     encounters: r3State.encounters.map((encounter) => {
       const repair = repairByEncounter.get(encounter.encounterId);
@@ -136,35 +144,35 @@ function repairInput<T extends ReviewR4EncounterSubmission>(submission: T) {
   };
 }
 
-export function beginReviewR4DevRepair(submission: ReviewR4EncounterSubmission) {
+function beginReviewR4DevRepair(submission: ReviewR4EncounterSubmission) {
   return persistRepairTransition(beginReviewRepair(repairInput(submission)));
 }
 
-export function moveReviewR4DevToTrickyPart(submission: ReviewR4EncounterSubmission) {
+function moveReviewR4DevToTrickyPart(submission: ReviewR4EncounterSubmission) {
   return persistRepairTransition(moveReviewRepairToTrickyPart(repairInput(submission)));
 }
 
-export function saveReviewR4DevTrickySpan(submission: ReviewR4TrickySpanSubmission) {
+function saveReviewR4DevTrickySpan(submission: ReviewR4TrickySpanSubmission) {
   return persistRepairTransition(saveReviewRepairTrickySpan(repairInput(submission)));
 }
 
-export function saveReviewR4DevMemoryCue(submission: ReviewR4MemoryCueSubmission) {
+function saveReviewR4DevMemoryCue(submission: ReviewR4MemoryCueSubmission) {
   return persistRepairTransition(saveReviewRepairMemoryCue(repairInput(submission)));
 }
 
-export function moveReviewR4DevToCover(submission: ReviewR4EncounterSubmission) {
+function moveReviewR4DevToCover(submission: ReviewR4EncounterSubmission) {
   return persistRepairTransition(moveReviewRepairToCover(repairInput(submission)));
 }
 
-export function moveReviewR4DevToTryAgain(submission: ReviewR4EncounterSubmission) {
+function moveReviewR4DevToTryAgain(submission: ReviewR4EncounterSubmission) {
   return persistRepairTransition(moveReviewRepairToTryAgain(repairInput(submission)));
 }
 
-export function submitReviewR4DevRetry(submission: ReviewR4RetrySubmission) {
+function submitReviewR4DevRetry(submission: ReviewR4RetrySubmission) {
   return persistRepairTransition(submitReviewRepairRetry(repairInput(submission)));
 }
 
-export function submitReviewR3DevWriting(
+function submitReviewR3DevWriting(
   submission: ReviewR3WritingSubmission,
 ): ReviewR3GatewayResult {
   const state = currentState();
@@ -179,35 +187,35 @@ export function submitReviewR3DevWriting(
       confirmationFlow: { nonAuthoritativeSuggestions: DEV_SUGGESTIONS },
     }),
   });
-  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  if (transition.result.ok) r3 = transition.state;
   return transition.result;
 }
 
-export function answerReviewR31DevSuggestion(
+function answerReviewR31DevSuggestion(
   submission: ReviewR31DecisionSubmission,
 ): ReviewR3GatewayResult {
   const transition = answerReviewR31Suggestion({ snapshot, state: currentState(), submission });
-  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  if (transition.result.ok) r3 = transition.state;
   return transition.result;
 }
 
-export function answerReviewR31DevAttemptQuestion(
+function answerReviewR31DevAttemptQuestion(
   submission: ReviewR31DecisionSubmission,
 ): ReviewR3GatewayResult {
   const transition = answerReviewR31AttemptQuestion({ snapshot, state: currentState(), submission });
-  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  if (transition.result.ok) r3 = transition.state;
   return transition.result;
 }
 
-export function confirmReviewR31DevWritingSpan(
+function confirmReviewR31DevWritingSpan(
   submission: ReviewR31SpanSubmission,
 ): ReviewR3GatewayResult {
   const transition = confirmReviewR31WritingSpan({ snapshot, state: currentState(), submission });
-  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  if (transition.result.ok) r3 = transition.state;
   return transition.result;
 }
 
-export function submitReviewR3DevAudio(
+function submitReviewR3DevAudio(
   submission: ReviewR3AudioSubmission,
 ): ReviewR3GatewayResult {
   const transition = submitReviewR3AudioCheck({
@@ -215,12 +223,56 @@ export function submitReviewR3DevAudio(
     state: currentState(),
     submission,
   });
-  if (transition.result.ok) globalThis.__adleReviewR3DevState = transition.state;
+  if (transition.result.ok) r3 = transition.state;
   return transition.result;
 }
 
-export function resetReviewR3DevSession(): ReviewR3SessionView {
-  globalThis.__adleReviewR3DevState = createReviewR3StoredState(snapshot);
-  globalThis.__adleReviewR4DevState = createReviewR4StoredState();
-  return reviewR3SessionView(snapshot, globalThis.__adleReviewR3DevState);
+function resetReviewR3DevSession(): ReviewR3SessionView {
+  r3 = createReviewR3StoredState(snapshot);
+  r4 = createReviewR4StoredState();
+  return reviewR3SessionView(snapshot, r3);
 }
+
+  return {
+    hydrateReviewR3DevSession,
+    hydrateReviewR4DevSession,
+    beginReviewR4DevRepair,
+    moveReviewR4DevToTrickyPart,
+    saveReviewR4DevTrickySpan,
+    saveReviewR4DevMemoryCue,
+    moveReviewR4DevToCover,
+    moveReviewR4DevToTryAgain,
+    submitReviewR4DevRetry,
+    submitReviewR3DevWriting,
+    answerReviewR31DevSuggestion,
+    answerReviewR31DevAttemptQuestion,
+    confirmReviewR31DevWritingSpan,
+    submitReviewR3DevAudio,
+    resetReviewR3DevSession,
+    exportState: (): ReviewDevelopmentStoredState => ({ r3: currentState(), r4: currentRepairState() }),
+    canFinalize: () => isReviewCompletionReady(currentState().encounters),
+  };
+}
+
+declare global {
+  var __adleReviewDevelopmentStore: ReturnType<typeof createReviewDevelopmentStore> | undefined;
+}
+const defaultStore = globalThis.__adleReviewDevelopmentStore ??=
+  createReviewDevelopmentStore(reviewWritingChallengeDevSnapshot());
+export const {
+  hydrateReviewR3DevSession,
+  hydrateReviewR4DevSession,
+  beginReviewR4DevRepair,
+  moveReviewR4DevToTrickyPart,
+  saveReviewR4DevTrickySpan,
+  saveReviewR4DevMemoryCue,
+  moveReviewR4DevToCover,
+  moveReviewR4DevToTryAgain,
+  submitReviewR4DevRetry,
+  submitReviewR3DevWriting,
+  answerReviewR31DevSuggestion,
+  answerReviewR31DevAttemptQuestion,
+  confirmReviewR31DevWritingSpan,
+  submitReviewR3DevAudio,
+  resetReviewR3DevSession
+} = defaultStore;

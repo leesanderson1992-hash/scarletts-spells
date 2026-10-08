@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { reviewR6GatewayAction } from "@/app/learn/week/adle/review-r6-actions";
+import { reviewR6GatewayAction, type ReviewR6GatewayRequest } from "@/app/learn/week/adle/review-r6-actions";
 import { WordLabScene } from "@/components/adle/morphology/word-lab-scene";
 import {
   ReviewFreeWritingActivity,
@@ -52,8 +52,12 @@ export function ReviewR6Session(props: {
   assignmentId: string;
   reviewSessionId: string;
   snapshot: CompiledReviewSnapshotV3;
+  /** Transport seam only: the development fixture supplies a local gateway. */
+  gateway?: (request: ReviewR6GatewayRequest) => Promise<unknown>;
+  onStageRefresh?: () => void;
 }) {
   const router = useRouter();
+  const gateway = props.gateway ?? reviewR6GatewayAction;
   const [initial, setInitial] = useState<{ session: ReviewWritingChallengeSessionV1; stateVersion: number } | null>(null);
   const [muted, setMuted] = useState(false);
   const [finishing, setFinishing] = useState(false);
@@ -67,7 +71,7 @@ export function ReviewR6Session(props: {
 
   useEffect(() => {
     let active = true;
-    void reviewR6GatewayAction({ ...base, action: "hydrate_writing" })
+    void gateway({ ...base, action: "hydrate_writing" })
       .then((value) => {
         if (!active) return;
         const row = value as ReviewR6WritingSessionView;
@@ -75,43 +79,43 @@ export function ReviewR6Session(props: {
       })
       .catch(() => { if (active) setMessage("Your Review could not be loaded. Please refresh."); });
     return () => { active = false; };
-  }, [base, props.snapshot]);
+  }, [base, props.snapshot, gateway]);
 
   const r3 = useMemo<ReviewR3Gateway>(() => ({
-    hydrate: () => reviewR6GatewayAction({ ...base, action: "hydrate_r3" }) as Promise<ReviewR3SessionView>,
-    submitWriting: (input) => reviewR6GatewayAction({ ...base, action: "submit_writing", ...input }) as Promise<ReviewR3GatewayResult>,
-    submitAudioCheck: (input) => reviewR6GatewayAction({ ...base, action: "submit_audio", ...input }) as Promise<ReviewR3GatewayResult>,
-    confirmSuggestion: (input) => reviewR6GatewayAction({ ...base, action: "confirm_suggestion", ...input }) as Promise<ReviewR3GatewayResult>,
-    answerAttemptQuestion: (input) => reviewR6GatewayAction({ ...base, action: "answer_attempt", ...input }) as Promise<ReviewR3GatewayResult>,
-    confirmWritingSpan: (input) => reviewR6GatewayAction({ ...base, action: "confirm_span", ...input }) as Promise<ReviewR3GatewayResult>,
-  }), [base]);
+    hydrate: () => gateway({ ...base, action: "hydrate_r3" }) as Promise<ReviewR3SessionView>,
+    submitWriting: (input) => gateway({ ...base, action: "submit_writing", ...input }) as Promise<ReviewR3GatewayResult>,
+    submitAudioCheck: (input) => gateway({ ...base, action: "submit_audio", ...input }) as Promise<ReviewR3GatewayResult>,
+    confirmSuggestion: (input) => gateway({ ...base, action: "confirm_suggestion", ...input }) as Promise<ReviewR3GatewayResult>,
+    answerAttemptQuestion: (input) => gateway({ ...base, action: "answer_attempt", ...input }) as Promise<ReviewR3GatewayResult>,
+    confirmWritingSpan: (input) => gateway({ ...base, action: "confirm_span", ...input }) as Promise<ReviewR3GatewayResult>,
+  }), [base, gateway]);
   const r4 = useMemo<ReviewR4Gateway>(() => ({
-    hydrate: () => reviewR6GatewayAction({ ...base, action: "hydrate_r4" }) as Promise<ReviewR4SessionView>,
-    beginRepair: (input) => reviewR6GatewayAction({ ...base, action: "begin_repair", ...input }) as Promise<ReviewR4GatewayResult>,
-    moveToTrickyPart: (input) => reviewR6GatewayAction({ ...base, action: "move_tricky", ...input }) as Promise<ReviewR4GatewayResult>,
-    saveTrickySpan: (input) => reviewR6GatewayAction({ ...base, action: "save_tricky", ...input }) as Promise<ReviewR4GatewayResult>,
-    saveMemoryCue: (input) => reviewR6GatewayAction({ ...base, action: "save_cue", ...input }) as Promise<ReviewR4GatewayResult>,
-    moveToCover: (input) => reviewR6GatewayAction({ ...base, action: "move_cover", ...input }) as Promise<ReviewR4GatewayResult>,
-    moveToTryAgain: (input) => reviewR6GatewayAction({ ...base, action: "move_try", ...input }) as Promise<ReviewR4GatewayResult>,
-    submitRepairRetry: (input) => reviewR6GatewayAction({ ...base, action: "repair_retry", ...input }) as Promise<ReviewR4GatewayResult>,
-  }), [base]);
+    hydrate: () => gateway({ ...base, action: "hydrate_r4" }) as Promise<ReviewR4SessionView>,
+    beginRepair: (input) => gateway({ ...base, action: "begin_repair", ...input }) as Promise<ReviewR4GatewayResult>,
+    moveToTrickyPart: (input) => gateway({ ...base, action: "move_tricky", ...input }) as Promise<ReviewR4GatewayResult>,
+    saveTrickySpan: (input) => gateway({ ...base, action: "save_tricky", ...input }) as Promise<ReviewR4GatewayResult>,
+    saveMemoryCue: (input) => gateway({ ...base, action: "save_cue", ...input }) as Promise<ReviewR4GatewayResult>,
+    moveToCover: (input) => gateway({ ...base, action: "move_cover", ...input }) as Promise<ReviewR4GatewayResult>,
+    moveToTryAgain: (input) => gateway({ ...base, action: "move_try", ...input }) as Promise<ReviewR4GatewayResult>,
+    submitRepairRetry: (input) => gateway({ ...base, action: "repair_retry", ...input }) as Promise<ReviewR4GatewayResult>,
+  }), [base, gateway]);
   const writing = useMemo<ReviewR2DurableWritingGateway>(() => ({
     async selectPrompt(input) {
-      const row = await reviewR6GatewayAction({
+      const row = await gateway({
         ...base, action: "select_prompt", ...input,
         idempotencyKey: `review-r6:select:${base.snapshotFingerprint}:${input.challengeType}:${input.expectedStateVersion}`,
       }) as ReviewR6WritingSessionView;
       return { session: writingSession(props.snapshot, row), stateVersion: row.stateVersion };
     },
     async startWriting(input) {
-      const row = await reviewR6GatewayAction({
+      const row = await gateway({
         ...base, action: "start_writing", ...input,
         idempotencyKey: `review-r6:start:${base.snapshotFingerprint}`,
       }) as ReviewR6WritingSessionView;
       return { session: writingSession(props.snapshot, row), stateVersion: row.stateVersion };
     },
     async saveDraft(input) {
-      const row = await reviewR6GatewayAction({
+      const row = await gateway({
         ...base, action: "save_draft", ...input,
         idempotencyKey: `review-r6:draft:${base.snapshotFingerprint}:${input.expectedStateVersion}`,
       }) as ReviewR6WritingSessionView;
@@ -121,20 +125,20 @@ export function ReviewR6Session(props: {
       const password = parentPassword.current;
       parentPassword.current = null;
       if (!password) throw new Error("parent_reauthentication_required");
-      const row = await reviewR6GatewayAction({
+      const row = await gateway({
         ...base, action: "extend_writing", ...input, password,
         idempotencyKey: `review-r6:extension:${base.snapshotFingerprint}`,
       }) as ReviewR6WritingSessionView;
       return { session: writingSession(props.snapshot, row), stateVersion: row.stateVersion };
     },
-  }), [base, props.snapshot]);
+  }), [base, props.snapshot, gateway]);
 
   async function finishReview() {
     if (finishing) return;
     setFinishing(true);
     setMessage(null);
     try {
-      const result = await reviewR6GatewayAction({
+      const result = await gateway({
         ...base,
         action: "finalize",
         idempotencyKey: `review-r6:finalize:${base.snapshotFingerprint}`,
@@ -144,7 +148,10 @@ export function ReviewR6Session(props: {
         : result.specialistOutcome === "not_due"
           ? "Review complete ✓ Today’s session is finished."
           : "Review complete ✓ Your work is safe while the next stage is checked.");
-      window.setTimeout(() => router.refresh(), 650);
+      window.setTimeout(() => {
+        if (props.onStageRefresh) props.onStageRefresh();
+        else router.refresh();
+      }, 650);
     } catch {
       setMessage("Your Review is safe, but the next stage could not open. Please try again.");
       setFinishing(false);
@@ -171,7 +178,7 @@ export function ReviewR6Session(props: {
       phaseCues={["Choose your challenge", "Use your Target Words", "Check each word", "Repair tricky parts", "Today’s lesson"]}
       toolbar={<span className="rounded-full bg-cyan-300 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-950">Today’s Lesson · Review first</span>}
     >
-      <div className="min-w-0 rounded-3xl bg-white p-1 text-slate-950 shadow-2xl sm:p-3">
+      <div className="adle-presentation min-w-0">
         {initial ? (
           <ReviewFreeWritingActivity
             snapshot={props.snapshot}
@@ -189,11 +196,11 @@ export function ReviewR6Session(props: {
           />
         ) : (
           <div className="grid min-h-80 place-items-center" aria-busy="true" role="status">
-            <p className="font-semibold text-slate-600">Preparing your Review…</p>
+            <p className="font-semibold text-cyan-100">Preparing your Review…</p>
           </div>
         )}
         {finishing || message ? (
-          <p className="mx-4 mb-4 rounded-2xl bg-cyan-50 px-4 py-3 text-center font-semibold text-cyan-950" aria-live="polite">
+          <p className="review-callout mx-4 mb-4 text-center font-semibold" aria-live="polite">
             {message ?? "Finishing Review…"}
           </p>
         ) : null}

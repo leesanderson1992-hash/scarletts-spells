@@ -31,12 +31,12 @@ function HighlightedSpelling(props: {
   onDark?: boolean;
 }) {
   return (
-    <p className={`flex flex-wrap text-3xl font-semibold tracking-normal ${props.onDark ? "justify-center text-white" : "text-[color:var(--ink)]"}`}>
+    <p className={`flex flex-wrap text-3xl font-semibold tracking-normal ${props.onDark ? "justify-center text-white" : "text-[color:var(--review-text)]"}`}>
       {segmentReviewGraphemes(props.spelling).map((grapheme) => (
         <span
           key={grapheme.index}
           className={grapheme.index >= props.start && grapheme.index < props.end
-            ? "rounded bg-[#ffe394] px-0.5 text-[#6b3f00]"
+            ? "review-highlight rounded px-0.5"
             : "px-0.5"}
         >
           {grapheme.text}
@@ -48,10 +48,10 @@ function HighlightedSpelling(props: {
 
 function CueIdeas() {
   return (
-    <details open className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-4">
-      <summary className="cursor-pointer font-semibold text-[color:var(--ink)]">Need an idea?</summary>
-      <div className="mt-4 grid gap-4 text-sm leading-6 text-[color:var(--mid)]">
-        <p className="font-semibold text-[color:var(--ink)]">For example:</p>
+    <details open className="review-ideas review-callout">
+      <summary className="cursor-pointer font-semibold text-[color:var(--review-text)]">Need an idea?</summary>
+      <div className="mt-4 grid gap-4 text-sm leading-6 text-[color:var(--review-muted)]">
+        <p className="font-semibold text-[color:var(--review-text)]">For example:</p>
         <p><strong>Initial-letter mnemonic — because:</strong><br />Big Elephants Can Always Understand Small Elephants.</p>
         <p><strong>Pattern cue — necessary:</strong><br />One Collar, Two Sleeves — one <strong>c</strong>, two <strong>s</strong>.</p>
         <p><strong>Exaggerated spelling pronunciation — Wednesday:</strong><br />Wed-nes-day.</p>
@@ -110,7 +110,7 @@ export function WordReflectionRepair(props: {
   }
 
   if (session === null) {
-    return <section className="brand-card mx-auto max-w-3xl rounded-lg p-6" aria-busy="true" />;
+    return <section className="adle-presentation review-surface mx-auto max-w-3xl rounded-lg p-6" aria-busy="true" />;
   }
   const repair = session.activeRepair;
   if (repair === null) {
@@ -119,16 +119,16 @@ export function WordReflectionRepair(props: {
       const lastTerminalRepair = session.terminalRepairs.at(-1);
       if (session.terminalRepairs.length > 0 && nextEncounterId) {
         return (
-          <main className="mx-auto grid max-w-3xl gap-5 px-4 py-6 sm:px-6">
-            <section className="brand-card grid gap-4 rounded-lg p-6" role="status">
-              <p className="brand-eyebrow">Word Reflection &amp; Repair</p>
-              <h1 className="brand-lesson-title text-3xl font-semibold">Word repair saved</h1>
-              <p className="text-base leading-7 text-[color:var(--mid)]">
+          <main className="adle-presentation review-page mx-auto grid max-w-3xl gap-5 px-4 py-6 sm:px-6">
+            <section className="review-surface grid gap-4 rounded-lg p-6" role="status">
+              <p className="review-eyebrow">Word Reflection &amp; Repair</p>
+              <h1 className="review-title text-3xl font-semibold">Word repair saved</h1>
+              <p className="text-base leading-7 text-[color:var(--review-muted)]">
                 {lastTerminalRepair?.terminalOutcome === "repair_attempted_not_secured"
                   ? "That word will come back again soon. Let’s move to the next word."
                   : "That repair is saved. Let’s move to the next word."}
               </p>
-              <button type="button" className="brand-primary-btn justify-self-start" disabled={submitting}
+              <button type="button" className="review-primary justify-self-start" disabled={submitting}
                 onClick={() => void transition(() => props.gateway.beginRepair({
                   encounterId: nextEncounterId,
                   idempotencyKey: idempotencyKey(
@@ -148,10 +148,10 @@ export function WordReflectionRepair(props: {
         encounter.repairRequired && encounter.resultSource === "review_audio_check",
       );
       return (
-        <main className="mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
-          <header className="border-b border-[var(--border)] pb-5">
-            <p className="brand-eyebrow">Writing Challenge</p>
-            <h1 className="brand-lesson-title mt-1 text-3xl font-semibold">Target Word checks</h1>
+        <main className="adle-presentation review-page mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
+          <header className="border-b border-[var(--review-border)] pb-5">
+            <p className="review-eyebrow">Writing Challenge</p>
+            <h1 className="review-title mt-1 text-3xl font-semibold">Target Word checks</h1>
           </header>
           {failedAudioEncounters.map((encounter) => {
             const failedTarget = props.snapshot.targets.find((candidate) =>
@@ -159,40 +159,40 @@ export function WordReflectionRepair(props: {
             );
             if (!failedTarget) return null;
             return (
-              <section key={encounter.encounterId} className="brand-card grid gap-4 rounded-lg p-5">
+              <section key={encounter.encounterId} className="review-surface grid gap-4 rounded-lg p-5">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-semibold text-[color:var(--ink)]">Target Word {encounter.targetOrder}</p>
+                  <p className="font-semibold text-[color:var(--review-text)]">Target Word {encounter.targetOrder}</p>
                   <TargetAudioButton
                     index={encounter.targetOrder - 1}
                     target={failedTarget}
                     onPlay={props.onPlayTargetAudio}
                   />
                 </div>
-                <label className="grid gap-2 text-sm font-semibold text-[color:var(--mid)]">
+                <label className="grid gap-2 text-sm font-semibold text-[color:var(--review-muted)]">
                   Spell this Target Word
                   <input
                     value={encounter.submittedAudioResponse ?? ""}
                     disabled
                     readOnly
                     spellCheck={false}
-                    className="brand-input min-h-12 rounded-lg px-3 text-lg disabled:bg-[var(--mist)]"
+                    className="review-input min-h-12 rounded-lg px-3 text-lg disabled:bg-[var(--review-inset)]"
                   />
                 </label>
-                <p className="font-semibold text-[color:var(--scarlett)]" role="status">This word needs Reflection &amp; Repair.</p>
+                <p className="font-semibold text-[color:var(--review-accent)]" role="status">This word needs Reflection &amp; Repair.</p>
                 {encounter.governedCorrectSpellingReveal !== null ? (
-                  <p className="text-sm text-[color:var(--ink)]">The word was: {encounter.governedCorrectSpellingReveal}</p>
+                  <p className="text-sm text-[color:var(--review-text)]">The word was: {encounter.governedCorrectSpellingReveal}</p>
                 ) : null}
               </section>
             );
           })}
-          <section className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-5" role="status">
-            <p className="font-semibold text-[color:var(--ink)]">All original retrieval checks are locked.</p>
-            <p className="mt-1 text-sm text-[color:var(--mid)]">
+          <section className="review-callout" role="status">
+            <p className="font-semibold text-[color:var(--review-text)]">All original retrieval checks are locked.</p>
+            <p className="mt-1 text-sm text-[color:var(--review-muted)]">
               {`${repairCount} ${repairCount === 1 ? "word is" : "words are"} ready for Reflection & Repair.`}
             </p>
           </section>
           {nextEncounterId ? (
-            <button type="button" className="brand-primary-btn justify-self-start" disabled={submitting}
+            <button type="button" className="review-primary justify-self-start" disabled={submitting}
               onClick={() => void transition(() => props.gateway.beginRepair({
                 encounterId: nextEncounterId,
                 idempotencyKey: idempotencyKey(
@@ -204,17 +204,17 @@ export function WordReflectionRepair(props: {
               {session.terminalRepairs.length > 0 ? "Continue to next word" : "Begin Word Reflection & Repair"}
             </button>
           ) : null}
-          {message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{message}</p> : null}
+          {message !== null ? <p className="text-sm text-[color:var(--review-accent)]" role="alert">{message}</p> : null}
         </main>
       );
     }
     const finalRepair = session.terminalRepairs.at(-1);
     return (
-      <main className="mx-auto grid max-w-3xl gap-5 px-4 py-6 sm:px-6">
-        <section className="brand-card grid gap-3 rounded-lg p-6" role="status">
-          <p className="brand-eyebrow">Word Reflection &amp; Repair</p>
-          <h1 className="brand-lesson-title text-3xl font-semibold">Repairs saved</h1>
-          <p className="text-base leading-7 text-[color:var(--mid)]">
+      <main className="adle-presentation review-page mx-auto grid max-w-3xl gap-5 px-4 py-6 sm:px-6">
+        <section className="review-surface grid gap-3 rounded-lg p-6" role="status">
+          <p className="review-eyebrow">Word Reflection &amp; Repair</p>
+          <h1 className="review-title text-3xl font-semibold">Repairs saved</h1>
+          <p className="text-base leading-7 text-[color:var(--review-muted)]">
             {finalRepair?.terminalOutcome === "repair_attempted_not_secured"
               ? "That word will come back again soon. Your work here is saved."
               : "Your repair work is saved and ready for the next Review step."}
@@ -222,7 +222,7 @@ export function WordReflectionRepair(props: {
           {props.onReadyToComplete ? (
             <button
               type="button"
-              className="brand-primary-btn justify-self-start"
+              className="review-primary justify-self-start"
               disabled={submitting}
               onClick={() => void props.onReadyToComplete?.()}
             >
@@ -296,30 +296,30 @@ export function WordReflectionRepair(props: {
   }
 
   return (
-    <main className="mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
-      <header className="border-b border-[var(--border)] pb-5">
-        <p className="brand-eyebrow">Word Reflection &amp; Repair</p>
-        <h1 className="brand-lesson-title mt-1 text-3xl font-semibold">Target Word {repair.targetOrder}</h1>
+    <main className="adle-presentation review-page mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
+      <header className="border-b border-[var(--review-border)] pb-5">
+        <p className="review-eyebrow">Word Reflection &amp; Repair</p>
+        <h1 className="review-title mt-1 text-3xl font-semibold">Target Word {repair.targetOrder}</h1>
         {session.terminalRepairs.length > 0 ? (
-          <p className="mt-2 text-sm text-emerald-800" role="status">Previous repair saved.</p>
+          <p className="mt-2 text-sm text-emerald-200" role="status">Previous repair saved.</p>
         ) : null}
       </header>
 
       {["compare", "tricky_part", "memory_cue"].includes(repair.stage) && repair.correctSpellingReveal !== null ? (
-        <section className="brand-card grid gap-5 rounded-lg p-5 sm:p-6">
-          <div className="grid gap-4 border-b border-[var(--border)] pb-5 sm:grid-cols-2">
+        <section className="review-surface grid gap-5 rounded-lg p-5 sm:p-6">
+          <div className="review-comparison grid gap-4 border-b border-[var(--review-border)] pb-5 sm:grid-cols-2">
             <div>
-              <p className="text-sm font-semibold text-[color:var(--mid)]">You wrote:</p>
-              <p className="mt-1 text-2xl text-[color:var(--ink)]">{repair.attemptedForm}</p>
+              <p className="text-sm font-semibold text-[color:var(--review-muted)]">You wrote:</p>
+              <p className="mt-1 text-2xl text-[color:var(--review-text)]">{repair.attemptedForm}</p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[color:var(--mid)]">The word was:</p>
-              <p className="mt-1 text-3xl font-semibold text-[color:var(--ink)]">{repair.correctSpellingReveal}</p>
+              <p className="text-sm font-semibold text-[color:var(--review-muted)]">The word was:</p>
+              <p className="mt-1 text-3xl font-semibold text-[color:var(--review-text)]">{repair.correctSpellingReveal}</p>
             </div>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-[color:var(--ink)]">Highlight the tricky part</h2>
-            <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">Highlight the part of the correct word that you found tricky.</p>
+            <h2 className="text-xl font-semibold text-[color:var(--review-text)]">Highlight the tricky part</h2>
+            <p className="mt-1 text-sm leading-6 text-[color:var(--review-muted)]">Highlight the part of the correct word that you found tricky.</p>
           </div>
           <div className="flex flex-wrap gap-1" role="group" aria-label="Choose a continuous tricky part"
             onBlur={(event) => {
@@ -334,7 +334,7 @@ export function WordReflectionRepair(props: {
                   aria-pressed={selected}
                   aria-label={`Letter part ${grapheme.index + 1}`}
                   disabled={repair.stage === "memory_cue"}
-                  className={`min-h-12 min-w-10 rounded border px-2 text-2xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)] ${selected ? "border-[#c17d00] bg-[#ffe394] text-[#6b3f00]" : "border-[var(--border)] bg-white text-[color:var(--ink)]"}`}
+                  className="review-letter"
                   onClick={() => selectTrickyGrapheme(grapheme.index)}>
                   {grapheme.text}
                 </button>
@@ -342,31 +342,31 @@ export function WordReflectionRepair(props: {
             })}
           </div>
           {repair.availableExistingCue ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-sm font-semibold text-emerald-950">Your previous Memory Cue</p>
-              <p className="mt-1 text-base text-emerald-950">{repair.availableExistingCue.cueText}</p>
-              <p className="mt-2 text-sm text-emerald-900">
+            <div className="rounded-2xl border border-emerald-300/30 bg-emerald-300/10 p-4">
+              <p className="text-sm font-semibold text-emerald-100">Your previous Memory Cue</p>
+              <p className="mt-1 text-base text-emerald-100">{repair.availableExistingCue.cueText}</p>
+              <p className="mt-2 text-sm text-emerald-100">
                 It belongs to the tricky part <strong>{repair.availableExistingCue.selectedText}</strong>. Choose that same part to keep this cue, or choose a new part and write a new cue.
               </p>
             </div>
           ) : null}
-          {activeSelection ? <p className="text-sm text-[color:var(--mid)]">Selected: <strong>{selectedText}</strong></p> : null}
+          {activeSelection ? <p className="text-sm text-[color:var(--review-muted)]">Selected: <strong>{selectedText}</strong></p> : null}
           {repair.stage !== "memory_cue" && selection ? (
-            <p className="text-sm font-semibold text-[color:var(--mid)]" role="status">
+            <p className="text-sm font-semibold text-[color:var(--review-muted)]" role="status">
               {submitting ? "Saving tricky part..." : "Tricky part selected."}
             </p>
           ) : null}
-          <div className="border-t border-[var(--border)] pt-5">
-            <h2 className="text-xl font-semibold text-[color:var(--ink)]">Create a personal Memory Cue</h2>
-            <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">Find a fun way to remember this tricky part. Write a short memory cue for yourself below.</p>
+          <div className="border-t border-[var(--review-border)] pt-5">
+            <h2 className="text-xl font-semibold text-[color:var(--review-text)]">Create a personal Memory Cue</h2>
+            <p className="mt-1 text-sm leading-6 text-[color:var(--review-muted)]">Find a fun way to remember this tricky part. Write a short memory cue for yourself below.</p>
           </div>
           {repair.stage === "memory_cue" && repair.availableExistingCue &&
             repair.availableExistingCue.graphemeStart === repair.trickyGraphemeStart &&
             repair.availableExistingCue.graphemeEnd === repair.trickyGraphemeEnd ? (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                <p className="text-sm font-semibold text-emerald-950">Your existing Memory Cue</p>
-                <p className="mt-1 text-base text-emerald-950">{repair.availableExistingCue.cueText}</p>
-                <button type="button" className="brand-secondary-btn mt-3" disabled={submitting}
+              <div className="rounded-2xl border border-emerald-300/30 bg-emerald-300/10 p-4">
+                <p className="text-sm font-semibold text-emerald-100">Your existing Memory Cue</p>
+                <p className="mt-1 text-base text-emerald-100">{repair.availableExistingCue.cueText}</p>
+                <button type="button" className="review-secondary mt-3" disabled={submitting}
                   onClick={() => void transition(() => props.gateway.saveMemoryCue({
                     encounterId: repair.encounterId,
                     cueText: repair.availableExistingCue!.cueText,
@@ -377,19 +377,19 @@ export function WordReflectionRepair(props: {
                 </button>
               </div>
             ) : null}
-          <label className="grid gap-2 text-sm font-semibold text-[color:var(--mid)]">
+          <label className="grid gap-2 text-sm font-semibold text-[color:var(--review-muted)]">
             My Memory Cue
             <textarea value={cueText} maxLength={240} spellCheck={false}
               onChange={(event) => setCueText(event.target.value)}
               onFocus={() => {
                 if (selection && repair.stage !== "memory_cue") void saveReflectionTrickyPart(selection);
               }}
-              className="brand-textarea min-h-28 resize-y rounded-lg p-3 text-base leading-7"
+              className="review-input min-h-28 resize-y rounded-lg p-3 text-base leading-7"
               placeholder="Write your own idea..." />
           </label>
           <CueIdeas />
           {repair.stage === "memory_cue" ? (
-            <button type="button" className="brand-primary-btn justify-self-start"
+            <button type="button" className="review-primary justify-self-start"
               disabled={cueText.trim().length === 0 || submitting}
               onClick={() => void transition(() => props.gateway.saveMemoryCue({
                 encounterId: repair.encounterId,
@@ -404,17 +404,17 @@ export function WordReflectionRepair(props: {
 
       {repair.stage === "look" && repair.correctSpellingReveal !== null && repair.cueVersionUsed &&
         repair.trickyGraphemeStart !== null && repair.trickyGraphemeEnd !== null ? (
-          <section className="brand-card grid gap-5 rounded-lg p-5 sm:p-6">
+          <section className="review-surface grid gap-5 rounded-lg p-5 sm:p-6">
             <div>
-              <p className="brand-eyebrow">Look</p>
-              <h2 className="mt-1 text-xl font-semibold text-[color:var(--ink)]">
+              <p className="review-eyebrow">Look</p>
+              <h2 className="mt-1 text-xl font-semibold text-[color:var(--review-text)]">
                 {repair.attempts.length === 1 ? "Have another careful look." : "Study the word and your cue."}
               </h2>
             </div>
             {coveredRepairCycle !== `${repair.encounterId}:${repair.attempts.length}` ? (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-4">
-                <p className="text-sm font-semibold text-[color:var(--mid)]">My Memory Cue</p>
-                <p className="mt-1 text-lg text-[color:var(--ink)]">{repair.cueVersionUsed.cueText}</p>
+              <div className="review-callout">
+                <p className="text-sm font-semibold text-[color:var(--review-muted)]">My Memory Cue</p>
+                <p className="mt-1 text-lg text-[color:var(--review-text)]">{repair.cueVersionUsed.cueText}</p>
               </div>
             ) : null}
             <TargetAudioButton index={repair.targetOrder - 1} target={target} onPlay={props.onPlayTargetAudio} />
@@ -465,13 +465,13 @@ export function WordReflectionRepair(props: {
         ) : null}
 
       {repair.stage === "cover" && repair.cueVersionUsed ? (
-        <section className="brand-card grid gap-5 rounded-lg p-5 sm:p-6">
+        <section className="review-surface grid gap-5 rounded-lg p-5 sm:p-6">
           <div>
-            <p className="brand-eyebrow">Cover</p>
-            <h2 className="mt-1 text-xl font-semibold text-[color:var(--ink)]">The spelling is hidden.</h2>
-            <p className="mt-2 text-base leading-7 text-[color:var(--mid)]">Say your memory cue to yourself — or picture it in your head.</p>
+            <p className="review-eyebrow">Cover</p>
+            <h2 className="mt-1 text-xl font-semibold text-[color:var(--review-text)]">The spelling is hidden.</h2>
+            <p className="mt-2 text-base leading-7 text-[color:var(--review-muted)]">Say your memory cue to yourself — or picture it in your head.</p>
           </div>
-          <button type="button" className="brand-primary-btn justify-self-start" disabled={submitting}
+          <button type="button" className="review-primary justify-self-start" disabled={submitting}
             onClick={() => void transition(() => props.gateway.moveToTryAgain({
               encounterId: repair.encounterId,
               idempotencyKey: key(`try-${repair.attempts.length + 1}`),
@@ -482,10 +482,10 @@ export function WordReflectionRepair(props: {
       ) : null}
 
       {repair.stage === "try_again" ? (
-        <section className="brand-card grid gap-5 rounded-lg p-5 sm:p-6">
+        <section className="review-surface grid gap-5 rounded-lg p-5 sm:p-6">
           <div>
-            <p className="brand-eyebrow">Try Again</p>
-            <h2 className="mt-1 text-xl font-semibold text-[color:var(--ink)]">Spell this Target Word</h2>
+            <p className="review-eyebrow">Try Again</p>
+            <h2 className="mt-1 text-xl font-semibold text-[color:var(--review-text)]">Spell this Target Word</h2>
           </div>
           <TargetAudioButton index={repair.targetOrder - 1} target={target} onPlay={props.onPlayTargetAudio} />
           <CoverShutter
@@ -507,7 +507,7 @@ export function WordReflectionRepair(props: {
         </section>
       ) : null}
 
-      {message ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{message}</p> : null}
+      {message ? <p className="text-sm text-[color:var(--review-accent)]" role="alert">{message}</p> : null}
     </main>
   );
 }

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:review-r6-qa": "node scripts/dev-adle-review-r6-qa.mjs",
     "build": "next build",
     "start": "next start",
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
@@ -125,6 +126,7 @@
     "adle:review-r4-persistence-hydration-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-review-r4-persistence-hydration-regression.ts",
     "adle:review-r5-regression": "npx tsx scripts/adle-review-r5-regression.ts",
     "adle:review-r5-multi-week-simulation": "npx tsx scripts/adle-review-r5-multi-week-simulation.ts",
+    "adle:review-r6-qa-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-review-r6-qa-regression.ts",
     "adle:review-r6-regression": "npx tsx scripts/adle-review-r6-regression.ts",
     "adle:review-r6-migration-release": "npx tsx scripts/adle-review-r6-migration-release.ts",
     "adle:review-r6-migration-release-regression": "npx tsx scripts/adle-review-r6-migration-release-regression.ts",

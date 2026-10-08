@@ -257,23 +257,23 @@ function TargetWordRetrievalChecks(props: {
   }
 
   return (
-    <main className="mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
-      <header className="border-b border-[var(--border)] pb-5">
-        <p className="brand-eyebrow">Writing Challenge</p>
-        <h1 className="brand-lesson-title mt-1 text-3xl font-semibold">Target Word checks</h1>
-        <p className="mt-2 text-base leading-7 text-[color:var(--mid)]">
+    <main className="adle-presentation review-page mx-auto grid max-w-3xl gap-6 px-4 py-6 sm:px-6">
+      <header className="border-b border-[var(--review-border)] pb-5">
+        <p className="review-eyebrow">Writing Challenge</p>
+        <h1 className="review-title mt-1 text-3xl font-semibold">Target Word checks</h1>
+        <p className="mt-2 text-base leading-7 text-[color:var(--review-muted)]">
           Listen and spell each Target Word that is still waiting for a check.
         </p>
       </header>
 
       {pendingAttribution && pendingAttributionTarget ? (
-        <section className="brand-card grid gap-5 rounded-lg p-5" aria-label="Target Word writing check">
+        <section className="review-surface grid gap-5 rounded-lg p-5" aria-label="Target Word writing check">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold text-[color:var(--ink)]">Target Word {pendingAttribution.targetOrder}</p>
+            <p className="font-semibold text-[color:var(--review-text)]">Target Word {pendingAttribution.targetOrder}</p>
           </div>
           {pendingAttribution.writingAttributionPrompt?.kind === "confirm_suggestion" ? (
             <div className="grid gap-4">
-              <p className="text-lg leading-7 text-[color:var(--ink)]">
+              <p className="text-lg leading-7 text-[color:var(--review-text)]">
                 Did you mean{" "}
                 <span className="mx-1 inline-flex align-middle">
                   <TargetAudioButton
@@ -285,15 +285,15 @@ function TargetWordRetrievalChecks(props: {
                 {" "}when you wrote <strong>&ldquo;{pendingAttribution.writingAttributionPrompt.observedText}&rdquo;</strong>?
               </p>
               <div className="flex flex-wrap gap-3">
-                <button type="button" className="brand-primary-btn" disabled={attributionSubmitting}
+                <button type="button" className="review-primary" disabled={attributionSubmitting}
                   onClick={() => void submitAttributionDecision("suggestion", "yes")}>Yes</button>
-                <button type="button" className="brand-secondary-btn" disabled={attributionSubmitting}
+                <button type="button" className="review-secondary" disabled={attributionSubmitting}
                   onClick={() => void submitAttributionDecision("suggestion", "no")}>No</button>
               </div>
             </div>
           ) : pendingAttribution.writingAttributionPrompt?.kind === "ask_attempt" ? (
             <div className="grid gap-4">
-              <p className="text-lg leading-7 text-[color:var(--ink)]">
+              <p className="text-lg leading-7 text-[color:var(--review-text)]">
                 Did you try to use{" "}
                 <span className="mx-1 inline-flex align-middle">
                   <TargetAudioButton
@@ -305,16 +305,16 @@ function TargetWordRetrievalChecks(props: {
                 {" "}in your writing?
               </p>
               <div className="flex flex-wrap gap-3">
-                <button type="button" className="brand-primary-btn" disabled={attributionSubmitting}
+                <button type="button" className="review-primary" disabled={attributionSubmitting}
                   onClick={() => void submitAttributionDecision("attempt", "yes")}>Yes</button>
-                <button type="button" className="brand-secondary-btn" disabled={attributionSubmitting}
+                <button type="button" className="review-secondary" disabled={attributionSubmitting}
                   onClick={() => void submitAttributionDecision("attempt", "no")}>No</button>
               </div>
             </div>
           ) : (
             <div className="grid gap-4">
               <div>
-                <p className="text-lg font-semibold leading-7 text-[color:var(--ink)]">
+                <p className="text-lg font-semibold leading-7 text-[color:var(--review-text)]">
                   Select the word you meant for{" "}
                   <span className="mx-1 inline-flex align-middle">
                     <TargetAudioButton
@@ -325,20 +325,20 @@ function TargetWordRetrievalChecks(props: {
                   </span>
                   .
                 </p>
-                <p className="mt-1 text-sm leading-6 text-[color:var(--mid)]">Highlight one word or a continuous group of words in your submitted writing.</p>
+                <p className="mt-1 text-sm leading-6 text-[color:var(--review-muted)]">Highlight one word or a continuous group of words in your submitted writing.</p>
               </div>
               <textarea
                 value={props.reviewSession.submittedWritingText ?? ""}
                 readOnly
                 spellCheck={false}
                 aria-label="Select your attempted Target Word from the submitted writing"
-                className="brand-textarea min-h-48 resize-y rounded-lg p-4 text-lg leading-8"
+                className="review-input min-h-48 resize-y rounded-lg p-4 text-lg leading-8"
                 onSelect={(event) => captureSelectedSpan(event.currentTarget)}
                 onKeyUp={(event) => captureSelectedSpan(event.currentTarget)}
                 onPointerUp={(event) => captureSelectedSpan(event.currentTarget)}
               />
-              {selectedSpan ? <p className="text-sm text-[color:var(--mid)]">Selected: <strong>{selectedSpan.text}</strong></p> : null}
-              <button type="button" className="brand-primary-btn justify-self-start"
+              {selectedSpan ? <p className="text-sm text-[color:var(--review-muted)]">Selected: <strong>{selectedSpan.text}</strong></p> : null}
+              <button type="button" className="review-primary justify-self-start"
                 disabled={!selectedSpan || attributionSubmitting} onClick={() => void submitSelectedSpan()}>
                 Confirm selection
               </button>
@@ -352,16 +352,16 @@ function TargetWordRetrievalChecks(props: {
         if (!encounter) return null;
         const locked = encounter.audioCheckLocked;
         return (
-          <section key={target.encounterId} className="brand-card grid gap-4 rounded-lg p-5">
+          <section key={target.encounterId} className="review-surface grid gap-4 rounded-lg p-5">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-semibold text-[color:var(--ink)]">Target Word {target.order}</p>
+              <p className="font-semibold text-[color:var(--review-text)]">Target Word {target.order}</p>
               <TargetAudioButton
                 index={target.order - 1}
                 target={target}
                 onPlay={props.onPlayTargetAudio}
               />
             </div>
-            <label className="grid gap-2 text-sm font-semibold text-[color:var(--mid)]">
+            <label className="grid gap-2 text-sm font-semibold text-[color:var(--review-muted)]">
               Spell this Target Word
               <input
                 value={locked ? encounter.submittedAudioResponse ?? "" : responses[target.encounterId] ?? ""}
@@ -374,25 +374,25 @@ function TargetWordRetrievalChecks(props: {
                 autoCorrect="off"
                 autoCapitalize="none"
                 autoComplete="off"
-                className="brand-input min-h-12 rounded-lg px-3 text-lg disabled:bg-[var(--mist)]"
+                className="review-input min-h-12 rounded-lg px-3 text-lg disabled:bg-[var(--review-inset)]"
               />
             </label>
             {!locked ? (
               <button
                 type="button"
-                className="brand-primary-btn justify-self-start"
+                className="review-primary justify-self-start"
                 disabled={submittingEncounterId !== null || (responses[target.encounterId] ?? "").trim().length === 0}
                 onClick={() => void submitAudioCheck(target.encounterId)}
               >
                 {submittingEncounterId === target.encounterId ? "Checking..." : "Check"}
               </button>
             ) : encounter.originalOutcome === "success" ? (
-              <p className="font-semibold text-emerald-800" role="status">Correct. This response is saved.</p>
+              <p className="font-semibold text-emerald-200" role="status">Correct. This response is saved.</p>
             ) : (
               <div className="grid gap-1" role="status">
-                <p className="font-semibold text-[color:var(--scarlett)]">This word needs Reflection &amp; Repair.</p>
+                <p className="font-semibold text-[color:var(--review-accent)]">This word needs Reflection &amp; Repair.</p>
                 {encounter.governedCorrectSpellingReveal !== null ? (
-                  <p className="text-sm text-[color:var(--ink)]">The word was: <strong>{encounter.governedCorrectSpellingReveal}</strong></p>
+                  <p className="text-sm text-[color:var(--review-text)]">The word was: <strong>{encounter.governedCorrectSpellingReveal}</strong></p>
                 ) : null}
               </div>
             )}
@@ -401,21 +401,21 @@ function TargetWordRetrievalChecks(props: {
       }) : null}
 
       {pendingAttribution === null && remainingChecks === 0 ? (
-        <section className="rounded-lg border border-[var(--border)] bg-[var(--mist)] p-5" role="status">
-          <p className="font-semibold text-[color:var(--ink)]">All original retrieval checks are locked.</p>
-          <p className="mt-1 text-sm text-[color:var(--mid)]">
+        <section className="review-callout" role="status">
+          <p className="font-semibold text-[color:var(--review-text)]">All original retrieval checks are locked.</p>
+          <p className="mt-1 text-sm text-[color:var(--review-muted)]">
             {repairCount > 0
               ? `${repairCount} ${repairCount === 1 ? "word is" : "words are"} ready for Reflection & Repair.`
               : "No words need repair. Review is ready to finish."}
           </p>
           {repairCount === 0 && props.onReadyToComplete ? (
-            <button type="button" className="brand-primary-btn mt-4" onClick={() => void props.onReadyToComplete?.()}>
+            <button type="button" className="review-primary mt-4" onClick={() => void props.onReadyToComplete?.()}>
               Finish Review
             </button>
           ) : null}
         </section>
       ) : null}
-      {message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{message}</p> : null}
+      {message !== null ? <p className="text-sm text-[color:var(--review-accent)]" role="alert">{message}</p> : null}
     </main>
   );
 }
@@ -433,23 +433,23 @@ function ChallengeWheel(props: {
 
   return (
     <section className="grid min-w-0 gap-5" aria-label="Writing Challenge selector">
-      <div className="mx-auto grid w-full min-w-0 max-w-md place-items-center">
+      <div className="mx-auto grid w-full min-w-0 max-w-md place-items-center review-wheel-stage">
         <div className="relative aspect-square w-full max-w-[30rem] pt-4">
           <svg
             aria-hidden="true"
-            className={`absolute left-1/2 top-0 z-30 h-20 w-20 -translate-x-1/2 drop-shadow-[0_8px_8px_rgba(36,10,37,0.25)] ${props.spinning ? "review-wheel-pointer-ticking" : ""}`}
+            className={`absolute left-1/2 -top-1 z-30 h-12 w-12 -translate-x-1/2 drop-shadow-[0_8px_8px_rgba(34,211,238,0.3)] sm:top-0 sm:h-18 sm:w-18 ${props.spinning ? "review-wheel-pointer-ticking" : ""}`}
             viewBox="0 0 80 94"
           >
             <defs>
-              <linearGradient id="review-wheel-pointer-gold" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#fff3bd" />
-                <stop offset="0.42" stopColor="#f9c94e" />
-                <stop offset="1" stopColor="#bf7208" />
+              <linearGradient id="review-wheel-pointer-cyan" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#cffafe" />
+                <stop offset="0.42" stopColor="#67e8f9" />
+                <stop offset="1" stopColor="#0891b2" />
               </linearGradient>
             </defs>
-            <path d="M18 18 Q40 4 62 18 L56 36 L40 47 L24 36 Z" fill="url(#review-wheel-pointer-gold)" stroke="#8d4b00" strokeWidth="2.5" />
-            <path d="M30 22 Q40 16 50 22" fill="none" stroke="#fff9df" strokeLinecap="round" strokeWidth="3" opacity="0.8" />
-            <circle cx="40" cy="33" r="6" fill="#fff8dd" opacity="0.82" />
+            <path d="M18 18 Q40 4 62 18 L56 36 L40 47 L24 36 Z" fill="url(#review-wheel-pointer-cyan)" stroke="#22d3ee" strokeWidth="2.5" />
+            <path d="M30 22 Q40 16 50 22" fill="none" stroke="#ecfeff" strokeLinecap="round" strokeWidth="3" opacity="0.8" />
+            <circle cx="40" cy="33" r="6" fill="#ecfeff" opacity="0.82" />
           </svg>
           <div
             className="absolute inset-x-0 bottom-0 origin-center"
@@ -461,43 +461,43 @@ function ChallengeWheel(props: {
             }}
           >
             <svg
-              className="block h-auto w-full overflow-visible drop-shadow-[0_24px_28px_rgba(74,23,69,0.22)]"
+              className="block h-auto w-full overflow-visible drop-shadow-[0_24px_28px_rgba(2,6,23,0.5)]"
               role="img"
               aria-label="Writing Challenge wheel with five choices"
               viewBox="0 0 400 400"
             >
               <defs>
                 <linearGradient id="review-wheel-rim" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#ffde79" />
-                  <stop offset="0.23" stopColor="#963363" />
-                  <stop offset="0.57" stopColor="#3b193f" />
-                  <stop offset="0.78" stopColor="#b54478" />
-                  <stop offset="1" stopColor="#ffe49b" />
+                  <stop offset="0" stopColor="#a5f3fc" />
+                  <stop offset="0.23" stopColor="#155e75" />
+                  <stop offset="0.57" stopColor="#071a2d" />
+                  <stop offset="0.78" stopColor="#0e7490" />
+                  <stop offset="1" stopColor="#67e8f9" />
                 </linearGradient>
                 <linearGradient id="review-wheel-conundrums" x1="0.12" y1="0" x2="0.88" y2="1">
-                  <stop offset="0" stopColor="#ed70ad" />
-                  <stop offset="1" stopColor="#a61a61" />
+                  <stop offset="0" stopColor="#0e7490" />
+                  <stop offset="1" stopColor="#164e63" />
                 </linearGradient>
                 <linearGradient id="review-wheel-reflection" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#b98bea" />
-                  <stop offset="1" stopColor="#51419b" />
+                  <stop offset="0" stopColor="#6d4acb" />
+                  <stop offset="1" stopColor="#312e81" />
                 </linearGradient>
                 <linearGradient id="review-wheel-stories" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#73d8e5" />
-                  <stop offset="1" stopColor="#147f9f" />
+                  <stop offset="0" stopColor="#2563eb" />
+                  <stop offset="1" stopColor="#1e3a8a" />
                 </linearGradient>
                 <linearGradient id="review-wheel-fortunately" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#91d49c" />
-                  <stop offset="1" stopColor="#237864" />
+                  <stop offset="0" stopColor="#047857" />
+                  <stop offset="1" stopColor="#064e3b" />
                 </linearGradient>
                 <linearGradient id="review-wheel-persuasion" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#ffd876" />
-                  <stop offset="1" stopColor="#b87314" />
+                  <stop offset="0" stopColor="#b45309" />
+                  <stop offset="1" stopColor="#78350f" />
                 </linearGradient>
                 <radialGradient id="review-wheel-hub" cx="32%" cy="25%" r="78%">
-                  <stop offset="0" stopColor="#fff5bf" />
-                  <stop offset="0.44" stopColor="#f7bf37" />
-                  <stop offset="1" stopColor="#965006" />
+                  <stop offset="0" stopColor="#164e63" />
+                  <stop offset="0.44" stopColor="#0c304a" />
+                  <stop offset="1" stopColor="#07111f" />
                 </radialGradient>
                 <filter id="review-wheel-glow" x="-40%" y="-40%" width="180%" height="180%">
                   <feGaussianBlur stdDeviation="6" result="blur" />
@@ -505,8 +505,9 @@ function ChallengeWheel(props: {
                 </filter>
               </defs>
               <circle cx="200" cy="200" r="196" fill="url(#review-wheel-rim)" />
-              <circle cx="200" cy="200" r="187" fill="#29132f" stroke="#ffd970" strokeWidth="2" />
-              <circle cx="200" cy="200" r="179" fill="#fff8fd" stroke="#fff2c7" strokeWidth="2" />
+              <circle cx="200" cy="200" r="187" fill="#07111f" stroke="#67e8f9" strokeWidth="2" />
+              <circle cx="200" cy="200" r="191" fill="none" stroke="#a5f3fc" strokeWidth="2" strokeDasharray="2 12" opacity="0.65" />
+              <circle cx="200" cy="200" r="179" fill="#0c304a" stroke="#22d3ee" strokeWidth="2" />
               {challengeTypes.map((challengeType, index) => {
                 const segmentPath = wheelSegmentPath(index);
                 const isSelected = props.selected === challengeType;
@@ -518,18 +519,18 @@ function ChallengeWheel(props: {
                     <path d={segmentPath} fill={`url(#${gradientId})`} stroke="rgba(255,255,255,0.72)" strokeWidth="2.5" />
                     <path d={segmentPath} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="7" />
                     {isSelected ? (
-                      <path d={segmentPath} fill="rgba(255,255,255,0.12)" stroke="#fff7c9" strokeWidth="5" filter="url(#review-wheel-glow)" />
+                      <path d={segmentPath} fill="rgba(103,232,249,0.05)" stroke="#cffafe" strokeWidth="5" filter="url(#review-wheel-glow)" />
                     ) : null}
                     <text
                       x={labelPosition.x}
                       y={challengeType === "fortunately_unfortunately" ? labelPosition.y - 7 : labelPosition.y + 5}
                       textAnchor="middle"
-                      fill="#fffdf8"
+                      fill="#ffffff"
                       fontFamily="DM Sans, Avenir Next, Segoe UI, sans-serif"
-                      fontSize={challengeType === "fortunately_unfortunately" ? 12 : 14}
+                      fontSize={challengeType === "fortunately_unfortunately" ? 14 : 16}
                       fontWeight="700"
                       transform={`rotate(${labelAngle} ${labelPosition.x} ${labelPosition.y})`}
-                      style={{ paintOrder: "stroke", stroke: "rgba(32, 12, 33, 0.38)", strokeWidth: 3 }}
+                      style={{ paintOrder: "stroke", stroke: "rgba(2, 6, 23, 0.65)", strokeWidth: 3 }}
                     >
                       {challengeType === "fortunately_unfortunately" ? (
                         <>
@@ -541,26 +542,25 @@ function ChallengeWheel(props: {
                   </g>
                 );
               })}
-              <circle cx="200" cy="200" r="47" fill="#2c1330" stroke="#f6d16b" strokeWidth="3" />
-              <circle cx="200" cy="200" r="38" fill="url(#review-wheel-hub)" stroke="#fff4c2" strokeWidth="3" />
-              <circle cx="187" cy="185" r="9" fill="#fff9df" opacity="0.82" />
-              <path d="M182 217 Q200 228 218 217" fill="none" stroke="rgba(101,53,4,0.5)" strokeLinecap="round" strokeWidth="3" />
+              <circle cx="200" cy="200" r="47" fill="#071a2d" stroke="#22d3ee" strokeWidth="3" />
+              <circle cx="200" cy="200" r="38" fill="url(#review-wheel-hub)" stroke="#67e8f9" strokeWidth="3" />
+              <path d="M203 178 L185 203 H198 L193 222 L215 195 H201 Z" fill="#a5f3fc" />
               <circle cx="200" cy="200" r="174" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="2" />
             </svg>
           </div>
+        </div>
           {props.revealed && props.selected !== null ? (
-            <p className="absolute -bottom-8 left-1/2 w-full -translate-x-1/2 text-center text-base font-bold text-[color:var(--mid)]" aria-live="polite">
+            <p className="mt-3 w-full text-center text-base font-bold text-[color:var(--review-muted)]" aria-live="polite">
               Selected: {CHALLENGE_LABELS[props.selected]}
             </p>
           ) : null}
-        </div>
         <p className="sr-only">Wheel choices: {challengeTypes.map((challengeType) => CHALLENGE_LABELS[challengeType]).join(", ")}.</p>
       </div>
 
       {!props.revealed ? (
         <button
           type="button"
-          className="mx-auto mt-3 min-h-14 min-w-48 rounded-lg border border-[#f5cf65] bg-[linear-gradient(135deg,#8d1d55,#d53d81_52%,#8f1d58)] px-8 py-3 text-base font-bold text-white shadow-[0_7px_0_#65123c,0_16px_28px_rgba(111,22,67,0.26)] transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_9px_0_#65123c,0_20px_32px_rgba(111,22,67,0.28)] active:translate-y-0.5 active:shadow-[0_4px_0_#65123c,0_10px_20px_rgba(111,22,67,0.22)] disabled:cursor-wait disabled:opacity-75 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(232,145,200,0.42)]"
+          className="review-primary review-spin mx-auto mt-3"
           disabled={props.spinning}
           onClick={props.onSpin}
           aria-describedby={props.spinning ? "wheel-spin-status" : undefined}
@@ -569,7 +569,7 @@ function ChallengeWheel(props: {
         </button>
       ) : (
         <div className="mt-3 grid gap-3">
-          <p className="text-center text-sm font-semibold text-[color:var(--mid)]">Choose a different challenge if you prefer.</p>
+          <p className="text-center text-sm font-semibold text-[color:var(--review-muted)]">Choose a different challenge if you prefer.</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5" role="tablist" aria-label="Choose a Writing Challenge">
             {challengeTypes.map((challengeType) => (
               <button
@@ -577,7 +577,7 @@ function ChallengeWheel(props: {
                 type="button"
                 role="tab"
                 aria-selected={props.selected === challengeType}
-                className={`min-h-12 min-w-0 break-words rounded-lg border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)] ${props.selected === challengeType ? "border-[color:var(--scarlett)] bg-[#fff0f7] text-[color:var(--scarlett)]" : "border-[var(--border)] bg-white text-[color:var(--mid)] hover:border-[color:var(--scarlett)]"}`}
+                className="review-choice min-w-0 break-words"
                 onClick={() => props.onSelect(challengeType)}
               >
                 {CHALLENGE_LABELS[challengeType]}
@@ -857,7 +857,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
   }
 
   if (!resumeLoaded || !reviewR3Hydrated) {
-    return <section className="brand-card mx-auto max-w-3xl rounded-lg p-6" aria-busy="true" />;
+    return <section className="review-surface mx-auto max-w-3xl rounded-lg p-6" aria-busy="true" />;
   }
 
   if (reviewR3Session?.submittedWritingFrozen && props.reviewR3Gateway) {
@@ -876,13 +876,13 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
 
   if (session.phase === "challenge_selection") {
     return (
-      <main className="mx-auto grid w-full max-w-4xl gap-6 px-4 py-6 sm:px-6">
+      <main className="adle-presentation review-page mx-auto grid w-full max-w-4xl gap-6 px-4 py-6 sm:px-6">
         <header className="text-center">
-          <p className="brand-eyebrow">Review</p>
-          <h1 className="brand-lesson-title mt-2 text-3xl font-semibold">Writing Challenge</h1>
-          <p className="mt-2 text-sm text-[color:var(--mid)]">Let the wheel choose, then make it your own.</p>
+          <p className="review-eyebrow">Review</p>
+          <h1 className="review-title mt-2 text-3xl font-semibold">Writing Challenge</h1>
+          <p className="mt-2 text-sm text-[color:var(--review-muted)]">Let the wheel choose, then make it your own.</p>
         </header>
-        <section className="brand-card min-w-0 rounded-lg p-5 sm:p-7">
+        <section className="review-surface review-wheel-surface min-w-0 p-5 sm:p-7">
           <ChallengeWheel
             selected={session.selectedChallengeType}
             spinning={wheelSpinning}
@@ -895,7 +895,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
           {prompt !== null && wheelRevealed ? (
             <button
               type="button"
-              className="brand-primary-btn relative z-10 mx-auto mt-7"
+              className="review-primary relative z-10 mx-auto mt-7"
               disabled={durableWritingBusy}
               onClick={() => {
                 const result = beginCreativeWriting(props.snapshot, session, Date.now());
@@ -925,45 +925,59 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
 
   if (prompt === null) return null;
 
+  const promptTitle = typeof prompt.configuration.title === "string" ? prompt.configuration.title : null;
+  const topTip = typeof prompt.configuration.top_tip === "string" ? prompt.configuration.top_tip : null;
+
   return (
-    <main className="mx-auto grid max-w-5xl gap-5 px-4 py-6 sm:px-6">
-      <header className="grid gap-4 border-b border-[var(--border)] pb-5 sm:grid-cols-[1fr_auto] sm:items-start">
+    <main className="adle-presentation review-page mx-auto grid max-w-5xl gap-5 px-4 py-6 sm:px-6">
+      <header className="grid gap-4 border-b border-[var(--review-border)] pb-5 sm:grid-cols-[1fr_auto] sm:items-start">
         <div>
-          <p className="brand-eyebrow">Writing Challenge</p>
-          <h1 className="brand-lesson-title mt-1 text-3xl font-semibold">{CHALLENGE_LABELS[prompt.challengeType]}</h1>
-          <p className="mt-2 max-w-3xl text-base leading-7 text-[color:var(--ink)]">{prompt.promptText}</p>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--mid)]">{prompt.instructionText}</p>
+          <p className="review-eyebrow">Writing Challenge</p>
+          <h1 className="review-title mt-1 text-3xl font-semibold">{CHALLENGE_LABELS[prompt.challengeType]}</h1>
+          {promptTitle ? <p className="mt-2 text-lg text-[color:var(--review-muted)]">{promptTitle}</p> : null}
         </div>
-        <div className="rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-right">
-          <p className="text-xs font-semibold uppercase text-[color:var(--mid)]">Writing time</p>
-          <p className="mt-1 font-mono text-2xl font-bold text-[color:var(--scarlett)]" aria-live="polite">{formatRemaining(remainingSeconds)}</p>
+        <div className="review-timer text-right" data-warning={remainingSeconds <= 60}>
+          <p className="text-xs font-semibold uppercase text-[color:var(--review-muted)]">Writing time</p>
+          <p className="mt-1 font-mono text-2xl font-bold text-[color:var(--review-accent)]" aria-live="polite">{formatRemaining(remainingSeconds)}</p>
         </div>
       </header>
 
-      <section className="grid gap-3 border-b border-[var(--border)] pb-5">
-        <p className="text-lg font-semibold text-[color:var(--ink)]" aria-live="polite">
+      <section className="review-callout grid gap-3" aria-label="Challenge prompt">
+        <p className="review-eyebrow">Your challenge</p>
+        <p className="max-w-3xl whitespace-pre-line text-xl font-semibold leading-8">{prompt.promptText}</p>
+        <p className="max-w-3xl whitespace-pre-line text-sm leading-6 text-[color:var(--review-muted)]">{prompt.instructionText}</p>
+      </section>
+      {topTip ? (
+        <aside className="review-callout review-tip grid gap-2" aria-label="Top Tip">
+          <p className="review-eyebrow">Top Tip</p>
+          <p className="max-w-3xl whitespace-pre-line text-sm leading-6">{topTip}</p>
+        </aside>
+      ) : null}
+
+      <section className="review-surface review-targets grid gap-4">
+        <p className="text-lg font-semibold text-[color:var(--review-text)]" aria-live="polite">
           Target Words: {progressCount} / {props.snapshot.targets.length}
           {progressCount === props.snapshot.targets.length ? <span aria-label="challenge achievement"> ✨</span> : null}
         </p>
-        <div className="flex flex-wrap gap-2" aria-label={`${props.snapshot.targets.length} Target Word audio controls`}>
+        <div className="review-audio-grid" aria-label={`${props.snapshot.targets.length} Target Word audio controls`}>
           {props.snapshot.targets.map((target, index) => (
             <TargetAudioButton key={target.encounterId} target={target} index={index} onPlay={props.onPlayTargetAudio} />
           ))}
         </div>
-        <p className="text-sm text-[color:var(--mid)]">Finding every Target Word is an achievement, not the end of Review.</p>
+        <p className="text-sm text-[color:var(--review-muted)]">Finding every Target Word is an achievement, not the end of Review.</p>
       </section>
 
       {session.phase === "writing_time_finished" ? (
         <>
-          <section className="grid gap-4 rounded-lg border border-amber-200 bg-amber-50 p-5" role="status">
+          <section className="grid gap-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5" role="status">
             <div>
-              <p className="font-semibold text-amber-950">Writing time is finished.</p>
-              <p className="mt-1 text-sm text-amber-900">Your writing is safely preserved below and ready for the next Review step.</p>
+              <p className="font-semibold text-amber-100">Writing time is finished.</p>
+              <p className="mt-1 text-sm text-amber-100">Your writing is safely preserved below and ready for the next Review step.</p>
             </div>
             {canExtendExpiredWriting ? (
-              <div className="grid gap-2 border-t border-amber-200 pt-4">
-                <p className="text-sm font-semibold text-amber-950">Need a little more time?</p>
-                <p className="text-sm text-amber-900">Ask a grown-up to reauthenticate and add one extension.</p>
+              <div className="grid gap-2 border-t border-amber-300/30 pt-4">
+                <p className="text-sm font-semibold text-amber-100">Need a little more time?</p>
+                <p className="text-sm text-amber-100">Ask a grown-up to reauthenticate and add one extension.</p>
                 <div className="flex flex-wrap gap-2">
                   {([300, 600, 900] as const).map((seconds) => (
                     <button
@@ -971,7 +985,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
                       type="button"
                       disabled={!props.requestParentReauthenticatedExtension}
                       title="Ask a grown-up to reauthenticate before adding time"
-                      className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-950 shadow-sm transition hover:border-amber-500 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200"
+                      className="review-secondary"
                       onClick={() => void requestExtension(seconds)}
                     >
                       +{seconds / 60} min
@@ -982,7 +996,7 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
             ) : null}
             <button
               type="button"
-              className="brand-primary-btn justify-self-start"
+              className="review-primary justify-self-start"
               disabled={reviewR3Submitting}
               onClick={() => void submitWritingForRetrieval(session)}
             >
@@ -996,10 +1010,10 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
             autoCorrect="off"
             autoCapitalize="sentences"
             aria-label="Your saved Writing Challenge"
-            className="brand-textarea min-h-[20rem] resize-y rounded-lg p-4 text-lg leading-8"
+            className="review-input min-h-[20rem] resize-y rounded-lg p-4 text-lg leading-8"
           />
-          {extensionMessage !== null ? <p className="text-sm text-[color:var(--mid)]" role="status">{extensionMessage}</p> : null}
-          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{reviewR3Message}</p> : null}
+          {extensionMessage !== null ? <p className="text-sm text-[color:var(--review-muted)]" role="status">{extensionMessage}</p> : null}
+          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--review-accent)]" role="alert">{reviewR3Message}</p> : null}
         </>
       ) : (
         <>
@@ -1012,16 +1026,16 @@ export function ReviewFreeWritingActivity(props: ReviewFreeWritingActivityProps)
             autoComplete="off"
             aria-label="Your Writing Challenge"
             placeholder="Write your ideas here..."
-            className="brand-textarea min-h-[20rem] resize-y rounded-lg p-4 text-lg leading-8"
+            className="review-input min-h-[20rem] resize-y rounded-lg p-4 text-lg leading-8"
           />
-          <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-medium text-[color:var(--mid)]">You can ask for one time extension if the timer runs out.</p>
-            <button type="button" className="brand-primary-btn" disabled={reviewR3Submitting} onClick={endWriting}>
+          <div className="flex flex-col gap-3 border-t border-[var(--review-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-medium text-[color:var(--review-muted)]">You can ask for one time extension if the timer runs out.</p>
+            <button type="button" className="review-primary" disabled={reviewR3Submitting} onClick={endWriting}>
               {reviewR3Submitting ? "Saving..." : "Finish writing"}
             </button>
           </div>
-          {extensionMessage !== null ? <p className="text-sm text-[color:var(--mid)]" role="status">{extensionMessage}</p> : null}
-          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--scarlett)]" role="alert">{reviewR3Message}</p> : null}
+          {extensionMessage !== null ? <p className="text-sm text-[color:var(--review-muted)]" role="status">{extensionMessage}</p> : null}
+          {reviewR3Message !== null ? <p className="text-sm text-[color:var(--review-accent)]" role="alert">{reviewR3Message}</p> : null}
         </>
       )}
     </main>

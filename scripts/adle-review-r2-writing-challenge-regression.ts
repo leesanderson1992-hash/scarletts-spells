@@ -102,7 +102,7 @@ function fixture(): CompiledReviewSnapshotV3 {
       contentVersion: "v1",
       promptText: `${challengeType} prompt`,
       instructionText: `${challengeType} instruction`,
-      configuration: {},
+      configuration: { title: "A journey among the stars", top_tip: "Imagine a surprising turn & explain it." },
       reusePolicy: challengeType === "reflection"
         ? "reusable_lru_no_immediate_repeat" as const
         : "once_per_learner" as const,
@@ -245,6 +245,17 @@ for (const word of WORDS) {
 }
 assert.match(writingMarkup, /spellcheck="false"/i);
 assert.match(writingMarkup, /autocorrect="off"/i);
+assert.match(writingMarkup, /A journey among the stars/);
+assert.match(writingMarkup, /<section[^>]+aria-label="Challenge prompt"/);
+assert.match(writingMarkup, /<aside[^>]+aria-label="Top Tip"/);
+assert.match(writingMarkup, /Imagine a surprising turn &amp; explain it\./, "Render the authored tip unchanged and escaped");
+const noTipMarkup = renderToStaticMarkup(createElement(ReviewFreeWritingActivity, {
+  snapshot: { ...snapshot, promptCandidates: snapshot.promptCandidates.map((candidate) => ({
+    ...candidate, configuration: { title: null, top_tip: { invalid: true } },
+  })) },
+  initialSession: session,
+}));
+assert.doesNotMatch(noTipMarkup, /aria-label="Top Tip"/, "Older snapshots without an authored text tip remain usable");
 
 const finishedMarkup = renderToStaticMarkup(
   createElement(

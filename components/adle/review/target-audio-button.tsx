@@ -20,11 +20,15 @@ export function TargetAudioButton(props: {
           speakAuthoredNarration(props.target.audioAuthority.speechText ?? "", "word");
         }
       }}
-      className="grid h-11 w-11 place-items-center rounded-full border border-[var(--border)] bg-white text-lg text-[color:var(--scarlett)] shadow-sm transition hover:border-[color:var(--scarlett)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[rgba(194,24,91,0.2)]"
+      className="review-audio"
       aria-label={`Play target word ${props.index + 1}`}
       title={`Play target word ${props.index + 1}`}
     >
-      <span aria-hidden="true">🔊</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+        <path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" />
+      </svg>
+      <span className="review-audio-number" aria-hidden="true">{props.index + 1}</span>
     </button>
   );
 }
