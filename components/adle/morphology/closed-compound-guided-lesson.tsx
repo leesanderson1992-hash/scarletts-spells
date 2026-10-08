@@ -195,3 +195,6 @@ export function CompoundWordGuidedLesson(props: { childId: string; assignmentId:
   };
   return <CompoundWordLessonRuntime {...props} payload={payload} resumeNamespace="compound-word-v2" />;
 }
+
+// Read-only page surface used by the admin-only Visual Convergence Lab.
+export { CompoundReadingPage };

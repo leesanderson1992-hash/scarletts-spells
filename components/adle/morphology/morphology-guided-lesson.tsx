@@ -455,7 +455,7 @@ function activityId(stage: Stage): string {
               ? "reflection"
               : stage;
 }
-function LearnIntroduction(props: {
+export function LearnIntroduction(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   onNext: () => void;
@@ -559,7 +559,7 @@ function LearnIntroduction(props: {
     </section>
   );
 }
-function Discovery(props: {
+export function Discovery(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   muted: boolean;
@@ -670,7 +670,7 @@ function Discovery(props: {
     </div>
   );
 }
-function SplitBuild(props: {
+export function SplitBuild(props: {
   word: MorphologyWordSnapshot;
   misses: number;
   correct: boolean;
@@ -758,7 +758,7 @@ function MeaningCards(props: { payload: MorphologyLessonPayloadV1 }) {
     </div>
   );
 }
-function MeaningOverview(props: {
+export function MeaningOverview(props: {
   payload: MorphologyLessonPayloadV1;
   onNext: () => void;
 }) {
@@ -800,7 +800,7 @@ function MeaningOverview(props: {
     </section>
   );
 }
-function PrefixBuild(props: {
+export function PrefixBuild(props: {
   activity: NonNullable<MorphologyLessonPayloadV1["activities"][number]>;
   buildIndex: number;
   totalBuilds: number;
@@ -868,7 +868,7 @@ function PrefixBuild(props: {
     </div>
   );
 }
-function Controlled(props: {
+export function Controlled(props: {
   index: number;
   total: number;
   word: MorphologyWordSnapshot;
@@ -913,7 +913,7 @@ function Controlled(props: {
     </div>
   );
 }
-function Dictation(props: {
+export function Dictation(props: {
   payload: MorphologyLessonPayloadV1;
   index: number;
   value: string;
@@ -981,7 +981,7 @@ function Dictation(props: {
   );
 }
 
-function ReflectionForm(props: {
+export function ReflectionForm(props: {
   state: LessonState;
   payload: MorphologyLessonPayloadV1;
   childId: string;
@@ -991,7 +991,7 @@ function ReflectionForm(props: {
   onPreviewComplete?: (reflectionText: string) => void;
 }) {
   const [finishing, setFinishing] = useState(false);
-  const [completionTraceId] = useState(() => crypto.randomUUID());
+  const [completionTraceId] = useState(() => props.onPreviewComplete ? "visual-convergence-preview" : crypto.randomUUID());
   const reflection = props.payload.activities.find(
     (activity) => activity.type === "reflection",
   )!;
