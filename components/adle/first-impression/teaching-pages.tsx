@@ -81,7 +81,7 @@ export function TeachingPages(props: {
 
   const page = props.config.pages[pageIndex];
   return (
-    <section className="grid gap-5 text-cyan-50" aria-label="Lesson teaching pages">
+    <section className="teaching-pages grid gap-5 text-cyan-50" aria-label="Lesson teaching pages">
       <div ref={focusRef} tabIndex={-1} className="outline-none">
         {isMeetWords ? (
           <MeetWords config={props.config.meetWords} pageNumber={pageIndex + 1} pageCount={total} />
@@ -127,7 +127,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
           {page.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
       ) : null}
-      {page.callout ? <p className="rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-center text-xl font-black text-cyan-950">{page.callout}</p> : null}
+      {page.callout ? <p className="teaching-key-idea rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-center text-xl font-black text-cyan-950">{page.callout}</p> : null}
       {page.model ? (
         <div className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-cyan-300/20 bg-slate-950/45 p-5" aria-label={`${page.model.first} plus ${page.model.second} makes ${page.model.result}`}>
           <span className="rounded-2xl bg-cyan-100 px-4 py-3 text-xl font-black text-cyan-950">{page.model.first}</span>
@@ -150,8 +150,8 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
 }
 
 function ExampleGrid(props: { examples: readonly TeachingPageExample[] }) {
-  return <ul className="grid gap-3 sm:grid-cols-2" aria-label="Examples">{props.examples.map((example) => (
-    <li key={`${example.text}:${example.explanation ?? ""}`} className="rounded-2xl bg-white p-4 text-left text-slate-950">
+  return <ul className="teaching-examples grid gap-3 sm:grid-cols-2" aria-label="Examples">{props.examples.map((example) => (
+    <li key={`${example.text}:${example.explanation ?? ""}`} className="teaching-example rounded-2xl bg-white p-4 text-left text-slate-950" data-transformation={example.text.includes("→") ? "true" : undefined}>
       <p className="text-lg font-black">{example.text}</p>
       {example.explanation ? <p className="mt-1 text-sm font-semibold text-slate-600">{example.explanation}</p> : null}
     </li>

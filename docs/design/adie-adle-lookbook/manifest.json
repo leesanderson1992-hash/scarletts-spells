@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T10:26:12.251Z",
+  "generatedAt": "2026-10-08T15:03:13.651Z",
   "source": "Local development fixtures and route registry. Screens are actual browser captures; fixture content is not production activation evidence.",
   "entries": [
     {
@@ -307,6 +307,14 @@
       "entry": "suffix",
       "theme": "light",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/suffix-light-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "suffix",
+      "theme": "light",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/suffix-light-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -318,6 +326,14 @@
       "state": "teaching",
       "file": "screenshots/suffix-light-mobile-teaching.png",
       "source": "/dev/adle/dynamic-affix-v3"
+    },
+    {
+      "entry": "suffix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/suffix-light-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "suffix",
@@ -339,6 +355,14 @@
       "entry": "suffix",
       "theme": "dark",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/suffix-dark-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "suffix",
+      "theme": "dark",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/suffix-dark-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -350,6 +374,14 @@
       "state": "teaching",
       "file": "screenshots/suffix-dark-mobile-teaching.png",
       "source": "/dev/adle/dynamic-affix-v3"
+    },
+    {
+      "entry": "suffix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/suffix-dark-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "suffix",
@@ -371,6 +403,14 @@
       "entry": "base",
       "theme": "light",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/base-light-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "base",
+      "theme": "light",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/base-light-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -382,6 +422,14 @@
       "state": "teaching",
       "file": "screenshots/base-light-mobile-teaching.png",
       "source": "/dev/adle/base-word-family"
+    },
+    {
+      "entry": "base",
+      "theme": "light",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/base-light-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "base",
@@ -403,6 +451,14 @@
       "entry": "base",
       "theme": "dark",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/base-dark-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "base",
+      "theme": "dark",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/base-dark-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -414,6 +470,14 @@
       "state": "teaching",
       "file": "screenshots/base-dark-mobile-teaching.png",
       "source": "/dev/adle/base-word-family"
+    },
+    {
+      "entry": "base",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/base-dark-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "base",
@@ -499,6 +563,14 @@
       "entry": "ing",
       "theme": "light",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/ing-light-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/ing-light-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -542,6 +614,14 @@
       "state": "teaching",
       "file": "screenshots/ing-light-mobile-teaching.png",
       "source": "/dev/adle/ing-endings"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/ing-light-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "ing",
@@ -595,6 +675,14 @@
       "entry": "ing",
       "theme": "dark",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/ing-dark-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/ing-dark-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -638,6 +726,14 @@
       "state": "teaching",
       "file": "screenshots/ing-dark-mobile-teaching.png",
       "source": "/dev/adle/ing-endings"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/ing-dark-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "ing",
@@ -691,6 +787,14 @@
       "entry": "comparison",
       "theme": "light",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/comparison-light-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "comparison",
+      "theme": "light",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/comparison-light-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -702,6 +806,14 @@
       "state": "teaching",
       "file": "screenshots/comparison-light-mobile-teaching.png",
       "source": "/dev/adle/comparative-superlative"
+    },
+    {
+      "entry": "comparison",
+      "theme": "light",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/comparison-light-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "comparison",
@@ -723,6 +835,14 @@
       "entry": "comparison",
       "theme": "dark",
       "device": "desktop",
+      "state": "reading-examples",
+      "file": "screenshots/comparison-dark-desktop-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
+    },
+    {
+      "entry": "comparison",
+      "theme": "dark",
+      "device": "desktop",
       "state": "activity",
       "file": "screenshots/comparison-dark-desktop-activity.png",
       "source": "First activity after teaching in local lesson fixture"
@@ -734,6 +854,14 @@
       "state": "teaching",
       "file": "screenshots/comparison-dark-mobile-teaching.png",
       "source": "/dev/adle/comparative-superlative"
+    },
+    {
+      "entry": "comparison",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "reading-examples",
+      "file": "screenshots/comparison-dark-mobile-reading-examples.png",
+      "source": "Second teaching page in local lesson fixture"
     },
     {
       "entry": "comparison",
