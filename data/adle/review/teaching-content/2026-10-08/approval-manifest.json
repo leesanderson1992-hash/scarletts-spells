@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "kind": "adle_word_teaching_content_approval",
+  "sourceFile": "source-draft.csv",
+  "sourceSha256": "5c98d023aebcf52c5a342d704b1fe3310d1179de0c250852cf3e59ed15a32bb9",
+  "normalizedFile": "approved-normalized.csv",
+  "normalizedSha256": "ad05aaf2ebe9b77a94eb1900c07816b3a78cd28b965b1897226e7906e45f3fb0",
+  "approvedBy": "Katie Sanderson",
+  "approvedAt": "2026-10-08T21:48:06Z",
+  "approvalReference": "Codex conversation: approval of the attached five-row teaching-content draft for production import",
+  "wordCount": 5,
+  "words": [
+    "renew",
+    "unlocked",
+    "responsible",
+    "ingredients",
+    "scrolling"
+  ],
+  "duplicateColumnsRemoved": 42,
+  "sourceRuntimeEligible": false,
+  "importStatus": "blocked_no_supported_word_specific_runtime_import_path",
+  "rowBlockers": {
+    "ingredients": [
+      "blocking_morphology_route_mismatch",
+      "requires_governed_micro_skill_mapping_review"
+    ],
+    "responsible": [
+      "source_intro_rule_requires_qualification_as_heuristic"
+    ]
+  }
+}

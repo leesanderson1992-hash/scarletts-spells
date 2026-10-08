@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "sourceRows": 5,
+  "sourceColumns": 126,
+  "normalizedColumns": 84,
+  "duplicateHeaderColumns": 42,
+  "duplicateValuesMatched": true,
+  "jsonFieldsValid": true,
+  "activitiesPerRow": 6,
+  "dictationsPerRow": 2,
+  "dictationTargetsPresent": true,
+  "liveCanonicalWordsApproved": 5,
+  "liveSkillContentSignedOff": 5,
+  "liveBaselineReferencesMatched": 5,
+  "runtimeImportSupported": false,
+  "productionMutationPerformed": false,
+  "blockingIssues": [
+    "No existing word-specific teaching content import or runtime reader",
+    "ingredients morphology does not match current Base + Prefix skill",
+    "responsible source introduction uses an unqualified heuristic"
+  ],
+  "validationDate": "2026-10-08"
+}
