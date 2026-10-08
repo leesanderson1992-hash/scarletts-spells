@@ -19,7 +19,7 @@ export default defineConfig({
     reducedMotion: "no-preference",
     trace: "retain-on-failure",
   },
-  webServer: {
+  webServer: reuseExistingServer ? undefined : {
     command: `npm run dev -- --hostname 127.0.0.1 --port ${adlePort}`,
     url: `${adleBaseUrl}/dev/adle/review-work`,
     reuseExistingServer,

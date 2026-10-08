@@ -12,18 +12,32 @@ import {
 const ROOT = "docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-22-d4-dynamic-prefix-staging-enrichment";
 const UN_RELEASE = "docs/implementation/seed-data/teaching-dictionary/releases/2026-08-02-dynamic-prefix-un-profile-v1/manifest.json";
 
-function correction(name: string) {
-  return JSON.parse(readFileSync(`${ROOT}/${name}`, "utf8")).profile;
-}
-
-export function loadReviewedPrefixPackageFixtures(): Array<{
+type ReviewedPrefixFixture = {
   profile: DynamicPrefixProfile;
   words: DynamicPrefixWord[];
-}> {
-  const reviewed = JSON.parse(readFileSync(`${ROOT}/reviewed-staging-package.json`, "utf8"));
+};
+
+export function loadReviewedPrefixPackageFixtures(): ReviewedPrefixFixture[] {
+  return loadReviewedPrefixPackageFixturesFromData({
+    reviewed: JSON.parse(readFileSync(`${ROOT}/reviewed-staging-package.json`, "utf8")),
+    corrections: {
+      D4_MOR_PREFIXES_RE_PRE: JSON.parse(readFileSync(`${ROOT}/re-pre-staging-correction-package.json`, "utf8")),
+      D4_MOR_PREFIXES_SUB_INTER_SUPER: JSON.parse(readFileSync(`${ROOT}/sub-inter-super-child-feedback-correction-package.json`, "utf8")),
+    },
+    unRelease: JSON.parse(readFileSync(UN_RELEASE, "utf8")),
+  });
+}
+
+/** Pure projection for previews that bundle the reviewed JSON as server imports. */
+export function loadReviewedPrefixPackageFixturesFromData(source: {
+  reviewed: any;
+  corrections: Record<string, any>;
+  unRelease: any;
+}): ReviewedPrefixFixture[] {
+  const reviewed = source.reviewed;
   const corrections = new Map<string, any>([
-    ["D4_MOR_PREFIXES_RE_PRE", correction("re-pre-staging-correction-package.json")],
-    ["D4_MOR_PREFIXES_SUB_INTER_SUPER", correction("sub-inter-super-child-feedback-correction-package.json")],
+    ["D4_MOR_PREFIXES_RE_PRE", source.corrections.D4_MOR_PREFIXES_RE_PRE.profile],
+    ["D4_MOR_PREFIXES_SUB_INTER_SUPER", source.corrections.D4_MOR_PREFIXES_SUB_INTER_SUPER.profile],
   ]);
   const migratedFixtures = Object.entries(reviewed.profiles).map(([microSkillKey, rawProfile]: [string, any]) => {
     const words: DynamicPrefixWord[] = reviewed.words
@@ -63,7 +77,7 @@ export function loadReviewedPrefixPackageFixtures(): Array<{
     };
     return { profile, words };
   });
-  const unRelease = JSON.parse(readFileSync(UN_RELEASE, "utf8"));
+  const unRelease = source.unRelease;
   const dictations = new Map<string, { sentence: string; targetTokenIndex: number }>([
     ["unhappy", { sentence: "The lost child felt unhappy and began to cry.", targetTokenIndex: 4 }],
     ["unfair", { sentence: "It was unfair when one child had three turns and another had none.", targetTokenIndex: 2 }],

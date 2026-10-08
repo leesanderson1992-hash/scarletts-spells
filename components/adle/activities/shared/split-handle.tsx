@@ -220,12 +220,12 @@ function BoundarySplitHandle(props: SplitHandleProps) {
   return (
     <div className="text-center" data-split-state={foundBoundaries.length > 0 ? "active" : "initial"}>
       <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver to each word-part boundary, then strike.</p>
-      <div role="group" aria-label={`Choose where to split ${props.word}`} className="relative mx-auto mt-2 h-36 w-full max-w-md select-none pt-24">
-        <div className="grid h-12 items-center" style={{ gridTemplateColumns: `repeat(${props.word.length}, minmax(0, 1fr))` }}>
+      <div role="group" aria-label={`Choose where to split ${props.word}`} className="relative mx-auto mt-2 h-32 w-full max-w-xl select-none pt-20">
+        <div className="cleaver-letters grid h-12 items-center" style={{ gridTemplateColumns: `repeat(${props.word.length}, minmax(0, 1fr))` }}>
           {props.word.split("").map((letter, index) => {
             const separating = striking && struckBoundary !== null;
             const offset = separating ? (index < struckBoundary ? -5 : 5) : 0;
-            return <span key={`${letter}-${index}`} className={`text-3xl font-black text-white ${reducedMotion ? "" : "transition-transform duration-200"}`} style={{ transform: `translateX(${offset}px)` }}>{letter}</span>;
+            return <span key={`${letter}-${index}`} className={`cleaver-letter text-3xl font-black text-white ${reducedMotion ? "" : "transition-transform duration-200"}`} style={{ transform: `translateX(${offset}px)` }}>{letter}</span>;
           })}
         </div>
         {props.word.slice(0, -1).split("").map((_, index) => {
@@ -255,13 +255,13 @@ function BoundarySplitHandle(props: SplitHandleProps) {
               }}
               onClick={() => choose(point)}
               disabled={disabled}
-              className={`absolute top-0 h-36 w-11 -translate-x-1/2 cursor-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 disabled:cursor-not-allowed ${found ? "bg-emerald-300/25 opacity-100" : "disabled:opacity-40"} ${scaffolded && isCorrectBoundary ? "bg-cyan-300/20 motion-safe:animate-pulse" : "hover:bg-white/5"}`}
+              className={`absolute top-0 h-32 w-11 -translate-x-1/2 cursor-none rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300/80 disabled:cursor-not-allowed ${found ? "bg-emerald-300/25 opacity-100" : "disabled:opacity-40"} ${scaffolded && isCorrectBoundary ? "bg-cyan-300/20 motion-safe:animate-pulse" : "hover:bg-white/5"}`}
               style={{ left: `${(point / props.word.length) * 100}%` }}
             >
               <span className={`absolute left-1/2 top-0 -translate-x-1/2 ${active ? "opacity-100" : "pointer-events-none opacity-0"}`}>
                 <CleaverIcon striking={striking && struckBoundary === point} reducedMotion={reducedMotion} />
               </span>
-              <span aria-hidden="true" className={`absolute bottom-2 left-1/2 grid h-11 w-3 -translate-x-1/2 place-items-center rounded-full text-lg font-black ${found ? "bg-emerald-300 text-emerald-950" : wrong ? "bg-red-400 text-red-950 shadow-[0_0_16px_rgba(248,113,113,.8)]" : scaffolded && isCorrectBoundary ? "bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,.8)]" : active ? "bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.75)]" : "bg-white/15"}`}>{found ? "✓" : wrong ? "×" : ""}</span>
+              <span aria-hidden="true" className={`absolute bottom-2 left-1/2 grid h-11 w-3 -translate-x-1/2 place-items-center rounded-full text-lg font-black ${found ? "bg-emerald-300 text-emerald-950" : wrong ? "bg-red-400 text-red-950 shadow-[0_0_16px_rgba(248,113,113,.8)]" : scaffolded && isCorrectBoundary ? "bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,.8)]" : active ? "bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,.75)]" : "bg-transparent"}`}>{found ? "✓" : wrong ? "×" : ""}</span>
             </button>
           );
         })}

@@ -1,18 +1,22 @@
 import { notFound } from "next/navigation";
+import { canOpenAdleDesignPreview } from "@/lib/adle/design-preview-access";
 
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { buildDynamicAffixAssignmentPlan } from "@/lib/adle/morphology/dynamic-affix-assignment-plan";
 import { compileDynamicAffixWordLabDecision } from "@/lib/adle/morphology/dynamic-affix-compiler-rollout";
 import { dynamicAffixRuntime } from "@/lib/adle/morphology/dynamic-affix-runtime";
 import type { ComposedDailyPlan } from "@/lib/adle/daily-assignment-composer";
-import { loadReviewedAffixPackageFixture } from "@/scripts/lib/adle-reviewed-affix-package-fixture";
+import { compileReviewedAffixPackageFixture } from "@/scripts/lib/adle-reviewed-affix-package-fixture";
+import mentPackage from "@/docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json";
 import { DynamicAffixV3InteractionFixture } from "./fixture";
 
 const ASSIGNMENT_ID = "dev-dynamic-affix-v3-g7-teaching-pages";
 
-export function DynamicAffixV3DevFixturePage(props: { packagePath: string; assignmentId: string }) {
-  if (process.env.NODE_ENV === "production") notFound();
-  const fixture = loadReviewedAffixPackageFixture(props.packagePath);
+export const dynamic = "force-dynamic";
+
+export function DynamicAffixV3DevFixturePage(props: { reviewedPackage: unknown; assignmentId: string }) {
+  if (!canOpenAdleDesignPreview()) notFound();
+  const fixture = compileReviewedAffixPackageFixture(props.reviewedPackage);
   const decision = compileDynamicAffixWordLabDecision(fixture.selection, {
     mode: "shared_authoritative",
     sourceKind: "reviewed_fixture",
@@ -61,6 +65,6 @@ export function DynamicAffixV3DevFixturePage(props: { packagePath: string; assig
 export default function DynamicAffixV3DevPage() {
   return <DynamicAffixV3DevFixturePage
     assignmentId={ASSIGNMENT_ID}
-    packagePath="docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-27-dynamic-suffix-ment/reviewed-staging-package.json"
+    reviewedPackage={mentPackage}
   />;
 }

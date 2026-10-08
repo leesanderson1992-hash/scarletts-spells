@@ -67,17 +67,17 @@ export function IngScrabble(props: IngScrabbleProps) {
       setComplete(true); setFeedback(`Yes — ${props.word.base} becomes ${props.word.word}.`); props.onComplete(board); playInteractionSound("complete", props.muted);
     } else { setFeedback("That is not the -ing spelling yet. Move the tiles and try again."); playInteractionSound("resist", props.muted); }
   }
-  const tileClass = `relative inline-grid min-h-14 min-w-12 place-items-center rounded-lg border-2 border-amber-900/50 bg-gradient-to-br from-amber-100 via-amber-200 to-amber-400 px-2 text-2xl font-black text-amber-950 shadow-[0_7px_0_#92400e,0_11px_12px_rgba(0,0,0,.3)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300 ${reducedMotion ? "" : "transition-transform hover:-translate-y-1"}`;
+  const tileClass = `scrabble-tile relative inline-grid min-h-14 min-w-12 place-items-center rounded-lg border-2 border-amber-900/50 bg-gradient-to-br from-amber-100 via-amber-200 to-amber-400 px-2 text-2xl font-black text-amber-950 shadow-[0_7px_0_#92400e,0_11px_12px_rgba(0,0,0,.3)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300 ${reducedMotion ? "" : "transition-transform hover:-translate-y-1"}`;
   return <section className="grid gap-5 text-center" data-ing-scrabble-state={complete ? "complete" : "building"}>
     <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
     <h2 className="text-2xl font-black text-white">Build the action happening now</h2>
     <p className="text-cyan-100">Move, remove, and replace the base-word tiles. Add letters from the box to make the -ing word.</p>
-    <div className="flex flex-wrap justify-center gap-2 rounded-3xl border border-cyan-300/30 bg-slate-950/40 p-5" aria-label="Word building slots">
+    <div className="scrabble-slots flex flex-wrap justify-center gap-2 rounded-3xl border border-cyan-300/30 bg-slate-950/40 p-5" aria-label="Word building slots">
       {board.slots.map((id, index) => <button key={index} type="button" data-ing-slot={index} data-ing-tile-id={id ?? undefined} disabled={complete} aria-label={`Slot ${index + 1}${id ? `: ${tiles.get(id)?.letter}` : ": empty"}`} aria-pressed={!!id && selected === id}
         onPointerDown={event => { if (id) start(event, id); }} onPointerUp={release} onClick={() => slotClick(index)}
-        className={`${tileClass} ${id ? "" : "border-dashed border-cyan-300 bg-none bg-slate-800 text-cyan-100 shadow-none"} ${id && selected === id ? "ring-4 ring-cyan-300" : ""}`}>{id ? tiles.get(id)?.letter : "·"}</button>)}
+        className={`${tileClass} ${id ? "" : "scrabble-empty-slot border-dashed border-cyan-300 bg-none bg-slate-800 text-cyan-100 shadow-none"} ${id && selected === id ? "ring-4 ring-cyan-300" : ""}`}>{id ? tiles.get(id)?.letter : "·"}</button>)}
     </div>
-    <div data-ing-bank="true" className="grid gap-3 rounded-3xl border border-amber-300/40 bg-slate-950/45 p-5">
+    <div data-ing-bank="true" className="scrabble-bank grid gap-3 rounded-3xl border border-amber-300/40 bg-slate-950/45 p-5">
       <div className="flex flex-wrap items-center justify-center gap-3"><h3 className="font-black text-amber-100">Letter box</h3><button type="button" disabled={!selected || complete} onClick={() => selected && move(selected, { kind: "bank" })} className="rounded-full border border-cyan-200 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Move selected tile here</button></div>
       <div className="flex min-h-20 flex-wrap justify-center gap-3" aria-label="Available letters">{board.bank.map(id => <button key={id} type="button" data-ing-bank="true" data-ing-tile-id={id} aria-label={`Letter ${tiles.get(id)?.letter}`} aria-pressed={selected === id} disabled={complete} onPointerDown={event => start(event, id)} onPointerUp={release} onClick={() => choose(id)} className={`${tileClass} ${selected === id ? "ring-4 ring-cyan-300" : ""}`}>{tiles.get(id)?.letter}</button>)}</div>
     </div>

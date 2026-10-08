@@ -328,7 +328,7 @@ function ReviewPart(props: { childId: string; assignmentId: string; items: AdleS
     && writing.every((item) => (attempts.get(payloadString(item, "canonicalWordId")) ?? "").trim().length > 0);
 
   return (
-    <section className="brand-card rounded-3xl p-4 md:p-5">
+    <section className="adle-presentation generic-adle-panel brand-card rounded-3xl p-4 md:p-5">
       <p className="brand-eyebrow">Part 1 · Review first</p>
       {historicalNoops.map((item) => <CanonicalActivityHost key={item.id} spec={item} />)}
 
@@ -540,7 +540,7 @@ function LessonPart(props: {
 
   if (intro?.mode === "teaching_page" && !teachingComplete) {
     return (
-      <section className="brand-card mt-4 rounded-3xl p-4 md:p-5">
+      <section className="adle-presentation generic-adle-panel brand-card mt-4 rounded-3xl p-4 md:p-5">
         <p className="brand-eyebrow">Part 2 · Today&apos;s lesson</p>
         <div className="mt-3">
           <CanonicalActivityHost
@@ -557,7 +557,7 @@ function LessonPart(props: {
   }
 
   return (
-    <section className="brand-card mt-4 rounded-3xl p-4 md:p-5">
+    <section className="adle-presentation generic-adle-panel brand-card mt-4 rounded-3xl p-4 md:p-5">
       <p className="brand-eyebrow">Part 2 · Today&apos;s lesson</p>
 
       {intro !== null && intro.mode !== "teaching_page" ? (
@@ -826,7 +826,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="adle-session-runner grid gap-4">
       {partOne.present && !partOne.complete ? (
         <ReviewPart childId={props.childId} assignmentId={props.assignmentId} items={partOne.items} />
       ) : null}

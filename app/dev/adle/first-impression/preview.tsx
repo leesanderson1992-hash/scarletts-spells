@@ -47,7 +47,7 @@ export function FirstImpressionAcceptanceFixture(props: {
 
   if (complete) return <main className="mx-auto max-w-4xl p-4" data-testid="first-impression-celebration"><AdleSessionCelebration model={{ forgedTodayWords: ["unkind"], goldenBarsToday: [], hasSomethingToCelebrate: true }} planDate="2026-08-21" backPath="/dev/adle/first-impression" /></main>;
 
-  return <main className="mx-auto w-full min-w-0 max-w-6xl p-4" data-testid="first-impression-acceptance-fixture" data-page-count={props.pageCount} data-initial-stage={props.initialStage}>
+  return <main className="w-full min-w-0 p-2" data-testid="first-impression-acceptance-fixture" data-page-count={props.pageCount} data-initial-stage={props.initialStage}>
     <FirstImpressionLesson
       teaching={teachingConfig(props.pageCount)}
       initialTeachingPageIndex={props.initialTeachingPageIndex}

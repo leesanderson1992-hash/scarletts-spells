@@ -9,7 +9,7 @@ export function comparativeTeachingPages(lesson: Pick<ComparativeLessonV1, "fami
   return {
     pages: [
       { id: "comparison", type: "teaching", title: "Comparative and superlative", paragraphs: ["A comparative compares two things or people. For the adjectives in this lesson, add -er.", "A superlative picks out the greatest degree in a group of three or more. For these adjectives, add -est."],
-        callout: "Two: -er. A group: -est.", sections: [{ heading: "Helpful sentence clues", paragraphs: ["‘Than’ often helps you spot a comparative. ‘The’ often comes before a superlative. These are useful clues in our examples, not rules for every sentence."] }] },
+        callout: "Two: -er. A group: -est.", sections: [{ tone: "gold", heading: "Helpful sentence clues", paragraphs: ["‘Than’ often helps you spot a comparative. ‘The’ often comes before a superlative. These are useful clues in our examples, not rules for every sentence."] }] },
       { id: "spelling-rule", type: "teaching", title: rule.title, paragraphs: [rule.explanation],
         examples: lesson.families.map(f => ({ text: f.words.map(w => w.word).join(" → "), explanation: f.meaning })) },
     ],

@@ -16,6 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.dataset.theme=localStorage.getItem('scarlett-theme-v1')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}` }} />
+      </head>
       <body className="brand-body min-h-full flex flex-col" suppressHydrationWarning>
         {children}
       </body>

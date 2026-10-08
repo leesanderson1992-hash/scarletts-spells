@@ -29,7 +29,7 @@ export function CommonWordLabPreview(props: { snapshot: CompiledWordLabSnapshotV
   }
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-4">
+    <div className="mx-auto grid w-full max-w-4xl gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" className="brand-secondary-btn" onClick={restart}>Restart preview</button>
         <p className="text-sm text-[color:var(--mid)]">Development-only; immutable fixture; no remote writes.</p>

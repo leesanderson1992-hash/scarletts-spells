@@ -13,15 +13,15 @@ assert(isSpecialistSnapshotV3({ snapshotSchemaVersion: 3, route: { routeId: "ing
 
 const sessionRunnerSource = readFileSync("components/adle-session-runner.tsx", "utf8");
 const rendererRegistrySource = readFileSync("components/adle/activities/canonical-renderer-registry.tsx", "utf8");
-const appShellSource = readFileSync("components/app-shell.tsx", "utf8");
+const appShellStyles = readFileSync("app/globals.css", "utf8");
 assert.equal(ingDictationAudioText({ word: "retying", audioText: "She is retying her loose shoelace." }), "She is ree tying her loose shoelace.");
 assert.equal(ingDictationAudioText({ word: "tying", audioText: "She is tying her shoelaces." }), "She is tying her shoelaces.");
 assert(sessionRunnerSource.includes('import { IngGuidedLesson } from "@/components/adle/morphology/ing-guided-lesson"'), "the -ing lesson ships with the session runner instead of waiting for a client-only chunk");
 assert(!sessionRunnerSource.includes('import("@/components/adle/morphology/ing-guided-lesson")'), "the -ing lesson has no nested client-only import waterfall");
 assert(sessionRunnerSource.includes('<IngPart key={props.assignmentId} session={props} lesson={runtime.payload} />'), "switching learner assignments remounts -ing progress and checkpoint state");
 assert(rendererRegistrySource.includes('["INTRODUCTION.teaching_page@1", teachingPagesRenderer]'), "the opening teaching page uses the eager canonical renderer");
-assert(appShellSource.includes('isFocusLayout ? "grid-cols-1"'), "focus mode stays single-column at wide viewports");
-assert(appShellSource.includes('isFocusLayout ? "hidden" : ""'), "focus mode keeps the learner sidebar hidden at every viewport");
+assert(appShellStyles.includes('.app-shell.focus-layout { grid-template-columns: 0 minmax(0, 1fr); }'), "focus mode stays single-column at wide viewports");
+assert(appShellStyles.includes('.app-shell.focus-layout .app-sidebar { display: none; }'), "focus mode keeps the learner sidebar hidden at every viewport");
 
 const itemsFor = (skill: typeof ING_MICRO_SKILLS[number], count: number): LearningItemFact[] => ingPreviewPool(skill).slice(0, count).map((word, index) => ({
   learningItemId: `item:${index}`, childId: "child", canonicalWordId: word.canonicalWordId, microSkillKey: skill,
