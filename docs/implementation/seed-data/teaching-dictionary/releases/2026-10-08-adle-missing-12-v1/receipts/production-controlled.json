@@ -1,0 +1,24 @@
+{
+  "status": "applied_and_verified",
+  "target": "production",
+  "method": "Supabase Management API, one guarded SQL transaction",
+  "releaseId": "2026-10-08-adle-missing-12-v1",
+  "batchId": "c03a2e9c-c3f5-54ff-86d3-aefeb90cd61e",
+  "packageSha256": "9a34bff53bad7de64113a29d379b9fcc76810138cdb0e3506718e42bd371a609",
+  "sqlSha256": "f7298b95c70a12cf5c26da2005d3ef9d07cea4f6b7950d1f9931c50a7ce0e9a0",
+  "approvedBy": "Katie Sanderson",
+  "approvalReference": "Codex conversation, 2026-10-08: delete malteasers; all other words approved for import; work in production",
+  "proofMode": "controlled_production",
+  "stagingReceipt": null,
+  "dryRun": "Full transaction reached the deliberate ADLE_DRY_RUN_ROLLBACK exception; readback showed no persisted rows.",
+  "verification": {
+    "batchStatus": "applied",
+    "wordCount": 12,
+    "metadataCount": 12,
+    "morphologyCount": 12,
+    "dictationCount": 12,
+    "excludedMalteasersWordCount": 0,
+    "status": "verified"
+  },
+  "verifiedAt": "2026-10-08T21:42:30Z"
+}
