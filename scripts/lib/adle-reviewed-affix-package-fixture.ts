@@ -33,7 +33,14 @@ export function loadReviewedAffixPackageFixture(
   packagePath: string,
   authenticWordIndex = 0,
 ): { profile: DynamicAffixProfile; words: DynamicAffixWord[]; selection: DynamicAffixSelection } {
-  const reviewed = JSON.parse(readFileSync(packagePath, "utf8"));
+  return compileReviewedAffixPackageFixture(JSON.parse(readFileSync(packagePath, "utf8")), authenticWordIndex, packagePath);
+}
+
+export function compileReviewedAffixPackageFixture(
+  reviewed: any,
+  authenticWordIndex = 0,
+  source = "bundled reviewed package",
+): { profile: DynamicAffixProfile; words: DynamicAffixWord[]; selection: DynamicAffixSelection } {
   const words: DynamicAffixWord[] = reviewed.words.map((word: any) => {
     const teachingParts = parts(word.teaching.parts);
     const suffixPart = teachingParts.find((part) => part.role === "suffix")!;
@@ -79,7 +86,7 @@ export function loadReviewedAffixPackageFixture(
     introduction: reviewed.profile.introContent,
   };
   const authenticWord = words[authenticWordIndex];
-  if (!authenticWord) throw new Error(`No authentic fixture word at index ${authenticWordIndex}: ${packagePath}`);
+  if (!authenticWord) throw new Error(`No authentic fixture word at index ${authenticWordIndex}: ${source}`);
   const selection = selectDynamicAffixWordLab({
     profiles: [profile],
     learningItems: [{
@@ -97,6 +104,6 @@ export function loadReviewedAffixPackageFixture(
       rowStatus: "active",
     }],
   });
-  if (!selection) throw new Error(`Reviewed affix package did not select: ${packagePath}`);
+  if (!selection) throw new Error(`Reviewed affix package did not select: ${source}`);
   return { profile, words, selection };
 }
