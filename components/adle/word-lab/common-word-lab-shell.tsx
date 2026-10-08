@@ -133,7 +133,7 @@ export function CommonWordLabShell(props: {
 
   const atFinishedStage = currentIndex === activities.length - 1 && Boolean(completed[current.activityId]);
   return (
-    <main className="adle-presentation generic-word-lab mx-auto grid max-w-4xl gap-5">
+    <main className="adle-presentation generic-word-lab mx-auto grid w-full max-w-4xl gap-5">
       <header className="brand-card grid gap-4 rounded-3xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
