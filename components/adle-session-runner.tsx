@@ -826,7 +826,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="adle-session-runner grid gap-4">
       {partOne.present && !partOne.complete ? (
         <ReviewPart childId={props.childId} assignmentId={props.assignmentId} items={partOne.items} />
       ) : null}

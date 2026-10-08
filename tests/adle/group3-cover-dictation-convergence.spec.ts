@@ -69,25 +69,26 @@ test("Base Word restores canonical Cover Check and Compound restores canonical S
   await expect(page.locator('[aria-label*="You wrote replaed"]')).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
 
-  const compoundContentVersion = "d4_mor_closed_compounds_v1";
-  const assignmentId = "dev-closed-compound-g7-teaching-pages";
+  const compoundContentVersion = "closed-compound-word-preview-v1";
+  const assignmentId = "dev-closed-compound-word-introduction";
+  const rainbowId = "a6a30d2e-cd03-543e-b7cf-f8020bf9dbd9";
   const compoundState = {
-    stage: "dictation", index: 0, muted: true, attempts: {}, sentences: { rainbow: "A rain bow" }, sentenceChecked: false, reflection: "",
+    stage: "dictation", index: 0, muted: true, attempts: {}, sentences: { [rainbowId]: "A rain bow" }, sentenceChecked: false, reflection: "",
     jigsawLocked: [], jigsawMisses: {}, jigsawPlacements: {}, meaningConnected: [], meaningMisses: {},
   };
-  await page.goto("/dev/adle/closed-compound", { waitUntil: "load" });
+  await page.goto("/dev/adle/compound-word", { waitUntil: "load" });
   await page.evaluate(({ contentVersion, assignmentId, state }) => localStorage.setItem(
-    `adle:morphology-un:${assignmentId}:1:${contentVersion}:closed-compound`,
+    `adle:morphology-un:${assignmentId}:1:${contentVersion}:closed-compound:v2`,
     JSON.stringify({ savedAt: Date.now(), schemaVersion: 1, contentVersion, state }),
   ), { contentVersion: compoundContentVersion, assignmentId, state: compoundState });
   await page.reload({ waitUntil: "load" });
   const compoundResponse = page.getByLabel("Write the whole sentence");
   await expect(page.locator('[data-sentence-dictation-state="writing"]')).toBeVisible();
   await expect(compoundResponse).toHaveValue("A rain bow");
-  await expect(page.getByText("A rainbow appeared after rain.", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("A rainbow appeared after the rain.", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Check sentence" }).click();
   await expect(compoundResponse).toHaveAttribute("readonly", "");
-  await expect(page.getByText("A rainbow appeared after rain.", { exact: true })).toBeVisible();
+  await expect(page.getByText("A rainbow appeared after the rain.", { exact: true })).toBeVisible();
 });
 
 test("canonical spell surfaces remain within the narrow viewport", async ({ page }, testInfo) => {

@@ -16,15 +16,21 @@ function fresh(skill: IngMicroSkill, count: number): PreviewState {
   const lesson = ingPreviewFixture(skill, count, `fixture:${skill}:${count}:${crypto.randomUUID()}`);
   return { lesson, progress: initialIngProgress(lesson), finishWrites: 0 };
 }
-function scrabblePreviewState(): PreviewState {
+function taskPreviewState(task: string): PreviewState | null {
+  const stageId = ({ meaning: "activity:meaning-match", scrabble: "activity:ing-scrabble", cleaver: "activity:cleaver", dictation: "dictation" } as const)[task as "meaning" | "scrabble" | "cleaver" | "dictation"];
+  if (!stageId) return null;
   const state = fresh(ING_MICRO_SKILLS[0], 1);
-  return { ...state, progress: { ...state.progress, stageId: "activity:ing-scrabble", teachingPageIndex: 2 } };
+  return { ...state, progress: { ...state.progress, stageId, teachingPageIndex: 2 } };
 }
 export function IngPreview() {
   const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
   const [state, setState] = useState<PreviewState | null>(() => {
     if (typeof window === "undefined") return null;
-    if (new URLSearchParams(window.location.search).get("task") === "scrabble") return scrabblePreviewState();
+    const task = new URLSearchParams(window.location.search).get("task");
+    if (task) {
+      const preview = taskPreviewState(task);
+      if (preview) return preview;
+    }
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null") as PreviewState | null;
       if (parsed && validateIngLesson(parsed.lesson, true) && parsed.lesson.authority === "dev_fixture" && ingProgressValid(parsed.progress, parsed.lesson) && [0, 1].includes(parsed.finishWrites)) return parsed;
@@ -37,8 +43,10 @@ export function IngPreview() {
     catch { setStorageError("Preview storage is unavailable. Reload and resume cannot be verified."); throw new Error("ing_preview_storage_unavailable"); }
   }
   if (!mounted || !state) return <p role="status">Preparing the synthetic -ing lesson preview…</p>;
-  return <main className="brand-page min-h-screen px-4 py-6"><div className="mx-auto grid max-w-5xl gap-5">
-    <header className="brand-card grid gap-3 rounded-3xl p-5">
+  return <main className="adle-preview-config brand-page min-h-screen px-2 py-2"><div className="grid w-full gap-2">
+    <details className="adle-preview-settings brand-card rounded-2xl p-3">
+      <summary className="cursor-pointer font-bold">-ing preview settings</summary>
+    <header className="grid gap-3 p-3">
       <h1 className="text-2xl font-bold">-ing endings ADLE preview</h1>
       <p>Development fixture only. The words and sentences here are unapproved examples; no learner data, schedules or rewards are written.</p>
       <div className="flex flex-wrap items-end gap-3">
@@ -53,6 +61,7 @@ export function IngPreview() {
       <p className="text-xs" data-ing-preview-finish-writes={state.finishWrites}>Fixture Finish writes: {state.finishWrites}. Reload retains this frozen lesson and progress.</p>
       {storageError ? <p role="alert">{storageError}</p> : null}
     </header>
+    </details>
     <IngGuidedLesson key={state.lesson.assignmentKey} lesson={state.lesson} fixtureMode initialProgress={state.progress}
       onProgress={progress => setState(current => {
         if (!current) return current;

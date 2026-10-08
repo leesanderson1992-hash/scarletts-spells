@@ -19,7 +19,7 @@ export function DynamicAffixV3InteractionFixture(props: {
 }) {
   const [complete, setComplete] = useState(false);
   return (
-    <main className="mx-auto max-w-6xl p-4" data-testid="dynamic-affix-v3-fixture"
+    <main className="w-full p-2" data-testid="dynamic-affix-v3-fixture"
       data-assignment-id={props.assignmentId}
       data-content-version={props.payload.contentVersion}
       data-word-ids={JSON.stringify(props.payload.words.lesson.map((word) => word.canonicalWordId))}

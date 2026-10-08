@@ -170,3 +170,110 @@
 .adle-presentation :is(button, .review-primary, .review-secondary, .review-choice), .generic-word-lab :is(button, .brand-primary-btn, .brand-secondary-btn) { font-weight: 800; }
 :root[data-theme="dark"] .word-lab-workspace .bg-cyan-50.text-cyan-950 { background: #a3f2ff !important; color: #082b38 !important; border-color: #67dfee !important; }
 :root[data-theme="dark"] .word-lab-workspace .bg-amber-50.text-amber-950 { background: #ffe08a !important; color: #352107 !important; border-color: #ebbd58 !important; }
+
+/* Keep Adie visible while the task itself scrolls within the viewport. */
+.word-lab-scene { height: calc(100dvh - 32px); display: flex; flex-direction: column; }
+.word-lab-progress { flex: none; }
+.word-lab-layout { flex: 1; min-height: 0; grid-template-columns: minmax(190px, 230px) minmax(0, 1fr); }
+.word-lab-layout > .adie-guide { min-height: 0; overflow: hidden; }
+.word-lab-workspace { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.word-lab-tools { flex: none; }
+.word-lab-task { width: 100%; flex: none; margin-block: auto; }
+.adie-guide-portrait img { width: clamp(92px, 65%, 160px); }
+.adie-guide { gap: .75rem; }
+.adie-guide-bubble { padding: .85rem; font-size: .9rem; }
+.app-shell.focus-layout .app-main:has(.word-lab-scene) { height: calc(100dvh - 58px); overflow: hidden; padding: 8px 12px; }
+.app-shell.focus-layout .app-main > section:has(.word-lab-scene) { display: grid; height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+.app-shell.focus-layout .app-main > section:has(.word-lab-scene) > :not(:first-child) { min-height: 0; overflow: hidden; }
+.app-shell.focus-layout .word-lab-scene { height: 100%; }
+.app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child { padding: 8px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child :is(h1, p, a) { margin-top: 0; }
+.app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child h1 { font-size: 1.15rem; }
+.app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; grid-template-rows: auto minmax(0, 1fr); }
+.app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) > :has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
+.app-shell.focus-layout form:has(> .word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
+.adle-preview-stack .word-lab-scene { height: calc(100dvh - 90px); }
+.adle-preview-settings > header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+.adle-preview-settings > header h1 { font-size: 1rem; }
+.adle-preview-settings > header p { max-width: 45ch; font-size: .72rem; }
+.adle-preview-settings > header > div { margin-left: auto; }
+.adle-preview-config .word-lab-scene { height: calc(100dvh - 74px); }
+
+/* Reading copy sits on a brighter card than the lesson deck. */
+:root[data-theme="light"] .word-lab-scene { background: #fff0f8; }
+:root[data-theme="light"] .word-lab-workspace { background: #f1ecfb; border-color: #d8bde9; }
+.word-lab-workspace [data-teaching-page-type="reading"] { padding: clamp(1rem, 2vw, 1.75rem); border: 2px solid var(--adie-line); border-left: 7px solid var(--adie-pink); border-radius: 1.5rem; background: var(--adie-surface); box-shadow: 0 12px 32px rgb(128 54 113 / 13%); }
+:root[data-theme="light"] .word-lab-workspace [data-teaching-page-type="reading"] { border-color: #d49cbd; border-left-color: #c41070; }
+:root[data-theme="dark"] .word-lab-workspace [data-teaching-page-type="reading"] { background: #171d32; border-color: #60426b; border-left-color: #ff64b4; }
+.word-lab-workspace .teaching-gold-clue { background: #ffe08a !important; border-color: #c58810; color: #352107 !important; box-shadow: 0 6px 0 #d8a94b; }
+.word-lab-workspace .teaching-gold-clue :is(h2, p) { color: #352107 !important; }
+:root[data-theme="dark"] .word-lab-workspace .teaching-gold-clue { background: #ffd166 !important; border-color: #ffe5a3; box-shadow: 0 6px 0 #966119; }
+.word-lab-workspace [aria-label="Lesson teaching pages"] > nav button:first-child { border: 2px solid #9d64ca; background: #eee0ff; color: #54257b; box-shadow: 0 3px 0 #c59adf; }
+.word-lab-workspace [aria-label="Lesson teaching pages"] > nav button:first-child:hover:not(:disabled) { background: #e3c8ff; }
+.word-lab-workspace [aria-label="Lesson teaching pages"] > nav button:first-child:disabled { opacity: 1; background: #ead6ff; color: #682d90; box-shadow: none; }
+:root[data-theme="dark"] .word-lab-workspace [aria-label="Lesson teaching pages"] > nav button:first-child { background: #39254e; color: #f0d8ff; border-color: #b77ee1; box-shadow: none; }
+
+/* Cover, cleaver, meaning and Scrabble retain clear structure in light mode. */
+.word-lab-workspace .cover-check-panel { background: #f3e8fb; border: 2px solid #b977cd; }
+.word-lab-workspace .cover-check-stage { background: #fff; border: 2px solid #d4a7e5; }
+.word-lab-workspace .cover-check-shutter { background: linear-gradient(100deg, #8a2d83, #5f357d); color: #fff; }
+.word-lab-workspace .cover-check-handle { background: #ff63b1; color: #29122b; border-left: 3px solid #fff; }
+.word-lab-workspace .cover-check-panel input { border: 2px solid #b977cd; }
+:root[data-theme="dark"] .word-lab-workspace .cover-check-panel { background: #241d39; border-color: #9b65b9; }
+:root[data-theme="dark"] .word-lab-workspace .cover-check-stage { background: #11182c; border-color: #735081; }
+:root[data-theme="dark"] .word-lab-workspace .cover-check-shutter { background: linear-gradient(100deg, #6e2f7c, #3c245d); }
+.word-lab-workspace .cleaver-letters { background: transparent; }
+.word-lab-workspace .cleaver-letter { display: grid; height: 100%; place-items: center; color: #172039 !important; font-size: clamp(1.25rem, 2.5vw, 1.9rem); }
+.word-lab-workspace .cleaver-letter:not(:last-child) { border-right: 3px solid #c41070; }
+:root[data-theme="dark"] .word-lab-workspace .cleaver-letter { color: #fff !important; }
+:root[data-theme="dark"] .word-lab-workspace .cleaver-letter:not(:last-child) { border-right-color: #ff78bd; }
+@media (min-width: 768px) {
+  .word-lab-workspace [data-transform-target-state="demonstration"] [data-split-state] [role="group"] { max-width: 46rem; height: 11rem; padding-top: 7rem; margin-top: 1.75rem; }
+  .word-lab-workspace [data-transform-target-state="demonstration"] [data-split-state] [role="group"] > button { height: 11rem; }
+  .word-lab-workspace [data-transform-target-state="demonstration"] .cleaver-letter { font-size: clamp(2.5rem, 3.8vw, 3.5rem); }
+  .word-lab-workspace [data-split-state] > [role="status"] { margin-top: 3rem !important; }
+}
+.word-lab-workspace .meaning-match-board { background: #e7f7fb; border: 2px solid #71bbce; }
+.word-lab-workspace .meaning-match-board h3 { color: #07566a; }
+.word-lab-workspace .meaning-word-option, .word-lab-workspace .meaning-definition-option { background: #fff; border: 2px solid #559cad; color: #172039 !important; opacity: 1; }
+.word-lab-workspace .meaning-word-option[aria-pressed="true"] { background: #ffe08a; border-color: #b27a09; }
+.word-lab-workspace .meaning-definition-option:disabled { opacity: 1; }
+:root[data-theme="dark"] .word-lab-workspace .meaning-match-board { background: #182d3d; border-color: #43899a; }
+:root[data-theme="dark"] .word-lab-workspace .meaning-match-board h3 { color: #a3f2ff; }
+:root[data-theme="dark"] .word-lab-workspace .meaning-word-option, :root[data-theme="dark"] .word-lab-workspace .meaning-definition-option { background: #22384d; border-color: #78d9e8; color: #f5fbff !important; }
+:root[data-theme="dark"] .word-lab-workspace .meaning-word-option[aria-pressed="true"] { background: #ffe08a; border-color: #fbbf24; color: #352107 !important; }
+.word-lab-workspace .scrabble-slots { background: #e3f6fb; border: 2px solid #71bbce; }
+.word-lab-workspace .scrabble-bank { background: #fff1d9; border: 2px solid #dfac50; }
+.word-lab-workspace .scrabble-bank h3 { color: #704500; }
+.word-lab-workspace .scrabble-bank button:not(.scrabble-tile) { background: #fff; border-color: #9b6b18; color: #553600; }
+.word-lab-workspace .scrabble-tile { border-color: #8d570b; color: #352107; }
+.word-lab-workspace .scrabble-empty-slot { background: #fff; border: 2px dashed #087d94; color: #07566a; box-shadow: none; }
+:root[data-theme="dark"] .word-lab-workspace .scrabble-slots { background: #163b4b; border-color: #67d5e8; }
+:root[data-theme="dark"] .word-lab-workspace .scrabble-bank { background: #49351f; border-color: #edbc60; }
+:root[data-theme="dark"] .word-lab-workspace .scrabble-bank h3 { color: #ffe08a; }
+:root[data-theme="dark"] .word-lab-workspace .scrabble-empty-slot { background: #15283c; border-color: #7de4f2; color: #e0fbff; }
+.word-lab-scene .hear-word-button { background: #e2f7fb; border: 2px solid #16829b; color: #074b62; font-weight: 800; }
+:root[data-theme="dark"] .word-lab-scene .hear-word-button { background: #17465d; border-color: #67e8f9; color: #effdff; }
+:root[data-theme="light"] .word-lab-workspace .cover-check-panel { background: #f3e8fb !important; border-color: #b977cd !important; }
+:root[data-theme="light"] .word-lab-workspace .cover-check-stage { background: #fff !important; }
+:root[data-theme="light"] .word-lab-workspace .meaning-match-board { background: #e7f7fb !important; border-color: #71bbce !important; }
+:root[data-theme="light"] .word-lab-workspace .scrabble-slots { background: #e3f6fb !important; border-color: #71bbce !important; }
+:root[data-theme="light"] .word-lab-workspace .scrabble-bank { background: #fff1d9 !important; border-color: #dfac50 !important; }
+:root[data-theme="light"] .word-lab-workspace .scrabble-empty-slot { background: #fff !important; border-color: #087d94 !important; color: #07566a !important; }
+:root[data-theme="dark"] .word-lab-workspace button.bg-cyan-300:disabled { background: #604461 !important; color: #f4e5f1 !important; opacity: 1; }
+:root[data-theme="light"] .word-lab-workspace button.bg-cyan-300:disabled { background: #f2c2dc !important; color: #6f2852 !important; opacity: 1; }
+
+@media (max-width: 767px) {
+  .word-lab-scene { height: calc(100dvh - 16px); padding: .5rem; }
+  .word-lab-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .word-lab-layout > .adie-guide { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: .5rem; padding: .5rem; }
+  .adie-guide-portrait img { width: 72px; }
+  .adie-guide-portrait p { font-size: .6rem; }
+  .adie-guide-bubble { padding: .5rem .75rem; font-size: .78rem; }
+  .adie-guide-bubble::before { display: none; }
+  .adie-guide-actions { grid-column: 1 / -1; margin-top: 0; }
+  .adie-guide-actions button { min-height: 36px; }
+  .word-lab-workspace { padding: .75rem; }
+  .app-shell.focus-layout .app-main:has(.word-lab-scene) { height: calc(100dvh - 60px); padding: 4px; }
+}
+@media (max-height: 620px) and (min-width: 768px) { .adie-guide-portrait img { width: 80px; } .adie-guide-bubble { font-size: .78rem; } .word-lab-progress { margin-bottom: .35rem; } }

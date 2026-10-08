@@ -115,7 +115,7 @@ export function TeachingPages(props: {
 function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pageCount: number }) {
   const { page } = props;
   return (
-    <article className="grid gap-5 text-left" aria-labelledby={`teaching-page-${page.id}`}>
+    <article className="grid gap-5 text-left" data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
       <header className="text-center">
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">
           {page.eyebrow ?? "Learn"} · Page {props.pageNumber} of {props.pageCount}
@@ -139,7 +139,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       ) : null}
       {page.examples?.length ? <ExampleGrid examples={page.examples} /> : null}
       {page.sections?.map((section, index) => (
-        <section key={section.heading ?? index} className={section.tone === "gold" ? "grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
+        <section key={section.heading ?? index} className={section.tone === "gold" ? "teaching-gold-clue grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
           {section.heading ? <h2 className={section.tone === "gold" ? "text-xl font-black text-amber-950" : "text-xl font-black text-white"}>{section.heading}</h2> : null}
           {section.paragraphs.map((paragraph) => <p key={paragraph} className={section.tone === "gold" ? "leading-relaxed text-amber-950" : "leading-relaxed text-cyan-50"}>{paragraph}</p>)}
           {section.examples?.length ? <ExampleGrid examples={section.examples} /> : null}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T08:02:24.523Z",
+  "generatedAt": "2026-10-08T10:26:12.251Z",
   "source": "Local development fixtures and route registry. Screens are actual browser captures; fixture content is not production activation evidence.",
   "entries": [
     {
@@ -506,6 +506,38 @@
     {
       "entry": "ing",
       "theme": "light",
+      "device": "desktop",
+      "state": "meaning",
+      "file": "screenshots/ing-light-desktop-meaning.png",
+      "source": "Focused -ing meaning fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "desktop",
+      "state": "scrabble",
+      "file": "screenshots/ing-light-desktop-scrabble.png",
+      "source": "Focused -ing scrabble fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "desktop",
+      "state": "cleaver",
+      "file": "screenshots/ing-light-desktop-cleaver.png",
+      "source": "Focused -ing cleaver fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "desktop",
+      "state": "dictation",
+      "file": "screenshots/ing-light-desktop-dictation.png",
+      "source": "Focused -ing dictation fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
       "device": "mobile",
       "state": "teaching",
       "file": "screenshots/ing-light-mobile-teaching.png",
@@ -518,6 +550,38 @@
       "state": "activity",
       "file": "screenshots/ing-light-mobile-activity.png",
       "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "mobile",
+      "state": "meaning",
+      "file": "screenshots/ing-light-mobile-meaning.png",
+      "source": "Focused -ing meaning fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "mobile",
+      "state": "scrabble",
+      "file": "screenshots/ing-light-mobile-scrabble.png",
+      "source": "Focused -ing scrabble fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "mobile",
+      "state": "cleaver",
+      "file": "screenshots/ing-light-mobile-cleaver.png",
+      "source": "Focused -ing cleaver fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "light",
+      "device": "mobile",
+      "state": "dictation",
+      "file": "screenshots/ing-light-mobile-dictation.png",
+      "source": "Focused -ing dictation fixture"
     },
     {
       "entry": "ing",
@@ -538,6 +602,38 @@
     {
       "entry": "ing",
       "theme": "dark",
+      "device": "desktop",
+      "state": "meaning",
+      "file": "screenshots/ing-dark-desktop-meaning.png",
+      "source": "Focused -ing meaning fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "scrabble",
+      "file": "screenshots/ing-dark-desktop-scrabble.png",
+      "source": "Focused -ing scrabble fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "cleaver",
+      "file": "screenshots/ing-dark-desktop-cleaver.png",
+      "source": "Focused -ing cleaver fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "dictation",
+      "file": "screenshots/ing-dark-desktop-dictation.png",
+      "source": "Focused -ing dictation fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
       "device": "mobile",
       "state": "teaching",
       "file": "screenshots/ing-dark-mobile-teaching.png",
@@ -550,6 +646,38 @@
       "state": "activity",
       "file": "screenshots/ing-dark-mobile-activity.png",
       "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "meaning",
+      "file": "screenshots/ing-dark-mobile-meaning.png",
+      "source": "Focused -ing meaning fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "scrabble",
+      "file": "screenshots/ing-dark-mobile-scrabble.png",
+      "source": "Focused -ing scrabble fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "cleaver",
+      "file": "screenshots/ing-dark-mobile-cleaver.png",
+      "source": "Focused -ing cleaver fixture"
+    },
+    {
+      "entry": "ing",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "dictation",
+      "file": "screenshots/ing-dark-mobile-dictation.png",
+      "source": "Focused -ing dictation fixture"
     },
     {
       "entry": "comparison",

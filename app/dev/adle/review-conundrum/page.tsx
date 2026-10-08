@@ -11,6 +11,6 @@ export default async function ReviewConundrumDevPage({ searchParams }: {
   const params = await searchParams;
   // No persistence gateway, Supabase access or real learner identity.
   return (
-    <div className="mx-auto max-w-6xl"><ReviewConundrumPreview invalid={params.invalid === "1"} /></div>
+    <div className="w-full p-2"><ReviewConundrumPreview invalid={params.invalid === "1"} /></div>
   );
 }

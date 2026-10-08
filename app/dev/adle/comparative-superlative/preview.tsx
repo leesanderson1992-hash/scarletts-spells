@@ -31,8 +31,10 @@ export function ComparativePreview() {
   const [storageError, setStorageError] = useState<string | null>(null);
   function save(next: PreviewState) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); setState(next); } catch { setStorageError("Preview storage is unavailable. Reload/resume cannot be verified."); throw new Error("preview_storage_unavailable"); } }
   if (!mounted || !state) return <p role="status">Preparing the synthetic lesson preview…</p>;
-  return <main className="brand-page min-h-screen px-4 py-6"><div className="mx-auto grid max-w-5xl gap-5">
-    <header className="brand-card grid gap-3 rounded-3xl p-5">
+  return <main className="adle-preview-config brand-page min-h-screen px-2 py-2"><div className="grid w-full gap-2">
+    <details className="adle-preview-settings brand-card rounded-2xl p-3">
+      <summary className="cursor-pointer font-bold">Comparative preview settings</summary>
+    <header className="grid gap-3 p-3">
       <h1 className="text-2xl font-bold">Comparative and superlative ADLE preview</h1>
       <p>Development fixture only. Candidate content is unapproved; no assignments, learner evidence, scheduling or rewards are written.</p>
       <div className="flex flex-wrap items-end gap-3">
@@ -48,6 +50,7 @@ export function ComparativePreview() {
       <p className="text-xs" data-preview-finish-writes={state.finishWrites}>Fixture Finish writes: {state.finishWrites}. Reload retains this frozen lesson and its progress.</p>
       {storageError ? <p role="alert">{storageError}</p> : null}
     </header>
+    </details>
     <ComparativeGuidedLesson key={state.lesson.assignmentKey} lesson={state.lesson} fixtureMode initialProgress={state.progress}
       onProgress={progress => setState(current => {
         if (!current) return current;
