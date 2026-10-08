@@ -706,7 +706,7 @@ export default async function LearnModuleTaskPage({
                       value={scopedCurrentPath}
                     />
                     <StructuredLessonResponseForm
-                      key={`${latestSubmission?.id ?? "draft"}:${latestSubmission?.parent_review_status ?? "draft"}:${latestDraft?.updated_at ?? ""}`}
+                      key={`${task.id}:${selectedChild.id}:${latestSubmission?.id ?? "draft"}:${latestSubmission?.parent_review_status ?? "draft"}`}
                       lesson={structuredLesson}
                       submitLabel={
                         task.task_type === "test"
@@ -724,6 +724,7 @@ export default async function LearnModuleTaskPage({
                         courseId: detail.course.id,
                         childId: selectedChild.id,
                         redirectPath: scopedCurrentPath,
+                        sessionId: `${latestSubmission?.id ?? "draft"}:${latestSubmission?.parent_review_status ?? "draft"}`,
                       }}
                     />
                   </form>
@@ -764,6 +765,7 @@ export default async function LearnModuleTaskPage({
                     courseId: detail.course.id,
                     childId: selectedChild.id,
                     redirectPath: scopedCurrentPath,
+                    sessionId: `${latestSubmission.id}:${latestSubmission.parent_review_status ?? "submitted"}`,
                   }}
                   readOnly
                 />
