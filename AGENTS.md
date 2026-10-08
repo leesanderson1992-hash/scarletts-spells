@@ -21,6 +21,33 @@ disposable fixture, broad migrations, or irreversible action without explicit
 approval. Stop only for unavailable required access or a genuine product
 decision. Keep credentials and raw authentic spelling evidence private.
 
+# Production writing context AI release gate
+
+For every Production release that may run writing context AI, bind provider
+approval to the **exact commit SHA of the deployment being promoted**. An
+approval for an earlier SHA does not cover a new deployment. Record the new
+approval with the matching environment, OpenAI project, model, configuration
+fingerprint, runtime fingerprint, owner and evidence reference. Check that
+the active policy has the intended rate card and spend limits, and that the
+approval and learner authorisations are current and unrevoked.
+
+Keep the database AI control disabled and the recovery scheduler off during
+the release. Build a candidate deployment with its exact
+`CONTEXT_AI_DEPLOYMENT_SHA` and a per-deployment
+`CONTEXT_AI_RELEASE_HOLD=disabled` override. Verify
+its authenticated SHA, runtime and hold readback against the new approval
+before promotion. After promotion, verify the public alias has the same
+readback; only then activate the policy and scheduler for that SHA. Check the
+safety monitor, authenticated recovery response, scheduler delivery and send
+ledger. If a binding or safety check fails, disable AI control and the
+scheduler until corrected.
+
+The project-level Production release hold remains enabled so an automatic
+future deployment pauses AI by default. Each release needs its own verified
+SHA-bound approval and release steps; never copy an old SHA into a new
+deployment to make the checks pass. Production changes still require the
+explicit authority stated above.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
