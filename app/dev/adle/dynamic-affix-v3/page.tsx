@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { canOpenAdleDesignPreview } from "@/lib/adle/design-preview-access";
 
 import type { AdleSessionItem } from "@/lib/adle/loaders/daily-plan-surface";
 import { buildDynamicAffixAssignmentPlan } from "@/lib/adle/morphology/dynamic-affix-assignment-plan";
@@ -10,8 +11,10 @@ import { DynamicAffixV3InteractionFixture } from "./fixture";
 
 const ASSIGNMENT_ID = "dev-dynamic-affix-v3-g7-teaching-pages";
 
+export const dynamic = "force-dynamic";
+
 export function DynamicAffixV3DevFixturePage(props: { packagePath: string; assignmentId: string }) {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!canOpenAdleDesignPreview()) notFound();
   const fixture = loadReviewedAffixPackageFixture(props.packagePath);
   const decision = compileDynamicAffixWordLabDecision(fixture.selection, {
     mode: "shared_authoritative",

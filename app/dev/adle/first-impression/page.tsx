@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
+import { canOpenAdleDesignPreview } from "@/lib/adle/design-preview-access";
 
 import { FirstImpressionAcceptanceFixture } from "./preview";
+
+export const dynamic = "force-dynamic";
 
 export default async function FirstImpressionDevPage(props: {
   searchParams?: Promise<{ pages?: string; stage?: string; locked?: string; teachingPage?: string }>;
 }) {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!canOpenAdleDesignPreview()) notFound();
   const search = await props.searchParams;
   const pageCount = search?.pages === "3" ? 3 : search?.pages === "2" ? 2 : 1;
   const requestedTeachingPage = Number(search?.teachingPage ?? "1");
