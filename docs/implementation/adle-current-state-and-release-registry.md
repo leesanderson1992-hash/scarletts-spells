@@ -9,6 +9,11 @@ It distinguishes historical pilots from routes that can genuinely be selected
 for learners. It does not replace the programme roadmap or teaching-content
 approval records.
 
+Cross-micro-skill natural-production observation is recorded in the
+[ADLE micro-skill production observation ledger](qa/adle-microskill-production-observation-ledger.md).
+That ledger links to evidence; this register remains the authority for release
+and availability state.
+
 The parent-dashboard manual ADLE entry point is implemented as a temporary
 application layer over the existing production curriculum authorities. It
 does not change any route capability state or selector/compiler policy. The

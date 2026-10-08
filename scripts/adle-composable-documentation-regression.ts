@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const architecture = readFileSync(
   "docs/architecture/adle-activity-platform-architecture.md",
@@ -71,6 +71,14 @@ const productionChecklist = readFileSync(
 );
 const prefixVisualQa = readFileSync(
   "docs/implementation/qa/adle-dynamic-prefix-child-visual-qa-checklist.md",
+  "utf8",
+);
+const releaseRegistry = readFileSync(
+  "docs/implementation/adle-current-state-and-release-registry.md",
+  "utf8",
+);
+const observationLedger = readFileSync(
+  "docs/implementation/qa/adle-microskill-production-observation-ledger.md",
   "utf8",
 );
 
@@ -164,6 +172,53 @@ assert(
     prefixVisualQa.includes("D4_MOR_PREFIXES_UN"),
   "all-five human visual QA remains a required staging gate",
 );
+const productionObservationKeys = [
+  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  "D4_MOR_PREFIXES_UN",
+  "D4_MOR_PREFIXES_DIS_MIS",
+  "D4_MOR_PREFIXES_IN_IM_IL_IR",
+  "D4_MOR_PREFIXES_RE_PRE",
+  "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+  "D4_MOR_SUFFIXES_NESS",
+  "D4_MOR_SUFFIXES_ABLE_IBLE",
+  "D4_MOR_SUFFIXES_AL",
+  "D4_MOR_SUFFIXES_OUS",
+  "D4_MOR_SUFFIXES_ITY",
+  "D4_MOR_SUFFIXES_LY",
+  "D4_MOR_SUFFIXES_MENT",
+  "D4_MOR_SUFFIXES_FUL_LESS",
+  "D4_MOR_SUFFIXES_TION",
+  "D4_MOR_SUFFIXES_SION",
+  "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+];
+for (const key of productionObservationKeys) {
+  assert(releaseRegistry.includes(key), `release registry contains ${key}`);
+  assert(observationLedger.includes(`\`${key}\``), `observation ledger contains ${key}`);
+  assert.equal(
+    observationLedger.split(`\`${key}\``).length - 1,
+    1,
+    `observation ledger contains one row for ${key}`,
+  );
+}
+assert(
+  observationLedger.includes("`coverage_complete`; `lifecycle_audit_required`") &&
+    observationLedger.includes("Reviewed base definitions for `natural` and `necessary`") &&
+    observationLedger.includes("Generic-support approval remains outstanding"),
+  "Prefix coverage and lifecycle qualifiers are recorded",
+);
+assert(
+  releaseRegistry.includes("adle-microskill-production-observation-ledger.md") &&
+    observationLedger.includes("`not_applicable`") &&
+    observationLedger.includes("`blocked`"),
+  "registry links the observation ledger and deferred capabilities are not treated as missing coverage",
+);
+for (const [, target] of observationLedger.matchAll(/\]\(([^)]+)\)/g)) {
+  assert(
+    existsSync(`docs/implementation/qa/${target}`) || existsSync(`docs/implementation/${target}`),
+    `observation-ledger link resolves: ${target}`,
+  );
+}
 assert(
   sharedAffixReceipt.includes('"profileCount": 15') &&
     sharedAffixReceipt.includes('"eligibleWordCount": 75') &&
