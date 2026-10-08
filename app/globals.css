@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./adle-presentation.css";
+@import "./adie-theme.css";
 
 :root {
   --scarlett: #f52b91;

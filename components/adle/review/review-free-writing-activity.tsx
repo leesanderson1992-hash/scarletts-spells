@@ -435,8 +435,8 @@ function ChallengeWheel(props: {
 
   return (
     <section className="grid min-w-0 gap-5" aria-label="Writing Challenge selector">
-      <div className="mx-auto grid w-full min-w-0 max-w-md place-items-center review-wheel-stage">
-        <div className="relative aspect-square w-full max-w-[30rem] pt-4">
+      <div className="mx-auto grid w-full min-w-0 max-w-2xl place-items-center review-wheel-stage">
+        <div className="relative aspect-square w-full max-w-[40rem] pt-4">
           <svg
             aria-hidden="true"
             className={`absolute left-1/2 -top-1 z-30 h-12 w-12 -translate-x-1/2 drop-shadow-[0_8px_8px_rgba(34,211,238,0.3)] sm:top-0 sm:h-18 sm:w-18 ${props.spinning ? "review-wheel-pointer-ticking" : ""}`}

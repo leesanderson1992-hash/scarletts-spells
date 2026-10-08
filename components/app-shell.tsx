@@ -84,6 +84,7 @@ function AppShellFrame({
   const activeChildId = requestedChildId && availableChildren.some((child) => child.id === requestedChildId)
     ? requestedChildId : initialChildId;
   const [collapsed, setCollapsed] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [selectedOverride, setSelectedOverride] = useState<{ base: string | null; id: string } | null>(null);
@@ -94,6 +95,11 @@ function AppShellFrame({
   const drawerRef = useRef<HTMLElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
+  useEffect(() => {
+    const saved = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    const frame = requestAnimationFrame(() => setTheme(saved));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   useEffect(() => {
     const frame = requestAnimationFrame(() => setCollapsed(localStorage.getItem("scarlett-sidebar-collapsed") === "true"));
     for (const item of mode === "parent" ? parentNav.slice(0, 3) : childNav.slice(0, 2)) {
@@ -233,6 +239,12 @@ function AppShellFrame({
         <span aria-hidden="true" className="app-wordmark-mark">✧</span><span>Scarlett Spells</span>
       </Link>
       <div className="app-topbar-actions">
+        {currentPath === "/learn/week/adle" ? <button type="button" className="app-theme-toggle" aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`} aria-pressed={theme === "dark"} onClick={() => {
+          const next = theme === "light" ? "dark" : "light";
+          document.documentElement.dataset.theme = next;
+          localStorage.setItem("scarlett-theme-v1", next);
+          setTheme(next);
+        }}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span><span>{theme === "light" ? "Dark" : "Light"} mode</span></button> : null}
         <div className="app-mode-switch" aria-label="Experience mode">
           <Link href={parentHref} prefetch aria-current={mode === "parent" ? "page" : undefined}>Parent Mode</Link>
           <Link href={childHref} prefetch aria-current={mode === "child" ? "page" : undefined}>Child Mode</Link>

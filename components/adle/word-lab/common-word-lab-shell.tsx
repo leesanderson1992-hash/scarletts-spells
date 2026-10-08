@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import type {
@@ -132,7 +133,7 @@ export function CommonWordLabShell(props: {
 
   const atFinishedStage = currentIndex === activities.length - 1 && Boolean(completed[current.activityId]);
   return (
-    <main className="mx-auto grid max-w-4xl gap-5">
+    <main className="adle-presentation generic-word-lab mx-auto grid max-w-4xl gap-5">
       <header className="brand-card grid gap-4 rounded-3xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -151,7 +152,7 @@ export function CommonWordLabShell(props: {
         <div className="h-3 overflow-hidden rounded-full bg-cyan-100" aria-label={`${Object.keys(completed).length} of ${activities.length} activities complete`}>
           <div className="h-full rounded-full bg-cyan-500 transition-[width] motion-reduce:transition-none" style={{ width: `${(Object.keys(completed).length / activities.length) * 100}%` }} />
         </div>
-        {helpVisible ? <p className="rounded-2xl bg-amber-50 p-3 text-sm font-medium text-amber-950">Take your time. Say the word, notice the important part, and try one small step.</p> : null}
+        <div className="adie-inline"><Image src="/adie/adie-head.png" width={86} height={86} alt="Adie, your robot guide" /><p className="adie-inline-bubble"><strong>Adie says</strong>{helpVisible ? "Take your time. Say the word, notice the important part, and try one small step." : "Choose one small step to begin."}</p></div>
       </header>
 
       <section className="brand-card rounded-3xl p-6 sm:p-8">
