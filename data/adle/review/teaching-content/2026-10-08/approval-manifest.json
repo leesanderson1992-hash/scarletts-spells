@@ -4,7 +4,7 @@
   "sourceFile": "source-draft.csv",
   "sourceSha256": "5c98d023aebcf52c5a342d704b1fe3310d1179de0c250852cf3e59ed15a32bb9",
   "normalizedFile": "approved-normalized.csv",
-  "normalizedSha256": "0ce55c5a6bb531f94e4a9da542b34835faad747f612d96645ba92f035ab95a47",
+  "normalizedSha256": "d317340efda589e6d959f2d2061a7d79d16c5e0a9fa0623d98ad49e04d64b4f8",
   "approvedBy": "Katie Sanderson",
   "approvedAt": "2026-10-08T21:48:06Z",
   "approvalReference": "Codex conversation: approval of the attached five-row teaching-content draft for production import",
@@ -18,15 +18,25 @@
   ],
   "duplicateColumnsRemoved": 42,
   "sourceRuntimeEligible": false,
-  "importStatus": "blocked_no_supported_word_specific_runtime_import_path",
+  "importStatus": "approved_metadata_uploaded_to_production_pending_runtime_support",
   "rowBlockers": {
-    "ingredients": [
-      "blocking_morphology_route_mismatch",
-      "requires_governed_micro_skill_mapping_review"
-    ],
     "responsible": [
       "source_intro_rule_requires_qualification_as_heuristic"
     ]
   },
-  "normalizedStatus": "content_owner_approved; runtimeEligible=false pending governed importer"
+  "normalizedStatus": "content_owner_approved; runtimeEligible=false pending governed importer",
+  "routingCorrection": {
+    "word": "ingredients",
+    "previousMicroSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+    "approvedMicroSkillKey": "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+    "approvedBy": "Katie Sanderson",
+    "approvalReference": "Codex conversation, 2026-10-08: change to Preserve base words before suffixes"
+  },
+  "productionImport": {
+    "table": "public.adle_word_teaching_content_submissions",
+    "packageSha256": "d317340efda589e6d959f2d2061a7d79d16c5e0a9fa0623d98ad49e04d64b4f8",
+    "rowCount": 5,
+    "runtimeStatus": "pending_runtime_support",
+    "verifiedOn": "2026-10-08"
+  }
 }
