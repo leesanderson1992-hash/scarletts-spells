@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const lessons = [
   { name: "Generic Word Lab", href: "/dev/adle/common-word-lab", detail: "Generic composer experience" },
-  { name: "Prefix Word Lab", href: "/dev/adle/first-impression?pages=3", detail: "Teach, build, check, reflect and finish" },
+  { name: "Prefix Word Lab", href: "/dev/adle/prefix-word-lab", detail: "Four-word lesson: discover, split, sort, build, cover, dictate and reflect" },
   { name: "Suffix Word Lab", href: "/dev/adle/dynamic-affix-v3", detail: "The reviewed -ment lesson" },
   { name: "Base word families", href: "/dev/adle/base-word-family", detail: "Build words from a base" },
   { name: "Compound words", href: "/dev/adle/compound-word", detail: "Combine two words" },

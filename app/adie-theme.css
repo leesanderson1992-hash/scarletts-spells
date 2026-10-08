@@ -193,6 +193,10 @@
 .app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) > :has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
 .app-shell.focus-layout form:has(> .word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
 .adle-preview-stack .word-lab-scene { height: calc(100dvh - 90px); }
+.prefix-preview-stack .word-lab-scene { height: calc(100dvh - 126px); }
+.prefix-family-link { background: var(--adie-surface); border-color: var(--adie-line); color: var(--adie-ink); }
+.prefix-family-link:hover, .prefix-family-link[aria-current="page"] { background: var(--adie-pink); border-color: var(--adie-pink); color: #fff; }
+:root[data-theme="dark"] .prefix-family-link[aria-current="page"] { color: #1b1021; }
 .adle-preview-settings > header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
 .adle-preview-settings > header h1 { font-size: 1rem; }
 .adle-preview-settings > header p { max-width: 45ch; font-size: .72rem; }

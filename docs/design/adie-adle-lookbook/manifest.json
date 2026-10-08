@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T15:03:13.651Z",
+  "generatedAt": "2026-10-08T16:28:34.108Z",
   "source": "Local development fixtures and route registry. Screens are actual browser captures; fixture content is not production activation evidence.",
   "entries": [
     {
@@ -12,16 +12,57 @@
     },
     {
       "id": "prefix",
-      "name": "Prefix Word Lab",
+      "name": "Prefix Word Lab: un-",
       "route": "dynamic_prefix_word_lab",
-      "url": "/dev/adle/first-impression?pages=3",
-      "note": "First Impression prefix fixture using the shared specialist lesson shell.",
+      "url": "/dev/adle/prefix-word-lab?family=un",
+      "note": "Reviewed four-word un- package in the active learner lesson. Includes Discover, Cleaver Split, Meaning Sort, Build, Cover, Dictation and Reflection.",
+      "microSkill": "D4_MOR_PREFIXES_UN",
       "microSkills": [
-        "D4_MOR_PREFIXES_DIS_MIS",
-        "D4_MOR_PREFIXES_IN_IM_IL_IR",
-        "D4_MOR_PREFIXES_RE_PRE",
-        "D4_MOR_PREFIXES_SUB_INTER_SUPER",
         "D4_MOR_PREFIXES_UN"
+      ]
+    },
+    {
+      "id": "prefix-dis-mis",
+      "name": "Prefix Word Lab: dis- / mis-",
+      "route": "dynamic_prefix_word_lab",
+      "url": "/dev/adle/prefix-word-lab?family=dis-mis",
+      "note": "Reviewed dis- / mis- package in the active four-word lesson.",
+      "microSkill": "D4_MOR_PREFIXES_DIS_MIS",
+      "microSkills": [
+        "D4_MOR_PREFIXES_DIS_MIS"
+      ]
+    },
+    {
+      "id": "prefix-in-family",
+      "name": "Prefix Word Lab: in- / im- / il- / ir-",
+      "route": "dynamic_prefix_word_lab",
+      "url": "/dev/adle/prefix-word-lab?family=in-family",
+      "note": "Reviewed in- family package with its extra Split and Build rounds.",
+      "microSkill": "D4_MOR_PREFIXES_IN_IM_IL_IR",
+      "microSkills": [
+        "D4_MOR_PREFIXES_IN_IM_IL_IR"
+      ]
+    },
+    {
+      "id": "prefix-re-pre",
+      "name": "Prefix Word Lab: re- / pre-",
+      "route": "dynamic_prefix_word_lab",
+      "url": "/dev/adle/prefix-word-lab?family=re-pre",
+      "note": "Reviewed re- / pre- package in the active four-word lesson.",
+      "microSkill": "D4_MOR_PREFIXES_RE_PRE",
+      "microSkills": [
+        "D4_MOR_PREFIXES_RE_PRE"
+      ]
+    },
+    {
+      "id": "prefix-sub-inter-super",
+      "name": "Prefix Word Lab: sub- / inter- / super-",
+      "route": "dynamic_prefix_word_lab",
+      "url": "/dev/adle/prefix-word-lab?family=sub-inter-super",
+      "note": "Reviewed sub- / inter- / super- package with three Split rounds.",
+      "microSkill": "D4_MOR_PREFIXES_SUB_INTER_SUPER",
+      "microSkills": [
+        "D4_MOR_PREFIXES_SUB_INTER_SUPER"
       ]
     },
     {
@@ -141,7 +182,7 @@
       "device": "desktop",
       "state": "teaching",
       "file": "screenshots/prefix-light-desktop-teaching.png",
-      "source": "/dev/adle/first-impression?pages=3"
+      "source": "/dev/adle/prefix-word-lab?family=un"
     },
     {
       "entry": "prefix",
@@ -149,7 +190,7 @@
       "device": "desktop",
       "state": "activity",
       "file": "screenshots/prefix-light-desktop-activity.png",
-      "source": "/dev/adle/first-impression?stage=activity"
+      "source": "First activity after teaching in local lesson fixture"
     },
     {
       "entry": "prefix",
@@ -157,7 +198,55 @@
       "device": "desktop",
       "state": "feedback",
       "file": "screenshots/prefix-light-desktop-feedback.png",
-      "source": "Interaction in prefix build fixture"
+      "source": "Correct meaning feedback in active prefix lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "cleaver",
+      "file": "screenshots/prefix-light-desktop-cleaver.png",
+      "source": "Prefix boundary activity in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "cleaver-feedback",
+      "file": "screenshots/prefix-light-desktop-cleaver-feedback.png",
+      "source": "Correct prefix split feedback"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "meaning",
+      "file": "screenshots/prefix-light-desktop-meaning.png",
+      "source": "Prefix Meaning Sort in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "build",
+      "file": "screenshots/prefix-light-desktop-build.png",
+      "source": "Prefix Build in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "cover",
+      "file": "screenshots/prefix-light-desktop-cover.png",
+      "source": "Prefix Cover Check in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "desktop",
+      "state": "dictation",
+      "file": "screenshots/prefix-light-desktop-dictation.png",
+      "source": "Prefix sentence dictation in active lesson"
     },
     {
       "entry": "prefix",
@@ -165,7 +254,7 @@
       "device": "desktop",
       "state": "reflection",
       "file": "screenshots/prefix-light-desktop-reflection.png",
-      "source": "/dev/adle/first-impression?stage=reflection"
+      "source": "Prefix reflection in active lesson"
     },
     {
       "entry": "prefix",
@@ -173,7 +262,7 @@
       "device": "desktop",
       "state": "ending",
       "file": "screenshots/prefix-light-desktop-ending.png",
-      "source": "Completion of local First Impression fixture"
+      "source": "Local completion; no lesson result submitted"
     },
     {
       "entry": "prefix",
@@ -181,7 +270,7 @@
       "device": "mobile",
       "state": "teaching",
       "file": "screenshots/prefix-light-mobile-teaching.png",
-      "source": "/dev/adle/first-impression?pages=3"
+      "source": "/dev/adle/prefix-word-lab?family=un"
     },
     {
       "entry": "prefix",
@@ -189,7 +278,7 @@
       "device": "mobile",
       "state": "activity",
       "file": "screenshots/prefix-light-mobile-activity.png",
-      "source": "/dev/adle/first-impression?stage=activity"
+      "source": "First activity after teaching in local lesson fixture"
     },
     {
       "entry": "prefix",
@@ -197,7 +286,55 @@
       "device": "mobile",
       "state": "feedback",
       "file": "screenshots/prefix-light-mobile-feedback.png",
-      "source": "Interaction in prefix build fixture"
+      "source": "Correct meaning feedback in active prefix lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "cleaver",
+      "file": "screenshots/prefix-light-mobile-cleaver.png",
+      "source": "Prefix boundary activity in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "cleaver-feedback",
+      "file": "screenshots/prefix-light-mobile-cleaver-feedback.png",
+      "source": "Correct prefix split feedback"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "meaning",
+      "file": "screenshots/prefix-light-mobile-meaning.png",
+      "source": "Prefix Meaning Sort in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "build",
+      "file": "screenshots/prefix-light-mobile-build.png",
+      "source": "Prefix Build in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "cover",
+      "file": "screenshots/prefix-light-mobile-cover.png",
+      "source": "Prefix Cover Check in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "light",
+      "device": "mobile",
+      "state": "dictation",
+      "file": "screenshots/prefix-light-mobile-dictation.png",
+      "source": "Prefix sentence dictation in active lesson"
     },
     {
       "entry": "prefix",
@@ -205,7 +342,7 @@
       "device": "mobile",
       "state": "reflection",
       "file": "screenshots/prefix-light-mobile-reflection.png",
-      "source": "/dev/adle/first-impression?stage=reflection"
+      "source": "Prefix reflection in active lesson"
     },
     {
       "entry": "prefix",
@@ -213,7 +350,7 @@
       "device": "mobile",
       "state": "ending",
       "file": "screenshots/prefix-light-mobile-ending.png",
-      "source": "Completion of local First Impression fixture"
+      "source": "Local completion; no lesson result submitted"
     },
     {
       "entry": "prefix",
@@ -221,7 +358,7 @@
       "device": "desktop",
       "state": "teaching",
       "file": "screenshots/prefix-dark-desktop-teaching.png",
-      "source": "/dev/adle/first-impression?pages=3"
+      "source": "/dev/adle/prefix-word-lab?family=un"
     },
     {
       "entry": "prefix",
@@ -229,7 +366,7 @@
       "device": "desktop",
       "state": "activity",
       "file": "screenshots/prefix-dark-desktop-activity.png",
-      "source": "/dev/adle/first-impression?stage=activity"
+      "source": "First activity after teaching in local lesson fixture"
     },
     {
       "entry": "prefix",
@@ -237,7 +374,55 @@
       "device": "desktop",
       "state": "feedback",
       "file": "screenshots/prefix-dark-desktop-feedback.png",
-      "source": "Interaction in prefix build fixture"
+      "source": "Correct meaning feedback in active prefix lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "cleaver",
+      "file": "screenshots/prefix-dark-desktop-cleaver.png",
+      "source": "Prefix boundary activity in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "cleaver-feedback",
+      "file": "screenshots/prefix-dark-desktop-cleaver-feedback.png",
+      "source": "Correct prefix split feedback"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "meaning",
+      "file": "screenshots/prefix-dark-desktop-meaning.png",
+      "source": "Prefix Meaning Sort in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "build",
+      "file": "screenshots/prefix-dark-desktop-build.png",
+      "source": "Prefix Build in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "cover",
+      "file": "screenshots/prefix-dark-desktop-cover.png",
+      "source": "Prefix Cover Check in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "dictation",
+      "file": "screenshots/prefix-dark-desktop-dictation.png",
+      "source": "Prefix sentence dictation in active lesson"
     },
     {
       "entry": "prefix",
@@ -245,7 +430,7 @@
       "device": "desktop",
       "state": "reflection",
       "file": "screenshots/prefix-dark-desktop-reflection.png",
-      "source": "/dev/adle/first-impression?stage=reflection"
+      "source": "Prefix reflection in active lesson"
     },
     {
       "entry": "prefix",
@@ -253,7 +438,7 @@
       "device": "desktop",
       "state": "ending",
       "file": "screenshots/prefix-dark-desktop-ending.png",
-      "source": "Completion of local First Impression fixture"
+      "source": "Local completion; no lesson result submitted"
     },
     {
       "entry": "prefix",
@@ -261,7 +446,7 @@
       "device": "mobile",
       "state": "teaching",
       "file": "screenshots/prefix-dark-mobile-teaching.png",
-      "source": "/dev/adle/first-impression?pages=3"
+      "source": "/dev/adle/prefix-word-lab?family=un"
     },
     {
       "entry": "prefix",
@@ -269,7 +454,7 @@
       "device": "mobile",
       "state": "activity",
       "file": "screenshots/prefix-dark-mobile-activity.png",
-      "source": "/dev/adle/first-impression?stage=activity"
+      "source": "First activity after teaching in local lesson fixture"
     },
     {
       "entry": "prefix",
@@ -277,7 +462,55 @@
       "device": "mobile",
       "state": "feedback",
       "file": "screenshots/prefix-dark-mobile-feedback.png",
-      "source": "Interaction in prefix build fixture"
+      "source": "Correct meaning feedback in active prefix lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "cleaver",
+      "file": "screenshots/prefix-dark-mobile-cleaver.png",
+      "source": "Prefix boundary activity in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "cleaver-feedback",
+      "file": "screenshots/prefix-dark-mobile-cleaver-feedback.png",
+      "source": "Correct prefix split feedback"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "meaning",
+      "file": "screenshots/prefix-dark-mobile-meaning.png",
+      "source": "Prefix Meaning Sort in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "build",
+      "file": "screenshots/prefix-dark-mobile-build.png",
+      "source": "Prefix Build in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "cover",
+      "file": "screenshots/prefix-dark-mobile-cover.png",
+      "source": "Prefix Cover Check in active lesson"
+    },
+    {
+      "entry": "prefix",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "dictation",
+      "file": "screenshots/prefix-dark-mobile-dictation.png",
+      "source": "Prefix sentence dictation in active lesson"
     },
     {
       "entry": "prefix",
@@ -285,7 +518,7 @@
       "device": "mobile",
       "state": "reflection",
       "file": "screenshots/prefix-dark-mobile-reflection.png",
-      "source": "/dev/adle/first-impression?stage=reflection"
+      "source": "Prefix reflection in active lesson"
     },
     {
       "entry": "prefix",
@@ -293,7 +526,263 @@
       "device": "mobile",
       "state": "ending",
       "file": "screenshots/prefix-dark-mobile-ending.png",
-      "source": "Completion of local First Impression fixture"
+      "source": "Local completion; no lesson result submitted"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "light",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-dis-mis-light-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=dis-mis"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "light",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-dis-mis-light-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "light",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-dis-mis-light-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=dis-mis"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "light",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-dis-mis-light-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-dis-mis-dark-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=dis-mis"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-dis-mis-dark-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-dis-mis-dark-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=dis-mis"
+    },
+    {
+      "entry": "prefix-dis-mis",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-dis-mis-dark-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "light",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-in-family-light-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=in-family"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "light",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-in-family-light-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "light",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-in-family-light-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=in-family"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "light",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-in-family-light-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-in-family-dark-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=in-family"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-in-family-dark-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-in-family-dark-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=in-family"
+    },
+    {
+      "entry": "prefix-in-family",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-in-family-dark-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "light",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-re-pre-light-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=re-pre"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "light",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-re-pre-light-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "light",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-re-pre-light-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=re-pre"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "light",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-re-pre-light-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-re-pre-dark-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=re-pre"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-re-pre-dark-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-re-pre-dark-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=re-pre"
+    },
+    {
+      "entry": "prefix-re-pre",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-re-pre-dark-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "light",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-sub-inter-super-light-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=sub-inter-super"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "light",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-sub-inter-super-light-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "light",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-sub-inter-super-light-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=sub-inter-super"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "light",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-sub-inter-super-light-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "teaching",
+      "file": "screenshots/prefix-sub-inter-super-dark-desktop-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=sub-inter-super"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "dark",
+      "device": "desktop",
+      "state": "activity",
+      "file": "screenshots/prefix-sub-inter-super-dark-desktop-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "teaching",
+      "file": "screenshots/prefix-sub-inter-super-dark-mobile-teaching.png",
+      "source": "/dev/adle/prefix-word-lab?family=sub-inter-super"
+    },
+    {
+      "entry": "prefix-sub-inter-super",
+      "theme": "dark",
+      "device": "mobile",
+      "state": "activity",
+      "file": "screenshots/prefix-sub-inter-super-dark-mobile-activity.png",
+      "source": "First activity after teaching in local lesson fixture"
     },
     {
       "entry": "suffix",
