@@ -1,0 +1,13 @@
+{
+  "prompt_key": "CONUNDRUM-YXMchZeXnXw",
+  "youtube_video_id": "YXMchZeXnXw",
+  "source_kind": "explicit_user_message",
+  "approval_reference": "user-water-question-supplied-2026-08-26",
+  "approval_context": "User supplied the missing learner question in response to the clarification following their content sign-off.",
+  "supplied_by": "user",
+  "supplied_on": "2026-08-26",
+  "prompt_text": "At the moment, no one outside the researchers and the people of the Astra Mountains knows about it. So what should happen next?\n\nOption A: Silence — Allow the people of the Astra Mountains to continue drinking their water and do not share the research findings.\n\nOption B: Share - publish the findings to the wider world.\n\nWhat do you think should happen with the discovery of the water? Are you team Silence or team Share?",
+  "normalisation": "Presentation-only HTML space entities and the trailing Markdown line-break marker omitted; wording, options and punctuation preserved.",
+  "authorises_database_write": false,
+  "authorises_rollout_activation": false
+}

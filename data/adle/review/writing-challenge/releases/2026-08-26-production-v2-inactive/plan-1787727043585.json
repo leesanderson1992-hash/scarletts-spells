@@ -1,0 +1,405 @@
+{
+  "authorisationReference": "user-production-v2-inactive-release-2026-08-26",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "releaseReference": "adle-review-writing-challenge-2026-08-26-v2",
+  "packageSha256": "9b53410602db3facb5addc3cf44486d815f323617de56bc8c27f22c9d4f525a6",
+  "manifestSha256": "8baac80c2d3498a4dc4b90ad82a82d1f0ef764c86714e2cb356b5e629eed71d3",
+  "operationalPayloadSha256": "eb3f4fe326d4db140f614efbbc4f6b75a5d1571f2c9baca962ca5e231a8e4a73",
+  "sourceGitHead": "1f4e687157ab767faa88417e68b0953828f577e0",
+  "runnerSha256": "a58e908f32611e7f48873a6bb7c99bc0c5f618d5f4263c66e799a033af0f8a28",
+  "mode": "plan",
+  "transaction_id": "186760",
+  "observed_at": "2026-08-26 06:50:43.562972+00",
+  "before": {
+    "protected": {
+      "adle_review_bundles": {
+        "row_count": 18,
+        "digest": "ec44d3d0002038df2e4c4b465b4564aacae83056a04904ccf005061721053a9e"
+      },
+      "adle_review_completion_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_memory_cue_versions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_event_routes": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_events": {
+        "row_count": 3,
+        "digest": "e43e0a30ba58c290b463c84802fa44081e0599e2ec88558bf25f9f26ed04f803"
+      },
+      "adle_review_policy_versions": {
+        "row_count": 1,
+        "digest": "342b27f46c4a50886b6c4b5324734539240b5c86527e9691db57fd219da89886"
+      },
+      "adle_review_r6_approval_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_authority_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_child_rollouts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_repair_attempts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_schedule_word_routes": {
+        "row_count": 45,
+        "digest": "4cb8a86b90d4af8e65a0048b36f407653f2f55fb6368787af0848862a75cbbb4"
+      },
+      "adle_review_schedule_words": {
+        "row_count": 48,
+        "digest": "db3e43ad9a3b53764129f28aff84d6e22162ee23f9daeb9bbdaf85646c755b93"
+      },
+      "adle_review_sessions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_starter_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_transition_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_word_encounters": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_specialist_stage_checkpoints": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_today_session_orchestrations": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "assignment_items": {
+        "row_count": 438,
+        "digest": "e37c98d7ab66602adf875d13d7664099b0fe7712c5fe51899755178b26af1db4"
+      },
+      "daily_assignments": {
+        "row_count": 172,
+        "digest": "6a7f6629f9a328025487479a28b8010f911548bfe1726b8aa377fcfbf41bda13"
+      }
+    },
+    "promptTable": {
+      "row_count": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "schemaFingerprint": "26243c8c6c785985d807dc38718c95cb38d7238e1d17ab1060f604cb20cf0878",
+    "active_rollouts": 0,
+    "selectable_prompts": 0,
+    "existingExactRows": 0,
+    "missingKeys": [
+      "REFLECTION-01",
+      "REFLECTION-02",
+      "REFLECTION-03",
+      "REFLECTION-04",
+      "REFLECTION-05",
+      "REFLECTION-06",
+      "REFLECTION-07",
+      "REFLECTION-08",
+      "STORY-01",
+      "STORY-02",
+      "STORY-03",
+      "STORY-04",
+      "STORY-05",
+      "STORY-06",
+      "STORY-07",
+      "STORY-08",
+      "STORY-09",
+      "STORY-10",
+      "FU-01",
+      "FU-02",
+      "FU-03",
+      "FU-04",
+      "FU-05",
+      "FU-06",
+      "FU-07",
+      "FU-08",
+      "PERSUADE-01",
+      "PERSUADE-02",
+      "PERSUADE-03",
+      "PERSUADE-04",
+      "PERSUADE-05",
+      "PERSUADE-06",
+      "PERSUADE-07",
+      "PERSUADE-08",
+      "PERSUADE-09",
+      "PERSUADE-10",
+      "CONUNDRUM-HRwmYoORRWE",
+      "CONUNDRUM-1f5CiGI6s9g",
+      "CONUNDRUM-DinQFr-PuI4",
+      "CONUNDRUM-o_P1Qrzy1pQ",
+      "CONUNDRUM-1907ZOEKKZ0",
+      "CONUNDRUM-x1QhqwhSJYk",
+      "CONUNDRUM-weHuszV63yI",
+      "CONUNDRUM-qt02CnWVXag",
+      "CONUNDRUM-wPzsfS_BcVM",
+      "CONUNDRUM-mUB5NonUIkc",
+      "CONUNDRUM-QGnunFDoMZ4",
+      "CONUNDRUM-EK7UZ1A1z80",
+      "CONUNDRUM-fgimH8QDlRY",
+      "CONUNDRUM-JRww42hpZnw",
+      "CONUNDRUM-GeUO1k_sz_I",
+      "CONUNDRUM-WmbbV4ZLwu4",
+      "CONUNDRUM-scdxD2z6_jU",
+      "CONUNDRUM-Dp3vh18pVu4",
+      "CONUNDRUM-62z7VHnHKWI",
+      "CONUNDRUM-wdKlx2hFQo8",
+      "CONUNDRUM-3rYKBq1prUw",
+      "CONUNDRUM-I9qlNUlcrxk",
+      "CONUNDRUM-RczCZO6Irb0",
+      "CONUNDRUM-uvAdmPgALDg",
+      "CONUNDRUM-w_fn1JTvY5c",
+      "CONUNDRUM-x5rcikHTsgA",
+      "CONUNDRUM-_HoaznEUe9E",
+      "CONUNDRUM-CrnPHt9eJlk",
+      "CONUNDRUM-Xj8skhzukUU",
+      "CONUNDRUM-D1hBEGOdy70",
+      "CONUNDRUM-blY2y3Kw37I",
+      "CONUNDRUM-POoJO0d17vg",
+      "CONUNDRUM-mOwclvn_pt8",
+      "CONUNDRUM-2QcnAehFwR4",
+      "CONUNDRUM-n9u2S9kBKhk",
+      "CONUNDRUM-Ldhp6NKPGA4",
+      "CONUNDRUM-aOZNgX58ajA",
+      "CONUNDRUM-qCpZgLUM-P4",
+      "CONUNDRUM-qjlGNg7KTZY",
+      "CONUNDRUM-rPLxSY_a7L8",
+      "CONUNDRUM-sHowFBVYCwE",
+      "CONUNDRUM-swa-_lP9_s4",
+      "CONUNDRUM-ubdRR--xMHI",
+      "CONUNDRUM-k_GGomlR2X0",
+      "CONUNDRUM-9iZNgBHPo7I",
+      "CONUNDRUM-0AMfLzmzDVc",
+      "CONUNDRUM-gVFigIB20Cs",
+      "CONUNDRUM-F4erkGNGsTQ",
+      "CONUNDRUM-N9jxv0U1Ax0",
+      "CONUNDRUM-vJ2HCfS_Ooc",
+      "CONUNDRUM-q032SH6PnOA",
+      "CONUNDRUM--y2tlZV45tE",
+      "CONUNDRUM-_xlnpupe-58",
+      "CONUNDRUM-0pnwUXgeqeE",
+      "CONUNDRUM-3I8mTZsWHXM",
+      "CONUNDRUM-M2ie5hj-m64",
+      "CONUNDRUM-TMfsb6Z9ssE",
+      "CONUNDRUM-hQ882EmZc1E",
+      "CONUNDRUM-5RwD6HJyN8Y",
+      "CONUNDRUM-Me0L567tTSE",
+      "CONUNDRUM-DKJdpOAWxP0",
+      "CONUNDRUM-Iw5NFiJff0Q"
+    ]
+  },
+  "after": {
+    "protected": {
+      "adle_review_bundles": {
+        "row_count": 18,
+        "digest": "ec44d3d0002038df2e4c4b465b4564aacae83056a04904ccf005061721053a9e"
+      },
+      "adle_review_completion_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_memory_cue_versions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_event_routes": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_events": {
+        "row_count": 3,
+        "digest": "e43e0a30ba58c290b463c84802fa44081e0599e2ec88558bf25f9f26ed04f803"
+      },
+      "adle_review_policy_versions": {
+        "row_count": 1,
+        "digest": "342b27f46c4a50886b6c4b5324734539240b5c86527e9691db57fd219da89886"
+      },
+      "adle_review_r6_approval_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_authority_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_child_rollouts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_repair_attempts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_schedule_word_routes": {
+        "row_count": 45,
+        "digest": "4cb8a86b90d4af8e65a0048b36f407653f2f55fb6368787af0848862a75cbbb4"
+      },
+      "adle_review_schedule_words": {
+        "row_count": 48,
+        "digest": "db3e43ad9a3b53764129f28aff84d6e22162ee23f9daeb9bbdaf85646c755b93"
+      },
+      "adle_review_sessions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_starter_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_transition_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_word_encounters": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_specialist_stage_checkpoints": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_today_session_orchestrations": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "assignment_items": {
+        "row_count": 438,
+        "digest": "e37c98d7ab66602adf875d13d7664099b0fe7712c5fe51899755178b26af1db4"
+      },
+      "daily_assignments": {
+        "row_count": 172,
+        "digest": "6a7f6629f9a328025487479a28b8010f911548bfe1726b8aa377fcfbf41bda13"
+      }
+    },
+    "promptTable": {
+      "row_count": 0,
+      "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "schemaFingerprint": "26243c8c6c785985d807dc38718c95cb38d7238e1d17ab1060f604cb20cf0878",
+    "active_rollouts": 0,
+    "selectable_prompts": 0,
+    "existingExactRows": 0,
+    "missingKeys": [
+      "REFLECTION-01",
+      "REFLECTION-02",
+      "REFLECTION-03",
+      "REFLECTION-04",
+      "REFLECTION-05",
+      "REFLECTION-06",
+      "REFLECTION-07",
+      "REFLECTION-08",
+      "STORY-01",
+      "STORY-02",
+      "STORY-03",
+      "STORY-04",
+      "STORY-05",
+      "STORY-06",
+      "STORY-07",
+      "STORY-08",
+      "STORY-09",
+      "STORY-10",
+      "FU-01",
+      "FU-02",
+      "FU-03",
+      "FU-04",
+      "FU-05",
+      "FU-06",
+      "FU-07",
+      "FU-08",
+      "PERSUADE-01",
+      "PERSUADE-02",
+      "PERSUADE-03",
+      "PERSUADE-04",
+      "PERSUADE-05",
+      "PERSUADE-06",
+      "PERSUADE-07",
+      "PERSUADE-08",
+      "PERSUADE-09",
+      "PERSUADE-10",
+      "CONUNDRUM-HRwmYoORRWE",
+      "CONUNDRUM-1f5CiGI6s9g",
+      "CONUNDRUM-DinQFr-PuI4",
+      "CONUNDRUM-o_P1Qrzy1pQ",
+      "CONUNDRUM-1907ZOEKKZ0",
+      "CONUNDRUM-x1QhqwhSJYk",
+      "CONUNDRUM-weHuszV63yI",
+      "CONUNDRUM-qt02CnWVXag",
+      "CONUNDRUM-wPzsfS_BcVM",
+      "CONUNDRUM-mUB5NonUIkc",
+      "CONUNDRUM-QGnunFDoMZ4",
+      "CONUNDRUM-EK7UZ1A1z80",
+      "CONUNDRUM-fgimH8QDlRY",
+      "CONUNDRUM-JRww42hpZnw",
+      "CONUNDRUM-GeUO1k_sz_I",
+      "CONUNDRUM-WmbbV4ZLwu4",
+      "CONUNDRUM-scdxD2z6_jU",
+      "CONUNDRUM-Dp3vh18pVu4",
+      "CONUNDRUM-62z7VHnHKWI",
+      "CONUNDRUM-wdKlx2hFQo8",
+      "CONUNDRUM-3rYKBq1prUw",
+      "CONUNDRUM-I9qlNUlcrxk",
+      "CONUNDRUM-RczCZO6Irb0",
+      "CONUNDRUM-uvAdmPgALDg",
+      "CONUNDRUM-w_fn1JTvY5c",
+      "CONUNDRUM-x5rcikHTsgA",
+      "CONUNDRUM-_HoaznEUe9E",
+      "CONUNDRUM-CrnPHt9eJlk",
+      "CONUNDRUM-Xj8skhzukUU",
+      "CONUNDRUM-D1hBEGOdy70",
+      "CONUNDRUM-blY2y3Kw37I",
+      "CONUNDRUM-POoJO0d17vg",
+      "CONUNDRUM-mOwclvn_pt8",
+      "CONUNDRUM-2QcnAehFwR4",
+      "CONUNDRUM-n9u2S9kBKhk",
+      "CONUNDRUM-Ldhp6NKPGA4",
+      "CONUNDRUM-aOZNgX58ajA",
+      "CONUNDRUM-qCpZgLUM-P4",
+      "CONUNDRUM-qjlGNg7KTZY",
+      "CONUNDRUM-rPLxSY_a7L8",
+      "CONUNDRUM-sHowFBVYCwE",
+      "CONUNDRUM-swa-_lP9_s4",
+      "CONUNDRUM-ubdRR--xMHI",
+      "CONUNDRUM-k_GGomlR2X0",
+      "CONUNDRUM-9iZNgBHPo7I",
+      "CONUNDRUM-0AMfLzmzDVc",
+      "CONUNDRUM-gVFigIB20Cs",
+      "CONUNDRUM-F4erkGNGsTQ",
+      "CONUNDRUM-N9jxv0U1Ax0",
+      "CONUNDRUM-vJ2HCfS_Ooc",
+      "CONUNDRUM-q032SH6PnOA",
+      "CONUNDRUM--y2tlZV45tE",
+      "CONUNDRUM-_xlnpupe-58",
+      "CONUNDRUM-0pnwUXgeqeE",
+      "CONUNDRUM-3I8mTZsWHXM",
+      "CONUNDRUM-M2ie5hj-m64",
+      "CONUNDRUM-TMfsb6Z9ssE",
+      "CONUNDRUM-hQ882EmZc1E",
+      "CONUNDRUM-5RwD6HJyN8Y",
+      "CONUNDRUM-Me0L567tTSE",
+      "CONUNDRUM-DKJdpOAWxP0",
+      "CONUNDRUM-Iw5NFiJff0Q"
+    ]
+  },
+  "planSha256": "7cf684bc5a8a39ffe1779da8adbfe6045bacf9da61776d6caf348bc8815d5d82",
+  "insertedRows": 0,
+  "rows": [],
+  "protectedStateUnchanged": true,
+  "reviewV3ActiveRollouts": 0,
+  "mutationCommitted": false,
+  "transactionDisposition": "rolled_back",
+  "independentReadback": null
+}

@@ -1,0 +1,992 @@
+{
+  "authorisationReference": "user-production-v2-inactive-release-2026-08-26",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "releaseReference": "adle-review-writing-challenge-2026-08-26-v2",
+  "packageSha256": "9b53410602db3facb5addc3cf44486d815f323617de56bc8c27f22c9d4f525a6",
+  "manifestSha256": "8baac80c2d3498a4dc4b90ad82a82d1f0ef764c86714e2cb356b5e629eed71d3",
+  "operationalPayloadSha256": "eb3f4fe326d4db140f614efbbc4f6b75a5d1571f2c9baca962ca5e231a8e4a73",
+  "sourceGitHead": "1f4e687157ab767faa88417e68b0953828f577e0",
+  "runnerSha256": "a3d39d4ae3b79624b440f8b131681321feb24706d2ddbb4bf23d053699378a9c",
+  "mode": "verify",
+  "transaction_id": "186765",
+  "observed_at": "2026-08-26 06:52:00.15692+00",
+  "before": {
+    "protected": {
+      "adle_review_bundles": {
+        "row_count": 18,
+        "digest": "ec44d3d0002038df2e4c4b465b4564aacae83056a04904ccf005061721053a9e"
+      },
+      "adle_review_completion_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_memory_cue_versions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_event_routes": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_events": {
+        "row_count": 3,
+        "digest": "e43e0a30ba58c290b463c84802fa44081e0599e2ec88558bf25f9f26ed04f803"
+      },
+      "adle_review_policy_versions": {
+        "row_count": 1,
+        "digest": "342b27f46c4a50886b6c4b5324734539240b5c86527e9691db57fd219da89886"
+      },
+      "adle_review_r6_approval_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_authority_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_child_rollouts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_repair_attempts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_schedule_word_routes": {
+        "row_count": 45,
+        "digest": "4cb8a86b90d4af8e65a0048b36f407653f2f55fb6368787af0848862a75cbbb4"
+      },
+      "adle_review_schedule_words": {
+        "row_count": 48,
+        "digest": "db3e43ad9a3b53764129f28aff84d6e22162ee23f9daeb9bbdaf85646c755b93"
+      },
+      "adle_review_sessions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_starter_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_transition_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_word_encounters": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_specialist_stage_checkpoints": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_today_session_orchestrations": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "assignment_items": {
+        "row_count": 438,
+        "digest": "e37c98d7ab66602adf875d13d7664099b0fe7712c5fe51899755178b26af1db4"
+      },
+      "daily_assignments": {
+        "row_count": 172,
+        "digest": "6a7f6629f9a328025487479a28b8010f911548bfe1726b8aa377fcfbf41bda13"
+      }
+    },
+    "promptTable": {
+      "row_count": 98,
+      "digest": "26b22af429ec2e5b6d08a0c321af8fc9aaa5f88528f45f34a5b753db4888d9d8"
+    },
+    "schemaFingerprint": "26243c8c6c785985d807dc38718c95cb38d7238e1d17ab1060f604cb20cf0878",
+    "active_rollouts": 0,
+    "selectable_prompts": 0,
+    "existingExactRows": 98,
+    "missingKeys": []
+  },
+  "after": {
+    "protected": {
+      "adle_review_bundles": {
+        "row_count": 18,
+        "digest": "ec44d3d0002038df2e4c4b465b4564aacae83056a04904ccf005061721053a9e"
+      },
+      "adle_review_completion_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_memory_cue_versions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_event_routes": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_outcome_events": {
+        "row_count": 3,
+        "digest": "e43e0a30ba58c290b463c84802fa44081e0599e2ec88558bf25f9f26ed04f803"
+      },
+      "adle_review_policy_versions": {
+        "row_count": 1,
+        "digest": "342b27f46c4a50886b6c4b5324734539240b5c86527e9691db57fd219da89886"
+      },
+      "adle_review_r6_approval_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_authority_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_r6_child_rollouts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_repair_attempts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_schedule_word_routes": {
+        "row_count": 45,
+        "digest": "4cb8a86b90d4af8e65a0048b36f407653f2f55fb6368787af0848862a75cbbb4"
+      },
+      "adle_review_schedule_words": {
+        "row_count": 48,
+        "digest": "db3e43ad9a3b53764129f28aff84d6e22162ee23f9daeb9bbdaf85646c755b93"
+      },
+      "adle_review_sessions": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_starter_cutover_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_transition_receipts": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_review_word_encounters": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_specialist_stage_checkpoints": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "adle_today_session_orchestrations": {
+        "row_count": 0,
+        "digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "assignment_items": {
+        "row_count": 438,
+        "digest": "e37c98d7ab66602adf875d13d7664099b0fe7712c5fe51899755178b26af1db4"
+      },
+      "daily_assignments": {
+        "row_count": 172,
+        "digest": "6a7f6629f9a328025487479a28b8010f911548bfe1726b8aa377fcfbf41bda13"
+      }
+    },
+    "promptTable": {
+      "row_count": 98,
+      "digest": "26b22af429ec2e5b6d08a0c321af8fc9aaa5f88528f45f34a5b753db4888d9d8"
+    },
+    "schemaFingerprint": "26243c8c6c785985d807dc38718c95cb38d7238e1d17ab1060f604cb20cf0878",
+    "active_rollouts": 0,
+    "selectable_prompts": 0,
+    "existingExactRows": 98,
+    "missingKeys": []
+  },
+  "planSha256": "d25f9d1d13b377205cf98a734be9d21b60325494ba395b3e6609158e768d1b7f",
+  "insertedRows": 0,
+  "rows": [
+    {
+      "id": "f26dfa1c-535c-40b7-9f14-580ec5b4d1b2",
+      "stable_prompt_key": "CONUNDRUM-_HoaznEUe9E",
+      "content_version": "v2",
+      "source_fingerprint": "7df8b446a9dd0447f131f30c3ef5959ca380b2b24019487a076f7e99ed020a80",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "2aeb17d4-9311-41db-b32a-c31542c8e30c",
+      "stable_prompt_key": "CONUNDRUM-_xlnpupe-58",
+      "content_version": "v2",
+      "source_fingerprint": "37936d3a723c4202d16d28af1506e487baa1f309eefb60d639c214abb269aa9e",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a55e71a6-e413-4207-841b-68f6c3976276",
+      "stable_prompt_key": "CONUNDRUM--y2tlZV45tE",
+      "content_version": "v2",
+      "source_fingerprint": "d68dc4fafd47a2c6da9117d697093058d9df28286384e9a4a763ef49a6844e5c",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "e963d84f-c121-40ad-be57-5f461fbba5d4",
+      "stable_prompt_key": "CONUNDRUM-0AMfLzmzDVc",
+      "content_version": "v2",
+      "source_fingerprint": "f73b3bdfbfac22ca4632f7f1ddc6292c4d55100eedb37472f7ce6d5c884545d8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "37ab470c-42b6-4777-8987-44db85aeb0db",
+      "stable_prompt_key": "CONUNDRUM-0pnwUXgeqeE",
+      "content_version": "v2",
+      "source_fingerprint": "53af994d6590e4450fba63d0d122e1152c1b25699d4025d443101a75aa91eaab",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "713fa62d-9219-4ca5-af19-020a73e39a61",
+      "stable_prompt_key": "CONUNDRUM-1907ZOEKKZ0",
+      "content_version": "v2",
+      "source_fingerprint": "490bf525bdaf66349ea072cffbb5cec7965329850f623fdb1acf3ef1e37269bc",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "97ff42a3-3491-4460-8343-f505bcf97426",
+      "stable_prompt_key": "CONUNDRUM-1f5CiGI6s9g",
+      "content_version": "v2",
+      "source_fingerprint": "9ca914bc09dd6d031d55cdbbebb8903bbef399e1b4ed94e67f1eaae0b8bbf4e6",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "ee186f05-cc4a-4da9-919a-358bfed32189",
+      "stable_prompt_key": "CONUNDRUM-2QcnAehFwR4",
+      "content_version": "v2",
+      "source_fingerprint": "da165dce71a9d120ea2b2053a6e4c1deccdd47b76db935e3c5e2dd668fada3f3",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "9a2a04b7-7f29-40dd-b163-9039c7568224",
+      "stable_prompt_key": "CONUNDRUM-3I8mTZsWHXM",
+      "content_version": "v2",
+      "source_fingerprint": "961d66961a2d824871a66e32ea07e50734e2d7a47b24d7db7351fd2767f42dd8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "6c7e9c03-46e6-4e9f-8bd9-c219d62c7ed2",
+      "stable_prompt_key": "CONUNDRUM-3rYKBq1prUw",
+      "content_version": "v2",
+      "source_fingerprint": "dab16120bdd3f301855b9fc3540d9d4be0d3807409286cf9c3807bfb2b90928e",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "c4a15e20-4bea-421f-b329-44e2abe627ee",
+      "stable_prompt_key": "CONUNDRUM-5RwD6HJyN8Y",
+      "content_version": "v2",
+      "source_fingerprint": "45598198e002a03e654826875e4d48f99c806b0d6b8884c2517d956fb973b48f",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "ad98802e-8f16-49ef-927a-d735cbe8ba93",
+      "stable_prompt_key": "CONUNDRUM-62z7VHnHKWI",
+      "content_version": "v2",
+      "source_fingerprint": "23a99b4094350bdc6e3cafcc2ae233c416fefbb4a65eb3a9738c0d2b51baf433",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "bf3214c5-db55-4940-b3c2-d3ca1f1db18f",
+      "stable_prompt_key": "CONUNDRUM-9iZNgBHPo7I",
+      "content_version": "v2",
+      "source_fingerprint": "eb5284a86adae31cd2f0f23d4ad1c0661011f0c201905360c19e4a6e9616513a",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "4e4bcaf7-a1d1-487b-bc97-6879fa81148f",
+      "stable_prompt_key": "CONUNDRUM-aOZNgX58ajA",
+      "content_version": "v2",
+      "source_fingerprint": "721e27d054b2d4c6f207cbc14a343b76290ba5d7e09d207d00fa878d317efe4c",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "09ce40a2-a35b-4d11-8f87-fdaf6db26ea6",
+      "stable_prompt_key": "CONUNDRUM-blY2y3Kw37I",
+      "content_version": "v2",
+      "source_fingerprint": "64c1d3dc5de3f357815ed8f6cb7dd9dce7ce7e58b2fe887899ab0324f3623413",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "9c05d871-a9e9-4aa0-87d5-eda09a12d0b1",
+      "stable_prompt_key": "CONUNDRUM-CrnPHt9eJlk",
+      "content_version": "v2",
+      "source_fingerprint": "9a62e8a047ec361e1ec339fa019f3365078783d4da89d8912f11945f26a142cc",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f39efa1a-08bd-4caa-b5b8-7fd36953e6fe",
+      "stable_prompt_key": "CONUNDRUM-D1hBEGOdy70",
+      "content_version": "v2",
+      "source_fingerprint": "92d10123e78a1114102317e8fa35748c279ea4e91c66d777215942f9c1e4c05f",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "26960503-1e94-4f65-9c65-b5a2d4c5a7da",
+      "stable_prompt_key": "CONUNDRUM-DinQFr-PuI4",
+      "content_version": "v2",
+      "source_fingerprint": "69a077840e9e8bdf43e95ed2354da37158c1c88a2f18b3458070a7b5881c64c5",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "9edfd779-e606-4699-b6d1-185ff0e15987",
+      "stable_prompt_key": "CONUNDRUM-DKJdpOAWxP0",
+      "content_version": "v2",
+      "source_fingerprint": "1c28c77da144d77b7224a1ebf4e240064c9976a700c51d746d75125673341a61",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "029e489a-b891-4701-bb6b-86ae70414473",
+      "stable_prompt_key": "CONUNDRUM-Dp3vh18pVu4",
+      "content_version": "v2",
+      "source_fingerprint": "b43d174715d4ef8908910176a75338b8791dada21d1752c912c45672659bfb3c",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a45f173b-6ca4-4d0d-9846-dd2ba8a3101a",
+      "stable_prompt_key": "CONUNDRUM-EK7UZ1A1z80",
+      "content_version": "v2",
+      "source_fingerprint": "3eb75d59d596b357ec65b5a114345c87b7d2ea658e0054de0519e8d3b9305be4",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "7c343e3f-8970-4188-92fc-a7d8f9477a9e",
+      "stable_prompt_key": "CONUNDRUM-F4erkGNGsTQ",
+      "content_version": "v2",
+      "source_fingerprint": "9c1c1dabb396d2a0e9c5db48d22af2d79f3762fc339dee237c6ee2f88b623917",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "ccae1567-7da0-4024-93a5-499677741c47",
+      "stable_prompt_key": "CONUNDRUM-fgimH8QDlRY",
+      "content_version": "v2",
+      "source_fingerprint": "aa73dada3446d27f4204c95ab623f2b0e0c3c6873fd563384df6171e06291714",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "80ab98c3-dd33-40eb-b2b5-a20b645f2e65",
+      "stable_prompt_key": "CONUNDRUM-GeUO1k_sz_I",
+      "content_version": "v2",
+      "source_fingerprint": "f65615c8ac5ddef0ffde3542d5061fe601dc9f5c3086264268c2cd2664e73249",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "3c061908-40ea-44ad-bf3a-1d1f10579cc6",
+      "stable_prompt_key": "CONUNDRUM-gVFigIB20Cs",
+      "content_version": "v2",
+      "source_fingerprint": "7b145cd9d309836391a787b737c8c25e2da9833e501692bb90600a07c5f6c743",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "ca7bfb21-45ea-4e0d-bce0-7d4bc87c3b85",
+      "stable_prompt_key": "CONUNDRUM-hQ882EmZc1E",
+      "content_version": "v2",
+      "source_fingerprint": "d466029e33eb333e07f92be779079c1d96f311f02132454fbf4b32939356620d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "30c51d22-e0ef-43bb-8ec6-54885a42e6a3",
+      "stable_prompt_key": "CONUNDRUM-HRwmYoORRWE",
+      "content_version": "v2",
+      "source_fingerprint": "ed6300980085ba32d48c0ec88ed7da3fd2979f01824384716c1ea639db79d6b8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "931415bd-6733-4ab3-b5df-8e590afbccec",
+      "stable_prompt_key": "CONUNDRUM-I9qlNUlcrxk",
+      "content_version": "v2",
+      "source_fingerprint": "664a942c303ea157769608d5c7db90a2e183deb01c8258bdbe80027fff2cdec1",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "1ac65d72-ed1c-43a5-ac8a-ff473104dd4c",
+      "stable_prompt_key": "CONUNDRUM-Iw5NFiJff0Q",
+      "content_version": "v2",
+      "source_fingerprint": "80034949acad4ae30a41b6e129f385b28e0a646bf6d295e7a004e96d45a83df8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "51c44600-a32f-4554-b2ff-292cfc1f355b",
+      "stable_prompt_key": "CONUNDRUM-JRww42hpZnw",
+      "content_version": "v2",
+      "source_fingerprint": "9730a8f40a5728efe4b917b7bed58196d99ca6f19e50d522090b08ced3bd683d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "2a81390f-5bd9-4649-ac51-2a5395dcd9ef",
+      "stable_prompt_key": "CONUNDRUM-k_GGomlR2X0",
+      "content_version": "v2",
+      "source_fingerprint": "4d846e3335fd5bbf2489b5ef62cfdf8b7b5049a8c05b05d8700092b51ae1b7f3",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "9499d7d0-dfef-4127-a0d3-dee365e4aba9",
+      "stable_prompt_key": "CONUNDRUM-Ldhp6NKPGA4",
+      "content_version": "v2",
+      "source_fingerprint": "61fac65a373ce6f3ecac05209df36dea9fb289ddbf40d14f682ab77a6c342855",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f6a24433-8d37-4437-be8e-67f8ae08f68f",
+      "stable_prompt_key": "CONUNDRUM-M2ie5hj-m64",
+      "content_version": "v2",
+      "source_fingerprint": "16ced9b584025ff6400d45bb9d1b59ac5517503e5f8f3a11915217529d5e62af",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a5b59227-b09e-464d-87c7-b5dc6e73b742",
+      "stable_prompt_key": "CONUNDRUM-Me0L567tTSE",
+      "content_version": "v2",
+      "source_fingerprint": "57295eec521a87b2498162e2fa7b651845cbf03211a95204140054f68450fc9e",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "540f8a08-826e-4dc2-9074-089545983ffc",
+      "stable_prompt_key": "CONUNDRUM-mOwclvn_pt8",
+      "content_version": "v2",
+      "source_fingerprint": "b18b16e5202a61007609cc279354857d3694e02dccc91cba01922c0ca5320123",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "70ce5d04-1b5a-4a1c-89aa-6a187df03015",
+      "stable_prompt_key": "CONUNDRUM-mUB5NonUIkc",
+      "content_version": "v2",
+      "source_fingerprint": "cbf59f1c1c1a04d1b234396f0e48d3b19c93434aaf0fdbe4ddcb2edc3e25e321",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f736c416-b856-42ad-b5ae-c577a5446779",
+      "stable_prompt_key": "CONUNDRUM-N9jxv0U1Ax0",
+      "content_version": "v2",
+      "source_fingerprint": "540f7f856ec4c38df49bf86b47c5b68c2844a4bab8a54c51ab25a9ec4e04a438",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a7e3b737-c428-42a7-aa70-bc4f081a8a5f",
+      "stable_prompt_key": "CONUNDRUM-n9u2S9kBKhk",
+      "content_version": "v2",
+      "source_fingerprint": "fa324f550215e5cb91bef43c3a018e8e525af2dbc0281c852d58e977b06421d1",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "856d31f4-e0ea-45e4-9220-6efde4808be3",
+      "stable_prompt_key": "CONUNDRUM-o_P1Qrzy1pQ",
+      "content_version": "v2",
+      "source_fingerprint": "85528ddfeda28137a5b9f545b8b666245ec4bcdd696d75e7b5c1ec8cd1a4956a",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "3c827975-a113-4e22-88cf-bf731a26e25b",
+      "stable_prompt_key": "CONUNDRUM-POoJO0d17vg",
+      "content_version": "v2",
+      "source_fingerprint": "a6265204714f24262d6571e448b229fe42a351e72f0673788e02bb3213384a12",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "c3184d7c-a6b8-4bbe-a212-9ad570990e36",
+      "stable_prompt_key": "CONUNDRUM-q032SH6PnOA",
+      "content_version": "v2",
+      "source_fingerprint": "a1daceb28b6db0835660dfe5a6f03b2819789373a7121cd2eff45d8ce21d1214",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "97578f78-d2cf-4d92-9a48-4d2b3c642eef",
+      "stable_prompt_key": "CONUNDRUM-qCpZgLUM-P4",
+      "content_version": "v2",
+      "source_fingerprint": "d797cbe99fddd0e4d79910fcdc23245aced23f46f36ac22113ba818d93dfe11a",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "43377a2e-b79d-4af6-9fcd-b0cf49be0842",
+      "stable_prompt_key": "CONUNDRUM-QGnunFDoMZ4",
+      "content_version": "v2",
+      "source_fingerprint": "ccdfca1900ab5e8ac9509104658da1c6354bbaf28cc881bd6dce1268bbcba31a",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "34c66a28-6862-4383-824f-34d52fe316ae",
+      "stable_prompt_key": "CONUNDRUM-qjlGNg7KTZY",
+      "content_version": "v2",
+      "source_fingerprint": "0cebd7565538f8f2442a0fcf9dc1ada8dfd756b3f5e9e6535d6cb4abd3a724a8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "18c917d7-d568-42dd-8081-681c204c4d4e",
+      "stable_prompt_key": "CONUNDRUM-qt02CnWVXag",
+      "content_version": "v2",
+      "source_fingerprint": "a815ff219e30f408f284c81b9dfea8775a9a6145cdf04631fe2fd67aa5d8d741",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "abe7947e-16b1-4179-abf9-10b556f0fb0c",
+      "stable_prompt_key": "CONUNDRUM-RczCZO6Irb0",
+      "content_version": "v2",
+      "source_fingerprint": "ebe32fa023c925256510c4774445d2d0948e9c5e240d135faa7f62587e51fd33",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "5ba265fb-b51e-4748-8307-3560150986af",
+      "stable_prompt_key": "CONUNDRUM-rPLxSY_a7L8",
+      "content_version": "v2",
+      "source_fingerprint": "548dcb2063c6489573cb5b30858d58216cdf686996ee832cda4189e8e18b04f3",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "42440d50-1560-44fb-af12-f0910c9ab6ef",
+      "stable_prompt_key": "CONUNDRUM-scdxD2z6_jU",
+      "content_version": "v2",
+      "source_fingerprint": "4317815a4b4372c9b61d41ac64e06215f40fe85b191254ccf74bfa1e9bc4c126",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "51c9a641-1237-4a6e-a91a-8024a6c07d72",
+      "stable_prompt_key": "CONUNDRUM-sHowFBVYCwE",
+      "content_version": "v2",
+      "source_fingerprint": "908cfca2ff874eff41bde1123cff8dbcd5a61c53d1bb6703cf215d67814be1b8",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a357a61e-c7eb-4e77-b6d7-4b39855f7659",
+      "stable_prompt_key": "CONUNDRUM-swa-_lP9_s4",
+      "content_version": "v2",
+      "source_fingerprint": "61a2bc192a936f7714ce128db11e43ad4b9f7f67cc18bd21714c9f4a2cb7d7ae",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "a6b8dcd1-1271-4bde-a75e-1b153988b210",
+      "stable_prompt_key": "CONUNDRUM-TMfsb6Z9ssE",
+      "content_version": "v2",
+      "source_fingerprint": "27a2a570d21373ca0f2db9b1b5abeeff8db2ab49c3b88dccf83ff0ea89230455",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "bbccc60f-8b3b-4f5a-84da-1b5b6f4ab964",
+      "stable_prompt_key": "CONUNDRUM-ubdRR--xMHI",
+      "content_version": "v2",
+      "source_fingerprint": "68fecae8088a1963f21bb959475145b181214417b202f96eec86f6352cef63c0",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "d20f8ce5-e51e-419a-847b-fc32465c74bc",
+      "stable_prompt_key": "CONUNDRUM-uvAdmPgALDg",
+      "content_version": "v2",
+      "source_fingerprint": "8a4259f804d2a5dbf55bd7fab48a63bbc1f054ac98c851861c82cbe505a90acb",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "14d4bd72-fb4e-4386-a92c-c02bcf61531a",
+      "stable_prompt_key": "CONUNDRUM-vJ2HCfS_Ooc",
+      "content_version": "v2",
+      "source_fingerprint": "33314292e2a859258fd78b14e6c79bcc05bccbcc31d352d3bd61508bb1add199",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "8181069b-6feb-4a4d-89eb-2b2aea45114b",
+      "stable_prompt_key": "CONUNDRUM-w_fn1JTvY5c",
+      "content_version": "v2",
+      "source_fingerprint": "14955ac1e62903af6585d97eb4e966f3fc5f3811879eb1353b8c90bfc2eb4003",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "5e97aac1-85a1-4633-ab75-2692aa3b6101",
+      "stable_prompt_key": "CONUNDRUM-wdKlx2hFQo8",
+      "content_version": "v2",
+      "source_fingerprint": "9ffd407ab71fe4ab01492bbaee05805397c6f7be5eee0c078ebc182b46942849",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "88980d23-cb50-4a9a-9b8f-00d3a6ab7c8c",
+      "stable_prompt_key": "CONUNDRUM-weHuszV63yI",
+      "content_version": "v2",
+      "source_fingerprint": "0dbe479283c25ec7457fb0964c9c88fb347d68345a315cfb4c1f28ce232e5e86",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "6017d452-138d-4437-8b82-614cbf8a1453",
+      "stable_prompt_key": "CONUNDRUM-WmbbV4ZLwu4",
+      "content_version": "v2",
+      "source_fingerprint": "eb3c63934b72fc756e9c5156fcec13b9f9887a13afe4335204de696d6f99edb7",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "207483e6-8a97-45d9-8350-cf2a55cd038c",
+      "stable_prompt_key": "CONUNDRUM-wPzsfS_BcVM",
+      "content_version": "v2",
+      "source_fingerprint": "6abbf747938cbe5f376b0a41a365c84871094a8dad13e4a2e271ea9c7908e645",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "d606f702-1100-45c0-9fbf-bd89a2cee3a1",
+      "stable_prompt_key": "CONUNDRUM-x1QhqwhSJYk",
+      "content_version": "v2",
+      "source_fingerprint": "c693b33059a0aa127e1830c95693d72a8587a45288ad2b4ce653d9b0dae8ce58",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "05f72e5e-b80b-4b82-8a71-86ce8b57ac0c",
+      "stable_prompt_key": "CONUNDRUM-x5rcikHTsgA",
+      "content_version": "v2",
+      "source_fingerprint": "1eb84217b03925506615b8746a4a64c5fe1fdc68893fbdbc2c85f4124e8e868d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "c708e24f-b898-4420-b1a7-b375e2a5ad31",
+      "stable_prompt_key": "CONUNDRUM-Xj8skhzukUU",
+      "content_version": "v2",
+      "source_fingerprint": "86cfa4e7c1ca20f4f4ef4e8663a99cc73bc9faeb9117024908756de6a5333e2f",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "02d23145-617e-49c6-9e8f-1142d1411940",
+      "stable_prompt_key": "FU-01",
+      "content_version": "v2",
+      "source_fingerprint": "c47414c513fa89c25d2712d3b309918a197669691d747f78592e7d4ea4fa6c5b",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "660148ea-60e0-446a-8297-5eb225c8bf7d",
+      "stable_prompt_key": "FU-02",
+      "content_version": "v2",
+      "source_fingerprint": "8ef452b34cb069367597d4b2eba17c1abc08c4ebb21ed6e953622de50a06cc63",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "ca27280c-416f-47e2-8a76-6c065217ac5c",
+      "stable_prompt_key": "FU-03",
+      "content_version": "v2",
+      "source_fingerprint": "aa00e01daba7e0c1f05e5342d5a61659af1e61a441d65f1e9f46cd7ec6de8019",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "008bef1e-1bc0-4b84-ab1b-4755549c9d82",
+      "stable_prompt_key": "FU-04",
+      "content_version": "v2",
+      "source_fingerprint": "30a6365f14f888a07e7417ee8610081d0b44f9c6b011f9c8c4f979739c02393b",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "772426db-4e95-4b94-a7ba-cff5c499c876",
+      "stable_prompt_key": "FU-05",
+      "content_version": "v2",
+      "source_fingerprint": "b2e0e03e21ebabc7a3a378cde27fa9e25989cfc0a5997ee58c3945be54d6ed89",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "51a04ca0-0544-4c66-8ea8-13411b9a0ea0",
+      "stable_prompt_key": "FU-06",
+      "content_version": "v2",
+      "source_fingerprint": "c36bc7a072814d98bf47edd5c5dc2b5d53deb12ff33c0e16e78c50cc63a04e5f",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "aea25629-efef-44f2-a7f9-a912eee962fa",
+      "stable_prompt_key": "FU-07",
+      "content_version": "v2",
+      "source_fingerprint": "5bd3822640ebe985f57c4b8d354100ed0c86af5094fb3b66762cd2037b0748eb",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "2d33634d-8bf8-4a2e-801e-b19b9d7eee71",
+      "stable_prompt_key": "FU-08",
+      "content_version": "v2",
+      "source_fingerprint": "83f1a824f94fde25bbd5b490c1f6efff37bad4e78da93bcd352eadb7578da36c",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "0baf9757-d3aa-4082-8af7-42fcbd30b5ce",
+      "stable_prompt_key": "PERSUADE-01",
+      "content_version": "v2",
+      "source_fingerprint": "acf1258aeda425477d29e3428d6bc4586e9b3e7823a24352b8b3302b02e8f89d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "3fad2815-14d6-4310-91b2-744bb482552b",
+      "stable_prompt_key": "PERSUADE-02",
+      "content_version": "v2",
+      "source_fingerprint": "9d58176cda910ceebf2e25ca9c44d73c7897fd165f1c063c87132b8170574f4d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "33e264bd-bcae-482b-b4cf-c8c7b2ac969f",
+      "stable_prompt_key": "PERSUADE-03",
+      "content_version": "v2",
+      "source_fingerprint": "3aa2c32f91c238772acf8aadc93a9c33fa8a917544bbf6778b7252746c02a008",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f9935887-56b6-4d36-b704-a1153180e25d",
+      "stable_prompt_key": "PERSUADE-04",
+      "content_version": "v2",
+      "source_fingerprint": "50df05503e97d868022b5ddd47069a3f10703ead542d72a5ec7f333f4c8de2a9",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "77dc6432-b6fb-4b07-a094-29538091c59f",
+      "stable_prompt_key": "PERSUADE-05",
+      "content_version": "v2",
+      "source_fingerprint": "a154060e3991c2bae15f99ef9d0f03e9fc40708ab8b06ee63d9ba51528ad1c6f",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f38fb359-bf0f-4ea8-8d3f-ba8fd7beb778",
+      "stable_prompt_key": "PERSUADE-06",
+      "content_version": "v2",
+      "source_fingerprint": "faab12f6e20b10044b1839134e27d73540714e6baf18f32379343faa86d157ba",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "14d84865-8524-4ec5-99d3-7a8707aa2fcf",
+      "stable_prompt_key": "PERSUADE-07",
+      "content_version": "v2",
+      "source_fingerprint": "32bb3f710b96fcda7af4758257bfac1c0e4bd0c697c5f02892f121f2650e6150",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "dacc092c-dda8-4247-80cc-a9fb76167f23",
+      "stable_prompt_key": "PERSUADE-08",
+      "content_version": "v2",
+      "source_fingerprint": "f3071d47a040073425918909cbe6843cc680e7c192610ddc65dc72d6e72a0bae",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "72a14ab8-8458-4c1a-88c4-003d9227635f",
+      "stable_prompt_key": "PERSUADE-09",
+      "content_version": "v2",
+      "source_fingerprint": "4420ad4847484e836261f5d9c9484dd8aed960fde118413c4a66a10a4f0ab88d",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "6fce7fad-01fd-497d-a264-9a4f8a65ee54",
+      "stable_prompt_key": "PERSUADE-10",
+      "content_version": "v2",
+      "source_fingerprint": "d43611e85ff1566529a99a67e1dae03d80b2d6cdccfef57bb10b8119b09aeadc",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "95e204ad-ee57-4a83-8581-2959f4666538",
+      "stable_prompt_key": "REFLECTION-01",
+      "content_version": "v2",
+      "source_fingerprint": "0df1ab17e6eb3aa2fb137bf4541f5cf81975ab447fb3363426e784e4a477b713",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "44c8a603-99a1-4a96-843d-e6aaa7c1b83c",
+      "stable_prompt_key": "REFLECTION-02",
+      "content_version": "v2",
+      "source_fingerprint": "884b4b69c750f01c6a4ac8c128764b2f0dbdea40be6aecaefe533c7374ed94de",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "e9dae6fd-af6b-4d92-af5a-3515d19441be",
+      "stable_prompt_key": "REFLECTION-03",
+      "content_version": "v2",
+      "source_fingerprint": "b46625a09b9cb20578d4188c5df425bdcb63fdef98ca3070649289acfc6ccbde",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "474fc2bb-c993-4aa9-ac1b-57af36e26a1a",
+      "stable_prompt_key": "REFLECTION-04",
+      "content_version": "v2",
+      "source_fingerprint": "7d5dc9df556532ec621cd6cfe0776faebeee7979b657974072250d29e993b69b",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "e346bef5-7dcf-4577-8a8c-9c7064ec57a7",
+      "stable_prompt_key": "REFLECTION-05",
+      "content_version": "v2",
+      "source_fingerprint": "6e9e2abad0b1bfe206f676ce0e6ffa0d8977f44d486b559e139f974a33a6355c",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "3489ac59-88a5-4f8b-9b54-1ad1e80c5719",
+      "stable_prompt_key": "REFLECTION-06",
+      "content_version": "v2",
+      "source_fingerprint": "08dbf70ab835b2717c7721631e4d8ac3499254e8f1d19d101617f74afb3fbf62",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "dc3d59f3-cf80-473a-9ac4-93989661dbeb",
+      "stable_prompt_key": "REFLECTION-07",
+      "content_version": "v2",
+      "source_fingerprint": "2cac39c59e569c1917e2c6267484f71376c314ba46740d4c57e0221e9c7b57cb",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "c9fa97bb-a49c-44da-b337-dcb291c7ece0",
+      "stable_prompt_key": "REFLECTION-08",
+      "content_version": "v2",
+      "source_fingerprint": "d9962496104c585a3fe6e57c0d35ba5dc00f18e4f41fad5e493dd62012b2fb3e",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "d056da13-a5c8-4644-9da9-d17390958d72",
+      "stable_prompt_key": "STORY-01",
+      "content_version": "v2",
+      "source_fingerprint": "778ffc11efc8d53b8299ace1d3416cda35f937c1e85146c1b0c672fc0795ea3b",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "5928f92c-2b49-490e-875b-554693a8e243",
+      "stable_prompt_key": "STORY-02",
+      "content_version": "v2",
+      "source_fingerprint": "71e9f84cf589ec4de1d0eb9c518868e2b2adacf4c75c3261bd8c93d374915c36",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "5e696182-2926-4027-ad4c-13943c53a64d",
+      "stable_prompt_key": "STORY-03",
+      "content_version": "v2",
+      "source_fingerprint": "69cecf14bdb645e0cf2ed7368e61a18d034495275dcac5aedd4779563fec9915",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "2a145fda-c460-44ee-88ee-58738edbe2fe",
+      "stable_prompt_key": "STORY-04",
+      "content_version": "v2",
+      "source_fingerprint": "912098c6a171135301e7cb90e4ca8c8157fe28d6dee72127c13c366464e28598",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "6ee7bd89-04a6-459f-8e80-9209715ef39d",
+      "stable_prompt_key": "STORY-05",
+      "content_version": "v2",
+      "source_fingerprint": "5ff82de70a537c9132c76f30529bcc76764132dd3f2322dcb7c81ca05b42970e",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "8178a725-2ba4-4d59-a233-a9cc425915d2",
+      "stable_prompt_key": "STORY-06",
+      "content_version": "v2",
+      "source_fingerprint": "cb43734e0eca7d5893478d49504704d8ab94773b75432ed8d645d59b0db20294",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "4314cd8a-71bb-46a1-8efd-c6c9c8b666aa",
+      "stable_prompt_key": "STORY-07",
+      "content_version": "v2",
+      "source_fingerprint": "4d27dfce72fb9e3a9aca834480a211048eedbf24e05d866614d51197c180a482",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "f40c6c94-d6d2-477f-a899-25be21797396",
+      "stable_prompt_key": "STORY-08",
+      "content_version": "v2",
+      "source_fingerprint": "8f6f56ac84382b6d3822d715084a8f0c7cb100d68b2492f151e56f474b2f71a6",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "dfaec653-48b8-4785-9d7d-c997816c82a5",
+      "stable_prompt_key": "STORY-09",
+      "content_version": "v2",
+      "source_fingerprint": "8a3b76d6a1b3da32eb23c7e4899f4a8cba383eb5fc11e1ba45d6d9d0cdd206f7",
+      "review_status": "approved",
+      "row_status": "archived"
+    },
+    {
+      "id": "8b93fe7e-6537-41df-bead-79415e39e611",
+      "stable_prompt_key": "STORY-10",
+      "content_version": "v2",
+      "source_fingerprint": "16be349012c971c0614ef39232e801157abde08cd16c61b9c9f364f59a85006c",
+      "review_status": "approved",
+      "row_status": "archived"
+    }
+  ],
+  "protectedStateUnchanged": true,
+  "reviewV3ActiveRollouts": 0,
+  "mutationCommitted": false,
+  "transactionDisposition": "rolled_back",
+  "independentReadback": null
+}

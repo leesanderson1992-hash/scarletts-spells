@@ -1,0 +1,50 @@
+{
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+  "validation_status": "valid_review_only_package",
+  "activation_ready": false,
+  "database_accessed": false,
+  "database_changed": false,
+  "imported_rows": 0,
+  "counts": {
+    "packaged": {
+      "conundrums": 0,
+      "reflection": 8,
+      "stories": 10,
+      "fortunately_unfortunately": 8,
+      "persuasion": 10
+    },
+    "video_review_queue": 63,
+    "approved_active_in_package": {
+      "conundrums": 0,
+      "reflection": 0,
+      "stories": 0,
+      "fortunately_unfortunately": 0,
+      "persuasion": 0
+    }
+  },
+  "minimum_initial_runway": {
+    "conundrums": 5,
+    "reflection": 2,
+    "stories": 5,
+    "fortunately_unfortunately": 5,
+    "persuasion": 5
+  },
+  "projected_count_gate_after_ordinary_approval": {
+    "conundrums": false,
+    "reflection": true,
+    "stories": true,
+    "fortunately_unfortunately": true,
+    "persuasion": true
+  },
+  "scoped_learner_unused_capacity": "not_verified_no_database_or_learner_scope",
+  "runtime_target_word_visibility": "not_verified_requires_daily_targets_and_all_rendered_surfaces",
+  "reflection_rotation": "existing_shared_LRU_helper; regression_checked_separately",
+  "blockers": [
+    "All 63 Conundrums require actual video review; zero approved Conundrums in this package.",
+    "The 36 supplied prompts have editorial review only; publication approval remains pending.",
+    "Review UI currently renders prompt and instruction only; configuration title, Top Tip and interactive video rendering must be wired and verified.",
+    "Daily Target Word collisions must be excluded across all visible and accessible content without rewriting governed prompts; current generation does not apply that filter.",
+    "Actual database inventory, learner completion history and scoped unused capacity have not been queried.",
+    "No staging playback, availability, UI or activation proof was performed; rollout gates remain unchanged."
+  ]
+}

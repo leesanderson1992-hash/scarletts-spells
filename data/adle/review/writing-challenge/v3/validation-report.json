@@ -1,0 +1,40 @@
+{
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v3",
+  "validation_status": "complete_signed_off_content_package",
+  "signed_off_writing_prompts": 36,
+  "changed_writing_prompts": 10,
+  "signed_off_conundrum_candidates": 63,
+  "import_row_count": 99,
+  "import_counts": {
+    "conundrums": 63,
+    "reflection": 8,
+    "stories": 10,
+    "fortunately_unfortunately": 8,
+    "persuasion": 10
+  },
+  "content_blocked_keys": [],
+  "all_import_rows_content_approved": true,
+  "initial_inventory_count_gate": {
+    "conundrums": true,
+    "reflection": true,
+    "stories": true,
+    "fortunately_unfortunately": true,
+    "persuasion": true
+  },
+  "database_accessed": false,
+  "database_changed": false,
+  "imported_rows": 0,
+  "activation_ready": false,
+  "learner_scoped_unused_capacity": "not_verified",
+  "blockers": [
+    "Independent playback, embed availability and historic video-identity reconciliation remain unverified.",
+    "The existing shared Review UI still needs governed title, Top Tip and interactive video rendering.",
+    "Daily Target Word visibility filtering and learner-scoped unused capacity need verification.",
+    "No database population, deployment or rollout activation has been authorised by this content sign-off."
+  ],
+  "content_approval_references": [
+    "user-review-content-signoff-2026-08-26-v2",
+    "user-water-question-supplied-2026-08-26"
+  ],
+  "previous_approved_rows_preserved_exactly": true
+}

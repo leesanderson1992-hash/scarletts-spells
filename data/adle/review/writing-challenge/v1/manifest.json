@@ -1,0 +1,61 @@
+{
+  "package_schema_version": "adle_review_writing_challenge_handoff_v1",
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+  "content_version": "v1",
+  "status": "review_only_not_for_activation",
+  "database_table": "adle_review_prompt_versions",
+  "import_file": "adle_review_prompt_versions.import.json",
+  "import_row_count": 36,
+  "import_review_status": "in_review",
+  "publication_approval_reference": null,
+  "conundrum_import_row_count": 0,
+  "sources": [
+    {
+      "file": "teaching-content.source.json",
+      "sha256": "b62cf286be1191f83edb0064b6d6b3b8ef8290e7961588a3f5d7ef341538ef93"
+    },
+    {
+      "file": "catalogue.source.json",
+      "sha256": "3859ae3db6faaad162033ef9575034e353cb78df9b7880582104d5ebea1bc7dd"
+    }
+  ],
+  "original_catalogue_sha256": "007c02c3d2d2a2af6fedc32431bb6ec0f0fdce33f69bf54f074fd02ee5736ddb",
+  "generated_files": [
+    {
+      "file": "instructions.json",
+      "sha256": "8661dcace799a263606e6c7fc7016be24bcc39994b4cd1c7f984da6bf347cc50"
+    },
+    {
+      "file": "governed-prompts.json",
+      "sha256": "56c93b72d126665ea5b9076ddfaae85499456cfea8a0e9a5a30d03b0b3086a13"
+    },
+    {
+      "file": "adle_review_prompt_versions.import.json",
+      "sha256": "34dd0d7b3212e6a98e9a38a0072cbf84c4968ebe1c399ec9683ecb1faf673371"
+    },
+    {
+      "file": "conundrum-video-review-queue.json",
+      "sha256": "2a6b6f948414647bde9f519d2f98305f49616e1910d841fb67075931d5f20a6b"
+    },
+    {
+      "file": "validation-report.json",
+      "sha256": "ed3c962989a58e05bbf8892df358d4e29dd035844b936bcd5485e0bfb4db4c83"
+    }
+  ],
+  "content_fingerprint_algorithm": "SHA-256 of recursive lexicographically sorted JSON keys; array order retained; UTF-8; excludes status, review evidence and source_fingerprint",
+  "product_rules": {
+    "learner_term": "Target Words",
+    "target_words_maximum": 10,
+    "target_delivery": "separate_audio_only_controls",
+    "target_spellings_hidden_during_creative_writing": true,
+    "dynamic_prompt_rewriting": false,
+    "review_outcome_authority": "per_word_retrieval_evidence",
+    "ten_of_ten_role": "challenge_achievement_not_review_completion",
+    "incorrect_target_flow": "governed_word_reflection_and_repair",
+    "shared_review_engine": true,
+    "ordinary_reuse_policy": "once_per_learner",
+    "reflection_reuse_policy": "reusable_lru_no_immediate_repeat",
+    "unavailable_video_policy": "block_and_review_never_silently_replace",
+    "transcript_storage": "no_full_transcripts"
+  }
+}

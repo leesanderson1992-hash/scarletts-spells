@@ -1,0 +1,71 @@
+{
+  "package_schema_version": "adle_review_writing_challenge_handoff_v3",
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v3",
+  "status": "content_complete_signed_off_not_imported_or_activated",
+  "content_versions": {
+    "unchanged_prior_rows": "v2",
+    "water_question": "v3"
+  },
+  "prior_package": "../v2/",
+  "prior_package_preserved": true,
+  "previous_approved_rows_preserved_exactly": true,
+  "content_approval_references": [
+    "user-review-content-signoff-2026-08-26-v2",
+    "user-water-question-supplied-2026-08-26"
+  ],
+  "database_table": "adle_review_prompt_versions",
+  "import_file": "adle_review_prompt_versions.import.json",
+  "import_row_count": 99,
+  "import_review_status": "approved",
+  "excluded_keys": [],
+  "sources": [
+    {
+      "file": "water-question.source.json",
+      "sha256": "bb8d1e7d8d250d11c764f5e01193ec293302b0cfbaea0e09e238bc5aaf3b768a"
+    },
+    {
+      "file": "water-approval.source.json",
+      "sha256": "ef6bd4df3191c9e236217935dcc41a2906e88dc4c9787f0307472105e9e5a293"
+    }
+  ],
+  "generated_files": [
+    {
+      "file": "adle_review_prompt_versions.import.json",
+      "sha256": "de4a7fe39f2fa81edfa8ec8e3c1ca6f136794ac10765d0fc107011f67c071e22"
+    },
+    {
+      "file": "governed-prompts.json",
+      "sha256": "657d0251bba8b0acb7beb5d3ae07be99f2cac7cdc9ed31196dd9b7f21bce81d9"
+    },
+    {
+      "file": "instructions.json",
+      "sha256": "4fc68df46ffc1f799f0d131343a1edd258ff5cf2455172d687770eef4ac26148"
+    },
+    {
+      "file": "conundrum-approval-register.json",
+      "sha256": "981444f8149e39ab00c073b9501b2458e9d819968771051f050c657766dff2e6"
+    },
+    {
+      "file": "validation-report.json",
+      "sha256": "2d3e9d5bc1768c0953138862c6fa2df61909cbfded54a5538ed5deb758e93329"
+    }
+  ],
+  "fingerprint_algorithm": "SHA-256 of recursively key-sorted import row excluding source_fingerprint, review_status and row_status; includes exact content, configuration, provenance and approval reference",
+  "product_rules": {
+    "learner_term": "Target Words",
+    "target_words_maximum": 10,
+    "target_delivery": "separate_audio_only_controls",
+    "target_spellings_hidden_during_creative_writing": true,
+    "dynamic_prompt_rewriting": false,
+    "review_outcome_authority": "per_word_retrieval_evidence",
+    "ten_of_ten_role": "challenge_achievement_not_review_completion",
+    "incorrect_target_flow": "governed_word_reflection_and_repair",
+    "shared_review_engine": true,
+    "ordinary_reuse_policy": "once_per_learner",
+    "reflection_reuse_policy": "reusable_lru_no_immediate_repeat",
+    "unavailable_video_policy": "block_and_review_never_silently_replace",
+    "transcript_storage": "no_full_transcripts"
+  },
+  "database_changed": false,
+  "activation_ready": false
+}

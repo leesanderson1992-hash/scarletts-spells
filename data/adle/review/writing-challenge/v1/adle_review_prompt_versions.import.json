@@ -1,0 +1,966 @@
+[
+  {
+    "stable_prompt_key": "REFLECTION-01",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "What was inside my control today, and what was outside my control?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Inside My Control",
+      "top_tip": "Separate the two clearly. Then spend most of your writing on what you could choose: your effort, words, attitude, preparation or response.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "32269d39b916f2849d97f87565f5d4c90c53598a8fc4ef5282580a35d253a521",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-02",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "What difficult thing did I deal with today?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Difficult Thing",
+      "top_tip": "Tell the story of what happened, then explain what made it difficult. Finish with one thing you did well or one thing you could try next time.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "1210ced8c50f30c80111d55c621a66dc1cf042bf3affd4d612c08bdde8f4a440",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-03",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "Will this matter tomorrow, next month or next year?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "How Big Is It Really?",
+      "top_tip": "Pick one thing that felt important today. Zoom out in time. Explain how your feelings about it might change tomorrow, next month and next year.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "104b41333f647c2e552e07c65e77c7dc0c63991c87baa7b9e3c8fa805eb89066",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-04",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "What ordinary thing am I grateful for?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "An Ordinary Good Thing",
+      "top_tip": "Choose something small and specific. Instead of simply naming it, describe why it made your day better.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "2108560d3f35b752e72806c6e12bce8370fa0bde3daceba9b9c103503c6b2a2d",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-05",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "When did I do something despite feeling nervous?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "I Did It Anyway",
+      "top_tip": "Describe what you were nervous about, what you chose to do anyway, and how you felt afterwards. Courage does not mean you were never scared.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "e87cf8cf75041dfa4d74b7e9ea9fb5a3716fc7b93b4c7e350535082e3a698bf5",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-06",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "Something annoying happened. How did I choose to respond?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "How I Chose to Respond",
+      "top_tip": "Describe the event without spending the whole piece blaming it. Focus on the part you controlled: what you said, did, thought or decided next.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "d2329ab42a733f0456a1b5c26782a9f492d4cfcbfc798641530a82418ba610de",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-07",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "What advice would tomorrow's version of me give me?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Advice From Tomorrow Me",
+      "top_tip": "Imagine tomorrow-you knows how today turned out. Write the advice as if that wiser version of you were talking directly to you.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "fc2605f5e631a70bb44ae5523027f8f51581908e5e813b7010c54f0fbf136056",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "REFLECTION-08",
+    "challenge_type": "reflection",
+    "content_version": "v1",
+    "prompt_text": "What can I learn from something that went wrong?",
+    "instruction_text": "Reflection is a chance to think carefully about your day.\n\nThere is no perfect answer. Choose a real moment, describe what happened, and think about what you can learn from it. Try to focus on your choices, your response, and what you might do next time.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "What the Mistake Taught Me",
+      "top_tip": "Do not just describe the mistake. Find the lesson inside it: What did it show me, and what could I do differently next time?",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:reflection",
+      "category_label": "Reflection — Stoic Journal",
+      "category_top_tip": null,
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "reusable_lru_no_immediate_repeat",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "768908c057dd8ce2fe743606e2557bace7039086637363f90345a19c7b6933e6",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-01",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "A dragon arrives at the dentist with a very unusual problem. Unfortunately, the dentist has never treated a dragon before. What happens?",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Dragon at the Dentist",
+      "top_tip": "Give the dragon a strong personality. Make the problem get worse before somebody finds an unexpected solution.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "cbc17e082c138eea03acd3de2dcea56af70ee6b1df1c8bce6623b801e302f951",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-02",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "At exactly 9:17 in the morning, gravity stops working for ten minutes. Tell the story of what happens.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "No More Gravity",
+      "top_tip": "Start somewhere ordinary. Then imagine the tiny details: drinks, chairs, pets, people and everything that was not tied down.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "18e338f848cb490b86fca51105a96eaa523c6cfda3cd6f171422f2b809bfb8b4",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-03",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "Your lunchbox has turned invisible. You can still touch it, open it and smell what is inside — but nobody can see it. Then somebody else finds it.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Invisible Lunchbox",
+      "top_tip": "Use the invisible object to create misunderstandings. Let one small problem grow into a much bigger one.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "66dc07f1213ae14b937c218a47e2370bc999ac68a9fe8df90fa00a6d444b0000",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-04",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "The Moon sends you a message saying it has lost something extremely important somewhere on Earth. You have until midnight to find it.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Moon's Missing Treasure",
+      "top_tip": "Decide what was lost and why it matters. Give your character clues, obstacles and a ticking clock.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "e14262ff7973dfa06d1998cff384fa445ce9ac01f91c1dc5129c79561c23b8e5",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-05",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "A confused magician performs the wrong spell inside a supermarket. Suddenly the aisles begin behaving very strangely.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Magic on Aisle Seven",
+      "top_tip": "Choose one magical rule and keep making the consequences bigger and sillier.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "581286b864bc61471e5ea509627be000511faa8a886fa47a657340b879a9ad94",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-06",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "You become convinced that one of your teachers is secretly a robot. What evidence do you find, and what happens when you investigate?",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Robot Teacher Mystery",
+      "top_tip": "Plant three clues. Make at least one clue turn out to have a completely ordinary explanation.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "3429e04c3935a7f0c1e1ec3e7c589ed02f0da92957a554f2c394ca0d9e9215d6",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-07",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "You discover a time machine, but it has one ridiculous flaw. Every time you use it, something unexpected happens.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Time Machine With One Problem",
+      "top_tip": "Decide the machine's strange rule first. Then let your character make the mistake of using it again.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "720b990c5d5d72708524d2d63872f039d219910ebd902ade305118d55862e433",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-08",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "You wake up with a superpower. Unfortunately, it seems completely useless. By the end of the day, you discover exactly why it matters.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "A Completely Useless Superpower",
+      "top_tip": "Make the power funny at first. Then create a problem where that exact strange ability becomes surprisingly useful.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "3b154f1e5a585ae18fab6cd747bcb7becd21f8c8943f6c23a5b426398fa8f05d",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-09",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "An animal arrives for a job interview and is absolutely certain it is the perfect person for the job. Tell us about the interview.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "You're Hired!",
+      "top_tip": "Choose a job that is a terrible match for the animal. Let the animal explain why each apparent weakness is actually a brilliant qualification.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "6300b0284127f80612ec8572e7231123cc24c979b28bb6c7039fc90008c50826",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "STORY-10",
+    "challenge_type": "stories",
+    "content_version": "v1",
+    "prompt_text": "A door appears in a familiar place where there definitely was not a door yesterday. Everyone tells you not to open it.",
+    "instruction_text": "Silly Stories let your imagination go completely wild.\n\nUse the prompt as your starting point, then take the story anywhere you like. Make something unexpected happen. Your job is not to make the story realistic — it is to make it entertaining while using as many of your Target Words as you naturally can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The New Door",
+      "top_tip": "Build curiosity before opening the door. Decide what your character expects — then surprise them.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:stories",
+      "category_label": "Silly Stories",
+      "category_top_tip": "A fun story usually needs:\n\nSomebody interesting.\n\nSomething they want.\n\nA problem that gets in the way.\n\nAn unexpected turn.\n\nAn ending that changes something.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "9797b3a69aa1c75becee653fc026ac933bd8429eae09639a70be0916c46bec31",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-01",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "You find an old treasure map hidden inside a library book.\n\nStart with: Fortunately, the map showed that the treasure was very close...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Treasure Map",
+      "top_tip": "Make each solution create the next problem.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "6cf5c733d3b72cad504b8a3e6fd6a7ae7dcd8163227872269932eb6f489be992",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-02",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "Your class sets off on what should be the best school trip ever.\n\nStart with: Fortunately, we arrived exactly on time...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The School Trip Goes Wrong",
+      "top_tip": "Use each Fortunately sentence to rescue the characters — then let Unfortunately spoil the rescue.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "cf2b454cad9f278474fa4ae287947b6c651390f1cf6a9d1612e41e305ccfed87",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-03",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "A very friendly dog begins following you home.\n\nStart with: Fortunately, the dog seemed to know exactly where it was going...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Dog Who Followed Me Home",
+      "top_tip": "Let the dog's behaviour solve problems as often as it causes them.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "2b807d9674824a936a9f2dd5864a98ddfb6234e9dbab8f6af355ef02f1918d54",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-04",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "You are responsible for getting an enormous birthday cake safely to a party.\n\nStart with: Fortunately, the cake looked perfect...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Cake Disaster",
+      "top_tip": "Use physical problems: doors, weather, transport, animals or people in the way.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "f527884b26b944b6fc0421def325bb5cb232edeaa08e30133ab35ad75a3beb38",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-05",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "You realise everyone has gone home and you are locked inside a museum.\n\nStart with: Fortunately, I still had my phone...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "After Closing Time",
+      "top_tip": "Let the setting create your twists. Think about exhibits, alarms, guards and strange noises.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "5da54153659d615c83dd41e79dc80d042ff6e8fa3c41719791a71f8c8cea1828",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-06",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "Your team reaches the final, but everything starts going wrong.\n\nStart with: Fortunately, we scored first...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Impossible Final",
+      "top_tip": "Keep changing who seems most likely to win until the very end.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "0b8488f3cfd43220cbc9560ba979a2529478ba2039bba528a690b2e32ac46597",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-07",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "You are on your first space mission when the computer announces that the spacecraft is going somewhere unexpected.\n\nStart with: Fortunately, we had plenty of fuel...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Mission to Mars-ish",
+      "top_tip": "Make every new problem require a clever decision rather than pure luck.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "a993127fc9ecaeebeaccf0dbcb2b2bb743f426310b3e6f6fb2aa3ec892b10f6c",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "FU-08",
+    "challenge_type": "fortunately_unfortunately",
+    "content_version": "v1",
+    "prompt_text": "Your family brings home a new pet. On the first night, you discover it can do something impossible.\n\nStart with: Fortunately, nobody else had noticed yet...",
+    "instruction_text": "Fortunately / Unfortunately is a story that keeps changing direction.\n\nBegin with the prompt. Then alternate between good news and bad news:\n\nFortunately... something helpful happens.\nUnfortunately... a new problem appears.\nFortunately... things improve again.\n\nKeep switching until you reach an ending.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Pet With a Secret",
+      "top_tip": "Decide the pet's secret ability first and use it repeatedly in different ways.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:fortunately_unfortunately",
+      "category_label": "Fortunately / Unfortunately",
+      "category_top_tip": "Every new sentence should change the situation. Do not simply say something is good or bad — make something actually happen because of it.",
+      "locale": "en-GB",
+      "sequence": {
+        "mode": "alternating_sentence_starters",
+        "starters": [
+          "Fortunately",
+          "Unfortunately"
+        ],
+        "first_starter": "Fortunately"
+      },
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "886215b89e260afd6d677002d1d228bb29e2c3b54bc54bcaf0dbe28d939ed417",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-01",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should children have homework after a full day at school?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Should Homework Be Banned?",
+      "top_tip": "Think about learning, free time, family life and whether all homework is equally useful.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "67c4e97b456ebe4df847c2c4ddd05b7d414b80f759ad95fd5cfcc08b90852fa7",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-02",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should children be allowed to choose their own bedtime?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Who Should Choose Bedtime?",
+      "top_tip": "Consider freedom, responsibility, sleep and what happens the next morning.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "e79a129eea31713959c8e3bb1234b6706f2b570de2c05b59ea1eaa96d2e630d8",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-03",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should every school have an animal that pupils help to look after?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Every School Needs a Pet",
+      "top_tip": "Consider responsibility and enjoyment, but also allergies, cost, holidays and animal welfare.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "8e34f33dab7b8050686ae4301bb1ff3d388d3a2ac1d5efa59799725fd80995ca",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-04",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should the school week be four longer days instead of five normal days?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "The Three-Day Weekend",
+      "top_tip": "Compare the benefits of an extra day off with what longer school days might feel like.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "a847cfbc619f0e95b17b7f2475a781cc15c527829a608127dbe5b1ae6bf9c67e",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-05",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should robots or AI be allowed to teach some school lessons?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Robot Teachers?",
+      "top_tip": "Think about what technology might do brilliantly and what a human teacher can do that a machine may struggle with.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "1403ce2f692cdaa4d0ee91bb7fb9e2c0a214f8130d23697b94364079f8bed3b5",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-06",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should cars be banned from busy town centres?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Car-Free Town Centres",
+      "top_tip": "Think about safety, pollution and pleasant streets, but also deliveries, disabilities and people who need to travel.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "cf96a5e77e58d4e861b1afb977c922dda1f2162937c8f0a3db342e671424c668",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-07",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should children have to do jobs at home to earn pocket money?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Should Pocket Money Be Earned?",
+      "top_tip": "Think about responsibility and fairness. Are some household jobs simply part of being in a family?",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "a02a02db3bdb3887b3de58443e7966a892b63e56ce039154a449071a36805d13",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-08",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should schools shorten lessons so children can have longer breaktimes?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "More Break, Less Lesson?",
+      "top_tip": "Consider concentration, exercise, friendships and how much learning time would be lost.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "bc22ad3fd559dd204184eeeedc22f19bfecc5983fa73123945384fcddf41b41b",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-09",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should zoos continue to exist?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Should Zoos Exist?",
+      "top_tip": "Consider conservation and education as well as animal freedom and welfare. This is a good prompt for acknowledging a strong opposing argument.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "4ea16d5deb5ce0a28adf6f2be15abc6f9915727f32f1c3764024b30c53273dac",
+    "review_status": "in_review",
+    "row_status": "active"
+  },
+  {
+    "stable_prompt_key": "PERSUADE-10",
+    "challenge_type": "persuasion",
+    "content_version": "v1",
+    "prompt_text": "Should competitive video gaming count as a sport?",
+    "instruction_text": "Persuasion means trying to convince somebody.\n\nChoose a clear position, then give your strongest reasons. A powerful argument also thinks about what somebody on the other side might say.\n\nYou do not have to choose the answer you think an adult would prefer. You need to make the strongest case you can.",
+    "configuration": {
+      "content_contract": "adle_review_writing_challenge_content_v1",
+      "title": "Is Gaming a Sport?",
+      "top_tip": "First decide what you think makes something a sport. Then test gaming against your own definition.",
+      "instruction_reference": "adle-review-writing-challenge-2026-08-26-v1:instruction:persuasion",
+      "category_label": "Persuasion",
+      "category_top_tip": "Use this simple structure:\n\nMy position: say exactly what you think.\n\nMy reasons: give two or three strong reasons.\n\nAn example: show why one reason matters.\n\nThe other side: mention a reasonable objection.\n\nMy reply: explain why you still think your position is stronger.",
+      "locale": "en-GB",
+      "provenance": {
+        "source_kind": "user_teaching_content_handoff",
+        "source_reference": "user:ADLE Review Writing Challenge — Teaching Content Handoff:2026-08-26"
+      }
+    },
+    "reuse_policy": "once_per_learner",
+    "release_reference": "adle-review-writing-challenge-2026-08-26-v1",
+    "source_fingerprint": "df5e0a9f55f628c1b19963490a019290b2ac945cb47559dbe1f9e89780d97768",
+    "review_status": "in_review",
+    "row_status": "active"
+  }
+]

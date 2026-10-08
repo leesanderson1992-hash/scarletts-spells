@@ -1,0 +1,19 @@
+{
+  "authorisation_reference": "user-production-v2-inactive-release-2026-08-26",
+  "source": "explicit_user_message",
+  "user_request": "Release the approved v2 prompt package into Production as governed inactive content, without activating Review v3.",
+  "project_ref": "wwohrqtunajrbwxyssjf",
+  "release_reference": "adle-review-writing-challenge-2026-08-26-v2",
+  "package_sha256": "9b53410602db3facb5addc3cf44486d815f323617de56bc8c27f22c9d4f525a6",
+  "manifest_sha256": "8baac80c2d3498a4dc4b90ad82a82d1f0ef764c86714e2cb356b5e629eed71d3",
+  "row_count": 98,
+  "target_review_status": "approved",
+  "target_row_status": "archived",
+  "inactive_mapping": "Archived is the existing non-selectable row state; the schema has no inactive enum value. Approval and content fingerprints are preserved.",
+  "allowed_write": "Insert missing exact v2 rows into public.adle_review_prompt_versions only",
+  "updates_or_deletes_authorised": false,
+  "schema_changes_authorised": false,
+  "rollout_or_gate_changes_authorised": false,
+  "learner_or_scheduler_changes_authorised": false,
+  "v3_water_addition_authorised": false
+}

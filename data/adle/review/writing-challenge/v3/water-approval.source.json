@@ -1,0 +1,11 @@
+{
+  "approval_reference": "user-water-question-supplied-2026-08-26",
+  "source": "explicit_user_response_to_missing_question_clarification",
+  "approved_by": "user",
+  "approved_on": "2026-08-26",
+  "scope": "Water question only; all earlier signed-off content remains unchanged",
+  "water_source_sha256": "bb8d1e7d8d250d11c764f5e01193ec293302b0cfbaea0e09e238bc5aaf3b768a",
+  "previous_manifest_sha256": "8baac80c2d3498a4dc4b90ad82a82d1f0ef764c86714e2cb356b5e629eed71d3",
+  "authorises_database_write": false,
+  "authorises_rollout_activation": false
+}
