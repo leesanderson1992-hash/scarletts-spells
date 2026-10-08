@@ -10,12 +10,15 @@ export function PreviewThemeControl() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-    setReady(true);
+    const frame = requestAnimationFrame(() => {
+      setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+      setReady(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   function choose(next: Theme) {
-    document.documentElement.dataset.theme = next;
+    document.documentElement.setAttribute("data-theme", next);
     try { window.localStorage.setItem(STORAGE_KEY, next); } catch { /* Theme still works for this page. */ }
     setTheme(next);
   }
