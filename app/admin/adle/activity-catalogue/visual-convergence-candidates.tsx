@@ -22,7 +22,11 @@ import {
   Intro as BaseIntro,
   Reflection as BaseReflection,
 } from "@/components/adle/morphology/base-word-family-guided-lesson";
-import { CompoundReadingPage } from "@/components/adle/morphology/closed-compound-guided-lesson";
+import {
+  ClosedCompoundReflectionPreview,
+  CompoundReadingPage,
+  type ClosedCompoundReflectionMiss,
+} from "@/components/adle/morphology/closed-compound-guided-lesson";
 import {
   Controlled as MorphologyControlled,
   Dictation as MorphologyDictation,
@@ -145,12 +149,22 @@ function ReflectionCandidates(props: { candidateId: string; state: VisualFixture
   const [value, setValue] = useState(() => props.state === "completed" || props.state === "restored" ? "I will look for the meaningful word parts." : "");
   if (props.candidateId === "morphology-reflection") return <ReflectionForm key={props.state} state={reflectionState(props.state)} payload={MORPHOLOGY_PAYLOAD} childId="visual-preview-only" assignmentId="visual-preview-only" items={[]} onReflectionText={noop} onPreviewComplete={noop} />;
   if (props.candidateId === "base-reflection") return <BaseReflection payload={BASE_WORD_FAMILY_PREVIEW_PAYLOAD} sentenceAttempts={{ replayed_en_gb: props.state === "incorrect" ? "We replay the song." : "We replayed the song." }} prompt={BASE_WORD_FAMILY_PREVIEW_PAYLOAD.reflectionPrompt} value={value} submitting={false} completionLabel="Finish preview" onValue={setValue} onComplete={noop} />;
+  if (props.candidateId === "compound-reflection") return <ClosedCompoundReflectionPreview key={props.state} closedV1={false} misses={closedCompoundReflectionFixtureMisses(props.state)} promptText="What did you learn about building and spelling compound words?" reflection={value} onReflectionChange={setValue} completionLabel="Finish preview" onComplete={noop} />;
   if (props.candidateId === "common-reflection") {
     const activity = { activityId: "visual-reflection", activityKey: "LESSON_REFLECTION", kind: "reflection", contractVersion: 1, order: 1, wordSlotIds: ["word-1"], assignmentItemIds: [], config: { title: "Look back", prompt: "What one rule did you learn today?" }, answerVisibility: "post_submit_only", evidenceMode: "none", requiredForCompletion: true } as CompiledWordLabSnapshotV1["activities"][number];
     const words = [{ slotId: "word-1", canonicalWordId: "preview-unkind", displayWord: "unkind", roles: ["practice"], learningItemId: null, complexityBand: null, contentRef: { sourceKey: "visual", sourceVersion: "1" }, coverage: {}, schedulingRole: "none", rewardRole: "ineligible" }] as CompiledWordLabSnapshotV1["words"];
     return <WordLabActivityHost key={props.state} activity={activity} words={words} initialState={{ response: value }} muted reducedMotion onStateChange={noop} onReflectionChange={setValue} onComplete={noop} />;
   }
   return null;
+}
+
+function closedCompoundReflectionFixtureMisses(state: VisualFixtureState): readonly ClosedCompoundReflectionMiss[] {
+  const misses: readonly ClosedCompoundReflectionMiss[] = [
+    { displayWord: "rainbow", spellingAttempt: "rain bow", sentenceAttempt: "A rain bow appeared.", spellingMissed: true, sentenceMissed: true, dictationSentence: "A rainbow appeared." },
+    { displayWord: "ice cream", spellingAttempt: "icecream", sentenceAttempt: "I ate icecream.", spellingMissed: true, sentenceMissed: true, dictationSentence: "We shared ice cream." },
+    { displayWord: "well-being", spellingAttempt: "wellbeing", sentenceAttempt: "Wellbeing matters.", spellingMissed: true, sentenceMissed: true, dictationSentence: "Sleep supports well-being." },
+  ];
+  return state === "restored" ? misses.slice(0, 1) : misses;
 }
 
 function SpellCandidates(props: { candidateId: string; state: VisualFixtureState }): ReactNode {

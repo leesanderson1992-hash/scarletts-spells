@@ -137,14 +137,64 @@ function CompoundWordLessonRuntime(props: RuntimeProps) {
   return <WordLabScene beat={beat} phase={phase} muted={state.muted} onMutedChange={(muted) => setState((current) => ({ ...current, muted }))} silent={state.stage === "controlled" || state.stage === "dictation"} guideName="Word Builder">{content}</WordLabScene>;
 }
 
-function ClosedCompoundReflection(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; state: ClosedCompoundResumeState; closedV1: boolean; onReflectionChange: (value: string) => void }) {
-  const misses = props.payload.words.lesson.flatMap((entry) => {
-    const spellingAttempt = props.state.attempts[entry.canonicalWordId] ?? "";
-    const sentenceAttempt = props.state.sentences[entry.canonicalWordId] ?? "";
+export type ClosedCompoundReflectionMiss = {
+  displayWord: string;
+  spellingAttempt: string;
+  sentenceAttempt: string;
+  spellingMissed: boolean;
+  sentenceMissed: boolean;
+  dictationSentence: string;
+};
+
+function closedCompoundReflectionMisses(payload: RuntimePayload, state: ClosedCompoundResumeState): ClosedCompoundReflectionMiss[] {
+  return payload.words.lesson.flatMap((entry) => {
+    const spellingAttempt = state.attempts[entry.canonicalWordId] ?? "";
+    const sentenceAttempt = state.sentences[entry.canonicalWordId] ?? "";
     const spellingMissed = !isAnswerCorrectUnderPolicy(spellingAttempt, entry.displayWord, EXACT_GOVERNED_FORM_ANSWER_POLICY);
     const sentenceMissed = sentenceAttempt.trim() !== entry.dictationSentence.trim();
-    return spellingMissed || sentenceMissed ? [{ entry, spellingAttempt, sentenceAttempt, spellingMissed, sentenceMissed }] : [];
+    return spellingMissed || sentenceMissed ? [{ displayWord: entry.displayWord, spellingAttempt, sentenceAttempt, spellingMissed, sentenceMissed, dictationSentence: entry.dictationSentence }] : [];
   });
+}
+
+type ClosedCompoundReflectionContentProps = {
+  closedV1: boolean;
+  misses: readonly ClosedCompoundReflectionMiss[];
+  promptText: string;
+  reflection: string;
+  onReflectionChange: (value: string) => void;
+};
+
+function ClosedCompoundReflectionContent(props: ClosedCompoundReflectionContentProps) {
+  return <>
+    <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby="closed-compound-reflection-title">
+      <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p>
+      <h2 id="closed-compound-reflection-title" className="mt-2 text-3xl font-black text-white">Think about your compound words</h2>
+      {props.misses.length ? <>
+        <p className="mt-2 text-cyan-100">Let&apos;s look at the words that need another careful check.</p>
+        <div className="mt-4 grid gap-3">{props.misses.map((miss) => <article key={miss.displayWord} className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950">
+          <h3 className="text-xl font-black">{miss.displayWord}</h3>
+          {miss.spellingMissed ? <p className="mt-2">You wrote <span className="font-bold">“{miss.spellingAttempt || "nothing yet"}”</span>. The word is <span className="font-black text-emerald-800">{miss.displayWord}</span>.</p> : null}
+          {miss.sentenceMissed ? <p className="mt-2">Check it in the sentence: <span className="font-semibold">“{miss.dictationSentence}”</span>{miss.sentenceAttempt ? ` You wrote “${miss.sentenceAttempt}”.` : ""}</p> : null}
+        </article>)}</div>
+      </> : <p className="mt-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{props.closedV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form."}</p>}
+    </section>
+    <label className="grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">
+      {props.promptText}
+      <span className="text-sm font-semibold text-cyan-100">Write about what you learned{props.misses.length ? " or what you will remember next time" : "."}</span>
+      <textarea required autoFocus value={props.reflection} onChange={(event) => props.onReflectionChange(event.target.value)} placeholder="I learned that..." className="min-h-32 w-full rounded-2xl border-4 border-cyan-300 bg-white p-4 text-lg font-semibold text-slate-950 placeholder:text-slate-500 shadow-inner outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-200" />
+    </label>
+  </>;
+}
+
+export function ClosedCompoundReflectionPreview(props: ClosedCompoundReflectionContentProps & { completionLabel?: string; onComplete?: () => void }) {
+  return <div className="grid gap-5 text-cyan-50">
+    <ClosedCompoundReflectionContent {...props} />
+    <button type="button" disabled={!props.reflection.trim()} onClick={props.onComplete} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">{props.completionLabel ?? "Finish preview"}</button>
+  </div>;
+}
+
+function ClosedCompoundReflection(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: RuntimePayload; state: ClosedCompoundResumeState; closedV1: boolean; onReflectionChange: (value: string) => void }) {
+  const misses = closedCompoundReflectionMisses(props.payload, props.state);
   const guidedAttempts = props.items.flatMap((item) => {
     if (item.sectionKey === "lesson_intro") return [{ key: item.id, attemptText: "viewed" }];
     if (item.sectionKey !== "guided_practice" || !item.canonicalWordId) return [];
@@ -154,9 +204,10 @@ function ClosedCompoundReflection(props: { childId: string; assignmentId: string
     const incorrectAttempts = isJigsaw ? props.state.jigsawMisses[item.canonicalWordId] ?? 0 : props.state.meaningMisses[item.canonicalWordId] ?? 0;
     return [{ key: item.id, attemptText: JSON.stringify({ completed, incorrectAttempts, assistanceUsed: false }) }];
   });
-  return <form action={completeAdleLessonPartAction} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(guidedAttempts)} />
-    <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby="closed-compound-reflection-title"><p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p><h2 id="closed-compound-reflection-title" className="mt-2 text-3xl font-black text-white">Think about your compound words</h2>{misses.length ? <><p className="mt-2 text-cyan-100">Let&apos;s look at the words that need another careful check.</p><div className="mt-4 grid gap-3">{misses.map(({ entry, spellingAttempt, sentenceAttempt, spellingMissed, sentenceMissed }) => <article key={entry.canonicalWordId} className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950"><h3 className="text-xl font-black">{entry.displayWord}</h3>{spellingMissed ? <p className="mt-2">You wrote <span className="font-bold">“{spellingAttempt || "nothing yet"}”</span>. The word is <span className="font-black text-emerald-800">{entry.displayWord}</span>.</p> : null}{sentenceMissed ? <p className="mt-2">Check it in the sentence: <span className="font-semibold">“{entry.dictationSentence}”</span>{sentenceAttempt ? ` You wrote “${sentenceAttempt}”.` : ""}</p> : null}</article>)}</div></> : <p className="mt-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950">{props.closedV1 ? "You checked each compound word carefully. Remember: the two words join with no space." : "You checked each compound word carefully and kept its governed written form."}</p>}</section>
-    <label className="grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">{props.payload.activities.reflection.promptText}<span className="text-sm font-semibold text-cyan-100">Write about what you learned{misses.length ? " or what you will remember next time" : "."}</span><textarea required autoFocus value={props.state.reflection} onChange={(event) => props.onReflectionChange(event.target.value)} placeholder="I learned that..." className="min-h-32 w-full rounded-2xl border-4 border-cyan-300 bg-white p-4 text-lg font-semibold text-slate-950 placeholder:text-slate-500 shadow-inner outline-none focus:border-amber-300 focus:ring-4 focus:ring-amber-200" /></label><input type="hidden" name="learningReflection" value={props.state.reflection} /><button disabled={!props.state.reflection.trim()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">Finish Word Lab</button></form>;
+  return <form action={completeAdleLessonPartAction} className="grid gap-5 text-cyan-50"><input type="hidden" name="mode" value="child" /><input type="hidden" name="childId" value={props.childId} /><input type="hidden" name="assignmentId" value={props.assignmentId} /><input type="hidden" name="attempts" value={JSON.stringify(Object.entries(props.state.attempts).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationSentenceAttempts" value={JSON.stringify(Object.entries(props.state.sentences).map(([key, attemptText]) => ({ key, attemptText })))} /><input type="hidden" name="dictationAttempts" value="[]" /><input type="hidden" name="probeAttempts" value="[]" /><input type="hidden" name="guidedAttempts" value={JSON.stringify(guidedAttempts)} /><input type="hidden" name="learningReflection" value={props.state.reflection} />
+    <ClosedCompoundReflectionContent closedV1={props.closedV1} misses={misses} promptText={props.payload.activities.reflection.promptText} reflection={props.state.reflection} onReflectionChange={props.onReflectionChange} />
+    <button disabled={!props.state.reflection.trim()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40">Finish Word Lab</button>
+  </form>;
 }
 
 export function ClosedCompoundGuidedLesson(props: { childId: string; assignmentId: string; items: AdleSessionItem[]; payload: ClosedCompoundLessonPayloadV1 }) {
