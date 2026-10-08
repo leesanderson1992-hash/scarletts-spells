@@ -1,0 +1,2 @@
+source_key,source_category,source_name,source_url,source_licence,source_use_note,importability_status,legal_review_status
+adle_2026_10_08_missing_dictionary_12,internal_authored,ADLE 2026-10-08 owner-approved dictionary intake,data/adle/review/dictionary/2026-10-08/adle-missing-dictionary-metadata-review.csv,internal/project-authored,Content owner approved import on 2026-10-08; British pronunciation was checked against Cambridge Dictionary. Editorial metadata and sentences are project-authored.,importable,not_required
