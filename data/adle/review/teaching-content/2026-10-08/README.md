@@ -1,6 +1,6 @@
 # Approved ADLE word teaching content, 8 October 2026
 
-Katie Sanderson approved the five-row teaching-content draft for production import in the Codex conversation on 8 October 2026. The source file is retained byte-for-byte. `approved-normalized.csv` removes 42 duplicate header columns; each duplicate held the same value in all five rows. The approved wording is otherwise unchanged.
+Katie Sanderson approved the five-row teaching-content draft for production import in the Codex conversation on 8 October 2026. The source file is retained byte-for-byte. `approved-normalized.csv` removes 42 duplicate header columns; each duplicate held the same value in all five rows. It records content-owner approval in the review fields while keeping `runtimeEligible=false`. The lesson wording is unchanged.
 
 The five rows are for `renew`, `unlocked`, `responsible`, `ingredients`, and `scrolling`. Each has six proposed activities, two dictation sentences, and two proofreading examples. The JSON fields parse and both dictations contain the target word. The live Production canonical words and the referenced skill-level content records exist and are approved. The prefix/suffix profile IDs and source hashes, and the Base Word authority IDs and semantic fingerprints, match the source snapshot.
 
