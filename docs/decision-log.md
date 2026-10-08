@@ -1,5 +1,34 @@
 # Decision Log
 
+## 2026-09-02 — ADLE Context Resolver CR.1 authority established
+
+### Decision
+
+- Added `ADLE_CONTEXT_RESOLVER_CONTRACT_V1` as the sole owner of the `CONTEXT`
+  dimension, separate from canonical identity, writing provenance, and evidence
+  qualification.
+- Governed V1 is limited to `THERE_THEIR_THEYRE`, `TO_TOO_TWO`, `YOUR_YOURE`,
+  and `ITS_ITS`, bound to the ten exact canonical word keys and four existing
+  Domain 4 micro-skill keys.
+- Context decisions are occurrence-level. `NOT_REQUIRED` proves only registry
+  non-membership and never positive semantic correctness.
+- Classifier calibration remains family-specific, separately approved, and
+  versioned; CR.1 adopts no permanent numeric threshold.
+
+### Runtime boundary
+
+- This gate adds pure contracts, binding validation, deterministic identities,
+  and synthetic fixtures only.
+- No context rule engine, locator, persistence, writing flow, parent review,
+  Gold Bar, authentic-use, proficiency, retirement, Production, deployment,
+  commit, or push is included.
+
+### Next gate
+
+- `CR.2`: deterministic validator plus all-occurrence locator only.
+
+---
+
 ## 2026-09-01 — ADLE target final-rung retirement policy approved
 
 ### Decision

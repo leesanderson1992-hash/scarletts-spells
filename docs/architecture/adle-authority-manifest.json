@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "manifestVersion": "ADLE_AUTHORITY_MANIFEST_V1_2026-08-30",
+  "manifestVersion": "ADLE_AUTHORITY_MANIFEST_V1_2026-09-02",
   "authorities": [
     {
       "key": "word_progression_and_review",
@@ -135,6 +135,17 @@
       "supersededDocuments": []
     },
     {
+      "key": "contextual_usage_validation",
+      "canonicalDocument": "docs/contracts/adle-context-resolver-contract.md",
+      "status": "APPROVED_TARGET_NOT_YET_IMPLEMENTED",
+      "targetTerminologyScope": true,
+      "currentRuntimePolicy": "no contextual usage validator is invoked by learner-facing runtime",
+      "approvedTargetPolicy": "occurrence-level contextual usage contracts and the governed four-family V1 registry; CR.2+ decision/runtime work is deferred",
+      "policyVersion": "ADLE_CONTEXT_RESOLVER_CONTRACT_V1",
+      "requiredIdentifiers": ["ADLE_CONTEXT_REGISTRY_V1_2026-09-02", "NOT_REQUIRED", "CR.1_AUTHORITY_ONLY"],
+      "supersededDocuments": []
+    },
+    {
       "key": "daily_assignment_composition",
       "canonicalDocument": "docs/contracts/adle-daily-assignment-composer-contract.md",
       "status": "ACTIVE_NORMATIVE_CONTRACT",
@@ -183,6 +194,7 @@
     "docs/product/adle-proficiency-progression-experience.md",
     "docs/contracts/micro-skill-taxonomy-and-assignment-contract.md",
     "docs/contracts/writing-engine-mastery-and-evidence-contract.md",
-    "docs/contracts/adle-final-rung-retirement-contract.md"
+    "docs/contracts/adle-final-rung-retirement-contract.md",
+    "docs/contracts/adle-context-resolver-contract.md"
   ]
 }

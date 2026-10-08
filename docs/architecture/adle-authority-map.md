@@ -2,7 +2,7 @@
 
 ## Status
 
-Authority manifest: `ADLE_AUTHORITY_MANIFEST_V1_2026-08-30`
+Authority manifest: `ADLE_AUTHORITY_MANIFEST_V1_2026-09-02`
 
 This is the entry point for ADLE policy work. If two documents appear to define
 the same rule, the owner in this map and
@@ -24,6 +24,7 @@ target.
 | child/parent proficiency presentation | `docs/product/adle-proficiency-progression-experience.md` | complete target surface not live | approved, not implemented | child/parent UI |
 | canonical word metadata and curriculum readiness | `docs/contracts/canonical-spelling-word-map-contract.md` | released content authorities | active normative | relationship adapters, composer, complexity |
 | resolver and exact canonical mapping | `docs/contracts/parent-recommended-canonical-mapping.md` | released exact mapping authorities | active normative | diagnosis, Phase B relationship adapter |
+| occurrence-level contextual usage validation | `docs/contracts/adle-context-resolver-contract.md` | no learner-facing context validator | CR.1 authority proven; CR.2+ not implemented | future evidence qualification authorities |
 | daily assignment composition | `docs/contracts/adle-daily-assignment-composer-contract.md` | released composer/snapshot routes | active normative | assignment generation |
 | Word Treasure and rewards | `docs/contracts/reward-system-contract.md` | released plus compatibility paths | active normative | reward consumers and UI |
 | what is live now | `docs/implementation/adle-current-state-and-release-registry.md` | current operational registry | not target authority | release and audit work |
@@ -56,7 +57,7 @@ two into a hybrid implementation.
 5. `docs/pedagogy/adle-proficiency-task-evidence-matrix.md`;
 6. `docs/implementation/adle-proficiency-v1-maths.md`;
 7. `docs/product/adle-proficiency-progression-experience.md`; and
-8. word-map, resolver, evidence-lineage, reward, and current-runtime authorities
+8. context resolver, word-map, canonical resolver, evidence-lineage, reward, and current-runtime authorities
    as the task requires.
 
 ## Word progression versus micro-skill proficiency
@@ -79,14 +80,12 @@ PROPOSED_V1_DEFAULT — OWNER DECISION REQUIRED
 They are calibrated after the real relationship, evidence, group, complexity,
 and eligibility pools can be inspected. They do not block Phase B.
 
-## Next authorised engineering step
+## Next authorised Context Resolver engineering step
 
-Phase B only: a server-only, read-only, no-schema
-`CanonicalWordSkillRelationship` authority and reconciliation report. The
-exact bounded prompt is in
-`docs/implementation/adle-proficiency-overhaul-plan.md`. Scheduler replacement,
-learner scoring, composer integration, UI, rewards, writes, and deployment are
-not authorised by Phase B.
+CR.2 only: deterministic validator plus all-occurrence locator against the
+governed V1 registry and corpus. Runtime integration, persistence, classifier
+calls, learner scoring, parent review, Gold Bar, proficiency, retirement,
+Production mutation, and deployment are not authorised by CR.2.
 
 ## Future policy changes
 

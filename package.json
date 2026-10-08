@@ -9,6 +9,7 @@
     "typecheck:scripts": "npx tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint",
     "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",
+    "adle:context-resolver-cr1-regression": "tsx scripts/adle-context-resolver-cr1-regression.ts",
     "adle:word-skill-relationship-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-relationship-regression.ts",
     "adle:word-skill-reconciliation": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-reconciliation.ts",
     "adle:learner-evidence-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-learner-evidence-regression.ts",
@@ -394,5 +395,15 @@
     "nanoid": "3.3.18",
     "postcss": "8.5.23",
     "sharp": "$sharp"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
