@@ -64,6 +64,13 @@ SHA-bound approval and release steps; never copy an old SHA into a new
 deployment to make the checks pass. Production changes still require the
 explicit authority stated above.
 
+The `main` Git auto-deployment is disabled in `vercel.json`: pushing an approved
+commit must not silently replace the public alias with a held deployment.
+Stage and verify the exact commit as a Production deployment, push `main`, then
+promote that staged build and perform the policy/scheduler cutover. Restore
+the previous alias if the cutover fails. Do not turn automatic `main`
+deployments back on while the project-level release hold remains enabled.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

@@ -1,6 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
+      "main": false,
       "experiment/ai-context-benchmark": false
     }
   },
