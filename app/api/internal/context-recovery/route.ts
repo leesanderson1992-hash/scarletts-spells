@@ -19,6 +19,18 @@ function authorised(request: NextRequest) {
     left.length === right.length && timingSafeEqual(left, right);
 }
 
+/** Safe deployment readback: never claims or sends a writing-context job. */
+export async function HEAD(request: NextRequest) {
+  if (!authorised(request)) return new Response(null, { status: 401 });
+  return new Response(null, { status: 200, headers: {
+    "Cache-Control": "no-store",
+    "X-Context-Deployment-Sha": process.env.CONTEXT_AI_DEPLOYMENT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA ?? "missing",
+    "X-Context-Runtime-Fingerprint": CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+    "X-Context-Release-Hold": process.env.CONTEXT_AI_RELEASE_HOLD === "enabled" ? "enabled" : "disabled",
+    "X-Context-Identity-Valid": contextShadowIdentity() ? "true" : "false",
+  } });
+}
+
 export async function GET(request: NextRequest) {
   if (!authorised(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });

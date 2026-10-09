@@ -43,13 +43,17 @@ fingerprint, runtime fingerprint, owner and evidence reference. Check that
 the active policy has the intended rate card and spend limits, and that the
 approval and learner authorisations are current and unrevoked.
 
-Keep the database AI control disabled and the recovery scheduler off during
-the release. Build a candidate deployment with its exact
+For an ordinary code-only release under the owner's standing permission, keep
+the currently approved alias and scheduler active while staging the candidate.
+Use the authenticated, side-effect-free `HEAD /api/internal/context-recovery`
+readback to verify the candidate without claiming queued work. For a change
+to AI terms or a failed readback, disable database AI control and the recovery
+scheduler until the release is safe. Build a candidate deployment with its exact
 `CONTEXT_AI_DEPLOYMENT_SHA` and a per-deployment
 `CONTEXT_AI_RELEASE_HOLD=disabled` override. Verify
 its authenticated SHA, runtime and hold readback against the new approval
 before promotion. After promotion, verify the public alias has the same
-readback; only then activate the policy and scheduler for that SHA. Check the
+readback; then bind the policy and scheduler to that SHA as one cutover. Check the
 safety monitor, authenticated recovery response, scheduler delivery and send
 ledger. If a binding or safety check fails, disable AI control and the
 scheduler until corrected.
