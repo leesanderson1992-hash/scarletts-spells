@@ -70,6 +70,8 @@ assert(noChildGroup.blockers.includes("no_selectable_child_group"));
 assert.equal(noChildGroup.compilerReadyForChild, false);
 assert.equal(ityDerivedBlockerAction("two_part_analysis_required").target,
   "td-route-D4_MOR_SUFFIXES_ITY");
+assert.equal(ityDerivedBlockerAction("base_meaning_missing").target,
+  "td-canonical-word-sum");
 const selection = selectDynamicAffixWordLab({ profiles: [governedProfile],
   learningItems: [{ ...fixture.selection.authenticTargets[0]!, childId }] });
 assert(selection, "four-word -ity group selects");
