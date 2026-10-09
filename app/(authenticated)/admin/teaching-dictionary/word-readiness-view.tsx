@@ -132,7 +132,7 @@ export function WordReadinessView(props: {
                 {row.source === "approved teaching submission" ? "Open approved submission" : "Edit route facts"}
               </a>}
               {row.suggested && <span className="mt-1 block text-xs font-normal">Suggested from reviewed facts; select this skill to work on it.</span>}
-              {row.key === "D4_MOR_SUFFIXES_ITY" && props.derivedIty?.ready && !row.released && <Link className="mt-1 block text-xs font-normal underline" href="/admin/teaching-dictionary/routes?audit=ity">Check direct -ity candidate</Link>}
+              {row.key === "D4_MOR_SUFFIXES_ITY" && !row.released && <Link className="mt-1 block text-xs font-normal underline" href="/admin/teaching-dictionary/routes?audit=ity">{props.derivedIty?.ready ? "Check reviewed -ity candidate" : "Review -ity candidate blockers"}</Link>}
             </th>
             {visibleColumns.map((kind) => <td key={kind} className="p-3">{activityCell(row, kind)}</td>)}
           </tr>)}

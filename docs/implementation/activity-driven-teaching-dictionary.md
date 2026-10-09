@@ -12,6 +12,10 @@ The [candidate derivation](../../lib/adle/morphology/derived-suffix-candidate.ts
 
 The [read-only audit](<../../app/(authenticated)/admin/teaching-dictionary/routes/page.tsx>) compares these candidates with the current released `-ity` pool and lists exact blockers. `ADLE_ITY_DERIVED_SELECTION_MODE=shadow` compares lesson selections in logs while leaving the released pool authoritative. `enabled` adds qualifying reviewed candidates to the selector and the canonical intake readiness projection. The default (unset) uses released members only. Enable only after shadow results and learner-flow proof show matching question answers, valid group selection, and immutable snapshots.
 
+The route overview now offers a read-only child comparison. It runs released and reviewed-fact selection through the same group selector and shared question compiler, reports whether a new candidate was actually selected, and links each excluded word to a corrective control. It does not create assignments or switch the rollout flag. Compilation is only one gate; Finish, reload and persisted snapshot replay remain required before enabling.
+
+On 2026-10-09 the Production audit scanned 12 reviewed `-ity` words: four already had released members, none was newly derivable, and eight were excluded. `activity` has a three-part analysis, no published shared definition and no reviewed canonical morphology suitable for the narrow direct-suffix derivation. Test 2 had two `-ity` learning items awaiting review outcome and no selectable four-word lesson group. Thus the selector stays on released members. These figures are a point-in-time audit, not a permanent curriculum count.
+
 Derived selections bind reviewed morphology, dictionary-word and dictation source hashes in Snapshot v3. The validator accepts either a released suffix member or reviewed morphology as the per-word structural authority; existing snapshots are unchanged.
 
 ## Remaining route migration

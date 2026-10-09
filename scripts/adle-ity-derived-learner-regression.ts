@@ -7,6 +7,8 @@ import { activityVariantsForRoute } from "../lib/adle/composable-lesson/activity
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { compileDynamicAffixWordLabDecision } from "../lib/adle/morphology/dynamic-affix-compiler-rollout";
 import { deriveReviewedSuffixCandidate } from "../lib/adle/morphology/derived-suffix-candidate";
+import { compareItyDerivedSelection } from "../lib/adle/morphology/ity-derived-shadow-comparison";
+import { ityDerivedBlockerAction } from "../lib/adle/morphology/ity-derived-blockers";
 import { resolveDynamicAffixLessonAuthorityV3 } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { selectDynamicAffixWordLab } from "../lib/adle/morphology/affix-word-lab";
 import { compileDynamicAffixSelectionThroughSharedCompiler } from "../lib/adle/morphology/shared-affix-compatibility";
@@ -48,6 +50,26 @@ const governedProfile = { ...profile,
   wordsByCanonicalId: new Map(governedWords.map((word) => [word.canonicalWordId, word])),
 };
 const childId = "00000000-0000-4000-8000-000000000301";
+const releasedProfile = { ...governedProfile, wordsByCanonicalId: new Map(governedWords
+  .filter((word) => word.canonicalWordId !== derived.word!.canonicalWordId)
+  .map((word) => [word.canonicalWordId, word] as const)) };
+const shadowAudit = { profileKey: profile.microSkillKey, scanned: 1,
+  newlyEligible: [derived.word], alreadyReleased: [], excluded: [] };
+const shadowComparison = compareItyDerivedSelection({ profile: releasedProfile,
+  learningItems: [{ ...fixture.selection.authenticTargets[0]!, childId }], audit: shadowAudit });
+assert(shadowComparison.compilerReadyForChild, shadowComparison.blockers.join(", "));
+assert(shadowComparison.selectedNewWordIds.includes(derived.word.canonicalWordId));
+assert(shadowComparison.selectionChanged);
+const emptyComparison = compareItyDerivedSelection({ profile: releasedProfile,
+  learningItems: [{ ...fixture.selection.authenticTargets[0]!, childId }],
+  audit: { ...shadowAudit, newlyEligible: [] } });
+assert(emptyComparison.blockers.includes("no_new_reviewed_candidates"));
+const noChildGroup = compareItyDerivedSelection({ profile: releasedProfile,
+  learningItems: [], audit: shadowAudit });
+assert(noChildGroup.blockers.includes("no_selectable_child_group"));
+assert.equal(noChildGroup.compilerReadyForChild, false);
+assert.equal(ityDerivedBlockerAction("two_part_analysis_required").target,
+  "td-route-D4_MOR_SUFFIXES_ITY");
 const selection = selectDynamicAffixWordLab({ profiles: [governedProfile],
   learningItems: [{ ...fixture.selection.authenticTargets[0]!, childId }] });
 assert(selection, "four-word -ity group selects");
