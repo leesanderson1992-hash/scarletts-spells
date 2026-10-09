@@ -17,6 +17,22 @@ export type RouteContentDraft = {
   content: Record<string, unknown>;
 };
 
+/** Published versions store the route draft wrapper; older submissions store just its facts. */
+export function routeContentFromStoredRow(row: {
+  route_id: string; route_version: string; micro_skill_key: string; content: unknown;
+}): RouteContentDraft {
+  const stored = row.content && typeof row.content === "object" && !Array.isArray(row.content)
+    ? row.content as Record<string, unknown> : {};
+  const facts = stored.content && typeof stored.content === "object" && !Array.isArray(stored.content)
+    ? stored.content as Record<string, unknown> : stored;
+  return {
+    routeId: row.route_id, routeVersion: row.route_version, microSkillKey: row.micro_skill_key,
+    wordMeaning: typeof stored.wordMeaning === "string" ? stored.wordMeaning : typeof facts.wordMeaning === "string" ? facts.wordMeaning : "",
+    wordSum: typeof stored.wordSum === "string" ? stored.wordSum : typeof facts.wordSum === "string" ? facts.wordSum : "",
+    content: facts,
+  };
+}
+
 export type WordDraftPayload = {
   displayWord: string;
   definition: string;

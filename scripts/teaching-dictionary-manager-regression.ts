@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { publicationBlockers, routeBlockers } from "../lib/teaching-dictionary-manager/contracts";
+import { publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
@@ -27,6 +27,10 @@ row.payload.metadata = { syllables: "re-new", phoneme_hint: "rɪˈnjuː", graphe
 row.payload.ageBand = "middle_primary";
 row.payload.frequencyBand = "medium";
 assert.deepEqual(routeBlockers(route, row.payload), []);
+const publishedRoute = routeContentFromStoredRow({ route_id: route.routeId, route_version: route.routeVersion,
+  micro_skill_key: route.microSkillKey, content: route });
+assert.deepEqual(publishedRoute.content, route.content);
+assert.deepEqual(routeBlockers(publishedRoute, row.payload), []);
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
 row.payload.dictationTargetTokenIndex = 0;
 assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("target token")));
