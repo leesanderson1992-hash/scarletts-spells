@@ -286,7 +286,7 @@ async function upsertRows<T extends JsonRecord>(input: {
 }) {
   const { error } = await input.supabase
     .from(input.table)
-    .upsert(input.rows, { onConflict: input.onConflict });
+    .upsert(input.rows as JsonRecord[], { onConflict: input.onConflict });
 
   if (error) {
     throw new Error(`Upsert failed for ${input.table}: ${error.message}`);
