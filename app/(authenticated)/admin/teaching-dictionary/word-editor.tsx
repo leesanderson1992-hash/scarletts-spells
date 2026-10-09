@@ -85,7 +85,7 @@ function PartSequenceEditor(props: {
 }
 
 function skillSlots(initial: string[]) {
-  return Array.from({ length: Math.max(5, initial.length) }, (_, index) => initial[index] ?? "");
+  return [...initial, ""];
 }
 
 export function WordEditor(props: {
@@ -170,7 +170,7 @@ export function WordEditor(props: {
   return <div className="grid gap-6">
     <section id="td-skills" className="rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6">
       <h2 className="text-xl font-semibold">Micro skills</h2>
-      <p className="mt-1 text-sm">Choose a family, cluster and skill. Saving approvals below makes the exact word–skill pair eligible for verified independent-use evidence. It does not activate an ADLE lesson.</p>
+      <p className="mt-1 text-sm">Choose a skill, then save its evidence approval separately from lesson content.</p>
       <div className="mt-4 grid gap-3">
         {slots.map((key, index) => {
           const selected = props.skills.find((skill) => skill.micro_skill_key === key);

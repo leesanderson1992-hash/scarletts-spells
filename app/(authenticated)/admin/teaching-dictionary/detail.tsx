@@ -159,26 +159,19 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
     {params.publish_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
     {params.route_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
-    {draft && <section className="rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Draft {draft.id}</h2><p className="text-sm">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
-      {draftBlockers.length ? <ul className="mt-3 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul> : <p className="mt-3 text-sm">Shared dictionary facts are complete. Route checks are shown below.</p>}
-      {(draft.payload as WordDraftPayload).routeContents.map((route) => {
-        const missing = routeBlockers(route, draft.payload as WordDraftPayload);
-        return <div key={`${route.routeId}:${route.microSkillKey}`} className="mt-3 rounded-lg border border-[var(--border)] p-3 text-sm">
-          <p className="font-semibold">{route.routeId} · {route.microSkillKey} · {missing.length ? `${missing.length} missing facts` : "content ready for route release"}</p>
-          {missing.length > 0 && <ul className="list-disc pl-5 text-amber-900">{missing.map((item) => <li key={item}>{item}</li>)}</ul>}
-        </div>;
-      })}
-      <form action={publishTeachingDictionaryDraft} className="mt-4"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">Publish dictionary facts</button></form>
-      <p className="mt-2 text-xs">If an active route depends on changed facts, publication stops with a route-release blocker. Route content remains pending until its compiler and release authority approve it.</p>
-    </section>}
+    {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0}>
+      <summary className="cursor-pointer font-semibold">Saved draft · {draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
+      <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
+      {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
+      <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">Publish dictionary facts</button></form>
+    </details>}
     {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial}
       draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
       metadataReview={metadata?.review_status ?? null} morphologyReview={morphology?.analysis_status ?? null}
       dictationReview={dictation?.review_status ?? null} definitionPublished={Boolean(sharedDefinition)}
       derivedIty={derivedIty ? { ready: Boolean(derivedIty.word), blockers: derivedIty.blockers } : null}
       routeSources={routeSources} relationships={relationships} members={readinessMembers} skills={skillResult.data ?? []} />}
-    {wordId && <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Publication actions and history</h2>
-      <p className="text-sm">Open an approved submission as a draft, then publish reviewed dictionary facts. Complete prefix and suffix content can be released through the current compiler.</p>
+    {wordId && ((submissionsResult?.data?.length ?? 0) > 0 || (routeContentResult?.data?.length ?? 0) > 0) && <section className="grid gap-3 rounded-lg border border-[var(--border)] bg-white p-4"><h2 className="text-lg font-semibold">Route publication</h2>
       <div id="td-approved-submissions" className="grid gap-2 scroll-mt-6">{(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
         <input type="hidden" name="submission_id" value={submission.id} /><input type="hidden" name="word_id" value={wordId} />
         <span>Approved submission · {submission.route_id} · {publishedSubmissionIds.has(submission.id) ? "published through manager" : submission.runtime_status.replaceAll("_", " ")}</span>
@@ -203,9 +196,8 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
           {version.route_id === "compound_word_lab" && !activated && <p>Compound activation needs reviewed structure authority, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
         </article>;
       })}
-      <Link className="text-sm underline" href="/admin/adle-canonical-intake-readiness">Check child-scoped readiness</Link>
     </section>}
-    {wordId && <section className="rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Source and review history</h2>
+    {wordId && <details className="rounded-lg border border-[var(--border)] bg-white p-4"><summary className="cursor-pointer font-semibold">Source and review history</summary>
       <p className="mt-1 text-sm">Current dictionary source: {word?.source_category} · {word?.source_name || "unnamed source"} · {word?.source_use_note || "no note"}</p>
       <p className="mt-1 break-all text-xs">Import batch {word?.import_batch_id} · source row {word?.source_row_hash}</p>
       <ul className="mt-3 grid gap-2 text-sm">{(historyResult?.data ?? []).map((version) => <li key={version.id}>
@@ -213,7 +205,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
         {` · ${version.source_kind} · ${version.source_reference} · created by ${version.created_by}`}
         {historyPublicationByDraft.has(version.id) ? ` · published by ${historyPublicationByDraft.get(version.id)?.published_by}` : " · draft"}
       </li>)}</ul>
-    </section>}
+    </details>}
     <WordEditor wordId={wordId} normalisedWord={normalisedWord} initial={initial} sourceReference={draft?.source_reference ?? word?.source_use_note ?? "Internally authored and reviewed"}
       approvalEnabled={Boolean(approvalControls?.review_enabled && approvalControls.publication_enabled && approvalControls.withdrawal_enabled)}
       skills={skillResult.data ?? []} families={families} clusters={clusters}

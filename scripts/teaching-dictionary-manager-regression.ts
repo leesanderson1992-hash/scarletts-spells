@@ -10,6 +10,7 @@ import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
 import { activityVariantsForRoute, validateActivityVariantInventory } from "../lib/adle/composable-lesson/activity-variants";
 import { assessWordActivities } from "../lib/teaching-dictionary-manager/activity-assessment";
+import { matrixCell, matrixColumns } from "../lib/teaching-dictionary-manager/activity-matrix";
 import { deriveReviewedSuffixCandidate } from "../lib/adle/morphology/derived-suffix-candidate";
 import { isDynamicAffixWordLessonReady } from "../lib/adle/morphology/dynamic-affix-transfer-selection";
 
@@ -99,6 +100,15 @@ const ityAssessments = assessWordActivities({ microSkillKey: "D4_MOR_SUFFIXES_IT
 assert.equal(ityAssessments.find((item) => item.variant.kind === "meaning_sort")?.status, "not_used");
 assert.equal(ityAssessments.find((item) => item.variant.kind === "dictation")?.status, "needs_review");
 assert.equal(ityAssessments.find((item) => item.variant.kind === "cleaver")?.status, "missing");
+assert.deepEqual(matrixColumns([ityAssessments]).includes("cleaver"), true);
+assert.equal(matrixCell(ityAssessments.find((item) => item.variant.kind === "introduction"), "D4_MOR_SUFFIXES_ITY").state, "not_applicable");
+assert.equal(matrixCell(ityAssessments.find((item) => item.variant.kind === "meaning_sort"), "D4_MOR_SUFFIXES_ITY").state, "not_applicable");
+const cleaverCell = matrixCell(ityAssessments.find((item) => item.variant.kind === "cleaver"), "D4_MOR_SUFFIXES_ITY");
+assert.equal(cleaverCell.state, "warning");
+assert.match(cleaverCell.action?.href ?? "", /^#td-/);
+const releasedIty = assessWordActivities({ microSkillKey: "D4_MOR_SUFFIXES_ITY", payload: row.payload,
+  routeContent: null, releasedMember: true });
+assert.equal(matrixCell(releasedIty.find((item) => item.variant.kind === "cleaver"), "D4_MOR_SUFFIXES_ITY").state, "ready");
 
 const ityProfile = { microSkillKey: "D4_MOR_SUFFIXES_ITY", position: "after" as const,
   meaningBins: [{ id: "state", label: "state", description: "the state of being" }] };
