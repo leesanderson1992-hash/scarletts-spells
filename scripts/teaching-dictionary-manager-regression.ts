@@ -82,7 +82,7 @@ const profile = {
   pedagogy: { version: DYNAMIC_PREFIX_PEDAGOGY_VERSION, teachingCards: policy.targetForms.map((form: string) => definitions.get(form)!),
     validChoiceAudit: [...policy.validChoiceAudit, { word: "renew", choiceVerdicts: { re: true, pre: false, un: false } }],
     meaningCheckKind: policy.meaningCheckKind, meaningResultsPresentation: "none" as const,
-    coverClosePolicy: { kind: "track_ratio" as const, threshold: 0.8 } },
+    coverClosePolicy: { kind: "track_ratio" as const, threshold: 0.8 as const } },
 };
 const selection = selectReviewedPrefixFixture(profile, renew);
 const compiled = compileDynamicPrefixWordLabDecision(selection, { mode: "shared_authoritative", sourceKind: "reviewed_fixture" });
