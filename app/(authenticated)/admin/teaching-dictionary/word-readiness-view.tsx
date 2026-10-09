@@ -82,6 +82,8 @@ export function WordReadinessView(props: {
   });
   const columns = matrixColumns(rows.map((row) => row.assessments));
   const visibleColumns: LessonActivityKind[] = columns.length ? columns : ["introduction", "cleaver", "meaning_sort", "dictation"];
+  const unregisteredIve = /(?:^|\+)\s*suffix:ive(?:\s|\+|$)/i.test(payload.metadata.morphemes)
+    && !routeForSkill("D4_MOR_SUFFIXES_IVE");
 
   function activityCell(row: (typeof rows)[number], kind: LessonActivityKind) {
     const assessment: WordActivityAssessment | undefined = row.assessments.find((item) => item.variant.kind === kind);
@@ -139,6 +141,7 @@ export function WordReadinessView(props: {
           {rows.length === 0 && <tr><td colSpan={visibleColumns.length + 1} className="p-4 text-sm">No micro skill is assigned or approved for this word. <a href="#td-skills" className="font-semibold underline">Choose a skill</a> to see its lesson questions and required facts.</td></tr>}
         </tbody></table>
     </div>
+    {unregisteredIve && <p className="text-xs text-amber-900">Morpheme data mentions -ive, but no -ive specialist lesson route is registered.</p>}
 
     <div className="flex flex-wrap items-center gap-3 text-xs text-[color:var(--mid)]">
       <span>Dictionary review: {props.wordReview.replaceAll("_", " ")}</span>
