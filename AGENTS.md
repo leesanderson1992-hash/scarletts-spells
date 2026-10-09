@@ -23,6 +23,18 @@ decision. Keep credentials and raw authentic spelling evidence private.
 
 # Production writing context AI release gate
 
+The owner granted standing permission on 2026-10-09 for writing-context AI to
+remain active across ordinary Production code deployments until she explicitly
+revokes it. For a deployment that preserves the approved Production OpenAI
+project, model, endpoint, retention/data-sharing terms, configuration and
+runtime fingerprints, rate card, and request/spend limits, this standing
+permission authorises recording a fresh exact-SHA provider approval and
+completing the release without asking for repeated owner consent. Cite the
+2026-10-09 standing permission in each new approval's evidence reference.
+Revocation or a material change to any of those terms requires renewed owner
+authority. This standing permission does not bypass any runtime safety check,
+learner authorisation, or the per-deployment SHA binding below.
+
 For every Production release that may run writing context AI, bind provider
 approval to the **exact commit SHA of the deployment being promoted**. An
 approval for an earlier SHA does not cover a new deployment. Record the new
