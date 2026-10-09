@@ -10,7 +10,7 @@ import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, rou
 import { parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
-import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
+import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
 import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
@@ -361,7 +361,7 @@ export async function saveTeachingDictionarySkillApprovals(form: FormData) {
         if (result.error) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
       }
     }
-    const authority = await loadCanonicalWordSkillRelationshipAuthority({ client: db, environmentKey: environment });
+    const authority = await loadTeachingDictionaryEvidenceAuthority(db, environment);
     const effective = new Set(authority.relationships.filter((row) => row.canonicalWordId === wordId).map((row) => row.microSkillKey));
     for (const key of keys) {
       if (effective.has(key)) continue;

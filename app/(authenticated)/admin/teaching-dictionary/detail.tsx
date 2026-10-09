@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
+import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -74,7 +74,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   }
   const environment = resolveAdleRouteActivationEnvironment();
   const approvalControls = environment ? await loadWordSkillReviewControls(db, environment) : null;
-  const authority = environment && wordId ? await loadCanonicalWordSkillRelationshipAuthority({ client: db, environmentKey: environment }) : null;
+  const authority = environment && wordId ? await loadTeachingDictionaryEvidenceAuthority(db, environment) : null;
   const relationships = (authority?.relationships ?? []).filter((row) => row.canonicalWordId === wordId);
   const memberKeys = [...(prefixResult?.data ?? []), ...(suffixResult?.data ?? [])].flatMap((row) => {
     const raw = "canonical_teaching_dictionary_prefix_profiles" in row

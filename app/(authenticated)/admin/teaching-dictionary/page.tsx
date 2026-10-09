@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
+import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { CsvImportPanel } from "./csv-import-panel";
@@ -56,7 +56,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     ...suffixes.filter((row) => row.row_status === "active" && suffixById.has(row.suffix_profile_id)).map((row) => `${row.canonical_word_id}:${suffixById.get(row.suffix_profile_id)}`),
     ...baseMembers.filter((row) => row.row_status === "active").map((row) => `${row.canonical_word_id}:base_word_lab`),
   ]);
-  const authority = environment ? await loadCanonicalWordSkillRelationshipAuthority({ client: db, environmentKey: environment }) : null;
+  const authority = environment ? await loadTeachingDictionaryEvidenceAuthority(db, environment) : null;
   const skillsByWord = new Map<string, string[]>();
   for (const relationship of authority?.relationships ?? []) {
     skillsByWord.set(relationship.canonicalWordId, [...(skillsByWord.get(relationship.canonicalWordId) ?? []), relationship.microSkillKey]);
