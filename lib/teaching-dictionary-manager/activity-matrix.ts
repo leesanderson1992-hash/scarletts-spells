@@ -47,8 +47,9 @@ export function matrixCell(assessment: WordActivityAssessment | undefined, micro
   return {
     state: "warning",
     reason: first ? `${first.status === "missing" ? "Missing" : "Needs review"}: ${first.label}`
-      : "Facts are present; validate and publish this route member.",
-    action: { label: first ? `Fix ${first.label}` : "Validate route", href: `#${target}` },
+      : assessment.status === "incompatible" ? "This word does not fit this question variant. Review its route facts."
+        : "Facts are present; validate and publish this route member.",
+    action: { label: first ? `${first.status === "missing" ? "Add" : "Review"} ${first.label}` : "Validate route", href: `#${target}` },
     remainingIssues: Math.max(issues.length - 1, 0),
   };
 }

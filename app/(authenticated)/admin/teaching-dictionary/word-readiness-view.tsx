@@ -99,10 +99,8 @@ export function WordReadinessView(props: {
     if (cell.state === "ready") return <span className="font-bold text-emerald-700" title={cell.reason} aria-label={`${ACTIVITY_LABELS[kind]} validated`}>✓</span>;
     return <div className="min-w-28 max-w-44 text-xs leading-5 text-amber-950" title={cell.reason}>
       <span aria-hidden="true" className="text-base">⚠</span><span className="sr-only">Needs work: </span>
-      <a className="ml-1 font-semibold underline underline-offset-2" href={actionHref(issues[0]?.editTarget ?? `td-route-${row.key}`)}>
-        {issues[0] ? `${issues[0].status === "missing" ? "Add" : "Review"} ${issues[0].label}` : "Validate route"}
-      </a>
-      {issues.length > 1 && <details className="ml-5"><summary className="cursor-pointer">+{issues.length - 1} more</summary>
+      <a className="ml-1 font-semibold underline underline-offset-2" href={actionHref(cell.action!.href.slice(1))}>{cell.action!.label}</a>
+      {cell.remainingIssues > 0 && <details className="ml-5"><summary className="cursor-pointer">+{cell.remainingIssues} more</summary>
         {issues.slice(1).map((issue) => <a key={`${issue.editTarget}:${issue.label}`} className="block underline" href={actionHref(issue.editTarget)}>{issue.status === "missing" ? "Add" : "Review"} {issue.label}</a>)}
       </details>}
     </div>;
