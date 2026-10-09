@@ -47,6 +47,7 @@ const adminNav: NavItem[] = [
   { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings", icon: "✎" },
   { label: "No Matching Skill", href: "/admin/no-matching-skill", icon: "◇" },
   { label: "ADLE Requirements", href: "/admin/adle-canonical-intake-readiness", icon: "▤" },
+  { label: "Teaching Dictionary", href: "/admin/teaching-dictionary", icon: "▦" },
 ];
 const adminMore: NavItem[] = [
   { label: "Word–skill Review", href: "/admin/word-skill-review", icon: "✓" },

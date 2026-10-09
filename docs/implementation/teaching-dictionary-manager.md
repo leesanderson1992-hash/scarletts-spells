@@ -1,0 +1,14 @@
+# Teaching Dictionary Manager
+
+The admin workspace at `/admin/teaching-dictionary` has two independent review outcomes.
+
+1. **Evidence approval** publishes an exact canonical-word/micro-skill pair through the existing word-skill package review and publication authority. A manager withdrawal removes only the manager's release. Other effective sources remain visible. Production review, publication and withdrawal controls must all be enabled for this action.
+2. **ADLE route activation** requires reviewed route content and the route's own runtime authority. Prefix and suffix content extends a production-enabled profile by publishing a complete new profile generation. The old generation remains for persisted lesson snapshots. The server verifies that the new profile loads; it rolls back to the old generation if verification fails. Base-word and compound content can be drafted and reviewed here, but their family/structure, teaching-content, dictionary-closure and route-release manifests remain governed separately. Child-specific readiness is still checked by the canonical intake readiness page.
+
+Dictionary facts, source provenance, canonical morphology and route content are saved as immutable manager drafts. Publishing a draft appends definition and route-content versions, and versions canonical morphology. Existing canonical word IDs remain stable. Shared fact changes to a word used by an active route or approved evidence are blocked until a governed release protects existing snapshots; a definition-only edit can publish without changing those facts.
+
+Manual creation and CSV import create drafts. The CSV accepts `normalised_word` or `targetWord`, shared facts, source columns, canonical morphology JSON arrays, and optional route columns. Import errors identify rows. A reviewed teaching-content submission can be opened as a draft, including `renew`; publishing complete prefix content adds it to a reviewed prefix profile. The manager does not generate AI suggestions.
+
+Local checks: `npm run adle:teaching-dictionary-manager-regression`, `npm run adle:learner-evidence-regression`, `npx tsx scripts/adle-dynamic-suffix-ity-regression.ts`, `npx tsx scripts/adle-dynamic-suffix-tion-regression.ts`, `npx tsc --noEmit`, and `npm run build`. The migration and prefix/suffix publication/rollback functions were also exercised against disposable PostgreSQL 17 fixtures.
+
+Production rollout must apply the migration before serving the manager route. The repository's writing-context AI release gate requires approval bound to the exact new commit SHA, then a held candidate readback and staged promotion. Do not reuse the previous SHA approval. After promotion, enable the existing word-skill review controls only after their current authority is verified, and keep the existing AI model and spending policy intact.

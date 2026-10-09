@@ -82,6 +82,7 @@
     "adle:word-skill-relationship-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-relationship-regression.ts",
     "adle:word-skill-reconciliation": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-reconciliation.ts",
     "adle:learner-evidence-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-learner-evidence-regression.ts",
+    "adle:teaching-dictionary-manager-regression": "tsx scripts/teaching-dictionary-manager-regression.ts",
     "adle:learner-evidence-reconciliation": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-learner-evidence-reconciliation.ts",
     "adle:scheduler-simulation-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-scheduler-simulation-regression.ts",
     "adle:target-review-reducer-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-target-review-reducer-regression.ts",
