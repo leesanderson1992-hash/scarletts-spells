@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
+import { hasReleasedRouteContent, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
@@ -31,6 +32,18 @@ const publishedRoute = routeContentFromStoredRow({ route_id: route.routeId, rout
   micro_skill_key: route.microSkillKey, content: route });
 assert.deepEqual(publishedRoute.content, route.content);
 assert.deepEqual(routeBlockers(publishedRoute, row.payload), []);
+assert.equal(hasReleasedRouteContent("base", true, ["released_route_content"]), true);
+assert.equal(hasReleasedRouteContent("base", true, ["approved_resolver_mapping"]), false);
+assert.equal(hasReleasedRouteContent("suffix", true, []), true);
+assert.equal(hasReleasedRouteContent("suffix", false, []), false);
+const suffixChecklist = routeRequirements(routeContentForReadiness({
+  routeId: "dynamic_affix_word_lab", routeVersion: "v3", microSkillKey: "D4_MOR_SUFFIXES_ITY",
+}, row.payload), row.payload);
+assert(suffixChecklist.some((item) => item.label === "suffix form" && item.status === "missing"
+  && item.editTarget === "td-route-D4_MOR_SUFFIXES_ITY-suffixVariant"));
+assert(suffixChecklist.some((item) => item.label === "the dictionary dictation sentence" && item.status === "present"));
+assert(routeRequirements(publishedRoute, row.payload, (target) => target.includes("td-route-"))
+  .some((item) => item.status === "needs_review"));
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
 row.payload.dictationTargetTokenIndex = 0;
 assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("target token")));

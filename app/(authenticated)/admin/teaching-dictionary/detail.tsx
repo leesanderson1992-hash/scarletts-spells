@@ -4,6 +4,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } from "./word-readiness-view";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -36,10 +37,10 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     wordId ? db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
     wordId ? db.from("teaching_dictionary_definition_versions").select("route_id,micro_skill_key,definition,published_at").eq("canonical_word_id", wordId).order("published_at", { ascending: false }).limit(100) : null,
     wordId ? db.from("teaching_dictionary_route_content_versions").select("id,draft_id,route_id,route_version,micro_skill_key,content,runtime_status,published_at").eq("canonical_word_id", wordId).order("published_at", { ascending: false }).limit(50) : null,
-    wordId ? db.from("adle_word_teaching_content_submissions").select("id,route_id,route_version,micro_skill_key,content,runtime_status,imported_at").eq("canonical_word_id", wordId).order("imported_at", { ascending: false }).limit(50) : null,
+    wordId ? db.from("adle_word_teaching_content_submissions").select("id,route_id,route_version,micro_skill_key,content,runtime_status,imported_at").eq("canonical_word_id", wordId).eq("approval_status", "approved_for_import").order("imported_at", { ascending: false }).limit(50) : null,
     wordId ? db.from("canonical_teaching_dictionary_prefix_members").select("id,prefix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_prefix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("canonical_teaching_dictionary_suffix_members").select("id,suffix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_suffix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
+    wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,word_sum,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("teaching_dictionary_manager_drafts").select("id,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
   ]);
   for (const result of [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult]) if (result?.error) throw new Error("TEACHING_DICTIONARY_FACT_READ_FAILED");
@@ -62,6 +63,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const dictation = dictationResult?.data?.[0] ?? null;
   const sharedDefinition = definitionsResult?.data?.find((row) => row.route_id == null)?.definition ?? "";
   const routeContents: RouteContentDraft[] = [];
+  const routeSources: Record<string, ReadinessRouteSource> = {};
   const seen = new Set<string>();
   const contentVersions = routeContentResult?.data ?? [];
   for (const row of [...contentVersions.filter((version) => publishedContent.has(version.id)),
@@ -71,6 +73,9 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     if (seen.has(key)) continue;
     seen.add(key);
     routeContents.push(routeContentFromStoredRow(row));
+    routeSources[row.micro_skill_key] = "id" in row && "draft_id" in row
+      ? publishedContent.has(row.id) ? "manager publication" : "manager draft"
+      : "approved teaching submission";
   }
   const environment = resolveAdleRouteActivationEnvironment();
   const approvalControls = environment ? await loadWordSkillReviewControls(db, environment) : null;
@@ -99,6 +104,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       confidence: word?.confidence ?? "medium" },
     skillKeys: selectedKeys, routeContents,
   };
+  if (draft) for (const content of initial.routeContents) routeSources[content.microSkillKey] = "manager draft";
   const draftBlockers = draft ? publicationBlockers(draft.payload as WordDraftPayload, draft.normalised_word) : [];
   const families: Group[] = (familyResult.data ?? []).map((row) => ({ key: row.skill_family_key, label: row.display_name }));
   const clusters: Group[] = (clusterResult.data ?? []).map((row) => ({ key: row.skill_cluster_key, label: row.display_name, parent: row.skill_family_key }));
@@ -110,6 +116,18 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     const profile = Array.isArray(row.canonical_teaching_dictionary_suffix_profiles) ? row.canonical_teaching_dictionary_suffix_profiles[0] : row.canonical_teaching_dictionary_suffix_profiles;
     return { key: profile?.micro_skill_key as string, member: row, profile };
   });
+  const readinessMembers: ReadinessMember[] = [
+    ...prefixes.filter((item) => item.key).map((item) => ({ key: item.key, kind: "prefix" as const,
+      released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
+        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled })),
+    ...suffixes.filter((item) => item.key).map((item) => ({ key: item.key, kind: "suffix" as const,
+      released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
+        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled })),
+    ...selectedKeys.filter((key) => routeForSkill(key)?.routeId === "base_word_lab").flatMap((key) =>
+      (baseResult?.data ?? []).filter((item) => item.row_status === "active" && item.review_status === "approved_for_first_exposure")
+        .map((item) => ({ key, kind: "base" as const, released: item.assignment_eligible,
+          wordSum: item.word_sum, detail: `Reviewed word sum: ${item.word_sum}` }))),
+  ];
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
     <nav className="text-sm"><Link href="/admin/teaching-dictionary" className="underline">← All words</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
@@ -128,28 +146,18 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       <form action={publishTeachingDictionaryDraft} className="mt-4"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">Publish dictionary facts</button></form>
       <p className="mt-2 text-xs">If an active route depends on changed facts, publication stops with a route-release blocker. Route content remains pending until its compiler and release authority approve it.</p>
     </section>}
-    {wordId && <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Approval and lesson status</h2>
-      <p className="text-sm">Recognition of the word in authentic writing is word-level. Verified independent use contributes to every effective approved skill below; ADLE lessons have separate route gates.</p>
-      {(initial.skillKeys.length ? initial.skillKeys : selectedKeys).map((key) => {
-        const relationship = relationships.find((row) => row.microSkillKey === key);
-        const route = routeForSkill(key);
-        const content = initial.routeContents.find((item) => item.microSkillKey === key && item.routeId === route?.routeId);
-        const blockers = content ? routeBlockers(content, initial) : route ? ["Route-specific word content has not been published."] : [];
-        const specialistReady = [...prefixes, ...suffixes].some((item) => item.key === key
-          && item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
-          && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled);
-        const baseMember = route?.routeId === "base_word_lab" ? baseResult?.data?.find((item) => item.row_status === "active" && item.review_status === "approved_for_first_exposure") : null;
-        return <article key={key} className="rounded-lg border border-[var(--border)] p-4 text-sm"><h3 className="font-semibold">{key}</h3>
-          <p>Evidence: {relationship ? "approved" : "not approved"}{relationship && ` · ${relationship.sourceProvenance.map((source) => `${source.sourceAuthority} (${source.provenanceId})`).join(", ")}`}</p>
-          <p>ADLE: {route ? specialistReady ? "approved profile member; child gates still apply" : baseMember ? "base member present; release and child gates need checking" : blockers.length ? "missing word facts / member" : "content present; route release pending" : "no specialist route"}</p>
-          {blockers.length > 0 && <ul className="list-disc pl-5 text-amber-900">{blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
-        </article>;
-      })}
-      {(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
+    {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial}
+      draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
+      metadataReview={metadata?.review_status ?? null} morphologyReview={morphology?.analysis_status ?? null}
+      dictationReview={dictation?.review_status ?? null} definitionPublished={Boolean(sharedDefinition)}
+      routeSources={routeSources} relationships={relationships} members={readinessMembers} skills={skillResult.data ?? []} />}
+    {wordId && <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Publication actions and history</h2>
+      <p className="text-sm">Open an approved submission as a draft, then publish reviewed dictionary facts. Complete prefix and suffix content can be released through the current compiler.</p>
+      <div id="td-approved-submissions" className="grid gap-2 scroll-mt-6">{(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
         <input type="hidden" name="submission_id" value={submission.id} /><input type="hidden" name="word_id" value={wordId} />
         <span>Approved submission · {submission.route_id} · {publishedSubmissionIds.has(submission.id) ? "published through manager" : submission.runtime_status.replaceAll("_", " ")}</span>
         <button className="rounded-lg border border-[var(--border)] px-3 py-1 font-semibold">Open as editable draft</button>
-      </form>)}
+      </form>)}</div>
       {(routeContentResult?.data ?? []).map((version) => {
         const content = version.content as RouteContentDraft;
         const blockers = routeBlockers(content, initial);

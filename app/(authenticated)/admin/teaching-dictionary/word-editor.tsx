@@ -79,7 +79,7 @@ export function WordEditor(props: {
     } catch { setRouteError("Route content could not be prepared."); return false; }
   }
   return <div className="grid gap-6">
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
+    <section id="td-skills" className="rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6">
       <h2 className="text-xl font-semibold">Micro skills</h2>
       <p className="mt-1 text-sm">Choose a family, cluster and skill. Saving approvals below makes the exact word–skill pair eligible for verified independent-use evidence. It does not activate an ADLE lesson.</p>
       <div className="mt-4 grid gap-3">
@@ -109,7 +109,7 @@ export function WordEditor(props: {
         })}
       </div>
       <button type="button" className="mt-3 rounded-lg border border-[var(--border)] px-4 py-2 text-sm" onClick={() => setSlots((previous) => [...previous, ""])}>Add another skill</button>
-      {props.wordId ? <form action={saveTeachingDictionarySkillApprovals} className="mt-5">
+      {props.wordId ? <form id="td-evidence-approval" action={saveTeachingDictionarySkillApprovals} className="mt-5 scroll-mt-6">
         <input type="hidden" name="word_id" value={props.wordId} />
         {chosen.map((key) => <input key={key} type="hidden" name="skill_key" value={key} />)}
         <button className={buttonClass} disabled={!props.approvalEnabled}>Save evidence approvals</button>
@@ -117,7 +117,7 @@ export function WordEditor(props: {
       </form> : <p className="mt-3 text-sm">Publish the new word before approving its skills.</p>}
     </section>
 
-    <form action={saveTeachingDictionaryDraft} className="grid gap-5 rounded-2xl border border-[var(--border)] bg-white p-5"
+    <form id="td-word-editor" action={saveTeachingDictionaryDraft} className="grid gap-5 rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6"
       onSubmit={(event) => { if (!prepareRoutePayload(event.currentTarget)) event.preventDefault(); }}>
       <input type="hidden" name="word_id" value={props.wordId ?? ""} />
       <input type="hidden" name="route_contents" value="[]" />
@@ -126,8 +126,8 @@ export function WordEditor(props: {
       <div className="grid gap-3 md:grid-cols-2">
         <label className={labelClass}>Dictionary word<input className={fieldClass} name="normalised_word" defaultValue={props.normalisedWord} readOnly={Boolean(props.wordId)} required /></label>
         <label className={labelClass}>Display word<input className={fieldClass} name="display_word" defaultValue={props.initial.displayWord} required /></label>
-        <label className={`${labelClass} md:col-span-2`}>Shared definition<textarea className={fieldClass} name="definition" value={definition} onChange={(event) => setDefinition(event.target.value)} rows={2} /></label>
-        <label className={`${labelClass} md:col-span-2`}>Dictation sentence<textarea className={fieldClass} name="dictation_sentence" value={dictation} onChange={(event) => setDictation(event.target.value)} rows={2} /></label>
+        <label id="td-definition" className={`${labelClass} md:col-span-2 scroll-mt-6`}>Shared definition<textarea className={fieldClass} name="definition" value={definition} onChange={(event) => setDefinition(event.target.value)} rows={2} /></label>
+        <label id="td-dictation" className={`${labelClass} md:col-span-2 scroll-mt-6`}>Dictation sentence<textarea className={fieldClass} name="dictation_sentence" value={dictation} onChange={(event) => setDictation(event.target.value)} rows={2} /></label>
         <label className={labelClass}>Target word position (zero based)<input className={fieldClass} type="number" min={0} name="dictation_target_token_index" defaultValue={props.initial.dictationTargetTokenIndex} /></label>
         <label className={labelClass}>Source / editorial note<input className={fieldClass} name="source_reference" defaultValue={props.sourceReference} required /></label>
         <label className={labelClass}>Source category<select className={fieldClass} name="source_category" defaultValue={props.initial.provenance.sourceCategory}>
@@ -138,11 +138,11 @@ export function WordEditor(props: {
         <label className={labelClass}>Source URL<input className={fieldClass} name="source_url" defaultValue={props.initial.provenance.sourceUrl} /></label>
         <label className={labelClass}>Source licence<input className={fieldClass} name="source_licence" defaultValue={props.initial.provenance.sourceLicence} /></label>
         <label className={labelClass}>Source use note<input className={fieldClass} name="source_use_note" defaultValue={props.initial.provenance.sourceUseNote} /></label>
-        <label className={labelClass}>Age band<input className={fieldClass} name="age_band" defaultValue={props.initial.ageBand} /></label>
-        <label className={labelClass}>Frequency band<input className={fieldClass} name="frequency_band" defaultValue={props.initial.frequencyBand} /></label>
-        <label className={labelClass}>Complexity band<input className={fieldClass} name="complexity_band" defaultValue={props.initial.complexityBand} /></label>
-        <label className={labelClass}>Has schwa<select className={fieldClass} name="has_schwa" defaultValue={props.initial.metadata.has_schwa == null ? "" : String(props.initial.metadata.has_schwa)}><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
-        {WORD_METADATA_FIELDS.map((field) => <label key={field} className={labelClass}>{field.replaceAll("_", " ")}<input className={fieldClass} name={field} defaultValue={props.initial.metadata[field]} /></label>)}
+        <label id="td-age-band" className={`${labelClass} scroll-mt-6`}>Age band<input className={fieldClass} name="age_band" defaultValue={props.initial.ageBand} /></label>
+        <label id="td-frequency-band" className={`${labelClass} scroll-mt-6`}>Frequency band<input className={fieldClass} name="frequency_band" defaultValue={props.initial.frequencyBand} /></label>
+        <label id="td-complexity-band" className={`${labelClass} scroll-mt-6`}>Complexity band<input className={fieldClass} name="complexity_band" defaultValue={props.initial.complexityBand} /></label>
+        <label id="td-has-schwa" className={`${labelClass} scroll-mt-6`}>Has schwa<select className={fieldClass} name="has_schwa" defaultValue={props.initial.metadata.has_schwa == null ? "" : String(props.initial.metadata.has_schwa)}><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
+        {WORD_METADATA_FIELDS.map((field) => <label id={`td-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{field.replaceAll("_", " ")}<input className={fieldClass} name={field} defaultValue={props.initial.metadata[field]} /></label>)}
       </div>
       <section className="grid gap-3 rounded-xl border border-[var(--border)] p-4">
         <h3 className="text-lg font-semibold">Canonical morphology</h3>
@@ -150,7 +150,7 @@ export function WordEditor(props: {
         <div className="grid gap-3 md:grid-cols-2">
           <label className={labelClass}>Raw segmentation<input className={fieldClass} name="raw_morpholex_segmentation" defaultValue={props.initial.canonicalMorphology.rawSegmentation} /></label>
           <label className={labelClass}>Part of speech<input className={fieldClass} name="raw_morpholex_pos" defaultValue={props.initial.canonicalMorphology.rawPartOfSpeech} /></label>
-          <label className={labelClass}>Canonical word sum<input className={fieldClass} name="canonical_word_sum" defaultValue={props.initial.canonicalMorphology.wordSum} /></label>
+          <label id="td-canonical-word-sum" className={`${labelClass} scroll-mt-6`}>Canonical word sum<input className={fieldClass} name="canonical_word_sum" defaultValue={props.initial.canonicalMorphology.wordSum} /></label>
           <label className={labelClass}>Analysis status<select className={fieldClass} name="analysis_status" defaultValue={props.initial.canonicalMorphology.analysisStatus}>{["in_review", "approved", "not_applicable", "rejected"].map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}</select></label>
           <label className={labelClass}>Parts (JSON array)<textarea className={`${fieldClass} font-mono`} name="morphology_parts" rows={3} defaultValue={JSON.stringify(props.initial.canonicalMorphology.parts, null, 2)} /></label>
           <label className={labelClass}>Feature keys (JSON array)<textarea className={`${fieldClass} font-mono`} name="feature_keys" rows={3} defaultValue={JSON.stringify(props.initial.canonicalMorphology.featureKeys, null, 2)} /></label>
@@ -163,20 +163,20 @@ export function WordEditor(props: {
         <h3 className="text-lg font-semibold">Route-specific content</h3>
         {activeRoutes.length ? activeRoutes.map(({ key, route }) => {
           const item = routes.find((candidate) => candidate.microSkillKey === key && candidate.routeId === route.routeId);
-          return <div key={`${route.routeId}:${key}`} className="grid gap-3 rounded-xl border border-[var(--border)] p-4">
+          return <div id={`td-route-${key}`} key={`${route.routeId}:${key}`} className="grid gap-3 rounded-xl border border-[var(--border)] p-4 scroll-mt-6">
             <p className="font-semibold">{route.routeId} {route.routeVersion} · {key}</p>
             <label className={labelClass}>Teaching meaning override<input className={fieldClass} placeholder={`Shared: ${definition}`} value={routeValue(key, "wordMeaning")} onChange={(event) => updateRoute(key, { wordMeaning: event.target.value })} /></label>
             <label className={labelClass}>Word sum<input className={fieldClass} placeholder={`Canonical: ${props.initial.canonicalMorphology.wordSum}`} value={routeValue(key, "wordSum")} onChange={(event) => updateRoute(key, { wordSum: event.target.value })} /></label>
             {route.routeId === "dynamic_prefix_word_lab" && <div className="grid gap-3 md:grid-cols-2">
-              {([ ["baseWord", "Base word"], ["baseMeaning", "Base meaning"], ["prefixVariant", "Prefix form"], ["meaningBinKey", "Meaning group"] ] as const).map(([field, label]) => <label key={field} className={labelClass}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
+              {([ ["baseWord", "Base word"], ["baseMeaning", "Base meaning"], ["prefixVariant", "Prefix form"], ["meaningBinKey", "Meaning group"] ] as const).map(([field, label]) => <label id={`td-route-${key}-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
               <p className="md:col-span-2 text-xs">The reviewed choice audit and teaching split remain in the JSON below. The route reports them as missing until supplied.</p>
             </div>}
             {route.routeId === "dynamic_affix_word_lab" && <div className="grid gap-3 md:grid-cols-2">
-              {([ ["suffixVariant", "Suffix form"], ["semanticBaseText", "Semantic base or root"], ["semanticBaseKind", "Base or root classification"], ["baseMeaning", "Base meaning"], ["meaningBinKey", "Meaning group"] ] as const).map(([field, label]) => <label key={field} className={labelClass}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
+              {([ ["suffixVariant", "Suffix form"], ["semanticBaseText", "Semantic base or root"], ["semanticBaseKind", "Base or root classification"], ["baseMeaning", "Base meaning"], ["meaningBinKey", "Meaning group"] ] as const).map(([field, label]) => <label id={`td-route-${key}-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
               <p className="md:col-span-2 text-xs">Add reviewed teaching and true-morphology parts, joins, transformations and provenance in the JSON below.</p>
             </div>}
             {route.routeId === "base_word_lab" && <div className="grid gap-3 md:grid-cols-2">
-              {([ ["familyKey", "Family key"], ["baseWord", "Base word"], ["baseMeaning", "Base meaning"] ] as const).map(([field, label]) => <label key={field} className={labelClass}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
+              {([ ["familyKey", "Family key"], ["baseWord", "Base word"], ["baseMeaning", "Base meaning"] ] as const).map(([field, label]) => <label id={`td-route-${key}-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
             </div>}
             {route.routeId === "compound_word_lab" && <label className={labelClass}>Component-to-whole explanation<input className={fieldClass} value={String(item?.content.componentToWholeRelationship ?? "")} onChange={(event) => updateRouteFact(key, "componentToWholeRelationship", event.target.value)} /></label>}
             <label className={labelClass}>Additional route facts (JSON)<textarea className={`${fieldClass} font-mono`} rows={5} value={routeJson[key] ?? JSON.stringify(item?.content ?? {}, null, 2)} onChange={(event) => {
