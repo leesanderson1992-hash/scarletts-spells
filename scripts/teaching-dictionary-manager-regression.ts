@@ -2,11 +2,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
+import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
+import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { hasReleasedRouteContent, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
+import { activityVariantsForRoute, validateActivityVariantInventory } from "../lib/adle/composable-lesson/activity-variants";
+import { assessWordActivities } from "../lib/teaching-dictionary-manager/activity-assessment";
+import { deriveReviewedSuffixCandidate } from "../lib/adle/morphology/derived-suffix-candidate";
+import { isDynamicAffixWordLessonReady } from "../lib/adle/morphology/dynamic-affix-transfer-selection";
 
 const [row] = parseDictionaryCsv([
   "targetWord,routeId,routeVersion,microSkillKey,wordMeaning,wordSum,wordPartsJSON,dictation1_sentence",
@@ -82,4 +87,70 @@ const profile = {
 const selection = selectReviewedPrefixFixture(profile, renew);
 const compiled = compileDynamicPrefixWordLabDecision(selection, { mode: "shared_authoritative", sourceKind: "reviewed_fixture" });
 assert(compiled.ok, `renew prefix lesson must compile: ${compiled.ok ? "" : compiled.blockerCode}`);
+
+assert.deepEqual(validateActivityVariantInventory(), []);
+const ityVariants = activityVariantsForRoute("dynamic_affix_word_lab", "D4_MOR_SUFFIXES_ITY");
+assert(ityVariants.some((variant) => variant.kind === "dictation" && variant.wordScope === "independent_words"));
+assert(ityVariants.some((variant) => variant.kind === "meaning_sort" && !variant.enabled));
+assert(ityVariants.some((variant) => variant.requiredFacts.some((fact) => fact.factKey === "route_applicability"
+  && fact.owner === "reviewed_word_route_facts")));
+const ityAssessments = assessWordActivities({ microSkillKey: "D4_MOR_SUFFIXES_ITY", payload: row.payload,
+  routeContent: null, releasedMember: false });
+assert.equal(ityAssessments.find((item) => item.variant.kind === "meaning_sort")?.status, "not_used");
+assert.equal(ityAssessments.find((item) => item.variant.kind === "dictation")?.status, "needs_review");
+assert.equal(ityAssessments.find((item) => item.variant.kind === "cleaver")?.status, "missing");
+
+const ityProfile = { microSkillKey: "D4_MOR_SUFFIXES_ITY", position: "after" as const,
+  meaningBins: [{ id: "state", label: "state", description: "the state of being" }] };
+const directFacts = {
+  word: { id: "reviewed-activity", displayWord: "activity", sourceRowHash: "a".repeat(64),
+    ageBand: "middle_primary", frequencyBand: "medium", complexityBand: "moderate",
+    rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  morphology: { id: "reviewed-morphology-activity", parts: [{ text: "activ", type: "base", gloss: "doing things" },
+    { text: "ity", type: "suffix", gloss: "state of" }], joins: [], wordSum: "activ + ity → activity",
+    analysisStatus: "approved", reviewStatus: "approved_for_first_exposure",
+    sourceRowHash: "b".repeat(64), sourceName: "reviewed editor" },
+  metadata: { syllables: "ac-tiv-i-ty", phonemeHint: "ak-tiv-i-tee", stressPattern: "second", hasSchwa: false,
+    rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  dictation: { id: "dictation-activity", sourceRowHash: "c".repeat(64), sentence: "The activity was fun.",
+    targetTokenIndex: 1, audioText: "The activity was fun.", rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  definition: "something you do",
+};
+const direct = deriveReviewedSuffixCandidate(ityProfile, directFacts);
+assert(direct.word, direct.blockers.join(", "));
+assert(isDynamicAffixWordLessonReady({ ...ityProfile, productionEnabled: true, affixLabel: "-ity", affixText: "ity",
+  affixMeaning: "state", includeMeaningSort: false, wordsByCanonicalId: new Map(), choices: [],
+  introduction: { title: "", paragraphs: [], spellingRules: [], examples: [] },
+  reflection: { promptKey: "", promptText: "" } }, direct.word));
+const complex = deriveReviewedSuffixCandidate(ityProfile, { ...directFacts, morphology: {
+  ...directFacts.morphology, parts: [{ text: "act", type: "root", gloss: "do" },
+    { text: "ive", type: "suffix", gloss: "doing" }, { text: "ity", type: "suffix", gloss: "state" }],
+} });
+assert(complex.blockers.includes("two_part_analysis_required"));
+const ambiguous = deriveReviewedSuffixCandidate({ ...ityProfile, meaningBins: [...ityProfile.meaningBins,
+  { id: "quality", label: "quality", description: "quality of" }] }, directFacts);
+assert(ambiguous.blockers.includes("meaning_group_ambiguous"));
+const definitionPayload = { ...row.payload, definition: "a revised child-friendly meaning",
+  routeContents: [], canonicalMorphology: emptyMorphology() };
+const publishedFacts = {
+  payload: definitionPayload,
+  word: { display_word: definitionPayload.displayWord, age_band: definitionPayload.ageBand,
+    frequency_band: definitionPayload.frequencyBand, complexity_band: definitionPayload.complexityBand,
+    source_category: definitionPayload.provenance.sourceCategory,
+    source_name: definitionPayload.provenance.sourceName,
+    source_url: definitionPayload.provenance.sourceUrl,
+    source_licence: definitionPayload.provenance.sourceLicence,
+    source_use_note: definitionPayload.provenance.sourceUseNote,
+    confidence: definitionPayload.provenance.confidence },
+  metadata: { ...definitionPayload.metadata },
+  dictation: { dictation_sentence: definitionPayload.dictationSentence,
+    audio_text: definitionPayload.dictationSentence,
+    dictation_target_token_index: definitionPayload.dictationTargetTokenIndex },
+  morphology: null,
+};
+assert(matchesPublishedFactsForDefinitionOnly(publishedFacts));
+assert(!matchesPublishedFactsForDefinitionOnly({ ...publishedFacts,
+  payload: { ...definitionPayload, dictationSentence: "A changed sentence." } }));
+assert(!matchesPublishedFactsForDefinitionOnly({ ...publishedFacts,
+  payload: { ...definitionPayload, routeContents: [publishedRoute] } }));
 console.log("Teaching Dictionary Manager regression passed");

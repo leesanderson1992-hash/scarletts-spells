@@ -4,6 +4,7 @@ import type { LearningItemFact } from "../learning-items";
 import type { MorphologyPartRole, MorphologyWordSnapshot } from "./payload";
 import type { DynamicAffixProfile, DynamicAffixWord } from "./affix-word-lab";
 import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "./dynamic-suffix-profile-keys";
+import { auditDerivedItyCandidates } from "./derived-suffix-candidate-loader";
 
 export { DYNAMIC_SUFFIX_PROFILE_KEYS } from "./dynamic-suffix-profile-keys";
 
@@ -247,7 +248,7 @@ function introduction(value: unknown): DynamicAffixProfile["introduction"] | nul
 export async function loadDynamicSuffixProfiles(
   client: SupabaseClient,
   childId: string,
-  options: { allowStagingProfiles?: boolean } = {},
+  options: { allowStagingProfiles?: boolean; includeDerivedItyCandidates?: boolean } = {},
 ): Promise<{
   profiles: DynamicAffixProfile[];
   learningItems: LearningItemFact[];
@@ -459,6 +460,17 @@ export async function loadDynamicSuffixProfiles(
         sourceRowHash: row.source_row_hash as string,
       },
     });
+  }
+  if (options.includeDerivedItyCandidates) {
+    const index = profiles.findIndex((profile) => profile.microSkillKey === "D4_MOR_SUFFIXES_ITY");
+    if (index >= 0) {
+      const profile = profiles[index]!;
+      const audit = await auditDerivedItyCandidates(client, profile);
+      profiles[index] = { ...profile, wordsByCanonicalId: new Map([
+        ...profile.wordsByCanonicalId,
+        ...audit.newlyEligible.map((word) => [word.canonicalWordId, word] as const),
+      ]) };
+    }
   }
   const learningItems = itemRows.flatMap((row): LearningItemFact[] => {
     if (

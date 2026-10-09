@@ -51,6 +51,7 @@ export type SpecialistSnapshotAuthorityV3 = {
     | "teaching_dictionary_closure"
     | "affix_profile_content"
     | "affix_member_content"
+    | "reviewed_morphology"
     | "teaching_dictionary_word"
     | "dictation_content"
     | "shared_affix_source"

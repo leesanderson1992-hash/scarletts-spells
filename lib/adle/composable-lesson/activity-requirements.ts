@@ -11,6 +11,7 @@ export const ACTIVITY_REQUIREMENT_REGISTRY_VERSION =
 export type ActivityFactOwner =
   | "canonical_word"
   | "word_micro_skill_support"
+  | "reviewed_word_route_facts"
   | "micro_skill_profile"
   | "cluster_recipe"
   | "compiled_assignment_snapshot";
@@ -28,6 +29,7 @@ export type ActivityFactKey =
   | "age_band"
   | "complexity_band"
   | "word_micro_skill_support"
+  | "route_applicability"
   | "child_meaning"
   | "whole_word_meaning"
   | "meaning_group"

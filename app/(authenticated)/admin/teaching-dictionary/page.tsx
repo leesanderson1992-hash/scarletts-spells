@@ -81,7 +81,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     <header><h1 className="text-3xl font-semibold">Teaching Dictionary Manager</h1><p className="mt-2 text-sm">Manage shared word facts, exact evidence approvals, and ADLE route readiness in one place.</p></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
-    <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
+    <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
     <CsvImportPanel />
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">

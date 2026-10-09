@@ -45,6 +45,8 @@ export interface DynamicAffixWord {
   approvedTransfer: boolean;
   /** Governed row identities used only by immutable specialist snapshots. */
   governance?: {
+    /** A reviewed morphology version can supply a lesson without a route member. */
+    sourceKind?: "affix_member_content" | "reviewed_morphology";
     memberId: string;
     memberSourceRowHash: string;
     dictionaryWordSourceRowHash: string;

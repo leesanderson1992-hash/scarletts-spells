@@ -273,7 +273,7 @@ function dynamicAuthorities(
     if (!governed) throw new Error(`compileDynamicAffixSpecialistSnapshotV3:missing_word_governance:${word.canonicalWordId}`);
     authorities.push(
       {
-        authorityType: "affix_member_content",
+        authorityType: governed.sourceKind ?? "affix_member_content",
         authorityId: governed.memberId,
         version: input.payload.sourcePayload.contentVersion,
         sourceHash: requireSha(governed.memberSourceRowHash, `${word.canonicalWordId}:member`),

@@ -6,27 +6,31 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } from "./word-readiness-view";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
+import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
+import { deriveReviewedSuffixCandidate } from "@/lib/adle/morphology/derived-suffix-candidate";
 import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, publishTeachingDictionaryPrefixContent, publishTeachingDictionarySuffixContent } from "./actions";
 import { WordEditor } from "./word-editor";
 
-type Params = { draft?: string; saved?: string; error?: string; route_error?: string };
+type Params = { draft?: string; saved?: string; error?: string; route_error?: string; publish_error?: string };
 type Group = { key: string; label: string; parent?: string };
 type Word = { id: string; import_batch_id: string; source_row_hash: string; normalised_word: string; display_word: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null; source_category: WordDraftPayload["provenance"]["sourceCategory"]; source_name: string | null; source_url: string | null; source_licence: string | null; source_use_note: string | null; confidence: WordDraftPayload["provenance"]["confidence"]; row_status: string; review_status: string };
 
 export async function TeachingDictionaryDetail({ wordId, params }: { wordId: string | null; params: Params }) {
   await requireAdminUser();
   const db = createServiceRoleClient();
-  const [wordResult, draftResult, skillResult, familyResult, clusterResult] = await Promise.all([
+  const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult] = await Promise.all([
     wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
     params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key").eq("is_active", true).eq("is_assignable", true).order("display_name"),
     db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_clusters").select("skill_cluster_key,skill_family_key,display_name").eq("is_active", true).order("display_name"),
+    db.from("canonical_teaching_dictionary_prefix_profiles").select("micro_skill_key,meaning_bins,prefix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    db.from("canonical_teaching_dictionary_suffix_profiles").select("micro_skill_key,meaning_bins,suffix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
   ]);
-  if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
+  if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error || prefixProfilesResult.error || suffixProfilesResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
   const word = wordResult?.data as Word | null;
   const draft = draftResult?.data ?? null;
   if ((wordId && !word) || (params.draft && !draft) || (draft && draft.canonical_word_id !== wordId)) notFound();
@@ -62,6 +66,26 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const morphology = morphologyResult?.data?.[0] ?? null;
   const dictation = dictationResult?.data?.[0] ?? null;
   const sharedDefinition = definitionsResult?.data?.find((row) => row.route_id == null)?.definition ?? "";
+  const ityProfileRow = (suffixProfilesResult.data ?? []).find((row) => row.micro_skill_key === "D4_MOR_SUFFIXES_ITY");
+  const ityMeaningBins = Array.isArray(ityProfileRow?.meaning_bins) ? ityProfileRow.meaning_bins as Array<{ id: string; label: string; description: string }> : [];
+  const derivedIty = word && ityProfileRow ? deriveReviewedSuffixCandidate({
+    microSkillKey: "D4_MOR_SUFFIXES_ITY", position: "after", meaningBins: ityMeaningBins,
+  }, {
+    word: { id: word.id, displayWord: word.display_word, sourceRowHash: word.source_row_hash,
+      ageBand: word.age_band, frequencyBand: word.frequency_band, complexityBand: word.complexity_band,
+      rowStatus: word.row_status, reviewStatus: word.review_status },
+    morphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
+      joins: morphology.morphology_joins, wordSum: morphology.word_sum,
+      analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
+      sourceRowHash: morphology.source_row_hash, sourceName: morphology.source_name } : null,
+    metadata: metadata ? { syllables: metadata.syllables, phonemeHint: metadata.phoneme_hint,
+      stressPattern: metadata.stress_pattern, hasSchwa: metadata.has_schwa,
+      rowStatus: metadata.row_status, reviewStatus: metadata.review_status } : null,
+    dictation: dictation ? { id: dictation.id, sourceRowHash: dictation.source_row_hash,
+      sentence: dictation.dictation_sentence, targetTokenIndex: dictation.dictation_target_token_index,
+      audioText: dictation.audio_text, rowStatus: dictation.row_status, reviewStatus: dictation.review_status } : null,
+    definition: sharedDefinition,
+  }) : null;
   const routeContents: RouteContentDraft[] = [];
   const routeSources: Record<string, ReadinessRouteSource> = {};
   const seen = new Set<string>();
@@ -131,8 +155,9 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
     <nav className="text-sm"><Link href="/admin/teaching-dictionary" className="underline">← All words</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
-    {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
+    {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
+    {params.publish_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
     {params.route_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
     {draft && <section className="rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Draft {draft.id}</h2><p className="text-sm">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
       {draftBlockers.length ? <ul className="mt-3 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul> : <p className="mt-3 text-sm">Shared dictionary facts are complete. Route checks are shown below.</p>}
@@ -150,6 +175,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
       metadataReview={metadata?.review_status ?? null} morphologyReview={morphology?.analysis_status ?? null}
       dictationReview={dictation?.review_status ?? null} definitionPublished={Boolean(sharedDefinition)}
+      derivedIty={derivedIty ? { ready: Boolean(derivedIty.word), blockers: derivedIty.blockers } : null}
       routeSources={routeSources} relationships={relationships} members={readinessMembers} skills={skillResult.data ?? []} />}
     {wordId && <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Publication actions and history</h2>
       <p className="text-sm">Open an approved submission as a draft, then publish reviewed dictionary facts. Complete prefix and suffix content can be released through the current compiler.</p>
@@ -191,6 +217,15 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     <WordEditor wordId={wordId} normalisedWord={normalisedWord} initial={initial} sourceReference={draft?.source_reference ?? word?.source_use_note ?? "Internally authored and reviewed"}
       approvalEnabled={Boolean(approvalControls?.review_enabled && approvalControls.publication_enabled && approvalControls.withdrawal_enabled)}
       skills={skillResult.data ?? []} families={families} clusters={clusters}
+      profileOptions={[...(prefixProfilesResult.data ?? []).map((profile) => ({
+        microSkillKey: profile.micro_skill_key,
+        meaningBins: (profile.meaning_bins as { id: string; label: string }[] ?? []),
+        choices: (profile.prefix_choices as { text: string }[] ?? []).map((choice) => choice.text),
+      })), ...(suffixProfilesResult.data ?? []).map((profile) => ({
+        microSkillKey: profile.micro_skill_key,
+        meaningBins: (profile.meaning_bins as { id: string; label: string }[] ?? []),
+        choices: [...(getSharedAffixProfileMapping(profile.micro_skill_key)?.forms ?? [])],
+      }))]}
       routes={ADLE_CURRICULUM_ROUTE_REGISTRY.filter((route) => route.routeId !== "generic_composer").map((route) => ({ routeId: route.routeId, routeVersion: route.routeVersion, supportedMicroSkillKeys: route.supportedMicroSkillKeys }))} />
   </main>;
 }

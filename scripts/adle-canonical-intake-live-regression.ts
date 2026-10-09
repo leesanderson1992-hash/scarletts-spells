@@ -34,7 +34,7 @@ assert(
   "production intake still requires the Prefix profile production flag",
 );
 assert(
-  loader.includes("loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles })") &&
+  loader.includes("loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles,") &&
     loader.includes('canonical_teaching_dictionary_suffix_members') &&
     loader.includes('source: "canonical_teaching_dictionary_suffix_members"'),
   "Dynamic Affix intake reuses the reviewed suffix loader and certifies exact profile members",

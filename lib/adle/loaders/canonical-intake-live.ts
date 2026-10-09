@@ -283,7 +283,8 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
             "micro_skill_key,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,assignment_eligible,row_status,review_status)",
           )
           .in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
-        loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles }),
+        loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles,
+          includeDerivedItyCandidates: process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled" }),
       ]);
     if (rawSuffixError)
       throwQuery("canonical intake Affix readiness facts", rawSuffixError);
@@ -302,6 +303,15 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
         ? loadedProfileByKey.get(profileKey)
         : undefined;
       if (loadedProfile?.productionEnabled) enabled.add(profileKey);
+      if (profileKey === "D4_MOR_SUFFIXES_ITY" && loadedProfile?.productionEnabled
+        && process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled") {
+        for (const word of loadedProfile.wordsByCanonicalId.values()) {
+          if (word.governance?.sourceKind !== "reviewed_morphology") continue;
+          readyPairs.add(canonicalWordSkillPair(word.canonicalWordId, profileKey));
+          routeReadiness.push({ canonicalWordId: word.canonicalWordId, microSkillKey: profileKey,
+            ready: true, blockers: [], evidence: [{ source: "canonical_teaching_dictionary_word_morphology", status: "approved_for_first_exposure" }] });
+        }
+      }
       for (const rawMember of
         profile.canonical_teaching_dictionary_suffix_members ?? []) {
         const member = rawMember as any;

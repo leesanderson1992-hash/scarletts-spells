@@ -11,6 +11,7 @@ import { parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
 import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
@@ -63,6 +64,72 @@ async function publishSuffixVerified(db: ReturnType<typeof createServiceRoleClie
     if (rollback.error) throw new Error("TEACHING_SUFFIX_ROLLBACK_FAILED");
     throw new Error("TEACHING_SUFFIX_RUNTIME_VERIFY_FAILED");
   }
+}
+
+async function publishValidatedDraft(
+  db: ReturnType<typeof createServiceRoleClient>,
+  id: string,
+  actorId: string,
+  payload: WordDraftPayload,
+  normalisedWord: string,
+): Promise<string> {
+  if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
+  const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
+  if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
+    const proof = await definitionOnlyPublicationProof(db, payload, normalisedWord);
+    if (proof) {
+      const definition = await db.rpc("publish_teaching_dictionary_definition_only", {
+        p_draft: id, p_actor: actorId, p_word_source_hash: proof.wordHash,
+        p_metadata_id: proof.metadataId, p_dictation_id: proof.dictationId,
+        p_morphology_id: proof.morphologyId,
+      });
+      if (definition.error || !definition.data) throw new Error("TEACHING_DEFINITION_PUBLICATION_FAILED");
+      return `${PATH}/${definition.data}`;
+    }
+  }
+  if (published.error || !published.data) {
+    throw new Error(published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")
+      ? "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED" : "TEACHING_DRAFT_PUBLISH_FAILED");
+  }
+  let destination = `${PATH}/${published.data}`;
+  const contents = await db.from("teaching_dictionary_route_content_versions").select("id,route_id,content")
+    .eq("draft_id", id).in("route_id", ["dynamic_prefix_word_lab", "dynamic_affix_word_lab"]);
+  if (contents.error) throw new Error("TEACHING_ROUTE_CONTENT_READ_FAILED");
+  for (const content of contents.data ?? []) {
+    if (routeBlockers(content.content as RouteContentDraft, payload).length) continue;
+    try {
+      if (content.route_id === "dynamic_prefix_word_lab") await publishPrefixVerified(db, content.id, actorId);
+      else await publishSuffixVerified(db, content.id, actorId);
+    } catch (error) {
+      destination += `?route_error=${encodeURIComponent(errorCode(error))}`;
+      break;
+    }
+  }
+  return destination;
+}
+
+async function definitionOnlyPublicationProof(
+  db: ReturnType<typeof createServiceRoleClient>,
+  payload: WordDraftPayload,
+  normalisedWord: string,
+): Promise<{ wordHash: string; metadataId: string | null; dictationId: string | null; morphologyId: string | null } | null> {
+  if (payload.routeContents.length > 0) return null;
+  const wordResult = await db.from("canonical_teaching_dictionary_words").select("*")
+    .eq("normalised_word", normalisedWord).eq("dialect_code", "en-GB").eq("row_status", "active").maybeSingle();
+  if (wordResult.error || !wordResult.data) return null;
+  const word = wordResult.data;
+  const [metadataResult, dictationResult, morphologyResult] = await Promise.all([
+    db.from("canonical_teaching_dictionary_word_metadata").select("*").eq("canonical_word_id", word.id).eq("row_status", "active").maybeSingle(),
+    db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", word.id).eq("row_status", "active").maybeSingle(),
+    db.from("canonical_teaching_dictionary_word_morphology").select("*").eq("canonical_word_id", word.id).eq("row_status", "active").maybeSingle(),
+  ]);
+  if (metadataResult.error || dictationResult.error || morphologyResult.error) return null;
+  const metadata = metadataResult.data;
+  const dictation = dictationResult.data;
+  const morphology = morphologyResult.data;
+  if (!matchesPublishedFactsForDefinitionOnly({ payload, word, metadata, dictation, morphology })) return null;
+  return { wordHash: word.source_row_hash, metadataId: metadata?.id ?? null,
+    dictationId: dictation.id, morphologyId: morphology?.id ?? null };
 }
 
 function payloadFromForm(form: FormData): WordDraftPayload {
@@ -161,6 +228,13 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
     }).select("id").single();
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
+    if (publicationBlockers(payload, normalisedWord).length === 0) {
+      try {
+        destination = await publishValidatedDraft(db, result.data.id, actor.id, payload, normalisedWord);
+      } catch (error) {
+        destination += `&publish_error=${encodeURIComponent(errorCode(error))}`;
+      }
+    }
   } catch (error) { finish(path, error); }
   finish(destination);
 }
@@ -177,22 +251,7 @@ export async function publishTeachingDictionaryDraft(form: FormData) {
     const draft = await db.from("teaching_dictionary_manager_drafts").select("normalised_word,payload").eq("id", id).single();
     if (draft.error) throw new Error("TEACHING_DRAFT_NOT_FOUND");
     const payload = draft.data.payload as WordDraftPayload;
-    const blockers = publicationBlockers(payload, draft.data.normalised_word);
-    if (blockers.length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
-    const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actor.id });
-    if (published.error || !published.data) throw new Error(published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED") ? "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED" : "TEACHING_DRAFT_PUBLISH_FAILED");
-    destination = `${PATH}/${published.data}`;
-    const contents = await db.from("teaching_dictionary_route_content_versions").select("id,route_id,content")
-      .eq("draft_id", id).in("route_id", ["dynamic_prefix_word_lab", "dynamic_affix_word_lab"]);
-    if (contents.error) throw new Error("TEACHING_ROUTE_CONTENT_READ_FAILED");
-    for (const content of contents.data ?? []) {
-      if (routeBlockers(content.content as RouteContentDraft, payload).length) continue;
-      try {
-        if (content.route_id === "dynamic_prefix_word_lab") await publishPrefixVerified(db, content.id, actor.id);
-        else await publishSuffixVerified(db, content.id, actor.id);
-      }
-      catch (error) { destination += `?route_error=${encodeURIComponent(errorCode(error))}`; break; }
-    }
+    destination = await publishValidatedDraft(db, id, actor.id, payload, draft.data.normalised_word);
   } catch (error) { finish(path, error); }
   finish(destination);
 }

@@ -93,6 +93,29 @@ assert(validateCompiledSpecialistSnapshotV3(first, {
   assignmentGenerationSource: persistence.header.assignmentGenerationSource,
   items: persistence.items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey, canonicalWordId: item.metadata.canonicalWordId })),
 }).ok);
+const derivedId = decision.payload.words.lesson[0]!.canonicalWordId;
+const derivedWords = new Map(profile.wordsByCanonicalId);
+const derivedWord = derivedWords.get(derivedId)!;
+derivedWords.set(derivedId, { ...derivedWord, governance: {
+  ...derivedWord.governance!, sourceKind: "reviewed_morphology" as const,
+} });
+const derivedSelection = { ...selection, profile: { ...profile, wordsByCanonicalId: derivedWords } };
+const derivedDecision = compileDynamicAffixWordLabDecision(derivedSelection, {
+  mode: "shared_authoritative", sourceKind: "reviewed_fixture", purpose: "writer",
+});
+assert(derivedDecision.ok);
+const derivedResolved = resolveDynamicAffixLessonAuthorityV3(derivedDecision.payload);
+assert(derivedResolved);
+const derivedSnapshot = compileDynamicAffixSpecialistSnapshotV3({
+  payload: derivedResolved, selection: derivedSelection, compilerDecision: derivedDecision,
+  header: persistence.header, items: persistence.items,
+});
+assert.equal(derivedSnapshot.contentVersions.filter((authority) => authority.authorityType === "reviewed_morphology").length, 1);
+assert(validateCompiledSpecialistSnapshotV3(derivedSnapshot, {
+  lessonRouteMetadata: persistence.header.lessonRouteMetadata,
+  assignmentGenerationSource: persistence.header.assignmentGenerationSource,
+  items: persistence.items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey, canonicalWordId: item.metadata.canonicalWordId })),
+}).ok, "reviewed morphology source remains pinned in a valid learner snapshot");
 assert.equal(validateCompiledGenericLessonSnapshotV3(first).ok, false, "generic Snapshot v3 semantics remain generic-only");
 const rendererContracts = new Set(listCanonicalActivityRendererRegistrations().map(canonicalActivityContractKey));
 assert(first.activities.every((activity) => rendererContracts.has(canonicalActivityContractKey(activity.canonical))), "every frozen activity has an existing canonical renderer registration");

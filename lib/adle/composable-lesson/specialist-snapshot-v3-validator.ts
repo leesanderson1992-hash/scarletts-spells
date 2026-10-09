@@ -324,7 +324,8 @@ function validateDynamicAffixSpecialistSnapshotV3(
   for (const authority of snapshot.contentVersions) authorityCounts.set(authority.authorityType, (authorityCounts.get(authority.authorityType) ?? 0) + 1);
   if (snapshot.contentVersions.length !== 17
     || ["affix_profile_content", "shared_affix_source", "shared_affix_lesson", "public_payload", "recipe_content"].some((kind) => authorityCounts.get(kind) !== 1)
-    || ["affix_member_content", "teaching_dictionary_word", "dictation_content"].some((kind) => authorityCounts.get(kind) !== 4)
+    || (authorityCounts.get("affix_member_content") ?? 0) + (authorityCounts.get("reviewed_morphology") ?? 0) !== 4
+    || ["teaching_dictionary_word", "dictation_content"].some((kind) => authorityCounts.get(kind) !== 4)
     || snapshot.contentVersions.some((entry) => !nonEmpty(entry.authorityId) || !nonEmpty(entry.version) || !/^[a-f0-9]{64}$/u.test(entry.sourceHash))) blockers.push(blocker("specialist_content_provenance_malformed"));
   const expectedActivityCount = snapshot.payload.resolvedLesson?.sourcePayload?.activities?.guided?.includeMeaningSort ? 8 : 7;
   if (snapshot.activities.length !== expectedActivityCount || !snapshot.activities.every(activityShape)) blockers.push(blocker("malformed_specialist_snapshot_v3"));

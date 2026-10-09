@@ -22,6 +22,7 @@ import {
 import type { DynamicAffixLessonPayloadV3, DynamicAffixSelection } from "./affix-word-lab";
 import { loadDynamicSuffixProfiles } from "./dynamic-suffix-profile-loader";
 import { selectDynamicAffixWordLab } from "./affix-word-lab";
+import { auditDerivedItyCandidates } from "./derived-suffix-candidate-loader";
 
 const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -122,7 +123,28 @@ export async function previewDynamicAffixAssignment(
 ): Promise<DynamicAffixAssignmentPreview> {
   const loaded = await loadDynamicSuffixProfiles(params.serviceClient, params.childId, {
     allowStagingProfiles: params.allowStagingProfiles,
+    includeDerivedItyCandidates: process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled",
   });
+  if (process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "shadow"
+    && (!params.requiredProfileKey || params.requiredProfileKey === "D4_MOR_SUFFIXES_ITY")) {
+    const profile = loaded.profiles.find((entry) => entry.microSkillKey === "D4_MOR_SUFFIXES_ITY");
+    if (profile) {
+      const audit = await auditDerivedItyCandidates(params.serviceClient, profile);
+      const released = selectDynamicAffixWordLab({ profiles: [profile], learningItems: loaded.learningItems });
+      const shadowProfile = { ...profile, wordsByCanonicalId: new Map([
+        ...profile.wordsByCanonicalId,
+        ...audit.newlyEligible.map((word) => [word.canonicalWordId, word] as const),
+      ]) };
+      const shadow = selectDynamicAffixWordLab({ profiles: [shadowProfile], learningItems: loaded.learningItems });
+      console.info(JSON.stringify({ event: "adle_ity_derived_candidate_shadow",
+        scanned: audit.scanned, newlyEligible: audit.newlyEligible.length, excluded: audit.excluded.length,
+        releasedWordIds: released ? [...released.authenticTargets.map((item) => item.canonicalWordId),
+          ...released.transfers.map((word) => word.canonicalWordId)] : [],
+        shadowWordIds: shadow ? [...shadow.authenticTargets.map((item) => item.canonicalWordId),
+          ...shadow.transfers.map((word) => word.canonicalWordId)] : [],
+      }));
+    }
+  }
   emitCandidateReadinessDiagnostics(loaded.diagnostics, params.purpose);
   const selectable = params.requiredProfileKey
     ? {
