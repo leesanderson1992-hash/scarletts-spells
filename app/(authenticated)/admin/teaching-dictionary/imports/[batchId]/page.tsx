@@ -43,6 +43,14 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     .select("draft_id").in("draft_id", drafts.map((draft) => draft.id));
   if (publications.error) throw new Error("TEACHING_BATCH_PUBLICATION_READ_FAILED");
   const done = new Set((publications.data ?? []).map((item) => item.draft_id));
+  const definitions = await db.from("teaching_dictionary_definition_versions")
+    .select("canonical_word_id,definition,published_at").in("canonical_word_id", drafts.map((draft) => draft.canonical_word_id))
+    .is("route_id", null).order("published_at", { ascending: false });
+  if (definitions.error || (definitions.data?.length ?? 0) >= 1000) throw new Error("TEACHING_BATCH_DEFINITION_READ_FAILED");
+  const latestDefinitions = new Map<string, string>();
+  for (const definition of definitions.data ?? []) {
+    if (!latestDefinitions.has(definition.canonical_word_id)) latestDefinitions.set(definition.canonical_word_id, definition.definition);
+  }
   const failures = failureCodes(query.failures);
   const failedIds = new Set(Object.keys(failures));
   const failedResult = failedIds.size ? await db.from("teaching_dictionary_manager_drafts")
@@ -90,11 +98,14 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
           : `/admin/teaching-dictionary/new?draft=${draft.id}`;
         return <tr key={draft.id} className="border-b align-top last:border-0">
           <td className="p-2 font-semibold">{payload.displayWord || draft.normalised_word}</td>
-          <td className="p-2">{done.has(draft.id) ? "Facts published" : failedIds.has(draft.id) ? "Publication needs review"
+          <td className="p-2">{done.has(draft.id) ? "Facts published"
+            : latestDefinitions.get(draft.canonical_word_id) === payload.definition ? "Definition published; other facts pending"
+            : failedIds.has(draft.id) ? "Publication needs review"
             : blockers.length ? "Needs facts" : "Ready to validate"}</td>
           <td className="p-2">{blockers.length ? <details><summary>{blockers.length} missing or unreviewed</summary>
             <ul className="mt-1 list-disc pl-5">{blockers.map((blocker, index) => <li key={`${index}:${blocker}`}>{blocker}</li>)}</ul>
-          </details> : "—"}</td>
+          </details> : !done.has(draft.id) && latestDefinitions.get(draft.canonical_word_id) === payload.definition
+            ? "Route or shared-fact release needed" : "—"}</td>
           <td className="p-2"><Link className="font-semibold underline" href={link}>Open and edit</Link></td>
         </tr>;
       })}</tbody></table>
