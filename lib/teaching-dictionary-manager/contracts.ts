@@ -112,8 +112,11 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   if (["open_licensed", "licensed_vendor"].includes(payload.provenance.sourceCategory) && !payload.provenance.sourceLicence.trim()) blockers.push("Record the source licence.");
   if (payload.canonicalMorphology.analysisStatus === "approved" && (!payload.canonicalMorphology.wordSum.trim() || payload.canonicalMorphology.parts.length === 0)) blockers.push("Approved canonical morphology needs a word sum and parts.");
   const tokens = payload.dictationSentence.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
-  if (payload.dictationSentence.trim() && normaliseWord(tokens[payload.dictationTargetTokenIndex] ?? "") !== normalisedWord) {
-    blockers.push("The dictation target token must be the dictionary word.");
+  const targetLength = normalisedWord.split(/\s+/u).length;
+  const target = normaliseWord(tokens.slice(payload.dictationTargetTokenIndex,
+    payload.dictationTargetTokenIndex + targetLength).join(" "));
+  if (payload.dictationSentence.trim() && target !== normalisedWord) {
+    blockers.push("The dictation target must be the dictionary word or phrase.");
   }
   return blockers;
 }
