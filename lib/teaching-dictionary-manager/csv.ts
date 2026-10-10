@@ -112,8 +112,9 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     const tokens = target.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
     const tokenIndex = tokens.findIndex((token) => normaliseWord(token) === normalisedWord);
     const metadata = emptyMetadata();
+    const schwa = (raw.has_schwa ?? "").toLowerCase();
     for (const key of Object.keys(metadata) as (keyof typeof metadata)[]) {
-      if (key === "has_schwa") metadata.has_schwa = raw.has_schwa === "true" ? true : raw.has_schwa === "false" ? false : null;
+      if (key === "has_schwa") metadata.has_schwa = schwa === "true" ? true : schwa === "false" ? false : null;
       else metadata[key] = raw[key] ?? "";
     }
     let routeError: string | undefined;
@@ -159,7 +160,8 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       canonicalWordId: raw.tdm_export_version ? raw.canonical_word_id : undefined,
       sourceRowHash: raw.tdm_export_version ? raw.source_row_hash : undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
-      error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header." : morphologyError || routeError
+      error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."
+        : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError
         || (raw.tdm_export_version && raw.tdm_export_version !== "1" ? "Unsupported export version." : undefined) };
   });
 }

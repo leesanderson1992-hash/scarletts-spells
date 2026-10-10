@@ -73,6 +73,15 @@ async function publishValidatedDraft(
   payload: WordDraftPayload,
   normalisedWord: string,
 ): Promise<string> {
+  const source = await db.from("teaching_dictionary_manager_drafts").select("source_reference").eq("id", id).single();
+  if (source.error) throw new Error("TEACHING_DRAFT_NOT_FOUND");
+  const batchId = source.data.source_reference.match(/^CSV batch ([a-f0-9-]{36}),/)?.[1];
+  if (batchId) {
+    const replaced = await db.from("teaching_dictionary_manager_batch_replacements")
+      .select("replacement_batch_id").eq("original_batch_id", batchId).maybeSingle();
+    if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
+    if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
+  }
   if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
@@ -123,7 +132,7 @@ async function definitionOnlyPublicationProof(
     db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", word.id).eq("row_status", "active").maybeSingle(),
     db.from("canonical_teaching_dictionary_word_morphology").select("*").eq("canonical_word_id", word.id).eq("row_status", "active").maybeSingle(),
   ]);
-  if (metadataResult.error || dictationResult.error || morphologyResult.error) return null;
+  if (metadataResult.error || dictationResult.error || morphologyResult.error || !dictationResult.data) return null;
   const metadata = metadataResult.data;
   const dictation = dictationResult.data;
   const morphology = morphologyResult.data;
@@ -399,24 +408,35 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
   const batchId = value(form, "batch_id");
   if (!isUuid(batchId)) throw new Error("TEACHING_BATCH_ID_INVALID");
   const path = `${PATH}/imports/${batchId}`;
+  const requestedCursor = value(form, "cursor");
+  if (requestedCursor && !isUuid(requestedCursor)) throw new Error("TEACHING_BATCH_CURSOR_INVALID");
   const db = createServiceRoleClient();
+  const replaced = await db.from("teaching_dictionary_manager_batch_replacements")
+    .select("replacement_batch_id").eq("original_batch_id", batchId).maybeSingle();
+  if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
+  if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
   let published = 0;
   let failed = 0;
   let scanned = 0;
+  let cursor = requestedCursor;
+  let finished = false;
   const failureCodes: Record<string, string> = {};
-  for (let start = 0; start < 10000 && published + failed < 10; start += 100) {
-    const result = await db.from("teaching_dictionary_manager_drafts")
+  for (let page = 0; page < 100 && published + failed < 10; page += 1) {
+    let query = db.from("teaching_dictionary_manager_drafts")
       .select("id,normalised_word,payload").like("source_reference", `CSV batch ${batchId},%`)
-      .order("id").range(start, start + 99);
+      .order("id").limit(100);
+    if (cursor) query = query.gt("id", cursor);
+    const result = await query;
     if (result.error) throw new Error("TEACHING_BATCH_READ_FAILED");
     const drafts = result.data ?? [];
-    if (!drafts.length) break;
+    if (!drafts.length) { finished = true; break; }
     const publications = await db.from("teaching_dictionary_manager_publications")
       .select("draft_id").in("draft_id", drafts.map((draft) => draft.id));
     if (publications.error) throw new Error("TEACHING_BATCH_PUBLICATION_READ_FAILED");
     const done = new Set((publications.data ?? []).map((item) => item.draft_id));
     for (const draft of drafts) {
       scanned += 1;
+      cursor = draft.id;
       if (done.has(draft.id)) continue;
       const payload = draft.payload as WordDraftPayload;
       if (publicationBlockers(payload, draft.normalised_word).length
@@ -431,11 +451,11 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
       } catch (error) { failed += 1; failureCodes[draft.id] = errorCode(error); }
       if (published + failed >= 10) break;
     }
-    if (drafts.length < 100) break;
+    if (drafts.length < 100 && cursor === drafts.at(-1)?.id) { finished = true; break; }
   }
   revalidatePath(path);
   redirect(`${path}?${new URLSearchParams({ published: String(published), failed: String(failed),
-    scanned: String(scanned), failures: JSON.stringify(failureCodes) })}`);
+    scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes) })}`);
 }
 
 export async function saveTeachingDictionarySkillApprovals(form: FormData) {
