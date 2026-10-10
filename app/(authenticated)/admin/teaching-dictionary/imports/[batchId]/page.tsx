@@ -21,7 +21,7 @@ function failureCodes(value: string | undefined): Record<string, string> {
 
 export default async function TeachingDictionaryImportPage({ params, searchParams }: {
   params: Promise<{ batchId: string }>;
-  searchParams: Promise<{ page?: string; published?: string; failed?: string; scanned?: string; failures?: string }>;
+  searchParams: Promise<{ page?: string; published?: string; failed?: string; scanned?: string; cursor?: string; finished?: string; failures?: string }>;
 }) {
   await requireAdminUser();
   const { batchId } = await params;
@@ -66,7 +66,9 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
       <p className="mt-1 text-sm">Runs the existing word and route validators, up to ten words per pass. Incomplete drafts stay available for editing. Evidence approval remains separate.</p>
       <form action={publishTeachingDictionaryBatch} className="mt-3">
         <input type="hidden" name="batch_id" value={batchId} />
-        <button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 text-sm font-semibold text-white">Publish next ten ready words</button>
+        {query.cursor && isUuid(query.cursor) && <input type="hidden" name="cursor" value={query.cursor} />}
+        {query.finished === "true" ? <p className="text-sm">This validation pass reached the end of the import.</p>
+          : <button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 text-sm font-semibold text-white">Publish next ten ready words</button>}
       </form>
     </section>
     <section className="overflow-x-auto rounded-xl border border-[var(--border)] bg-white p-4">
