@@ -29,6 +29,9 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
   const query = await searchParams;
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1);
   const db = createServiceRoleClient();
+  const replacement = await db.from("teaching_dictionary_manager_batch_replacements")
+    .select("replacement_batch_id,reason").eq("original_batch_id", batchId).maybeSingle();
+  if (replacement.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
   const result = await db.from("teaching_dictionary_manager_drafts")
     .select("id,canonical_word_id,normalised_word,payload,created_at", { count: "exact" })
     .like("source_reference", `CSV batch ${batchId},%`).order("normalised_word")
@@ -52,6 +55,10 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     <header><h1 className="text-3xl font-semibold">CSV import review</h1>
       <p className="mt-2 text-sm">{result.count} changed words · page {page} of {Math.ceil(result.count / PAGE_SIZE)}. Imported rows are drafts until published.</p>
     </header>
+    {replacement.data && <p role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+      This import was replaced: {replacement.data.reason} <Link className="font-semibold underline"
+        href={`/admin/teaching-dictionary/imports/${replacement.data.replacement_batch_id}`}>Open the corrected import</Link>.
+    </p>}
     {query.published && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
       Published {query.published} ready drafts in this pass. Checked {query.scanned ?? "0"} drafts.
       {Number(query.failed) > 0 && ` ${query.failed} need individual review.`}
@@ -61,7 +68,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
         ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}`
         : `/admin/teaching-dictionary/new?draft=${draft.id}`}>{draft.normalised_word}</Link> ({failures[draft.id].replaceAll("_", " ")})
     </span>)}</p>}
-    <section className="rounded-xl border border-[var(--border)] bg-white p-4">
+    {!replacement.data && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Publish complete drafts</h2>
       <p className="mt-1 text-sm">Runs the existing word and route validators, up to ten words per pass. Incomplete drafts stay available for editing. Evidence approval remains separate.</p>
       <form action={publishTeachingDictionaryBatch} className="mt-3">
@@ -70,7 +77,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
         {query.finished === "true" ? <p className="text-sm">This validation pass reached the end of the import.</p>
           : <button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 text-sm font-semibold text-white">Publish next ten ready words</button>}
       </form>
-    </section>
+    </section>}
     <section className="overflow-x-auto rounded-xl border border-[var(--border)] bg-white p-4">
       <table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b">
         <th className="p-2">Word</th><th className="p-2">Draft status</th><th className="p-2">Remaining facts</th><th className="p-2">Action</th>

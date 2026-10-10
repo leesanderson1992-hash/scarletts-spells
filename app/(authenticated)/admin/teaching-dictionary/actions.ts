@@ -73,6 +73,15 @@ async function publishValidatedDraft(
   payload: WordDraftPayload,
   normalisedWord: string,
 ): Promise<string> {
+  const source = await db.from("teaching_dictionary_manager_drafts").select("source_reference").eq("id", id).single();
+  if (source.error) throw new Error("TEACHING_DRAFT_NOT_FOUND");
+  const batchId = source.data.source_reference.match(/^CSV batch ([a-f0-9-]{36}),/)?.[1];
+  if (batchId) {
+    const replaced = await db.from("teaching_dictionary_manager_batch_replacements")
+      .select("replacement_batch_id").eq("original_batch_id", batchId).maybeSingle();
+    if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
+    if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
+  }
   if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
@@ -402,6 +411,10 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
   const requestedCursor = value(form, "cursor");
   if (requestedCursor && !isUuid(requestedCursor)) throw new Error("TEACHING_BATCH_CURSOR_INVALID");
   const db = createServiceRoleClient();
+  const replaced = await db.from("teaching_dictionary_manager_batch_replacements")
+    .select("replacement_batch_id").eq("original_batch_id", batchId).maybeSingle();
+  if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
+  if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
   let published = 0;
   let failed = 0;
   let scanned = 0;
