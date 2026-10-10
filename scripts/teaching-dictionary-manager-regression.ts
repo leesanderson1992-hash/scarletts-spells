@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
+import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
@@ -57,6 +57,25 @@ assert.equal(publicationBlockerTarget("The dictation target token must be the di
 assert.equal(publicationBlockerTarget("Approved canonical morphology needs a word sum and parts."), "td-canonical-parts");
 const [badMorphology] = parseDictionaryCsv('normalised_word,morphology_parts\nrenew,"{bad}"');
 assert.match(badMorphology.error ?? "", /morphology JSON/);
+const roundTrip = [
+  "tdm_export_version,canonical_word_id,source_row_hash,normalised_word,display_word,affected_micro_skills,definition,dictation_sentence,dictation_target_token_index,routeId,routeVersion,microSkillKey,wordMeaning,wordSum,baseMeaning,route_content_json",
+  '1,word-1,hash-1,activity,activity,D4_MOR_SUFFIXES_ITY; D4_MOR_BASE_WORDS,an action,The activity begins.,1,dynamic_affix_word_lab,v3,D4_MOR_SUFFIXES_ITY,an action,act + ive + ity,act,"{""meaningBinKey"":""state""}"',
+  '1,word-1,hash-1,activity,activity,D4_MOR_SUFFIXES_ITY; D4_MOR_BASE_WORDS,an action,The activity begins.,1,base_word_lab,v2,D4_MOR_BASE_WORDS,an action,act + ive + ity,act,{}',
+].join("\n");
+const combinedRoundTrip = combineRoundTripRows(parseDictionaryCsv(roundTrip));
+assert.deepEqual(combinedRoundTrip.errors, []);
+assert.equal(combinedRoundTrip.rows.length, 1);
+assert.equal(combinedRoundTrip.rows[0].canonicalWordId, "word-1");
+assert.equal(combinedRoundTrip.rows[0].payload.routeContents.length, 2);
+assert.equal(combinedRoundTrip.rows[0].payload.dictationTargetTokenIndex, 1);
+assert.equal(combinedRoundTrip.rows[0].payload.routeContents[0].content.meaningBinKey, "state");
+assert.equal(combineRoundTripRows(parseDictionaryCsv(roundTrip.replace("The activity begins.,1,base_word_lab",
+  "A changed sentence.,1,base_word_lab"))).errors.length, 1);
+const hashColumns = ["tdm_export_version", "tdm_edit_hash", "canonical_word_id", "normalised_word", "definition", "missing_facts"];
+const unchangedFields = { tdm_export_version: "1", canonical_word_id: "word-1", normalised_word: "renew", definition: "make new again", missing_facts: "" };
+const unchangedCsv = `${hashColumns.join(",")}\n1,${roundTripEditHash(unchangedFields, hashColumns)},word-1,renew,make new again,`;
+assert.equal(combineRoundTripRows(parseDictionaryCsv(unchangedCsv)).rows.length, 0);
+assert.equal(combineRoundTripRows(parseDictionaryCsv(unchangedCsv.replace("make new again", "become new again"))).rows.length, 1);
 row.payload.canonicalMorphology.analysisStatus = "approved";
 assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("canonical morphology")));
 

@@ -7,7 +7,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
-import { parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
+import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
@@ -256,13 +256,14 @@ export async function publishTeachingDictionaryDraft(form: FormData) {
   finish(destination);
 }
 
-export type CsvImportState = { imported?: number; errors?: string[]; error?: string };
+export type CsvImportState = { imported?: number; batchId?: string; errorCount?: number; errors?: string[]; error?: string };
 export async function importTeachingDictionaryCsv(_previous: CsvImportState, form: FormData): Promise<CsvImportState> {
   const actor = await requireAdminUser();
   const file = form.get("dictionary_csv");
-  if (!(file instanceof File) || file.size === 0 || file.size > 2_000_000) return { error: "Choose a CSV file smaller than 2 MB." };
+  if (!(file instanceof File) || file.size === 0 || file.size > 4_000_000) return { error: "Choose a CSV file smaller than 4 MB." };
   try {
-    const rows = parseDictionaryCsv(await file.text());
+    const grouped = combineRoundTripRows(parseDictionaryCsv(await file.text()));
+    const rows = grouped.rows;
     const db = createServiceRoleClient();
     const spellings = [...new Set(rows.map((row) => row.normalisedWord).filter(Boolean))];
     const prefixKeys = [...new Set(rows.flatMap((row) => row.payload.routeContents)
@@ -287,10 +288,10 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       if (profiles.error) throw new Error("CSV_SUFFIX_PROFILE_READ_FAILED");
       for (const profile of profiles.data ?? []) suffixProfiles.set(profile.micro_skill_key, { id: profile.id, hash: profile.source_row_hash });
     }
-    const existing = new Map<string, { id: string; display_word: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null;
+    const existing = new Map<string, { id: string; source_row_hash: string; display_word: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null;
       source_category: WordDraftPayload["provenance"]["sourceCategory"]; source_name: string | null; source_url: string | null; source_licence: string | null; source_use_note: string | null; confidence: WordDraftPayload["provenance"]["confidence"] }>();
     for (let i = 0; i < spellings.length; i += 100) {
-      const result = await db.from("canonical_teaching_dictionary_words").select("id,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence")
+      const result = await db.from("canonical_teaching_dictionary_words").select("id,normalised_word,source_row_hash,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence")
         .in("normalised_word", spellings.slice(i, i + 100)).eq("row_status", "active").eq("dialect_code", "en-GB");
       if (result.error) throw new Error("CSV_WORD_LOOKUP_FAILED");
       for (const word of result.data ?? []) existing.set(word.normalised_word, word);
@@ -314,7 +315,8 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       for (const row of definitions.data ?? []) if (!definitionByWord.has(row.canonical_word_id)) definitionByWord.set(row.canonical_word_id, row.definition);
       for (const row of morphology.data ?? []) morphologyByWord.set(row.canonical_word_id, row);
     }
-    const errors: string[] = [];
+    const errors: string[] = [...grouped.errors];
+    const batchId = randomUUID();
     const drafts = rows.flatMap((row) => {
       row.payload.routeContents = row.payload.routeContents.map((route) => {
         if (route.routeId === "dynamic_prefix_word_lab") {
@@ -332,6 +334,14 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       });
       const current = existing.get(row.normalisedWord);
       const supplied = new Set(row.providedColumns);
+      if (row.canonicalWordId && (!current || current.id !== row.canonicalWordId)) {
+        errors.push(`Row ${row.rowNumber}: Canonical word ID no longer matches the active word.`);
+        return [];
+      }
+      if (row.sourceRowHash && current?.source_row_hash !== row.sourceRowHash) {
+        errors.push(`Row ${row.rowNumber}: Dictionary word changed since export. Download a fresh CSV.`);
+        return [];
+      }
       if (current) {
         if (!supplied.has("display_word")) row.payload.displayWord = current.display_word;
         if (!supplied.has("age_band")) row.payload.ageBand = current.age_band ?? "";
@@ -372,15 +382,60 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       if (issues.length) { errors.push(`Row ${row.rowNumber}: ${issues.join(" ")}`); return []; }
       return [{ canonical_word_id: current?.id ?? null,
         normalised_word: row.normalisedWord, dialect_code: "en-GB", payload: row.payload,
-        source_kind: "csv", source_reference: `CSV ${file.name}, row ${row.rowNumber}`, created_by: actor.id }];
+        source_kind: "csv", source_reference: `CSV batch ${batchId}, ${file.name}, row ${row.rowNumber}`, created_by: actor.id }];
     });
     for (let i = 0; i < drafts.length; i += 100) {
       const result = await db.from("teaching_dictionary_manager_drafts").insert(drafts.slice(i, i + 100));
       if (result.error) throw new Error("CSV_DRAFT_IMPORT_FAILED");
     }
     revalidatePath(PATH);
-    return { imported: drafts.length, errors: errors.slice(0, 50) };
+    return { imported: drafts.length, batchId: drafts.length ? batchId : undefined,
+      errorCount: errors.length, errors: errors.slice(0, 50) };
   } catch (error) { return { error: errorCode(error) }; }
+}
+
+export async function publishTeachingDictionaryBatch(form: FormData) {
+  const actor = await requireAdminUser();
+  const batchId = value(form, "batch_id");
+  if (!isUuid(batchId)) throw new Error("TEACHING_BATCH_ID_INVALID");
+  const path = `${PATH}/imports/${batchId}`;
+  const db = createServiceRoleClient();
+  let published = 0;
+  let failed = 0;
+  let scanned = 0;
+  const failureCodes: Record<string, string> = {};
+  for (let start = 0; start < 10000 && published + failed < 10; start += 100) {
+    const result = await db.from("teaching_dictionary_manager_drafts")
+      .select("id,normalised_word,payload").like("source_reference", `CSV batch ${batchId},%`)
+      .order("id").range(start, start + 99);
+    if (result.error) throw new Error("TEACHING_BATCH_READ_FAILED");
+    const drafts = result.data ?? [];
+    if (!drafts.length) break;
+    const publications = await db.from("teaching_dictionary_manager_publications")
+      .select("draft_id").in("draft_id", drafts.map((draft) => draft.id));
+    if (publications.error) throw new Error("TEACHING_BATCH_PUBLICATION_READ_FAILED");
+    const done = new Set((publications.data ?? []).map((item) => item.draft_id));
+    for (const draft of drafts) {
+      scanned += 1;
+      if (done.has(draft.id)) continue;
+      const payload = draft.payload as WordDraftPayload;
+      if (publicationBlockers(payload, draft.normalised_word).length
+        || payload.routeContents.some((route) => routeBlockers(route, payload).length)) continue;
+      try {
+        const destination = await publishValidatedDraft(db, draft.id, actor.id, payload, draft.normalised_word);
+        if (destination.includes("route_error=")) {
+          failed += 1;
+          failureCodes[draft.id] = new URL(destination, "https://example.invalid").searchParams.get("route_error") ?? "ROUTE_PUBLICATION_FAILED";
+        }
+        else published += 1;
+      } catch (error) { failed += 1; failureCodes[draft.id] = errorCode(error); }
+      if (published + failed >= 10) break;
+    }
+    if (drafts.length < 100) break;
+  }
+  revalidatePath(path);
+  redirect(`${path}?${new URLSearchParams({ published: String(published), failed: String(failed),
+    scanned: String(scanned), failures: JSON.stringify(failureCodes) })}`);
 }
 
 export async function saveTeachingDictionarySkillApprovals(form: FormData) {
