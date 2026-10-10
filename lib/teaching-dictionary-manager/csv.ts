@@ -110,7 +110,9 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     const normalisedWord = normaliseWord(raw.normalised_word || raw.targetWord);
     const target = raw.dictation_sentence || raw.dictation1_sentence || "";
     const tokens = target.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
-    const tokenIndex = tokens.findIndex((token) => normaliseWord(token) === normalisedWord);
+    const targetLength = normalisedWord.split(/\s+/u).length;
+    const tokenIndex = tokens.findIndex((_, position) => normaliseWord(tokens.slice(position,
+      position + targetLength).join(" ")) === normalisedWord);
     const metadata = emptyMetadata();
     const schwa = (raw.has_schwa ?? "").toLowerCase();
     for (const key of Object.keys(metadata) as (keyof typeof metadata)[]) {
