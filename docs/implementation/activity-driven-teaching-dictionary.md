@@ -4,6 +4,12 @@ The [activity variant inventory](../../lib/adle/composable-lesson/activity-varia
 
 The manager's **Save and validate** action saves a versioned draft first. If the shared publication validator passes, it publishes through the existing audited RPC and attempts the existing prefix/suffix release compiler. Failed or incomplete work remains a recoverable draft. Shared canonical facts are edited with ordinary fields; word parts, cuts, joins, meaning choice and dictation target have visual controls. Advanced route JSON remains available for specialist facts the form does not yet express.
 
+## Phase 3 word editor
+
+The word page now expands each selected micro skill into its actual lesson parts and field-level requirements. Each requirement links to its control; links open collapsed sections and focus the field. The main form keeps definition, dictation and the highlighted target visible, with source and metadata details collapsed until needed. Prefix, suffix, base-word and `-ing` common facts use plain-language controls. A saved draft is assessed separately from an earlier released member so unsaved or unvalidated edits never inherit its green ticks. Draft publication blockers link back to the missing shared fact.
+
+The manager still cannot approve a compound structure or comparative adjective family from a single word page. Those are governed group authorities with ordered component IDs, family transformations and paired questions. Their word-page drafts remain reviewable, while lesson readiness and release remain blocked until the existing group compiler accepts a complete governed set. The advanced route data panel is a specialist fallback for these fields; it is not a substitute for their release authority.
+
 For an active word whose other published facts are unchanged, a definition-only edit uses a separate versioned publication RPC. It checks the current word, metadata, dictation and morphology identities inside the transaction; it does not replace an existing member or alter a frozen lesson.
 
 ## -ity pilot

@@ -63,7 +63,7 @@ export function WordReadinessView(props: {
     const content = route ? routeContentForReadiness({ routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: key }, payload, saved) : null;
     const source = props.routeSources[key];
     const assessments = route && content ? assessWordActivities({
-      microSkillKey: key, payload, routeContent: content, releasedMember: released,
+      microSkillKey: key, payload, routeContent: content, releasedMember: released && !props.draftSelected,
       needsReview: (target) => {
         if (props.draftSelected) return true;
         if (target.startsWith("td-route-")) return source !== "manager publication";
@@ -85,23 +85,27 @@ export function WordReadinessView(props: {
   const unregisteredIve = /(?:^|\+)\s*suffix:ive(?:\s|\+|$)/i.test(payload.metadata.morphemes)
     && !routeForSkill("D4_MOR_SUFFIXES_IVE");
 
+  function actionHref(row: (typeof rows)[number], target: string) {
+    if (!payload.skillKeys.includes(row.key)) return "#td-skills";
+    if (row.route && !["dynamic_prefix_word_lab", "dynamic_affix_word_lab", "base_word_lab"].includes(row.route.routeId)
+      && target.startsWith("td-route-")) {
+      const plainControls = ["componentToWholeRelationship", "base", "doublingPattern", "sourceRefs"];
+      if (!plainControls.some((field) => target === `td-route-${row.key}-${field}`)) return `#td-route-${row.key}-advanced`;
+    }
+    return `#${target}`;
+  }
+
   function activityCell(row: (typeof rows)[number], kind: LessonActivityKind) {
     const assessment: WordActivityAssessment | undefined = row.assessments.find((item) => item.variant.kind === kind);
     const cell = matrixCell(assessment, row.key);
     const issues = assessment?.requirements.filter((item) => item.status !== "present") ?? [];
-    const actionHref = (target: string) => {
-      if (!payload.skillKeys.includes(row.key)) return "#td-skills";
-      if (row.route && !["dynamic_prefix_word_lab", "dynamic_affix_word_lab", "base_word_lab"].includes(row.route.routeId)
-        && target.startsWith("td-route-")) return `#td-route-${row.key}`;
-      return `#${target}`;
-    };
     if (cell.state === "not_applicable") return <span className="text-slate-500" title={cell.reason}>n/a</span>;
     if (cell.state === "ready") return <span className="font-bold text-emerald-700" title={cell.reason} aria-label={`${ACTIVITY_LABELS[kind]} validated`}>✓</span>;
     return <div className="min-w-28 max-w-44 text-xs leading-5 text-amber-950" title={cell.reason}>
       <span aria-hidden="true" className="text-base">⚠</span><span className="sr-only">Needs work: </span>
-      <a className="ml-1 font-semibold underline underline-offset-2" href={actionHref(cell.action!.href.slice(1))}>{cell.action!.label}</a>
+      <a className="ml-1 font-semibold underline underline-offset-2" href={actionHref(row, cell.action!.href.slice(1))}>{cell.action!.label}</a>
       {cell.remainingIssues > 0 && <details className="ml-5"><summary className="cursor-pointer">+{cell.remainingIssues} more</summary>
-        {issues.slice(1).map((issue) => <a key={`${issue.editTarget}:${issue.label}`} className="block underline" href={actionHref(issue.editTarget)}>{issue.status === "missing" ? "Add" : "Review"} {issue.label}</a>)}
+        {issues.slice(1).map((issue) => <a key={`${issue.editTarget}:${issue.label}`} className="block underline" href={actionHref(row, issue.editTarget)}>{issue.status === "missing" ? "Add" : "Review"} {issue.label}</a>)}
       </details>}
     </div>;
   }
@@ -109,7 +113,7 @@ export function WordReadinessView(props: {
   return <section className="grid gap-4" aria-labelledby="word-readiness-title">
     <div className="flex flex-wrap items-end justify-between gap-2"><div>
       <h2 id="word-readiness-title" className="text-xl font-semibold">Word readiness</h2>
-      <p className="text-sm text-[color:var(--mid)]">A tick means a released question was validated. Warnings link to the fact to fix. n/a means this word is not used there.</p>
+      <p className="text-sm text-[color:var(--mid)]">A tick means the saved, released question was validated. When a draft is open, its edits still need validation; the earlier released lesson remains intact. Warnings link to the fact to fix. n/a means this word is not used there.</p>
     </div><a className="text-sm font-semibold underline" href="#td-skills">Assign a micro skill</a></div>
 
     <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-white">
@@ -140,6 +144,24 @@ export function WordReadinessView(props: {
         </tbody></table>
     </div>
     {unregisteredIve && <p className="text-xs text-amber-900">Morpheme data mentions -ive, but no -ive specialist lesson route is registered.</p>}
+
+    {rows.length > 0 && <div className="grid gap-2">
+      <h3 className="text-base font-semibold">Lesson parts and required facts</h3>
+      {rows.map((row) => <details key={row.key} className="rounded-lg border border-[var(--border)] bg-white p-3">
+        <summary className="cursor-pointer font-semibold">{row.name} <span className="text-sm font-normal text-[color:var(--mid)]">· {row.assessments.filter((part) => part.variant.enabled && part.variant.wordScope !== "no_word").length} word parts · {row.released ? "released" : "needs validation"}</span></summary>
+        {row.assessments.length ? <div className="mt-3 grid gap-2 md:grid-cols-2">{row.assessments.map((part) => {
+          const cell = matrixCell(part, row.key);
+          return <div key={`${part.variant.kind}:${part.variant.variantKey}`} className="rounded-lg border border-[var(--border)] p-3 text-sm">
+            <div className="flex items-center justify-between gap-2"><strong>{ACTIVITY_LABELS[part.variant.kind]}</strong><span className={cell.state === "ready" ? "text-emerald-700" : cell.state === "warning" ? "text-amber-900" : "text-slate-500"}>{cell.state === "ready" ? "✓ Validated" : cell.state === "warning" ? "⚠ Needs work" : "n/a"}</span></div>
+            {cell.state === "not_applicable" ? <p className="mt-1 text-xs text-[color:var(--mid)]">{cell.reason}</p>
+              : part.requirements.length ? <ul className="mt-2 grid gap-1">{part.requirements.map((requirement) => <li key={`${requirement.editTarget}:${requirement.label}`} className="flex flex-wrap items-baseline justify-between gap-x-2">
+                <span>{requirement.status === "present" ? "✓" : "⚠"} {requirement.label}</span>
+                <a className="text-xs font-semibold underline" href={actionHref(row, requirement.editTarget)}>{requirement.status === "present" ? "Review" : "Edit"}</a>
+              </li>)}</ul> : <p className="mt-1 text-xs text-[color:var(--mid)]">{cell.reason}</p>}
+          </div>;
+        })}</div> : <p className="mt-2 text-sm">No specialist lesson route is registered for this skill.</p>}
+      </details>)}
+    </div>}
 
     <div className="flex flex-wrap items-center gap-3 text-xs text-[color:var(--mid)]">
       <span>Dictionary review: {props.wordReview.replaceAll("_", " ")}</span>

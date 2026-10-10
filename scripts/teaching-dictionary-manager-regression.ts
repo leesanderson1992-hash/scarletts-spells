@@ -4,7 +4,7 @@ import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
-import { hasReleasedRouteContent, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
+import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
@@ -53,6 +53,8 @@ assert(routeRequirements(publishedRoute, row.payload, (target) => target.include
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
 row.payload.dictationTargetTokenIndex = 0;
 assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("target token")));
+assert.equal(publicationBlockerTarget("The dictation target token must be the dictionary word."), "td-dictation");
+assert.equal(publicationBlockerTarget("Approved canonical morphology needs a word sum and parts."), "td-canonical-parts");
 const [badMorphology] = parseDictionaryCsv('normalised_word,morphology_parts\nrenew,"{bad}"');
 assert.match(badMorphology.error ?? "", /morphology JSON/);
 row.payload.canonicalMorphology.analysisStatus = "approved";

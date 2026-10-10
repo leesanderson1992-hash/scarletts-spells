@@ -8,6 +8,7 @@ import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } fr
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import { deriveReviewedSuffixCandidate } from "@/lib/adle/morphology/derived-suffix-candidate";
+import { publicationBlockerTarget } from "@/lib/teaching-dictionary-manager/readiness";
 import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
@@ -162,7 +163,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0}>
       <summary className="cursor-pointer font-semibold">Saved draft · {draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
       <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
-      {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
+      {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker} <a className="font-semibold underline" href={`#${publicationBlockerTarget(blocker)}`}>Edit</a></li>)}</ul>}
       <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">Publish dictionary facts</button></form>
     </details>}
     {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial}

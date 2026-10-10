@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
-import { WORD_METADATA_FIELDS } from "@/lib/teaching-dictionary-manager/contracts";
+import { normaliseWord, WORD_METADATA_FIELDS } from "@/lib/teaching-dictionary-manager/contracts";
 import { saveTeachingDictionaryDraft, saveTeachingDictionarySkillApprovals } from "./actions";
 
 type Skill = { micro_skill_key: string; display_name: string; skill_family_key: string; skill_cluster_key: string };
@@ -112,6 +112,35 @@ export function WordEditor(props: {
   const [canonicalParts, setCanonicalParts] = useState<EditablePart[]>(() => asParts(props.initial.canonicalMorphology.parts));
   const [canonicalJoins, setCanonicalJoins] = useState<EditableJoin[]>(() => asJoins(props.initial.canonicalMorphology.joins));
   const [canonicalMorphologyEdited, setCanonicalMorphologyEdited] = useState(false);
+  useEffect(() => {
+    function revealLinkedField() {
+      let id = "";
+      try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (target instanceof HTMLDetailsElement) target.open = true;
+      let parent = target.parentElement;
+      while (parent) {
+        if (parent instanceof HTMLDetailsElement) parent.open = true;
+        parent = parent.parentElement;
+      }
+      target.scrollIntoView({ block: "center" });
+      const field = target.matches("input, select, textarea") ? target : target.querySelector("input, select, textarea");
+      if (field instanceof HTMLElement) field.focus({ preventScroll: true });
+    }
+    revealLinkedField();
+    const revealOnClick = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
+      if (link) queueMicrotask(revealLinkedField);
+    };
+    window.addEventListener("hashchange", revealLinkedField);
+    document.addEventListener("click", revealOnClick);
+    return () => {
+      window.removeEventListener("hashchange", revealLinkedField);
+      document.removeEventListener("click", revealOnClick);
+    };
+  }, []);
   const chosen = [...new Set(slots.filter(Boolean))];
   const activeRoutes = chosen.flatMap((key) => {
     const route = props.routes.find((candidate) => candidate.supportedMicroSkillKeys.includes(key));
@@ -221,7 +250,13 @@ export function WordEditor(props: {
           {dictationTokens.map((token, index) => <option key={index} value={index}>{index + 1}. {token}</option>)}
           {dictationTokens.length === 0 && <option value={0}>Write a sentence first</option>}
         </select></label>
-        <label className={labelClass}>Source / editorial note<input className={fieldClass} name="source_reference" defaultValue={props.sourceReference} required /></label>
+        <div className="self-end text-sm"><span className="font-medium">Dictation target: </span>{dictationTokens.length ? dictationTokens.map((token, index) => <span key={index} className={index === selectedTargetIndex ? "rounded bg-amber-100 px-1 font-semibold" : "px-1"}>{token}</span>) : <span className="text-[color:var(--mid)]">Write the sentence to select its word.</span>}
+          {dictationTokens.length > 0 && normaliseWord(dictationTokens[selectedTargetIndex] ?? "") !== normaliseWord(props.normalisedWord) && <p className="mt-1 text-xs text-amber-900">Choose the dictionary word as the highlighted target.</p>}
+        </div>
+        <label id="td-source" className={`${labelClass} scroll-mt-6`}>Source / editorial note<input className={fieldClass} name="source_reference" defaultValue={props.sourceReference} required /></label>
+      </div>
+      <details className="rounded-xl border border-[var(--border)] p-4"><summary className="cursor-pointer font-semibold">Source and review details</summary>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className={labelClass}>Source category<select className={fieldClass} name="source_category" defaultValue={props.initial.provenance.sourceCategory}>
           {["internal_authored", "internal_reviewed_seed", "public_domain", "open_licensed", "licensed_vendor", "reference_only", "ai_assisted_draft"].map((category) => <option key={category} value={category}>{category.replaceAll("_", " ")}</option>)}
         </select></label>
@@ -230,16 +265,21 @@ export function WordEditor(props: {
         <label className={labelClass}>Source URL<input className={fieldClass} name="source_url" defaultValue={props.initial.provenance.sourceUrl} /></label>
         <label className={labelClass}>Source licence<input className={fieldClass} name="source_licence" defaultValue={props.initial.provenance.sourceLicence} /></label>
         <label className={labelClass}>Source use note<input className={fieldClass} name="source_use_note" defaultValue={props.initial.provenance.sourceUseNote} /></label>
+        </div>
+      </details>
+      <details className="rounded-xl border border-[var(--border)] p-4"><summary className="cursor-pointer font-semibold">Age, frequency and sound facts</summary>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label id="td-age-band" className={`${labelClass} scroll-mt-6`}>Age band<input className={fieldClass} name="age_band" defaultValue={props.initial.ageBand} /></label>
         <label id="td-frequency-band" className={`${labelClass} scroll-mt-6`}>Frequency band<input className={fieldClass} name="frequency_band" defaultValue={props.initial.frequencyBand} /></label>
         <label id="td-complexity-band" className={`${labelClass} scroll-mt-6`}>Complexity band<input className={fieldClass} name="complexity_band" defaultValue={props.initial.complexityBand} /></label>
         <label id="td-has-schwa" className={`${labelClass} scroll-mt-6`}>Has schwa<select className={fieldClass} name="has_schwa" defaultValue={props.initial.metadata.has_schwa == null ? "" : String(props.initial.metadata.has_schwa)}><option value="">Unknown</option><option value="true">Yes</option><option value="false">No</option></select></label>
         {WORD_METADATA_FIELDS.map((field) => <label id={`td-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{field.replaceAll("_", " ")}<input className={fieldClass} name={field} defaultValue={props.initial.metadata[field]} /></label>)}
-      </div>
+        </div>
+      </details>
       <section className="grid gap-3 rounded-xl border border-[var(--border)] p-4">
         <h3 className="text-lg font-semibold">Canonical morphology</h3>
         <p className="text-xs">Describe the word once. Routes reuse this approved analysis where their question rules allow it.</p>
-        <PartSequenceEditor label="Word parts and cuts" word={props.initial.displayWord} parts={canonicalParts} joins={canonicalJoins} onChange={(parts, joins) => { setCanonicalParts(parts); setCanonicalJoins(joins); setCanonicalMorphologyEdited(true); }} />
+        <PartSequenceEditor id="td-canonical-parts" label="Word parts and cuts" word={props.initial.displayWord} parts={canonicalParts} joins={canonicalJoins} onChange={(parts, joins) => { setCanonicalParts(parts); setCanonicalJoins(joins); setCanonicalMorphologyEdited(true); }} />
         <input type="hidden" name="morphology_parts" value={JSON.stringify(canonicalMorphologyEdited ? canonicalParts : props.initial.canonicalMorphology.parts)} />
         <input type="hidden" name="morphology_joins" value={JSON.stringify(canonicalMorphologyEdited ? canonicalJoins : props.initial.canonicalMorphology.joins)} />
         <div className="grid gap-3 md:grid-cols-2">
@@ -259,8 +299,9 @@ export function WordEditor(props: {
           const profile = props.profileOptions.find((candidate) => candidate.microSkillKey === key);
           const choiceAudit = item?.content.choiceAudit && typeof item.content.choiceAudit === "object"
             ? item.content.choiceAudit as { word?: string; choiceVerdicts?: Record<string, boolean> } : null;
-          return <div id={`td-route-${key}`} key={`${route.routeId}:${key}`} className="grid gap-3 rounded-xl border border-[var(--border)] p-4 scroll-mt-6">
-            <p className="font-semibold">{props.skills.find((skill) => skill.micro_skill_key === key)?.display_name ?? key}</p>
+          return <details id={`td-route-${key}`} key={`${route.routeId}:${key}`} className="rounded-xl border border-[var(--border)] p-4 scroll-mt-6" open={activeRoutes.length === 1}>
+            <summary className="cursor-pointer font-semibold">{props.skills.find((skill) => skill.micro_skill_key === key)?.display_name ?? key} <span className="text-xs font-normal text-[color:var(--mid)]">· {route.routeId.replaceAll("_", " ")}</span></summary>
+            <div className="mt-3 grid gap-3">
             <p className="text-xs">Fill only facts this lesson needs beyond the shared dictionary entry. The checklist above links to missing fields.</p>
             <label className={labelClass}>Teaching meaning override<input className={fieldClass} placeholder={`Shared: ${definition}`} value={routeValue(key, "wordMeaning")} onChange={(event) => updateRoute(key, { wordMeaning: event.target.value })} /></label>
             <label className={labelClass}>Word sum<input className={fieldClass} placeholder={`Canonical: ${props.initial.canonicalMorphology.wordSum}`} value={routeValue(key, "wordSum")} onChange={(event) => updateRoute(key, { wordSum: event.target.value })} /></label>
@@ -283,14 +324,26 @@ export function WordEditor(props: {
             </div>}
             {route.routeId === "base_word_lab" && <div className="grid gap-3 md:grid-cols-2">
               {([ ["familyKey", "Family key"], ["baseWord", "Base word"], ["baseMeaning", "Base meaning"] ] as const).map(([field, label]) => <label id={`td-route-${key}-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{label}<input className={fieldClass} value={String(item?.content[field] ?? "")} onChange={(event) => updateRouteFact(key, field, event.target.value)} /></label>)}
+              <div className="md:col-span-2"><PartSequenceEditor id={`td-route-${key}-morphologyParts`} label="Reviewed family word parts" word={props.initial.displayWord} parts={item?.content.morphologyParts} joins={[]} onChange={(parts) => updateRouteFact(key, "morphologyParts", parts)} /></div>
             </div>}
-            {route.routeId === "compound_word_lab" && <label className={labelClass}>Component-to-whole explanation<input className={fieldClass} value={String(item?.content.componentToWholeRelationship ?? "")} onChange={(event) => updateRouteFact(key, "componentToWholeRelationship", event.target.value)} /></label>}
-            <details className="text-sm"><summary className="cursor-pointer">Advanced route data</summary><label className={labelClass}>Additional route facts (JSON)<textarea className={`${fieldClass} font-mono`} rows={5} value={routeJson[key] ?? JSON.stringify(item?.content ?? {}, null, 2)} onChange={(event) => {
+            {route.routeId === "compound_word_lab" && <div className="grid gap-3">
+              <label id={`td-route-${key}-componentToWholeRelationship`} className={`${labelClass} scroll-mt-6`}>How do the component meanings make the whole word?<textarea className={fieldClass} rows={2} value={String(item?.content.componentToWholeRelationship ?? "")} onChange={(event) => updateRouteFact(key, "componentToWholeRelationship", event.target.value)} /></label>
+              <p className="text-xs text-amber-900">Component identities, ordered joins and reviewed structure provenance are governed by the compound structure authority. Open the advanced facts to inspect an existing structure; saving this word does not approve a new compound release.</p>
+            </div>}
+            {route.routeId === "ing_endings_word_lab" && <div className="grid gap-3 md:grid-cols-2">
+              <label id={`td-route-${key}-base`} className={`${labelClass} scroll-mt-6`}>Unchanged base word<input className={fieldClass} value={String(item?.content.base ?? "")} onChange={(event) => updateRouteFact(key, "base", event.target.value)} /></label>
+              {key.endsWith("DOUBLE_FINAL_CONSONANT") && <label id={`td-route-${key}-doublingPattern`} className={`${labelClass} scroll-mt-6`}>Why is the consonant doubled?<select className={fieldClass} value={String(item?.content.doublingPattern ?? "")} onChange={(event) => updateRouteFact(key, "doublingPattern", event.target.value)}><option value="">Choose the reviewed pattern</option><option value="short_cvc">Short consonant–vowel–consonant base</option><option value="stressed_final_syllable">Stressed final syllable</option></select></label>}
+              <label id={`td-route-${key}-sourceRefs`} className={`${labelClass} md:col-span-2 scroll-mt-6`}>Reviewed source references, one per line<textarea className={fieldClass} rows={2} value={Array.isArray(item?.content.sourceRefs) ? item.content.sourceRefs.join("\n") : ""} onChange={(event) => updateRouteFact(key, "sourceRefs", event.target.value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean))} /></label>
+              <p className="md:col-span-2 text-xs text-amber-900">The existing -ing release still requires its own reviewed word authority and learner group checks.</p>
+            </div>}
+            {route.routeId === "comparative_superlative_word_lab" && <p className="text-xs text-amber-900">This route is governed by a reviewed three-word adjective family, two transformations and a paired sentence. The word page can retain a draft, but the family release authority must validate the complete group before it is a lesson candidate.</p>}
+            <details id={`td-route-${key}-advanced`} className="text-sm scroll-mt-6"><summary className="cursor-pointer">Advanced route data</summary><label className={labelClass}>Additional route facts (JSON)<textarea className={`${fieldClass} font-mono`} rows={5} value={routeJson[key] ?? JSON.stringify(item?.content ?? {}, null, 2)} onChange={(event) => {
               setRouteJson((previous) => ({ ...previous, [key]: event.target.value }));
               try { const parsed = JSON.parse(event.target.value); if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error(); updateRoute(key, { content: parsed as Record<string, unknown> }); setRouteError(""); }
               catch { setRouteError("Route facts must be a JSON object before saving."); }
             }} /></label></details>
-          </div>;
+            </div>
+          </details>;
         }) : <p className="text-sm">Select a specialist micro skill to edit its route content.</p>}
       </div>
       {routeError && <p role="alert" className="text-rose-700">{routeError}</p>}

@@ -9,6 +9,16 @@ export type ReadinessRequirement = {
   editTarget: string;
 };
 
+export function publicationBlockerTarget(message: string): string {
+  if (message.includes("definition")) return "td-definition";
+  if (message.includes("age band")) return "td-age-band";
+  if (message.includes("frequency band")) return "td-frequency-band";
+  if (message.includes("dictation")) return "td-dictation";
+  if (message.includes("morphology")) return "td-canonical-parts";
+  if (message.includes("source") || message.includes("licence")) return "td-source";
+  return "td-word-editor";
+}
+
 export function hasReleasedRouteContent(kind: "prefix" | "suffix" | "base" | null, memberReleased: boolean, sourceAuthorities: readonly string[]): boolean {
   if (!kind || !memberReleased) return false;
   if (kind !== "base") return true;
