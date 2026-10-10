@@ -155,7 +155,7 @@ export function WordReadinessView(props: {
             <div className="flex items-center justify-between gap-2"><strong>{ACTIVITY_LABELS[part.variant.kind]}</strong><span className={cell.state === "ready" ? "text-emerald-700" : cell.state === "warning" ? "text-amber-900" : "text-slate-500"}>{cell.state === "ready" ? "✓ Validated" : cell.state === "warning" ? "⚠ Needs work" : "n/a"}</span></div>
             {cell.state === "not_applicable" ? <p className="mt-1 text-xs text-[color:var(--mid)]">{cell.reason}</p>
               : part.requirements.length ? <ul className="mt-2 grid gap-1">{part.requirements.map((requirement) => <li key={`${requirement.editTarget}:${requirement.label}`} className="flex flex-wrap items-baseline justify-between gap-x-2">
-                <span>{requirement.status === "present" ? "✓" : "⚠"} {requirement.label}</span>
+                <span>{requirement.label} <span className={requirement.status === "present" ? "text-[color:var(--mid)]" : "text-amber-900"}>· {requirement.status === "present" ? "Present" : requirement.status === "needs_review" ? "Needs review" : "Missing"}</span></span>
                 <a className="text-xs font-semibold underline" href={actionHref(row, requirement.editTarget)}>{requirement.status === "present" ? "Review" : "Edit"}</a>
               </li>)}</ul> : <p className="mt-1 text-xs text-[color:var(--mid)]">{cell.reason}</p>}
           </div>;
