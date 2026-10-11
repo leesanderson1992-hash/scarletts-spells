@@ -2,6 +2,13 @@
 
 The admin workspace at `/admin/teaching-dictionary` has two independent review outcomes.
 
+The linked `/admin/teaching-dictionary/bulk-assign` workspace approves up to 100
+canonical words for one micro-skill at a time. Its filters use active dictionary
+metadata and structured morphology. Each confirmed word receives a separate
+reviewed evidence release, so the single-word editor can later withdraw that
+word's approval independently. The batch publishes in one database transaction;
+it does not create or activate ADLE route content.
+
 1. **Evidence approval** publishes an exact canonical-word/micro-skill pair through the existing word-skill package review and publication authority. A manager withdrawal removes only the manager's release. Other effective sources remain visible. Production review, publication and withdrawal controls must all be enabled for this action.
 2. **ADLE route activation** requires reviewed route content and the route's own runtime authority. Prefix and suffix content extends a production-enabled profile by publishing a complete new profile generation. The old generation remains for persisted lesson snapshots. The server verifies that the new profile loads; it rolls back to the old generation if verification fails. Base-word and compound content can be drafted and reviewed here, but their family/structure, teaching-content, dictionary-closure and route-release manifests remain governed separately. Child-specific readiness is still checked by the canonical intake readiness page.
 

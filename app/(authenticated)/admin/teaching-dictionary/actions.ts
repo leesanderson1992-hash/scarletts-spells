@@ -582,21 +582,23 @@ export async function saveTeachingDictionarySkillApprovals(form: FormData) {
     const db = createServiceRoleClient();
     const environment = resolveAdleRouteActivationEnvironment();
     if (!environment) throw new Error("WORD_SKILL_ENVIRONMENT_UNSET");
-    const [word, skillRows, managerPackages] = await Promise.all([
+    const [word, skillRows, managerPackages, bulkPackages] = await Promise.all([
       db.from("canonical_teaching_dictionary_words").select("id,row_status,review_status").eq("id", wordId).single(),
       keys.length ? db.from("micro_skill_catalog").select("micro_skill_key").in("micro_skill_key", keys).eq("is_active", true) : Promise.resolve({ data: [], error: null }),
       db.from("adle_word_skill_candidate_packages").select("id,candidates").like("package_key", `tdm:${wordId}:%`).eq("environment_key", environment),
+      db.from("adle_word_skill_candidate_packages").select("id,candidates").like("package_key", `tdm-bulk:%:${wordId}`).eq("environment_key", environment),
     ]);
     if (word.error || word.data.row_status !== "active" || word.data.review_status !== "approved_for_first_exposure") throw new Error("TEACHING_WORD_NOT_APPROVED");
-    if (skillRows.error || (skillRows.data?.length ?? 0) !== keys.length || managerPackages.error) throw new Error("TEACHING_SKILL_SELECTION_INVALID");
-    const published = managerPackages.data?.length ? await db.from("adle_word_skill_package_publications").select("package_id,release_id").in("package_id", managerPackages.data.map((pack) => pack.id)) : { data: [], error: null };
+    if (skillRows.error || (skillRows.data?.length ?? 0) !== keys.length || managerPackages.error || bulkPackages.error) throw new Error("TEACHING_SKILL_SELECTION_INVALID");
+    const allManagerPackages = [...(managerPackages.data ?? []), ...(bulkPackages.data ?? [])];
+    const published = allManagerPackages.length ? await db.from("adle_word_skill_package_publications").select("package_id,release_id").in("package_id", allManagerPackages.map((pack) => pack.id)) : { data: [], error: null };
     if (published.error) throw new Error("WORD_SKILL_PUBLICATION_READ_FAILED");
     const withdrawals = published.data?.length ? await db.from("adle_reviewed_word_skill_withdrawals").select("release_id").in("release_id", published.data.map((row) => row.release_id)) : { data: [], error: null };
     if (withdrawals.error) throw new Error("WORD_SKILL_WITHDRAWAL_READ_FAILED");
     const withdrawn = new Set((withdrawals.data ?? []).map((row) => row.release_id));
     const releaseByPackage = new Map((published.data ?? []).map((row) => [row.package_id, row.release_id]));
     const managerApprovals = new Map<string, string[]>();
-    for (const pack of managerPackages.data ?? []) {
+    for (const pack of allManagerPackages) {
       const releaseId = releaseByPackage.get(pack.id);
       if (!releaseId || withdrawn.has(releaseId)) continue;
       const candidate = Array.isArray(pack.candidates) ? pack.candidates[0] as { microSkillKey?: string } : null;
