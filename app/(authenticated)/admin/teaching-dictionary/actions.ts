@@ -12,6 +12,7 @@ import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
+import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
 import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
@@ -415,6 +416,17 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     .select("replacement_batch_id").eq("original_batch_id", batchId).maybeSingle();
   if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
   if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
+  const batchDrafts: ImportDraftSummary[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const batchPage = await db.from("teaching_dictionary_manager_drafts")
+      .select("id,canonical_word_id,normalised_word,created_at")
+      .like("source_reference", `CSV batch ${batchId},%`).order("created_at", { ascending: false })
+      .order("id", { ascending: false }).range(offset, offset + 499);
+    if (batchPage.error) throw new Error("TEACHING_BATCH_READ_FAILED");
+    batchDrafts.push(...(batchPage.data ?? []));
+    if ((batchPage.data?.length ?? 0) < 500) break;
+  }
+  const latestIds = new Set(pendingImportDrafts(batchDrafts, new Set()).map((draft) => draft.id));
   let published = 0;
   let failed = 0;
   let scanned = 0;
@@ -437,7 +449,7 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     for (const draft of drafts) {
       scanned += 1;
       cursor = draft.id;
-      if (done.has(draft.id)) continue;
+      if (done.has(draft.id) || !latestIds.has(draft.id)) continue;
       const payload = draft.payload as WordDraftPayload;
       if (publicationBlockers(payload, draft.normalised_word).length
         || payload.routeContents.some((route) => routeBlockers(route, payload).length)) continue;
