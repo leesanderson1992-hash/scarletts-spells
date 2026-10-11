@@ -179,7 +179,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const protectedRelease = protectedReleaseError || Boolean(draft && word && hasProtectedLinks
     && !matchesPublishedFactsForDefinitionOnly({ payload: initial, word, metadata, dictation, morphology }));
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
-    <nav className="text-sm"><Link href="/admin/teaching-dictionary" className="underline">← All words</Link></nav>
+    <nav className="text-sm"><Link href="/admin/teaching-dictionary" prefetch={true} className="underline">← All words</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
     {protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">
