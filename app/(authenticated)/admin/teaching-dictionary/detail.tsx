@@ -30,7 +30,11 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const approvalControlsPromise = environment ? loadWordSkillReviewControls(db, environment) : Promise.resolve(null);
   const authorityPromise = environment && wordId
     ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
-  const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult] = await Promise.all([
+  // These reads depend only on the URL word ID. Start them in the same round
+  // trip as the word and catalog; validating the word still happens below.
+  const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult,
+    metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult,
+    prefixResult, suffixResult, baseResult, historyResult] = await Promise.all([
     wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
     params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key").eq("is_active", true).eq("is_assignable", true).order("display_name"),
@@ -38,13 +42,6 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     db.from("micro_skill_clusters").select("skill_cluster_key,skill_family_key,display_name").eq("is_active", true).order("display_name"),
     db.from("canonical_teaching_dictionary_prefix_profiles").select("micro_skill_key,meaning_bins,prefix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     db.from("canonical_teaching_dictionary_suffix_profiles").select("micro_skill_key,meaning_bins,suffix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
-  ]);
-  if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error || prefixProfilesResult.error || suffixProfilesResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
-  const word = wordResult?.data as Word | null;
-  const draft = draftResult?.data ?? null;
-  if ((wordId && !word) || (params.draft && !draft) || (draft && draft.canonical_word_id !== wordId)) notFound();
-  const normalisedWord = draft?.normalised_word ?? word?.normalised_word ?? "";
-  const [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult] = await Promise.all([
     wordId ? db.from("canonical_teaching_dictionary_word_metadata").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
     wordId ? db.from("canonical_teaching_dictionary_word_morphology").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
     wordId ? db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
@@ -56,6 +53,11 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,word_sum,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("teaching_dictionary_manager_drafts").select("id,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
   ]);
+  if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error || prefixProfilesResult.error || suffixProfilesResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
+  const word = wordResult?.data as Word | null;
+  const draft = draftResult?.data ?? null;
+  if ((wordId && !word) || (params.draft && !draft) || (draft && draft.canonical_word_id !== wordId)) notFound();
+  const normalisedWord = draft?.normalised_word ?? word?.normalised_word ?? "";
   for (const result of [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult]) if (result?.error) throw new Error("TEACHING_DICTIONARY_FACT_READ_FAILED");
   const publicationIds = (routeContentResult?.data ?? []).map((row) => row.id);
   const historyIds = (historyResult?.data ?? []).map((item) => item.id);

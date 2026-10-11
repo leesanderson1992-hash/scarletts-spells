@@ -49,6 +49,9 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   // complete candidate set until their governed authority has a queryable read model.
   const fullScan = filter !== "all";
   const authorityPromise = environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
+  const prefixProfilesPromise = readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled");
+  const suffixProfilesPromise = readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled");
+  const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
   const pageResult = fullScan ? null : await db.from("canonical_teaching_dictionary_words")
     .select("id,normalised_word,display_word,age_band,frequency_band,row_status", { count: "exact" })
     .eq("row_status", "active")
@@ -68,10 +71,10 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     readFacts<{ canonical_word_id: string; prefix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
     readFacts<{ canonical_word_id: string; suffix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
     readFacts<{ canonical_word_id: string; row_status: string }>("canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,row_status"),
-    readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled"),
-    readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled"),
+    prefixProfilesPromise,
+    suffixProfilesPromise,
     readFacts<{ canonical_word_id: string; route_id: string; micro_skill_key: string }>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
-    db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12),
+    draftsPromise,
     authorityPromise,
   ]);
   if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
