@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { requireAdminUser } from "@/lib/admin/access";
@@ -10,7 +10,7 @@ import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, rou
 import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
-import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
@@ -22,7 +22,10 @@ const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim(
 const errorCode = (error: unknown) => error instanceof Error && /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : "TEACHING_DICTIONARY_ACTION_FAILED";
 
 function finish(path: string, error?: unknown): never {
-  if (!error) revalidatePath(PATH);
+  if (!error) {
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    revalidatePath(PATH);
+  }
   const separator = path.includes("?") ? "&" : "?";
   redirect(`${path}${separator}${error ? `error=${encodeURIComponent(errorCode(error))}` : "saved=1"}`);
 }
@@ -562,6 +565,7 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     }
     if (drafts.length < 100 && cursor === drafts.at(-1)?.id) { finished = true; break; }
   }
+  if (published) updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(path);
   redirect(`${path}?${new URLSearchParams({ published: String(published), failed: String(failed),
     scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes) })}`);

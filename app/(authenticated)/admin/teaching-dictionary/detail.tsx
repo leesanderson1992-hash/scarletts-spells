@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } from "./word-readiness-view";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
@@ -29,7 +29,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   // the page loads those facts instead of adding it to the end of the request.
   const approvalControlsPromise = environment ? loadWordSkillReviewControls(db, environment) : Promise.resolve(null);
   const authorityPromise = environment && wordId
-    ? loadTeachingDictionaryEvidenceAuthority(db, environment) : Promise.resolve(null);
+    ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult] = await Promise.all([
     wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
     params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,

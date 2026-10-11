@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { CsvImportPanel } from "./csv-import-panel";
@@ -48,7 +48,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   // The ordinary table is paged in Postgres. Status filters still need the
   // complete candidate set until their governed authority has a queryable read model.
   const fullScan = filter !== "all";
-  const authorityPromise = environment ? loadTeachingDictionaryEvidenceAuthority(db, environment) : Promise.resolve(null);
+  const authorityPromise = environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const pageResult = fullScan ? null : await db.from("canonical_teaching_dictionary_words")
     .select("id,normalised_word,display_word,age_band,frequency_band,row_status", { count: "exact" })
     .eq("row_status", "active")
