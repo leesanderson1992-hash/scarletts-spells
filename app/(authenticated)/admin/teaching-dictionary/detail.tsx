@@ -93,6 +93,10 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const routeSources: Record<string, ReadinessRouteSource> = {};
   const seen = new Set<string>();
   const contentVersions = routeContentResult?.data ?? [];
+  const publishedRouteKeys = new Set(contentVersions.filter((version) => publishedContent.has(version.id))
+    .map((version) => `${version.route_id}:${version.micro_skill_key}`));
+  const visibleContentVersions = contentVersions.filter((version) => publishedContent.has(version.id)
+    || !publishedRouteKeys.has(`${version.route_id}:${version.micro_skill_key}`));
   for (const row of [...contentVersions.filter((version) => publishedContent.has(version.id)),
     ...contentVersions.filter((version) => !publishedContent.has(version.id) && !rolledBackContent.has(version.id)),
     ...(submissionsResult?.data ?? [])]) {
@@ -159,7 +163,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
         .map((item) => ({ key, kind: "base" as const, released: item.assignment_eligible,
           wordSum: item.word_sum, detail: `Reviewed word sum: ${item.word_sum}` }))),
   ];
-  const hasProtectedLinks = relationships.length > 0 || readinessMembers.length > 0;
+  const hasProtectedLinks = readinessMembers.some((member) => member.released);
   const protectedRelease = protectedReleaseError || Boolean(draft && word && hasProtectedLinks
     && !matchesPublishedFactsForDefinitionOnly({ payload: initial, word, metadata, dictation, morphology }));
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
@@ -167,7 +171,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
     {protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">
-      This word already has approved lesson or evidence links. Its changed shared facts need a reviewed release before they can replace the current version.
+      This word already belongs to released lesson content. Its changed shared facts need a reviewed route release before they can replace the current version.
       {draftDefinitionCurrent ? " The definition is already published." : " The definition remains in this draft."} Your draft remains saved.
     </p>}
     {params.error && !protectedReleaseError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
@@ -191,7 +195,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
         <span>Approved submission · {submission.route_id} · {publishedSubmissionIds.has(submission.id) ? "published through manager" : submission.runtime_status.replaceAll("_", " ")}</span>
         <ActionSubmitButton pendingLabel="Opening draft…" className="rounded-lg border border-[var(--border)] px-3 py-1 font-semibold">Open as editable draft</ActionSubmitButton>
       </form>)}</div>
-      {(routeContentResult?.data ?? []).map((version) => {
+      {visibleContentVersions.map((version) => {
         const content = version.content as RouteContentDraft;
         const blockers = routeBlockers(content, initial);
         const activated = publishedContent.has(version.id);

@@ -226,4 +226,14 @@ assert(!matchesPublishedFactsForDefinitionOnly({ ...publishedFacts,
   payload: { ...definitionPayload, dictationSentence: "A changed sentence." } }));
 assert(!matchesPublishedFactsForDefinitionOnly({ ...publishedFacts,
   payload: { ...definitionPayload, routeContents: [publishedRoute] } }));
+const evidenceSeparationMigration = readFileSync(
+  "supabase/migrations/20261011101500_teaching_dictionary_manager_evidence_separation.sql", "utf8",
+);
+assert.match(evidenceSeparationMigration, /pg_get_functiondef/);
+assert.match(evidenceSeparationMigration, /replace\(v_definition/);
+assert.match(evidenceSeparationMigration, /TEACHING_DICTIONARY_EVIDENCE_GATE_SOURCE_NOT_FOUND/);
+const detailSource = readFileSync("app/(authenticated)/admin/teaching-dictionary/detail.tsx", "utf8");
+assert.match(detailSource, /readinessMembers\.some\(\(member\) => member\.released\)/);
+assert.doesNotMatch(detailSource, /approved lesson or evidence links/);
+assert.match(detailSource, /publishedRouteKeys\.has/);
 console.log("Teaching Dictionary Manager regression passed");
