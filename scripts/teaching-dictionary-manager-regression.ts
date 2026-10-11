@@ -4,6 +4,7 @@ import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
+import { routeEditorPayload } from "../lib/teaching-dictionary-manager/route-editor-payload";
 import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
@@ -65,6 +66,32 @@ assert.equal(createdSelectedSuffix.wordMeaning, selectedSuffixPayload.definition
 assert.equal(createdSelectedSuffix.wordSum, selectedSuffixPayload.canonicalMorphology.wordSum);
 assert.deepEqual(createdSelectedSuffix.content.teachingSplitParts, selectedSuffixPayload.canonicalMorphology.parts);
 assert.equal(routeContentsForSelectedSkills({ ...selectedSuffixPayload, routeContents: [createdSelectedSuffix] }).length, 1);
+const baseRoute = { routeId: "base_word_lab", routeVersion: "v2",
+  microSkillKey: "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", wordMeaning: "moving on a screen",
+  wordSum: "scroll + ing → scrolling", content: { familyKey: "scroll_family", baseWord: "scroll",
+    baseMeaning: "To move words or pictures up or down a screen.", morphologyParts: [{ text: "scroll", type: "base" }, { text: "ing", type: "suffix" }] } };
+const [unchangedBaseRoute] = routeEditorPayload([baseRoute], [baseRoute],
+  { [baseRoute.microSkillKey]: JSON.stringify(baseRoute.content, null, 2) },
+  "moving on a screen", baseRoute.wordSum);
+assert.deepEqual(unchangedBaseRoute.content, baseRoute.content);
+const [savedAgain] = routeEditorPayload([baseRoute], [unchangedBaseRoute],
+  { [baseRoute.microSkillKey]: JSON.stringify(unchangedBaseRoute.content, null, 2) },
+  "moving on a screen", baseRoute.wordSum);
+assert.equal(savedAgain.content.baseMeaning, baseRoute.content.baseMeaning);
+const [clearedBaseMeaning] = routeEditorPayload([baseRoute], [unchangedBaseRoute],
+  { [baseRoute.microSkillKey]: JSON.stringify({ ...baseRoute.content, baseMeaning: "" }) },
+  "moving on a screen", baseRoute.wordSum);
+assert.equal(clearedBaseMeaning.content.baseMeaning, "");
+const savedBasePayload = routeContentsForSelectedSkills({ ...sharedMorphologyPayload,
+  skillKeys: [baseRoute.microSkillKey], routeContents: [unchangedBaseRoute] });
+assert.equal(savedBasePayload[0].content.baseMeaning, baseRoute.content.baseMeaning);
+const baseChecklist = routeRequirements(savedBasePayload[0], { ...sharedMorphologyPayload,
+  skillKeys: [baseRoute.microSkillKey], routeContents: savedBasePayload });
+assert.equal(baseChecklist.find((item) => item.label === "base meaning")?.status, "present");
+assert(!baseChecklist.some((item) => item.label === "base meaning" && item.status === "missing"));
+assert.equal(routeRequirements(savedBasePayload[0], { ...sharedMorphologyPayload,
+  skillKeys: [baseRoute.microSkillKey], routeContents: savedBasePayload }, () => true)
+  .find((item) => item.label === "base meaning")?.status, "needs_review");
 const abilityPayload = structuredClone(selectedSuffixPayload);
 abilityPayload.definition = "the quality of being able to do something";
 abilityPayload.canonicalMorphology = {
@@ -233,6 +260,7 @@ assert.match(evidenceSeparationMigration, /pg_get_functiondef/);
 assert.match(evidenceSeparationMigration, /replace\(v_definition/);
 assert.match(evidenceSeparationMigration, /TEACHING_DICTIONARY_EVIDENCE_GATE_SOURCE_NOT_FOUND/);
 const detailSource = readFileSync("app/(authenticated)/admin/teaching-dictionary/detail.tsx", "utf8");
+assert.match(detailSource, /\? "manager publication" : "approved teaching submission"/);
 assert.match(detailSource, /readinessMembers\.some\(\(member\) => member\.released\)/);
 assert.doesNotMatch(detailSource, /approved lesson or evidence links/);
 assert.match(detailSource, /publishedRouteKeys\.has/);

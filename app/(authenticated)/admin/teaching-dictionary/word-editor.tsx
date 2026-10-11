@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { normaliseWord, WORD_METADATA_FIELDS } from "@/lib/teaching-dictionary-manager/contracts";
+import { routeEditorPayload } from "@/lib/teaching-dictionary-manager/route-editor-payload";
 import { saveTeachingDictionaryDraft, saveTeachingDictionarySkillApprovals } from "./actions";
 import { ActionSubmitButton } from "./action-submit-button";
 
@@ -302,23 +303,9 @@ export function WordEditor(props: {
   }
   function prepareRoutePayload(form: HTMLFormElement) {
     try {
-      const sharedFactsChanged = definition.trim() !== props.initial.definition.trim()
-        || canonicalWordSum.trim() !== props.initial.canonicalMorphology.wordSum.trim()
-        || JSON.stringify(canonicalParts) !== JSON.stringify(asParts(props.initial.canonicalMorphology.parts))
-        || JSON.stringify(canonicalJoins) !== JSON.stringify(asJoins(props.initial.canonicalMorphology.joins));
-      const relevant = activeRoutes.flatMap(({ key, route }) => {
-        const saved = routes.find((item) => item.microSkillKey === key && item.routeId === route.routeId);
-        const original = props.initial.routeContents.find((item) => item.microSkillKey === key && item.routeId === route.routeId);
-        const typedJson = routeJson[key];
-        const edited = sharedFactsChanged || Boolean(saved) && (!original || JSON.stringify(saved) !== JSON.stringify(original)
-          || (typedJson != null && typedJson !== JSON.stringify(original.content, null, 2)));
-        if (!edited) return [];
-        return [{ routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: key,
-          wordMeaning: saved?.wordMeaning?.trim() || definition.trim(),
-          wordSum: saved?.wordSum?.trim() || canonicalWordSum.trim(),
-          content: JSON.parse(typedJson ?? JSON.stringify(saved?.content ?? {})) as Record<string, unknown> }];
-      });
-      if (relevant.some((route) => !route.content || typeof route.content !== "object" || Array.isArray(route.content))) throw new Error("ROUTE_JSON_INVALID");
+      const relevant = routeEditorPayload(activeRoutes.map(({ key, route }) => ({
+        routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: key,
+      })), routes, routeJson, definition, canonicalWordSum);
       (form.elements.namedItem("route_contents") as HTMLInputElement).value = JSON.stringify(relevant);
       setRouteError("");
       return true;

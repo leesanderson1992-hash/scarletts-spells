@@ -114,9 +114,10 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     if (seen.has(key)) continue;
     seen.add(key);
     routeContents.push(routeContentFromStoredRow(row));
+    // The manager has already published every content version here. Runtime
+    // route activation is a separate release gate, not an editorial to-do.
     routeSources[row.micro_skill_key] = "id" in row && "draft_id" in row
-      ? publishedContent.has(row.id) ? "manager publication" : "manager draft"
-      : "approved teaching submission";
+      ? "manager publication" : "approved teaching submission";
   }
   const [approvalControls, authority] = await Promise.all([approvalControlsPromise, authorityPromise]);
   const relationships = (authority?.relationships ?? []).filter((row) => row.canonicalWordId === wordId);
