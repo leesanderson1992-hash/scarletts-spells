@@ -121,7 +121,36 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   return blockers;
 }
 
-export function routeBlockers(route: RouteContentDraft, payload: WordDraftPayload) {
+/** Route compilers still receive their established payload shape, but shared
+ * dictionary facts are authored once. A route value is only an override when
+ * it is explicitly present. */
+export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraftPayload): RouteContentDraft {
+  const parts = payload.canonicalMorphology.parts;
+  const joins = payload.canonicalMorphology.joins;
+  const content = { ...route.content };
+  if (route.routeId === "dynamic_prefix_word_lab") {
+    if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
+    if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
+  }
+  if (route.routeId === "dynamic_affix_word_lab") {
+    if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
+    if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
+    if (!Array.isArray(content.trueMorphologyParts) || content.trueMorphologyParts.length === 0) content.trueMorphologyParts = parts;
+    if (!Array.isArray(content.trueMorphologyJoins)) content.trueMorphologyJoins = joins;
+  }
+  if (route.routeId === "base_word_lab" && (!Array.isArray(content.morphologyParts) || content.morphologyParts.length === 0)) {
+    content.morphologyParts = parts;
+  }
+  return {
+    ...route,
+    wordMeaning: route.wordMeaning.trim() || payload.definition.trim(),
+    wordSum: route.wordSum.trim() || payload.canonicalMorphology.wordSum.trim(),
+    content,
+  };
+}
+
+export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftPayload) {
+  const route = routeWithSharedFacts(routeInput, payload);
   const blockers: string[] = [];
   const definition = ADLE_CURRICULUM_ROUTE_REGISTRY.find((candidate) =>
     candidate.routeId === route.routeId && candidate.routeVersion === route.routeVersion);

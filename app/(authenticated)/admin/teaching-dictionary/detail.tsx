@@ -15,6 +15,7 @@ import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
 import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, publishTeachingDictionaryPrefixContent, publishTeachingDictionarySuffixContent } from "./actions";
 import { WordEditor } from "./word-editor";
+import { ActionSubmitButton } from "./action-submit-button";
 
 type Params = { draft?: string; saved?: string; error?: string; route_error?: string; publish_error?: string };
 type Group = { key: string; label: string; parent?: string };
@@ -176,7 +177,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       <summary className="cursor-pointer font-semibold">Saved draft · {protectedRelease ? "protected facts need release" : draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
       <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
       {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker} <a className="font-semibold underline" href={`#${publicationBlockerTarget(blocker)}`}>Edit</a></li>)}</ul>}
-      <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0 || protectedRelease} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">{protectedRelease ? "Protected release required" : "Publish dictionary facts"}</button></form>
+      <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><ActionSubmitButton disabled={draftBlockers.length > 0 || protectedRelease} pendingLabel="Publishing facts…" className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">{protectedRelease ? "Protected release required" : "Publish dictionary facts"}</ActionSubmitButton></form>
     </details>}
     {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial} publishedPayload={publishedPayload}
       draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
@@ -188,7 +189,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       <div id="td-approved-submissions" className="grid gap-2 scroll-mt-6">{(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
         <input type="hidden" name="submission_id" value={submission.id} /><input type="hidden" name="word_id" value={wordId} />
         <span>Approved submission · {submission.route_id} · {publishedSubmissionIds.has(submission.id) ? "published through manager" : submission.runtime_status.replaceAll("_", " ")}</span>
-        <button className="rounded-lg border border-[var(--border)] px-3 py-1 font-semibold">Open as editable draft</button>
+        <ActionSubmitButton pendingLabel="Opening draft…" className="rounded-lg border border-[var(--border)] px-3 py-1 font-semibold">Open as editable draft</ActionSubmitButton>
       </form>)}</div>
       {(routeContentResult?.data ?? []).map((version) => {
         const content = version.content as RouteContentDraft;
@@ -199,11 +200,11 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
           {blockers.length > 0 && <ul className="list-disc pl-5 text-amber-900">{blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
           {version.route_id === "dynamic_prefix_word_lab" && !activated && !rolledBackContent.has(version.id) && <form action={publishTeachingDictionaryPrefixContent} className="mt-2">
             <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
-            <button disabled={blockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish prefix route member</button>
+            <ActionSubmitButton disabled={blockers.length > 0} pendingLabel="Publishing prefix…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish prefix route member</ActionSubmitButton>
           </form>}
           {version.route_id === "dynamic_affix_word_lab" && !activated && !rolledBackContent.has(version.id) && <form action={publishTeachingDictionarySuffixContent} className="mt-2">
             <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
-            <button disabled={blockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish suffix route member</button>
+            <ActionSubmitButton disabled={blockers.length > 0} pendingLabel="Publishing suffix…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish suffix route member</ActionSubmitButton>
           </form>}
           {version.route_id === "base_word_lab" && !activated && <p>Base-word activation needs reviewed family membership, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
           {version.route_id === "compound_word_lab" && !activated && <p>Compound activation needs reviewed structure authority, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}

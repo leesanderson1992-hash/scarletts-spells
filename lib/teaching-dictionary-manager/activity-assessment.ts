@@ -47,7 +47,7 @@ export function requirementActivities(
   if (target === "td-definition" || routeField === "baseMeaning") {
     return ["discovery", "family_reveal", "meaning_match", "meaning_sort", "word_build"];
   }
-  if (target === "td-canonical-word-sum") return ["word_build", "cleaver"];
+  if (target === "td-canonical-word-sum" || target === "td-canonical-parts") return ["word_build", "cleaver"];
   if (["td-morphemes", "td-morphology_notes"].includes(target)) return ["cleaver", "word_build"];
   if (routeField === "choiceAudit") return ["meaning_sort", "word_build"];
   if (["components", "componentToWholeRelationship", "joins"].includes(routeField)) {

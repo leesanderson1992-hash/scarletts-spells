@@ -1,5 +1,5 @@
 import {
-  emptyMetadata, emptyMorphology, routeBlockers,
+  emptyMetadata, emptyMorphology, routeBlockers, routeWithSharedFacts,
   type RouteContentDraft, type WordDraftPayload,
 } from "./contracts";
 
@@ -66,15 +66,15 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Add prefix variant.": "prefixVariant", "Add suffix form.": "suffixVariant",
     "Add semantic base.": "semanticBaseText", "Add base or root classification.": "semanticBaseKind",
     "Add meaning group.": "meaningBinKey", "Add base-word family.": "familyKey",
-    "Add teaching split parts.": "teachingSplitParts",
-    "Add teaching split joins.": "teachingSplitParts",
-    "Add teaching split.": "teachingSplitParts",
-    "Add teaching joins.": "teachingSplitParts",
-    "Add true morphology parts.": "trueMorphologyParts",
-    "Add true morphology joins.": "trueMorphologyParts",
+    "Add teaching split parts.": "sharedMorphology",
+    "Add teaching split joins.": "sharedMorphology",
+    "Add teaching split.": "sharedMorphology",
+    "Add teaching joins.": "sharedMorphology",
+    "Add true morphology parts.": "sharedMorphology",
+    "Add true morphology joins.": "sharedMorphology",
     "Add true morphology provenance.": "trueMorphologyProvenance",
     "Add a reviewed prefix-choice audit for this word.": "choiceAudit",
-    "Add reviewed morphology parts.": "morphologyParts",
+    "Add reviewed morphology parts.": "sharedMorphology",
     "Add component words and meanings.": "components",
     "Add component joins.": "joins",
     "Add component-to-whole explanation.": "componentToWholeRelationship",
@@ -90,18 +90,19 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Add source references.": "sourceRefs",
   };
   const field = fieldByMessage[message];
+  if (field === "sharedMorphology") return "td-canonical-parts";
   return field ? `td-route-${skillKey}-${field}` : `td-route-${skillKey}`;
 }
 
 export function routeContentForReadiness(route: {
   routeId: string; routeVersion: string; microSkillKey: string;
 }, payload: WordDraftPayload, saved?: RouteContentDraft): RouteContentDraft {
-  return {
+  return routeWithSharedFacts({
     routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: route.microSkillKey,
     wordMeaning: saved?.wordMeaning || payload.definition,
     wordSum: saved?.wordSum || payload.canonicalMorphology.wordSum,
     content: saved?.content ?? {},
-  };
+  }, payload);
 }
 
 export function requirementPreview(target: string, route: RouteContentDraft, payload: WordDraftPayload): string {
