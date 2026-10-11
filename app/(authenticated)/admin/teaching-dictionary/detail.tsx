@@ -24,6 +24,12 @@ type Word = { id: string; import_batch_id: string; source_row_hash: string; norm
 export async function TeachingDictionaryDetail({ wordId, params }: { wordId: string | null; params: Params }) {
   await requireAdminUser();
   const db = createServiceRoleClient();
+  const environment = resolveAdleRouteActivationEnvironment();
+  // Evidence reconciliation is independent of the word facts. Start it while
+  // the page loads those facts instead of adding it to the end of the request.
+  const approvalControlsPromise = environment ? loadWordSkillReviewControls(db, environment) : Promise.resolve(null);
+  const authorityPromise = environment && wordId
+    ? loadTeachingDictionaryEvidenceAuthority(db, environment) : Promise.resolve(null);
   const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult] = await Promise.all([
     wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
     params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,
@@ -52,12 +58,14 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   ]);
   for (const result of [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult]) if (result?.error) throw new Error("TEACHING_DICTIONARY_FACT_READ_FAILED");
   const publicationIds = (routeContentResult?.data ?? []).map((row) => row.id);
-  const publicationResult = publicationIds.length ? await db.from("teaching_dictionary_route_content_publications").select("content_version_id,route_profile_id").in("content_version_id", publicationIds) : { data: [], error: null };
-  const rollbackResult = publicationIds.length ? await db.from("teaching_dictionary_route_content_rollbacks").select("content_version_id").in("content_version_id", publicationIds) : { data: [], error: null };
-  if (publicationResult.error || rollbackResult.error) throw new Error("TEACHING_ROUTE_PUBLICATION_READ_FAILED");
   const historyIds = (historyResult?.data ?? []).map((item) => item.id);
-  const historyPublications = historyIds.length ? await db.from("teaching_dictionary_manager_publications")
-    .select("draft_id,published_at,published_by").in("draft_id", historyIds) : { data: [], error: null };
+  const [publicationResult, rollbackResult, historyPublications] = await Promise.all([
+    publicationIds.length ? db.from("teaching_dictionary_route_content_publications").select("content_version_id,route_profile_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
+    publicationIds.length ? db.from("teaching_dictionary_route_content_rollbacks").select("content_version_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
+    historyIds.length ? db.from("teaching_dictionary_manager_publications")
+      .select("draft_id,published_at,published_by").in("draft_id", historyIds) : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (publicationResult.error || rollbackResult.error) throw new Error("TEACHING_ROUTE_PUBLICATION_READ_FAILED");
   if (historyPublications.error) throw new Error("TEACHING_HISTORY_PUBLICATION_READ_FAILED");
   const historyPublicationByDraft = new Map((historyPublications.data ?? []).map((item) => [item.draft_id, item]));
   const rolledBackContent = new Set((rollbackResult.data ?? []).map((row) => row.content_version_id));
@@ -108,9 +116,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       ? publishedContent.has(row.id) ? "manager publication" : "manager draft"
       : "approved teaching submission";
   }
-  const environment = resolveAdleRouteActivationEnvironment();
-  const approvalControls = environment ? await loadWordSkillReviewControls(db, environment) : null;
-  const authority = environment && wordId ? await loadTeachingDictionaryEvidenceAuthority(db, environment) : null;
+  const [approvalControls, authority] = await Promise.all([approvalControlsPromise, authorityPromise]);
   const relationships = (authority?.relationships ?? []).filter((row) => row.canonicalWordId === wordId);
   const memberKeys = [...(prefixResult?.data ?? []), ...(suffixResult?.data ?? [])].flatMap((row) => {
     const raw = "canonical_teaching_dictionary_prefix_profiles" in row

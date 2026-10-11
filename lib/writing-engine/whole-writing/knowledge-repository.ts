@@ -12,17 +12,29 @@ export async function loadPublishedWritingAssociations(client: SupabaseClient, e
     releases.push(...response.data);
     if (response.data.length < 500) break;
   }
-  // Each release is bounded to 1,000 pairs at publication; explicitly page it.
-  for (const release of releases) {
-    const withdrawal = await client.from("adle_reviewed_word_skill_withdrawals").select("release_id").eq("release_id", release.id).maybeSingle();
+  // Read all releases in batches. A round trip per release made every admin
+  // navigation slower as review history grew, even when only one word was open.
+  for (let start = 0; start < releases.length; start += 100) {
+    const releaseIds = releases.slice(start, start + 100).map((release) => release.id);
+    const withdrawalRequest = client.from("adle_reviewed_word_skill_withdrawals")
+      .select("release_id").in("release_id", releaseIds);
+    const pairRequest = async () => {
+      const batch: PublishedAssociation[] = [];
+      for (let offset = 0; ; offset += 500) {
+        const response = await client.from("adle_reviewed_word_skill_pairs").select("*")
+          .in("release_id", releaseIds).order("id").range(offset, offset + 499);
+        if (response.error) throw new Error("WRITING_KNOWLEDGE_PAIR_READ_FAILED");
+        batch.push(...response.data as PublishedAssociation[]);
+        if (response.data.length < 500) return batch;
+      }
+    };
+    const [withdrawal, batch] = await Promise.all([withdrawalRequest, pairRequest()]);
     if (withdrawal.error) throw new Error("WRITING_KNOWLEDGE_WITHDRAWAL_READ_FAILED");
-    if (withdrawal.data) withdrawn.add(release.id);
-    for (let offset = 0; ; offset += 500) {
-      const response = await client.from("adle_reviewed_word_skill_pairs").select("*").eq("release_id", release.id).order("id").range(offset, offset + 499);
-      if (response.error) throw new Error("WRITING_KNOWLEDGE_PAIR_READ_FAILED");
-      pairs.push(...response.data as PublishedAssociation[]);
-      if (response.data.length < 500) break;
-    }
+    for (const row of withdrawal.data) withdrawn.add(row.release_id);
+    pairs.push(...batch);
   }
+  const releaseOrder = new Map(releases.map((release, index) => [release.id, index]));
+  pairs.sort((a, b) => (releaseOrder.get(a.release_id) ?? 0) - (releaseOrder.get(b.release_id) ?? 0)
+    || a.id.localeCompare(b.id));
   return publishedAssociationsToPhaseB(pairs, new Map(releases.map((release) => [release.id, release])), withdrawn);
 }

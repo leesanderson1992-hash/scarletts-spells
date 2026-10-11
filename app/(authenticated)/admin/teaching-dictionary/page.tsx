@@ -24,6 +24,19 @@ async function readAll<T>(table: string, columns: string): Promise<T[]> {
   }
 }
 
+async function readForWords<T>(table: string, columns: string, wordIds: string[]): Promise<T[]> {
+  if (wordIds.length === 0) return [];
+  const db = createServiceRoleClient();
+  const rows: T[] = [];
+  for (let start = 0; ; start += 500) {
+    const result = await db.from(table).select(columns).in("canonical_word_id", wordIds)
+      .order("id", { ascending: true }).range(start, start + 499);
+    if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
+    rows.push(...(result.data as T[]));
+    if ((result.data?.length ?? 0) < 500) return rows;
+  }
+}
+
 export default async function TeachingDictionaryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   await requireAdminUser();
   const params = await searchParams;
@@ -32,17 +45,34 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const environment = resolveAdleRouteActivationEnvironment();
   const db = createServiceRoleClient();
-  const [words, metadata, dictation, prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent, drafts] = await Promise.all([
-    readAll<Word>("canonical_teaching_dictionary_words", "id,normalised_word,display_word,age_band,frequency_band,row_status"),
-    readAll<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes"),
-    readAll<{ canonical_word_id: string; row_status: string; review_status: string }>("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,row_status,review_status"),
-    readAll<{ canonical_word_id: string; prefix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_prefix_members", "canonical_word_id,prefix_profile_id,row_status"),
-    readAll<{ canonical_word_id: string; suffix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_suffix_members", "canonical_word_id,suffix_profile_id,row_status"),
-    readAll<{ canonical_word_id: string; row_status: string }>("canonical_teaching_dictionary_base_word_family_members", "canonical_word_id,row_status"),
+  // The ordinary table is paged in Postgres. Status filters still need the
+  // complete candidate set until their governed authority has a queryable read model.
+  const fullScan = filter !== "all";
+  const authorityPromise = environment ? loadTeachingDictionaryEvidenceAuthority(db, environment) : Promise.resolve(null);
+  const pageResult = fullScan ? null : await db.from("canonical_teaching_dictionary_words")
+    .select("id,normalised_word,display_word,age_band,frequency_band,row_status", { count: "exact" })
+    .eq("row_status", "active")
+    .ilike("normalised_word", `%${q.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_")}%`)
+    .order("normalised_word", { ascending: true }).order("id", { ascending: true })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  if (pageResult?.error) throw new Error("TEACHING_DICTIONARY_WORD_READ_FAILED");
+  const words = fullScan
+    ? await readAll<Word>("canonical_teaching_dictionary_words", "id,normalised_word,display_word,age_band,frequency_band,row_status")
+    : (pageResult?.data ?? []) as Word[];
+  const wordIds = words.map((word) => word.id);
+  const readFacts = <T,>(table: string, columns: string) => fullScan
+    ? readAll<T>(table, columns) : readForWords<T>(table, columns, wordIds);
+  const [metadata, dictation, prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent, drafts, authority] = await Promise.all([
+    readFacts<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes"),
+    readFacts<{ canonical_word_id: string; row_status: string; review_status: string }>("canonical_teaching_dictionary_dictation_sentences", "id,canonical_word_id,row_status,review_status"),
+    readFacts<{ canonical_word_id: string; prefix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
+    readFacts<{ canonical_word_id: string; suffix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
+    readFacts<{ canonical_word_id: string; row_status: string }>("canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,row_status"),
     readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled"),
     readAll<{ id: string; micro_skill_key: string; row_status: string; production_enabled: boolean }>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled"),
-    readAll<{ canonical_word_id: string; route_id: string; micro_skill_key: string }>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
+    readFacts<{ canonical_word_id: string; route_id: string; micro_skill_key: string }>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
     db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12),
+    authorityPromise,
   ]);
   if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
   const metadataReady = new Set(metadata.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure"
@@ -56,7 +86,6 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     ...suffixes.filter((row) => row.row_status === "active" && suffixById.has(row.suffix_profile_id)).map((row) => `${row.canonical_word_id}:${suffixById.get(row.suffix_profile_id)}`),
     ...baseMembers.filter((row) => row.row_status === "active").map((row) => `${row.canonical_word_id}:base_word_lab`),
   ]);
-  const authority = environment ? await loadTeachingDictionaryEvidenceAuthority(db, environment) : null;
   const skillsByWord = new Map<string, string[]>();
   for (const relationship of authority?.relationships ?? []) {
     skillsByWord.set(relationship.canonicalWordId, [...(skillsByWord.get(relationship.canonicalWordId) ?? []), relationship.microSkillKey]);
@@ -69,13 +98,15 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     if (!route || !MEMBER_CHECK_ROUTES.has(route.routeId)) return false;
     return !routeMembers.has(`${wordId}:${key}`) && !(route.routeId === "base_word_lab" && routeMembers.has(`${wordId}:base_word_lab`));
   };
-  const filtered = words.filter((word) => word.row_status === "active" && (!q || word.normalised_word.includes(q)) && (() => {
+  const filtered = words.filter((word) => word.row_status === "active" && (!fullScan || !q || word.normalised_word.includes(q)) && (() => {
     if (filter === "missing_metadata") return !metadataReady.has(word.id) || !dictationReady.has(word.id) || !word.age_band || !word.frequency_band;
     if (filter === "evidence_approved") return (skillsByWord.get(word.id)?.length ?? 0) > 0;
     if (filter === "route_blocked") return [...new Set([...(skillsByWord.get(word.id) ?? []), ...(routeKeysByWord.get(word.id) ?? [])])].some((key) => memberMissing(word.id, key));
     return true;
-  })()).sort((a, b) => a.normalised_word.localeCompare(b.normalised_word));
-  const shown = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  })());
+  if (fullScan) filtered.sort((a, b) => a.normalised_word.localeCompare(b.normalised_word));
+  const shown = fullScan ? filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : filtered;
+  const total = fullScan ? filtered.length : (pageResult?.count ?? 0);
   const href = (next: number) => `${"/admin/teaching-dictionary"}?${new URLSearchParams({ q, filter, page: String(next) })}`;
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
     <header><h1 className="text-3xl font-semibold">Teaching Dictionary Manager</h1><p className="mt-2 text-sm">Manage shared word facts, exact evidence approvals, and ADLE route readiness in one place.</p></header>
@@ -91,7 +122,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
           <option value="evidence_approved">Evidence approved</option><option value="route_blocked">Prefix, suffix or base member missing</option>
         </select><button className="rounded-lg border border-[var(--border)] px-4 py-2">Filter</button>
       </form>
-      <p className="my-4 text-sm">{filtered.length} words · page {page} of {Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))}</p>
+      <p className="my-4 text-sm">{total} words · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>
       <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b"><th className="p-2">Word</th><th className="p-2">Dictionary facts</th><th className="p-2">Evidence skills</th><th className="p-2">ADLE route</th></tr></thead><tbody>
         {shown.map((word) => {
           const keys = skillsByWord.get(word.id) ?? [];
@@ -102,7 +133,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
           return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link></td><td className="p-2">{missing ? "Needs facts" : "Present"}</td><td className="p-2">{keys.length} approved</td><td className="p-2">{missingRoute ? "Member missing" : governedPending ? "Governed release check" : keys.length ? "Check child gates" : "No specialist skill"}</td></tr>;
         })}
       </tbody></table></div>
-      <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < filtered.length && <Link href={href(page + 1)}>Next</Link>}</div>
+      <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < total && <Link href={href(page + 1)}>Next</Link>}</div>
     </section>
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Recent drafts</h2><ul className="mt-2 grid gap-1 text-sm">{(drafts.data ?? []).map((draft) => <li key={draft.id}><Link className="underline" href={draft.canonical_word_id ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}` : `/admin/teaching-dictionary/new?draft=${draft.id}`}>{draft.normalised_word}</Link> · {new Date(draft.created_at).toLocaleString("en-GB")}</li>)}</ul></section>
   </main>;
