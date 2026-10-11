@@ -196,9 +196,9 @@ export function WordEditor(props: {
   }
   const dictationTokens = dictation.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
   const selectedTargetIndex = targetIndex < dictationTokens.length ? targetIndex : 0;
-  return <div className="grid gap-6">
-    <section id="td-skills" className="rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6">
-      <h2 className="text-xl font-semibold">Micro skills</h2>
+  return <div className="order-1 grid gap-6">
+    <section id="td-skills" className="order-2 rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6">
+      <h2 className="text-xl font-semibold">Skill evidence approvals</h2>
       <p className="mt-1 text-sm">Choose a skill, then save its evidence approval separately from lesson content.</p>
       <div className="mt-4 grid gap-3">
         {slots.map((key, index) => {
@@ -235,13 +235,15 @@ export function WordEditor(props: {
       </form> : <p className="mt-3 text-sm">Publish the new word before approving its skills.</p>}
     </section>
 
-    <form id="td-word-editor" action={saveTeachingDictionaryDraft} className="grid gap-5 rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6"
+    <form id="td-word-editor" action={saveTeachingDictionaryDraft} className="order-1 grid gap-5 rounded-2xl border border-[var(--border)] bg-white p-5 scroll-mt-6"
       onSubmit={(event) => { if (!prepareRoutePayload(event.currentTarget)) event.preventDefault(); }}>
       <input type="hidden" name="word_id" value={props.wordId ?? ""} />
       <input type="hidden" name="route_contents" value="[]" />
       {chosen.map((key) => <input key={key} type="hidden" name="skill_key" value={key} />)}
-      <h2 className="text-xl font-semibold">Word and teaching facts</h2>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div><h2 className="text-xl font-semibold">Resolve teaching facts</h2><p className="mt-1 text-sm text-[color:var(--mid)]">Review shared facts once, then complete only the fields required by each assigned lesson.</p></div>
+      <details className="rounded-xl border border-[var(--border)] p-4" open={!props.wordId}>
+        <summary className="cursor-pointer font-semibold">Shared word facts <span className="font-normal text-[color:var(--mid)]">· definition, dictation and source</span></summary>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
         <label className={labelClass}>Dictionary word<input className={fieldClass} name="normalised_word" defaultValue={props.normalisedWord} readOnly={Boolean(props.wordId)} required /></label>
         <label className={labelClass}>Display word<input className={fieldClass} name="display_word" defaultValue={props.initial.displayWord} required /></label>
         <label id="td-definition" className={`${labelClass} md:col-span-2 scroll-mt-6`}>Shared definition<textarea className={fieldClass} name="definition" value={definition} onChange={(event) => setDefinition(event.target.value)} rows={2} /></label>
@@ -255,6 +257,7 @@ export function WordEditor(props: {
         </div>
         <label id="td-source" className={`${labelClass} scroll-mt-6`}>Source / editorial note<input className={fieldClass} name="source_reference" defaultValue={props.sourceReference} required /></label>
       </div>
+      </details>
       <details className="rounded-xl border border-[var(--border)] p-4"><summary className="cursor-pointer font-semibold">Source and review details</summary>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className={labelClass}>Source category<select className={fieldClass} name="source_category" defaultValue={props.initial.provenance.sourceCategory}>
@@ -276,8 +279,8 @@ export function WordEditor(props: {
         {WORD_METADATA_FIELDS.map((field) => <label id={`td-${field}`} key={field} className={`${labelClass} scroll-mt-6`}>{field.replaceAll("_", " ")}<input className={fieldClass} name={field} defaultValue={props.initial.metadata[field]} /></label>)}
         </div>
       </details>
-      <section className="grid gap-3 rounded-xl border border-[var(--border)] p-4">
-        <h3 className="text-lg font-semibold">Canonical morphology</h3>
+      <section id="td-word-structure" className="grid gap-3 rounded-xl border border-[var(--border)] p-4 scroll-mt-6">
+        <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--scarlett)]">Current resolution step</p><h3 className="text-lg font-semibold">Word structure</h3></div><span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-medium text-amber-900">Review parts and word sum</span></div>
         <p className="text-xs">Describe the word once. Routes reuse this approved analysis where their question rules allow it.</p>
         <PartSequenceEditor id="td-canonical-parts" label="Word parts and cuts" word={props.initial.displayWord} parts={canonicalParts} joins={canonicalJoins} onChange={(parts, joins) => { setCanonicalParts(parts); setCanonicalJoins(joins); setCanonicalMorphologyEdited(true); }} />
         <input type="hidden" name="morphology_parts" value={JSON.stringify(canonicalMorphologyEdited ? canonicalParts : props.initial.canonicalMorphology.parts)} />
@@ -293,7 +296,7 @@ export function WordEditor(props: {
         <details className="text-sm"><summary className="cursor-pointer">Advanced source features</summary><label className={labelClass}>Feature keys (JSON array)<textarea className={`${fieldClass} font-mono`} name="feature_keys" rows={3} defaultValue={JSON.stringify(props.initial.canonicalMorphology.featureKeys, null, 2)} /></label></details>
       </section>
       <div className="grid gap-4">
-        <h3 className="text-lg font-semibold">Route-specific content</h3>
+        <div><h3 className="text-lg font-semibold">Lesson-specific facts</h3><p className="text-xs text-[color:var(--mid)]">Open an assigned skill only when the readiness steps above link to it.</p></div>
         {activeRoutes.length ? activeRoutes.map(({ key, route }) => {
           const item = routes.find((candidate) => candidate.microSkillKey === key && candidate.routeId === route.routeId);
           const profile = props.profileOptions.find((candidate) => candidate.microSkillKey === key);
@@ -347,8 +350,7 @@ export function WordEditor(props: {
         }) : <p className="text-sm">Select a specialist micro skill to edit its route content.</p>}
       </div>
       {routeError && <p role="alert" className="text-rose-700">{routeError}</p>}
-      <button className={buttonClass} disabled={Boolean(routeError)}>Save and validate</button>
-      <p className="text-xs">Complete reviewed facts publish through the existing checks. Incomplete or blocked work stays as a recoverable draft; existing lesson snapshots stay pinned.</p>
+      <div id="td-publication" className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-4 scroll-mt-6"><p className="max-w-2xl text-xs">Complete reviewed facts publish through the existing checks. Incomplete work stays as a recoverable draft; existing lesson snapshots stay pinned.</p><button className={buttonClass} disabled={Boolean(routeError)}>Save and validate</button></div>
     </form>
   </div>;
 }
