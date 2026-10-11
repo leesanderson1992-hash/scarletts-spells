@@ -131,6 +131,9 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   };
   if (draft) for (const content of initial.routeContents) routeSources[content.microSkillKey] = "manager draft";
   const draftBlockers = draft ? publicationBlockers(draft.payload as WordDraftPayload, draft.normalised_word) : [];
+  const protectedRelease = params.error === "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED"
+    || params.publish_error === "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED";
+  const draftDefinitionCurrent = Boolean(draft && sharedDefinition === (draft.payload as WordDraftPayload).definition);
   const families: Group[] = (familyResult.data ?? []).map((row) => ({ key: row.skill_family_key, label: row.display_name }));
   const clusters: Group[] = (clusterResult.data ?? []).map((row) => ({ key: row.skill_cluster_key, label: row.display_name, parent: row.skill_family_key }));
   const prefixes = (prefixResult?.data ?? []).map((row) => {
@@ -157,11 +160,15 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     <nav className="text-sm"><Link href="/admin/teaching-dictionary" className="underline">← All words</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
-    {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
-    {params.publish_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
+    {protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">
+      This word already has approved lesson or evidence links. Its changed shared facts need a reviewed release before they can replace the current version.
+      {draftDefinitionCurrent ? " The definition is already published." : " The definition remains in this draft."} Your draft remains saved.
+    </p>}
+    {params.error && !protectedRelease && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
+    {params.publish_error && !protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
     {params.route_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
-    {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0}>
-      <summary className="cursor-pointer font-semibold">Saved draft · {draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
+    {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0 || protectedRelease}>
+      <summary className="cursor-pointer font-semibold">Saved draft · {protectedRelease ? "protected facts need release" : draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
       <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
       {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker} <a className="font-semibold underline" href={`#${publicationBlockerTarget(blocker)}`}>Edit</a></li>)}</ul>}
       <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><button disabled={draftBlockers.length > 0} className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">Publish dictionary facts</button></form>
