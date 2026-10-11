@@ -52,7 +52,7 @@ assert(routeRequirements(publishedRoute, row.payload, (target) => target.include
   .some((item) => item.status === "needs_review"));
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
 row.payload.dictationTargetTokenIndex = 0;
-assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("target token")));
+assert(publicationBlockers(row.payload, "renew").some((blocker) => blocker.includes("dictation target")));
 assert.equal(publicationBlockerTarget("The dictation target token must be the dictionary word."), "td-dictation");
 assert.equal(publicationBlockerTarget("Approved canonical morphology needs a word sum and parts."), "td-canonical-parts");
 const [badMorphology] = parseDictionaryCsv('normalised_word,morphology_parts\nrenew,"{bad}"');
