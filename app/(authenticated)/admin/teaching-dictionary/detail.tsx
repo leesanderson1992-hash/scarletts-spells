@@ -164,6 +164,10 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
           wordSum: item.word_sum, detail: `Reviewed word sum: ${item.word_sum}` }))),
   ];
   const hasProtectedLinks = readinessMembers.some((member) => member.released);
+  const routeAlreadyReleased = (params.route_error === "TEACHING_PREFIX_MEMBER_ALREADY_EXISTS"
+    && readinessMembers.some((member) => member.kind === "prefix" && member.released))
+    || (params.route_error === "TEACHING_SUFFIX_MEMBER_ALREADY_EXISTS"
+      && readinessMembers.some((member) => member.kind === "suffix" && member.released));
   const protectedRelease = protectedReleaseError || Boolean(draft && word && hasProtectedLinks
     && !matchesPublishedFactsForDefinitionOnly({ payload: initial, word, metadata, dictation, morphology }));
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
@@ -176,7 +180,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     </p>}
     {params.error && !protectedReleaseError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
     {params.publish_error && !protectedReleaseError && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
-    {params.route_error && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
+    {params.route_error && !routeAlreadyReleased && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
     {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0 || protectedRelease}>
       <summary className="cursor-pointer font-semibold">Saved draft · {protectedRelease ? "protected facts need release" : draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
       <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>

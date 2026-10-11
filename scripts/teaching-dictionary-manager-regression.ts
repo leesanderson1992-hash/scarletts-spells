@@ -236,4 +236,11 @@ const detailSource = readFileSync("app/(authenticated)/admin/teaching-dictionary
 assert.match(detailSource, /readinessMembers\.some\(\(member\) => member\.released\)/);
 assert.doesNotMatch(detailSource, /approved lesson or evidence links/);
 assert.match(detailSource, /publishedRouteKeys\.has/);
+assert.match(detailSource, /routeAlreadyReleased/);
+assert.match(detailSource, /params\.route_error && !routeAlreadyReleased/);
+const actionsSource = readFileSync("app/(authenticated)/admin/teaching-dictionary/actions.ts", "utf8");
+assert.match(actionsSource, /existingReleasedSuffixProfile/);
+assert.match(actionsSource, /TEACHING_SUFFIX_MEMBER_ALREADY_EXISTS/);
+assert.match(actionsSource, /existingReleasedPrefixProfile/);
+assert.match(actionsSource, /TEACHING_PREFIX_MEMBER_ALREADY_EXISTS/);
 console.log("Teaching Dictionary Manager regression passed");

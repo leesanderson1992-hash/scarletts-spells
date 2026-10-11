@@ -27,16 +27,102 @@ function finish(path: string, error?: unknown): never {
   redirect(`${path}${separator}${error ? `error=${encodeURIComponent(errorCode(error))}` : "saved=1"}`);
 }
 
+function sameJson(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right)
+      && left.length === right.length
+      && left.every((item, index) => sameJson(item, right[index]));
+  }
+  if (left && right && typeof left === "object" && typeof right === "object") {
+    const leftRecord = left as Record<string, unknown>;
+    const rightRecord = right as Record<string, unknown>;
+    const leftKeys = Object.keys(leftRecord).sort();
+    const rightKeys = Object.keys(rightRecord).sort();
+    return sameJson(leftKeys, rightKeys)
+      && leftKeys.every((key) => sameJson(leftRecord[key], rightRecord[key]));
+  }
+  return false;
+}
+
+async function existingReleasedPrefixProfile(
+  db: ReturnType<typeof createServiceRoleClient>,
+  contentId: string,
+): Promise<string | null> {
+  const version = await db.from("teaching_dictionary_route_content_versions")
+    .select("canonical_word_id,micro_skill_key,content").eq("id", contentId).single();
+  if (version.error) return null;
+  const profile = await db.from("canonical_teaching_dictionary_prefix_profiles").select("id")
+    .eq("micro_skill_key", version.data.micro_skill_key).eq("row_status", "active")
+    .eq("review_status", "approved_for_first_exposure").eq("production_enabled", true).maybeSingle();
+  if (profile.error || !profile.data) return null;
+  const member = await db.from("canonical_teaching_dictionary_prefix_members")
+    .select("base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins,assignment_eligible,review_status")
+    .eq("prefix_profile_id", profile.data.id).eq("canonical_word_id", version.data.canonical_word_id)
+    .eq("row_status", "active").maybeSingle();
+  if (member.error || !member.data || !member.data.assignment_eligible
+    || member.data.review_status !== "approved_for_first_exposure") return null;
+  const route = version.data.content as RouteContentDraft;
+  const facts = route.content as Record<string, unknown>;
+  return member.data.base_word === facts.baseWord
+    && member.data.base_meaning === facts.baseMeaning
+    && member.data.child_friendly_meaning === route.wordMeaning
+    && member.data.meaning_bin_key === facts.meaningBinKey
+    && member.data.prefix_variant === facts.prefixVariant
+    && sameJson(member.data.teaching_split_parts, facts.teachingSplitParts)
+    && sameJson(member.data.teaching_split_joins, facts.teachingSplitJoins)
+    ? profile.data.id : null;
+}
+
+async function existingReleasedSuffixProfile(
+  db: ReturnType<typeof createServiceRoleClient>,
+  contentId: string,
+): Promise<string | null> {
+  const version = await db.from("teaching_dictionary_route_content_versions")
+    .select("canonical_word_id,micro_skill_key,content").eq("id", contentId).single();
+  if (version.error) return null;
+  const profile = await db.from("canonical_teaching_dictionary_suffix_profiles").select("id")
+    .eq("micro_skill_key", version.data.micro_skill_key).eq("row_status", "active")
+    .eq("review_status", "approved_for_first_exposure").eq("production_enabled", true).maybeSingle();
+  if (profile.error || !profile.data) return null;
+  const member = await db.from("canonical_teaching_dictionary_suffix_members")
+    .select("suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,review_status")
+    .eq("suffix_profile_id", profile.data.id).eq("canonical_word_id", version.data.canonical_word_id)
+    .eq("row_status", "active").maybeSingle();
+  if (member.error || !member.data || !member.data.assignment_eligible
+    || member.data.review_status !== "approved_for_first_exposure") return null;
+  const route = version.data.content as RouteContentDraft;
+  const facts = route.content as Record<string, unknown>;
+  return member.data.suffix_variant === facts.suffixVariant
+    && member.data.semantic_base_text === facts.semanticBaseText
+    && member.data.semantic_base_kind === facts.semanticBaseKind
+    && member.data.base_meaning === facts.baseMeaning
+    && member.data.new_word_meaning === route.wordMeaning
+    && member.data.meaning_bin_key === facts.meaningBinKey
+    && sameJson(member.data.teaching_split_parts, facts.teachingSplitParts)
+    && sameJson(member.data.teaching_split_joins, facts.teachingSplitJoins)
+    && sameJson(member.data.true_morphology_parts, facts.trueMorphologyParts)
+    && sameJson(member.data.true_morphology_joins, facts.trueMorphologyJoins)
+    && sameJson(member.data.true_morphology_transformations, facts.trueMorphologyTransformations ?? [])
+    && member.data.transformation_notes === String(facts.transformationNotes ?? "")
+    && sameJson(member.data.true_morphology_provenance, facts.trueMorphologyProvenance)
+    ? profile.data.id : null;
+}
+
 async function publishPrefixVerified(db: ReturnType<typeof createServiceRoleClient>, contentId: string, actorId: string) {
   const result = await db.rpc("publish_teaching_dictionary_prefix_content", { p_content_version: contentId, p_actor: actorId });
+  let profileId = result.data as string | null;
   if (result.error || !result.data) {
     const code = result.error?.message.match(/TEACHING_PREFIX_[A-Z_]+/)?.[0];
-    throw new Error(code ?? "TEACHING_PREFIX_PUBLICATION_FAILED");
+    if (code !== "TEACHING_PREFIX_MEMBER_ALREADY_EXISTS"
+      || !(profileId = await existingReleasedPrefixProfile(db, contentId))) {
+      throw new Error(code ?? "TEACHING_PREFIX_PUBLICATION_FAILED");
+    }
   }
   let runtimeReady = false;
   try {
     const loaded = await loadDynamicPrefixProfiles(db, actorId);
-    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === result.data && profile.productionEnabled);
+    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === profileId && profile.productionEnabled);
   } catch { runtimeReady = false; }
   if (!runtimeReady) {
     const rollback = await db.rpc("rollback_teaching_dictionary_prefix_content", {
@@ -49,14 +135,18 @@ async function publishPrefixVerified(db: ReturnType<typeof createServiceRoleClie
 
 async function publishSuffixVerified(db: ReturnType<typeof createServiceRoleClient>, contentId: string, actorId: string) {
   const result = await db.rpc("publish_teaching_dictionary_suffix_content", { p_content_version: contentId, p_actor: actorId });
+  let profileId = result.data as string | null;
   if (result.error || !result.data) {
     const code = result.error?.message.match(/TEACHING_SUFFIX_[A-Z_]+/)?.[0];
-    throw new Error(code ?? "TEACHING_SUFFIX_PUBLICATION_FAILED");
+    if (code !== "TEACHING_SUFFIX_MEMBER_ALREADY_EXISTS"
+      || !(profileId = await existingReleasedSuffixProfile(db, contentId))) {
+      throw new Error(code ?? "TEACHING_SUFFIX_PUBLICATION_FAILED");
+    }
   }
   let runtimeReady = false;
   try {
     const loaded = await loadDynamicSuffixProfiles(db, actorId);
-    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === result.data && profile.productionEnabled);
+    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === profileId && profile.productionEnabled);
   } catch { runtimeReady = false; }
   if (!runtimeReady) {
     const rollback = await db.rpc("rollback_teaching_dictionary_suffix_content", {
