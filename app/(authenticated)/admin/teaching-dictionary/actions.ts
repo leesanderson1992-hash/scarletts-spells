@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeWithSharedFacts, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeContentsForSelectedSkills, routeWithSingleProfileDefaults, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -186,7 +186,7 @@ function payloadFromForm(form: FormData): WordDraftPayload {
       sourceLicence: value(form, "source_licence"), sourceUseNote: value(form, "source_use_note"),
       confidence: value(form, "confidence") as WordDraftPayload["provenance"]["confidence"] },
     skillKeys, routeContents };
-  payload.routeContents = payload.routeContents.map((route) => routeWithSharedFacts(route, payload));
+  payload.routeContents = routeContentsForSelectedSkills(payload);
   return payload;
 }
 
@@ -219,12 +219,17 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
     }
     const suffixKeys = [...new Set(payload.routeContents.filter((route) => route.routeId === "dynamic_affix_word_lab").map((route) => route.microSkillKey))];
     if (suffixKeys.length) {
-      const profiles = await db.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,source_row_hash")
+      const profiles = await db.from("canonical_teaching_dictionary_suffix_profiles").select("id,micro_skill_key,source_row_hash,meaning_bins,suffix_choices")
         .in("micro_skill_key", suffixKeys).eq("row_status", "active").eq("review_status", "approved_for_first_exposure");
       if (profiles.error) throw new Error("TEACHING_SUFFIX_PROFILE_READ_FAILED");
       for (const route of payload.routeContents) {
         const profile = profiles.data?.find((candidate) => candidate.micro_skill_key === route.microSkillKey);
         if (route.routeId === "dynamic_affix_word_lab" && profile) {
+          const choices = Array.isArray(profile.suffix_choices) ? profile.suffix_choices.filter((choice): choice is string => typeof choice === "string") : [];
+          const meaningBins = Array.isArray(profile.meaning_bins)
+            ? profile.meaning_bins.filter((bin): bin is { id: string } => Boolean(bin) && typeof bin === "object" && !Array.isArray(bin) && typeof (bin as { id?: unknown }).id === "string")
+            : [];
+          Object.assign(route, routeWithSingleProfileDefaults(route, { choices, meaningBins }));
           route.content.expectedProfileId ??= profile.id;
           route.content.expectedSourceRowHash ??= profile.source_row_hash;
         }

@@ -127,7 +127,9 @@ export function WordReadinessView(props: {
       const index = issuePriority.findIndex((priority) => target.includes(priority));
       return index === -1 ? issuePriority.length : index;
     };
-    return rank(left.requirement.editTarget) - rank(right.requirement.editTarget);
+    const statusRank = (status: "present" | "needs_review" | "missing") => status === "missing" ? 0 : status === "needs_review" ? 1 : 2;
+    return statusRank(left.requirement.status) - statusRank(right.requirement.status)
+      || rank(left.requirement.editTarget) - rank(right.requirement.editTarget);
   });
   const nextIssue = issues[0];
   const sharedFactsReady = facts.slice(0, 3).every((fact) => fact.value && fact.published && !fact.changed);

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeWithSharedFacts } from "../lib/teaching-dictionary-manager/contracts";
+import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
@@ -58,6 +58,38 @@ assert.equal(inheritedSuffix.wordMeaning, row.payload.definition);
 assert.equal(inheritedSuffix.wordSum, "renew");
 assert.deepEqual(inheritedSuffix.content.teachingSplitParts, sharedMorphologyPayload.canonicalMorphology.parts);
 assert.deepEqual(inheritedSuffix.content.trueMorphologyParts, sharedMorphologyPayload.canonicalMorphology.parts);
+const selectedSuffixPayload = { ...sharedMorphologyPayload, skillKeys: ["D4_MOR_SUFFIXES_ITY"], routeContents: [] };
+const [createdSelectedSuffix] = routeContentsForSelectedSkills(selectedSuffixPayload);
+assert.equal(createdSelectedSuffix.microSkillKey, "D4_MOR_SUFFIXES_ITY");
+assert.equal(createdSelectedSuffix.wordMeaning, selectedSuffixPayload.definition);
+assert.equal(createdSelectedSuffix.wordSum, selectedSuffixPayload.canonicalMorphology.wordSum);
+assert.deepEqual(createdSelectedSuffix.content.teachingSplitParts, selectedSuffixPayload.canonicalMorphology.parts);
+assert.equal(routeContentsForSelectedSkills({ ...selectedSuffixPayload, routeContents: [createdSelectedSuffix] }).length, 1);
+const abilityPayload = structuredClone(selectedSuffixPayload);
+abilityPayload.definition = "the quality of being able to do something";
+abilityPayload.canonicalMorphology = {
+  ...abilityPayload.canonicalMorphology,
+  analysisStatus: "approved",
+  reviewNotes: "Able changes to abil- before -ity.",
+  wordSum: "able + ity → ability",
+  parts: [
+    { surfaceText: "abil", sourceText: "able", kind: "base", gloss: "capable of doing something" },
+    { surfaceText: "ity", sourceText: "", kind: "suffix", gloss: "the state or quality of" },
+  ],
+  joins: [{ joinType: "none" }],
+};
+const [abilityRoute] = routeContentsForSelectedSkills(abilityPayload);
+const completedAbilityRoute = routeWithSingleProfileDefaults(abilityRoute, {
+  choices: ["ity"], meaningBins: [{ id: "state_or_quality" }],
+});
+assert.equal(completedAbilityRoute.content.suffixVariant, "ity");
+assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
+assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");
+assert.equal(completedAbilityRoute.content.baseMeaning, "capable of doing something");
+assert.equal(completedAbilityRoute.content.meaningBinKey, "state_or_quality");
+assert.deepEqual(completedAbilityRoute.content.trueMorphologyProvenance, {
+  source: "approved canonical morphology", reviewNote: "Able changes to abil- before -ity.",
+});
 assert(routeRequirements(publishedRoute, row.payload, (target) => target.includes("td-route-"))
   .some((item) => item.status === "needs_review"));
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);

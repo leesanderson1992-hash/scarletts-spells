@@ -137,6 +137,26 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
     if (!Array.isArray(content.trueMorphologyParts) || content.trueMorphologyParts.length === 0) content.trueMorphologyParts = parts;
     if (!Array.isArray(content.trueMorphologyJoins)) content.trueMorphologyJoins = joins;
+    const records = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part));
+    const suffixes = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
+    if (!content.suffixVariant && suffixes.length === 1) {
+      content.suffixVariant = String(suffixes[0].surfaceText ?? suffixes[0].text ?? "");
+    }
+    const bases = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") !== "suffix");
+    if (bases.length === 1) {
+      const base = bases[0];
+      if (!content.semanticBaseText) content.semanticBaseText = String(base.sourceText ?? base.surfaceText ?? base.text ?? "");
+      const kind = String(base.kind ?? base.role ?? base.type ?? base.partType ?? "");
+      if (!content.semanticBaseKind && (kind === "base" || kind === "root")) content.semanticBaseKind = kind;
+      if (!content.baseMeaning) content.baseMeaning = String(base.gloss ?? base.meaning ?? "");
+    }
+    if ((!content.trueMorphologyProvenance || typeof content.trueMorphologyProvenance !== "object")
+      && payload.canonicalMorphology.analysisStatus === "approved" && payload.canonicalMorphology.reviewNotes.trim()) {
+      content.trueMorphologyProvenance = {
+        source: "approved canonical morphology",
+        reviewNote: payload.canonicalMorphology.reviewNotes.trim(),
+      };
+    }
   }
   if (route.routeId === "base_word_lab" && (!Array.isArray(content.morphologyParts) || content.morphologyParts.length === 0)) {
     content.morphologyParts = parts;
@@ -147,6 +167,36 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     wordSum: route.wordSum.trim() || payload.canonicalMorphology.wordSum.trim(),
     content,
   };
+}
+
+export function routeWithSingleProfileDefaults(route: RouteContentDraft, profile: {
+  choices: readonly string[];
+  meaningBins: readonly { id: string }[];
+}): RouteContentDraft {
+  const content = { ...route.content };
+  if (!content.suffixVariant && profile.choices.length === 1) content.suffixVariant = profile.choices[0];
+  if (!content.meaningBinKey && profile.meaningBins.length === 1) content.meaningBinKey = profile.meaningBins[0].id;
+  return { ...route, content };
+}
+
+/** A selected specialist skill needs a route draft before its activity
+ * requirements can be assessed. Create that draft on the server so a save is
+ * not dependent on client-side form preparation. */
+export function routeContentsForSelectedSkills(payload: WordDraftPayload): RouteContentDraft[] {
+  const routeContents = [...payload.routeContents];
+  for (const microSkillKey of payload.skillKeys) {
+    const route = routeForSkill(microSkillKey);
+    if (!route || routeContents.some((content) => content.microSkillKey === microSkillKey && content.routeId === route.routeId)) continue;
+    routeContents.push({
+      routeId: route.routeId,
+      routeVersion: route.routeVersion,
+      microSkillKey,
+      wordMeaning: "",
+      wordSum: "",
+      content: {},
+    });
+  }
+  return routeContents.map((route) => routeWithSharedFacts(route, payload));
 }
 
 export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftPayload) {
