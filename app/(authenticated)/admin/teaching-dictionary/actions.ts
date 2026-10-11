@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeWithSharedFacts, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -177,7 +177,7 @@ function payloadFromForm(form: FormData): WordDraftPayload {
   morphology.wordSum = value(form, "canonical_word_sum");
   morphology.analysisStatus = value(form, "analysis_status") as WordDraftPayload["canonicalMorphology"]["analysisStatus"];
   morphology.reviewNotes = value(form, "morphology_review_notes");
-  return { displayWord: value(form, "display_word"), definition: value(form, "definition"),
+  const payload: WordDraftPayload = { displayWord: value(form, "display_word"), definition: value(form, "definition"),
     dictationSentence: value(form, "dictation_sentence"), dictationTargetTokenIndex: Number.isInteger(target) && target >= 0 ? target : 0,
     ageBand: value(form, "age_band"), frequencyBand: value(form, "frequency_band"), complexityBand: value(form, "complexity_band"),
     metadata, canonicalMorphology: morphology,
@@ -186,6 +186,8 @@ function payloadFromForm(form: FormData): WordDraftPayload {
       sourceLicence: value(form, "source_licence"), sourceUseNote: value(form, "source_use_note"),
       confidence: value(form, "confidence") as WordDraftPayload["provenance"]["confidence"] },
     skillKeys, routeContents };
+  payload.routeContents = payload.routeContents.map((route) => routeWithSharedFacts(route, payload));
+  return payload;
 }
 
 export async function saveTeachingDictionaryDraft(form: FormData) {

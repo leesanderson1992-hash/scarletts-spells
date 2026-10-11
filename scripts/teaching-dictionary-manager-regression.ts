@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
+import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeWithSharedFacts } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
@@ -48,6 +48,16 @@ const suffixChecklist = routeRequirements(routeContentForReadiness({
 assert(suffixChecklist.some((item) => item.label === "suffix form" && item.status === "missing"
   && item.editTarget === "td-route-D4_MOR_SUFFIXES_ITY-suffixVariant"));
 assert(suffixChecklist.some((item) => item.label === "the dictionary dictation sentence" && item.status === "present"));
+const sharedMorphologyPayload = structuredClone(row.payload);
+sharedMorphologyPayload.canonicalMorphology.parts = [{ id: "part_1", surfaceText: "renew", sourceText: "renew", kind: "base" }];
+sharedMorphologyPayload.canonicalMorphology.joins = [];
+sharedMorphologyPayload.canonicalMorphology.wordSum = "renew";
+const inheritedSuffix = routeWithSharedFacts({ routeId: "dynamic_affix_word_lab", routeVersion: "v3",
+  microSkillKey: "D4_MOR_SUFFIXES_ITY", wordMeaning: "", wordSum: "", content: {} }, sharedMorphologyPayload);
+assert.equal(inheritedSuffix.wordMeaning, row.payload.definition);
+assert.equal(inheritedSuffix.wordSum, "renew");
+assert.deepEqual(inheritedSuffix.content.teachingSplitParts, sharedMorphologyPayload.canonicalMorphology.parts);
+assert.deepEqual(inheritedSuffix.content.trueMorphologyParts, sharedMorphologyPayload.canonicalMorphology.parts);
 assert(routeRequirements(publishedRoute, row.payload, (target) => target.includes("td-route-"))
   .some((item) => item.status === "needs_review"));
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
