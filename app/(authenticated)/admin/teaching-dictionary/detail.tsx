@@ -16,10 +16,11 @@ import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionar
 import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, publishTeachingDictionaryPrefixContent, publishTeachingDictionarySuffixContent } from "./actions";
 import { WordEditor } from "./word-editor";
 import { ActionSubmitButton } from "./action-submit-button";
+import { BaseFamilyReview } from "./base-family-review";
 
-type Params = { draft?: string; saved?: string; error?: string; route_error?: string; publish_error?: string };
+type Params = { draft?: string; saved?: string; error?: string; route_error?: string; publish_error?: string; family_error?: string; manual_family?: string };
 type Group = { key: string; label: string; parent?: string };
-type Word = { id: string; import_batch_id: string; source_row_hash: string; normalised_word: string; display_word: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null; source_category: WordDraftPayload["provenance"]["sourceCategory"]; source_name: string | null; source_url: string | null; source_licence: string | null; source_use_note: string | null; confidence: WordDraftPayload["provenance"]["confidence"]; row_status: string; review_status: string };
+type Word = { id: string; import_batch_id: string; source_row_hash: string; normalised_word: string; display_word: string; dialect_code: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null; source_category: WordDraftPayload["provenance"]["sourceCategory"]; source_name: string | null; source_url: string | null; source_licence: string | null; source_use_note: string | null; confidence: WordDraftPayload["provenance"]["confidence"]; row_status: string; review_status: string };
 
 export async function TeachingDictionaryDetail({ wordId, params }: { wordId: string | null; params: Params }) {
   await requireAdminUser();
@@ -35,7 +36,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult,
     metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult,
     prefixResult, suffixResult, baseResult, historyResult] = await Promise.all([
-    wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
+    wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,dialect_code,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
     params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key").eq("is_active", true).eq("is_assignable", true).order("display_name"),
     db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
@@ -202,6 +203,12 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       dictationReview={dictation?.review_status ?? null} definitionPublished={Boolean(sharedDefinition)}
       derivedIty={derivedIty ? { ready: Boolean(derivedIty.word), blockers: derivedIty.blockers } : null}
       routeSources={routeSources} relationships={relationships} members={readinessMembers} skills={skillResult.data ?? []} />}
+    {word && <BaseFamilyReview word={{ id: word.id, normalisedWord: word.normalised_word,
+      displayWord: word.display_word, dialectCode: word.dialect_code, rowStatus: word.row_status,
+      reviewStatus: word.review_status }} morphology={morphology ? { id: morphology.id,
+        analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
+        parts: morphology.morphology_parts, joins: morphology.morphology_joins ?? [],
+        wordSum: morphology.word_sum } : null} meaning={sharedDefinition} error={params.family_error} manualFamilyId={params.manual_family} />}
     {wordId && ((submissionsResult?.data?.length ?? 0) > 0 || (routeContentResult?.data?.length ?? 0) > 0) && <section className="order-2 grid gap-3 rounded-lg border border-[var(--border)] bg-white p-4"><h2 className="text-lg font-semibold">Route publication</h2>
       <div id="td-approved-submissions" className="grid gap-2 scroll-mt-6">{(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
         <input type="hidden" name="submission_id" value={submission.id} /><input type="hidden" name="word_id" value={wordId} />

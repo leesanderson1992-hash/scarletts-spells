@@ -81,6 +81,9 @@ export interface BaseWordFamilySelectionFacts {
   learningItems: readonly LearningItemFact[];
   families: readonly BaseWordFamilyFact[];
   members: readonly BaseWordFamilyMemberFact[];
+  /** Release-count shortlist. When present, only pairs with enough distinct
+   * frozen words may enter the detailed learner/complexity selection. */
+  eligibleFamilyPairs?: readonly (readonly [string, string])[];
 }
 
 export interface BaseWordFamilySelectionResult {
@@ -164,6 +167,8 @@ export function selectBaseWordFamilyLesson(
   const eligibleAuthenticItems = uniqueAuthenticItems.filter((item) => eligibleFamilies(item).length > 0);
   if (eligibleAuthenticItems.length < BASE_WORD_AUTHENTIC_FAMILY_LIMIT)
     return empty(["authentic_target_missing_reviewed_family_member"]);
+  const allowedPairs = facts.eligibleFamilyPairs && new Set(facts.eligibleFamilyPairs.map(([left, right]) =>
+    [left, right].sort().join("\u0000")));
 
   // Deterministic oldest valid pair: items are already in canonical learner
   // priority order; scan the first item, then the earliest later item, and
@@ -172,13 +177,17 @@ export function selectBaseWordFamilyLesson(
   for (let left = 0; left < eligibleAuthenticItems.length && !selectedPair; left += 1) {
     for (let right = left + 1; right < eligibleAuthenticItems.length && !selectedPair; right += 1) {
       for (const leftFamily of eligibleFamilies(eligibleAuthenticItems[left])) {
-        const rightFamily = eligibleFamilies(eligibleAuthenticItems[right]).find((candidate) => candidate !== leftFamily);
-        if (!rightFamily) continue;
-        const leftMember = (membersByFamily.get(leftFamily) ?? []).find((member) => member.canonicalWordId === eligibleAuthenticItems[left].canonicalWordId)!;
-        const rightMember = (membersByFamily.get(rightFamily) ?? []).find((member) => member.canonicalWordId === eligibleAuthenticItems[right].canonicalWordId)!;
-        const pairWindow = widen(widen(null, leftMember.complexityLevel), rightMember.complexityLevel);
-        if (pairWindow && pairWindow.max - pairWindow.min > 1) continue;
-        selectedPair = [eligibleAuthenticItems[left], leftFamily, eligibleAuthenticItems[right], rightFamily];
+        for (const rightFamily of eligibleFamilies(eligibleAuthenticItems[right])) {
+          if (rightFamily === leftFamily ||
+            (allowedPairs && !allowedPairs.has([leftFamily, rightFamily].sort().join("\u0000")))) continue;
+          const leftMember = (membersByFamily.get(leftFamily) ?? []).find((member) => member.canonicalWordId === eligibleAuthenticItems[left].canonicalWordId)!;
+          const rightMember = (membersByFamily.get(rightFamily) ?? []).find((member) => member.canonicalWordId === eligibleAuthenticItems[right].canonicalWordId)!;
+          const pairWindow = widen(widen(null, leftMember.complexityLevel), rightMember.complexityLevel);
+          if (pairWindow && pairWindow.max - pairWindow.min > 1) continue;
+          selectedPair = [eligibleAuthenticItems[left], leftFamily, eligibleAuthenticItems[right], rightFamily];
+          break;
+        }
+        if (selectedPair) break;
       }
     }
   }

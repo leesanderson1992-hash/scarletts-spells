@@ -56,7 +56,7 @@ function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | n
           !rawMember.applicableMicroSkillKeys.every(string) ||
           new Set(rawMember.applicableMicroSkillKeys).size !== rawMember.applicableMicroSkillKeys.length ||
           !record(rawMember.morphologySource) ||
-          !["base_word_family_member", "approved_repository_analysis"].includes(rawMember.morphologySource.sourceKind) ||
+          !["base_word_family_member", "approved_repository_analysis", "approved_manager_review"].includes(rawMember.morphologySource.sourceKind) ||
           !string(rawMember.morphologySource.sourceId) || !/^[a-f0-9]{64}$/.test(rawMember.morphologySource.sourceFingerprint) ||
           !string(rawMember.morphologySource.sourceAuthorityKey) ||
           !value.sourceAuthorities.some((source: unknown) => record(source) && source.authorityKey === rawMember.morphologySource.sourceAuthorityKey)

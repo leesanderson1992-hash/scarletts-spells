@@ -5,6 +5,7 @@ import { BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT } from "../morphology/base-word-
 import { buildBaseWordFamilyPilotItems } from "../morphology/base-word-family-pilot-plan";
 import { compileBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
 import { selectBaseWordFamilyLesson, type BaseWordFamilyFact, type BaseWordFamilyMemberFact } from "../base-word-family-selection";
+import { indexedEligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../base-word-family-counts";
 import { loadBaseWordFamilyLessonReadModel } from "./base-word-family-lesson-read-model";
 import { loadDailyPlanFacts } from "./composer-facts-loader";
 import { assertBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
@@ -67,6 +68,12 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   const reasons: string[] = [];
   for (const activation of enabledActivations) {
     const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
+    const familyCounts = indexedEligibleBaseFamilyCounts(activation);
+    const eligibleFamilyPairs = shortlistBaseFamilyPairs(familyCounts);
+    if (eligibleFamilyPairs.length === 0) {
+      reasons.push("insufficient_eligible_family_transfer_words");
+      continue;
+    }
     const families: BaseWordFamilyFact[] = activation.family.families.map((family) => ({
       baseFamilyKey: family.baseFamilyKey,
       microSkillKey: activation.microSkillKey,
@@ -91,7 +98,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
         reviewStatus: "approved_for_first_exposure" as const,
       })),
     );
-    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, learningItems: facts.learningItems, families, members });
+    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, learningItems: facts.learningItems, families, members, eligibleFamilyPairs });
     if (selection.skipReasons.length === 0 && selection.baseFamilyKeys.length === 2)
       candidates.push({ activation, microSkillKey: activation.microSkillKey, selection });
     else reasons.push(selection.skipReasons.join(","));

@@ -29,7 +29,7 @@ export interface BaseWordFamilyAuthorityMemberV2 extends BaseWordFamilyAuthority
   structuralRole: "base" | "family_member";
   applicableMicroSkillKeys: string[];
   morphologySource: {
-    sourceKind: "base_word_family_member" | "approved_repository_analysis";
+    sourceKind: "base_word_family_member" | "approved_repository_analysis" | "approved_manager_review";
     sourceId: string;
     sourceFingerprint: string;
     sourceAuthorityKey: string;

@@ -52,6 +52,23 @@ assert(generated.length === 2 && generated.every((slot) => slot.learningItemId =
 assert(selected.slots.length === 6 && new Set(selected.slots.map((slot) => slot.canonicalWordId)).size === 6, "the independent contract remains six distinct words");
 assert(selected.guidedFamilySections.flatMap((section) => section.guidedWordIds).length <= BASE_WORD_GUIDED_DISPLAY_LIMIT, "the guided family display remains capped at eight words");
 
+const twoPlusFour = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
+  item("careful-two", "careful", "2026-07-01"),
+  item("government-four", "government", "2026-07-02"),
+], { families: facts([]).families.filter((family) => family.baseFamilyKey !== "PAINT"),
+  members: [member("CARE", "care", "base"), member("CARE", "careful", "transfer"),
+    member("GOVERN", "govern", "base"), member("GOVERN", "government", "transfer"),
+    member("GOVERN", "governor", "transfer"), member("GOVERN", "governing", "transfer")] }));
+assert(twoPlusFour.skipReasons.length === 0 && twoPlusFour.slots.length === 6,
+  "a reviewed two-member family and four-member family fill one lesson together");
+const shortlisted = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
+  item("careful-old", "careful", "2026-07-01"),
+  item("government-middle", "government", "2026-07-02"),
+  item("painter-new", "painter", "2026-07-03"),
+], { eligibleFamilyPairs: [["CARE", "PAINT"]] }));
+assert(shortlisted.baseFamilyKeys.join("|") === "CARE|PAINT",
+  "the detailed selector uses a valid frozen-count pair when an older pair is not shortlisted");
+
 const sameFamilyThenPartner = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue.slice(0, 3)));
 assert(sameFamilyThenPartner.skipReasons.length === 0, "two oldest words in one family do not fail when a later distinct family is eligible");
 const onlyOneFamily = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue.slice(0, 2)));
