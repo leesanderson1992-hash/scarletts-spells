@@ -8,7 +8,7 @@ import current from "../data/adle/candidates/d4-hom/v4/lessons.json";
 import approval from "../data/adle/candidates/d4-hom/v4/content-approval.json";
 import { shuffledIndices } from "../lib/adle/homophone/random-order";
 import { buildHomophoneReleasePackage } from "../lib/adle/homophone/release";
-import { compileHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "../lib/adle/homophone/snapshot";
+import { compileHomophoneSnapshotV3, homophoneParentManualSnapshotFingerprint, validateHomophoneSnapshotV3 } from "../lib/adle/homophone/snapshot";
 import {
   HOMOPHONE_LESSONS,
   HOMOPHONE_RUNTIME_ENABLED,
@@ -113,6 +113,8 @@ for (const lesson of HOMOPHONE_LESSONS) {
       { authorityType: "teaching_content", authorityId: id(993), version: "1", sourceHash: "d".repeat(64) },
     ], childId: id(994), parentUserId: id(995), date: "2026-10-12" });
   assert.equal(compiled.items.length, 12 + lesson.words.length);
+  assert.equal(homophoneParentManualSnapshotFingerprint(compiled.snapshot, "homophone_v2"), compiled.snapshot.provenance.sourceFingerprint);
+  assert.equal(homophoneParentManualSnapshotFingerprint(compiled.snapshot, "ing_endings_v1"), null);
   assert.equal(compiled.items.filter(item => item.metadata.sectionKey === "lesson_dictation").length, 6);
   assert.ok(validateHomophoneSnapshotV3(compiled.snapshot, { lessonRouteMetadata: compiled.header.lessonRouteMetadata,
     assignmentGenerationSource: compiled.header.assignmentGenerationSource,

@@ -39,6 +39,7 @@ import {
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
 import { databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
+import { homophoneParentManualSnapshotFingerprint } from "@/lib/adle/homophone/snapshot";
 import {
   loadGenericV3Checkpoints,
   type GenericV3DurableCheckpoint,
@@ -187,6 +188,9 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     && "provenance" in r6Session.specialist.compiledLessonSnapshot
     ? (r6Session.specialist.compiledLessonSnapshot as { provenance?: { sourceFingerprint?: string } }).provenance?.sourceFingerprint
     : undefined;
+  const homophoneLessonFingerprint = routeResolution?.status === "resolved_explicit"
+    ? homophoneParentManualSnapshotFingerprint(readModel.compiledLessonSnapshot, routeResolution.runtime.adapterKey)
+    : null;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and
   // derive today's celebration (Nugget->Forge from lesson completion + any
@@ -296,7 +300,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
             childId={selectedChild.id}
             assignmentId={readModel.assignmentId ?? ""}
             planDate={readModel.planDate}
-            snapshotFingerprint={r6LessonFingerprint ?? (readModel.genericSnapshotResolution?.status === "resolved"
+            snapshotFingerprint={r6LessonFingerprint ?? homophoneLessonFingerprint ?? (readModel.genericSnapshotResolution?.status === "resolved"
               ? readModel.genericSnapshotResolution.snapshot.provenance.sourceFingerprint
               : "compatibility")}
             durableGenericV3Enabled={readModel.genericSnapshotResolution?.status === "resolved"

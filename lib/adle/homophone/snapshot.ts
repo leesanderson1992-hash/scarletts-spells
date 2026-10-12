@@ -146,3 +146,10 @@ export function validateHomophoneSnapshotV3(value: unknown, context: { lessonRou
     return { ok: true, snapshot };
   } catch { return bad("specialist_payload_mismatch"); }
 }
+
+/** Parent-created specialist assignments can render without an R6 session row.
+ * Their checkpoint key still comes from the frozen specialist snapshot. */
+export function homophoneParentManualSnapshotFingerprint(value: unknown, adapterKey: string | null): string | null {
+  return adapterKey === "homophone_v2" && isHomophoneSnapshotV3(value)
+    ? value.provenance.sourceFingerprint : null;
+}
