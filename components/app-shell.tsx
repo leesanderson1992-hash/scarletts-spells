@@ -48,6 +48,7 @@ const adminNav: NavItem[] = [
   { label: "No Matching Skill", href: "/admin/no-matching-skill", icon: "◇" },
   { label: "ADLE Requirements", href: "/admin/adle-canonical-intake-readiness", icon: "▤" },
   { label: "Teaching Dictionary", href: "/admin/teaching-dictionary", icon: "▦" },
+  { label: "Recommend Dictionary Entries", href: "/admin/recommend-dictionary-entries", icon: "▤" },
 ];
 const adminMore: NavItem[] = [
   { label: "Word–skill Review", href: "/admin/word-skill-review", icon: "✓" },
