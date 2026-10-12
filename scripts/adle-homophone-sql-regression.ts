@@ -57,9 +57,16 @@ async function main() {
     for (const name of ["adle_generic_lesson_snapshot_is_structurally_valid_v3", "adle_specialist_lesson_snapshot_is_structurally_valid_v3", "adle_dynamic_affix_specialist_snapshot_is_structurally_valid_v3", "adle_prefix_base_specialist_snapshot_is_structurally_valid_v3", "adle_comparative_snapshot_valid_v3", "adle_ing_snapshot_valid_v3"]) {
       await db.exec(`create function ${name}(jsonb) returns boolean language sql as $$select true$$;`);
     }
-    for (const file of ["20261012170000_adle_homophone_route_v2.sql", "20261012170500_adle_homophone_release_v2.sql", "20261012171000_adle_homophone_finish_v2.sql", "20261012171500_adle_homophone_activation_dependency_count.sql", "20261012172000_adle_homophone_parent_checkpoint.sql"]) {
+    for (const file of ["20261012170000_adle_homophone_route_v2.sql", "20261012170500_adle_homophone_release_v2.sql", "20261012171000_adle_homophone_finish_v2.sql", "20261012171500_adle_homophone_activation_dependency_count.sql", "20261012172000_adle_homophone_parent_checkpoint.sql", "20261012172500_adle_homophone_checkpoint_idempotent_completion.sql"]) {
       await db.exec(readFileSync(`supabase/migrations/${file}`, "utf8"));
     }
+    await db.exec(`create function test_homophone_completion_convergence() returns trigger language plpgsql as $$
+      begin if old.status is distinct from 'completed' and new.status='completed' then
+        update adle_specialist_stage_checkpoints set completed_at=coalesce(completed_at,clock_timestamp())
+        where daily_assignment_id=new.id;
+      end if; return new; end $$;
+      create trigger test_homophone_completion_convergence after update on daily_assignments
+      for each row execute function test_homophone_completion_convergence();`);
     const canonicalWords: Record<string, Record<string, string>> = {};
     for (const lesson of HOMOPHONE_LESSONS) {
       await db.query("insert into micro_skill_catalog values($1)", [lesson.microSkillKey]);
