@@ -104,10 +104,16 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const routeSources: Record<string, ReadinessRouteSource> = {};
   const seen = new Set<string>();
   const contentVersions = routeContentResult?.data ?? [];
-  const publishedRouteKeys = new Set(contentVersions.filter((version) => publishedContent.has(version.id))
-    .map((version) => `${version.route_id}:${version.micro_skill_key}`));
-  const visibleContentVersions = contentVersions.filter((version) => publishedContent.has(version.id)
-    || !publishedRouteKeys.has(`${version.route_id}:${version.micro_skill_key}`));
+  const latestContentVersionIds = new Set<string>();
+  const seenVersionKeys = new Set<string>();
+  for (const version of contentVersions) {
+    const key = `${version.route_id}:${version.micro_skill_key}`;
+    if (seenVersionKeys.has(key)) continue;
+    seenVersionKeys.add(key);
+    latestContentVersionIds.add(version.id);
+  }
+  const visibleContentVersions = contentVersions.filter((version) =>
+    latestContentVersionIds.has(version.id) || publishedContent.has(version.id));
   for (const row of [...contentVersions.filter((version) => publishedContent.has(version.id)),
     ...contentVersions.filter((version) => !publishedContent.has(version.id) && !rolledBackContent.has(version.id)),
     ...(submissionsResult?.data ?? [])]) {
@@ -221,6 +227,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
         const activated = publishedContent.has(version.id);
         return <article key={version.id} className="rounded-lg border border-[var(--border)] p-3 text-sm">
           <p className="font-semibold">{version.route_id} · {version.micro_skill_key} · {activated ? "route published" : rolledBackContent.has(version.id) ? "route rollback; revise content" : "route publication pending"}</p>
+          <p className="mt-1 text-xs text-[color:var(--mid)]">{latestContentVersionIds.has(version.id) ? "Latest saved version" : "Earlier published version"} · {new Date(version.published_at).toLocaleString("en-GB", { timeZone: "Europe/London", dateStyle: "medium", timeStyle: "short" })}</p>
           {blockers.length > 0 && <ul className="list-disc pl-5 text-amber-900">{blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
           {version.route_id === "dynamic_prefix_word_lab" && !activated && !rolledBackContent.has(version.id) && <form action={publishTeachingDictionaryPrefixContent} className="mt-2">
             <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
