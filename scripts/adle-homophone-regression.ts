@@ -8,7 +8,7 @@ import current from "../data/adle/candidates/d4-hom/v4/lessons.json";
 import approval from "../data/adle/candidates/d4-hom/v4/content-approval.json";
 import { shuffledIndices } from "../lib/adle/homophone/random-order";
 import { buildHomophoneReleasePackage } from "../lib/adle/homophone/release";
-import { compileHomophoneSnapshotV3, homophoneParentManualSnapshotFingerprint, validateHomophoneSnapshotV3 } from "../lib/adle/homophone/snapshot";
+import { compileHomophoneSnapshotV3, homophoneCheckpointReadRequired, homophoneParentManualSnapshotFingerprint, validateHomophoneSnapshotV3 } from "../lib/adle/homophone/snapshot";
 import {
   HOMOPHONE_LESSONS,
   HOMOPHONE_RUNTIME_ENABLED,
@@ -100,6 +100,9 @@ const canonicalWords = Object.fromEntries(HOMOPHONE_LESSONS.map(lesson => [lesso
   Object.fromEntries(lesson.words.map(word => [word.word, id(nextId++)]))]));
 const releasePackage = buildHomophoneReleasePackage({ releaseKey: "homophone-v4-regression", approvalRefs: ["owner-approved-v4"], canonicalWords });
 assert.equal(releasePackage.authorities.length, 14);
+assert.equal(homophoneCheckpointReadRequired(null, true), true, "parent manual homophone lessons must restore their saved checkpoint");
+assert.equal(homophoneCheckpointReadRequired("specialist_lesson", false), true, "R6 specialist checkpoints still restore");
+assert.equal(homophoneCheckpointReadRequired(null, false), false);
 for (const lesson of HOMOPHONE_LESSONS) {
   const compiled = compileHomophoneSnapshotV3({ lesson: compileHomophoneLessonSnapshot(lesson.microSkillKey),
     bindings: lesson.words.map((entry, index) => ({ word: entry.word, canonicalWordId: canonicalWords[lesson.microSkillKey][entry.word],

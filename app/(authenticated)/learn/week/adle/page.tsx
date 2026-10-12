@@ -39,7 +39,7 @@ import {
   resolvePersistedLessonRoute,
 } from "@/lib/adle/composable-lesson/route-resolution";
 import { databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
-import { homophoneParentManualSnapshotFingerprint } from "@/lib/adle/homophone/snapshot";
+import { homophoneCheckpointReadRequired, homophoneParentManualSnapshotFingerprint } from "@/lib/adle/homophone/snapshot";
 import {
   loadGenericV3Checkpoints,
   type GenericV3DurableCheckpoint,
@@ -151,7 +151,9 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       assignmentCompleted: readModel.state === "completed",
     }));
   let durableGenericV3Checkpoints: GenericV3DurableCheckpoint[] = [];
-  const r6SpecialistCheckpoint = r6Session?.majorStage === "specialist_lesson" && readModel.assignmentId
+  const homophoneParentManualRoute = routeResolution?.status === "resolved_explicit"
+    && routeResolution.runtime.adapterKey === "homophone_v2";
+  const r6SpecialistCheckpoint = homophoneCheckpointReadRequired(r6Session?.majorStage ?? null, homophoneParentManualRoute) && readModel.assignmentId
     ? await loadAdleSpecialistCheckpointR6({ client: serviceClient, assignmentId: readModel.assignmentId })
     : null;
   if (readModel.assignmentId
@@ -188,8 +190,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     && "provenance" in r6Session.specialist.compiledLessonSnapshot
     ? (r6Session.specialist.compiledLessonSnapshot as { provenance?: { sourceFingerprint?: string } }).provenance?.sourceFingerprint
     : undefined;
-  const homophoneLessonFingerprint = routeResolution?.status === "resolved_explicit"
-    ? homophoneParentManualSnapshotFingerprint(readModel.compiledLessonSnapshot, routeResolution.runtime.adapterKey)
+  const homophoneLessonFingerprint = homophoneParentManualRoute
+    ? homophoneParentManualSnapshotFingerprint(readModel.compiledLessonSnapshot, "homophone_v2")
     : null;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and

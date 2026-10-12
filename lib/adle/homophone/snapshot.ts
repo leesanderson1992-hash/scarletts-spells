@@ -153,3 +153,7 @@ export function homophoneParentManualSnapshotFingerprint(value: unknown, adapter
   return adapterKey === "homophone_v2" && isHomophoneSnapshotV3(value)
     ? value.provenance.sourceFingerprint : null;
 }
+
+export function homophoneCheckpointReadRequired(majorStage: string | null, parentManualRoute: boolean): boolean {
+  return majorStage === "specialist_lesson" || parentManualRoute;
+}
