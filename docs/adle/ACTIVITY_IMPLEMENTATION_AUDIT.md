@@ -36,8 +36,8 @@ Architecture documents inspected:
 
 | Measure | Count |
 |---|---:|
-| Discovered implementations | 51 |
-| Canonical implementations | 18 |
+| Discovered implementations | 52 |
+| Canonical implementations | 19 |
 | Canonical mode/adapters | 21 |
 | Thin curriculum adapters | 7 |
 | Development references | 1 |
@@ -63,6 +63,7 @@ Architecture documents inspected:
 | SnapRail | `components/adle/activities/shared/snap-rail.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL_MODE` | high | No | Retain and route new work through the catalogue. |
 | DefinitionWordBuilder | `components/adle/activities/shared/definition-word-builder.tsx` | `WORD_ASSEMBLY` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2 | MOR_BUILD_WORD | DefinitionWordBuilder | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | BinSort | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
+| BalloonPop | `components/adle/activities/balloon-pop.tsx` | `BALLOON_POP` | homophone_word_lab:v1, homophone_word_lab:v2 | none | BalloonPop | `CANONICAL` | medium | No | Retain and route new work through the catalogue. |
 | BinSortOverview | `components/adle/activities/shared/bin-sort.tsx` | `MEANING_SORT completion view` | dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3 | none | BinSort | `CANONICAL_MODE` | low | No | Retain and route new work through the catalogue. |
 | CoverShutter | `components/adle/activities/shared/cover-shutter.tsx` | `COVER_CHECK` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | CONTROLLED_SPELLING, HIDE_WRITE | CoverShutter | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
 | SentenceDictation | `components/adle/activities/shared/sentence-dictation.tsx` | `DICTATION.whole_sentence` | generic_composer:v1, dynamic_prefix_word_lab:v2, dynamic_affix_word_lab:v3, base_word_lab:v2, compound_word_lab:v2, comparative_superlative_word_lab:v1, ing_endings_word_lab:v1 | DICTATION_NO_IMAGE, DICTATION_SENTENCE_CONTEXT | SentenceDictation | `CANONICAL` | high | No | Retain and route new work through the catalogue. |
@@ -392,6 +393,25 @@ First-impression spelling has exactly two learner experiences: CoverShutter for 
 - Behavioural differences: One state machine owns current item, correctness, brief success phase, automatic advance and completion.
 - Persistence/evidence differences: Glitter and Overview are presentation-only; onComplete retains the existing guided completion boundary.
 - Canonical candidate: `BinSort`
+- Classification: `CANONICAL`
+- Recommended action: Retain and route new work through the catalogue.
+- Migration risk: `medium`
+- Historical replay dependency: No
+- Evidence: Repository import and route-dispatch trace at the audited base SHA.
+- Notes: None.
+
+### BalloonPop
+
+- File: `components/adle/activities/balloon-pop.tsx`
+- Concept / family: `BALLOON_POP` / `balloon_pop`
+- Routes: `homophone_word_lab:v1`, `homophone_word_lab:v2`
+- Micro-skills: None
+- Registry/template keys: None
+- Props/config differences: See component props and route adapter.
+- Visual differences: Uses its owning shell styling.
+- Behavioural differences: One timed state machine owns balloon motion, correction delay, and local score.
+- Persistence/evidence differences: Personal best is saved by the route adapter and is never spelling evidence.
+- Canonical candidate: `BalloonPop`
 - Classification: `CANONICAL`
 - Recommended action: Retain and route new work through the catalogue.
 - Migration risk: `medium`

@@ -45,6 +45,7 @@ import { adoptSpecialistOnlySessionR6 } from "./review-v3/r6-persistence";
 import { prepareComparativeAssignment } from "./inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "./inflection/contracts";
 import { prepareIngAssignment } from "./ing/readiness-loader";
+import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "./homophone/readiness-loader";
 import type { IngMicroSkill } from "./ing/contracts";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "./composable-lesson/specialist-snapshot-v3-persistence";
 
@@ -94,6 +95,7 @@ export function resolveParentManualAdleRoute(microSkillKey: string): string | nu
     candidate.implementationState === "registered"
     && candidate.newAssignmentCapable
     && candidate.routeId !== "generic_composer"
+    && candidate.routeId !== "homophone_word_lab" // child-scoped activation selects this route separately
     && candidate.supportedMicroSkillKeys.includes(microSkillKey),
   )?.routeId ?? null;
 }
@@ -392,7 +394,9 @@ export async function ensureParentAdleTodayAssignment(params: {
       return result;
     }
 
-    routeId = resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
+    routeId = await homophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+      microSkillKey: selection.microSkillKey, environmentKey: process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" })
+      ? "homophone_word_lab" : resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
     if (!routeId) {
       const authored = authorCompleteGenericSnapshotV3(
         facts,
@@ -481,7 +485,15 @@ export async function ensureParentAdleTodayAssignment(params: {
       process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
-    if (routeId === "ing_endings_word_lab") {
+    if (routeId === "homophone_word_lab") {
+      const prepared = await prepareHomophoneAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId,
+        date: practiceDate, microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,
+        environmentKey: allowStagingProfiles ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" });
+      if (prepared.status !== "ready") blockerCode = prepared.reason;
+      else generatedAssignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), {
+        parentUserId: params.parentUserId, childId: params.childId, planDate: practiceDate,
+        header: prepared.header, items: prepared.items, snapshot: prepared.snapshot, intakes: [] });
+    } else if (routeId === "ing_endings_word_lab") {
       const prepared = await prepareIngAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
         microSkillKey: selection.microSkillKey as IngMicroSkill, learningItems: facts.learningItems,
         environmentKey: allowStagingProfiles ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" });

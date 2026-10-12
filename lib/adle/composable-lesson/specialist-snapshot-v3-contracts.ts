@@ -12,6 +12,7 @@ import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-ac
 import type { CompiledLessonSnapshotV3 } from "./generic-snapshot-v3-contracts";
 import type { ComparativeLessonV1 } from "../inflection/contracts";
 import type { IngLessonV1 } from "../ing/contracts";
+import type { HomophoneLessonSnapshotV1 } from "../homophone/lesson";
 
 export const SPECIALIST_SNAPSHOT_V3_COMPILER_VERSION =
   "adle_specialist_snapshot_compiler_v3" as const;
@@ -159,7 +160,17 @@ export type CompiledSpecialistSnapshotV3 =
   | CompiledDynamicPrefixSpecialistSnapshotV3
   | CompiledBaseWordSpecialistSnapshotV3
   | CompiledComparativeSpecialistSnapshotV3
-  | CompiledIngSpecialistSnapshotV3;
+  | CompiledIngSpecialistSnapshotV3
+  | CompiledHomophoneSpecialistSnapshotV3;
+
+export type CompiledHomophoneSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
+  "route" | "recipe" | "payload" | "runtime" | "assignment"> & {
+  route: { routeId: "homophone_word_lab"; routeVersion: "v2" };
+  recipe: { recipeKey: "homophone_word_lab"; recipeVersion: "v2" };
+  payload: { kind: "homophone_lesson_v2"; version: 2; resolvedLesson: HomophoneLessonSnapshotV1 };
+  runtime: { adapterKey: "homophone_v2"; rendererKey: "homophone_guided" };
+  assignment: { generationSource: "adle_composer_v1"; itemCount: number };
+};
 
 export type CompiledIngSpecialistSnapshotV3 = Omit<CompiledDynamicAffixSpecialistSnapshotV3,
   "route" | "recipe" | "payload" | "runtime" | "assignment"> & {

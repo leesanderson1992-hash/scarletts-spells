@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export interface TeachingPageExample {
   text: string;
@@ -20,6 +21,7 @@ export interface TeachingPageConfig {
   eyebrow?: string;
   title: string;
   paragraphs: readonly string[];
+  highlightFocusWords?: readonly string[];
   callout?: string;
   model?: { first: string; second: string; result: string };
   examples?: readonly TeachingPageExample[];
@@ -33,6 +35,9 @@ export interface MeetWordConfig {
   wordParts?: readonly string[];
   detail?: string;
   provenance?: string;
+  imageSrc?: string;
+  highlightStart?: number;
+  highlightLength?: number;
 }
 
 export interface TeachingPagesConfig {
@@ -40,6 +45,7 @@ export interface TeachingPagesConfig {
   meetWords: {
     title?: string;
     introduction?: string;
+    presentation?: "combined" | "one_word_per_page";
     words: readonly MeetWordConfig[];
   };
 }
@@ -59,12 +65,13 @@ export function TeachingPages(props: {
   onComplete: () => void;
   completionLabel?: string;
 }) {
-  const total = props.config.pages.length + 1;
+  const oneWordPerPage = props.config.meetWords.presentation === "one_word_per_page";
+  const total = props.config.pages.length + (oneWordPerPage ? props.config.meetWords.words.length : 1);
   const initialPageIndex = Math.min(Math.max(props.initialPageIndex ?? 0, 0), total - 1);
   const [pageIndex, setPageIndex] = useState(initialPageIndex);
   const focusRef = useRef<HTMLDivElement>(null);
   const onPageChangeRef = useRef(props.onPageChange);
-  const isMeetWords = pageIndex === total - 1;
+  const isMeetWords = pageIndex >= props.config.pages.length;
 
   useEffect(() => {
     onPageChangeRef.current = props.onPageChange;
@@ -84,7 +91,7 @@ export function TeachingPages(props: {
     <section className="teaching-pages grid gap-5 text-cyan-50" aria-label="Lesson teaching pages">
       <div ref={focusRef} tabIndex={-1} className="outline-none">
         {isMeetWords ? (
-          <MeetWords config={props.config.meetWords} pageNumber={pageIndex + 1} pageCount={total} />
+          <MeetWords config={props.config.meetWords} pageNumber={pageIndex + 1} pageCount={total} wordIndex={oneWordPerPage ? pageIndex - props.config.pages.length : undefined} />
         ) : page ? (
           <TeachingPage page={page} pageNumber={pageIndex + 1} pageCount={total} />
         ) : null}
@@ -98,7 +105,7 @@ export function TeachingPages(props: {
         >
           Back
         </button>
-        {isMeetWords ? (
+        {pageIndex === total - 1 ? (
           <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={props.onComplete}>
             {props.completionLabel ?? "Start the activities"}
           </button>
@@ -124,7 +131,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       </header>
       {page.paragraphs.length > 0 ? (
         <div className="mx-auto grid max-w-3xl gap-3 text-center text-lg leading-8 text-cyan-50">
-          {page.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {page.paragraphs.map((paragraph, index) => <p key={paragraph}>{page.highlightFocusWords?.length && index === page.paragraphs.length - 1 ? <HighlightedFocusWords text={paragraph} words={page.highlightFocusWords} /> : paragraph}</p>)}
         </div>
       ) : null}
       {page.callout ? <p className="teaching-key-idea rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-center text-xl font-black text-cyan-950">{page.callout}</p> : null}
@@ -149,6 +156,20 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
   );
 }
 
+function HighlightedFocusWords(props: { text: string; words: readonly string[] }) {
+  const pattern = new RegExp(`(?<![A-Za-z])(?:${[...props.words].sort((a, b) => b.length - a.length).map(word => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![A-Za-z])`, "gi");
+  const parts: ReactNode[] = [];
+  let from = 0;
+  for (const match of props.text.matchAll(pattern)) {
+    const index = match.index ?? 0;
+    if (index > from) parts.push(props.text.slice(from, index));
+    parts.push(<mark key={`${index}-${match[0]}`} className="rounded-lg bg-amber-200 px-2 py-0.5 font-black text-amber-950">{match[0]}</mark>);
+    from = index + match[0].length;
+  }
+  if (from < props.text.length) parts.push(props.text.slice(from));
+  return <>{parts}</>;
+}
+
 function ExampleGrid(props: { examples: readonly TeachingPageExample[] }) {
   return <ul className="teaching-examples grid gap-3 sm:grid-cols-2" aria-label="Examples">{props.examples.map((example) => (
     <li key={`${example.text}:${example.explanation ?? ""}`} className="teaching-example rounded-2xl bg-white p-4 text-left text-slate-950" data-transformation={example.text.includes("→") ? "true" : undefined}>
@@ -158,20 +179,24 @@ function ExampleGrid(props: { examples: readonly TeachingPageExample[] }) {
   ))}</ul>;
 }
 
-function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber: number; pageCount: number }) {
-  const words = props.config.words;
+function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber: number; pageCount: number; wordIndex?: number }) {
+  const words = props.wordIndex === undefined ? props.config.words : [props.config.words[props.wordIndex]];
   const familyColumns = words.length === 6 && [0, 3].every(start =>
     ["base", "comparative", "superlative"].every((degree, offset) => words[start + offset].label?.startsWith(`${degree} · `)));
-  const card = (word: MeetWordConfig) => <li key={word.id} className="rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)]">
-    {word.label ? <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.label}</p> : null}
-    <p className="mt-1 text-2xl font-black">{word.wordParts?.length ? <><span className="text-cyan-800">{word.wordParts.join(" + ")}</span><span aria-hidden="true" className="mx-2 text-slate-400">→</span></> : null}{word.word}</p>
-    {word.detail ? <p className="mt-1 text-sm font-semibold text-slate-600">{word.detail}</p> : null}
-    {word.provenance ? <p className="mt-2 text-xs font-bold text-amber-700">{word.provenance}</p> : null}
+  const singleWord = props.wordIndex !== undefined;
+  const card = (word: MeetWordConfig) => <li key={word.id} className={`rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)] ${singleWord ? "mx-auto flex w-full max-w-2xl items-center gap-4 sm:gap-7 sm:p-6" : ""}`}>
+    {word.imageSrc ? <Image src={word.imageSrc} alt="" width={320} height={220} className={singleWord ? "h-28 w-28 shrink-0 rounded-xl object-contain sm:h-40 sm:w-44" : "mx-auto mb-2 h-36 w-full rounded-xl object-contain"} /> : null}
+    <div className={singleWord ? "min-w-0 flex-1" : ""}>
+      {word.label ? <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.label}</p> : null}
+      <p className="mt-1 text-2xl font-black sm:text-3xl">{word.wordParts?.length ? <><span className="text-cyan-800">{word.wordParts.join(" + ")}</span><span aria-hidden="true" className="mx-2 text-slate-400">→</span></> : null}{word.highlightStart !== undefined && word.highlightLength !== undefined ? <>{word.word.slice(0, word.highlightStart)}<span className="rounded bg-amber-200 px-0.5 text-amber-950">{word.word.slice(word.highlightStart, word.highlightStart + word.highlightLength)}</span>{word.word.slice(word.highlightStart + word.highlightLength)}</> : word.word}</p>
+      {word.detail ? <p className="mt-1 text-sm font-semibold text-slate-600 sm:text-base">{word.detail}</p> : null}
+      {word.provenance ? <p className="mt-2 text-xs font-bold text-amber-700">{word.provenance}</p> : null}
+    </div>
   </li>;
   return (
     <section className="grid gap-5 text-center" aria-labelledby="meet-the-words-title" data-teaching-page-type="meet_words">
       <header>
-        <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Meet the Words · Page {props.pageNumber} of {props.pageCount}</p>
+        <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.wordIndex === undefined ? "Meet the Words" : "Cheat Codes to Remember"} · Page {props.pageNumber} of {props.pageCount}</p>
         <h1 id="meet-the-words-title" className="mt-2 text-3xl font-black text-white md:text-4xl">{props.config.title ?? "Today’s words"}</h1>
         {props.config.introduction ? <p className="mx-auto mt-3 max-w-2xl text-lg leading-8 text-cyan-50">{props.config.introduction}</p> : null}
       </header>
@@ -179,7 +204,7 @@ function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber
         {[0, 3].map(start => <section key={words[start].id} aria-label={`${words[start].word} family`}>
           <ul className="grid gap-3" aria-label={`${words[start].word}: base, comparative, superlative`}>{words.slice(start, start + 3).map(card)}</ul>
         </section>)}
-      </div> : <ul className="grid gap-3 sm:grid-cols-2" aria-label="Lesson words">{words.map(card)}</ul>}
+      </div> : <ul className={singleWord ? "mx-auto grid w-full max-w-2xl gap-3" : "grid gap-3 sm:grid-cols-2"} aria-label="Lesson words">{words.map(card)}</ul>}
     </section>
   );
 }

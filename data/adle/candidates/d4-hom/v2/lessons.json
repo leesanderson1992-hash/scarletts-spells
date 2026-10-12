@@ -1,0 +1,1619 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": "d4-hom-v2",
+  "reviewStatus": "candidate_structurally_validated",
+  "runtimeEnabled": false,
+  "sourceSha256": "47aa8bd9a3074892c8ec9ae886e4b5f5b5794309c25f2d9c9dc97175f32c1ae8",
+  "sourceContentSha256": "fc7550aa703219e6239a3b82384a9bfc4c5fbabb818bf0cfbf77d1526e9ba162",
+  "contentSha256": "0c5ddc510f51f7797299f1006248ac80ec2c16b46442786203c21bcf4f152fea",
+  "lessons": [
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "title": "Choose peace and piece by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "piece",
+          "memoryCue": "PIE is hiding in PIECE. A piece of pie is just one part of a whole pie.",
+          "feedbackReason": "PIE is hiding in PIECE, like a slice of pie",
+          "imageRequired": true,
+          "imageBrief": "Whole pie with one triangular slice lifted out. Put PIECE beside the slice; highlight PIE inside PIECE.",
+          "imageSrc": "/adle/homophones/v1/piece.jpg",
+          "highlightStart": 0,
+          "highlightLength": 3
+        },
+        {
+          "word": "peace",
+          "memoryCue": "The A in PEACE can stand for AGREE: people who agree and stop fighting can make peace.",
+          "feedbackReason": "its A can remind us to agree and stop fighting",
+          "imageRequired": true,
+          "imageBrief": "Two children making up with a friendly handshake and a dove above them. Display PEACE with its A highlighted.",
+          "imageSrc": "/adle/homophones/v1/peace.jpg",
+          "highlightStart": 2,
+          "highlightLength": 1
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "Maya saved a ____ of cake for her dad.",
+          "answer": "piece"
+        },
+        {
+          "sentence": "The two neighbours finally made ____ after their argument.",
+          "answer": "peace"
+        },
+        {
+          "sentence": "A tiny ____ of the puzzle was missing.",
+          "answer": "piece"
+        },
+        {
+          "sentence": "We all want ____.",
+          "answer": "peace"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "We all want ____.",
+          "answer": "peace"
+        },
+        {
+          "sentence": "Take one ____ each.",
+          "answer": "piece"
+        },
+        {
+          "sentence": "The village lived in ____.",
+          "answer": "peace"
+        }
+      ],
+      "coverCheck": [
+        "piece",
+        "peace"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Lena saved a ",
+            " of cake for Jo. They ate it together in ",
+            "."
+          ],
+          "targets": [
+            "piece",
+            "peace"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "The class made ",
+            " after their quarrel. Each pupil drew a ",
+            " of the mural."
+          ],
+          "targets": [
+            "peace",
+            "piece"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Dad gave me one ",
+            " of pie. We enjoyed a quiet moment of ",
+            "."
+          ],
+          "targets": [
+            "piece",
+            "peace"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on piece and peace.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "title": "Choose flower and flour by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "flower",
+          "memoryCue": "FLOWER has OW, just like COW. Imagine a cow stopping to smell a flower.",
+          "feedbackReason": "its OW is also in COW, who can smell a flower",
+          "imageRequired": true,
+          "imageBrief": "Smiling cow sniffing a colourful flower in a garden. Display COW and FLOWER with OW highlighted in each.",
+          "imageSrc": "/adle/homophones/v1/flower.jpg",
+          "highlightStart": 2,
+          "highlightLength": 2
+        },
+        {
+          "word": "flour",
+          "memoryCue": "FLOUR contains OUR. Think: OUR flour helps us bake OUR bread.",
+          "feedbackReason": "OUR is hiding inside FLOUR for our baking",
+          "imageRequired": true,
+          "imageBrief": "Children baking bread together, holding a flour bag marked FLOUR. Highlight OUR on the bag.",
+          "imageSrc": "/adle/homophones/v1/flour.jpg",
+          "highlightStart": 2,
+          "highlightLength": 3
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "A yellow ____ grew beside the garden gate.",
+          "answer": "flower"
+        },
+        {
+          "sentence": "Dad added a spoonful of ____ to the mixture.",
+          "answer": "flour"
+        },
+        {
+          "sentence": "A cloud of ____ rose when the baker opened the bag.",
+          "answer": "flour"
+        },
+        {
+          "sentence": "That ____ smells lovely.",
+          "answer": "flower"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "That ____ smells lovely.",
+          "answer": "flower"
+        },
+        {
+          "sentence": "We need more ____.",
+          "answer": "flour"
+        },
+        {
+          "sentence": "Pick one pink ____.",
+          "answer": "flower"
+        }
+      ],
+      "coverCheck": [
+        "flower",
+        "flour"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Nan tipped ",
+            " into the bowl. A yellow ",
+            " stood beside her window."
+          ],
+          "targets": [
+            "flour",
+            "flower"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "The bee landed on a ",
+            " outside. Inside, Mum sifted ",
+            " for bread."
+          ],
+          "targets": [
+            "flower",
+            "flour"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "I drew a ",
+            " on the recipe card. Then I measured the ",
+            "."
+          ],
+          "targets": [
+            "flower",
+            "flour"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on flower and flour.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "title": "Choose see and sea by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "see",
+          "memoryCue": "You SEE with your two eyes. The two E letters in SEE can remind you of two eyes.",
+          "feedbackReason": "its two E letters can remind us of two eyes",
+          "imageRequired": true,
+          "imageBrief": "Child looking through binoculars; the two E letters in SEE are drawn like a pair of friendly eyes.",
+          "imageSrc": "/adle/homophones/v1/see.jpg",
+          "highlightStart": 1,
+          "highlightLength": 2
+        },
+        {
+          "word": "sea",
+          "memoryCue": "SEA has an A. Picture that A as the tall sail of a boat out at sea.",
+          "feedbackReason": "its A can look like a boat's sail",
+          "imageRequired": true,
+          "imageBrief": "Sailboat on gentle waves with a giant letter A forming its sail. Display SEA, highlighting A.",
+          "imageSrc": "/adle/homophones/v1/sea.jpg",
+          "highlightStart": 2,
+          "highlightLength": 1
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "I could ____ a rainbow above the hills.",
+          "answer": "see"
+        },
+        {
+          "sentence": "The fishermen sailed out to ____ before sunrise.",
+          "answer": "sea"
+        },
+        {
+          "sentence": "Can you ____ the small writing on the sign?",
+          "answer": "see"
+        },
+        {
+          "sentence": "The ____ looks calm.",
+          "answer": "sea"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "The ____ looks calm.",
+          "answer": "sea"
+        },
+        {
+          "sentence": "I ____ a fox!",
+          "answer": "see"
+        },
+        {
+          "sentence": "Waves rolled across the ____.",
+          "answer": "sea"
+        }
+      ],
+      "coverCheck": [
+        "see",
+        "sea"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "From the cliff, I could ",
+            " a boat. It crossed the blue ",
+            "."
+          ],
+          "targets": [
+            "see",
+            "sea"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "The ",
+            " was calm at dawn. I could ",
+            " fish beneath the pier."
+          ],
+          "targets": [
+            "sea",
+            "see"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Can you ",
+            " the lighthouse? It stands beside the ",
+            "."
+          ],
+          "targets": [
+            "see",
+            "sea"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on see and sea.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "title": "Choose herd or heard",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "herd",
+          "memoryCue": "A HERD is a group of animals. Unlike HEARD, HERD has no EAR inside.",
+          "feedbackReason": "a herd is a group of animals and has no EAR",
+          "imageRequired": true,
+          "imageBrief": "A tightly grouped herd of happy sheep or cows. Add the word HERD in large clear letters.",
+          "imageSrc": "/adle/homophones/v1/herd.jpg",
+          "highlightStart": 0,
+          "highlightLength": 4
+        },
+        {
+          "word": "heard",
+          "memoryCue": "You HEAR with your EARs. The letters EAR are inside HEARD.",
+          "feedbackReason": "EAR is hiding inside HEARD",
+          "imageRequired": true,
+          "imageBrief": "Child cupping an ear and hearing a ringing bell. Display HEARD with EAR highlighted.",
+          "imageSrc": "/adle/homophones/v1/heard.jpg",
+          "highlightStart": 1,
+          "highlightLength": 3
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "I ____ the school bell ringing across the playground.",
+          "answer": "heard"
+        },
+        {
+          "sentence": "A ____ of deer crossed the path at dawn.",
+          "answer": "herd"
+        },
+        {
+          "sentence": "Have you ____ the latest news about the chess club?",
+          "answer": "heard"
+        },
+        {
+          "sentence": "The ____ moved slowly.",
+          "answer": "herd"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "The ____ moved slowly.",
+          "answer": "herd"
+        },
+        {
+          "sentence": "I ____ a bang.",
+          "answer": "heard"
+        },
+        {
+          "sentence": "She watched the ____ graze.",
+          "answer": "herd"
+        }
+      ],
+      "coverCheck": [
+        "heard",
+        "herd"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "We ",
+            " a low moo from the field. A ",
+            " of cows stood by the gate."
+          ],
+          "targets": [
+            "heard",
+            "herd"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "The ",
+            " moved slowly across the path. I ",
+            " their bells ring."
+          ],
+          "targets": [
+            "herd",
+            "heard"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "I ",
+            " hooves behind the hill. Soon a ",
+            " of deer appeared."
+          ],
+          "targets": [
+            "heard",
+            "herd"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on herd and heard.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "title": "Choose threw or through",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "threw",
+          "memoryCue": "THREW ends in EW, like FLEW. The ball FLEW when someone THREW it.",
+          "feedbackReason": "it ends in EW, like FLEW",
+          "imageRequired": true,
+          "imageBrief": "Child throwing a bright ball through the air; show THREW and FLEW with the EW endings highlighted.",
+          "imageSrc": "/adle/homophones/v1/threw.jpg",
+          "highlightStart": 3,
+          "highlightLength": 2
+        },
+        {
+          "word": "through",
+          "memoryCue": "THROUGH has a long tunnel of letters: OUGH. Imagine travelling THROUGH that long tunnel.",
+          "feedbackReason": "its OUGH letters make a long tunnel to travel through",
+          "imageRequired": true,
+          "imageBrief": "Child emerging from a long tunnel with O-U-G-H marked in order above the tunnel; display THROUGH correctly.",
+          "imageSrc": "/adle/homophones/v1/through.jpg",
+          "highlightStart": 3,
+          "highlightLength": 4
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "We walked ____ the forest to reach the lake.",
+          "answer": "through"
+        },
+        {
+          "sentence": "Ella ____ the beanbag into the blue hoop.",
+          "answer": "threw"
+        },
+        {
+          "sentence": "Sunlight shone ____ the classroom window.",
+          "answer": "through"
+        },
+        {
+          "sentence": "He ____ the ball.",
+          "answer": "threw"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "He ____ the ball.",
+          "answer": "threw"
+        },
+        {
+          "sentence": "Run ____ the tunnel.",
+          "answer": "through"
+        },
+        {
+          "sentence": "She ____ a snowball.",
+          "answer": "threw"
+        }
+      ],
+      "coverCheck": [
+        "through",
+        "threw"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "A ball rolled ",
+            " the open gate. Sam ",
+            " it back."
+          ],
+          "targets": [
+            "through",
+            "threw"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I ",
+            " a soft toy to the puppy. It carried the toy ",
+            " the tunnel."
+          ],
+          "targets": [
+            "threw",
+            "through"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "The wind blew ",
+            " the trees. Maya ",
+            " her hat into the air."
+          ],
+          "targets": [
+            "through",
+            "threw"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on threw and through.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "title": "Choose right and write by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "right",
+          "memoryCue": "RIGHT shares IGHT with LIGHT. A green LIGHT can show you the RIGHT way.",
+          "feedbackReason": "it shares IGHT with LIGHT, which can show the right way",
+          "imageRequired": true,
+          "imageBrief": "Green traffic light pointing towards the correct path. Show RIGHT and LIGHT with IGHT highlighted.",
+          "imageSrc": "/adle/homophones/v1/right.jpg",
+          "highlightStart": 1,
+          "highlightLength": 4
+        },
+        {
+          "word": "write",
+          "memoryCue": "WRITE starts with WR, just like WRIST. Your wrist moves when you WRITE.",
+          "feedbackReason": "it starts with WR, like the wrist that moves a pencil",
+          "imageRequired": true,
+          "imageBrief": "Close-up of a wrist guiding a pencil as a child writes. Display WRITE and WRIST with WR highlighted.",
+          "imageSrc": "/adle/homophones/v1/write.jpg",
+          "highlightStart": 0,
+          "highlightLength": 2
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "You were ____ about the answer to the riddle.",
+          "answer": "right"
+        },
+        {
+          "sentence": "Please ____ your name at the top of the page.",
+          "answer": "write"
+        },
+        {
+          "sentence": "At the crossroads, turn ____ towards the library.",
+          "answer": "right"
+        },
+        {
+          "sentence": "I ____ in my diary.",
+          "answer": "write"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "I ____ in my diary.",
+          "answer": "write"
+        },
+        {
+          "sentence": "That's the ____ answer.",
+          "answer": "right"
+        },
+        {
+          "sentence": "Can you ____ neatly?",
+          "answer": "write"
+        }
+      ],
+      "coverCheck": [
+        "right",
+        "write"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Please ",
+            " your name on the card. Put it in the ",
+            " box."
+          ],
+          "targets": [
+            "write",
+            "right"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "At the junction, we turned ",
+            ". I stopped to ",
+            " the street name."
+          ],
+          "targets": [
+            "right",
+            "write"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Omar knew the ",
+            " answer. He began to ",
+            " it down."
+          ],
+          "targets": [
+            "right",
+            "write"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on right and write.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "title": "Choose your and you’re by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "your",
+          "memoryCue": "YOUR means something belongs to you. YOUR contains OUR: compare OUR bag and YOUR bag.",
+          "feedbackReason": "it tells us something belongs to you",
+          "imageRequired": true,
+          "imageBrief": "Two labelled backpacks: OUR for a group, YOUR for one child. Highlight OUR inside YOUR.",
+          "imageSrc": "/adle/homophones/v1/your.jpg",
+          "highlightStart": 1,
+          "highlightLength": 3
+        },
+        {
+          "word": "you're",
+          "memoryCue": "YOU'RE means YOU ARE. The apostrophe takes the place of the missing A.",
+          "feedbackReason": "it means YOU ARE, with an apostrophe for the missing A",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 3,
+          "highlightLength": 3
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "Is this ____ water bottle on the bench?",
+          "answer": "your"
+        },
+        {
+          "sentence": "____ getting much faster at solving these puzzles.",
+          "answer": "you're"
+        },
+        {
+          "sentence": "Please put ____ shoes by the front door.",
+          "answer": "your"
+        },
+        {
+          "sentence": "____ very kind.",
+          "answer": "you're"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "____ very kind.",
+          "answer": "you're"
+        },
+        {
+          "sentence": "Where's ____ coat?",
+          "answer": "your"
+        },
+        {
+          "sentence": "____ up next!",
+          "answer": "you're"
+        }
+      ],
+      "coverCheck": [
+        "your",
+        "you're"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "I think ",
+            " ready for the walk. Please bring ",
+            " coat."
+          ],
+          "targets": [
+            "you're",
+            "your"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "Is this ",
+            " bag? I hope ",
+            " coming with us."
+          ],
+          "targets": [
+            "your",
+            "you're"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Dad says ",
+            " next in the game. Put ",
+            " counter on the board."
+          ],
+          "targets": [
+            "you're",
+            "your"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on your and you're.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "title": "Choose we’re and were by meaning",
+      "contrastKind": "confusable",
+      "words": [
+        {
+          "word": "we're",
+          "memoryCue": "WE'RE means WE ARE. The apostrophe replaces the missing A in ARE.",
+          "feedbackReason": "it means WE ARE, with an apostrophe for the missing A",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 2,
+          "highlightLength": 3
+        },
+        {
+          "word": "were",
+          "memoryCue": "WERE is the past tense of ARE: 'We WERE at the park yesterday.' No apostrophe.",
+          "feedbackReason": "it describes something in the past and has no apostrophe",
+          "imageRequired": true,
+          "imageBrief": "Calendar turned back to YESTERDAY, with children playing in a park. Display WERE without an apostrophe.",
+          "imageSrc": "/adle/homophones/v1/were-past.jpg",
+          "highlightStart": 0,
+          "highlightLength": 4
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "____ planning a picnic if the weather stays dry.",
+          "answer": "we're"
+        },
+        {
+          "sentence": "The children ____ excited about their school trip.",
+          "answer": "were"
+        },
+        {
+          "sentence": "____ going to make a model volcano this afternoon.",
+          "answer": "we're"
+        },
+        {
+          "sentence": "They ____ at home.",
+          "answer": "were"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "They ____ at home.",
+          "answer": "were"
+        },
+        {
+          "sentence": "____ nearly there!",
+          "answer": "we're"
+        },
+        {
+          "sentence": "You ____ amazing!",
+          "answer": "were"
+        }
+      ],
+      "coverCheck": [
+        "we're",
+        "were"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Yesterday we ",
+            " late for the train. Today ",
+            " early."
+          ],
+          "targets": [
+            "were",
+            "we're"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I know ",
+            " ready now. Last week we ",
+            " still practising."
+          ],
+          "targets": [
+            "we're",
+            "were"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "The gates ",
+            " closed this morning. Now ",
+            " waiting outside."
+          ],
+          "targets": [
+            "were",
+            "we're"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on we're and were.",
+        "category": "These words are confusables."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "title": "Choose its and it’s by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "its",
+          "memoryCue": "ITS means 'belonging to it'. The cat licked ITS paw. Possessive ITS has no apostrophe.",
+          "feedbackReason": "it shows something belongs to it, without an apostrophe",
+          "imageRequired": true,
+          "imageBrief": "Cute cat licking its own paw, with a small ITS label and no apostrophe.",
+          "imageSrc": "/adle/homophones/v1/its.jpg",
+          "highlightStart": 0,
+          "highlightLength": 3
+        },
+        {
+          "word": "it's",
+          "memoryCue": "IT'S means IT IS or IT HAS. Try expanding IT'S; the apostrophe shows missing letters.",
+          "feedbackReason": "it can mean IT IS or IT HAS",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 2,
+          "highlightLength": 2
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "The squirrel hid ____ acorn beneath the fallen leaves.",
+          "answer": "its"
+        },
+        {
+          "sentence": "____ too cold to play outside without a coat.",
+          "answer": "it's"
+        },
+        {
+          "sentence": "The robot turned ____ head towards the sound.",
+          "answer": "its"
+        },
+        {
+          "sentence": "____ nearly lunchtime.",
+          "answer": "it's"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "____ nearly lunchtime.",
+          "answer": "it's"
+        },
+        {
+          "sentence": "The dog wagged ____ tail.",
+          "answer": "its"
+        },
+        {
+          "sentence": "____ been a busy day.",
+          "answer": "it's"
+        }
+      ],
+      "coverCheck": [
+        "its",
+        "it's"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "The dog wagged ",
+            " tail. I think ",
+            " happy."
+          ],
+          "targets": [
+            "its",
+            "it's"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I can see ",
+            " getting dark. The bird has flown to ",
+            " nest."
+          ],
+          "targets": [
+            "it's",
+            "its"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "The robot raised ",
+            " arm. Now ",
+            " waving at us."
+          ],
+          "targets": [
+            "its",
+            "it's"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on its and it's.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "title": "Choose who’s and whose by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "who's",
+          "memoryCue": "WHO'S means WHO IS or WHO HAS. If WHO IS fits, use the shortened form with an apostrophe.",
+          "feedbackReason": "it can mean WHO IS or WHO HAS",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 3,
+          "highlightLength": 2
+        },
+        {
+          "word": "whose",
+          "memoryCue": "WHOSE asks who something belongs to. Remember the question: 'WHOSE SHOES?' No apostrophe.",
+          "feedbackReason": "it asks who something belongs to",
+          "imageRequired": true,
+          "imageBrief": "Detective child investigating two mysterious shoes with a question mark. Put WHOSE SHOES? above them.",
+          "imageSrc": "/adle/homophones/v1/whose.jpg",
+          "highlightStart": 0,
+          "highlightLength": 5
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "____ coming to the birthday party on Saturday?",
+          "answer": "who's"
+        },
+        {
+          "sentence": "____ blue jumper is hanging behind the door?",
+          "answer": "whose"
+        },
+        {
+          "sentence": "____ already finished the maths challenge?",
+          "answer": "who's"
+        },
+        {
+          "sentence": "____ hat is this?",
+          "answer": "whose"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "____ hat is this?",
+          "answer": "whose"
+        },
+        {
+          "sentence": "____ at the door?",
+          "answer": "who's"
+        },
+        {
+          "sentence": "____ turn is it?",
+          "answer": "whose"
+        }
+      ],
+      "coverCheck": [
+        "who's",
+        "whose"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Do you know ",
+            " coat this is? I wonder ",
+            " coming back for it."
+          ],
+          "targets": [
+            "whose",
+            "who's"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I wondered ",
+            " at the door. Mum asked ",
+            " bicycle stood outside."
+          ],
+          "targets": [
+            "who's",
+            "whose"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Can you tell me ",
+            " book this is? I need to know ",
+            " reading it."
+          ],
+          "targets": [
+            "whose",
+            "who's"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on who's and whose.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "title": "Choose for/four and of/off by meaning",
+      "contrastKind": "near_homophone_and_confusable",
+      "words": [
+        {
+          "word": "for",
+          "memoryCue": "FOR can tell who receives something: 'This is FOR you.' It is the short three-letter word.",
+          "feedbackReason": "it can tell us a purpose or who receives something",
+          "imageRequired": true,
+          "imageBrief": "Child giving a wrapped present to a friend. Gift tag reads FOR YOU, with FOR emphasised.",
+          "imageSrc": "/adle/homophones/v1/for.jpg",
+          "highlightStart": 0,
+          "highlightLength": 3
+        },
+        {
+          "word": "four",
+          "memoryCue": "FOUR means 4. Think U for UP: hold FOUR fingers UP to remember the extra U.",
+          "feedbackReason": "it means the number 4 and has an extra U",
+          "imageRequired": true,
+          "imageBrief": "Hand showing exactly four raised fingers and the number 4. Display FOUR with U highlighted.",
+          "imageSrc": "/adle/homophones/v1/four.jpg",
+          "highlightStart": 2,
+          "highlightLength": 1
+        },
+        {
+          "word": "of",
+          "memoryCue": "OF has just one F. It links words together: 'a cup OF tea'.",
+          "feedbackReason": "it links words together and has only one F",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 1,
+          "highlightLength": 1
+        },
+        {
+          "word": "off",
+          "memoryCue": "OFF has two Fs. Think of two FEET jumping OFF a step.",
+          "feedbackReason": "it has two Fs, like two feet jumping off a step",
+          "imageRequired": true,
+          "imageBrief": "Two cartoon feet springing off a low step; the two Fs in OFF appear beside the two feet.",
+          "imageSrc": "/adle/homophones/v1/off.jpg",
+          "highlightStart": 1,
+          "highlightLength": 2
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "I packed a sandwich ____ my brother's lunch.",
+          "answer": "for"
+        },
+        {
+          "sentence": "There were ____ red kites flying above the beach.",
+          "answer": "four"
+        },
+        {
+          "sentence": "The handle ____ the suitcase snapped at the station.",
+          "answer": "of"
+        },
+        {
+          "sentence": "Please turn ____ the lamp.",
+          "answer": "off"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "Please turn ____ the lamp.",
+          "answer": "off"
+        },
+        {
+          "sentence": "____ ducks crossed the path.",
+          "answer": "four"
+        },
+        {
+          "sentence": "This gift is ____ you.",
+          "answer": "for"
+        },
+        {
+          "sentence": "A cup ____ tea.",
+          "answer": "of"
+        }
+      ],
+      "coverCheck": [
+        "off",
+        "of"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Mia packed ",
+            " buns in a bag. She saved them ",
+            " the picnic."
+          ],
+          "targets": [
+            "four",
+            "for"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "We turned ",
+            " the oven. A tray ",
+            " biscuits cooled nearby."
+          ],
+          "targets": [
+            "off",
+            "of"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Dad carried a box ",
+            " cups. I put ",
+            " on the table."
+          ],
+          "targets": [
+            "of",
+            "four"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on for, four, of and off.",
+        "category": "This set includes near homophones and confusables."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "title": "Choose there, their, and they’re by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "there",
+          "memoryCue": "THERE contains HERE. HERE and THERE both tell us about a place.",
+          "feedbackReason": "HERE is hiding inside it, and it can point to a place",
+          "imageRequired": true,
+          "imageBrief": "Map with a nearby HERE marker and a distant THERE marker; highlight HERE inside THERE.",
+          "imageSrc": "/adle/homophones/v1/there.jpg",
+          "highlightStart": 1,
+          "highlightLength": 4
+        },
+        {
+          "word": "their",
+          "memoryCue": "THEIR contains HEIR. An HEIR inherits belongings, and THEIR also shows belonging.",
+          "feedbackReason": "it shows belonging, like an HEIR inheriting something",
+          "imageRequired": true,
+          "imageBrief": "Friendly young heir receiving a treasure chest. Display THEIR with HEIR highlighted.",
+          "imageSrc": "/adle/homophones/v1/their.jpg",
+          "highlightStart": 1,
+          "highlightLength": 4
+        },
+        {
+          "word": "they're",
+          "memoryCue": "THEY'RE means THEY ARE. The apostrophe replaces the missing A.",
+          "feedbackReason": "it means THEY ARE",
+          "imageRequired": false,
+          "imageBrief": "",
+          "imageSrc": null,
+          "highlightStart": 4,
+          "highlightLength": 3
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "Put the suitcase over ____ beside the stairs.",
+          "answer": "there"
+        },
+        {
+          "sentence": "The twins left ____ football boots in the changing room.",
+          "answer": "their"
+        },
+        {
+          "sentence": "____ practising for the school concert this afternoon.",
+          "answer": "they're"
+        },
+        {
+          "sentence": "____ is a spider!",
+          "answer": "there"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "____ on the bus.",
+          "answer": "they're"
+        },
+        {
+          "sentence": "____ is a spider!",
+          "answer": "there"
+        },
+        {
+          "sentence": "____ dog loves swimming.",
+          "answer": "their"
+        }
+      ],
+      "coverCheck": [
+        "there",
+        "they're"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "The children left ",
+            " bags by the door. They sat over ",
+            "."
+          ],
+          "targets": [
+            "their",
+            "there"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I think ",
+            " ready to start. They picked up ",
+            " books."
+          ],
+          "targets": [
+            "they're",
+            "their"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Look over ",
+            " by the tree. I think ",
+            " playing."
+          ],
+          "targets": [
+            "there",
+            "they're"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on there, their and they're.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "title": "Choose to, too, and two by meaning",
+      "contrastKind": "homophone",
+      "words": [
+        {
+          "word": "to",
+          "memoryCue": "TO is the short word for a direction or an action: 'go TO school', 'want TO play'. One O.",
+          "feedbackReason": "it points towards an action or place and has one O",
+          "imageRequired": true,
+          "imageBrief": "A path from a house TO a school, with a direction sign labelled TO. Emphasise its single O.",
+          "imageSrc": "/adle/homophones/v1/to.jpg",
+          "highlightStart": 1,
+          "highlightLength": 1
+        },
+        {
+          "word": "too",
+          "memoryCue": "TOO has an EXTRA O: use it for an EXTRA amount ('too much') or 'also' ('me too').",
+          "feedbackReason": "its extra O can mean an extra amount or also",
+          "imageRequired": true,
+          "imageBrief": "An overfull ice-cream cone with one extra round scoop shaped like O. Display TOO with the second O highlighted.",
+          "imageSrc": "/adle/homophones/v1/too.jpg",
+          "highlightStart": 2,
+          "highlightLength": 1
+        },
+        {
+          "word": "two",
+          "memoryCue": "TWO means 2. The W looks like TWO V shapes joined together.",
+          "feedbackReason": "it means 2, and its W looks like two V shapes",
+          "imageRequired": true,
+          "imageBrief": "Two cheerful children hold up large V shapes that join to make W; show 2 and TWO.",
+          "imageSrc": "/adle/homophones/v1/two.jpg",
+          "highlightStart": 1,
+          "highlightLength": 1
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "Lena went ____ the library after school.",
+          "answer": "to"
+        },
+        {
+          "sentence": "The suitcase was ____ heavy for my little brother.",
+          "answer": "too"
+        },
+        {
+          "sentence": "We saw ____ rabbits hiding under the hedge.",
+          "answer": "two"
+        },
+        {
+          "sentence": "Come ____ the gate.",
+          "answer": "to"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "I have ____ pencils.",
+          "answer": "two"
+        },
+        {
+          "sentence": "Come ____ the gate.",
+          "answer": "to"
+        },
+        {
+          "sentence": "I want one ____!",
+          "answer": "too"
+        }
+      ],
+      "coverCheck": [
+        "to",
+        "too"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Our teacher chose ",
+            " pupils for the library visit. Their friend came ",
+            "."
+          ],
+          "targets": [
+            "two",
+            "too"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "I want ",
+            " borrow a book. My brother wants one ",
+            "."
+          ],
+          "targets": [
+            "to",
+            "too"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "We carried ",
+            " books home. I gave one ",
+            " Dad."
+          ],
+          "targets": [
+            "two",
+            "to"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on to, too and two.",
+        "category": "These words are homophones."
+      }
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "title": "Choose were, where, and wear by meaning",
+      "contrastKind": "near_homophone_and_confusable",
+      "words": [
+        {
+          "word": "were",
+          "memoryCue": "WERE is the past tense of ARE. 'They WERE here yesterday.' It has no H or A.",
+          "feedbackReason": "it describes something in the past and has no apostrophe",
+          "imageRequired": true,
+          "imageBrief": "Yesterday's calendar beside children visiting a park. Display WERE clearly, without extra letters.",
+          "imageSrc": "/adle/homophones/v1/were-where-wear.jpg",
+          "highlightStart": 0,
+          "highlightLength": 4
+        },
+        {
+          "word": "where",
+          "memoryCue": "WHERE contains HERE. WHERE asks about a place; HERE is an answer.",
+          "feedbackReason": "HERE is hiding inside it, and it asks about a place",
+          "imageRequired": true,
+          "imageBrief": "Child searching a map and spotting HERE, with WHERE? above the scene. Highlight HERE inside WHERE.",
+          "imageSrc": "/adle/homophones/v1/where.jpg",
+          "highlightStart": 1,
+          "highlightLength": 4
+        },
+        {
+          "word": "wear",
+          "memoryCue": "WEAR contains EAR. You WEAR earmuffs over your EARs.",
+          "feedbackReason": "EAR is hiding inside it, like ears wearing earmuffs",
+          "imageRequired": true,
+          "imageBrief": "Child wearing big cosy earmuffs. Display WEAR and EAR, highlighting EAR within WEAR.",
+          "imageSrc": "/adle/homophones/v1/wear.jpg",
+          "highlightStart": 1,
+          "highlightLength": 3
+        }
+      ],
+      "binSort": [
+        {
+          "sentence": "The windows ____ open when the storm began.",
+          "answer": "were"
+        },
+        {
+          "sentence": "____ did you find that beautiful pebble?",
+          "answer": "where"
+        },
+        {
+          "sentence": "You must ____ a helmet when riding your bike.",
+          "answer": "wear"
+        },
+        {
+          "sentence": "We ____ early.",
+          "answer": "were"
+        }
+      ],
+      "balloonPrompts": [
+        {
+          "sentence": "I ____ red socks.",
+          "answer": "wear"
+        },
+        {
+          "sentence": "We ____ early.",
+          "answer": "were"
+        },
+        {
+          "sentence": "____ is my pencil?",
+          "answer": "where"
+        }
+      ],
+      "coverCheck": [
+        "were",
+        "wear"
+      ],
+      "dictationPassages": [
+        {
+          "id": "passage-1",
+          "segments": [
+            "Can you tell me ",
+            " my boots are? I need to ",
+            " them outside."
+          ],
+          "targets": [
+            "where",
+            "wear"
+          ]
+        },
+        {
+          "id": "passage-2",
+          "segments": [
+            "The children ",
+            " ready for the rain. They chose to ",
+            " boots."
+          ],
+          "targets": [
+            "were",
+            "wear"
+          ]
+        },
+        {
+          "id": "passage-3",
+          "segments": [
+            "Do you remember ",
+            " we waited? We ",
+            " beside the gate."
+          ],
+          "targets": [
+            "where",
+            "were"
+          ]
+        }
+      ],
+      "teachingIntro": {
+        "title": "Why are some words so confusing?",
+        "paragraphs": [
+          "Homophones sound exactly the same but have different spellings and meanings.",
+          "Near homophones sound almost the same, with a tiny difference in sound. Their spellings and meanings are different too.",
+          "Confusables may not sound alike, but people often mix them up in writing."
+        ],
+        "focus": "Today, we are focusing on were, where and wear.",
+        "category": "This set includes near homophones and confusables."
+      }
+    }
+  ]
+}

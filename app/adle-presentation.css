@@ -166,3 +166,27 @@
   .adle-presentation *, .adle-presentation *::before, .adle-presentation *::after { animation: none !important; }
   .review-primary, .review-secondary, .review-choice { transition: none; }
 }
+
+@keyframes homophoneBalloonRise {
+  0% { transform: translate(-50%, 0); }
+  25% { transform: translate(calc(-50% + 12px), calc(-.25 * var(--balloon-travel))); }
+  50% { transform: translate(calc(-50% - 12px), calc(-.5 * var(--balloon-travel))); }
+  75% { transform: translate(calc(-50% + 10px), calc(-.75 * var(--balloon-travel))); }
+  100% { transform: translate(-50%, calc(-1 * var(--balloon-travel))); }
+}
+.balloon-pop-rise { animation: homophoneBalloonRise 10s linear both; }
+.homophone-immersive-stage { position: fixed; inset: 0; z-index: 90; overflow-y: auto; background: radial-gradient(circle at 85% 5%, rgb(245 43 145 / 12%), transparent 42%), var(--adie-surface-soft); padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); }
+.balloon-pop-game { width: min(100%, 72rem); min-height: calc(100dvh - 2rem); margin-inline: auto; grid-template-rows: auto auto minmax(18rem, 1fr) auto; }
+.homophone-immersive-stage .balloon-pop-game { color: var(--adie-ink); }
+.balloon-pop-game[data-balloon-phase="ready"] { grid-template-rows: auto minmax(0, 1fr); }
+.balloon-pop-game[data-balloon-phase="ready"] > header { flex-direction: column; justify-content: center; text-align: center; }
+.balloon-pop-starter { width: min(100%, 38rem); align-self: center; justify-self: center; justify-items: center; border: 2px solid var(--adie-line); border-left: 7px solid var(--adie-pink); background: var(--adie-surface); color: var(--adie-ink); box-shadow: var(--adie-glow); }
+.balloon-pop-starter p { max-width: 30ch; font-size: clamp(1.15rem, 2.5vw, 1.55rem); line-height: 1.55; font-weight: 750; }
+.balloon-pop-start-button { background: #c41070; color: white; box-shadow: var(--adie-glow); }
+.balloon-pop-start-button:hover { background: #a90059; }
+:root[data-theme="dark"] .balloon-pop-start-button { background: #ff64b4; color: #241026; }
+:root[data-theme="dark"] .balloon-pop-start-button:hover { background: #ff85c5; }
+.balloon-pop-sky { --balloon-travel: calc(100dvh - 10rem); min-height: 48dvh; }
+.balloon-pop-choice { width: clamp(4.25rem, calc((100vw - 3rem) / var(--balloon-count) - .4rem), 8rem); height: clamp(4.25rem, calc((100vw - 3rem) / var(--balloon-count) - .4rem), 8rem); overflow-wrap: anywhere; }
+@media (min-width: 700px) { .balloon-pop-sky { min-height: 56dvh; } }
+@media (prefers-reduced-motion: reduce) { .balloon-pop-rise { animation: none; } }

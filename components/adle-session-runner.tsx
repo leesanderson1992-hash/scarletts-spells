@@ -60,6 +60,37 @@ import { completeIngLessonAction } from "@/app/learn/week/adle/ing-actions";
 import type { IngLessonV1 } from "@/lib/adle/ing/contracts";
 import { ingProgressValid, type IngProgressV1 } from "@/lib/adle/ing/progress";
 import { IngGuidedLesson } from "@/components/adle/morphology/ing-guided-lesson";
+import type { HomophoneLessonSnapshotV1 } from "@/lib/adle/homophone/lesson";
+import { homophoneProgressValid, type HomophoneProgressV1 } from "@/lib/adle/homophone/progress";
+import { completeHomophoneLessonAction } from "@/app/learn/week/adle/homophone-completion-actions";
+
+const HomophoneGuidedLesson = dynamic(() => import("@/components/adle/homophone/homophone-guided-lesson").then(module => module.HomophoneGuidedLesson), { ssr: false });
+function HomophonePart({ session, snapshot }: { session: AdleSessionRunnerProps; snapshot: HomophoneLessonSnapshotV1 }) {
+  const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
+  const chain = useRef<Promise<void>>(Promise.resolve());
+  const timer = useRef<number | null>(null);
+  useEffect(() => () => { if (timer.current !== null) window.clearTimeout(timer.current); }, []);
+  function save(progress: HomophoneProgressV1) {
+    if (timer.current !== null) { window.clearTimeout(timer.current); timer.current = null; }
+    const next = chain.current.catch(() => undefined).then(async () => {
+      const result = await persistAdleSpecialistCheckpointR6Action({ assignmentId: session.assignmentId, adapterKey: "homophone_v2",
+        checkpointSchemaVersion: "homophone_progress_v1", lessonSnapshotFingerprint: session.snapshotFingerprint,
+        checkpointPayload: { state: progress }, expectedStateVersion: version.current });
+      version.current = result.stateVersion;
+    });
+    chain.current = next;
+    return next;
+  }
+  const restored = session.r6SpecialistCheckpoint?.checkpointPayload.state;
+  return <HomophoneGuidedLesson snapshot={snapshot} assignmentId={session.assignmentId} childId={session.childId}
+    initialProgress={homophoneProgressValid(restored, snapshot.lesson) ? restored : undefined}
+    onProgress={progress => { if (progress.completed) return; if (timer.current !== null) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => { void save(progress).catch(() => console.error("[adle-homophone] progress save failed")); }, 350); }}
+    onCheckpoint={save} onFinish={async progress => {
+      try { await save({ ...progress, completed: false }); } catch { /* Finish requires the frozen checkpoint. */ }
+      await completeHomophoneLessonAction({ assignmentId: session.assignmentId, snapshotFingerprint: session.snapshotFingerprint, progress });
+    }} />;
+}
 
 function IngPart({ session, lesson }: { session: AdleSessionRunnerProps; lesson: IngLessonV1 }) {
   const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
@@ -839,7 +870,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
+        runtime.adapterKey === "homophone_v2" ? <HomophonePart key={props.assignmentId} session={props} snapshot={runtime.payload} /> : runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />

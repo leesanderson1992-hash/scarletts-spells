@@ -23,6 +23,7 @@ export interface FirstImpressionConfiguredActivity {
   id: string;
   type: string;
   label: string;
+  layout?: "standard" | "immersive";
   binding?: CanonicalActivityBinding;
   render?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
 }
@@ -50,6 +51,8 @@ export function FirstImpressionLesson(props: {
   renderCover?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
   renderDictation?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
   renderReflection?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
+  includeReflection?: boolean;
+  onComplete?: () => void;
   scene: FirstImpressionSceneConfig;
 }) {
   const onStageChange = props.onStageChange;
@@ -60,11 +63,11 @@ export function FirstImpressionLesson(props: {
     ...props.activities.map((activity) => `activity:${activity.id}` as const),
     "cover",
     "dictation",
-    "reflection",
-  ], [props.activities]);
+    ...(props.includeReflection === false ? [] : ["reflection" as const]),
+  ], [props.activities, props.includeReflection]);
   const stageIndex = Math.max(0, sequence.indexOf(stageId));
-  const phases = useMemo(() => ["Learn", ...props.activities.map((activity) => activity.label), "Cover", "Dictate", "Reflect"], [props.activities]);
-  const phaseCues = useMemo(() => ["Read the teaching pages", ...props.activities.map((activity) => activity.label), "Study, cover, spell, compare", "Write the authored sentence", "Think about today’s learning"], [props.activities]);
+  const phases = useMemo(() => ["Learn", ...props.activities.map((activity) => activity.label), "Cover", "Dictate", ...(props.includeReflection === false ? [] : ["Reflect"])], [props.activities, props.includeReflection]);
+  const phaseCues = useMemo(() => ["Read the teaching pages", ...props.activities.map((activity) => activity.label), "Study, cover, spell, compare", "Write what you hear", ...(props.includeReflection === false ? [] : ["Think about today’s learning"])], [props.activities, props.includeReflection]);
 
   const go = useCallback((nextStageId: FirstImpressionStageId) => {
     setStageId(nextStageId);
@@ -73,9 +76,10 @@ export function FirstImpressionLesson(props: {
 
   const completeStage = useCallback(() => {
     const currentIndex = sequence.indexOf(stageId);
-    const next = sequence[Math.min(currentIndex + 1, sequence.length - 1)] ?? "reflection";
+    const next = sequence[Math.min(currentIndex + 1, sequence.length - 1)] ?? stageId;
     if (next !== stageId) go(next);
-  }, [go, sequence, stageId]);
+    else props.onComplete?.();
+  }, [go, sequence, stageId, props.onComplete]);
 
   const rereadTeaching = useCallback(() => {
     if (stageId === "teaching") return;
@@ -126,6 +130,8 @@ export function FirstImpressionLesson(props: {
             : stageId === "dictation" && props.renderDictation ? props.renderDictation(navigation)
               : props.reflectionActivity ? <CanonicalActivityRenderer binding={props.reflectionActivity} navigation={navigation} />
                 : props.renderReflection?.(navigation);
+
+  if (activity?.layout === "immersive") return <main className="adle-presentation homophone-immersive-stage" data-lesson-layout="immersive">{content}</main>;
 
   return (
     <WordLabScene

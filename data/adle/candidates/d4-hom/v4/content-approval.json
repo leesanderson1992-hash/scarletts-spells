@@ -1,0 +1,10 @@
+{
+  "contentVersion": "d4-hom-v4",
+  "contentSha256": "b425ccf1f9a3bf013015749e10203837687cc099888b20e6dc0bc40b2be0a92a",
+  "imageAssetManifestSha256": "8ec7efa7b8494d9f89130d8ba4d1fffe932610aa946264c750032722b8e18737",
+  "approvalStatus": "approved",
+  "approvedOn": "2026-10-12",
+  "approvalEvidence": "Project owner message in this task: The teaching content is approved.",
+  "scope": "All 14 homophone lessons in this candidate, including teaching explanations, word cues, correction reasons, contrast labels, 27 illustrations, Bin Sort prompts, Balloon Pop prompts, Cover Check words, and dictation passages.",
+  "runtimeEnabled": false
+}

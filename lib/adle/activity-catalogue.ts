@@ -259,6 +259,19 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     notes: "The inactive comparative route sorts four derived forms into Comparative and Superlative using the existing meaning mode.",
   }),
   activity({
+    activityKey: "BALLOON_POP", displayName: "Balloon Pop", interactionFamily: "timed_sentence_choice",
+    pedagogicalPurpose: "Choose a word from a taught contrast set to complete a short sentence under a visible timer.",
+    canonicalComponent: "BalloonPop", canonicalComponentPath: "components/adle/activities/balloon-pop.tsx",
+    supportedModes: ["timed_sentence_choice"], modeDescriptions: { timed_sentence_choice: "Forty-five-second round with ten-second balloon travel and five-second correction feedback." },
+    requiredInputs: ["contrast words", "short sentence prompts", "word-specific feedback reasons"], optionalInputs: ["personal best"],
+    capturesAttempt: false, evidenceBearing: false, supportsPointer: true, supportsKeyboard: true, supportsReducedMotion: true, supportsAudio: false,
+    usedByRoutes: ["homophone_word_lab:v1", "homophone_word_lab:v2"], usedByMicroSkills: ["D4_HOM"], firstImpressionEligible: true, reviewEligible: false,
+    compatibilityImplementations: [], duplicateImplementations: [], templateKeys: [], status: "CANONICAL",
+    whenToUse: "For rapid guided contextual choices after a homophone or confusable set has been taught.",
+    whenNotToUse: "As independent spelling evidence, a review check, or a reward source.",
+    notes: "The route owns personal-best persistence; the renderer owns timing, motion, feedback and local score only.",
+  }),
+  activity({
     activityKey: "REVIEW_SORT", displayName: "Historical review-sort key", interactionFamily: "compatibility_key",
     pedagogicalPurpose: "Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer.",
     canonicalComponent: null, canonicalComponentPath: null,
@@ -295,7 +308,8 @@ export const ADLE_ACTIVITY_CATALOGUE: readonly ActivityCatalogueEntry[] = [
     activityKey: "DICTATION", displayName: "Dictation", interactionFamily: "typed_recall",
     pedagogicalPurpose: "Transcribe a governed authored sentence from audio, then lock and compare.",
     canonicalComponent: "SentenceDictation", canonicalComponentPath: "components/adle/activities/shared/sentence-dictation.tsx",
-    supportedModes: ["whole_sentence", "target_token", "target_span", "paired_word_gaps", "single_word_gap"], modeDescriptions: {
+    supportedModes: ["whole_sentence", "target_token", "target_span", "paired_word_gaps", "single_word_gap", "two_word_gaps"], modeDescriptions: {
+      two_word_gaps: "Hear a completed two-sentence passage and type its two hidden target words; freeze both before comparison.",
       paired_word_gaps: "Two authored word-audio buttons and two gaps; freeze both together, then grade spelling and placement separately.",
       single_word_gap: "Hear an authored sentence and spell its one hidden -ing target; freeze the word before comparison.",
       whole_sentence: "Transcribe and compare the whole authored sentence.", target_token: "Route adapter extracts one governed token for correctness/evidence.", target_span: "Route adapter extracts an exact governed multi-token span.",
@@ -456,6 +470,7 @@ export const ADLE_ACTIVITY_IMPLEMENTATION_AUDIT: readonly ActivityImplementation
   auditRow("SnapRail", "components/adle/activities/shared/snap-rail.tsx", "WORD_ASSEMBLY", "CANONICAL_MODE", "DefinitionWordBuilder", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_BUILD_WORD"], behaviouralDifferences: "One-row tile and pointer presentation over OrderedBuildEngine.", migrationRisk: "high" }),
   auditRow("DefinitionWordBuilder", "components/adle/activities/shared/definition-word-builder.tsx", "WORD_ASSEMBLY", "CANONICAL", "DefinitionWordBuilder", { currentRouteUsages: [...PREFIX_AFFIX, BASE_ROUTE], registryTemplateKeys: ["MOR_BUILD_WORD"], propsConfigDifferences: "Prefix, suffix and Base Word routes supply governed parts, definitions, word sums and feedback without route-local build state.", migrationRisk: "high" }),
   auditRow("BinSort", "components/adle/activities/shared/bin-sort.tsx", "MEANING_SORT", "CANONICAL", "BinSort", { currentRouteUsages: PREFIX_AFFIX, behaviouralDifferences: "One state machine owns current item, correctness, brief success phase, automatic advance and completion.", persistenceEvidenceDifferences: "Glitter and Overview are presentation-only; onComplete retains the existing guided completion boundary.", migrationRisk: "medium" }),
+  auditRow("BalloonPop", "components/adle/activities/balloon-pop.tsx", "BALLOON_POP", "CANONICAL", "BalloonPop", { currentRouteUsages: ["homophone_word_lab:v1", "homophone_word_lab:v2"], behaviouralDifferences: "One timed state machine owns balloon motion, correction delay, and local score.", persistenceEvidenceDifferences: "Personal best is saved by the route adapter and is never spelling evidence.", migrationRisk: "medium" }),
   auditRow("BinSortOverview", "components/adle/activities/shared/bin-sort.tsx", "MEANING_SORT completion view", "CANONICAL_MODE", "BinSort", { currentRouteUsages: PREFIX_AFFIX, behaviouralDifferences: "Stateless semantic grouping derived from BinSort items, bins and correct placements.", persistenceEvidenceDifferences: "Creates no attempt, evidence or persistence event.", migrationRisk: "low" }),
   auditRow("CoverShutter", "components/adle/activities/shared/cover-shutter.tsx", "COVER_CHECK", "CANONICAL", "CoverShutter", { currentRouteUsages: [GENERIC_ROUTE, ...SPECIALIST], registryTemplateKeys: ["CONTROLLED_SPELLING", "HIDE_WRITE"], behaviouralDifferences: "Owns look/cover/write/check and the single word DiffReveal.", persistenceEvidenceDifferences: "Historical keys are retained by dispatch/evidence adapters, not learner UI.", migrationRisk: "high" }),
   auditRow("SentenceDictation", "components/adle/activities/shared/sentence-dictation.tsx", "DICTATION.whole_sentence", "CANONICAL", "SentenceDictation", { currentRouteUsages: [GENERIC_ROUTE, ...SPECIALIST], registryTemplateKeys: ["DICTATION_NO_IMAGE", "DICTATION_SENTENCE_CONTEXT"], propsConfigDifferences: "Authored audio and correct sentence are separate inputs; routes control value, checked state and continuation.", behaviouralDifferences: "Owns textarea, manual check, locked post-check DiffReveal and focus/accessibility behavior.", persistenceEvidenceDifferences: "Emits callbacks only and contains no assignment, correctness or persistence policy.", migrationRisk: "high" }),

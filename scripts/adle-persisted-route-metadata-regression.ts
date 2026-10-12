@@ -46,6 +46,11 @@ const expected = {
     recipe: "compound_word_lab:v2",
     payload: "compound_word_lesson_v2:2",
   },
+  homophone_word_lab: {
+    route: "v2",
+    recipe: "homophone_word_lab:v2",
+    payload: "homophone_lesson_v2:2",
+  },
 } as const;
 
 assert.deepEqual(
@@ -54,7 +59,7 @@ assert.deepEqual(
 );
 
 for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
-  const requiresV2 = routeId === "comparative_superlative_word_lab" || routeId === "ing_endings_word_lab";
+  const requiresV2 = routeId === "comparative_superlative_word_lab" || routeId === "ing_endings_word_lab" || routeId === "homophone_word_lab";
   const metadata = requiresV2 ? createPersistedRouteMetadataV2(routeId,{
     activationRevisionId:"11111111-1111-4111-8111-111111111111",releaseManifestId:"22222222-2222-4222-8222-222222222222",releaseKey:`${routeId}-test-only`,releaseManifestSha256:"a".repeat(64),dependencyFingerprint:"b".repeat(64),
   }) : createPersistedRouteMetadata(routeId);
@@ -79,6 +84,7 @@ for (const routeId of ADLE_NEW_ASSIGNMENT_ROUTE_IDS) {
 }
 assert.throws(()=>createPersistedRouteMetadata("comparative_superlative_word_lab"),/requires curriculum release metadata v2/);
 assert.throws(()=>createPersistedRouteMetadata("ing_endings_word_lab"),/requires curriculum release metadata v2/);
+assert.throws(()=>createPersistedRouteMetadata("homophone_word_lab"),/requires curriculum release metadata v2/);
 
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "fixed_un_prefix_word_lab"));
 assert(!ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === "closed_compound_word_lab"));

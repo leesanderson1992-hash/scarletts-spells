@@ -185,6 +185,18 @@ function validateBinSort(props: unknown): boolean {
     && props.bins.every((bin) => isRecord(bin) && nonEmptyString(bin.id) && nonEmptyString(bin.label));
 }
 
+function validateBalloonPop(props: unknown): boolean {
+  if (!isRecord(props) || !Array.isArray(props.words) || !Array.isArray(props.prompts)) return false;
+  const words = props.words;
+  return words.length >= 2
+    && words.every(word => isRecord(word) && nonEmptyString(word.word) && nonEmptyString(word.feedbackReason))
+    && props.prompts.length >= words.length
+    && props.prompts.every(prompt => isRecord(prompt) && nonEmptyString(prompt.sentence) && nonEmptyString(prompt.answer)
+      && prompt.sentence.split("____").length === 2 && words.some(word => word.word === prompt.answer))
+    && typeof props.initialBest === "number" && props.initialBest >= 0
+    && functionValue(props.onFinish) && functionValue(props.onContinue);
+}
+
 function validateCoverShutter(props: unknown): boolean {
   return isRecord(props)
     && nonEmptyString(props.word)
@@ -281,6 +293,7 @@ const transformTargetLoader = moduleLoader(() => import("@/components/adle/activ
 const compoundJigsawLoader = moduleLoader(() => import("@/components/adle/morphology/compound-jigsaw-activity"), "CompoundJigsawActivity");
 const meaningConnectionLoader = moduleLoader(() => import("@/components/adle/morphology/meaning-connection-activity"), "MeaningConnectionActivity");
 const binSortLoader = moduleLoader(() => import("@/components/adle/activities/shared/bin-sort"), "BinSort");
+const balloonPopLoader = moduleLoader(() => import("@/components/adle/activities/balloon-pop"), "BalloonPop");
 const coverShutterLoader = moduleLoader(() => import("@/components/adle/activities/shared/cover-shutter"), "CoverShutter");
 const sentenceDictationLoader = moduleLoader(() => import("@/components/adle/activities/shared/sentence-dictation"), "SentenceDictation");
 const lessonReflectionLoader = moduleLoader(() => import("@/components/adle/activities/lesson-reflection"), "LessonReflection");
@@ -323,10 +336,16 @@ const registrations = [
   registration("MEANING_MATCH", "component_clues", "MeaningConnectionActivity", meaningConnectionLoader, validateMeaningConnection),
   registration("MEANING_SORT", "meaning", "BinSort", binSortLoader, validateBinSort),
   registration("MEANING_SORT", "prefix_form", "BinSort", binSortLoader, validateBinSort),
+  registration("BALLOON_POP", "timed_sentence_choice", "BalloonPop", balloonPopLoader, validateBalloonPop),
   registration("COVER_CHECK", "whole_word", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("COVER_CHECK", "component_marked", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("COVER_CHECK", "ratio_close_policy", "CoverShutter", coverShutterLoader, validateCoverShutter),
   registration("DICTATION", "whole_sentence", "SentenceDictation", sentenceDictationLoader, validateSentenceDictation),
+  registration("DICTATION", "two_word_gaps", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "two_word_gaps"
+    && Array.isArray(props.segments) && props.segments.length === 3 && props.segments.every(x => typeof x === "string")
+    && Array.isArray(props.targets) && props.targets.length === 2 && props.targets.every(nonEmptyString)
+    && Array.isArray(props.values) && props.values.length === 2 && props.values.every(x => typeof x === "string")
+    && typeof props.checked === "boolean" && functionValue(props.onValuesChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),
   registration("DICTATION", "paired_word_gaps", "SentenceDictation", sentenceDictationLoader, props => isRecord(props) && props.mode === "paired_word_gaps" && pairedWordGapsPayloadValid(props)
     && Array.isArray(props.values) && props.values.length === 2 && props.values.every(x => typeof x === "string") && typeof props.checked === "boolean"
     && functionValue(props.onValuesChange) && functionValue(props.onCheck) && functionValue(props.onContinue)),

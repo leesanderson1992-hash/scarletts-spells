@@ -30,6 +30,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `COMPOUND_JIGSAW` | Join compound components in governed order while preserving spaces and hyphens. | For compound structure where puzzle joining is itself pedagogically meaningful. | Yes | No | `CANONICAL` |
 | `MEANING_MATCH` | Connect each word to its whole-word definition. | When each word must be paired with a distinct definition. | Yes | No | `CANONICAL` |
 | `MEANING_SORT` | Sort words into reusable meaning or affix-form groups. | When several words share meaningful categories. | Yes | No | `CANONICAL` |
+| `BALLOON_POP` | Choose a word from a taught contrast set to complete a short sentence under a visible timer. | For rapid guided contextual choices after a homophone or confusable set has been taught. | Yes | No | `CANONICAL` |
 | `REVIEW_SORT` | Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer. | Only while decoding immutable historical assignments. | No | No | `COMPATIBILITY_ONLY` |
 | `COVER_CHECK` | Study a visible word, hide it, recall it, and compare the attempt. | For supported study-cover-recall practice where a teaching view is intentional. | Yes | No | `CANONICAL` |
 | `CONTROLLED_SPELLING` | Historical catalogue concept for controlled study/spelling payloads. | Only to decode accepted historical template keys into Cover Check. | No | No | `COMPATIBILITY_ONLY` |
@@ -44,7 +45,7 @@ This is the chooser for curriculum designers and future implementation tasks. It
 | `SYLLABLE_SPLIT_REBUILD` | Split a word into syllables and rebuild it from those syllables. | When syllable structure, rather than morphology, is the learning objective. | Yes | No | `REQUIRES_ARCHITECTURE_DECISION` |
 | `GUIDED_PROMPT_FALLBACK` | Keep a generic lesson usable when no structured rich renderer exists. | Only as the registered safe fallback for existing generic templates. | Yes | No | `COMPATIBILITY_ONLY` |
 
-The catalogue currently has 23 governed concepts, 16 with canonical status, and 53 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
+The catalogue currently has 24 governed concepts, 17 with canonical status, and 55 declared modes. Entries marked `REQUIRES_ARCHITECTURE_DECISION` are genuine platform gaps or extraction decisions, not permission for route-local UI.
 
 ## INTRODUCTION — Introduction
 
@@ -322,6 +323,32 @@ The catalogue currently has 23 governed concepts, 16 with canonical status, and 
 
 **Notes:** The inactive comparative route sorts four derived forms into Comparative and Superlative using the existing meaning mode.
 
+## BALLOON_POP — Balloon Pop
+
+**Pedagogical purpose:** Choose a word from a taught contrast set to complete a short sentence under a visible timer.
+
+**Interaction family:** `timed_sentence_choice`
+
+**Best used for:** For rapid guided contextual choices after a homophone or confusable set has been taught.
+
+**Do not use when:** As independent spelling evidence, a review check, or a reward source.
+
+**Modes:**
+
+- `timed_sentence_choice`: Forty-five-second round with ten-second balloon travel and five-second correction feedback.
+
+**Current users:** Routes `homophone_word_lab:v1`, `homophone_word_lab:v2`. Micro-skills `D4_HOM`.
+
+**Canonical implementation:** `BalloonPop` in `components/adle/activities/balloon-pop.tsx`
+
+**Architectural status:** `CANONICAL`
+
+**Inputs:** Required: `contrast words`, `short sentence prompts`, `word-specific feedback reasons`. Optional: `personal best`.
+
+**Capabilities:** Pointer Yes · Keyboard Yes · Reduced motion Yes · Audio No · Captures attempt No · Evidence-bearing No · First Impression Yes · Review No.
+
+**Notes:** The route owns personal-best persistence; the renderer owns timing, motion, feedback and local score only.
+
 ## REVIEW_SORT — Historical review-sort key
 
 **Pedagogical purpose:** Decode immutable historical REVIEW_QUICK_SORT assignment and snapshot payloads without preserving a learner renderer.
@@ -419,6 +446,7 @@ The catalogue currently has 23 governed concepts, 16 with canonical status, and 
 - `target_span`: Route adapter extracts an exact governed multi-token span.
 - `paired_word_gaps`: Two authored word-audio buttons and two gaps; freeze both together, then grade spelling and placement separately.
 - `single_word_gap`: Hear an authored sentence and spell its one hidden -ing target; freeze the word before comparison.
+- `two_word_gaps`: Hear a completed two-sentence passage and type its two hidden target words; freeze both before comparison.
 
 **Current users:** Routes `generic_composer:v1`, `dynamic_prefix_word_lab:v2`, `dynamic_affix_word_lab:v3`, `base_word_lab:v2`, `compound_word_lab:v2`, `comparative_superlative_word_lab:v1`, `ing_endings_word_lab:v1`. Micro-skills `future generic curriculum with authored sentence contract`, `D4_MOR_PREFIXES_UN`, `D4_MOR_PREFIXES_DIS_MIS`, `D4_MOR_PREFIXES_IN_IM_IL_IR`, `D4_MOR_PREFIXES_RE_PRE`, `D4_MOR_PREFIXES_SUB_INTER_SUPER`, `D4_MOR_SUFFIXES_ABLE_IBLE`, `D4_MOR_SUFFIXES_AL`, `D4_MOR_SUFFIXES_FUL_LESS`, `D4_MOR_SUFFIXES_ITY`, `D4_MOR_SUFFIXES_LY`, `D4_MOR_SUFFIXES_MENT`, `D4_MOR_SUFFIXES_NESS`, `D4_MOR_SUFFIXES_OUS`, `D4_MOR_SUFFIXES_SION`, `D4_MOR_SUFFIXES_TION`, `D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX`, `D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX`, `D4_MOR_BASE_WORDS_IDENTIFY_BASE`, `D4_MOR_BASE_WORDS_PRESERVE_BASE`, `D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS`, `D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED`, `D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR`, `D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E`, `D4_INF_COMPARATIVE_SUPERLATIVE_Y_TO_I`, `D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_REGULAR`, `D4_INF_ING_ENDINGS_DROP_E`, `D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT`, `D4_INF_ING_ENDINGS_IE_TO_Y`.
 

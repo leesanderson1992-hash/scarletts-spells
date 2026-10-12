@@ -7,6 +7,7 @@ import type {
 } from "../composable-lesson/contracts";
 import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 import { ING_MICRO_SKILLS } from "../ing/contracts";
+import { HOMOPHONE_LESSONS } from "../homophone/lesson";
 
 /**
  * Declarative implementation inventory for the central curriculum-readiness
@@ -80,6 +81,17 @@ export interface CurriculumRouteDefinition {
 }
 
 export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[] = [
+  {
+    routeId: "homophone_word_lab", routeVersion: "v2", supportedMicroSkillKeys: HOMOPHONE_LESSONS.map(lesson => lesson.microSkillKey).sort(),
+    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,
+    requiresAuthenticSelectableItem: true, payloadKind: "homophone_lesson_v2", payloadVersions: [2],
+    activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",
+    compatibilityScope: { kind: "declared_micro_skills" }, recipes: [{ recipeKey: "homophone_word_lab", recipeVersion: "v2" }],
+    runtimeAdapterKey: "homophone_v2", rendererKey: "homophone_guided", legacyDetectionRules: [],
+    requiredActivities: ["introduction", "meaning_sort", "cover_check", "dictation", "reflection"],
+    intentionalItemCounts: [14, 15, 16], wordCounts: { lesson: [2, 4], authentic: [1, 4], transfer: [0, 3] },
+    coverageRequirements: ["distinct_forms", "unique_dictation_sentences"],
+  },
   {
     routeId: "ing_endings_word_lab", routeVersion: "v1", supportedMicroSkillKeys: [...ING_MICRO_SKILLS].sort(),
     routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,

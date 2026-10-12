@@ -34,6 +34,7 @@ export interface LessonReflectionProps {
   contextRecap?: LessonReflectionContextRecap;
   sentenceComparisons?: readonly NormalizedLessonReflectionSentenceComparison[];
   specialistRecaps?: readonly LessonReflectionSpecialistRecap[];
+  showMistakeSection?: boolean;
 }
 
 function SpecialistRecaps(props: {
@@ -64,7 +65,7 @@ export function LessonReflection(props: LessonReflectionProps) {
   return (
     <div className="grid gap-5 text-cyan-50" data-lesson-reflection="canonical">
       <SpecialistRecaps recaps={recaps} position="before_mistakes" />
-      <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={titleId}>
+      {props.showMistakeSection !== false ? <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={titleId}>
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p>
         <h2 id={titleId} className="mt-2 text-3xl font-black text-white">What went wrong</h2>
         {props.mistakes.length ? (
@@ -99,7 +100,7 @@ export function LessonReflection(props: LessonReflectionProps) {
             {props.successMessage ?? "You checked each spelling carefully. Use your reflection to explain what helped you."}
           </p>
         )}
-      </section>
+      </section> : null}
 
       {props.sentenceComparisons?.length ? (
         <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-sentence-comparison-heading`} data-reflection-sentence-comparisons="feedback-only">

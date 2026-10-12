@@ -12,6 +12,7 @@ export interface SentenceDictationProps {
   value: string;
   checked: boolean;
   stepLabel: string;
+  writingLabel?: string;
   continueLabel?: string;
   muted?: boolean;
   onValueChange: (value: string) => void;
@@ -44,8 +45,52 @@ export interface SingleWordGapProps {
   onCheck: () => void | Promise<void>;
   onContinue: () => void;
 }
-export function SentenceDictation(props: SentenceDictationProps | PairedWordGapsProps | SingleWordGapProps) {
-  return "mode" in props ? props.mode === "single_word_gap" ? <SingleWordGap {...props} /> : <PairedWordGaps {...props} /> : <WholeSentenceDictation {...props} />;
+export interface TwoWordGapsProps {
+  mode: "two_word_gaps";
+  segments: readonly [string, string, string];
+  targets: readonly [string, string];
+  values: readonly [string, string];
+  checked: boolean;
+  stepLabel: string;
+  muted?: boolean;
+  onValuesChange: (values: [string, string]) => void;
+  onCheck: () => void | Promise<void>;
+  onContinue: () => void;
+}
+export function SentenceDictation(props: SentenceDictationProps | PairedWordGapsProps | SingleWordGapProps | TwoWordGapsProps) {
+  return "mode" in props ? props.mode === "single_word_gap" ? <SingleWordGap {...props} /> : props.mode === "two_word_gaps" ? <TwoWordGaps {...props} /> : <PairedWordGaps {...props} /> : <WholeSentenceDictation {...props} />;
+}
+function TwoWordGaps(props: TwoWordGapsProps) {
+  const id = useId();
+  const requested = useRef(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fullText = `${props.segments[0]}${props.targets[0]}${props.segments[1]}${props.targets[1]}${props.segments[2]}`;
+  useEffect(() => { if (!props.checked) requested.current = false; }, [props.checked]);
+  async function check() {
+    if (props.checked || saving || requested.current || props.values.some(value => !value.trim())) return;
+    requested.current = true;
+    setSaving(true);
+    setError(null);
+    try { await props.onCheck(); }
+    catch { requested.current = false; setError("We couldn't check both words yet. Please try again."); }
+    finally { setSaving(false); }
+  }
+  return <section className="grid gap-5" data-two-word-dictation-state={props.checked ? "checked" : "writing"}>
+    <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
+    <h2 className="text-center text-2xl font-black text-white">Listen to the story. Fill in two words.</h2>
+    <div className="flex justify-center"><HearWordButton word={fullText} label="Hear passage" kind="dictation" muted={props.muted} /></div>
+    {props.muted ? <p role="status" className="text-center text-amber-100">Sound is off. You can still use the story clues to fill the gaps.</p> : null}
+    <div className="rounded-3xl bg-white p-5 text-xl font-bold leading-loose text-slate-950" aria-label="Passage with two word gaps">
+      {props.segments.map((segment, index) => <span key={index}>{segment}{index < 2 ? <input id={`${id}-${index}`} aria-label={`Missing word ${index + 1}`} autoFocus={index === 0} spellCheck={false} autoComplete="off" autoCapitalize="none" readOnly={props.checked || saving} value={props.values[index]} maxLength={80} onChange={event => { const next: [string, string] = [...props.values]; next[index] = event.target.value; props.onValuesChange(next); }} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void check(); } }} className="mx-1 inline-block min-h-12 w-36 max-w-full rounded-xl border-2 border-cyan-600 bg-slate-50 px-2 text-slate-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300" /> : null}</span>)}
+    </div>
+    {!props.checked ? <button type="button" disabled={saving || props.values.some(value => !value.trim())} onClick={() => void check()} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40">{saving ? "Checking both words…" : "Check both words"}</button> : <>
+      <div aria-live="polite" className="grid gap-3">{props.targets.map((target, index) => <div key={index} className="rounded-2xl bg-slate-950/30 p-4 text-cyan-100"><p className="font-bold">Word {index + 1}: {props.values[index].trim().toLocaleLowerCase("en-GB") === target.toLocaleLowerCase("en-GB") ? "Correct." : "Check this spelling."}</p><DiffReveal attempt={props.values[index]} expected={target} mode="word" /></div>)}</div>
+      <p className="rounded-2xl bg-emerald-100 p-4 font-semibold text-emerald-950">{fullText}</p>
+      <button type="button" autoFocus onClick={props.onContinue} className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950">Continue</button>
+    </>}
+    {error ? <p role="alert" className="text-rose-200">{error}</p> : null}
+  </section>;
 }
 function WholeSentenceDictation(props: SentenceDictationProps) {
   const inputId = useId();
@@ -90,7 +135,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
         />
       </div>
       <label htmlFor={inputId} className="text-sm font-semibold text-cyan-50">
-        Write the whole sentence
+        {props.writingLabel ?? "Write the whole sentence"}
       </label>
       <textarea
         id={inputId}
@@ -117,7 +162,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
           onClick={() => void checkSentence()}
           className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40"
         >
-          Check sentence
+          {props.writingLabel ? "Check passage" : "Check sentence"}
         </button>
       ) : (
         <>

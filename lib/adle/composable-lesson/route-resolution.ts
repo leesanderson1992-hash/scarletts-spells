@@ -52,6 +52,8 @@ import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "../infle
 import type { ComparativeLessonV1 } from "../inflection/contracts";
 import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
 import type { IngLessonV1 } from "../ing/contracts";
+import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "../homophone/snapshot";
+import type { HomophoneLessonSnapshotV1 } from "../homophone/lesson";
 
 export interface LessonRouteResolutionItem {
   id: string;
@@ -79,11 +81,13 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   "base_word_family_v1",
   "comparative_superlative_v1",
   "ing_endings_v1",
+  "homophone_v2",
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
 
 export type ResolvedLessonRuntime =
   | { adapterKey: "comparative_superlative_v1"; rendererKey: "comparative_superlative_guided"; payload: ComparativeLessonV1 }
   | { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided"; payload: IngLessonV1 }
+  | { adapterKey: "homophone_v2"; rendererKey: "homophone_guided"; payload: HomophoneLessonSnapshotV1 }
   | {
       adapterKey: "generic_composer_v1";
       rendererKey: "generic_session";
@@ -241,6 +245,7 @@ function runAdapter(
   switch (route.runtimeAdapterKey) {
     case "comparative_superlative_v1":
     case "ing_endings_v1":
+    case "homophone_v2":
       return { ok: false, blocker: "persisted_payload_missing" };
     case "generic_composer_v1":
       return {
@@ -482,6 +487,15 @@ export function resolvePersistedLessonRoute(input: {
     if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
     return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
       runtime: { adapterKey: "ing_endings_v1", rendererKey: "ing_endings_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
+  }
+  if (route.routeId === "homophone_word_lab") {
+    if (parsed.metadata.metadataSchemaVersion !== 2 || !isHomophoneSnapshotV3(input.compiledLessonSnapshot)) return blocked("persisted_metadata", "persisted_payload_missing");
+    const validation = validateHomophoneSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1", items: items.map(i => ({ sourceEntityId: i.sourceEntityId ?? "", position: i.position ?? 0, sectionKey: i.sectionKey,
+        canonicalWordId: i.canonicalWordId, templateKey: i.templateKey, targetWord: i.targetWord, promptData: i.promptData, metadata: i.itemMetadata })) });
+    if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
+    return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
+      runtime: { adapterKey: "homophone_v2", rendererKey: "homophone_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
   }
   let adapterItems = items;
   let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;

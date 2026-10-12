@@ -2,6 +2,7 @@ import "server-only";
 import { prepareComparativeAssignment } from "../inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "../inflection/contracts";
 import { prepareIngAssignment } from "../ing/readiness-loader";
+import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "../homophone/readiness-loader";
 import type { IngMicroSkill } from "../ing/contracts";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -89,7 +90,7 @@ async function append(input: {
     };
   }
   const routeId = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId;
-  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : "append_adle_specialist_stage_r6";
+  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : "append_adle_specialist_stage_r6";
   const result = await input.client.rpc(rpc, {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,
@@ -149,8 +150,18 @@ async function ensureSpecialistStageR6Internal(input: {
     return { outcome: "not_due", assignmentId: input.assignmentId };
   }
 
-  const routeId = resolveParentManualAdleRoute(selection.microSkillKey);
+  const routeId = await homophoneRouteSelectedForChild({ client: input.serviceClient, childId: input.childId,
+    microSkillKey: selection.microSkillKey, environmentKey: process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" })
+    ? "homophone_word_lab" : resolveParentManualAdleRoute(selection.microSkillKey);
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
+  if (routeId === "homophone_word_lab") {
+    const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
+    const prepared = await prepareHomophoneAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
+      date: input.assignmentDate, microSkillKey: selection.microSkillKey, learningItems: facts.learningItems, environmentKey });
+    if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
+    return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot,
+      items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
+  }
   if (routeId === "ing_endings_word_lab") {
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
     const prepared = await prepareIngAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,

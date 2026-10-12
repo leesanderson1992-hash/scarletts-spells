@@ -32,7 +32,7 @@ export function BinSortOverview(props: { items: readonly SortItem[]; bins: reado
   </section>;
 }
 
-export function BinSort(props: { items: SortItem[]; bins: SortBin[]; instruction?: string; feedbackPolicy?: "immediate" | "end_of_round"; muted?: boolean; incorrectMessage?: string; repeatedIncorrectMessage?: string; renderIncorrectFeedback?: (selected: SortBin) => ReactNode; initialComplete?: boolean; showOverview?: boolean; showBinDescriptions?: boolean; completionCopy?: CompletionCopy; onComplete?: (placements: Record<string, string>) => void; onContinue?: (placements: Record<string, string>) => void }) {
+export function BinSort(props: { items: SortItem[]; bins: SortBin[]; instruction?: string; feedbackPolicy?: "immediate" | "end_of_round"; muted?: boolean; incorrectMessage?: string; repeatedIncorrectMessage?: string; renderIncorrectFeedback?: (selected: SortBin) => ReactNode; onIncorrect?: (attempt: { item: SortItem; selectedBinId: string }) => void; initialComplete?: boolean; showOverview?: boolean; showBinDescriptions?: boolean; completionCopy?: CompletionCopy; onComplete?: (placements: Record<string, string>) => void; onContinue?: (placements: Record<string, string>) => void }) {
   const initiallyComplete = props.initialComplete === true;
   const [index, setIndex] = useState(initiallyComplete ? props.items.length : 0);
   const [placements, setPlacements] = useState<Record<string, string>>(initiallyComplete ? canonicalPlacements(props.items) : {});
@@ -63,6 +63,7 @@ export function BinSort(props: { items: SortItem[]; bins: SortBin[]; instruction
     if (!item || celebrating || complete) return;
     playInteractionSound("select", props.muted);
     if (binId !== item.destination) {
+      props.onIncorrect?.({ item, selectedBinId: binId });
       const nextMisses = misses + 1; setMisses(nextMisses); playInteractionSound("resist", props.muted);
       const selected = props.bins.find((candidate) => candidate.id === binId);
       setMessage(selected && props.renderIncorrectFeedback ? props.renderIncorrectFeedback(selected) : nextMisses > 1 ? props.repeatedIncorrectMessage ?? props.incorrectMessage ?? "That choice shows a different job. Try again." : props.incorrectMessage ?? "That choice shows a different job. Look at the word's meaning and try again.");
