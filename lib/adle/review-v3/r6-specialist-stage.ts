@@ -45,6 +45,7 @@ import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-p
 import type { LearningItemFact } from "../learning-items";
 import type { IsoDate } from "../review-scheduler";
 import { validateCompiledSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
+import { isReviewOnlyR6Day } from "./r6-specialist-eligibility";
 
 type Client = SupabaseClient;
 
@@ -122,6 +123,16 @@ async function ensureSpecialistStageR6Internal(input: {
     childId: input.childId,
     today: input.assignmentDate as IsoDate,
   });
+  // The R6 review has already finished. A day above the review cap is still
+  // review-only, even when a real learning-item cluster is ready for a future
+  // lesson. Apply this before dispatching either generic or specialist routes.
+  if (isReviewOnlyR6Day(facts, input.assignmentDate as IsoDate)) {
+    const completed = await input.serviceClient.rpc("complete_adle_review_only_session_r6", {
+      p_daily_assignment_id: input.assignmentId,
+    });
+    if (completed.error) throw new Error(`completeReviewOnlySessionR6: ${completed.error.message}`);
+    return { outcome: "not_due", assignmentId: input.assignmentId };
+  }
   const selection = selectPartTwoSkill({
     learningItems: facts.learningItems.filter((item) => item.childId === input.childId),
     skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,

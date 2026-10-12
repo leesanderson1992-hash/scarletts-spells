@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { REVIEW_CHALLENGE_TYPES, type ReviewChallengeType } from "../lib/adle/review-v3/contracts";
+import { isReviewOnlyR6Day } from "../lib/adle/review-v3/r6-specialist-eligibility";
+import { REVIEW_POLICY_V1, type ScheduleWordFact } from "../lib/adle/review-scheduler";
 import {
   compileReviewSnapshotR6,
   selectInitialReviewChallengeR6,
@@ -339,6 +341,30 @@ assert.match(learnerPage, /form action=\{openTodayAdleSessionAction\}/,
   "Today's Lesson must enter through a POST server action");
 assert.doesNotMatch(learnerPage, /href=\{buildScopedPath\("\/learn\/week\/adle"/,
   "the historical passive Today link must be removed");
+
+const reviewDay = "2026-10-07";
+const reviewBundle = {
+  bundleId: "due-bundle", childId: "child-r6", sourceRef: "fixture",
+  intervalIndex: 0, nextDueOn: reviewDay,
+  schedulePolicyVersion: REVIEW_POLICY_V1.schedulePolicyVersion,
+  bundleStatus: "active" as const, rowStatus: "active" as const,
+};
+const scheduledWord = (index: number): ScheduleWordFact => ({
+  childId: "child-r6", canonicalWordId: `word-${index}`,
+  bundleId: reviewBundle.bundleId, membershipStatus: "scheduled",
+  catchUpStage: 0, nextRetestDueOn: null, failedReviewOn: null,
+  preRetirementCheckDueOn: null, last28DayReviewOn: null,
+  reteachCycleCount: 0, taughtOn: "2026-09-01", rowStatus: "active",
+});
+const tenDueWords = Array.from({ length: 10 }, (_, index) => scheduledWord(index));
+const oneDueRetest: ScheduleWordFact = {
+  ...scheduledWord(10), membershipStatus: "catch_up", catchUpStage: 1,
+  nextRetestDueOn: reviewDay,
+};
+assert.equal(isReviewOnlyR6Day({ reviewPolicy: REVIEW_POLICY_V1, bundles: [reviewBundle], scheduleWords: tenDueWords }, reviewDay), false,
+  "a lesson remains eligible at the exact review cap");
+assert.equal(isReviewOnlyR6Day({ reviewPolicy: REVIEW_POLICY_V1, bundles: [reviewBundle], scheduleWords: [...tenDueWords, oneDueRetest] }, reviewDay), true,
+  "a due catch-up word over the cap makes the completed R6 day review-only");
 
 console.log(JSON.stringify({
   status: "PASS",
