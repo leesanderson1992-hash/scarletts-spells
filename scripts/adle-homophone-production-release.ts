@@ -20,6 +20,7 @@ const MIGRATIONS = [
   "20261012170500_adle_homophone_release_v2.sql",
   "20261012171000_adle_homophone_finish_v2.sql",
   "20261012171500_adle_homophone_activation_dependency_count.sql",
+  "20261012172000_adle_homophone_parent_checkpoint.sql",
 ] as const;
 
 function argument(name: string): string | undefined {

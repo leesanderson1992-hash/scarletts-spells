@@ -37,7 +37,7 @@ async function main() {
       create table assignment_items(id uuid primary key default gen_random_uuid(),daily_assignment_id uuid,child_id uuid,parent_user_id uuid,domain_module text,item_type text,source_type text,source_entity_id text,template_key text,target_word text,position int,status text,prompt_data jsonb,metadata jsonb);
       create table children(id uuid,parent_user_id uuid,is_archived boolean);
       create table adle_learning_items(id uuid,child_id uuid,canonical_word_id uuid,micro_skill_key text,row_status text,item_status text,source_kind text,reteach_priority boolean,ejected_on date,updated_at timestamptz);
-      create table adle_specialist_stage_checkpoints(daily_assignment_id uuid primary key,adapter_key text,checkpoint_schema_version text,checkpoint_payload jsonb,lesson_snapshot_fingerprint text,completed_at timestamptz);
+      create table adle_specialist_stage_checkpoints(daily_assignment_id uuid primary key,child_id uuid,parent_user_id uuid,adapter_key text,checkpoint_schema_version text,checkpoint_payload jsonb,lesson_snapshot_fingerprint text,state_version int,completed_at timestamptz,updated_at timestamptz);
       create function adle_lesson_route_metadata_is_valid_v2(jsonb) returns boolean language sql as $$select true$$;
       create function adle_release_activation_allows_child_v2(uuid,uuid) returns boolean language sql as $$select true$$;
       create function adle_route_activation_revision_is_current_v2(uuid,uuid,text,text) returns boolean language sql as $$select true$$;
@@ -57,7 +57,7 @@ async function main() {
     for (const name of ["adle_generic_lesson_snapshot_is_structurally_valid_v3", "adle_specialist_lesson_snapshot_is_structurally_valid_v3", "adle_dynamic_affix_specialist_snapshot_is_structurally_valid_v3", "adle_prefix_base_specialist_snapshot_is_structurally_valid_v3", "adle_comparative_snapshot_valid_v3", "adle_ing_snapshot_valid_v3"]) {
       await db.exec(`create function ${name}(jsonb) returns boolean language sql as $$select true$$;`);
     }
-    for (const file of ["20261012170000_adle_homophone_route_v2.sql", "20261012170500_adle_homophone_release_v2.sql", "20261012171000_adle_homophone_finish_v2.sql", "20261012171500_adle_homophone_activation_dependency_count.sql"]) {
+    for (const file of ["20261012170000_adle_homophone_route_v2.sql", "20261012170500_adle_homophone_release_v2.sql", "20261012171000_adle_homophone_finish_v2.sql", "20261012171500_adle_homophone_activation_dependency_count.sql", "20261012172000_adle_homophone_parent_checkpoint.sql"]) {
       await db.exec(readFileSync(`supabase/migrations/${file}`, "utf8"));
     }
     const canonicalWords: Record<string, Record<string, string>> = {};
@@ -121,8 +121,8 @@ async function main() {
       progress.stage = "reflection"; progress.binSortCompleted = true; progress.balloonCompleted = true; progress.reflectionResponse = "I will use the meaning clue.";
       for (const word of lesson.words) progress.coverAttempts[word.word] = word.word;
       lesson.dictationPassages.forEach((passage, index) => { progress.dictationValues[String(index)] = [...passage.targets]; progress.dictationChecked[String(index)] = true; });
-      await db.query("insert into adle_specialist_stage_checkpoints(daily_assignment_id,adapter_key,checkpoint_schema_version,checkpoint_payload,lesson_snapshot_fingerprint) values($1,'homophone_v2','homophone_progress_v1',$2,$3)",
-        [assignmentId, { state: progress }, compiled.snapshot.provenance.sourceFingerprint]);
+      const checkpointArgs = [assignmentId, childId, parentUserId, compiled.snapshot.provenance.sourceFingerprint, { state: progress }, 0];
+      assert.equal((await db.query("select persist_adle_homophone_checkpoint_v2($1,$2,$3,$4,$5,$6) result", checkpointArgs)).rows[0].result.stateVersion, 1);
       const altered = structuredClone(progress); altered.coverAttempts[lesson.words[0].word] = "altered";
       await assert.rejects(db.query("update adle_specialist_stage_checkpoints set checkpoint_payload=$2 where daily_assignment_id=$1", [assignmentId, { state: altered }]));
       const itemRows = (await db.query("select * from assignment_items where daily_assignment_id=$1 order by position", [assignmentId])).rows;

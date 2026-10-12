@@ -280,7 +280,16 @@ export async function persistAdleSpecialistCheckpointR6Action(request: {
       if (replayVersion !== null) return { stateVersion: replayVersion };
     }
   }
-  const result = await serviceClient.rpc("persist_adle_specialist_checkpoint_r6", {
+  const result = request.adapterKey === "homophone_v2"
+    ? await serviceClient.rpc("persist_adle_homophone_checkpoint_v2", {
+      p_daily_assignment_id: request.assignmentId,
+      p_child_id: header.data.child_id,
+      p_parent_user_id: user.id,
+      p_lesson_snapshot_fingerprint: request.lessonSnapshotFingerprint,
+      p_checkpoint_payload: request.checkpointPayload,
+      p_expected_state_version: request.expectedStateVersion,
+    })
+    : await serviceClient.rpc("persist_adle_specialist_checkpoint_r6", {
     p_daily_assignment_id: request.assignmentId,
     p_child_id: header.data.child_id,
     p_parent_user_id: user.id,
@@ -290,7 +299,7 @@ export async function persistAdleSpecialistCheckpointR6Action(request: {
     p_checkpoint_payload: request.checkpointPayload,
     p_expected_state_version: request.expectedStateVersion,
     p_mark_completed: false,
-  });
+    });
   if (result.error) throw new Error(`persistAdleSpecialistCheckpointR6: ${result.error.message}`);
   const stateVersion = (result.data as { stateVersion?: number } | null)?.stateVersion;
   if (!Number.isInteger(stateVersion)) throw new Error("adle_specialist_checkpoint_response_invalid");
