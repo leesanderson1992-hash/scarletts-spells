@@ -208,6 +208,8 @@ export function calculateShadowProficiency(input: ShadowInput): ShadowSkillResul
         gate("positive_days", days.length, row.days), gate("elapsed_days", elapsed, row.elapsed)];
       if (row.lookback) gates.push(maximumGate("unresolved_causal_errors", recentNegatives.length, row.unresolved));
       const blockedReasons = [...(skill.profile === "PRODUCTIVE_PATTERN_DEFAULT" && pool.length < row.floor ? ["allocation_limited"] : []),
+        ...(skill.profile === "PRODUCTIVE_PATTERN_DEFAULT" && governedGroups.size < groupMin && !skill.groupsUnavailableApproved &&
+          pool.every((word) => word.groupIds !== null) ? ["allocation_limited:representative_groups"] : []),
         ...(requiredBands.some((band) => !populated.has(band)) ? ["allocation_limited:required_band_missing"] : []),
         ...(level === 1 && observedBands.size === 0 ? ["observed_band_missing"] : []),
         ...missingBands.map((band) => `band_not_demonstrated:${band}`)];

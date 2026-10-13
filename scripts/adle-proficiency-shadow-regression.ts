@@ -65,4 +65,9 @@ assert.equal(unstable.achievedLevel, 1);
 const recovered = calculateShadowProficiency({ ...base, projections: [...controlled, oneContext, twoContext, negative], resolvedNegativeEventIds: ["negative-event"] })[0];
 assert.equal(recovered.achievedLevel, 3);
 
+const productive = calculateShadowProficiency({ ...base, skills: [{ key: "D4_HOM_TEST", label: "Pattern test", profile: "PRODUCTIVE_PATTERN_DEFAULT" }],
+  projections: [...controlled, oneContext, twoContext] })[0];
+assert.ok(productive.levels[3].blockedReasons.includes("allocation_limited:representative_groups"),
+  "too few reviewed groups is a content limit, not a learner shortfall");
+
 console.log("ADLE five-level shadow regression passed");
