@@ -408,11 +408,22 @@ export async function loadDailyPlanFacts(
     ),
   ]);
 
-  const contextualPairRows = await rows<{ micro_skill_key: string }>(
-    client.from("contextual_micro_skill_pairs").select("micro_skill_key"),
-    "loadDailyPlanFacts:contextualSkillPairs",
-  );
+  const [contextualPairRows, contextualDemandRows] = await Promise.all([
+    rows<{ micro_skill_key: string }>(
+      client.from("contextual_micro_skill_pairs").select("micro_skill_key"),
+      "loadDailyPlanFacts:contextualSkillPairs",
+    ),
+    rows<{ micro_skill_key: string; confirmed_count: number; threshold_count: number; demand_status: string }>(
+      client.from("contextual_micro_skill_demands")
+        .select("micro_skill_key,confirmed_count,threshold_count,demand_status")
+        .eq("child_id", childId),
+      "loadDailyPlanFacts:contextualSkillDemands",
+    ),
+  ]);
   const contextualSkillKeys = new Set(contextualPairRows.map((row) => row.micro_skill_key));
+  const homophoneThresholdMetSkillKeys = new Set(contextualDemandRows
+    .filter((row) => row.demand_status === "READY" && row.confirmed_count >= row.threshold_count)
+    .map((row) => row.micro_skill_key));
 
   if (bandingVersionRows.length !== 1) {
     throw new Error(
@@ -716,6 +727,7 @@ export async function loadDailyPlanFacts(
     ])),
     skillFamilyKeyBySkill,
     contextualSkillKeys,
+    homophoneThresholdMetSkillKeys,
     learningItems,
     // No taxonomy prerequisite storage exists yet; the tier is pinned
     // fail-open on empty facts (Slice 6 pin).

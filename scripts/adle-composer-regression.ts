@@ -464,6 +464,30 @@ function planFacts(overrides: Partial<DailyPlanFacts>): DailyPlanFacts {
   assert(paused.microSkillKey === null, "paused items are not real unresolved items");
 }
 
+{
+  const skill = "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE";
+  const thresholdItem = item({ canonicalWordId: "their", microSkillKey: skill,
+    sourceKind: "parent_verified_contextual_choice",
+    sourceRef: `contextual_skill_threshold:${CHILD}:${skill}` });
+  const facts = (learningItems: LearningItemFact[]) => selectionFacts(learningItems, {
+    skillFamilyKeyBySkill: new Map([[skill, "D4_HOM"]]),
+    homophoneThresholdMetSkillKeys: new Set([skill]),
+  });
+  assert(selectPartTwoSkill(facts([thresholdItem])).microSkillKey === skill,
+    "one threshold-backed homophone item selects the full contrast lesson");
+  assert(selectPartTwoSkill(selectionFacts([thresholdItem], {
+    skillFamilyKeyBySkill: new Map([[skill, "D4_HOM"]]),
+  })).microSkillKey === null, "a single incident without a verified demand does not select a homophone lesson");
+  assert(selectPartTwoSkill(facts([{ ...thresholdItem, sourceKind: "verified_misspelling", sourceRef: "existing-word-item" }])).microSkillKey === skill,
+    "two confirmed instances can select an older item for the same homophone set");
+  assert(selectPartTwoSkill(facts([thresholdItem,
+    { ...thresholdItem, learningItemId: "review-item", canonicalWordId: "there", itemStatus: "awaiting_review_outcome" }])).microSkillKey === null,
+    "a homophone in review blocks another lesson for the same contrast set");
+  assert(selectPartTwoSkill(facts([thresholdItem,
+    { ...thresholdItem, learningItemId: "lesson-item", canonicalWordId: "there", itemStatus: "in_lesson" }])).microSkillKey === null,
+    "a homophone already in a lesson cannot trigger a second lesson");
+}
+
 // ---------------------------------------------------------------------------
 // 5-word fill and probe rules
 // ---------------------------------------------------------------------------

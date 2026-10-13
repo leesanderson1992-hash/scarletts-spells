@@ -33,9 +33,11 @@ import {
   type LearningItemFact,
 } from "./learning-items";
 import type { IsoDate } from "./review-scheduler";
+import { getHomophoneLesson } from "./homophone/lesson";
 
-/** The selectability gate: a skill is a candidate only with at least this
- * many real unresolved learning items (blueprint 5-word rule). */
+/** The general selectability gate. Approved homophone lessons can use one
+ * threshold-backed item because the two occurrences are stored as one
+ * word-level learning need. */
 export const MIN_SELECTABLE_ITEMS = 2;
 
 export interface SkillSelectionFacts {
@@ -60,6 +62,8 @@ export interface SkillSelectionFacts {
   frequencyBandByWordId: ReadonlyMap<string, string | null>;
   /** The immediately previous lesson's family, for the rotation tier. */
   previousLessonFamilyKey: string | null;
+  /** Child/skill demands that have reached their governed occurrence count. */
+  homophoneThresholdMetSkillKeys?: ReadonlySet<string>;
 }
 
 export type SkillSelectionTier =
@@ -94,9 +98,17 @@ function sortedKeys(keys: Iterable<string>): string[] {
 export function selectPartTwoSkill(facts: SkillSelectionFacts): SkillSelectionResult {
   const audit: SkillSelectionAuditEntry[] = [];
   const clusters = clustersBySkill(facts.learningItems);
+  const homophoneInReview = new Set(facts.learningItems
+    .filter((item) => item.rowStatus === "active" &&
+      (item.itemStatus === "in_lesson" || item.itemStatus === "awaiting_review_outcome") &&
+      getHomophoneLesson(item.microSkillKey) !== null)
+    .map((item) => item.microSkillKey));
   const candidates = sortedKeys(
     [...clusters.entries()]
-      .filter(([, items]) => items.length >= MIN_SELECTABLE_ITEMS)
+      .filter(([skill, items]) => !homophoneInReview.has(skill) &&
+        (items.length >= MIN_SELECTABLE_ITEMS ||
+          (getHomophoneLesson(skill) !== null && items.length === 1 &&
+            facts.homophoneThresholdMetSkillKeys?.has(skill) === true)))
       .map(([skill]) => skill),
   );
   audit.push({
@@ -104,7 +116,7 @@ export function selectPartTwoSkill(facts: SkillSelectionFacts): SkillSelectionRe
     candidatesBefore: sortedKeys(clusters.keys()),
     candidatesAfter: candidates,
     decided: candidates.length === 1,
-    detail: `skills with >= ${MIN_SELECTABLE_ITEMS} real unresolved learning items`,
+    detail: `homophone lessons need one pending item after two confirmed instances; other skills need >= ${MIN_SELECTABLE_ITEMS}; active review blocks another homophone lesson`,
   });
   if (candidates.length === 0) {
     return {

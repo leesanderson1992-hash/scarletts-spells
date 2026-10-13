@@ -141,6 +141,7 @@ async function ensureSpecialistStageR6Internal(input: {
     notYetSecureSkillKeys: facts.notYetSecureSkillKeys,
     frequencyBandByWordId: facts.frequencyBandByWordId,
     previousLessonFamilyKey: facts.previousLessonFamilyKey,
+    homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
   });
   if (!selection.microSkillKey) {
     const completed = await input.serviceClient.rpc("complete_adle_review_only_session_r6", {

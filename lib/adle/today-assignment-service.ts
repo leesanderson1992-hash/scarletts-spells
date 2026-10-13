@@ -378,6 +378,7 @@ export async function ensureParentAdleTodayAssignment(params: {
       notYetSecureSkillKeys: facts.notYetSecureSkillKeys,
       frequencyBandByWordId: facts.frequencyBandByWordId,
       previousLessonFamilyKey: facts.previousLessonFamilyKey,
+      homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
     });
     if (!selection.microSkillKey) {
       const result = {

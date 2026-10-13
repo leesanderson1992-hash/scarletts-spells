@@ -179,6 +179,8 @@ export interface DailyPlanFacts {
   skillFamilyKeyBySkill: ReadonlyMap<string, string>;
   /** Skills governed by approved contextual word pairs, across any D4 family. */
   contextualSkillKeys?: ReadonlySet<string>;
+  /** Child's contextual contrast skills with enough distinct confirmed errors. */
+  homophoneThresholdMetSkillKeys?: ReadonlySet<string>;
   learningItems: readonly LearningItemFact[];
   prerequisiteKeysBySkill: ReadonlyMap<string, readonly string[]>;
   /** Slice 6 wiring of the Slice 5 (5D) extension: injected by the loader
@@ -496,6 +498,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
       notYetSecureSkillKeys: facts.notYetSecureSkillKeys,
       frequencyBandByWordId: facts.frequencyBandByWordId,
       previousLessonFamilyKey: facts.previousLessonFamilyKey,
+      homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
     };
     const selection = selectPartTwoSkill(selectionFacts);
     selectionAudit = selection.audit;
