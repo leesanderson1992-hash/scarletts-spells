@@ -1,6 +1,8 @@
-/** Governed homophone release for a single disposable production canary child.
+/** Governed homophone release for a disposable canary or all eligible children.
  * Run with NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-homophone-production-release.ts
  * Commands: inspect | install | publish | enable | disable. Mutations require --apply.
+ * All-eligible activation additionally requires --all-eligible and is only
+ * valid after the exact release commit has been deployed and verified.
  */
 import { createHash } from "node:crypto";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
@@ -10,7 +12,7 @@ import pg from "pg";
 import { assertApprovedHomophoneContent } from "../lib/adle/homophone/approved-content";
 import { HOMOPHONE_LESSONS } from "../lib/adle/homophone/lesson";
 import { buildHomophoneReleasePackage } from "../lib/adle/homophone/release";
-import { childAllowlistActivationReport } from "../lib/adle/route-activation-scope";
+import { allEligibleActivationReport, childAllowlistActivationReport } from "../lib/adle/route-activation-scope";
 
 const PROJECT_REF = "wwohrqtunajrbwxyssjf";
 const RELEASE_KEY = "d4-hom-v4-approved-2026-10-12";
@@ -112,35 +114,39 @@ async function main() {
     }
     assert(release.rows.length === 1, "homophone_release_not_published");
     const childId = argument("--child-id");
-    assert(childId, "homophone_canary_child_id_required");
-    const report = childAllowlistActivationReport([childId]);
-    const child = await db.query<{ id: string }>("select id from children where id=$1 and is_archived=false", [childId]);
-    assert(child.rows.length === 1, "homophone_canary_child_unavailable");
+    const allEligible = process.argv.includes("--all-eligible");
+    assert(allEligible !== Boolean(childId), "homophone_exactly_one_activation_scope_required");
+    const report = allEligible ? allEligibleActivationReport() : childAllowlistActivationReport([childId!]);
+    if (childId) {
+      const child = await db.query<{ id: string }>("select id from children where id=$1 and is_archived=false", [childId]);
+      assert(child.rows.length === 1, "homophone_canary_child_unavailable");
+    }
     const status = command === "enable" ? "enabled" : "safety_revoked";
     const heads = await db.query<{ micro_skill_key: string; current_revision_id: string; release_manifest_id: string }>(`
       select head.micro_skill_key,head.current_revision_id,revision.release_manifest_id from adle_route_activation_heads head
       join adle_route_activation_revisions revision on revision.id=head.current_revision_id
       where head.environment_key='production' and head.route_id='homophone_word_lab' and head.route_version='v2'`);
     assert(heads.rows.every(row => row.release_manifest_id === release.rows[0].id), "homophone_foreign_release_active");
-    if (!apply) { console.log(JSON.stringify({ command, target: "production", childId, skillCount: HOMOPHONE_LESSONS.length,
+    if (!apply) { console.log(JSON.stringify({ command, target: "production", scope: allEligible ? "all_eligible" : "child_allowlist", skillCount: HOMOPHONE_LESSONS.length,
       currentHeads: heads.rows.length, mutationPerformed: false })); await db.query("rollback"); return; }
     for (const lesson of HOMOPHONE_LESSONS) {
       const current = heads.rows.find(row => row.micro_skill_key === lesson.microSkillKey);
       await db.query("select set_adle_route_activation_revision_v2($1,$2,'production',$3,$4,$5::jsonb,$6,$7,$8)", [
         release.rows[0].release_manifest_sha256, lesson.microSkillKey, status,
         status === "enabled" ? "allow_existing" : "block_incomplete", report,
-        current?.current_revision_id ?? null, "homophone-production-canary",
-        `Approved v4 homophone ${command} for disposable canary child`,
+        current?.current_revision_id ?? null, allEligible ? "homophone-production-rollout" : "homophone-production-canary",
+        `Approved v4 homophone ${command} for ${allEligible ? "all eligible children" : "disposable canary child"}`,
       ]);
     }
     const check = await db.query<{ n: number }>(`
       select count(*)::int n from adle_route_activation_heads head
       join adle_route_activation_revisions revision on revision.id=head.current_revision_id
       where head.environment_key='production' and head.route_id='homophone_word_lab' and head.route_version='v2'
-        and revision.activation_status=$1 and revision.release_manifest_id=$2`, [status, release.rows[0].id]);
+        and revision.activation_status=$1 and revision.release_manifest_id=$2
+        and revision.readiness_report=$3::jsonb`, [status, release.rows[0].id, JSON.stringify(report)]);
     assert(check.rows[0]?.n === HOMOPHONE_LESSONS.length, "homophone_activation_readback_failed");
     await db.query("commit");
-    console.log(JSON.stringify({ command, target: "production", childId, skillCount: check.rows[0].n, status }));
+    console.log(JSON.stringify({ command, target: "production", scope: allEligible ? "all_eligible" : "child_allowlist", skillCount: check.rows[0].n, status }));
   } catch (error) { await db.query("rollback").catch(() => undefined); throw error; }
   finally { await db.end(); }
 }
