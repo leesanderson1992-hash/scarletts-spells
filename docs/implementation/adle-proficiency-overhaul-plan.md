@@ -9,6 +9,13 @@ PHASE C COMPLETE IN SHADOW — WHOLE-WRITING EXTENSION AVAILABLE
 PHASE D / D2 READY — APPROVED V1 POLICY REQUIRES DATA RECONCILIATION
 ```
 
+The 13 October 2026 bounded Scarlett shadow implementation adds a read-only
+V1 calculation and admin comparison without completing Phase D/D2, S9, or
+Phase E certification. Its [Production source-readiness audit](qa/adle-proficiency-shadow-scarlett-readiness-2026-10-13.md)
+records the missing representative-group and qualified whole-writing inputs.
+The released Slice 5 projection and all consequential consumers remain in
+force.
+
 Classification: `ACTIVE_IMPLEMENTATION_ROADMAP`
 
 Phase A changed documentation governance only. It changed no runtime,

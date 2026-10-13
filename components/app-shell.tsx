@@ -53,6 +53,7 @@ const adminNav: NavItem[] = [
 const adminMore: NavItem[] = [
   { label: "Word–skill Review", href: "/admin/word-skill-review", icon: "✓" },
   { label: "Whole-writing Evidence", href: "/admin/whole-writing-evidence", icon: "▥" },
+  { label: "ADLE Proficiency Shadow", href: "/admin/adle-proficiency-shadow", icon: "◈" },
   { label: "Resolver Readiness", href: "/admin/spelling-canonical-resolver-readiness", icon: "◇" },
   { label: "Context Diagnostics", href: "/admin/context-diagnostics", icon: "⌕" },
   { label: "Activity Catalogue", href: "/admin/adle/activity-catalogue", icon: "▤" },

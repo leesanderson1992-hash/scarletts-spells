@@ -67,16 +67,17 @@ function isoDateOrTimestamp(value: string | null | undefined): string {
 export async function loadLearnerEvidenceProjection(params: {
   client: SupabaseClient;
   relationshipAuthority: CanonicalWordSkillRelationshipReadResult;
+  /** Scope source reads before projection; required by learner-specific admin reports. */
+  learnerId?: string;
 }): Promise<LearnerEvidenceProjectionResult> {
   const client = params.client;
+  const childOnly = (query: any) => params.learnerId ? query.eq("child_id", params.learnerId) : query;
   const [
     wordRows,
     skillRows,
     resolverRows,
     assignmentRows,
-    reviewEncounterRows,
     reviewOutcomeRows,
-    repairRows,
     authenticRows,
     slippageRows,
     taughtRows,
@@ -85,36 +86,39 @@ export async function loadLearnerEvidenceProjection(params: {
     taskSubmissionRows,
     writingSampleRows,
     candidateMappingRows,
-    verificationRows,
-    reviewSessionRows,
-    reviewIssueLinkRows,
     correctionAttemptRows,
     writingIssueRows,
-    treasureRows,
     treasureCandidateRows,
   ] = await Promise.all([
     readAll<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status"),
     readAll<any>(client, "micro_skill_catalog", "micro_skill_key,is_active", undefined, "micro_skill_key"),
     readAll<any>(client, "spelling_canonical_mappings", "id,correct_spelling_normalized,misspelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version"),
-    readAll<any>(client, "adle_assignment_attempt_events", "id,child_id,canonical_word_id,created_at,attempt_text,is_correct,attempt_kind,evidence_class,section_key,template_key,source_ref"),
-    readAll<any>(client, "adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id"),
-    readAll<any>(client, "adle_review_outcome_events", "id,child_id,canonical_word_id,event_type,occurred_on,created_at,review_encounter_id,original_result,result_source,original_attempted_at,attempt_text,source_provenance"),
-    readAll<any>(client, "adle_review_repair_attempts", "id,review_encounter_id,assignment_attempt_event_id"),
-    readAll<any>(client, "adle_authentic_use_events", "id,child_id,canonical_word_id,occurred_on,verified_at,use_kind,parent_verified,piece_ref,source_ref,row_status,provenance_kind,review_encounter_id"),
-    readAll<any>(client, "adle_slippage_events", "id,child_id,canonical_word_id,occurred_on,context_kind,self_corrected,attempt_text,source_ref,row_status"),
-    readAll<any>(client, "adle_taught_word_history", "id,child_id,canonical_word_id,occurred_on,source_ref,row_status"),
-    readAll<any>(client, "practice_attempts", "id,child_id,target_word,submitted_word,is_correct,attempt_mode,attempted_at"),
-    readAll<any>(client, "learning_item_evidence", "id,child_id,writing_issue_id,task_submission_id,evidence_type,source_context,metadata,created_at"),
-    readAll<any>(client, "task_submissions", "id,child_id,submitted_at,parent_review_status"),
-    readAll<any>(client, "writing_samples", "id,child_id,task_submission_id,written_at,created_at,review_completed_at"),
-    readAll<any>(client, "parent_verified_spelling_candidate_mappings", "id,child_id,parent_verification_id,task_submission_id,writing_sample_id,source_adle_review_session_id,source_provenance,reviewed_event_source_entity_id,correct_spelling_normalized,micro_skill_key,candidate_status,created_at,authority_version,metadata"),
-    readAll<any>(client, "parent_verifications", "id,decision,verified_at,source_entity_id"),
-    readAll<any>(client, "adle_review_sessions", "id,writing_submitted_at"),
-    readAll<any>(client, "adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id"),
-    readAll<any>(client, "writing_issue_correction_attempts", "id,writing_issue_id,child_id,task_submission_id,attempted_correction,created_at"),
-    readAll<any>(client, "writing_issues", "id,child_id,approved_replacement,suggested_replacement,task_submission_id,micro_skill_key,metadata"),
-    readAll<any>(client, "child_word_treasures", "id,corrected_word"),
-    readAll<any>(client, "child_word_treasure_evidence_candidates", "id,treasure_id,child_id,task_submission_id,confirmation_status,created_at,metadata"),
+    readAll<any>(client, "adle_assignment_attempt_events", "id,child_id,canonical_word_id,created_at,attempt_text,is_correct,attempt_kind,evidence_class,section_key,template_key,source_ref", childOnly),
+    readAll<any>(client, "adle_review_outcome_events", "id,child_id,canonical_word_id,event_type,occurred_on,created_at,review_encounter_id,original_result,result_source,original_attempted_at,attempt_text,source_provenance", childOnly),
+    readAll<any>(client, "adle_authentic_use_events", "id,child_id,canonical_word_id,occurred_on,verified_at,use_kind,parent_verified,piece_ref,source_ref,row_status,provenance_kind,review_encounter_id", childOnly),
+    readAll<any>(client, "adle_slippage_events", "id,child_id,canonical_word_id,occurred_on,context_kind,self_corrected,attempt_text,source_ref,row_status", childOnly),
+    readAll<any>(client, "adle_taught_word_history", "id,child_id,canonical_word_id,occurred_on,source_ref,row_status", childOnly),
+    readAll<any>(client, "practice_attempts", "id,child_id,target_word,submitted_word,is_correct,attempt_mode,attempted_at", childOnly),
+    readAll<any>(client, "learning_item_evidence", "id,child_id,writing_issue_id,task_submission_id,evidence_type,source_context,metadata,created_at", childOnly),
+    readAll<any>(client, "task_submissions", "id,child_id,submitted_at,parent_review_status", childOnly),
+    readAll<any>(client, "writing_samples", "id,child_id,task_submission_id,written_at,created_at,review_completed_at", childOnly),
+    readAll<any>(client, "parent_verified_spelling_candidate_mappings", "id,child_id,parent_verification_id,task_submission_id,writing_sample_id,source_adle_review_session_id,source_provenance,reviewed_event_source_entity_id,correct_spelling_normalized,micro_skill_key,candidate_status,created_at,authority_version,metadata", childOnly),
+    readAll<any>(client, "writing_issue_correction_attempts", "id,writing_issue_id,child_id,task_submission_id,attempted_correction,created_at", childOnly),
+    readAll<any>(client, "writing_issues", "id,child_id,approved_replacement,suggested_replacement,task_submission_id,micro_skill_key,metadata", childOnly),
+    readAll<any>(client, "child_word_treasure_evidence_candidates", "id,treasure_id,child_id,task_submission_id,confirmation_status,created_at,metadata", childOnly),
+  ]);
+  const ids = (values: readonly (string | null | undefined)[]) => [...new Set(values.filter((value): value is string => !!value))];
+  const scopedRead = (table: string, columns: string, values: string[], column = "id") =>
+    values.length ? readAll<any>(client, table, columns, (query) => query.in(column, values)) : Promise.resolve([] as any[]);
+  const [reviewEncounterRows, repairRows, verificationRows, reviewSessionRows, reviewIssueLinkRows, treasureRows] = await Promise.all([
+    params.learnerId ? scopedRead("adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id", ids([
+      ...reviewOutcomeRows.map((row) => row.review_encounter_id), ...authenticRows.map((row) => row.review_encounter_id),
+    ])) : readAll<any>(client, "adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id"),
+    params.learnerId ? scopedRead("adle_review_repair_attempts", "id,review_encounter_id,assignment_attempt_event_id", ids(assignmentRows.map((row) => row.id)), "assignment_attempt_event_id") : readAll<any>(client, "adle_review_repair_attempts", "id,review_encounter_id,assignment_attempt_event_id"),
+    params.learnerId ? scopedRead("parent_verifications", "id,decision,verified_at,source_entity_id", ids(candidateMappingRows.map((row) => row.parent_verification_id))) : readAll<any>(client, "parent_verifications", "id,decision,verified_at,source_entity_id"),
+    params.learnerId ? scopedRead("adle_review_sessions", "id,writing_submitted_at", ids(candidateMappingRows.map((row) => row.source_adle_review_session_id))) : readAll<any>(client, "adle_review_sessions", "id,writing_submitted_at"),
+    params.learnerId ? scopedRead("adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id", ids(candidateMappingRows.map((row) => row.id)), "candidate_mapping_id") : readAll<any>(client, "adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id"),
+    params.learnerId ? scopedRead("child_word_treasures", "id,corrected_word", ids(treasureCandidateRows.map((row) => row.treasure_id))) : readAll<any>(client, "child_word_treasures", "id,corrected_word"),
   ]);
 
   const activeWords = wordRows.filter((row) => row.row_status === "active");
