@@ -109,5 +109,29 @@ await db.query("insert into adle_reviewed_word_skill_releases values($1,'local')
 await db.query("insert into adle_reviewed_word_skill_pairs values($1,$2,$3)", [outside, a, skill]);
 await assert.rejects(db.query("select withdraw_teaching_dictionary_manager_skill_pair($1,$2,$3,$4)", ["local", skill, a, actor]));
 assert.equal((await db.query("select count(*)::integer count from adle_reviewed_word_skill_withdrawals where release_id='55555555-5555-4555-8555-555555555555'")).rows[0].count, 0);
+await db.exec(readFileSync("supabase/migrations/20261014150000_teaching_dictionary_bulk_review_reconciliation.sql", "utf8"));
+await db.query("update adle_word_skill_review_controls set publication_enabled=true where environment_key='local'");
+const c = "88888888-8888-4888-8888-888888888888";
+const d = "99999999-9999-4999-8999-999999999999";
+const e = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
+const mixedRequest = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
+for (const id of [c, d, e]) await db.query("insert into canonical_teaching_dictionary_words values($1,'active','approved_for_first_exposure')", [id]);
+await db.query(`insert into teaching_dictionary_bulk_review_exclusions
+  (environment_key,micro_skill_key,canonical_word_id,reviewed_by) values('local',$1,$2,$3)`, [skill, e, actor]);
+await db.query("select * from prepare_teaching_dictionary_bulk_skill_approvals($1,$2,$3::uuid[],$4::uuid,$5::uuid)",
+  ["local", skill, [c], actor, mixedRequest]);
+const reconcile = ["local", skill, [c], [d], [e], actor, mixedRequest, "fingerprint"];
+await db.query("insert into test_publish_failure values($1)", [c]);
+await assert.rejects(db.query("select reconcile_teaching_dictionary_bulk_review($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid,$7::uuid,$8)", reconcile));
+assert.equal((await db.query("select count(*)::integer count from adle_word_skill_package_publications")).rows[0].count, 2);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1", [d])).rows[0].count, 0);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1", [e])).rows[0].count, 1);
+await db.query("delete from test_publish_failure where word_id=$1", [c]);
+const mixed = await db.query("select reconcile_teaching_dictionary_bulk_review($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid,$7::uuid,$8) count", reconcile);
+assert.equal(mixed.rows[0].count, 1);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1", [d])).rows[0].count, 1);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1", [e])).rows[0].count, 0);
+await assert.rejects(db.query("select reconcile_teaching_dictionary_bulk_review($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid,$7::uuid,$8)",
+  ["local", skill, [], [a], [], actor, mixedRequest, null]));
 await db.close();
 console.log("Teaching dictionary bulk approval transaction passed.");

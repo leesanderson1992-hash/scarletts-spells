@@ -1,8 +1,8 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState, useTransition } from "react";
-import { filterBulkWords, nextBulkSelection, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
-import { removeBulkSkillAssignment, saveBulkSkillApprovals, setBulkReviewExclusion, type BulkApprovalResult } from "./actions";
+import { filterBulkWords, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { removeBulkSkillAssignment, saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
 import type { BulkAssignedPair } from "@/lib/teaching-dictionary-manager/bulk-review";
 
 type Family = { key: string; label: string };
@@ -10,6 +10,28 @@ type Skill = { key: string; label: string; familyKey: string; clusterKey: string
 const PAGE_SIZE = 50;
 const MAX_SELECTION = 100;
 const fieldClass = "w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm";
+
+function SearchableFilter({ label, value, options, allLabel, onChange }: {
+  label: string; value: string; options: { value: string; label: string }[];
+  allLabel: string; onChange: (value: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const searchId = `${label.toLowerCase().replaceAll(" ", "-")}-search`;
+  const search = query.trim().toLocaleLowerCase("en-GB");
+  const matches = options.filter((option) => option.value === value
+    || option.label.toLocaleLowerCase("en-GB").includes(search)
+    || option.value.toLocaleLowerCase("en-GB").includes(search));
+  return <div className="grid gap-1 text-sm font-medium">
+    <label htmlFor={searchId}>{label}</label>
+    <input id={searchId} type="search" className={fieldClass} value={query}
+      placeholder={`Search ${label.toLowerCase()} options`} onChange={(event) => setQuery(event.target.value)} />
+    <select className={fieldClass} aria-label={`${label} filter`} value={value}
+      onChange={(event) => onChange(event.target.value)}>
+      <option value="">{allLabel}</option>
+      {matches.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+    </select>
+  </div>;
+}
 
 export function BulkAssignWorkspace(props: {
   words: BulkWord[];
@@ -23,7 +45,7 @@ export function BulkAssignWorkspace(props: {
   const [familyKey, setFamilyKey] = useState("");
   const [draftSkillKey, setDraftSkillKey] = useState("");
   const [chosenSkillKey, setChosenSkillKey] = useState("");
-  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [draft, setDraft] = useState<Map<string, BulkDraftChoice>>(() => new Map());
   const [assigned, setAssigned] = useState<Map<string, boolean>>(() => new Map(props.assignedPairs.map((pair) =>
     [`${pair.microSkillKey}:${pair.wordId}`, pair.removable])));
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set(props.excludedPairs));
@@ -51,31 +73,42 @@ export function BulkAssignWorkspace(props: {
   const currentPage = Math.min(page, pageCount);
   const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const selectableVisible = visible.filter((word) => word.approvable && !assigned.has(`${chosenSkillKey}:${word.id}`)
-    && !excluded.has(`${chosenSkillKey}:${word.id}`));
-  const selectedWords = [...selected].map((id) => wordById.get(id)).filter((word): word is BulkWord => Boolean(word));
+    && (!excluded.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id));
+  const draftWords = (choice: BulkDraftChoice) => [...draft].filter(([, value]) => value === choice)
+    .map(([id]) => wordById.get(id)).filter((word): word is BulkWord => Boolean(word));
+  const applyWords = draftWords("apply");
+  const excludeWords = draftWords("exclude");
+  const clearWords = draftWords("clear");
   const assignedWords = props.words.filter((word) => assigned.has(`${chosenSkillKey}:${word.id}`));
-  const allVisibleSelected = selectableVisible.length > 0 && selectableVisible.every((word) => selected.has(word.id));
 
   function updateFilters(patch: Partial<BulkFilters>) {
     setFilters((previous) => ({ ...previous, ...patch }));
     setPage(1);
   }
-  function changeSelection(ids: string[], checked: boolean) {
-    const next = nextBulkSelection(selected, ids, checked, MAX_SELECTION);
+  function changeSelection(ids: string[], choice: "apply" | "exclude", checked: boolean) {
+    const next = nextBulkReviewDraft(draft, ids, choice, checked, excluded, chosenSkillKey, MAX_SELECTION);
     if (!next) {
       setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`);
       return;
     }
-    setSelected(next);
+    setDraft(next);
     setSelectionError("");
     setResult(null);
     setRequestId(null);
   }
+  function removeDraft(id: string) {
+    const next = new Map(draft);
+    next.delete(id);
+    setDraft(next);
+    setRequestId(null);
+    setResult(null);
+    setSelectionError("");
+  }
   function continueToWords() {
     if (!draftSkillKey) return;
-    if (chosenSkillKey && draftSkillKey !== chosenSkillKey && selected.size > 0) {
-      if (!window.confirm("Changing the micro-skill will clear your selected words. Continue?")) return;
-      setSelected(new Set());
+    if (chosenSkillKey && draftSkillKey !== chosenSkillKey && draft.size > 0) {
+      if (!window.confirm("Changing the micro-skill will clear your pending choices. Continue?")) return;
+      setDraft(new Map());
       setRequestId(null);
     }
     setChosenSkillKey(draftSkillKey);
@@ -86,56 +119,37 @@ export function BulkAssignWorkspace(props: {
     setEditingWordId(null);
   }
   function confirmSelection() {
-    if (!chosenSkillKey || selected.size === 0 || pending) return;
-    const ids = [...selected];
+    if (!chosenSkillKey || draft.size === 0 || pending) return;
+    const applyWordIds = applyWords.map((word) => word.id);
+    const excludeWordIds = excludeWords.map((word) => word.id);
+    const clearWordIds = clearWords.map((word) => word.id);
     const currentRequestId = requestId ?? crypto.randomUUID();
     setRequestId(currentRequestId);
     startTransition(async () => {
       try {
         const response = await saveBulkSkillApprovals({ microSkillKey: chosenSkillKey,
-          wordIds: ids, requestId: currentRequestId });
+          applyWordIds, excludeWordIds, clearWordIds, requestId: currentRequestId });
         setResult(response);
         if (response.ok) {
           setAssigned((previous) => {
             const next = new Map(previous);
-            for (const id of ids) next.set(`${chosenSkillKey}:${id}`, true);
+            for (const pair of response.assigned) next.set(`${chosenSkillKey}:${pair.id}`, pair.removable);
             return next;
           });
-          setSelected(new Set());
+          setExcluded((previous) => {
+            const next = new Set(previous);
+            for (const id of [...applyWordIds, ...clearWordIds]) next.delete(`${chosenSkillKey}:${id}`);
+            for (const id of excludeWordIds) next.add(`${chosenSkillKey}:${id}`);
+            return next;
+          });
+          setDraft(new Map());
+          setEditingWordId(null);
           setRequestId(null);
         }
       } catch {
-        setResult({ ok: false, approvedCount: 0, alreadyAssignedCount: 0, blocked: [],
-          error: "The approval request could not be completed. Please retry." });
+        setResult({ ok: false, approvedCount: 0, alreadyAssignedCount: 0, excludedCount: 0, clearedCount: 0,
+          assigned: [], blocked: [], error: "The review request could not be completed. Please retry." });
       }
-    });
-  }
-
-  function chooseNotApplied(wordId: string) {
-    if (pending || !chosenSkillKey) return;
-    setReviewError("");
-    startTransition(async () => {
-      try {
-        const response = await setBulkReviewExclusion({ microSkillKey: chosenSkillKey, wordId, excluded: true });
-        if (!response.ok) { setReviewError(response.error ?? "Review choice could not be saved."); return; }
-        setExcluded((previous) => new Set(previous).add(`${chosenSkillKey}:${wordId}`));
-        setEditingWordId(null);
-      } catch { setReviewError("Review choice could not be saved. Please retry."); }
-    });
-  }
-
-  function changeExcludedChoice(wordId: string, apply: boolean) {
-    if (pending || !chosenSkillKey) return;
-    if (apply && selected.size >= MAX_SELECTION) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
-    setReviewError("");
-    startTransition(async () => {
-      try {
-        const response = await setBulkReviewExclusion({ microSkillKey: chosenSkillKey, wordId, excluded: false });
-        if (!response.ok) { setReviewError(response.error ?? "Review choice could not be changed."); return; }
-        setExcluded((previous) => { const next = new Set(previous); next.delete(`${chosenSkillKey}:${wordId}`); return next; });
-        if (apply) changeSelection([wordId], true);
-        setEditingWordId(null);
-      } catch { setReviewError("Review choice could not be changed. Please retry."); }
     });
   }
 
@@ -150,6 +164,43 @@ export function BulkAssignWorkspace(props: {
         setEditingWordId(null);
       } catch { setReviewError("Assignment could not be removed. Please retry."); }
     });
+  }
+
+  function choiceInput(word: BulkWord, choice: "apply" | "exclude") {
+    const pairKey = `${chosenSkillKey}:${word.id}`;
+    const isAssigned = assigned.has(pairKey);
+    const isExcluded = excluded.has(pairKey);
+    const draftChoice = draft.get(word.id);
+    const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
+    const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
+    return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
+      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || isAssigned || locked}
+      onChange={(event) => changeSelection([word.id], choice, event.target.checked)} />;
+  }
+
+  function rowStatus(word: BulkWord) {
+    const pairKey = `${chosenSkillKey}:${word.id}`;
+    const choice = draft.get(word.id);
+    const isAssigned = assigned.has(pairKey);
+    const isExcluded = excluded.has(pairKey);
+    return <div className="flex flex-wrap items-center gap-1 text-xs font-normal">
+      {choice === "apply" ? <span>Apply · pending</span>
+        : choice === "exclude" ? <span>Doesn’t apply · pending</span>
+          : choice === "clear" ? <span>Clear review · pending</span>
+            : isAssigned ? <span>Applied</span> : isExcluded ? <span>Doesn’t apply</span>
+              : !word.approvable ? <span>Word not approved</span> : null}
+      {(isAssigned || isExcluded) && <button type="button" aria-label={`Edit review choice for ${word.displayWord}`}
+        title="Edit review choice" disabled={pending || !props.approvalEnabled || (isAssigned && !assigned.get(pairKey))}
+        className="rounded border border-[var(--border)] bg-white px-1 disabled:opacity-50"
+        onClick={() => setEditingWordId(editingWordId === word.id ? null : word.id)}>✎</button>}
+      {isAssigned && editingWordId === word.id && <span>Remove in section 3 before changing this choice.</span>}
+      {isExcluded && editingWordId === word.id && <button type="button" className="underline"
+        onClick={() => { const next = new Map(draft); next.set(word.id, "clear");
+          if (next.size > MAX_SELECTION) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
+          setDraft(next); setRequestId(null); setResult(null); setSelectionError(""); }}>
+        Clear saved review
+      </button>}
+    </div>;
   }
 
   return <div className="grid gap-5">
@@ -184,9 +235,9 @@ export function BulkAssignWorkspace(props: {
 
     {stage === 2 && <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <h2 className="text-xl font-semibold">2. Assign words to {chosenSkill?.label}</h2>
-      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)]">
+      <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)]">
         <div className="min-w-0">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <label className="grid gap-1 text-sm font-medium">Letters anywhere in word
               <input className={fieldClass} type="search" value={filters.search} placeholder="Search words"
                 onChange={(event) => updateFilters({ search: event.target.value })} /></label>
@@ -196,82 +247,83 @@ export function BulkAssignWorkspace(props: {
                 <option value="all">All</option><option value="yes">Has schwa</option>
                 <option value="no">No schwa</option><option value="unknown">Unknown</option>
               </select></label>
-            <label className="grid gap-1 text-sm font-medium">Morpheme part
-              <select className={fieldClass} value={filters.morpheme}
-                onChange={(event) => updateFilters({ morpheme: event.target.value })}>
-                <option value="">All parts</option>{parts.map((part) => <option key={part} value={part}>{part}</option>)}
-              </select></label>
+            <SearchableFilter label="Morpheme part" value={filters.morpheme} allLabel="All parts"
+              options={parts.map((part) => ({ value: part, label: part }))}
+              onChange={(morpheme) => updateFilters({ morpheme })} />
             <label className="grid gap-1 text-sm font-medium">Syllable count
               <select className={fieldClass} value={filters.syllables}
                 onChange={(event) => updateFilters({ syllables: event.target.value })}>
                 <option value="">Any count</option>{counts.map((count) => <option key={count} value={count}>{count}</option>)}
                 <option value="unknown">Unknown</option>
               </select></label>
-            <label className="grid gap-1 text-sm font-medium">Phoneme
-              <select className={fieldClass} value={filters.phoneme}
-                onChange={(event) => updateFilters({ phoneme: event.target.value })}>
-                <option value="">All phonemes</option>
-                {phonemes.map((phoneme) => <option key={phoneme} value={phoneme}>/{phoneme}/</option>)}
-              </select></label>
+            <SearchableFilter label="Phoneme" value={filters.phoneme} allLabel="All phonemes"
+              options={phonemes.map((phoneme) => ({ value: phoneme, label: `/${phoneme}/` }))}
+              onChange={(phoneme) => updateFilters({ phoneme })} />
           </div>
           <p className="my-3 text-sm">{filtered.length} matching words · page {currentPage} of {pageCount}</p>
-          <div className="overflow-x-auto rounded-lg border border-[var(--border)]">
-            <table className="w-full min-w-[850px] text-left text-sm">
+          <div className="mb-3 flex flex-wrap gap-4 text-sm md:hidden">
+            {(["apply", "exclude"] as const).map((choice) => {
+              const ids = selectableVisible.map((word) => word.id);
+              return <label key={choice} className="flex items-center gap-2">
+                <input type="checkbox" checked={ids.length > 0 && ids.every((id) => draft.get(id) === choice)}
+                  disabled={pending || !props.approvalEnabled || ids.length === 0}
+                  onChange={(event) => changeSelection(ids, choice, event.target.checked)} />
+                {choice === "apply" ? "Apply" : "Doesn’t apply"} all on this page
+              </label>;
+            })}
+          </div>
+          <div className="hidden rounded-lg border border-[var(--border)] md:block">
+            <table className="w-full table-fixed text-left text-xs">
+              <colgroup><col className="w-[8%]" /><col className="w-[10%]" /><col className="w-[17%]" />
+                <col className="w-[16%]" /><col className="w-[10%]" /><col className="w-[28%]" /><col className="w-[11%]" /></colgroup>
               <thead className="bg-[var(--paper)]"><tr>
-                <th className="p-2"><input type="checkbox" aria-label="Select all available words on this page"
-                  checked={allVisibleSelected} disabled={pending || !props.approvalEnabled || selectableVisible.length === 0}
-                  onChange={(event) => changeSelection(selectableVisible.map((word) => word.id), event.target.checked)} /></th>
-                <th className="p-2">Word</th><th className="p-2">Phoneme</th><th className="p-2">Schwa</th><th className="p-2">Parts</th>
-                <th className="p-2">Syllables</th><th className="p-2">Review choice</th>
+                {(["apply", "exclude"] as const).map((choice) => {
+                  const ids = selectableVisible.map((word) => word.id);
+                  const allChecked = ids.length > 0 && ids.every((id) => draft.get(id) === choice);
+                  return <th key={choice} className="break-words p-1 align-top">
+                    <label className="flex flex-col items-start gap-1">
+                      {choice === "apply" ? "Apply" : "Doesn’t apply"}
+                      <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"} all available words on this page`}
+                        checked={allChecked} disabled={pending || !props.approvalEnabled || ids.length === 0}
+                        onChange={(event) => changeSelection(ids, choice, event.target.checked)} />
+                    </label>
+                  </th>;
+                })}
+                <th className="p-1">Word</th><th className="p-1">Phoneme</th><th className="p-1">Schwa</th>
+                <th className="p-1">Parts</th><th className="p-1">Syllables</th>
               </tr></thead>
               <tbody>{visible.map((word) => {
-                const isAssigned = assigned.has(`${chosenSkillKey}:${word.id}`);
-                const isExcluded = excluded.has(`${chosenSkillKey}:${word.id}`);
-                const isSelected = selected.has(word.id);
-                const reviewed = isAssigned || isExcluded || isSelected;
-                const editing = editingWordId === word.id;
-                return <tr key={word.id} className={`border-t border-[var(--border)] ${reviewed ? "bg-slate-100 text-slate-600" : ""}`}>
-                  <td className="p-2"><input type="checkbox" aria-label={`Select ${word.displayWord}`}
-                    checked={isSelected} disabled={pending || !props.approvalEnabled || !word.approvable || isAssigned || isExcluded}
-                    onChange={(event) => changeSelection([word.id], event.target.checked)} /></td>
-                  <td className="p-2 font-semibold">{word.displayWord}</td>
-                  <td className="p-2">{word.phonemeHint || "Unknown"}</td>
-                  <td className="p-2">{word.hasSchwa === null ? "Unknown" : word.hasSchwa ? "Yes" : "No"}</td>
-                  <td className="p-2">{word.morphemeParts.join(", ") || "Unknown"}</td>
-                  <td className="p-2">{word.syllableCount ?? "Unknown"}</td>
-                  <td className="p-2"><div className="flex flex-wrap items-center gap-2">
-                    {isAssigned ? <span>Applied</span> : isExcluded ? <span>Do not apply</span>
-                      : isSelected ? <span>Apply · awaiting confirmation</span>
-                      : !word.approvable ? <span>Word not approved</span> : null}
-                    {reviewed && !editing && <button type="button" aria-label={`Edit review choice for ${word.displayWord}`}
-                      title="Edit review choice" disabled={pending || !props.approvalEnabled || (isAssigned && !assigned.get(`${chosenSkillKey}:${word.id}`))}
-                      className="rounded border border-[var(--border)] bg-white px-2 py-1 disabled:opacity-50"
-                      onClick={() => setEditingWordId(word.id)}>✎</button>}
-                    {editing ? <>
-                      {isAssigned ? <button type="button" disabled={pending} className="underline disabled:opacity-50"
-                        onClick={() => removeAssignment(word.id)}>Remove application</button>
-                        : isExcluded ? <>
-                          <button type="button" disabled={pending || selected.size >= MAX_SELECTION} className="underline disabled:opacity-50"
-                            onClick={() => changeExcludedChoice(word.id, true)}>Apply instead</button>
-                          <button type="button" disabled={pending} className="underline disabled:opacity-50"
-                            onClick={() => changeExcludedChoice(word.id, false)}>Clear review</button>
-                        </>
-                          : <button type="button" disabled={pending} className="underline disabled:opacity-50"
-                            onClick={() => { changeSelection([word.id], false); setEditingWordId(null); }}>Clear choice</button>}
-                      <button type="button" disabled={pending} className="underline disabled:opacity-50" onClick={() => setEditingWordId(null)}>Cancel</button>
-                    </> : !reviewed && word.approvable && <>
-                      <button type="button" disabled={pending || !props.approvalEnabled || selected.size >= MAX_SELECTION}
-                        className="rounded border border-[var(--border)] bg-white px-2 py-1 disabled:opacity-50"
-                        onClick={() => changeSelection([word.id], true)}>Apply</button>
-                      <button type="button" disabled={pending || !props.approvalEnabled}
-                        className="rounded border border-[var(--border)] bg-white px-2 py-1 disabled:opacity-50"
-                        onClick={() => chooseNotApplied(word.id)}>Do not apply</button>
-                    </>}
-                  </div></td>
+                const reviewed = assigned.has(`${chosenSkillKey}:${word.id}`)
+                  || excluded.has(`${chosenSkillKey}:${word.id}`) || draft.has(word.id);
+                return <tr key={word.id} className={`border-t border-[var(--border)] align-top ${reviewed ? "bg-slate-100 text-slate-600" : ""}`}>
+                  <td className="p-1">{choiceInput(word, "apply")}</td>
+                  <td className="p-1">{choiceInput(word, "exclude")}</td>
+                  <td className="break-words p-1 font-semibold" style={{ overflowWrap: "anywhere" }}>
+                    {word.displayWord}{rowStatus(word)}</td>
+                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{word.phonemeHint || "Unknown"}</td>
+                  <td className="break-words p-1">{word.hasSchwa === null ? "Unknown" : word.hasSchwa ? "Yes" : "No"}</td>
+                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"}</td>
+                  <td className="break-words p-1">{word.syllableCount ?? "Unknown"}</td>
                 </tr>;
               })}</tbody>
             </table>
           </div>
+          <div className="grid gap-2 md:hidden">{visible.map((word) => {
+            const reviewed = assigned.has(`${chosenSkillKey}:${word.id}`)
+              || excluded.has(`${chosenSkillKey}:${word.id}`) || draft.has(word.id);
+            return <article key={word.id} className={`min-w-0 rounded-lg border border-[var(--border)] p-3 text-sm ${reviewed ? "bg-slate-100 text-slate-600" : ""}`}>
+              <h3 className="break-words font-semibold">{word.displayWord}</h3>
+              {rowStatus(word)}
+              <dl className="mt-2 grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
+                <dt>Phoneme</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.phonemeHint || "Unknown"}</dd>
+                <dt>Schwa</dt><dd>{word.hasSchwa === null ? "Unknown" : word.hasSchwa ? "Yes" : "No"}</dd>
+                <dt>Parts</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"}</dd>
+                <dt>Syllables</dt><dd>{word.syllableCount ?? "Unknown"}</dd>
+              </dl>
+              <div className="mt-3 flex gap-5"><label className="flex items-center gap-2">{choiceInput(word, "apply")} Apply</label>
+                <label className="flex items-center gap-2">{choiceInput(word, "exclude")} Doesn’t apply</label></div>
+            </article>;
+          })}</div>
           <div className="mt-3 flex items-center gap-3 text-sm">
             <button type="button" className="underline disabled:opacity-40" disabled={currentPage <= 1}
               onClick={() => setPage(currentPage - 1)}>Previous</button>
@@ -279,29 +331,37 @@ export function BulkAssignWorkspace(props: {
               onClick={() => setPage(currentPage + 1)}>Next</button>
           </div>
         </div>
-        <aside className="self-start rounded-xl border border-[var(--border)] bg-[var(--paper)] p-4">
-          <h3 className="text-lg font-semibold">Selected words ({selected.size}/{MAX_SELECTION})</h3>
-          <p className="mt-1 text-sm">These words will be approved for authentic-use evidence for {chosenSkill?.label}.</p>
-          <div className="mt-4 flex max-h-[440px] flex-wrap gap-2 overflow-y-auto" aria-label="Selected words">
-            {selectedWords.length ? selectedWords.map((word) => <span key={word.id}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1 text-sm">
-              {word.displayWord}<button type="button" aria-label={`Remove ${word.displayWord}`}
-                disabled={pending} className="font-bold disabled:opacity-50" onClick={() => changeSelection([word.id], false)}>×</button>
-            </span>) : <p className="text-sm">Select words from the table.</p>}
+        <aside className="grid self-start gap-4">
+          {([{ title: "Selected Assigned Words", choice: "apply", words: applyWords },
+            { title: "Doesn’t apply", choice: "exclude", words: excludeWords }] as const).map((box) =>
+            <section key={box.choice} className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-4">
+              <h3 className="text-lg font-semibold">{box.title} ({box.words.length})</h3>
+              <p className="mt-1 text-sm">{box.choice === "apply" ? "Words to assign" : "Words to mark as not applying"} to {chosenSkill?.label}.</p>
+              <div className="mt-3 flex max-h-52 flex-wrap gap-2 overflow-y-auto" aria-label={box.title}>
+                {box.words.length ? box.words.map((word) => <span key={word.id}
+                  className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1 text-sm">
+                  <span className="break-all">{word.displayWord}</span><button type="button" aria-label={`Remove ${word.displayWord} from ${box.title}`}
+                    disabled={pending} className="font-bold disabled:opacity-50" onClick={() => removeDraft(word.id)}>×</button>
+                </span>) : <p className="text-sm">Select words from the table.</p>}
+              </div>
+            </section>)}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--paper)] p-4">
+            <p className="text-sm">{draft.size}/{MAX_SELECTION} pending changes
+              {clearWords.length ? ` · ${clearWords.length} saved review ${clearWords.length === 1 ? "choice" : "choices"} to clear` : ""}</p>
+            {selectionError && <p role="alert" className="mt-3 text-sm text-rose-800">{selectionError}</p>}
+            {reviewError && <p role="alert" className="mt-3 text-sm text-rose-800">{reviewError}</p>}
+            {!props.approvalEnabled && <p role="alert" className="mt-3 text-sm text-amber-900">Evidence approval controls are disabled in this environment.</p>}
+            <button type="button" disabled={!props.approvalEnabled || draft.size === 0 || pending}
+              onClick={confirmSelection} className="mt-4 w-full rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">
+              {pending ? "Confirming words…" : `Confirm ${draft.size} word${draft.size === 1 ? "" : "s"}`}
+            </button>
+            {result && <div className={`mt-4 rounded-lg p-3 text-sm ${result.ok ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}
+              role={result.ok ? "status" : "alert"}>
+              {result.ok ? `${result.approvedCount} applied; ${result.excludedCount} marked doesn’t apply; ${result.clearedCount} cleared${result.alreadyAssignedCount ? `; ${result.alreadyAssignedCount} already assigned` : ""}.` : result.error}
+              {result.blocked.length > 0 && <ul className="mt-2 list-disc pl-5">{result.blocked.map((item) =>
+                <li key={item.id}>{item.word}: {item.reason}</li>)}</ul>}
+            </div>}
           </div>
-          {selectionError && <p role="alert" className="mt-3 text-sm text-rose-800">{selectionError}</p>}
-          {reviewError && <p role="alert" className="mt-3 text-sm text-rose-800">{reviewError}</p>}
-          {!props.approvalEnabled && <p role="alert" className="mt-3 text-sm text-amber-900">Evidence approval controls are disabled in this environment.</p>}
-          <button type="button" disabled={!props.approvalEnabled || selected.size === 0 || pending}
-            onClick={confirmSelection} className="mt-5 w-full rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">
-            {pending ? "Approving words…" : `Confirm ${selected.size} word${selected.size === 1 ? "" : "s"}`}
-          </button>
-          {result && <div className={`mt-4 rounded-lg p-3 text-sm ${result.ok ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}
-            role={result.ok ? "status" : "alert"}>
-            {result.ok ? `${result.approvedCount} approved${result.alreadyAssignedCount ? `; ${result.alreadyAssignedCount} already assigned` : ""}.` : result.error}
-            {result.blocked.length > 0 && <ul className="mt-2 list-disc pl-5">{result.blocked.map((item) =>
-              <li key={item.id}>{item.word}: {item.reason}</li>)}</ul>}
-          </div>}
         </aside>
       </div>
     </section>}

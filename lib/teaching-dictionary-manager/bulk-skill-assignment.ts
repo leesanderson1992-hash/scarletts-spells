@@ -18,6 +18,25 @@ export type BulkFilters = {
   phoneme: string;
 };
 
+export type BulkDraftChoice = "apply" | "exclude" | "clear";
+
+export function nextBulkReviewDraft(current: ReadonlyMap<string, BulkDraftChoice>, ids: readonly string[],
+  choice: "apply" | "exclude", checked: boolean, savedExcluded: ReadonlySet<string>,
+  skillKey: string, limit = 100): Map<string, BulkDraftChoice> | null {
+  const next = new Map(current);
+  for (const id of ids) {
+    const wasExcluded = savedExcluded.has(`${skillKey}:${id}`);
+    if (checked) {
+      if (choice === "exclude" && wasExcluded) next.delete(id);
+      else next.set(id, choice);
+    } else if (next.get(id) === choice || (!next.has(id) && choice === "exclude" && wasExcluded)) {
+      if (wasExcluded) next.set(id, "clear");
+      else next.delete(id);
+    }
+  }
+  return next.size <= limit ? next : null;
+}
+
 // Keep compound IPA sounds together, as in the dictionary banding runner.
 const IPA_COMPOUNDS = ["aʊ", "əʊ", "eɪ", "aɪ", "ɔɪ", "ɪə", "eə", "ʊə", "tʃ", "dʒ", "iː", "uː", "ɑː", "ɔː", "ɜː"];
 

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterBulkWords, isolatedPhonemeSymbols, morphemeParts, nextBulkSelection, syllableCount, type BulkWord } from "../lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { filterBulkWords, isolatedPhonemeSymbols, morphemeParts, nextBulkReviewDraft, nextBulkSelection, syllableCount, type BulkWord } from "../lib/teaching-dictionary-manager/bulk-skill-assignment";
 import { managerAssignedPairs } from "../lib/teaching-dictionary-manager/bulk-review";
 import type { CanonicalWordSkillRelationship } from "../lib/adle/word-skill-relationships/contracts";
 
@@ -47,4 +47,15 @@ const secondPage = nextBulkSelection(firstPage, ["2"], true)!;
 assert.deepEqual([...secondPage], ["1", "2"]);
 assert.deepEqual([...nextBulkSelection(secondPage, ["1"], false)!], ["2"]);
 assert.equal(nextBulkSelection(secondPage, ["3"], true, 2), null);
+const savedExcluded = new Set(["skill:3", "other:2"]);
+const applyDraft = nextBulkReviewDraft(new Map(), ["1"], "apply", true, savedExcluded, "skill")!;
+assert.deepEqual([...applyDraft], [["1", "apply"]]);
+const switchedDraft = nextBulkReviewDraft(applyDraft, ["1"], "exclude", true, savedExcluded, "skill")!;
+assert.deepEqual([...switchedDraft], [["1", "exclude"]]);
+assert.deepEqual([...nextBulkReviewDraft(switchedDraft, ["1"], "exclude", false, savedExcluded, "skill")!], []);
+const changedSaved = nextBulkReviewDraft(new Map(), ["3"], "apply", true, savedExcluded, "skill")!;
+assert.deepEqual([...changedSaved], [["3", "apply"]]);
+assert.deepEqual([...nextBulkReviewDraft(changedSaved, ["3"], "apply", false, savedExcluded, "skill")!], [["3", "clear"]]);
+assert.deepEqual([...nextBulkReviewDraft(new Map(), ["2"], "exclude", true, savedExcluded, "skill")!], [["2", "exclude"]]);
+assert.equal(nextBulkReviewDraft(applyDraft, ["2", "4"], "exclude", true, savedExcluded, "skill", 2), null);
 console.log("Teaching dictionary bulk assignment filters passed.");
