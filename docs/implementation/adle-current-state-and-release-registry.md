@@ -72,10 +72,12 @@ that operational claim; the dated text remains historical context only.
 
 ## Current capability register
 
-Pending release: the R6 Review-first throttle repair will persist an uncapped
-mixed per-word due cohort and cap with new Review assignments. Its post-Review
-lesson gate will use that frozen decision. The live gate still counts legacy
-bundle dates; bundle-backed scheduling remains supported by other callers.
+Released on 2026-10-14: R6 Review-first assignments persist their uncapped
+mixed per-word due cohort and cap. The post-Review lesson gate and R6 lesson
+composition use that frozen decision. Legacy bundle-backed composition remains
+supported by other callers. Production deployment SHA
+`c09f0ba3db75b09e11601d99a4321a434234efc9`; see
+`docs/implementation/qa/adle-r6-frozen-workload-production-release-2026-10-14.md`.
 
 Current D4_MOR position: 25 live micro-skills — 19 production-enabled
 first-impression lessons, 0 staging-approved first-impression lessons, 2
