@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState, useTransition } from "react";
+import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { filterBulkWords, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
 import { removeBulkSkillAssignment, saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
 import type { BulkAssignedPair } from "@/lib/teaching-dictionary-manager/bulk-review";
@@ -15,21 +15,90 @@ function SearchableFilter({ label, value, options, allLabel, onChange }: {
   label: string; value: string; options: { value: string; label: string }[];
   allLabel: string; onChange: (value: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const searchId = `${label.toLowerCase().replaceAll(" ", "-")}-search`;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const id = useId();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const search = query.trim().toLocaleLowerCase("en-GB");
-  const matches = options.filter((option) => option.value === value
-    || option.label.toLocaleLowerCase("en-GB").includes(search)
+  const matchingOptions = options.filter((option) => option.label.toLocaleLowerCase("en-GB").includes(search)
     || option.value.toLocaleLowerCase("en-GB").includes(search));
-  return <div className="grid gap-1 text-sm font-medium">
-    <label htmlFor={searchId}>{label}</label>
-    <input id={searchId} type="search" className={fieldClass} value={query}
-      placeholder={`Search ${label.toLowerCase()} options`} onChange={(event) => setQuery(event.target.value)} />
-    <select className={fieldClass} aria-label={`${label} filter`} value={value}
-      onChange={(event) => onChange(event.target.value)}>
-      <option value="">{allLabel}</option>
-      {matches.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-    </select>
+  const selectedOption = !search && value ? options.find((option) => option.value === value) : undefined;
+  const displayedOptions = search ? matchingOptions.slice(0, 100)
+    : [{ value: "", label: allLabel }, ...(selectedOption ? [selectedOption] : []),
+      ...matchingOptions.filter((option) => option.value !== selectedOption?.value).slice(0, 100)];
+
+  useEffect(() => {
+    if (!open) return;
+    searchRef.current?.focus();
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [open]);
+
+  useEffect(() => {
+    const list = listRef.current;
+    const option = list?.children.item(activeIndex);
+    if (!open || !list || !option) return;
+    const listBounds = list.getBoundingClientRect();
+    const optionBounds = option.getBoundingClientRect();
+    if (optionBounds.top < listBounds.top) list.scrollTop -= listBounds.top - optionBounds.top;
+    else if (optionBounds.bottom > listBounds.bottom) list.scrollTop += optionBounds.bottom - listBounds.bottom;
+  }, [activeIndex, open]);
+
+  function choose(option: string) {
+    onChange(option);
+    setOpen(false);
+    setQuery("");
+    setActiveIndex(0);
+    triggerRef.current?.focus();
+  }
+
+  return <div ref={containerRef} className="relative grid min-w-0 gap-1 text-sm font-medium"
+    onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
+    <span id={`${id}-label`}>{label}</span>
+    <button ref={triggerRef} type="button" aria-label={`${label} filter`} aria-haspopup="listbox"
+      aria-expanded={open} aria-controls={open ? `${id}-options` : undefined}
+      className={`${fieldClass} flex min-w-0 items-center justify-between gap-2 text-left font-normal`}
+      onClick={() => { setOpen((previous) => !previous); setQuery(""); setActiveIndex(0); }}>
+      <span className="truncate">{options.find((option) => option.value === value)?.label ?? allLabel}</span>
+      <span aria-hidden="true" className="shrink-0">⌄</span>
+    </button>
+    {open && <div className={`absolute top-full z-30 mt-1 w-max min-w-full max-w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-[var(--border)] bg-white p-2 shadow-xl ${label === "Phoneme" ? "right-0" : "left-0"}`}>
+      <input ref={searchRef} id={`${id}-search`} type="search" role="combobox"
+        aria-label={`Search ${label.toLowerCase()} options`} aria-autocomplete="list"
+        aria-expanded="true" aria-controls={`${id}-options`}
+        aria-activedescendant={displayedOptions.length ? `${id}-option-${activeIndex}` : undefined}
+        className={fieldClass} value={query} placeholder={`Search ${label.toLowerCase()}…`}
+        onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); if (listRef.current) listRef.current.scrollTop = 0; }}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            if (displayedOptions.length) setActiveIndex((previous) =>
+              (previous + (event.key === "ArrowDown" ? 1 : -1) + displayedOptions.length) % displayedOptions.length);
+          } else if (event.key === "Enter") {
+            event.preventDefault();
+            if (displayedOptions[activeIndex]) choose(displayedOptions[activeIndex].value);
+          } else if (event.key === "Escape") {
+            event.preventDefault();
+            setOpen(false);
+            triggerRef.current?.focus();
+          }
+        }} />
+      <div ref={listRef} id={`${id}-options`} role="listbox" aria-labelledby={`${id}-label`} className="mt-2 max-h-56 overflow-y-auto">
+        {displayedOptions.map((option, index) => <button key={option.value} id={`${id}-option-${index}`}
+          type="button" role="option" aria-selected={option.value === value}
+          className={`block w-full rounded-md px-3 py-2 text-left text-sm font-normal hover:bg-[var(--paper)] ${index === activeIndex ? "bg-[var(--paper)]" : ""}`}
+          onMouseEnter={() => setActiveIndex(index)} onClick={() => choose(option.value)}>{option.label}</button>)}
+        {matchingOptions.length > 100 && <p className="px-3 py-2 text-xs text-slate-600">Search to narrow {matchingOptions.length} options.</p>}
+        {matchingOptions.length === 0 && <p className="px-3 py-2 text-xs text-slate-600">No matching options.</p>}
+      </div>
+    </div>}
   </div>;
 }
 
@@ -235,31 +304,31 @@ export function BulkAssignWorkspace(props: {
 
     {stage === 2 && <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <h2 className="text-xl font-semibold">2. Assign words to {chosenSkill?.label}</h2>
-      <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)]">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <label className="grid min-w-0 gap-1 text-sm font-medium">Letters anywhere in word
+          <input className={fieldClass} type="search" value={filters.search} placeholder="Search words"
+            onChange={(event) => updateFilters({ search: event.target.value })} /></label>
+        <label className="grid min-w-0 gap-1 text-sm font-medium">Schwa
+          <select className={fieldClass} value={filters.schwa}
+            onChange={(event) => updateFilters({ schwa: event.target.value as BulkFilters["schwa"] })}>
+            <option value="all">All</option><option value="yes">Has schwa</option>
+            <option value="no">No schwa</option><option value="unknown">Unknown</option>
+          </select></label>
+        <SearchableFilter label="Morpheme part" value={filters.morpheme} allLabel="All parts"
+          options={parts.map((part) => ({ value: part, label: part }))}
+          onChange={(morpheme) => updateFilters({ morpheme })} />
+        <label className="grid min-w-0 gap-1 text-sm font-medium">Syllable count
+          <select className={fieldClass} value={filters.syllables}
+            onChange={(event) => updateFilters({ syllables: event.target.value })}>
+            <option value="">Any count</option>{counts.map((count) => <option key={count} value={count}>{count}</option>)}
+            <option value="unknown">Unknown</option>
+          </select></label>
+        <SearchableFilter label="Phoneme" value={filters.phoneme} allLabel="All phonemes"
+          options={phonemes.map((phoneme) => ({ value: phoneme, label: `/${phoneme}/` }))}
+          onChange={(phoneme) => updateFilters({ phoneme })} />
+      </div>
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)]">
         <div className="min-w-0">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <label className="grid gap-1 text-sm font-medium">Letters anywhere in word
-              <input className={fieldClass} type="search" value={filters.search} placeholder="Search words"
-                onChange={(event) => updateFilters({ search: event.target.value })} /></label>
-            <label className="grid gap-1 text-sm font-medium">Schwa
-              <select className={fieldClass} value={filters.schwa}
-                onChange={(event) => updateFilters({ schwa: event.target.value as BulkFilters["schwa"] })}>
-                <option value="all">All</option><option value="yes">Has schwa</option>
-                <option value="no">No schwa</option><option value="unknown">Unknown</option>
-              </select></label>
-            <SearchableFilter label="Morpheme part" value={filters.morpheme} allLabel="All parts"
-              options={parts.map((part) => ({ value: part, label: part }))}
-              onChange={(morpheme) => updateFilters({ morpheme })} />
-            <label className="grid gap-1 text-sm font-medium">Syllable count
-              <select className={fieldClass} value={filters.syllables}
-                onChange={(event) => updateFilters({ syllables: event.target.value })}>
-                <option value="">Any count</option>{counts.map((count) => <option key={count} value={count}>{count}</option>)}
-                <option value="unknown">Unknown</option>
-              </select></label>
-            <SearchableFilter label="Phoneme" value={filters.phoneme} allLabel="All phonemes"
-              options={phonemes.map((phoneme) => ({ value: phoneme, label: `/${phoneme}/` }))}
-              onChange={(phoneme) => updateFilters({ phoneme })} />
-          </div>
           <p className="my-3 text-sm">{filtered.length} matching words · page {currentPage} of {pageCount}</p>
           <div className="mb-3 flex flex-wrap gap-4 text-sm md:hidden">
             {(["apply", "exclude"] as const).map((choice) => {
