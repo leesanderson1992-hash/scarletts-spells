@@ -57,7 +57,10 @@ for (const row of rows) {
 }
 const ready = rows.filter((row) => row.status === "ready");
 if (ready.length !== 1991) fail(`Expected 1991 ready rows, found ${ready.length}.`);
-const client = new pg.Client({ connectionString: await databaseUrl(), ssl: { rejectUnauthorized: false } });
+const client = new pg.Client({
+  connectionString: await databaseUrl(),
+  ssl: { rejectUnauthorized: process.env.SUPABASE_DB_SSL_REJECT_UNAUTHORIZED !== "false" },
+});
 await client.connect();
 try {
   await client.query("begin isolation level serializable");
