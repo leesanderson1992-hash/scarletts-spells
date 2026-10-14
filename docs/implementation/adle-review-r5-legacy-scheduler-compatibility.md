@@ -26,6 +26,11 @@ Review v3 reads and transitions exact frozen rows in
 original outcomes, repair attempts, Memory Cues, completion receipts, and
 outcome events.
 
+The pending R6 throttle repair freezes the uncapped per-word due cohort and
+lesson decision at assignment creation. Once released, the post-Review gate
+will read that decision instead of the bundle-backed count or advanced
+per-word dates. Until release, the bundle-backed gate remains the live path.
+
 Per-word rows own due date, catch-up stage, pause state, and pre-retirement
 checks. A Review completion never overwrites its original outcome and never
 advances unrelated words merely because they once shared a bundle.

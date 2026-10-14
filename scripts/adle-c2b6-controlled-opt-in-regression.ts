@@ -149,7 +149,7 @@ assert.doesNotMatch(migration, /DAY_1|DAY_3|DAY_7|DAY_14|DAY_28|DAY_56/,
   "SQL must not contain the target rung transition table");
 
 const generation = readFileSync(resolve("lib/adle/review-v3/r6-generation.ts"), "utf8");
-assert.match(generation, /selectDueMixedReviewWords/);
+assert.match(generation, /calculateMixedReviewWorkload/);
 assert.match(generation, /loadReviewScheduleForExecution/);
 assert.match(generation, /persist_adle_review_assignment_c2b6/);
 assert.match(generation, /CURRENT_REVIEW_POLICY_VERSION/);

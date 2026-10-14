@@ -401,7 +401,7 @@ if (controlledRoundTrip.disposition === "HYDRATED"
 // selection. V1-only sessions still take the released path and an admitted v2
 // row must first pass the C2B.3 hydrator; neither registry flag dispatches it.
 const r6Generation = readFileSync(resolve("lib/adle/review-v3/r6-generation.ts"), "utf8");
-assert.match(r6Generation, /selectDueMixedReviewWords/);
+assert.match(r6Generation, /calculateMixedReviewWorkload/);
 assert.match(r6Generation, /loadReviewScheduleForExecution/);
 assert.match(r6Generation, /CURRENT_PER_WORD_STATE_SHAPE_VERSION/);
 assert.match(r6Generation, /TARGET_PER_WORD_STATE_SHAPE_VERSION/);

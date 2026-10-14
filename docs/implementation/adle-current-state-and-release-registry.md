@@ -72,6 +72,11 @@ that operational claim; the dated text remains historical context only.
 
 ## Current capability register
 
+Pending release: the R6 Review-first throttle repair will persist an uncapped
+mixed per-word due cohort and cap with new Review assignments. Its post-Review
+lesson gate will use that frozen decision. The live gate still counts legacy
+bundle dates; bundle-backed scheduling remains supported by other callers.
+
 Current D4_MOR position: 25 live micro-skills — 19 production-enabled
 first-impression lessons, 0 staging-approved first-impression lessons, 2
 later-phase base-word transfer skills marked `not_required_first_impression`,

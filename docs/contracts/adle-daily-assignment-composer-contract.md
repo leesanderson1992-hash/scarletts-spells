@@ -95,6 +95,15 @@ The active current scheduler and due-queue read model supply due facts,
 throttling facts, and caps. The composer orders those facts but does not derive
 their transition semantics.
 
+For the R6 Review-first session, the uncapped mixed per-word due cohort and
+session cap are frozen when the Review assignment is created. The post-Review
+lesson gate consumes that assignment-scoped decision, because Review completion
+may already have advanced the selected words' dates. A legacy bundle date is
+not the R6 per-word due authority.
+R6 specialist composition uses the same frozen decision and omits its already
+persisted Review section from the lesson budget; legacy composition keeps its
+bundle-backed queue and throttle.
+
 When teaching is permitted, selection is deterministic over the active policy
 and facts. It may consider:
 

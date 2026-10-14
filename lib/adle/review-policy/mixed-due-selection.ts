@@ -33,12 +33,12 @@ type TargetHydrated = Extract<HydratedReviewSchedule, { kind: "TARGET_REGRESSION
  * route. FR.3 admits target DAY_56 and the singular governed pre-retirement
  * check only when their persisted due date has arrived.
  */
-export function selectDueMixedReviewWords(input: {
+export function calculateMixedReviewWorkload(input: {
   today: IsoDate;
   sessionCap: number;
   currentWords: readonly PerWordReviewScheduleFactV1[];
   targetWords: readonly { schedule: TargetHydrated; taughtOn: IsoDate }[];
-}): MixedReviewDueItem[] {
+}): { due: MixedReviewDueItem[]; selected: MixedReviewDueItem[]; dueCount: number; sessionCap: number; lessonAllowed: boolean } {
   const current = selectDuePerWordReviewsV1({
     policyVersion: CURRENT_REVIEW_POLICY_VERSION,
     sessionCap: input.currentWords.length || input.sessionCap,
@@ -93,12 +93,18 @@ export function selectDueMixedReviewWords(input: {
       taughtOn,
     }];
   });
-  return [...current, ...target].sort((left, right) =>
+  const due = [...current, ...target].sort((left, right) =>
     left.dueOn.localeCompare(right.dueOn)
     || left.taughtOn.localeCompare(right.taughtOn)
     || left.canonicalWordId.localeCompare(right.canonicalWordId)
     || left.scheduleWordId.localeCompare(right.scheduleWordId)
-  ).slice(0, input.sessionCap);
+  );
+  return { due, selected: due.slice(0, input.sessionCap), dueCount: due.length,
+    sessionCap: input.sessionCap, lessonAllowed: due.length <= input.sessionCap };
+}
+
+export function selectDueMixedReviewWords(input: Parameters<typeof calculateMixedReviewWorkload>[0]): MixedReviewDueItem[] {
+  return calculateMixedReviewWorkload(input).selected;
 }
 
 function rungIndex(rung: ReviewRung): number {

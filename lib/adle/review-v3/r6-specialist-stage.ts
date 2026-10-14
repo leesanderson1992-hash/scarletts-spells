@@ -46,7 +46,7 @@ import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-p
 import type { LearningItemFact } from "../learning-items";
 import type { IsoDate } from "../review-scheduler";
 import { validateCompiledSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
-import { isReviewOnlyR6Day } from "./r6-specialist-eligibility";
+import { isReviewOnlyR6Day, type FrozenReviewWorkloadR6 } from "./r6-specialist-eligibility";
 
 type Client = SupabaseClient;
 
@@ -120,20 +120,46 @@ async function ensureSpecialistStageR6Internal(input: {
   if (existing.data.compiled_lesson_snapshot !== null) {
     return { outcome: "ready", assignmentId: input.assignmentId };
   }
-  const { facts } = await loadDailyPlanFacts(input.serviceClient, {
-    childId: input.childId,
-    today: input.assignmentDate as IsoDate,
-  });
-  // The R6 review has already finished. A day above the review cap is still
-  // review-only, even when a real learning-item cluster is ready for a future
-  // lesson. Apply this before dispatching either generic or specialist routes.
-  if (isReviewOnlyR6Day(facts, input.assignmentDate as IsoDate)) {
+  const frozenResult = await input.serviceClient.from("adle_review_workloads_r6")
+    .select("daily_assignment_id,child_id,assignment_date,due_count_at_start,session_cap_at_start,lesson_allowed_at_start,authority_version")
+    .eq("daily_assignment_id", input.assignmentId).maybeSingle();
+  if (frozenResult.error || !frozenResult.data) return {
+    outcome: "blocked", assignmentId: input.assignmentId,
+    blockerCode: "review_r6_frozen_workload_missing",
+  };
+  const frozen = frozenResult.data as FrozenReviewWorkloadR6;
+  if (frozen.child_id !== input.childId || frozen.assignment_date !== input.assignmentDate) return {
+    outcome: "blocked", assignmentId: input.assignmentId,
+    blockerCode: "review_r6_frozen_workload_scope_invalid",
+  };
+  const reviewOnly = isReviewOnlyR6Day(frozen);
+  console.info(JSON.stringify({
+    event: "adle_r6_frozen_review_workload_gate",
+    assignmentId: input.assignmentId,
+    dueCountAtStart: frozen.due_count_at_start,
+    sessionCapAtStart: frozen.session_cap_at_start,
+    authorityVersion: frozen.authority_version,
+    lessonAllowedAtStart: frozen.lesson_allowed_at_start,
+    reviewOnlyCompletion: reviewOnly,
+  }));
+  // This decision belongs to the pre-review due cohort, not advanced per-word
+  // dates or unchanged bundle dates at the time Review finishes.
+  if (reviewOnly) {
     const completed = await input.serviceClient.rpc("complete_adle_review_only_session_r6", {
       p_daily_assignment_id: input.assignmentId,
     });
     if (completed.error) throw new Error(`completeReviewOnlySessionR6: ${completed.error.message}`);
     return { outcome: "not_due", assignmentId: input.assignmentId };
   }
+  const specialistComposeOptions = { frozenReviewWorkload: {
+    dueCount: frozen.due_count_at_start,
+    sessionCap: frozen.session_cap_at_start,
+    lessonAllowed: frozen.lesson_allowed_at_start,
+  } };
+  const { facts } = await loadDailyPlanFacts(input.serviceClient, {
+    childId: input.childId,
+    today: input.assignmentDate as IsoDate,
+  });
   const selection = selectPartTwoSkill({
     learningItems: facts.learningItems.filter((item) => item.childId === input.childId),
     skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,
@@ -188,6 +214,7 @@ async function ensureSpecialistStageR6Internal(input: {
       allowStagingProfiles,
       generationTrigger: "parent_manual",
       r6AppendAssignmentId: input.assignmentId,
+      r6SpecialistComposeOptions: specialistComposeOptions,
     });
     if (prepared.status !== "ready") return {
       outcome: "blocked", assignmentId: input.assignmentId,
@@ -218,6 +245,7 @@ async function ensureSpecialistStageR6Internal(input: {
       allowStagingProfiles,
       generationTrigger: "parent_manual",
       r6AppendAssignmentId: input.assignmentId,
+      r6SpecialistComposeOptions: specialistComposeOptions,
     });
     if (prepared.status !== "ready") return {
       outcome: "blocked", assignmentId: input.assignmentId,
@@ -289,7 +317,7 @@ async function ensureSpecialistStageR6Internal(input: {
       blockerCode: readiness.readinessReason ?? "compound_word_not_ready",
     };
     const plan = buildCompoundWordAssignmentPlanV2(
-      composeDailyPlan(facts, input.assignmentDate as IsoDate),
+      composeDailyPlan(facts, input.assignmentDate as IsoDate, specialistComposeOptions),
       readiness.payload,
       createPersistedRouteMetadataV2("compound_word_lab", persistedCompoundWordReleaseAuthority(readiness.releaseAuthority)),
     );
@@ -309,7 +337,7 @@ async function ensureSpecialistStageR6Internal(input: {
     blockerCode: `r6_specialist_adapter_missing:${routeId}`,
   };
 
-  const composed = composeDailyPlan(facts, input.assignmentDate as IsoDate);
+  const composed = composeDailyPlan(facts, input.assignmentDate as IsoDate, specialistComposeOptions);
   const lessonOnly = {
     ...composed,
     partOne: { dueQueue: [], presentationOrder: [], sections: [], skips: [] },

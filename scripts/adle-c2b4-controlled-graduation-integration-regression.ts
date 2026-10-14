@@ -364,7 +364,7 @@ async function main(): Promise<void> {
   assert.match(actions, /scheduleEligible: !pinnedTargetSchedules\.has/);
   assert.match(actions, /if \(pinnedTargetSchedules\.size === 0\) return/);
   const r6 = readFileSync(resolve("lib/adle/review-v3/r6-generation.ts"), "utf8");
-  assert.match(r6, /selectDueMixedReviewWords/);
+  assert.match(r6, /calculateMixedReviewWorkload/);
   assert.match(r6, /loadReviewScheduleForExecution/);
   assert.match(r6, /TARGET_PER_WORD_STATE_SHAPE_VERSION/);
   assert.doesNotMatch(r6, /\.eq\("is_active", true\)/);

@@ -4,7 +4,6 @@ import { resolve } from "node:path";
 
 import { REVIEW_CHALLENGE_TYPES, type ReviewChallengeType } from "../lib/adle/review-v3/contracts";
 import { isReviewOnlyR6Day } from "../lib/adle/review-v3/r6-specialist-eligibility";
-import { REVIEW_POLICY_V1, type ScheduleWordFact } from "../lib/adle/review-scheduler";
 import {
   compileReviewSnapshotR6,
   selectInitialReviewChallengeR6,
@@ -342,29 +341,17 @@ assert.match(learnerPage, /form action=\{openTodayAdleSessionAction\}/,
 assert.doesNotMatch(learnerPage, /href=\{buildScopedPath\("\/learn\/week\/adle"/,
   "the historical passive Today link must be removed");
 
-const reviewDay = "2026-10-07";
-const reviewBundle = {
-  bundleId: "due-bundle", childId: "child-r6", sourceRef: "fixture",
-  intervalIndex: 0, nextDueOn: reviewDay,
-  schedulePolicyVersion: REVIEW_POLICY_V1.schedulePolicyVersion,
-  bundleStatus: "active" as const, rowStatus: "active" as const,
+const frozenWorkload = {
+  daily_assignment_id: "assignment-r6", child_id: "child-r6", assignment_date: "2026-10-07",
+  due_count_at_start: 10, session_cap_at_start: 10,
+  lesson_allowed_at_start: true, authority_version: "adle_r6_mixed_per_word_due_v1",
 };
-const scheduledWord = (index: number): ScheduleWordFact => ({
-  childId: "child-r6", canonicalWordId: `word-${index}`,
-  bundleId: reviewBundle.bundleId, membershipStatus: "scheduled",
-  catchUpStage: 0, nextRetestDueOn: null, failedReviewOn: null,
-  preRetirementCheckDueOn: null, last28DayReviewOn: null,
-  reteachCycleCount: 0, taughtOn: "2026-09-01", rowStatus: "active",
-});
-const tenDueWords = Array.from({ length: 10 }, (_, index) => scheduledWord(index));
-const oneDueRetest: ScheduleWordFact = {
-  ...scheduledWord(10), membershipStatus: "catch_up", catchUpStage: 1,
-  nextRetestDueOn: reviewDay,
-};
-assert.equal(isReviewOnlyR6Day({ reviewPolicy: REVIEW_POLICY_V1, bundles: [reviewBundle], scheduleWords: tenDueWords }, reviewDay), false,
+assert.equal(isReviewOnlyR6Day(frozenWorkload), false,
   "a lesson remains eligible at the exact review cap");
-assert.equal(isReviewOnlyR6Day({ reviewPolicy: REVIEW_POLICY_V1, bundles: [reviewBundle], scheduleWords: [...tenDueWords, oneDueRetest] }, reviewDay), true,
-  "a due catch-up word over the cap makes the completed R6 day review-only");
+assert.equal(isReviewOnlyR6Day({ ...frozenWorkload, due_count_at_start: 11, lesson_allowed_at_start: false }), true,
+  "the frozen over-cap Review workload makes the completed R6 day review-only");
+assert.throws(() => isReviewOnlyR6Day({ ...frozenWorkload, due_count_at_start: 11 }),
+  /review_r6_frozen_workload_invalid/, "an inconsistent persisted decision fails closed");
 
 console.log(JSON.stringify({
   status: "PASS",

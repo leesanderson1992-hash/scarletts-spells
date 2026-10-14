@@ -2,7 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
+import { composeDailyPlan, type ComposedDailyPlan, type SpecialistComposeOptions } from "../daily-assignment-composer";
 import type { AdleGenerationTrigger } from "../assignment-persistence";
 import { getExistingAdleSessionPlanId, prepareComposedAdleDailyPlanPersistence, findAdleHeader } from "../loaders/daily-plan-surface";
 import { compileDynamicAffixSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-compiler";
@@ -77,6 +77,7 @@ type WriterParams = Omit<PreviewParams, "purpose"> & {
   planDate: string;
   generationTrigger?: AdleGenerationTrigger;
   r6AppendAssignmentId?: string;
+  r6SpecialistComposeOptions?: SpecialistComposeOptions;
 };
 
 function emitCandidateReadinessDiagnostics(
@@ -236,7 +237,7 @@ export async function prepareDynamicAffixAssignment(
     today: params.planDate,
   });
   const plan = buildDynamicAffixAssignmentPlan({
-    basePlan: composeDailyPlan(facts, params.planDate),
+    basePlan: composeDailyPlan(facts, params.planDate, params.r6SpecialistComposeOptions),
     selection: preview.selection,
     payload: preview.payload,
   });

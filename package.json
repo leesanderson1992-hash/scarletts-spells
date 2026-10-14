@@ -251,6 +251,7 @@
     "adle:review-r5-regression": "npx tsx scripts/adle-review-r5-regression.ts",
     "adle:review-r5-multi-week-simulation": "npx tsx scripts/adle-review-r5-multi-week-simulation.ts",
     "adle:review-r6-regression": "npx tsx scripts/adle-review-r6-regression.ts",
+    "adle:r6-frozen-review-workload-regression": "tsx scripts/adle-r6-frozen-review-workload-regression.ts",
     "adle:review-conundrum-video-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-review-conundrum-video-regression.ts",
     "adle:review-r6-migration-release": "npx tsx scripts/adle-review-r6-migration-release.ts",
     "adle:review-r6-migration-release-regression": "npx tsx scripts/adle-review-r6-migration-release-regression.ts",

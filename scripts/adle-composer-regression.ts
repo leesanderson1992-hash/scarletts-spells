@@ -686,6 +686,21 @@ function dueFixture(count: number) {
 }
 
 {
+  // An R6 specialist composes its lesson from the frozen per-word workload,
+  // even when unchanged legacy bundle dates still report many reviews due.
+  const facts = planFacts({ ...dueFixture(34), learningItems: LESSON_ITEMS, dictionary: FILL_DICTIONARY });
+  const legacy = composeDailyPlan(facts, TODAY);
+  assert(!legacy.partTwo.composed, "legacy bundle workload still blocks the legacy plan");
+  const r6 = composeDailyPlan(facts, TODAY, { frozenReviewWorkload: {
+    dueCount: 10, sessionCap: 10, lessonAllowed: true,
+  } });
+  assert(r6.throttle.totalDue === 10 && r6.throttle.lessonAllowed, "R6 uses the frozen per-word decision");
+  assert(r6.partOne.dueQueue.length === 0, "R6 does not recompose its persisted Review session");
+  assert(r6.budget.estimatedResponses < 34, "legacy review debt does not consume the lesson budget");
+  assert(r6.partTwo.composed, "R6 composes a lesson at the exact cap");
+}
+
+{
   // Reteach lesson outranks a new cluster in the full plan.
   const items = [
     ...LESSON_ITEMS,

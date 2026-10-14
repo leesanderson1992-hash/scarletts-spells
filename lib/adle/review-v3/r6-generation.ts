@@ -21,7 +21,7 @@ import {
   TARGET_PER_WORD_STATE_SHAPE_VERSION,
   TARGET_REVIEW_POLICY_VERSION,
 } from "../review-policy/contracts";
-import { selectDueMixedReviewWords } from "../review-policy/mixed-due-selection";
+import { calculateMixedReviewWorkload } from "../review-policy/mixed-due-selection";
 import { loadReviewScheduleForExecution } from "../review-policy/runtime-repository";
 import type { HydratedReviewSchedule } from "../review-policy/runtime-coexistence";
 import type { IsoDate } from "../review-scheduler";
@@ -155,7 +155,7 @@ export async function ensureReviewAssignmentR6(input: {
     || result.schedule.kind !== "TARGET_REGRESSION_V1")) {
     return { outcome: "blocked", blockerCode: "review_r6_target_schedule_hydration_conflict" };
   }
-  const due = selectDueMixedReviewWords({
+  const workload = calculateMixedReviewWorkload({
     today: input.assignmentDate as IsoDate,
     sessionCap: Math.min(10, policy.session_cap),
     currentWords: scheduleRows.flatMap((row): PerWordReviewScheduleFactV1[] =>
@@ -185,6 +185,7 @@ export async function ensureReviewAssignmentR6(input: {
       taughtOn: row.taught_on as IsoDate,
     })),
   });
+  const due = workload.selected;
   if (due.length === 0) return { outcome: "not_due" };
 
   const dueScheduleIds = due.map((item) => item.scheduleWordId);
@@ -353,6 +354,13 @@ export async function ensureReviewAssignmentR6(input: {
     p_review_item_id: reviewItemId,
     p_review_session_id: reviewSessionId,
     p_snapshot: compiled.snapshot,
+    p_workload: {
+      authorityVersion: "adle_r6_mixed_per_word_due_v1",
+      dueScheduleWordIds: workload.due.map((item) => item.scheduleWordId),
+      dueCountAtStart: workload.dueCount,
+      sessionCapAtStart: workload.sessionCap,
+      lessonAllowedAtStart: workload.lessonAllowed,
+    },
     },
   );
   if (persistence.error) fail(persistence.error, "ensureReviewAssignmentR6:persist");

@@ -188,7 +188,7 @@ function main(): void {
   const coexistence = readFileSync(resolve("lib/adle/review-policy/runtime-coexistence.ts"), "utf8");
   assert.match(coexistence, /return CURRENT_REVIEW_POLICY_VERSION/);
   const r6 = readFileSync(resolve("lib/adle/review-v3/r6-generation.ts"), "utf8");
-  assert.match(r6, /selectDueMixedReviewWords/);
+  assert.match(r6, /calculateMixedReviewWorkload/);
   assert.match(r6, /loadReviewScheduleForExecution/);
   assert.match(r6, /TARGET_PER_WORD_STATE_SHAPE_VERSION/);
   assert.doesNotMatch(r6, /\.eq\("is_active", true\)/);

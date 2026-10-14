@@ -314,7 +314,16 @@ function activeFamilyMethods(
   return byKey;
 }
 
-export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): ComposedDailyPlan {
+export type SpecialistComposeOptions = {
+  /** R6 Review was already persisted separately; its frozen workload controls Part 2. */
+  frozenReviewWorkload: { dueCount: number; sessionCap: number; lessonAllowed: boolean };
+};
+
+export function composeDailyPlan(
+  facts: DailyPlanFacts,
+  today: IsoDate,
+  specialistOptions?: SpecialistComposeOptions,
+): ComposedDailyPlan {
   const { reviewPolicy, composerPolicy } = facts;
   const templates = activeTemplates(facts.activityTemplates);
   const familyMethods = activeFamilyMethods(facts.familyMethods);
@@ -323,7 +332,7 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
 
   // ------------------------------------------------------------------ Part 1
   const partOneSkips: PlanSkip[] = [];
-  const dueQueue = reviewSessionQueue(reviewPolicy, facts.bundles, facts.scheduleWords, today);
+  const dueQueue = specialistOptions ? [] : reviewSessionQueue(reviewPolicy, facts.bundles, facts.scheduleWords, today);
   const familyOfDue = (item: DueReviewItem): string | null =>
     familyOfSkill(facts.reviewWordFacts.get(item.canonicalWordId)?.microSkillKey);
   const presentation = sessionMixOrder(dueQueue, familyOfDue);
@@ -478,7 +487,14 @@ export function composeDailyPlan(facts: DailyPlanFacts, today: IsoDate): Compose
   let introTrimmed = false;
   const trims: string[] = [];
 
-  const throttle = throttlePredicate(reviewPolicy, facts.bundles, facts.scheduleWords, today);
+  const throttle: ThrottleDecision = specialistOptions ? {
+    lessonAllowed: specialistOptions.frozenReviewWorkload.lessonAllowed,
+    // R6 stores one mixed per-word due count. The legacy split is unavailable.
+    dueReviewWordCount: specialistOptions.frozenReviewWorkload.dueCount,
+    dueCatchUpRetestCount: 0,
+    totalDue: specialistOptions.frozenReviewWorkload.dueCount,
+    sessionCap: specialistOptions.frozenReviewWorkload.sessionCap,
+  } : throttlePredicate(reviewPolicy, facts.bundles, facts.scheduleWords, today);
 
   if (!throttle.lessonAllowed) {
     partTwoSkips.push({

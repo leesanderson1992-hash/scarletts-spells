@@ -2,7 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { composeDailyPlan, type ComposedDailyPlan } from "../daily-assignment-composer";
+import { composeDailyPlan, type ComposedDailyPlan, type SpecialistComposeOptions } from "../daily-assignment-composer";
 import type { AdleGenerationTrigger } from "../assignment-persistence";
 import { getExistingAdleSessionPlanId, prepareComposedAdleDailyPlanPersistence, findAdleHeader } from "../loaders/daily-plan-surface";
 import { compileDynamicPrefixSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
@@ -68,6 +68,7 @@ type WriterParams = {
   allowStagingProfiles: boolean;
   generationTrigger?: AdleGenerationTrigger;
   r6AppendAssignmentId?: string;
+  r6SpecialistComposeOptions?: SpecialistComposeOptions;
 };
 
 async function existingProfileKey(
@@ -170,7 +171,7 @@ export async function prepareDynamicPrefixAssignment(
     today: params.planDate,
   });
   const plan = buildDynamicPrefixAssignmentPlan({
-    basePlan: composeDailyPlan(facts, params.planDate),
+    basePlan: composeDailyPlan(facts, params.planDate, params.r6SpecialistComposeOptions),
     facts,
     selection,
     payload: compilerDecision.payload,
