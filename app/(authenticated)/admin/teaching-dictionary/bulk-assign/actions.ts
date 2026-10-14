@@ -7,6 +7,9 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { candidatePreviewAssociations, isUuid, reviewPairReadiness } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
+import { managerAssignedPairs } from "@/lib/teaching-dictionary-manager/bulk-review";
+import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { updateTag } from "next/cache";
 import type { EnrichmentCandidate } from "@/lib/writing-engine/whole-writing/knowledge";
 
 export type BulkApprovalResult = {
@@ -110,8 +113,69 @@ export async function saveBulkSkillApprovals(input: {
     if (published.error || published.data !== newIds.length) {
       return failed("The batch result could not be confirmed. Retry with the same selection.");
     }
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     return { ok: true, approvedCount: newIds.length, alreadyAssignedCount, blocked: [] };
   } catch {
     return failed("The approval check failed. No new approvals were saved.");
+  }
+}
+
+export type BulkReviewChangeResult = { ok: boolean; error?: string };
+
+export async function setBulkReviewExclusion(input: {
+  microSkillKey: string; wordId: string; excluded: boolean;
+}): Promise<BulkReviewChangeResult> {
+  const actor = await requireAdminUser();
+  const environment = resolveAdleRouteActivationEnvironment();
+  if (!environment || !input || typeof input.microSkillKey !== "string" || !isUuid(input.wordId)
+    || typeof input.excluded !== "boolean") return { ok: false, error: "Invalid review choice." };
+  const db = createServiceRoleClient();
+  const [skill, word, controls] = await Promise.all([
+    db.from("micro_skill_catalog").select("micro_skill_key").eq("micro_skill_key", input.microSkillKey)
+      .eq("is_active", true).eq("is_assignable", true).maybeSingle(),
+    db.from("canonical_teaching_dictionary_words").select("id").eq("id", input.wordId)
+      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").maybeSingle(),
+    loadWordSkillReviewControls(db, environment),
+  ]);
+  if (skill.error || !skill.data || word.error || !word.data) return { ok: false, error: "Word or micro-skill is no longer available." };
+  if (!controls.review_enabled) return { ok: false, error: "Review controls are disabled." };
+  if (input.excluded) {
+    const authority = await loadTeachingDictionaryEvidenceAuthority(db, environment);
+    if (authority.relationships.some((row) => row.canonicalWordId === input.wordId && row.microSkillKey === input.microSkillKey)) {
+      return { ok: false, error: "Remove the assignment before choosing Do not apply." };
+    }
+  }
+  const query = db.from("teaching_dictionary_bulk_review_exclusions");
+  const result = input.excluded
+    ? await query.upsert({ environment_key: environment, micro_skill_key: input.microSkillKey,
+      canonical_word_id: input.wordId, reviewed_by: actor.id, reviewed_at: new Date().toISOString() })
+    : await query.delete().eq("environment_key", environment).eq("micro_skill_key", input.microSkillKey)
+      .eq("canonical_word_id", input.wordId);
+  return result.error ? { ok: false, error: "The review choice could not be saved. Please retry." } : { ok: true };
+}
+
+export async function removeBulkSkillAssignment(input: {
+  microSkillKey: string; wordId: string;
+}): Promise<BulkReviewChangeResult> {
+  const actor = await requireAdminUser();
+  const environment = resolveAdleRouteActivationEnvironment();
+  if (!environment || !input || typeof input.microSkillKey !== "string" || !isUuid(input.wordId)) {
+    return { ok: false, error: "Invalid word assignment." };
+  }
+  const db = createServiceRoleClient();
+  try {
+    const authority = await loadTeachingDictionaryEvidenceAuthority(db, environment);
+    const pair = managerAssignedPairs(authority.relationships).find((row) =>
+      row.microSkillKey === input.microSkillKey && row.wordId === input.wordId);
+    if (!pair?.removable) return { ok: false, error: "This assignment is managed elsewhere and cannot be removed here." };
+    const result = await db.rpc("withdraw_teaching_dictionary_manager_skill_pair", {
+      p_environment: environment, p_skill_key: input.microSkillKey,
+      p_word_id: input.wordId, p_actor: actor.id,
+    });
+    if (result.error || !result.data) return { ok: false, error: "The assignment could not be removed. Please retry." };
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "The assignment could not be checked. Please retry." };
   }
 }

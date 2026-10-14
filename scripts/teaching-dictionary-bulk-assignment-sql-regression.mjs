@@ -74,5 +74,40 @@ await assert.rejects(db.query("select publish_teaching_dictionary_bulk_skill_app
 await db.query("update canonical_teaching_dictionary_words set review_status='approved_for_first_exposure' where id=$1", [b]);
 await db.query("update adle_word_skill_review_controls set publication_enabled=false where environment_key='local'");
 await assert.rejects(db.query("select publish_teaching_dictionary_bulk_skill_approvals($1,$2,$3::uuid[],$4::uuid,$5::uuid,$6)", [...args, "fingerprint"]));
+await db.exec(`
+create schema auth;
+create table auth.users(id uuid primary key);
+create table adle_reviewed_word_skill_releases(id uuid primary key,environment_key text);
+create table adle_reviewed_word_skill_pairs(release_id uuid,canonical_word_id uuid,micro_skill_key text);
+create table adle_reviewed_word_skill_withdrawals(release_id uuid primary key);
+create function withdraw_word_skill_reviewed_release(p_release uuid,p_environment text,p_actor uuid,p_reason text)
+returns void language plpgsql as $$begin
+  insert into adle_reviewed_word_skill_withdrawals values(p_release) on conflict do nothing;
+end$$;
+`);
+await db.query("insert into auth.users values($1)", [actor]);
+await db.exec(readFileSync("supabase/migrations/20261014120000_teaching_dictionary_bulk_review_choices.sql", "utf8"));
+await db.query(`insert into teaching_dictionary_bulk_review_exclusions
+  (environment_key,micro_skill_key,canonical_word_id,reviewed_by) values('local',$1,$2,$3)`, [skill, b, actor]);
+const savedChoice = await db.query("select canonical_word_id from teaching_dictionary_bulk_review_exclusions where environment_key='local' and micro_skill_key=$1", [skill]);
+assert.equal(savedChoice.rows[0].canonical_word_id, b);
+await db.query("insert into micro_skill_catalog values('D4_OTHER',true,true)");
+await db.query(`insert into teaching_dictionary_bulk_review_exclusions
+  (environment_key,micro_skill_key,canonical_word_id,reviewed_by) values('local','D4_OTHER',$1,$2)`, [b, actor]);
+for (const [word, release] of [[a, "55555555-5555-4555-8555-555555555555"], [b, "66666666-6666-4666-8666-666666666666"]]) {
+  await db.query("insert into adle_reviewed_word_skill_releases values($1,'local')", [release]);
+  await db.query("insert into adle_reviewed_word_skill_pairs values($1,$2,$3)", [release, word, skill]);
+  await db.query("update adle_word_skill_package_publications set release_id=$1 where package_id=$2", [release, prepared.rows[word === a ? 0 : 1].package_id]);
+}
+const removed = await db.query("select withdraw_teaching_dictionary_manager_skill_pair($1,$2,$3,$4) count", ["local", skill, b, actor]);
+assert.equal(removed.rows[0].count, 1);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1 and micro_skill_key=$2", [b, skill])).rows[0].count, 0);
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1 and micro_skill_key='D4_OTHER'", [b])).rows[0].count, 1);
+assert.equal((await db.query("select count(*)::integer count from adle_reviewed_word_skill_withdrawals where release_id='66666666-6666-4666-8666-666666666666'")).rows[0].count, 1);
+const outside = "77777777-7777-4777-8777-777777777777";
+await db.query("insert into adle_reviewed_word_skill_releases values($1,'local')", [outside]);
+await db.query("insert into adle_reviewed_word_skill_pairs values($1,$2,$3)", [outside, a, skill]);
+await assert.rejects(db.query("select withdraw_teaching_dictionary_manager_skill_pair($1,$2,$3,$4)", ["local", skill, a, actor]));
+assert.equal((await db.query("select count(*)::integer count from adle_reviewed_word_skill_withdrawals where release_id='55555555-5555-4555-8555-555555555555'")).rows[0].count, 0);
 await db.close();
 console.log("Teaching dictionary bulk approval transaction passed.");

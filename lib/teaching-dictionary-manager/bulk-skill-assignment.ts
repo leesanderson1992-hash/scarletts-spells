@@ -6,6 +6,8 @@ export type BulkWord = {
   hasSchwa: boolean | null;
   syllableCount: number | null;
   morphemeParts: string[];
+  phonemeHint: string | null;
+  phonemeSymbols: string[];
 };
 
 export type BulkFilters = {
@@ -13,7 +15,32 @@ export type BulkFilters = {
   schwa: "all" | "yes" | "no" | "unknown";
   morpheme: string;
   syllables: string;
+  phoneme: string;
 };
+
+// Keep compound IPA sounds together, as in the dictionary banding runner.
+const IPA_COMPOUNDS = ["aʊ", "əʊ", "eɪ", "aɪ", "ɔɪ", "ɪə", "eə", "ʊə", "tʃ", "dʒ", "iː", "uː", "ɑː", "ɔː", "ɜː"];
+
+export function isolatedPhonemeSymbols(hint: string | null | undefined): string[] {
+  const ipa = hint?.trim().match(/^\/([^/]+)\//u)?.[1];
+  if (!ipa) return [];
+  const symbols: string[] = [];
+  const characters = Array.from(ipa.normalize("NFC"));
+  for (let index = 0; index < characters.length;) {
+    const character = characters[index];
+    if (/[ˈˌ.\sˑ‿]/u.test(character)) { index += 1; continue; }
+    const compound = IPA_COMPOUNDS.find((symbol) => characters.slice(index, index + Array.from(symbol).length).join("") === symbol);
+    let token = compound ?? character;
+    index += Array.from(token).length;
+    while (index < characters.length && /\p{M}/u.test(characters[index])) token += characters[index++];
+    if (/\p{M}/u.test(token[0])) {
+      if (symbols.length) symbols[symbols.length - 1] += token;
+    } else {
+      symbols.push(token);
+    }
+  }
+  return [...new Set(symbols)];
+}
 
 export function syllableCount(value: string | null | undefined): number | null {
   const raw = value?.trim() ?? "";
@@ -49,6 +76,7 @@ export function filterBulkWords(words: readonly BulkWord[], filters: BulkFilters
     if (filters.syllables === "unknown" && word.syllableCount !== null) return false;
     if (filters.syllables && filters.syllables !== "unknown"
       && word.syllableCount !== Number(filters.syllables)) return false;
+    if (filters.phoneme && !word.phonemeSymbols.includes(filters.phoneme)) return false;
     return true;
   });
 }

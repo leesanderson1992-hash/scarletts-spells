@@ -3,15 +3,17 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
-import { morphemeParts, syllableCount, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { isolatedPhonemeSymbols, morphemeParts, syllableCount, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { managerAssignedPairs } from "@/lib/teaching-dictionary-manager/bulk-review";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { BulkAssignWorkspace } from "./workspace";
 
 export const dynamic = "force-dynamic";
 
 type DictionaryWord = { id: string; normalised_word: string; display_word: string; row_status: string; review_status: string };
-type Metadata = { id: string; canonical_word_id: string; row_status: string; created_at: string; has_schwa: boolean | null; syllables: string | null };
+type Metadata = { id: string; canonical_word_id: string; row_status: string; created_at: string; has_schwa: boolean | null; syllables: string | null; phoneme_hint: string | null };
 type Morphology = { id: string; canonical_word_id: string; row_status: string; morphology_parts: unknown };
+type Exclusion = { micro_skill_key: string; canonical_word_id: string };
 
 async function readAll<T>(table: string, columns: string): Promise<T[]> {
   const db = createServiceRoleClient();
@@ -25,19 +27,33 @@ async function readAll<T>(table: string, columns: string): Promise<T[]> {
   }
 }
 
+async function readExclusions(environment: string): Promise<Exclusion[]> {
+  const db = createServiceRoleClient();
+  const rows: Exclusion[] = [];
+  for (let start = 0; ; start += 500) {
+    const result = await db.from("teaching_dictionary_bulk_review_exclusions")
+      .select("micro_skill_key,canonical_word_id").eq("environment_key", environment)
+      .order("micro_skill_key").order("canonical_word_id").range(start, start + 499);
+    if (result.error) throw new Error("TEACHING_BULK_REVIEW_READ_FAILED");
+    rows.push(...result.data);
+    if (result.data.length < 500) return rows;
+  }
+}
+
 export default async function BulkAssignPage() {
   await requireAdminUser();
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
-  const [wordRows, metadataRows, morphologyRows, familiesResult, skillsResult, controls, authority] = await Promise.all([
+  const [wordRows, metadataRows, morphologyRows, familiesResult, skillsResult, controls, authority, exclusions] = await Promise.all([
     readAll<DictionaryWord>("canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status"),
-    readAll<Metadata>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,created_at,has_schwa,syllables"),
+    readAll<Metadata>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,created_at,has_schwa,syllables,phoneme_hint"),
     readAll<Morphology>("canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,row_status,morphology_parts"),
     db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
     environment ? loadWordSkillReviewControls(db, environment) : null,
     environment ? loadTeachingDictionaryEvidenceAuthority(db, environment) : null,
+    environment ? readExclusions(environment) : [],
   ]);
   if (familiesResult.error || skillsResult.error) throw new Error("TEACHING_BULK_CATALOG_READ_FAILED");
   const metadataByWord = new Map<string, Metadata>();
@@ -55,9 +71,11 @@ export default async function BulkAssignPage() {
       approvable: row.review_status === "approved_for_first_exposure",
       hasSchwa: metadata?.has_schwa ?? null, syllableCount: syllableCount(metadata?.syllables),
       morphemeParts: morphemeParts(morphologyByWord.get(row.id)?.morphology_parts),
+      phonemeHint: metadata?.phoneme_hint ?? null,
+      phonemeSymbols: isolatedPhonemeSymbols(metadata?.phoneme_hint),
     };
   }).sort((a, b) => a.normalisedWord.localeCompare(b.normalisedWord));
-  const assignedPairs = (authority?.relationships ?? []).map((row) => `${row.microSkillKey}:${row.canonicalWordId}`);
+  const assignedPairs = managerAssignedPairs(authority?.relationships ?? []);
   const enabled = Boolean(environment && controls?.review_enabled && controls.publication_enabled && controls.withdrawal_enabled);
 
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
@@ -70,6 +88,7 @@ export default async function BulkAssignPage() {
     }))} skills={(skillsResult.data ?? []).map((row) => ({
       key: row.micro_skill_key, label: row.display_name, familyKey: row.skill_family_key,
       clusterKey: row.skill_cluster_key,
-    }))} assignedPairs={assignedPairs} approvalEnabled={enabled} />
+    }))} assignedPairs={assignedPairs} excludedPairs={exclusions.map((row) =>
+      `${row.micro_skill_key}:${row.canonical_word_id}`)} approvalEnabled={enabled} />
   </main>;
 }
