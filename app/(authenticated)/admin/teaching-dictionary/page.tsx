@@ -66,7 +66,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const readFacts = <T,>(table: string, columns: string) => fullScan
     ? readAll<T>(table, columns) : readForWords<T>(table, columns, wordIds);
   const [metadata, dictation, prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent, drafts, authority] = await Promise.all([
-    readFacts<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes"),
+    readFacts<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,written_syllable_breakdown,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes"),
     readFacts<{ canonical_word_id: string; row_status: string; review_status: string }>("canonical_teaching_dictionary_dictation_sentences", "id,canonical_word_id,row_status,review_status"),
     readFacts<{ canonical_word_id: string; prefix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
     readFacts<{ canonical_word_id: string; suffix_profile_id: string; row_status: string }>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
@@ -81,6 +81,8 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const metadataReady = new Set(metadata.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure"
     && row.syllables?.trim() && row.phoneme_hint?.trim() && row.stress_pattern?.trim()
     && typeof row.has_schwa === "boolean" && row.morphemes?.trim() && row.morphology_notes != null).map((row) => row.canonical_word_id));
+  const metadataByWord = new Map(metadata.filter((row) => row.row_status === "active")
+    .map((row) => [row.canonical_word_id, row]));
   const dictationReady = new Set(dictation.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure").map((row) => row.canonical_word_id));
   const prefixById = new Map(prefixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
   const suffixById = new Map(suffixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
@@ -133,7 +135,8 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
           const routeKeys = routeKeysByWord.get(word.id) ?? [];
           const missingRoute = [...new Set([...keys, ...routeKeys])].some((key) => memberMissing(word.id, key));
           const governedPending = routeKeys.some((key) => ["base_word_lab", "compound_word_lab"].includes(routeForSkill(key)?.routeId ?? ""));
-          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link></td><td className="p-2">{missing ? "Needs facts" : "Present"}</td><td className="p-2">{keys.length} approved</td><td className="p-2">{missingRoute ? "Member missing" : governedPending ? "Governed release check" : keys.length ? "Check child gates" : "No specialist skill"}</td></tr>;
+          const fact = metadataByWord.get(word.id);
+          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown || "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{keys.length} approved</td><td className="p-2">{missingRoute ? "Member missing" : governedPending ? "Governed release check" : keys.length ? "Check child gates" : "No specialist skill"}</td></tr>;
         })}
       </tbody></table></div>
       <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < total && <Link href={href(page + 1)}>Next</Link>}</div>

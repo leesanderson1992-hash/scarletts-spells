@@ -9,7 +9,7 @@ function jsonArray(value: string): unknown[] {
 }
 
 export type CsvDraft = { rowNumber: number; normalisedWord: string; payload: WordDraftPayload; providedColumns: string[]; error?: string;
-  canonicalWordId?: string; sourceRowHash?: string; unchanged?: boolean };
+  canonicalWordId?: string; sourceRowHash?: string; writtenSyllableBreakdown?: string; unchanged?: boolean };
 
 export function roundTripEditHash(row: Record<string, unknown>, columns: readonly string[]): string {
   const editable = columns.filter((name) => name !== "missing_facts" && name !== "tdm_edit_hash");
@@ -161,6 +161,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     return { rowNumber: index + 2, normalisedWord, payload, providedColumns: names,
       canonicalWordId: raw.tdm_export_version ? raw.canonical_word_id : undefined,
       sourceRowHash: raw.tdm_export_version ? raw.source_row_hash : undefined,
+      writtenSyllableBreakdown: names.includes("written_syllable_breakdown") ? raw.written_syllable_breakdown : undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
       error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."
         : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError

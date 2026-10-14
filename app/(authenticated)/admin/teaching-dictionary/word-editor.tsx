@@ -36,7 +36,7 @@ const FIELD_GUIDANCE: Record<string, { format: string; example: string }> = {
   "Frequency band": { format: "Use a consistent frequency label.", example: "common" },
   "Complexity band": { format: "Use a consistent teaching difficulty label.", example: "developing" },
   "Has schwa": { format: "Choose Yes when an unstressed vowel reduces to a schwa sound.", example: "Yes, for the first sound in ability." },
-  syllables: { format: "Separate spoken syllables with hyphens.", example: "a-bil-i-ty" },
+  syllables: { format: "Enter the number of spoken syllables.", example: "4" },
   "phoneme hint": { format: "Use a short pronunciation cue or IPA transcription.", example: "/əˈbɪləti/" },
   "grapheme notes": { format: "Explain the spelling letters that need attention.", example: "The final y in able changes before -ity." },
   "stress pattern": { format: "Name or number the stressed syllable.", example: "Stress on the second syllable: a-BIL-i-ty." },

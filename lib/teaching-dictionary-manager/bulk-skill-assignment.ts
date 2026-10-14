@@ -5,6 +5,7 @@ export type BulkWord = {
   approvable: boolean;
   hasSchwa: boolean | null;
   syllableCount: number | null;
+  writtenSyllableBreakdown?: string | null;
   morphemeParts: string[];
   phonemeHint: string | null;
   phonemeSymbols: string[];

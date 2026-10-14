@@ -452,6 +452,11 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         errors.push(`Row ${row.rowNumber}: Dictionary word changed since export. Download a fresh CSV.`);
         return [];
       }
+      if (row.writtenSyllableBreakdown !== undefined &&
+        row.writtenSyllableBreakdown !== String(current ? metadataByWord.get(current.id)?.written_syllable_breakdown ?? "" : "")) {
+        errors.push(`Row ${row.rowNumber}: Written syllable breakdown is read-only. Download a fresh CSV if this review changed.`);
+        return [];
+      }
       if (current) {
         if (!supplied.has("display_word")) row.payload.displayWord = current.display_word;
         if (!supplied.has("age_band")) row.payload.ageBand = current.age_band ?? "";

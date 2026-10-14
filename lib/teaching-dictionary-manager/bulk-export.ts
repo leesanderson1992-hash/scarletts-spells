@@ -9,7 +9,7 @@ import { ROUTE_JSON_FIELDS, ROUTE_TEXT_FIELDS, roundTripEditHash } from "./csv";
 
 const COLUMNS = ["tdm_export_version", "tdm_edit_hash", "canonical_word_id", "source_row_hash", "normalised_word", "display_word",
   "affected_micro_skills", "definition", "dictation_sentence", "dictation_target_token_index", "age_band", "frequency_band",
-  "complexity_band", ...WORD_METADATA_FIELDS, "has_schwa", "raw_morpholex_segmentation", "raw_morpholex_pos",
+  "complexity_band", ...WORD_METADATA_FIELDS, "written_syllable_breakdown", "has_schwa", "raw_morpholex_segmentation", "raw_morpholex_pos",
   "morphology_parts", "feature_keys", "morphology_joins", "transformation_notes", "word_sum", "analysis_status",
   "morphology_review_notes", "source_category", "source_name", "source_url", "source_licence", "source_use_note",
   "confidence", "routeId", "routeVersion", "microSkillKey", "wordMeaning", "wordSum", ...ROUTE_TEXT_FIELDS,
@@ -103,6 +103,7 @@ export async function teachingDictionaryExportRows(): Promise<Record<string, unk
         dictation_sentence: sentence.dictation_sentence ?? "", dictation_target_token_index: sentence.dictation_target_token_index ?? 0,
         age_band: word.age_band ?? "", frequency_band: word.frequency_band ?? "", complexity_band: word.complexity_band ?? "",
         ...Object.fromEntries(WORD_METADATA_FIELDS.map((key) => [key, metadata[key] ?? ""])),
+        written_syllable_breakdown: metadata.written_syllable_breakdown ?? "",
         has_schwa: metadata.has_schwa == null ? "" : String(metadata.has_schwa),
         raw_morpholex_segmentation: morph.raw_morpholex_segmentation ?? "", raw_morpholex_pos: morph.raw_morpholex_pos ?? "",
         morphology_parts: morph.morphology_parts ?? [], feature_keys: morph.feature_keys ?? [], morphology_joins: morph.morphology_joins ?? [],

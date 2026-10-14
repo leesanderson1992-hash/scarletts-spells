@@ -189,6 +189,14 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
     <nav className="text-sm"><Link href="/admin/teaching-dictionary" prefetch={true} className="underline">← All words</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
+    {word && <section className="rounded-lg border border-[var(--border)] bg-white p-4" aria-label="Pronunciation facts">
+      <h2 className="font-semibold">Pronunciation facts</h2>
+      <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-3">
+        <div><dt className="text-[color:var(--mid)]">Written syllables</dt><dd>{metadata?.written_syllable_breakdown || "No reviewed written breakdown"}</dd></div>
+        <div><dt className="text-[color:var(--mid)]">Spoken syllable count</dt><dd>{metadata?.syllables || "Unknown"}</dd></div>
+        <div><dt className="text-[color:var(--mid)]">Phoneme transcription / hint</dt><dd>{metadata?.phoneme_hint || "Unknown"}</dd></div>
+      </dl>
+    </section>}
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
     {protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">
       This word already belongs to released lesson content. Its changed shared facts need a reviewed route release before they can replace the current version.

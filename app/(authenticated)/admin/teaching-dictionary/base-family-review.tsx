@@ -48,7 +48,7 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
   </form>;
 }
 
-export async function BaseFamilyReview({ word, morphology, meaning, error, manualFamilyId }: {
+async function BaseFamilyReviewContent({ word, morphology, meaning, error, manualFamilyId }: {
   word: Word; morphology: Morphology | null; meaning: string; error?: string; manualFamilyId?: string;
 }) {
   const db = createServiceRoleClient();
@@ -88,8 +88,16 @@ export async function BaseFamilyReview({ word, morphology, meaning, error, manua
       .eq("review_status", "approved_for_first_exposure")
       .filter("morphology_parts", "cs", JSON.stringify([{ kind: "base", sourceText: word.normalisedWord }])).limit(100),
   ]);
-  if (baseWordsResult.error || legacyResult.error || definitionsResult.error || reviewedResult.error || derivedMorphologyResult.error)
+  for (const [table, failure] of [
+    ["canonical_teaching_dictionary_words", baseWordsResult.error],
+    ["canonical_teaching_dictionary_base_word_families", legacyResult.error],
+    ["teaching_dictionary_base_family_definitions", definitionsResult.error],
+    ["teaching_dictionary_base_family_member_reviews", reviewedResult.error],
+    ["canonical_teaching_dictionary_word_morphology", derivedMorphologyResult.error],
+  ] as const) if (failure) {
+    console.error("BASE_FAMILY_REVIEW_READ_FAILED", { wordId: word.id, table, code: failure.code, message: failure.message });
     throw new Error("BASE_FAMILY_REVIEW_READ_FAILED");
+  }
   const baseWords: Word[] = (baseWordsResult.data ?? []).map((row) => ({ id: row.id, normalisedWord: row.normalised_word,
     displayWord: row.display_word, dialectCode: row.dialect_code, rowStatus: row.row_status, reviewStatus: row.review_status }));
   const virtual = virtualFamilyCandidate(word);
@@ -162,4 +170,16 @@ export async function BaseFamilyReview({ word, morphology, meaning, error, manua
         morphology={null} meaning={meaning} /></div>)}
     </details>
   </section>;
+}
+
+export async function BaseFamilyReview(props: Parameters<typeof BaseFamilyReviewContent>[0]) {
+  try {
+    return await BaseFamilyReviewContent(props);
+  } catch (error) {
+    console.error("BASE_FAMILY_REVIEW_UNAVAILABLE", { wordId: props.word.id, error });
+    return <section id="base-family-review" className="order-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm" role="alert">
+      <h2 className="font-semibold">Base-word family review is temporarily unavailable</h2>
+      <p>The dictionary facts are still available. Family review actions are paused until this section is restored.</p>
+    </section>;
+  }
 }

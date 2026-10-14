@@ -11,7 +11,7 @@ import { BulkAssignWorkspace } from "./workspace";
 export const dynamic = "force-dynamic";
 
 type DictionaryWord = { id: string; normalised_word: string; display_word: string; row_status: string; review_status: string };
-type Metadata = { id: string; canonical_word_id: string; row_status: string; created_at: string; has_schwa: boolean | null; syllables: string | null; phoneme_hint: string | null };
+type Metadata = { id: string; canonical_word_id: string; row_status: string; created_at: string; has_schwa: boolean | null; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null };
 type Morphology = { id: string; canonical_word_id: string; row_status: string; morphology_parts: unknown };
 type Exclusion = { micro_skill_key: string; canonical_word_id: string };
 
@@ -46,7 +46,7 @@ export default async function BulkAssignPage() {
   const environment = resolveAdleRouteActivationEnvironment();
   const [wordRows, metadataRows, morphologyRows, familiesResult, skillsResult, controls, authority, exclusions] = await Promise.all([
     readAll<DictionaryWord>("canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status"),
-    readAll<Metadata>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,created_at,has_schwa,syllables,phoneme_hint"),
+    readAll<Metadata>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,created_at,has_schwa,syllables,written_syllable_breakdown,phoneme_hint"),
     readAll<Morphology>("canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,row_status,morphology_parts"),
     db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
@@ -70,6 +70,7 @@ export default async function BulkAssignPage() {
       id: row.id, normalisedWord: row.normalised_word, displayWord: row.display_word,
       approvable: row.review_status === "approved_for_first_exposure",
       hasSchwa: metadata?.has_schwa ?? null, syllableCount: syllableCount(metadata?.syllables),
+      writtenSyllableBreakdown: metadata?.written_syllable_breakdown ?? null,
       morphemeParts: morphemeParts(morphologyByWord.get(row.id)?.morphology_parts),
       phonemeHint: metadata?.phoneme_hint ?? null,
       phonemeSymbols: isolatedPhonemeSymbols(metadata?.phoneme_hint),
