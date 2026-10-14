@@ -19,7 +19,19 @@ export type BulkFilters = {
   phoneme: string;
 };
 
-export type BulkDraftChoice = "apply" | "exclude" | "clear";
+export type BulkDraftChoice = "apply" | "exclude" | "clear" | "deassign";
+
+/** Saved assignments use one draft slot even when exclusion also de-assigns them. */
+export function nextAssignedBulkDraft(current: ReadonlyMap<string, BulkDraftChoice>, id: string,
+  choice: "apply" | "exclude" | "deassign", checked = true,
+  limit = 100): Map<string, BulkDraftChoice> | null {
+  const next = new Map(current);
+  if (choice === "apply" && checked) next.delete(id);
+  else if (choice === "exclude" && !checked) next.delete(id);
+  else if (choice === "apply" && !checked) next.set(id, "deassign");
+  else next.set(id, choice);
+  return next.size <= limit ? next : null;
+}
 
 export function nextBulkReviewDraft(current: ReadonlyMap<string, BulkDraftChoice>, ids: readonly string[],
   choice: "apply" | "exclude", checked: boolean, savedExcluded: ReadonlySet<string>,

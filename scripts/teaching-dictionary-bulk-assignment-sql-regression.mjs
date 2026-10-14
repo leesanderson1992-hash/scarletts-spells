@@ -133,5 +133,28 @@ assert.equal((await db.query("select count(*)::integer count from teaching_dicti
 assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1", [e])).rows[0].count, 0);
 await assert.rejects(db.query("select reconcile_teaching_dictionary_bulk_review($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid,$7::uuid,$8)",
   ["local", skill, [], [a], [], actor, mixedRequest, null]));
+await db.exec(readFileSync("supabase/migrations/20261014210000_teaching_dictionary_pair_decisions.sql", "utf8"));
+const deassignRequest = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const deassignArgs = ["local", skill, [], [a], [], [a], [], actor, deassignRequest, null];
+await db.query("select reconcile_teaching_dictionary_bulk_review_v2($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid[],$7::uuid[],$8::uuid,$9::uuid,$10)", deassignArgs);
+assert.equal((await db.query("select action from teaching_dictionary_pair_latest_decisions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].action, "deassign");
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].count, 1);
+assert.equal((await db.query("select count(*)::integer count from adle_reviewed_word_skill_pairs where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].count, 2, "source publications remain intact");
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_pair_latest_decisions where environment_key='production' and canonical_word_id=$1", [a])).rows[0].count, 0, "decisions are environment-specific");
+const restoreRequest = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+await db.query("select reconcile_teaching_dictionary_bulk_review_v2($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid[],$7::uuid[],$8::uuid,$9::uuid,$10)",
+  ["local", skill, [], [], [a], [], [a], actor, restoreRequest, null]);
+assert.equal((await db.query("select action from teaching_dictionary_pair_latest_decisions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].action, "restore");
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].count, 0);
+const failureRequest = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+await db.query("select * from prepare_teaching_dictionary_bulk_skill_approvals($1,$2,$3::uuid[],$4::uuid,$5::uuid)",
+  ["local", skill, [e], actor, failureRequest]);
+await db.query("insert into test_publish_failure values($1)", [e]);
+await assert.rejects(db.query("select reconcile_teaching_dictionary_bulk_review_v2($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid[],$7::uuid[],$8::uuid,$9::uuid,$10)",
+  ["local", skill, [e], [a], [], [a], [], actor, failureRequest, "fingerprint"]));
+assert.equal((await db.query("select action from teaching_dictionary_pair_latest_decisions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].action, "restore", "failed batch preserves prior decision");
+assert.equal((await db.query("select count(*)::integer count from teaching_dictionary_bulk_review_exclusions where canonical_word_id=$1 and micro_skill_key=$2", [a, skill])).rows[0].count, 0, "failed batch preserves prior exclusion");
+await assert.rejects(db.query("select reconcile_teaching_dictionary_bulk_review_v2($1,$2,$3::uuid[],$4::uuid[],$5::uuid[],$6::uuid[],$7::uuid[],$8::uuid,$9::uuid,$10)",
+  ["local", skill, [], [], [], Array.from({length:101}, (_, i) => `10000000-0000-4000-8000-${String(i).padStart(12,"0")}`), [], actor, failureRequest, null]));
 await db.close();
 console.log("Teaching dictionary bulk approval transaction passed.");

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterBulkWords, isolatedPhonemeSymbols, morphemeParts, nextBulkReviewDraft, nextBulkSelection, syllableCount, type BulkWord } from "../lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { filterBulkWords, isolatedPhonemeSymbols, morphemeParts, nextAssignedBulkDraft, nextBulkReviewDraft, nextBulkSelection, syllableCount, type BulkWord } from "../lib/teaching-dictionary-manager/bulk-skill-assignment";
 import { managerAssignedPairs } from "../lib/teaching-dictionary-manager/bulk-review";
 import type { CanonicalWordSkillRelationship } from "../lib/adle/word-skill-relationships/contracts";
 
@@ -58,4 +58,11 @@ assert.deepEqual([...changedSaved], [["3", "apply"]]);
 assert.deepEqual([...nextBulkReviewDraft(changedSaved, ["3"], "apply", false, savedExcluded, "skill")!], [["3", "clear"]]);
 assert.deepEqual([...nextBulkReviewDraft(new Map(), ["2"], "exclude", true, savedExcluded, "skill")!], [["2", "exclude"]]);
 assert.equal(nextBulkReviewDraft(applyDraft, ["2", "4"], "exclude", true, savedExcluded, "skill", 2), null);
+const deassigned = nextAssignedBulkDraft(new Map(), "1", "deassign")!;
+assert.deepEqual([...deassigned], [["1", "deassign"]]);
+const excludedAssigned = nextAssignedBulkDraft(deassigned, "1", "exclude")!;
+assert.deepEqual([...excludedAssigned], [["1", "exclude"]], "exclusion and de-assignment count as one word");
+assert.deepEqual([...nextAssignedBulkDraft(excludedAssigned, "1", "apply")!], [], "reapply undoes an assigned-row draft");
+assert.deepEqual([...nextAssignedBulkDraft(new Map(), "1", "apply", false)!], [["1", "deassign"]], "clearing Apply queues de-assignment");
+assert.equal(nextAssignedBulkDraft(new Map([["1", "deassign"]]), "2", "deassign", true, 1), null, "combined pending limit applies to de-assignments");
 console.log("Teaching dictionary bulk assignment filters passed.");

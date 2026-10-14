@@ -1,8 +1,8 @@
 "use client";
 
 import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
-import { filterBulkWords, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
-import { removeBulkSkillAssignment, saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
+import { filterBulkWords, nextAssignedBulkDraft, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
 import type { BulkAssignedPair } from "@/lib/teaching-dictionary-manager/bulk-review";
 
 type Family = { key: string; label: string };
@@ -141,13 +141,14 @@ export function BulkAssignWorkspace(props: {
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const selectableVisible = visible.filter((word) => word.approvable && !assigned.has(`${chosenSkillKey}:${word.id}`)
+  const selectableVisible = visible.filter((word) => word.approvable && (!assigned.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id)
     && (!excluded.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id));
   const draftWords = (choice: BulkDraftChoice) => [...draft].filter(([, value]) => value === choice)
     .map(([id]) => wordById.get(id)).filter((word): word is BulkWord => Boolean(word));
   const applyWords = draftWords("apply");
   const excludeWords = draftWords("exclude");
   const clearWords = draftWords("clear");
+  const deassignWords = draftWords("deassign");
   const assignedWords = props.words.filter((word) => assigned.has(`${chosenSkillKey}:${word.id}`));
 
   function updateFilters(patch: Partial<BulkFilters>) {
@@ -155,8 +156,22 @@ export function BulkAssignWorkspace(props: {
     setPage(1);
   }
   function changeSelection(ids: string[], choice: "apply" | "exclude", checked: boolean) {
-    const next = nextBulkReviewDraft(draft, ids, choice, checked, excluded, chosenSkillKey, MAX_SELECTION);
-    if (!next) {
+    const next = new Map(draft);
+    for (const id of ids) {
+      const isAssigned = assigned.has(`${chosenSkillKey}:${id}`);
+      if (isAssigned) {
+        const changed = nextAssignedBulkDraft(next, id, choice, checked, MAX_SELECTION);
+        if (!changed) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
+        if (changed.has(id)) next.set(id, changed.get(id)!);
+        else next.delete(id);
+      } else {
+        const changed = nextBulkReviewDraft(next, [id], choice, checked, excluded, chosenSkillKey, MAX_SELECTION);
+        if (!changed) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
+        changed.forEach((value, key) => next.set(key, value));
+        if (!changed.has(id)) next.delete(id);
+      }
+    }
+    if (next.size > MAX_SELECTION) {
       setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`);
       return;
     }
@@ -192,23 +207,26 @@ export function BulkAssignWorkspace(props: {
     const applyWordIds = applyWords.map((word) => word.id);
     const excludeWordIds = excludeWords.map((word) => word.id);
     const clearWordIds = clearWords.map((word) => word.id);
+    const deassignWordIds = deassignWords.map((word) => word.id);
     const currentRequestId = requestId ?? crypto.randomUUID();
     setRequestId(currentRequestId);
     startTransition(async () => {
       try {
         const response = await saveBulkSkillApprovals({ microSkillKey: chosenSkillKey,
-          applyWordIds, excludeWordIds, clearWordIds, requestId: currentRequestId });
+          applyWordIds, excludeWordIds, clearWordIds, deassignWordIds, requestId: currentRequestId });
         setResult(response);
         if (response.ok) {
+          if (response.readbackRequired) { window.location.reload(); return; }
           setAssigned((previous) => {
             const next = new Map(previous);
+            for (const key of next.keys()) if (key.startsWith(`${chosenSkillKey}:`)) next.delete(key);
             for (const pair of response.assigned) next.set(`${chosenSkillKey}:${pair.id}`, pair.removable);
             return next;
           });
           setExcluded((previous) => {
             const next = new Set(previous);
-            for (const id of [...applyWordIds, ...clearWordIds]) next.delete(`${chosenSkillKey}:${id}`);
-            for (const id of excludeWordIds) next.add(`${chosenSkillKey}:${id}`);
+            for (const key of next) if (key.startsWith(`${chosenSkillKey}:`)) next.delete(key);
+            for (const id of response.excluded) next.add(`${chosenSkillKey}:${id}`);
             return next;
           });
           setDraft(new Map());
@@ -217,22 +235,21 @@ export function BulkAssignWorkspace(props: {
         }
       } catch {
         setResult({ ok: false, approvedCount: 0, alreadyAssignedCount: 0, excludedCount: 0, clearedCount: 0,
-          assigned: [], blocked: [], error: "The review request could not be completed. Please retry." });
+          deassignedCount: 0, assigned: [], excluded: [], blocked: [], error: "The review request could not be completed. Please retry." });
       }
     });
   }
 
   function removeAssignment(wordId: string) {
     if (pending || !chosenSkillKey) return;
+    const next = draft.get(wordId) === "deassign" ? new Map(draft)
+      : nextAssignedBulkDraft(draft, wordId, "deassign", true, MAX_SELECTION);
+    if (!next) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
+    if (draft.get(wordId) === "deassign") next.delete(wordId);
+    setDraft(next);
+    setResult(null);
+    setRequestId(null);
     setReviewError("");
-    startTransition(async () => {
-      try {
-        const response = await removeBulkSkillAssignment({ microSkillKey: chosenSkillKey, wordId });
-        if (!response.ok) { setReviewError(response.error ?? "Assignment could not be removed."); return; }
-        setAssigned((previous) => { const next = new Map(previous); next.delete(`${chosenSkillKey}:${wordId}`); return next; });
-        setEditingWordId(null);
-      } catch { setReviewError("Assignment could not be removed. Please retry."); }
-    });
   }
 
   function choiceInput(word: BulkWord, choice: "apply" | "exclude") {
@@ -243,7 +260,7 @@ export function BulkAssignWorkspace(props: {
     const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
     const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
     return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
-      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || isAssigned || locked}
+      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked}
       onChange={(event) => changeSelection([word.id], choice, event.target.checked)} />;
   }
 
@@ -256,13 +273,16 @@ export function BulkAssignWorkspace(props: {
       {choice === "apply" ? <span>Apply · pending</span>
         : choice === "exclude" ? <span>Doesn’t apply · pending</span>
           : choice === "clear" ? <span>Clear review · pending</span>
+            : choice === "deassign" ? <span>De-assign · pending</span>
             : isAssigned ? <span>Applied</span> : isExcluded ? <span>Doesn’t apply</span>
               : !word.approvable ? <span>Word not approved</span> : null}
       {(isAssigned || isExcluded) && <button type="button" aria-label={`Edit review choice for ${word.displayWord}`}
-        title="Edit review choice" disabled={pending || !props.approvalEnabled || (isAssigned && !assigned.get(pairKey))}
+        title="Edit review choice" disabled={pending || !props.approvalEnabled}
         className="rounded border border-[var(--border)] bg-white px-1 disabled:opacity-50"
         onClick={() => setEditingWordId(editingWordId === word.id ? null : word.id)}>✎</button>}
-      {isAssigned && editingWordId === word.id && <span>Remove in section 3 before changing this choice.</span>}
+      {isAssigned && editingWordId === word.id && <button type="button" className="underline"
+        onClick={() => removeAssignment(word.id)}>De-assign</button>}
+      {isAssigned && choice && <button type="button" className="underline" onClick={() => removeDraft(word.id)}>Undo</button>}
       {isExcluded && editingWordId === word.id && <button type="button" className="underline"
         onClick={() => { const next = new Map(draft); next.set(word.id, "clear");
           if (next.size > MAX_SELECTION) { setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return; }
@@ -417,7 +437,8 @@ export function BulkAssignWorkspace(props: {
             </section>)}
           <div className="rounded-xl border border-[var(--border)] bg-[var(--paper)] p-4">
             <p className="text-sm">{draft.size}/{MAX_SELECTION} pending changes
-              {clearWords.length ? ` · ${clearWords.length} saved review ${clearWords.length === 1 ? "choice" : "choices"} to clear` : ""}</p>
+              {clearWords.length ? ` · ${clearWords.length} saved review ${clearWords.length === 1 ? "choice" : "choices"} to clear` : ""}
+              {deassignWords.length ? ` · ${deassignWords.length} to de-assign` : ""}</p>
             {selectionError && <p role="alert" className="mt-3 text-sm text-rose-800">{selectionError}</p>}
             {reviewError && <p role="alert" className="mt-3 text-sm text-rose-800">{reviewError}</p>}
             {!props.approvalEnabled && <p role="alert" className="mt-3 text-sm text-amber-900">Evidence approval controls are disabled in this environment.</p>}
@@ -427,7 +448,7 @@ export function BulkAssignWorkspace(props: {
             </button>
             {result && <div className={`mt-4 rounded-lg p-3 text-sm ${result.ok ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}
               role={result.ok ? "status" : "alert"}>
-              {result.ok ? `${result.approvedCount} applied; ${result.excludedCount} marked doesn’t apply; ${result.clearedCount} cleared${result.alreadyAssignedCount ? `; ${result.alreadyAssignedCount} already assigned` : ""}.` : result.error}
+              {result.ok ? `${result.approvedCount} applied; ${result.excludedCount} marked doesn’t apply; ${result.deassignedCount} de-assigned; ${result.clearedCount} cleared${result.alreadyAssignedCount ? `; ${result.alreadyAssignedCount} already assigned` : ""}.` : result.error}
               {result.blocked.length > 0 && <ul className="mt-2 list-disc pl-5">{result.blocked.map((item) =>
                 <li key={item.id}>{item.word}: {item.reason}</li>)}</ul>}
             </div>}
@@ -440,12 +461,12 @@ export function BulkAssignWorkspace(props: {
         <summary className="cursor-pointer text-xl font-semibold">3. See all words in {chosenSkill?.label} ({assignedWords.length})</summary>
         <div className="mt-4 flex flex-wrap gap-2" aria-label={`Words in ${chosenSkill?.label}`}>
           {assignedWords.length ? assignedWords.map((word) => {
-            const removable = assigned.get(`${chosenSkillKey}:${word.id}`);
-            return <span key={word.id} className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--paper)] px-3 py-1 text-sm">
-              {word.displayWord}
-              {removable && <button type="button" aria-label={`Remove ${word.displayWord} from ${chosenSkill?.label}`}
-                title="Remove assignment" disabled={pending || !props.approvalEnabled}
-                className="font-bold disabled:opacity-50" onClick={() => removeAssignment(word.id)}>×</button>}
+            const pendingChoice = draft.get(word.id);
+            return <span key={word.id} className={`inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--paper)] px-3 py-1 text-sm ${pendingChoice === "deassign" || pendingChoice === "exclude" ? "opacity-50" : ""}`}>
+              {word.displayWord}{pendingChoice === "deassign" || pendingChoice === "exclude" ? " · De-assign pending" : ""}
+              <button type="button" aria-label={`${pendingChoice ? "Undo pending change for" : "De-assign"} ${word.displayWord} from ${chosenSkill?.label}`}
+                title={pendingChoice ? "Undo pending change" : "De-assign on confirmation"} disabled={pending || !props.approvalEnabled}
+                className="font-bold disabled:opacity-50" onClick={() => pendingChoice ? removeDraft(word.id) : removeAssignment(word.id)}>{pendingChoice ? "Undo" : "×"}</button>
             </span>;
           }) : <p className="text-sm">No assigned words yet.</p>}
         </div>

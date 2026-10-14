@@ -78,6 +78,31 @@ const adapted = read(adapterFacts);
 assert.equal(adapted.relationships.length, 4, "all governed adapter shapes admit exact approved pairs");
 assert.equal(adapted.decisions.every((entry) => entry.disposition === "ADMITTED"), true);
 
+for (const pair of [
+  { canonicalWordId: PHASE_B_FIXTURE_WORDS.hopeful, microSkillKey: PHASE_B_FIXTURE_SKILLS.preserveBase }, // manager release
+  { canonicalWordId: PHASE_B_FIXTURE_WORDS.playing, microSkillKey: PHASE_B_FIXTURE_SKILLS.identifyBase }, // resolver
+  { canonicalWordId: PHASE_B_FIXTURE_WORDS.dishonest, microSkillKey: PHASE_B_FIXTURE_SKILLS.disMis }, // mixed source
+]) {
+  const decision = { id: `deassign:${pair.canonicalWordId}`, ...pair, action: "deassign" as const };
+  const suppressed = readCanonicalWordSkillRelationships({ words: phaseBFixtureWords,
+    microSkills: phaseBFixtureSkills, facts: phaseBFixtureFacts, pairDecisions: [decision] });
+  assert(!suppressed.relationships.some((row) => row.canonicalWordId === pair.canonicalWordId
+    && row.microSkillKey === pair.microSkillKey), "de-assignment removes effective pair across source types");
+  assert(suppressed.decisions.some((row) => row.canonicalWordId === pair.canonicalWordId
+    && row.microSkillKey === pair.microSkillKey && row.reason === "MANAGER_PAIR_DEASSIGNED"));
+  assert.notEqual(suppressed.reconciliation.sourceFingerprint, first.reconciliation.sourceFingerprint,
+    "manager decision participates in authority fingerprint");
+  const restored = readCanonicalWordSkillRelationships({ words: phaseBFixtureWords,
+    microSkills: phaseBFixtureSkills, facts: phaseBFixtureFacts,
+    pairDecisions: [{ ...decision, id: `restore:${pair.canonicalWordId}`, action: "restore" }] });
+  assert(restored.relationships.some((row) => row.canonicalWordId === pair.canonicalWordId
+    && row.microSkillKey === pair.microSkillKey), "reapply reuses active source");
+  const republished = readCanonicalWordSkillRelationships({ words: phaseBFixtureWords,
+    microSkills: phaseBFixtureSkills, facts: [...phaseBFixtureFacts, ...phaseBFixtureFacts], pairDecisions: [decision] });
+  assert(!republished.relationships.some((row) => row.canonicalWordId === pair.canonicalWordId
+    && row.microSkillKey === pair.microSkillKey), "later source republication stays suppressed");
+}
+
 const repositorySource = readFileSync(new URL("../lib/adle/word-skill-relationships/repository.ts", import.meta.url), "utf8");
 assert.match(repositorySource, /^import "server-only";/, "the live authority must remain server-only");
 assert.doesNotMatch(repositorySource, /\.(?:insert|update|upsert|delete)\s*\(/, "the live authority must remain read-only");

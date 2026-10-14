@@ -145,6 +145,7 @@ export function readCanonicalWordSkillRelationships(input: {
   words: readonly CanonicalWordIdentityFact[];
   microSkills: readonly MicroSkillIdentityFact[];
   facts: readonly RawWordSkillRelationshipFact[];
+  pairDecisions?: readonly { id: string; canonicalWordId: string; microSkillKey: string; action: "deassign" | "restore" }[];
   /** False only when an entire source adapter cannot establish deterministic identity/version lineage. */
   adapterAuthorityEstablished?: boolean;
 }): CanonicalWordSkillRelationshipReadResult {
@@ -181,6 +182,19 @@ export function readCanonicalWordSkillRelationships(input: {
         if (decisionsByFact.get(fact)?.disposition === "ADMITTED") {
           decisionsByFact.set(fact, decision(fact, "AMBIGUOUS", "IRRECONCILABLE_ACTIVE_ROLES"));
         }
+      }
+    }
+  }
+
+  // A manager decision governs the effective pair, not the source records.
+  // Keep source facts intact so provenance and historical evidence remain auditable.
+  const latestPairDecisions = new Map((input.pairDecisions ?? []).map((entry) =>
+    [pairKey(entry.canonicalWordId, entry.microSkillKey), entry]));
+  for (const [key, group] of factsByPair) {
+    if (latestPairDecisions.get(key)?.action !== "deassign") continue;
+    for (const fact of group) {
+      if (decisionsByFact.get(fact)?.disposition === "ADMITTED") {
+        decisionsByFact.set(fact, decision(fact, "EXCLUDED", "MANAGER_PAIR_DEASSIGNED"));
       }
     }
   }
@@ -248,6 +262,9 @@ export function readCanonicalWordSkillRelationships(input: {
     decisions.filter((entry) => reasons.includes(entry.reason)).length;
   const reconciliationPayload = {
     interpretationVersion: CANONICAL_WORD_SKILL_RELATIONSHIP_INTERPRETATION_VERSION,
+    pairDecisionVersion: "TEACHING_DICTIONARY_PAIR_DECISION_V1",
+    pairDecisions: [...latestPairDecisions.values()].sort((a, b) =>
+      pairKey(a.canonicalWordId, a.microSkillKey).localeCompare(pairKey(b.canonicalWordId, b.microSkillKey))),
     relationships,
     decisions,
   };

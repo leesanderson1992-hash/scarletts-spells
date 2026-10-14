@@ -27,6 +27,7 @@ export type RelationshipDisposition =
 
 export type RelationshipDecisionReason =
   | "ADMITTED_EXACT_PAIR"
+  | "MANAGER_PAIR_DEASSIGNED"
   | "CONTRAST_ONLY"
   | "DIAGNOSTIC_ONLY"
   | "NEGATIVE_ONLY"

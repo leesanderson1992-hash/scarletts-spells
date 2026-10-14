@@ -191,6 +191,17 @@ The read authority groups admitted facts by exact
 relationship with all source provenance retained. No source has to be copied
 into generic support merely to make an already governed fact visible.
 
+For future relationship and evidence reads, the latest environment-scoped
+Teaching Dictionary Manager decision for an exact pair governs whether that
+pair is effective. `deassign` excludes every otherwise admitted provenance for
+the pair, including sources published later. `restore` lifts the override and
+reuses any still-active governed source. Both decisions are append-only audit
+events and are included in the relationship authority fingerprint. De-assigning
+does not withdraw or rewrite source publications, released lesson content,
+historical learner outcomes, or saved evidence reports. New evidence reads use
+the current effective relationship graph; historical records keep their pinned
+authority and source lineage.
+
 An approved specialist or resolver fact must therefore not require a duplicate
 generic row. Conversely, an unreviewed linguistic inference must not become
 evidence authority merely because it appears plausible.
