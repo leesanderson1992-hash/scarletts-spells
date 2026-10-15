@@ -65,6 +65,8 @@ export function nativeWordFacts(
     content = {
       ...member,
       familyKey: family.baseFamilyKey,
+      familyId: family.familyId,
+      baseWordId: family.baseWordId,
       baseWord: family.members.find((base: any) => base.canonicalWordId === family.baseWordId)?.morphologyParts?.map((part: any) => part.sourceText ?? part.surfaceText ?? part.text ?? "").join("") ?? family.baseFamilyKey,
       baseMeaning: family.baseMeaning,
     };

@@ -1,3 +1,4 @@
+import { recordJoinedBaseSkillReview } from "../lib/teaching-dictionary-manager/word-skill-review";
 import { compoundDictionaryWordIds } from "../lib/teaching-dictionary-manager/structural-package";
 import { nativeWordFacts } from "../lib/teaching-dictionary-manager/native-word-facts";
 import { bindNativePackageFingerprints } from "../lib/teaching-dictionary-manager/package-fingerprint";
@@ -26,6 +27,12 @@ const scoped=new Map<string,unknown>();collectWordFacts({families:[{members:[{ca
 assert.deepEqual(compoundDictionaryWordIds([{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"},{canonicalWordId:"component"}]}]),["whole","component"],"component identities must remain in the immutable dictionary closure");
 assert(found.has("whole"));assert(!found.has("component"),"a component is required teaching content, not a whole-word compound skill member");
 const db={from:()=>{throw new Error("Preflight must not read or mutate learner assignments");}} as unknown as SupabaseClient;
+let skillReviewWrites=0;
+const joinedReviewDb=(joined:boolean)=>({from:(table:string)=>{const data=table==="adle_route_activation_heads"?{current_revision_id:"revision"}:table==="adle_route_activation_revisions"?{release_manifest_id:"release"}:table==="adle_curriculum_release_dependencies"?{authority_id:"family"}:{id:"family",semantic_fingerprint:"source",semantic_projection:{schemaVersion:2,families:[{members:[{canonicalWordId:joined?"joined":"other",applicableMicroSkillKeys:["D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX"]}]}]}};const query:any={eq:()=>query,select:()=>query,single:async()=>({data,error:null}),maybeSingle:async()=>({data,error:null})};return query;},rpc:async()=>{skillReviewWrites++;return {data:null,error:{message:"Stop before test writes"}};}} as unknown as SupabaseClient);
+const joinedInput={wordId:"joined",microSkillKey:"D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",actorId:randomUUID(),environment:"production" as const};
+await assert.rejects(recordJoinedBaseSkillReview(joinedReviewDb(false),joinedInput),/BASE_FAMILY_EXACT_SKILL_APPROVAL_MISSING/);assert.equal(skillReviewWrites,0);
+await assert.rejects(recordJoinedBaseSkillReview(joinedReviewDb(true),joinedInput),/WORD_SKILL_PACKAGE_CREATE_FAILED/);assert.equal(skillReviewWrites,1,"only exact released family membership may be confirmed by lesson Save");
+
 const projection=(p:ReturnType<typeof buildIngReleasePackage>)=>p.authorities.map(a=>({id:randomUUID(),authority_key:a.authorityKey,authority_type:a.authorityType,schema_version:a.schemaVersion,semantic_projection:a.semanticProjection,semantic_fingerprint:a.semanticFingerprint}));
 const dictionary:WordDraftPayload={displayWord:"jumping",definition:"moving off the ground",dictationSentence:"She is jumping.",dictationTargetTokenIndex:2,
   dictationVariants:[{id:"primary",sentence:"She is jumping.",targetTokenIndex:2,audioText:"She is jumping."},{id:"repeat",sentence:"Jumping means jumping.",targetTokenIndex:2,audioText:"Jumping means jumping."}],

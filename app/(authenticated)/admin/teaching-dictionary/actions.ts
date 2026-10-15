@@ -4,6 +4,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
+import { recordJoinedBaseSkillReview } from "@/lib/teaching-dictionary-manager/word-skill-review";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -287,9 +288,10 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
         if(lesson.routeId === "base_word_lab" && wordId) {
           const environment=resolveAdleRouteActivationEnvironment();
           const familyKey=String(lesson.content.familyKey ?? "");
+          const familyId=String(lesson.content.familyId ?? "");
           const [legacy,definition,pairs]=await Promise.all([
-            db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("base_family_key",familyKey).eq("row_status","active").maybeSingle(),
-            db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("family_key",familyKey).maybeSingle(),
+            (isUuid(familyId) ? db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("id",familyId) : db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("base_family_key",familyKey)).eq("row_status","active").maybeSingle(),
+            (isUuid(familyId) ? db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("id",familyId) : db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("family_key",familyKey)).maybeSingle(),
             db.from("adle_reviewed_word_skill_pairs").select("release_id").eq("canonical_word_id",wordId).eq("micro_skill_key",key).eq("relationship_role","demonstrates"),
           ]);
           if(legacy.error||definition.error||pairs.error)throw new Error("BASE_FAMILY_REVIEW_READ_FAILED");
@@ -299,12 +301,12 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
           const withdrawn=await db.from("adle_reviewed_word_skill_withdrawals").select("release_id").in("release_id",(releases.data??[]).map(release=>release.id));
           if(releases.error||withdrawn.error)throw new Error("BASE_FAMILY_SKILL_APPROVAL_READ_FAILED");
           const release=releases.data?.find(row=>!withdrawn.data?.some(w=>w.release_id===row.id));
-          if(!release)throw new Error("BASE_FAMILY_EXACT_SKILL_APPROVAL_MISSING");
+          const releaseId=release?.id ?? await recordJoinedBaseSkillReview(db,{wordId,microSkillKey:key,actorId:actor.id,environment});
           const familyReview=await db.rpc("review_teaching_dictionary_base_family_member",{
             p_request_id:randomUUID(),p_base_word_id:family.base_word_id,p_word_id:wordId,p_legacy_family_id:legacy.data?.id??null,
             p_base_meaning:family.base_meaning,p_environment:environment,p_skill_key:key,p_word_sum:payload.canonicalMorphology.wordSum,
             p_parts:payload.canonicalMorphology.parts,p_joins:payload.canonicalMorphology.joins,p_transformations:payload.canonicalMorphology.transformations??[],
-            p_child_meaning:lesson.wordMeaning,p_morphology_id:null,p_word_skill_release_id:release.id,
+            p_child_meaning:lesson.wordMeaning,p_morphology_id:null,p_word_skill_release_id:releaseId,
             p_review_note:payload.canonicalMorphology.reviewNotes||"Explicit lesson details approval",p_actor:actor.id,
           });
           if(familyReview.error)throw new Error(familyReview.error.message.match(/BASE_FAMILY_[A-Z_]+/)?.[0]??"BASE_FAMILY_REVIEW_FAILED");
