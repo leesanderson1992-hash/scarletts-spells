@@ -1,7 +1,7 @@
 {
   "codeSha": "cc75a5fa8382e101dd6a2702bc0b55eec6976461",
   "previewDeploymentId": "dpl_9W3uJyqgnGNVeBmzdQEkTjQe7ccW",
-  "publicCodePromoted": false,
+  "publicCodePromoted": true,
   "receipts": {
     "responsible-receipt": {
       "draftId": "dda464a4-e0db-46e6-8d3a-69284e785750",
@@ -163,6 +163,73 @@
       "originalQueueStatusesRestored": true,
       "enabledIngScopesGlobal": 4,
       "releaseVersionsPreserved": true
+    }
+  },
+  "productionDeploymentId": "dpl_Cg2D1eK5u8MuSZBn96pLJYYSwALx",
+  "productionCodeSha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+  "productionReceipts": {
+    "production-approval": {
+      "sha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+      "approvalId": "4cf45a79-81f3-4a2c-b466-23a0708b6525",
+      "previousApprovalId": "0958bac6-26ca-42d1-925f-84e9ac116b3b",
+      "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+      "configFingerprint": "4cc403626862e63e6987141bde2429e336d2b2aeb498ac2739dfbfa50c2f2c19"
+    },
+    "candidate-head": {
+      "url": "scarletts-spells-2gcbc9933-leesanderson1992-hashs-projects.vercel.app",
+      "headers": {
+        "x-context-deployment-sha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+        "x-context-identity-valid": "true",
+        "x-context-release-hold": "disabled",
+        "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+      }
+    },
+    "public-head": {
+      "url": "scarletts-spells.vercel.app",
+      "headers": {
+        "x-context-deployment-sha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+        "x-context-identity-valid": "true",
+        "x-context-release-hold": "disabled",
+        "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+      }
+    },
+    "production-cutover": {
+      "sha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+      "approvalId": "4cf45a79-81f3-4a2c-b466-23a0708b6525",
+      "policyRevision": "bba6d756-3563-4983-abab-95ffa44a2ae9",
+      "schedulerJob": "16",
+      "limitsPreserved": true,
+      "controlPreserved": {
+        "enabled": false,
+        "ai_mode": "shadow"
+      }
+    },
+    "scheduler-delivery": {
+      "enabled": true,
+      "approved_deployment_sha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+      "last_dispatched_at": "2026-10-15T21:00:00.435Z",
+      "last_request_id": "22813",
+      "status_code": 200,
+      "error_msg": null,
+      "recoveryResponse": {
+        "deploymentSha": "05c6ed2957e4135610d92835ee74d91ef29ff8de",
+        "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+        "releaseHold": false,
+        "course": {
+          "status": "idle"
+        },
+        "adle": {
+          "status": "idle"
+        }
+      },
+      "safetyMonitor": true,
+      "unrecordedSends": {
+        "course": 0,
+        "adle": 0
+      },
+      "authenticatedPublicWordPage": "responsible: Reviewed; all seven activity ticks; Active \u00b7 released",
+      "errorLogScan": "No error logs found for deployment since release",
+      "currentUnrevokedLearnerAuthorisations": 4
     }
   }
 }

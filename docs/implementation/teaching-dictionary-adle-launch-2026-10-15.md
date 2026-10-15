@@ -1,6 +1,6 @@
 # Teaching Dictionary to ADLE launch — implementation and proof
 
-Owner approval: the Teaching Dictionary to ADLE launch plan in this task, including the decision to keep homophone/comparative paired passages and add group variation. The owner authorised the production-linked Preview proof with Test 2. This receipt does not authorise changing another child's queue or promoting public Production code.
+Owner approval: the Teaching Dictionary to ADLE launch plan in this task, including the decision to keep homophone/comparative paired passages and add group variation. The owner authorised the production-linked Preview proof with Test 2. The owner subsequently explicitly approved promoting the tested version. This authority does not extend to changing another child's queue.
 
 ## Stages
 
@@ -20,8 +20,8 @@ Launch remains inside each lesson section and publishes a reviewed complete grou
 - Deployment: `dpl_9W3uJyqgnGNVeBmzdQEkTjQe7ccW` (READY).
 - Immutable URL: https://scarletts-spells-nzdwmb33s-leesanderson1992-hashs-projects.vercel.app
 - Review URL: https://scarletts-spells-adle-readiness-preview.vercel.app/admin/teaching-dictionary/3729b83b-98b8-5ede-8db3-67150a8e1364
-- Final production build, application/scripts typechecks and changed-module lint passed. The earlier authenticated browser flow used the same approved layout; the final alias switch requires a refreshed app login.
-- Public Production code has **not** been promoted. Its exact-SHA writing-context AI release gate remains required by AGENTS.md.
+- Final production build, application/scripts typechecks and changed-module lint passed. The earlier authenticated browser flow used the same approved layout; the final alias was re-authenticated and responsible again showed all activity ticks and Active · released.
+- Public Production code was subsequently promoted under explicit owner approval; see the release receipt below.
 
 ## Controlled production-linked proof
 
@@ -69,4 +69,10 @@ The live inventory has 39 compiler-ready route/skill rows. Existing content bloc
 
 Comparative variation edits the route's existing reviewed six-family groups; a word outside a reviewed family receives an explicit blocker. Arbitrary additional family authoring is not introduced by this editor.
 
-Public Production promotion is the remaining rollout decision. Preserve approved AI terms and complete the exact deployment SHA approval/readback/policy-scheduler cutover before moving the public alias.
+## Public Production release
+
+The owner explicitly approved “Promote the tested version” after the controlled proof. Production deployment `dpl_Cg2D1eK5u8MuSZBn96pLJYYSwALx` was built from exact commit `05c6ed2957e4135610d92835ee74d91ef29ff8de` (only proof documentation differs from the final Preview SHA). The staged build passed authenticated HEAD readback before promotion. Main was pushed with Git auto-deployment disabled, then the same Production build was promoted to https://scarletts-spells.vercel.app.
+
+Public HEAD readback matched the SHA and runtime fingerprint, with valid identity and deployment hold disabled. Fresh provider approval `4cf45a79-81f3-4a2c-b466-23a0708b6525` cites the 2026-10-09 standing permission. The policy and existing recovery scheduler were cut over atomically to that SHA; policy revision `bba6d756-3563-4983-abab-95ffa44a2ae9`, Cron job 16. Approved project/model/endpoint, retention and data-sharing terms, fingerprints, rate card, four current unrevoked learner authorisations, and 37 requests/$0.1147 daily limits were preserved. Existing advisory control remains enabled=false, ai_mode=shadow. The safety monitor passed with zero unrecorded sends. Authenticated public browser readback showed responsible Reviewed, all seven activity ticks, and Active · released. The 2026-10-15 21:00 UTC scheduled recovery tick returned HTTP 200 with the exact new SHA, releaseHold=false and both workers idle. Results are recorded in the machine-readable receipt.
+
+The Production release uses a per-deployment hold override. No project-level release protection or automatic main deployment setting was changed.
