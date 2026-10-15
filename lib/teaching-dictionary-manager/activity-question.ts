@@ -28,6 +28,7 @@ export function lessonActivityQuestion(input: {
 }): string {
   const { kind, route, word } = input;
   const compiled = input.compiled as any;
+  const activities = Array.isArray(compiled?.activities) ? compiled.activities : [];
   const lesson = compiled?.payload?.resolvedLesson ?? compiled;
   const native = lesson?.lesson ?? lesson;
   if (kind === "introduction")
@@ -48,7 +49,7 @@ export function lessonActivityQuestion(input: {
     return (
       text(lesson?.activities?.reflection ?? lesson?.reflectionPrompt) ||
       text(
-        compiled?.activities?.find(
+        activities.find(
           (a: any) => a.canonical?.concept === "LESSON_REFLECTION",
         )?.payload?.prompt,
       ) ||
@@ -103,7 +104,7 @@ export function lessonActivityQuestion(input: {
           ? copy.actionDictation
           : copy.sentenceDictation;
   // The compiled data below is the question source for route-specific activities.
-  const activity = compiled?.activities?.find(
+  const activity = activities.find(
     (a: any) => a.activityId === kind || a.type === kind,
   );
   return (

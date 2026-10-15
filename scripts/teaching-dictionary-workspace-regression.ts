@@ -1,3 +1,4 @@
+import { lessonActivityQuestion } from "../lib/teaching-dictionary-manager/activity-question";
 import assert from "node:assert/strict";
 import { reviewedWordCanLaunch } from "../lib/teaching-dictionary-manager/editorial-review";
 import { compilerCoverage } from "../lib/teaching-dictionary-manager/compiler-coverage";
@@ -38,3 +39,10 @@ assert(!reviewedWordCanLaunch(reviewed,"older-draft",witnesses));
 assert(!reviewedWordCanLaunch({...reviewed,requiredForRelease:false},null,witnesses));
 assert(!reviewedWordCanLaunch(reviewed,null,{}));
 console.log("PASS: ordered transformation chains and exact per-word review/witness launch guards");
+
+for (const activities of [{ introduction: { prompt: "Welcome" }, reflection: { prompt: "Reflect" } }, [], null]) {
+  const question = lessonActivityQuestion({kind:"reflection",route:{routeId:"dynamic_affix_word_lab",wordMeaning:"meaning",content:{}} as any,word:"responsible",wordId:null,compiled:{activities},sources:[]});
+  assert.equal(typeof question,"string");
+}
+assert.equal(lessonActivityQuestion({kind:"reflection",route:{} as any,word:"word",wordId:null,compiled:{activities:[{canonical:{concept:"LESSON_REFLECTION"},payload:{prompt:"What changed?"}}]},sources:[]}),"What changed?");
+console.log("PASS: activity questions support native object and flat activity array snapshots");
