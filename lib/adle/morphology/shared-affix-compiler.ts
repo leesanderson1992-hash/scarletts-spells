@@ -204,7 +204,7 @@ function validateWord(
     ) !== word.displayWord
   ) blockers.push(blocker("missing_reviewed_dictation", detail));
 
-  if (!validText(word.morphology.notes) || Object.keys(word.morphology.provenance).length === 0) {
+  if (Object.keys(word.morphology.provenance).length === 0) {
     blockers.push(blocker("missing_decomposition", detail));
   }
   const unsupported = word.morphology.transformations.find(

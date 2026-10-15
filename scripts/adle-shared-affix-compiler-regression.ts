@@ -167,6 +167,8 @@ function requiresBlocker(
 }
 
 const validInput = normalised.input;
+assert(mutate(validInput, (draft) => { draft.words[0]!.morphology.notes = ""; }).ok, "reviewed structured morphology does not require an optional text note");
+requiresBlocker(mutate(validInput, (draft) => { draft.words[0]!.morphology.provenance = {}; }), "missing_decomposition");
 requiresBlocker(mutate(validInput, (draft) => { draft.words[0]!.parts = []; }), "missing_decomposition");
 requiresBlocker(mutate(validInput, (draft) => { draft.words[0]!.displayWord += "x"; }), "reconstruction_mismatch");
 requiresBlocker(mutate(validInput, (draft) => { draft.words[0]!.affixForm = ""; }), "missing_affix_form");

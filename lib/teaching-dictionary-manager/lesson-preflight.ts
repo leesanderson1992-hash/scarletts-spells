@@ -12,12 +12,12 @@ import { isDynamicPrefixRouteEnabled } from "@/lib/adle/morphology/dynamic-prefi
 import { isDynamicSuffixRouteEnabled } from "@/lib/adle/morphology/dynamic-suffix-route-gate";
 import {
   selectDynamicPrefixWordLab,
-  compileDynamicPrefixWordLabPayload,
 } from "@/lib/adle/morphology/dynamic-prefix-word-lab";
 import {
   selectDynamicAffixWordLab,
-  compileDynamicAffixWordLabPayload,
 } from "@/lib/adle/morphology/affix-word-lab";
+import { compileDynamicPrefixWordLabDecision } from "@/lib/adle/morphology/dynamic-prefix-compiler-rollout";
+import { compileDynamicAffixWordLabDecision } from "@/lib/adle/morphology/dynamic-affix-compiler-rollout";
 import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -1068,19 +1068,20 @@ export async function loadLessonReadiness(
                   profiles: [profile as (typeof loadedSuffix.profiles)[number]],
                   learningItems: items,
                 });
-            const payload = prefix
+            const decision = prefix
               ? selection &&
-                compileDynamicPrefixWordLabPayload(
+                compileDynamicPrefixWordLabDecision(
                   selection as NonNullable<
                     ReturnType<typeof selectDynamicPrefixWordLab>
                   >,
                 )
               : selection &&
-                compileDynamicAffixWordLabPayload(
+                compileDynamicAffixWordLabDecision(
                   selection as NonNullable<
                     ReturnType<typeof selectDynamicAffixWordLab>
                   >,
                 );
+            const payload = decision && decision.ok ? decision.payload : null;
             return payload &&
               set.every((id) =>
                 payload.words.lesson.some(
