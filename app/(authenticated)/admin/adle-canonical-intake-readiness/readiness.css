@@ -76,3 +76,8 @@
   .adle-admin-table thead th:nth-child(2) { position: sticky; left: 120px; z-index: 3; }
 }
 @media (max-width: 640px) { .adle-admin-search { min-width: 0; flex: 1; } .adle-admin-tab { padding: 10px 7px; font-size: .8rem; } }
+
+.adle-admin-intake { display: inline-block; white-space: nowrap; padding: 4px 8px; border-radius: 6px; background: #fff3dc; color: #805800; font-size: .8rem; }
+.adle-admin-intake.is-activated { background: #e7f4ed; color: #216843; }
+.adle-admin-intake.is-inconsistent { background: #fff0f1; color: #9f2335; }
+.adle-admin-intake.is-rejected, .adle-admin-intake.is-superseded { background: #f0f1f4; color: #59616b; }

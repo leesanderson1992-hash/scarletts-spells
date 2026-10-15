@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
+import { intakeOutcome, distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
 import { projectReadiness, type ProjectionInput } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-projection";
 
 const ready = (): ProjectionInput => ({
@@ -74,7 +74,7 @@ assert.equal(groupMatchesView({ demands: [{ lifecycle_status: "activated", archi
 assert.equal(groupMatchesView({ demands: restored, waiting: [], archived: false }, "other"), true);
 assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "missing"] }, "current"), true);
 assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "missing"] }, "other"), false);
-assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "unknown"] }, "other"), true);
+assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "unknown"] }, "other"), false);
 assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 0, states: ["missing"] }, "other"), true);
 
 const migration = readFileSync("supabase/migrations/20261002120000_add_adle_intake_demand_archive.sql", "utf8");
@@ -82,3 +82,17 @@ assert.match(migration, /adle_inherit_canonical_intake_demand_archive/);
 assert.match(migration, /before insert on public\.adle_canonical_intake_demands/);
 
 console.log("adle-canonical-intake-admin-readiness-regression: ok");
+
+const activatedDemand = [{ lifecycle_status: "activated", archived_at: null }];
+const activatedCandidate = [{ candidate_state: "activated", activationConfirmed: true }];
+assert.equal(intakeOutcome(activatedDemand, activatedCandidate).resolved, true);
+assert.equal(intakeOutcome(activatedDemand, [{ candidate_state: "activated", activationConfirmed: false }]).resolved, false, "a stored activation without a matching learning item is not proof of resolution");
+assert.equal(intakeOutcome([{ lifecycle_status: "pending", archived_at: null }], activatedCandidate).state, "inconsistent", "stale demand history must be reconciled");
+const waitingIntake = intakeOutcome([{ lifecycle_status: "pending", archived_at: null }], [{ candidate_state: "pending_content", activationConfirmed: false }]);
+assert.equal(waitingIntake.resolved, false, "live complete readiness does not activate a waiting intake");
+assert.equal(groupMatchesView({demands: activatedDemand, waiting: [], archived: false, intakeResolved: false}, "resolved"), false);
+assert.equal(groupMatchesView({demands: activatedDemand, waiting: [], archived: false, intakeResolved: false}, "other"), true);
+assert.equal(intakeOutcome([{ lifecycle_status: "rejected", archived_at: null }], []).label, "Rejected");
+assert.equal(intakeOutcome([{ lifecycle_status: "superseded", archived_at: null }], []).label, "Superseded");
+
+assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "unknown"] }, "current"), true, "unknown requirements remain visible as blockers");

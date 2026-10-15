@@ -56,11 +56,13 @@ export function groupIsArchived(demands: GroupDemand[]): boolean {
 }
 
 export function groupMatchesView(input: {
-  demands: GroupDemand[]; waiting: GroupCandidate[]; archived: boolean;
+  demands: GroupDemand[]; waiting: GroupCandidate[]; archived: boolean; intakeResolved?: boolean;
 }, view: ReadinessView): boolean {
   if (view === "archived") return input.archived;
   if (input.archived) return false;
-  const unresolved = input.demands.some((demand) => !TERMINAL.has(demand.lifecycle_status));
+  const unresolved = input.intakeResolved === undefined
+    ? input.demands.some((demand) => !TERMINAL.has(demand.lifecycle_status))
+    : !input.intakeResolved;
   if (view === "resolved") return !unresolved;
   if (view === "other") return unresolved;
   return unresolved && input.waiting.length > 0;
@@ -70,8 +72,32 @@ export function matchesProjectedUnresolvedView(input: {
   waitingCandidates: number;
   states: readonly ("complete" | "missing" | "unknown")[];
 }, view: "current" | "other"): boolean {
-  const hasMissing = input.states.includes("missing");
+  const hasMissing = input.states.some((state) => state !== "complete");
   return view === "current"
     ? input.waitingCandidates > 0 && hasMissing
     : input.waitingCandidates === 0 || !hasMissing;
+}
+
+export type IntakeOutcome = {
+  state: "activated" | "waiting" | "inconsistent" | "rejected" | "superseded";
+  label: string;
+  resolved: boolean;
+  activated: number;
+  pending: number;
+};
+
+/** Readiness ticks cannot resolve intake. Activation requires its persisted learning-item receipt. */
+export function intakeOutcome(demands: GroupDemand[], candidates: Array<{
+  candidate_state: string; activationConfirmed: boolean;
+}>): IntakeOutcome {
+  const activated = candidates.filter((candidate) => candidate.candidate_state === "activated" && candidate.activationConfirmed).length;
+  const pending = candidates.filter((candidate) => candidate.candidate_state !== "activated").length;
+  if (demands.length && demands.every((demand) => ["rejected", "superseded"].includes(demand.lifecycle_status))) {
+    const rejected = demands.some((demand) => demand.lifecycle_status === "rejected");
+    return { state: rejected ? "rejected" : "superseded", label: rejected ? "Rejected" : "Superseded", resolved: true, activated, pending: 0 };
+  }
+  const resolved = candidates.length > 0 && activated === candidates.length && demands.length > 0 && demands.every((demand) => TERMINAL.has(demand.lifecycle_status));
+  if (resolved) return { state: "activated", label: "Resolved · in ADLE", resolved: true, activated, pending: 0 };
+  const inconsistent = candidates.length === 0 || candidates.some((candidate) => candidate.candidate_state === "activated" && !candidate.activationConfirmed) || pending === 0;
+  return { state: inconsistent ? "inconsistent" : "waiting", label: inconsistent ? "Needs reconciliation" : "Waiting", resolved: false, activated, pending };
 }

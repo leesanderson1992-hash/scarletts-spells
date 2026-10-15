@@ -14,6 +14,7 @@ import {
   validateDynamicPrefixWordLabPayload,
 } from "../lib/adle/morphology/dynamic-prefix-word-lab";
 import { compileDynamicPrefixWordLabPayloadLegacy } from "../lib/adle/morphology/dynamic-prefix-legacy-compiler";
+import { compiledAffixMemberIds } from "../lib/adle/canonical-intake/affix-compiler-readiness";
 import { compileSharedAffixLesson } from "../lib/adle/morphology/shared-affix-compiler";
 import {
   adaptSharedAffixLessonToDynamicAffixV3,
@@ -201,3 +202,14 @@ for (const key of registryKeys) assert(!compilerSource.includes(key), `shared co
 assert(!/microSkillKey\s*===/.test(compilerSource), "shared compiler contains no microskill-key branch");
 
 console.log(`Shared affix compiler regression passed (${SHARED_AFFIX_PROFILE_REGISTRY.length} profiles, ${prefixTargetCases + suffixTargetCases} reviewed target slots).`);
+
+const originalMode = process.env.ADLE_DYNAMIC_AFFIX_COMPILER_MODE;
+process.env.ADLE_DYNAMIC_AFFIX_COMPILER_MODE = "shared_authoritative";
+const memberProfile = structuredClone(affixFixture.selection.profile);
+const member = memberProfile.wordsByCanonicalId.values().next().value!;
+member.trueMorphology.notes = "";
+assert(compiledAffixMemberIds(memberProfile).has(member.canonicalWordId), "intake readiness uses the compiler and accepts reviewed morphology without optional notes");
+member.trueMorphology.provenance = {};
+assert(!compiledAffixMemberIds(memberProfile).has(member.canonicalWordId), "loaded membership alone cannot certify an uncompilable member");
+if (originalMode === undefined) delete process.env.ADLE_DYNAMIC_AFFIX_COMPILER_MODE;
+else process.env.ADLE_DYNAMIC_AFFIX_COMPILER_MODE = originalMode;

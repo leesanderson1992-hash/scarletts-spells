@@ -1,0 +1,33 @@
+{
+  "candidateCount": 32,
+  "dryRun": {
+    "eligible": 0,
+    "inserted": 0,
+    "strengthened": 0,
+    "pendingMapping": 4,
+    "pendingContent": 28
+  },
+  "applied": {
+    "eligible": 0,
+    "inserted": 0,
+    "strengthened": 0,
+    "pendingMapping": 4,
+    "pendingContent": 28
+  },
+  "existingActivatedOccurrences": 71,
+  "activationReceiptAudit": {
+    "missing_activation_receipts": 0
+  },
+  "assignmentsUnchanged": true,
+  "learningItemsUnchanged": true,
+  "queueStatusesUnchanged": true,
+  "counts": {
+    "assignments": 219,
+    "learningItems": 99
+  },
+  "historicalDemandReconciliation": {
+    "activatedFromExistingReceipt": 1,
+    "supersededHistoricalDemands": 18,
+    "auditEvents": 19
+  }
+}

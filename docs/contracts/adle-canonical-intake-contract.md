@@ -153,6 +153,20 @@ unchanged and must never be repurposed or edited in place.
 
 `/admin/adle-canonical-intake-readiness` uses `requireAdminUser()`. It displays
 safe aggregates, typed demands, blockers, the content checklist, and history.
+Live readiness and recorded intake outcome are independent columns. An intake
+is “Resolved · in ADLE” only when its terminal demand history and activated
+candidates are backed by exact child/word/skill learning-item receipts. This
+is not a mastery or retirement claim. Ready content with pending intake is
+“Ready · awaiting intake”; missing or unknown requirements remain blockers.
+Rejected and superseded history retain their distinct labels. A missing or
+mismatched activation receipt is shown as “Needs reconciliation”.
+
+Affix readiness ignores retired profile versions and requires a real lesson
+compiler witness containing the exact member, using the same rollout decision
+as assignment preparation. A Preview using Production activation facts does not
+automatically admit staging-only profiles. The word menu links to its unique active Teaching
+Dictionary profile, or a word search when that identity is absent/ambiguous.
+CSV exports include the intake outcome and dictionary identity.
 The Spelling Review hub shows the unresolved notification count.
 
 Allowed actions acknowledge, assign, mark in review, recheck, reject, or

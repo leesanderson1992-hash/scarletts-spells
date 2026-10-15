@@ -12,13 +12,15 @@ import {
   type Facets,
   type RouteFact,
 } from "./readiness-projection";
-import { distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, summarizeReadiness, type MicroSkillDemand, type ReadinessView } from "./readiness-groups";
+import { intakeOutcome, type IntakeOutcome, distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView, summarizeReadiness, type MicroSkillDemand, type ReadinessView } from "./readiness-groups";
 import { compareReadinessRows, matchesWithoutFilter, type ReadinessControls } from "./readiness-controls";
 
 export type { ReadinessView } from "./readiness-groups";
 export type ReadinessRow = {
   key: string;
   word: string;
+  dictionaryWordId: string | null;
+  intake: IntakeOutcome;
   microSkillKey: string;
   routeId: string;
   routeVersion: string;
@@ -56,9 +58,11 @@ type Candidate = {
   candidate_state: string;
   last_evaluated_at: string | null;
   canonical_word_id: string | null;
+  learning_item_id: string | null;
+  activationConfirmed: boolean;
 };
 type Link = { candidate_id: string; demand_id: string; link_status: string };
-type Group = { key: string; word: string; skill: string; demands: Demand[]; candidates: Candidate[]; waiting: Candidate[]; archived: boolean };
+type Group = { key: string; word: string; skill: string; demands: Demand[]; candidates: Candidate[]; waiting: Candidate[]; archived: boolean; intakeResolved?: boolean };
 
 const PAGE_SIZE = 25;
 const BLOCKED = new Set(["pending_mapping", "pending_content", "error_retryable"]);
@@ -89,9 +93,22 @@ export async function loadReadinessRows(params: {
   const db = createServiceRoleClient() as any;
   const [demands, candidates, links] = await Promise.all([
     readAll(db, "adle_canonical_intake_demands", "id,normalized_target_token,micro_skill_key,route_id,route_version,lifecycle_status,archived_at,last_seen_at"),
-    readAll(db, "adle_canonical_intake_candidates", "id,child_id,source_candidate_mapping_id,normalized_target_token,micro_skill_key,candidate_state,last_evaluated_at,canonical_word_id"),
+    readAll(db, "adle_canonical_intake_candidates", "id,child_id,source_candidate_mapping_id,normalized_target_token,micro_skill_key,candidate_state,last_evaluated_at,canonical_word_id,learning_item_id"),
     readAll(db, "adle_canonical_intake_candidate_demands", "id,candidate_id,demand_id,link_status"),
   ]) as [Demand[], Candidate[], Link[]];
+  const learningIds = [...new Set(candidates.flatMap((candidate) => candidate.learning_item_id ? [candidate.learning_item_id] : []))];
+  const learningItems: Array<{ id: string; child_id: string; canonical_word_id: string; micro_skill_key: string }> = [];
+  for (let start = 0; start < learningIds.length; start += 500) {
+    const result = await db.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key").in("id", learningIds.slice(start, start + 500));
+    if (result.error) throw new Error(`Intake activation receipts: ${result.error.message}`);
+    learningItems.push(...(result.data ?? []));
+  }
+  const learningById = new Map(learningItems.map((item) => [item.id, item]));
+  for (const candidate of candidates) {
+    const item = candidate.learning_item_id ? learningById.get(candidate.learning_item_id) : null;
+    candidate.activationConfirmed = Boolean(item && item.child_id === candidate.child_id &&
+      item.canonical_word_id === candidate.canonical_word_id && item.micro_skill_key === candidate.micro_skill_key);
+  }
   const groups = new Map<string, Group>();
   const candidateById = new Map(candidates.map((candidate) => [candidate.id, candidate]));
   const demandById = new Map(demands.map((demand) => [demand.id, demand]));
@@ -119,6 +136,7 @@ export async function loadReadinessRows(params: {
   }
   for (const group of groups.values()) {
     group.archived = groupIsArchived(group.demands);
+    group.intakeResolved = intakeOutcome(group.demands, group.candidates).resolved;
   }
   const allGroups = [...groups.values()];
   const search = params.search.trim().toLowerCase();
@@ -212,7 +230,10 @@ export async function loadReadinessRows(params: {
       allowedAgeBands: ADLE_PILOT_CHILD_BAND.allowedAgeBands,
       allowedFrequencyBands: ADLE_PILOT_CHILD_BAND.allowedFrequencyBands,
     });
-    return { key: group.key, word: group.word, microSkillKey: group.skill,
+    const intake = intakeOutcome(group.demands, group.candidates);
+    if (intake.state === "waiting" && Object.values(facets).every((facet) => facet.state === "complete")) intake.label = "Ready · awaiting intake";
+    return { key: group.key, word: group.word, dictionaryWordId: wordRows.filter((word: any) => word.row_status === "active").length === 1 ? wordRows.find((word: any) => word.row_status === "active")!.id : null,
+      intake, microSkillKey: group.skill,
       routeId: route.routeId, routeVersion: route.routeVersion,
       occurrences: distinctOccurrences(group.candidates),
       usersWaiting: distinctUsersWaiting(group.waiting),

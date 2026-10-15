@@ -96,3 +96,23 @@ lineage, assignment, and event history; do not bulk-delete correct child state.
 Any missing optional lesson-wrapper schema must be resolved through that
 feature's separately authorized compatibility or migration process before
 future intake is re-enabled.
+
+## Readiness and intake reconciliation
+
+The five ticks describe current content/resolver requirements. The Intake column
+separately reports recorded admission to ADLE, rather than mastery. Use the
+three-dot Teaching Dictionary link for the exact active word profile. Unknown
+checks remain under Current blockers; a ready row still awaiting admission
+stays unresolved until governed intake records its learning-item receipt.
+
+For stale historical demand bookkeeping, an audited transaction may close a
+nonterminal demand only from existing proof: every nonsuperseded linked source
+is activated with a matching child/word/skill learning-item receipt, or every
+link is already superseded. Preserve candidate, queue, assignment and source
+facts; never infer activation from readiness ticks or mark a candidate ready.
+Keep distinct rejected/superseded labels and leave absent or contradictory
+proof visible for reconciliation. The 2026-10-15 operation rechecked 32 pending
+occurrences (28 content and four resolver blockers), closed one already-admitted
+word demand and 18 fully superseded historical demands with 19 audit events.
+All 71 activated occurrence receipts matched. No assignment or learning-item
+status changed. [Aggregate receipt](../implementation/qa/adle-intake-readiness-reconciliation-2026-10-15.json).

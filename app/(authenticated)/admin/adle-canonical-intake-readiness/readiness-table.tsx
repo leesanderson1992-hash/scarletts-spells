@@ -55,6 +55,7 @@ function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: (
     description={<span>{row.routeId} {row.routeVersion} · Last evaluated {date(row.lastEvaluatedAt)}</span>}
     footer={<button type="button" className="adle-admin-dialog-close" onClick={onClose}>Close</button>}>
     <div className="adle-admin-dialog-body">
+      <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Resolution confirms intake into ADLE, not mastery.</p>
       {incomplete.length ? incomplete.map((key) => <section key={key} className="adle-admin-detail-section">
         <h4>{LABELS[key]} <span className="text-xs font-normal text-[#69717b]">{row.facets[key].state === "unknown" ? "Not yet checkable" : "Missing"}</span></h4>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#414a55]">
@@ -130,6 +131,7 @@ export function ReadinessTable({ rows, view, controls = {
           <SortHeading field="occurrences" label="Occurrences" className="number" controls={controls} view={view} search={search} />
           <SortHeading field="usersWaiting" label="Users Waiting" className="number" controls={controls} view={view} search={search} />
           {FACET_KEYS.map((key) => <SortHeading key={key} field={key} label={LABELS[key]} className="check" controls={controls} view={view} search={search} />)}
+          <th scope="col">Intake</th>
           <th scope="col" className="options"><span className="sr-only">Options</span></th>
         </tr></thead>
         <tbody>{rows.map((row) => <tr key={row.key}>
@@ -137,6 +139,7 @@ export function ReadinessTable({ rows, view, controls = {
           <td className="skill" title={row.microSkillKey}>{row.microSkillKey.replace(/^D4_/, "").replaceAll("_", " ").toLowerCase()}</td>
           <td className="number">{row.occurrences}</td><td className="number">{row.usersWaiting}</td>
           {FACET_KEYS.map((key) => <td key={key} className="check"><Indicator facet={row.facets[key]} label={LABELS[key]} /></td>)}
+          <td><span className={`adle-admin-intake is-${row.intake.state}`}>{row.intake.label}</span></td>
           <td className="options"><div className="adle-admin-options-anchor">
             <button type="button" className="adle-admin-options-button"
               aria-label={`Options for ${row.word}, ${row.microSkillKey}`} aria-expanded={optionsMenu?.row.key === row.key}
@@ -164,6 +167,7 @@ export function ReadinessTable({ rows, view, controls = {
       }}
       aria-label={`Options for ${optionsMenu.row.word}`} style={{ top: optionsMenu.top, left: optionsMenu.left }}>
       <button type="button" role="menuitem" onClick={() => { setSelected(optionsMenu.row); setOptionsMenu(null); }}>View details</button>
+      {!preview ? <Link role="menuitem" href={optionsMenu.row.dictionaryWordId ? `/admin/teaching-dictionary/${optionsMenu.row.dictionaryWordId}` : `/admin/teaching-dictionary?q=${encodeURIComponent(optionsMenu.row.word)}`}>Teaching Dictionary</Link> : null}
       {!preview && optionsMenu.row.facets.dictionary.state === "complete" && optionsMenu.row.facets.resolver.state === "missing" ?
         <Link role="menuitem" href={`/admin/canonical-mappings/resolve?word=${encodeURIComponent(optionsMenu.row.word)}&skill=${encodeURIComponent(optionsMenu.row.microSkillKey)}`}>Add to resolver</Link> : null}
       {preview ? <button type="button" role="menuitem" disabled title="Unavailable in sample preview">Recheck · sample only</button> :

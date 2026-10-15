@@ -25,13 +25,14 @@ export async function allUnresolvedReadinessRows(): Promise<ReadinessRow[]> {
 }
 
 export const READINESS_CSV_COLUMNS = ["word", "micro_skill_key", "route_id", "occurrences", "users_waiting",
-  "resolver", "teaching_content", "dictionary", "metadata", "adle_lesson", "last_evaluated_at"] as const;
+  "resolver", "teaching_content", "dictionary", "metadata", "adle_lesson", "intake_status", "intake_activated", "intake_pending", "dictionary_word_id", "last_evaluated_at"] as const;
 
 export function readinessCsvRows(rows: ReadinessRow[]): Array<Record<string, unknown>> {
   return rows.map((row) => ({ word: row.word, micro_skill_key: row.microSkillKey, route_id: row.routeId,
     occurrences: row.occurrences, users_waiting: row.usersWaiting, resolver: row.facets.resolver.state,
     teaching_content: row.facets.teaching.state, dictionary: row.facets.dictionary.state,
     metadata: row.facets.metadata.state, adle_lesson: row.facets.lesson.state,
+    intake_status: row.intake.state, intake_activated: row.intake.activated, intake_pending: row.intake.pending, dictionary_word_id: row.dictionaryWordId,
     last_evaluated_at: row.lastEvaluatedAt }));
 }
 

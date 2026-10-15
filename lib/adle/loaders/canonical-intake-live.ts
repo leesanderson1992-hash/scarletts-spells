@@ -15,6 +15,7 @@ import {
   type IntakeDemandType,
   type IntakeReadinessBlocker,
 } from "../canonical-intake";
+import { compiledAffixMemberIds, compiledPrefixMemberIds } from "../canonical-intake/affix-compiler-readiness";
 import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness";
 import {
   compileBaseWordCanonicalIntakeRouteFacts,
@@ -211,13 +212,14 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
 
   if (isDynamicPrefixRouteEnabled()) {
     const allowStagingProfiles =
-      activationEnvironment === "staging" || process.env.VERCEL_ENV === "preview";
+      activationEnvironment === "staging";
     const { data: rawPrefixProfiles, error: rawPrefixError } = await client
       .from("canonical_teaching_dictionary_prefix_profiles")
       .select(
         "micro_skill_key,production_enabled,row_status,review_status,canonical_teaching_dictionary_prefix_members(canonical_word_id,assignment_eligible,row_status,review_status)",
       )
-      .like("micro_skill_key", "D4_MOR_PREFIXES_%");
+      .like("micro_skill_key", "D4_MOR_PREFIXES_%")
+      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure");
     if (rawPrefixError)
       throwQuery("canonical intake Prefix readiness facts", rawPrefixError);
     const { profiles } = await loadDynamicPrefixProfiles(client, childId, {
@@ -226,7 +228,7 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
     for (const profile of profiles) {
       if (!profile.productionEnabled) continue;
       enabled.add(profile.microSkillKey);
-      for (const canonicalWordId of profile.wordsByCanonicalId.keys()) {
+      for (const canonicalWordId of compiledPrefixMemberIds(profile)) {
         readyPairs.add(
           canonicalWordSkillPair(canonicalWordId, profile.microSkillKey),
         );
@@ -274,7 +276,7 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
 
   if (isDynamicSuffixRouteEnabled()) {
     const allowStagingProfiles =
-      activationEnvironment === "staging" || process.env.VERCEL_ENV === "preview";
+      activationEnvironment === "staging";
     const [{ data: rawSuffixProfiles, error: rawSuffixError }, loaded] =
       await Promise.all([
         client
@@ -282,7 +284,8 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
           .select(
             "micro_skill_key,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(canonical_word_id,assignment_eligible,row_status,review_status)",
           )
-          .in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
+          .in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS)
+          .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
         loadDynamicSuffixProfiles(client, childId, { allowStagingProfiles,
           includeDerivedItyCandidates: process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled" }),
       ]);
@@ -295,6 +298,7 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
     for (const rawProfile of rawSuffixProfiles ?? []) {
       const profile = rawProfile as any;
       const profileKey = profile.micro_skill_key as string;
+      if (profile.row_status !== "active" || profile.review_status !== "approved_for_first_exposure") continue;
       const profileEligible =
         (profile.production_enabled === true || allowStagingProfiles) &&
         profile.row_status === "active" &&
@@ -303,10 +307,11 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
         ? loadedProfileByKey.get(profileKey)
         : undefined;
       if (loadedProfile?.productionEnabled) enabled.add(profileKey);
+      const compiledIds = loadedProfile?.productionEnabled ? compiledAffixMemberIds(loadedProfile) : new Set<string>();
       if (profileKey === "D4_MOR_SUFFIXES_ITY" && loadedProfile?.productionEnabled
         && process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled") {
         for (const word of loadedProfile.wordsByCanonicalId.values()) {
-          if (word.governance?.sourceKind !== "reviewed_morphology") continue;
+          if (word.governance?.sourceKind !== "reviewed_morphology" || !compiledIds.has(word.canonicalWordId)) continue;
           readyPairs.add(canonicalWordSkillPair(word.canonicalWordId, profileKey));
           routeReadiness.push({ canonicalWordId: word.canonicalWordId, microSkillKey: profileKey,
             ready: true, blockers: [], evidence: [{ source: "canonical_teaching_dictionary_word_morphology", status: "approved_for_first_exposure" }] });
@@ -322,7 +327,7 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
           member.row_status === "active" &&
           member.review_status === "approved_for_first_exposure";
         const memberReady =
-          Boolean(loadedProfile?.wordsByCanonicalId.has(canonicalWordId)) &&
+          compiledIds.has(canonicalWordId) &&
           memberApproved;
         if (memberReady) readyPairs.add(pair);
         routeReadiness.push({
