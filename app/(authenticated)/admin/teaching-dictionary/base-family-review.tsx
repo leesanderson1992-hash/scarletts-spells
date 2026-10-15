@@ -6,7 +6,13 @@ import {
   type FamilyCandidateWord, type FamilyCandidateMorphology,
 } from "@/lib/teaching-dictionary-manager/base-family-candidates";
 import { reviewBaseFamilyMember, withdrawBaseFamilyMember } from "./base-family-actions";
-import { ActionSubmitButton } from "./action-submit-button";
+import type { ReactNode } from "react";
+
+// This editor is returned on demand by a Server Function. Native controls avoid
+// introducing a client reference absent from the initial page's RSC manifest.
+function FamilySubmitButton({ children, pendingLabel, className }: { children: ReactNode; pendingLabel: string; className: string }) {
+  return <button type="submit" data-pending-label={pendingLabel} className={className}>{children}</button>;
+}
 
 type Word = FamilyCandidateWord;
 type Morphology = FamilyCandidateMorphology & { id: string; joins: unknown[] };
@@ -44,7 +50,7 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
     <label className={labelClass}>Joins JSON<textarea className={inputClass} name="joins_json" rows={2} defaultValue={JSON.stringify(joins, null, 2)} required /></label>
     <input type="hidden" name="transformations_json" value="[]" />
     <label className={labelClass}>Why this base and skill fit<input className={inputClass} name="review_note" required /></label>
-    <ActionSubmitButton pendingLabel="Recording review…" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white">Approve relationship and skill</ActionSubmitButton>
+    <FamilySubmitButton pendingLabel="Recording review…" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white">Approve relationship and skill</FamilySubmitButton>
   </form>;
 }
 
@@ -141,7 +147,7 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
       {" · "}{row.micro_skill_key} · {row.word_sum} · {row.child_friendly_meaning} · {new Date(row.reviewed_at).toLocaleDateString("en-GB")} · {withdrawn.has(row.id) ? "withdrawn" : "reviewed source"}
       {!withdrawn.has(row.id) && <form action={withdrawBaseFamilyMember} className="mt-2 flex flex-wrap gap-2"><input type="hidden" name="word_id" value={word.id} /><input type="hidden" name="review_id" value={row.id} />
         <input className={inputClass} name="reason" aria-label="Reason for withdrawal" placeholder="Reason for withdrawal" required />
-        <ActionSubmitButton pendingLabel="Withdrawing…" className="rounded border border-[var(--border)] px-2 py-1 text-sm">Withdraw for future releases</ActionSubmitButton>
+        <FamilySubmitButton pendingLabel="Withdrawing…" className="rounded border border-[var(--border)] px-2 py-1 text-sm">Withdraw for future releases</FamilySubmitButton>
       </form>}
     </li>)}</ul></div>}
     <div className="grid gap-3"><h3 className="font-semibold">Suggested links</h3>

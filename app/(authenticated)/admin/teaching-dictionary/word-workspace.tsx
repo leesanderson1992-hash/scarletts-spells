@@ -1965,6 +1965,13 @@ export function WordWorkspace(props: {
       </dialog>
       <dialog
         ref={family}
+        onSubmitCapture={event => {
+          const submitter = (event.nativeEvent as SubmitEvent).submitter;
+          if (submitter instanceof HTMLButtonElement && submitter.dataset.pendingLabel) {
+            submitter.textContent = submitter.dataset.pendingLabel;
+            submitter.setAttribute("aria-busy", "true");
+          }
+        }}
         className="w-[min(850px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
       >
         {familyLoading ? <p role="status">Loading family suggestions…</p> : familyReview}
