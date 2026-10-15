@@ -25,7 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
     ])],
     preflights: preflights.map(({ releasePackage: _package, ...row }) => {
       void _package;
-      return { ...row, words: row.words.filter(word => word.id === wordId),
+      return { ...row, compilerWitnesses: row.compilerWitnesses[wordId] ? { [wordId]: row.compilerWitnesses[wordId] } : {}, words: row.words.filter(word => word.id === wordId),
         issues: row.issues.filter(issue => !issue.wordId || issue.wordId === wordId) };
     }),
   }, { headers: { "Cache-Control": "private, no-store", "Server-Timing": `lesson-readiness;dur=${Math.round(performance.now() - started)}` } });

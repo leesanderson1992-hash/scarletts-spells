@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { hydrateWorkspaceFacts } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadWordFamilyReview } from "./family-review-loader";
 import { activityVariantsForRoute } from "@/lib/adle/composable-lesson/activity-variants";
@@ -195,6 +196,7 @@ export function WordWorkspace(props: {
   error?: string;
   overviewReviewed: boolean;
 }) {
+  const router = useRouter();
   const [payload, setPayload] = useState<WordDraftPayload>(() => ({
     ...props.initial,
     dictationVariants: dictationVariants(props.initial),
@@ -228,8 +230,12 @@ export function WordWorkspace(props: {
       const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
       setActionError(error);
       setDraftId(destination.searchParams.get("draft"));
+      if (!props.wordId && destination.pathname !== "/admin/teaching-dictionary/new" && !result.error) {
+        router.push(result.destination);
+        return null;
+      }
+      window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
       if (!result.error) {
-        window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
         if (editRevision.current === revision) {
           setDirty(false);
           setOverviewReviewed(result.overviewApproved);
@@ -901,15 +907,15 @@ export function WordWorkspace(props: {
                 );
                 return (
                   <tr key={key} className="border-b last:border-0">
-                    <td className="p-2">{name(key)}</td>
-                    <td className="p-2">
+                    <td data-label="Micro-skill" className="p-2">{name(key)}</td>
+                    <td data-label="Route" className="p-2">
                       {!route?.newAssignmentCapable
                         ? "No Route Available"
                         : preflight?.activationEnabled
                           ? "Active"
                           : "Built · inactive"}
                     </td>
-                    <td className="p-2">
+                    <td data-label="Action" className="p-2">
                       <button
                         type="button"
                         className="text-[color:var(--scarlett)] underline"
@@ -978,7 +984,8 @@ export function WordWorkspace(props: {
                 <th className="w-[24%] p-2">Micro-skill</th>
                 {columns.map((kind) => (
                   <th key={kind} className="p-2 text-center text-xs">
-                    {ACTIVITY_LABELS[kind]}
+                    <span className="hidden sm:inline">{ACTIVITY_LABELS[kind]}</span>
+                    <abbr title={ACTIVITY_LABELS[kind]} className="no-underline sm:hidden">{({ introduction: "Int", family_reveal: "Fam", cleaver: "Cut", word_build: "Bld", cover_check: "Chk", dictation: "Dict", reflection: "Refl", discovery: "Find", meaning_sort: "Sort", meaning_match: "Match", compound_jigsaw: "Join" } as Record<string, string>)[kind] ?? ACTIVITY_LABELS[kind].slice(0, 3)}</abbr>
                   </th>
                 ))}
                 <th className="w-[12%] p-2">Release</th>
