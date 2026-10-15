@@ -21,7 +21,7 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
   const allRows = await loadLessonReadiness(childId);
   const rows = allRows.filter((row) => (!params.route || row.routeId === params.route)
     && (!params.skill || row.microSkillKey === params.skill));
-  const counts = { released: allRows.filter((row) => row.status === "released").length,
+  const counts = { released: allRows.filter((row) => row.released).length,
     ready: allRows.filter((row) => row.status === "ready_to_launch").length,
     blocked: allRows.filter((row) => ["blocked", "needs_review"].includes(row.status)).length };
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
@@ -33,7 +33,7 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
     {params.rolled_back && <p role="status" className="rounded-lg bg-amber-50 p-3 text-amber-950">The most recent reviewed profile version was rolled back. Earlier assignments keep their saved lesson snapshot.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-950">Launch stopped: {params.error.replaceAll("_", " ")}.</p>}
     <section className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-4 sm:grid-cols-3" aria-label="Lesson readiness summary">
-      <p><strong>{counts.released}</strong> released</p><p><strong>{counts.ready}</strong> ready to launch</p><p><strong>{counts.blocked}</strong> need work</p>
+      <p><strong>{counts.released}</strong> content releases</p><p><strong>{counts.ready}</strong> ready to launch</p><p><strong>{counts.blocked}</strong> need work</p>
     </section>
     <form action="/admin/adle-lesson-readiness" method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-[var(--border)] bg-white p-4 text-sm">
       <label className="grid gap-1">Route<select name="route" defaultValue={params.route ?? ""} className="rounded-lg border border-[var(--border)] p-2"><option value="">All routes</option>{[...new Set(allRows.map((row) => row.routeId))].map((route) => <option key={route} value={route}>{route.replaceAll("_", " ")}</option>)}</select></label>
@@ -44,7 +44,9 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
     <section className="grid gap-4" aria-label="Registered ADLE lessons">{rows.map((row) =>
       <article key={`${row.routeId}:${row.microSkillKey}`} className="rounded-xl border border-[var(--border)] bg-white p-4">
         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs uppercase tracking-wide text-[color:var(--mid)]">{row.routeId.replaceAll("_", " ")} · {row.routeVersion}</p><h2 className="mt-1 text-lg font-semibold">{row.title}</h2></div>
-          <span className={`rounded-full px-3 py-1 text-sm font-semibold ${row.status === "released" ? "bg-emerald-50 text-emerald-900" : row.status === "ready_to_launch" ? "bg-blue-50 text-blue-900" : "bg-amber-50 text-amber-900"}`}>{row.status.replaceAll("_", " ")}</span></div>
+          <div className="flex flex-wrap gap-2"><span className={`rounded-full px-3 py-1 text-sm font-semibold ${row.status === "released" ? "bg-emerald-50 text-emerald-900" : row.status === "ready_to_launch" ? "bg-blue-50 text-blue-900" : "bg-amber-50 text-amber-900"}`}>{row.status.replaceAll("_", " ")}</span>
+            {row.released && row.status !== "released" && <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-900">Content released</span>}
+            {row.routeId !== "generic_composer" && <span className={`rounded-full px-3 py-1 text-sm font-semibold ${row.activationEnabled ? "bg-emerald-50 text-emerald-900" : "bg-slate-100 text-slate-800"}`}>{row.activationEnabled ? "Activation on" : "Activation off"}</span>}</div></div>
         <p className="mt-2 text-sm">Lesson words {row.route.wordCounts.lesson.join("–")} · authentic {row.route.wordCounts.authentic.join("–")} · coverage: {row.route.coverageRequirements.join(", ")}</p>
         {row.releaseId && <p className="mt-1 break-all text-xs text-[color:var(--mid)]">Current release authority: {row.releaseId}{row.releasedBy ? ` · released by ${row.releasedBy}` : ""}{row.releasedAt ? ` · ${new Date(row.releasedAt).toLocaleString("en-GB", { timeZone: "Europe/London" })}` : ""}</p>}
         {row.routeId === "generic_composer" ? <p className="mt-2 text-sm">This is the fallback policy. It has no fixed lesson profile to release.</p> : null}

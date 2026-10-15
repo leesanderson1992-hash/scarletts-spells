@@ -110,7 +110,7 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
     selectRows(db, "teaching_dictionary_route_content_rollbacks", "content_version_id"),
     environment ? selectRows(db, "adle_route_activation_heads", "environment_key,route_id,route_version,micro_skill_key,current_revision_id", (q) => q.eq("environment_key", environment)) : Promise.resolve([]),
     environment ? selectRows(db, "adle_route_activation_revisions", "id,activation_status,release_manifest_id,release_manifest_sha256,dependency_fingerprint") : Promise.resolve([]),
-    environment ? selectRows(db, "adle_curriculum_release_manifests", "id,release_manifest_sha256,dependency_fingerprint,route_id,route_version,published_by,published_at") : Promise.resolve([]),
+    selectRows(db, "adle_curriculum_release_manifests", "id,release_manifest_sha256,dependency_fingerprint,route_id,route_version,published_by,published_at"),
     childId ? selectRows(db, "adle_learning_items", "id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status", (q) => q.eq("child_id", childId).eq("row_status", "active")) : Promise.resolve([]),
   ]);
   const words = new Map(wordRows.map((word) => [word.id as string, word]));
@@ -359,15 +359,19 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
       const routeHead = activationHeads.find((row) => row.route_id === route.routeId && row.route_version === route.routeVersion && row.micro_skill_key === skill);
       const revision = routeHead ? revisionById.get(routeHead.current_revision_id) : null;
       const release = revision ? releaseById.get(revision.release_manifest_id) : null;
+      const contentRelease = release ?? releaseRows
+        .filter((row) => row.route_id === route.routeId && row.route_version === route.routeVersion
+          && dependencies.some((dependency) => dependency.release_manifest_id === row.id && dependency.micro_skill_key === skill))
+        .sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)))[0];
       const releaseContentPreview: unknown[] = targetProfile
         ? [{ profile: { ...targetProfile, wordsByCanonicalId: [...targetProfile.wordsByCanonicalId.values()] } }] : [];
-      if (release) releaseContentPreview.push(...dependencies
-        .filter((row) => row.release_manifest_id === release.id && row.micro_skill_key === skill)
+      if (contentRelease) releaseContentPreview.push(...dependencies
+        .filter((row) => row.release_manifest_id === contentRelease.id && row.micro_skill_key === skill)
         .map((row) => ({ authorityType: row.authority_type,
           content: authorityById.get(row.authority_id)?.semantic_projection ?? null })));
-      if (!profile && release) {
+      if (!profile && contentRelease) {
         const facts = new Map<string, unknown>();
-        for (const dependency of dependencies.filter((row) => row.release_manifest_id === release.id && row.micro_skill_key === skill)) {
+        for (const dependency of dependencies.filter((row) => row.release_manifest_id === contentRelease.id && row.micro_skill_key === skill)) {
           const authority = authorityById.get(dependency.authority_id);
           if (authority) collectWordFacts(authority.semantic_projection, facts);
         }
@@ -442,9 +446,7 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
           rollbackContentId: null,
           blockers: [], activationBlockers: [], words: [], releaseContentPreview: [], reviewedCandidateIds: [], childPreview, childPreviewReason };
       }
-      const released = profile ? Boolean(currentProfile)
-        : Boolean(release && revision?.release_manifest_id && revision?.release_manifest_sha256 && revision?.dependency_fingerprint
-          && currentRevisionIds.has(String(revision.id)));
+      const released = profile ? Boolean(currentProfile) : Boolean(contentRelease);
       if (!profile && !released) blockers.push("No active reviewed lesson release is available");
       if (unreviewed.length) blockers.push(`${unreviewed.length} latest word version${unreviewed.length === 1 ? "" : "s"} need editorial sign-off`);
       const launchable = Boolean(profile && candidates.length && blockers.length === 0 && compilerReady);
@@ -452,11 +454,11 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
         : unreviewed.length ? "needs_review" : released && blockers.length === 0 ? "released" : "blocked";
       return { routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: skill,
         title: skill.replaceAll("_", " "), route, status, compilerReady, released,
-        activationEnabled: Boolean(activationEnabled), releaseId: release?.id ?? profile?.id ?? null,
+        activationEnabled: Boolean(activationEnabled), releaseId: contentRelease?.id ?? profile?.id ?? null,
         rollbackContentId: typeof profile?.source_metadata?.contentVersionId === "string"
           ? profile.source_metadata.contentVersionId : null,
-        releasedBy: release?.published_by ?? profile?.reviewed_by ?? null,
-        releasedAt: release?.published_at ?? profile?.reviewed_at ?? null,
+        releasedBy: contentRelease?.published_by ?? profile?.reviewed_by ?? null,
+        releasedAt: contentRelease?.published_at ?? profile?.reviewed_at ?? null,
         blockers, activationBlockers, words: entries, releaseContentPreview,
         reviewedCandidateIds: candidates.map((row) => row.id), childPreview, childPreviewReason };
     });
