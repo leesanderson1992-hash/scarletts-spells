@@ -81,3 +81,5 @@
 .adle-admin-intake.is-activated { background: #e7f4ed; color: #216843; }
 .adle-admin-intake.is-inconsistent { background: #fff0f1; color: #9f2335; }
 .adle-admin-intake.is-rejected, .adle-admin-intake.is-superseded { background: #f0f1f4; color: #59616b; }
+
+.adle-admin-dropdown { max-height: calc(100dvh - 24px); overflow-y: auto; }

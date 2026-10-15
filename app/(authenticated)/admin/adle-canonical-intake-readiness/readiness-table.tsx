@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AppDialog } from "@/components/app-dialog";
@@ -101,6 +101,17 @@ export function ReadinessTable({ rows, view, controls = {
   const optionsMenuRef = useRef<HTMLDivElement | null>(null);
   const optionsTriggerRef = useRef<HTMLButtonElement | null>(null);
 
+  useLayoutEffect(() => {
+    const menu = optionsMenuRef.current;
+    if (!optionsMenu || !menu) return;
+    const bounds = menu.getBoundingClientRect();
+    const top = Math.min(optionsMenu.top, Math.max(12, window.innerHeight - bounds.height - 12));
+    const left = Math.min(optionsMenu.left, Math.max(12, window.innerWidth - bounds.width - 12));
+    if (top !== optionsMenu.top || left !== optionsMenu.left) {
+      setOptionsMenu((current) => current ? { ...current, top, left } : null);
+    }
+  }, [optionsMenu]);
+
   useEffect(() => {
     if (!optionsMenu) return;
     const closeOnOutsidePointer = (event: MouseEvent) => {
@@ -109,7 +120,9 @@ export function ReadinessTable({ rows, view, controls = {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setOptionsMenu(null); optionsTriggerRef.current?.focus(); }
     };
-    const closeOnScroll = () => setOptionsMenu(null);
+    const closeOnScroll = (event: Event) => {
+      if (!optionsMenuRef.current?.contains(event.target as Node)) setOptionsMenu(null);
+    };
     document.addEventListener("mousedown", closeOnOutsidePointer);
     document.addEventListener("keydown", closeOnEscape);
     window.addEventListener("scroll", closeOnScroll, true);
