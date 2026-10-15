@@ -40,14 +40,16 @@ export async function loadCompoundWordV2Authority(
   if (!COMPOUND_WORD_MICRO_SKILL_KEYS.includes(microSkillKey)) {
     throw new Error("loadCompoundWordV2Authority: unsupported Compound Word micro-skill");
   }
-  const [{ data: structureRows, error: structureError }, { data: itemRows, error: itemError }] = await Promise.all([
-    client
+  let structureQuery = client
       .from("canonical_teaching_dictionary_compound_structures_v2")
       .select("id,canonical_word_id,micro_skill_key,schema_version,child_friendly_meaning,component_to_whole_relationship,morphology_provenance,assignment_eligible,transfer_eligible,review_status,reviewed_by,reviewed_at,source_sheet,source_row_number,source_row_hash,source_metadata")
       .eq("micro_skill_key", microSkillKey)
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")
-      .eq("assignment_eligible", true),
+      .eq("assignment_eligible", true);
+  if (exactAuthority) structureQuery = structureQuery.eq("source_metadata->>dependencyAuthorityId", exactAuthority.structureAuthorityId);
+  const [{ data: structureRows, error: structureError }, { data: itemRows, error: itemError }] = await Promise.all([
+    structureQuery,
     client
       .from("adle_learning_items")
       .select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status")

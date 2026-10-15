@@ -148,6 +148,8 @@ try {
     create table canonical_teaching_dictionary_compound_components_v2(structure_id uuid,component_ordinal int,canonical_component_word_id uuid,display_surface text,component_meaning text,component_sense text);
     create table canonical_teaching_dictionary_compound_joins_v2(structure_id uuid,join_ordinal int,join_kind text);
     create function assert_canonical_compound_structure_v2(uuid) returns void language sql as $$select null::void$$;`);
+  await db.exec("create unique index ctd_compound_structure_v2_one_active_word_skill on canonical_teaching_dictionary_compound_structures_v2(canonical_word_id,micro_skill_key) where row_status='active'");
+  await db.exec(readFileSync("supabase/migrations/20261015162000_scope_compound_active_structure_versions.sql","utf8"));
   const compoundWord=randomUUID(),leftWord=randomUUID(),rightWord=randomUUID();
   for(const [id,form] of [[compoundWord,"sunflower"],[leftWord,"sun"],[rightWord,"flower"]])await db.query("insert into canonical_teaching_dictionary_words(id,normalised_word,word_key,display_word,row_status,review_status)values($1,$2,$2,$2,'active','approved_for_first_exposure')",[id,form]);
   const structure={wholeCanonicalWordId:compoundWord,wholeWordKey:"sunflower",displayForm:"sunflower",microSkillKey:"D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",childFriendlyMeaning:"a flowering plant",componentToWholeRelationship:"a plant name",morphologyProvenance:{source:"fixture"},assignmentEligible:true,transferEligible:true,approvalRef:"admin-review:fixture",components:[{ordinal:1,canonicalWordId:leftWord,displaySurface:"sun",meaning:"the star",sense:"noun"},{ordinal:2,canonicalWordId:rightWord,displaySurface:"flower",meaning:"a bloom",sense:"noun"}],joins:["none"]};
@@ -156,6 +158,7 @@ try {
   await db.query("select publish_adle_compound_word_structure_authority_v1($1,$2,$3)",[JSON.stringify({...structureManifest,authorityKey:"compound-second"}),'f'.repeat(64),actor]);
   const compoundVersions=(await db.query("select count(*)::int versions,count(distinct import_batch_id)::int batches from canonical_teaching_dictionary_compound_structures_v2 where canonical_word_id=$1",[compoundWord])).rows[0];
   assert.deepEqual(compoundVersions,{versions:2,batches:2},"replacement preserves earlier immutable structures and their batch identities");
+  await assert.rejects(db.query("insert into canonical_teaching_dictionary_compound_structures_v2(canonical_word_id,micro_skill_key,source_metadata,row_status)select canonical_word_id,micro_skill_key,source_metadata,row_status from canonical_teaching_dictionary_compound_structures_v2 where canonical_word_id=$1 limit 1",[compoundWord]),/unique/);
   console.log('PASS: real compound publisher preserves two immutable member versions without batch collisions');
   console.log('PASS: earlier editor preserves reviewed syllables and transformations during schema-first rollout');
   console.log('PASS: native head CAS, reviewed package transaction, global scope and audited native rollback');
