@@ -89,7 +89,7 @@ export async function loadWordBaseFamilies(
     ),
   ]);
   const wordById = new Map(words.map((word) => [word.id, word.display_word]));
-  return [...legacy, ...definitions].map((family) => ({
+  return [...new Map([...legacy, ...definitions].map(family => [family.base_family_key ?? family.family_key, family])).values()].map((family) => ({
     name: family.base_family_key ?? family.family_key,
     words: [...members.get(family.id)!]
       .flatMap((id) =>

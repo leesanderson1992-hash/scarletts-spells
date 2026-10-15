@@ -5,7 +5,7 @@ import type { PairedDegreeSentence } from "@/lib/adle/inflection/contracts";
 type Passage = HomophonePassage | PairedDegreeSentence;
 export type PassageSet = { id: string; passages: Passage[] };
 const input =
-  "min-w-28 w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-sm";
+  "min-w-0 w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-sm";
 export function PairedDictationEditor(props: {
   sets: PassageSet[];
   onChange: (sets: PassageSet[]) => void;
@@ -25,7 +25,7 @@ export function PairedDictationEditor(props: {
               : `Paired passage variant ${setIndex + 1}`}
           </summary>
           <div className="mt-2 overflow-x-auto">
-            <table className="w-full min-w-[650px] text-left text-sm">
+            <table className="td-reflow-table w-full text-left text-sm">
               <thead className="text-xs text-[color:var(--mid)]">
                 <tr>
                   <th>Before</th>

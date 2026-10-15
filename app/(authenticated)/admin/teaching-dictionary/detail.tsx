@@ -1,9 +1,8 @@
+import "./word-workspace.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import {
   emptyMetadata,
@@ -14,12 +13,9 @@ import {
   type WordDraftPayload,
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
-import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
-import { nativeWordFacts } from "@/lib/teaching-dictionary-manager/native-word-facts";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { WordWorkspace } from "./word-workspace";
-import { BaseFamilyReview } from "./base-family-review";
 
 type Params = {
   draft?: string;
@@ -40,14 +36,6 @@ export async function TeachingDictionaryDetail({
 }) {
   await requireAdminUser();
   const db = createServiceRoleClient();
-  const environment = resolveAdleRouteActivationEnvironment();
-  const authorityPromise =
-    environment && wordId
-      ? loadCachedTeachingDictionaryEvidenceAuthority(environment)
-      : Promise.resolve(null);
-  const preflightPromise = wordId
-    ? loadLessonReadiness({ wordId })
-    : Promise.resolve([]);
   const [
     wordResult,
     draftResult,
@@ -64,8 +52,6 @@ export async function TeachingDictionaryDetail({
     overviewReview,
     submissions,
     baseFamilies,
-    authority,
-    preflights,
   ] = await Promise.all([
     wordId
       ? db
@@ -175,8 +161,6 @@ export async function TeachingDictionaryDetail({
           .limit(50)
       : null,
     wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
-    authorityPromise,
-    preflightPromise,
   ]);
   for (const result of [
     wordResult,
@@ -235,60 +219,6 @@ export async function TeachingDictionaryDetail({
     (rolledBack?.data ?? []).map((row) => row.content_version_id),
   );
   const routeContents: RouteContentDraft[] = [];
-  for (const lesson of preflights) {
-    const member = lesson.words.find(
-      (entry) => entry.id === wordId && entry.requiredForRelease !== false,
-    );
-    if (
-      !member ||
-      routeContents.some(
-        (content) => content.microSkillKey === lesson.microSkillKey,
-      )
-    )
-      continue;
-    const preview = member.contentPreview as {
-      routeContent?: Record<string, unknown>;
-    };
-    const raw = preview.routeContent;
-    if (!raw) {
-      const native = nativeWordFacts(
-        lesson.routeId,
-        lesson.routeVersion,
-        lesson.microSkillKey,
-        wordId!,
-        lesson.releaseContentPreview,
-      );
-      if (native) routeContents.push(native);
-      continue;
-    }
-    if (raw.content && typeof raw.content === "object") {
-      routeContents.push(
-        routeContentFromStoredRow({
-          route_id: lesson.routeId,
-          route_version: lesson.routeVersion,
-          micro_skill_key: lesson.microSkillKey,
-          content: raw,
-        }),
-      );
-      continue;
-    }
-    const facts = Object.fromEntries(
-      Object.entries(raw).map(([key, value]) => [
-        key.replace(/_([a-z])/g, (_match, c: string) => c.toUpperCase()),
-        value,
-      ]),
-    );
-    routeContents.push({
-      routeId: lesson.routeId,
-      routeVersion: lesson.routeVersion,
-      microSkillKey: lesson.microSkillKey,
-      wordMeaning: String(
-        raw.new_word_meaning ?? raw.child_friendly_meaning ?? "",
-      ),
-      wordSum: morphology?.word_sum ?? "",
-      content: facts,
-    });
-  }
   for (const row of (routeVersions?.data ?? []).filter(
     (row) => !rolledBackIds.has(row.id),
   ))
@@ -349,15 +279,7 @@ export async function TeachingDictionaryDetail({
         },
         skillKeys: [
           ...new Set([
-            ...(authority?.relationships ?? [])
-              .filter((row) => row.canonicalWordId === wordId)
-              .map((row) => row.microSkillKey),
             ...routeContents.map((content) => content.microSkillKey),
-            ...preflights
-              .filter((lesson) =>
-                lesson.words.some((entry) => entry.id === wordId),
-              )
-              .map((lesson) => lesson.microSkillKey),
           ]),
         ],
         routeContents,
@@ -424,7 +346,7 @@ export async function TeachingDictionaryDetail({
       }
     }
   return (
-    <main className="mx-auto grid max-w-7xl gap-4 p-4 text-[color:var(--ink)] sm:p-6">
+    <main className="mx-auto grid w-full min-w-0 max-w-7xl grid-cols-[minmax(0,1fr)] gap-4 p-4 text-[color:var(--ink)] sm:p-6">
       <nav className="flex gap-4 text-sm">
         <Link href="/admin/teaching-dictionary" className="underline">
           ← All words
@@ -450,16 +372,10 @@ export async function TeachingDictionaryDetail({
           "Internally authored and reviewed"
         }
         skills={skillResult.data ?? []}
-        preflights={preflights
-          .filter((lesson) => initial.skillKeys.includes(lesson.microSkillKey))
-          .map((lesson) => {
-            const { releasePackage: _package, ...visible } = lesson;
-            void _package;
-            return visible;
-          })}
         affixMeanings={affixMeanings}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
+        familyReviewContext={{ error: params.family_error, manualFamilyId: params.manual_family }}
         overviewReviewed={
           publicationBlockers(initial, word?.normalised_word ?? draft?.normalised_word ?? "").length === 0 &&
           (draft
@@ -491,35 +407,6 @@ export async function TeachingDictionaryDetail({
             ],
           })),
         ]}
-        familyReview={
-          word ? (
-            <BaseFamilyReview
-              word={{
-                id: word.id,
-                normalisedWord: word.normalised_word,
-                displayWord: word.display_word,
-                dialectCode: word.dialect_code,
-                rowStatus: word.row_status,
-                reviewStatus: word.review_status,
-              }}
-              morphology={
-                morphology
-                  ? {
-                      id: morphology.id,
-                      analysisStatus: morphology.analysis_status,
-                      reviewStatus: morphology.review_status,
-                      parts: morphology.morphology_parts,
-                      joins: morphology.morphology_joins ?? [],
-                      wordSum: morphology.word_sum,
-                    }
-                  : null
-              }
-              meaning={initial.definition}
-              error={params.family_error}
-              manualFamilyId={params.manual_family}
-            />
-          ) : null
-        }
         advanced={
           <div className="text-sm">
             <p>Canonical ID: {wordId ?? "New word"}</p>

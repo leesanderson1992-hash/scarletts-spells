@@ -12,6 +12,8 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { hydrateWorkspaceFacts } from "@/lib/teaching-dictionary-manager/workspace-hydration";
+import { loadWordFamilyReview } from "./family-review-loader";
 import { activityVariantsForRoute } from "@/lib/adle/composable-lesson/activity-variants";
 import { ACTIVITY_LABELS } from "@/lib/teaching-dictionary-manager/activity-matrix";
 import {
@@ -37,7 +39,7 @@ import {
   type ReviewedTransformation,
 } from "@/lib/teaching-dictionary-manager/authoring";
 import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesson-preflight";
-import { saveTeachingDictionaryDraft } from "./actions";
+import { saveWordWorkspace } from "./actions";
 import { launchReviewedAdleLesson } from "../adle-lesson-readiness/actions";
 import { CompoundPartsEditor } from "./compound-parts-editor";
 import {
@@ -50,8 +52,8 @@ import { ActionSubmitButton } from "./action-submit-button";
 const button =
   "rounded-lg bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50";
 const input =
-  "w-full min-w-24 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
-const section = "rounded-xl border border-[var(--border)] bg-white";
+  "w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
+const section = "min-w-0 rounded-xl border border-[var(--border)] bg-white";
 const actions = "mt-3 flex flex-wrap justify-end gap-2";
 type Skill = {
   micro_skill_key: string;
@@ -90,13 +92,21 @@ function Prompt({ text }: { text: string }) {
       </button>
       <span
         role="tooltip"
-        className="absolute left-0 top-7 z-20 hidden w-72 max-w-[70vw] rounded-lg border border-[var(--border)] bg-white p-3 text-sm font-normal shadow-lg group-focus-within:block group-hover:block"
+        className="absolute right-0 top-7 z-20 hidden w-64 max-w-[65vw] rounded-lg border border-[var(--border)] bg-white p-3 text-sm font-normal shadow-lg group-focus-within:block group-hover:block"
       >
         {text}
       </span>
     </span>
   );
 }
+function CompiledLessonPreview({ value }: { value: unknown }) {
+  const [open, setOpen] = useState(false);
+  return <details className="mt-3 text-sm" onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary className="cursor-pointer">Compiled lesson preview</summary>
+    {open && <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded bg-[var(--paper)] p-3 text-xs">{JSON.stringify(value, null, 2)}</pre>}
+  </details>;
+}
+
 function Editable({
   label,
   value,
@@ -166,7 +176,6 @@ export function WordWorkspace(props: {
   initial: WordDraftPayload;
   sourceReference: string;
   skills: Skill[];
-  preflights: LessonReadinessRow[];
   affixMeanings: Record<string, string[]>;
   partSuggestions: {
     label: string;
@@ -180,7 +189,7 @@ export function WordWorkspace(props: {
     choices: string[];
   }[];
   baseFamilies: Family[];
-  familyReview: ReactNode;
+  familyReviewContext: { error?: string; manualFamilyId?: string };
   advanced: ReactNode;
   saved?: boolean;
   error?: string;
@@ -191,22 +200,91 @@ export function WordWorkspace(props: {
     dictationVariants: dictationVariants(props.initial),
     writtenSyllableBreakdown: props.initial.writtenSyllableBreakdown ?? "",
   }));
+  const [dirty, setDirty] = useState(false);
+  const workspace = useRef<HTMLDivElement>(null);
+  const [checksLoadedMs, setChecksLoadedMs] = useState<number | null>(null);
+  const [lastSaveMs, setLastSaveMs] = useState<number | null>(null);
+  useEffect(() => { workspace.current?.setAttribute("data-overview-hydrated-ms", String(Math.round(performance.now()))); }, []);
+  const editRevision = useRef(0);
+  const [editVersion, setEditVersion] = useState(0);
+  useEffect(() => { editRevision.current = editVersion; }, [editVersion]);
+  const [draftId, setDraftId] = useState(props.draftId);
+  const [overviewReviewed, setOverviewReviewed] = useState(props.overviewReviewed);
+  const [preflights, setPreflights] = useState<LessonReadinessRow[]>([]);
+  const [checksState, setChecksState] = useState<"loading" | "ready" | "error">(props.wordId ? "loading" : "ready");
+  const [checkVersion, setCheckVersion] = useState(0);
+  const initialChecksApplied = useRef(false);
+  const [saveMessage, setSaveMessage] = useState(props.saved ? "Saved." : "");
+  const [actionError, setActionError] = useState(props.error);
   const [saveState, saveAction, saving] = useActionState(
     async (_previous: null, form: FormData) => {
-      await saveTeachingDictionaryDraft(form);
+      const saveStarted = performance.now();
+      const revision = editRevision.current;
+      setActionError(undefined);
+      setSaveMessage("");
+      const result = await saveWordWorkspace(form);
+      setLastSaveMs(Math.round(performance.now() - saveStarted));
+      const destination = new URL(result.destination, window.location.origin);
+      const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
+      setActionError(error);
+      setDraftId(destination.searchParams.get("draft"));
+      if (!result.error) {
+        window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
+        if (editRevision.current === revision) {
+          setDirty(false);
+          setOverviewReviewed(result.overviewApproved);
+        }
+        setSaveMessage("Saved. Updating lesson checks…");
+        setChecksState(props.wordId ? "loading" : "ready");
+        setCheckVersion(version => version + 1);
+      }
       return null;
-    },
-    null,
+    }, null,
   );
   void saveState;
-  const [dirty, setDirty] = useState(false);
+  useEffect(() => {
+    if (!props.wordId) return;
+    const controller = new AbortController();
+    fetch(`/api/admin/teaching-dictionary/${props.wordId}/lesson-readiness`, {
+      cache: "no-store", signal: controller.signal,
+    }).then(async response => {
+      if (!response.ok) throw new Error("TEACHING_READINESS_LOAD_FAILED");
+      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[] }>;
+    }).then(result => {
+      if (controller.signal.aborted) return;
+      setChecksLoadedMs(Math.round(performance.now()));
+      setPreflights(result.preflights);
+      if (!initialChecksApplied.current) {
+        // Late native facts fill gaps only; edits and an explicitly selected draft win.
+        setPayload(current => hydrateWorkspaceFacts({ current, initial: props.initial, draftId: props.draftId,
+          edited: editRevision.current > 0, skillKeys: result.skillKeys, routeContents: result.routeContents }));
+        initialChecksApplied.current = true;
+      }
+      setChecksState("ready");
+      setSaveMessage(message => message ? "Saved. Lesson checks updated." : "");
+    }).catch(() => {
+      if (!controller.signal.aborted) setChecksState("error");
+    });
+    return () => controller.abort();
+  }, [props.wordId, props.draftId, props.initial, checkVersion]);
   const [joined, setJoined] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
   const splitDialog = useRef<HTMLDialogElement>(null);
   const builder = useRef<HTMLDialogElement>(null);
   const family = useRef<HTMLDialogElement>(null);
+  const [familyReview, setFamilyReview] = useState<ReactNode>(null);
+  const [familyLoading, setFamilyLoading] = useState(false);
+  async function openFamily() {
+    family.current?.showModal();
+    if (!props.wordId || familyReview || familyLoading) return;
+    setFamilyLoading(true);
+    try { setFamilyReview(await loadWordFamilyReview(props.wordId, props.familyReviewContext.manualFamilyId, props.familyReviewContext.error)); }
+    catch { setFamilyReview(<p role="alert">Family suggestions could not load. Close this window and reopen the page to try again.</p>); }
+    finally { setFamilyLoading(false); }
+  }
   const formId = "word-workspace-save";
   function change(update: Partial<WordDraftPayload>) {
+    setEditVersion(version => version + 1);
     setPayload((old) => withDerivedMorphologyMetadata({ ...old, ...update }));
     setDirty(true);
   }
@@ -263,7 +341,7 @@ export function WordWorkspace(props: {
     reveal();
     window.addEventListener("hashchange", reveal);
     return () => window.removeEventListener("hashchange", reveal);
-  }, []);
+  }, [checksState]);
   const selectedRoutes = payload.skillKeys.flatMap((key) => {
     const route = routeForSkill(key);
     return route?.newAssignmentCapable ? [{ key, route }] : [];
@@ -273,7 +351,7 @@ export function WordWorkspace(props: {
     key;
   const checks = selectedRoutes.map(({ key, route }) => {
     const content = routeContent(key)!;
-    const preflight = props.preflights.find(
+    const preflight = preflights.find(
       (row) => row.routeId === route.routeId && row.microSkillKey === key,
     );
     const requirements = [
@@ -296,12 +374,12 @@ export function WordWorkspace(props: {
       requirements,
       word,
       ready:
-        !dirty &&
+        !dirty && checksState === "ready" &&
         Boolean(
           preflight?.compilerReady &&
           reviewedWordCanLaunch(
             word,
-            props.draftId,
+            draftId,
             preflight.compilerWitnesses,
           ),
         ),
@@ -380,6 +458,7 @@ export function WordWorkspace(props: {
     return (
       <ActionSubmitButton
         pending={saving}
+        disabled={checksState !== "ready"}
         form={formId}
         name="review_section"
         value={review}
@@ -504,7 +583,7 @@ export function WordWorkspace(props: {
     return [];
   }
   return (
-    <div className="grid gap-3">
+    <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
         <input type="hidden" name="word_id" value={props.wordId ?? ""} />
         <input
@@ -526,36 +605,22 @@ export function WordWorkspace(props: {
           value={JSON.stringify(payload)}
         />
       </form>
-      {props.saved && (
-        <p role="status" className="text-sm text-emerald-800">
-          Saved.{" "}
-          {dirty
-            ? "Unsaved edits need approval."
-            : "Current release checks are shown below."}
-        </p>
-      )}
-      {props.error && (
-        <p
-          role="alert"
-          className="rounded bg-amber-50 p-3 text-sm text-amber-950"
-        >
-          {workspaceErrorMessage(props.error)}
-        </p>
-      )}
+      {saveMessage && <p role="status" className="text-sm text-emerald-800">{saveMessage}{dirty ? " Unsaved edits need approval." : ""}</p>}
+      {actionError && <p role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">{workspaceErrorMessage(actionError)}</p>}
       <details id="td-overview" className={section} open>
         <summary className="cursor-pointer p-4 font-semibold">
           1 · Overview{" "}
           <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">
             {dirty
               ? "Edited · needs approval"
-              : props.overviewReviewed
+              : overviewReviewed
                 ? "Reviewed"
                 : "Review required"}
           </span>
         </summary>
         <div className="px-4 pb-4">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[850px] table-fixed text-left text-sm">
+            <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
                 <tr>
                   {overview.map((field) => (
@@ -568,7 +633,7 @@ export function WordWorkspace(props: {
               <tbody>
                 <tr>
                   {overview.map((field) => (
-                    <td key={field.key} className="p-2 align-top">
+                    <td key={field.key} data-label={field.label} className="p-2 align-top">
                       {field.readOnly ? (
                         <span className="block py-1">{field.value}</span>
                       ) : (
@@ -588,7 +653,7 @@ export function WordWorkspace(props: {
             </table>
           </div>
           <div className="mt-3 overflow-x-auto border-t border-[var(--border)] pt-3">
-            <table className="w-full text-left text-sm">
+            <table className="td-reflow-table w-full text-left text-sm">
               <thead className="text-xs text-[color:var(--mid)]">
                 <tr>
                   <th className="p-2 font-medium">Parts &amp; meanings</th>
@@ -599,7 +664,7 @@ export function WordWorkspace(props: {
               </thead>
               <tbody>
                 <tr>
-                  <td className="p-2">
+                  <td data-label="Parts & meanings" className="p-2">
                     {payload.canonicalMorphology.parts.map((raw, i) => {
                       const part = raw as Record<string, unknown>;
                       return (
@@ -618,13 +683,13 @@ export function WordWorkspace(props: {
                       );
                     })}
                   </td>
-                  <td className="p-2">
+                  <td data-label="Canonical word sum" className="p-2">
                     {payload.canonicalMorphology.wordSum || "Missing"}
                   </td>
-                  <td className="p-2">
+                  <td data-label="Written syllables" className="p-2">
                     {payload.writtenSyllableBreakdown || "Missing"}
                   </td>
-                  <td className="p-2">
+                  <td data-label="Transformations" className="p-2">
                     {payload.canonicalMorphology.transformations
                       ?.map(
                         (item) =>
@@ -650,7 +715,7 @@ export function WordWorkspace(props: {
             Dictation sentences
           </h3>
           <div className="mt-2 overflow-x-auto">
-            <table className="w-full min-w-[600px] text-left text-sm">
+            <table className="td-reflow-table td-dictation-table w-full text-left text-sm">
               <thead className="text-xs text-[color:var(--mid)]">
                 <tr>
                   <th className="p-2 font-medium">Use</th>
@@ -665,10 +730,10 @@ export function WordWorkspace(props: {
                     key={variant.id}
                     className="border-t border-[var(--border)]"
                   >
-                    <td className="p-2">
+                    <td data-label="Use" className="p-2">
                       {index === 0 ? "Primary" : "Alternate"}
                     </td>
-                    <td className="p-2">
+                    <td data-label="Sentence" className="p-2">
                       <input
                         aria-label={`Dictation sentence ${index + 1}`}
                         className={input}
@@ -693,7 +758,7 @@ export function WordWorkspace(props: {
                         }}
                       />
                     </td>
-                    <td className="p-2">
+                    <td data-label="Target occurrence" className="p-2">
                       <select
                         aria-label={`Target in sentence ${index + 1}`}
                         className={input}
@@ -728,7 +793,7 @@ export function WordWorkspace(props: {
                         ))}
                       </select>
                     </td>
-                    <td className="p-2">
+                    <td data-label="Action" className="p-2">
                       {index > 0 && (
                         <button
                           type="button"
@@ -802,10 +867,11 @@ export function WordWorkspace(props: {
               <button
                 type="button"
                 className={button}
-                onClick={() => family.current?.showModal()}
+                onClick={openFamily}
               >
                 Join or change family
               </button>
+              {saveButton("draft", "Save draft")}
               {saveButton("overview")}
             </div>
           </div>
@@ -819,10 +885,10 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
-          <table className="w-full text-left text-sm">
+          <table className="td-reflow-table w-full text-left text-sm">
             <thead>
               <tr className="border-b">
-                <th className="p-2">Micro-skill</th>
+                <th className="w-[24%] p-2">Micro-skill</th>
                 <th className="p-2">Route</th>
                 <th className="p-2">Action</th>
               </tr>
@@ -830,7 +896,7 @@ export function WordWorkspace(props: {
             <tbody>
               {payload.skillKeys.map((key) => {
                 const route = routeForSkill(key);
-                const preflight = props.preflights.find(
+                const preflight = preflights.find(
                   (row) => row.microSkillKey === key,
                 );
                 return (
@@ -901,17 +967,21 @@ export function WordWorkspace(props: {
       </details>
       <section id="td-lesson-checks" className={`${section} p-4`}>
         <h2 className="font-semibold">3 · Lesson checks</h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-max text-left text-sm">
+        {checksState !== "ready" && <p role="status" className="mt-2 text-sm text-[color:var(--mid)]">
+          {checksState === "loading" ? "Checking complete lesson groups… You can edit Overview while checks run." : "Lesson checks could not load. Approval and Launch are unavailable."}
+          {checksState === "error" && <button type="button" className="ml-2 text-[color:var(--scarlett)] underline" onClick={() => { setChecksState("loading"); setCheckVersion(version => version + 1); }}>Retry checks</button>}
+        </p>}
+        <div className="mt-3 min-w-0">
+          <table className="td-checks w-full table-fixed text-left text-sm">
             <thead>
               <tr className="border-b">
-                <th className="p-2">Micro-skill</th>
+                <th className="w-[24%] p-2">Micro-skill</th>
                 {columns.map((kind) => (
                   <th key={kind} className="p-2 text-center text-xs">
                     {ACTIVITY_LABELS[kind]}
                   </th>
                 ))}
-                <th className="p-2">Release</th>
+                <th className="w-[12%] p-2">Release</th>
               </tr>
             </thead>
             <tbody>
@@ -937,10 +1007,11 @@ export function WordWorkspace(props: {
                           <span className="text-[color:var(--mid)]">—</span>
                         ) : missing.length ? (
                           <a
+                            title={missing[0].label}
                             href={`#${missing[0].editTarget}`}
                             className="text-xs text-amber-900 underline"
                           >
-                            ⚠ {missing[0].label}
+                            <span aria-hidden="true">⚠</span><span className="sr-only">{missing[0].label}</span>
                           </a>
                         ) : row.ready ? (
                           <span
@@ -982,6 +1053,12 @@ export function WordWorkspace(props: {
             </tbody>
           </table>
         </div>
+        {checks.some(row => row.requirements.some(requirement => requirement.status !== "present")) && <details className="mt-3 text-sm">
+          <summary className="cursor-pointer font-medium">Missing information</summary>
+          {checks.map(row => <div key={row.key} className="mt-2"><p className="font-medium">{name(row.key)}</p><ul className="mt-1 grid gap-1">
+            {[...new Map(row.requirements.filter(requirement => requirement.status !== "present").map(requirement => [requirement.editTarget, requirement])).values()].map(requirement => <li key={requirement.editTarget}><a className="text-amber-900 underline" href={`#${requirement.editTarget}`}>{requirement.label}</a></li>)}
+          </ul></div>)}
+        </details>}
       </section>
       {checks.map((row, index) => {
         const route = routeWithSharedFacts(row.content, payload);
@@ -997,7 +1074,7 @@ export function WordWorkspace(props: {
             <summary className="cursor-pointer p-4 font-semibold">
               {index + 4} · {name(row.key)} lesson{" "}
               <span className="ml-2 text-xs font-normal">
-                {row.preflight?.activationEnabled ? "Active" : "Inactive"} ·{" "}
+                {checksState !== "ready" ? "Checking…" : row.preflight?.activationEnabled ? "Active" : "Inactive"} ·{" "}
                 {row.preflight?.status.replaceAll("_", " ") ?? "Needs review"}
               </span>
             </summary>
@@ -1352,20 +1429,7 @@ export function WordWorkspace(props: {
                     ))}
                 </div>
               )}
-              <details className="mt-3 text-sm">
-                <summary className="cursor-pointer">
-                  Compiled lesson preview
-                </summary>
-                <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded bg-[var(--paper)] p-3 text-xs">
-                  {JSON.stringify(
-                    row.preflight?.compiledPreview ??
-                      row.preflight?.releaseContentPreview ??
-                      {},
-                    null,
-                    2,
-                  )}
-                </pre>
-              </details>
+              <CompiledLessonPreview value={row.preflight?.compiledPreview ?? row.preflight?.releaseContentPreview ?? {}} />
               <div className={actions}>
                 {saveButton(
                   `lesson:${row.key}`,
@@ -1376,7 +1440,7 @@ export function WordWorkspace(props: {
                 <input
                   type="hidden"
                   name="draft_id"
-                  value={props.draftId ?? ""}
+                  value={draftId ?? ""}
                 />
                 <input
                   type="hidden"
@@ -1397,7 +1461,7 @@ export function WordWorkspace(props: {
                 <ActionSubmitButton
                   pendingLabel="Launching…"
                   disabled={
-                    !row.ready ||
+                    checksState !== "ready" || saving || !row.ready ||
                     row.preflight?.status !== "ready_to_launch" ||
                     !row.preflight.activationEnabled
                   }
@@ -1896,7 +1960,7 @@ export function WordWorkspace(props: {
         ref={family}
         className="w-[min(850px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
       >
-        {props.familyReview}
+        {familyLoading ? <p role="status">Loading family suggestions…</p> : familyReview}
         <div className={actions}>
           <button
             type="button"

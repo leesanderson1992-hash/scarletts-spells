@@ -251,21 +251,23 @@ function introduction(value: unknown): DynamicAffixProfile["introduction"] | nul
 export async function loadDynamicSuffixProfiles(
   client: SupabaseClient,
   childId: string,
-  options: { allowStagingProfiles?: boolean; dictationSeed?: string; includeDerivedItyCandidates?: boolean;
+  options: { allowStagingProfiles?: boolean; microSkillKeys?: readonly string[]; dictationSeed?: string; includeDerivedItyCandidates?: boolean;
     candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string; dictionary?: WordDraftPayload }[] } = {},
 ): Promise<{
   profiles: DynamicAffixProfile[];
   learningItems: LearningItemFact[];
   diagnostics: DynamicSuffixProfileLoadDiagnostic[];
 }> {
+  const profileKeys = DYNAMIC_SUFFIX_PROFILE_KEYS.filter(key => !options.microSkillKeys || options.microSkillKeys.includes(key));
+  if (!profileKeys.length) return { profiles: [], learningItems: [], diagnostics: [] };
   const [
     { data: rawProfiles, error: profileError },
     { data: rawItems, error: itemError },
     { data: rawSkills, error: skillError },
   ] = await Promise.all([
-      client.from("canonical_teaching_dictionary_suffix_profiles").select("id,import_batch_id,source_row_hash,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(id,source_row_hash,canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
-    client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS).eq("row_status", "active"),
-    client.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,is_active,is_assignable").in("micro_skill_key", DYNAMIC_SUFFIX_PROFILE_KEYS),
+      client.from("canonical_teaching_dictionary_suffix_profiles").select("id,import_batch_id,source_row_hash,micro_skill_key,suffix_label,suffix_text,suffix_meaning,meaning_bins,include_meaning_sort,suffix_choices,intro_content,reflection_prompt_key,reflection_prompt_text,production_enabled,row_status,review_status,canonical_teaching_dictionary_suffix_members(id,source_row_hash,canonical_word_id,member_role,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance,assignment_eligible,row_status,review_status)").in("micro_skill_key", profileKeys).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", profileKeys).eq("row_status", "active"),
+    client.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,is_active,is_assignable").in("micro_skill_key", profileKeys),
   ]);
   if (profileError || itemError || skillError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message ?? skillError?.message}`);
   const profileRows = records<ProfileRow>(rawProfiles);

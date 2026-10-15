@@ -167,9 +167,6 @@ export async function loadLessonReadiness(
     suffixRows,
     prefixMembers,
     suffixMembers,
-    wordRows,
-    metadataRows,
-    dictationRows,
     contentRows,
     reviewRows,
     publicationRows,
@@ -201,23 +198,6 @@ export async function loadLessonReadiness(
       db,
       "canonical_teaching_dictionary_suffix_members",
       "id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance",
-    ),
-    selectRows(
-      db,
-      "canonical_teaching_dictionary_words",
-      "id,display_word,row_status,review_status",
-    ),
-    selectRows(
-      db,
-      "canonical_teaching_dictionary_word_metadata",
-      "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status",
-      (q) => q.eq("row_status", "active"),
-    ),
-    selectRows(
-      db,
-      "canonical_teaching_dictionary_dictation_sentences",
-      "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status",
-      (q) => q.eq("row_status", "active"),
     ),
     selectRows(
       db,
@@ -265,6 +245,134 @@ export async function loadLessonReadiness(
       "draft_id,content_fingerprint,base_dictionary_fingerprint",
     ),
     selectRows(db, "teaching_dictionary_manager_publications", "draft_id"),
+  ]);
+  const revisionById = new Map(
+    activationRevisions.map((row) => [row.id as string, row]),
+  );
+  const releaseById = new Map(
+    releaseRows.map((row) => [row.id as string, row]),
+  );
+  const dependencies: Row[] = [];
+  const releaseIds = [...new Set(releaseRows.map((row) => String(row.id)))];
+  for (let at = 0; at < releaseIds.length; at += 100) {
+    dependencies.push(
+      ...(await selectRows(
+        db,
+        "adle_curriculum_release_dependencies",
+        "release_manifest_id,micro_skill_key,authority_id,authority_type",
+        (q) => q.in("release_manifest_id", releaseIds.slice(at, at + 100)),
+      )),
+    );
+  }
+  const authorityIds = [
+    ...new Set(dependencies.map((row) => String(row.authority_id))),
+  ];
+  const authorities: Row[] = [];
+  for (let at = 0; at < authorityIds.length; at += 100) {
+    const result = await db
+      .from("adle_curriculum_dependency_authorities")
+      .select(
+        "id,authority_key,schema_version,semantic_projection,semantic_fingerprint,authority_type",
+      )
+      .in("id", authorityIds.slice(at, at + 100));
+    if (result.error)
+      throw new Error(`ADLE_LESSON_AUTHORITY_READ: ${result.error.message}`);
+    authorities.push(...(result.data ?? []));
+  }
+  const authorityById = new Map(
+    authorities.map((row) => [row.id as string, row]),
+  );
+  const matchesScope = (route: CurriculumRouteDefinition, skill: string): boolean => {
+        if (scope.routeId && scope.routeId !== route.routeId) return false;
+        if (scope.microSkillKey && scope.microSkillKey !== skill) return false;
+        if (!scope.wordId) return true;
+        if (
+          contentRows.some(
+            (row) =>
+              row.canonical_word_id === scope.wordId &&
+              row.route_id === route.routeId &&
+              row.micro_skill_key === skill,
+          )
+        )
+          return true;
+        if (
+          prefixRows.some(
+            (profile) =>
+              profile.micro_skill_key === skill &&
+              route.routeId === "dynamic_prefix_word_lab" &&
+              prefixMembers.some(
+                (member) =>
+                  member.prefix_profile_id === profile.id &&
+                  member.canonical_word_id === scope.wordId &&
+                  member.row_status === "active",
+              ),
+          )
+        )
+          return true;
+        if (
+          suffixRows.some(
+            (profile) =>
+              profile.micro_skill_key === skill &&
+              route.routeId === "dynamic_affix_word_lab" &&
+              suffixMembers.some(
+                (member) =>
+                  member.suffix_profile_id === profile.id &&
+                  member.canonical_word_id === scope.wordId &&
+                  member.row_status === "active",
+              ),
+          )
+        )
+          return true;
+        const head = activationHeads.find(
+          (head) =>
+            head.route_id === route.routeId && head.micro_skill_key === skill,
+        );
+        const releaseId = head
+          ? revisionById.get(head.current_revision_id)?.release_manifest_id
+          : null;
+        const found = new Map<string, unknown>();
+        for (const dependency of dependencies.filter(
+          (dep) =>
+            dep.micro_skill_key === skill &&
+            dep.release_manifest_id === releaseId,
+        )) {
+          const a = authorityById.get(dependency.authority_id);
+          if (a) collectWordFacts(a.semantic_projection, found, 0, skill);
+        }
+        return found.has(scope.wordId);
+  };
+  const relevant = new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap(route =>
+    (route.compatibilityScope.kind === "generic_composer_fallback" ? ["generic_composer_fallback"] : route.supportedMicroSkillKeys)
+      .filter(skill => matchesScope(route, skill)).map(skill => `${route.routeId}:${skill}`)));
+  const prefixKeys = prefixRows.filter(row => relevant.has(`dynamic_prefix_word_lab:${row.micro_skill_key}`)).map(row => String(row.micro_skill_key));
+  const suffixKeys = suffixRows.filter(row => relevant.has(`dynamic_affix_word_lab:${row.micro_skill_key}`)).map(row => String(row.micro_skill_key));
+  // The scope narrows groups, never members within a proposed group.
+  prefixRows.splice(0, prefixRows.length, ...prefixRows.filter(row => prefixKeys.includes(row.micro_skill_key)));
+  suffixRows.splice(0, suffixRows.length, ...suffixRows.filter(row => suffixKeys.includes(row.micro_skill_key)));
+  contentRows.splice(0, contentRows.length, ...contentRows.filter(row => relevant.has(`${row.route_id}:${row.micro_skill_key}`)));
+  const scopedWordIds = new Set<string>(contentRows.map(row => String(row.canonical_word_id)));
+  for (const row of prefixMembers) if (prefixRows.some(profile => profile.id === row.prefix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
+  for (const row of suffixMembers) if (suffixRows.some(profile => profile.id === row.suffix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
+  for (const dep of dependencies) {
+    const release = releaseById.get(dep.release_manifest_id);
+    if (!release || !relevant.has(`${release.route_id}:${dep.micro_skill_key}`)) continue;
+    const facts = new Map<string, unknown>();
+    collectWordFacts(authorityById.get(dep.authority_id)?.semantic_projection, facts, 0, dep.micro_skill_key);
+    for (const id of facts.keys()) scopedWordIds.add(id);
+  }
+  const wordIds = [...scopedWordIds];
+  const readWordFacts = async (table: string, columns: string, key: string, active = false) => {
+    if (!scope.wordId && !scope.routeId && !scope.microSkillKey) return selectRows(db, table, columns, active ? q => q.eq("row_status", "active") : undefined);
+    const batches = Array.from({ length: Math.ceil(wordIds.length / 100) }, (_, index) => wordIds.slice(index * 100, (index + 1) * 100));
+    return (await Promise.all(batches.map(ids => selectRows(db, table, columns, q => {
+      const filtered = q.in(key, ids);
+      return active ? filtered.eq("row_status", "active") : filtered;
+    })))).flat();
+  };
+  const [wordRows, metadataRows, dictationRows] = await Promise.all([
+    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status", "id"),
+    readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
+    readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
   ]);
   const words = new Map(wordRows.map((word) => [word.id as string, word]));
   const activePrefixIds = new Set(prefixRows.map((profile) => profile.id));
@@ -321,9 +429,6 @@ export async function loadLessonReadiness(
     publicationRows.map((row) => row.content_version_id),
   );
   const rolledBack = new Set(rollbackRows.map((row) => row.content_version_id));
-  const revisionById = new Map(
-    activationRevisions.map((row) => [row.id as string, row]),
-  );
   const latestContent = new Map<string, Row>();
   for (const row of contentRows
     .filter((row) => !rolledBack.has(row.id))
@@ -385,9 +490,10 @@ export async function loadLessonReadiness(
     }));
   const [loadedPrefix, loadedSuffix, candidatePrefix, candidateSuffix] =
     await Promise.all([
-      loadDynamicPrefixProfiles(db, ZERO_CHILD),
-      loadDynamicSuffixProfiles(db, ZERO_CHILD),
+      loadDynamicPrefixProfiles(db, ZERO_CHILD, { microSkillKeys: prefixKeys }),
+      loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys }),
       loadDynamicPrefixProfiles(db, ZERO_CHILD, {
+        microSkillKeys: prefixKeys,
         allowStagingProfiles: true,
         candidateMembers: candidateMembers.filter((row) =>
           reviewedCandidates.some(
@@ -399,6 +505,7 @@ export async function loadLessonReadiness(
         ),
       }),
       loadDynamicSuffixProfiles(db, ZERO_CHILD, {
+        microSkillKeys: suffixKeys,
         allowStagingProfiles: true,
         candidateMembers: candidateMembers.filter((row) =>
           reviewedCandidates.some(
@@ -410,42 +517,9 @@ export async function loadLessonReadiness(
         ),
       }),
     ]);
-  const releaseById = new Map(
-    releaseRows.map((row) => [row.id as string, row]),
-  );
-  const dependencies: Row[] = [];
-  const releaseIds = [...new Set(releaseRows.map((row) => String(row.id)))];
-  for (let at = 0; at < releaseIds.length; at += 100) {
-    dependencies.push(
-      ...(await selectRows(
-        db,
-        "adle_curriculum_release_dependencies",
-        "release_manifest_id,micro_skill_key,authority_id,authority_type",
-        (q) => q.in("release_manifest_id", releaseIds.slice(at, at + 100)),
-      )),
-    );
-  }
-  const authorityIds = [
-    ...new Set(dependencies.map((row) => String(row.authority_id))),
-  ];
-  const authorities: Row[] = [];
-  for (let at = 0; at < authorityIds.length; at += 100) {
-    const result = await db
-      .from("adle_curriculum_dependency_authorities")
-      .select(
-        "id,authority_key,schema_version,semantic_projection,semantic_fingerprint,authority_type",
-      )
-      .in("id", authorityIds.slice(at, at + 100));
-    if (result.error)
-      throw new Error(`ADLE_LESSON_AUTHORITY_READ: ${result.error.message}`);
-    authorities.push(...(result.data ?? []));
-  }
-  const authorityById = new Map(
-    authorities.map((row) => [row.id as string, row]),
-  );
   const currentRevisionIds = new Set<string>();
   await Promise.all(
-    activationHeads.map(async (head) => {
+    activationHeads.filter(head => relevant.has(`${head.route_id}:${head.micro_skill_key}`)).map(async (head) => {
       const revision = revisionById.get(head.current_revision_id);
       const release = revision
         ? releaseById.get(revision.release_manifest_id)
@@ -471,65 +545,7 @@ export async function loadLessonReadiness(
         route.compatibilityScope.kind === "generic_composer_fallback"
           ? ["generic_composer_fallback"]
           : route.supportedMicroSkillKeys;
-      const relevantSkills = skills.filter((skill) => {
-        if (scope.routeId && scope.routeId !== route.routeId) return false;
-        if (scope.microSkillKey && scope.microSkillKey !== skill) return false;
-        if (!scope.wordId) return true;
-        if (
-          contentRows.some(
-            (row) =>
-              row.canonical_word_id === scope.wordId &&
-              row.route_id === route.routeId &&
-              row.micro_skill_key === skill,
-          )
-        )
-          return true;
-        if (
-          prefixRows.some(
-            (profile) =>
-              profile.micro_skill_key === skill &&
-              route.routeId === "dynamic_prefix_word_lab" &&
-              prefixMembers.some(
-                (member) =>
-                  member.prefix_profile_id === profile.id &&
-                  member.canonical_word_id === scope.wordId &&
-                  member.row_status === "active",
-              ),
-          )
-        )
-          return true;
-        if (
-          suffixRows.some(
-            (profile) =>
-              profile.micro_skill_key === skill &&
-              route.routeId === "dynamic_affix_word_lab" &&
-              suffixMembers.some(
-                (member) =>
-                  member.suffix_profile_id === profile.id &&
-                  member.canonical_word_id === scope.wordId &&
-                  member.row_status === "active",
-              ),
-          )
-        )
-          return true;
-        const head = activationHeads.find(
-          (head) =>
-            head.route_id === route.routeId && head.micro_skill_key === skill,
-        );
-        const releaseId = head
-          ? revisionById.get(head.current_revision_id)?.release_manifest_id
-          : null;
-        const found = new Map<string, unknown>();
-        for (const dependency of dependencies.filter(
-          (dep) =>
-            dep.micro_skill_key === skill &&
-            dep.release_manifest_id === releaseId,
-        )) {
-          const a = authorityById.get(dependency.authority_id);
-          if (a) collectWordFacts(a.semantic_projection, found, 0, skill);
-        }
-        return found.has(scope.wordId);
-      });
+      const relevantSkills = skills.filter((skill) => relevant.has(`${route.routeId}:${skill}`));
       return relevantSkills.map(async (skill): Promise<LessonReadinessRow> => {
         const prefix = prefixRows.find(
           (row) =>

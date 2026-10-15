@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
@@ -192,11 +192,12 @@ function payloadFromForm(form: FormData): WordDraftPayload {
   return payload;
 }
 
-export async function saveTeachingDictionaryDraft(form: FormData) {
+async function performWorkspaceSave(form: FormData) {
   const actor = await requireAdminUser();
   const wordId = value(form, "word_id");
-  const path = wordId && isUuid(wordId) ? `${PATH}/${wordId}` : PATH;
+  const path = wordId && isUuid(wordId) ? `${PATH}/${wordId}` : `${PATH}/new`;
   let destination = path;
+  let overviewApproved = false;
   try {
     if (wordId && !isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
     const normalisedWord = normaliseWord(value(form, "normalised_word"));
@@ -250,7 +251,7 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
     const reviewSection = value(form, "review_section");
-    if (reviewSection && reviewSection !== "skills") {
+    if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
       if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
       if(reviewSection.startsWith("lesson:")) {
         const fingerprint=await db.rpc("teaching_dictionary_overview_fingerprint",{p_payload:payload});
@@ -266,8 +267,9 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
       }
       const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: result.data.id, p_actor: actor.id });
       if (overview.error) throw new Error("TEACHING_OVERVIEW_REVIEW_FAILED");
+      overviewApproved = true;
     }
-    if (reviewSection !== "skills" && publicationBlockers(payload, normalisedWord).length === 0) {
+    if (reviewSection !== "skills" && reviewSection !== "draft" && publicationBlockers(payload, normalisedWord).length === 0) {
       try {
         destination = await publishValidatedDraft(db, result.data.id, actor.id, payload, normalisedWord);
       } catch (error) {
@@ -321,8 +323,24 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
         destination = `${path}?draft=${result.data.id}`;
       }
     }
-  } catch (error) { finish(destination, error); }
-  finish(destination);
+  } catch (error) { return { destination, error: errorCode(error), overviewApproved }; }
+  return { destination, error: null, overviewApproved };
+}
+
+/** Compatibility action for older forms; the compact workspace uses the result action below. */
+export async function saveTeachingDictionaryDraft(form: FormData) {
+  const result = await performWorkspaceSave(form);
+  finish(result.destination, result.error ? new Error(result.error) : undefined);
+}
+
+export async function saveWordWorkspace(form: FormData) {
+  const result = await performWorkspaceSave(form);
+  if (!result.error) {
+    // Other readers refresh their evidence on their next read. This action returns
+    // its own confirmed result and does not force the whole editor to rerender.
+    revalidateTag(TEACHING_DICTIONARY_EVIDENCE_TAG, "max");
+  }
+  return result;
 }
 
 export async function publishTeachingDictionaryDraft(form: FormData) {

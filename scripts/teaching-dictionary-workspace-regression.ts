@@ -1,3 +1,4 @@
+import { hydrateWorkspaceFacts } from "../lib/teaching-dictionary-manager/workspace-hydration";
 import { emptyMetadata, emptyMorphology, publicationBlockers, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 import { lessonActivityQuestion } from "../lib/teaching-dictionary-manager/activity-question";
 import assert from "node:assert/strict";
@@ -55,3 +56,16 @@ const completeOverview={...incompleteOverview,canonicalMorphology:{...emptyMorph
 assert.deepEqual(publicationBlockers(completeOverview,"word"),[]);
 assert(publicationBlockers({...completeOverview,canonicalMorphology:{...completeOverview.canonicalMorphology,parts:[{...completeOverview.canonicalMorphology.parts[0],gloss:""}]}},"word").some(message=>message.includes("meaning for each morphology part")));
 console.log("PASS: new Overview approvals require reviewed parts, meanings and part of speech");
+
+// A late readiness response must reuse current authority but cannot overwrite edits or drafts.
+
+const oldRoute = { routeId: "base_word_lab", routeVersion: "v1", microSkillKey: "base", wordMeaning: "old", wordSum: "word", content: { baseMeaning: "old" } };
+const initialWorkspace = { ...completeOverview, skillKeys: ["base"], routeContents: [oldRoute] };
+const incomingRoute = { ...oldRoute, wordMeaning: "current release", content: { baseMeaning: "current" } };
+const hydrate = (current: WordDraftPayload, draftId: string | null = null) => hydrateWorkspaceFacts({ current, initial: initialWorkspace, draftId, edited: true, skillKeys: ["base", "suffix"], routeContents: [incomingRoute] });
+assert.equal(hydrate(initialWorkspace).routeContents[0].wordMeaning, "current release");
+const editedWorkspace = { ...initialWorkspace, definition: "Admin edit", routeContents: [{ ...oldRoute, wordMeaning: "Admin route edit" }] };
+assert.equal(hydrate(editedWorkspace).routeContents[0].wordMeaning, "Admin route edit");
+assert.equal(hydrate(editedWorkspace).definition, "Admin edit");
+assert.deepEqual(hydrate(initialWorkspace, "selected-draft"), initialWorkspace);
+console.log("PASS: deferred route authority preserves current releases, in-progress edits and selected drafts");
