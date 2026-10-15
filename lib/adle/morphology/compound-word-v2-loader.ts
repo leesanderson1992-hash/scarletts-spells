@@ -1,3 +1,4 @@
+import { dictationVariantBlockers, selectDictationVariant, type DictationVariant } from "@/lib/teaching-dictionary-manager/authoring";
 /* Governed relation rows are validated at the fail-closed boundary. */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -33,6 +34,7 @@ export async function loadCompoundWordV2Authority(
     structureAuthorityId: string;
     dictionaryClosureAuthorityId: string;
     reviewedAt: string;
+    dictationSeed?: string;
   },
 ): Promise<LoadedCompoundWordV2Authority> {
   if (!COMPOUND_WORD_MICRO_SKILL_KEYS.includes(microSkillKey)) {
@@ -137,7 +139,7 @@ export async function loadCompoundWordV2Authority(
     ? exactAuthority
       ? await client
         .from("adle_teaching_dictionary_closure_words")
-        .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,dictation_target_end_exclusive,exact_governed_answer,dictation_source_row_hash")
+        .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,dictation_target_end_exclusive,exact_governed_answer,dictation_source_row_hash,dictation_variants,dictation_variants_fingerprint")
         .eq("authority_id", exactAuthority.dictionaryClosureAuthorityId)
         .in("canonical_word_id", ids)
       : await client
@@ -153,22 +155,28 @@ export async function loadCompoundWordV2Authority(
   for (const raw of dictationRows ?? []) {
     const structure = structuresById.get((raw as any).canonical_word_id);
     if (!structure) continue;
+    const pool=(raw as any).dictation_variants as DictationVariant[]|undefined;
+    if(pool&&dictationVariantBlockers(structure.wholeWord,pool).length)continue;
+    const variant=pool ? selectDictationVariant(pool,`${exactAuthority?.dictationSeed ?? childId}:${structure.wholeCanonicalWordId}:${(raw as any).dictation_variants_fingerprint}`) : null;
+    const selectedSentence=variant?.sentence ?? (raw as any).dictation_sentence;
+    const selectedTarget=variant?.targetTokenIndex ?? (raw as any).dictation_target_token_index;
     const targetTokenCount = structure.wholeWord.trim().split(/\s+/u).length;
     const targetSpan = {
       schemaVersion: DICTATION_TARGET_SPAN_SCHEMA_VERSION,
-      startTokenIndex: (raw as any).dictation_target_token_index,
-      endTokenIndexExclusive: exactAuthority
+      startTokenIndex: selectedTarget,
+      endTokenIndexExclusive: variant ? selectedTarget+targetTokenCount : exactAuthority
         ? (raw as any).dictation_target_end_exclusive
         : (raw as any).dictation_target_token_index + targetTokenCount,
       exactAnswer: exactAuthority
         ? (raw as any).exact_governed_answer
         : structure.wholeWord,
     } as const;
-    if (!validateDictationTargetSpanV2((raw as any).dictation_sentence, targetSpan)) continue;
+    if (!validateDictationTargetSpanV2(selectedSentence, targetSpan)) continue;
     dictationByCanonicalId.set(structure.wholeCanonicalWordId, {
       canonicalWordId: structure.wholeCanonicalWordId,
-      sentence: (raw as any).dictation_sentence,
-      audioText: (raw as any).audio_text,
+      sentence: selectedSentence,
+      ...(variant ? {dictationVariant:{id:variant.id,authorityFingerprint:(raw as any).dictation_variants_fingerprint}} : {}),
+      audioText: variant?.audioText ?? (raw as any).audio_text,
       targetSpan,
       review: {
         status: exactAuthority ? "approved_for_first_exposure" : (raw as any).review_status,

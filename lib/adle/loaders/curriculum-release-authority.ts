@@ -147,7 +147,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
     .map((row: any) => row.id as string);
   const { data: closureRows, error: closureError } = closureAuthorityIds.length
     ? await params.client.from("adle_teaching_dictionary_closure_words")
-        .select("authority_id,canonical_word_id,word_key,normalised_word,display_word,dialect_code,dictation_sentence,dictation_target_token_index,audio_text")
+        .select("authority_id,canonical_word_id,word_key,normalised_word,display_word,dialect_code,dictation_sentence,dictation_target_token_index,audio_text,dictation_variants,dictation_variants_fingerprint")
         .in("authority_id", closureAuthorityIds)
     : { data: [], error: null };
   if (closureError) queryError("Base Word Teaching Dictionary closure", closureError);
@@ -190,6 +190,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
         dictationSentence: row.dictation_sentence,
         dictationTargetTokenIndex: row.dictation_target_token_index,
         audioText: row.audio_text,
+        ...(row.dictation_variants ? {dictationVariants:row.dictation_variants,dictationSetFingerprint:row.dictation_variants_fingerprint} : {}),
       } satisfies BaseWordDictionaryClosureWord));
     if (!familyAuthority || !teachingAuthority || !closureAuthority || !family || !teachingContent ||
         !baseWordFamilyAuthorityAppliesToMicroSkill(family, revision.micro_skill_key) || teachingContent.microSkillKey !== revision.micro_skill_key ||

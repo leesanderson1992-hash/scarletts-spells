@@ -63,6 +63,7 @@ export interface AdjectiveFamilyV1 {
   content: {
     gaps: readonly SentenceGap[];
     pairedSentence: PairedDegreeSentence;
+    pairedSentenceVariants?: PairedDegreeSentence[];
     questions: readonly [DegreeQuestion, DegreeQuestion];
   };
   rowStatus: "active" | "draft" | "inactive";
@@ -196,6 +197,12 @@ function checkedFamilyBlockers(value: unknown, fixture: boolean): string[] {
     || !["comparative", "superlative"].includes(g.degree))
     || ["comparative", "superlative"].some(d => f.content.gaps.filter(g => g.degree === d).length < 2)
     || new Set(f.content.gaps.map(g => g.id)).size !== f.content.gaps.length) errors.push("sentence_content_missing");
+  if (f.content.pairedSentenceVariants !== undefined) {
+    if (!Array.isArray(f.content.pairedSentenceVariants) || !f.content.pairedSentenceVariants.length
+      || new Set(f.content.pairedSentenceVariants.map(sentence=>sentence.id)).size!==f.content.pairedSentenceVariants.length
+      || f.content.pairedSentenceVariants.some(sentence=>!hasPairedSentenceShape(sentence)
+        || sentence.targets.some(target=>!f.words.some(word=>word.canonicalWordId===target.canonicalWordId && word.word===target.word && word.degree===target.degree)))) errors.push("paired_dictation_variants_invalid");
+  }
   if (!hasPairedSentenceShape(f.content.pairedSentence)
     || f.content.pairedSentence.targets.some(t => !f.words.some(w => w.canonicalWordId === t.canonicalWordId && w.word === t.word && w.degree === t.degree))) errors.push("paired_dictation_invalid");
   if (!Array.isArray(f.content.questions) || f.content.questions.length !== 2

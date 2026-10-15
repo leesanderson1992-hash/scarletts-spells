@@ -1,4 +1,5 @@
 "use client";
+import { ingChangeQuestion } from "@/lib/adle/lesson-activity-copy";
 
 import { useRef, useState } from "react";
 import { FirstImpressionLesson, type FirstImpressionStageId } from "@/components/adle/first-impression/first-impression-lesson";
@@ -46,7 +47,7 @@ export function IngGuidedLesson(props: IngGuidedLessonProps) {
   const cover = lesson.words[progress.coverIndex];
   const dictation = lesson.words[progress.dictationIndex];
   const question = { id: `ing:${cleaverWord.canonicalWordId}:rule`, kind: "why" as const,
-    prompt: `What changed when ${cleaverWord.base} became ${cleaverWord.word}?`, options: [
+    prompt: ingChangeQuestion(cleaverWord.base, cleaverWord.word), options: [
       { id: "0", text: ING_RULE_COPY[lesson.rule].explanation },
       { id: "1", text: "Every verb doubles its final letter before -ing." },
       { id: "2", text: "Every verb loses its last letter before -ing." },
@@ -102,7 +103,7 @@ export function IngGuidedLesson(props: IngGuidedLessonProps) {
         onContinue: () => progress.coverIndex < 5 ? change({ coverIndex: progress.coverIndex + 1 }) : navigation.complete(),
       }), cover.canonicalWordId)}
       dictationActivity={binding("dictation", "DICTATION", "single_word_gap", navigation => ({
-        mode: "single_word_gap", word: dictation.word, sentence: dictation.dictationSentence, audioText: ingDictationAudioText(dictation), value: progress.dictationValues[dictation.canonicalWordId] ?? "",
+        mode: "single_word_gap", targetTokenIndex: dictation.dictationVariant?.targetTokenIndex, word: dictation.word, sentence: dictation.dictationSentence, audioText: ingDictationAudioText(dictation), value: progress.dictationValues[dictation.canonicalWordId] ?? "",
         checked: progress.dictationChecked.includes(dictation.canonicalWordId), stepLabel: `Dictation ${progress.dictationIndex + 1} of 6`, muted,
         onValueChange: (value: string) => change({ dictationValues: { ...current.current.dictationValues, [dictation.canonicalWordId]: value } }),
         onCheck: () => checkpoint({ dictationChecked: [...new Set([...current.current.dictationChecked, dictation.canonicalWordId])] }),

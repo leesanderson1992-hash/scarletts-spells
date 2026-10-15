@@ -1,4 +1,5 @@
 import "server-only";
+import { applyIngDictationVariants } from "./reviewed-dictation";
 /* eslint-disable @typescript-eslint/no-explicit-any -- database ledger rows are checked at the boundary */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { activationAllowsChild } from "../route-activation-scope";
@@ -46,7 +47,8 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
   if (closure.capability !== "single_ing_word_audio" || semanticJson(closure.words) !== semanticJson(words.map(word => ({ canonicalWordId: word.canonicalWordId, word: word.word, sentence: word.dictationSentence, audioText: word.audioText })))) return blocked("ing_audio_closure_incomplete");
   const rows: any[] = await read(input.client.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code").in("id", words.map(word => word.canonicalWordId)));
   if (words.some(word => !rows.some(row => row.id === word.canonicalWordId && row.display_word === word.word && row.row_status === "active" && row.review_status === "approved_for_first_exposure" && row.dialect_code === "en-GB"))) return blocked("ing_canonical_word_not_ready");
-  const selection = selectIngWords(input.childId, input.microSkillKey, words, input.learningItems);
+  const variedWords = applyIngDictationVariants(words, wordAuthority.semantic_projection.dictationSets, `${input.childId}:${input.date}:${input.microSkillKey}`, wordAuthority.semantic_fingerprint);
+  const selection = selectIngWords(input.childId, input.microSkillKey, variedWords, input.learningItems);
   if (!selection.ok) return blocked(selection.blockers.join(","));
   const lesson = compileIngLesson(selection, `adle:${input.childId}:${input.date}:${input.microSkillKey}`);
   const teaching = teachingAuthority.semantic_projection;

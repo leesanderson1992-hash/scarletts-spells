@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- release ledger rows are checked at the boundary */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { selectHomophonePassageVariant } from "./passage-variants";
 import { activationAllowsChild } from "../route-activation-scope";
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 import type { PersistedCurriculumReleaseAuthorityV2 } from "../composable-lesson/contracts";
@@ -64,14 +65,16 @@ export async function prepareHomophoneAssignment(input: { client: SupabaseClient
   const hash = await read(input.client.rpc("adle_generic_snapshot_json_sha256_v1", { p_value: authority.semantic_projection }));
   if (hash !== authority.semantic_fingerprint) return blocked("homophone_dependency_fingerprint_mismatch");
   const projection = authority.semantic_projection as { schemaVersion?: number; microSkillKey?: string; contentVersion?: string;
-    contentSha256?: string; imageAssetManifestSha256?: string; lesson?: HomophoneLesson; canonicalWords?: HomophoneWordBinding[] };
-  const snapshot = compileHomophoneLessonSnapshot(input.microSkillKey);
+    contentSha256?: string; imageAssetManifestSha256?: string; lesson?: HomophoneLesson; canonicalWords?: HomophoneWordBinding[];
+    dictationPassageVariants?: import("./passage-variants").HomophonePassageVariant[] };
+  let snapshot = compileHomophoneLessonSnapshot(input.microSkillKey);
   if (projection.schemaVersion !== 1 || projection.microSkillKey !== input.microSkillKey || !projection.lesson
     || projection.contentVersion !== snapshot.contentVersion || projection.contentSha256 !== snapshot.contentSha256
     || projection.imageAssetManifestSha256 !== approval.imageAssetManifestSha256
     || fingerprintSnapshotValue(projection.lesson) !== fingerprintSnapshotValue(lesson)
     || !Array.isArray(projection.canonicalWords) || projection.canonicalWords.length !== lesson.words.length
     || projection.canonicalWords.some((entry, index) => entry.word !== lesson.words[index].word || !entry.canonicalWordId)) return blocked("homophone_reviewed_content_mismatch");
+  snapshot = selectHomophonePassageVariant(snapshot, projection.dictationPassageVariants, `${input.childId}:${input.date}:${input.microSkillKey}`, authority.semantic_fingerprint);
   const rows: any[] = await read(input.client.from("canonical_teaching_dictionary_words")
     .select("id,display_word,row_status,review_status,dialect_code")
     .in("id", projection.canonicalWords.map(entry => entry.canonicalWordId)));

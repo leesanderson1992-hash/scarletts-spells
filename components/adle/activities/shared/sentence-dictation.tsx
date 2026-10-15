@@ -1,5 +1,7 @@
 "use client";
 
+import { LESSON_ACTIVITY_COPY } from "@/lib/adle/lesson-activity-copy";
+
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
 import { DiffReveal } from "./diff-reveal";
@@ -33,6 +35,7 @@ export interface PairedWordGapsProps {
   onContinue: () => void;
 }
 export interface SingleWordGapProps {
+  targetTokenIndex?: number;
   mode: "single_word_gap";
   word: string;
   sentence: string;
@@ -78,7 +81,7 @@ function TwoWordGaps(props: TwoWordGapsProps) {
   }
   return <section className="grid gap-5" data-two-word-dictation-state={props.checked ? "checked" : "writing"}>
     <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
-    <h2 className="text-center text-2xl font-black text-white">Listen to the story. Fill in two words.</h2>
+    <h2 className="text-center text-2xl font-black text-white">{LESSON_ACTIVITY_COPY.passageDictation}</h2>
     <div className="flex justify-center"><HearWordButton word={fullText} label="Hear passage" kind="dictation" muted={props.muted} /></div>
     {props.muted ? <p role="status" className="text-center text-amber-100">Sound is off. You can still use the story clues to fill the gaps.</p> : null}
     <div className="rounded-3xl bg-white p-5 text-xl font-bold leading-loose text-slate-950" aria-label="Passage with two word gaps">
@@ -135,7 +138,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
         />
       </div>
       <label htmlFor={inputId} className="text-sm font-semibold text-cyan-50">
-        {props.writingLabel ?? "Write the whole sentence"}
+        {props.writingLabel ?? LESSON_ACTIVITY_COPY.sentenceDictation}
       </label>
       <textarea
         id={inputId}
@@ -200,7 +203,8 @@ function SingleWordGap(props: SingleWordGapProps) {
   const [error, setError] = useState<string | null>(null);
   const requested = useRef(false);
   const target = props.word.toLocaleLowerCase("en-GB");
-  const token = [...props.sentence.toLocaleLowerCase("en-GB").matchAll(/[a-z]+(?:'[a-z]+)*/g)].find(match => match[0] === target);
+  const tokens = [...props.sentence.toLocaleLowerCase("en-GB").matchAll(/[a-z]+(?:'[a-z]+)*/g)];
+  const token = props.targetTokenIndex === undefined ? tokens.find(match => match[0] === target) : tokens[props.targetTokenIndex]?.[0]===target ? tokens[props.targetTokenIndex] : undefined;
   const index = token?.index ?? -1;
   if (index < 0) return <p role="alert">This dictation sentence needs review.</p>;
   const before = props.sentence.slice(0, index);
@@ -214,7 +218,7 @@ function SingleWordGap(props: SingleWordGapProps) {
   }
   return <section className="grid gap-5" data-single-word-dictation-state={props.checked ? "checked" : "writing"}>
     <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
-    <h2 className="text-center text-2xl font-black text-white">Listen, then spell the missing action word</h2>
+    <h2 className="text-center text-2xl font-black text-white">{LESSON_ACTIVITY_COPY.actionDictation}</h2>
     <div className="flex justify-center"><HearWordButton word={props.audioText} label="Hear sentence" kind="dictation" muted={props.muted} /></div>
     {props.muted ? <p role="status" className="text-center text-amber-100">Turn on sound to hear the sentence.</p> : null}
     {!audioAvailable ? <p role="alert" className="text-center text-amber-100">Audio is unavailable in this browser. Dictation cannot be checked without audio.</p> : null}
@@ -240,7 +244,7 @@ function PairedWordGaps(props: PairedWordGapsProps) {
   const outcomes = props.checked ? gradePairedDegreeAttempt(props.sentence, props.values) : [];
   return <section className="grid gap-5" data-paired-dictation-state={props.checked ? "checked" : "writing"}>
     <p className="text-center text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p>
-    <h2 className="text-center text-2xl font-black text-white">Listen to two words. Decide where each belongs.</h2>
+    <h2 className="text-center text-2xl font-black text-white">{LESSON_ACTIVITY_COPY.pairedDictation}</h2>
     <div className="flex flex-wrap justify-center gap-3 text-slate-950">{props.audioOrder.map((target, index) => <HearWordButton key={target} word={props.sentence.targets[target].audioText} label={`Hear word ${index + 1}`} kind="dictation" muted={props.muted} />)}</div>
     {props.muted ? <p role="status" className="text-center text-amber-100">Sound is off. Turn on sound to hear the words.</p> : null}
     {!audioAvailable ? <p role="alert" className="text-center text-amber-100">Word audio is unavailable in this browser. Dictation cannot be checked without audio.</p> : null}

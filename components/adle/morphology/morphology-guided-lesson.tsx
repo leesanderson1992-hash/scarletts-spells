@@ -1,5 +1,7 @@
 "use client";
 
+import { LESSON_ACTIVITY_COPY } from "@/lib/adle/lesson-activity-copy";
+
 import { cloneElement, useEffect, useMemo, useState, type ReactElement } from "react";
 import { completeAdleLessonPartAction } from "@/app/learn/week/adle/actions";
 import type { LessonReflectionProps, LessonReflectionSpecialistRecap } from "@/components/adle/activities/lesson-reflection";
@@ -268,7 +270,7 @@ export function MorphologyGuidedLesson(props: {
           items: morphologyMeaningSortItems(props.payload, meaningActivity?.meaningCheckKind ?? "meaning"),
           bins: meaningBins(props.payload),
           showBinDescriptions: props.payload.words.anchor.affixPosition !== "after",
-          instruction: props.payload.words.anchor.affixPosition === "after" ? "Read the word. Decide what the suffix means. Then choose the meaning label that fits." : meaningActivity?.meaningCheckKind === "prefix_form" ? "Read the base word. Choose the prefix form that belongs before its first letter." : "Read the word. Think about what the prefix means. Then choose the meaning label that fits.",
+          instruction: props.payload.words.anchor.affixPosition === "after" ? LESSON_ACTIVITY_COPY.suffixMeaning : meaningActivity?.meaningCheckKind === "prefix_form" ? LESSON_ACTIVITY_COPY.prefixForm : LESSON_ACTIVITY_COPY.prefixMeaning,
           muted: state.muted,
           initialComplete: state.matchComplete,
           showOverview: showMeaningOverview,
@@ -536,7 +538,7 @@ export function morphologySplitHandleProps(props: MorphologySplitAdapterProps): 
     repeatedMissMessage: prefixFeedback ? policyText(prefixFeedback.repeatedMiss) : props.repeatedMissMessage,
     correctHeading: affix ? `Yes — ${suffix ? `-${affix} is at the end` : `${affix}- is at the front`} of the word.` : undefined,
     correctExplanation,
-    prompt: suffix ? "Find where the base/root ends and the suffix begins at the end of the word." : undefined,
+    prompt: suffix ? LESSON_ACTIVITY_COPY.suffixCleaver : undefined,
     missPrompt: suffix ? "Not there yet. Look for the suffix at the end of the word." : undefined,
     repeatedMissPrompt: suffix && affix ? `The suffix -${affix} is at the end. Chop just before it.` : undefined,
     revealCorrectBoundaryAfterMisses: prefixFeedback?.revealCorrectBoundaryAfterMisses,

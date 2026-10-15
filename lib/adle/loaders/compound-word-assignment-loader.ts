@@ -47,6 +47,7 @@ export async function loadCompoundWordAssignmentReadiness(params: {
     client: params.client,
     childId: params.childId,
     environmentKey: environment,
+    planDate: params.planDate,
     microSkillKey: params.microSkillKey,
   });
   if (!releaseAuthority) return {

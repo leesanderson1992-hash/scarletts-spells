@@ -61,7 +61,7 @@ export function persistedCompoundWordReleaseAuthority(
   };
 }
 
-function recipeFromTeachingAuthority(
+export function recipeFromTeachingAuthority(
   microSkillKey: CompoundWordMicroSkillKey,
   semanticProjection: unknown,
 ): CompoundWordLessonRecipeV2 | null {
@@ -98,6 +98,7 @@ function recipeFromTeachingAuthority(
 /** Resolves an enabled, current, exact release for one child. The shared
  * operational scope must admit the child before curriculum readiness is read. */
 export async function loadActivatedCompoundWordReleaseV2(params: {
+  planDate?: string;
   client: SupabaseClient;
   childId: string;
   environmentKey: "local" | "staging" | "production";
@@ -196,6 +197,7 @@ export async function loadActivatedCompoundWordReleaseV2(params: {
       structureAuthorityId: structure.authority.id,
       dictionaryClosureAuthorityId: closure.authority.id,
       reviewedAt: new Date(teaching.authority.published_at).toISOString(),
+      dictationSeed: `${params.childId}:${params.planDate ?? "preflight"}:${params.microSkillKey}`,
     },
   );
   if (

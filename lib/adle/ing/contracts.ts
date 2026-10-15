@@ -20,6 +20,7 @@ export const ING_RULE_FOR_SKILL: Record<IngMicroSkill, IngRule> = {
 
 /** A governed derived word. The base is retained as a spelling fact, not a lesson word. */
 export interface IngDictionaryWordV1 {
+  dictationVariant?: { id: string; targetTokenIndex: number; authorityFingerprint: string };
   canonicalWordId: string;
   microSkillKey: IngMicroSkill;
   base: string;
@@ -74,7 +75,7 @@ export function ingWordBlockers(value: IngDictionaryWordV1, fixture = false): st
     if (value.doublingPattern === "stressed_final_syllable" && value.base.length <= 4) errors.push("stressed_final_syllable_condition_invalid");
   } else if (value.doublingPattern !== undefined) errors.push("unexpected_doubling_pattern");
   const tokens = value.dictationSentence?.toLocaleLowerCase("en-GB").match(/[a-z]+(?:'[a-z]+)*/g) ?? [];
-  if (!value.meaning?.trim() || !value.dictationSentence?.trim() || !value.audioText?.trim() || tokens.filter(token => token === value.word).length !== 1) errors.push("content_missing");
+  if (!value.meaning?.trim() || !value.dictationSentence?.trim() || !value.audioText?.trim() || (value.dictationVariant ? !Number.isInteger(value.dictationVariant.targetTokenIndex) || tokens[value.dictationVariant.targetTokenIndex]!==value.word : tokens.filter(token => token === value.word).length !== 1)) errors.push("content_missing");
   if (!Array.isArray(value.sourceRefs) || !value.sourceRefs.length || value.sourceRefs.some(ref => typeof ref !== "string" || !ref.trim())) errors.push("provenance_missing");
   if (!fixture && (value.rowStatus !== "active" || value.reviewStatus !== "approved_for_first_exposure" || !value.reviewerRef || !value.approvalRef || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.canonicalWordId))) errors.push("not_approved");
   return errors;

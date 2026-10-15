@@ -40,6 +40,7 @@ export interface HomophoneLessonSnapshotV1 {
   sourceSha256: string;
   contentSha256: string;
   microSkillKey: string;
+  dictationVariantSet?: { id: string; passages: HomophonePassage[]; authorityFingerprint: string };
   lesson: HomophoneLesson;
   activities: readonly {
     id: string;
@@ -125,7 +126,7 @@ export function getHomophoneLesson(microSkillKey: string): HomophoneLesson | nul
   return lesson && validateHomophoneLesson(lesson).length === 0 ? lesson : null;
 }
 
-function homophoneActivities(lesson: HomophoneLesson): HomophoneLessonSnapshotV1["activities"] {
+export function homophoneActivities(lesson: HomophoneLesson): HomophoneLessonSnapshotV1["activities"] {
   return [
     { id: "teaching", concept: "INTRODUCTION", mode: "teaching_page", answerVisibility: "teaching", wordBindings: lesson.words.map(word => word.word) },
     { id: "bin-sort", concept: "MEANING_SORT", mode: "sentence_choice", answerVisibility: "guided", wordBindings: lesson.binSort.map(prompt => prompt.answer) },
@@ -165,7 +166,10 @@ export function validateHomophoneLessonSnapshot(snapshot: HomophoneLessonSnapsho
     || snapshot.recipe.recipeKey !== HOMOPHONE_RECIPE.recipeKey || snapshot.recipe.recipeVersion !== HOMOPHONE_RECIPE.recipeVersion) issues.push("route_mismatch");
   if (!homophoneContentApproved() || snapshot.contentVersion !== HOMOPHONE_CONTENT_VERSION || snapshot.sourceSha256 !== HOMOPHONE_SOURCE_SHA256 || snapshot.contentSha256 !== HOMOPHONE_CONTENT_SHA256) issues.push("content_version_mismatch");
   const sourceLesson = HOMOPHONE_LESSONS.find(entry => entry.microSkillKey === snapshot.microSkillKey);
-  if (!sourceLesson || stableJson(snapshot.lesson) !== stableJson(sourceLesson)) issues.push("lesson_content_mismatch");
+  const compared = snapshot.dictationVariantSet ? { ...snapshot.lesson, dictationPassages: sourceLesson?.dictationPassages } : snapshot.lesson;
+  if (!sourceLesson || stableJson(compared) !== stableJson(sourceLesson)) issues.push("lesson_content_mismatch");
+  if (snapshot.dictationVariantSet && (!snapshot.dictationVariantSet.id || !/^[a-f0-9]{64}$/.test(snapshot.dictationVariantSet.authorityFingerprint)
+    || stableJson(snapshot.dictationVariantSet.passages)!==stableJson(snapshot.lesson.dictationPassages))) issues.push("dictation_variant_mismatch");
   if (stableJson(snapshot.activities) !== stableJson(homophoneActivities(snapshot.lesson))) issues.push("activity_contract_mismatch");
   return [...new Set(issues)];
 }

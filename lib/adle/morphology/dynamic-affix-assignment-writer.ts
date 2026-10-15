@@ -69,6 +69,7 @@ type PreviewParams = {
   requiredProfileKey?: string;
   allowStagingProfiles: boolean;
   purpose: "readiness_preview" | "writer";
+  planDate?: string;
 };
 
 type WriterParams = Omit<PreviewParams, "purpose"> & {
@@ -123,6 +124,7 @@ export async function previewDynamicAffixAssignment(
   params: PreviewParams,
 ): Promise<DynamicAffixAssignmentPreview> {
   const loaded = await loadDynamicSuffixProfiles(params.serviceClient, params.childId, {
+    dictationSeed: `${params.childId}:${params.planDate ?? new Date().toISOString().slice(0,10)}`,
     allowStagingProfiles: params.allowStagingProfiles,
     includeDerivedItyCandidates: process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled",
   });

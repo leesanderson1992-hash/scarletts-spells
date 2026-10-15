@@ -33,6 +33,7 @@ export function finalYRestorationForBasePart(
 }
 
 export interface BaseWordFamilySnapshotWord {
+  dictationVariant?: {id:string;authorityFingerprint:string};
   canonicalWordId: string;
   displayWord: string;
   wordSum: string;

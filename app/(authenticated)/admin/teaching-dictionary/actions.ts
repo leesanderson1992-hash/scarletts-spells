@@ -2,6 +2,7 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -47,7 +48,8 @@ async function publishValidatedDraft(
   if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
-    const proof = await definitionOnlyPublicationProof(db, payload, normalisedWord);
+    const proof = !payload.dictationVariants && payload.writtenSyllableBreakdown === undefined && !payload.canonicalMorphology.transformations
+      ? await definitionOnlyPublicationProof(db, payload, normalisedWord) : null;
     if (proof) {
       const definition = await db.rpc("publish_teaching_dictionary_definition_only", {
         p_draft: id, p_actor: actorId, p_word_source_hash: proof.wordHash,
@@ -135,6 +137,13 @@ async function definitionOnlyPublicationProof(
 }
 
 function payloadFromForm(form: FormData): WordDraftPayload {
+  if (form.has("payload_json")) {
+    const parsed = JSON.parse(value(form, "payload_json")) as WordDraftPayload;
+    if (!parsed || !Array.isArray(parsed.skillKeys) || !parsed.metadata || !parsed.canonicalMorphology
+      || !Array.isArray(parsed.routeContents)) throw new Error("TEACHING_DRAFT_INVALID");
+    parsed.routeContents = routeContentsForSelectedSkills(parsed);
+    return withDerivedMorphologyMetadata(parsed);
+  }
   const metadata = emptyMetadata();
   for (const key of WORD_METADATA_FIELDS) metadata[key] = value(form, key).slice(0, 2000);
   const schwa = value(form, "has_schwa");
@@ -239,14 +248,78 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
     }).select("id").single();
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
-    if (publicationBlockers(payload, normalisedWord).length === 0) {
+    const reviewSection = value(form, "review_section");
+    if (reviewSection && reviewSection !== "skills") {
+      if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
+      if(reviewSection.startsWith("lesson:")) {
+        const fingerprint=await db.rpc("teaching_dictionary_overview_fingerprint",{p_payload:payload});
+        if(fingerprint.error)throw new Error("TEACHING_OVERVIEW_FINGERPRINT_FAILED");
+        const prior=await db.from("teaching_dictionary_overview_reviews").select("draft_id,canonical_word_id").eq("content_fingerprint",fingerprint.data).limit(100);
+        if(prior.error)throw new Error("TEACHING_OVERVIEW_REVIEW_READ_FAILED");
+        let reviewed=prior.data?.some(review=>review.canonical_word_id===wordId);
+        if(!reviewed&&prior.data?.length) {
+          const published=await db.from("teaching_dictionary_manager_publications").select("draft_id").eq("canonical_word_id",wordId).in("draft_id",prior.data.map(review=>review.draft_id));
+          if(published.error)throw new Error("TEACHING_OVERVIEW_REVIEW_READ_FAILED");reviewed=Boolean(published.data?.length);
+        }
+        if(!reviewed)throw new Error("TEACHING_OVERVIEW_REVIEW_REQUIRED");
+      }
+      const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: result.data.id, p_actor: actor.id });
+      if (overview.error) throw new Error("TEACHING_OVERVIEW_REVIEW_FAILED");
+    }
+    if (reviewSection !== "skills" && publicationBlockers(payload, normalisedWord).length === 0) {
       try {
         destination = await publishValidatedDraft(db, result.data.id, actor.id, payload, normalisedWord);
       } catch (error) {
         destination += `&publish_error=${encodeURIComponent(errorCode(error))}`;
       }
     }
-  } catch (error) { finish(path, error); }
+    if (reviewSection === "skills" && wordId) {
+      const skillsForm = new FormData(); skillsForm.set("word_id", wordId);
+      for (const key of payload.skillKeys) skillsForm.append("skill_key", key);
+      await applyTeachingDictionarySkillApprovals(skillsForm, actor.id);
+    }
+    if (reviewSection.startsWith("lesson:")) {
+      const key = reviewSection.slice(7);
+      const lesson = payload.routeContents.find(route => route.microSkillKey === key);
+      if (!lesson || routeBlockers(lesson, payload).length) {
+        destination = `${path}?draft=${result.data.id}&publish_error=TEACHING_ROUTE_FACTS_INCOMPLETE`;
+      } else {
+        if(lesson.routeId === "base_word_lab" && wordId) {
+          const environment=resolveAdleRouteActivationEnvironment();
+          const familyKey=String(lesson.content.familyKey ?? "");
+          const [legacy,definition,pairs]=await Promise.all([
+            db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("base_family_key",familyKey).eq("row_status","active").maybeSingle(),
+            db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("family_key",familyKey).maybeSingle(),
+            db.from("adle_reviewed_word_skill_pairs").select("release_id").eq("canonical_word_id",wordId).eq("micro_skill_key",key).eq("relationship_role","demonstrates"),
+          ]);
+          if(legacy.error||definition.error||pairs.error)throw new Error("BASE_FAMILY_REVIEW_READ_FAILED");
+          const family=legacy.data??definition.data;
+          if(!family||!environment)throw new Error("BASE_FAMILY_REVIEW_REQUIRED");
+          const releases=await db.from("adle_reviewed_word_skill_releases").select("id").in("id",(pairs.data??[]).map(pair=>pair.release_id)).eq("environment_key",environment).order("published_at",{ascending:false});
+          const withdrawn=await db.from("adle_reviewed_word_skill_withdrawals").select("release_id").in("release_id",(releases.data??[]).map(release=>release.id));
+          if(releases.error||withdrawn.error)throw new Error("BASE_FAMILY_SKILL_APPROVAL_READ_FAILED");
+          const release=releases.data?.find(row=>!withdrawn.data?.some(w=>w.release_id===row.id));
+          if(!release)throw new Error("BASE_FAMILY_EXACT_SKILL_APPROVAL_MISSING");
+          const familyReview=await db.rpc("review_teaching_dictionary_base_family_member",{
+            p_request_id:randomUUID(),p_base_word_id:family.base_word_id,p_word_id:wordId,p_legacy_family_id:legacy.data?.id??null,
+            p_base_meaning:family.base_meaning,p_environment:environment,p_skill_key:key,p_word_sum:payload.canonicalMorphology.wordSum,
+            p_parts:payload.canonicalMorphology.parts,p_joins:payload.canonicalMorphology.joins,p_transformations:payload.canonicalMorphology.transformations??[],
+            p_child_meaning:lesson.wordMeaning,p_morphology_id:null,p_word_skill_release_id:release.id,
+            p_review_note:payload.canonicalMorphology.reviewNotes||"Explicit lesson details approval",p_actor:actor.id,
+          });
+          if(familyReview.error)throw new Error(familyReview.error.message.match(/BASE_FAMILY_[A-Z_]+/)?.[0]??"BASE_FAMILY_REVIEW_FAILED");
+        }
+        const stage = await db.rpc("stage_teaching_dictionary_route_draft", { p_draft: result.data.id, p_actor: actor.id });
+        if (stage.error) throw new Error("TEACHING_ROUTE_STAGE_FAILED");
+        const content = await db.from("teaching_dictionary_route_content_versions").select("id")
+          .eq("draft_id", result.data.id).eq("micro_skill_key", key).single();
+        if (content.error) throw new Error("TEACHING_ROUTE_CONTENT_NOT_FOUND");
+        const review = await db.rpc("review_teaching_dictionary_route_content", { p_content_version: content.data.id, p_actor: actor.id });
+        if (review.error) throw new Error("TEACHING_ROUTE_REVIEW_FAILED");
+        destination = `${path}?draft=${result.data.id}`;
+      }
+    }
+  } catch (error) { finish(destination, error); }
   finish(destination);
 }
 
@@ -477,11 +550,9 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes) })}`);
 }
 
-export async function saveTeachingDictionarySkillApprovals(form: FormData) {
-  const actor = await requireAdminUser();
+async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: string) {
   const wordId = value(form, "word_id");
-  const path = `${PATH}/${wordId}`;
-  try {
+
     if (!isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
     const keys = form.getAll("skill_key").map((item) => String(item).trim()).filter(Boolean);
     if (keys.length !== new Set(keys).size || keys.length > 30) throw new Error("TEACHING_SKILL_SELECTION_INVALID");
@@ -512,7 +583,7 @@ export async function saveTeachingDictionarySkillApprovals(form: FormData) {
     }
     for (const [key, releaseIds] of managerApprovals) if (!keys.includes(key)) {
       for (const releaseId of releaseIds) {
-        const result = await db.rpc("withdraw_word_skill_reviewed_release", { p_release: releaseId, p_environment: environment, p_actor: actor.id, p_reason: "Removed in Teaching Dictionary Manager" });
+        const result = await db.rpc("withdraw_word_skill_reviewed_release", { p_release: releaseId, p_environment: environment, p_actor: actorId, p_reason: "Removed in Teaching Dictionary Manager" });
         if (result.error) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
       }
     }
@@ -523,18 +594,25 @@ export async function saveTeachingDictionarySkillApprovals(form: FormData) {
       const candidate = { canonicalWordId: wordId, microSkillKey: key, relationshipRole: "demonstrates", method: "deterministic_candidate",
         sourceReference: `Teaching Dictionary Manager human approval: ${wordId}:${key}`, licenceReference: "internal_authored" };
       const packageKey = `tdm:${wordId}:${randomUUID()}`;
-      const created = await db.rpc("create_word_skill_candidate_package", { p_key: packageKey, p_environment: environment, p_candidates: [candidate], p_actor: actor.id });
+      const created = await db.rpc("create_word_skill_candidate_package", { p_key: packageKey, p_environment: environment, p_candidates: [candidate], p_actor: actorId });
       if (created.error || !created.data) throw new Error("WORD_SKILL_PACKAGE_CREATE_FAILED");
       const reviewed = await db.rpc("review_word_skill_candidate_package_with_metrics", { p_package: created.data, p_environment: environment,
-        p_decisions: ["approved"], p_rejection_reasons: [""], p_actor: actor.id, p_note: "Approved in Teaching Dictionary Manager", p_active_seconds: 0 });
+        p_decisions: ["approved"], p_rejection_reasons: [""], p_actor: actorId, p_note: "Approved in Teaching Dictionary Manager", p_active_seconds: 0 });
       if (reviewed.error) throw new Error("WORD_SKILL_REVIEW_FAILED");
       const pack = await loadWordSkillPackage(db, environment, created.data);
       const preview = await previewWordSkillPackage(db, pack.package, pack.review);
       if (!preview.pairs[0]?.ready) throw new Error("WORD_SKILL_AUTHORITY_BLOCKED");
-      await publishWordSkillPackage(db, environment, created.data, actor.id, preview.result.reconciliation.sourceFingerprint);
+      await publishWordSkillPackage(db, environment, created.data, actorId, preview.result.reconciliation.sourceFingerprint);
       effective.add(key);
     }
-  } catch (error) { finish(path, error); }
+
+}
+
+export async function saveTeachingDictionarySkillApprovals(form: FormData) {
+  const actor = await requireAdminUser();
+  const path = `${PATH}/${value(form, "word_id")}`;
+  try { await applyTeachingDictionarySkillApprovals(form, actor.id); }
+  catch (error) { finish(path, error); }
   finish(path);
 }
 
@@ -607,4 +685,14 @@ export async function importApprovedTeachingSubmission(form: FormData) {
     destination = `${path}?draft=${saved.data.id}`;
   } catch (error) { finish(path, error); }
   finish(destination);
+}
+
+export async function findTeachingDictionaryWord(query: string): Promise<{id:string;word:string}[]> {
+  await requireAdminUser();
+  const term=query.trim().replace(/[%_,()]/g,"").slice(0,100);
+  if(term.length<2)return [];
+  const result=await createServiceRoleClient().from("canonical_teaching_dictionary_words").select("id,display_word")
+    .ilike("normalised_word",`${term.toLocaleLowerCase("en-GB")}%`).eq("row_status","active").eq("review_status","approved_for_first_exposure").limit(20);
+  if(result.error)throw new Error("TEACHING_WORD_LOOKUP_FAILED");
+  return (result.data??[]).map(row=>({id:row.id,word:row.display_word}));
 }

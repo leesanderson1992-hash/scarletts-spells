@@ -31,7 +31,9 @@ export function compileComparativeLesson(selection: Extract<DegreeFamilySelectio
     }),
     dictationTasks: selection.families.map((family, index) => {
       const seed = Array.from(assignmentKey).reduce((n, c) => n + c.charCodeAt(0), index);
-      return { ...family.content.pairedSentence, audioOrder: seed % 2 ? [1, 0] : [0, 1] };
+      const variants=family.content.pairedSentenceVariants;
+      const selected=variants?.length ? variants[seed % variants.length] : family.content.pairedSentence;
+      return { ...selected, audioOrder: seed % 2 ? [1, 0] : [0, 1] };
     }),
   };
   // JSON copy prevents mutable dictionary input from changing a compiled assignment.

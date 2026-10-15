@@ -127,6 +127,7 @@ export async function prepareDynamicPrefixAssignment(
     };
   }
   const loaded = await loadDynamicPrefixProfiles(params.serviceClient, params.childId, {
+    dictationSeed: `${params.childId}:${params.planDate}`,
     allowStagingProfiles: params.allowStagingProfiles,
   });
   const selectableFacts = params.requiredProfileKey

@@ -67,6 +67,7 @@ export type CompoundWordLessonRecipeV2 = {
 };
 
 export type CompoundWordDictationSourceV2 = {
+  dictationVariant?: {id:string;authorityFingerprint:string};
   canonicalWordId: string;
   sentence: string;
   audioText: string;

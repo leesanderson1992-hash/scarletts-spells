@@ -10,13 +10,16 @@ export type ReadinessRequirement = {
 };
 
 export function publicationBlockerTarget(message: string): string {
+  message=message.toLowerCase();
+  if(message.includes("written syllable"))return "td-written-syllables";
+  if(message.includes("transformation"))return "td-canonical-parts";
   if (message.includes("definition")) return "td-definition";
   if (message.includes("age band")) return "td-age-band";
   if (message.includes("frequency band")) return "td-frequency-band";
   if (message.includes("dictation")) return "td-dictation";
   if (message.includes("morphology")) return "td-canonical-parts";
   if (message.includes("source") || message.includes("licence")) return "td-source";
-  return "td-word-editor";
+  return "td-overview";
 }
 
 export function hasReleasedRouteContent(kind: "prefix" | "suffix" | "base" | null, memberReleased: boolean, sourceAuthorities: readonly string[]): boolean {
@@ -128,4 +131,22 @@ export function requirementPreview(target: string, route: RouteContentDraft, pay
   if (Array.isArray(value)) return `${value.length} recorded ${value.length === 1 ? "entry" : "entries"}`;
   if (value && typeof value === "object") return "Recorded structure";
   return "";
+}
+
+
+export function runtimeBlockerTarget(message:string,skill:string):string {
+  const text=message.toLowerCase();
+  if(text.includes("true morphology editorial")||text.includes("true morphology provenance"))return `td-route-${skill}-trueMorphologyProvenance`;
+  if(text.includes("dictation")||text.includes("audio"))return "td-dictation";
+  if(text.includes("pronunciation"))return "td-phoneme_hint";
+  if(text.includes("semantic base"))return `td-route-${skill}-semanticBaseText`;
+  if(text.includes("base and meaning"))return `td-route-${skill}-baseMeaning`;
+  if(text.includes("prefix form"))return `td-route-${skill}-prefixVariant`;
+  if(text.includes("suffix form"))return `td-route-${skill}-suffixVariant`;
+  if(text.includes("meaning group"))return `td-route-${skill}-meaningBinKey`;
+  if(text.includes("true morphology")||text.includes("canonical morphology"))return "td-canonical-parts";
+  if(text.includes("teaching part")||text.includes("teaching join"))return `td-route-${skill}-teachingSplitParts`;
+  if(text.includes("morphology")||text.includes("syllable")||text.includes("definition")||text.includes("source")||text.includes("dictation"))return publicationBlockerTarget(message);
+  if(text.startsWith("add ")||text.startsWith("set ")||text.startsWith("review "))return requirementEditTarget(message,skill);
+  return `td-route-${skill}`;
 }

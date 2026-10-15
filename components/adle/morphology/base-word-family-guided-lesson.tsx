@@ -1,5 +1,7 @@
 "use client";
 
+import { LESSON_ACTIVITY_COPY } from "@/lib/adle/lesson-activity-copy";
+
 import { useEffect, useState } from "react";
 
 import { createCanonicalActivityBinding } from "@/components/adle/activities/canonical-renderer-registry";
@@ -220,7 +222,7 @@ function Cleave(props: { word: BaseWordFamilySnapshotWord | undefined; cuts: Rec
     isolatedComponentIndex={baseIndex}
     misses={props.misses[key] ?? 0}
     correct={splitComplete}
-    prompt="Choose where to chop the word."
+    prompt={LESSON_ACTIVITY_COPY.baseCleaver}
     missMessage="Try again. Look for the edge of a meaningful word part."
     repeatedMissMessage="Choose one of the glowing gaps beside the base word."
     correctHeading={`Yes — ${basePart.sourceText} is the base word.`}

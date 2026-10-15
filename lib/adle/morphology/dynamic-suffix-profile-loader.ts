@@ -1,3 +1,6 @@
+import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
+import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
@@ -248,8 +251,8 @@ function introduction(value: unknown): DynamicAffixProfile["introduction"] | nul
 export async function loadDynamicSuffixProfiles(
   client: SupabaseClient,
   childId: string,
-  options: { allowStagingProfiles?: boolean; includeDerivedItyCandidates?: boolean;
-    candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string }[] } = {},
+  options: { allowStagingProfiles?: boolean; dictationSeed?: string; includeDerivedItyCandidates?: boolean;
+    candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string; dictionary?: WordDraftPayload }[] } = {},
 ): Promise<{
   profiles: DynamicAffixProfile[];
   learningItems: LearningItemFact[];
@@ -335,6 +338,15 @@ export async function loadDynamicSuffixProfiles(
     if (id) metadataByWordId.set(id, [...(metadataByWordId.get(id) ?? []), row]);
   }
 
+  for (const candidate of options.candidateMembers ?? []) if (candidate.dictionary) {
+    const current = wordsById.get(candidate.canonicalWordId);
+    if (current) Object.assign(current, { display_word: candidate.dictionary.displayWord, age_band: candidate.dictionary.ageBand,
+      frequency_band: candidate.dictionary.frequencyBand, complexity_band: candidate.dictionary.complexityBand,
+      source_row_hash: fingerprintSnapshotValue(candidate.dictionary) });
+    metadataByWordId.set(candidate.canonicalWordId, [{ canonical_word_id: candidate.canonicalWordId,
+      ...candidate.dictionary.metadata, row_status: "active", review_status: "approved_for_first_exposure" }]);
+  }
+  const pool = await loadDictationPool(client, wordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers);
   const profiles: DynamicAffixProfile[] = [];
   const diagnostics: DynamicSuffixProfileLoadDiagnostic[] = [];
   for (const row of profileRows) {
@@ -366,7 +378,7 @@ export async function loadDynamicSuffixProfiles(
       const canonicalWordId = text(member.canonical_word_id);
       const word = canonicalWordId ? wordsById.get(canonicalWordId) : undefined;
       const dictation = canonicalWordId
-        ? dictationsByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
+        ? pool.get(canonicalWordId) ?? dictationsByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
         : undefined;
       const wordMetadata = canonicalWordId
         ? metadataByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")

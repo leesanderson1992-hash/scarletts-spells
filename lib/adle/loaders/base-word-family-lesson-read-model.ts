@@ -1,3 +1,4 @@
+import { dictationVariantBlockers, selectDictationVariant } from "@/lib/teaching-dictionary-manager/authoring";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
@@ -16,6 +17,7 @@ import {
 type Client = SupabaseClient;
 
 export interface BaseWordFamilyReadModelRequest {
+  dictationSeed?: string;
   microSkillKey: string;
   contentVersion: string;
   /** Required by the assignment path. When present, every lesson fact is
@@ -96,7 +98,10 @@ export async function loadBaseWordFamilyLessonReadModel(
         if (!member || !closure || !member.assignmentEligible ||
             !baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, request.microSkillKey) || !member.wordSum.trim() ||
             member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
+        const variant=closure.dictationVariants ? selectDictationVariant(closure.dictationVariants, `${request.dictationSeed ?? "preflight"}:${canonicalWordId}:${closure.dictationSetFingerprint}`) : null;
+        if(closure.dictationVariants && dictationVariantBlockers(closure.displayWord,closure.dictationVariants).length)return null;
         return {
+          ...(variant ? {dictationVariant:{id:variant.id,authorityFingerprint:closure.dictationSetFingerprint!}} : {}),
           canonicalWordId,
           displayWord: closure.displayWord,
           wordSum: member.wordSum,
@@ -105,9 +110,9 @@ export async function loadBaseWordFamilyLessonReadModel(
           transformations: member.morphologyTransformations as BaseWordFamilySnapshotWord["transformations"],
           transformationNotes: member.transformationNotes,
           childFriendlyMeaning: member.childFriendlyMeaning,
-          dictationSentence: closure.dictationSentence,
-          dictationTargetTokenIndex: closure.dictationTargetTokenIndex,
-          audioText: closure.audioText,
+          dictationSentence: variant?.sentence ?? closure.dictationSentence,
+          dictationTargetTokenIndex: variant?.targetTokenIndex ?? closure.dictationTargetTokenIndex,
+          audioText: variant?.audioText ?? closure.audioText,
         };
       };
       const baseWord = word(family.baseWordId);

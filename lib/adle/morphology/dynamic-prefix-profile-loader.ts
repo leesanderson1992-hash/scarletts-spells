@@ -1,3 +1,6 @@
+import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
+import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
@@ -237,8 +240,8 @@ function pedagogyFromIntroduction(
  * Dictionary-first runtime read. The approved D4 package may enrich this
  * table during review/import, but is never an assignment-time content source.
  */
-export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId: string, options: { allowStagingProfiles?: boolean;
-  candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string }[] } = {}): Promise<{ profiles: DynamicPrefixProfile[]; learningItems: LearningItemFact[] }> {
+export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId: string, options: { allowStagingProfiles?: boolean; dictationSeed?: string;
+  candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string; dictionary?: WordDraftPayload }[] } = {}): Promise<{ profiles: DynamicPrefixProfile[]; learningItems: LearningItemFact[] }> {
   const [{ data: profileRows, error: profilesError }, { data: itemRows, error: itemsError }] = await Promise.all([
     client.from("canonical_teaching_dictionary_prefix_profiles").select("id,import_batch_id,source_row_hash,micro_skill_key,prefix_label,prefix_text,prefix_meaning,meaning_bins,prefix_choices,reflection_prompt_key,reflection_prompt_text,intro_content,production_enabled,row_status,review_status,canonical_teaching_dictionary_prefix_members(id,source_row_hash,canonical_word_id,member_role,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins,assignment_eligible,row_status,review_status,canonical_teaching_dictionary_words!inner(id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status,canonical_teaching_dictionary_dictation_sentences(id,source_row_hash,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status)))").in("micro_skill_key", DYNAMIC_PREFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_PREFIX_PROFILE_KEYS).eq("row_status", "active"),
@@ -256,6 +259,9 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
     const profile = typedProfileRows.find((row) => row.micro_skill_key === candidate.microSkillKey);
     if (!profile) continue;
     const dictionary = candidateWords.get(candidate.canonicalWordId);
+    if (dictionary && candidate.dictionary) Object.assign(dictionary, { display_word: candidate.dictionary.displayWord,
+      age_band: candidate.dictionary.ageBand, frequency_band: candidate.dictionary.frequencyBand,
+      complexity_band: candidate.dictionary.complexityBand, source_row_hash: fingerprintSnapshotValue(candidate.dictionary) });
     if (!dictionary) continue;
     const members = profile.canonical_teaching_dictionary_prefix_members ?? [];
     const existing = members.find((row) => row.canonical_word_id === candidate.canonicalWordId);
@@ -298,6 +304,10 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
   const metadataByCanonicalWordId = new Map(
     typedMetadataRows.map((entry) => [entry.canonical_word_id, entry]),
   );
+  for (const candidate of options.candidateMembers ?? []) if (candidate.dictionary) metadataByCanonicalWordId.set(candidate.canonicalWordId, {
+    canonical_word_id: candidate.canonicalWordId, ...candidate.dictionary.metadata, row_status: "active", review_status: "approved_for_first_exposure",
+  });
+  const pool = await loadDictationPool(client, canonicalWordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers);
   const profiles: DynamicPrefixProfile[] = [];
   for (const source of typedProfileRows) {
     const mapping = getSharedAffixProfileMapping(source.micro_skill_key);
@@ -319,17 +329,17 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
     let safe = true;
     for (const member of (source.canonical_teaching_dictionary_prefix_members ?? []) as DictionaryMember[]) {
       const word = member.canonical_teaching_dictionary_words;
-      const dictation = word?.canonical_teaching_dictionary_dictation_sentences?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
+      const dictation = pool.get(member.canonical_word_id) ?? word?.canonical_teaching_dictionary_dictation_sentences?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
       const metadata = metadataByCanonicalWordId.get(member.canonical_word_id);
-      const readyParts = member.teaching_split_parts.filter(isReadyDictionaryPart);
-      const readyJoins = member.teaching_split_joins.filter(isReadyDictionaryJoin);
+      const readyParts = (Array.isArray(member.teaching_split_parts) ? member.teaching_split_parts : []).filter(isReadyDictionaryPart);
+      const readyJoins = (Array.isArray(member.teaching_split_joins) ? member.teaching_split_joins : []).filter(isReadyDictionaryJoin);
       const requiresFullDictionaryReadiness = requirements.dictionaryReadiness === "full";
       const metadataReady = !requiresFullDictionaryReadiness || Boolean(
         word?.frequency_band && word.age_band && word.complexity_band
         && metadata?.syllables && metadata.phoneme_hint && metadata.stress_pattern
         && typeof metadata.has_schwa === "boolean" && metadata.morphemes && metadata.morphology_notes !== null,
       );
-      if (!member.assignment_eligible || member.row_status !== "active" || member.review_status !== "approved_for_first_exposure" || word?.row_status !== "active" || word?.review_status !== "approved_for_first_exposure" || !dictation || !dictation.audio_text || dictation.audio_text !== dictation.dictation_sentence || !metadataReady || !member.base_word || !member.base_meaning || !member.child_friendly_meaning || !member.meaning_bin_key || readyParts.length !== member.teaching_split_parts.length || readyJoins.length !== member.teaching_split_joins.length) { safe = false; break; }
+      if (!member.assignment_eligible || member.row_status !== "active" || member.review_status !== "approved_for_first_exposure" || word?.row_status !== "active" || word?.review_status !== "approved_for_first_exposure" || !dictation || !dictation.audio_text || dictation.audio_text !== dictation.dictation_sentence || !metadataReady || !member.base_word || !member.base_meaning || !member.child_friendly_meaning || !member.meaning_bin_key || readyParts.length !== (member.teaching_split_parts?.length ?? -1) || readyJoins.length !== (member.teaching_split_joins?.length ?? -1)) { safe = false; break; }
       const cleaverSplitPoints = readyParts.filter((part) => part.kind === "prefix").map((part) => part.displayRange.end).filter((point) => point > 0 && point < word.display_word.length);
       if (cleaverSplitPoints.length !== 1 || readyParts.map((part) => part.surfaceText).join("") !== word.display_word) { safe = false; break; }
       const prefixPart = readyParts.find((part) => part.kind === "prefix");

@@ -65,6 +65,7 @@ export function compileHomophoneSnapshotV3(params: { lesson: HomophoneLessonSnap
     || bindings.some((binding, index) => binding.word !== lesson.lesson.words[index].word || !binding.canonicalWordId)
     || new Set(bindings.map(binding => binding.canonicalWordId)).size !== bindings.length
     || !bindings.some(binding => binding.learningItemId)) throw new Error("homophone_assignment_words_invalid");
+  if(lesson.dictationVariantSet && !params.contentAuthorities.some(a=>a.authorityType==="teaching_content"&&a.sourceHash===lesson.dictationVariantSet!.authorityFingerprint))throw new Error("homophone_paired_variant_authority_mismatch");
   const items = assignmentItems(lesson, bindings, params.childId, params.parentUserId, params.date);
   const declarations = activityDeclarations(lesson, bindings);
   const activities: SpecialistCanonicalActivitySnapshotV3[] = declarations.map(activity => ({ ...activity,
@@ -109,6 +110,7 @@ export function validateHomophoneSnapshotV3(value: unknown, context: { lessonRou
       || validateHomophoneLessonSnapshot(lesson).length || snapshot.runtime.adapterKey !== "homophone_v2" || snapshot.runtime.rendererKey !== "homophone_guided"
       || snapshot.taxonomy.microSkillKey !== lesson.microSkillKey || snapshot.assignment.generationSource !== "adle_composer_v1"
       || (context.assignmentGenerationSource !== undefined && context.assignmentGenerationSource !== "adle_composer_v1")) return bad("specialist_payload_mismatch");
+    if(lesson.dictationVariantSet && !snapshot.contentVersions.some(a=>a.authorityType==="teaching_content"&&a.sourceHash===lesson.dictationVariantSet!.authorityFingerprint))return bad("specialist_content_provenance_malformed");
     const metadata = context.lessonRouteMetadata as AssignmentHeaderDraft["lessonRouteMetadata"];
     if (context.lessonRouteMetadata !== undefined && (!metadata || metadata.metadataSchemaVersion !== 2 || metadata.route.routeId !== "homophone_word_lab"
       || metadata.route.routeVersion !== "v2" || metadata.recipe.recipeKey !== "homophone_word_lab" || metadata.payload.kind !== "homophone_lesson_v2" || metadata.payload.version !== 2)) return bad("specialist_payload_mismatch");

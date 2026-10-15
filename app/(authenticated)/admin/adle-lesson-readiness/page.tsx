@@ -1,24 +1,16 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
-import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadLessonReadiness } from "./read-model";
 import { launchReviewedAdleLesson, rollbackReviewedAdleLessonVersion } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdleLessonReadinessPage({ searchParams }: {
-  searchParams: Promise<{ route?: string; skill?: string; child?: string; saved?: string; rolled_back?: string; error?: string }>;
+  searchParams: Promise<{ route?: string; skill?: string; saved?: string; rolled_back?: string; error?: string }>;
 }) {
   await requireAdminUser();
   const params = await searchParams;
-  const db = createServiceRoleClient();
-  const childResult = await db.from("children").select("id,first_name,last_name")
-    .eq("is_archived", false).order("first_name").limit(200);
-  if (childResult.error) throw new Error("ADLE_LESSON_CHILD_LIST_FAILED");
-  const childId = params.child && isUuid(params.child)
-    && childResult.data?.some((row) => row.id === params.child) ? params.child : null;
-  const allRows = await loadLessonReadiness(childId);
+  const allRows = await loadLessonReadiness();
   const rows = allRows.filter((row) => (!params.route || row.routeId === params.route)
     && (!params.skill || row.microSkillKey === params.skill));
   const counts = { released: allRows.filter((row) => row.released).length,
@@ -27,9 +19,9 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
     <header><Link href="/admin/teaching-dictionary" className="text-sm underline">← Teaching Dictionary</Link>
       <h1 className="mt-3 text-3xl font-semibold">ADLE lesson readiness</h1>
-      <p className="mt-2 max-w-3xl text-sm">Inspect every registered lesson and its release facts. Reviewed prefix and suffix profiles can be launched here. Other specialist routes use their governed release packages. Learner eligibility is shown separately.</p>
+      <p className="mt-2 max-w-3xl text-sm">Inspect every registered lesson and its release facts. Launch a complete reviewed group through its route publisher.</p>
     </header>
-    {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-950">Reviewed lesson released. The scheduler will assign it when a learner is eligible.</p>}
+    {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-950">Reviewed lesson released. The scheduler can select it from the normal word queue.</p>}
     {params.rolled_back && <p role="status" className="rounded-lg bg-amber-50 p-3 text-amber-950">The most recent reviewed profile version was rolled back. Earlier assignments keep their saved lesson snapshot.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-950">Launch stopped: {params.error.replaceAll("_", " ")}.</p>}
     <section className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-4 sm:grid-cols-3" aria-label="Lesson readiness summary">
@@ -38,7 +30,7 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
     <form action="/admin/adle-lesson-readiness" method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-[var(--border)] bg-white p-4 text-sm">
       <label className="grid gap-1">Route<select name="route" defaultValue={params.route ?? ""} className="rounded-lg border border-[var(--border)] p-2"><option value="">All routes</option>{[...new Set(allRows.map((row) => row.routeId))].map((route) => <option key={route} value={route}>{route.replaceAll("_", " ")}</option>)}</select></label>
       <label className="grid gap-1">Micro-skill<select name="skill" defaultValue={params.skill ?? ""} className="max-w-xs rounded-lg border border-[var(--border)] p-2"><option value="">All skills</option>{[...new Set(allRows.map((row) => row.microSkillKey))].map((skill) => <option key={skill} value={skill}>{skill.replaceAll("_", " ")}</option>)}</select></label>
-      <label className="grid gap-1">Learner preview<select name="child" defaultValue={childId ?? ""} className="rounded-lg border border-[var(--border)] p-2"><option value="">No learner selected</option>{(childResult.data ?? []).map((child) => <option key={child.id} value={child.id}>{[child.first_name, child.last_name].filter(Boolean).join(" ")}</option>)}</select></label>
+
       <button className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold">Show readiness</button>
     </form>
     <section className="grid gap-4" aria-label="Registered ADLE lessons">{rows.map((row) =>
@@ -57,11 +49,11 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
         {row.compilerReady && <p className="mt-2 text-sm text-emerald-900">A four-word selection compiles with the proposed content.</p>}
         {row.blockers.length > 0 && <div className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-950"><strong>Content and review blockers</strong><ul className="mt-1 list-disc pl-5">{row.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></div>}
         {row.activationBlockers.length > 0 && <div className="mt-3 rounded-lg border border-amber-200 p-3 text-sm"><strong>Separate activation gate</strong><ul className="mt-1 list-disc pl-5">{row.activationBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></div>}
-        {childId && <p className="mt-3 text-sm"><strong>Learner preview:</strong> {row.childPreview === "ready" ? "The route compiler finds a selectable lesson for this learner" : "No selectable lesson for this learner now"}{row.childPreviewReason ? ` (${row.childPreviewReason.replaceAll("_", " ")})` : ""}. No assignment was created.</p>}
+
         {row.words.length > 0 && <details className="mt-3"><summary className="cursor-pointer font-semibold">Words and parts · {row.words.filter((word) => word.ready).length}/{row.words.length} {row.route.activationAuthority === "database_route_activation" ? "dictionary approved" : "reviewed or runtime ready"}</summary><ul className="mt-2 grid gap-2 text-sm">{row.words.map((word) => <li key={word.id} className="rounded-lg border border-[var(--border)] p-2"><Link className="font-semibold underline" href={word.editHref}>{word.word}</Link> · {word.role.replaceAll("_", " ")} · {word.ready ? row.route.activationAuthority === "database_route_activation" ? "dictionary approved" : "parts ready" : word.blockers.join("; ")}<details className="mt-2"><summary className="cursor-pointer underline">Review exact content</summary><pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-50 p-3 text-xs">{JSON.stringify(word.contentPreview, null, 2)}</pre></details></li>)}</ul></details>}
         {row.releaseContentPreview.length > 0 && <details className="mt-3"><summary className="cursor-pointer font-semibold">Review exact lesson profile and dependencies</summary><pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-50 p-3 text-xs">{JSON.stringify(row.releaseContentPreview, null, 2)}</pre></details>}
-        {row.status === "ready_to_launch" && <form action={launchReviewedAdleLesson} className="mt-4"><input type="hidden" name="route_id" value={row.routeId} /><input type="hidden" name="micro_skill_key" value={row.microSkillKey} /><button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white">Launch reviewed lesson</button><p className="mt-1 text-xs">Publishes the entire lesson profile; the scheduler assigns it when eligible.</p></form>}
-        {row.rollbackContentId && <form action={rollbackReviewedAdleLessonVersion} className="mt-4 flex flex-wrap items-end gap-2 text-sm"><input type="hidden" name="route_id" value={row.routeId} /><input type="hidden" name="micro_skill_key" value={row.microSkillKey} /><input type="hidden" name="content_version_id" value={row.rollbackContentId} /><label className="grid gap-1">Rollback reason<input name="reason" required minLength={8} className="rounded-lg border border-[var(--border)] p-2" placeholder="Reason for restoring the prior version" /></label><button className="rounded-lg border border-amber-500 px-4 py-2 font-semibold text-amber-950">Restore prior profile version</button></form>}
+        {row.status === "ready_to_launch" && row.activationEnabled && <form action={launchReviewedAdleLesson} className="mt-4"><input type="hidden" name="preflight_fingerprint" value={row.preflightFingerprint} /><input type="hidden" name="route_id" value={row.routeId} /><input type="hidden" name="micro_skill_key" value={row.microSkillKey} /><button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white">Launch reviewed lesson</button><p className="mt-1 text-xs">Publishes the entire lesson profile; the scheduler assigns it when its normal queue rules are met.</p></form>}
+        {row.rollbackContentId && <form action={rollbackReviewedAdleLessonVersion} className="mt-4 flex flex-wrap items-end gap-2 text-sm"><input type="hidden" name="preflight_fingerprint" value={row.preflightFingerprint} /><input type="hidden" name="route_id" value={row.routeId} /><input type="hidden" name="micro_skill_key" value={row.microSkillKey} /><input type="hidden" name="content_version_id" value={row.rollbackContentId} /><label className="grid gap-1">Rollback reason<input name="reason" required minLength={8} className="rounded-lg border border-[var(--border)] p-2" placeholder="Reason for restoring the prior version" /></label><button className="rounded-lg border border-amber-500 px-4 py-2 font-semibold text-amber-950">Restore prior profile version</button></form>}
         {!row.released && row.reviewedCandidateIds.length === 0 && row.routeId !== "generic_composer" && <Link className="mt-3 inline-block text-sm underline" href="/admin/teaching-dictionary">Review lesson words in Teaching Dictionary</Link>}
       </article>)}
       {rows.length === 0 && <p className="rounded-lg border border-[var(--border)] bg-white p-4">No registered lesson matches these filters.</p>}

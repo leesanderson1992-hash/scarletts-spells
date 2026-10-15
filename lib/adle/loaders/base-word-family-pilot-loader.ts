@@ -117,6 +117,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   const readModel = await loadBaseWordFamilyLessonReadModel(params.client, {
     microSkillKey, contentVersion: activation.teachingContent.contentVersion,
     releaseAuthority: activation,
+    dictationSeed: `${params.childId}:${params.planDate}:${microSkillKey}`,
     authenticTargets: authenticTargets as NonNullable<(typeof authenticTargets)[number]>[],
     sections: selection.guidedFamilySections.map((section) => ({ baseFamilyKey: section.baseFamilyKey, authenticTargetWordIds: [...section.authenticTargetWordIds], guidedWordIds: [...section.guidedWordIds] })),
     independentSlots: selection.slots.map(({ canonicalWordId, provenance, assignmentRole, learnerProvenance, baseFamilyKey, learningItemId }) => ({ canonicalWordId, provenance, assignmentRole, learnerProvenance, baseFamilyKey, learningItemId })),

@@ -124,6 +124,8 @@ export interface BaseWordTeachingContentAuthorityProjection {
 }
 
 export interface BaseWordDictionaryClosureWord {
+  dictationVariants?: import("@/lib/teaching-dictionary-manager/authoring").DictationVariant[];
+  dictationSetFingerprint?: string;
   canonicalWordId: string;
   wordKey: string;
   normalisedWord: string;

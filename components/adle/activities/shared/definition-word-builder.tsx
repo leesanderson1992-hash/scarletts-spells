@@ -1,5 +1,7 @@
 "use client";
 
+import { definitionBuildQuestion } from "@/lib/adle/lesson-activity-copy";
+
 import { useState, type ReactNode } from "react";
 
 import {
@@ -36,7 +38,7 @@ export function DefinitionWordBuilder(props: DefinitionWordBuilderProps) {
   const [feedback, setFeedback] = useState<ReactNode>(null);
   return <section className="grid gap-5 text-center" data-definition-word-builder={props.targetId}>
     {props.stepLabel ? <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.stepLabel}</p> : null}
-    <h2 className="text-3xl font-black text-white">Which word means “{props.definition}”?</h2>
+    <h2 className="text-3xl font-black text-white">{definitionBuildQuestion(props.definition)}</h2>
     <SnapRail
       tiles={props.tiles}
       expectedIds={props.expectedIds}

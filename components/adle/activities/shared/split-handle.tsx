@@ -1,5 +1,7 @@
 "use client";
 
+import { LESSON_ACTIVITY_COPY } from "@/lib/adle/lesson-activity-copy";
+
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "./motion";
 import { playInteractionSound } from "./sound";
@@ -266,7 +268,7 @@ function BoundarySplitHandle(props: SplitHandleProps) {
           );
         })}
       </div>
-      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl whitespace-pre-line rounded-2xl p-3 text-sm font-bold ${feedback ? repeatedMiss ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || "Find the word-part boundary."}</div>
+      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl whitespace-pre-line rounded-2xl p-3 text-sm font-bold ${feedback ? repeatedMiss ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || LESSON_ACTIVITY_COPY.boundaryCleaver}</div>
     </div>
   );
 }

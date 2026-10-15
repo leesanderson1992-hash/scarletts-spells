@@ -1,3 +1,4 @@
+import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 
 export const WORD_METADATA_FIELDS = [
@@ -38,6 +39,8 @@ export type WordDraftPayload = {
   definition: string;
   dictationSentence: string;
   dictationTargetTokenIndex: number;
+  dictationVariants?: DictationVariant[];
+  writtenSyllableBreakdown?: string;
   ageBand: string;
   frequencyBand: string;
   complexityBand: string;
@@ -49,6 +52,7 @@ export type WordDraftPayload = {
     featureKeys: unknown[];
     joins: unknown[];
     transformationNotes: string;
+    transformations?: ReviewedTransformation[];
     wordSum: string;
     analysisStatus: "in_review" | "approved" | "not_applicable" | "rejected";
     reviewNotes: string;
@@ -118,7 +122,13 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   if (payload.dictationSentence.trim() && target !== normalisedWord) {
     blockers.push("The dictation target must be the dictionary word or phrase.");
   }
-  return blockers;
+  blockers.push(...dictationVariantBlockers(normalisedWord, dictationVariants(payload)));
+  blockers.push(...canonicalStructureBlockers(payload.canonicalMorphology,payload.displayWord));
+  if(payload.writtenSyllableBreakdown !== undefined && !payload.writtenSyllableBreakdown.trim())blockers.push("Add reviewed written syllable breakdown.");
+  const primary=dictationVariants(payload)[0];
+  if(primary && (primary.sentence!==payload.dictationSentence || primary.targetTokenIndex!==payload.dictationTargetTokenIndex))blockers.push("The primary dictation variant must match the canonical sentence and target.");
+  blockers.push(...writtenSyllableBlockers(payload.displayWord, payload.writtenSyllableBreakdown));
+  return [...new Set(blockers)];
 }
 
 /** Route compilers still receive their established payload shape, but shared
@@ -137,6 +147,7 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
     if (!Array.isArray(content.trueMorphologyParts) || content.trueMorphologyParts.length === 0) content.trueMorphologyParts = parts;
     if (!Array.isArray(content.trueMorphologyJoins)) content.trueMorphologyJoins = joins;
+    if (!Array.isArray(content.trueMorphologyTransformations)) content.trueMorphologyTransformations = payload.canonicalMorphology.transformations ?? [];
     const records = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part));
     const suffixes = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
     if (!content.suffixVariant && suffixes.length === 1) {
