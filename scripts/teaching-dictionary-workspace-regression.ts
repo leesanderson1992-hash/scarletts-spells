@@ -1,3 +1,4 @@
+import { emptyMetadata, emptyMorphology, publicationBlockers, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 import { lessonActivityQuestion } from "../lib/teaching-dictionary-manager/activity-question";
 import assert from "node:assert/strict";
 import { reviewedWordCanLaunch } from "../lib/teaching-dictionary-manager/editorial-review";
@@ -46,3 +47,11 @@ for (const activities of [{ introduction: { prompt: "Welcome" }, reflection: { p
 }
 assert.equal(lessonActivityQuestion({kind:"reflection",route:{} as any,word:"word",wordId:null,compiled:{activities:[{canonical:{concept:"LESSON_REFLECTION"},payload:{prompt:"What changed?"}}]},sources:[]}),"What changed?");
 console.log("PASS: activity questions support native object and flat activity array snapshots");
+
+const incompleteOverview:WordDraftPayload={displayWord:"word",definition:"a unit of language",dictationSentence:"Say a word.",dictationTargetTokenIndex:2,writtenSyllableBreakdown:"word",ageBand:"middle_primary",frequencyBand:"common",complexityBand:"simple",metadata:emptyMetadata(),canonicalMorphology:emptyMorphology(),provenance:{sourceCategory:"internal_authored",sourceName:"test",sourceUrl:"",sourceLicence:"",sourceUseNote:"test",confidence:"high"},skillKeys:[],routeContents:[]};
+assert(publicationBlockers(incompleteOverview,"word").includes("Review the canonical morphology parts."));
+assert(publicationBlockers(incompleteOverview,"word").includes("Add the word's part of speech."));
+const completeOverview={...incompleteOverview,canonicalMorphology:{...emptyMorphology(),analysisStatus:"approved" as const,rawPartOfSpeech:"noun",parts:[{id:"base",sourceText:"word",surfaceText:"word",kind:"base",gloss:"a unit of language"}],wordSum:"word → word"}};
+assert.deepEqual(publicationBlockers(completeOverview,"word"),[]);
+assert(publicationBlockers({...completeOverview,canonicalMorphology:{...completeOverview.canonicalMorphology,parts:[{...completeOverview.canonicalMorphology.parts[0],gloss:""}]}},"word").some(message=>message.includes("meaning for each morphology part")));
+console.log("PASS: new Overview approvals require reviewed parts, meanings and part of speech");

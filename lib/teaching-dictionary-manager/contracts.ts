@@ -124,6 +124,12 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   }
   blockers.push(...dictationVariantBlockers(normalisedWord, dictationVariants(payload)));
   blockers.push(...canonicalStructureBlockers(payload.canonicalMorphology,payload.displayWord));
+  if (payload.writtenSyllableBreakdown !== undefined) {
+    if (payload.canonicalMorphology.analysisStatus !== "approved" || payload.canonicalMorphology.parts.length === 0) blockers.push("Review the canonical morphology parts.");
+    if (!payload.canonicalMorphology.rawPartOfSpeech.trim()) blockers.push("Add the word's part of speech.");
+    if (payload.canonicalMorphology.parts.some(raw => !raw || typeof raw !== "object" || !String((raw as Record<string, unknown>).gloss ?? "").trim())) blockers.push("Add a reviewed meaning for each morphology part.");
+  }
+
   if(payload.writtenSyllableBreakdown !== undefined && !payload.writtenSyllableBreakdown.trim())blockers.push("Add reviewed written syllable breakdown.");
   const primary=dictationVariants(payload)[0];
   if(primary && (primary.sentence!==payload.dictationSentence || primary.targetTokenIndex!==payload.dictationTargetTokenIndex))blockers.push("The primary dictation variant must match the canonical sentence and target.");

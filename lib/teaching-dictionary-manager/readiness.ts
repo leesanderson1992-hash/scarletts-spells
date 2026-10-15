@@ -12,6 +12,7 @@ export type ReadinessRequirement = {
 export function publicationBlockerTarget(message: string): string {
   message=message.toLowerCase();
   if(message.includes("written syllable"))return "td-written-syllables";
+  if(message.includes("part of speech"))return "td-speech";
   if(message.includes("transformation"))return "td-canonical-parts";
   if (message.includes("definition")) return "td-definition";
   if (message.includes("age band")) return "td-age-band";

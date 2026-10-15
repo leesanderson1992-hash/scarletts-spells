@@ -8,6 +8,7 @@ import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix
 import {
   emptyMetadata,
   emptyMorphology,
+  publicationBlockers,
   routeContentFromStoredRow,
   type RouteContentDraft,
   type WordDraftPayload,
@@ -460,9 +461,10 @@ export async function TeachingDictionaryDetail({
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
         overviewReviewed={
-          draft
+          publicationBlockers(initial, word?.normalised_word ?? draft?.normalised_word ?? "").length === 0 &&
+          (draft
             ? Boolean(overviewReview?.data)
-            : word?.review_status === "approved_for_first_exposure"
+            : word?.review_status === "approved_for_first_exposure")
         }
         saved={Boolean(params.saved)}
         error={params.error ?? params.publish_error ?? params.route_error}
