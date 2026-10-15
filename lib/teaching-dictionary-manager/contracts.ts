@@ -236,7 +236,7 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     }
   }
   if (route.routeId === "dynamic_affix_word_lab") {
-    if ((route.content.trueMorphologyProvenance as { status?: unknown } | null)?.status === "draft_requires_editorial_review") {
+    if ((route.content.trueMorphologyProvenance as { status?: unknown } | null)?.status !== "reviewed") {
       blockers.push("Review true morphology provenance.");
     }
     for (const [field, label] of [["suffixVariant", "suffix form"], ["semanticBaseText", "semantic base"],

@@ -31,6 +31,7 @@ try {
   `);
   await db.exec(readFileSync("supabase/migrations/20261015120000_adle_lesson_editorial_reviews.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261015121000_adle_replace_reviewed_affix_members.sql", "utf8"));
+  await db.exec(readFileSync("supabase/migrations/20261015122000_adle_require_explicit_morphology_review.sql", "utf8"));
   assert.equal((await db.query("select has_function_privilege('service_role','public.publish_teaching_dictionary_suffix_reviewed_content(uuid,uuid)','EXECUTE') allowed")).rows[0].allowed, false, "single-member publication is private");
   assert.equal((await db.query("select has_function_privilege('service_role','public.publish_teaching_dictionary_lesson(text,text,uuid[],uuid)','EXECUTE') allowed")).rows[0].allowed, true, "whole-lesson publication remains available");
 
@@ -47,6 +48,11 @@ try {
   await db.query("insert into canonical_teaching_dictionary_word_metadata(canonical_word_id,source_row_hash,row_status,review_status,syllables,phoneme_hint,stress_pattern,has_schwa) values($1,'metadata-v1','active','approved_for_first_exposure','4','/fixture/','primary',false)", [word]);
   await db.query("insert into canonical_teaching_dictionary_dictation_sentences(canonical_word_id,source_row_hash,row_status,review_status,dictation_sentence,audio_text,dictation_target_token_index) values($1,'dictation-v1','active','approved_for_first_exposure','Be responsible.','Be responsible.',1)", [word]);
   await db.query("insert into canonical_teaching_dictionary_word_morphology(canonical_word_id,source_row_hash,row_status) values($1,'morph-v1','active')", [word]);
+  const missingReviewDraft = randomUUID();
+  const missingReviewRoute = { ...route, content: { ...route.content, trueMorphologyProvenance: { source: "editorial" } } };
+  await db.query("insert into teaching_dictionary_manager_drafts(id,canonical_word_id,normalised_word,dialect_code,payload) values($1,$2,'responsible','en-GB',$3)", [missingReviewDraft, word, JSON.stringify({ routeContents: [missingReviewRoute] })]);
+  const missingReviewId = (await db.query("select public.stage_teaching_dictionary_route_draft($1,$2) ids", [missingReviewDraft, actor])).rows[0].ids[0];
+  await assert.rejects(db.query("select public.review_teaching_dictionary_route_content($1,$2)", [missingReviewId, actor]), /TEACHING_ROUTE_MORPHOLOGY_REVIEW_REQUIRED/);
   for (const id of [draft, nextDraft]) await db.query("insert into teaching_dictionary_manager_drafts(id,canonical_word_id,normalised_word,dialect_code,payload) values($1,$2,'responsible','en-GB',$3)", [id, word, JSON.stringify({ routeContents: [route] })]);
   const first = await db.query("select public.stage_teaching_dictionary_route_draft($1,$2) ids", [draft, actor]);
   const firstId = first.rows[0].ids[0];

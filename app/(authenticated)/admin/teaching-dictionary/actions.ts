@@ -204,8 +204,10 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
       for (const route of payload.routeContents) {
         const profile = profiles.data?.find((candidate) => candidate.micro_skill_key === route.microSkillKey);
         if (route.routeId === "dynamic_prefix_word_lab" && profile) {
-          route.content.expectedProfileId ??= profile.id;
-          route.content.expectedSourceRowHash ??= profile.source_row_hash;
+          // Saving a new draft reviews the current profile, rather than
+          // carrying an obsolete profile fingerprint from an older draft.
+          route.content.expectedProfileId = profile.id;
+          route.content.expectedSourceRowHash = profile.source_row_hash;
         }
       }
     }
@@ -222,8 +224,8 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
             ? profile.meaning_bins.filter((bin): bin is { id: string } => Boolean(bin) && typeof bin === "object" && !Array.isArray(bin) && typeof (bin as { id?: unknown }).id === "string")
             : [];
           Object.assign(route, routeWithSingleProfileDefaults(route, { choices, meaningBins }));
-          route.content.expectedProfileId ??= profile.id;
-          route.content.expectedSourceRowHash ??= profile.source_row_hash;
+          route.content.expectedProfileId = profile.id;
+          route.content.expectedSourceRowHash = profile.source_row_hash;
         }
       }
     }

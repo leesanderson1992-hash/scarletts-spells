@@ -13,6 +13,7 @@ import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeBlockers, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { hasCurrentEditorialReview } from "@/lib/teaching-dictionary-manager/editorial-review";
 import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "@/lib/adle/homophone/readiness-loader";
 import { prepareIngAssignment } from "@/lib/adle/ing/readiness-loader";
 import { prepareComparativeAssignment } from "@/lib/adle/inflection/readiness-loader";
@@ -113,6 +114,19 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
     childId ? selectRows(db, "adle_learning_items", "id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status", (q) => q.eq("child_id", childId).eq("row_status", "active")) : Promise.resolve([]),
   ]);
   const words = new Map(wordRows.map((word) => [word.id as string, word]));
+  const activePrefixIds = new Set(prefixRows.map((profile) => profile.id));
+  const activeSuffixIds = new Set(suffixRows.map((profile) => profile.id));
+  const affixWordIds = [...new Set([
+    ...prefixMembers.filter((member) => activePrefixIds.has(member.prefix_profile_id)),
+    ...suffixMembers.filter((member) => activeSuffixIds.has(member.suffix_profile_id)),
+  ].map((member) => String(member.canonical_word_id)))];
+  const newestDraftByWord = new Map<string, string>();
+  for (let at = 0; at < affixWordIds.length; at += 100) {
+    const drafts = await selectRows(db, "teaching_dictionary_manager_drafts", "id,canonical_word_id,created_at",
+      (q) => q.in("canonical_word_id", affixWordIds.slice(at, at + 100)).order("created_at", { ascending: false }));
+    for (const draft of drafts) if (!newestDraftByWord.has(draft.canonical_word_id))
+      newestDraftByWord.set(draft.canonical_word_id, draft.id);
+  }
   const metadataByWord = new Map(metadataRows.map((row) => [row.canonical_word_id as string, row]));
   const dictationByWord = new Map(dictationRows.map((row) => [row.canonical_word_id as string, row]));
   const reviewByContentId = new Map(reviewRows.map((row) => [row.content_version_id as string, row]));
@@ -139,7 +153,7 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
     currentFingerprints.set(wordId, String(result.data ?? ""));
   }));
   const reviews = new Set([...latestContent.values()].filter((row) =>
-    reviewByContentId.get(row.id)?.dictionary_fingerprint === currentFingerprints.get(String(row.canonical_word_id))).map((row) => row.id));
+    hasCurrentEditorialReview(reviewByContentId.get(row.id), currentFingerprints.get(String(row.canonical_word_id)))).map((row) => row.id));
   const reviewedCandidates = [...latestContent.values()].filter((row) => reviews.has(row.id)
     && !published.has(row.id) && !rolledBack.has(row.id));
   const candidateMembers = reviewedCandidates.filter((row) => ["dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(row.route_id))
@@ -311,17 +325,23 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
           if (!present(field("trueMorphologyParts", "true_morphology_parts"))) blockers.push("True morphology parts missing");
           if (!present(field("trueMorphologyJoins", "true_morphology_joins"))) blockers.push("True morphology joins missing");
           const provenance = field("trueMorphologyProvenance", "true_morphology_provenance");
-          if (!provenance || typeof provenance !== "object" || (provenance as Row).status === "draft_requires_editorial_review") blockers.push("True morphology editorial review pending");
+          if (!provenance || typeof provenance !== "object" || (provenance as Row).status !== "reviewed") blockers.push("True morphology editorial review pending");
           if (!present(field("semanticBaseText", "semantic_base_text")) || !present(field("baseMeaning", "base_meaning"))) blockers.push("Semantic base or meaning missing");
           if (!present(field("suffixVariant", "suffix_variant")) || !present(field("meaningBinKey", "meaning_bin_key"))) blockers.push("Suffix form or meaning group missing");
         }
         if (!validIds.has(member.canonical_word_id)) blockers.push("Runtime loader rejects this word or its structure");
-        const editTarget = `td-route-${skill}-teachingSplitParts`;
+        const editTarget = blockers.some((blocker) => blocker.includes("True morphology editorial"))
+          ? `td-route-${skill}-trueMorphologyProvenance`
+          : blockers.some((blocker) => blocker.includes("dictation")) ? "td-dictation"
+          : blockers.some((blocker) => blocker.includes("Pronunciation")) ? "td-has-schwa"
+          : blockers.some((blocker) => blocker.includes("Semantic base")) ? `td-route-${skill}-semanticBaseText`
+          : `td-route-${skill}-teachingSplitParts`;
+        const draftId = newestDraftByWord.get(member.canonical_word_id);
         return { id: member.canonical_word_id, word: dictionary?.display_word ?? member.canonical_word_id,
           role: member.member_role, ready: blockers.length === 0, blockers,
           contentPreview: { routeContent: candidate?.content ?? member, dictionaryWord: dictionary,
             pronunciation: metadata, dictation },
-          editHref: `/admin/teaching-dictionary/${member.canonical_word_id}#${editTarget}` };
+          editHref: `/admin/teaching-dictionary/${member.canonical_word_id}${draftId ? `?draft=${draftId}` : ""}#${editTarget}` };
       });
       if (!profile && route.routeId !== "generic_composer") {
         for (const content of [...latestContent.values()].filter((row) => row.route_id === route.routeId && row.micro_skill_key === skill)) {
