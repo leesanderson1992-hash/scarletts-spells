@@ -67,7 +67,7 @@ try {
   `);
   const compoundMigration=readFileSync("supabase/migrations/20260811210000_publish_compound_word_v2_release_authority.sql","utf8");
   await db.exec(compoundMigration.slice(compoundMigration.indexOf("create or replace function public.publish_adle_compound_word_structure_authority_v1("),compoundMigration.indexOf("revoke all on function public.publish_adle_compound_word_structure_authority_v1")));
-  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
+  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
   const actor=randomUUID(), word=randomUUID(), profile=randomUUID(), draft=randomUUID();
   const skill="D4_MOR_SUFFIXES_ABLE_IBLE";
   await db.query("insert into auth.users values($1)",[actor]);
@@ -109,7 +109,7 @@ try {
   const groupContent=(await db.query('select stage_teaching_dictionary_route_draft($1,$2) ids',[groupDraft,actor])).rows[0].ids[0];
   await db.query('select review_teaching_dictionary_route_content($1,$2)',[groupContent,actor]);
   await db.query("insert into adle_curriculum_release_manifests(id,release_manifest_sha256)values($1,$2)",[oldRelease,'b'.repeat(64)]);
-  await db.query("insert into adle_route_activation_revisions(id,activation_status,release_manifest_id,release_manifest_sha256)values($1,'enabled',$2,$3)",[oldRevision,oldRelease,'b'.repeat(64)]);
+  await db.query("insert into adle_route_activation_revisions(id,activation_status,release_manifest_id,release_manifest_sha256,readiness_report)values($1,'enabled',$2,$3,$4)",[oldRevision,oldRelease,'b'.repeat(64),JSON.stringify({scope:{kind:"child_allowlist",childIds:["fixture"]}})]);
   await db.query("insert into adle_route_activation_heads values('staging',$1,$2,$3)",[groupRoute,groupSkill,oldRevision]);
   const pkg={schemaVersion:1,activation:'inactive',manifest:{releaseKey:'reviewed-group',route:{routeId:groupRoute},microSkills:[{microSkillKey:groupSkill}],approvalRefs:[`admin-review:${groupContent}`]},authorities:[{authorityType:'ing_word_members',semanticProjection:{microSkillKey:groupSkill,words:[{canonicalWordId:groupWord}]}}]};
   const packageHash=(await db.query('select adle_generic_snapshot_json_sha256_v1($1::jsonb) hash',[JSON.stringify(pkg)])).rows[0].hash;
@@ -123,6 +123,7 @@ try {
   await db.query('select rollback_teaching_dictionary_launch_v2($1,$2,$3)',[groupLaunch,actor,'Restore native fixture']);
   assert.equal((await db.query('select release_manifest_id from adle_route_activation_revisions where id=(select current_revision_id from adle_route_activation_heads where micro_skill_key=$1)',[groupSkill])).rows[0].release_manifest_id,oldRelease);
   assert.equal((await db.query('select count(*)::int n from teaching_dictionary_dictation_heads where canonical_word_id=$1',[groupWord])).rows[0].n,0);
+  assert.equal((await db.query('select readiness_report from adle_route_activation_revisions where id=(select current_revision_id from adle_route_activation_heads where micro_skill_key=$1)',[groupSkill])).rows[0].readiness_report.scope.kind,"child_allowlist","rollback preserves the exact prior activation scope");
 
   const compatibilityDraft=randomUUID();const modern={...groupPayload,dictationVariants:[...groupPayload.dictationVariants,{id:"alternate",sentence:"They are jumping.",targetTokenIndex:2,audioText:"They are jumping."}],routeContents:[],canonicalMorphology:{...groupPayload.canonicalMorphology,transformations:[{type:'base_spelling_change',sourcePartId:'part_1',sourceText:'jump',surfaceText:'jump',explanation:'Compatibility fixture'}]}};
   await db.query("insert into teaching_dictionary_manager_drafts(id,canonical_word_id,normalised_word,dialect_code,payload,source_reference)values($1,$2,'jumping','en-GB',$3,'Compatibility proof')",[compatibilityDraft,groupWord,JSON.stringify(modern)]);
