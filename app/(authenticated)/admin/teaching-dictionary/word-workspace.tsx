@@ -86,9 +86,10 @@ function Prompt({ text }: { text: string }) {
   const [position, setPosition] = useState<CSSProperties | null>(null);
   function place(target: HTMLElement) {
     const bounds = target.getBoundingClientRect();
-    const width = Math.min(288, window.innerWidth - 32);
-    setPosition({ width, left: Math.max(16, Math.min(bounds.left, window.innerWidth - width - 16)),
-      top: Math.max(16, Math.min(bounds.bottom + 6, window.innerHeight - 200)) });
+    // CSS viewport math also keeps an already-open tooltip in bounds on resize.
+    setPosition({ width: "min(288px, calc(100vw - 32px))",
+      left: `clamp(16px, ${bounds.left}px, calc(100vw - min(288px, calc(100vw - 32px)) - 16px))`,
+      top: `clamp(16px, ${bounds.bottom + 6}px, calc(100vh - 200px))` });
   }
   return (
     <span className="group relative inline-flex" onMouseEnter={event => place(event.currentTarget)} onFocus={event => place(event.currentTarget)}>
