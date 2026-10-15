@@ -1,3 +1,4 @@
+import { nativeWordFacts } from "../lib/teaching-dictionary-manager/native-word-facts";
 import { bindNativePackageFingerprints } from "../lib/teaching-dictionary-manager/package-fingerprint";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -62,6 +63,7 @@ assert.equal(conflict.package,null);assert.match(conflict.blockers.join(),/Confl
 
 const families:AdjectiveFamilyV1[]=createDraftDegreeFamilies().map(f=>{const words=f.words.map(w=>({...w,canonicalWordId:randomUUID()})) as unknown as AdjectiveFamilyV1["words"];return {...f,words,rowStatus:"active",reviewStatus:"approved_for_first_exposure",provenance:{...f.provenance,reviewerRef:"test",approvalRef:"test"},lexicalVerification:{adjective:true,gradable:true,acceptsErEst:true,childSuitable:true,oneSyllable:f.rule==="double_final_consonant",shortVowelBeforeFinalConsonant:f.rule==="double_final_consonant"},content:{...f.content,pairedSentence:{...f.content.pairedSentence,targets:[1,2].map(i=>({...words[i],audioText:words[i].word})) as unknown as AdjectiveFamilyV1["content"]["pairedSentence"]["targets"]}}};});
 const degreePackage=buildComparativeReleasePackage(families,"test:degree",["test"]);const family=families[0];
+const nativeDegree=nativeWordFacts("comparative_superlative_word_lab","v1",family.microSkillKey,family.words[0].canonicalWordId,[{authorityType:"adjective_degree_families",content:{families:[family]}}]);assert.deepEqual(nativeDegree?.content.sourceRefs,family.provenance.sourceRefs);
 const degree=buildGovernedPackage({routeId:"comparative_superlative_word_lab",manifest:degreePackage.manifest,authorities:projection(degreePackage as unknown as ReturnType<typeof buildIngReleasePackage>),candidates:[{...candidate,canonicalWordId:family.words[1].canonicalWordId,route:{...candidate.route,routeId:"comparative_superlative_word_lab",microSkillKey:family.microSkillKey,content:{familyKey:family.familyKey,pairedSentenceVariants:[family.content.pairedSentence,{...family.content.pairedSentence,id:"alternate",segments:["Today, "," is less warm than ","."]}]}}}]});
 assert(degree.package);assert.deepEqual(degree.blockers,[]);
 const degreeCheck=await preflightGovernedRelease({...shared,routeId:"comparative_superlative_word_lab",skill:family.microSkillKey,authorities:nativeAuthorities(degree.package,family.microSkillKey)});

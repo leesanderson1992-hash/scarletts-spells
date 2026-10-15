@@ -38,7 +38,7 @@ export function nativeWordFacts(
       degreeWords: family.words,
       transformations: family.transformations,
       lexicalVerification: family.lexicalVerification,
-      sourceRefs: family.sourceRefs,
+      sourceRefs: family.provenance?.sourceRefs ?? family.sourceRefs,
       pairedSentence: family.content.pairedSentence,
       pairedSentenceVariants: family.content.pairedSentenceVariants,
     };
@@ -65,7 +65,7 @@ export function nativeWordFacts(
     content = {
       ...member,
       familyKey: family.baseFamilyKey,
-      baseWord: family.baseWordId,
+      baseWord: family.members.find((base: any) => base.canonicalWordId === family.baseWordId)?.morphologyParts?.map((part: any) => part.sourceText ?? part.surfaceText ?? part.text ?? "").join("") ?? family.baseFamilyKey,
       baseMeaning: family.baseMeaning,
     };
     wordMeaning = member.childFriendlyMeaning;
