@@ -27,16 +27,17 @@ export function summarizeReadiness<T extends {
   const demandByMicroSkill = new Map<string, { words: Set<string>; occurrences: Set<string>; usersWaiting: Set<string> }>();
   for (const row of rows) {
     const demand = demandByMicroSkill.get(row.microSkillKey) ?? { words: new Set(), occurrences: new Set(), usersWaiting: new Set() };
-    demand.words.add(row.word);
+    const waiting = waitingByKey.get(row.key) ?? [];
+    if (waiting.length) demand.words.add(row.word);
     for (const candidate of candidatesByKey.get(row.key) ?? []) {
       occurrenceIds.add(candidate.source_candidate_mapping_id);
-      demand.occurrences.add(candidate.source_candidate_mapping_id);
     }
-    for (const candidate of waitingByKey.get(row.key) ?? []) {
+    for (const candidate of waiting) {
+      demand.occurrences.add(candidate.source_candidate_mapping_id);
       childIds.add(candidate.child_id);
       demand.usersWaiting.add(candidate.child_id);
     }
-    demandByMicroSkill.set(row.microSkillKey, demand);
+    if (waiting.length) demandByMicroSkill.set(row.microSkillKey, demand);
   }
   const topThree: MicroSkillDemand[] = [...demandByMicroSkill].map(([microSkillKey, demand]) => ({
     microSkillKey, wordCount: demand.words.size, occurrences: demand.occurrences.size,

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { intakeOutcome, distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
+import { summarizeReadiness, intakeOutcome, distinctOccurrences, distinctUsersWaiting, groupIsArchived, groupMatchesView, matchesProjectedUnresolvedView } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-groups";
 import { projectReadiness, type ProjectionInput } from "../app/(authenticated)/admin/adle-canonical-intake-readiness/readiness-projection";
 
 const ready = (): ProjectionInput => ({
@@ -96,3 +96,10 @@ assert.equal(intakeOutcome([{ lifecycle_status: "rejected", archived_at: null }]
 assert.equal(intakeOutcome([{ lifecycle_status: "superseded", archived_at: null }], []).label, "Superseded");
 
 assert.equal(matchesProjectedUnresolvedView({ waitingCandidates: 2, states: ["complete", "unknown"] }, "current"), true, "unknown requirements remain visible as blockers");
+
+const historicalSummary = summarizeReadiness([{key:"resolved",word:"responsible",microSkillKey:"able_ible",occurrences:1,usersWaiting:0}], new Map([["resolved", [candidates[0]]]]), new Map());
+assert.equal(historicalSummary.occurrencesTotal,1);
+assert.equal(historicalSummary.usersWaiting,0);
+assert.deepEqual(historicalSummary.topThree,[],"resolved words must not appear under Needs Attention or be described as in queue");
+const mixedSummary = summarizeReadiness([{key:"mixed",word:"example",microSkillKey:"skill",occurrences:2,usersWaiting:1}],new Map([["mixed",[candidates[0],candidates[2]]]]),new Map([["mixed",[candidates[2]]]]));
+assert.equal(mixedSummary.topThree[0].occurrences,1,"demand rankings count only occurrences still waiting");
