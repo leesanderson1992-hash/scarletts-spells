@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type CSSProperties,
 } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,8 +83,15 @@ function Pencil({ onClick, label }: { onClick: () => void; label: string }) {
   );
 }
 function Prompt({ text }: { text: string }) {
+  const [position, setPosition] = useState<CSSProperties | null>(null);
+  function place(target: HTMLElement) {
+    const bounds = target.getBoundingClientRect();
+    const width = Math.min(288, window.innerWidth - 32);
+    setPosition({ width, left: Math.max(16, Math.min(bounds.left, window.innerWidth - width - 16)),
+      top: Math.max(16, Math.min(bounds.bottom + 6, window.innerHeight - 200)) });
+  }
   return (
-    <span className="group relative inline-flex">
+    <span className="group relative inline-flex" onMouseEnter={event => place(event.currentTarget)} onFocus={event => place(event.currentTarget)}>
       <button
         type="button"
         aria-label="Show learner question"
@@ -93,7 +101,8 @@ function Prompt({ text }: { text: string }) {
       </button>
       <span
         role="tooltip"
-        className="absolute right-0 top-7 z-20 hidden w-64 max-w-[65vw] rounded-lg border border-[var(--border)] bg-white p-3 text-sm font-normal shadow-lg group-focus-within:block group-hover:block"
+        style={position ?? { visibility: "hidden" }}
+        className="fixed z-50 hidden max-h-[60vh] overflow-y-auto rounded-lg border border-[var(--border)] bg-white p-3 text-sm font-normal shadow-lg group-focus-within:block group-hover:block"
       >
         {text}
       </span>
