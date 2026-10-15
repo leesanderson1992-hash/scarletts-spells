@@ -67,7 +67,7 @@ try {
   `);
   const compoundMigration=readFileSync("supabase/migrations/20260811210000_publish_compound_word_v2_release_authority.sql","utf8");
   await db.exec(compoundMigration.slice(compoundMigration.indexOf("create or replace function public.publish_adle_compound_word_structure_authority_v1("),compoundMigration.indexOf("revoke all on function public.publish_adle_compound_word_structure_authority_v1")));
-  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
+  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
   const actor=randomUUID(), word=randomUUID(), profile=randomUUID(), draft=randomUUID();
   const skill="D4_MOR_SUFFIXES_ABLE_IBLE";
   await db.query("insert into auth.users values($1)",[actor]);
@@ -123,6 +123,17 @@ try {
   await db.query('select rollback_teaching_dictionary_launch_v2($1,$2,$3)',[groupLaunch,actor,'Restore native fixture']);
   assert.equal((await db.query('select release_manifest_id from adle_route_activation_revisions where id=(select current_revision_id from adle_route_activation_heads where micro_skill_key=$1)',[groupSkill])).rows[0].release_manifest_id,oldRelease);
   assert.equal((await db.query('select count(*)::int n from teaching_dictionary_dictation_heads where canonical_word_id=$1',[groupWord])).rows[0].n,0);
+
+  const compatibilityDraft=randomUUID();const modern={...groupPayload,dictationVariants:[...groupPayload.dictationVariants,{id:"alternate",sentence:"They are jumping.",targetTokenIndex:2,audioText:"They are jumping."}],routeContents:[],canonicalMorphology:{...groupPayload.canonicalMorphology,transformations:[{type:'base_spelling_change',sourcePartId:'part_1',sourceText:'jump',surfaceText:'jump',explanation:'Compatibility fixture'}]}};
+  await db.query("insert into teaching_dictionary_manager_drafts(id,canonical_word_id,normalised_word,dialect_code,payload,source_reference)values($1,$2,'jumping','en-GB',$3,'Compatibility proof')",[compatibilityDraft,groupWord,JSON.stringify(modern)]);
+  await db.query('select review_teaching_dictionary_overview($1,$2)',[compatibilityDraft,actor]);await db.query('select publish_teaching_dictionary_manager_draft($1,$2)',[compatibilityDraft,actor]);
+  const legacyDraft=randomUUID(),legacy=structuredClone(modern);delete legacy.dictationVariants;delete legacy.writtenSyllableBreakdown;delete legacy.canonicalMorphology.transformations;legacy.metadata.phoneme_hint='New pronunciation';
+  await db.query("insert into teaching_dictionary_manager_drafts(id,canonical_word_id,normalised_word,dialect_code,payload,source_reference)values($1,$2,'jumping','en-GB',$3,'Earlier editor')",[legacyDraft,groupWord,JSON.stringify(legacy)]);
+  await db.query('select publish_teaching_dictionary_manager_draft($1,$2)',[legacyDraft,actor]);
+  assert.equal((await db.query("select written_syllable_breakdown from canonical_teaching_dictionary_word_metadata where canonical_word_id=$1 and row_status='active'",[groupWord])).rows[0].written_syllable_breakdown,'jump-ing');
+  assert.deepEqual((await db.query("select morphology_transformations from canonical_teaching_dictionary_word_morphology where canonical_word_id=$1 and row_status='active'",[groupWord])).rows[0].morphology_transformations,modern.canonicalMorphology.transformations);
+  assert.equal((await db.query('select jsonb_array_length(s.variants)::int n from teaching_dictionary_dictation_heads h join teaching_dictionary_dictation_sets s on s.id=h.set_id where h.canonical_word_id=$1',[groupWord])).rows[0].n,2);
+  console.log('PASS: earlier editor preserves reviewed syllables and transformations during schema-first rollout');
   console.log('PASS: native head CAS, reviewed package transaction, global scope and audited native rollback');
   console.log('PASS: protected replacement, immutable variant set, stale launch, duplicate launch and full rollback');
 } catch(error) { console.error({message:error.message,code:error.code,where:error.where});process.exitCode=1; } finally { await db.close(); }
