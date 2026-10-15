@@ -248,7 +248,8 @@ function introduction(value: unknown): DynamicAffixProfile["introduction"] | nul
 export async function loadDynamicSuffixProfiles(
   client: SupabaseClient,
   childId: string,
-  options: { allowStagingProfiles?: boolean; includeDerivedItyCandidates?: boolean } = {},
+  options: { allowStagingProfiles?: boolean; includeDerivedItyCandidates?: boolean;
+    candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string }[] } = {},
 ): Promise<{
   profiles: DynamicAffixProfile[];
   learningItems: LearningItemFact[];
@@ -265,6 +266,36 @@ export async function loadDynamicSuffixProfiles(
   ]);
   if (profileError || itemError || skillError) throw new Error(`loadDynamicSuffixProfiles: ${profileError?.message ?? itemError?.message ?? skillError?.message}`);
   const profileRows = records<ProfileRow>(rawProfiles);
+  for (const candidate of options.candidateMembers ?? []) {
+    const profile = profileRows.find((row) => row.micro_skill_key === candidate.microSkillKey);
+    if (!profile) continue;
+    const members = records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members);
+    const existing = members.find((row) => row.canonical_word_id === candidate.canonicalWordId);
+    const facts = candidate.content;
+    const member: MemberRow = {
+      id: existing?.id ?? `preflight:${candidate.canonicalWordId}`,
+      source_row_hash: existing?.source_row_hash ?? "preflight",
+      canonical_word_id: candidate.canonicalWordId,
+      member_role: existing?.member_role ?? "authentic_target",
+      suffix_variant: facts.suffixVariant,
+      semantic_base_text: facts.semanticBaseText,
+      semantic_base_kind: facts.semanticBaseKind,
+      base_meaning: facts.baseMeaning,
+      new_word_meaning: candidate.wordMeaning,
+      meaning_bin_key: facts.meaningBinKey,
+      teaching_split_parts: facts.teachingSplitParts,
+      teaching_split_joins: facts.teachingSplitJoins,
+      true_morphology_parts: facts.trueMorphologyParts,
+      true_morphology_joins: facts.trueMorphologyJoins,
+      true_morphology_transformations: facts.trueMorphologyTransformations ?? [],
+      transformation_notes: facts.transformationNotes ?? "",
+      true_morphology_provenance: facts.trueMorphologyProvenance,
+      assignment_eligible: true, row_status: "active", review_status: "approved_for_first_exposure",
+    };
+    profile.canonical_teaching_dictionary_suffix_members = [
+      ...members.filter((row) => row.canonical_word_id !== candidate.canonicalWordId), member,
+    ];
+  }
   const itemRows = records<LearningItemRow>(rawItems);
   const routeReadySkillKeys = new Set(
     records<MicroSkillRow>(rawSkills)
@@ -395,7 +426,6 @@ export async function loadDynamicSuffixProfiles(
         && Object.keys(provenance).length > 0
         && provenance.status !== "draft_requires_editorial_review"
         && typeof member.transformation_notes === "string"
-        && member.transformation_notes.trim().length > 0
         && suffixPart?.text === member.suffix_variant
         && `${teachingBase}${member.suffix_variant}` === displayWord,
       );

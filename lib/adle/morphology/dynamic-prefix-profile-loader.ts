@@ -237,13 +237,55 @@ function pedagogyFromIntroduction(
  * Dictionary-first runtime read. The approved D4 package may enrich this
  * table during review/import, but is never an assignment-time content source.
  */
-export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId: string, options: { allowStagingProfiles?: boolean } = {}): Promise<{ profiles: DynamicPrefixProfile[]; learningItems: LearningItemFact[] }> {
+export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId: string, options: { allowStagingProfiles?: boolean;
+  candidateMembers?: readonly { microSkillKey: string; canonicalWordId: string; content: Record<string, unknown>; wordMeaning: string }[] } = {}): Promise<{ profiles: DynamicPrefixProfile[]; learningItems: LearningItemFact[] }> {
   const [{ data: profileRows, error: profilesError }, { data: itemRows, error: itemsError }] = await Promise.all([
     client.from("canonical_teaching_dictionary_prefix_profiles").select("id,import_batch_id,source_row_hash,micro_skill_key,prefix_label,prefix_text,prefix_meaning,meaning_bins,prefix_choices,reflection_prompt_key,reflection_prompt_text,intro_content,production_enabled,row_status,review_status,canonical_teaching_dictionary_prefix_members(id,source_row_hash,canonical_word_id,member_role,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins,assignment_eligible,row_status,review_status,canonical_teaching_dictionary_words!inner(id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status,canonical_teaching_dictionary_dictation_sentences(id,source_row_hash,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status)))").in("micro_skill_key", DYNAMIC_PREFIX_PROFILE_KEYS).eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     client.from("adle_learning_items").select("id,child_id,canonical_word_id,micro_skill_key,item_status,source_kind,source_ref,source_attempt_text,reteach_priority,ejected_on,intake_on,row_status").eq("child_id", childId).in("micro_skill_key", DYNAMIC_PREFIX_PROFILE_KEYS).eq("row_status", "active"),
   ]);
   if (profilesError || itemsError) throw new Error(`loadDynamicPrefixProfiles: ${profilesError?.message ?? itemsError?.message}`);
   const typedProfileRows = (profileRows ?? []) as unknown as DictionaryProfileRow[];
+  const candidateIds = [...new Set((options.candidateMembers ?? []).map((row) => row.canonicalWordId))];
+  const candidateWordsResult = candidateIds.length
+    ? await client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status,canonical_teaching_dictionary_dictation_sentences(id,source_row_hash,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status)").in("id", candidateIds)
+    : { data: [], error: null };
+  if (candidateWordsResult.error) throw new Error(`loadDynamicPrefixProfiles candidate dictionary: ${candidateWordsResult.error.message}`);
+  const candidateWords = new Map(((candidateWordsResult.data ?? []) as unknown as DictionaryMember["canonical_teaching_dictionary_words"][])
+    .filter((word): word is NonNullable<typeof word> => Boolean(word)).map((word) => [word.id, word]));
+  for (const candidate of options.candidateMembers ?? []) {
+    const profile = typedProfileRows.find((row) => row.micro_skill_key === candidate.microSkillKey);
+    if (!profile) continue;
+    const dictionary = candidateWords.get(candidate.canonicalWordId);
+    if (!dictionary) continue;
+    const members = profile.canonical_teaching_dictionary_prefix_members ?? [];
+    const existing = members.find((row) => row.canonical_word_id === candidate.canonicalWordId);
+    const facts = candidate.content;
+    const member: DictionaryMember = {
+      id: existing?.id ?? `preflight:${candidate.canonicalWordId}`,
+      source_row_hash: existing?.source_row_hash ?? "preflight",
+      canonical_word_id: candidate.canonicalWordId,
+      member_role: existing?.member_role ?? "authentic_target",
+      base_word: String(facts.baseWord ?? ""), base_meaning: String(facts.baseMeaning ?? ""),
+      child_friendly_meaning: candidate.wordMeaning,
+      meaning_bin_key: String(facts.meaningBinKey ?? ""),
+      prefix_variant: String(facts.prefixVariant ?? ""),
+      teaching_split_parts: facts.teachingSplitParts as DictionaryPart[],
+      teaching_split_joins: facts.teachingSplitJoins as DictionaryJoin[],
+      assignment_eligible: true, row_status: "active", review_status: "approved_for_first_exposure",
+      canonical_teaching_dictionary_words: dictionary,
+    };
+    profile.canonical_teaching_dictionary_prefix_members = [
+      ...members.filter((row) => row.canonical_word_id !== candidate.canonicalWordId), member,
+    ];
+    const intro = profile.intro_content && typeof profile.intro_content === "object" && !Array.isArray(profile.intro_content)
+      ? profile.intro_content as Record<string, unknown> : {};
+    const audit = facts.choiceAudit;
+    if (audit && typeof audit === "object" && !Array.isArray(audit)) {
+      const previous = Array.isArray(intro.validChoiceAudit) ? intro.validChoiceAudit.filter((row) =>
+        row && typeof row === "object" && !Array.isArray(row) && (row as Record<string, unknown>).word !== dictionary.display_word) : [];
+      profile.intro_content = { ...intro, validChoiceAudit: [...previous, audit] };
+    }
+  }
   const canonicalWordIds = [...new Set(typedProfileRows.flatMap(
     (row) => (row.canonical_teaching_dictionary_prefix_members ?? [])
       .map((member) => member.canonical_word_id),

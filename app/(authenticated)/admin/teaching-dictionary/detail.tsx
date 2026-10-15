@@ -14,7 +14,7 @@ import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, rou
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
-import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, publishTeachingDictionaryPrefixContent, publishTeachingDictionarySuffixContent } from "./actions";
+import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, reviewTeachingDictionaryRouteContent, stageTeachingDictionaryRouteDraft } from "./actions";
 import { WordEditor } from "./word-editor";
 import { ActionSubmitButton } from "./action-submit-button";
 import { BaseFamilyReview } from "./base-family-review";
@@ -53,7 +53,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     wordId ? db.from("canonical_teaching_dictionary_prefix_members").select("id,prefix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_prefix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("canonical_teaching_dictionary_suffix_members").select("id,suffix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_suffix_profiles(id,micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,word_sum,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("teaching_dictionary_manager_drafts").select("id,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
+    wordId ? db.from("teaching_dictionary_manager_drafts").select("id,payload,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
   ]);
   if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error || prefixProfilesResult.error || suffixProfilesResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
   const word = wordResult?.data as Word | null;
@@ -63,16 +63,24 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   for (const result of [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult]) if (result?.error) throw new Error("TEACHING_DICTIONARY_FACT_READ_FAILED");
   const publicationIds = (routeContentResult?.data ?? []).map((row) => row.id);
   const historyIds = (historyResult?.data ?? []).map((item) => item.id);
-  const [publicationResult, rollbackResult, historyPublications] = await Promise.all([
+  const [publicationResult, rollbackResult, reviewResult, historyPublications] = await Promise.all([
     publicationIds.length ? db.from("teaching_dictionary_route_content_publications").select("content_version_id,route_profile_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
     publicationIds.length ? db.from("teaching_dictionary_route_content_rollbacks").select("content_version_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
+    publicationIds.length ? db.from("teaching_dictionary_route_content_reviews").select("content_version_id,reviewed_by,reviewed_at,dictionary_fingerprint").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
     historyIds.length ? db.from("teaching_dictionary_manager_publications")
       .select("draft_id,published_at,published_by").in("draft_id", historyIds) : Promise.resolve({ data: [], error: null }),
   ]);
-  if (publicationResult.error || rollbackResult.error) throw new Error("TEACHING_ROUTE_PUBLICATION_READ_FAILED");
+  if (publicationResult.error || rollbackResult.error || reviewResult.error) throw new Error("TEACHING_ROUTE_PUBLICATION_READ_FAILED");
   if (historyPublications.error) throw new Error("TEACHING_HISTORY_PUBLICATION_READ_FAILED");
   const historyPublicationByDraft = new Map((historyPublications.data ?? []).map((item) => [item.draft_id, item]));
   const rolledBackContent = new Set((rollbackResult.data ?? []).map((row) => row.content_version_id));
+  const fingerprint = wordId && reviewResult.data?.length
+    ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId }) : null;
+  if (fingerprint?.error) throw new Error("TEACHING_ROUTE_REVIEW_FINGERPRINT_FAILED");
+  const reviewedContent = new Set((reviewResult.data ?? [])
+    .filter((row) => row.dictionary_fingerprint === fingerprint?.data).map((row) => row.content_version_id));
+  const staleReviews = new Set((reviewResult.data ?? [])
+    .filter((row) => row.dictionary_fingerprint !== fingerprint?.data).map((row) => row.content_version_id));
   const publishedContent = new Set((publicationResult.data ?? []).filter((row) => !rolledBackContent.has(row.content_version_id)).map((row) => row.content_version_id));
   const publishedDraftIds = new Set((routeContentResult?.data ?? []).filter((row) => publishedContent.has(row.id)).map((row) => row.draft_id));
   const publishedSubmissionIds = new Set((historyResult?.data ?? []).filter((row) => publishedDraftIds.has(row.id))
@@ -192,7 +200,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
   const protectedRelease = protectedReleaseError || Boolean(draft && word && hasProtectedLinks
     && !matchesPublishedFactsForDefinitionOnly({ payload: initial, word, metadata, dictation, morphology }));
   return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
-    <nav className="text-sm"><Link href="/admin/teaching-dictionary" prefetch={true} className="underline">← All words</Link></nav>
+    <nav className="flex gap-4 text-sm"><Link href="/admin/teaching-dictionary" prefetch={true} className="underline">← All words</Link><Link href="/admin/adle-lesson-readiness" className="underline">ADLE lesson readiness</Link></nav>
     <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
     {word && <section className="rounded-lg border border-[var(--border)] bg-white p-4" aria-label="Pronunciation facts">
       <h2 className="font-semibold">Pronunciation facts</h2>
@@ -215,6 +223,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
       {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker} <a className="font-semibold underline" href={`#${publicationBlockerTarget(blocker)}`}>Edit</a></li>)}</ul>}
       <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><ActionSubmitButton disabled={draftBlockers.length > 0 || protectedRelease} pendingLabel="Publishing facts…" className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">{protectedRelease ? "Protected release required" : "Publish dictionary facts"}</ActionSubmitButton></form>
+      {wordId && initial.routeContents.length > 0 && <form action={stageTeachingDictionaryRouteDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId} /><ActionSubmitButton pendingLabel="Staging lesson facts…" className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold">Stage route facts for editorial review</ActionSubmitButton><p className="mt-1 text-xs">Stages only the lesson facts. Shared dictionary changes remain in the draft until separately released.</p></form>}
     </details>}
     {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial} publishedPayload={publishedPayload}
       draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
@@ -236,20 +245,18 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
       </form>)}</div>
       {visibleContentVersions.map((version) => {
         const content = version.content as RouteContentDraft;
-        const blockers = routeBlockers(content, initial);
+        const authoredPayload = (historyResult?.data ?? []).find((row) => row.id === version.draft_id)?.payload as WordDraftPayload | undefined;
+        const blockers = routeBlockers(content, authoredPayload ?? initial);
         const activated = publishedContent.has(version.id);
         return <article key={version.id} className="rounded-lg border border-[var(--border)] p-3 text-sm">
-          <p className="font-semibold">{version.route_id} · {version.micro_skill_key} · {activated ? "route published" : rolledBackContent.has(version.id) ? "route rollback; revise content" : "route publication pending"}</p>
+          <p className="font-semibold">{version.route_id} · {version.micro_skill_key} · {activated ? "route published" : rolledBackContent.has(version.id) ? "route rollback; revise content" : staleReviews.has(version.id) ? "editorial review stale; save a new version" : reviewedContent.has(version.id) ? "editorially reviewed; lesson launch pending" : "editorial review pending"}</p>
           <p className="mt-1 text-xs text-[color:var(--mid)]">{latestContentVersionIds.has(version.id) ? "Latest saved version" : "Earlier published version"} · {new Date(version.published_at).toLocaleString("en-GB", { timeZone: "Europe/London", dateStyle: "medium", timeStyle: "short" })}</p>
           {blockers.length > 0 && <ul className="list-disc pl-5 text-amber-900">{blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
-          {version.route_id === "dynamic_prefix_word_lab" && !activated && !rolledBackContent.has(version.id) && <form action={publishTeachingDictionaryPrefixContent} className="mt-2">
+          {!activated && !rolledBackContent.has(version.id) && !reviewedContent.has(version.id) && !staleReviews.has(version.id) && <form action={reviewTeachingDictionaryRouteContent} className="mt-2">
             <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
-            <ActionSubmitButton disabled={blockers.length > 0} pendingLabel="Publishing prefix…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish prefix route member</ActionSubmitButton>
+            <ActionSubmitButton disabled={blockers.length > 0 || !latestContentVersionIds.has(version.id)} pendingLabel="Recording review…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Sign off this exact lesson content</ActionSubmitButton>
           </form>}
-          {version.route_id === "dynamic_affix_word_lab" && !activated && !rolledBackContent.has(version.id) && <form action={publishTeachingDictionarySuffixContent} className="mt-2">
-            <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
-            <ActionSubmitButton disabled={blockers.length > 0} pendingLabel="Publishing suffix…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Publish suffix route member</ActionSubmitButton>
-          </form>}
+          {reviewedContent.has(version.id) && !activated && <Link className="mt-2 inline-block underline" href={`/admin/adle-lesson-readiness?route=${encodeURIComponent(version.route_id)}&skill=${encodeURIComponent(version.micro_skill_key)}`}>Check and launch the whole lesson</Link>}
           {version.route_id === "base_word_lab" && !activated && <p>Base-word activation needs reviewed family membership, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
           {version.route_id === "compound_word_lab" && !activated && <p>Compound activation needs reviewed structure authority, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
         </article>;

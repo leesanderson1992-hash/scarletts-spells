@@ -35,6 +35,11 @@ row.payload.metadata = { syllables: "re-new", phoneme_hint: "rɪˈnjuː", graphe
 row.payload.ageBand = "middle_primary";
 row.payload.frequencyBand = "medium";
 assert.deepEqual(routeBlockers(route, row.payload), []);
+assert(routeBlockers({ ...route, content: { ...route.content,
+  teachingSplitParts: [{ id: "bad", kind: "prefix", surfaceText: "re", sourceText: "re" }] } }, row.payload)
+  .includes("Teaching parts must spell the word."));
+assert(routeBlockers({ ...route, content: { ...route.content, teachingSplitJoins: [] } }, row.payload)
+  .includes("Teaching joins must connect every part."));
 const publishedRoute = routeContentFromStoredRow({ route_id: route.routeId, route_version: route.routeVersion,
   micro_skill_key: route.microSkillKey, content: route });
 assert.deepEqual(publishedRoute.content, route.content);
@@ -109,10 +114,9 @@ const [abilityRoute] = routeContentsForSelectedSkills(abilityPayload);
 const completedAbilityRoute = routeWithSingleProfileDefaults(abilityRoute, {
   choices: ["ity"], meaningBins: [{ id: "state_or_quality" }],
 });
-assert(routeBlockers(completedAbilityRoute, abilityPayload).includes("Add reviewed true morphology notes."));
+assert(!routeBlockers(completedAbilityRoute, abilityPayload).includes("Add reviewed true morphology notes."));
 assert.equal(routeRequirements(completedAbilityRoute, abilityPayload)
-  .find((item) => item.label === "reviewed true morphology notes")?.editTarget,
-  "td-route-D4_MOR_SUFFIXES_ITY-transformationNotes");
+  .find((item) => item.label === "reviewed true morphology notes"), undefined);
 assert(!routeBlockers({ ...completedAbilityRoute, content: {
   ...completedAbilityRoute.content, transformationNotes: "Reviewed base spelling change before -ity.",
 } }, abilityPayload).includes("Add reviewed true morphology notes."));
@@ -278,8 +282,9 @@ assert.match(detailSource, /Latest saved version/);
 assert.match(detailSource, /routeAlreadyReleased/);
 assert.match(detailSource, /params\.route_error && !routeAlreadyReleased/);
 const actionsSource = readFileSync("app/(authenticated)/admin/teaching-dictionary/actions.ts", "utf8");
-assert.match(actionsSource, /existingReleasedSuffixProfile/);
-assert.match(actionsSource, /TEACHING_SUFFIX_MEMBER_ALREADY_EXISTS/);
-assert.match(actionsSource, /existingReleasedPrefixProfile/);
-assert.match(actionsSource, /TEACHING_PREFIX_MEMBER_ALREADY_EXISTS/);
+assert.match(actionsSource, /reviewTeachingDictionaryRouteContent/);
+assert.match(actionsSource, /stageTeachingDictionaryRouteDraft/);
+assert.doesNotMatch(actionsSource, /publishTeachingDictionaryPrefixContent/);
+assert.doesNotMatch(actionsSource, /publishTeachingDictionarySuffixContent/);
+assert.match(readFileSync("app/(authenticated)/admin/adle-lesson-readiness/actions.ts", "utf8"), /publish_teaching_dictionary_lesson/);
 console.log("Teaching Dictionary Manager regression passed");

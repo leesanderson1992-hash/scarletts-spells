@@ -81,7 +81,6 @@ export function isDynamicAffixWordLessonReady(
     && word.trueMorphology.joins.length === word.trueMorphology.parts.length - 1
     && word.trueMorphology.parts.map((part) => part.text).join("") === word.displayWord
     && Array.isArray(word.trueMorphology.transformations)
-    && word.trueMorphology.notes.trim().length > 0
     && Object.keys(word.trueMorphology.provenance).length > 0
     && word.trueMorphology.provenance.status !== "draft_requires_editorial_review"
   );

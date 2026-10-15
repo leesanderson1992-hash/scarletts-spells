@@ -161,8 +161,29 @@ async function main() {
     from(table: string) { return new ReadOnlyQuery(missingNoteTables[table] ?? []); },
   } as unknown as SupabaseClient;
   const missingNote = await loadDynamicSuffixProfiles(missingNoteClient, "fixture-child");
-  assert.equal(missingNote.profiles.length, 0, "a member with no reviewed morphology note cannot make a route ready");
-  assert(missingNote.diagnostics.some((entry) => entry.blockerCode === "member_validation_failed" && entry.memberIndex === 0));
+  assert.equal(missingNote.profiles.length, 1, "an optional morphology note does not block a reviewed structured analysis");
+  assert(missingNote.profiles[0]!.wordsByCanonicalId.has(missingNoteProfile.canonical_teaching_dictionary_suffix_members[0].canonical_word_id));
+
+  const candidateTables = structuredClone(tables);
+  const candidateClient = {
+    from(table: string) { return new ReadOnlyQuery(candidateTables[table] ?? []); },
+  } as unknown as SupabaseClient;
+  const reviewedCandidate = await loadDynamicSuffixProfiles(candidateClient, "fixture-child", {
+    candidateMembers: [{ microSkillKey: reviewed.profile.microSkillKey, canonicalWordId: inReviewId,
+      wordMeaning: inReviewMember.new_word_meaning,
+      content: {
+        suffixVariant: inReviewMember.suffix_variant, semanticBaseText: inReviewMember.semantic_base_text,
+        semanticBaseKind: inReviewMember.semantic_base_kind, baseMeaning: inReviewMember.base_meaning,
+        meaningBinKey: inReviewMember.meaning_bin_key, teachingSplitParts: inReviewMember.teaching_split_parts,
+        teachingSplitJoins: inReviewMember.teaching_split_joins, trueMorphologyParts: inReviewMember.true_morphology_parts,
+        trueMorphologyJoins: inReviewMember.true_morphology_joins,
+        trueMorphologyTransformations: inReviewMember.true_morphology_transformations,
+        trueMorphologyProvenance: { source: "reviewed candidate", status: "reviewed" },
+        transformationNotes: "",
+      } }],
+  });
+  assert(reviewedCandidate.profiles[0]!.wordsByCanonicalId.has(inReviewId),
+    "a reviewed replacement is validated by the runtime loader before publication");
 
   const draftProvenanceTables = structuredClone(tables);
   const draftProvenanceProfile = draftProvenanceTables.canonical_teaching_dictionary_suffix_profiles[0] as any;

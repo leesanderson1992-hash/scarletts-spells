@@ -226,11 +226,16 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
       if (value == null || value === "" || (Array.isArray(value) && value.length === 0)) blockers.push(`Add ${label}.`);
     }
     if (!route.content.choiceAudit || typeof route.content.choiceAudit !== "object") blockers.push("Add a reviewed prefix-choice audit for this word.");
+    if (Array.isArray(route.content.teachingSplitParts) && route.content.teachingSplitParts.length) {
+      const surface = route.content.teachingSplitParts.map((part) => part && typeof part === "object"
+        ? String((part as Record<string, unknown>).surfaceText ?? (part as Record<string, unknown>).text ?? "") : "").join("");
+      if (surface !== payload.displayWord) blockers.push("Teaching parts must spell the word.");
+      if (Array.isArray(route.content.teachingSplitJoins)
+        && route.content.teachingSplitJoins.length !== route.content.teachingSplitParts.length - 1)
+        blockers.push("Teaching joins must connect every part.");
+    }
   }
   if (route.routeId === "dynamic_affix_word_lab") {
-    if (typeof route.content.transformationNotes !== "string" || !route.content.transformationNotes.trim()) {
-      blockers.push("Add reviewed true morphology notes.");
-    }
     if ((route.content.trueMorphologyProvenance as { status?: unknown } | null)?.status === "draft_requires_editorial_review") {
       blockers.push("Review true morphology provenance.");
     }
@@ -243,6 +248,16 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
       if (fact == null || fact === "" || (Array.isArray(fact) && fact.length === 0)
         || (typeof fact === "object" && !Array.isArray(fact) && Object.keys(fact).length === 0)) blockers.push(`Add ${label}.`);
     }
+    const teaching = route.content.teachingSplitParts;
+    const trueMorphology = route.content.trueMorphologyParts;
+    const surface = (parts: unknown) => Array.isArray(parts)
+      ? parts.map((part) => part && typeof part === "object" ? String((part as Record<string, unknown>).surfaceText ?? (part as Record<string, unknown>).text ?? "") : "").join("") : "";
+    if (Array.isArray(teaching) && teaching.length && surface(teaching) !== payload.displayWord) blockers.push("Teaching parts must spell the word.");
+    if (Array.isArray(trueMorphology) && trueMorphology.length && surface(trueMorphology) !== payload.displayWord) blockers.push("True morphology parts must spell the word.");
+    if (Array.isArray(teaching) && Array.isArray(route.content.teachingSplitJoins)
+      && route.content.teachingSplitJoins.length !== teaching.length - 1) blockers.push("Teaching joins must connect every part.");
+    if (Array.isArray(trueMorphology) && Array.isArray(route.content.trueMorphologyJoins)
+      && route.content.trueMorphologyJoins.length !== trueMorphology.length - 1) blockers.push("True morphology joins must connect every part.");
   }
   if (route.routeId === "base_word_lab") {
     for (const [field, label] of [["familyKey", "base-word family"], ["baseWord", "base word"],

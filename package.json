@@ -83,6 +83,7 @@
     "adle:word-skill-reconciliation": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-reconciliation.ts",
     "adle:learner-evidence-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-learner-evidence-regression.ts",
     "adle:teaching-dictionary-manager-regression": "tsx scripts/teaching-dictionary-manager-regression.ts",
+    "adle:lesson-release-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/adle-lesson-release-sql-regression.mjs'",
     "adle:teaching-dictionary-bulk-regression": "tsx scripts/teaching-dictionary-bulk-assignment-regression.ts",
     "adle:teaching-dictionary-bulk-sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/teaching-dictionary-bulk-assignment-sql-regression.mjs'",
     "adle:ity-derived-learner-regression": "tsx scripts/adle-ity-derived-learner-regression.ts",
