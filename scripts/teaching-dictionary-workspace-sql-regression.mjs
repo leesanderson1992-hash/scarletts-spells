@@ -67,7 +67,7 @@ try {
   `);
   const compoundMigration=readFileSync("supabase/migrations/20260811210000_publish_compound_word_v2_release_authority.sql","utf8");
   await db.exec(compoundMigration.slice(compoundMigration.indexOf("create or replace function public.publish_adle_compound_word_structure_authority_v1("),compoundMigration.indexOf("revoke all on function public.publish_adle_compound_word_structure_authority_v1")));
-  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
+  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql", "20261015160000_scope_native_group_compiler_witnesses.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
   const actor=randomUUID(), word=randomUUID(), profile=randomUUID(), draft=randomUUID();
   const skill="D4_MOR_SUFFIXES_ABLE_IBLE";
   await db.query("insert into auth.users values($1)",[actor]);
@@ -99,6 +99,11 @@ try {
   assert.equal((await db.query('select teaching_dictionary_route_dictionary_fingerprint($1) value',[word])).rows[0].value,beforeFingerprint,'rollback restores the prior semantic dictionary fingerprint, including an absent definition');
 
   const groupWord=randomUUID(),groupDraft=randomUUID(),oldRelease=randomUUID(),oldRevision=randomUUID();
+  const unrelatedWord=randomUUID();const groupAuthority={authorities:[{authorityType:"compound_structure",semanticProjection:{structures:[{wholeCanonicalWordId:groupWord,microSkillKey:"closed",assignmentEligible:true},{wholeCanonicalWordId:unrelatedWord,microSkillKey:"separated",assignmentEligible:true}]}}]};
+  assert.deepEqual((await db.query("select teaching_dictionary_package_required_member_ids($1,$2) ids",[JSON.stringify(groupAuthority),"closed"])).rows[0].ids,[groupWord]);
+  const familyAuthority={authorities:[{authorityType:"family_membership",semanticProjection:{families:[{members:[{canonicalWordId:groupWord,assignmentEligible:true,applicableMicroSkillKeys:["base"]},{canonicalWordId:unrelatedWord,assignmentEligible:true,applicableMicroSkillKeys:["different"]}]}]}}]};
+  assert.deepEqual((await db.query("select teaching_dictionary_package_required_member_ids($1,$2) ids",[JSON.stringify(familyAuthority),"base"])).rows[0].ids,[groupWord]);
+
   const groupSkill='D4_INF_ING_ENDINGS_JUST_ADD_ING',groupRoute='ing_endings_word_lab';
   const groupPayload={...payload,displayWord:'jumping',dictationSentence:'She is jumping.',dictationTargetTokenIndex:2,
     dictationVariants:[{id:'primary',sentence:'She is jumping.',targetTokenIndex:2,audioText:'She is jumping.'}],writtenSyllableBreakdown:'jump-ing',
