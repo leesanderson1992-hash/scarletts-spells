@@ -116,3 +116,17 @@ occurrences (28 content and four resolver blockers), closed one already-admitted
 word demand and 18 fully superseded historical demands with 19 audit events.
 All 71 activated occurrence receipts matched. No assignment or learning-item
 status changed. [Aggregate receipt](../implementation/qa/adle-intake-readiness-reconciliation-2026-10-15.json).
+
+The page update was verified in authenticated Preview and Production at exact
+code SHA `37b44db35d0724db55e90ca0e6ab2440b7738dea` (Production deployment
+`dpl_2a3oFwwLWMjAPbhCEJQcwvXhr86D`). The final read model has 31 blocker groups,
+zero unexplained unresolved groups and 48 resolved-history groups. Responsible
+has five complete checks, zero waiting users and Resolved · in ADLE; it is
+absent from Needs Attention. Its word menu opens the exact Teaching Dictionary
+profile, stays within a 616-pixel-high viewport, and retains keyboard dismissal.
+Application/scripts types, lint, focused readiness/reconciliation regressions,
+15 shared-affix profiles/75 target slots, production builds and authority docs
+passed. The exact-SHA provider approval and policy/scheduler cutover preserved
+all approved AI terms and limits; authenticated public readback and recovery
+delivery returned the final SHA, safety monitor passed, zero unrecorded sends.
+The aggregate receipt records the identities and checks.

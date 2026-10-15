@@ -29,5 +29,93 @@
     "activatedFromExistingReceipt": 1,
     "supersededHistoricalDemands": 18,
     "auditEvents": 19
+  },
+  "views": {
+    "currentBlockerGroups": 31,
+    "otherUnresolvedGroups": 0,
+    "resolvedHistoryGroups": 48
+  },
+  "browser": {
+    "responsible": "all five live checks complete; Resolved · in ADLE; zero users waiting; absent from Needs Attention",
+    "dictionaryLink": "/admin/teaching-dictionary/3729b83b-98b8-5ede-8db3-67150a8e1364",
+    "dictionaryDestinationVerified": true,
+    "publicWordMenuFullyVisible": {
+      "top": 469,
+      "bottom": 604,
+      "viewportHeight": 616
+    }
+  },
+  "release": {
+    "codeSha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+    "previewDeploymentId": "dpl_3BC8vYYNzGJ3h7gZPURURnfzcGYT",
+    "productionDeploymentId": "dpl_2a3oFwwLWMjAPbhCEJQcwvXhr86D",
+    "publicCodePromoted": true,
+    "recoveryResponse": {
+      "deploymentSha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+      "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+      "releaseHold": false,
+      "course": {
+        "status": "idle"
+      },
+      "adle": {
+        "status": "idle"
+      }
+    },
+    "schedulerHttpStatus": 200,
+    "safetyMonitor": true,
+    "unrecordedSends": {
+      "course": 0,
+      "adle": 0
+    },
+    "checks": {
+      "applicationTypecheck": true,
+      "scriptsTypecheck": true,
+      "lint": true,
+      "productionBuild": true,
+      "adminReadinessRegression": true,
+      "canonicalReadinessRegression": true,
+      "reconciliationRegression": true,
+      "sharedAffixProfiles": 15,
+      "sharedAffixTargetSlots": 75,
+      "authorityDocs": true
+    },
+    "identityGate": {
+      "production-approval": {
+        "sha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+        "approvalId": "a9e5e5b0-f6f4-44dd-85f4-0464ce749c6a",
+        "previousApprovalId": "0cf6db7c-cf90-4ec4-862a-156987e1a82d",
+        "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+        "configFingerprint": "4cc403626862e63e6987141bde2429e336d2b2aeb498ac2739dfbfa50c2f2c19"
+      },
+      "candidate-head": {
+        "url": "scarletts-spells-9hkkcsaoi-leesanderson1992-hashs-projects.vercel.app",
+        "headers": {
+          "x-context-deployment-sha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+          "x-context-identity-valid": "true",
+          "x-context-release-hold": "disabled",
+          "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+        }
+      },
+      "public-head": {
+        "url": "scarletts-spells.vercel.app",
+        "headers": {
+          "x-context-deployment-sha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+          "x-context-identity-valid": "true",
+          "x-context-release-hold": "disabled",
+          "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+        }
+      },
+      "production-cutover": {
+        "sha": "37b44db35d0724db55e90ca0e6ab2440b7738dea",
+        "approvalId": "a9e5e5b0-f6f4-44dd-85f4-0464ce749c6a",
+        "policyRevision": "c12b6e69-be98-4f4c-a14d-e793124e0d45",
+        "schedulerJob": "16",
+        "limitsPreserved": true,
+        "controlPreserved": {
+          "enabled": false,
+          "ai_mode": "shadow"
+        }
+      }
+    }
   }
 }
