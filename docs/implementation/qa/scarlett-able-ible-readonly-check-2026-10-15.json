@@ -1,0 +1,114 @@
+{
+  "productionSha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+  "productionDeploymentId": "dpl_9oTw3buA5XruQg4W6u2vmrgaSzSH",
+  "previewDeploymentId": "dpl_5StjXBxwhEeY6hdYuddegZNK86JT",
+  "queue": [
+    {
+      "display_word": "enjoyable",
+      "item_status": "pending"
+    },
+    {
+      "display_word": "responsible",
+      "item_status": "pending"
+    }
+  ],
+  "normalSelectedSkill": "D4_MOR_SUFFIXES_ABLE_IBLE",
+  "compiledWords": [
+    {
+      "word": "enjoyable",
+      "source": "authentic"
+    },
+    {
+      "word": "responsible",
+      "source": "authentic"
+    },
+    {
+      "word": "comfortable",
+      "source": "transfer"
+    },
+    {
+      "word": "readable",
+      "source": "transfer"
+    }
+  ],
+  "appendPreparation": {
+    "shared_authoritative": "ready",
+    "enforced_parity": "ready_and_matched",
+    "legacy_authoritative": "ready",
+    "itemCount": 16,
+    "allSnapshotsValid": true
+  },
+  "assignmentCountUnchanged": 92,
+  "orchestrationUnchanged": {
+    "major_stage": "blocked",
+    "state_version": 10,
+    "blocker_code": "shared_compiler_blocked"
+  },
+  "existingReviewCompletedAt": "2026-10-15T10:15:32.589Z",
+  "existingFrozenWorkload": {
+    "due": 10,
+    "cap": 10,
+    "lessonAllowed": true
+  },
+  "adminReadiness": {
+    "compilerReady": true,
+    "activationEnabled": true,
+    "memberWitnesses": 6,
+    "blockers": []
+  },
+  "productionRecoveryResponse": {
+    "deploymentSha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+    "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+    "releaseHold": false,
+    "course": {
+      "status": "idle"
+    },
+    "adle": {
+      "status": "idle"
+    }
+  },
+  "safetyMonitor": true,
+  "unrecordedSends": {
+    "course": 0,
+    "adle": 0
+  },
+  "retryNotInvoked": true,
+  "productionReleaseGate": {
+    "production-approval": {
+      "sha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+      "approvalId": "5f141845-8b56-4cac-9288-dc704749bfc5",
+      "previousApprovalId": "4cf45a79-81f3-4a2c-b466-23a0708b6525",
+      "runtimeFingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481",
+      "configFingerprint": "4cc403626862e63e6987141bde2429e336d2b2aeb498ac2739dfbfa50c2f2c19"
+    },
+    "candidate-head": {
+      "url": "scarletts-spells-4rojh6lnc-leesanderson1992-hashs-projects.vercel.app",
+      "headers": {
+        "x-context-deployment-sha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+        "x-context-identity-valid": "true",
+        "x-context-release-hold": "disabled",
+        "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+      }
+    },
+    "public-head": {
+      "url": "scarletts-spells.vercel.app",
+      "headers": {
+        "x-context-deployment-sha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+        "x-context-identity-valid": "true",
+        "x-context-release-hold": "disabled",
+        "x-context-runtime-fingerprint": "34a747a5843f1aa2d8ddd2251ccd853b1d61bd8c5f175b955b00208421876481"
+      }
+    },
+    "production-cutover": {
+      "sha": "dd799cb52ee62ef3fe665d82d2d4598045079570",
+      "approvalId": "5f141845-8b56-4cac-9288-dc704749bfc5",
+      "policyRevision": "29375069-a217-4aa4-b489-f24939451457",
+      "schedulerJob": "16",
+      "limitsPreserved": true,
+      "controlPreserved": {
+        "enabled": false,
+        "ai_mode": "shadow"
+      }
+    }
+  }
+}
