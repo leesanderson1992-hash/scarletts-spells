@@ -415,7 +415,9 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
           if (payload) for (const id of set) compiledIds.add(id);
           if (compiledIds.size === ids.length) break;
         }
-        compilerReady = ids.length >= route.wordCounts.lesson[0] && ids.every((id) => compiledIds.has(id));
+        compilerReady = ids.length >= route.wordCounts.lesson[0]
+          && proposedMembers.every((member) => validIds.has(member.canonical_word_id))
+          && ids.every((id) => compiledIds.has(id));
         if (!compilerReady) blockers.push("Not every lesson word participates in a compiling four-word selection");
       }
       let childPreview: LessonReadinessRow["childPreview"] = childId ? "blocked" : null;
