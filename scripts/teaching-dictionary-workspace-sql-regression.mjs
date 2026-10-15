@@ -65,9 +65,15 @@ try {
     create function publish_adle_ing_package_v1(jsonb,text,text) returns uuid language plpgsql as $$declare v_id uuid;begin
       insert into adle_curriculum_release_manifests(release_key,release_manifest_sha256,manifest_payload,route_id,published_by)values($1#>>'{manifest,releaseKey}',$2,$1->'manifest',$1#>>'{manifest,route,routeId}',$3)returning id into v_id;return v_id;end$$;
   `);
+  // Isolate the native source-containment guard; the complete native publisher
+  // is exercised by the controlled live replacement proof.
+  await db.exec(`create function publish_teaching_dictionary_base_family_authority_v2(p_parent_authority_id uuid,p_manifest jsonb,p_manifest_file_sha256 text,p_published_by text) returns uuid language plpgsql as $$declare v_parent adle_curriculum_dependency_authorities%rowtype;begin
+    select * into v_parent from adle_curriculum_dependency_authorities where id=p_parent_authority_id;
+    if not p_manifest->'sourceAuthorities' @> v_parent.semantic_projection->'sourceAuthorities' then raise exception 'BASE_FAMILY_AUTHORITY_PARENT_SOURCES_MISSING'; end if;
+    return p_parent_authority_id;end$$;`);
   const compoundMigration=readFileSync("supabase/migrations/20260811210000_publish_compound_word_v2_release_authority.sql","utf8");
   await db.exec(compoundMigration.slice(compoundMigration.indexOf("create or replace function public.publish_adle_compound_word_structure_authority_v1("),compoundMigration.indexOf("revoke all on function public.publish_adle_compound_word_structure_authority_v1")));
-  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql", "20261015160000_scope_native_group_compiler_witnesses.sql", "20261015161000_version_compound_structure_batches.sql", "20261015163000_preserve_exact_parent_closure_facts.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
+  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql", "20261015160000_scope_native_group_compiler_witnesses.sql", "20261015161000_version_compound_structure_batches.sql", "20261015163000_preserve_exact_parent_closure_facts.sql", "20261015164000_fix_base_family_source_containment.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
   const actor=randomUUID(), word=randomUUID(), profile=randomUUID(), draft=randomUUID();
   const skill="D4_MOR_SUFFIXES_ABLE_IBLE";
   await db.query("insert into auth.users values($1)",[actor]);
@@ -150,6 +156,10 @@ try {
     create function assert_canonical_compound_structure_v2(uuid) returns void language sql as $$select null::void$$;`);
   await db.exec("create unique index ctd_compound_structure_v2_one_active_word_skill on canonical_teaching_dictionary_compound_structures_v2(canonical_word_id,micro_skill_key) where row_status='active'");
   await db.exec(readFileSync("supabase/migrations/20261015162000_scope_compound_active_structure_versions.sql","utf8"));
+  const sourceParent=randomUUID();
+  await db.query("insert into adle_curriculum_dependency_authorities(id,authority_type,semantic_projection)values($1,'family_membership',$2)",[sourceParent,JSON.stringify({sourceAuthorities:[{authorityKey:"parent"}]})]);
+  assert.equal((await db.query("select publish_teaching_dictionary_base_family_authority_v2($1,$2,$3,$4) id",[sourceParent,JSON.stringify({sourceAuthorities:[{authorityKey:"parent"},{authorityKey:"review"}]}),'a'.repeat(64),actor])).rows[0].id,sourceParent);
+  await assert.rejects(db.query("select publish_teaching_dictionary_base_family_authority_v2($1,$2,$3,$4)",[sourceParent,JSON.stringify({sourceAuthorities:[]}),'a'.repeat(64),actor]),/BASE_FAMILY_AUTHORITY_PARENT_SOURCES_MISSING/);
   const frozenParent=randomUUID(),frozenWord=randomUUID();const frozenItem={wordKey:"frozen",normalisedWord:"frozen",displayWord:"frozen",dialectCode:"en-GB",dictation:{sentence:"It is frozen.",targetStart:2,targetEndExclusive:3,exactGovernedAnswer:"frozen",audioText:"It is frozen."}};
   const frozenProjection={schemaVersion:2,capabilities:["canonical_word_identity_display","canonical_dictation"],words:[frozenItem]};
   await db.query("insert into adle_curriculum_dependency_authorities(id,authority_key,authority_type,schema_version,semantic_projection)values($1,'parent-frozen','teaching_dictionary_closure',2,$2)",[frozenParent,JSON.stringify(frozenProjection)]);
