@@ -1,0 +1,168 @@
+{
+  "codeSha": "cc75a5fa8382e101dd6a2702bc0b55eec6976461",
+  "previewDeploymentId": "dpl_9W3uJyqgnGNVeBmzdQEkTjQe7ccW",
+  "publicCodePromoted": false,
+  "receipts": {
+    "responsible-receipt": {
+      "draftId": "dda464a4-e0db-46e6-8d3a-69284e785750",
+      "contentId": "39862be5-7a72-4752-b01c-98aba9d569e6",
+      "launchId": "656ed735-6d66-48c3-8819-2103452214e9",
+      "previousProfileId": "2fe2ecf1-a510-4b03-aa7e-8a2568780776",
+      "publishedProfileId": "2a09854f-9c4c-4cdb-8b73-53fe00a3a5e0",
+      "compilerWitnesses": 5,
+      "status": "released",
+      "duplicateBlocker": "TEACHING_LESSON_ALREADY_RELEASED",
+      "assignmentsBefore": 36,
+      "assignmentsAfter": 36
+    },
+    "new-member-receipt": {
+      "word": "readable",
+      "wordId": "883685c3-9d0d-5071-871c-fca55770d90a",
+      "draftId": "881d1405-a6a6-4da5-833d-e213ebd8056e",
+      "contentId": "c9e66e85-bdc6-4085-933f-23d7e06214ba",
+      "launchId": "cf9cf80a-de94-478d-afa0-62b87a1f6725",
+      "previousProfileId": "2a09854f-9c4c-4cdb-8b73-53fe00a3a5e0",
+      "publishedProfileId": "bb422096-2fb5-4f5d-981e-d1a61d0dfcf4",
+      "witnesses": 6,
+      "status": "released"
+    },
+    "readable-final-receipt": {
+      "draftId": "1ba844a6-9b43-46e6-b711-0bc552fbcba3",
+      "contentId": "23727e5f-0d85-4514-83ef-8d18b8623215",
+      "launchId": "5b00b492-888f-4183-85a5-ce6af32d6ec5",
+      "previousProfileId": "d25c4b5c-09f4-4b4f-ae1b-224c975181a4",
+      "publishedProfileId": "97c9011c-f5b2-4485-95aa-192789e6f883",
+      "status": "released"
+    },
+    "test2-scheduler-receipt": {
+      "child": "Test 2",
+      "assignmentId": "8fcd2935-f2b0-4fcf-b297-4d432b0334b6",
+      "routeId": "dynamic_affix_word_lab",
+      "microSkillKey": "D4_MOR_SUFFIXES_ABLE_IBLE",
+      "wordRoles": [
+        {
+          "word": "enjoyable",
+          "source": "authentic"
+        },
+        {
+          "word": "possible",
+          "source": "authentic"
+        },
+        {
+          "word": "comfortable",
+          "source": "authentic"
+        },
+        {
+          "word": "readable",
+          "source": "transfer"
+        }
+      ],
+      "snapshotHash": "af8e013d66a9edce304ce6bf6bcba571e7ac009fee78cfcdf497a5c5bce570e5",
+      "oldAssignmentsUnchanged": 36,
+      "retry": "existing",
+      "queueSetup": "Temporarily requeued three existing Test 2 verified misses; restored original statuses after proof. No spelling evidence invented."
+    },
+    "native-base-receipt": {
+      "which": "base",
+      "word": "like",
+      "routeId": "base_word_lab",
+      "skill": "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+      "draftId": "3b935f44-5a10-4b64-9e82-528a063b0bd0",
+      "contentId": "5225f7e4-2ff2-4292-b7b2-52dc8cf8f763",
+      "launchId": "0feee3dd-9b06-4f87-b9c0-71e9c9b2330d",
+      "previousReleaseId": "109bcf20-d980-4788-a123-d7c9285a625f",
+      "publishedReleaseId": "ae176589-146b-47ca-9831-f360664e41d1",
+      "compilerWitnesses": 29,
+      "restoredPreviousRelease": true
+    },
+    "native-compound-receipt": {
+      "which": "compound",
+      "word": "bedroom",
+      "routeId": "compound_word_lab",
+      "skill": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+      "draftId": "7c870346-3646-4abf-83de-16f3f7192542",
+      "contentId": "6cbf241d-5272-44b7-b4df-affa5608d13b",
+      "launchId": "30dc34e9-9558-40f4-9793-21c4e414791d",
+      "previousReleaseId": "be3c9822-9253-4ec6-b5de-85808791eb67",
+      "publishedReleaseId": "fbc33808-1955-4eb5-a19b-63b65ebd5f14",
+      "compilerWitnesses": 7,
+      "restoredPreviousRelease": true
+    },
+    "native-ing-receipt": {
+      "which": "ing",
+      "word": "jumping",
+      "routeId": "ing_endings_word_lab",
+      "skill": "D4_INF_ING_ENDINGS_REGULAR",
+      "draftId": "799a7ea1-0e24-4970-9b04-b76336a643f7",
+      "contentId": "29d5dd6b-1893-48cf-ac41-41a3ce17ade9",
+      "launchId": "f3ad29c5-6041-4d7b-8265-20e3d437ec7b",
+      "previousReleaseId": "f0eb7c37-33ea-4599-9b84-1fb91f6f886d",
+      "publishedReleaseId": "0544a988-b04d-4459-aa43-637469210186",
+      "compilerWitnesses": 29,
+      "restoredPreviousRelease": true
+    },
+    "native-homo-receipt": {
+      "which": "homo",
+      "word": "flower",
+      "routeId": "homophone_word_lab",
+      "skill": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "draftId": "1d449aa9-a7a5-43c1-b169-3daed867d4b3",
+      "contentId": "9deaad5a-7e7d-4c78-97c0-4504bcfb0678",
+      "launchId": "d985d027-255b-4d28-a20c-13fbd82f5116",
+      "previousReleaseId": "78c3a101-4043-47ba-8600-2db9c57eff46",
+      "publishedReleaseId": "6c09c809-212e-4373-9d4f-d40dda655b66",
+      "compilerWitnesses": 2,
+      "restoredPreviousRelease": true
+    },
+    "native-degree-receipt": {
+      "which": "degree",
+      "word": "cold",
+      "routeId": "comparative_superlative_word_lab",
+      "skill": "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR",
+      "draftId": "0d9269c7-ccdc-4502-8fea-755af10c3a56",
+      "contentId": "31357c08-c6af-40f0-903f-c059e9cd382c",
+      "launchId": "197e6175-08f6-46ea-bed0-a994ac27b4b6",
+      "previousReleaseId": "7674e6e0-65bb-45ad-b62c-08393709aa08",
+      "publishedReleaseId": "30d95b43-fceb-45c6-9e59-b982ee6c94a4",
+      "compilerWitnesses": 18,
+      "restoredPreviousRelease": true
+    },
+    "global-ing-scope-receipt": {
+      "codeSha": "cc75a5fa8382e101dd6a2702bc0b55eec6976461",
+      "scope": "all_eligible",
+      "receipts": [
+        {
+          "skill": "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+          "releaseId": "f0eb7c37-33ea-4599-9b84-1fb91f6f886d",
+          "previous": "27e4c9ea-def5-4ecb-b213-97b0f8ee4374",
+          "current": "73985257-508e-4347-87fc-53dbc024fffb"
+        },
+        {
+          "skill": "D4_INF_ING_ENDINGS_DROP_E",
+          "releaseId": "f0eb7c37-33ea-4599-9b84-1fb91f6f886d",
+          "previous": "303542e5-5b43-4161-bbef-3bbdf30235de",
+          "current": "79017e2c-da3f-473c-932f-09c5f62e0db1"
+        },
+        {
+          "skill": "D4_INF_ING_ENDINGS_IE_TO_Y",
+          "releaseId": "f0eb7c37-33ea-4599-9b84-1fb91f6f886d",
+          "previous": "608bb220-52f0-47fd-8567-b669950721cb",
+          "current": "b15b2fbd-ff26-4065-aaa1-469b23ae49a1"
+        },
+        {
+          "skill": "D4_INF_ING_ENDINGS_REGULAR",
+          "releaseId": "f0eb7c37-33ea-4599-9b84-1fb91f6f886d",
+          "previous": "fe0c23f3-c092-4d1a-9fbb-b5a70240012d",
+          "current": "e3bdf23a-0b34-4ab3-b6ab-215ce700e5d3"
+        }
+      ]
+    },
+    "final-readback": {
+      "assignmentId": "8fcd2935-f2b0-4fcf-b297-4d432b0334b6",
+      "snapshotUnchanged": true,
+      "originalQueueStatusesRestored": true,
+      "enabledIngScopesGlobal": 4,
+      "releaseVersionsPreserved": true
+    }
+  }
+}
