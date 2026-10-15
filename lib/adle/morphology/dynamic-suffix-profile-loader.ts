@@ -469,7 +469,7 @@ export async function loadDynamicSuffixProfiles(
           notes: typeof member.transformation_notes === "string" ? member.transformation_notes : "",
           provenance,
         },
-        approvedTransfer: member.member_role === "transfer",
+        approvedTransfer: true, // Every validated, reviewed member may fill a lesson slot.
         governance: {
           memberId: member.id as string,
           memberSourceRowHash: member.source_row_hash as string,

@@ -185,6 +185,8 @@ async function main() {
   assert(reviewedCandidate.profiles[0]!.wordsByCanonicalId.has(inReviewId),
     "a reviewed replacement is validated by the runtime loader before publication");
 
+  assert([...reviewedCandidate.profiles[0]!.wordsByCanonicalId.values()].every(word => word.approvedTransfer),
+    "every reviewed, runtime-valid member can be approved filler regardless of its historical target role");
   const draftProvenanceTables = structuredClone(tables);
   const draftProvenanceProfile = draftProvenanceTables.canonical_teaching_dictionary_suffix_profiles[0] as any;
   draftProvenanceProfile.canonical_teaching_dictionary_suffix_members[0].true_morphology_provenance = {
