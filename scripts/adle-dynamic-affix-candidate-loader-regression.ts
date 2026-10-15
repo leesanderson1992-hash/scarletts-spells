@@ -154,6 +154,27 @@ async function main() {
     memberIndex: 4,
   }], "excluded member reports a governed readiness blocker without rejecting the complete profile");
 
+  const missingNoteTables = structuredClone(tables);
+  const missingNoteProfile = missingNoteTables.canonical_teaching_dictionary_suffix_profiles[0] as any;
+  missingNoteProfile.canonical_teaching_dictionary_suffix_members[0].transformation_notes = "   ";
+  const missingNoteClient = {
+    from(table: string) { return new ReadOnlyQuery(missingNoteTables[table] ?? []); },
+  } as unknown as SupabaseClient;
+  const missingNote = await loadDynamicSuffixProfiles(missingNoteClient, "fixture-child");
+  assert.equal(missingNote.profiles.length, 0, "a member with no reviewed morphology note cannot make a route ready");
+  assert(missingNote.diagnostics.some((entry) => entry.blockerCode === "member_validation_failed" && entry.memberIndex === 0));
+
+  const draftProvenanceTables = structuredClone(tables);
+  const draftProvenanceProfile = draftProvenanceTables.canonical_teaching_dictionary_suffix_profiles[0] as any;
+  draftProvenanceProfile.canonical_teaching_dictionary_suffix_members[0].true_morphology_provenance = {
+    status: "draft_requires_editorial_review", source: "fixture",
+  };
+  const draftProvenanceClient = {
+    from(table: string) { return new ReadOnlyQuery(draftProvenanceTables[table] ?? []); },
+  } as unknown as SupabaseClient;
+  const draftProvenance = await loadDynamicSuffixProfiles(draftProvenanceClient, "fixture-child");
+  assert.equal(draftProvenance.profiles.length, 0, "an editorial draft cannot make a suffix route ready");
+
   const inactiveTables = structuredClone(tables);
   inactiveTables.micro_skill_catalog = [{
     micro_skill_key: reviewed.profile.microSkillKey,

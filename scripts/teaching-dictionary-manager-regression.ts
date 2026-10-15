@@ -109,6 +109,16 @@ const [abilityRoute] = routeContentsForSelectedSkills(abilityPayload);
 const completedAbilityRoute = routeWithSingleProfileDefaults(abilityRoute, {
   choices: ["ity"], meaningBins: [{ id: "state_or_quality" }],
 });
+assert(routeBlockers(completedAbilityRoute, abilityPayload).includes("Add reviewed true morphology notes."));
+assert.equal(routeRequirements(completedAbilityRoute, abilityPayload)
+  .find((item) => item.label === "reviewed true morphology notes")?.editTarget,
+  "td-route-D4_MOR_SUFFIXES_ITY-transformationNotes");
+assert(!routeBlockers({ ...completedAbilityRoute, content: {
+  ...completedAbilityRoute.content, transformationNotes: "Reviewed base spelling change before -ity.",
+} }, abilityPayload).includes("Add reviewed true morphology notes."));
+assert(routeBlockers({ ...completedAbilityRoute, content: {
+  ...completedAbilityRoute.content, trueMorphologyProvenance: { status: "draft_requires_editorial_review" },
+} }, abilityPayload).includes("Review true morphology provenance."));
 assert.equal(completedAbilityRoute.content.suffixVariant, "ity");
 assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
 assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");

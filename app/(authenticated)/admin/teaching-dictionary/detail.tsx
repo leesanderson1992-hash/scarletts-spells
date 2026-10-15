@@ -8,6 +8,7 @@ import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } fr
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import { deriveReviewedSuffixCandidate } from "@/lib/adle/morphology/derived-suffix-candidate";
+import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
 import { publicationBlockerTarget } from "@/lib/teaching-dictionary-manager/readiness";
 import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -50,7 +51,7 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     wordId ? db.from("teaching_dictionary_route_content_versions").select("id,draft_id,route_id,route_version,micro_skill_key,content,runtime_status,published_at").eq("canonical_word_id", wordId).order("published_at", { ascending: false }).limit(50) : null,
     wordId ? db.from("adle_word_teaching_content_submissions").select("id,route_id,route_version,micro_skill_key,content,runtime_status,imported_at").eq("canonical_word_id", wordId).eq("approval_status", "approved_for_import").order("imported_at", { ascending: false }).limit(50) : null,
     wordId ? db.from("canonical_teaching_dictionary_prefix_members").select("id,prefix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_prefix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("canonical_teaching_dictionary_suffix_members").select("id,suffix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_suffix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
+    wordId ? db.from("canonical_teaching_dictionary_suffix_members").select("id,suffix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_suffix_profiles(id,micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,word_sum,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
     wordId ? db.from("teaching_dictionary_manager_drafts").select("id,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
   ]);
@@ -167,13 +168,17 @@ export async function TeachingDictionaryDetail({ wordId, params }: { wordId: str
     const profile = Array.isArray(row.canonical_teaching_dictionary_suffix_profiles) ? row.canonical_teaching_dictionary_suffix_profiles[0] : row.canonical_teaching_dictionary_suffix_profiles;
     return { key: profile?.micro_skill_key as string, member: row, profile };
   });
+  const loadedSuffixProfiles = wordId && suffixes.some((item) => item.profile?.row_status === "active")
+    ? (await loadDynamicSuffixProfiles(db, wordId)).profiles : [];
   const readinessMembers: ReadinessMember[] = [
     ...prefixes.filter((item) => item.key).map((item) => ({ key: item.key, kind: "prefix" as const,
       released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
         && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled })),
-    ...suffixes.filter((item) => item.key).map((item) => ({ key: item.key, kind: "suffix" as const,
+    ...suffixes.filter((item) => item.key && item.profile?.row_status === "active").map((item) => ({ key: item.key, kind: "suffix" as const,
       released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
-        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled })),
+        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled,
+      compilerReady: loadedSuffixProfiles.some((profile) => profile.governance?.profileId === item.profile?.id
+        && profile.productionEnabled && wordId !== null && profile.wordsByCanonicalId.has(wordId)) })),
     ...selectedKeys.filter((key) => routeForSkill(key)?.routeId === "base_word_lab").flatMap((key) =>
       (baseResult?.data ?? []).filter((item) => item.row_status === "active" && item.review_status === "approved_for_first_exposure")
         .map((item) => ({ key, kind: "base" as const, released: item.assignment_eligible,

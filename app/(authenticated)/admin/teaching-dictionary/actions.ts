@@ -137,7 +137,11 @@ async function publishPrefixVerified(db: ReturnType<typeof createServiceRoleClie
 }
 
 async function publishSuffixVerified(db: ReturnType<typeof createServiceRoleClient>, contentId: string, actorId: string) {
+  const version = await db.from("teaching_dictionary_route_content_versions")
+    .select("canonical_word_id").eq("id", contentId).single();
+  if (version.error || !version.data) throw new Error("TEACHING_SUFFIX_PUBLICATION_FAILED");
   const result = await db.rpc("publish_teaching_dictionary_suffix_content", { p_content_version: contentId, p_actor: actorId });
+  const newlyPublished = !result.error && Boolean(result.data);
   let profileId = result.data as string | null;
   if (result.error || !result.data) {
     const code = result.error?.message.match(/TEACHING_SUFFIX_[A-Z_]+/)?.[0];
@@ -149,13 +153,16 @@ async function publishSuffixVerified(db: ReturnType<typeof createServiceRoleClie
   let runtimeReady = false;
   try {
     const loaded = await loadDynamicSuffixProfiles(db, actorId);
-    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === profileId && profile.productionEnabled);
+    runtimeReady = loaded.profiles.some((profile) => profile.governance?.profileId === profileId
+      && profile.productionEnabled && profile.wordsByCanonicalId.has(version.data.canonical_word_id));
   } catch { runtimeReady = false; }
   if (!runtimeReady) {
-    const rollback = await db.rpc("rollback_teaching_dictionary_suffix_content", {
-      p_content_version: contentId, p_actor: actorId, p_reason: "New suffix profile failed runtime compilation after publication",
-    });
-    if (rollback.error) throw new Error("TEACHING_SUFFIX_ROLLBACK_FAILED");
+    if (newlyPublished) {
+      const rollback = await db.rpc("rollback_teaching_dictionary_suffix_content", {
+        p_content_version: contentId, p_actor: actorId, p_reason: "New suffix profile failed runtime compilation after publication",
+      });
+      if (rollback.error) throw new Error("TEACHING_SUFFIX_ROLLBACK_FAILED");
+    }
     throw new Error("TEACHING_SUFFIX_RUNTIME_VERIFY_FAILED");
   }
 }

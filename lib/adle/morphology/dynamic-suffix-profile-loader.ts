@@ -393,6 +393,9 @@ export async function loadDynamicSuffixProfiles(
         && trueJoins.length === trueParts.length - 1
         && provenance
         && Object.keys(provenance).length > 0
+        && provenance.status !== "draft_requires_editorial_review"
+        && typeof member.transformation_notes === "string"
+        && member.transformation_notes.trim().length > 0
         && suffixPart?.text === member.suffix_variant
         && `${teachingBase}${member.suffix_variant}` === displayWord,
       );

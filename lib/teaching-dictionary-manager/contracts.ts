@@ -228,6 +228,12 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     if (!route.content.choiceAudit || typeof route.content.choiceAudit !== "object") blockers.push("Add a reviewed prefix-choice audit for this word.");
   }
   if (route.routeId === "dynamic_affix_word_lab") {
+    if (typeof route.content.transformationNotes !== "string" || !route.content.transformationNotes.trim()) {
+      blockers.push("Add reviewed true morphology notes.");
+    }
+    if ((route.content.trueMorphologyProvenance as { status?: unknown } | null)?.status === "draft_requires_editorial_review") {
+      blockers.push("Review true morphology provenance.");
+    }
     for (const [field, label] of [["suffixVariant", "suffix form"], ["semanticBaseText", "semantic base"],
       ["semanticBaseKind", "base or root classification"], ["baseMeaning", "base meaning"],
       ["meaningBinKey", "meaning group"], ["teachingSplitParts", "teaching split"],

@@ -54,7 +54,7 @@ export function requirementActivities(
     return ["compound_jigsaw", "meaning_match"];
   }
   if (["teachingSplitParts", "teachingSplitJoins", "trueMorphologyParts",
-    "trueMorphologyJoins", "trueMorphologyProvenance", "morphologyParts",
+    "trueMorphologyJoins", "trueMorphologyProvenance", "transformationNotes", "morphologyParts",
     "transformations", "semanticBaseText", "semanticBaseKind", "suffixVariant",
     "prefixVariant", "baseWord"].includes(routeField)) {
     return ["cleaver", "word_build", "compound_jigsaw", "family_reveal"];

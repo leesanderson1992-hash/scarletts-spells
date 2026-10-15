@@ -7,7 +7,7 @@ import { routeForSkill, type WordDraftPayload } from "@/lib/teaching-dictionary-
 import { hasReleasedRouteContent, routeContentForReadiness } from "@/lib/teaching-dictionary-manager/readiness";
 
 type RouteSource = "manager publication" | "manager draft" | "approved teaching submission";
-type Member = { key: string; kind: "prefix" | "suffix" | "base"; released: boolean; detail?: string; wordSum?: string };
+type Member = { key: string; kind: "prefix" | "suffix" | "base"; released: boolean; compilerReady?: boolean; detail?: string; wordSum?: string };
 
 const statusCard = "flex min-h-16 items-center gap-3 rounded-xl border border-[var(--border)] bg-white p-3";
 const stepRow = "grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-t border-[var(--border)] p-3 first:border-t-0";
@@ -73,13 +73,14 @@ export function WordReadinessView(props: {
     const member = props.members.find((item) => item.key === key);
     const released = hasReleasedRouteContent(member?.kind ?? null, member?.released ?? false,
       relationship?.sourceProvenance.map((source) => source.sourceAuthority) ?? []);
+    const lessonReady = released && member?.compilerReady !== false;
     const content = route ? routeContentForReadiness({ routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: key }, payload, saved) : null;
     const source = props.routeSources[key];
     const assessments = route && content ? assessWordActivities({
       microSkillKey: key,
       payload,
       routeContent: content,
-      releasedMember: released && !props.draftSelected,
+      releasedMember: lessonReady && !props.draftSelected,
       needsReview: (target) => {
         if (target.startsWith("td-route-")) return source !== "manager publication";
         if (target === "td-dictation") return dictationChanged || props.dictationReview !== "approved_for_first_exposure";
@@ -95,7 +96,7 @@ export function WordReadinessView(props: {
       },
     }) : [];
     return {
-      key, relationship, route, member, released, source, assessments,
+      key, relationship, route, member, released, lessonReady, source, assessments,
       name: props.skills.find((skill) => skill.micro_skill_key === key)?.display_name ?? key,
       suggested: suggestedKeys.includes(key) && !payload.skillKeys.includes(key) && !relationship && !member,
     };
@@ -138,7 +139,7 @@ export function WordReadinessView(props: {
   const enabledActivities = rows.flatMap((row) => row.assessments.map((assessment) => ({ row, assessment })))
     .filter(({ assessment }) => assessment.variant.enabled && assessment.variant.wordScope !== "no_word");
   const readyActivities = enabledActivities.filter(({ row, assessment }) => matrixCell(assessment, row.key).state === "ready").length;
-  const releasedCount = rows.filter((row) => row.released).length;
+  const readyCount = rows.filter((row) => row.lessonReady).length;
   const approvedEvidence = rows.filter((row) => row.relationship).length;
 
   function activityCell(row: (typeof rows)[number], kind: LessonActivityKind) {
@@ -162,7 +163,7 @@ export function WordReadinessView(props: {
     <div className="grid gap-3 md:grid-cols-3">
       <div className={statusCard}><span className={`grid size-7 place-items-center rounded-lg ${sharedFactsReady ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{sharedFactsReady ? "✓" : "!"}</span><div><p className="text-xs text-[color:var(--mid)]">Dictionary facts</p><p className="font-semibold">{sharedFactsReady ? "Published" : "Review needed"}</p></div></div>
       <div className={statusCard}><span className={`grid size-7 place-items-center rounded-lg ${approvedEvidence ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{approvedEvidence ? "✓" : "!"}</span><div><p className="text-xs text-[color:var(--mid)]">Evidence approval</p><p className="font-semibold">{approvedEvidence ? `${approvedEvidence} skill${approvedEvidence === 1 ? "" : "s"} approved` : "Not approved"}</p></div></div>
-      <div className={statusCard}><span className={`grid size-7 place-items-center rounded-lg ${rows.length > 0 && releasedCount === rows.length ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{rows.length > 0 && releasedCount === rows.length ? "✓" : "!"}</span><div><p className="text-xs text-[color:var(--mid)]">ADLE lesson</p><p className="font-semibold">{rows.length === 0 ? "No skill assigned" : releasedCount === rows.length ? "Released" : `${issues.length} decision${issues.length === 1 ? "" : "s"} remaining`}</p></div></div>
+      <div className={statusCard}><span className={`grid size-7 place-items-center rounded-lg ${rows.length > 0 && readyCount === rows.length ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{rows.length > 0 && readyCount === rows.length ? "✓" : "!"}</span><div><p className="text-xs text-[color:var(--mid)]">ADLE lesson</p><p className="font-semibold">{rows.length === 0 ? "No skill assigned" : readyCount === rows.length ? "Ready" : rows.some((row) => row.released && !row.lessonReady) ? "Published content needs repair" : `${issues.length} decision${issues.length === 1 ? "" : "s"} remaining`}</p></div></div>
     </div>
 
     <div className={`grid gap-3 rounded-xl border p-4 md:grid-cols-[2.25rem_minmax(0,1fr)_auto] md:items-center ${nextIssue ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"}`}>
@@ -175,12 +176,12 @@ export function WordReadinessView(props: {
       <div className={`${stepRow} ${sharedFactsReady ? "" : "bg-amber-50"}`}><span className={`grid size-6 place-items-center rounded-full text-xs font-semibold ${sharedFactsReady ? "bg-emerald-50 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>{sharedFactsReady ? "✓" : "1"}</span><div><p className="font-semibold">Shared word facts</p><p className="text-xs text-[color:var(--mid)]">Definition, dictation and dictionary metadata</p></div><span className={`rounded-full px-2 py-1 text-xs ${sharedFactsReady ? "bg-emerald-50 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>{sharedFactsReady ? "Complete" : "Review"}</span></div>
       <div className={`${stepRow} ${structureIssues.length ? "bg-[var(--paper)]" : ""}`}><span className={`grid size-6 place-items-center rounded-full text-xs font-semibold ${structureIssues.length ? "bg-[var(--scarlett)] text-white" : "bg-emerald-50 text-emerald-800"}`}>{structureIssues.length ? "2" : "✓"}</span><div><p className="font-semibold">Word structure</p><p className="text-xs text-[color:var(--mid)]">Parts, joins, word sum and review source</p></div><a className="text-xs font-semibold underline" href={structureIssues[0]?.href ?? "#td-canonical-parts"}>{structureIssues.length ? `${structureIssues.length} to resolve` : "Complete"}</a></div>
       <div className={stepRow}><span className={`grid size-6 place-items-center rounded-full text-xs font-semibold ${issues.length ? "bg-[var(--paper)] text-[color:var(--mid)]" : "bg-emerald-50 text-emerald-800"}`}>{issues.length ? "3" : "✓"}</span><div><p className="font-semibold">Lesson checks</p><p className="text-xs text-[color:var(--mid)]">{readyActivities} of {enabledActivities.length} applicable activities validated</p></div><a className="text-xs font-semibold underline" href="#td-lesson-checks">View checks</a></div>
-      <div className={stepRow}><span className={`grid size-6 place-items-center rounded-full text-xs font-semibold ${rows.length > 0 && releasedCount === rows.length ? "bg-emerald-50 text-emerald-800" : "bg-[var(--paper)] text-[color:var(--mid)]"}`}>{rows.length > 0 && releasedCount === rows.length ? "✓" : "4"}</span><div><p className="font-semibold">Validate and release</p><p className="text-xs text-[color:var(--mid)]">Compiler, route publication and learner gates</p></div><span className="text-xs text-[color:var(--mid)]">{rows.length > 0 && releasedCount === rows.length ? "Released" : "Waiting"}</span></div>
+      <div className={stepRow}><span className={`grid size-6 place-items-center rounded-full text-xs font-semibold ${rows.length > 0 && readyCount === rows.length ? "bg-emerald-50 text-emerald-800" : "bg-[var(--paper)] text-[color:var(--mid)]"}`}>{rows.length > 0 && readyCount === rows.length ? "✓" : "4"}</span><div><p className="font-semibold">Validate and release</p><p className="text-xs text-[color:var(--mid)]">Compiler, route publication and learner gates</p></div><span className="text-xs text-[color:var(--mid)]">{rows.length > 0 && readyCount === rows.length ? "Ready" : "Waiting"}</span></div>
     </div>
 
     <details id="td-lesson-checks" className="rounded-xl border border-[var(--border)] bg-white p-4 scroll-mt-6">
       <summary className="cursor-pointer font-semibold">All lesson checks <span className="font-normal text-[color:var(--mid)]">· {issues.length} unresolved</span></summary>
-      <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full min-w-max border-collapse text-left text-sm"><caption className="sr-only">Question readiness for {props.displayWord} by micro skill</caption><thead className="bg-[var(--paper)]"><tr><th scope="col" className="sticky left-0 z-10 min-w-60 border-b border-r border-[var(--border)] bg-[var(--paper)] p-3">Micro skill</th>{visibleColumns.map((kind) => <th key={kind} scope="col" className="min-w-28 border-b border-[var(--border)] p-3 font-semibold">{ACTIVITY_LABELS[kind]}</th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row.key} className="border-b border-[var(--border)] align-top last:border-0"><th scope="row" className="sticky left-0 z-10 border-r border-[var(--border)] bg-white p-3 text-left font-semibold"><div>{row.name}</div><div className="mt-1 text-xs font-normal text-[color:var(--mid)]">Evidence {row.relationship ? "✓ Approved" : "⚠ Not approved"} · Lesson {row.released ? "✓ Released" : row.route ? "⚠ Needs release" : "n/a"}</div>{row.suggested && <span className="mt-1 block text-xs font-normal">Suggested from reviewed facts.</span>}</th>{visibleColumns.map((kind) => <td key={kind} className="p-3">{activityCell(row, kind)}</td>)}</tr>)}{rows.length === 0 && <tr><td colSpan={visibleColumns.length + 1} className="p-4">No micro skill is assigned. <a href="#td-skills" className="font-semibold underline">Assign a skill</a> to see its checks.</td></tr>}</tbody></table></div>
+      <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--border)]"><table className="w-full min-w-max border-collapse text-left text-sm"><caption className="sr-only">Question readiness for {props.displayWord} by micro skill</caption><thead className="bg-[var(--paper)]"><tr><th scope="col" className="sticky left-0 z-10 min-w-60 border-b border-r border-[var(--border)] bg-[var(--paper)] p-3">Micro skill</th>{visibleColumns.map((kind) => <th key={kind} scope="col" className="min-w-28 border-b border-[var(--border)] p-3 font-semibold">{ACTIVITY_LABELS[kind]}</th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row.key} className="border-b border-[var(--border)] align-top last:border-0"><th scope="row" className="sticky left-0 z-10 border-r border-[var(--border)] bg-white p-3 text-left font-semibold"><div>{row.name}</div><div className="mt-1 text-xs font-normal text-[color:var(--mid)]">Evidence {row.relationship ? "✓ Approved" : "⚠ Not approved"} · Lesson {row.lessonReady ? "✓ Ready" : row.released ? "⚠ Published, needs repair" : row.route ? "⚠ Needs release" : "n/a"}</div>{row.suggested && <span className="mt-1 block text-xs font-normal">Suggested from reviewed facts.</span>}</th>{visibleColumns.map((kind) => <td key={kind} className="p-3">{activityCell(row, kind)}</td>)}</tr>)}{rows.length === 0 && <tr><td colSpan={visibleColumns.length + 1} className="p-4">No micro skill is assigned. <a href="#td-skills" className="font-semibold underline">Assign a skill</a> to see its checks.</td></tr>}</tbody></table></div>
       {unregisteredIve && <p className="mt-3 text-xs text-amber-900">Morpheme data mentions -ive, but no -ive specialist lesson route is registered.</p>}
     </details>
 

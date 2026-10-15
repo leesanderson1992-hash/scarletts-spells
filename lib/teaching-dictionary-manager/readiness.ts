@@ -73,6 +73,8 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Add true morphology parts.": "sharedMorphology",
     "Add true morphology joins.": "sharedMorphology",
     "Add true morphology provenance.": "trueMorphologyProvenance",
+    "Add reviewed true morphology notes.": "transformationNotes",
+    "Review true morphology provenance.": "trueMorphologyProvenance",
     "Add a reviewed prefix-choice audit for this word.": "choiceAudit",
     "Add reviewed morphology parts.": "sharedMorphology",
     "Add component words and meanings.": "components",
