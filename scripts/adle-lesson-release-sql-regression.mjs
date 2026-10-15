@@ -31,7 +31,7 @@ try {
   `);
   await db.exec(readFileSync("supabase/migrations/20261015120000_adle_lesson_editorial_reviews.sql", "utf8"));
   await db.exec(readFileSync("supabase/migrations/20261015121000_adle_replace_reviewed_affix_members.sql", "utf8"));
-  assert.equal((await db.query("select has_function_privilege('service_role','public.publish_teaching_dictionary_suffix_content(uuid,uuid)','EXECUTE') allowed")).rows[0].allowed, false, "single-member publication is private");
+  assert.equal((await db.query("select has_function_privilege('service_role','public.publish_teaching_dictionary_suffix_reviewed_content(uuid,uuid)','EXECUTE') allowed")).rows[0].allowed, false, "single-member publication is private");
   assert.equal((await db.query("select has_function_privilege('service_role','public.publish_teaching_dictionary_lesson(text,text,uuid[],uuid)','EXECUTE') allowed")).rows[0].allowed, true, "whole-lesson publication remains available");
 
   const actor = randomUUID(), word = randomUUID(), draft = randomUUID(), nextDraft = randomUUID();

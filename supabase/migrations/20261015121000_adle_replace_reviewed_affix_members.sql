@@ -1,7 +1,7 @@
 -- Versioned replacement of already released affix members.
 -- Existing snapshots retain the old profile and member rows.
 
-create or replace function public.publish_teaching_dictionary_prefix_content(p_content_version uuid, p_actor uuid)
+create function public.publish_teaching_dictionary_prefix_reviewed_content(p_content_version uuid, p_actor uuid)
 returns uuid language plpgsql security definer set search_path=public,extensions,pg_temp as $$
 declare
   c public.teaching_dictionary_route_content_versions%rowtype;
@@ -233,9 +233,9 @@ begin
         and (newer.published_at,newer.id)>(v_content.published_at,v_content.id)) then
       raise exception 'TEACHING_LESSON_CONTENT_STALE'; end if;
     if p_route_id='dynamic_prefix_word_lab' then
-      v_profile:=public.publish_teaching_dictionary_prefix_content(v_version,p_actor);
+      v_profile:=public.publish_teaching_dictionary_prefix_reviewed_content(v_version,p_actor);
     else
-      v_profile:=public.publish_teaching_dictionary_suffix_content(v_version,p_actor);
+      v_profile:=public.publish_teaching_dictionary_suffix_reviewed_content(v_version,p_actor);
     end if;
   end loop;
   return v_profile;
@@ -243,7 +243,7 @@ end $$;
 revoke all on function public.publish_teaching_dictionary_lesson(text,text,uuid[],uuid) from public,anon,authenticated;
 grant execute on function public.publish_teaching_dictionary_lesson(text,text,uuid[],uuid) to service_role;
 
-create or replace function public.publish_teaching_dictionary_suffix_content(p_content_version uuid, p_actor uuid)
+create function public.publish_teaching_dictionary_suffix_reviewed_content(p_content_version uuid, p_actor uuid)
 returns uuid language plpgsql security definer set search_path=public,extensions,pg_temp as $$
 declare
   c public.teaching_dictionary_route_content_versions%rowtype;
@@ -376,6 +376,6 @@ begin
   return v_profile;
 end $$;
 
--- Only the whole-lesson publisher is exposed to the application role.
-revoke all on function public.publish_teaching_dictionary_prefix_content(uuid,uuid) from public,anon,authenticated,service_role;
-revoke all on function public.publish_teaching_dictionary_suffix_content(uuid,uuid) from public,anon,authenticated,service_role;
+-- The reviewed member publishers are private; the live legacy publishers remain available during the Preview proof.
+revoke all on function public.publish_teaching_dictionary_prefix_reviewed_content(uuid,uuid) from public,anon,authenticated,service_role;
+revoke all on function public.publish_teaching_dictionary_suffix_reviewed_content(uuid,uuid) from public,anon,authenticated,service_role;
