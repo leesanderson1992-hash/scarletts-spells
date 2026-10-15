@@ -67,7 +67,7 @@ try {
   `);
   const compoundMigration=readFileSync("supabase/migrations/20260811210000_publish_compound_word_v2_release_authority.sql","utf8");
   await db.exec(compoundMigration.slice(compoundMigration.indexOf("create or replace function public.publish_adle_compound_word_structure_authority_v1("),compoundMigration.indexOf("revoke all on function public.publish_adle_compound_word_structure_authority_v1")));
-  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql", "20261015160000_scope_native_group_compiler_witnesses.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
+  for (const file of ["20261015120000_adle_lesson_editorial_reviews.sql", "20261015121000_adle_replace_reviewed_affix_members.sql", "20261015122000_adle_require_explicit_morphology_review.sql", "20261015150000_teaching_dictionary_word_workspace.sql", "20261015151000_teaching_dictionary_atomic_launch.sql", "20261015151500_teaching_dictionary_reviewed_closure.sql", "20261015152000_teaching_dictionary_governed_launch.sql", "20261015153000_teaching_dictionary_workspace_compatibility.sql", "20261015155000_preserve_rollback_activation_scope.sql", "20261015160000_scope_native_group_compiler_witnesses.sql", "20261015161000_version_compound_structure_batches.sql"]) await db.exec(readFileSync(`supabase/migrations/${file}`,"utf8"));
   const actor=randomUUID(), word=randomUUID(), profile=randomUUID(), draft=randomUUID();
   const skill="D4_MOR_SUFFIXES_ABLE_IBLE";
   await db.query("insert into auth.users values($1)",[actor]);
@@ -139,6 +139,24 @@ try {
   assert.equal((await db.query("select written_syllable_breakdown from canonical_teaching_dictionary_word_metadata where canonical_word_id=$1 and row_status='active'",[groupWord])).rows[0].written_syllable_breakdown,'jump-ing');
   assert.deepEqual((await db.query("select morphology_transformations from canonical_teaching_dictionary_word_morphology where canonical_word_id=$1 and row_status='active'",[groupWord])).rows[0].morphology_transformations,modern.canonicalMorphology.transformations);
   assert.equal((await db.query('select jsonb_array_length(s.variants)::int n from teaching_dictionary_dictation_heads h join teaching_dictionary_dictation_sets s on s.id=h.set_id where h.canonical_word_id=$1',[groupWord])).rows[0].n,2);
+
+  await db.exec(`alter table canonical_teaching_dictionary_compound_structures_v2
+    add column id uuid primary key default gen_random_uuid(),add column import_batch_id uuid,add column micro_skill_key text,add column child_friendly_meaning text,add column component_to_whole_relationship text,
+    add column morphology_provenance jsonb,add column assignment_eligible boolean,add column transfer_eligible boolean,add column row_status text,add column review_status text,add column source_sheet text,add column source_row_number int,
+    add column source_row_hash text,add column source_metadata jsonb,add column source_category text,add column source_name text,add column source_url text,add column source_licence text,add column source_use_note text,add column confidence text,add column reviewed_by text,add column reviewed_at timestamptz,
+    add unique(import_batch_id,canonical_word_id,micro_skill_key);
+    create table canonical_teaching_dictionary_compound_components_v2(structure_id uuid,component_ordinal int,canonical_component_word_id uuid,display_surface text,component_meaning text,component_sense text);
+    create table canonical_teaching_dictionary_compound_joins_v2(structure_id uuid,join_ordinal int,join_kind text);
+    create function assert_canonical_compound_structure_v2(uuid) returns void language sql as $$select null::void$$;`);
+  const compoundWord=randomUUID(),leftWord=randomUUID(),rightWord=randomUUID();
+  for(const [id,form] of [[compoundWord,"sunflower"],[leftWord,"sun"],[rightWord,"flower"]])await db.query("insert into canonical_teaching_dictionary_words(id,normalised_word,word_key,display_word,row_status,review_status)values($1,$2,$2,$2,'active','approved_for_first_exposure')",[id,form]);
+  const structure={wholeCanonicalWordId:compoundWord,wholeWordKey:"sunflower",displayForm:"sunflower",microSkillKey:"D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",childFriendlyMeaning:"a flowering plant",componentToWholeRelationship:"a plant name",morphologyProvenance:{source:"fixture"},assignmentEligible:true,transferEligible:true,approvalRef:"admin-review:fixture",components:[{ordinal:1,canonicalWordId:leftWord,displaySurface:"sun",meaning:"the star",sense:"noun"},{ordinal:2,canonicalWordId:rightWord,displaySurface:"flower",meaning:"a bloom",sense:"noun"}],joins:["none"]};
+  const structureManifest={schemaVersion:1,authorityKey:"compound-first",approvalRefs:["fixture"],structures:[structure]};
+  await db.query("select publish_adle_compound_word_structure_authority_v1($1,$2,$3)",[JSON.stringify(structureManifest),'e'.repeat(64),actor]);
+  await db.query("select publish_adle_compound_word_structure_authority_v1($1,$2,$3)",[JSON.stringify({...structureManifest,authorityKey:"compound-second"}),'f'.repeat(64),actor]);
+  const compoundVersions=(await db.query("select count(*)::int versions,count(distinct import_batch_id)::int batches from canonical_teaching_dictionary_compound_structures_v2 where canonical_word_id=$1",[compoundWord])).rows[0];
+  assert.deepEqual(compoundVersions,{versions:2,batches:2},"replacement preserves earlier immutable structures and their batch identities");
+  console.log('PASS: real compound publisher preserves two immutable member versions without batch collisions');
   console.log('PASS: earlier editor preserves reviewed syllables and transformations during schema-first rollout');
   console.log('PASS: native head CAS, reviewed package transaction, global scope and audited native rollback');
   console.log('PASS: protected replacement, immutable variant set, stale launch, duplicate launch and full rollback');
