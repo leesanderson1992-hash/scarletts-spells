@@ -13,11 +13,16 @@ import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeBlockers, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
-import { prepareHomophoneAssignment } from "@/lib/adle/homophone/readiness-loader";
+import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "@/lib/adle/homophone/readiness-loader";
 import { prepareIngAssignment } from "@/lib/adle/ing/readiness-loader";
 import { prepareComparativeAssignment } from "@/lib/adle/inflection/readiness-loader";
 import { loadBaseWordFamilyPilotReadiness } from "@/lib/adle/loaders/base-word-family-pilot-loader";
 import { loadCompoundWordAssignmentReadiness } from "@/lib/adle/loaders/compound-word-assignment-loader";
+import { loadDailyPlanFacts } from "@/lib/adle/loaders/composer-facts-loader";
+import { selectPartTwoSkill } from "@/lib/adle/composer-skill-selection";
+import { composeDailyPlan } from "@/lib/adle/daily-assignment-composer";
+import { authorCompleteGenericSnapshotV3 } from "@/lib/adle/composable-lesson/generic-snapshot-v3-forward-authoring";
+import type { IsoDate } from "@/lib/adle/review-scheduler";
 
 const ZERO_CHILD = "00000000-0000-0000-0000-000000000000";
 type Row = Record<string, any>; // Database release tables are ahead of generated Supabase types.
@@ -179,6 +184,41 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
     if (result.data === true) currentRevisionIds.add(String(revision.id));
   }));
   const specialistChildPreview = new Map<string, { ready: boolean; reason: string | null }>();
+  if (childId) {
+    try {
+      const date = new Date().toISOString().slice(0, 10) as IsoDate;
+      const { facts } = await loadDailyPlanFacts(db, { childId, today: date });
+      const selection = selectPartTwoSkill({
+        learningItems: facts.learningItems.filter((item) => item.childId === childId),
+        skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,
+        prerequisiteKeysBySkill: facts.prerequisiteKeysBySkill,
+        notYetSecureSkillKeys: facts.notYetSecureSkillKeys,
+        frequencyBandByWordId: facts.frequencyBandByWordId,
+        previousLessonFamilyKey: facts.previousLessonFamilyKey,
+        homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
+      });
+      const specialist = selection.microSkillKey && ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) =>
+        route.routeId !== "generic_composer" && route.routeId !== "homophone_word_lab"
+        && route.supportedMicroSkillKeys.includes(selection.microSkillKey!));
+      const selectedHomophone = selection.microSkillKey && environment
+        ? await homophoneRouteSelectedForChild({ client: db, childId,
+          microSkillKey: selection.microSkillKey, environmentKey: environment }) : false;
+      if (!selection.microSkillKey || specialist || selectedHomophone) {
+        specialistChildPreview.set("generic_composer:generic_composer_fallback", {
+          ready: false, reason: selection.skipReason ?? "Selected skill belongs to a specialist route",
+        });
+      } else {
+        const authored = authorCompleteGenericSnapshotV3(facts, composeDailyPlan(facts, date));
+        specialistChildPreview.set("generic_composer:generic_composer_fallback", {
+          ready: authored.ok, reason: authored.ok ? null : authored.blockerCode,
+        });
+      }
+    } catch (error) {
+      specialistChildPreview.set("generic_composer:generic_composer_fallback", {
+        ready: false, reason: error instanceof Error ? error.message : "Preview failed",
+      });
+    }
+  }
   if (childId && environment) {
     const parentResult = await db.from("children").select("parent_user_id").eq("id", childId).single();
     if (parentResult.error || !parentResult.data?.parent_user_id) throw new Error("ADLE_LESSON_CHILD_READ_FAILED");
@@ -299,10 +339,12 @@ export async function loadLessonReadiness(childId: string | null): Promise<Lesso
       const routeHead = activationHeads.find((row) => row.route_id === route.routeId && row.route_version === route.routeVersion && row.micro_skill_key === skill);
       const revision = routeHead ? revisionById.get(routeHead.current_revision_id) : null;
       const release = revision ? releaseById.get(revision.release_manifest_id) : null;
-      const releaseContentPreview = release ? dependencies
+      const releaseContentPreview: unknown[] = targetProfile
+        ? [{ profile: { ...targetProfile, wordsByCanonicalId: [...targetProfile.wordsByCanonicalId.values()] } }] : [];
+      if (release) releaseContentPreview.push(...dependencies
         .filter((row) => row.release_manifest_id === release.id && row.micro_skill_key === skill)
         .map((row) => ({ authorityType: row.authority_type,
-          content: authorityById.get(row.authority_id)?.semantic_projection ?? null })) : [];
+          content: authorityById.get(row.authority_id)?.semantic_projection ?? null })));
       if (!profile && release) {
         const facts = new Map<string, unknown>();
         for (const dependency of dependencies.filter((row) => row.release_manifest_id === release.id && row.micro_skill_key === skill)) {
