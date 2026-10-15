@@ -1,3 +1,4 @@
+import { bindNativePackageFingerprints } from "../lib/teaching-dictionary-manager/package-fingerprint";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { buildGovernedPackage } from "../lib/teaching-dictionary-manager/governed-package";
@@ -66,6 +67,14 @@ assert(degree.package);assert.deepEqual(degree.blockers,[]);
 const degreeCheck=await preflightGovernedRelease({...shared,routeId:"comparative_superlative_word_lab",skill:family.microSkillKey,authorities:nativeAuthorities(degree.package,family.microSkillKey)});
 assert(degreeCheck.ready,degreeCheck.blockers.join(","));
 const {packageSha256,...body}=degree.package;assert.equal(packageSha256,fingerprintSnapshotValue(body));
+const databaseHash="d".repeat(64);let hashCalls=0;
+const fingerprintDb={rpc:async(name:string,input:any)=>{assert.equal(name,"adle_generic_snapshot_json_sha256_v1");assert(input.p_value);hashCalls++;return {data:databaseHash,error:null};}} as unknown as Pick<SupabaseClient,"rpc">;
+const bound=await bindNativePackageFingerprints(fingerprintDb,degree.package);
+assert.equal(bound.packageSha256,databaseHash);assert.equal(hashCalls,bound.authorities.length+1);
+assert(bound.authorities.every(a=>a.semanticFingerprint===databaseHash));
+assert(bound.manifest.microSkills.every((s:any)=>s.dependencies.every((d:any)=>d.semanticFingerprint===databaseHash)));
+assert.equal(degree.package.packageSha256,packageSha256,"database binding preserves the pure proposed package");
+
 console.log("PASS: real governed compilers, all word variants, paired passage groups, conflict detection and old snapshot preservation");
 
 }

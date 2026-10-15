@@ -31,6 +31,7 @@ import { runtimeBlockerTarget } from "./readiness";
 import { hasCurrentEditorialReview } from "@/lib/teaching-dictionary-manager/editorial-review";
 import { buildGovernedPackage, type NativePackage } from "./governed-package";
 import { buildStructuralPackage } from "./structural-package";
+import { bindNativePackageFingerprints } from "./package-fingerprint";
 import { preflightGovernedRelease } from "./governed-preflight";
 import { dictationVariants } from "./authoring";
 import { compilerCoverage } from "./compiler-coverage";
@@ -1176,7 +1177,9 @@ export async function loadLessonReadiness(
           )
             ? await buildStructuralPackage(packageInput)
             : buildGovernedPackage(packageInput);
-          releasePackage = packageResult.package ?? undefined;
+          releasePackage = packageResult.package
+            ? await bindNativePackageFingerprints(db, packageResult.package)
+            : undefined;
           blockers.push(...packageResult.blockers);
           const boundAuthorities = releasePackage
             ? releasePackage.authorities
