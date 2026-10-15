@@ -1,3 +1,4 @@
+import { compoundDictionaryWordIds } from "../lib/teaching-dictionary-manager/structural-package";
 import { nativeWordFacts } from "../lib/teaching-dictionary-manager/native-word-facts";
 import { bindNativePackageFingerprints } from "../lib/teaching-dictionary-manager/package-fingerprint";
 import assert from "node:assert/strict";
@@ -22,6 +23,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 async function main() {
 const found=new Map<string,unknown>();collectWordFacts({structures:[{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"}]}]},found);
 const scoped=new Map<string,unknown>();collectWordFacts({families:[{members:[{canonicalWordId:"applicable",applicableMicroSkillKeys:["skill"]},{canonicalWordId:"other",applicableMicroSkillKeys:["different"]}]}]},scoped,0,"skill");assert(scoped.has("applicable"));assert(!scoped.has("other"));
+assert.deepEqual(compoundDictionaryWordIds([{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"},{canonicalWordId:"component"}]}]),["whole","component"],"component identities must remain in the immutable dictionary closure");
 assert(found.has("whole"));assert(!found.has("component"),"a component is required teaching content, not a whole-word compound skill member");
 const db={from:()=>{throw new Error("Preflight must not read or mutate learner assignments");}} as unknown as SupabaseClient;
 const projection=(p:ReturnType<typeof buildIngReleasePackage>)=>p.authorities.map(a=>({id:randomUUID(),authority_key:a.authorityKey,authority_type:a.authorityType,schema_version:a.schemaVersion,semantic_projection:a.semanticProjection,semantic_fingerprint:a.semanticFingerprint}));
@@ -76,6 +78,12 @@ assert.equal(bound.packageSha256,databaseHash);assert.equal(hashCalls,bound.auth
 assert(bound.authorities.every(a=>a.semanticFingerprint===databaseHash));
 assert(bound.manifest.microSkills.every((s:any)=>s.dependencies.every((d:any)=>d.semanticFingerprint===databaseHash)));
 assert.equal(degree.package.packageSha256,packageSha256,"database binding preserves the pure proposed package");
+const compoundHash="c".repeat(64);const compoundDb={rpc:async(name:string)=>({data:name==="adle_snapshot_json_sha256_v1"?compoundHash:databaseHash,error:null})} as unknown as Pick<SupabaseClient,"rpc">;
+const compoundBound=await bindNativePackageFingerprints(compoundDb,{schemaVersion:1,activation:"inactive",manifest:{microSkills:[{dependencies:[{authorityType:"compound_structure",authorityKey:"compound"}]}]},authorities:[{authorityType:"compound_structure",authorityKey:"compound",semanticProjection:{schemaVersion:1,structures:[]}}],packageSha256:"old"});
+assert.equal(compoundBound.authorities[0].semanticFingerprint,compoundHash,"the compound publisher uses its established snapshot fingerprint algorithm");
+assert.equal(compoundBound.manifest.microSkills[0].dependencies[0].semanticFingerprint,compoundHash);
+assert.equal(compoundBound.packageSha256,databaseHash);
+
 
 console.log("PASS: real governed compilers, all word variants, paired passage groups, conflict detection and old snapshot preservation");
 

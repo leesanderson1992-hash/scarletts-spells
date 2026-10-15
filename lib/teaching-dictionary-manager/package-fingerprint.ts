@@ -8,15 +8,16 @@ export async function bindNativePackageFingerprints(
   input: NativePackage,
 ): Promise<NativePackage> {
   const pkg = structuredClone(input);
-  const hash = async (value: unknown): Promise<string> => {
-    const result = await db.rpc("adle_generic_snapshot_json_sha256_v1", { p_value: value });
+  const hash = async (value: unknown, algorithm = "adle_generic_snapshot_json_sha256_v1"): Promise<string> => {
+    const result = await db.rpc(algorithm, { p_value: value });
     if (result.error || typeof result.data !== "string" || !/^[a-f0-9]{64}$/.test(result.data)) {
       throw new Error("TEACHING_LESSON_PACKAGE_FINGERPRINT_FAILED");
     }
     return result.data;
   };
   await Promise.all(pkg.authorities.map(async authority => {
-    authority.semanticFingerprint = await hash(authority.semanticProjection);
+    authority.semanticFingerprint = await hash(authority.semanticProjection,
+      authority.authorityType === "compound_structure" ? "adle_snapshot_json_sha256_v1" : "adle_generic_snapshot_json_sha256_v1");
   }));
   for (const skill of pkg.manifest.microSkills) {
     for (const dependency of skill.dependencies) {

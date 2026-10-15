@@ -5,6 +5,12 @@ import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical
 import { dictationVariants } from "./authoring";
 import type { GovernedCandidate, NativePackage } from "./governed-package";
 
+/** Whole words and their component identities belong to the frozen closure. */
+export function compoundDictionaryWordIds(structures: readonly any[]): string[] {
+  return [...new Set<string>(structures.flatMap(structure => [structure.wholeCanonicalWordId,
+    ...(structure.components ?? []).map((component: any) => component.canonicalWordId)]))];
+}
+
 export async function buildStructuralPackage(input: {
   db: SupabaseClient;
   routeId: string;
@@ -215,9 +221,7 @@ export async function buildStructuralPackage(input: {
               ),
             ),
           ]
-        : structure.semanticProjection.structures.map(
-            (word: any) => word.wholeCanonicalWordId,
-          );
+        : compoundDictionaryWordIds(structure.semanticProjection.structures);
     const rows = await read(
       input.db
         .from("canonical_teaching_dictionary_words")
