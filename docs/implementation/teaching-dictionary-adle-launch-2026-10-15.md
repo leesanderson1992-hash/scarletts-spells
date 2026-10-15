@@ -86,3 +86,54 @@ The earlier readiness and Test 2 proof used the legacy-authoritative compiler pa
 Regression: an empty optional note compiles; absent reviewed provenance still blocks. All 15 profile fixtures and 75 reviewed target slots passed. Scarlett's exact existing-assignment append preparation was read without persistence: shared_authoritative, enforced_parity and legacy_authoritative each produced a valid 16-item specialist snapshot; enforced parity matched. Her normal selection is enjoyable/responsible as authentic targets and comfortable/readable as filler. Assignment count stayed 92 during the initial read-only check. No Scarlett queue, review result or orchestration was changed. Her existing blocked session needs its ordinary “Try the next stage again” action; this retries generation and does not require another parent review.
 
 The correction was deployed to Preview `dpl_5StjXBxwhEeY6hdYuddegZNK86JT` with shared_authoritative explicitly set and browser readiness rechecked. Exact Production SHA `dd799cb52ee62ef3fe665d82d2d4598045079570` was staged as `dpl_9oTw3buA5XruQg4W6u2vmrgaSzSH`, authenticated HEAD checked, pushed and promoted. Fresh standing-permission approval `5f141845-8b56-4cac-9288-dc704749bfc5` and policy revision `29375069-a217-4aa4-b489-f24939451457` bind the unchanged provider terms/limits and scheduler to that SHA. Public HEAD and recovery delivery returned the exact SHA; safety monitor passed and both send ledgers had zero unrecorded sends. The public browser still offers the expected existing-generation retry; it was deliberately not invoked during this read-only queue check. All 92 Scarlett assignments, both pending queue statuses and orchestration state_version=10 were preserved. See [the read-only check receipt](qa/scarlett-able-ible-readonly-check-2026-10-15.json).
+
+## Word workspace responsiveness and performance follow-up
+
+The owner subsequently requested an investigation followed by implementation of
+viewport fitting and faster page/actions, preserving the approved layout and all
+ADLE launch checks. The delivered **Preview-only** code is
+`30c8b88c26e2ebd427e2b0aef5559ac616cbcd7d`, deployment
+`dpl_AEw1At41kCGNkPvrzH93U2hnGejY`, on the existing readiness Preview alias.
+Production was not promoted during this follow-up.
+
+Overview remains a horizontal table on larger screens and reflows its fields at
+smaller widths. The activity matrix uses compact linked warning icons, accessible
+full blocker details, and short mobile headings. Sections, editors, and open
+question tooltips fit within 320/390/768/1024/1440px viewports without horizontal
+scroll areas or hidden overflow. Launch remains inside each lesson section.
+
+The word's base facts load separately from the authenticated, uncached lesson
+read endpoint. Complete group preflight still uses the real compilers and release
+rules. Relevant route groups are resolved before profile loaders, dictionary
+facts, review fingerprints and activation currency checks. No member within a
+selected group is omitted. The client word-status list includes only the selected word and omits publication
+packages, while activity source previews remain available; the launch action still rereads the full server authority. Family
+suggestions load on opening their editor and large compiled JSON renders only
+when its disclosure opens. Late readiness data preserves unsaved edits and
+explicitly selected drafts.
+
+Workspace saves return confirmed results in place and refresh checks separately;
+older forms retain their redirect action. Save draft persists without sign-off
+or publication. Approval still records the exact reviewed version, and incomplete
+or stale lesson readiness disables Launch. Unfinished or failed readiness reads
+disable the approval controls until they can be checked. Three controlled browser saves produced
+unpublished drafts only; canonical word, morphology, metadata and dictation
+fingerprints stayed unchanged. No assignment or learner queue action was invoked.
+
+Measured on **action**: a local read-only preflight sample fell from 13.314s,
+92 requests and 5,066,699 backend bytes to 5.401s, 48 requests and 2,815,192 bytes.
+These are backend samples, not browser timings. On the final Preview, navigation
+to Overview hydration was 5.965s cold and 2.392–3.928s on repeat; complete fresh checks
+finished 14.910s after repeat navigation. The final draft save confirmed in
+1.911s without rehydrating the page (three save samples: 1.735/2.859/1.911s).
+The proposed 2s editor target is **not yet met**; cold database/authority reads
+remain the principal performance limitation. No readiness cache or compiler
+cutoff was introduced to conceal it.
+
+Application/scripts typechecks, production build, changed-file lint, workspace
+regressions, release SQL regressions and live read-only scope equivalence passed.
+The equivalence proof covers every built route kind, checking the entire result
+including members, sign-off, compiler witnesses, activation and fingerprints.
+Browser testing also repaired a deferred family-editor client-manifest failure
+and verified its final readback, plus tooltip placement and resize bounds.
+See [the performance receipt](qa/teaching-dictionary-word-workspace-performance-2026-10-15.json).

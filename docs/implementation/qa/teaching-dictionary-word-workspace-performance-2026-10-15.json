@@ -1,0 +1,212 @@
+{
+  "codeSha": "30c8b88c26e2ebd427e2b0aef5559ac616cbcd7d",
+  "previewDeploymentId": "dpl_AEw1At41kCGNkPvrzH93U2hnGejY",
+  "previewAlias": "https://scarletts-spells-adle-readiness-preview.vercel.app",
+  "productionPromoted": false,
+  "wordId": "2b11de62-dad4-5b67-aba4-585ddfd7253d",
+  "before": {
+    "viewportWidth": 1440,
+    "pageWidth": 1958,
+    "preflightMs": 13314,
+    "backendRequests": 92,
+    "backendBytes": 5066699
+  },
+  "afterLocalReadOnlyProfile": {
+    "preflightMs": 5401,
+    "backendRequests": 48,
+    "backendBytes": 2815192
+  },
+  "scopedReadinessMatchesFullRegistry": {
+    "passed": true,
+    "results": [
+      {
+        "scope": {
+          "wordId": "2b11de62-dad4-5b67-aba4-585ddfd7253d"
+        },
+        "groups": [
+          {
+            "route": "base_word_lab",
+            "skill": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+            "members": 420,
+            "compilerReady": false,
+            "fingerprint": "387570388d8698b7cbf027c9ea3e8e04e6dc1f3fed2d033ea89614f8460b2909"
+          },
+          {
+            "route": "dynamic_affix_word_lab",
+            "skill": "D4_MOR_SUFFIXES_TION",
+            "members": 8,
+            "compilerReady": true,
+            "fingerprint": "21c1e77a363abca6fd1612a2d5fe9a156064ecfe46c8713561bc686e81ef9c5b"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "wordId": "3729b83b-98b8-5ede-8db3-67150a8e1364"
+        },
+        "groups": [
+          {
+            "route": "dynamic_affix_word_lab",
+            "skill": "D4_MOR_SUFFIXES_ABLE_IBLE",
+            "members": 10,
+            "compilerReady": true,
+            "fingerprint": "8baefb45802d697a1dc8f31b9e900f557c2fc43e78b77ff8277e56c751bdb278"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "routeId": "dynamic_prefix_word_lab",
+          "microSkillKey": "D4_MOR_PREFIXES_UN"
+        },
+        "groups": [
+          {
+            "route": "dynamic_prefix_word_lab",
+            "skill": "D4_MOR_PREFIXES_UN",
+            "members": 14,
+            "compilerReady": true,
+            "fingerprint": "be9e4334b314d2cf40ec2f8201bc21c02a953f40993a7a7079bd320d404bbe78"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "routeId": "compound_word_lab",
+          "microSkillKey": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS"
+        },
+        "groups": [
+          {
+            "route": "compound_word_lab",
+            "skill": "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+            "members": 15,
+            "compilerReady": true,
+            "fingerprint": "013861516a782b819ea81605edcf10129149096da20f40e308ae38489bf9a9c5"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "routeId": "ing_endings_word_lab",
+          "microSkillKey": "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT"
+        },
+        "groups": [
+          {
+            "route": "ing_endings_word_lab",
+            "skill": "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+            "members": 34,
+            "compilerReady": true,
+            "fingerprint": "e931a3ff9c2b7d276f372f6a994be01887cf1e0908598ade3a2e0dca8f476ff0"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "routeId": "homophone_word_lab",
+          "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR"
+        },
+        "groups": [
+          {
+            "route": "homophone_word_lab",
+            "skill": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+            "members": 2,
+            "compilerReady": true,
+            "fingerprint": "2ab3d6bc60f904aba80d6e15714e326220c54828429da3a6627cd527d5b5a7e6"
+          }
+        ]
+      },
+      {
+        "scope": {
+          "routeId": "comparative_superlative_word_lab",
+          "microSkillKey": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT"
+        },
+        "groups": [
+          {
+            "route": "comparative_superlative_word_lab",
+            "skill": "D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT",
+            "members": 21,
+            "compilerReady": true,
+            "fingerprint": "cbed5536486abb185ecc8460b8dc9209067250beb8970daa91356334d2b8fa2b"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "workspaceRegression": true,
+    "releaseSqlRegression": true,
+    "appTypecheck": true,
+    "scriptsTypecheck": true,
+    "build": true,
+    "changedModuleLint": true,
+    "publishedFactsUnchangedAfterDraftSave": true,
+    "measuredDraftsHaveNoApprovalOrPublication": true,
+    "deliveredRuntimeErrors": 0
+  },
+  "browser": {
+    "widths": [
+      320,
+      390,
+      768,
+      1024,
+      1440
+    ],
+    "horizontalOverflow": false,
+    "familyEditor": true,
+    "partsBuilder": true,
+    "activityFields": true,
+    "launchDisabledForBlockedWord": true,
+    "questionTooltipResize": {
+      "passed": true,
+      "boundsAt390": {
+        "left": 86,
+        "right": 374
+      },
+      "boundsAt320": {
+        "left": 16,
+        "right": 304
+      },
+      "resizeWidths": [
+        390,
+        320,
+        768,
+        1024,
+        1440
+      ]
+    },
+    "draftSavesMs": [
+      1735,
+      2859,
+      1911
+    ],
+    "overviewHydratedMs": [
+      4301,
+      4748,
+      5196,
+      5965
+    ],
+    "note": "Hydration measures navigation start to editor hydration; full fresh readiness is asynchronous. Actual cold measurements exceed the proposed 2-second target. Save measurements cover unpublished draft persistence, not editorial approval or lesson launch.",
+    "deliveredBuild": {
+      "overviewColdHydratedMs": 5965,
+      "overviewRepeatHydratedMs": 2392,
+      "checksReadyAfterRepeatNavigationMs": 14910,
+      "draftSaveMs": 1911,
+      "overviewRepeatHydratedSamplesMs": [
+        2392,
+        3928
+      ],
+      "lastRestoredPage": {
+        "overviewHydratedMs": 3928,
+        "checksReadyMs": 16925,
+        "viewportWidth": 1440,
+        "pageWidth": 1440,
+        "checking": false
+      }
+    },
+    "measuredDraftIds": [
+      "f662ff43-a71f-4a85-96ea-81090aba5463",
+      "36648d40-72c5-4941-abc9-2c562ad3b7ab",
+      "d35fe289-bbe6-412c-812f-0ef907eed944"
+    ],
+    "screenshot": ".tmp/word-workspace-responsive-final.jpg"
+  }
+}
