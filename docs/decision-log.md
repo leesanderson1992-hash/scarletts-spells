@@ -1,5 +1,9 @@
 # Decision Log
 
+## 2026-10-15 — Reviewed Teaching Dictionary to ADLE launch
+
+The owner approved the compact word workspace and route-level launch flow. Save records exact content review; Launch releases the complete compiler-checked group to the normal scheduler. Written syllable division remains separate from morphology. Native homophone/comparative dictation keeps paired passages and gains reviewed group variations. Active globally released routes use `all_eligible`; queue thresholds and scheduling remain authoritative. Schema rollout and controlled Test 2 Preview evidence are tracked in [the implementation receipt](implementation/teaching-dictionary-adle-launch-2026-10-15.md).
+
 ## 2026-09-29 — Comparative/superlative reuse-first implementation
 
 The user explicitly requested one recipe for the four comparative/superlative

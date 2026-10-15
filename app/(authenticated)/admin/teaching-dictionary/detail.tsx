@@ -4,285 +4,540 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
-import { WordReadinessView, type ReadinessMember, type ReadinessRouteSource } from "./word-readiness-view";
-import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { getSharedAffixProfileMapping } from "@/lib/adle/morphology/shared-affix-profile-registry";
-import { deriveReviewedSuffixCandidate } from "@/lib/adle/morphology/derived-suffix-candidate";
-import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
-import { publicationBlockerTarget } from "@/lib/teaching-dictionary-manager/readiness";
-import { emptyMetadata, emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeForSkill, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import {
+  emptyMetadata,
+  emptyMorphology,
+  routeContentFromStoredRow,
+  type RouteContentDraft,
+  type WordDraftPayload,
+} from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
-import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
-import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
-import { importApprovedTeachingSubmission, publishTeachingDictionaryDraft, reviewTeachingDictionaryRouteContent, stageTeachingDictionaryRouteDraft } from "./actions";
-import { WordEditor } from "./word-editor";
-import { ActionSubmitButton } from "./action-submit-button";
+import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
+import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
+import { nativeWordFacts } from "@/lib/teaching-dictionary-manager/native-word-facts";
+import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
+import { WordWorkspace } from "./word-workspace";
 import { BaseFamilyReview } from "./base-family-review";
 
-type Params = { draft?: string; saved?: string; error?: string; route_error?: string; publish_error?: string; family_error?: string; manual_family?: string };
-type Group = { key: string; label: string; parent?: string };
-type Word = { id: string; import_batch_id: string; source_row_hash: string; normalised_word: string; display_word: string; dialect_code: string; age_band: string | null; frequency_band: string | null; complexity_band: string | null; source_category: WordDraftPayload["provenance"]["sourceCategory"]; source_name: string | null; source_url: string | null; source_licence: string | null; source_use_note: string | null; confidence: WordDraftPayload["provenance"]["confidence"]; row_status: string; review_status: string };
+type Params = {
+  draft?: string;
+  saved?: string;
+  error?: string;
+  route_error?: string;
+  publish_error?: string;
+  family_error?: string;
+  manual_family?: string;
+};
 
-export async function TeachingDictionaryDetail({ wordId, params }: { wordId: string | null; params: Params }) {
+export async function TeachingDictionaryDetail({
+  wordId,
+  params,
+}: {
+  wordId: string | null;
+  params: Params;
+}) {
   await requireAdminUser();
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
-  // Evidence reconciliation is independent of the word facts. Start it while
-  // the page loads those facts instead of adding it to the end of the request.
-  const approvalControlsPromise = environment ? loadWordSkillReviewControls(db, environment) : Promise.resolve(null);
-  const authorityPromise = environment && wordId
-    ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
-  // These reads depend only on the URL word ID. Start them in the same round
-  // trip as the word and catalog; validating the word still happens below.
-  const [wordResult, draftResult, skillResult, familyResult, clusterResult, prefixProfilesResult, suffixProfilesResult,
-    metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult,
-    prefixResult, suffixResult, baseResult, historyResult] = await Promise.all([
-    wordId ? db.from("canonical_teaching_dictionary_words").select("id,import_batch_id,source_row_hash,normalised_word,display_word,dialect_code,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence,row_status,review_status").eq("id", wordId).maybeSingle() : null,
-    params.draft && isUuid(params.draft) ? db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,payload,source_reference,source_kind,created_at").eq("id", params.draft).maybeSingle() : null,
-    db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key").eq("is_active", true).eq("is_assignable", true).order("display_name"),
-    db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
-    db.from("micro_skill_clusters").select("skill_cluster_key,skill_family_key,display_name").eq("is_active", true).order("display_name"),
-    db.from("canonical_teaching_dictionary_prefix_profiles").select("micro_skill_key,meaning_bins,prefix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
-    db.from("canonical_teaching_dictionary_suffix_profiles").select("micro_skill_key,meaning_bins,suffix_choices").eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
-    wordId ? db.from("canonical_teaching_dictionary_word_metadata").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
-    wordId ? db.from("canonical_teaching_dictionary_word_morphology").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
-    wordId ? db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1) : null,
-    wordId ? db.from("teaching_dictionary_definition_versions").select("route_id,micro_skill_key,definition,published_at").eq("canonical_word_id", wordId).order("published_at", { ascending: false }).limit(100) : null,
-    wordId ? db.from("teaching_dictionary_route_content_versions").select("id,draft_id,route_id,route_version,micro_skill_key,content,runtime_status,published_at").eq("canonical_word_id", wordId).order("published_at", { ascending: false }).limit(50) : null,
-    wordId ? db.from("adle_word_teaching_content_submissions").select("id,route_id,route_version,micro_skill_key,content,runtime_status,imported_at").eq("canonical_word_id", wordId).eq("approval_status", "approved_for_import").order("imported_at", { ascending: false }).limit(50) : null,
-    wordId ? db.from("canonical_teaching_dictionary_prefix_members").select("id,prefix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_prefix_profiles(micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("canonical_teaching_dictionary_suffix_members").select("id,suffix_profile_id,row_status,review_status,assignment_eligible,canonical_teaching_dictionary_suffix_profiles(id,micro_skill_key,production_enabled,row_status,review_status)").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("canonical_teaching_dictionary_base_word_family_members").select("id,word_sum,row_status,review_status,assignment_eligible").eq("canonical_word_id", wordId) : null,
-    wordId ? db.from("teaching_dictionary_manager_drafts").select("id,payload,source_kind,source_reference,created_at,created_by").eq("canonical_word_id", wordId).order("created_at", { ascending: false }).limit(30) : null,
+  const authorityPromise =
+    environment && wordId
+      ? loadCachedTeachingDictionaryEvidenceAuthority(environment)
+      : Promise.resolve(null);
+  const preflightPromise = wordId
+    ? loadLessonReadiness({ wordId })
+    : Promise.resolve([]);
+  const [
+    wordResult,
+    draftResult,
+    skillResult,
+    prefixProfiles,
+    suffixProfiles,
+    metadataResult,
+    morphologyResult,
+    dictationResult,
+    definitions,
+    routeVersions,
+    history,
+    dictationHead,
+    overviewReview,
+    submissions,
+    baseFamilies,
+    authority,
+    preflights,
+  ] = await Promise.all([
+    wordId
+      ? db
+          .from("canonical_teaching_dictionary_words")
+          .select("*")
+          .eq("id", wordId)
+          .maybeSingle()
+      : null,
+    params.draft && isUuid(params.draft)
+      ? db
+          .from("teaching_dictionary_manager_drafts")
+          .select("*")
+          .eq("id", params.draft)
+          .maybeSingle()
+      : null,
+    db
+      .from("micro_skill_catalog")
+      .select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
+      .eq("is_active", true)
+      .eq("is_assignable", true)
+      .order("display_name"),
+    db
+      .from("canonical_teaching_dictionary_prefix_profiles")
+      .select("micro_skill_key,meaning_bins,prefix_choices")
+      .eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure"),
+    db
+      .from("canonical_teaching_dictionary_suffix_profiles")
+      .select("micro_skill_key,meaning_bins,suffix_choices")
+      .eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure"),
+    wordId
+      ? db
+          .from("canonical_teaching_dictionary_word_metadata")
+          .select("*")
+          .eq("canonical_word_id", wordId)
+          .eq("row_status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : null,
+    wordId
+      ? db
+          .from("canonical_teaching_dictionary_word_morphology")
+          .select("*")
+          .eq("canonical_word_id", wordId)
+          .eq("row_status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : null,
+    wordId
+      ? db
+          .from("canonical_teaching_dictionary_dictation_sentences")
+          .select("*")
+          .eq("canonical_word_id", wordId)
+          .eq("row_status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+      : null,
+    wordId
+      ? db
+          .from("teaching_dictionary_definition_versions")
+          .select("definition,published_at")
+          .eq("canonical_word_id", wordId)
+          .is("route_id", null)
+          .order("published_at", { ascending: false })
+          .limit(1)
+      : null,
+    wordId
+      ? db
+          .from("teaching_dictionary_route_content_versions")
+          .select(
+            "id,draft_id,route_id,route_version,micro_skill_key,content,published_at",
+          )
+          .eq("canonical_word_id", wordId)
+          .order("published_at", { ascending: false })
+          .limit(100)
+      : null,
+    wordId
+      ? db
+          .from("teaching_dictionary_manager_drafts")
+          .select("id,source_reference,created_at")
+          .eq("canonical_word_id", wordId)
+          .order("created_at", { ascending: false })
+          .limit(30)
+      : null,
+    wordId
+      ? db
+          .from("teaching_dictionary_dictation_heads")
+          .select("set_id,teaching_dictionary_dictation_sets(variants)")
+          .eq("canonical_word_id", wordId)
+          .maybeSingle()
+      : null,
+    params.draft
+      ? db
+          .from("teaching_dictionary_overview_reviews")
+          .select("draft_id")
+          .eq("draft_id", params.draft)
+          .maybeSingle()
+      : null,
+    wordId
+      ? db
+          .from("adle_word_teaching_content_submissions")
+          .select("id,route_id,route_version,micro_skill_key,content")
+          .eq("canonical_word_id", wordId)
+          .eq("approval_status", "approved_for_import")
+          .order("imported_at", { ascending: false })
+          .limit(50)
+      : null,
+    wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
+    authorityPromise,
+    preflightPromise,
   ]);
-  if (wordResult?.error || draftResult?.error || skillResult.error || familyResult.error || clusterResult.error || prefixProfilesResult.error || suffixProfilesResult.error) throw new Error("TEACHING_DICTIONARY_DETAIL_READ_FAILED");
-  const word = wordResult?.data as Word | null;
-  const draft = draftResult?.data ?? null;
-  if ((wordId && !word) || (params.draft && !draft) || (draft && draft.canonical_word_id !== wordId)) notFound();
-  const normalisedWord = draft?.normalised_word ?? word?.normalised_word ?? "";
-  for (const result of [metadataResult, morphologyResult, dictationResult, definitionsResult, routeContentResult, submissionsResult, prefixResult, suffixResult, baseResult, historyResult]) if (result?.error) throw new Error("TEACHING_DICTIONARY_FACT_READ_FAILED");
-  const publicationIds = (routeContentResult?.data ?? []).map((row) => row.id);
-  const historyIds = (historyResult?.data ?? []).map((item) => item.id);
-  const [publicationResult, rollbackResult, reviewResult, historyPublications] = await Promise.all([
-    publicationIds.length ? db.from("teaching_dictionary_route_content_publications").select("content_version_id,route_profile_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
-    publicationIds.length ? db.from("teaching_dictionary_route_content_rollbacks").select("content_version_id").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
-    publicationIds.length ? db.from("teaching_dictionary_route_content_reviews").select("content_version_id,reviewed_by,reviewed_at,dictionary_fingerprint").in("content_version_id", publicationIds) : Promise.resolve({ data: [], error: null }),
-    historyIds.length ? db.from("teaching_dictionary_manager_publications")
-      .select("draft_id,published_at,published_by").in("draft_id", historyIds) : Promise.resolve({ data: [], error: null }),
-  ]);
-  if (publicationResult.error || rollbackResult.error || reviewResult.error) throw new Error("TEACHING_ROUTE_PUBLICATION_READ_FAILED");
-  if (historyPublications.error) throw new Error("TEACHING_HISTORY_PUBLICATION_READ_FAILED");
-  const historyPublicationByDraft = new Map((historyPublications.data ?? []).map((item) => [item.draft_id, item]));
-  const rolledBackContent = new Set((rollbackResult.data ?? []).map((row) => row.content_version_id));
-  const fingerprint = wordId && reviewResult.data?.length
-    ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId }) : null;
-  if (fingerprint?.error) throw new Error("TEACHING_ROUTE_REVIEW_FINGERPRINT_FAILED");
-  const reviewedContent = new Set((reviewResult.data ?? [])
-    .filter((row) => row.dictionary_fingerprint === fingerprint?.data).map((row) => row.content_version_id));
-  const staleReviews = new Set((reviewResult.data ?? [])
-    .filter((row) => row.dictionary_fingerprint !== fingerprint?.data).map((row) => row.content_version_id));
-  const publishedContent = new Set((publicationResult.data ?? []).filter((row) => !rolledBackContent.has(row.content_version_id)).map((row) => row.content_version_id));
-  const publishedDraftIds = new Set((routeContentResult?.data ?? []).filter((row) => publishedContent.has(row.id)).map((row) => row.draft_id));
-  const publishedSubmissionIds = new Set((historyResult?.data ?? []).filter((row) => publishedDraftIds.has(row.id))
-    .map((row) => /^Approved teaching submission ([0-9a-f-]{36})$/.exec(row.source_reference)?.[1]).filter(Boolean));
-  const metadata = metadataResult?.data?.[0] ?? null;
-  const morphology = morphologyResult?.data?.[0] ?? null;
-  const dictation = dictationResult?.data?.[0] ?? null;
-  const sharedDefinition = definitionsResult?.data?.find((row) => row.route_id == null)?.definition ?? "";
-  const ityProfileRow = (suffixProfilesResult.data ?? []).find((row) => row.micro_skill_key === "D4_MOR_SUFFIXES_ITY");
-  const ityMeaningBins = Array.isArray(ityProfileRow?.meaning_bins) ? ityProfileRow.meaning_bins as Array<{ id: string; label: string; description: string }> : [];
-  const derivedIty = word && ityProfileRow ? deriveReviewedSuffixCandidate({
-    microSkillKey: "D4_MOR_SUFFIXES_ITY", position: "after", meaningBins: ityMeaningBins,
-  }, {
-    word: { id: word.id, displayWord: word.display_word, sourceRowHash: word.source_row_hash,
-      ageBand: word.age_band, frequencyBand: word.frequency_band, complexityBand: word.complexity_band,
-      rowStatus: word.row_status, reviewStatus: word.review_status },
-    morphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
-      joins: morphology.morphology_joins, wordSum: morphology.word_sum,
-      analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
-      sourceRowHash: morphology.source_row_hash, sourceName: morphology.source_name } : null,
-    metadata: metadata ? { syllables: metadata.syllables, phonemeHint: metadata.phoneme_hint,
-      stressPattern: metadata.stress_pattern, hasSchwa: metadata.has_schwa,
-      rowStatus: metadata.row_status, reviewStatus: metadata.review_status } : null,
-    dictation: dictation ? { id: dictation.id, sourceRowHash: dictation.source_row_hash,
-      sentence: dictation.dictation_sentence, targetTokenIndex: dictation.dictation_target_token_index,
-      audioText: dictation.audio_text, rowStatus: dictation.row_status, reviewStatus: dictation.review_status } : null,
-    definition: sharedDefinition,
-  }) : null;
+  for (const result of [
+    wordResult,
+    draftResult,
+    skillResult,
+    prefixProfiles,
+    suffixProfiles,
+    metadataResult,
+    morphologyResult,
+    dictationResult,
+    definitions,
+    routeVersions,
+    history,
+    dictationHead,
+    overviewReview,
+    submissions,
+  ]) {
+    if (result?.error)
+      throw new Error(`TEACHING_DICTIONARY_READ_FAILED: ${result.error.code}`);
+  }
+  const word = wordResult?.data;
+  const draft = draftResult?.data;
+  const createdWordDraft =
+    draft?.canonical_word_id === null && wordId
+      ? await db
+          .from("teaching_dictionary_manager_publications")
+          .select("canonical_word_id")
+          .eq("draft_id", draft.id)
+          .eq("canonical_word_id", wordId)
+          .maybeSingle()
+      : null;
+  if (createdWordDraft?.error)
+    throw new Error("TEACHING_DRAFT_IDENTITY_READ_FAILED");
+  if (
+    (wordId && !word) ||
+    (params.draft && !draft) ||
+    (draft && draft.canonical_word_id !== wordId && !createdWordDraft?.data)
+  )
+    notFound();
+  const metadata = metadataResult?.data?.[0];
+  const morphology = morphologyResult?.data?.[0];
+  const dictation = dictationResult?.data?.[0];
+  const dictationSet = dictationHead?.data?.teaching_dictionary_dictation_sets;
+  const set = Array.isArray(dictationSet) ? dictationSet[0] : dictationSet;
+  const rolledBack = wordId
+    ? await db
+        .from("teaching_dictionary_route_content_rollbacks")
+        .select("content_version_id")
+        .in(
+          "content_version_id",
+          (routeVersions?.data ?? []).map((row) => row.id),
+        )
+    : null;
+  if (rolledBack?.error) throw new Error("TEACHING_ROLLBACK_READ_FAILED");
+  const rolledBackIds = new Set(
+    (rolledBack?.data ?? []).map((row) => row.content_version_id),
+  );
   const routeContents: RouteContentDraft[] = [];
-  const routeSources: Record<string, ReadinessRouteSource> = {};
-  const seen = new Set<string>();
-  const contentVersions = routeContentResult?.data ?? [];
-  const latestContentVersionIds = new Set<string>();
-  const seenVersionKeys = new Set<string>();
-  for (const version of contentVersions) {
-    const key = `${version.route_id}:${version.micro_skill_key}`;
-    if (seenVersionKeys.has(key)) continue;
-    seenVersionKeys.add(key);
-    latestContentVersionIds.add(version.id);
+  for (const lesson of preflights) {
+    const member = lesson.words.find(
+      (entry) => entry.id === wordId && entry.requiredForRelease !== false,
+    );
+    if (
+      !member ||
+      routeContents.some(
+        (content) => content.microSkillKey === lesson.microSkillKey,
+      )
+    )
+      continue;
+    const preview = member.contentPreview as {
+      routeContent?: Record<string, unknown>;
+    };
+    const raw = preview.routeContent;
+    if (!raw) {
+      const native = nativeWordFacts(
+        lesson.routeId,
+        lesson.routeVersion,
+        lesson.microSkillKey,
+        wordId!,
+        lesson.releaseContentPreview,
+      );
+      if (native) routeContents.push(native);
+      continue;
+    }
+    if (raw.content && typeof raw.content === "object") {
+      routeContents.push(
+        routeContentFromStoredRow({
+          route_id: lesson.routeId,
+          route_version: lesson.routeVersion,
+          micro_skill_key: lesson.microSkillKey,
+          content: raw,
+        }),
+      );
+      continue;
+    }
+    const facts = Object.fromEntries(
+      Object.entries(raw).map(([key, value]) => [
+        key.replace(/_([a-z])/g, (_match, c: string) => c.toUpperCase()),
+        value,
+      ]),
+    );
+    routeContents.push({
+      routeId: lesson.routeId,
+      routeVersion: lesson.routeVersion,
+      microSkillKey: lesson.microSkillKey,
+      wordMeaning: String(
+        raw.new_word_meaning ?? raw.child_friendly_meaning ?? "",
+      ),
+      wordSum: morphology?.word_sum ?? "",
+      content: facts,
+    });
   }
-  const visibleContentVersions = contentVersions.filter((version) =>
-    latestContentVersionIds.has(version.id) || publishedContent.has(version.id));
-  for (const row of [...contentVersions.filter((version) => publishedContent.has(version.id)),
-    ...contentVersions.filter((version) => !publishedContent.has(version.id) && !rolledBackContent.has(version.id)),
-    ...(submissionsResult?.data ?? [])]) {
-    const key = `${row.route_id}:${row.micro_skill_key}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    routeContents.push(routeContentFromStoredRow(row));
-    // The manager has already published every content version here. Runtime
-    // route activation is a separate release gate, not an editorial to-do.
-    routeSources[row.micro_skill_key] = "id" in row && "draft_id" in row
-      ? "manager publication" : "approved teaching submission";
-  }
-  const [approvalControls, authority] = await Promise.all([approvalControlsPromise, authorityPromise]);
-  const relationships = (authority?.relationships ?? []).filter((row) => row.canonicalWordId === wordId);
-  const memberKeys = [...(prefixResult?.data ?? []), ...(suffixResult?.data ?? [])].flatMap((row) => {
-    const raw = "canonical_teaching_dictionary_prefix_profiles" in row
-      ? row.canonical_teaching_dictionary_prefix_profiles : row.canonical_teaching_dictionary_suffix_profiles;
-    const profile = Array.isArray(raw) ? raw[0] : raw;
-    return profile?.row_status === "active" && profile.micro_skill_key ? [profile.micro_skill_key as string] : [];
+  for (const row of (routeVersions?.data ?? []).filter(
+    (row) => !rolledBackIds.has(row.id),
+  ))
+    if (
+      !routeContents.some(
+        (content) => content.microSkillKey === row.micro_skill_key,
+      )
+    )
+      routeContents.push(routeContentFromStoredRow(row));
+  const initial: WordDraftPayload = draft
+    ? (draft.payload as WordDraftPayload)
+    : {
+        displayWord: word?.display_word ?? "",
+        definition:
+          definitions?.data?.[0]?.definition ??
+          routeContents.find((route) => route.wordMeaning)?.wordMeaning ??
+          "",
+        dictationSentence: dictation?.dictation_sentence ?? "",
+        dictationTargetTokenIndex: dictation?.dictation_target_token_index ?? 0,
+        dictationVariants:
+          set?.variants as WordDraftPayload["dictationVariants"],
+        writtenSyllableBreakdown: metadata?.written_syllable_breakdown ?? "",
+        ageBand: word?.age_band ?? "",
+        frequencyBand: word?.frequency_band ?? "",
+        complexityBand: word?.complexity_band ?? "",
+        metadata: {
+          ...emptyMetadata(),
+          ...Object.fromEntries(
+            Object.keys(emptyMetadata()).map((key) => [
+              key,
+              metadata?.[key] ?? (key === "has_schwa" ? null : ""),
+            ]),
+          ),
+        },
+        canonicalMorphology: morphology
+          ? {
+              rawSegmentation: morphology.raw_morpholex_segmentation ?? "",
+              rawPartOfSpeech: morphology.raw_morpholex_pos ?? "",
+              parts: morphology.morphology_parts ?? [],
+              joins: morphology.morphology_joins ?? [],
+              featureKeys: morphology.feature_keys ?? [],
+              transformations: morphology.morphology_transformations ?? [],
+              transformationNotes: morphology.transformation_notes ?? "",
+              wordSum: morphology.word_sum ?? "",
+              analysisStatus: morphology.analysis_status,
+              reviewNotes: morphology.review_notes ?? "",
+            }
+          : emptyMorphology(),
+        provenance: {
+          sourceCategory: word?.source_category ?? "internal_authored",
+          sourceName:
+            word?.source_name ?? "Teaching Dictionary editorial review",
+          sourceUrl: word?.source_url ?? "",
+          sourceLicence: word?.source_licence ?? "",
+          sourceUseNote:
+            word?.source_use_note ?? "Internally authored and reviewed",
+          confidence: word?.confidence ?? "high",
+        },
+        skillKeys: [
+          ...new Set([
+            ...(authority?.relationships ?? [])
+              .filter((row) => row.canonicalWordId === wordId)
+              .map((row) => row.microSkillKey),
+            ...routeContents.map((content) => content.microSkillKey),
+            ...preflights
+              .filter((lesson) =>
+                lesson.words.some((entry) => entry.id === wordId),
+              )
+              .map((lesson) => lesson.microSkillKey),
+          ]),
+        ],
+        routeContents,
+      };
+  const suggestions = [
+    ...routeContents.map((route) => ({
+      label: `Existing ${route.microSkillKey.replaceAll("_", " ")} analysis`,
+      route,
+    })),
+    ...(submissions?.data ?? []).map((row) => ({
+      label: "Imported teaching analysis",
+      route: routeContentFromStoredRow(row),
+    })),
+  ].flatMap(({ label, route }) => {
+    const parts =
+      route.content.trueMorphologyParts ??
+      route.content.morphologyParts ??
+      route.content.teachingSplitParts;
+    const joins =
+      route.content.trueMorphologyJoins ??
+      route.content.morphologyJoins ??
+      route.content.teachingSplitJoins;
+    return Array.isArray(parts) && parts.length && Array.isArray(joins)
+      ? [
+          {
+            label,
+            parts,
+            joins,
+            transformations: (route.content.trueMorphologyTransformations ??
+              route.content.morphologyTransformations ??
+              []) as NonNullable<
+              WordDraftPayload["canonicalMorphology"]["transformations"]
+            >,
+          },
+        ]
+      : [];
   });
-  const selectedKeys = [...new Set([...relationships.map((row) => row.microSkillKey), ...routeContents.map((row) => row.microSkillKey), ...memberKeys])];
-  const publishedPayload: WordDraftPayload = {
-    displayWord: word?.display_word ?? "", definition: sharedDefinition,
-    dictationSentence: dictation?.dictation_sentence ?? "", dictationTargetTokenIndex: dictation?.dictation_target_token_index ?? 0,
-    ageBand: word?.age_band ?? "", frequencyBand: word?.frequency_band ?? "", complexityBand: word?.complexity_band ?? "",
-    metadata: { ...emptyMetadata(), ...Object.fromEntries(Object.keys(emptyMetadata()).map((key) => [key, metadata?.[key] ?? (key === "has_schwa" ? null : "")])) },
-    canonicalMorphology: morphology ? {
-      rawSegmentation: morphology.raw_morpholex_segmentation ?? "", rawPartOfSpeech: morphology.raw_morpholex_pos ?? "",
-      parts: morphology.morphology_parts ?? [], featureKeys: morphology.feature_keys ?? [], joins: morphology.morphology_joins ?? [],
-      transformationNotes: morphology.transformation_notes ?? "", wordSum: morphology.word_sum ?? "",
-      analysisStatus: morphology.analysis_status ?? "in_review", reviewNotes: morphology.review_notes ?? "",
-    } : emptyMorphology(),
-    provenance: { sourceCategory: word?.source_category ?? "internal_authored", sourceName: word?.source_name ?? "",
-      sourceUrl: word?.source_url ?? "", sourceLicence: word?.source_licence ?? "", sourceUseNote: word?.source_use_note ?? "",
-      confidence: word?.confidence ?? "medium" },
-    skillKeys: selectedKeys, routeContents,
-  };
-  const initial: WordDraftPayload = draft ? draft.payload as WordDraftPayload : publishedPayload;
-  if (draft) for (const content of initial.routeContents) routeSources[content.microSkillKey] = "manager draft";
-  const draftBlockers = draft ? publicationBlockers(draft.payload as WordDraftPayload, draft.normalised_word) : [];
-  const protectedReleaseError = params.error === "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED"
-    || params.publish_error === "TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED";
-  const draftDefinitionCurrent = Boolean(draft && sharedDefinition === (draft.payload as WordDraftPayload).definition);
-  const families: Group[] = (familyResult.data ?? []).map((row) => ({ key: row.skill_family_key, label: row.display_name }));
-  const clusters: Group[] = (clusterResult.data ?? []).map((row) => ({ key: row.skill_cluster_key, label: row.display_name, parent: row.skill_family_key }));
-  const prefixes = (prefixResult?.data ?? []).map((row) => {
-    const profile = Array.isArray(row.canonical_teaching_dictionary_prefix_profiles) ? row.canonical_teaching_dictionary_prefix_profiles[0] : row.canonical_teaching_dictionary_prefix_profiles;
-    return { key: profile?.micro_skill_key as string, member: row, profile };
-  });
-  const suffixes = (suffixResult?.data ?? []).map((row) => {
-    const profile = Array.isArray(row.canonical_teaching_dictionary_suffix_profiles) ? row.canonical_teaching_dictionary_suffix_profiles[0] : row.canonical_teaching_dictionary_suffix_profiles;
-    return { key: profile?.micro_skill_key as string, member: row, profile };
-  });
-  const loadedSuffixProfiles = wordId && suffixes.some((item) => item.profile?.row_status === "active")
-    ? (await loadDynamicSuffixProfiles(db, wordId)).profiles : [];
-  const readinessMembers: ReadinessMember[] = [
-    ...prefixes.filter((item) => item.key).map((item) => ({ key: item.key, kind: "prefix" as const,
-      released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
-        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled })),
-    ...suffixes.filter((item) => item.key && item.profile?.row_status === "active").map((item) => ({ key: item.key, kind: "suffix" as const,
-      released: item.member.row_status === "active" && item.member.review_status === "approved_for_first_exposure"
-        && item.member.assignment_eligible && item.profile?.row_status === "active" && item.profile.production_enabled,
-      compilerReady: loadedSuffixProfiles.some((profile) => profile.governance?.profileId === item.profile?.id
-        && profile.productionEnabled && wordId !== null && profile.wordsByCanonicalId.has(wordId)) })),
-    ...selectedKeys.filter((key) => routeForSkill(key)?.routeId === "base_word_lab").flatMap((key) =>
-      (baseResult?.data ?? []).filter((item) => item.row_status === "active" && item.review_status === "approved_for_first_exposure")
-        .map((item) => ({ key, kind: "base" as const, released: item.assignment_eligible,
-          wordSum: item.word_sum, detail: `Reviewed word sum: ${item.word_sum}` }))),
+  const partSuggestions = [
+    ...new Map(
+      suggestions.map((suggestion) => [
+        JSON.stringify(suggestion.parts),
+        suggestion,
+      ]),
+    ).values(),
   ];
-  const hasProtectedLinks = readinessMembers.some((member) => member.released);
-  const routeAlreadyReleased = (params.route_error === "TEACHING_PREFIX_MEMBER_ALREADY_EXISTS"
-    && readinessMembers.some((member) => member.kind === "prefix" && member.released))
-    || (params.route_error === "TEACHING_SUFFIX_MEMBER_ALREADY_EXISTS"
-      && readinessMembers.some((member) => member.kind === "suffix" && member.released));
-  const protectedRelease = protectedReleaseError || Boolean(draft && word && hasProtectedLinks
-    && !matchesPublishedFactsForDefinitionOnly({ payload: initial, word, metadata, dictation, morphology }));
-  return <main className="mx-auto grid max-w-6xl gap-6 p-6 text-[color:var(--ink)]">
-    <nav className="flex gap-4 text-sm"><Link href="/admin/teaching-dictionary" prefetch={true} className="underline">← All words</Link><Link href="/admin/adle-lesson-readiness" className="underline">ADLE lesson readiness</Link></nav>
-    <header><h1 className="text-3xl font-semibold">{word?.display_word ?? (normalisedWord || "New word")}</h1><p className="mt-2 text-sm">{wordId ? `Canonical ID ${wordId} · ${word?.row_status} / ${word?.review_status}` : "New dictionary word"}</p></header>
-    {word && <section className="rounded-lg border border-[var(--border)] bg-white p-4" aria-label="Pronunciation facts">
-      <h2 className="font-semibold">Pronunciation facts</h2>
-      <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-3">
-        <div><dt className="text-[color:var(--mid)]">Written syllables</dt><dd>{metadata?.written_syllable_breakdown || "No reviewed written breakdown"}</dd></div>
-        <div><dt className="text-[color:var(--mid)]">Spoken syllable count</dt><dd>{metadata?.syllables || "Unknown"}</dd></div>
-        <div><dt className="text-[color:var(--mid)]">Phoneme transcription / hint</dt><dd>{metadata?.phoneme_hint || "Unknown"}</dd></div>
-      </dl>
-    </section>}
-    {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">{draft ? "Saved as a recoverable draft. Complete the listed facts to publish." : "Saved and validated."}</p>}
-    {protectedRelease && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">
-      This word already belongs to released lesson content. Its changed shared facts need a reviewed route release before they can replace the current version.
-      {draftDefinitionCurrent ? " The definition is already published." : " The definition remains in this draft."} Your draft remains saved.
-    </p>}
-    {params.error && !protectedReleaseError && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
-    {params.publish_error && !protectedReleaseError && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-950">Your changes were saved as a draft. Publication needs review: {params.publish_error.replaceAll("_", " ")}.</p>}
-    {params.route_error && !routeAlreadyReleased && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-amber-900">Dictionary facts published. Route activation needs review: {params.route_error.replaceAll("_", " ")}.</p>}
-    {draft && <details className="rounded-lg border border-[var(--border)] bg-white p-4" open={draftBlockers.length > 0 || protectedRelease}>
-      <summary className="cursor-pointer font-semibold">Saved draft · {protectedRelease ? "protected facts need release" : draftBlockers.length ? `${draftBlockers.length} shared facts need work` : "ready for publication"}</summary>
-      <p className="mt-2 text-xs">{draft.source_kind} · {draft.source_reference} · {new Date(draft.created_at).toLocaleString("en-GB")}</p>
-      {draftBlockers.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">{draftBlockers.map((blocker) => <li key={blocker}>{blocker} <a className="font-semibold underline" href={`#${publicationBlockerTarget(blocker)}`}>Edit</a></li>)}</ul>}
-      <form action={publishTeachingDictionaryDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId ?? ""} /><ActionSubmitButton disabled={draftBlockers.length > 0 || protectedRelease} pendingLabel="Publishing facts…" className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white disabled:opacity-50">{protectedRelease ? "Protected release required" : "Publish dictionary facts"}</ActionSubmitButton></form>
-      {wordId && initial.routeContents.length > 0 && <form action={stageTeachingDictionaryRouteDraft} className="mt-3"><input type="hidden" name="draft_id" value={draft.id} /><input type="hidden" name="word_id" value={wordId} /><ActionSubmitButton pendingLabel="Staging lesson facts…" className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold">Stage route facts for editorial review</ActionSubmitButton><p className="mt-1 text-xs">Stages only the lesson facts. Shared dictionary changes remain in the draft until separately released.</p></form>}
-    </details>}
-    {wordId && <WordReadinessView displayWord={word?.display_word ?? initial.displayWord} payload={initial} publishedPayload={publishedPayload}
-      draftSelected={Boolean(draft)} wordReview={word?.review_status ?? "draft"}
-      metadataReview={metadata?.review_status ?? null} morphologyReview={morphology?.analysis_status ?? null}
-      dictationReview={dictation?.review_status ?? null} definitionPublished={Boolean(sharedDefinition)}
-      derivedIty={derivedIty ? { ready: Boolean(derivedIty.word), blockers: derivedIty.blockers } : null}
-      routeSources={routeSources} relationships={relationships} members={readinessMembers} skills={skillResult.data ?? []} />}
-    {word && <BaseFamilyReview word={{ id: word.id, normalisedWord: word.normalised_word,
-      displayWord: word.display_word, dialectCode: word.dialect_code, rowStatus: word.row_status,
-      reviewStatus: word.review_status }} morphology={morphology ? { id: morphology.id,
-        analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
-        parts: morphology.morphology_parts, joins: morphology.morphology_joins ?? [],
-        wordSum: morphology.word_sum } : null} meaning={sharedDefinition} error={params.family_error} manualFamilyId={params.manual_family} />}
-    {wordId && ((submissionsResult?.data?.length ?? 0) > 0 || (routeContentResult?.data?.length ?? 0) > 0) && <section className="order-2 grid gap-3 rounded-lg border border-[var(--border)] bg-white p-4"><h2 className="text-lg font-semibold">Route publication</h2>
-      <div id="td-approved-submissions" className="grid gap-2 scroll-mt-6">{(submissionsResult?.data ?? []).map((submission) => <form key={submission.id} action={importApprovedTeachingSubmission} className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] p-3 text-sm">
-        <input type="hidden" name="submission_id" value={submission.id} /><input type="hidden" name="word_id" value={wordId} />
-        <span>Approved submission · {submission.route_id} · {publishedSubmissionIds.has(submission.id) ? "published through manager" : submission.runtime_status.replaceAll("_", " ")}</span>
-        <ActionSubmitButton pendingLabel="Opening draft…" className="rounded-lg border border-[var(--border)] px-3 py-1 font-semibold">Open as editable draft</ActionSubmitButton>
-      </form>)}</div>
-      {visibleContentVersions.map((version) => {
-        const content = version.content as RouteContentDraft;
-        const authoredPayload = (historyResult?.data ?? []).find((row) => row.id === version.draft_id)?.payload as WordDraftPayload | undefined;
-        const blockers = routeBlockers(content, authoredPayload ?? initial);
-        const activated = publishedContent.has(version.id);
-        return <article key={version.id} className="rounded-lg border border-[var(--border)] p-3 text-sm">
-          <p className="font-semibold">{version.route_id} · {version.micro_skill_key} · {activated ? "route published" : rolledBackContent.has(version.id) ? "route rollback; revise content" : staleReviews.has(version.id) ? "editorial review stale; save a new version" : reviewedContent.has(version.id) ? "editorially reviewed; lesson launch pending" : "editorial review pending"}</p>
-          <p className="mt-1 text-xs text-[color:var(--mid)]">{latestContentVersionIds.has(version.id) ? "Latest saved version" : "Earlier published version"} · {new Date(version.published_at).toLocaleString("en-GB", { timeZone: "Europe/London", dateStyle: "medium", timeStyle: "short" })}</p>
-          {blockers.length > 0 && <ul className="list-disc pl-5 text-amber-900">{blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul>}
-          {!activated && !rolledBackContent.has(version.id) && !reviewedContent.has(version.id) && !staleReviews.has(version.id) && <form action={reviewTeachingDictionaryRouteContent} className="mt-2">
-            <input type="hidden" name="word_id" value={wordId} /><input type="hidden" name="content_version_id" value={version.id} />
-            <ActionSubmitButton disabled={blockers.length > 0 || !latestContentVersionIds.has(version.id)} pendingLabel="Recording review…" className="rounded-lg bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">Sign off this exact lesson content</ActionSubmitButton>
-          </form>}
-          {reviewedContent.has(version.id) && !activated && <Link className="mt-2 inline-block underline" href={`/admin/adle-lesson-readiness?route=${encodeURIComponent(version.route_id)}&skill=${encodeURIComponent(version.micro_skill_key)}`}>Check and launch the whole lesson</Link>}
-          {version.route_id === "base_word_lab" && !activated && <p>Base-word activation needs reviewed family membership, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
-          {version.route_id === "compound_word_lab" && !activated && <p>Compound activation needs reviewed structure authority, teaching-content authority, dictionary closure, and an enabled route release. These group-level approvals are checked in child-scoped readiness.</p>}
-        </article>;
-      })}
-    </section>}
-    {wordId && <details className="order-2 rounded-lg border border-[var(--border)] bg-white p-4"><summary className="cursor-pointer font-semibold">Source and review history</summary>
-      <p className="mt-1 text-sm">Current dictionary source: {word?.source_category} · {word?.source_name || "unnamed source"} · {word?.source_use_note || "no note"}</p>
-      <p className="mt-1 break-all text-xs">Import batch {word?.import_batch_id} · source row {word?.source_row_hash}</p>
-      <ul className="mt-3 grid gap-2 text-sm">{(historyResult?.data ?? []).map((version) => <li key={version.id}>
-        <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${version.id}`}>{new Date(version.created_at).toLocaleString("en-GB")}</Link>
-        {` · ${version.source_kind} · ${version.source_reference} · created by ${version.created_by}`}
-        {historyPublicationByDraft.has(version.id) ? ` · published by ${historyPublicationByDraft.get(version.id)?.published_by}` : " · draft"}
-      </li>)}</ul>
-    </details>}
-    <WordEditor wordId={wordId} normalisedWord={normalisedWord} initial={initial} sourceReference={draft?.source_reference ?? word?.source_use_note ?? "Internally authored and reviewed"}
-      approvalEnabled={Boolean(approvalControls?.review_enabled && approvalControls.publication_enabled && approvalControls.withdrawal_enabled)}
-      skills={skillResult.data ?? []} families={families} clusters={clusters}
-      profileOptions={[...(prefixProfilesResult.data ?? []).map((profile) => ({
-        microSkillKey: profile.micro_skill_key,
-        meaningBins: (profile.meaning_bins as { id: string; label: string }[] ?? []),
-        choices: (profile.prefix_choices as { text: string }[] ?? []).map((choice) => choice.text),
-      })), ...(suffixProfilesResult.data ?? []).map((profile) => ({
-        microSkillKey: profile.micro_skill_key,
-        meaningBins: (profile.meaning_bins as { id: string; label: string }[] ?? []),
-        choices: [...(getSharedAffixProfileMapping(profile.micro_skill_key)?.forms ?? [])],
-      }))]}
-      routes={ADLE_CURRICULUM_ROUTE_REGISTRY.filter((route) => route.routeId !== "generic_composer").map((route) => ({ routeId: route.routeId, routeVersion: route.routeVersion, supportedMicroSkillKeys: route.supportedMicroSkillKeys }))} />
-  </main>;
+  const affixMeanings: Record<string, string[]> = {};
+  for (const profile of prefixProfiles.data ?? [])
+    for (const raw of Array.isArray(profile.prefix_choices)
+      ? profile.prefix_choices
+      : []) {
+      const choice = raw as { text?: string; meaning?: string };
+      if (choice.text && choice.meaning)
+        (affixMeanings[choice.text] ??= []).push(choice.meaning);
+    }
+  for (const profile of suffixProfiles.data ?? [])
+    for (const form of getSharedAffixProfileMapping(profile.micro_skill_key)
+      ?.forms ?? []) {
+      for (const raw of Array.isArray(profile.meaning_bins)
+        ? profile.meaning_bins
+        : []) {
+        const bin = raw as { label?: string; description?: string };
+        if (bin.label)
+          (affixMeanings[form] ??= []).push(bin.description || bin.label);
+      }
+    }
+  return (
+    <main className="mx-auto grid max-w-7xl gap-4 p-4 text-[color:var(--ink)] sm:p-6">
+      <nav className="flex gap-4 text-sm">
+        <Link href="/admin/teaching-dictionary" className="underline">
+          ← All words
+        </Link>
+        <Link href="/admin/adle-lesson-readiness" className="underline">
+          ADLE lesson readiness
+        </Link>
+      </nav>
+      <header>
+        <h1 className="text-3xl font-semibold">
+          {word?.display_word ?? "New word"}
+        </h1>
+      </header>
+      <WordWorkspace
+        key={`${draft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
+        wordId={wordId}
+        draftId={draft?.id ?? null}
+        normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
+        initial={initial}
+        sourceReference={
+          draft?.source_reference ??
+          word?.source_use_note ??
+          "Internally authored and reviewed"
+        }
+        skills={skillResult.data ?? []}
+        preflights={preflights
+          .filter((lesson) => initial.skillKeys.includes(lesson.microSkillKey))
+          .map((lesson) => {
+            const { releasePackage: _package, ...visible } = lesson;
+            void _package;
+            return visible;
+          })}
+        affixMeanings={affixMeanings}
+        partSuggestions={partSuggestions}
+        baseFamilies={baseFamilies}
+        overviewReviewed={
+          draft
+            ? Boolean(overviewReview?.data)
+            : word?.review_status === "approved_for_first_exposure"
+        }
+        saved={Boolean(params.saved)}
+        error={params.error ?? params.publish_error ?? params.route_error}
+        profileOptions={[
+          ...(prefixProfiles.data ?? []).map((profile) => ({
+            microSkillKey: profile.micro_skill_key,
+            meaningBins: profile.meaning_bins as {
+              id: string;
+              label: string;
+            }[],
+            choices: ((profile.prefix_choices as { text: string }[]) ?? []).map(
+              (choice) => choice.text,
+            ),
+          })),
+          ...(suffixProfiles.data ?? []).map((profile) => ({
+            microSkillKey: profile.micro_skill_key,
+            meaningBins: profile.meaning_bins as {
+              id: string;
+              label: string;
+            }[],
+            choices: [
+              ...(getSharedAffixProfileMapping(profile.micro_skill_key)
+                ?.forms ?? []),
+            ],
+          })),
+        ]}
+        familyReview={
+          word ? (
+            <BaseFamilyReview
+              word={{
+                id: word.id,
+                normalisedWord: word.normalised_word,
+                displayWord: word.display_word,
+                dialectCode: word.dialect_code,
+                rowStatus: word.row_status,
+                reviewStatus: word.review_status,
+              }}
+              morphology={
+                morphology
+                  ? {
+                      id: morphology.id,
+                      analysisStatus: morphology.analysis_status,
+                      reviewStatus: morphology.review_status,
+                      parts: morphology.morphology_parts,
+                      joins: morphology.morphology_joins ?? [],
+                      wordSum: morphology.word_sum,
+                    }
+                  : null
+              }
+              meaning={initial.definition}
+              error={params.family_error}
+              manualFamilyId={params.manual_family}
+            />
+          ) : null
+        }
+        advanced={
+          <div className="text-sm">
+            <p>Canonical ID: {wordId ?? "New word"}</p>
+            <p>Source: {word?.source_name ?? "Internally authored"}</p>
+            <ul className="mt-2 space-y-1">
+              {(history?.data ?? []).map((version) => (
+                <li key={version.id}>
+                  <Link
+                    className="underline"
+                    href={`/admin/teaching-dictionary/${wordId}?draft=${version.id}`}
+                  >
+                    {new Date(version.created_at).toLocaleString("en-GB")}
+                  </Link>{" "}
+                  · {version.source_reference}
+                </li>
+              ))}
+            </ul>
+          </div>
+        }
+      />
+    </main>
+  );
 }

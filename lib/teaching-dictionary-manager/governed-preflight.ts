@@ -474,7 +474,10 @@ async function preflightGovernedReleaseCore(input: {
           if (witnesses[target.canonicalWordId]) break;
         }
       const eligible = members.filter(
-        (m) => m.assignmentEligible && m.lessonContentEligible,
+        (m) =>
+          m.assignmentEligible &&
+          m.lessonContentEligible &&
+          m.authenticSelectionEligible,
       );
       const ready =
         eligible.length >= 6 &&

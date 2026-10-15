@@ -1158,3 +1158,14 @@ and change no ownership boundary:
 5. The legacy `word_role` value `anchor_word` (and static contrast-word
    remnants) are confirmed retired from the active schema; they remain only
    as quarantined legacy-audit history.
+
+
+## Reviewed admin word authoring and lesson publication (2026-10-15)
+
+The approved word workspace authors shared facts once and preserves route-specific teaching analyses. Ordered morphology parts and joins generate the canonical word sum. Written syllable boundaries are separately reviewed facts; they cannot substitute for morphology cuts or the spoken syllable count. Existing imported analyses and canonical affix definitions are suggestions until the admin selects and saves the reviewed content.
+
+Overview and route reviews bind exact immutable content and dependency fingerprints. A relevant edit requires a new review. One server preflight uses the native route's selection, compiler, coverage and release authority for both displayed checks and Launch. Every eligible proposed member and approved dictation variant must have a compiler-valid use before publication. Unrelated, unreviewed drafts are excluded from the proposed release and remain visibly unreviewed.
+
+A dictation variant binds its sentence, exact target occurrence, audio text and immutable variant identity. New assignments choose deterministically and freeze those facts. Homophone/comparative routes retain their native paired passages and vary them at group level. Earlier assignment snapshots and release authorities retain their content.
+
+Launch publishes the complete reviewed profile/group and records the reviewer, release and member compiler witnesses. It creates no assignment and does not enable an inactive route. Enabled global releases use the existing `all_eligible` scope, with the normal word queue and scheduler deciding selection. The admin word workflow has no child eligibility controls. Atomic replacement and audited rollback preserve prior authorities. Operational details and rollout status are owned by [the manager implementation](../implementation/teaching-dictionary-manager.md) and [the release receipt](../implementation/teaching-dictionary-adle-launch-2026-10-15.md).

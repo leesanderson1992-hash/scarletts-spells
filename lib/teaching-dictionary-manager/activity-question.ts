@@ -119,3 +119,39 @@ export function lessonActivityQuestion(input: {
             : "Complete the lesson checks to view the compiled activity.")
   );
 }
+
+export function activityTransformationText(
+  route: RouteContentDraft,
+  kind: string,
+  word: string,
+): string[] {
+  if (!["cleaver", "word_build"].includes(kind)) return [];
+  // Affix Cleaver and Build consume the visible activity split. Their current
+  // renderers do not display the separate true-morphology transformation list.
+  if (
+    ["dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(
+      route.routeId,
+    )
+  )
+    return [];
+  if (route.routeId === "ing_endings_word_lab")
+    return route.content.base
+      ? [`${String(route.content.base)} → ${word}`]
+      : [];
+  const transformations = (route.content.morphologyTransformations ??
+    route.content.transformations ??
+    []) as Record<string, unknown>[];
+  if (route.routeId === "base_word_lab")
+    return kind === "cleaver"
+      ? transformations
+          .filter((t) => t.type === "change_final_y_to_i")
+          .map((t) =>
+            String(t.explanation ?? `${t.surfaceText} → ${t.sourceText}`),
+          )
+      : [];
+  if (route.routeId === "comparative_superlative_word_lab")
+    return transformations
+      .filter((t) => t.result === word)
+      .map((t) => String(t.explanation ?? `${t.base} → ${t.result}`));
+  return [];
+}

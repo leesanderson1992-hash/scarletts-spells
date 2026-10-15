@@ -42,6 +42,8 @@ type WordEntry = {
   id: string;
   word: string;
   role: string;
+  requiredForRelease?: boolean;
+  reviewedDraftId?: string | null;
   ready: boolean;
   blockers: string[];
   editHref: string;
@@ -124,24 +126,43 @@ function fakeItems(profileKey: string, ids: string[]): LearningItemFact[] {
   }));
 }
 
-function collectWordFacts(
+export function collectWordFacts(
   value: unknown,
   found: Map<string, unknown>,
   depth = 0,
+  microSkillKey?: string,
 ): void {
   if (depth > 12 || !value || typeof value !== "object") return;
   if (Array.isArray(value)) {
-    for (const part of value) collectWordFacts(part, found, depth + 1);
+    for (const entry of value)
+      collectWordFacts(entry, found, depth + 1, microSkillKey);
     return;
   }
   const row = value as Record<string, unknown>;
-  const id = row.canonicalWordId ?? row.canonical_word_id;
+  if (
+    microSkillKey &&
+    Array.isArray(row.applicableMicroSkillKeys) &&
+    !row.applicableMicroSkillKeys.includes(microSkillKey)
+  )
+    return;
+  if (
+    microSkillKey &&
+    row.wholeCanonicalWordId &&
+    row.microSkillKey &&
+    row.microSkillKey !== microSkillKey
+  )
+    return;
+  const id =
+    row.canonicalWordId ?? row.canonical_word_id ?? row.wholeCanonicalWordId;
   if (typeof id === "string" && !found.has(id)) found.set(id, row);
-  for (const part of Object.values(row))
-    collectWordFacts(part, found, depth + 1);
+  for (const [key, part] of Object.entries(row))
+    if (!(row.wholeCanonicalWordId && key === "components"))
+      collectWordFacts(part, found, depth + 1, microSkillKey);
 }
 
-export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
+export async function loadLessonReadiness(
+  scope: { wordId?: string; routeId?: string; microSkillKey?: string } = {},
+): Promise<LessonReadinessRow[]> {
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
   const [
@@ -453,7 +474,66 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
         route.compatibilityScope.kind === "generic_composer_fallback"
           ? ["generic_composer_fallback"]
           : route.supportedMicroSkillKeys;
-      return skills.map(async (skill): Promise<LessonReadinessRow> => {
+      const relevantSkills = skills.filter((skill) => {
+        if (scope.routeId && scope.routeId !== route.routeId) return false;
+        if (scope.microSkillKey && scope.microSkillKey !== skill) return false;
+        if (!scope.wordId) return true;
+        if (
+          contentRows.some(
+            (row) =>
+              row.canonical_word_id === scope.wordId &&
+              row.route_id === route.routeId &&
+              row.micro_skill_key === skill,
+          )
+        )
+          return true;
+        if (
+          prefixRows.some(
+            (profile) =>
+              profile.micro_skill_key === skill &&
+              route.routeId === "dynamic_prefix_word_lab" &&
+              prefixMembers.some(
+                (member) =>
+                  member.prefix_profile_id === profile.id &&
+                  member.canonical_word_id === scope.wordId &&
+                  member.row_status === "active",
+              ),
+          )
+        )
+          return true;
+        if (
+          suffixRows.some(
+            (profile) =>
+              profile.micro_skill_key === skill &&
+              route.routeId === "dynamic_affix_word_lab" &&
+              suffixMembers.some(
+                (member) =>
+                  member.suffix_profile_id === profile.id &&
+                  member.canonical_word_id === scope.wordId &&
+                  member.row_status === "active",
+              ),
+          )
+        )
+          return true;
+        const head = activationHeads.find(
+          (head) =>
+            head.route_id === route.routeId && head.micro_skill_key === skill,
+        );
+        const releaseId = head
+          ? revisionById.get(head.current_revision_id)?.release_manifest_id
+          : null;
+        const found = new Map<string, unknown>();
+        for (const dependency of dependencies.filter(
+          (dep) =>
+            dep.micro_skill_key === skill &&
+            dep.release_manifest_id === releaseId,
+        )) {
+          const a = authorityById.get(dependency.authority_id);
+          if (a) collectWordFacts(a.semantic_projection, found, 0, skill);
+        }
+        return found.has(scope.wordId);
+      });
+      return relevantSkills.map(async (skill): Promise<LessonReadinessRow> => {
         const prefix = prefixRows.find(
           (row) =>
             route.routeId === "dynamic_prefix_word_lab" &&
@@ -634,7 +714,11 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
             if (
               !provenance ||
               typeof provenance !== "object" ||
-              (provenance as Row).status !== "reviewed"
+              (candidate
+                ? (provenance as Row).status !== "reviewed"
+                : (provenance as Row).status ===
+                    "draft_requires_editorial_review" ||
+                  Object.keys(provenance).length === 0)
             )
               blockers.push("True morphology editorial review pending");
             if (
@@ -666,6 +750,7 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
             id: member.canonical_word_id,
             word: dictionary?.display_word ?? member.canonical_word_id,
             role: member.member_role,
+            reviewedDraftId: candidate?.draft_id ?? null,
             ready: blockers.length === 0,
             blockers,
             contentPreview: {
@@ -677,6 +762,32 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
             editHref: `/admin/teaching-dictionary/${member.canonical_word_id}${draftId ? `?draft=${draftId}` : ""}#${editTarget}`,
           };
         });
+        if (profile)
+          for (const content of unreviewed) {
+            const draft = draftById.get(content.draft_id);
+            const dictionary = words.get(content.canonical_word_id);
+            const missing = draft
+              ? [
+                  ...publicationBlockers(
+                    draft,
+                    draft.displayWord.toLowerCase(),
+                  ),
+                  ...routeBlockers(content.content as RouteContentDraft, draft),
+                ]
+              : ["Source draft unavailable"];
+            missing.push("Editorial sign-off missing or stale");
+            entries.unshift({
+              id: content.canonical_word_id,
+              word: dictionary?.display_word ?? content.canonical_word_id,
+              role: "unreleased draft",
+              requiredForRelease: false,
+              reviewedDraftId: null,
+              ready: false,
+              blockers: missing,
+              contentPreview: { routeContent: content.content },
+              editHref: `/admin/teaching-dictionary/${content.canonical_word_id}?draft=${content.draft_id}#td-route-${skill}`,
+            });
+          }
         if (!profile && route.routeId !== "generic_composer") {
           for (const content of [...latestContent.values()].filter(
             (row) =>
@@ -701,6 +812,10 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
               id: content.canonical_word_id,
               word: dictionary?.display_word ?? content.canonical_word_id,
               role: "route content candidate",
+              requiredForRelease: reviews.has(content.id),
+              reviewedDraftId: reviews.has(content.id)
+                ? content.draft_id
+                : null,
               ready: missing.length === 0,
               blockers: missing,
               contentPreview: {
@@ -777,7 +892,7 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
           )) {
             const authority = authorityById.get(dependency.authority_id);
             if (authority)
-              collectWordFacts(authority.semantic_projection, facts);
+              collectWordFacts(authority.semantic_projection, facts, 0, skill);
           }
           for (const [id, fact] of facts) {
             const dictionary = words.get(id);
@@ -837,21 +952,62 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
         const blockers: string[] = [];
         if (profile && profile.review_status !== "approved_for_first_exposure")
           blockers.push("Profile needs review");
-        if (profile && entries.length < route.wordCounts.lesson[0])
+        if (
+          profile &&
+          entries.filter((entry) => entry.requiredForRelease !== false).length <
+            route.wordCounts.lesson[0]
+        )
           blockers.push(
             `Need at least ${route.wordCounts.lesson[0]} lesson words; found ${entries.length}`,
           );
-        if (entries.some((entry) => !entry.ready))
+        if (
+          entries.some(
+            (entry) => entry.requiredForRelease !== false && !entry.ready,
+          )
+        )
           blockers.push("One or more words fail runtime validation");
         if (profile && !targetProfile)
           blockers.push(
             "The runtime loader rejects this profile or its word coverage",
           );
         for (const candidate of candidates) {
-          if(!managerPublications.some(pub=>pub.draft_id===candidate.draft_id)) {
-            const dependencies=[...prefixMembers.filter(m=>m.canonical_word_id===candidate.canonical_word_id&&m.row_status==="active"&&m.prefix_profile_id!==profile?.id).flatMap(m=>{const p=prefixRows.find(p=>p.id===m.prefix_profile_id);return p?[p.micro_skill_key]:[];}),
-              ...suffixMembers.filter(m=>m.canonical_word_id===candidate.canonical_word_id&&m.row_status==="active"&&m.suffix_profile_id!==profile?.id).flatMap(m=>{const p=suffixRows.find(p=>p.id===m.suffix_profile_id);return p?[p.micro_skill_key]:[];})];
-            for(const dependency of new Set(dependencies))blockers.push(`Protected shared changes also require the active ${dependency} profile to be released together`);
+          if (
+            !managerPublications.some(
+              (pub) => pub.draft_id === candidate.draft_id,
+            )
+          ) {
+            const dependencies = [
+              ...prefixMembers
+                .filter(
+                  (m) =>
+                    m.canonical_word_id === candidate.canonical_word_id &&
+                    m.row_status === "active" &&
+                    m.prefix_profile_id !== profile?.id,
+                )
+                .flatMap((m) => {
+                  const p = prefixRows.find(
+                    (p) => p.id === m.prefix_profile_id,
+                  );
+                  return p ? [p.micro_skill_key] : [];
+                }),
+              ...suffixMembers
+                .filter(
+                  (m) =>
+                    m.canonical_word_id === candidate.canonical_word_id &&
+                    m.row_status === "active" &&
+                    m.suffix_profile_id !== profile?.id,
+                )
+                .flatMap((m) => {
+                  const p = suffixRows.find(
+                    (p) => p.id === m.suffix_profile_id,
+                  );
+                  return p ? [p.micro_skill_key] : [];
+                }),
+            ];
+            for (const dependency of new Set(dependencies))
+              blockers.push(
+                `Protected shared changes also require the active ${dependency} profile to be released together`,
+              );
           }
           const draft = draftById.get(String(candidate.draft_id));
           if (draft) {
@@ -1101,10 +1257,6 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
           : Boolean(contentRelease);
         if (!profile && !released)
           blockers.push("No active reviewed lesson release is available");
-        if (unreviewed.length)
-          blockers.push(
-            `${unreviewed.length} latest word version${unreviewed.length === 1 ? "" : "s"} need editorial sign-off`,
-          );
         const launchable = Boolean(
           (profile || releasePackage) &&
             candidates.length &&
@@ -1113,7 +1265,7 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
         );
         const status: LessonReadinessRow["status"] = launchable
           ? "ready_to_launch"
-          : unreviewed.length
+          : unreviewed.length && !released
             ? "needs_review"
             : released && blockers.length === 0
               ? "released"
@@ -1176,7 +1328,7 @@ export async function loadLessonReadiness(): Promise<LessonReadinessRow[]> {
                 message,
                 category: "word" as const,
                 wordId: entry.id,
-                editHref: `${entry.editHref.split("#")[0]}#${runtimeBlockerTarget(message,skill)}`,
+                editHref: `${entry.editHref.split("#")[0]}#${runtimeBlockerTarget(message, skill)}`,
               })),
             ),
             ...blockers.map((message) => ({

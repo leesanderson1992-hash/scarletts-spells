@@ -1,6 +1,12 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-08-30
+Updated: 2026-10-15
+
+## 2026-10-15 Teaching Dictionary launch workspace
+
+Five targeted schema migrations are applied for exact admin reviews, immutable dictation sets, atomic group publication, compiler-witness auditing and rollback. The new editor is in local verification; Preview proof and public code release status are tracked in [the staged receipt](teaching-dictionary-adle-launch-2026-10-15.md).
+
+The live activation-head inventory on this date has enabled homophone, comparative/superlative, compound and Base Word routes. Enabled -ing routes retain a limited scope pending the controlled proof and the owner-requested global-scope cutover. The dated local/inactive sections below describe their historical state, not the current database heads.
 
 ## 2026-09-29 local implementation — comparative/superlative inactive
 

@@ -6,6 +6,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { reviewedWordCanLaunch } from "@/lib/teaching-dictionary-manager/editorial-review";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadLessonReadiness } from "./read-model";
 
@@ -24,9 +25,13 @@ export async function launchReviewedAdleLesson(form: FormData) {
   try {
     if (!route || !route.newAssignmentCapable || routeId === "generic_composer")
       throw new Error("ADLE_LESSON_RELEASE_UNSUPPORTED");
-    const current = (await loadLessonReadiness()).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
+    const current = (await loadLessonReadiness({routeId,microSkillKey})).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
     if (!current || current.status !== "ready_to_launch" || !current.compilerReady
       || !current.activationEnabled || current.reviewedCandidateIds.length === 0) throw new Error("ADLE_LESSON_RELEASE_NOT_READY");
+    if(isUuid(wordId)) {
+      const member=current.words.find(word=>word.id===wordId);const draftId=String(form.get("draft_id")??"");
+      if(!reviewedWordCanLaunch(member,draftId,current.compilerWitnesses))throw new Error("ADLE_LESSON_WORD_REVIEW_REQUIRED");
+    }
     if (String(form.get("preflight_fingerprint") ?? "") !== current.preflightFingerprint) throw new Error("ADLE_LESSON_PREFLIGHT_STALE");
     const db = createServiceRoleClient();
     const versions = current.reviewedCandidateIds;
@@ -45,7 +50,7 @@ export async function launchReviewedAdleLesson(form: FormData) {
     if (published.error || !published.data) throw new Error(published.error?.message.match(/TEACHING_[A-Z_]+/)?.[0] ?? "ADLE_LESSON_PUBLICATION_FAILED");
     let verified = false;
     try {
-      const after = (await loadLessonReadiness()).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
+      const after = (await loadLessonReadiness({routeId,microSkillKey})).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
       verified = Boolean(after?.released && after?.compilerReady && after?.reviewedCandidateIds.length === 0);
     } catch { verified = false; }
     if (!verified) {
@@ -76,7 +81,7 @@ export async function rollbackReviewedAdleLessonVersion(form: FormData) {
   let errorCode: string | null = null;
   try {
     if (!isUuid(contentId) || reason.length < 8) throw new Error("ADLE_LESSON_ROLLBACK_REASON_REQUIRED");
-    const current = (await loadLessonReadiness()).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
+    const current = (await loadLessonReadiness({routeId,microSkillKey})).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
     if (!current || current.rollbackContentId !== contentId || !current.releaseId)
       throw new Error("ADLE_LESSON_ROLLBACK_NOT_CURRENT");
     const db = createServiceRoleClient();

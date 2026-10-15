@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { reviewedWordCanLaunch } from "../lib/teaching-dictionary-manager/editorial-review";
 import { compilerCoverage } from "../lib/teaching-dictionary-manager/compiler-coverage";
-import { dictationVariantBlockers, targetOccurrences, selectDictationVariant, generatedWordSum, writtenSyllableBlockers } from "../lib/teaching-dictionary-manager/authoring";
+import { canonicalStructureBlockers, dictationVariantBlockers, targetOccurrences, selectDictationVariant, generatedWordSum, writtenSyllableBlockers } from "../lib/teaching-dictionary-manager/authoring";
 
 assert.deepEqual(targetOccurrences("She said responsible, responsible again.", "responsible"), [2, 3]);
 assert.deepEqual(targetOccurrences("We put ice cream beside ice cream.", "ice cream"), [2, 5]);
@@ -24,3 +25,16 @@ assert.equal(Object.keys(result.witnesses).length, 12);
 assert(!compilerCoverage(ids, 4, () => null).complete);
 assert(!compilerCoverage(ids.slice(0,3), 4, () => ({})).complete);
 console.log("PASS: all dictation variants, target occurrences, stable variation, syllables and complete compiler coverage");
+
+const structure={rawSegmentation:"",rawPartOfSpeech:"adjective",parts:[{id:"base",sourceText:"holy",surfaceText:"holi",kind:"base"},{id:"suffix",sourceText:"ness",surfaceText:"ness",kind:"suffix"}],featureKeys:[],joins:[{afterPartId:"base",beforePartId:"suffix",joinType:"none"}],wordSum:"holy + ness → holiness",analysisStatus:"approved" as const,reviewNotes:"Reviewed",transformationNotes:"",transformations:[{type:"remove_letter",sourcePartId:"base",sourceText:"holy",surfaceText:"hol",explanation:"Remove the final y"},{type:"replace_final",sourcePartId:"base",sourceText:"hol",surfaceText:"holi",explanation:"Use i before the suffix"}]};
+assert.deepEqual(canonicalStructureBlockers(structure,"holiness"),[]);
+assert(canonicalStructureBlockers({...structure,transformations:[...structure.transformations].reverse()},"holiness").length);
+assert(canonicalStructureBlockers({...structure,transformations:[]},"holiness").length);
+assert(canonicalStructureBlockers({...structure,joins:[{afterPartId:"wrong",beforePartId:"suffix",joinType:"none"}]},"holiness").length);
+
+const reviewed={id:"word",ready:true,reviewedDraftId:"reviewed-draft"};const witnesses={word:["word","filler"]};
+assert(reviewedWordCanLaunch(reviewed,"reviewed-draft",witnesses));
+assert(!reviewedWordCanLaunch(reviewed,"older-draft",witnesses));
+assert(!reviewedWordCanLaunch({...reviewed,requiredForRelease:false},null,witnesses));
+assert(!reviewedWordCanLaunch(reviewed,null,{}));
+console.log("PASS: ordered transformation chains and exact per-word review/witness launch guards");

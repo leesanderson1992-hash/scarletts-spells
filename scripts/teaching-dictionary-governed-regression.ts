@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { buildGovernedPackage } from "../lib/teaching-dictionary-manager/governed-package";
+import { collectWordFacts } from "../lib/teaching-dictionary-manager/lesson-preflight";
 import { preflightGovernedRelease } from "../lib/teaching-dictionary-manager/governed-preflight";
 import { applyIngDictationVariants } from "../lib/adle/ing/reviewed-dictation";
 import { ING_MICRO_SKILLS, ingWordBlockers } from "../lib/adle/ing/contracts";
@@ -17,6 +18,9 @@ import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonica
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function main() {
+const found=new Map<string,unknown>();collectWordFacts({structures:[{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"}]}]},found);
+const scoped=new Map<string,unknown>();collectWordFacts({families:[{members:[{canonicalWordId:"applicable",applicableMicroSkillKeys:["skill"]},{canonicalWordId:"other",applicableMicroSkillKeys:["different"]}]}]},scoped,0,"skill");assert(scoped.has("applicable"));assert(!scoped.has("other"));
+assert(found.has("whole"));assert(!found.has("component"),"a component is required teaching content, not a whole-word compound skill member");
 const db={from:()=>{throw new Error("Preflight must not read or mutate learner assignments");}} as unknown as SupabaseClient;
 const projection=(p:ReturnType<typeof buildIngReleasePackage>)=>p.authorities.map(a=>({id:randomUUID(),authority_key:a.authorityKey,authority_type:a.authorityType,schema_version:a.schemaVersion,semantic_projection:a.semanticProjection,semantic_fingerprint:a.semanticFingerprint}));
 const dictionary:WordDraftPayload={displayWord:"jumping",definition:"moving off the ground",dictationSentence:"She is jumping.",dictationTargetTokenIndex:2,
