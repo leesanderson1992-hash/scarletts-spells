@@ -55,7 +55,7 @@ function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: (
     description={<span>{row.routeId} {row.routeVersion} · Last evaluated {date(row.lastEvaluatedAt)}</span>}
     footer={<button type="button" className="adle-admin-dialog-close" onClick={onClose}>Close</button>}>
     <div className="adle-admin-dialog-body">
-      <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Resolution confirms intake into ADLE, not mastery.</p>
+      <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Admission to ADLE is separate from mastery.</p>
       {incomplete.length ? incomplete.map((key) => <section key={key} className="adle-admin-detail-section">
         <h4>{LABELS[key]} <span className="text-xs font-normal text-[#69717b]">{row.facets[key].state === "unknown" ? "Not yet checkable" : "Missing"}</span></h4>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#414a55]">

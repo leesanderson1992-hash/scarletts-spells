@@ -41,7 +41,7 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
       <header className="mb-7 flex flex-wrap items-start justify-between gap-4">
         <div><p className="adle-admin-eyebrow">Admin / ADLE</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Words waiting for ADLE</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#59616b]">Live readiness across learners, with the recorded intake outcome. Resolved means admitted to ADLE, not mastered.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#59616b]">Live readiness across learners, with the recorded intake outcome. In ADLE means admitted to practice, not mastered.</p>
         </div>
         <Link href="/admin/spelling-review" className="adle-admin-secondary">Spelling review</Link>
       </header>
