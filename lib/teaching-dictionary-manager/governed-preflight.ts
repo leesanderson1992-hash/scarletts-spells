@@ -38,7 +38,7 @@ import { applyIngDictationVariants } from "@/lib/adle/ing/reviewed-dictation";
 import { selectBaseWordFamilyLesson } from "@/lib/adle/base-word-family-selection";
 import {
   baseWordFamilyMemberAppliesToMicroSkill,
-  baseWordFamilyMemberStructuralRole,
+  baseWordFamilyMemberSelectionRole,
 } from "@/lib/adle/curriculum-release-activation";
 import {
   indexedEligibleBaseFamilyCounts,
@@ -101,8 +101,7 @@ async function preflightGovernedReleaseCore(input: {
   try {
     if (routeId === "ing_endings_word_lab") {
       const words = projection("ing_word_members")?.words as
-        | IngDictionaryWordV1[]
-        | undefined;
+        IngDictionaryWordV1[] | undefined;
       if (!words?.length || words.some((word) => ingWordBlockers(word).length))
         return bad("Reviewed -ing members are missing or invalid");
       const member = projection("ing_word_members");
@@ -169,8 +168,7 @@ async function preflightGovernedReleaseCore(input: {
     }
     if (routeId === "comparative_superlative_word_lab") {
       const families = projection("adjective_degree_families")?.families as
-        | AdjectiveFamilyV1[]
-        | undefined;
+        AdjectiveFamilyV1[] | undefined;
       if (!families?.length)
         return bad("Reviewed adjective families are missing");
       const closure = projection("teaching_dictionary_closure");
@@ -395,10 +393,10 @@ async function preflightGovernedReleaseCore(input: {
         f.members.map((member) => ({
           baseFamilyKey: f.baseFamilyKey,
           canonicalWordId: member.canonicalWordId,
-          memberRole:
-            baseWordFamilyMemberStructuralRole(member) === "base"
-              ? ("base" as const)
-              : ("transfer" as const),
+          memberRole: baseWordFamilyMemberSelectionRole(
+            authority.family,
+            member,
+          ),
           applicableMicroSkillKeys:
             authority.family.schemaVersion === 2 &&
             "applicableMicroSkillKeys" in member

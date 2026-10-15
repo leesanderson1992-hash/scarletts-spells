@@ -22,7 +22,7 @@ import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-fa
 import { compileBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
 import {
   baseWordFamilyMemberAppliesToMicroSkill,
-  baseWordFamilyMemberStructuralRole,
+  baseWordFamilyMemberSelectionRole,
 } from "../curriculum-release-activation";
 import {
   loadEnabledBaseWordReleaseAuthorities,
@@ -95,7 +95,7 @@ function projectAuthority(authority: ActivatedBaseWordReleaseAuthority): Project
       baseFamilyKey: family.baseFamilyKey,
       microSkillKey: authority.microSkillKey,
       canonicalWordId: member.canonicalWordId,
-      memberRole: baseWordFamilyMemberStructuralRole(member) === "base" ? "base" as const : "transfer" as const,
+      memberRole: baseWordFamilyMemberSelectionRole(authority.family, member),
       applicableMicroSkillKeys: authority.family.schemaVersion === 2 && "applicableMicroSkillKeys" in member ? member.applicableMicroSkillKeys : [authority.microSkillKey],
       authenticSelectionEligible: authority.family.schemaVersion === 2
         ? baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, authority.microSkillKey)

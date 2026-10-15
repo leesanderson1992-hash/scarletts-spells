@@ -299,11 +299,11 @@ export function WordWorkspace(props: {
         !dirty &&
         Boolean(
           preflight?.compilerReady &&
-            reviewedWordCanLaunch(
-              word,
-              props.draftId,
-              preflight.compilerWitnesses,
-            ),
+          reviewedWordCanLaunch(
+            word,
+            props.draftId,
+            preflight.compilerWitnesses,
+          ),
         ),
     };
   });
@@ -772,7 +772,9 @@ export function WordWorkspace(props: {
             </button>
           </div>
           <div className="mt-4 border-t border-[var(--border)] pt-3">
-            <h3 className="font-semibold">Base word family</h3>
+            <h3 id="td-base-family" className="font-semibold">
+              Base word family
+            </h3>
             {props.baseFamilies.length ? (
               props.baseFamilies.map((item) => (
                 <div
@@ -1309,8 +1311,7 @@ export function WordWorkspace(props: {
                             checked={
                               (
                                 route.content.trueMorphologyProvenance as
-                                  | { status?: string }
-                                  | undefined
+                                  { status?: string } | undefined
                               )?.status === "reviewed"
                             }
                             onChange={(event) =>

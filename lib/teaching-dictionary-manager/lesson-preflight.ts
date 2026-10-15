@@ -57,11 +57,7 @@ export type LessonReadinessRow = {
   title: string;
   route: CurriculumRouteDefinition;
   status:
-    | "released"
-    | "ready_to_launch"
-    | "needs_review"
-    | "blocked"
-    | "policy";
+    "released" | "ready_to_launch" | "needs_review" | "blocked" | "policy";
   compilerReady: boolean;
   released: boolean;
   activationEnabled: boolean;
@@ -1223,6 +1219,24 @@ export async function loadLessonReadiness(
           compiledPreview = governed.preview;
           compilerWitnesses = governed.witnesses;
           blockers.push(...governed.blockers);
+          if (route.routeId === "base_word_lab" && !governed.ready) {
+            for (const entry of entries) {
+              const fact = entry.contentPreview as Record<
+                string,
+                unknown
+              > | null;
+              if (
+                entry.requiredForRelease !== false &&
+                fact?.assignmentEligible !== false &&
+                !governed.witnesses[entry.id]
+              ) {
+                entry.ready = false;
+                entry.blockers.push(
+                  "Reviewed base family has no complete compiler-valid selection for this word",
+                );
+              }
+            }
+          }
         }
         if (route.routeId === "generic_composer") {
           return {
@@ -1259,9 +1273,9 @@ export async function loadLessonReadiness(
           blockers.push("No active reviewed lesson release is available");
         const launchable = Boolean(
           (profile || releasePackage) &&
-            candidates.length &&
-            blockers.length === 0 &&
-            compilerReady,
+          candidates.length &&
+          blockers.length === 0 &&
+          compilerReady,
         );
         const status: LessonReadinessRow["status"] = launchable
           ? "ready_to_launch"
@@ -1324,7 +1338,9 @@ export async function loadLessonReadiness(
           issues: [
             ...entries.flatMap((entry) =>
               entry.blockers.map((message) => ({
-                code: "WORD_FACTS_INVALID",
+                code: message.includes("compiler-valid selection")
+                  ? "COMPILER_MEMBER_UNREACHABLE"
+                  : "WORD_FACTS_INVALID",
                 message,
                 category: "word" as const,
                 wordId: entry.id,

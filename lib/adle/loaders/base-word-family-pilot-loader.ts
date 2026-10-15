@@ -19,7 +19,7 @@ import {
 } from "./curriculum-release-authority";
 import {
   baseWordFamilyMemberAppliesToMicroSkill,
-  baseWordFamilyMemberStructuralRole,
+  baseWordFamilyMemberSelectionRole,
   persistedReleaseAuthority,
   type ActivatedBaseWordReleaseAuthority,
 } from "../curriculum-release-activation";
@@ -84,7 +84,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
       family.members.map((member) => ({
         baseFamilyKey: family.baseFamilyKey,
         canonicalWordId: member.canonicalWordId,
-        memberRole: baseWordFamilyMemberStructuralRole(member) === "base" ? "base" as const : "transfer" as const,
+        memberRole: baseWordFamilyMemberSelectionRole(activation.family, member),
         applicableMicroSkillKeys: activation.family.schemaVersion === 2 && "applicableMicroSkillKeys" in member
           ? member.applicableMicroSkillKeys
           : [activation.microSkillKey],

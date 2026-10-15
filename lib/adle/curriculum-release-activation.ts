@@ -106,6 +106,16 @@ export function baseWordFamilyMemberStructuralRole(
     : member.memberRole === "base" ? "base" : "family_member";
 }
 
+/** Preserve the selection contract frozen in historical v1 authorities. */
+export function baseWordFamilyMemberSelectionRole(
+  authority: Pick<BaseWordFamilyAuthorityProjection, "schemaVersion">,
+  member: BaseWordFamilyAuthorityMember,
+): "base" | "authentic_target" | "transfer" | "optional_transfer_check" {
+  return authority.schemaVersion === 1 && "memberRole" in member
+    ? member.memberRole
+    : baseWordFamilyMemberStructuralRole(member) === "base" ? "base" : "transfer";
+}
+
 export interface BaseWordTeachingContentAuthorityProjection {
   schemaVersion: 1;
   microSkillKey: string;

@@ -135,6 +135,7 @@ export function requirementPreview(target: string, route: RouteContentDraft, pay
 
 
 export function runtimeBlockerTarget(message:string,skill:string):string {
+  if(message.includes("base family") && message.includes("compiler-valid selection"))return "td-base-family";
   const text=message.toLowerCase();
   if(text.includes("true morphology editorial")||text.includes("true morphology provenance"))return `td-route-${skill}-trueMorphologyProvenance`;
   if(text.includes("dictation")||text.includes("audio"))return "td-dictation";

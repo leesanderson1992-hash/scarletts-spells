@@ -1,3 +1,4 @@
+import { baseWordFamilyMemberSelectionRole, type BaseWordFamilyAuthorityMember } from "../lib/adle/curriculum-release-activation";
 import {
   BASE_WORD_GUIDED_DISPLAY_LIMIT,
   selectBaseWordFamilyLesson,
@@ -110,7 +111,7 @@ assert(unrelatedQueued.slots.every((slot) => unrelatedQueued.baseFamilyKeys.incl
 const legacy = selectBaseWordFamilyLesson(CHILD, SKILL, {
   ...facts([item("legacy-careful", "careful", "2026-07-01"), item("legacy-government", "government", "2026-07-02"), item("legacy-careless", "careless", "2026-07-03")]),
   familyAuthoritySchemaVersion: 1,
-  members: members.map((entry) => ({ ...entry, memberRole: ["careful", "government", "careless"].includes(entry.canonicalWordId) ? "authentic_target" : entry.memberRole })),
+  members: members.map((entry) => ({ ...entry, memberRole: baseWordFamilyMemberSelectionRole({schemaVersion:1}, {...entry, memberRole: ["careful", "government", "careless"].includes(entry.canonicalWordId) ? "authentic_target" : entry.memberRole} as unknown as BaseWordFamilyAuthorityMember) })),
 });
 assert(legacy.slots.filter((slot) => slot.learnerProvenance === "verified_misspelling").length === 2, "immutable v1 authorities retain their historical two-target semantics");
 
