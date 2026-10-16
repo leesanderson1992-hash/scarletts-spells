@@ -322,10 +322,14 @@ export function WordWorkspace(props: {
     const suffix = Array.isArray(values.teachingSplitParts)
       ? values.teachingSplitParts.find((part) => part && typeof part === "object" && (part as { kind?: string }).kind === "suffix") as { surfaceText?: string } | undefined
       : undefined;
+    const ionSum = key === "D4_MOR_SUFFIXES_TION" && suffix?.surfaceText === "ion"
+      ? `${(values.teachingSplitParts as { sourceText?: string; surfaceText?: string }[])
+          .map((part) => part.sourceText || part.surfaceText || "").join(" + ")} → ${payload.displayWord}`
+      : null;
     change({
       routeContents: [
         ...payload.routeContents.filter((route) => route.microSkillKey !== key),
-        { ...current, content: { ...current.content, ...values,
+        { ...current, ...(ionSum ? { wordSum: ionSum } : {}), content: { ...current.content, ...values,
           ...(current.routeId === "dynamic_affix_word_lab" && suffix?.surfaceText
             ? { suffixVariant: suffix.surfaceText } : {}) } },
       ],
@@ -1485,8 +1489,7 @@ export function WordWorkspace(props: {
                   pendingLabel="Launching…"
                   disabled={
                     checksState !== "ready" || saving || !row.ready ||
-                    row.preflight?.status !== "ready_to_launch" ||
-                    !row.preflight.activationEnabled
+                    row.preflight?.status !== "ready_to_launch"
                   }
                   className={button}
                 >

@@ -27,7 +27,7 @@ export async function launchReviewedAdleLesson(form: FormData) {
       throw new Error("ADLE_LESSON_RELEASE_UNSUPPORTED");
     const current = (await loadLessonReadiness({routeId,microSkillKey})).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
     if (!current || current.status !== "ready_to_launch" || !current.compilerReady
-      || !current.activationEnabled || current.reviewedCandidateIds.length === 0) throw new Error("ADLE_LESSON_RELEASE_NOT_READY");
+      || current.reviewedCandidateIds.length === 0) throw new Error("ADLE_LESSON_RELEASE_NOT_READY");
     if(isUuid(wordId)) {
       const member=current.words.find(word=>word.id===wordId);const draftId=String(form.get("draft_id")??"");
       if(!reviewedWordCanLaunch(member,draftId,current.compilerWitnesses))throw new Error("ADLE_LESSON_WORD_REVIEW_REQUIRED");
