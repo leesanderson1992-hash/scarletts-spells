@@ -270,6 +270,22 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     const surface = (parts: unknown) => Array.isArray(parts)
       ? parts.map((part) => part && typeof part === "object" ? String((part as Record<string, unknown>).surfaceText ?? (part as Record<string, unknown>).text ?? "") : "").join("") : "";
     if (Array.isArray(teaching) && teaching.length && surface(teaching) !== payload.displayWord) blockers.push("Teaching parts must spell the word.");
+    if (Array.isArray(teaching) && teaching.length) {
+      const suffixes = teaching.filter((part) => part && typeof part === "object"
+        && (part as Record<string, unknown>).kind === "suffix") as Record<string, unknown>[];
+      if (suffixes.length !== 1 || suffixes[0]?.surfaceText !== route.content.suffixVariant)
+        blockers.push("The learner suffix must match the selected suffix form.");
+      if (route.microSkillKey === "D4_MOR_SUFFIXES_TION" && route.content.suffixVariant === "ion") {
+        const base = teaching.filter((part) => part && typeof part === "object"
+          && (part as Record<string, unknown>).kind !== "suffix")
+          .map((part) => String((part as Record<string, unknown>).surfaceText ?? "")).join("");
+        const trueParts = Array.isArray(trueMorphology) ? trueMorphology as Record<string, unknown>[] : [];
+        if (!base.endsWith("t") || trueParts.length !== 2
+          || trueParts[0]?.surfaceText !== base || trueParts[1]?.surfaceText !== "ion"
+          || trueParts[1]?.sourceText !== "ion")
+          blockers.push("The -ion learner cut needs a reviewed base ending in t and matching true morphology.");
+      }
+    }
     if (Array.isArray(trueMorphology) && trueMorphology.length && surface(trueMorphology) !== payload.displayWord) blockers.push("True morphology parts must spell the word.");
     if (Array.isArray(teaching) && Array.isArray(route.content.teachingSplitJoins)
       && route.content.teachingSplitJoins.length !== teaching.length - 1) blockers.push("Teaching joins must connect every part.");

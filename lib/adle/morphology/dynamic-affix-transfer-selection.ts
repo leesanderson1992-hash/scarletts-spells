@@ -80,6 +80,11 @@ export function isDynamicAffixWordLessonReady(
     && word.trueMorphology.parts.length >= 2
     && word.trueMorphology.joins.length === word.trueMorphology.parts.length - 1
     && word.trueMorphology.parts.map((part) => part.text).join("") === word.displayWord
+    && (profile.microSkillKey !== "D4_MOR_SUFFIXES_TION" || word.affixVariant !== "ion"
+      || (word.teachingBaseText.endsWith("t") && word.trueMorphology.parts.length === 2
+        && word.trueMorphology.parts[0]?.text === word.teachingBaseText
+        && word.trueMorphology.parts[1]?.text === "ion"
+        && word.trueMorphology.parts[1]?.sourceText === "ion"))
     && Array.isArray(word.trueMorphology.transformations)
     && Object.keys(word.trueMorphology.provenance).length > 0
     && word.trueMorphology.provenance.status !== "draft_requires_editorial_review"

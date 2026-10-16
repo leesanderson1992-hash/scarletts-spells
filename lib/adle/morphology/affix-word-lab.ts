@@ -176,7 +176,11 @@ export function compileDynamicAffixWordLabPayload(selection: DynamicAffixSelecti
     || new Set(buildWords.map((word) => word.canonicalWordId)).size !== buildWords.length
   ) return null;
   const buildFor = (word: typeof lesson[number], buildIndex: number) => {
-    const choices = profile.choices.map((choice) => choice.text === word.affixText ? { ...choice, status: "target" as const } : choice.status === "target" ? { ...choice, status: "valid_alternative" as const } : choice);
+    const choices = profile.choices.map((choice) => choice.text === word.affixText
+      ? { ...choice, status: "target" as const }
+      : profile.microSkillKey === "D4_MOR_SUFFIXES_TION" && ["tion", "ion"].includes(choice.text)
+        ? { ...choice, status: "unsupported" as const }
+        : choice.status === "target" ? { ...choice, status: "valid_alternative" as const } : choice);
     if (choices.filter((choice) => choice.status === "target").length !== 1) return null;
     // The immutable payload carries a stable rotation: repeated builds do not
     // teach the child that the correct affix is always in the same place.

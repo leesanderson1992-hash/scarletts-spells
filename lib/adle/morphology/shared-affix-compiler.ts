@@ -187,6 +187,13 @@ function validateWord(
     || expectedSplit <= 0
     || expectedSplit >= word.displayWord.length
   ) blockers.push(blocker("reconstruction_mismatch", detail));
+  if (input.profile.profileKey === "D4_MOR_SUFFIXES_TION" && word.affixForm === "ion"
+    && (!word.teachingSurfaceText.endsWith("t") || word.morphology.parts.length !== 2
+      || word.morphology.parts[0]?.text !== word.teachingSurfaceText
+      || word.morphology.parts[1]?.text !== "ion"
+      || word.morphology.parts[1]?.sourceText !== "ion")) {
+    blockers.push(blocker("reconstruction_mismatch", detail));
+  }
 
   if (
     !validText(word.baseMeaning)
@@ -358,6 +365,8 @@ function targetChoices(
   const targeted = choices.map((choice) =>
     choice.text === word.affixForm
       ? { ...choice, status: "target" as const }
+      : input.profile.profileKey === "D4_MOR_SUFFIXES_TION" && ["tion", "ion"].includes(choice.text)
+        ? { ...choice, status: "unsupported" as const }
       : choice.status === "target"
         ? { ...choice, status: "valid_alternative" as const }
         : { ...choice },

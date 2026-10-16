@@ -204,7 +204,7 @@ export const SHARED_AFFIX_PROFILE_REGISTRY = [
   suffix("D4_MOR_SUFFIXES_ITY", ["ity"]),
   suffix("D4_MOR_SUFFIXES_LY", ["ly"]),
   suffix("D4_MOR_SUFFIXES_OUS", ["ous"]),
-  suffix("D4_MOR_SUFFIXES_TION", ["tion"]),
+  suffix("D4_MOR_SUFFIXES_TION", ["tion", "ion"]),
   suffix("D4_MOR_SUFFIXES_SION", ["sion"]),
 ] as const satisfies readonly SharedAffixProfileMappingV1[];
 

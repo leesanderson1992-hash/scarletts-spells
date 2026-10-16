@@ -441,7 +441,11 @@ export async function loadDynamicSuffixProfiles(
         && provenance.status !== "draft_requires_editorial_review"
         && typeof member.transformation_notes === "string"
         && suffixPart?.text === member.suffix_variant
-        && `${teachingBase}${member.suffix_variant}` === displayWord,
+        && `${teachingBase}${member.suffix_variant}` === displayWord
+        && (profileKey !== "D4_MOR_SUFFIXES_TION" || member.suffix_variant !== "ion"
+          || (teachingBase.endsWith("t") && trueParts.length === 2
+            && trueParts[0]?.text === teachingBase && trueParts[1]?.text === "ion"
+            && trueParts[1]?.sourceText === "ion")),
       );
       if (!valid || !canonicalWordId || !displayWord || !dictationSentence || !audioText || !teachingParts || !trueParts || !teachingJoins || !trueJoins || !provenance) {
         diagnostics.push({ profileKey, blockerCode: "member_validation_failed", memberIndex });
@@ -485,6 +489,18 @@ export async function loadDynamicSuffixProfiles(
       diagnostics.push({ profileKey, blockerCode: "insufficient_route_ready_candidates" });
       continue;
     }
+    // The reviewed -tion family includes words such as action where the final
+    // t belongs to the base. Only a compiler-ready -ion member enables this
+    // tile and rule; older assignment snapshots keep their original copy.
+    const hasIonMember = profileKey === "D4_MOR_SUFFIXES_TION" && [...words.values()].some((word) => word.affixVariant === "ion");
+    const lessonChoices = hasIonMember && !declaredChoices.some((choice) => choice.text === "ion")
+      ? [...declaredChoices, { text: "ion", label: "-ion", outcome: null,
+          meaning: "the action, process or result of", status: "valid_alternative" as const }]
+      : declaredChoices;
+    const lessonIntro = hasIonMember
+      ? { ...intro, spellingRules: [...intro.spellingRules,
+          "When a base ends in t, keep that t in the base and add -ion: act + ion → action."] }
+      : intro;
     profiles.push({
       microSkillKey: profileKey,
       position: "after",
@@ -495,12 +511,12 @@ export async function loadDynamicSuffixProfiles(
       meaningBins: bins,
       includeMeaningSort: row.include_meaning_sort,
       wordsByCanonicalId: words,
-      choices: declaredChoices,
+      choices: lessonChoices,
       reflection: {
         promptKey: row.reflection_prompt_key as string,
         promptText: row.reflection_prompt_text as string,
       },
-      introduction: intro,
+      introduction: lessonIntro,
       governance: {
         profileId: row.id as string,
         importBatchId: row.import_batch_id as string,

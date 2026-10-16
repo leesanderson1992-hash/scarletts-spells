@@ -11,6 +11,7 @@ import {
 } from "../lib/adle/morphology/affix-word-lab";
 import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-affix-assignment-plan";
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
+import { isDynamicAffixWordLessonReady } from "../lib/adle/morphology/dynamic-affix-transfer-selection";
 import { DYNAMIC_SUFFIX_PROFILE_KEYS } from "../lib/adle/morphology/dynamic-suffix-profile-keys";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
@@ -102,4 +103,43 @@ incomplete.wordsByCanonicalId.set("invention", { ...incomplete.wordsByCanonicalI
 const incompleteSelection = selectDynamicAffixWordLab({ profiles: [incomplete], learningItems: [item] });
 assert.equal(incompleteSelection ? compileDynamicAffixWordLabPayload(incompleteSelection) : null, null, "missing provenance fails before compilation");
 assert.equal(selectDynamicAffixWordLab({ profiles: [{ ...profile, productionEnabled: false }], learningItems: [item] }), null, "production-disabled profile is isolated outside staging");
+// A reviewed replacement can keep the final t in act and teach -ion in the
+// same route. The original package and any existing assignment stay frozen.
+const action = words.find((word) => word.displayWord === "action")!;
+const actionIon: DynamicAffixWord = {
+  ...action,
+  teachingBaseText: "act",
+  affixVariant: "ion",
+  parts: parts(pkg.words[0].trueMorphology.parts),
+  joins: joins(pkg.words[0].trueMorphology.joins),
+  splitPoints: [3],
+};
+const ionProfile: DynamicAffixProfile = {
+  ...profile,
+  wordsByCanonicalId: new Map(profile.wordsByCanonicalId).set(action.canonicalWordId, actionIon),
+  choices: [...profile.choices, { text: "ion", label: "-ion", outcome: null,
+    meaning: "the action, process or result of", status: "valid_alternative" }],
+  introduction: { ...profile.introduction, spellingRules: [...profile.introduction.spellingRules,
+    "When a base ends in t, keep that t in the base and add -ion: act + ion → action."] },
+};
+const ionSelection = selectDynamicAffixWordLab({ profiles: [ionProfile], learningItems: [
+  { ...item, canonicalWordId: action.canonicalWordId },
+] });
+assert(ionSelection, "reviewed act + ion profile is selectable");
+const ionPayload = compileDynamicAffixWordLabPayload(ionSelection);
+assert(ionPayload && validateDynamicAffixWordLabPayload(ionPayload), "reviewed act + ion profile compiles");
+assertDynamicAffixSharedParity(ionSelection, ionPayload, "TION reviewed -ion variant");
+const ionAction = ionPayload.words.lesson.find((word) => word.displayWord === "action");
+assert.equal(ionAction?.splitPoints[0], 3, "Cleaver cuts act | ion");
+assert.equal(ionAction?.affixText, "ion", "Cleaver shows the reviewed -ion part");
+const ionBuild = ionPayload.activities.guided.builds.find((build) => build.canonicalWordId === action.canonicalWordId);
+assert.equal(ionBuild?.baseWord, "act", "Word build keeps t in the base");
+assert.equal(ionBuild?.choices.find((choice) => choice.status === "target")?.text, "ion", "Word build targets -ion");
+assert.equal(ionBuild?.choices.find((choice) => choice.text === "tion")?.status, "unsupported", "adding -tion after act would duplicate t");
+assert(dynamicAffixRuntime(ionPayload), "learner runtime accepts reviewed act + ion");
+assert(!isDynamicAffixWordLessonReady(ionProfile, {
+  ...actionIon, trueMorphology: { ...actionIon.trueMorphology,
+    parts: actionIon.trueMorphology.parts.map((part) => part.text === "ion" ? { ...part, sourceText: "tion" } : part),
+  },
+}), "a suffix whose true morphology is not -ion is blocked");
 console.log("Dynamic suffix -tion regression passed.");

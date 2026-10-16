@@ -79,6 +79,8 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Add true morphology provenance.": "trueMorphologyProvenance",
     "Add reviewed true morphology notes.": "transformationNotes",
     "Teaching parts must spell the word.": "teachingSplitParts",
+    "The learner suffix must match the selected suffix form.": "teachingSplitParts",
+    "The -ion learner cut needs a reviewed base ending in t and matching true morphology.": "teachingSplitParts",
     "True morphology parts must spell the word.": "trueMorphologyParts",
     "Teaching joins must connect every part.": "teachingSplitJoins",
     "True morphology joins must connect every part.": "trueMorphologyJoins",

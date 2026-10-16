@@ -246,6 +246,7 @@ export function WordWorkspace(props: {
       }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
       if (!result.error) {
+        if (String(form.get("review_section") ?? "").startsWith("lesson:")) splitDialog.current?.close();
         if (editRevision.current === revision) {
           setDirty(false);
           setOverviewReviewed(result.overviewApproved);
@@ -318,10 +319,15 @@ export function WordWorkspace(props: {
   function updateRoute(key: string, values: Record<string, unknown>) {
     const current = routeContent(key);
     if (!current) return;
+    const suffix = Array.isArray(values.teachingSplitParts)
+      ? values.teachingSplitParts.find((part) => part && typeof part === "object" && (part as { kind?: string }).kind === "suffix") as { surfaceText?: string } | undefined
+      : undefined;
     change({
       routeContents: [
         ...payload.routeContents.filter((route) => route.microSkillKey !== key),
-        { ...current, content: { ...current.content, ...values } },
+        { ...current, content: { ...current.content, ...values,
+          ...(current.routeId === "dynamic_affix_word_lab" && suffix?.surfaceText
+            ? { suffixVariant: suffix.surfaceText } : {}) } },
       ],
     });
   }
@@ -560,7 +566,7 @@ export function WordWorkspace(props: {
               {
                 key: "suffixVariant",
                 label: "Suffix",
-                options: profile?.choices.map((value) => ({
+                options: [...new Set([...(profile?.choices ?? []), ...(key === "D4_MOR_SUFFIXES_TION" ? ["ion"] : [])])].map((value) => ({
                   value,
                   label: `-${value}`,
                 })),
@@ -1963,7 +1969,7 @@ export function WordWorkspace(props: {
                 className={button}
                 onClick={() => splitDialog.current?.close()}
               >
-                Done
+                Return to lesson (not saved)
               </button>
               {saveButton(
                 `lesson:${splitSkill}`,
