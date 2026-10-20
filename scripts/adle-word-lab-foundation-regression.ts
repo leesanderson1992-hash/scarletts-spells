@@ -159,6 +159,6 @@ for (const concern of ["prefers-reduced-motion", "wordLabResumeKey", "Sound off"
   assert(shellSource.includes(concern), `common shell must retain ${concern}`);
 }
 const previewPage = readFileSync("app/dev/adle/common-word-lab/page.tsx", "utf8");
-assert(previewPage.includes('process.env.NODE_ENV === "production"') && previewPage.includes("notFound()"));
+assert(previewPage.includes("canOpenAdleDesignPreview()") && previewPage.includes("notFound()"));
 
 console.log("ADLE common Word Lab foundation regression passed.");

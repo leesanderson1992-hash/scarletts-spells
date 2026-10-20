@@ -120,7 +120,14 @@ export function compileWordLabSnapshot(input: CompileWordLabInputV1): WordLabCom
   const usedItemBindings = new Set<string>();
   for (const activity of [...input.recipe.activities].sort((left, right) => left.order - right.order)) {
     if (!conditionMet(activity.condition, input.selectedWords, input.recipe)) continue;
-    const selected = selectWords(input.selectedWords, activity.words);
+    const eligible = selectWords(input.selectedWords, activity.words);
+    const allowedIds = input.activityWordIdsByKey?.[activity.activityKey];
+    if (allowedIds && (new Set(allowedIds).size !== allowedIds.length ||
+      allowedIds.some((id) => !eligible.some((word) => word.canonicalWordId === id)))) {
+      blockers.push({ code: "activity_selector_failed", detail: activity.activityKey });
+      continue;
+    }
+    const selected = allowedIds ? eligible.filter((word) => allowedIds.includes(word.canonicalWordId)) : eligible;
     if (selected.length < activity.words.min || selected.length > activity.words.max) {
       blockers.push({ code: "activity_selector_failed", detail: activity.activityKey });
       continue;
@@ -144,7 +151,7 @@ export function compileWordLabSnapshot(input: CompileWordLabInputV1): WordLabCom
       order: activity.order,
       wordSlotIds: words.filter((word) => selectedIds.has(word.canonicalWordId)).map((word) => word.slotId),
       assignmentItemIds: [...assignmentItemIds],
-      config: activity.config,
+      config: structuredClone(input.activityConfigsByKey?.[activity.activityKey] ?? activity.config),
       answerVisibility: activity.answerVisibility,
       evidenceMode: activity.evidenceMode,
       requiredForCompletion: activity.requiredForCompletion,

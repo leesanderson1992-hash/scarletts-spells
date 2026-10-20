@@ -1,4 +1,5 @@
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
+import { parseDinnerActivityConfig } from "./call-it-to-dinner";
 import {
   WORD_LAB_COMPILER_VERSION,
   WORD_LAB_SNAPSHOT_SCHEMA_VERSION,
@@ -171,6 +172,17 @@ export function validateCompiledWordLabSnapshot(
       itemBindings.add(itemId);
     }
     const contractKey = wordLabActivityContractKey(activity.kind, activity.contractVersion);
+    if (activity.kind === "call_it_to_dinner") {
+      const dinner = parseDinnerActivityConfig(activity.config);
+      const boundWords = snapshot.words.filter((word) => activity.wordSlotIds.includes(word.slotId));
+      const sameTargets = dinner && dinner.rounds.length === boundWords.length && boundWords.every((word) =>
+        dinner.rounds.some((round) => round.canonicalWordId === word.canonicalWordId && round.spelling === word.displayWord &&
+          round.microSkillKey === snapshot.taxonomy.microSkillKey));
+      if (!sameTargets || activity.contractVersion !== 1 || activity.evidenceMode !== "guided_recognition" ||
+        activity.answerVisibility !== "teaching_visible") {
+        blockers.push({ code: "activity_contract_mismatch", detail: activity.activityKey });
+      }
+    }
     if (context.supportedActivityContracts && !context.supportedActivityContracts.has(contractKey)) {
       blockers.push({ code: "unknown_activity_plugin", detail: contractKey });
     }

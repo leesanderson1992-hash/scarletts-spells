@@ -4,6 +4,8 @@ import { useState, type ReactNode } from "react";
 
 import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter";
 import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
+import { CallItToDinnerActivity } from "./call-it-to-dinner-activity";
+import { parseDinnerActivityConfig } from "@/lib/adle/word-lab/call-it-to-dinner";
 
 import type {
   CompiledWordLabSnapshotV1,
@@ -181,12 +183,33 @@ function CanonicalSentenceDictationFixture(props: WordLabActivityPluginProps) {
   );
 }
 
+function CallItToDinnerPlugin(props: WordLabActivityPluginProps) {
+  const config = parseDinnerActivityConfig(props.activity.config);
+  if (!config || props.activity.evidenceMode !== "guided_recognition") {
+    return <p role="alert">Call It to Dinner needs approved word recordings and reviewed syllable annotations.</p>;
+  }
+  return <CallItToDinnerActivity
+    config={config}
+    initialState={props.initialState}
+    muted={props.muted}
+    reducedMotion={props.reducedMotion}
+    onStateChange={props.onStateChange}
+    onComplete={(response) => props.onComplete({
+      activityId: props.activity.activityId,
+      contractVersion: props.activity.contractVersion,
+      completed: true,
+      response,
+    })}
+  />;
+}
+
 const pluginEntries = [
   ["strategy_notice", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
   ["guided_map", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
   ["cover_check", 1, (props: WordLabActivityPluginProps) => <CanonicalCoverCheckFixture {...props} />],
   ["dictation", 1, (props: WordLabActivityPluginProps) => <CanonicalSentenceDictationFixture {...props} />],
   ["reflection", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
+  ["call_it_to_dinner", 1, (props: WordLabActivityPluginProps) => <CallItToDinnerPlugin {...props} />],
 ] as const;
 
 const plugins = new Map<string, WordLabActivityPluginRenderer>(

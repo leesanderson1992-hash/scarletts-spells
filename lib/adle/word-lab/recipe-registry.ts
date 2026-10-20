@@ -4,6 +4,7 @@ import {
   type WordLabRecipeDefinitionV1,
   type WordLabWordRequirementsV1,
 } from "./contracts";
+import { WEAK_VOWEL_DINNER_CANDIDATE_RECIPE } from "./weak-vowel-dinner";
 
 const allLessonRoles = ["authentic_target", "transfer", "practice"] as const;
 
@@ -129,6 +130,7 @@ function fixtureRecipe(
  * preview inputs; this registry is not a route-activation source.
  */
 export const WORD_LAB_RECIPE_REGISTRY: readonly WordLabRecipeDefinitionV1[] = [
+  WEAK_VOWEL_DINNER_CANDIDATE_RECIPE,
   fixtureRecipe("fixture_family_default", {
     routeKey: "fixture_common_word_lab",
     routeVersion: 1,

@@ -1,0 +1,11 @@
+# Call It to Dinner review and activation
+
+The activity preview at `/dev/adle/call-it-to-dinner` uses four **candidate** annotations and four hash-verified, owner-approved standalone British word recordings. It does not publish Dinner content or create learner evidence.
+
+For each current assigned word–skill pair in **Word activity review**, confirm the spoken count (AF) against the chosen standalone word recording, the written cut (AG), the target syllable (AH), and the **complete** target spelling in H. AI/AJ identify one vowel letter only and are not the Dinner answer. If more than one cut is acceptable, put the approved alternatives in AK, separated by semicolons. Write `Approve` in M only when the recording, cuts, target spelling and chosen pronunciation are bound. `Exclude` or `Needs repair` do not publish. Brochure remains excluded.
+
+Every approved row also needs a stable pronunciation ID in the governed source export. The current candidate source has blank IDs, so no reviewed row is currently publishable. The source fingerprint in X must equal the current governed source; stale rows are rejected. Morphology-only cuts such as `safe-r` must not be used as a heard syllable split if they put the target letters in the wrong syllable.
+
+Export the tab as CSV, then run `python3 scripts/prepare-dinner-release.py --sheet REVIEW.csv --source CURRENT_SOURCE.csv --audio-root APPROVED_WORD_MP3_DIR`. This is a dry run with row-specific errors. After all approved rows pass, add `--write` to create `content/secret-life-of-vowels/dinner-approved.json` and copy hash-verified word clips to public assets. A release with no approved rows keeps Dinner inactive. Runtime uses that published release plus current governed assignments, never a live Sheet or a fixed shortlist.
+
+The dark `weak_vowel_word_lab` candidate recipe covers the eight existing micro-skills and retains the composer's five-word demand-first selection. Only Dinner-ready selected words enter Dinner rounds; blocked demanded words remain selected and are reported. The complete weak-vowel lesson route remains unactivated while the other activities and Dinner editorial decisions are unfinished. Robot Rhythm stays paused on `pause/robot-rhythm-2026-10-20`.

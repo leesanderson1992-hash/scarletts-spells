@@ -210,6 +210,10 @@ export interface CompileWordLabInputV1 {
   recipe: WordLabRecipeDefinitionV1;
   selectedWords: readonly WordLabSelectedWordV1[];
   assignmentItemIdsByActivityKey: Readonly<Record<string, readonly string[]>>;
+  /** Reviewed, assignment-specific content copied into the immutable snapshot. */
+  activityConfigsByKey?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
+  /** Optional reviewed activity eligibility subset; selected lesson words stay in the snapshot. */
+  activityWordIdsByKey?: Readonly<Record<string, readonly string[]>>;
   content: CompiledWordLabSnapshotV1["content"];
   selectionPolicyVersion: string;
   evidencePolicyVersion: string;

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "call_it_to_dinner_activity_v1",
+  "rounds": [
+    {
+      "schemaVersion": "call_it_to_dinner_round_v1",
+      "contentVersion": "dinner-preview-candidates-2026-10-20",
+      "reviewStatus": "candidate",
+      "canonicalWordId": "7d5dd280-3153-5578-b683-d79b3f7a8636",
+      "spelling": "sofa",
+      "microSkillKey": "D4_SCHWA_FINAL_A_FINAL",
+      "wordSense": null,
+      "pronunciationId": "candidate-word-audio-461e4d64287a4e6a",
+      "sourceFingerprint": "3790a2be62c3c562c0efda930273547f4b7493bb048438e41e97f96ae771f75b",
+      "recording": {
+        "src": "/audio/secret-life-of-vowels/dinner-preview/7d5dd280-3153-5578-b683-d79b3f7a8636.mp3",
+        "sha256": "461e4d64287a4e6aa48707b0bb314a297426b0d1a5203c656cb5e13f28f94cfa",
+        "reviewStatus": "approved"
+      },
+      "spokenSyllableCount": 2,
+      "acceptedCutSets": [
+        [
+          2
+        ]
+      ],
+      "target": {
+        "start": 3,
+        "end": 4,
+        "text": "a",
+        "syllableIndex": 2,
+        "soundType": "schwa"
+      }
+    },
+    {
+      "schemaVersion": "call_it_to_dinner_round_v1",
+      "contentVersion": "dinner-preview-candidates-2026-10-20",
+      "reviewStatus": "candidate",
+      "canonicalWordId": "3ce000e5-d4de-5df0-bc5d-05d6a869d979",
+      "spelling": "dinner",
+      "microSkillKey": "D4_SCHWA_FINAL_ER_FINAL",
+      "wordSense": null,
+      "pronunciationId": "candidate-word-audio-56bc3719c85c8df6",
+      "sourceFingerprint": "f07b7e0622b4ebfb3c364bd93efec783a1fe2d7c341ceca1b44e755912cb313a",
+      "recording": {
+        "src": "/audio/secret-life-of-vowels/dinner-preview/3ce000e5-d4de-5df0-bc5d-05d6a869d979.mp3",
+        "sha256": "56bc3719c85c8df60c3c608fb202089270847c8f742c18677d49a3693e448e6e",
+        "reviewStatus": "approved"
+      },
+      "spokenSyllableCount": 2,
+      "acceptedCutSets": [
+        [
+          3
+        ]
+      ],
+      "target": {
+        "start": 4,
+        "end": 6,
+        "text": "er",
+        "syllableIndex": 2,
+        "soundType": "schwa"
+      }
+    },
+    {
+      "schemaVersion": "call_it_to_dinner_round_v1",
+      "contentVersion": "dinner-preview-candidates-2026-10-20",
+      "reviewStatus": "candidate",
+      "canonicalWordId": "5b81ec91-1f19-5571-8b48-39417b0a8481",
+      "spelling": "player",
+      "microSkillKey": "D4_SCHWA_FINAL_ER_FINAL",
+      "wordSense": null,
+      "pronunciationId": "candidate-word-audio-d4e04cc3f2697e91",
+      "sourceFingerprint": "f254693bd740ccb6bd6aa06c48e3087e8d6bbe83183e320253012016c0208e1b",
+      "recording": {
+        "src": "/audio/secret-life-of-vowels/dinner-preview/5b81ec91-1f19-5571-8b48-39417b0a8481.mp3",
+        "sha256": "d4e04cc3f2697e91a252ea4c02e710b1bff58b3dffed64361511e2294b4d6452",
+        "reviewStatus": "approved"
+      },
+      "spokenSyllableCount": 2,
+      "acceptedCutSets": [
+        [
+          4
+        ]
+      ],
+      "target": {
+        "start": 4,
+        "end": 6,
+        "text": "er",
+        "syllableIndex": 2,
+        "soundType": "schwa"
+      }
+    },
+    {
+      "schemaVersion": "call_it_to_dinner_round_v1",
+      "contentVersion": "dinner-preview-candidates-2026-10-20",
+      "reviewStatus": "candidate",
+      "canonicalWordId": "e3f9ba50-5962-58a8-9e85-43636113314d",
+      "spelling": "different",
+      "microSkillKey": "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+      "wordSense": null,
+      "pronunciationId": "candidate-word-audio-554c0f28a0e30543",
+      "sourceFingerprint": "f10eb49aec16f71803eb5e836718bc9444ef3be8bcbad5dbd8c23cc5b1adcb39",
+      "recording": {
+        "src": "/audio/secret-life-of-vowels/dinner-preview/e3f9ba50-5962-58a8-9e85-43636113314d.mp3",
+        "sha256": "554c0f28a0e305436e0f3294940dd7c193f9dcd2ff82ac49e71d83c9fcaa87dd",
+        "reviewStatus": "approved"
+      },
+      "spokenSyllableCount": 3,
+      "acceptedCutSets": [
+        [
+          3,
+          6
+        ]
+      ],
+      "target": {
+        "start": 4,
+        "end": 5,
+        "text": "e",
+        "syllableIndex": 2,
+        "soundType": "other_unstressed"
+      }
+    }
+  ]
+}
