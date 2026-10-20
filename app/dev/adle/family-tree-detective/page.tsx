@@ -12,17 +12,18 @@ import { DetectivePreview } from "./preview";
 export const dynamic = "force-dynamic";
 
 function candidateFamily(word: string, id: string, recording: { src: string; sha256: string; reviewStatus: "approved" }): DetectiveFamilyV1 | null {
-  const relative = word === "dinner" ? "dine" : word === "player" ? "play" : null;
+  const relative = word === "player" ? "play" : null;
   if (!relative) return null;
   return {
     authorityId: `candidate-preview-${relative}`,
     sourceFingerprint: createHash("sha256").update(`candidate-preview:${word}:${relative}`).digest("hex"),
-    reviewStatus: "candidate", name: relative,
+    reviewStatus: "candidate", relationKind: "base_to_derived", name: relative,
     members: [
       { canonicalWordId: id, spelling: word, recording, morphologyNote: null, alignedVowelSpan: null },
-      { canonicalWordId: `candidate-preview-${relative}`, spelling: relative, recording: null, morphologyNote: null, alignedVowelSpan: null },
+      { canonicalWordId: `candidate-preview-${relative}`, spelling: relative, recording: null,
+        morphologyNote: "play + -er → player", alignedVowelSpan: null },
     ],
-    explanation: null,
+    explanation: "play + -er → player",
   };
 }
 
