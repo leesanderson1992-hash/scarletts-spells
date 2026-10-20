@@ -5,6 +5,7 @@ import {
   type WordLabWordRequirementsV1,
 } from "./contracts";
 import { WEAK_VOWEL_DINNER_CANDIDATE_RECIPE } from "./weak-vowel-dinner";
+import { WEAK_VOWEL_DETECTIVE_CANDIDATE_RECIPE } from "./weak-vowel-detective";
 
 const allLessonRoles = ["authentic_target", "transfer", "practice"] as const;
 
@@ -131,6 +132,7 @@ function fixtureRecipe(
  */
 export const WORD_LAB_RECIPE_REGISTRY: readonly WordLabRecipeDefinitionV1[] = [
   WEAK_VOWEL_DINNER_CANDIDATE_RECIPE,
+  WEAK_VOWEL_DETECTIVE_CANDIDATE_RECIPE,
   fixtureRecipe("fixture_family_default", {
     routeKey: "fixture_common_word_lab",
     routeVersion: 1,

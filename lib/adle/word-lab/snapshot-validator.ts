@@ -1,5 +1,6 @@
 import { fingerprintSnapshotValue } from "../composable-lesson/canonical-fingerprint";
 import { parseDinnerActivityConfig } from "./call-it-to-dinner";
+import { parseDetectiveActivityConfig } from "./family-tree-detective";
 import {
   WORD_LAB_COMPILER_VERSION,
   WORD_LAB_SNAPSHOT_SCHEMA_VERSION,
@@ -180,6 +181,17 @@ export function validateCompiledWordLabSnapshot(
           round.microSkillKey === snapshot.taxonomy.microSkillKey));
       if (!sameTargets || activity.contractVersion !== 1 || activity.evidenceMode !== "guided_recognition" ||
         activity.answerVisibility !== "teaching_visible") {
+        blockers.push({ code: "activity_contract_mismatch", detail: activity.activityKey });
+      }
+    }
+    if (activity.kind === "family_tree_detective") {
+      const detective = parseDetectiveActivityConfig(activity.config);
+      const boundWords = snapshot.words.filter((word) => activity.wordSlotIds.includes(word.slotId));
+      const sameTargets = detective && detective.rounds.length === boundWords.length && boundWords.every((word) =>
+        detective.rounds.some((round) => round.canonicalWordId === word.canonicalWordId &&
+          round.spelling === word.displayWord && round.microSkillKey === snapshot.taxonomy.microSkillKey));
+      if (!sameTargets || activity.contractVersion !== 1 || activity.evidenceMode !== "guided_recognition" ||
+        activity.answerVisibility !== "post_submit_only") {
         blockers.push({ code: "activity_contract_mismatch", detail: activity.activityKey });
       }
     }

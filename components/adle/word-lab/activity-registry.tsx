@@ -6,6 +6,8 @@ import { CoverShutter } from "@/components/adle/activities/shared/cover-shutter"
 import { SentenceDictation } from "@/components/adle/activities/shared/sentence-dictation";
 import { CallItToDinnerActivity } from "./call-it-to-dinner-activity";
 import { parseDinnerActivityConfig } from "@/lib/adle/word-lab/call-it-to-dinner";
+import { FamilyTreeDetectiveActivity } from "./family-tree-detective-activity";
+import { parseDetectiveActivityConfig } from "@/lib/adle/word-lab/family-tree-detective";
 
 import type {
   CompiledWordLabSnapshotV1,
@@ -203,6 +205,26 @@ function CallItToDinnerPlugin(props: WordLabActivityPluginProps) {
   />;
 }
 
+function FamilyTreeDetectivePlugin(props: WordLabActivityPluginProps) {
+  const config = parseDetectiveActivityConfig(props.activity.config);
+  if (!config || props.activity.evidenceMode !== "guided_recognition") {
+    return <p role="alert">Family Tree Detective needs a reviewed target vowel and approved word recording.</p>;
+  }
+  return <FamilyTreeDetectiveActivity
+    config={config}
+    initialState={props.initialState}
+    muted={props.muted}
+    reducedMotion={props.reducedMotion}
+    onStateChange={props.onStateChange}
+    onComplete={(response) => props.onComplete({
+      activityId: props.activity.activityId,
+      contractVersion: props.activity.contractVersion,
+      completed: true,
+      response,
+    })}
+  />;
+}
+
 const pluginEntries = [
   ["strategy_notice", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
   ["guided_map", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
@@ -210,6 +232,7 @@ const pluginEntries = [
   ["dictation", 1, (props: WordLabActivityPluginProps) => <CanonicalSentenceDictationFixture {...props} />],
   ["reflection", 1, (props: WordLabActivityPluginProps) => <FixtureActivity {...props} />],
   ["call_it_to_dinner", 1, (props: WordLabActivityPluginProps) => <CallItToDinnerPlugin {...props} />],
+  ["family_tree_detective", 1, (props: WordLabActivityPluginProps) => <FamilyTreeDetectivePlugin {...props} />],
 ] as const;
 
 const plugins = new Map<string, WordLabActivityPluginRenderer>(
