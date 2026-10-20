@@ -114,7 +114,7 @@ export interface SyllableSplitHandleProps {
   word: string;
   selectedBoundaries: readonly number[];
   onSelectedBoundariesChange: (boundaries: number[]) => void;
-  onCheck: () => void;
+  onBoundaryAttempt?: (boundaries: number[]) => boolean;
   feedback?: string;
   muted?: boolean;
   disabled?: boolean;
@@ -285,50 +285,56 @@ function BoundarySplitHandle(props: SplitHandleProps) {
   );
 }
 
-/** Phonological mode of the shared cleaver: collect cuts before checking them. */
+/** Phonological mode of the shared cleaver: review each gap as it is cut. */
 function SyllableSplitHandle(props: SyllableSplitHandleProps) {
   const reducedMotion = useReducedMotion();
-  const [dragging, setDragging] = useState(false);
+  const [wrongBoundary, setWrongBoundary] = useState<number | null>(null);
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
+  const board = useRef<HTMLDivElement | null>(null);
   const selected = [...new Set(props.selectedBoundaries)].sort((a, b) => a - b);
   const parts = splitHandleDisplayParts(props.word, selected);
 
   function toggle(point: number) {
     if (props.disabled) return;
     const next = selected.includes(point) ? selected.filter((cut) => cut !== point) : [...selected, point].sort((a, b) => a - b);
+    if (props.onBoundaryAttempt && !props.onBoundaryAttempt(next)) {
+      setWrongBoundary(point);
+      playInteractionSound("resist", props.muted);
+      return;
+    }
+    setWrongBoundary(null);
     playInteractionSound(selected.includes(point) ? "snap" : "cleave", props.muted);
     props.onSelectedBoundariesChange(next);
   }
 
   return <section className="grid gap-5" aria-label={`Cut ${props.word} into the syllables you hear`}>
-    <div className="flex items-center justify-center gap-3">
-      <span className="scale-75" aria-hidden="true"><CleaverIcon striking={dragging} reducedMotion={reducedMotion} /></span>
-      <p className="max-w-md text-sm font-semibold text-cyan-100">Tap a gap to cut. Tap it again to join the pieces. You can also drag the cleaver to a gap.</p>
-    </div>
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto rounded-3xl border border-cyan-300/30 bg-slate-900/80 p-5 shadow-xl">
+    <p className="text-center text-sm font-semibold text-[color:var(--mid)]">Move the cleaver over a letter gap, then click or tap to cut. Tap a cut again to join it.</p>
+    <div ref={board} onPointerMove={(event) => {
+      if (event.pointerType === "touch") return;
+      const bounds = board.current?.getBoundingClientRect();
+      if (bounds) setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
+    }} onPointerLeave={() => setPointer(null)} className="relative mx-auto w-full max-w-2xl overflow-x-auto rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm">
+      {pointer && !props.disabled && <span aria-hidden="true" className="pointer-events-none absolute z-20 -translate-x-1/3 -translate-y-1/4 scale-75" style={{ left: pointer.x, top: pointer.y }}><CleaverIcon striking={false} reducedMotion={reducedMotion} /></span>}
       <div role="group" aria-label={`Letter gaps in ${props.word}`} className="flex min-w-max items-stretch justify-center">
         {Array.from(props.word).map((letter, index) => <span key={`${index}-${letter}`} className="flex items-stretch">
-          <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-white sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>
+          <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-[color:var(--ink)] sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>
           {index < props.word.length - 1 && <button
             type="button"
             aria-pressed={selected.includes(index + 1)}
             aria-label={`${selected.includes(index + 1) ? "Remove" : "Make"} cut after ${props.word.slice(0, index + 1)}`}
             disabled={props.disabled}
             onClick={() => toggle(index + 1)}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => { event.preventDefault(); setDragging(false); if (event.dataTransfer.getData("text/plain") === "cleaver" && !selected.includes(index + 1)) toggle(index + 1); }}
-            className={`relative -mx-1.5 min-h-16 min-w-11 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300 ${selected.includes(index + 1) ? "bg-amber-300/25" : "hover:bg-white/10"}`}
-          ><span aria-hidden="true" className={`mx-auto block h-10 w-1 rounded-full ${selected.includes(index + 1) ? "bg-amber-300" : "bg-white/20"}`} /></button>}
+            className={`relative -mx-1.5 min-h-16 min-w-11 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300 ${pointer ? "cursor-none" : "cursor-pointer"} ${wrongBoundary === index + 1 ? "bg-rose-100" : selected.includes(index + 1) ? "bg-amber-200" : "hover:bg-white"}`}
+          ><span aria-hidden="true" className={`mx-auto grid h-10 w-5 place-items-center rounded-full text-2xl font-black ${wrongBoundary === index + 1 ? "text-rose-700" : selected.includes(index + 1) ? "text-amber-700" : "text-cyan-300"}`}>{wrongBoundary === index + 1 ? "×" : "│"}</span></button>}
         </span>)}
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2" aria-live="polite">
-        {parts.map((part, index) => <span key={`${index}-${part}`} className="rounded-xl bg-cyan-100 px-4 py-2 text-lg font-bold text-cyan-950">{part}</span>)}
+        {parts.map((part, index) => <span key={`${index}-${part}`} className="rounded-xl border border-cyan-200 bg-white px-4 py-2 text-lg font-bold text-cyan-950">{part}</span>)}
       </div>
     </div>
     <div className="flex flex-wrap items-center justify-center gap-3">
-      <span draggable={!props.disabled} onDragStart={(event) => { event.dataTransfer.setData("text/plain", "cleaver"); setDragging(true); }} onDragEnd={() => setDragging(false)} className="cursor-grab rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-sm font-black text-amber-950">Drag cleaver</span>
-      <button type="button" onClick={props.onCheck} disabled={props.disabled} className="min-h-12 rounded-full bg-cyan-300 px-7 py-3 font-black text-slate-950 focus-visible:ring-4 focus-visible:ring-amber-300 disabled:opacity-50">Check cuts</button>
-      {selected.length > 0 && <button type="button" onClick={() => props.onSelectedBoundariesChange([])} disabled={props.disabled} className="min-h-12 rounded-full border border-cyan-200 px-5 py-3 font-bold text-white focus-visible:ring-4 focus-visible:ring-amber-300">Join all</button>}
+      {selected.length > 0 && !props.disabled && <button type="button" onClick={() => { setWrongBoundary(null); props.onSelectedBoundariesChange([]); }} className="brand-secondary-btn min-h-12">Join all</button>}
     </div>
-    <p role="status" aria-live="polite" className="min-h-6 text-center font-semibold text-cyan-100">{props.feedback ?? `${parts.length} ${parts.length === 1 ? "piece" : "pieces"} on the board.`}</p>
+    <p role="status" aria-live="polite" className={`min-h-6 text-center font-semibold ${wrongBoundary !== null ? "text-rose-700" : "text-[color:var(--mid)]"}`}>{wrongBoundary !== null ? "× That cut does not match the syllables in this recording. Try another gap." : props.feedback || `${parts.length} ${parts.length === 1 ? "piece" : "pieces"} on the board.`}</p>
   </section>;
 }

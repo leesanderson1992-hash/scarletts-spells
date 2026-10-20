@@ -95,6 +95,13 @@ export function scoreDinnerCuts(round: DinnerRoundV1, cuts: readonly number[]): 
     accepted.every((cut, index) => cut === sorted[index])) ? "correct" : "wrong_boundaries";
 }
 
+/** A child may make the reviewed cuts in any order. Reject a wrong gap immediately. */
+export function isDinnerCutPrefix(round: DinnerRoundV1, cuts: readonly number[]): boolean {
+  const selected = [...new Set(cuts)].sort((a, b) => a - b);
+  return selected.length === cuts.length && round.acceptedCutSets.some((accepted) =>
+    selected.length <= accepted.length && selected.every((cut) => accepted.includes(cut)));
+}
+
 export function scoreDinnerTarget(round: DinnerRoundV1, start: number | null, end: number | null): boolean {
   return start === round.target.start && end === round.target.end;
 }

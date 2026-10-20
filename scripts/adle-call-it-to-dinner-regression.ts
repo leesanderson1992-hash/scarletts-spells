@@ -3,6 +3,7 @@ import candidates from "../content/secret-life-of-vowels/dinner-preview-candidat
 import {
   DINNER_ACTIVITY_VERSION,
   DINNER_ROUND_VERSION,
+  isDinnerCutPrefix,
   parseDinnerActivityConfig,
   parseDinnerRound,
   resolveDinnerForSelectedWords,
@@ -30,6 +31,10 @@ assert.equal(byWord.player.spokenSyllableCount, 2);
 assert.equal(scoreDinnerCuts(byWord.different, [3]), "wrong_count");
 assert.equal(scoreDinnerCuts(byWord.different, [4, 6]), "wrong_boundaries");
 assert.equal(scoreDinnerCuts(byWord.different, [3, 6]), "correct");
+assert.equal(isDinnerCutPrefix(byWord.different, [3]), true, "A reviewed partial cut may precede another cut");
+assert.equal(isDinnerCutPrefix(byWord.different, [6, 3]), true, "The child may make cuts in either order");
+assert.equal(isDinnerCutPrefix(byWord.different, [4]), false, "A wrong gap is rejected immediately");
+assert.equal(isDinnerCutPrefix(byWord.different, [3, 3]), false, "Repeated cuts cannot form a syllable pattern");
 assert.equal(scoreDinnerCuts(byWord.different, [3, 3, 6]), "wrong_count");
 
 const alternative = { ...byWord.dinner, acceptedCutSets: [[3], [4]], reviewStatus: "approved" as const, pronunciationId: "registered-dinner-uk-v1" };
