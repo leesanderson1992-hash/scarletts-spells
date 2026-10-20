@@ -115,6 +115,10 @@ export interface SyllableSplitHandleProps {
   selectedBoundaries: readonly number[];
   onSelectedBoundariesChange: (boundaries: number[]) => void;
   onBoundaryAttempt?: (boundaries: number[]) => boolean;
+  lettersSelectable?: boolean;
+  selectedLetterStart?: number | null;
+  selectedLetterEnd?: number | null;
+  onLetterSelect?: (index: number) => void;
   feedback?: string;
   muted?: boolean;
   disabled?: boolean;
@@ -291,8 +295,13 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
   const [wrongBoundary, setWrongBoundary] = useState<number | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
   const board = useRef<HTMLDivElement | null>(null);
+  const firstLetter = useRef<HTMLButtonElement | null>(null);
   const selected = [...new Set(props.selectedBoundaries)].sort((a, b) => a - b);
   const parts = splitHandleDisplayParts(props.word, selected);
+
+  useEffect(() => {
+    if (props.lettersSelectable && !props.disabled) firstLetter.current?.focus();
+  }, [props.lettersSelectable, props.disabled]);
 
   function toggle(point: number) {
     if (props.disabled) return;
@@ -308,16 +317,25 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
   }
 
   return <section className="grid gap-5" aria-label={`Cut ${props.word} into the syllables you hear`}>
-    <p className="text-center text-sm font-semibold text-[color:var(--mid)]">Move the cleaver over a letter gap, then click or tap to cut. Tap a cut again to join it.</p>
+    <p className="text-center text-sm font-semibold text-[color:var(--mid)]">{props.lettersSelectable ? "Now select the unstressed sound. Tap its letter or neighbouring letters in the word to highlight the whole spelling." : "Move the cleaver over a letter gap, then click or tap to cut. Tap a cut again to join it."}</p>
     <div ref={board} onPointerMove={(event) => {
       if (event.pointerType === "touch") return;
       const bounds = board.current?.getBoundingClientRect();
       if (bounds) setPointer({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
     }} onPointerLeave={() => setPointer(null)} className="relative mx-auto w-full max-w-2xl overflow-x-auto rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm">
-      {pointer && !props.disabled && <span aria-hidden="true" className="pointer-events-none absolute z-20 -translate-x-1/3 -translate-y-1/4 scale-75" style={{ left: pointer.x, top: pointer.y }}><CleaverIcon striking={false} reducedMotion={reducedMotion} /></span>}
-      <div role="group" aria-label={`Letter gaps in ${props.word}`} className="flex min-w-max items-stretch justify-center">
+      {pointer && !props.disabled && !props.lettersSelectable && <span aria-hidden="true" className="pointer-events-none absolute z-20 -translate-x-1/3 -translate-y-1/4 scale-75" style={{ left: pointer.x, top: pointer.y }}><CleaverIcon striking={false} reducedMotion={reducedMotion} /></span>}
+      <div role="group" aria-label={props.lettersSelectable ? `Select quiet-vowel spelling in ${props.word}` : `Letter gaps in ${props.word}`} className="flex min-w-max items-stretch justify-center">
         {Array.from(props.word).map((letter, index) => <span key={`${index}-${letter}`} className="flex items-stretch">
-          <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-[color:var(--ink)] sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>
+          {props.lettersSelectable ? <button
+            ref={index === 0 ? firstLetter : undefined}
+            type="button"
+            disabled={props.disabled}
+            aria-pressed={props.selectedLetterStart != null && props.selectedLetterEnd != null && index >= props.selectedLetterStart && index < props.selectedLetterEnd}
+            aria-label={`Letter ${letter}, position ${index + 1}`}
+            onClick={() => props.onLetterSelect?.(index)}
+            style={{ fontSize: "clamp(1.875rem, 4vw, 2.25rem)", fontWeight: 900, lineHeight: 1 }}
+            className={`grid min-h-16 min-w-8 place-items-center rounded-xl text-3xl font-black outline-none focus-visible:ring-4 focus-visible:ring-amber-400 sm:min-w-10 sm:text-4xl ${props.selectedLetterStart != null && props.selectedLetterEnd != null && index >= props.selectedLetterStart && index < props.selectedLetterEnd ? "bg-amber-200 text-amber-950 ring-2 ring-amber-400" : "text-[color:var(--ink)] hover:bg-white"}`}
+          >{letter}</button> : <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-[color:var(--ink)] sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>}
           {index < props.word.length - 1 && <button
             type="button"
             aria-pressed={selected.includes(index + 1)}

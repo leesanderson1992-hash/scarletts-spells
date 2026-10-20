@@ -56,16 +56,14 @@ export function CallItToDinnerActivity(props: {
   const [audioError, setAudioError] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
   const replayButton = useRef<HTMLButtonElement | null>(null);
-  const firstLetter = useRef<HTMLButtonElement | null>(null);
   const nextButton = useRef<HTMLButtonElement | null>(null);
   const completed = useRef(false);
   const round = props.config.rounds[state.index];
   const current = state.words[round.canonicalWordId] ?? emptyWord();
 
   useEffect(() => {
-    if (current.phase === "target") firstLetter.current?.focus();
-    else if (current.phase === "done") nextButton.current?.focus();
-    else replayButton.current?.focus();
+    if (current.phase === "done") nextButton.current?.focus();
+    else if (current.phase === "cut") replayButton.current?.focus();
   }, [state.index, current.phase]);
 
   function change(nextWord: WordState, nextIndex = state.index) {
@@ -148,6 +146,7 @@ export function CallItToDinnerActivity(props: {
     {audioError && <p role="alert" className="rounded-xl bg-rose-100 p-3 font-bold text-rose-950">The word recording could not play. Please try replay. This round cannot be checked without its recording.</p>}
     <div className="grid gap-5"><SplitHandle
       mode="syllables" word={round.spelling} selectedBoundaries={current.cuts} muted={props.muted}
+      lettersSelectable={current.phase !== "cut"} selectedLetterStart={current.start} selectedLetterEnd={current.end} onLetterSelect={selectLetter}
       onBoundaryAttempt={(cuts) => { if (isDinnerCutPrefix(round, cuts)) return true; change({ ...current, cutMisses: current.cutMisses + 1 }); return false; }}
       onSelectedBoundariesChange={(cuts) => { const complete = scoreDinnerCuts(round, cuts) === "correct"; setFeedback(complete ? "✓ Cuts complete." : ""); change({ ...current, cuts, phase: complete ? "target" : "cut", start: complete ? current.start : null, end: complete ? current.end : null }); }}
       feedback={current.phase === "done" ? "✓ Syllables complete." : feedback}
@@ -157,15 +156,6 @@ export function CallItToDinnerActivity(props: {
       change({ ...current, cuts: [...round.acceptedCutSets[0]], phase: "target", answerRevealed: true });
     }}>Show where to cut</button>}
     {current.phase !== "cut" && <div className="grid gap-4 border-t border-cyan-200 pt-5">
-      <p className="text-center text-lg font-black">{current.phase === "done" ? "The complete quiet spelling is highlighted." : "Now select the unstressed sound"}</p>
-      <p className="text-center text-[color:var(--mid)]">Tap one letter, then its neighbours to highlight the whole spelling. Tap a selected letter to remove it.</p>
-      <div role="group" aria-label={`Select quiet-vowel spelling in ${round.spelling}`} className="flex flex-wrap justify-center gap-1.5">
-        {Array.from(round.spelling).map((letter, index) => <button key={`${index}-${letter}`} ref={index === 0 ? firstLetter : undefined} type="button" disabled={current.phase === "done" || audioError}
-          aria-pressed={current.start !== null && current.end !== null && index >= current.start && index < current.end}
-          aria-label={`Letter ${letter}, position ${index + 1}`}
-          onClick={() => selectLetter(index)}
-          className={`min-h-16 min-w-12 rounded-xl border-2 p-2 text-3xl font-black focus-visible:ring-4 focus-visible:ring-amber-300 disabled:cursor-default ${current.start !== null && current.end !== null && index >= current.start && index < current.end ? "border-amber-400 bg-amber-200 text-amber-950" : "border-cyan-200 bg-white text-[color:var(--ink)]"}`}>{letter}</button>)}
-      </div>
       {current.phase === "target" && <div className="flex flex-wrap justify-center gap-3"><button type="button" className="brand-primary-btn min-h-12" onClick={checkTarget} disabled={audioError || current.start === null}>Submit</button>
         {current.targetMisses + current.cutMisses >= 1 && <button type="button" className="brand-secondary-btn min-h-12" onClick={() => { setFeedback(`The quiet sound is in syllable ${round.target.syllableIndex}.`); change({ ...current, clueUsed: true }); }}>Show a clue</button>}
         {current.targetMisses + current.cutMisses >= 2 && <button type="button" className="brand-secondary-btn min-h-12" onClick={reveal}>Show the answer</button>}</div>}
