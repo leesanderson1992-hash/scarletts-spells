@@ -24,6 +24,8 @@ export interface DetectiveFamilyV1 {
   authorityId: string;
   sourceFingerprint: string;
   reviewStatus: "approved" | "candidate";
+  /** Older snapshots omit this and retain their existing family-tree presentation. */
+  relationKind?: "base_to_derived";
   name: string;
   members: readonly DetectiveFamilyMemberV1[];
   /** Reviewed spelling or morphology explanation; no inferred sound-change claim. */
@@ -109,6 +111,7 @@ export function parseDetectiveRound(value: unknown, allowCandidate = false): Det
   const family = round.family;
   if (!record(family) || !nonEmpty(family.authorityId) ||
     !SHA.test(family.sourceFingerprint) ||
+    !(family.relationKind === undefined || family.relationKind === "base_to_derived") ||
     !(family.reviewStatus === "approved" || allowCandidate && family.reviewStatus === "candidate") ||
     !nonEmpty(family.name) || !Array.isArray(family.members) || family.members.length < 2 ||
     !(family.explanation === null || nonEmpty(family.explanation))) return null;

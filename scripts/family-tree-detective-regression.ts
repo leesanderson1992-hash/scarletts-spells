@@ -5,7 +5,8 @@ import {
 } from "../lib/adle/word-lab/family-tree-detective";
 import {
   currentDetectiveFamiliesFromAuthority, currentDetectiveFamiliesFromPublishedAuthority,
-  detectiveFamilyFromAuthority, detectiveFamilyFromPublishedAuthority, prepareDetectiveForComposerSlots,
+  detectiveBaseToFinalErRelation, detectiveFamilyFromAuthority, detectiveFamilyFromPublishedAuthority,
+  prepareDetectiveForComposerSlots,
   type PublishedDetectiveBaseFamilyAuthority,
 } from "../lib/adle/word-lab/weak-vowel-detective";
 import { compileWeakVowelDetectiveCandidate } from "../lib/adle/word-lab/weak-vowel-detective-compiler";
@@ -89,6 +90,62 @@ assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput,
 assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput,
   authority: { ...publishedAuthority, families: [...publishedAuthority.families, publishedAuthority.families[0]] } }).reason,
   "ambiguous_base_family");
+
+const suffixInput = {
+  microSkillKey: "D4_SCHWA_FINAL_ER_FINAL",
+  target: { canonicalWordId: "photographer-id", spelling: "photographer",
+    span: { start: 10, end: 12, text: "er" } },
+  base: { canonicalWordId: "photograph-id", spelling: "photograph",
+    rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const },
+  morphology: { id: "morphology-id", canonicalWordId: "photographer-id", sourceRowHash: "e".repeat(64),
+    rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const,
+    analysisStatus: "approved" as const,
+    wordSum: "photo + graph + er → photographer",
+    parts: [{ text: "photo", type: "root" }, { text: "graph", type: "root" },
+      { text: "er", type: "suffix" }], transformationNotes: null },
+  reviewedAudio: [{ canonicalWordId: "photographer-id", recording }],
+};
+const suffix = detectiveBaseToFinalErRelation(suffixInput);
+assert.equal(suffix.reason, null);
+assert.equal(suffix.family?.relationKind, "base_to_derived");
+assert.equal(suffix.family?.explanation, "photograph + -er → photographer");
+assert.equal(suffix.family?.members[0].alignedVowelSpan, null); // No matching vowel in the base.
+const photographerRound = { ...base, canonicalWordId: "photographer-id", spelling: "photographer",
+  target: { start: 10, end: 12, text: "er", soundType: "schwa" as const }, family: suffix.family };
+assert.ok(parseDetectiveRound(photographerRound));
+const photographerSelection = [{ canonicalWordId: "photographer-id", spelling: "photographer",
+  microSkillKey: base.microSkillKey, wordSense: null, assignmentStatus: "assigned",
+  pronunciationId: base.pronunciationId, sourceFingerprint: base.sourceFingerprint,
+  recordingSha256: base.recording.sha256 }];
+const morphologyAuthority = [{ authorityId: suffix.family!.authorityId,
+  sourceFingerprint: suffix.family!.sourceFingerprint, memberWordIds: ["photograph-id", "photographer-id"] }];
+assert.equal(resolveDetectiveForSelectedWords(photographerSelection, [photographerRound], morphologyAuthority)
+  .ready[0].family?.relationKind, "base_to_derived");
+assert.equal(resolveDetectiveForSelectedWords(photographerSelection, [photographerRound],
+  [{ ...morphologyAuthority[0], sourceFingerprint: hash }]).ready[0].family, null);
+assert.equal(detectiveBaseToFinalErRelation({ ...suffixInput, target: { ...suffixInput.target,
+  spelling: "water", span: { start: 3, end: 5, text: "er" } } }).reason,
+  "base_to_derived_not_verified");
+assert.equal(detectiveBaseToFinalErRelation({ ...suffixInput, morphology: { ...suffixInput.morphology,
+  sourceRowHash: "stale" } }).reason, "morphology_not_current_and_approved");
+assert.equal(detectiveBaseToFinalErRelation({ ...suffixInput, microSkillKey: "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS" }).reason,
+  "not_final_er_skill");
+const baker = detectiveBaseToFinalErRelation({ ...suffixInput,
+  target: { canonicalWordId: "baker-id", spelling: "baker", span: { start: 3, end: 5, text: "er" } },
+  base: { ...suffixInput.base, canonicalWordId: "bake-id", spelling: "bake" },
+  morphology: { ...suffixInput.morphology, canonicalWordId: "baker-id", wordSum: "bake + er → baker",
+    parts: [{ text: "bake", type: "base" }, { text: "er", type: "suffix" }],
+    transformationNotes: "The final <e> in <bake> is omitted before <er>." },
+});
+assert.equal(baker.reason, null);
+assert.match(baker.family?.explanation ?? "", /final e is omitted/);
+const safer = detectiveBaseToFinalErRelation({ ...suffixInput,
+  target: { canonicalWordId: "safer-id", spelling: "safer", span: { start: 3, end: 5, text: "er" } },
+  base: { ...suffixInput.base, canonicalWordId: "safe-id", spelling: "safe" },
+  morphology: { ...suffixInput.morphology, canonicalWordId: "safer-id", wordSum: "safe + r → safer",
+    parts: [{ text: "safe", type: "base" }, { text: "r", type: "suffix" }] },
+});
+assert.equal(safer.family?.explanation, "safe + -r → safer");
 
 const selected = [{ canonicalWordId: base.canonicalWordId, spelling: base.spelling, microSkillKey: base.microSkillKey,
   wordSense: base.wordSense, assignmentStatus: "assigned", pronunciationId: base.pronunciationId,

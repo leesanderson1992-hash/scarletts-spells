@@ -227,8 +227,11 @@ export function FamilyTreeDetectiveActivity(props: {
     </div>}
 
     {current.phase === "explore" && round.family && <div className="grid gap-5">
-      <div className="text-center"><p className="brand-eyebrow">Detective mode</p><h3 className="text-2xl font-black">Explore the {round.family.name} family</h3>
-        <p className="mt-2 text-[color:var(--mid)]">Tap words to hear them. Collect clues you notice; it is fine if a relative does not help.</p></div>
+      <div className="text-center"><p className="brand-eyebrow">Detective mode</p><h3 className="text-2xl font-black">{round.family.relationKind === "base_to_derived"
+        ? `How ${round.family.name} becomes ${round.spelling}` : `Explore the ${round.family.name} family`}</h3>
+        <p className="mt-2 text-[color:var(--mid)]">{round.family.relationKind === "base_to_derived"
+          ? "Look at how the reviewed word parts make the new word. Tap either word to hear it when a recording is available."
+          : "Tap words to hear them. Collect clues you notice; it is fine if a relative does not help."}</p></div>
       <div className="grid gap-4 sm:grid-cols-2">{round.family.members.map((member) => <FamilyCard key={member.canonicalWordId} member={member} round={round}
         chosen={current.clues[member.canonicalWordId] ?? []} muted={Boolean(props.muted)} onHear={() => hear(member)} onClue={(clue) => toggleClue(member.canonicalWordId, clue)} />)}</div>
       <button type="button" className="brand-primary-btn mx-auto" onClick={() => {

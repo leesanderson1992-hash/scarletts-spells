@@ -24,6 +24,69 @@ export interface PublishedDetectiveBaseFamilyAuthority {
 
 const validFingerprint = (value: string) => /^[a-f0-9]{64}$/.test(value);
 
+export interface ApprovedSuffixMorphologyForDetective {
+  id: string;
+  canonicalWordId: string;
+  sourceRowHash: string;
+  rowStatus: "active";
+  reviewStatus: "approved_for_first_exposure";
+  analysisStatus: "approved";
+  wordSum: string;
+  parts: readonly { text: string; type: string }[];
+  transformationNotes: string | null;
+}
+
+/** A final -er word is not necessarily a suffixed word (water, for example).
+ * The relation is shown only when approved morphology and a canonical base
+ * reconstruct the precise target. Safe + -r and photograph + -er are distinct.
+ * No root-family name is used as a shortcut. */
+export function detectiveBaseToFinalErRelation(input: {
+  microSkillKey: string;
+  target: { canonicalWordId: string; spelling: string; span: { start: number; end: number; text: string } };
+  base: { canonicalWordId: string; spelling: string; rowStatus: "active"; reviewStatus: "approved_for_first_exposure" };
+  morphology: ApprovedSuffixMorphologyForDetective;
+  reviewedAudio: readonly { canonicalWordId: string; recording: DetectiveRecordingV1 }[];
+}): { family: DetectiveFamilyV1 | null; reason: string | null } {
+  const { target, base, morphology } = input;
+  if (input.microSkillKey !== "D4_SCHWA_FINAL_ER_FINAL") return { family: null, reason: "not_final_er_skill" };
+  if (morphology.rowStatus !== "active" || morphology.reviewStatus !== "approved_for_first_exposure" ||
+    morphology.analysisStatus !== "approved" || base.rowStatus !== "active" ||
+    base.reviewStatus !== "approved_for_first_exposure" ||
+    morphology.canonicalWordId !== target.canonicalWordId || !validFingerprint(morphology.sourceRowHash)) {
+    return { family: null, reason: "morphology_not_current_and_approved" };
+  }
+  if (target.span.text !== "er" || target.span.start !== target.spelling.length - 2 ||
+    target.span.end !== target.spelling.length || target.spelling.slice(target.span.start) !== "er") {
+    return { family: null, reason: "target_is_not_final_er_suffix" };
+  }
+  const parts = morphology.parts;
+  const suffix = parts.at(-1)?.text;
+  if (parts.length < 2 || parts.at(-1)?.type !== "suffix" || !(suffix === "er" || suffix === "r") ||
+    parts.slice(0, -1).some((part) => !part.text || part.type === "suffix") ||
+    parts.slice(0, -1).map((part) => part.text).join("") !== base.spelling ||
+    base.canonicalWordId === target.canonicalWordId ||
+    !morphology.wordSum.includes("→") || !morphology.wordSum.endsWith(target.spelling)) {
+    return { family: null, reason: "base_to_derived_not_verified" };
+  }
+  const direct = `${base.spelling}${suffix}` === target.spelling;
+  const dropFinalE = suffix === "er" && base.spelling.endsWith("e") && `${base.spelling.slice(0, -1)}er` === target.spelling &&
+    /final\s+<?e>?\s+.*(?:omit|drop)/i.test(morphology.transformationNotes ?? "");
+  if (!direct && !dropFinalE) return { family: null, reason: "unreviewed_spelling_transformation" };
+  const audio = new Map(input.reviewedAudio.map((item) => [item.canonicalWordId, item.recording]));
+  const derivation = `${base.spelling} + -${suffix} → ${target.spelling}${dropFinalE ? " (the final e is omitted)" : ""}`;
+  return { family: {
+    authorityId: `morphology:${morphology.id}`, sourceFingerprint: morphology.sourceRowHash,
+    reviewStatus: "approved", relationKind: "base_to_derived", name: base.spelling,
+    members: [
+      { canonicalWordId: base.canonicalWordId, spelling: base.spelling,
+        recording: audio.get(base.canonicalWordId) ?? null, morphologyNote: derivation, alignedVowelSpan: null },
+      { canonicalWordId: target.canonicalWordId, spelling: target.spelling,
+        recording: audio.get(target.canonicalWordId) ?? null, morphologyNote: null, alignedVowelSpan: null },
+    ],
+    explanation: derivation,
+  }, reason: null };
+}
+
 /** Consume only the authority selected by the current release, not every
  * historical publication with a similar family name. */
 export function currentDetectiveFamiliesFromPublishedAuthority(
