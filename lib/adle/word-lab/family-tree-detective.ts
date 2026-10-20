@@ -1,7 +1,7 @@
 export const DETECTIVE_ROUND_VERSION = "family_tree_detective_round_v1" as const;
 export const DETECTIVE_ACTIVITY_VERSION = "family_tree_detective_activity_v1" as const;
 
-export type VowelTile = "A" | "E" | "I" | "O" | "U";
+export type VowelTile = "A" | "E" | "I" | "O" | "U" | "Y";
 export type DetectiveClue = "clearer_sound" | "meaningful_part" | "same_spelling" | "no_helpful_clue";
 
 export interface DetectiveRecordingV1 {
@@ -26,6 +26,8 @@ export interface DetectiveFamilyV1 {
   reviewStatus: "approved" | "candidate";
   /** Older snapshots omit this and retain their existing family-tree presentation. */
   relationKind?: "base_to_derived";
+  /** Written letters retained from the approved base; separate from vowel alignment. */
+  preservedBaseSpan?: { start: number; end: number };
   name: string;
   members: readonly DetectiveFamilyMemberV1[];
   /** Reviewed spelling or morphology explanation; no inferred sound-change claim. */
@@ -54,7 +56,7 @@ export interface DetectiveActivityConfigV1 {
   rounds: readonly DetectiveRoundV1[];
 }
 
-const VOWELS = new Set(["A", "E", "I", "O", "U"]);
+const VOWELS = new Set(["A", "E", "I", "O", "U", "Y"]);
 const SHA = /^[a-f0-9]{64}$/;
 const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -112,6 +114,11 @@ export function parseDetectiveRound(value: unknown, allowCandidate = false): Det
   if (!record(family) || !nonEmpty(family.authorityId) ||
     !SHA.test(family.sourceFingerprint) ||
     !(family.relationKind === undefined || family.relationKind === "base_to_derived") ||
+    !(family.preservedBaseSpan === undefined || record(family.preservedBaseSpan) &&
+      Number.isInteger(family.preservedBaseSpan.start) && Number.isInteger(family.preservedBaseSpan.end) &&
+      family.preservedBaseSpan.start === 0 &&
+      (family.preservedBaseSpan.end as number) > 0 &&
+      (family.preservedBaseSpan.end as number) <= round.spelling.length) ||
     !(family.reviewStatus === "approved" || allowCandidate && family.reviewStatus === "candidate") ||
     !nonEmpty(family.name) || !Array.isArray(family.members) || family.members.length < 2 ||
     !(family.explanation === null || nonEmpty(family.explanation))) return null;
@@ -130,6 +137,11 @@ export function parseDetectiveRound(value: unknown, allowCandidate = false): Det
   }
   if (!memberIds.has(round.canonicalWordId) ||
     family.members.find((member) => member.canonicalWordId === round.canonicalWordId)?.spelling !== round.spelling) return null;
+  if (family.preservedBaseSpan) {
+    if (family.relationKind !== "base_to_derived" ||
+      !family.members.some((member) => member.canonicalWordId !== round.canonicalWordId &&
+        member.spelling.startsWith(round.spelling.slice(family.preservedBaseSpan!.start, family.preservedBaseSpan!.end)))) return null;
+  }
   return round;
 }
 

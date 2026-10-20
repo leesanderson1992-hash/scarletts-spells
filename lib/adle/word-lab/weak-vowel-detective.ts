@@ -74,12 +74,16 @@ export function detectiveBaseToFinalErRelation(input: {
   if (!direct && !dropFinalE) return { family: null, reason: "unreviewed_spelling_transformation" };
   const audio = new Map(input.reviewedAudio.map((item) => [item.canonicalWordId, item.recording]));
   const derivation = `${base.spelling} + -${suffix} → ${target.spelling}${dropFinalE ? " (the final e is omitted)" : ""}`;
+  const preservedBaseEnd = dropFinalE ? base.spelling.length - 1 : base.spelling.length;
   return { family: {
     authorityId: `morphology:${morphology.id}`, sourceFingerprint: morphology.sourceRowHash,
     reviewStatus: "approved", relationKind: "base_to_derived", name: base.spelling,
+    preservedBaseSpan: { start: 0, end: preservedBaseEnd },
     members: [
       { canonicalWordId: base.canonicalWordId, spelling: base.spelling,
-        recording: audio.get(base.canonicalWordId) ?? null, morphologyNote: derivation, alignedVowelSpan: null },
+        recording: audio.get(base.canonicalWordId) ?? null, morphologyNote: derivation,
+        alignedVowelSpan: suffix === "r" && base.spelling.endsWith("e")
+          ? { start: base.spelling.length - 1, end: base.spelling.length } : null },
       { canonicalWordId: target.canonicalWordId, spelling: target.spelling,
         recording: audio.get(target.canonicalWordId) ?? null, morphologyNote: null, alignedVowelSpan: null },
     ],

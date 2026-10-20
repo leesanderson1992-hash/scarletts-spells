@@ -28,7 +28,10 @@ assert.equal(correctVowelTile(base), "E");
 assert.ok(parseDetectiveRound(base));
 assert.equal(parseDetectiveRound({ ...base, spelling: "diner" }), null);
 assert.equal(parseDetectiveRound({ ...base, target: { ...base.target, start: 0, end: 6, text: "dinner" } }), null);
-assert.equal(parseDetectiveRound({ ...base, spelling: "bicycle", target: { start: 3, end: 4, text: "y", soundType: "other_unstressed" } }), null);
+const bicycle = { ...base, spelling: "bicycle", target: { start: 3, end: 4, text: "y", soundType: "other_unstressed" as const } };
+assert.ok(parseDetectiveRound(bicycle));
+assert.equal(maskedDetectiveWord(bicycle), "bic_cle");
+assert.equal(correctVowelTile(bicycle), "Y");
 assert.equal(parseDetectiveRound({ ...base, spelling: "brochure", target: { start: 5, end: 8, text: "ure", soundType: "schwa" } }), null);
 assert.ok(parseDetectiveRound({ ...base, spelling: "brochure", target: { start: 5, end: 8, text: "ure", soundType: "schwa" }, reviewedVowelIndex: 5 }));
 assert.deepEqual(toggleDetectiveClue(["clearer_sound"], "same_spelling"), ["clearer_sound", "same_spelling"]);
@@ -109,6 +112,7 @@ const suffix = detectiveBaseToFinalErRelation(suffixInput);
 assert.equal(suffix.reason, null);
 assert.equal(suffix.family?.relationKind, "base_to_derived");
 assert.equal(suffix.family?.explanation, "photograph + -er → photographer");
+assert.deepEqual(suffix.family?.preservedBaseSpan, { start: 0, end: 10 });
 assert.equal(suffix.family?.members[0].alignedVowelSpan, null); // No matching vowel in the base.
 const photographerRound = { ...base, canonicalWordId: "photographer-id", spelling: "photographer",
   target: { start: 10, end: 12, text: "er", soundType: "schwa" as const }, family: suffix.family };
@@ -139,6 +143,7 @@ const baker = detectiveBaseToFinalErRelation({ ...suffixInput,
 });
 assert.equal(baker.reason, null);
 assert.match(baker.family?.explanation ?? "", /final e is omitted/);
+assert.deepEqual(baker.family?.preservedBaseSpan, { start: 0, end: 3 });
 const safer = detectiveBaseToFinalErRelation({ ...suffixInput,
   target: { canonicalWordId: "safer-id", spelling: "safer", span: { start: 3, end: 5, text: "er" } },
   base: { ...suffixInput.base, canonicalWordId: "safe-id", spelling: "safe" },
@@ -146,6 +151,7 @@ const safer = detectiveBaseToFinalErRelation({ ...suffixInput,
     parts: [{ text: "safe", type: "base" }, { text: "r", type: "suffix" }] },
 });
 assert.equal(safer.family?.explanation, "safe + -r → safer");
+assert.deepEqual(safer.family?.members[0].alignedVowelSpan, { start: 3, end: 4 });
 
 const selected = [{ canonicalWordId: base.canonicalWordId, spelling: base.spelling, microSkillKey: base.microSkillKey,
   wordSense: base.wordSense, assignmentStatus: "assigned", pronunciationId: base.pronunciationId,

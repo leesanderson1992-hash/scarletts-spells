@@ -9,7 +9,7 @@ import {
   type DetectiveRoundV1, type VowelTile,
 } from "@/lib/adle/word-lab/family-tree-detective";
 
-const TILES = ["A", "E", "I", "O", "U"] as const;
+const TILES = ["A", "E", "I", "O", "U", "Y"] as const;
 const CLUES: readonly { key: DetectiveClue; label: string }[] = [
   { key: "clearer_sound", label: "I hear the vowel more clearly" },
   { key: "meaningful_part", label: "A meaningful word part helps me" },
@@ -65,8 +65,16 @@ function restore(value: unknown, config: DetectiveActivityConfigV1): DetectiveSt
   return { index, words };
 }
 
-function SpellingWithHighlight(props: { spelling: string; start: number; end: number }) {
-  return <span>{props.spelling.slice(0, props.start)}<mark className="rounded bg-amber-200 px-0.5 text-amber-950">{props.spelling.slice(props.start, props.end)}</mark>{props.spelling.slice(props.end)}</span>;
+function SpellingWithHighlight(props: { spelling: string; start: number; end: number; preservedBaseEnd?: number }) {
+  const boundaries = [...new Set([0, props.start, props.end, props.preservedBaseEnd ?? 0, props.spelling.length])]
+    .filter((value) => value >= 0 && value <= props.spelling.length).sort((a, b) => a - b);
+  return <span>{boundaries.slice(0, -1).map((from, index) => {
+    const to = boundaries[index + 1];
+    const text = props.spelling.slice(from, to);
+    if (from >= props.start && to <= props.end) return <mark key={from} className="rounded bg-amber-200 px-0.5 text-amber-950">{text}</mark>;
+    if (props.preservedBaseEnd && to <= props.preservedBaseEnd) return <mark key={from} className="rounded bg-cyan-100 px-0.5 text-cyan-950">{text}</mark>;
+    return <span key={from}>{text}</span>;
+  })}</span>;
 }
 
 function FamilyCard(props: {
@@ -83,11 +91,12 @@ function FamilyCard(props: {
     : props.member.alignedVowelSpan;
   const canHear = isTarget || props.member.recording !== null;
   return <article className={`rounded-3xl border-2 p-4 shadow-sm ${isTarget ? "border-amber-300 bg-amber-50" : "border-cyan-200 bg-white"}`}>
-    <p className="brand-eyebrow">{isTarget ? "Your mystery word" : "Family member"}</p>
+    <p className="brand-eyebrow">{isTarget ? "Your mystery word" : props.round.family?.relationKind === "base_to_derived" ? "Base word" : "Family member"}</p>
     <button type="button" className="mt-2 rounded-xl px-2 py-1 text-left text-3xl font-black text-[color:var(--ink)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300 disabled:cursor-default"
       disabled={props.muted || !canHear} aria-label={canHear ? `Hear ${props.member.spelling}` : `${props.member.spelling}: recording unavailable`}
       onClick={props.onHear}>{span
-        ? <SpellingWithHighlight spelling={props.member.spelling} start={span.start} end={span.end} />
+        ? <SpellingWithHighlight spelling={props.member.spelling} start={span.start} end={span.end}
+          preservedBaseEnd={isTarget ? props.round.family?.preservedBaseSpan?.end : undefined} />
         : props.member.spelling}{canHear && <span aria-hidden="true" className="ml-2 text-lg text-cyan-700">▶</span>}</button>
     {!canHear && <p className="mt-1 text-sm font-semibold text-slate-500">Recording unavailable</p>}
     {!isTarget && <>
@@ -232,6 +241,7 @@ export function FamilyTreeDetectiveActivity(props: {
         <p className="mt-2 text-[color:var(--mid)]">{round.family.relationKind === "base_to_derived"
           ? "Look at how the reviewed word parts make the new word. Tap either word to hear it when a recording is available."
           : "Tap words to hear them. Collect clues you notice; it is fine if a relative does not help."}</p></div>
+      {round.family.preservedBaseSpan && <p className="text-center text-sm font-semibold text-cyan-900">Blue shows preserved base letters; yellow marks the target vowel letter.</p>}
       <div className="grid gap-4 sm:grid-cols-2">{round.family.members.map((member) => <FamilyCard key={member.canonicalWordId} member={member} round={round}
         chosen={current.clues[member.canonicalWordId] ?? []} muted={Boolean(props.muted)} onHear={() => hear(member)} onClue={(clue) => toggleClue(member.canonicalWordId, clue)} />)}</div>
       <button type="button" className="brand-primary-btn mx-auto" onClick={() => {

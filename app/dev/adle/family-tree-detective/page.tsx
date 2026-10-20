@@ -18,6 +18,7 @@ function candidateFamily(word: string, id: string, recording: { src: string; sha
     authorityId: `candidate-preview-${relative}`,
     sourceFingerprint: createHash("sha256").update(`candidate-preview:${word}:${relative}`).digest("hex"),
     reviewStatus: "candidate", relationKind: "base_to_derived", name: relative,
+    preservedBaseSpan: { start: 0, end: relative.length },
     members: [
       { canonicalWordId: id, spelling: word, recording, morphologyNote: null, alignedVowelSpan: null },
       { canonicalWordId: `candidate-preview-${relative}`, spelling: relative, recording: null,
