@@ -8,6 +8,66 @@ import {
 } from "./family-tree-detective";
 import { WEAK_VOWEL_MICRO_SKILLS } from "./weak-vowel-dinner";
 
+/** A single published family authority pinned by the calling release. V1 has
+ * no family-level fingerprint, so its semantic authority fingerprint is used. */
+export interface PublishedDetectiveBaseFamilyAuthority {
+  authorityId: string;
+  schemaVersion: 1 | 2;
+  sourceFingerprint: string;
+  families: readonly {
+    familyId: string;
+    baseFamilyKey: string;
+    baseWordId: string;
+    members: readonly { canonicalWordId: string; assignmentEligible: boolean }[];
+  }[];
+}
+
+const validFingerprint = (value: string) => /^[a-f0-9]{64}$/.test(value);
+
+/** Consume only the authority selected by the current release, not every
+ * historical publication with a similar family name. */
+export function currentDetectiveFamiliesFromPublishedAuthority(
+  authority: PublishedDetectiveBaseFamilyAuthority,
+): CurrentDetectiveFamilyAuthority[] {
+  if (!validFingerprint(authority.sourceFingerprint)) return [];
+  return authority.families.flatMap((family) => {
+    const members = family.members.filter((member) => member.assignmentEligible);
+    return members.length >= 2 ? [{ authorityId: family.familyId,
+      sourceFingerprint: authority.sourceFingerprint,
+      memberWordIds: members.map((member) => member.canonicalWordId) }] : [];
+  });
+}
+
+/** An owner-selected family key is useful only when the target is an approved
+ * member of that exact published family. The choice does not create members. */
+export function detectiveFamilyFromPublishedAuthority(input: {
+  authority: PublishedDetectiveBaseFamilyAuthority;
+  chosenFamilyKey: string;
+  targetWordId: string;
+  words: readonly { canonicalWordId: string; spelling: string }[];
+  reviewedAudio: readonly { canonicalWordId: string; recording: DetectiveRecordingV1 }[];
+}): { family: DetectiveFamilyV1 | null; reason: string | null } {
+  if (!validFingerprint(input.authority.sourceFingerprint)) return { family: null, reason: "family_authority_fingerprint_missing" };
+  const matches = input.authority.families.filter((family) => family.baseFamilyKey === input.chosenFamilyKey);
+  if (matches.length !== 1) return { family: null, reason: matches.length ? "ambiguous_base_family" : "chosen_base_family_missing" };
+  const source = matches[0];
+  if (!source.members.some((member) => member.assignmentEligible && member.canonicalWordId === input.targetWordId)) {
+    return { family: null, reason: "target_not_verified_family_member" };
+  }
+  const words = new Map(input.words.map((word) => [word.canonicalWordId, word.spelling]));
+  const audio = new Map(input.reviewedAudio.map((item) => [item.canonicalWordId, item.recording]));
+  const members = source.members.filter((member) => member.assignmentEligible).flatMap((member) => {
+    const spelling = words.get(member.canonicalWordId);
+    return spelling ? [{ canonicalWordId: member.canonicalWordId, spelling,
+      recording: audio.get(member.canonicalWordId) ?? null,
+      morphologyNote: null, alignedVowelSpan: null }] : [];
+  });
+  const baseSpelling = words.get(source.baseWordId);
+  if (members.length < 2 || !baseSpelling) return { family: null, reason: "incomplete_base_family" };
+  return { family: { authorityId: source.familyId, sourceFingerprint: input.authority.sourceFingerprint,
+    reviewStatus: "approved", name: baseSpelling, members, explanation: null }, reason: null };
+}
+
 /** Reuse the governed family membership itself, across lesson micro-skills. */
 export function currentDetectiveFamiliesFromAuthority(authority: BaseWordFamilyAuthorityProjectionV2): CurrentDetectiveFamilyAuthority[] {
   return authority.families.flatMap((family) => {

@@ -3,7 +3,11 @@ import {
   DETECTIVE_ROUND_VERSION, correctVowelTile, maskedDetectiveWord, parseDetectiveRound,
   resolveDetectiveForSelectedWords, toggleDetectiveClue, type DetectiveRoundV1,
 } from "../lib/adle/word-lab/family-tree-detective";
-import { currentDetectiveFamiliesFromAuthority, detectiveFamilyFromAuthority, prepareDetectiveForComposerSlots } from "../lib/adle/word-lab/weak-vowel-detective";
+import {
+  currentDetectiveFamiliesFromAuthority, currentDetectiveFamiliesFromPublishedAuthority,
+  detectiveFamilyFromAuthority, detectiveFamilyFromPublishedAuthority, prepareDetectiveForComposerSlots,
+  type PublishedDetectiveBaseFamilyAuthority,
+} from "../lib/adle/word-lab/weak-vowel-detective";
 import { compileWeakVowelDetectiveCandidate } from "../lib/adle/word-lab/weak-vowel-detective-compiler";
 import type { BaseWordFamilyAuthorityProjectionV2 } from "../lib/adle/curriculum-release-activation";
 
@@ -53,6 +57,38 @@ assert.equal(derived.family?.name, "dine");
 assert.equal(derived.family?.members[1].recording, null);
 assert.equal(derived.family?.members[1].alignedVowelSpan, null);
 assert.equal(derived.family?.explanation, null); // No invented phoneme or morphology claim.
+
+const publishedAuthority: PublishedDetectiveBaseFamilyAuthority = {
+  authorityId: "published-v1", schemaVersion: 1, sourceFingerprint: "f".repeat(64),
+  families: [{ familyId: "family-id", baseFamilyKey: "dine_base_family", baseWordId: "dine-id",
+    members: [{ canonicalWordId: "dinner-id", assignmentEligible: true },
+      { canonicalWordId: "dine-id", assignmentEligible: true },
+      { canonicalWordId: "old-id", assignmentEligible: false }] }],
+};
+assert.deepEqual(currentDetectiveFamiliesFromPublishedAuthority(publishedAuthority), [{
+  authorityId: "family-id", sourceFingerprint: publishedAuthority.sourceFingerprint,
+  memberWordIds: ["dinner-id", "dine-id"],
+}]);
+const publishedFamilyInput = { authority: publishedAuthority, chosenFamilyKey: "dine_base_family",
+  targetWordId: "dinner-id", words: [{ canonicalWordId: "dinner-id", spelling: "dinner" },
+    { canonicalWordId: "dine-id", spelling: "dine" }],
+  reviewedAudio: [{ canonicalWordId: "dinner-id", recording }] };
+const publishedFamily = detectiveFamilyFromPublishedAuthority(publishedFamilyInput);
+assert.equal(publishedFamily.reason, null);
+assert.equal(publishedFamily.family?.name, "dine");
+assert.equal(publishedFamily.family?.members.length, 2);
+assert.equal(publishedFamily.family?.members[1].recording, null);
+assert.equal(publishedFamily.family?.members[1].alignedVowelSpan, null);
+assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput, targetWordId: "old-id" }).reason,
+  "target_not_verified_family_member");
+assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput, chosenFamilyKey: "other_base_family" }).reason,
+  "chosen_base_family_missing");
+assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput,
+  authority: { ...publishedAuthority, sourceFingerprint: "stale" } }).reason,
+"family_authority_fingerprint_missing");
+assert.equal(detectiveFamilyFromPublishedAuthority({ ...publishedFamilyInput,
+  authority: { ...publishedAuthority, families: [...publishedAuthority.families, publishedAuthority.families[0]] } }).reason,
+  "ambiguous_base_family");
 
 const selected = [{ canonicalWordId: base.canonicalWordId, spelling: base.spelling, microSkillKey: base.microSkillKey,
   wordSense: base.wordSense, assignmentStatus: "assigned", pronunciationId: base.pronunciationId,
