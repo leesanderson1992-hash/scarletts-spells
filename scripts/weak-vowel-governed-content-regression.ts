@@ -47,6 +47,8 @@ const { header, items, snapshot } = compileWeakVowelSnapshotV3({ lesson: ready.l
   ], childId: "child-1", parentUserId: "parent-1", date: "2026-10-21" });
 assert.equal(items.length, 17);
 assert.equal(snapshot.payload.resolvedLesson.words.length, 4);
+assert.deepEqual(snapshot.words.map((word) => word.lineageKind),
+  ["authentic_target", "transfer", "transfer", "transfer"]);
 assert.equal(validateWeakVowelSnapshotV3(snapshot, { lessonRouteMetadata: header.lessonRouteMetadata,
   assignmentGenerationSource: header.assignmentGenerationSource,
   items: items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey,

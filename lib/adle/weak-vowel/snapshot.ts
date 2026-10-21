@@ -16,15 +16,17 @@ type ItemSpec = {
   canonicalWordId: string | null;
   targetWord: string | null;
   learningItemId: string | null;
+  provenance: "learning_item" | "probe_miss" | "stretch" | null;
 };
 
 function itemSpecs(lesson: WeakVowelLessonV1): ItemSpec[] {
   const wordItems = (activityId: string, sectionKey: ItemSpec["sectionKey"], templateKey: string) =>
     lesson.words.map((word) => ({ activityId, sectionKey, templateKey,
-      canonicalWordId: word.canonicalWordId, targetWord: word.spelling, learningItemId: word.learningItemId }));
+      canonicalWordId: word.canonicalWordId, targetWord: word.spelling,
+      learningItemId: word.learningItemId, provenance: word.provenance }));
   return [
     { activityId: "teaching", sectionKey: "lesson_intro", templateKey: "MICRO_READ_ONLY_INTRO",
-      canonicalWordId: null, targetWord: null, learningItemId: null },
+      canonicalWordId: null, targetWord: null, learningItemId: null, provenance: null },
     ...wordItems("dinner", "guided_practice", "WEAK_VOWEL_DINNER"),
     ...wordItems("detective", "guided_practice", "WEAK_VOWEL_DETECTIVE"),
     ...wordItems("memory", "lesson_production", "COVER_CHECK"),
@@ -39,7 +41,8 @@ function assignmentItems(lesson: WeakVowelLessonV1, childId: string, parentUserI
     templateKey: spec.templateKey, targetWord: spec.targetWord, position: index + 1, status: "ready",
     promptData: { weakVowelActivityId: spec.activityId, canonical: { concept: spec.templateKey, contractVersion: 1 } },
     metadata: { planDate: date, sectionKey: spec.sectionKey,
-      provenance: spec.learningItemId ? "authentic_target" : "generated_dictionary_practice",
+      provenance: spec.provenance === "stretch" ? "generated_dictionary_practice" :
+        spec.provenance ? "authentic_target" : "lesson_intro",
       microSkillKey: lesson.microSkillKey, canonicalWordId: spec.canonicalWordId,
       expectedEvidenceKind: spec.sectionKey === "lesson_production" || spec.sectionKey === "lesson_dictation"
         ? "controlled_word" : null,
@@ -81,7 +84,7 @@ export function compileWeakVowelSnapshotV3(input: { lesson: WeakVowelLessonV1;
   childId: string; parentUserId: string; date: string }) {
   const lesson = input.lesson;
   if (!validateWeakVowelLesson(lesson) || lesson.authority !== "governed_release" ||
-    !lesson.words.some((word) => word.learningItemId)) throw new Error("weak_vowel_assignment_words_invalid");
+    !lesson.words.some((word) => word.provenance !== "stretch")) throw new Error("weak_vowel_assignment_words_invalid");
   const items = assignmentItems(lesson, input.childId, input.parentUserId, input.date);
   const activityList = activities(lesson, items);
   const base = {
@@ -97,7 +100,7 @@ export function compileWeakVowelSnapshotV3(input: { lesson: WeakVowelLessonV1;
     taxonomy: { microSkillKey: lesson.microSkillKey },
     words: lesson.words.map((word, index) => ({ wordSnapshotId: word.canonicalWordId, order: index + 1,
       canonicalWordId: word.canonicalWordId, displayWord: word.spelling, learningItemId: word.learningItemId,
-      lineageKind: word.learningItemId ? "authentic_target" as const : "transfer" as const })),
+      lineageKind: word.provenance === "stretch" ? "transfer" as const : "authentic_target" as const })),
     activities: activityList,
     segments: [{ segmentId: "lesson" as const, wordSnapshotIds: lesson.words.map((word) => word.canonicalWordId),
       activityIds: activityList.map((activity) => activity.activityId) }] as const,
@@ -154,10 +157,12 @@ export function validateWeakVowelSnapshotV3(value: unknown, context: {
       metadata.route.routeId !== "weak_vowel_word_lab" || metadata.route.routeVersion !== "v1" ||
       metadata.recipe.recipeKey !== "weak_vowel_word_lab" || metadata.payload.kind !== "weak_vowel_lesson_v1" ||
       metadata.payload.version !== 1)) return bad("specialist_payload_mismatch");
-    if (snapshot.words.length !== lesson.words.length || !snapshot.words.some((word) => word.learningItemId) ||
+    if (snapshot.words.length !== lesson.words.length || !lesson.words.some((word) => word.provenance !== "stretch") ||
       snapshot.words.some((word, index) => word.canonicalWordId !== lesson.words[index].canonicalWordId ||
         word.displayWord !== lesson.words[index].spelling || word.learningItemId !== lesson.words[index].learningItemId ||
-        word.order !== index + 1 || word.wordSnapshotId !== word.canonicalWordId)) return bad("specialist_payload_mismatch");
+        word.order !== index + 1 || word.wordSnapshotId !== word.canonicalWordId ||
+        word.lineageKind !== (lesson.words[index].provenance === "stretch" ? "transfer" : "authentic_target")))
+      return bad("specialist_payload_mismatch");
     const core = ["release_manifest", "activation_revision", "dependency_set"];
     if (snapshot.contentVersions.length !== core.length + lesson.words.length ||
       core.some((kind) => snapshot.contentVersions.filter((entry) => entry.authorityType === kind).length !== 1) ||
