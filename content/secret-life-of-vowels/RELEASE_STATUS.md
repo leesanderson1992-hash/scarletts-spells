@@ -52,6 +52,8 @@ assignment, checkpoint and completion gates remain unfinished.
   an explicit writer-unavailable blocker rather than a generic fallback. The
   official writer still needs the release and database persistence boundary
   before this loader can serve children.
+- The official route resolver now reads a validated, frozen weak-vowel V3
+  snapshot when one exists. The learner runner and Finish writer are still gated.
 - The official V3 snapshot compiler now freezes four to six selected words,
   their activities and per-word content authorities. All 182 candidate pairs
   passed snapshot compilation in eight-skill simulations. The checkpoint
@@ -65,6 +67,14 @@ assignment, checkpoint and completion gates remain unfinished.
   upgrade; the owner explicitly chose to stay on Free and run in Production.
   The same migration and a one-row-per-skill publication were first proved in
   rollback-only Production transactions. No paid branch or billing change was made.
+- A post-publication preflight initially reported false stale-source errors
+  because the repair fingerprint included the newly published route version.
+  The source fingerprint now excludes route publications while retaining
+  dictionary and assignment facts; it passes again for all 182 pairs. A fresh
+  210-row repair CSV reports Dinner, Detective, Memory Lock and Dictation
+  content ready for the 182 assigned pairs, while keeping all 28 historical
+  or deassigned pairs visible. It still marks child presentation blocked
+  because the route is inactive.
 
 ## Release gates still required
 
@@ -86,3 +96,5 @@ The source files are `reviewed-sheet-snapshot.json`,
 `public/audio/secret-life-of-vowels/reviewed/manifest.json`. The machine-readable
 row audit is in the main checkout at
 `outputs/secret-life-of-vowels/live-refresh-2026-10-21-after-deassignment/release-readiness.json`.
+The current post-publication repair export is
+`outputs/secret-life-of-vowels/post-publication-reviewed-2026-10-21/secret-life-of-vowels-repair.csv`.
