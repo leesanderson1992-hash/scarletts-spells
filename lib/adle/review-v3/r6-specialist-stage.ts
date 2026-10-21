@@ -90,7 +90,7 @@ async function append(input: {
     };
   }
   const routeId = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId;
-  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : "append_adle_specialist_stage_r6";
+  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : routeId === "weak_vowel_word_lab" ? "append_adle_weak_vowel_stage_r6" : "append_adle_specialist_stage_r6";
   const result = await input.client.rpc(rpc, {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,

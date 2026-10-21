@@ -15,6 +15,7 @@ export const ADLE_CURRICULUM_DEPENDENCY_TYPES = [
   "teaching_content",
   "teaching_dictionary_closure",
   "homophone_lesson_content",
+  "weak_vowel_lesson_content",
 ] as const;
 
 export type AdleCurriculumDependencyType =
@@ -156,6 +157,8 @@ export function validateAdleCurriculumReleaseManifestV2(
             ? route.routeVersion === "v1" && input.route.activationRouteKey === "ing_endings_word_lab:v1" && Number(input.route.payloadVersion) === 1
           : route.routeId === "homophone_word_lab"
             ? route.routeVersion === "v2" && input.route.activationRouteKey === "homophone_word_lab:v2" && Number(input.route.payloadVersion) === 2
+          : route.routeId === "weak_vowel_word_lab"
+            ? route.routeVersion === "v1" && input.route.activationRouteKey === "weak_vowel_word_lab:v1" && Number(input.route.payloadVersion) === 1
           : route.routeId === "compound_word_lab" &&
           route.routeVersion === "v2" &&
           input.route.activationRouteKey === "compound_word_lab:v2" &&
@@ -232,6 +235,8 @@ export function validateAdleCurriculumReleaseManifestV2(
           ? ["ing_word_members", "teaching_content", "teaching_dictionary_closure"]
         : isRecord(input.route) && input.route.routeId === "homophone_word_lab"
           ? ["homophone_lesson_content"]
+        : isRecord(input.route) && input.route.routeId === "weak_vowel_word_lab"
+          ? ["weak_vowel_lesson_content"]
           : isRecord(input.route) && input.route.routeId === "compound_word_lab"
           ? ["compound_structure", "teaching_content", "teaching_dictionary_closure"]
           : ["family_membership", "teaching_content", "teaching_dictionary_closure"];

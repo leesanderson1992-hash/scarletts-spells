@@ -84,14 +84,14 @@ export interface CurriculumRouteDefinition {
 export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[] = [
   {
     routeId: "weak_vowel_word_lab", routeVersion: "v1", supportedMicroSkillKeys: [...WEAK_VOWEL_MICRO_SKILLS].sort(),
-    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: false,
+    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,
     requiresAuthenticSelectableItem: true, payloadKind: "weak_vowel_lesson_v1", payloadVersions: [1],
     activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",
     compatibilityScope: { kind: "declared_micro_skills" }, recipes: [{ recipeKey: "weak_vowel_word_lab", recipeVersion: "v1" }],
     runtimeAdapterKey: "weak_vowel_v1", rendererKey: "weak_vowel_guided", legacyDetectionRules: [],
     requiredActivities: ["introduction", "call_it_to_dinner", "vowel_detective", "cover_check", "dictation", "reflection"],
-    // The assignment writer is gated; declare its item count when that writer is staged.
-    intentionalItemCounts: [], wordCounts: { lesson: [4, 6], authentic: [1, 6], transfer: [0, 5] },
+    // One introduction plus four items per selected word.
+    intentionalItemCounts: [17, 21, 25], wordCounts: { lesson: [4, 6], authentic: [1, 6], transfer: [0, 5] },
     coverageRequirements: ["unique_dictation_sentences"],
   },
   {

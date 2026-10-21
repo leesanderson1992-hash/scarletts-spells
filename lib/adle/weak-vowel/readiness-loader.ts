@@ -9,6 +9,7 @@ import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relat
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 import { prepareLessonFromPublishedWeakVowelWords } from "./governed-content";
 import { loadPublishedWeakVowelWords } from "./governed-content-loader";
+import { loadWeakVowelFamilies } from "./family-loader";
 import type { WeakVowelLessonV1, WeakVowelMicroSkill } from "./lesson";
 import type { WeakVowelContentBlocker } from "./prepare";
 import { selectWeakVowelLessonWords } from "./selection";
@@ -79,10 +80,11 @@ export async function loadWeakVowelLessonReadiness(input: {
   const currentAssignedPairs = selectedWordIds.map((id) => ({ canonicalWordId: id, microSkillKey: skill,
     assignmentStatus: authority.relationships.some((pair) => pair.canonicalWordId === id && pair.microSkillKey === skill)
       ? "assigned" as const : "deassigned" as const }));
+  const families = await loadWeakVowelFamilies({ client: input.client, selected: published });
   const prepared = prepareLessonFromPublishedWeakVowelWords({
     assignmentKey: `${input.childId}:${input.date}:${skill}`,
     microSkillKey: skill, slots: selection.slots, currentAssignedPairs,
-    published, currentFamilyAuthorities: [],
+    published, currentFamilyAuthorities: families.current, publishedFamilies: families.published,
   });
   if (!prepared.lesson) return blocked("selected_word_content_not_ready", selectedWordIds, prepared.blockers);
   // Retain the composer's probe and stretch-intake decisions for the atomic

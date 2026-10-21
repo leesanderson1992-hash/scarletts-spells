@@ -47,6 +47,7 @@ import type { ComparativeMicroSkill } from "./inflection/contracts";
 import { prepareIngAssignment } from "./ing/readiness-loader";
 import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "./homophone/readiness-loader";
 import { weakVowelRouteSelectedForChild } from "./weak-vowel/readiness-loader";
+import { prepareWeakVowelAssignment } from "./weak-vowel/assignment-writer";
 import type { IngMicroSkill } from "./ing/contracts";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "./composable-lesson/specialist-snapshot-v3-persistence";
 
@@ -97,6 +98,7 @@ export function resolveParentManualAdleRoute(microSkillKey: string): string | nu
     && candidate.newAssignmentCapable
     && candidate.routeId !== "generic_composer"
     && candidate.routeId !== "homophone_word_lab" // child-scoped activation selects this route separately
+    && candidate.routeId !== "weak_vowel_word_lab" // child-scoped activation selects this route separately
     && candidate.supportedMicroSkillKeys.includes(microSkillKey),
   )?.routeId ?? null;
 }
@@ -492,10 +494,15 @@ export async function ensureParentAdleTodayAssignment(params: {
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
     if (routeId === "weak_vowel_word_lab") {
-      // Activation is a separate release gate. Until the atomic writer and
-      // learner checkpoint RPCs are staged, an enabled head cannot produce a
-      // generic lesson for this selected weak-vowel demand.
-      blockerCode = "weak_vowel_assignment_writer_unavailable";
+      const prepared = await prepareWeakVowelAssignment({ client: params.serviceClient,
+        childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
+        microSkillKey: selection.microSkillKey, facts, environmentKey });
+      if (prepared.status !== "ready") blockerCode = prepared.reason;
+      else generatedAssignmentId = await persistSpecialistSnapshotV3(
+        supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), {
+          parentUserId: params.parentUserId, childId: params.childId, planDate: practiceDate,
+          header: prepared.header, items: prepared.items, snapshot: prepared.snapshot, intakes: [],
+        });
     } else if (routeId === "homophone_word_lab") {
       const prepared = await prepareHomophoneAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId,
         date: practiceDate, microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,

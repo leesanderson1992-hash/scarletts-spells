@@ -10,7 +10,7 @@ import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-
 
 const registeredRoute = getCurriculumRouteDefinition("weak_vowel_word_lab", "v1");
 assert.ok(registeredRoute);
-assert.equal(registeredRoute.newAssignmentCapable, false, "publication and staging must precede new assignments");
+assert.equal(registeredRoute.newAssignmentCapable, true, "new assignments require the enabled database release gate");
 assert.deepEqual([...registeredRoute.supportedMicroSkillKeys].sort(), [...WEAK_VOWEL_PREVIEW_SKILLS].sort());
 
 for (const key of WEAK_VOWEL_PREVIEW_SKILLS) {

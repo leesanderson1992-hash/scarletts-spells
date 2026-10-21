@@ -436,7 +436,7 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
             { stem: "visu", ending: "al", sound: "VIZH-oo-uhl" },
             { stem: "individu", ending: "al", sound: "in-di-VIJ-oo-uhl" },
             { stem: "gradu", ending: "al", sound: "GRAJ-oo-uhl" },
-          ], conclusion: "Notice the **a** near the end. It does not make its strong letter sound; in these examples it sounds like /ə/ before **l**. In today's activity words, always follow the highlighted reviewed target, which can be a different vowel.", tips: NATURAL_ACTUAL_TIPS } }
+          ], conclusion: "Notice the **a** near the end. It does not make its strong letter sound; in these examples it sounds like /ə/ before **l**. In today's activity words, follow the highlighted reviewed **a** and its recording.", tips: NATURAL_ACTUAL_TIPS } }
         : { id: "secret-life-fallback-v2", type: "teaching", eyebrow: "Today's mission", title: copy.name, paragraphs: [copy.focus, "Call It to Dinner finds the syllables and quiet spelling. Vowel Detective lets you investigate a word family when one is available."], callout: copy.strategy },
       finalA ? { id: "secret-life-final-a-strategy-v2", type: "teaching", eyebrow: "How to remember", title: "Look for a spelling clue", paragraphs: ["When a noun ends in a weak ‘uh’ sound, ask what the word means. Then check its spelling."],
         weakVowelFeature: { kind: "final_a_strategy", choices: [
@@ -476,7 +476,7 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
         : naturalActual ? { id: "secret-life-natural-actual-rule-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "Today's Secret Rule", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_rule", rule: "In words such as **natural** and **actual**, an unstressed **a** before the final **l** makes a weak sound. Remember that the ending is spelt **-al**!",
             clues: ["**Look for -ual!** Actual, usual and visual share a spelling pattern.", "**Investigate word families!** The **-al** stays in natural → naturally.", "**Keep the A!** The letter belongs in the spelling even when it is hard to hear."],
-            conclusion: "A word can have more than one weak vowel. For today's selected words, check the highlighted target letter and its reviewed recording.",
+            conclusion: "A word can have more than one weak vowel. In today's selected words, check the highlighted **a** before final **l** and its reviewed recording.",
             motto: "Hear the ‘uhl’, look for the family, remember the AL!", tips: NATURAL_ACTUAL_TIPS } }
         : { id: "secret-life-strategies-v2", type: "teaching", eyebrow: "How to remember", title: "Look, cover, spell, check", paragraphs: ["Study the complete word and its quiet letters. A word family may preserve the spelling even if the vowel stays hard to hear.", "Then cover the word, spell it from memory and write the whole sentence you hear."], callout: "A clue helps you investigate. Your own spelling attempt shows what you remember." },
     ],

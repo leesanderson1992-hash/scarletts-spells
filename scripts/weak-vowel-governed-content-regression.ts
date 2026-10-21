@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { prepareLessonFromPublishedWeakVowelWords, type PublishedWeakVowelWord } from "../lib/adle/weak-vowel/governed-content";
 import { compileWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../lib/adle/weak-vowel/snapshot";
 import { initialWeakVowelProgress, weakVowelProgressTransitionValid, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
@@ -55,6 +55,8 @@ assert.equal(validateWeakVowelSnapshotV3(snapshot, { lessonRouteMetadata: header
   assignmentGenerationSource: header.assignmentGenerationSource,
   items: items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey,
     canonicalWordId: item.metadata.canonicalWordId })) }).ok, true);
+const emitIndex = process.argv.indexOf("--emit-snapshot");
+if (emitIndex >= 0) writeFileSync(process.argv[emitIndex + 1], `${JSON.stringify(snapshot)}\n`);
 assert.equal(validateWeakVowelSnapshotV3({ ...snapshot, payload: { ...snapshot.payload,
   resolvedLesson: { ...snapshot.payload.resolvedLesson, words: snapshot.payload.resolvedLesson.words.slice(1) } } }).ok, false);
 const initial = initialWeakVowelProgress(ready.lesson);
