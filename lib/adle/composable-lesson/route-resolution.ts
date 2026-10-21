@@ -54,6 +54,8 @@ import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
 import type { IngLessonV1 } from "../ing/contracts";
 import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "../homophone/snapshot";
 import type { HomophoneLessonSnapshotV1 } from "../homophone/lesson";
+import { isWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../weak-vowel/snapshot";
+import type { WeakVowelLessonV1 } from "../weak-vowel/lesson";
 
 export interface LessonRouteResolutionItem {
   id: string;
@@ -88,6 +90,7 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
 
 export type ResolvedLessonRuntime =
+  | { adapterKey: "weak_vowel_v1"; rendererKey: "weak_vowel_guided"; payload: WeakVowelLessonV1 }
   | { adapterKey: "comparative_superlative_v1"; rendererKey: "comparative_superlative_guided"; payload: ComparativeLessonV1 }
   | { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided"; payload: IngLessonV1 }
   | { adapterKey: "homophone_v2"; rendererKey: "homophone_guided"; payload: HomophoneLessonSnapshotV1 }
@@ -247,9 +250,9 @@ function runAdapter(
 ): AdapterResult {
   switch (route.runtimeAdapterKey) {
     case "weak_vowel_v1":
-      // Registered for curriculum audit, but assignment writing stays gated
-      // until a governed publication and V3 snapshot adapter are released.
-      return { ok: false, blocker: "route_unavailable" };
+      // A new weak-vowel lesson must carry an immutable V3 payload. There is
+      // no mutable item fallback for this route.
+      return { ok: false, blocker: "persisted_payload_missing" };
     case "comparative_superlative_v1":
     case "ing_endings_v1":
     case "homophone_v2":
@@ -475,6 +478,15 @@ export function resolvePersistedLessonRoute(input: {
     detected.length > 0
   ) {
     return blocked("persisted_metadata", "explicit_legacy_disagreement");
+  }
+  if (route.routeId === "weak_vowel_word_lab") {
+    if (parsed.metadata.metadataSchemaVersion !== 2 || !isWeakVowelSnapshotV3(input.compiledLessonSnapshot)) return blocked("persisted_metadata", "persisted_payload_missing");
+    const validation = validateWeakVowelSnapshotV3(input.compiledLessonSnapshot, { lessonRouteMetadata,
+      assignmentGenerationSource: "adle_composer_v1", items: items.map(i => ({ sourceEntityId: i.sourceEntityId ?? "", position: i.position ?? 0, sectionKey: i.sectionKey,
+        canonicalWordId: i.canonicalWordId, templateKey: i.templateKey, targetWord: i.targetWord, promptData: i.promptData, metadata: i.itemMetadata })) });
+    if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
+    return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
+      runtime: { adapterKey: "weak_vowel_v1", rendererKey: "weak_vowel_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
   }
   if (route.routeId === "comparative_superlative_word_lab") {
     // No mutable root fallback and no v1 metadata for this new release-led route.
