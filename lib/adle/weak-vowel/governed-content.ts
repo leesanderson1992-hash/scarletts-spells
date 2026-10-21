@@ -15,6 +15,7 @@ export interface PublishedWeakVowelWord {
   microSkillKey: WeakVowelMicroSkill;
   spelling: string;
   sourceFingerprint: string;
+  contentSha256AtPublication: string;
   dictionaryFingerprintAtReview: string;
   currentDictionaryFingerprint: string;
   wordAudioSha256AtPublication: string;
@@ -58,6 +59,7 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
     const facts = row.routeContent.content.weakVowel;
     if (!row.contentVersionId || row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint ||
       row.sourceFingerprint !== facts.sourceFingerprint || row.routeContent.routeId !== "weak_vowel_word_lab" ||
+      !/^[a-f0-9]{64}$/.test(row.contentSha256AtPublication) ||
       row.routeContent.routeVersion !== "v1" || row.routeContent.microSkillKey !== input.microSkillKey ||
       row.wordAudioSha256AtPublication !== facts.wordRecording.sha256 ||
       row.sentenceAudioSha256AtPublication !== facts.sentenceRecording.sha256 ||
@@ -73,7 +75,8 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
   const contentVersion = `weak_vowel_selected_v1:${fingerprintSnapshotValue({
     microSkillKey: input.microSkillKey,
     selected: selected.map((row) => ({ contentVersionId: row.contentVersionId,
-      sourceFingerprint: row.sourceFingerprint, definition: row.definition, sentence: row.sentence,
+      sourceFingerprint: row.sourceFingerprint, contentSha256AtPublication: row.contentSha256AtPublication,
+      definition: row.definition, sentence: row.sentence,
       routeContent: row.routeContent })),
   })}`;
   const currentAssignments: Array<DinnerSelectionWord & DetectiveSelectionWord> = selected.map((row) => ({
@@ -127,5 +130,6 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
     currentDefinitions: selected.map((row) => ({ canonicalWordId: row.canonicalWordId, spelling: row.spelling,
       wordSense: row.routeContent.content.weakVowel.wordSense, text: row.definition,
       sourceFingerprint: row.sourceFingerprint, reviewStatus: "approved" as const })),
+    publishedContentHashes: new Map(selected.map((row) => [row.canonicalWordId, row.contentSha256AtPublication])),
   });
 }

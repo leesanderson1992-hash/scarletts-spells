@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { prepareLessonFromPublishedWeakVowelWords, type PublishedWeakVowelWord } from "../lib/adle/weak-vowel/governed-content";
 import { compileWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../lib/adle/weak-vowel/snapshot";
 import { initialWeakVowelProgress, weakVowelProgressTransitionValid, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
+import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
 
 const candidates = JSON.parse(readFileSync("content/secret-life-of-vowels/weak-vowel-route-content-candidates.json", "utf8")) as {
   rows: Array<PublishedWeakVowelWord & { sharedDefinition: { definition: string } }>;
@@ -15,6 +16,7 @@ const source = candidates.rows.filter((row) => row.microSkillKey === "D4_SCHWA_F
 assert.equal(source.length, 4);
 const published: PublishedWeakVowelWord[] = source.map((row, index) => ({
   ...row, contentVersionId: `publication-${index}`, definition: row.sharedDefinition.definition,
+  contentSha256AtPublication: fingerprintSnapshotValue(row.routeContent),
   sentence: sentences.get(`${row.canonicalWordId}|${row.microSkillKey}`)!,
   dictionaryFingerprintAtReview: `fingerprint-${index}`,
   currentDictionaryFingerprint: `fingerprint-${index}`,
@@ -43,7 +45,7 @@ const { header, items, snapshot } = compileWeakVowelSnapshotV3({ lesson: ready.l
     { authorityType: "activation_revision", authorityId: release.activationRevisionId, version: "2", sourceHash: "c".repeat(64) },
     { authorityType: "dependency_set", authorityId: release.releaseManifestId, version: "2", sourceHash: release.dependencyFingerprint },
     ...published.map((word) => ({ authorityType: "teaching_content" as const, authorityId: word.contentVersionId,
-      version: "1", sourceHash: word.sourceFingerprint })),
+      version: "1", sourceHash: word.contentSha256AtPublication })),
   ], childId: "child-1", parentUserId: "parent-1", date: "2026-10-21" });
 assert.equal(items.length, 17);
 assert.equal(snapshot.payload.resolvedLesson.words.length, 4);

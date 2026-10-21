@@ -84,7 +84,8 @@ export function compileWeakVowelSnapshotV3(input: { lesson: WeakVowelLessonV1;
   childId: string; parentUserId: string; date: string }) {
   const lesson = input.lesson;
   if (!validateWeakVowelLesson(lesson) || lesson.authority !== "governed_release" ||
-    !lesson.words.some((word) => word.provenance !== "stretch")) throw new Error("weak_vowel_assignment_words_invalid");
+    !lesson.words.some((word) => word.provenance !== "stretch") ||
+    lesson.words.some((word) => !word.routeContentSha256)) throw new Error("weak_vowel_assignment_words_invalid");
   const items = assignmentItems(lesson, input.childId, input.parentUserId, input.date);
   const activityList = activities(lesson, items);
   const base = {
@@ -169,7 +170,7 @@ export function validateWeakVowelSnapshotV3(value: unknown, context: {
       snapshot.contentVersions.filter((entry) => entry.authorityType === "teaching_content").length !== lesson.words.length ||
       lesson.words.some((word) => !snapshot.contentVersions.some((entry) =>
         entry.authorityType === "teaching_content" && entry.authorityId === word.dinner.contentVersion &&
-        entry.sourceHash === word.dinner.sourceFingerprint)) ||
+        entry.sourceHash === word.routeContentSha256)) ||
       snapshot.contentVersions.some((entry) => !entry.authorityId || !/^[a-f0-9]{64}$/.test(entry.sourceHash)))
       return bad("specialist_content_provenance_malformed");
     if (metadata?.metadataSchemaVersion === 2 && (!snapshot.contentVersions.some((entry) =>

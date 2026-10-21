@@ -40,6 +40,7 @@ export function prepareWeakVowelLesson(input: {
   currentFamilyAuthorities: readonly CurrentDetectiveFamilyAuthority[];
   publishedSentences: readonly WeakVowelSentenceAuthority[];
   currentDefinitions: readonly WeakVowelDefinitionAuthority[];
+  publishedContentHashes?: ReadonlyMap<string, string>;
 }): { lesson: WeakVowelLessonV1 | null; blockers: WeakVowelContentBlocker[] } {
   const blockers: WeakVowelContentBlocker[] = [];
   if (input.slots.length < WEAK_VOWEL_MIN_WORDS || input.slots.length > WEAK_VOWEL_MAX_WORDS ||
@@ -69,6 +70,7 @@ export function prepareWeakVowelLesson(input: {
     return dinnerRound && detectiveRound && sentence && definition ? [{ canonicalWordId: id, spelling: dinnerRound.spelling,
       provenance: slot.provenance, learningItemId: slot.learningItemId, dinner: dinnerRound, detective: detectiveRound,
       definition: { text: definition.text, sourceFingerprint: definition.sourceFingerprint, reviewStatus: definition.reviewStatus },
+      ...(input.publishedContentHashes?.get(id) ? { routeContentSha256: input.publishedContentHashes.get(id)! } : {}),
       dictation: { sentence: sentence.sentence, targetStart: sentence.targetStart, targetEnd: sentence.targetEnd, recording: sentence.recording } }] : [];
   });
   if (blockers.length) return { lesson: null, blockers };

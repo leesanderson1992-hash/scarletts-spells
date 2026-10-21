@@ -12,6 +12,8 @@ export interface WeakVowelLessonWordV1 {
   spelling: string;
   provenance: WeakVowelWordProvenance;
   learningItemId: string | null;
+  /** Exact reviewed route-content JSON digest bound by the publication row. */
+  routeContentSha256?: string;
   definition: { text: string; sourceFingerprint: string; reviewStatus: "approved" | "candidate" };
   dinner: DinnerRoundV1;
   detective: DetectiveRoundV1;
@@ -504,6 +506,7 @@ export function validateWeakVowelLesson(value: unknown, allowFixture = false): v
       !["learning_item", "probe_miss", "stretch"].includes(word.provenance) ||
       !word.definition || typeof word.definition.text !== "string" || !word.definition.text.trim() ||
       !sha(word.definition.sourceFingerprint) ||
+      !(word.routeContentSha256 === undefined || sha(word.routeContentSha256)) ||
       !(word.definition.reviewStatus === "approved" || allowFixture && word.definition.reviewStatus === "candidate") ||
       !word.dinner || !word.dinner.target || !word.dictation ||
       typeof word.dictation !== "object" || !word.dictation.recording) return false;

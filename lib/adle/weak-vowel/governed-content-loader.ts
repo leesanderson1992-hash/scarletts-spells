@@ -19,7 +19,7 @@ export async function loadPublishedWeakVowelWords(input: {
   const db = input.client;
   const [publicationResult, wordResult, definitionResult, sentenceResult] = await Promise.all([
     db.from("adle_weak_vowel_content_publications")
-      .select("content_version_id,canonical_word_id,micro_skill_key,source_fingerprint,dictionary_fingerprint,word_audio_sha256,sentence_audio_sha256,published_at")
+      .select("content_version_id,canonical_word_id,micro_skill_key,source_fingerprint,content_sha256,dictionary_fingerprint,word_audio_sha256,sentence_audio_sha256,published_at")
       .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", ids)
       .order("published_at", { ascending: false }).order("content_version_id", { ascending: false }),
     db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,dialect_code")
@@ -74,6 +74,7 @@ export async function loadPublishedWeakVowelWords(input: {
       contentVersionId: String(publication.content_version_id), canonicalWordId: id,
       microSkillKey: input.microSkillKey, spelling: String(word.display_word),
       sourceFingerprint: String(publication.source_fingerprint),
+      contentSha256AtPublication: String(publication.content_sha256),
       dictionaryFingerprintAtReview: String(publication.dictionary_fingerprint),
       currentDictionaryFingerprint: fingerprint.data,
       wordAudioSha256AtPublication: String(publication.word_audio_sha256),
