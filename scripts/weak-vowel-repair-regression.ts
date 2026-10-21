@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {
   WEAK_VOWEL_SKILLS, buildWeakVowelRepairRows, renderWeakVowelRepairCsv, parseWeakVowelRepairCsv,
-  repairFingerprint, repairRowKey, validateWeakVowelRepairs, type RepairSource,
+  repairFingerprint, repairSourceFingerprint, repairRowKey, validateWeakVowelRepairs, type RepairSource,
 } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
 
 const skill = "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS";
@@ -57,6 +57,12 @@ assert(!noSchwa.issue_codes.includes("SCHWA_FLAG_NOT_LOCATED"), "compression wit
 assert.equal(noSchwa.linguistic_review_status, "No inconsistency detected");
 assert.equal(noSchwa.blocks_child_presentation, "true", "absence of a contradiction cannot approve a lesson");
 assert.equal(repairFingerprint({ b: 2, a: 1 }), repairFingerprint({ a: 1, b: 2 }));
+assert.equal(repairSourceFingerprint(source("family")), repairSourceFingerprint(source("family", {
+  routes: [{ id: "published-version", content: { weakVowel: { target: "i" } } }],
+})), "publishing immutable route content must not stale its own reviewed dictionary source");
+assert.notEqual(repairSourceFingerprint(source("family")), repairSourceFingerprint(source("family", {
+  metadata: [{ id: "new-metadata", syllables: "2" }],
+})), "a shared dictionary edit must stale the reviewed source");
 const multiple = buildWeakVowelRepairRows([source("different", { metadata: [...input[0].metadata, ...input[0].metadata] })], when)[0];
 assert.match(multiple.issue_codes, /ACTIVE_METADATA_NOT_SINGULAR/);
 const exclusion = rows.map(row => ({ ...row, approval_decision: "exclude", proposed_assignment_disposition: "exclude", repair_status: "reviewed",

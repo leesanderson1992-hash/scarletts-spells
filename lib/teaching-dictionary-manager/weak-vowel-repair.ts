@@ -64,6 +64,12 @@ export function stableJson(value: unknown): string {
 export function repairFingerprint(value: unknown): string {
   return createHash("sha256").update(stableJson(value)).digest("hex");
 }
+/** Route publication must not invalidate the source it was reviewed against.
+ * The immutable route version has its own content hash; this fingerprint binds
+ * the canonical word, assignment authority and shared dictionary facts. */
+export function repairSourceFingerprint(source: RepairSource): string {
+  return repairFingerprint({ ...source, routes: [] });
+}
 function text(value: unknown): string { return value == null ? "" : String(value); }
 function object(value: unknown): SourceRow { return value && typeof value === "object" && !Array.isArray(value) ? value as SourceRow : {}; }
 function cell(value: unknown): string { return value == null ? "" : typeof value === "string" ? value : stableJson(value); }
@@ -80,10 +86,15 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
     const route = source.routes[0] ?? {};
     const routeWrapper = object(route.content);
     const content = object(routeWrapper.content ?? routeWrapper);
+    const weak = object(content.weakVowel);
+    const routePublished = route.weak_vowel_published === true && weak.schemaVersion === "weak_vowel_route_facts_v1";
     // Pronunciations are only read from the explicit proposed route contract.
     // An arbitrary source_metadata object or IPA alternative is never a reviewed variant.
-    const variants = Array.isArray(content.pronunciations) && content.pronunciations.length
-      ? content.pronunciations.map(object) : [{}];
+    const variants = weak.pronunciationId && routePublished
+      ? [{ id: weak.pronunciationId, reviewStatus: "approved", audio: weak.wordRecording, sense: weak.wordSense,
+          syllableCount: weak.spokenSyllableCount }]
+      : Array.isArray(content.pronunciations) && content.pronunciations.length
+        ? content.pronunciations.map(object) : [{}];
     for (const variant of variants) {
       const issues: RepairIssue[] = [];
       const add = (issue: RepairIssue) => issues.push(issue);
@@ -92,7 +103,9 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
       const stress = text(variant.stressPattern ?? metadata.stress_pattern);
       const count = text(variant.syllableCount ?? metadata.syllables);
       const written = text(metadata.written_syllable_breakdown);
-      const annotation = object(content.target);
+      const annotation = routePublished ? { span: weak.target, missingLetterSpan: weak.selectionTarget,
+        correspondence: { pronunciationId: weak.pronunciationId, soundType: object(weak.target).soundType } }
+        : object(content.target);
       const assigned = source.assignmentStatus === "assigned";
       if (!assigned) add({ code: "ASSIGNMENT_NOT_CURRENT", classification: "Deassigned or excluded", fields: ["assignment_status"], observed: source.assignmentStatus,
         explanation: "A historical source is not permission to select this pair.", repair: "Keep excluded from child selection. Reassignment, if justified, needs a separate governed assignment decision." });
@@ -125,8 +138,8 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
         explanation: "No complete reviewed assignment-specific written target and sound correspondence exists.", repair: "Mark exact zero-based, end-exclusive written spans and verify their correspondence to the chosen sound sequence, other weak vowel or absent/compressed realisation." });
       if (!variant.audio) add({ code: "REVIEWED_WORD_AUDIO_MISSING", classification: "Missing annotation or asset", fields: ["recording_references_json"], observed: variant.audio ?? null,
         explanation: "Device speech synthesis does not bind a sound task to a fixed reviewed variant.", repair: "Provide a fixed reviewed British word recording with version/hash and replay reference." });
-      if (!Array.isArray(content.rhythmSentences) || !content.rhythmSentences.length) add({ code: "RHYTHM_ANNOTATION_MISSING", classification: "Missing annotation or asset", fields: ["recording_references_json"], observed: null,
-        explanation: "Word-level IPA does not provide a sentence's actual BA/bu sequence.", repair: "Approve a target-bearing sentence recording, word grouping, spoken syllable boundaries/timings and recording-specific prominence labels." });
+      // Robot Rhythm was retired from the eight lessons; sentence rhythm is
+      // neither an activity gate nor a missing weak-vowel route requirement.
       const dictationValid = source.dictations.some(sentence => {
         const start = Number(sentence.dictation_target_token_index);
         const end = sentence.dictation_target_end_exclusive == null ? start + tokens(word).length : Number(sentence.dictation_target_end_exclusive);
@@ -135,7 +148,7 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
       });
       if (!dictationValid) add({ code: "DICTATION_TARGET_REVIEW", classification: "Potential inconsistency requiring review", fields: ["dictation_sentences_json", "dictation_target_bindings_json"], observed: source.dictations,
         explanation: "No approved sentence with an exact matching target binding was found.", repair: "Review a meaningful sentence containing this exact target and correct its token/span binding." });
-      if (!content.dictationAudio) add({ code: "REVIEWED_DICTATION_AUDIO_MISSING", classification: "Missing annotation or asset", fields: ["recording_references_json"], observed: null,
+      if (!content.dictationAudio && !(routePublished && weak.sentenceRecording)) add({ code: "REVIEWED_DICTATION_AUDIO_MISSING", classification: "Missing annotation or asset", fields: ["recording_references_json"], observed: null,
         explanation: "Approved sentence text does not establish fixed British audio.", repair: "Record and approve the chosen dictation sentence; bind its audio hash and target occurrence." });
       const status = (activity: string, normal: ActivityStatus, reason: string): Record<string, string> => ({
         [`${activity}_status`]: assigned ? normal : "Unsuitable",
@@ -146,26 +159,40 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
         export_version: WEAK_VOWEL_REPAIR_VERSION, exported_at: exportedAt, canonical_word_id: text(source.word.id), word,
         micro_skill_key: source.microSkillKey, micro_skill_name: WEAK_VOWEL_SKILLS[source.microSkillKey as keyof typeof WEAK_VOWEL_SKILLS],
         pronunciation_id: text(variant.id), assignment_status: source.assignmentStatus, authority_reference: stableJson(source.authority),
-        source_fingerprint: repairFingerprint(source), metadata_version: source.metadata.map(row => text(row.id)).join("; "),
-        existing_review_status: text(metadata.review_status), ipa, spoken_syllable_count: count, written_breakdown: written,
+        source_fingerprint: repairSourceFingerprint(source), metadata_version: source.metadata.map(row => text(row.id)).join("; "),
+        existing_review_status: `${text(metadata.review_status)}${routePublished ? "; weak-vowel route published" : ""}`, ipa, spoken_syllable_count: count, written_breakdown: written,
         stress_pattern: stress, has_schwa: cell(metadata.has_schwa), word_sense: text(variant.sense),
         morphology_evidence_json: cell(source.morphology), target_span_json: cell(annotation.span), missing_letter_span_json: cell(annotation.missingLetterSpan),
-        sound_correspondence_json: cell(annotation.correspondence), recording_references_json: variant.audio || content.dictationAudio ? cell({ word: variant.audio, dictation: content.dictationAudio }) : "",
+        sound_correspondence_json: cell(annotation.correspondence), recording_references_json: variant.audio || content.dictationAudio || weak.sentenceRecording ? cell({ word: variant.audio, dictation: routePublished ? weak.sentenceRecording : content.dictationAudio }) : "",
         dictation_sentences_json: cell(source.dictations.map(row => ({ id: row.id, sentence: row.dictation_sentence, audioText: row.audio_text, reviewStatus: row.review_status }))),
         dictation_target_bindings_json: cell(source.dictations.map(row => ({ id: row.id, start: row.dictation_target_token_index, end: row.dictation_target_end_exclusive, exactAnswer: row.exact_governed_answer }))),
-        family_evidence_json: cell(content.familyEvidence), route_content_json: source.routes.length ? stableJson(source.routes) : "",
+        family_evidence_json: cell(routePublished ? { decision: weak.familyDecision, authorityId: weak.familyAuthorityId } : content.familyEvidence), route_content_json: source.routes.length ? stableJson(source.routes) : "",
         linguistic_review_status: [...new Set(issues.filter(issue => issue.classification === "Confirmed inconsistency" || issue.classification === "Potential inconsistency requiring review").map(issue => issue.classification))].join("; ") || "No inconsistency detected",
         inconsistency_status: [...new Set(issues.map(issue => issue.classification))].join("; ") || "No inconsistency detected",
         issue_codes: issues.map(issue => issue.code).join("; "), affected_fields: [...new Set(issues.flatMap(issue => issue.fields))].join("; "),
         observed_inconsistencies_json: stableJson(issues), required_repairs: issues.map(issue => `${issue.code}: ${issue.repair}`).join("\n"),
         required_validation: "Human curriculum review of lesson fit, pronunciation, target correspondence and recording; structural validation alone is not approval.",
         blocks_child_presentation: "true", blocks_spelling_assessment: "true",
-        ...status("rhythm", "Needs metadata", "Requires approved utterance recording, syllable timing and prominence; no inference from lexical stress."),
+        ...status("rhythm", "Unsuitable", "Robot Rhythm is retired from these lessons."),
         ...status("dinner", "Needs editorial review", "Verify spoken syllables and target vowel; use distinct written inspection for compression."),
         ...status("laboratory", source.microSkillKey.includes("MEDIAL") ? "Needs editorial review" : "Needs metadata", "Approve this assignment's exact written target and missing vowel span; do not derive it from has_schwa."),
         ...status("family_secret", "Needs editorial review", "Optional: verify matching written spans and sound change, use spelling-preservation copy, or omit. Absence does not block the lesson."),
         ...status("memory_lock", source.word.review_status === "approved_for_first_exposure" ? "Ready" : "Needs editorial review", "Canonical spelling capability only; lesson fit and the route release still require review."),
         ...status("dictation", dictationValid ? "Needs metadata" : "Needs editorial review", dictationValid ? "Approved target sentence exists; fixed reviewed British recording and route evidence binding are still required." : "Repair the approved sentence and exact target binding before adding reviewed audio."),
+        ...(routePublished && assigned ? {
+          dinner_status: object(object(weak.activityEligibility).dinner).status === "ready" ? "Ready" : "Needs editorial review",
+          dinner_reason: "Reviewed cuts, chosen word recording and vowel-only target are published.",
+          laboratory_status: object(object(weak.activityEligibility).detective).status === "ready" ? "Ready" : "Needs editorial review",
+          laboratory_reason: "Reviewed missing-vowel occurrence and word recording are published for Vowel Detective.",
+          family_secret_status: object(object(weak.activityEligibility).family).status === "ready" ? "Ready" : "Unsuitable",
+          family_secret_reason: object(object(weak.activityEligibility).family).status === "ready" ? "Approved family authority is recorded; exploration still needs its runtime member binding." : "Optional family exploration is unavailable for this pair.",
+          memory_lock_status: object(object(weak.activityEligibility).memoryLock).status === "ready" ? "Ready" : "Needs editorial review",
+          memory_lock_reason: "Canonical whole-word spelling is approved.",
+          dictation_status: object(object(weak.activityEligibility).dictation).status === "ready" ? "Ready" : "Needs editorial review",
+          dictation_reason: "Complete target-bearing sentence and its reviewed British recording are published.",
+          blocks_child_presentation: "true", blocks_spelling_assessment: "true",
+          required_validation: "Published route facts are approved for their activities. Child presentation and assessment still require an active route release and verified assignment writer. Investigate shared-metadata issue codes separately.",
+        } : {}),
         repair_status: "awaiting_review", approval_decision: "pending",
       });
       rows.push(row);

@@ -7,7 +7,8 @@ import { loadWeakVowelRepairInventory, repairDatabaseConnection } from "./weak-v
 async function main() {
   const args = process.argv.slice(2);
   const value = (name: string) => args.includes(name) ? args[args.indexOf(name) + 1] : undefined;
-  if (args.length % 2 || args.some((arg, index) => index % 2 === 0 && !["--output", "--environment"].includes(arg))) throw new Error("Supply values for --output and --environment only; this exporter has no apply mode.");
+  if (args.length % 2 || args.some((arg, index) => index % 2 === 0 && !["--output", "--environment", "--env-file"].includes(arg))) throw new Error("Supply values for --output, --environment and --env-file only; this exporter has no apply mode.");
+  if (value("--env-file")) process.loadEnvFile(resolve(value("--env-file")!));
   const environment = value("--environment") ?? "production";
   if (!["local", "staging", "production"].includes(environment)) throw new Error("Invalid environment.");
   const output = resolve(value("--output") ?? "outputs/secret-life-of-vowels");

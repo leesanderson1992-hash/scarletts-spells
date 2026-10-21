@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pg from "pg";
 import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
-import { repairFingerprint } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
+import { repairSourceFingerprint } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
 import { loadWeakVowelRepairInventory } from "./weak-vowel-repair-source";
 
 type Candidate = {
@@ -69,7 +69,7 @@ async function main() {
     const facts = row.routeContent.content.weakVowel;
     if (!live || live.assignmentStatus !== "assigned") { fail(pair, "PAIR_NOT_ASSIGNED"); continue; }
     if (!reviewed || reviewed.assignment_status !== "assigned") { fail(pair, "REVIEWED_PAIR_MISSING"); continue; }
-    if (repairFingerprint(live) !== row.sourceFingerprint || reviewed.source_fingerprint !== row.sourceFingerprint ||
+    if (repairSourceFingerprint(live) !== row.sourceFingerprint || reviewed.source_fingerprint !== row.sourceFingerprint ||
       facts.sourceFingerprint !== row.sourceFingerprint) fail(pair, "LIVE_SOURCE_FINGERPRINT_CHANGED");
     if (row.spelling !== live.word.display_word || row.routeContent.routeId !== "weak_vowel_word_lab" ||
       row.routeContent.routeVersion !== "v1" || row.routeContent.microSkillKey !== row.microSkillKey ||
