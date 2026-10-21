@@ -41,7 +41,7 @@ async function main() {
       next: "Apply only after the route-content migration is deployed; activation remains separate." }, null, 2) + "\n");
     return;
   }
-  const actorId = arg("--actor-id") ?? (rollbackProof ? process.env.ADMIN_USER_IDS?.split(",")[0]?.trim() : undefined);
+  const actorId = arg("--actor-id") ?? process.env.ADMIN_USER_IDS?.split(",")[0]?.trim();
   if (!actorId || !uuid.test(actorId)) throw new Error("VERIFIED_ADMIN_ACTOR_ID_REQUIRED");
   const packageData = JSON.parse(readFileSync(packagePath, "utf8")) as { rows: Candidate[] };
   const sheet = JSON.parse(readFileSync(sheetPath, "utf8")) as {
@@ -110,6 +110,13 @@ async function main() {
         publishedInsideTransaction: published, durableWrites: 0 }, null, 2) + "\n");
       return;
     }
+    const proof = await client.query<{ n: number; distinct_pairs: number; activation_heads: number }>(
+      `select count(*)::int n,
+        count(distinct (canonical_word_id,micro_skill_key))::int distinct_pairs,
+        (select count(*)::int from public.adle_route_activation_heads where route_id='weak_vowel_word_lab') activation_heads
+       from public.adle_weak_vowel_content_publications`);
+    if (proof.rows[0].n !== published || proof.rows[0].distinct_pairs !== published || proof.rows[0].activation_heads !== 0)
+      throw new Error("PUBLICATION_PAIR_OR_ACTIVATION_READBACK_MISMATCH");
     await client.query("COMMIT");
     const readback = await client.query("select count(*)::int n from public.adle_weak_vowel_content_publications");
     if (readback.rows[0].n !== published) throw new Error("PUBLICATION_READBACK_MISMATCH");

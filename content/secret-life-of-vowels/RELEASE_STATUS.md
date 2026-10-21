@@ -1,8 +1,9 @@
 # Weak-vowel route release status — 21 October 2026
 
-The route remains **closed to new production assignments**. The owner's release
-authorisation is recorded, but the official assignment, persistence and governed
-publication gates are not yet implemented for `weak_vowel_word_lab`.
+The route remains **closed to new production assignments**. The owner chose to
+stay on Supabase Free and run the release against Production. The publication
+schema and initial reviewed route content are installed there; the official
+assignment, checkpoint and completion gates remain unfinished.
 
 ## Reconciled content
 
@@ -11,8 +12,7 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
 - `brochure` and other prior deassignments remain excluded.
 - The approved natural/actual target is the written `a` in `-al` for all 11
   assigned words; Dinner and Detective targets now agree with the teaching page.
-- The latest audit reports zero editorial row conflicts. It still reports all
-  182 assigned pairs as unpublished in governed route content.
+- The latest pre-publication audit reported zero editorial row conflicts.
 - 358 unique approved word and sentence clips were copied to hash-named public
   paths; their hashes were verified both before and after staging.
 - 179 distinct assigned words have published shared definitions.
@@ -33,13 +33,13 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   current shared definition and all 358 staged audio hashes. It currently
   reports zero failed pairs. Its command is
   `NODE_OPTIONS=--conditions=react-server npx tsx scripts/preflight-weak-vowel-publication.ts --env-file ../scarletts-spells/.env.local`.
-- A route-only governed publication migration and Teaching Dictionary
-  review/publish controls are prepared. The migration passed a rollback-only
-  proof against the current Production schema. The publisher also staged,
-  reviewed and published one row from each of the eight skills in a serializable
-  transaction, read all eight back and rolled the transaction back. It has
-  **not been applied**. The publisher dry run passes. Initial publication requires deployment of the
-  migration and then an exact-source, atomic batch apply by a verified admin.
+- The route-only governed publication migration passed a rollback-only proof
+  against Production, then was installed as the single exact migration
+  `20261021210000`. Its SHA-256 and ledger entry were checked before and after
+  installation. The verified admin publisher staged, reviewed and published
+  all 182 assigned pairs in one transaction. Independent readback found 182
+  route versions, 182 reviews and 182 immutable publications across eight
+  skills, with zero stale dictionary fingerprints or changed content hashes.
 - A published-content assembler and loader now reject deassigned, missing,
   ambiguous, stale-dictionary and changed-audio selected words. The assembler
   freezes approved rows for the exact demand-led slots. Regression tests pass.
@@ -58,30 +58,28 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   transition check preserves first hidden Memory Lock and original dictation
   attempts and rejects answer rewrites. It is not yet wired to a durable
   weak-vowel database checkpoint RPC.
-- The optimized Next.js build and TypeScript checks pass. The live Production
-  database still has zero weak-vowel content versions and zero activation heads.
-- A fresh production-source preflight again found 182 assigned pairs, 358
-  matching staged clips and zero failed pairs. Production publication remains
-  untouched. The signed-in Supabase dashboard for the production project shows
-  preview-branch creation behind an upgrade to Pro (from $25/month), with branch
-  compute quoted at $0.01344/hour. The upgrade was not made; the repository's required
-  disposable-preview migration proof has not run.
+- The optimized Next.js build and TypeScript checks pass. Production has zero
+  weak-vowel activation heads and therefore cannot assign this route yet.
+- A fresh production-source preflight found 182 assigned pairs, 358 matching
+  staged clips and zero failed pairs. Supabase preview branches require a Pro
+  upgrade; the owner explicitly chose to stay on Free and run in Production.
+  The same migration and a one-row-per-skill publication were first proved in
+  rollback-only Production transactions. No paid branch or billing change was made.
 
 ## Release gates still required
 
-1. Deploy the route-content publication migration; stage, review and publish
-   the 182 initial versions atomically, then read back exact hashes and counts.
-   Publication must stay separate from route activation.
-2. Connect current demand-led selected words and the new governed loader to the
+1. Connect current demand-led selected words and the governed loader to the
    official V3 snapshot compiler and an atomic assignment writer. The runtime
    adapter still returns `route_unavailable` and the registry has
    `newAssignmentCapable: false`.
-3. Wire the official ADLE runner, durable checkpoint and controlled-production
+2. Wire the official ADLE runner, durable checkpoint and controlled-production
    evidence writer for Memory Lock and dictation. Guided Dinner and Detective
    attempts must not create independent spelling successes.
-4. Prove reload, repeated Finish, new assignment, deassignment, frozen snapshot,
-   all-eight-skill and both-theme behaviour in staging; then publish the exact
-   route release and enable the eight activation revisions for eligible children.
+3. Prove reload, repeated Finish, new assignment, deassignment, frozen snapshot,
+   all-eight-skill and both-theme behaviour with synthetic fixtures and
+   rollback-only Production transactions; then publish the exact route release,
+   deploy and read back its commit, and enable the eight activation revisions
+   for eligible children.
 
 The source files are `reviewed-sheet-snapshot.json`,
 `weak-vowel-route-content-candidates.json` and
