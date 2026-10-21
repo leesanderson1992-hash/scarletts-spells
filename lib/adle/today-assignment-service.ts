@@ -46,6 +46,7 @@ import { prepareComparativeAssignment } from "./inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "./inflection/contracts";
 import { prepareIngAssignment } from "./ing/readiness-loader";
 import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "./homophone/readiness-loader";
+import { weakVowelRouteSelectedForChild } from "./weak-vowel/readiness-loader";
 import type { IngMicroSkill } from "./ing/contracts";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "./composable-lesson/specialist-snapshot-v3-persistence";
 
@@ -395,9 +396,13 @@ export async function ensureParentAdleTodayAssignment(params: {
       return result;
     }
 
-    routeId = await homophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
-      microSkillKey: selection.microSkillKey, environmentKey: process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" })
-      ? "homophone_word_lab" : resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
+    const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging"
+      : process.env.NODE_ENV === "production" ? "production" : "local";
+    routeId = await weakVowelRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+      microSkillKey: selection.microSkillKey, environmentKey }) ? "weak_vowel_word_lab"
+      : await homophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+        microSkillKey: selection.microSkillKey, environmentKey }) ? "homophone_word_lab"
+        : resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
     if (!routeId) {
       const authored = authorCompleteGenericSnapshotV3(
         facts,
@@ -486,7 +491,12 @@ export async function ensureParentAdleTodayAssignment(params: {
       process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
-    if (routeId === "homophone_word_lab") {
+    if (routeId === "weak_vowel_word_lab") {
+      // Activation is a separate release gate. Until the atomic writer and
+      // learner checkpoint RPCs are staged, an enabled head cannot produce a
+      // generic lesson for this selected weak-vowel demand.
+      blockerCode = "weak_vowel_assignment_writer_unavailable";
+    } else if (routeId === "homophone_word_lab") {
       const prepared = await prepareHomophoneAssignment({ client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId,
         date: practiceDate, microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,
         environmentKey: allowStagingProfiles ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local" });

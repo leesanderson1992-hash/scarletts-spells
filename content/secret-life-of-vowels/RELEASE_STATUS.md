@@ -47,8 +47,11 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   four-to-six-word selector, refreshes the current word–skill relationship
   authority, and loads governed publications for those exact selected words.
   It returns row-specific blockers for incomplete demand instead of replacing
-  a selected word. The official writer still needs the release and database
-  persistence boundary before this loader can serve children.
+  a selected word. It preserves diagnostic-probe and stretch-intake decisions
+  for the future atomic writer. A prematurely enabled route head now produces
+  an explicit writer-unavailable blocker rather than a generic fallback. The
+  official writer still needs the release and database persistence boundary
+  before this loader can serve children.
 - The official V3 snapshot compiler now freezes four to six selected words,
   their activities and per-word content authorities. All 182 candidate pairs
   passed snapshot compilation in eight-skill simulations. The checkpoint
