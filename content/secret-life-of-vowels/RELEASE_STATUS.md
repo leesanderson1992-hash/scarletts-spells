@@ -43,6 +43,12 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
 - A published-content assembler and loader now reject deassigned, missing,
   ambiguous, stale-dictionary and changed-audio selected words. The assembler
   freezes approved rows for the exact demand-led slots. Regression tests pass.
+- The official V3 snapshot compiler now freezes four to six selected words,
+  their activities and per-word content authorities. All 182 candidate pairs
+  passed snapshot compilation in eight-skill simulations. The checkpoint
+  transition check preserves first hidden Memory Lock and original dictation
+  attempts and rejects answer rewrites. It is not yet wired to a durable
+  weak-vowel database checkpoint RPC.
 - The optimized Next.js build and TypeScript checks pass. The live Production
   database still has zero weak-vowel content versions and zero activation heads.
 
@@ -51,9 +57,10 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
 1. Deploy the route-content publication migration; stage, review and publish
    the 182 initial versions atomically, then read back exact hashes and counts.
    Publication must stay separate from route activation.
-2. Connect current demand-led selected words and the new governed loader to an
-   immutable official specialist assignment snapshot. The runtime adapter still
-   returns `route_unavailable` and the registry has `newAssignmentCapable: false`.
+2. Connect current demand-led selected words and the new governed loader to the
+   official V3 snapshot compiler and an atomic assignment writer. The runtime
+   adapter still returns `route_unavailable` and the registry has
+   `newAssignmentCapable: false`.
 3. Wire the official ADLE runner, durable checkpoint and controlled-production
    evidence writer for Memory Lock and dictation. Guided Dinner and Detective
    attempts must not create independent spelling successes.

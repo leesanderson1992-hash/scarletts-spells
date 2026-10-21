@@ -1,4 +1,5 @@
 import type { WeakVowelLessonV1 } from "./lesson";
+import { semanticJson } from "../inflection/semantic-json";
 
 export type WeakVowelStage = "teaching" | "activity:dinner" | "activity:detective" | "cover" | "dictation" | "reflection";
 
@@ -42,18 +43,49 @@ export function weakVowelProgressValid(value: unknown, lesson: WeakVowelLessonV1
     Number.isInteger(p.dictationIndex) && p.dictationIndex >= 0 && p.dictationIndex < lesson.words.length &&
     p.coverStates !== null && typeof p.coverStates === "object" && !Array.isArray(p.coverStates) &&
     p.coverAttempts !== null && typeof p.coverAttempts === "object" && !Array.isArray(p.coverAttempts) &&
-    Object.entries(p.coverAttempts).every(([id, attempt]) => ids.has(id) && typeof attempt === "string") &&
+    Object.entries(p.coverAttempts).every(([id, attempt]) => ids.has(id) && typeof attempt === "string" && attempt.length <= 200) &&
     p.dictationValues !== null && typeof p.dictationValues === "object" && !Array.isArray(p.dictationValues) &&
-    Object.entries(p.dictationValues).every(([id, sentence]) => ids.has(id) && typeof sentence === "string") &&
+    Object.entries(p.dictationValues).every(([id, sentence]) => ids.has(id) && typeof sentence === "string" && sentence.length <= 1000) &&
     p.dictationAttempts !== null && typeof p.dictationAttempts === "object" && !Array.isArray(p.dictationAttempts) &&
-    Object.entries(p.dictationAttempts).every(([id, sentence]) => ids.has(id) && typeof sentence === "string") &&
+    Object.entries(p.dictationAttempts).every(([id, sentence]) => ids.has(id) && typeof sentence === "string" && sentence.length <= 1000) &&
     Array.isArray(p.dictationChecked) && p.dictationChecked.every((id) => typeof id === "string" && ids.has(id)) &&
     p.dictationChecked.every((id) => Object.hasOwn(p.dictationAttempts, id)) &&
-    typeof p.reflection === "string" && typeof p.finished === "boolean";
+    typeof p.reflection === "string" && p.reflection.length <= 1000 && typeof p.finished === "boolean";
 }
 
 export function weakVowelReadyToFinish(p: WeakVowelProgressV1, lesson: WeakVowelLessonV1): boolean {
-  return Boolean(p.dinnerResponse && p.detectiveResponse && p.reflection.trim()) &&
+  const selectedIds = lesson.words.map((word) => word.canonicalWordId);
+  const guidedComplete = (response: Record<string, unknown> | null) => response?.guided === true &&
+    Array.isArray(response.words) && response.words.length === selectedIds.length &&
+    response.words.every((value, index) => Boolean(value) && typeof value === "object" &&
+      (value as { canonicalWordId?: unknown }).canonicalWordId === selectedIds[index]);
+  return p.stageId === "reflection" && guidedComplete(p.dinnerResponse) &&
+    guidedComplete(p.detectiveResponse) && Boolean(p.reflection.trim()) &&
     lesson.words.every((word) => Object.hasOwn(p.coverAttempts, word.canonicalWordId) &&
       p.dictationChecked.includes(word.canonicalWordId) && Object.hasOwn(p.dictationAttempts, word.canonicalWordId));
+}
+
+/** The first answer-hidden writing is immutable even when the child repairs
+ * the visible answer later. Guided state may advance but cannot be recast as
+ * a fresh spelling attempt by resubmitting a checkpoint. */
+export function weakVowelProgressTransitionValid(previous: unknown, next: unknown, lesson: WeakVowelLessonV1): boolean {
+  if (!weakVowelProgressValid(next, lesson) || next.finished) return false;
+  if (previous === null || previous === undefined) return true;
+  if (!weakVowelProgressValid(previous, lesson) || previous.finished) return false;
+  if (previous.dinnerResponse && semanticJson(previous.dinnerResponse) !== semanticJson(next.dinnerResponse)) return false;
+  if (previous.detectiveResponse && semanticJson(previous.detectiveResponse) !== semanticJson(next.detectiveResponse)) return false;
+  for (const [id, attempt] of Object.entries(previous.coverAttempts)) {
+    if (next.coverAttempts[id] !== attempt) return false;
+  }
+  for (const [id, attempt] of Object.entries(previous.dictationAttempts)) {
+    if (next.dictationAttempts[id] !== attempt || !next.dictationChecked.includes(id)) return false;
+  }
+  if (previous.dictationChecked.some((id) => !next.dictationChecked.includes(id))) return false;
+  return true;
+}
+
+export function weakVowelCheckpointReplayVersion(previousPayload: unknown, nextPayload: unknown,
+  previousVersion: number, expectedVersion: number): number | null {
+  return Number.isInteger(previousVersion) && previousVersion > expectedVersion && expectedVersion >= 0 &&
+    semanticJson(previousPayload) === semanticJson(nextPayload) ? previousVersion : null;
 }

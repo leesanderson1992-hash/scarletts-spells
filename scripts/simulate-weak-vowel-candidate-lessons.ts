@@ -4,6 +4,7 @@ import { prepareWeakVowelLesson } from "../lib/adle/weak-vowel/prepare";
 import type { WeakVowelMicroSkill } from "../lib/adle/weak-vowel/lesson";
 import { DINNER_ROUND_VERSION } from "../lib/adle/word-lab/call-it-to-dinner";
 import { DETECTIVE_ROUND_VERSION } from "../lib/adle/word-lab/family-tree-detective";
+import { compileWeakVowelSnapshotV3 } from "../lib/adle/weak-vowel/snapshot";
 
 const [candidatePath, sheetPath] = process.argv.slice(2);
 assert(candidatePath && sheetPath, "Pass candidate package and reviewed Sheet snapshot paths.");
@@ -51,7 +52,7 @@ for (const [key, rows] of grouped) {
     const dinner = group.map((row) => {
       const facts = row.routeContent.content.weakVowel;
       const ending = ["D4_SCHWA_FINAL_AR_FINAL", "D4_SCHWA_FINAL_ER_FINAL", "D4_SCHWA_FINAL_OR_FINAL"].includes(key);
-      return { schemaVersion: DINNER_ROUND_VERSION, contentVersion: "candidate-simulation-v1",
+      return { schemaVersion: DINNER_ROUND_VERSION, contentVersion: row.sourceFingerprint,
         reviewStatus: "approved" as const, canonicalWordId: row.canonicalWordId, spelling: row.spelling,
         microSkillKey: key, wordSense: facts.wordSense, pronunciationId: facts.pronunciationId,
         sourceFingerprint: facts.sourceFingerprint, recording: { ...facts.wordRecording, reviewStatus: "approved" as const },
@@ -60,7 +61,7 @@ for (const [key, rows] of grouped) {
     });
     const detective = group.map((row) => {
       const facts = row.routeContent.content.weakVowel;
-      return { schemaVersion: DETECTIVE_ROUND_VERSION, contentVersion: "candidate-simulation-v1",
+      return { schemaVersion: DETECTIVE_ROUND_VERSION, contentVersion: row.sourceFingerprint,
         reviewStatus: "approved" as const, canonicalWordId: row.canonicalWordId, spelling: row.spelling,
         microSkillKey: key, wordSense: facts.wordSense, pronunciationId: facts.pronunciationId,
         sourceFingerprint: facts.sourceFingerprint, recording: { ...facts.wordRecording, reviewStatus: "approved" as const },
@@ -89,6 +90,17 @@ for (const [key, rows] of grouped) {
     assert.deepEqual(prepared.blockers, [], `${key} candidate group ${number}: ${JSON.stringify(prepared.blockers)}`);
     assert(prepared.lesson, `${key} candidate group ${number} did not compose`);
     assert.deepEqual(prepared.lesson.words.map((word) => word.canonicalWordId), slots.map((slot) => slot.canonicalWordId));
+    const release = { activationRevisionId: "simulation-revision", releaseManifestId: "simulation-manifest",
+      releaseKey: "candidate-simulation", releaseManifestSha256: "a".repeat(64), dependencyFingerprint: "b".repeat(64) };
+    const compiled = compileWeakVowelSnapshotV3({ lesson: prepared.lesson, release,
+      contentAuthorities: [
+        { authorityType: "release_manifest", authorityId: release.releaseManifestId, version: "2", sourceHash: release.releaseManifestSha256 },
+        { authorityType: "activation_revision", authorityId: release.activationRevisionId, version: "2", sourceHash: "c".repeat(64) },
+        { authorityType: "dependency_set", authorityId: release.releaseManifestId, version: "2", sourceHash: release.dependencyFingerprint },
+        ...group.map((row) => ({ authorityType: "teaching_content" as const, authorityId: row.sourceFingerprint,
+          version: "1", sourceHash: row.sourceFingerprint })),
+      ], childId: "simulation-child", parentUserId: "simulation-parent", date: "2026-10-21" });
+    assert.equal(compiled.snapshot.assignment.itemCount, 1 + 4 * group.length);
     simulated += prepared.lesson.words.length;
   }
 }

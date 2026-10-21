@@ -22,6 +22,7 @@ import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-b
 import { isComparativeSnapshotV3, validateComparativeSnapshotV3 } from "../inflection/snapshot";
 import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
 import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "../homophone/snapshot";
+import { isWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../weak-vowel/snapshot";
 
 const CONTRACTS = new Set([
   "INTRODUCTION.teaching_page@1",
@@ -368,6 +369,7 @@ export function validateCompiledSpecialistSnapshotV3(
   if (isComparativeSnapshotV3(value)) return validateComparativeSnapshotV3(value, context);
   if (isIngSnapshotV3(value)) return validateIngSnapshotV3(value, context);
   if (isHomophoneSnapshotV3(value)) return validateHomophoneSnapshotV3(value, context);
+  if (isWeakVowelSnapshotV3(value)) return validateWeakVowelSnapshotV3(value, context);
   if (record(value) && record(value.route) && (value.route.routeId === "dynamic_prefix_word_lab" || value.route.routeId === "base_word_lab")) {
     return validatePrefixOrBaseSnapshot(value, context);
   }
@@ -467,5 +469,5 @@ export function isBaseWordSpecialistSnapshotV3(value: unknown): value is Compile
 }
 
 export function isSpecialistSnapshotV3(value: unknown): value is CompiledSpecialistSnapshotV3 {
-  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value) || isIngSnapshotV3(value) || isHomophoneSnapshotV3(value);
+  return isCompoundWordSpecialistSnapshotV3(value) || isDynamicAffixSpecialistSnapshotV3(value) || isDynamicPrefixSpecialistSnapshotV3(value) || isBaseWordSpecialistSnapshotV3(value) || isComparativeSnapshotV3(value) || isIngSnapshotV3(value) || isHomophoneSnapshotV3(value) || isWeakVowelSnapshotV3(value);
 }

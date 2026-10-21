@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { prepareLessonFromPublishedWeakVowelWords, type PublishedWeakVowelWord } from "../lib/adle/weak-vowel/governed-content";
+import { compileWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../lib/adle/weak-vowel/snapshot";
+import { initialWeakVowelProgress, weakVowelProgressTransitionValid, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
 
 const candidates = JSON.parse(readFileSync("content/secret-life-of-vowels/weak-vowel-route-content-candidates.json", "utf8")) as {
   rows: Array<PublishedWeakVowelWord & { sharedDefinition: { definition: string } }>;
@@ -24,7 +26,7 @@ const slots = published.map((row, index) => ({ canonicalWordId: row.canonicalWor
   learningItemId: index === 0 ? `demand-${index}` : null, complexityLevel: null }));
 const currentAssignedPairs = published.map((row) => ({ canonicalWordId: row.canonicalWordId,
   microSkillKey: row.microSkillKey, assignmentStatus: "assigned" as const }));
-const input = { assignmentKey: "frozen-governed-test", contentVersion: "test-release-v1",
+const input = { assignmentKey: "frozen-governed-test",
   microSkillKey: "D4_SCHWA_FINAL_A_FINAL" as const, slots, currentAssignedPairs,
   published, currentFamilyAuthorities: [] };
 const ready = prepareLessonFromPublishedWeakVowelWords(input);
@@ -32,6 +34,36 @@ assert.deepEqual(ready.blockers, []);
 assert(ready.lesson);
 assert.deepEqual(ready.lesson.words.map((row) => row.canonicalWordId), slots.map((row) => row.canonicalWordId));
 assert.equal(ready.lesson.words[0].provenance, "learning_item");
+assert.match(ready.lesson.contentVersion, /^weak_vowel_selected_v1:[a-f0-9]{64}$/);
+const release = { activationRevisionId: "revision-1", releaseManifestId: "manifest-1",
+  releaseKey: "weak-vowel-test", releaseManifestSha256: "a".repeat(64), dependencyFingerprint: "b".repeat(64) };
+const { header, items, snapshot } = compileWeakVowelSnapshotV3({ lesson: ready.lesson, release,
+  contentAuthorities: [
+    { authorityType: "release_manifest", authorityId: release.releaseManifestId, version: "2", sourceHash: release.releaseManifestSha256 },
+    { authorityType: "activation_revision", authorityId: release.activationRevisionId, version: "2", sourceHash: "c".repeat(64) },
+    { authorityType: "dependency_set", authorityId: release.releaseManifestId, version: "2", sourceHash: release.dependencyFingerprint },
+    ...published.map((word) => ({ authorityType: "teaching_content" as const, authorityId: word.contentVersionId,
+      version: "1", sourceHash: word.sourceFingerprint })),
+  ], childId: "child-1", parentUserId: "parent-1", date: "2026-10-21" });
+assert.equal(items.length, 17);
+assert.equal(snapshot.payload.resolvedLesson.words.length, 4);
+assert.equal(validateWeakVowelSnapshotV3(snapshot, { lessonRouteMetadata: header.lessonRouteMetadata,
+  assignmentGenerationSource: header.assignmentGenerationSource,
+  items: items.map((item) => ({ ...item, sectionKey: item.metadata.sectionKey,
+    canonicalWordId: item.metadata.canonicalWordId })) }).ok, true);
+assert.equal(validateWeakVowelSnapshotV3({ ...snapshot, payload: { ...snapshot.payload,
+  resolvedLesson: { ...snapshot.payload.resolvedLesson, words: snapshot.payload.resolvedLesson.words.slice(1) } } }).ok, false);
+const initial = initialWeakVowelProgress(ready.lesson);
+const firstId = ready.lesson.words[0].canonicalWordId;
+const frozen = { ...initial, coverAttempts: { [firstId]: "first hidden spelling" },
+  dictationAttempts: { [firstId]: "first sentence" }, dictationChecked: [firstId] };
+assert.equal(weakVowelProgressTransitionValid(initial, frozen, ready.lesson), true);
+assert.equal(weakVowelProgressTransitionValid(frozen, { ...frozen,
+  coverAttempts: { [firstId]: "revealed correction" } }, ready.lesson), false);
+assert.equal(weakVowelProgressTransitionValid(frozen, { ...frozen,
+  dictationAttempts: { [firstId]: "revealed correction" } }, ready.lesson), false);
+assert.equal(weakVowelReadyToFinish({ ...frozen, stageId: "reflection", reflection: "My clue",
+  dinnerResponse: { guided: true, words: [] }, detectiveResponse: { guided: true, words: [] } }, ready.lesson), false);
 
 const stale = prepareLessonFromPublishedWeakVowelWords({ ...input, published: [
   { ...published[0], currentDictionaryFingerprint: "changed" }, ...published.slice(1),
