@@ -43,6 +43,12 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
 - A published-content assembler and loader now reject deassigned, missing,
   ambiguous, stale-dictionary and changed-audio selected words. The assembler
   freezes approved rows for the exact demand-led slots. Regression tests pass.
+- The read-only assignment readiness loader now runs the existing demand-first
+  four-to-six-word selector, refreshes the current word–skill relationship
+  authority, and loads governed publications for those exact selected words.
+  It returns row-specific blockers for incomplete demand instead of replacing
+  a selected word. The official writer still needs the release and database
+  persistence boundary before this loader can serve children.
 - The official V3 snapshot compiler now freezes four to six selected words,
   their activities and per-word content authorities. All 182 candidate pairs
   passed snapshot compilation in eight-skill simulations. The checkpoint
@@ -51,6 +57,10 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   weak-vowel database checkpoint RPC.
 - The optimized Next.js build and TypeScript checks pass. The live Production
   database still has zero weak-vowel content versions and zero activation heads.
+- A fresh production-source preflight again found 182 assigned pairs, 358
+  matching staged clips and zero failed pairs. Production publication remains
+  untouched. This checkout has no Supabase preview-branch credential, so the
+  repository's disposable-preview migration proof has not run.
 
 ## Release gates still required
 
