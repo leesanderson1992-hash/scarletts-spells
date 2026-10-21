@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { canOpenAdleDesignPreview } from "@/lib/adle/design-preview-access";
+import { reviewConundrumDevSnapshot } from "@/lib/adle/review-v3/dev-conundrum-snapshot";
 import { ReviewConundrumPreview } from "./preview";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,6 @@ export default async function ReviewConundrumDevPage({ searchParams }: {
   const params = await searchParams;
   // No persistence gateway, Supabase access or real learner identity.
   return (
-    <div className="w-full p-2"><ReviewConundrumPreview invalid={params.invalid === "1"} /></div>
+    <div className="w-full p-2"><ReviewConundrumPreview snapshot={reviewConundrumDevSnapshot(params.invalid === "1")} /></div>
   );
 }

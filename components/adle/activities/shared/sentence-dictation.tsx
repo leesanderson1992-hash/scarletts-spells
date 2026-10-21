@@ -10,6 +10,8 @@ import { gradePairedDegreeAttempt, type PairedDegreeSentence } from "@/lib/adle/
 
 export interface SentenceDictationProps {
   audioText: string;
+  /** A fixed reviewed clip takes precedence over device speech synthesis. */
+  recordingSrc?: string;
   correctSentence: string;
   value: string;
   checked: boolean;
@@ -101,13 +103,27 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
   const checkRequested = useRef(false);
   const [checkpointError, setCheckpointError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [audioError, setAudioError] = useState(false);
+  const [heardRecording, setHeardRecording] = useState(false);
+  const recording = useRef<HTMLAudioElement | null>(null);
+
+  async function playRecording() {
+    if (props.muted || !recording.current) return;
+    setAudioError(false);
+    try {
+      recording.current.currentTime = 0;
+      await recording.current.play();
+      setHeardRecording(true);
+    } catch { setAudioError(true); }
+  }
 
   useEffect(() => {
     if (!props.checked) checkRequested.current = false;
   }, [props.checked]);
 
   async function checkSentence() {
-    if (props.checked || !props.value.trim() || checkRequested.current) return;
+    if (props.checked || !props.value.trim() || checkRequested.current ||
+      (props.recordingSrc && (!heardRecording || audioError))) return;
     checkRequested.current = true;
     setSaving(true);
     setCheckpointError(null);
@@ -130,13 +146,12 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
         {props.stepLabel}
       </p>
       <div className="flex justify-center">
-        <HearWordButton
-          word={props.audioText}
-          label="Play sentence"
-          muted={props.muted}
-          kind="dictation"
-        />
+        {props.recordingSrc ? <>
+          <audio ref={recording} src={props.recordingSrc} preload="none" onError={() => setAudioError(true)} />
+          <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-5 font-black text-slate-950 disabled:opacity-40" disabled={props.muted} onClick={() => void playRecording()}>▶ Play reviewed sentence</button>
+        </> : <HearWordButton word={props.audioText} label="Play sentence" muted={props.muted} kind="dictation" />}
       </div>
+      {audioError ? <p role="alert" className="text-center font-bold text-rose-200">The sentence recording could not play. Try replay before checking.</p> : null}
       <label htmlFor={inputId} className="text-sm font-semibold text-cyan-50">
         {props.writingLabel ?? LESSON_ACTIVITY_COPY.sentenceDictation}
       </label>
@@ -161,7 +176,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
       {!props.checked ? (
         <button
           type="button"
-          disabled={!props.value.trim() || saving}
+          disabled={!props.value.trim() || saving || Boolean(props.recordingSrc && (!heardRecording || audioError))}
           onClick={() => void checkSentence()}
           className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40"
         >

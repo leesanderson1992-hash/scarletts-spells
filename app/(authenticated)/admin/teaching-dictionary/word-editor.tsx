@@ -7,6 +7,7 @@ import { normaliseWord, WORD_METADATA_FIELDS } from "@/lib/teaching-dictionary-m
 import { routeEditorPayload } from "@/lib/teaching-dictionary-manager/route-editor-payload";
 import { saveTeachingDictionaryDraft, saveTeachingDictionarySkillApprovals } from "./actions";
 import { ActionSubmitButton } from "./action-submit-button";
+import { WeakVowelFactsEditor } from "./weak-vowel-facts-editor";
 
 type Skill = { micro_skill_key: string; display_name: string; skill_family_key: string; skill_cluster_key: string };
 type Group = { key: string; label: string; parent?: string };
@@ -476,6 +477,9 @@ export function WordEditor(props: {
               <label id={`td-route-${key}-sourceRefs`} className={`${labelClass} md:col-span-2 scroll-mt-6`}><FieldTitle label="Reviewed source references, one per line" /><textarea className={fieldClass} rows={2} value={Array.isArray(item?.content.sourceRefs) ? item.content.sourceRefs.join("\n") : ""} onChange={(event) => updateRouteFact(key, "sourceRefs", event.target.value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean))} /></label>
               <p className="md:col-span-2 text-xs text-amber-900">The existing -ing release still requires its own reviewed word authority and learner group checks.</p>
             </div>}
+            {route.routeId === "weak_vowel_word_lab" && <WeakVowelFactsEditor key={key}
+              value={item?.content.weakVowel} word={props.initial.displayWord} sentence={dictation}
+              onChange={(value) => updateRouteFact(key, "weakVowel", value)} />}
             {route.routeId === "comparative_superlative_word_lab" && <p className="text-xs text-amber-900">This route is governed by a reviewed three-word adjective family, two transformations and a paired sentence. The word page can retain a draft, but the family release authority must validate the complete group before it is a lesson candidate.</p>}
             <details id={`td-route-${key}-advanced`} className="text-sm scroll-mt-6"><summary className="cursor-pointer">Advanced route data</summary><label className={labelClass}><FieldTitle label="Additional route facts (JSON)" /><textarea className={`${fieldClass} font-mono`} rows={5} value={routeJson[key] ?? JSON.stringify(item?.content ?? {}, null, 2)} onChange={(event) => {
               setRouteJson((previous) => ({ ...previous, [key]: event.target.value }));

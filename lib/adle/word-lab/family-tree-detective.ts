@@ -45,7 +45,7 @@ export interface DetectiveRoundV1 {
   pronunciationId: string;
   sourceFingerprint: string;
   recording: DetectiveRecordingV1;
-  target: { start: number; end: number; text: string; soundType: "schwa" | "other_unstressed" };
+  target: { start: number; end: number; text: string; soundType: "schwa" | "other_unstressed" | "unclassified_weak_vowel" };
   /** Required only where the reviewed full target has more than one vowel letter. */
   reviewedVowelIndex: number | null;
   family: DetectiveFamilyV1 | null;
@@ -104,7 +104,8 @@ export function parseDetectiveRound(value: unknown, allowCandidate = false): Det
     !nonEmpty(value.pronunciationId) || typeof value.sourceFingerprint !== "string" || !SHA.test(value.sourceFingerprint) ||
     !(value.reviewStatus === "approved" || allowCandidate && value.reviewStatus === "candidate") ||
     !validRecording(value.recording) || !record(value.target) ||
-    !(value.target.soundType === "schwa" || value.target.soundType === "other_unstressed") ||
+    !(value.target.soundType === "schwa" || value.target.soundType === "other_unstressed" ||
+      allowCandidate && value.target.soundType === "unclassified_weak_vowel") ||
     !(value.reviewedVowelIndex === null || Number.isInteger(value.reviewedVowelIndex))) return null;
   const round = value as unknown as DetectiveRoundV1;
   if (!allowCandidate && round.pronunciationId.startsWith("candidate-")) return null;

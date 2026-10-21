@@ -41,8 +41,10 @@ function restore(value: unknown, config: DetectiveActivityConfigV1): DetectiveSt
     if (!candidate || !["initial", "explore", "final", "done"].includes(candidate.phase) ||
       !(candidate.initialChoice === null || tile(candidate.initialChoice)) ||
       !(candidate.finalChoice === null || tile(candidate.finalChoice)) ||
-      ((candidate.phase === "explore" || candidate.phase === "final") && (!round.family || !candidate.initialChoice)) ||
-      (candidate.phase === "done" && (!candidate.initialChoice || round.family && !candidate.finalChoice))) continue;
+      (candidate.phase === "explore" && (!round.family || !candidate.initialChoice)) ||
+      (candidate.phase === "final" && !candidate.initialChoice) ||
+      (candidate.phase === "done" && (!candidate.initialChoice ||
+        (round.family || candidate.initialChoice !== correctVowelTile(round)) && !candidate.finalChoice))) continue;
     const validIds = new Set(round.family?.members.map((member) => member.canonicalWordId) ?? [round.canonicalWordId]);
     const clues: Record<string, DetectiveClue[]> = {};
     for (const [id, values] of Object.entries(candidate.clues ?? {})) {
@@ -121,6 +123,8 @@ export function FamilyTreeDetectiveActivity(props: {
   muted?: boolean;
   reducedMotion?: boolean;
   previewCandidate?: boolean;
+  showInlineGuide?: boolean;
+  lessonLayout?: boolean;
   onStateChange?: (state: DetectiveState) => void;
   onComplete?: (response: Record<string, unknown>) => void;
 }) {
@@ -169,9 +173,13 @@ export function FamilyTreeDetectiveActivity(props: {
   function submitChoice() {
     if (!current.selectedTile) return;
     if (current.phase === "initial") {
-      change({ ...current, initialChoice: current.selectedTile, selectedTile: null, phase: round.family ? "explore" : "done" });
+      const firstCorrect = current.selectedTile === correct;
+      change({ ...current, initialChoice: current.selectedTile, selectedTile: null,
+        phase: round.family ? "explore" : firstCorrect ? "done" : "final" });
     } else if (current.phase === "final") {
-      change({ ...current, finalChoice: current.selectedTile, selectedTile: null, phase: "done" });
+      const firstRetry = current.finalChoice ?? current.selectedTile;
+      change({ ...current, finalChoice: firstRetry, selectedTile: null,
+        phase: current.selectedTile === correct ? "done" : "final" });
     }
   }
 
@@ -208,11 +216,86 @@ export function FamilyTreeDetectiveActivity(props: {
     }) });
   }
 
+  if (props.lessonLayout) return <section className="detective-option-three" aria-labelledby="detective-title" data-detective-phase={current.phase}>
+    <audio ref={audio} preload="none" onError={() => setAudioError(true)} />
+    <h2 id="detective-title" className="detective-option-three-title">Vowel Detective</h2>
+    <div className="detective-option-three-cards">
+      <section className="detective-option-three-card" aria-labelledby="detective-game-title">
+        <h3 id="detective-game-title">The Game</h3>
+        <p>A quiet vowel letter is hidden. Listen and choose its spelling. Explore related words when available, then try again from memory.</p>
+      </section>
+      <section className="detective-option-three-card detective-option-three-how" aria-labelledby="detective-how-title">
+        <h3 id="detective-how-title">How to do the task</h3>
+        <p><strong>1</strong> Hear the word and choose a vowel tile.</p>
+        <p><strong>2</strong> Submit your first thought.</p>
+        <p><strong>3</strong> Explore family clues when available, then try again.</p>
+      </section>
+    </div>
+    {audioError && <p role="alert" className="detective-option-three-error">This recording could not play. Please try again.</p>}
+
+    {(current.phase === "initial" || current.phase === "final") && <div className="detective-option-three-desk">
+      <div className="detective-option-three-challenge">
+        <p className="detective-option-three-eyebrow">Word {state.index + 1} of {props.config.rounds.length} · {current.phase === "initial" ? "First thought" : "Try again from memory"}</p>
+        {current.phase === "final" && (current.finalChoice !== null && current.finalChoice !== correct ||
+          !round.family && current.initialChoice !== correct) && <p role="alert" className="detective-option-three-error">× Not quite. That vowel was incorrect. Listen and try another vowel.</p>}
+        <div className="detective-option-three-question"><h3>Which vowel belongs in the gap?</h3><button type="button" disabled={props.muted} onClick={() => hear()}>▶ Hear the word</button></div>
+        <div ref={gap} className="detective-option-three-word">{masked.replace("_", current.selectedTile ?? "_")}</div>
+        <span className="sr-only" aria-live="polite">{masked.replace("_", current.selectedTile ?? "blank")}</span>
+        <div className="detective-option-three-tiles" aria-label="Vowel tiles">{TILES.map((letter) => <DraggableTile key={letter} id={letter} text={letter} label={`${letter} vowel tile`} selected={current.selectedTile === letter}
+          muted={props.muted} onSelect={() => choose(letter)} onDrop={(_, point) => {
+            const rect = gap.current?.getBoundingClientRect();
+            if (rect && point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom) choose(letter);
+          }} />)}</div>
+        <p className="detective-option-three-hint">Tap a vowel tile, or drag it into the gap.</p>
+        <button type="button" className="detective-option-three-submit" disabled={!current.selectedTile} onClick={submitChoice}>Submit vowel</button>
+      </div>
+      <aside className="detective-option-three-side" aria-label={current.phase === "initial" ? "Upcoming family investigation" : "Memory reminder"}>
+        {current.phase === "initial" ? round.family ? <><p className="detective-option-three-eyebrow">Next: family investigation</p><h3>Unlock after your first answer</h3><p>Listen to related words and collect clues that help you remember the spelling.</p><hr /><p>Then close the tree and try the missing vowel again.</p></>
+          : <><p className="detective-option-three-eyebrow">Your first thought</p><h3>Try the quiet vowel</h3><p>If it is incorrect, you can listen again and choose another vowel. Your first choice stays saved.</p></>
+          : <><p className="detective-option-three-eyebrow">{round.family ? "The tree is closed" : "Your first answer is saved"}</p><h3>Choose from memory</h3><p>Listen to the original word again if you need to. Your first answer is already saved.</p></>}
+      </aside>
+    </div>}
+
+    {current.phase === "explore" && round.family && <div className="detective-option-three-desk">
+      <div className="detective-option-three-investigate">
+        <p className="detective-option-three-eyebrow">Word {state.index + 1} of {props.config.rounds.length} · Family investigation</p>
+        {current.initialChoice !== correct && <p role="alert" className="detective-option-three-error">× Not quite. Your first vowel was incorrect. Explore this family, then try again.</p>}
+        <h3>{round.family.relationKind === "base_to_derived" ? `How ${round.family.name} becomes ${round.spelling}` : `Explore the ${round.family.name} family`}</h3>
+        <p>{round.family.relationKind === "base_to_derived" ? "Look at how the reviewed word parts make the new word. Tap a word to hear it when a recording is available." : "Tap related words with recordings to hear them. Collect clues you notice; it is fine if a relative does not help."}</p>
+        {round.family.preservedBaseSpan && <p>Blue shows preserved base letters; yellow marks the target vowel letter.</p>}
+        <div className="detective-option-three-family">{round.family.members.map((member) => <FamilyCard key={member.canonicalWordId} member={member} round={round}
+          chosen={current.clues[member.canonicalWordId] ?? []} muted={Boolean(props.muted)} onHear={() => hear(member)} onClue={(clue) => toggleClue(member.canonicalWordId, clue)} />)}</div>
+        <button type="button" className="detective-option-three-submit" onClick={() => {
+          change({ ...current, phase: "final", selectedTile: null });
+          void playAudio(round.recording.src);
+        }}>Close tree and try again</button>
+      </div>
+      <aside className="detective-option-three-side" aria-label="Spelling memory tip">
+        <p className="detective-option-three-eyebrow">Tip</p>
+        <h3>Sound out the spelling</h3>
+        <p>Try saying the word with its written vowel sounded clearly, like <strong>HU-MAN</strong>.</p>
+        <hr />
+        <p>This is a way to remember the letters. The everyday recording may sound different.</p>
+      </aside>
+    </div>}
+
+    {current.phase === "done" && <div className="detective-option-three-done">
+      <p className="detective-option-three-eyebrow">Investigation complete · Word {state.index + 1} of {props.config.rounds.length}</p>
+      <h3>The missing vowel is {correct}.</h3>
+      <p>{current.initialChoice === correct ? "You chose it on your first try." : current.finalChoice === correct ? "Your first choice was incorrect; you found the vowel on your next try." : "Your earlier choices were incorrect; you found the vowel after trying again."}
+        {round.family && current.finalChoice !== null ? ` Your first choice after exploring was ${current.finalChoice}.` : ""}</p>
+      <p>{round.family?.explanation ?? `The reviewed spelling is ${round.spelling}.`}</p>
+      {!round.family && <p><strong>Tip:</strong> Try saying the word with its written vowel sounded clearly, like HU-MAN. This can help you remember the letters even when the everyday vowel is quiet.</p>}
+      <button type="button" className="detective-option-three-submit" onClick={next}>{state.index + 1 < props.config.rounds.length ? "Next word" : "Finish investigation"}</button>
+    </div>}
+    {props.reducedMotion && <p className="sr-only">Reduced motion is on.</p>}
+  </section>;
+
   return <section className="grid gap-6 text-[color:var(--ink)]" aria-labelledby="detective-title">
     <audio ref={audio} preload="none" onError={() => setAudioError(true)} />
-    <header className="adie-inline"><Image src="/adie/adie-head.png" width={86} height={86} alt="ADIE, your robot guide" />
-      <div className="adie-inline-bubble"><strong>Adie says</strong><h2 id="detective-title" className="text-xl font-black">Family Tree Detective</h2>
-        <p>Listen, find the missing vowel, then see whether this word family gives you a spelling clue.</p></div></header>
+    {props.showInlineGuide === false ? <header className="grid gap-1"><h2 id="detective-title" className="text-xl font-black">Vowel Detective</h2><p>Listen, try the missing vowel, then investigate a word-family clue when one is available.</p></header> : <header className="adie-inline"><Image src="/adie/adie-head.png" width={86} height={86} alt="ADIE, your robot guide" />
+      <div className="adie-inline-bubble"><strong>Adie says</strong><h2 id="detective-title" className="text-xl font-black">Vowel Detective</h2>
+        <p>Listen, find the missing vowel, then see whether this word family gives you a spelling clue.</p></div></header>}
     {props.previewCandidate && <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-3 font-bold text-amber-950">Review preview: target and family links here are candidates. This does not save spelling evidence.</p>}
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
       <p className="font-bold">Word {state.index + 1} of {props.config.rounds.length}</p>
@@ -223,7 +306,9 @@ export function FamilyTreeDetectiveActivity(props: {
     {(current.phase === "initial" || current.phase === "final") && <div className="grid gap-5 text-center">
       <div><p className="brand-eyebrow">{current.phase === "initial" ? "First thought" : "Try again from memory"}</p>
         <h3 className="text-2xl font-black">Which vowel belongs in the gap?</h3>
-        {current.phase === "final" && <p className="mt-2 text-sm text-[color:var(--mid)]">The family tree is closed. Listen to the original word again if you need to.</p>}</div>
+        {current.phase === "final" && (current.finalChoice !== null && current.finalChoice !== correct ||
+          !round.family && current.initialChoice !== correct) && <p role="alert" className="mt-2 rounded-xl bg-rose-100 p-3 font-bold text-rose-950">× Not quite. That vowel was incorrect. Listen and try another vowel.</p>}
+        {current.phase === "final" && <p className="mt-2 text-sm text-[color:var(--mid)]">{round.family ? "The family tree is closed." : "Your first answer is saved."} Listen to the original word again if you need to.</p>}</div>
       <div ref={gap} role="status" aria-live="polite" className="mx-auto flex min-h-24 min-w-48 items-center justify-center rounded-3xl border-2 border-dashed border-cyan-400 bg-cyan-50 px-6 font-black tracking-wide">
         <span className="text-4xl">{masked.replace("_", current.selectedTile ?? "_")}</span></div>
       <p className="text-sm font-semibold text-[color:var(--mid)]">Tap a letter to fill the gap, or drag it onto the word.</p>
@@ -241,6 +326,7 @@ export function FamilyTreeDetectiveActivity(props: {
         <p className="mt-2 text-[color:var(--mid)]">{round.family.relationKind === "base_to_derived"
           ? "Look at how the reviewed word parts make the new word. Tap either word to hear it when a recording is available."
           : "Tap words to hear them. Collect clues you notice; it is fine if a relative does not help."}</p></div>
+      {current.initialChoice !== correct && <p role="alert" className="rounded-xl bg-rose-100 p-3 font-bold text-rose-950">× Not quite. Your first vowel was incorrect. Explore this family, then try again.</p>}
       {round.family.preservedBaseSpan && <p className="text-center text-sm font-semibold text-cyan-900">Blue shows preserved base letters; yellow marks the target vowel letter.</p>}
       <div className="grid gap-4 sm:grid-cols-2">{round.family.members.map((member) => <FamilyCard key={member.canonicalWordId} member={member} round={round}
         chosen={current.clues[member.canonicalWordId] ?? []} muted={Boolean(props.muted)} onHear={() => hear(member)} onClue={(clue) => toggleClue(member.canonicalWordId, clue)} />)}</div>
@@ -253,8 +339,8 @@ export function FamilyTreeDetectiveActivity(props: {
     {current.phase === "done" && <div className="grid gap-4 text-center" role="status">
       <p className="brand-eyebrow">Investigation complete</p>
       <p className="text-2xl font-black">The missing vowel is {correct}.</p>
-      <p className="text-[color:var(--mid)]">{current.initialChoice === correct ? "You chose it on your first try." : "Your first choice is saved as part of this guided investigation."}
-        {round.family && current.finalChoice !== null ? ` After exploring, you chose ${current.finalChoice}.` : ""}</p>
+      <p className="text-[color:var(--mid)]">{current.initialChoice === correct ? "You chose it on your first try." : current.finalChoice === correct ? "Your first choice was incorrect; you found the vowel on your next try." : "Your earlier choices were incorrect; you found the vowel after trying again."}
+        {round.family && current.finalChoice !== null ? ` Your first choice after exploring was ${current.finalChoice}.` : ""}</p>
       <p className="rounded-2xl bg-cyan-50 p-4 font-semibold text-cyan-950">{round.family?.explanation ?? `The reviewed spelling is ${round.spelling}.`}</p>
       <button type="button" className="brand-primary-btn mx-auto" onClick={next}>{state.index + 1 < props.config.rounds.length ? "Next word" : "Finish investigation"}</button>
     </div>}

@@ -32,9 +32,11 @@ export interface LessonReflectionProps {
   autoFocus?: boolean;
   successMessage?: string;
   contextRecap?: LessonReflectionContextRecap;
+  contextEyebrow?: string;
   sentenceComparisons?: readonly NormalizedLessonReflectionSentenceComparison[];
   specialistRecaps?: readonly LessonReflectionSpecialistRecap[];
   showMistakeSection?: boolean;
+  appearance?: "weak-vowel-neon";
 }
 
 function SpecialistRecaps(props: {
@@ -63,24 +65,24 @@ export function LessonReflection(props: LessonReflectionProps) {
   const responseHelpText = props.responseHelpText === null ? null : props.responseHelpText ?? `Write about what you learned${props.mistakes.length ? " or what you will remember next time" : "."}`;
   const recaps = props.specialistRecaps ?? [];
   return (
-    <div className="grid gap-5 text-cyan-50" data-lesson-reflection="canonical">
+    <div className="grid gap-5 text-cyan-50" data-lesson-reflection="canonical" data-reflection-appearance={props.appearance}>
       <SpecialistRecaps recaps={recaps} position="before_mistakes" />
-      {props.showMistakeSection !== false ? <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={titleId}>
+      {props.showMistakeSection !== false ? <section className="reflection-panel reflection-panel-pink rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={titleId}>
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p>
-        <h2 id={titleId} className="mt-2 text-3xl font-black text-white">What went wrong</h2>
+        <h2 id={titleId} className="mt-2 text-3xl font-black text-white">{props.appearance === "weak-vowel-neon" ? "Spellings to revisit" : "What went wrong"}</h2>
         {props.mistakes.length ? (
           <>
             <p className="mt-2 text-cyan-100">Let&apos;s look at the spellings that need another careful check.</p>
             <div className="mt-4 grid gap-3">
               {props.mistakes.map((mistake) => (
-                <article key={mistake.id} className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950" aria-label={`Compare your spelling of ${mistake.correctSpelling}`}>
+                <article key={mistake.id} className="reflection-review-card rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-slate-950" aria-label={`Compare your spelling of ${mistake.correctSpelling}`}>
                   <h3 className="text-xl font-black">{mistake.correctSpelling}</h3>
                   <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl bg-white/80 p-3">
+                    <div className="reflection-review-attempt rounded-xl bg-white/80 p-3">
                       <dt className="text-xs font-black uppercase tracking-wide text-amber-900">You wrote</dt>
                       <dd className="mt-1 break-words text-lg font-bold">{mistake.attempt || "nothing yet"}</dd>
                     </div>
-                    <div className="rounded-xl bg-emerald-100 p-3">
+                    <div className="reflection-review-answer rounded-xl bg-emerald-100 p-3">
                       <dt className="text-xs font-black uppercase tracking-wide text-emerald-900">Correct spelling</dt>
                       <dd className="mt-1 break-words text-lg font-black text-emerald-950">{mistake.correctSpelling}</dd>
                     </div>
@@ -96,20 +98,20 @@ export function LessonReflection(props: LessonReflectionProps) {
             </div>
           </>
         ) : (
-          <p className="mt-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950" role="status">
+          <p className="reflection-review-success mt-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 font-semibold text-emerald-950" role="status">
             {props.successMessage ?? "You checked each spelling carefully. Use your reflection to explain what helped you."}
           </p>
         )}
       </section> : null}
 
       {props.sentenceComparisons?.length ? (
-        <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-sentence-comparison-heading`} data-reflection-sentence-comparisons="feedback-only">
+        <section className="reflection-panel reflection-panel-blue rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-sentence-comparison-heading`} data-reflection-sentence-comparisons="feedback-only">
           <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Sentence check</p>
           <h2 id={`${instanceId}-sentence-comparison-heading`} className="mt-2 text-xl font-black text-white">Notice the whole sentence</h2>
           <p className="mt-2 text-cyan-100">This helps you notice capitals and punctuation. It does not change your spelling result.</p>
           <div className="mt-4 grid gap-3">
             {props.sentenceComparisons.map((comparison) => (
-              <article key={comparison.id} className="rounded-2xl border border-cyan-200/50 bg-white/10 p-4">
+              <article key={comparison.id} className="reflection-sentence-card rounded-2xl border border-cyan-200/50 bg-white/10 p-4">
                 <p><span className="font-black text-white">Your sentence:</span> “{comparison.attempt || "nothing yet"}”</p>
                 <p className="mt-2"><span className="font-black text-white">Correct sentence:</span> “{comparison.correct}”</p>
               </article>
@@ -119,18 +121,18 @@ export function LessonReflection(props: LessonReflectionProps) {
       ) : null}
 
       {props.contextRecap?.items.length ? (
-        <section className="rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-context-heading`} data-reflection-context-recap="recap-only">
-          <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Sentence recap</p>
+        <section className="reflection-panel reflection-panel-purple rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={`${instanceId}-context-heading`} data-reflection-context-recap="recap-only">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.contextEyebrow ?? "Sentence recap"}</p>
           <h2 id={`${instanceId}-context-heading`} className="mt-2 text-xl font-black text-white">{props.contextRecap.heading}</h2>
           {props.contextRecap.introduction ? <p className="mt-2 text-cyan-100">{props.contextRecap.introduction}</p> : null}
           <ul className="mt-3 grid gap-2">
-            {props.contextRecap.items.map((item) => <li key={item.id} className="rounded-xl bg-white/10 p-3 font-semibold text-cyan-50">{item.text}</li>)}
+            {props.contextRecap.items.map((item) => <li key={item.id} className="reflection-guided-item rounded-xl bg-white/10 p-3 font-semibold text-cyan-50">{item.text}</li>)}
           </ul>
           {props.contextRecap.overflowText ? <p className="mt-2 text-sm font-semibold text-cyan-100">{props.contextRecap.overflowText}</p> : null}
         </section>
       ) : null}
 
-      <label htmlFor={responseId} className="grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">
+      <label htmlFor={responseId} className="reflection-panel reflection-panel-blue grid gap-2 rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5 text-lg font-black text-white">
         {props.prompt}
         {responseHelpText ? <span id={responseHelpId} className="text-sm font-semibold text-cyan-100">{responseHelpText}</span> : null}
         <textarea

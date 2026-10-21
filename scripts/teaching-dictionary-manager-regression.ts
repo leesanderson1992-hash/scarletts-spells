@@ -194,6 +194,11 @@ const compiled = compileDynamicPrefixWordLabDecision(selection, { mode: "shared_
 assert(compiled.ok, `renew prefix lesson must compile: ${compiled.ok ? "" : compiled.blockerCode}`);
 
 assert.deepEqual(validateActivityVariantInventory(), []);
+const weakVariants = activityVariantsForRoute("weak_vowel_word_lab", "D4_SCHWA_FINAL_ER_FINAL");
+assert.deepEqual(weakVariants.map((variant) => variant.kind),
+  ["introduction", "call_it_to_dinner", "vowel_detective", "cover_check", "dictation", "reflection"]);
+assert(weakVariants.find((variant) => variant.kind === "call_it_to_dinner")?.requiredFacts
+  .some((fact) => fact.factKey === "reviewed_syllable_cuts" && fact.owner === "reviewed_word_route_facts"));
 const ityVariants = activityVariantsForRoute("dynamic_affix_word_lab", "D4_MOR_SUFFIXES_ITY");
 assert(ityVariants.some((variant) => variant.kind === "dictation" && variant.wordScope === "independent_words"));
 assert(ityVariants.some((variant) => variant.kind === "meaning_sort" && !variant.enabled));

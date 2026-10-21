@@ -28,7 +28,8 @@ export type LessonRouteId =
   | "compound_word_lab"
   | "comparative_superlative_word_lab"
   | "ing_endings_word_lab"
-  | "homophone_word_lab";
+  | "homophone_word_lab"
+  | "weak_vowel_word_lab";
 
 export type LessonPayloadKind =
   | "composed_daily_plan"
@@ -38,7 +39,8 @@ export type LessonPayloadKind =
   | "base_word_family_snapshot_v1"
   | "comparative_superlative_lesson_v1"
   | "ing_endings_lesson_v1"
-  | "homophone_lesson_v2";
+  | "homophone_lesson_v2"
+  | "weak_vowel_lesson_v1";
 
 export type VersionedLessonRouteReference = {
   routeId: LessonRouteId;
@@ -90,7 +92,8 @@ export type LessonRuntimeAdapterKey =
   | "base_word_family_v1"
   | "comparative_superlative_v1"
   | "ing_endings_v1"
-  | "homophone_v2";
+  | "homophone_v2"
+  | "weak_vowel_v1";
 
 export type LessonRendererKey =
   | "generic_session"
@@ -99,7 +102,8 @@ export type LessonRendererKey =
   | "base_word_family_guided"
   | "comparative_superlative_guided"
   | "ing_endings_guided"
-  | "homophone_guided";
+  | "homophone_guided"
+  | "weak_vowel_guided";
 
 export type LessonRouteResolutionSource =
   | "persisted_metadata"
@@ -182,6 +186,8 @@ export type LessonActivitySnapshot =
   | (ActivityBase<"guided_prompt"> & { promptKey: string })
   | (ActivityBase<"family_reveal"> & { familySectionKey: string })
   | (ActivityBase<"cleaver"> & { canonicalWordIds: readonly string[] })
+  | (ActivityBase<"call_it_to_dinner"> & { canonicalWordIds: readonly string[] })
+  | (ActivityBase<"vowel_detective"> & { canonicalWordIds: readonly string[] })
   | (ActivityBase<"word_build"> & { canonicalWordIds: readonly string[] })
   | (ActivityBase<"compound_jigsaw"> & {
       canonicalWordIds: readonly string[];
@@ -244,6 +250,8 @@ export const LESSON_ACTIVITY_KINDS = [
   "guided_prompt",
   "family_reveal",
   "cleaver",
+  "call_it_to_dinner",
+  "vowel_detective",
   "word_build",
   "compound_jigsaw",
   "meaning_match",

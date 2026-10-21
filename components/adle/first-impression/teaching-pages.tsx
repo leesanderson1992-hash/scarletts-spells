@@ -15,17 +15,35 @@ export interface TeachingPageSection {
   examples?: readonly TeachingPageExample[];
 }
 
+export type WeakVowelSecretTipBlock =
+  | { kind: "paragraph"; text: string }
+  | { kind: "examples"; items: readonly { text: string; explanation?: string }[] }
+  | { kind: "comparison"; columns: readonly [string, string]; rows: readonly (readonly [string, string])[] }
+  | { kind: "group"; heading: string; words: readonly string[] };
+
+export interface WeakVowelSecretTip {
+  heading: string;
+  blocks: readonly WeakVowelSecretTipBlock[];
+}
+
 export interface TeachingPageConfig {
   id: string;
   type: "teaching";
   eyebrow?: string;
   title: string;
+  subtitle?: string;
   paragraphs: readonly string[];
   highlightFocusWords?: readonly string[];
   callout?: string;
   model?: { first: string; second: string; result: string };
   examples?: readonly TeachingPageExample[];
   sections?: readonly TeachingPageSection[];
+  weakVowelFeature?:
+    | { kind: "sound_contrast"; stress: readonly [string, string]; fact: string; schwaExamples: readonly string[]; otherExamples: readonly string[]; vowelReminder: string }
+    | { kind: "final_a_groups"; groups: readonly { heading: string; words: readonly string[] }[]; note: string }
+    | { kind: "final_a_strategy"; choices: readonly { heading: string; example: string; explanation: string }[]; note: string }
+    | { kind: "ending_secret_story"; intro: readonly string[]; examples: readonly { stem: string; ending: string; suffix?: string; sound: string }[]; conclusion: string; tips: readonly WeakVowelSecretTip[]; targetPosition?: "initial" | "medial" | "final" }
+    | { kind: "ending_secret_rule"; rule: string; clues: readonly string[]; conclusion: string; motto: string; tips: readonly WeakVowelSecretTip[] };
 }
 
 export interface MeetWordConfig {
@@ -121,19 +139,60 @@ export function TeachingPages(props: {
 
 function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pageCount: number }) {
   const { page } = props;
+  const feature = page.weakVowelFeature;
   return (
-    <article className="grid gap-5 text-left" data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
+    <article className={`grid gap-5 text-left ${feature ? "weak-vowel-teaching-page" : ""}`} data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
       <header className="text-center">
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">
           {page.eyebrow ?? "Learn"} · Page {props.pageNumber} of {props.pageCount}
         </p>
         <h1 id={`teaching-page-${page.id}`} className="mt-2 text-3xl font-black text-white md:text-4xl">{page.title}</h1>
+        {page.subtitle ? <p className="weak-vowel-secret-subtitle mt-1 text-lg font-bold">{page.subtitle}</p> : null}
       </header>
       {page.paragraphs.length > 0 ? (
         <div className="mx-auto grid max-w-3xl gap-3 text-center text-lg leading-8 text-cyan-50">
           {page.paragraphs.map((paragraph, index) => <p key={paragraph}>{page.highlightFocusWords?.length && index === page.paragraphs.length - 1 ? <HighlightedFocusWords text={paragraph} words={page.highlightFocusWords} /> : paragraph}</p>)}
         </div>
       ) : null}
+      {feature?.kind === "sound_contrast" ? <div className="grid gap-3">
+        <div className="weak-vowel-panel-grid grid gap-3 sm:grid-cols-2">
+          <section className="weak-vowel-panel weak-vowel-panel-strong rounded-2xl p-4"><h2 className="font-black">Stressed vowels and syllables</h2><p>{feature.stress[0]}</p></section>
+          <section className="weak-vowel-panel weak-vowel-panel-quiet rounded-2xl p-4"><h2 className="font-black">Unstressed vowels and syllables</h2><p>{feature.stress[1]}</p></section>
+        </div>
+        <p className="weak-vowel-fact rounded-2xl px-4 py-3"><strong>Fun fact:</strong> {feature.fact} A schwa can sound like <u className="font-black">“uh”</u>.</p>
+        <p className="text-center text-sm font-bold">Stretch these words slowly and listen for the quiet sound:</p>
+        <div className="weak-vowel-panel-grid grid gap-3 sm:grid-cols-2">
+          <section className="weak-vowel-panel weak-vowel-panel-quiet rounded-2xl p-4"><h2 className="font-black">Unstressed schwa /ə/</h2><ul>{feature.schwaExamples.map(example => <li key={example}>{example}</li>)}</ul></section>
+          <section className="weak-vowel-panel weak-vowel-panel-strong rounded-2xl p-4"><h2 className="font-black">Another unstressed vowel /ɪ/</h2><ul>{feature.otherExamples.map(example => <li key={example}>{example}</li>)}</ul></section>
+        </div>
+        <p className="text-center text-sm font-black">{feature.vowelReminder}</p>
+      </div> : null}
+      {feature?.kind === "final_a_groups" ? <div className="grid gap-3">
+        <table className="weak-vowel-groups-table w-full table-fixed border-separate border-spacing-2" aria-label="Two groups of nouns ending in a"><thead><tr>{feature.groups.map(group => <th key={group.heading} scope="col" className="rounded-xl p-3 text-left">{group.heading}</th>)}</tr></thead>
+          <tbody><tr>{feature.groups.map(group => <td key={group.heading} className="rounded-xl p-3 align-top">{group.words.join(" · ")}</td>)}</tr></tbody></table>
+        <p className="text-center text-sm font-semibold">{feature.note}</p>
+      </div> : null}
+      {feature?.kind === "final_a_strategy" ? <div className="grid gap-3">
+        <div className="weak-vowel-panel-grid grid gap-3 sm:grid-cols-2">{feature.choices.map(choice => <section key={choice.heading} className="weak-vowel-panel weak-vowel-panel-strong rounded-2xl p-4"><h2 className="font-black">{choice.heading}</h2><p>{choice.explanation}</p><p className="mt-2 font-bold">{choice.example}</p></section>)}</div>
+        <p className="weak-vowel-fact rounded-2xl px-4 py-3 text-sm">{feature.note}</p>
+      </div> : null}
+      {feature?.kind === "ending_secret_story" ? <div className="weak-vowel-secret-story-layout">
+        <section className="weak-vowel-secret-story-card" aria-label={feature.targetPosition === "initial" ? "The first letter's secret" : feature.targetPosition === "medial" ? "The middle vowel's secret" : "The ending's secret"}>
+          {feature.intro.map((paragraph) => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
+          <h2>Listen to these words</h2>
+          <ul className="weak-vowel-secret-examples">{feature.examples.map((example) => <li key={`${example.stem}${example.ending}${example.suffix ?? ""}`}><span>{feature.targetPosition === "initial" ? <><strong>{example.ending}</strong>{example.stem}</> : <>{example.stem}<strong>{example.ending}</strong>{example.suffix ?? ""}</>}</span><span aria-hidden="true">→</span><span>{example.sound}</span></li>)}</ul>
+          <p className="weak-vowel-secret-conclusion"><RichCopy text={feature.conclusion} /></p>
+        </section>
+        <SecretTipCards tips={feature.tips} />
+      </div> : null}
+      {feature?.kind === "ending_secret_rule" ? <div className="weak-vowel-secret-rule-layout">
+        <section className="weak-vowel-secret-rule-card" aria-label="Today's secret rule"><span aria-hidden="true">✦</span><p><RichCopy text={feature.rule} /></p>
+          <ul>{feature.clues.map((clue) => <li key={clue}><RichCopy text={clue} /></li>)}</ul>
+          <p><RichCopy text={feature.conclusion} /></p><strong><RichCopy text={feature.motto} /></strong>
+        </section>
+        <h2 className="weak-vowel-secret-recap-heading">{feature.tips.length} detective tips to remember</h2>
+        <SecretTipCards tips={feature.tips} recap />
+      </div> : null}
       {page.callout ? <p className="teaching-key-idea rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-center text-xl font-black text-cyan-950">{page.callout}</p> : null}
       {page.model ? (
         <div className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-cyan-300/20 bg-slate-950/45 p-5" aria-label={`${page.model.first} plus ${page.model.second} makes ${page.model.result}`}>
@@ -154,6 +213,26 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       ))}
     </article>
   );
+}
+
+function RichCopy(props: { text: string }) {
+  return <>{props.text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => part.startsWith("**") && part.endsWith("**")
+    ? <strong key={index}>{part.slice(2, -2)}</strong> : <span key={index}>{part}</span>)}</>;
+}
+
+function SecretTipCards(props: { tips: readonly WeakVowelSecretTip[]; recap?: boolean }) {
+  return <div className={`weak-vowel-secret-tip-stack${props.recap ? " is-recap" : ""}`} aria-label={`${props.tips.length} detective tips`}>
+    {props.tips.map((tip, index) => <section key={tip.heading} className={`weak-vowel-secret-tip weak-vowel-secret-tip-${["pink", "purple", "blue", "pink"][index % 4]}`}>
+      <h3><span>{String(index + 1).padStart(2, "0")}</span>{tip.heading}</h3>
+      {tip.blocks.map((block, blockIndex) => block.kind === "paragraph"
+        ? <p key={blockIndex}><RichCopy text={block.text} /></p>
+        : block.kind === "examples"
+          ? <ul key={blockIndex} className="weak-vowel-secret-tip-examples">{block.items.map((item) => <li key={item.text}><RichCopy text={item.text} />{item.explanation ? <span> — {item.explanation}</span> : null}</li>)}</ul>
+          : block.kind === "comparison"
+            ? <table key={blockIndex} className="weak-vowel-secret-comparison"><thead><tr><th scope="col">{block.columns[0]}</th><th scope="col">{block.columns[1]}</th></tr></thead><tbody>{block.rows.map(([spoken, spelling]) => <tr key={`${spoken}:${spelling}`}><td>{spoken}</td><td>{spelling}</td></tr>)}</tbody></table>
+          : <p key={blockIndex}><strong>{block.heading}</strong> {block.words.join(" · ")}</p>)}
+    </section>)}
+  </div>;
 }
 
 function HighlightedFocusWords(props: { text: string; words: readonly string[] }) {

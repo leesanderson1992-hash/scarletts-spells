@@ -20,8 +20,10 @@ export interface DinnerRoundV1 {
     end: number;
     text: string;
     syllableIndex: number;
-    soundType: "schwa" | "other_unstressed";
+    soundType: "schwa" | "other_unstressed" | "unclassified_weak_vowel";
   };
+  /** Activity answer for newly published rounds; absent in older frozen snapshots. */
+  selectionTarget?: { start: number; end: number; text: string };
 }
 
 export interface DinnerActivityConfigV1 {
@@ -52,6 +54,25 @@ function cutsValidForTarget(cuts: readonly number[], round: DinnerRoundV1): bool
   return start <= round.target.start && round.target.end <= end;
 }
 
+function finalVowel(round: DinnerRoundV1): "a" | "e" | "o" | null {
+  return round.microSkillKey === "D4_SCHWA_FINAL_ER_FINAL" ? "e" :
+    round.microSkillKey === "D4_SCHWA_FINAL_OR_FINAL" ? "o" :
+      round.microSkillKey === "D4_SCHWA_FINAL_AR_FINAL" ? "a" : null;
+}
+
+/** Derive a one-letter answer only from a reviewed final -ar/-er/-or target span. */
+export function reviewedDinnerFinalVowelSelection(round: DinnerRoundV1): { start: number; end: number; text: string } | null {
+  const vowel = finalVowel(round);
+  if (!vowel || round.target.text.toLocaleLowerCase("en-GB") !== `${vowel}r` ||
+    round.target.start !== round.spelling.length - 2 || round.target.end !== round.spelling.length ||
+    round.spelling.slice(-2).toLocaleLowerCase("en-GB") !== `${vowel}r`) return null;
+  return { start: round.target.start, end: round.target.start + 1, text: round.spelling[round.target.start] };
+}
+
+export function dinnerAnswerTarget(round: DinnerRoundV1) {
+  return round.selectionTarget ?? round.target;
+}
+
 /** Parse only the reviewed spelling and sound contract; never infer a span from a schwa flag. */
 export function parseDinnerRound(value: unknown, allowCandidate = false): DinnerRoundV1 | null {
   if (!record(value) || value.schemaVersion !== DINNER_ROUND_VERSION ||
@@ -65,7 +86,8 @@ export function parseDinnerRound(value: unknown, allowCandidate = false): Dinner
     !Array.isArray(value.acceptedCutSets) || value.acceptedCutSets.length < 1 ||
     !record(value.target) || !Number.isInteger(value.target.start) || !Number.isInteger(value.target.end) ||
     !text(value.target.text) || !Number.isInteger(value.target.syllableIndex) ||
-    !(value.target.soundType === "schwa" || value.target.soundType === "other_unstressed")) return null;
+    !(value.target.soundType === "schwa" || value.target.soundType === "other_unstressed" ||
+      allowCandidate && value.target.soundType === "unclassified_weak_vowel")) return null;
   const round = value as unknown as DinnerRoundV1;
   if (!allowCandidate && round.pronunciationId.startsWith("candidate-")) return null;
   if (round.target.start < 0 || round.target.end > round.spelling.length ||
@@ -73,6 +95,13 @@ export function parseDinnerRound(value: unknown, allowCandidate = false): Dinner
     round.spelling.slice(round.target.start, round.target.end) !== round.target.text ||
     round.target.syllableIndex < 1 || round.target.syllableIndex > round.spokenSyllableCount ||
     !round.acceptedCutSets.every((cuts) => Array.isArray(cuts) && cutsValidForTarget(cuts, round))) return null;
+  if (round.selectionTarget !== undefined) {
+    const selected = round.selectionTarget;
+    const expected = reviewedDinnerFinalVowelSelection(round);
+    if (!record(selected) || !Number.isInteger(selected.start) || !Number.isInteger(selected.end) ||
+      !text(selected.text) || !expected || selected.start !== expected.start ||
+      selected.end !== expected.end || selected.text !== expected.text) return null;
+  }
   return round;
 }
 
@@ -103,7 +132,8 @@ export function isDinnerCutPrefix(round: DinnerRoundV1, cuts: readonly number[])
 }
 
 export function scoreDinnerTarget(round: DinnerRoundV1, start: number | null, end: number | null): boolean {
-  return start === round.target.start && end === round.target.end;
+  const target = dinnerAnswerTarget(round);
+  return start === target.start && end === target.end;
 }
 
 export interface DinnerSelectionWord {
@@ -136,6 +166,10 @@ export function resolveDinnerForSelectedWords(
       continue;
     }
     const round = matches[0];
+    if (finalVowel(round) && !round.selectionTarget) {
+      blockers.push({ canonicalWordId: word.canonicalWordId, reason: "dinner_vowel_selection_not_published" });
+      continue;
+    }
     if (round.spelling !== word.spelling || round.wordSense !== word.wordSense ||
       round.sourceFingerprint !== word.sourceFingerprint || round.recording.sha256 !== word.recordingSha256) {
       blockers.push({ canonicalWordId: word.canonicalWordId, reason: "dinner_source_changed" });

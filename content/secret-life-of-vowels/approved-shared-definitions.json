@@ -1,0 +1,902 @@
+{
+  "schemaVersion": "weak_vowel_shared_definitions_v1",
+  "environment": "production",
+  "wordCount": 179,
+  "rows": [
+    {
+      "canonicalWordId": "00caa1c8-fb67-5a12-8641-0e322980e039",
+      "definition": "To make room for someone or give them a place to stay.",
+      "publishedAt": "2026-10-10T22:19:19.470Z"
+    },
+    {
+      "canonicalWordId": "00d738d7-5c8f-5813-b5fc-cc4f59774cc1",
+      "definition": "In the end, after some time or delays.",
+      "publishedAt": "2026-10-10T22:19:11.454Z"
+    },
+    {
+      "canonicalWordId": "00dfbe45-2014-589b-8a42-f962a91c32b6",
+      "definition": "Someone who installs and repairs electrical wires and equipment.",
+      "publishedAt": "2026-10-10T22:19:18.155Z"
+    },
+    {
+      "canonicalWordId": "00faf2a0-3f56-5c2f-8794-4b57da5a9ef4",
+      "definition": "Someone who works or travels on a ship or boat.",
+      "publishedAt": "2026-10-10T22:19:06.776Z"
+    },
+    {
+      "canonicalWordId": "021408d5-ab2f-5bb8-886d-f565e5a313f0",
+      "definition": "The study of living things.",
+      "publishedAt": "2026-10-10T22:19:24.140Z"
+    },
+    {
+      "canonicalWordId": "0398a3ca-e5fd-572b-ac6a-792ac5ad294c",
+      "definition": "The rules for how words are put together in sentences.",
+      "publishedAt": "2026-10-10T22:19:18.983Z"
+    },
+    {
+      "canonicalWordId": "0486de76-672b-5b32-b39a-06592f26efc8",
+      "definition": "A person who writes books, stories or other text.",
+      "publishedAt": "2026-10-10T22:22:18.246Z"
+    },
+    {
+      "canonicalWordId": "04a24fe3-c406-50ac-84fc-c420d00534af",
+      "definition": "Not joined together, or to divide things into parts.",
+      "publishedAt": "2026-10-10T22:18:50.092Z"
+    },
+    {
+      "canonicalWordId": "04f203b5-2f27-5f8c-ad78-9ab40af03150",
+      "definition": "Approved by an organisation or person in authority.",
+      "publishedAt": "2026-10-10T22:19:20.060Z"
+    },
+    {
+      "canonicalWordId": "05641e80-0fdb-575b-aac4-7f5a1923cb86",
+      "definition": "At a greater distance.",
+      "publishedAt": "2026-10-10T22:19:18.151Z"
+    },
+    {
+      "canonicalWordId": "06248f16-4a66-550c-b577-eac7630ee03c",
+      "definition": "A person who dances.",
+      "publishedAt": "2026-10-10T22:19:20.247Z"
+    },
+    {
+      "canonicalWordId": "08de9f8e-d94b-5793-acf5-882633742d0b",
+      "definition": "Someone whose job is to help another person.",
+      "publishedAt": "2026-10-10T22:19:07.447Z"
+    },
+    {
+      "canonicalWordId": "08fa6c07-b49e-5f18-82d2-3797cbafa1cf",
+      "definition": "Happened or took place.",
+      "publishedAt": "2026-10-10T22:19:23.269Z"
+    },
+    {
+      "canonicalWordId": "092ee864-4205-5b77-816c-0a9fc63c92c6",
+      "definition": "Having more wind than before or than another place.",
+      "publishedAt": "2026-10-10T22:19:19.566Z"
+    },
+    {
+      "canonicalWordId": "0cca0611-6e8f-5c0b-ab69-4e0c4a0e4f06",
+      "definition": "One of four equal parts of something.",
+      "publishedAt": "2026-10-10T22:19:10.433Z"
+    },
+    {
+      "canonicalWordId": "0d1dee80-55cb-5478-9945-4312b092f945",
+      "definition": "A living creature that eats food and can usually move around.",
+      "publishedAt": "2026-10-10T22:19:21.190Z"
+    },
+    {
+      "canonicalWordId": "0e8b1cd2-93c6-5ae0-99d1-eb2a8a2e76b2",
+      "definition": "A person you do not know.",
+      "publishedAt": "2026-10-10T22:19:22.214Z"
+    },
+    {
+      "canonicalWordId": "0fa791a6-4345-5fbf-9555-78178992b7c6",
+      "definition": "Someone who takes photographs, often as a job.",
+      "publishedAt": "2026-10-10T22:19:21.158Z"
+    },
+    {
+      "canonicalWordId": "104dd898-38c2-56b7-a5aa-893ea6546ea2",
+      "definition": "To happen.",
+      "publishedAt": "2026-10-10T22:19:17.001Z"
+    },
+    {
+      "canonicalWordId": "1061d6a6-962e-5353-bf67-363a4717a267",
+      "definition": "Having a higher temperature than something else.",
+      "publishedAt": "2026-10-10T22:22:04.421Z"
+    },
+    {
+      "canonicalWordId": "11371c35-da50-557e-9b97-f353fa3dbd5a",
+      "definition": "Something that happens or takes place.",
+      "publishedAt": "2026-10-10T22:19:20.432Z"
+    },
+    {
+      "canonicalWordId": "11ad0e48-c7f4-5ea5-b736-94c8e6d8ac7c",
+      "definition": "A chart or book showing days, weeks and months.",
+      "publishedAt": "2026-10-10T22:19:18.348Z"
+    },
+    {
+      "canonicalWordId": "12cd9023-203c-54c8-8752-e7ad7e11b8db",
+      "definition": "Having more money or a stronger quality than something else.",
+      "publishedAt": "2026-10-10T22:19:19.995Z"
+    },
+    {
+      "canonicalWordId": "12d8d29b-3f3a-511e-b4dd-bcbbd876d5e2",
+      "definition": "A male parent.",
+      "publishedAt": "2026-10-10T22:19:13.754Z"
+    },
+    {
+      "canonicalWordId": "1359d09e-9e27-54c8-ad70-6d8d89d48ad0",
+      "definition": "Less likely to cause harm than something else.",
+      "publishedAt": "2026-10-10T22:19:14.877Z"
+    },
+    {
+      "canonicalWordId": "1431a601-d2c7-5553-95a3-1e28c260c318",
+      "definition": "Someone who plays a character in a film, play or programme.",
+      "publishedAt": "2026-10-10T22:22:06.540Z"
+    },
+    {
+      "canonicalWordId": "14695d7b-74d3-51c8-b8df-c82f6140c6af",
+      "definition": "To get away from danger or somewhere you are trapped.",
+      "publishedAt": "2026-10-10T22:19:10.627Z"
+    },
+    {
+      "canonicalWordId": "1568a1a6-9a32-5da0-ad48-6c11a82913af",
+      "definition": "Lower than or beneath something.",
+      "publishedAt": "2026-10-10T22:19:19.521Z"
+    },
+    {
+      "canonicalWordId": "1a4ebb9b-fb87-5b6f-9258-2ed3456d69e0",
+      "definition": "As much as is needed.",
+      "publishedAt": "2026-10-10T22:19:15.336Z"
+    },
+    {
+      "canonicalWordId": "1a9fb5e8-b73d-50bd-a6a7-69cd7ad96714",
+      "definition": "Having the most to do in a group.",
+      "publishedAt": "2026-10-10T22:22:13.164Z"
+    },
+    {
+      "canonicalWordId": "1ac45753-eee7-5db0-9d04-bda0566429fa",
+      "definition": "To kill animals for food or to kill many people or animals.",
+      "publishedAt": "2026-10-10T22:19:20.365Z"
+    },
+    {
+      "canonicalWordId": "1b4466e9-0651-5fec-9069-0932dde3695d",
+      "definition": "Very pleasing to look at, hear or experience.",
+      "publishedAt": "2026-10-10T22:19:21.310Z"
+    },
+    {
+      "canonicalWordId": "1e7bd33a-68bd-545f-b05f-57b4b6047bbb",
+      "definition": "Easy to reach, enter, use or understand.",
+      "publishedAt": "2026-10-10T22:19:17.915Z"
+    },
+    {
+      "canonicalWordId": "1f596f27-0808-546f-83eb-1b253adadc2a",
+      "definition": "Thin material made from wood fibres, used for writing or wrapping.",
+      "publishedAt": "2026-10-10T22:19:24.970Z"
+    },
+    {
+      "canonicalWordId": "2520a8a5-e5ca-5376-9b6e-79c28ff8d4c7",
+      "definition": "The amount you get by adding numbers and dividing by how many there are; also meaning typical.",
+      "publishedAt": "2026-10-10T22:19:26.393Z"
+    },
+    {
+      "canonicalWordId": "25335f3d-32de-5b22-ac22-c8cc6b6e39f9",
+      "definition": "By mistake, without meaning to do it.",
+      "publishedAt": "2026-10-10T22:19:10.409Z"
+    },
+    {
+      "canonicalWordId": "266de494-f996-584a-81c1-a7641d98e8c5",
+      "definition": "The eleventh month of the year.",
+      "publishedAt": "2026-10-10T22:19:09.828Z"
+    },
+    {
+      "canonicalWordId": "2804f136-fa24-5a40-a0c5-a9013e85d29e",
+      "definition": "In fact; what is really true.",
+      "publishedAt": "2026-10-10T22:19:12.011Z"
+    },
+    {
+      "canonicalWordId": "28608110-6af9-50fe-bec8-ca67ee64123f",
+      "definition": "Someone who makes pictures with paint or paints buildings.",
+      "publishedAt": "2026-10-10T22:19:14.728Z"
+    },
+    {
+      "canonicalWordId": "29bac9fa-2d8f-5d1d-bf33-e4311304cae6",
+      "definition": "A set of actions repeated in a special or traditional way.",
+      "publishedAt": "2026-10-10T22:19:09.410Z"
+    },
+    {
+      "canonicalWordId": "2ffeb23b-b6d1-5746-b2b1-2c5316dbd54d",
+      "definition": "The twelfth month of the year.",
+      "publishedAt": "2026-10-10T22:19:25.023Z"
+    },
+    {
+      "canonicalWordId": "30326173-bbcc-5b75-8548-f4d56eb0ac07",
+      "definition": "The tenth month of the year.",
+      "publishedAt": "2026-10-10T22:19:14.758Z"
+    },
+    {
+      "canonicalWordId": "315d39f1-a265-5b9c-84c2-a94dead18961",
+      "definition": "A person in a story, or someone's qualities and behaviour.",
+      "publishedAt": "2026-10-10T22:19:20.775Z"
+    },
+    {
+      "canonicalWordId": "31a6b8a9-388d-53e0-a0e8-19298ce09a00",
+      "definition": "To keep something in your mind or bring it back into your thoughts.",
+      "publishedAt": "2026-10-10T22:19:08.546Z"
+    },
+    {
+      "canonicalWordId": "31fe1a6c-ba91-5905-9e23-5383399ad7a9",
+      "definition": "A short explanation of the most important points.",
+      "publishedAt": "2026-10-10T22:19:20.425Z"
+    },
+    {
+      "canonicalWordId": "32c26a88-1c1e-5771-b534-c1602426d804",
+      "definition": "A flat baked bread topped with sauce, cheese and other foods.",
+      "publishedAt": "2026-10-10T22:19:24.586Z"
+    },
+    {
+      "canonicalWordId": "35b505e1-7767-5acf-9e54-5934a761f4b4",
+      "definition": "Ready for someone to use, take or have.",
+      "publishedAt": "2026-10-10T22:19:22.650Z"
+    },
+    {
+      "canonicalWordId": "35ebcaaf-35ba-5979-b85b-40e8f34696f2",
+      "definition": "A warm top made of wool or similar material.",
+      "publishedAt": "2026-10-10T22:19:08.782Z"
+    },
+    {
+      "canonicalWordId": "370c28c6-5788-5849-bc88-904c5425db38",
+      "definition": "Greater in length or lasting more time than something else.",
+      "publishedAt": "2026-10-10T22:19:20.480Z"
+    },
+    {
+      "canonicalWordId": "37bd395f-0af0-54fb-a474-9592a329a509",
+      "definition": "A change or result caused by something.",
+      "publishedAt": "2026-10-10T22:19:23.752Z"
+    },
+    {
+      "canonicalWordId": "38c7d3ba-e8e7-5e96-ac43-b43415e6e7f4",
+      "definition": "More attractive or lovely than something else.",
+      "publishedAt": "2026-10-10T22:19:12.764Z"
+    },
+    {
+      "canonicalWordId": "39be4d0b-9149-5f16-993b-4ede15ba6e65",
+      "definition": "A special table or raised place used in some religious ceremonies.",
+      "publishedAt": "2026-10-10T22:19:16.411Z"
+    },
+    {
+      "canonicalWordId": "3ce000e5-d4de-5df0-bc5d-05d6a869d979",
+      "definition": "A main meal, often eaten in the evening.",
+      "publishedAt": "2026-10-10T22:19:19.906Z"
+    },
+    {
+      "canonicalWordId": "3ded994b-7b05-5273-8d4a-6df44580a812",
+      "definition": "Feeling more pleased or joyful than before.",
+      "publishedAt": "2026-10-10T22:21:56.180Z"
+    },
+    {
+      "canonicalWordId": "3fdc2344-b985-591f-b672-3407cf01de62",
+      "definition": "Powered by electricity.",
+      "publishedAt": "2026-10-10T22:19:13.493Z"
+    },
+    {
+      "canonicalWordId": "3fdf1d12-d360-5c5e-9bb6-77a3ec1cac4a",
+      "definition": "The eighth month of the year.",
+      "publishedAt": "2026-10-10T22:19:22.466Z"
+    },
+    {
+      "canonicalWordId": "400cb901-fd31-5ccb-a8c7-9297aca86ed9",
+      "definition": "The ninth month of the year.",
+      "publishedAt": "2026-10-10T22:19:05.790Z"
+    },
+    {
+      "canonicalWordId": "40bea9f9-9c57-5890-b7fc-f2c706f57eff",
+      "definition": "Containing more water than something else.",
+      "publishedAt": "2026-10-10T22:19:14.879Z"
+    },
+    {
+      "canonicalWordId": "41b042ea-006d-50ca-9d9d-52099eaebbd8",
+      "definition": "A person trained to help people who are ill or injured.",
+      "publishedAt": "2026-10-10T22:19:12.433Z"
+    },
+    {
+      "canonicalWordId": "443b2456-2f88-5b37-8b2b-793a2ff1b742",
+      "definition": "A person or device that receives something.",
+      "publishedAt": "2026-10-10T22:19:14.128Z"
+    },
+    {
+      "canonicalWordId": "4661673c-a663-53b6-b977-840154d9a12c",
+      "definition": "A clear liquid that people, animals and plants need to live.",
+      "publishedAt": "2026-10-10T22:19:21.085Z"
+    },
+    {
+      "canonicalWordId": "480db80c-7102-552d-bd3b-95a025ca880f",
+      "definition": "A car or other road vehicle driven by an engine.",
+      "publishedAt": "2026-10-10T22:19:06.139Z"
+    },
+    {
+      "canonicalWordId": "48d1914d-fd2a-5a22-b5d9-2491000d60fe",
+      "definition": "Very large.",
+      "publishedAt": "2026-10-10T22:19:16.734Z"
+    },
+    {
+      "canonicalWordId": "4b066639-3151-5afb-8bc4-a51a231340b0",
+      "definition": "A large wild cat with orange fur and black stripes.",
+      "publishedAt": "2026-10-10T22:19:17.805Z"
+    },
+    {
+      "canonicalWordId": "4b1a3b0f-0c9a-50f8-9d08-3221173ecfc0",
+      "definition": "Not following the usual pattern or rules.",
+      "publishedAt": "2026-10-10T22:21:56.017Z"
+    },
+    {
+      "canonicalWordId": "4b245952-1cfb-5c08-8db3-168129d95c5a",
+      "definition": "Normal or happening most of the time.",
+      "publishedAt": "2026-10-10T22:19:16.989Z"
+    },
+    {
+      "canonicalWordId": "4c6b684d-e155-5725-b664-d412c5b7443e",
+      "definition": "Happening often or again and again.",
+      "publishedAt": "2026-10-10T22:19:15.866Z"
+    },
+    {
+      "canonicalWordId": "4cebc42b-ea5d-51b8-bf13-828608803a80",
+      "definition": "A person who makes bread, cakes and other baked food.",
+      "publishedAt": "2026-10-10T22:19:15.908Z"
+    },
+    {
+      "canonicalWordId": "50d1e26b-5f8b-5b8a-901e-895ccb5ae8ff",
+      "definition": "Having more to do than someone or something else.",
+      "publishedAt": "2026-10-10T22:21:57.268Z"
+    },
+    {
+      "canonicalWordId": "50e3902f-bdb9-5b07-9786-dc0602348a6a",
+      "definition": "Work involving buying or selling things or providing services.",
+      "publishedAt": "2026-10-10T22:19:11.380Z"
+    },
+    {
+      "canonicalWordId": "51016f88-a5d5-5277-b66c-c2c93ec02fb8",
+      "definition": "What you say or write to reply to a question.",
+      "publishedAt": "2026-10-10T22:19:08.032Z"
+    },
+    {
+      "canonicalWordId": "51458552-973f-5f0f-bf0b-019edf1a9391",
+      "definition": "A sweet substance used in foods and drinks.",
+      "publishedAt": "2026-10-10T22:19:19.531Z"
+    },
+    {
+      "canonicalWordId": "51762d44-385b-57fa-9e65-840de83afa09",
+      "definition": "One person or thing considered separately from others.",
+      "publishedAt": "2026-10-10T22:19:15.802Z"
+    },
+    {
+      "canonicalWordId": "531ca1d2-e97d-5151-ab28-798334e1a80e",
+      "definition": "Someone who shoots arrows using a bow.",
+      "publishedAt": "2026-10-10T22:19:07.827Z"
+    },
+    {
+      "canonicalWordId": "5419cd6f-d9ae-5d48-a71f-df3eebc76243",
+      "definition": "Different from the one already mentioned.",
+      "publishedAt": "2026-10-10T22:19:16.354Z"
+    },
+    {
+      "canonicalWordId": "55fc5e84-f23c-5889-9790-9c29e4b2f0e7",
+      "definition": "To experience pain, sadness or difficulty.",
+      "publishedAt": "2026-10-10T22:19:20.593Z"
+    },
+    {
+      "canonicalWordId": "576ff3ec-5303-5ed3-be3e-4a7fa85dc141",
+      "definition": "Moving or happening more quickly than something else.",
+      "publishedAt": "2026-10-10T22:22:05.510Z"
+    },
+    {
+      "canonicalWordId": "589cbbdd-8781-5e05-8409-2fe2a88a7064",
+      "definition": "To be different from something else.",
+      "publishedAt": "2026-10-10T22:19:09.024Z"
+    },
+    {
+      "canonicalWordId": "589d80cc-fd12-51f7-beb5-6dca4206243b",
+      "definition": "Nearer than something else.",
+      "publishedAt": "2026-10-10T22:19:18.027Z"
+    },
+    {
+      "canonicalWordId": "5a3dade1-8c9a-508e-828f-b57021f5fa61",
+      "definition": "Very cute and easy to love.",
+      "publishedAt": "2026-10-10T22:19:22.581Z"
+    },
+    {
+      "canonicalWordId": "5ab53890-6ba4-5fff-81b2-238ef1d86c02",
+      "definition": "To think carefully about something.",
+      "publishedAt": "2026-10-10T22:19:21.980Z"
+    },
+    {
+      "canonicalWordId": "5b81ec91-1f19-5571-8b48-39417b0a8481",
+      "definition": "Someone who takes part in a game or sport.",
+      "publishedAt": "2026-10-10T22:22:16.834Z"
+    },
+    {
+      "canonicalWordId": "5da0c0c9-e832-52d7-86e8-7a6fce083eff",
+      "definition": "A written message, or a symbol in the alphabet.",
+      "publishedAt": "2026-10-10T22:19:25.120Z"
+    },
+    {
+      "canonicalWordId": "61ace985-6a04-5f85-86e4-52a781f98151",
+      "definition": "Showing the most courage in a group.",
+      "publishedAt": "2026-10-10T22:21:56.546Z"
+    },
+    {
+      "canonicalWordId": "6348e8dd-eec0-5c32-9aea-549dcc6f1858",
+      "definition": "The warmest season of the year, between spring and autumn.",
+      "publishedAt": "2026-10-10T22:19:07.147Z"
+    },
+    {
+      "canonicalWordId": "6586e4da-57c3-5d76-b71a-7fec77f15180",
+      "definition": "Doing something well without wasting time or materials.",
+      "publishedAt": "2026-10-10T22:19:20.011Z"
+    },
+    {
+      "canonicalWordId": "66a048d9-480b-5972-abfa-12ae9a48c90b",
+      "definition": "Helpful or good for someone or something.",
+      "publishedAt": "2026-10-10T22:19:16.105Z"
+    },
+    {
+      "canonicalWordId": "68578968-283c-5da7-8008-c5c8553b5e65",
+      "definition": "More red in colour than something else.",
+      "publishedAt": "2026-10-10T22:19:09.815Z"
+    },
+    {
+      "canonicalWordId": "69b17d77-a52c-5cea-ac4e-4e75ada0dde7",
+      "definition": "A person trained to serve in an army.",
+      "publishedAt": "2026-10-10T22:19:25.133Z"
+    },
+    {
+      "canonicalWordId": "6a13a3e9-f328-57c2-b774-36b663f33ee0",
+      "definition": "Having more height than something else.",
+      "publishedAt": "2026-10-10T22:22:01.202Z"
+    },
+    {
+      "canonicalWordId": "6a6e1e08-900d-58b2-8909-2d736284bcbd",
+      "definition": "Someone who prepares and sells meat.",
+      "publishedAt": "2026-10-10T22:19:06.098Z"
+    },
+    {
+      "canonicalWordId": "6b4a256b-c33b-5702-b6d7-050bff83a40e",
+      "definition": "More amusing or likely to make people laugh.",
+      "publishedAt": "2026-10-10T22:19:14.360Z"
+    },
+    {
+      "canonicalWordId": "6d802318-8469-5df8-99ae-c657ac59c9d3",
+      "definition": "A person with a rank of nobility.",
+      "publishedAt": "2026-10-10T22:19:09.298Z"
+    },
+    {
+      "canonicalWordId": "6dcf0d7b-a87c-5490-bd04-72946a5990e3",
+      "definition": "A tall plant with a large flower that often has yellow petals.",
+      "publishedAt": "2026-10-10T22:21:58.663Z"
+    },
+    {
+      "canonicalWordId": "6f8a5d74-5775-5048-88b0-4763da263be6",
+      "definition": "A female parent.",
+      "publishedAt": "2026-10-10T22:19:24.445Z"
+    },
+    {
+      "canonicalWordId": "7133c536-ab7f-523a-a760-5c26ee1b934f",
+      "definition": "The colourful part of many plants that can make seeds.",
+      "publishedAt": "2026-10-15T20:19:08.813Z"
+    },
+    {
+      "canonicalWordId": "71833e8e-7df0-5f60-8b61-216984eac241",
+      "definition": "Having a lower temperature than something else.",
+      "publishedAt": "2026-10-10T22:19:12.906Z"
+    },
+    {
+      "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
+      "definition": "Based on real facts rather than guesses or stories.",
+      "publishedAt": "2026-10-10T22:19:11.987Z"
+    },
+    {
+      "canonicalWordId": "73efe7d1-9186-5e4b-933c-4f1d6a1a0ba9",
+      "definition": "Your mother or father's mother.",
+      "publishedAt": "2026-10-10T22:22:07.068Z"
+    },
+    {
+      "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
+      "definition": "Real or true, rather than imagined or expected.",
+      "publishedAt": "2026-10-10T22:22:03.506Z"
+    },
+    {
+      "canonicalWordId": "76111e34-9ed6-5db4-a164-f8e902bebaa2",
+      "definition": "Sometimes, but not very often.",
+      "publishedAt": "2026-10-10T22:19:09.506Z"
+    },
+    {
+      "canonicalWordId": "7a54117c-5bd9-5236-a7ab-3a22e1b0c79c",
+      "definition": "Someone or an animal that searches for and catches other animals.",
+      "publishedAt": "2026-10-10T22:19:21.826Z"
+    },
+    {
+      "canonicalWordId": "7ab9bf69-a486-5179-8b13-9d2f598ed26c",
+      "definition": "The part of your body where your arm meets your chest and back.",
+      "publishedAt": "2026-10-10T22:19:14.148Z"
+    },
+    {
+      "canonicalWordId": "7d5dd280-3153-5578-b683-d79b3f7a8636",
+      "definition": "A soft, comfortable seat for two or more people.",
+      "publishedAt": "2026-10-10T22:19:10.275Z"
+    },
+    {
+      "canonicalWordId": "7feb9df4-94b6-52eb-8a8b-7485bb687a05",
+      "definition": "A unit of money used in countries such as the United States.",
+      "publishedAt": "2026-10-10T22:19:20.526Z"
+    },
+    {
+      "canonicalWordId": "83029c74-ef16-5019-9be4-39252b36f00b",
+      "definition": "A kind of energy that powers lights and machines.",
+      "publishedAt": "2026-10-10T22:18:25.319Z"
+    },
+    {
+      "canonicalWordId": "83f6ce8b-0085-51a4-86da-eecd4c39168a",
+      "definition": "A small fastener used to close clothes or control a machine.",
+      "publishedAt": "2026-10-10T22:19:10.597Z"
+    },
+    {
+      "canonicalWordId": "858dc7ad-6d8e-5a62-9d7c-3a349c5e2a2d",
+      "definition": "More pleasant or kinder than something or someone else.",
+      "publishedAt": "2026-10-10T22:22:12.381Z"
+    },
+    {
+      "canonicalWordId": "869004be-be43-5c07-b4ed-661e3fedc106",
+      "definition": "Very important or needed.",
+      "publishedAt": "2026-10-10T22:19:14.194Z"
+    },
+    {
+      "canonicalWordId": "86a599f2-719c-54e2-9aca-d3f0d83560bf",
+      "definition": "Someone who writes a book or other piece of writing.",
+      "publishedAt": "2026-10-10T22:19:14.293Z"
+    },
+    {
+      "canonicalWordId": "882a5599-414a-554c-bfb5-9df139c898ed",
+      "definition": "By itself, without someone doing each step.",
+      "publishedAt": "2026-10-10T22:19:23.507Z"
+    },
+    {
+      "canonicalWordId": "88be31a2-4033-54b8-8fcd-570703918d33",
+      "definition": "People related to one another, such as parents and children.",
+      "publishedAt": "2026-10-10T22:19:13.638Z"
+    },
+    {
+      "canonicalWordId": "895b50ae-de74-5c86-b437-76fe8dcfd1e3",
+      "definition": "Something that happens by chance, often causing harm or damage.",
+      "publishedAt": "2026-10-10T22:19:10.875Z"
+    },
+    {
+      "canonicalWordId": "8abadf6f-55bf-5352-a2c0-18d4077092d8",
+      "definition": "A person who does a job or a task.",
+      "publishedAt": "2026-10-10T22:22:17.416Z"
+    },
+    {
+      "canonicalWordId": "8b23ca54-09d5-5495-96b0-9c616532fc4e",
+      "definition": "A person's chest, especially the front of the upper body.",
+      "publishedAt": "2026-10-10T22:19:08.100Z"
+    },
+    {
+      "canonicalWordId": "8d073816-25a5-58fc-9988-ab799db4716f",
+      "definition": "To go somewhere with another person.",
+      "publishedAt": "2026-10-10T22:19:13.711Z"
+    },
+    {
+      "canonicalWordId": "8e6ffc7d-6166-5816-88d7-773e4017a417",
+      "definition": "More than usual or more than other things.",
+      "publishedAt": "2026-10-10T22:19:18.316Z"
+    },
+    {
+      "canonicalWordId": "8fe80b99-b9e1-4aaf-9646-88d30ba9a860",
+      "definition": "Not usual in nature or not seeming normal.",
+      "publishedAt": "2026-10-10T22:21:53.459Z"
+    },
+    {
+      "canonicalWordId": "9130fc56-bb65-5136-baa0-e74c23e35084",
+      "definition": "A device used to take photographs or videos.",
+      "publishedAt": "2026-10-10T22:19:06.985Z"
+    },
+    {
+      "canonicalWordId": "91643503-4c99-453f-970b-f6c28f0142c1",
+      "definition": "Treating people as equally valuable and giving them fair chances.",
+      "publishedAt": "2026-10-10T22:21:57.593Z"
+    },
+    {
+      "canonicalWordId": "971e121f-1e0d-5cd8-99b0-635ddd7115e2",
+      "definition": "A particular time or a special event.",
+      "publishedAt": "2026-10-10T22:19:11.074Z"
+    },
+    {
+      "canonicalWordId": "976c9c7e-ab29-5fd9-8d09-39e2009ed998",
+      "definition": "Happening or taking place.",
+      "publishedAt": "2026-10-10T22:19:25.361Z"
+    },
+    {
+      "canonicalWordId": "9899dd59-3712-5a0c-a901-e25ffe3a90d7",
+      "definition": "Most of the time.",
+      "publishedAt": "2026-10-10T22:19:16.268Z"
+    },
+    {
+      "canonicalWordId": "9b7b24d1-1097-5fca-b566-8babf046cfba",
+      "definition": "The number after ten and before twelve.",
+      "publishedAt": "2026-10-10T22:19:11.855Z"
+    },
+    {
+      "canonicalWordId": "9d48f94c-11ea-58e8-94da-dd99beff754d",
+      "definition": "To rub out or remove words, marks or information.",
+      "publishedAt": "2026-10-10T22:19:26.263Z"
+    },
+    {
+      "canonicalWordId": "9eb1acaa-969f-5d36-9535-d8a2bb459f77",
+      "definition": "A person who fights in the sport of boxing.",
+      "publishedAt": "2026-10-10T22:19:21.526Z"
+    },
+    {
+      "canonicalWordId": "a2d637e1-e62c-557b-8e0f-9de151d32c4a",
+      "definition": "To disagree with or try to prevent something.",
+      "publishedAt": "2026-10-10T22:19:06.637Z"
+    },
+    {
+      "canonicalWordId": "a31c7ecc-5e62-538c-a77e-9ad76064efe8",
+      "definition": "Less big than something else.",
+      "publishedAt": "2026-10-10T22:22:04.732Z"
+    },
+    {
+      "canonicalWordId": "a3fbd7bb-68e0-5d2b-81ca-858cd0bede63",
+      "definition": "One or the other of two choices, or not one of the two.",
+      "publishedAt": "2026-10-10T22:19:08.476Z"
+    },
+    {
+      "canonicalWordId": "a4442c23-28fc-590f-a4ff-008d431812a9",
+      "definition": "A boy or man who has the same parent or parents as you.",
+      "publishedAt": "2026-10-10T22:19:13.128Z"
+    },
+    {
+      "canonicalWordId": "a4e3f4f5-b835-546a-80d5-2a55489353a2",
+      "definition": "Above something, across it, or finished.",
+      "publishedAt": "2026-10-10T22:19:20.551Z"
+    },
+    {
+      "canonicalWordId": "a94d8598-89c8-5091-b6d6-93296256f969",
+      "definition": "Showing more courage than someone or something else.",
+      "publishedAt": "2026-10-10T22:21:55.028Z"
+    },
+    {
+      "canonicalWordId": "adb468ff-dd99-5e1e-9a0b-b727c1b0142a",
+      "definition": "After the present time or after something else.",
+      "publishedAt": "2026-10-10T22:22:15.318Z"
+    },
+    {
+      "canonicalWordId": "af6dfbc1-4f2b-54ab-b676-88b588c61feb",
+      "definition": "A tool used to measure temperature.",
+      "publishedAt": "2026-10-10T22:19:11.160Z"
+    },
+    {
+      "canonicalWordId": "b132e87a-660f-5f8f-89e1-5bb39abb5694",
+      "definition": "The conditions outside, such as rain, sun, wind and temperature.",
+      "publishedAt": "2026-10-10T22:19:09.766Z"
+    },
+    {
+      "canonicalWordId": "b5a70f41-22ff-5971-90ee-43f1a26f2039",
+      "definition": "Later than something else in time.",
+      "publishedAt": "2026-10-10T22:19:25.345Z"
+    },
+    {
+      "canonicalWordId": "b60536b9-e986-5e47-800f-e129256b2f1c",
+      "definition": "Having lived or existed for longer than another.",
+      "publishedAt": "2026-10-10T22:19:18.302Z"
+    },
+    {
+      "canonicalWordId": "b63b0d54-f4d6-581e-961d-d2ff0368e8f2",
+      "definition": "Very bad or unpleasant.",
+      "publishedAt": "2026-10-10T22:19:05.569Z"
+    },
+    {
+      "canonicalWordId": "b7792563-f3c9-5a28-91d1-3b41ae41cdee",
+      "definition": "Larger than something else.",
+      "publishedAt": "2026-10-10T22:22:24.279Z"
+    },
+    {
+      "canonicalWordId": "ba0580f0-cebd-5292-93a1-ee3a1338fff3",
+      "definition": "The coldest season of the year, after autumn.",
+      "publishedAt": "2026-10-10T22:19:19.854Z"
+    },
+    {
+      "canonicalWordId": "baf4e2bc-3434-5a54-bb58-015dc6f97ecb",
+      "definition": "The letters used to write a language in their usual order.",
+      "publishedAt": "2026-10-10T22:19:18.891Z"
+    },
+    {
+      "canonicalWordId": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+      "definition": "Existing in nature rather than made by people.",
+      "publishedAt": "2026-10-10T22:24:17.918Z"
+    },
+    {
+      "canonicalWordId": "bd8f5ff6-b952-5b01-907b-6f406d9040f2",
+      "definition": "A person who runs, especially in a race or for exercise.",
+      "publishedAt": "2026-10-10T22:22:07.594Z"
+    },
+    {
+      "canonicalWordId": "bfccc99d-8b54-56bc-9460-4b18b998f3d5",
+      "definition": "Working well while wasting as little as possible.",
+      "publishedAt": "2026-10-10T22:19:06.098Z"
+    },
+    {
+      "canonicalWordId": "c3795e0a-45f0-5362-9127-406ae0ec3b40",
+      "definition": "Tools and other things needed for a task or activity.",
+      "publishedAt": "2026-10-10T22:19:11.481Z"
+    },
+    {
+      "canonicalWordId": "c5f532bd-f776-56e4-af56-9454418e7dca",
+      "definition": "A person who helps others learn.",
+      "publishedAt": "2026-10-10T22:22:07.494Z"
+    },
+    {
+      "canonicalWordId": "c6b7b4e6-dfc5-5ae7-9baa-990973ab85fe",
+      "definition": "The possibility of being hurt or harmed.",
+      "publishedAt": "2026-10-10T22:22:01.979Z"
+    },
+    {
+      "canonicalWordId": "c72fe2a0-160c-5d48-9074-2ff610a3da74",
+      "definition": "Being able to do something well or successfully.",
+      "publishedAt": "2026-10-11T14:28:49.599Z"
+    },
+    {
+      "canonicalWordId": "c99c5d83-ab23-59ef-b137-ed32780b9cd3",
+      "definition": "A person who comes to a place for a short time.",
+      "publishedAt": "2026-10-10T22:19:20.652Z"
+    },
+    {
+      "canonicalWordId": "c9c0e7e0-99d2-5530-af79-15ad5e31e8df",
+      "definition": "Used when talking about two or more possible choices or outcomes.",
+      "publishedAt": "2026-10-10T22:19:13.823Z"
+    },
+    {
+      "canonicalWordId": "c9d6799f-85e1-5932-a61f-a367e0c126e9",
+      "definition": "To say you are willing to give or do something.",
+      "publishedAt": "2026-10-10T22:19:20.001Z"
+    },
+    {
+      "canonicalWordId": "ca221d7d-7f73-5779-843e-2107b3c5fa8a",
+      "definition": "A heavy object used to hold a boat in place.",
+      "publishedAt": "2026-10-10T22:19:06.804Z"
+    },
+    {
+      "canonicalWordId": "cb0bc174-7f1c-528d-ba00-720e1c83a959",
+      "definition": "What someone thinks or believes about something.",
+      "publishedAt": "2026-10-10T22:19:16.355Z"
+    },
+    {
+      "canonicalWordId": "cc30a611-9373-5d28-96c3-9e291c4fc2a6",
+      "definition": "Following a usual pattern or happening at set times.",
+      "publishedAt": "2026-10-10T22:19:23.088Z"
+    },
+    {
+      "canonicalWordId": "cce95d01-aa74-53db-8151-11514b300b1d",
+      "definition": "Making more noise than something else.",
+      "publishedAt": "2026-10-10T22:19:25.204Z"
+    },
+    {
+      "canonicalWordId": "d0adf903-ed0c-541a-a48f-85d84d5884ec",
+      "definition": "Weighing more than something else.",
+      "publishedAt": "2026-10-10T22:19:07.159Z"
+    },
+    {
+      "canonicalWordId": "d67b5aca-3024-5744-b5c0-efcf423b4f6b",
+      "definition": "Someone who does an activity for enjoyment rather than as a job.",
+      "publishedAt": "2026-10-10T22:19:23.508Z"
+    },
+    {
+      "canonicalWordId": "d94233e7-dd82-514e-8beb-ec0bdfdefc49",
+      "definition": "To change something.",
+      "publishedAt": "2026-10-11T06:34:08.010Z"
+    },
+    {
+      "canonicalWordId": "d9bf5dd2-b639-5109-a785-1ab74f77ddda",
+      "definition": "Measuring a greater distance from side to side than something else.",
+      "publishedAt": "2026-10-10T22:19:17.352Z"
+    },
+    {
+      "canonicalWordId": "da73ba5c-140d-5620-b355-9e525835b338",
+      "definition": "One specific person or thing, rather than any one.",
+      "publishedAt": "2026-10-10T22:19:25.625Z"
+    },
+    {
+      "canonicalWordId": "dfc2fc84-69b4-5169-8e40-4349a69fd5a5",
+      "definition": "Bigger than something else.",
+      "publishedAt": "2026-10-10T22:21:57.380Z"
+    },
+    {
+      "canonicalWordId": "e01f09ff-3547-5df7-ac51-a2f18f0c4082",
+      "definition": "Provided with the tools or things needed.",
+      "publishedAt": "2026-10-10T22:19:08.426Z"
+    },
+    {
+      "canonicalWordId": "e3f9ba50-5962-58a8-9e85-43636113314d",
+      "definition": "Not the same as something else.",
+      "publishedAt": "2026-10-10T22:19:15.174Z"
+    },
+    {
+      "canonicalWordId": "e5506144-869d-5b1c-9e60-3273fd53c8ec",
+      "definition": "Different types or kinds of something.",
+      "publishedAt": "2026-10-10T22:19:20.798Z"
+    },
+    {
+      "canonicalWordId": "e7537e10-41ec-5c4e-8104-036773404488",
+      "definition": "Liked or enjoyed by many people.",
+      "publishedAt": "2026-10-10T22:19:08.715Z"
+    },
+    {
+      "canonicalWordId": "e908403c-c139-54d3-a53b-456f1f255351",
+      "definition": "To go into a place again.",
+      "publishedAt": "2026-10-10T22:19:21.011Z"
+    },
+    {
+      "canonicalWordId": "eb990e23-79ef-59c0-9aa8-d4483ef723b2",
+      "definition": "Working by itself once started, without needing constant control.",
+      "publishedAt": "2026-10-10T22:19:22.406Z"
+    },
+    {
+      "canonicalWordId": "ed434931-48b9-5ee8-9a39-6ab6ad1b3eab",
+      "definition": "A person who sings.",
+      "publishedAt": "2026-10-10T22:19:22.463Z"
+    },
+    {
+      "canonicalWordId": "ee4a8793-c992-57f7-bf35-cd82b5b75eb8",
+      "definition": "A vehicle with two wheels that you move by pedalling.",
+      "publishedAt": "2026-10-10T22:19:12.054Z"
+    },
+    {
+      "canonicalWordId": "efce43e6-6c85-5f8a-b64e-46880ccd3be0",
+      "definition": "Feeling more unhappy than before or than someone else.",
+      "publishedAt": "2026-10-10T22:21:55.702Z"
+    },
+    {
+      "canonicalWordId": "f095e29c-acf2-5a4c-b4fa-02cf74d86490",
+      "definition": "Relevant to a particular situation or able to be used there.",
+      "publishedAt": "2026-10-10T22:19:16.587Z"
+    },
+    {
+      "canonicalWordId": "f0cbcce4-b9a4-5b29-ade9-f51e31c2642a",
+      "definition": "An African animal like a horse with black and white stripes.",
+      "publishedAt": "2026-10-10T22:19:24.189Z"
+    },
+    {
+      "canonicalWordId": "f22fff37-39dd-559c-b9b8-fccb370d6aaf",
+      "definition": "Of higher quality or more suitable than something else.",
+      "publishedAt": "2026-10-10T22:19:14.776Z"
+    },
+    {
+      "canonicalWordId": "f792b55e-e324-5776-bcd3-ce41a5e8c277",
+      "definition": "Having less width or thickness than something else.",
+      "publishedAt": "2026-10-10T22:18:50.096Z"
+    },
+    {
+      "canonicalWordId": "f8235d24-c200-54d3-9f21-7262419875a8",
+      "definition": "A punctuation mark (,) that shows a short pause or separates items.",
+      "publishedAt": "2026-10-10T22:19:24.970Z"
+    },
+    {
+      "canonicalWordId": "fb4f7b25-7798-5e08-b6f7-b5f43d507d84",
+      "definition": "The season after summer when many leaves change colour.",
+      "publishedAt": "2026-10-10T22:19:17.741Z"
+    },
+    {
+      "canonicalWordId": "fb5f933e-2561-5d17-b250-195233531108",
+      "definition": "Less difficult than something else.",
+      "publishedAt": "2026-10-10T22:19:05.914Z"
+    },
+    {
+      "canonicalWordId": "fcfd59dd-b0b1-50bc-8f3f-d5293fec9b49",
+      "definition": "Moving or happening less quickly than something else.",
+      "publishedAt": "2026-10-10T22:19:08.080Z"
+    },
+    {
+      "canonicalWordId": "ffabb81e-6ea1-5b90-8650-6b02acdbccfb",
+      "definition": "A girl or woman who has the same parent or parents as you.",
+      "publishedAt": "2026-10-10T22:19:07.508Z"
+    }
+  ]
+}

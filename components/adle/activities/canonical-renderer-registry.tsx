@@ -13,6 +13,8 @@ import type {
 } from "@/lib/adle/canonical-activity-spec";
 import { sentenceSuffixPayloadValid, transformTargetPayloadValid, pairedWordGapsPayloadValid } from "@/lib/adle/inflection/activity-contracts";
 import { TeachingPages } from "@/components/adle/first-impression/teaching-pages";
+import { parseDinnerActivityConfig } from "@/lib/adle/word-lab/call-it-to-dinner";
+import { parseDetectiveActivityConfig } from "@/lib/adle/word-lab/family-tree-detective";
 
 export interface CanonicalActivityNavigation {
   complete: () => void;
@@ -303,6 +305,8 @@ const coldWordRecallLoader = moduleLoader(() => import("@/components/adle/activi
 const errorRepairLoader = moduleLoader(() => import("@/components/adle/activities/reflection-activity"), "ReflectionActivity");
 const guidedCompatibilityLoader = moduleLoader(() => import("@/components/adle/activities/guided-activity"), "GuidedActivity");
 const compatibilityNoopLoader = moduleLoader(() => import("@/components/adle/activities/compatibility-noop"), "CompatibilityNoop");
+const dinnerLoader = moduleLoader(() => import("@/components/adle/word-lab/call-it-to-dinner-activity"), "CallItToDinnerActivity");
+const detectiveLoader = moduleLoader(() => import("@/components/adle/word-lab/family-tree-detective-activity"), "FamilyTreeDetectiveActivity");
 
 function registration(
   concept: string,
@@ -328,6 +332,12 @@ const registrations = [
   registration("CLEAVER", "transform_target", "SplitHandle", transformTargetLoader, props => isRecord(props) && transformTargetPayloadValid(props) && functionValue(props.onContinue)),
   registration("CLEAVER", "ing_transform_target", "SplitHandle", transformTargetLoader, props => isRecord(props) && isRecord(props.transformation) && props.transformation.ending === "ing" && nonEmptyString(props.transformation.base) && nonEmptyString(props.transformation.result) && isRecord(props.question) && functionValue(props.onContinue)),
   registration("CLEAVER", "isolate_component", "SplitHandle", baseCleaveLoader, validateBaseCleaveAdapter, "Cleave"),
+  registration("CALL_IT_TO_DINNER", "reviewed_syllable_and_span", "CallItToDinnerActivity", dinnerLoader,
+    props => isRecord(props) && parseDinnerActivityConfig(props.config, props.previewCandidate === true) !== null &&
+      functionValue(props.onStateChange) && functionValue(props.onComplete)),
+  registration("VOWEL_DETECTIVE", "missing_vowel_and_family", "FamilyTreeDetectiveActivity", detectiveLoader,
+    props => isRecord(props) && parseDetectiveActivityConfig(props.config, props.previewCandidate === true) !== null &&
+      functionValue(props.onStateChange) && functionValue(props.onComplete)),
   registration("WORD_ASSEMBLY", "definition_word_builder", "DefinitionWordBuilder", definitionBuilderLoader, validateDefinitionBuilder),
   registration("WORD_ASSEMBLY", "sentence_suffix", "DefinitionWordBuilder", sentenceSuffixLoader, props => isRecord(props) && sentenceSuffixPayloadValid(props) && functionValue(props.onContinue), "SentenceSuffixBuilder"),
   registration("SCRABBLE", "ing_tiles", "IngScrabble", ingScrabbleLoader, props => isRecord(props) && isRecord(props.word) && nonEmptyString(props.word.base) && nonEmptyString(props.word.word) && functionValue(props.onComplete) && functionValue(props.onContinue)),

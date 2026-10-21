@@ -7,10 +7,10 @@ import { LessonGuide } from "./lesson-guide";
 const PHASES = ["Learn", "Discover", "Split", "Match", "Build", "Remember"] as const;
 const PHASE_CUES = ["Learn the idea", "Explore the meaning", "Find the word parts", "Match the meaning", "Build a word", "Remember and reflect"] as const;
 
-export function WordLabScene(props: { beat: GuideBeatV1; phase: number; muted: boolean; onMutedChange: (muted: boolean) => void; silent?: boolean; help?: string; onHelp?: () => void; guideName?: string; phases?: readonly string[]; phaseCues?: readonly string[]; toolbar?: ReactNode; children: ReactNode }) {
+export function WordLabScene(props: { beat: GuideBeatV1; phase: number; muted: boolean; onMutedChange: (muted: boolean) => void; silent?: boolean; help?: string; onHelp?: () => void; guideName?: string; phases?: readonly string[]; phaseCues?: readonly string[]; toolbar?: ReactNode; className?: string; children: ReactNode }) {
   const phases = props.phases ?? PHASES;
   const phaseCues = props.phaseCues ?? PHASE_CUES;
-  return <section className="adle-presentation word-lab-scene w-full max-w-full min-w-0 overflow-hidden rounded-[2rem] p-3 md:p-4">
+  return <section className={`adle-presentation word-lab-scene w-full max-w-full min-w-0 overflow-hidden rounded-[2rem] p-3 md:p-4 ${props.className ?? ""}`}>
     <nav aria-label="Lesson progress" className="word-lab-progress mb-3 flex max-w-full items-center justify-start gap-1 overflow-x-auto text-[11px] font-black uppercase tracking-wider text-cyan-100 md:justify-center">
       {phases.map((label, index) => <span key={`${label}-${index}`} aria-current={index === props.phase ? "step" : undefined} className={`word-lab-step shrink-0 rounded-full px-3 py-2 ${index <= props.phase ? "is-reached" : ""}`}>{label}</span>)}
     </nav>

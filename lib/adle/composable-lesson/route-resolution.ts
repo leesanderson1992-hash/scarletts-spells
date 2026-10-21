@@ -75,6 +75,9 @@ export interface LessonRouteRuntimeContext {
 
 export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   "generic_composer_v1",
+  // Explicitly registered as a gated adapter so persisted route metadata
+  // cannot fall through to the generic composer before publication.
+  "weak_vowel_v1",
   "dynamic_prefix_v2",
   "dynamic_affix_v3",
   "compound_word_v2",
@@ -243,6 +246,10 @@ function runAdapter(
   context: LessonRouteRuntimeContext,
 ): AdapterResult {
   switch (route.runtimeAdapterKey) {
+    case "weak_vowel_v1":
+      // Registered for curriculum audit, but assignment writing stays gated
+      // until a governed publication and V3 snapshot adapter are released.
+      return { ok: false, blocker: "route_unavailable" };
     case "comparative_superlative_v1":
     case "ing_endings_v1":
     case "homophone_v2":

@@ -48,7 +48,11 @@ export type ActivityFactKey =
   | "family_section"
   | "reflection_prompt"
   | "assignment_binding"
-  | "prior_attempt_summary";
+  | "prior_attempt_summary"
+  | "reviewed_recording_hash"
+  | "reviewed_target_span"
+  | "reviewed_syllable_cuts"
+  | "reviewed_vowel_occurrence";
 
 export interface ActivityFactRequirement {
   factKey: ActivityFactKey;
@@ -92,6 +96,9 @@ const cluster = (factKey: ActivityFactKey): ActivityFactRequirement => ({
 const compiled = (factKey: ActivityFactKey): ActivityFactRequirement => ({
   factKey,
   owner: "compiled_assignment_snapshot",
+});
+const routeFact = (factKey: ActivityFactKey): ActivityFactRequirement => ({
+  factKey, owner: "reviewed_word_route_facts",
 });
 
 const independentRoles = [
@@ -250,6 +257,30 @@ export const ADLE_ACTIVITY_REQUIREMENT_REGISTRY = [
       "dynamic_prefix_word_lab:v2",
       "dynamic_affix_word_lab:v3",
     ],
+  }),
+  definition("call_it_to_dinner", {
+    requiredFacts: [canonical("canonical_identity"), canonical("display_word"),
+      routeFact("reviewed_recording_hash"), routeFact("reviewed_target_span"),
+      routeFact("reviewed_syllable_cuts"), compiled("assignment_binding")],
+    optionalFacts: [canonical("pronunciation")],
+    compiledOnlyFields: ["wordOrder", "cutSets", "selectionTarget", "recording"],
+    contradictionRules: ["cuts_must_match_recorded_syllable_count", "selected_vowel_must_be_inside_target"],
+    roleRequirements: lessonRoles,
+    answerVisibility: "guided",
+    evidenceMode: "guided_completion",
+    applicableRecipes: ["weak_vowel_word_lab:v1"],
+  }),
+  definition("vowel_detective", {
+    requiredFacts: [canonical("canonical_identity"), canonical("display_word"),
+      routeFact("reviewed_recording_hash"), routeFact("reviewed_target_span"),
+      routeFact("reviewed_vowel_occurrence"), compiled("assignment_binding")],
+    optionalFacts: [routeFact("family_section")],
+    compiledOnlyFields: ["wordOrder", "vowelIndex", "familySnapshot"],
+    contradictionRules: ["missing_vowel_must_be_reviewed_occurrence", "family_must_have_governed_authority"],
+    roleRequirements: lessonRoles,
+    answerVisibility: "guided",
+    evidenceMode: "guided_completion",
+    applicableRecipes: ["weak_vowel_word_lab:v1"],
   }),
   definition("cover_check", {
     requiredFacts: [

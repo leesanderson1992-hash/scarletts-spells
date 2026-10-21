@@ -1,5 +1,6 @@
 import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
+import { weakVowelRouteBlockers } from "./weak-vowel-authoring";
 
 export const WORD_METADATA_FIELDS = [
   "syllables", "phoneme_hint", "grapheme_notes", "stress_pattern", "morphemes",
@@ -226,6 +227,14 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
   if (!route.wordMeaning.trim()) blockers.push("Add the route-specific teaching meaning.");
   if (!route.wordSum.trim() && ["base_word_lab", "dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(route.routeId)) blockers.push("Add the word sum.");
   if (!payload.dictationSentence.trim()) blockers.push("Add the dictionary dictation sentence.");
+  if (route.routeId === "weak_vowel_word_lab") {
+    blockers.push(...weakVowelRouteBlockers(route.content.weakVowel, {
+      displayWord: payload.displayWord,
+      dictationSentence: payload.dictationSentence,
+      definition: route.wordMeaning || payload.definition,
+      microSkillKey: route.microSkillKey,
+    }));
+  }
   if (["dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(route.routeId)) {
     if (!payload.ageBand.trim()) blockers.push("Set the dictionary age band.");
     if (!payload.frequencyBand.trim()) blockers.push("Set the dictionary frequency band.");

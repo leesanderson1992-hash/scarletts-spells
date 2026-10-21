@@ -57,6 +57,11 @@
         "text": "er",
         "syllableIndex": 2,
         "soundType": "schwa"
+      },
+      "selectionTarget": {
+        "start": 4,
+        "end": 5,
+        "text": "e"
       }
     },
     {
@@ -86,6 +91,11 @@
         "text": "er",
         "syllableIndex": 2,
         "soundType": "schwa"
+      },
+      "selectionTarget": {
+        "start": 4,
+        "end": 5,
+        "text": "e"
       }
     },
     {

@@ -24,6 +24,7 @@ export interface FirstImpressionConfiguredActivity {
   type: string;
   label: string;
   layout?: "standard" | "immersive";
+  sceneClassName?: string;
   binding?: CanonicalActivityBinding;
   render?: (navigation: FirstImpressionActivityNavigation) => ReactNode;
 }
@@ -54,8 +55,10 @@ export function FirstImpressionLesson(props: {
   includeReflection?: boolean;
   onComplete?: () => void;
   scene: FirstImpressionSceneConfig;
+  sceneClassName?: string;
 }) {
   const onStageChange = props.onStageChange;
+  const onComplete = props.onComplete;
   const [stageId, setStageId] = useState<FirstImpressionStageId>(props.initialStageId);
   const [returnStageId, setReturnStageId] = useState<FirstImpressionStageId | null>(null);
   const sequence = useMemo<FirstImpressionStageId[]>(() => [
@@ -78,8 +81,8 @@ export function FirstImpressionLesson(props: {
     const currentIndex = sequence.indexOf(stageId);
     const next = sequence[Math.min(currentIndex + 1, sequence.length - 1)] ?? stageId;
     if (next !== stageId) go(next);
-    else props.onComplete?.();
-  }, [go, sequence, stageId, props.onComplete]);
+    else onComplete?.();
+  }, [go, sequence, stageId, onComplete]);
 
   const rereadTeaching = useCallback(() => {
     if (stageId === "teaching") return;
@@ -135,6 +138,7 @@ export function FirstImpressionLesson(props: {
 
   return (
     <WordLabScene
+      className={[props.sceneClassName, activity?.sceneClassName].filter(Boolean).join(" ")}
       beat={props.scene.beat}
       phase={stageIndex}
       muted={props.scene.muted}

@@ -89,11 +89,17 @@ def main() -> int:
             source = matches[0]
             if source["source_fingerprint"] != sheet.get("source_fingerprint"):
                 raise ValueError("stale sheet fingerprint; re-export and review the changed source")
+            digest = source.get("approved_word_audio_sha256", "")
+            if not re.fullmatch(r"[a-f0-9]{64}", digest):
+                raise ValueError("approved word recording hash is missing")
+            # The owner approved the exact British clip. Give its word/clip
+            # binding a stable technical ID without requesting a new listening review.
+            bound = hashlib.sha256(f"{source['canonical_word_id']}|{digest}".encode()).hexdigest()[:20]
             pronunciation_id = source.get("reviewed_pronunciation_id") or (
                 source.get("current_pronunciation_id") if source.get("pronunciation_variant_status") == "registered" else ""
-            )
-            if not pronunciation_id or pronunciation_id.startswith("candidate-"):
-                raise ValueError("register and bind the reviewed pronunciation variant first")
+            ) or f"gb-word-{bound}"
+            if pronunciation_id.startswith("candidate-"):
+                raise ValueError("candidate pronunciation ID cannot be published")
             spelling = sheet["word"]
             span = re.fullmatch(r"(.+?)\s+\[(\d+),(\d+)\)", sheet.get("target_span_to_review", "").strip())
             if not span:
@@ -101,6 +107,16 @@ def main() -> int:
             target = {"text": span.group(1), "start": int(span.group(2)), "end": int(span.group(3))}
             if spelling[target["start"]:target["end"]] != target["text"]:
                 raise ValueError("full target spelling and zero-based span disagree")
+            final_vowel = {
+                "D4_SCHWA_FINAL_AR_FINAL": "a", "D4_SCHWA_FINAL_ER_FINAL": "e", "D4_SCHWA_FINAL_OR_FINAL": "o"
+            }.get(sheet["micro_skill_key"])
+            selection_target = None
+            if final_vowel:
+                suffix = f"{final_vowel}r"
+                if (spelling[-2:].lower() != suffix or target["text"].lower() != suffix or
+                        target["start"] != len(spelling) - 2 or target["end"] != len(spelling)):
+                    raise ValueError(f"final -{suffix} Dinner needs the reviewed full ending at the word's end before its vowel-only answer can be published")
+                selection_target = {"text": spelling[target["start"]], "start": target["start"], "end": target["start"] + 1}
             count = int(sheet["dinner_spoken_syllable_count"])
             target_syllable = int(sheet["dinner_target_syllable_1based"])
             if count < 1 or not 1 <= target_syllable <= count:
@@ -119,14 +135,15 @@ def main() -> int:
                     cut_sets.append(cuts)
             if not cut_sets:
                 raise ValueError("no valid reviewed cut variant")
-            digest = source.get("approved_word_audio_sha256", "")
             audio = args.audio_root / f"{source['canonical_word_id']}.mp3"
             if not re.fullmatch(r"[a-f0-9]{64}", digest) or not audio.is_file() or hashlib.sha256(audio.read_bytes()).hexdigest() != digest:
                 raise ValueError("approved standalone recording is absent or has changed")
-            sound_type = "schwa" if "schwa" in source.get("proposed_sound_type", "") else "other_unstressed"
+            sound_type = source.get("reviewed_sound_type", "")
+            if sound_type not in {"schwa", "other_unstressed"}:
+                raise ValueError("reviewed sound type must distinguish schwa from another unstressed vowel")
             output_audio = args.public_dir / f"{digest[:16]}.mp3"
             approved.append({
-                "schemaVersion": "call_it_to_dinner_round_v1", "contentVersion": "dinner-reviewed-release-v1",
+                "schemaVersion": "call_it_to_dinner_round_v1", "contentVersion": "dinner-reviewed-release-v3",
                 "reviewStatus": "approved", "canonicalWordId": source["canonical_word_id"], "spelling": spelling,
                 "microSkillKey": sheet["micro_skill_key"],
                 "wordSense": source.get("owner_confirmed_word_sense") or source.get("current_word_sense") or None,
@@ -134,6 +151,7 @@ def main() -> int:
                 "recording": {"src": f"/audio/secret-life-of-vowels/dinner/{output_audio.name}", "sha256": digest, "reviewStatus": "approved"},
                 "spokenSyllableCount": count, "acceptedCutSets": cut_sets,
                 "target": {**target, "syllableIndex": target_syllable, "soundType": sound_type},
+                **({"selectionTarget": selection_target} if selection_target else {}),
             })
             copies.append((audio, output_audio))
         except (KeyError, ValueError) as error:

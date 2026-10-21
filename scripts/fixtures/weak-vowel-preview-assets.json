@@ -1,0 +1,392 @@
+[
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/f8235d24-c200-54d3-9f21-7262419875a8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/f8235d24-c200-54d3-9f21-7262419875a8-d4_schwa_final_a_final-word.mp3",
+    "sha256": "433199ecba2ad79eb1502cef9885799b48f125163cf62db620f14c5a925e7b6e"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/f8235d24-c200-54d3-9f21-7262419875a8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/f8235d24-c200-54d3-9f21-7262419875a8-d4_schwa_final_a_final-sentence.mp3",
+    "sha256": "1bbb74da777796b63afeb8c2f4f92fd55c1aaab416fc7bd2d727fd9c266fc9e8"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/32c26a88-1c1e-5771-b534-c1602426d804.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/32c26a88-1c1e-5771-b534-c1602426d804-d4_schwa_final_a_final-word.mp3",
+    "sha256": "c89125da4c04dfddec35481f2f67fe2c1d497428443936be438a9e651617ac65"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/32c26a88-1c1e-5771-b534-c1602426d804.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/32c26a88-1c1e-5771-b534-c1602426d804-d4_schwa_final_a_final-sentence.mp3",
+    "sha256": "8fe1b8f0bf21c2eb9beb0786167f7703d47882cbb5b50727b11a99916f82129a"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/7d5dd280-3153-5578-b683-d79b3f7a8636.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7d5dd280-3153-5578-b683-d79b3f7a8636-d4_schwa_final_a_final-word.mp3",
+    "sha256": "461e4d64287a4e6aa48707b0bb314a297426b0d1a5203c656cb5e13f28f94cfa"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/7d5dd280-3153-5578-b683-d79b3f7a8636.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7d5dd280-3153-5578-b683-d79b3f7a8636-d4_schwa_final_a_final-sentence.mp3",
+    "sha256": "1f7a6ccc42dacb7848a6eb1d5e4ca5efebbaa4421392098f455e7216ded88d8e"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/f0cbcce4-b9a4-5b29-ade9-f51e31c2642a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/f0cbcce4-b9a4-5b29-ade9-f51e31c2642a-d4_schwa_final_a_final-word.mp3",
+    "sha256": "ef3ba6063599154e78a60bfe400aba51bdef7db326ba313abcff467ab86c7471"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/f0cbcce4-b9a4-5b29-ade9-f51e31c2642a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/f0cbcce4-b9a4-5b29-ade9-f51e31c2642a-d4_schwa_final_a_final-sentence.mp3",
+    "sha256": "1d5db32c0cef05f84578d6f262c227fe7161e309e7500fc159f167f90445e650"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/39be4d0b-9149-5f16-993b-4ede15ba6e65.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/39be4d0b-9149-5f16-993b-4ede15ba6e65-d4_schwa_final_ar_final-word.mp3",
+    "sha256": "efa102da2d6a9e7298a82609da635c508dcbae3d9748e5f95fc11137a2159c2e"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/39be4d0b-9149-5f16-993b-4ede15ba6e65.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/39be4d0b-9149-5f16-993b-4ede15ba6e65-d4_schwa_final_ar_final-sentence.mp3",
+    "sha256": "6596191114c5b3ae37c15a3e9d2088cee199ff0270101893524c5e3fda417dfb"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/11ad0e48-c7f4-5ea5-b736-94c8e6d8ac7c.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/11ad0e48-c7f4-5ea5-b736-94c8e6d8ac7c-d4_schwa_final_ar_final-word.mp3",
+    "sha256": "4368ac55daff9f2369408d1ef59f7f3322c9ffed1fbb605f35e800b1dc084d0d"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/11ad0e48-c7f4-5ea5-b736-94c8e6d8ac7c.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/11ad0e48-c7f4-5ea5-b736-94c8e6d8ac7c-d4_schwa_final_ar_final-sentence.mp3",
+    "sha256": "5b381ec29d7bb49a65787990a44117e2abc3c27d5bb27b2c544609c8720b10b2"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/7feb9df4-94b6-52eb-8a8b-7485bb687a05.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7feb9df4-94b6-52eb-8a8b-7485bb687a05-d4_schwa_final_ar_final-word.mp3",
+    "sha256": "d205d7abe32556d37434bb977b134281cf4f5c85d90ba61fe252a24a542e2ff6"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/7feb9df4-94b6-52eb-8a8b-7485bb687a05.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7feb9df4-94b6-52eb-8a8b-7485bb687a05-d4_schwa_final_ar_final-sentence.mp3",
+    "sha256": "8305cc923a7ab4b08a904f1032975ede07a98fe220752ec74c67bda38e3a00c9"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/0398a3ca-e5fd-572b-ac6a-792ac5ad294c.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/0398a3ca-e5fd-572b-ac6a-792ac5ad294c-d4_schwa_final_ar_final-word.mp3",
+    "sha256": "8362acac0d5b2f51aff744333b0578184fe2e61eff553aa82b99f83fa2384e63"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/0398a3ca-e5fd-572b-ac6a-792ac5ad294c.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/0398a3ca-e5fd-572b-ac6a-792ac5ad294c-d4_schwa_final_ar_final-sentence.mp3",
+    "sha256": "e4cd51a3c526f77e50f515ef42d35bc85ab7353f3cf347a1b2b810b99c196490"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/4b1a3b0f-0c9a-50f8-9d08-3221173ecfc0.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4b1a3b0f-0c9a-50f8-9d08-3221173ecfc0-d4_schwa_final_ar_final-word.mp3",
+    "sha256": "5934af21ae396d292ffe502a7acab1af4207a9f4962633163346a2c70be80c48"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/4b1a3b0f-0c9a-50f8-9d08-3221173ecfc0.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4b1a3b0f-0c9a-50f8-9d08-3221173ecfc0-d4_schwa_final_ar_final-sentence.mp3",
+    "sha256": "954dacfd3bf5f6335d3de60b83e3d83f9db48a6eea0579978bc836dae1dd119f"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/b5a70f41-22ff-5971-90ee-43f1a26f2039.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/b5a70f41-22ff-5971-90ee-43f1a26f2039-d4_schwa_final_er_final-word.mp3",
+    "sha256": "713b8820f6a9bba6c2ffa8d6fbc49ad57676e0c4cda69a3743bd24f5c01a7e65"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/b5a70f41-22ff-5971-90ee-43f1a26f2039.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/b5a70f41-22ff-5971-90ee-43f1a26f2039-d4_schwa_final_er_final-sentence.mp3",
+    "sha256": "c04fdf5fed459327e8f8b395fd83e99e35123a3edcaf8290ca1f40ef445f9fcc"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/d94233e7-dd82-514e-8beb-ec0bdfdefc49.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/d94233e7-dd82-514e-8beb-ec0bdfdefc49-d4_schwa_final_er_final-word.mp3",
+    "sha256": "1c65b40d7f44fd410ec2c375038d92fe4f41108e2f6013e571f740262126bd13"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/d94233e7-dd82-514e-8beb-ec0bdfdefc49.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/d94233e7-dd82-514e-8beb-ec0bdfdefc49-d4_schwa_final_er_final-sentence.mp3",
+    "sha256": "936cd383c8957f2b4aa43ce555473b64849018b16434097e07e30bdf49fbbe63"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/51016f88-a5d5-5277-b66c-c2c93ec02fb8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/51016f88-a5d5-5277-b66c-c2c93ec02fb8-d4_schwa_final_er_final-word.mp3",
+    "sha256": "b1bd3a542e47dffff256d326f9142d216706eea9ab0cf8e844e13a0eac3486a2"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/51016f88-a5d5-5277-b66c-c2c93ec02fb8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/51016f88-a5d5-5277-b66c-c2c93ec02fb8-d4_schwa_final_er_final-sentence.mp3",
+    "sha256": "91373562818bb42549dbdd7dbd02e3a49a1c12bcf4939ad412af23719e417838"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/531ca1d2-e97d-5151-ab28-798334e1a80e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/531ca1d2-e97d-5151-ab28-798334e1a80e-d4_schwa_final_er_final-word.mp3",
+    "sha256": "efc22ac14b3350fe2958a7d7a03298d4b98aca49c11a7e4a698a0334ce159a1d"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/531ca1d2-e97d-5151-ab28-798334e1a80e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/531ca1d2-e97d-5151-ab28-798334e1a80e-d4_schwa_final_er_final-sentence.mp3",
+    "sha256": "22f650c9d9ba38c1a203902330394ae760367c0ef699422ea1823e95fe8b010e"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/4cebc42b-ea5d-51b8-bf13-828608803a80.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4cebc42b-ea5d-51b8-bf13-828608803a80-d4_schwa_final_er_final-word.mp3",
+    "sha256": "d2f074242a0b80055a4d3aa82b7d5556979a68b7b619eded53c868a8b06e6b24"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/4cebc42b-ea5d-51b8-bf13-828608803a80.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4cebc42b-ea5d-51b8-bf13-828608803a80-d4_schwa_final_er_final-sentence.mp3",
+    "sha256": "1604f02a32eadfc187772fcc224bf4990d68b8bf81023ac6f0e4b86ca53c0a36"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/1431a601-d2c7-5553-95a3-1e28c260c318.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/1431a601-d2c7-5553-95a3-1e28c260c318-d4_schwa_final_or_final-word.mp3",
+    "sha256": "5fdfe01034bb9e84d2991c82f81625cab1eddfaf9520f65aa21130149b32534b"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/1431a601-d2c7-5553-95a3-1e28c260c318.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/1431a601-d2c7-5553-95a3-1e28c260c318-d4_schwa_final_or_final-sentence.mp3",
+    "sha256": "aef6f8a3787d44e50b525ab8907fed1ed7a85c65d9262886317f7a64e8c7dfdd"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/ca221d7d-7f73-5779-843e-2107b3c5fa8a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/ca221d7d-7f73-5779-843e-2107b3c5fa8a-d4_schwa_final_or_final-word.mp3",
+    "sha256": "e3b249317f8e888d5f22de0d00c07d1caa26f6b7d323150ac0c80d5b2994db02"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/ca221d7d-7f73-5779-843e-2107b3c5fa8a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/ca221d7d-7f73-5779-843e-2107b3c5fa8a-d4_schwa_final_or_final-sentence.mp3",
+    "sha256": "bb3552902b777a64465333f772e55b45296141071b63df638e228025b3883fbb"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/86a599f2-719c-54e2-9aca-d3f0d83560bf.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/86a599f2-719c-54e2-9aca-d3f0d83560bf-d4_schwa_final_or_final-word.mp3",
+    "sha256": "8a114841950811c5f940bbe8bb7d7cd0694e8bd25aa083b5e3108425b8a170b8"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/86a599f2-719c-54e2-9aca-d3f0d83560bf.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/86a599f2-719c-54e2-9aca-d3f0d83560bf-d4_schwa_final_or_final-sentence.mp3",
+    "sha256": "2401b887b7c0c15adda00b9c4a5eddb72abc67ef104786ef853013d99ca32b51"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/41b042ea-006d-50ca-9d9d-52099eaebbd8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/41b042ea-006d-50ca-9d9d-52099eaebbd8-d4_schwa_final_or_final-word.mp3",
+    "sha256": "8974aceecd264ad4580ed0a622ae385504847deaec6c20c4564905a51143a5ff"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/41b042ea-006d-50ca-9d9d-52099eaebbd8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/41b042ea-006d-50ca-9d9d-52099eaebbd8-d4_schwa_final_or_final-sentence.mp3",
+    "sha256": "9adbba371d351e387a84d2fc05a6cc22beaa0a44052bfb7aa977bd5c6c2aaf7c"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/00faf2a0-3f56-5c2f-8794-4b57da5a9ef4.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00faf2a0-3f56-5c2f-8794-4b57da5a9ef4-d4_schwa_final_or_final-word.mp3",
+    "sha256": "3aadb4f59fabff6668485a791fa943254fa68898cac4448c35d70a23925663f4"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/00faf2a0-3f56-5c2f-8794-4b57da5a9ef4.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00faf2a0-3f56-5c2f-8794-4b57da5a9ef4-d4_schwa_final_or_final-sentence.mp3",
+    "sha256": "cf17672c234673f0aa633701b5ba64366a1a0f7259051b176b1644b88efdebbd"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/37bd395f-0af0-54fb-a474-9592a329a509.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/37bd395f-0af0-54fb-a474-9592a329a509-d4_schwa_initial_e_initial-word.mp3",
+    "sha256": "941d3f5112d776490b0f109db4578497c307578c95c098fe62b002cd9c18fca2"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/37bd395f-0af0-54fb-a474-9592a329a509.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/37bd395f-0af0-54fb-a474-9592a329a509-d4_schwa_initial_e_initial-sentence.mp3",
+    "sha256": "9907abc0aba54aaa4f477d08332e97d7057225587fb1dccd059430909fdaf86d"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/6586e4da-57c3-5d76-b71a-7fec77f15180.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/6586e4da-57c3-5d76-b71a-7fec77f15180-d4_schwa_initial_e_initial-word.mp3",
+    "sha256": "81f85b00f1b0f51135f437ca1b96f117e2aad2c1868eb0f1c987cc2adaae809a"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/6586e4da-57c3-5d76-b71a-7fec77f15180.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/6586e4da-57c3-5d76-b71a-7fec77f15180-d4_schwa_initial_e_initial-sentence.mp3",
+    "sha256": "c29d82036846c4bcdf0f4136fcc974ea431e669f67f299bad2aca1c9728e74c6"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/bfccc99d-8b54-56bc-9460-4b18b998f3d5.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/bfccc99d-8b54-56bc-9460-4b18b998f3d5-d4_schwa_initial_e_initial-word.mp3",
+    "sha256": "bceac1114c47d18a1698804e809425e8efa7ff950e1249ffa6ca983cd33d25d4"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/bfccc99d-8b54-56bc-9460-4b18b998f3d5.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/bfccc99d-8b54-56bc-9460-4b18b998f3d5-d4_schwa_initial_e_initial-sentence.mp3",
+    "sha256": "117b3a885aa42bf4f84e688c21cb2a85b5e2ce37ad8791ff1184c60adf0fcf72"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/3fdc2344-b985-591f-b672-3407cf01de62.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/3fdc2344-b985-591f-b672-3407cf01de62-d4_schwa_initial_e_initial-word.mp3",
+    "sha256": "e17580eeea0d22944cab20d62445bdeb784d6949cba74163cea28fee14daba94"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/3fdc2344-b985-591f-b672-3407cf01de62.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/3fdc2344-b985-591f-b672-3407cf01de62-d4_schwa_initial_e_initial-sentence.mp3",
+    "sha256": "bd674bd79515276ebe9fdd708cdacf6381f44e698e49160b0f3133eb3758768a"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/00dfbe45-2014-589b-8a42-f962a91c32b6.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00dfbe45-2014-589b-8a42-f962a91c32b6-d4_schwa_initial_e_initial-word.mp3",
+    "sha256": "7678f8ddb0881196bd9af5a6e2ae55e8b4a78f4c37e9508067e5362c919b90d0"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/00dfbe45-2014-589b-8a42-f962a91c32b6.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00dfbe45-2014-589b-8a42-f962a91c32b6-d4_schwa_initial_e_initial-sentence.mp3",
+    "sha256": "1707fd8ef3fa4052d10d356abd3fdc3428643702c6552fd1a0b518ce715a9395"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/971e121f-1e0d-5cd8-99b0-635ddd7115e2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/971e121f-1e0d-5cd8-99b0-635ddd7115e2-d4_schwa_initial_o_initial-word.mp3",
+    "sha256": "b028640a1b6311fcda7e4a2972c7cdd603dd25d0f793a1ac54c48581356de587"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/971e121f-1e0d-5cd8-99b0-635ddd7115e2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/971e121f-1e0d-5cd8-99b0-635ddd7115e2-d4_schwa_initial_o_initial-sentence.mp3",
+    "sha256": "a6a3a5b6245b1e8ce2008da835629b2cb0ad824c62249a930a6df6434b69c372"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/76111e34-9ed6-5db4-a164-f8e902bebaa2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/76111e34-9ed6-5db4-a164-f8e902bebaa2-d4_schwa_initial_o_initial-word.mp3",
+    "sha256": "6bc16ac1552fe1d5f347f06efa7d672fef6680cadbd5be4b46df37951d5cfe2f"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/76111e34-9ed6-5db4-a164-f8e902bebaa2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/76111e34-9ed6-5db4-a164-f8e902bebaa2-d4_schwa_initial_o_initial-sentence.mp3",
+    "sha256": "c3e98d6a4ea1c302db4c3c17f5ec30c6459b9689cd0c59c5396251dc53906181"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/104dd898-38c2-56b7-a5aa-893ea6546ea2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/104dd898-38c2-56b7-a5aa-893ea6546ea2-d4_schwa_initial_o_initial-word.mp3",
+    "sha256": "67c3e945d49685352fefe7dfa8fc6a6f3c83b3d2f93b296992ca0b8dae23e40e"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/104dd898-38c2-56b7-a5aa-893ea6546ea2.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/104dd898-38c2-56b7-a5aa-893ea6546ea2-d4_schwa_initial_o_initial-sentence.mp3",
+    "sha256": "a049592a0ea0a15a5d72b0aced2a5ee377a972b2e6c6570ad07b0269eb24f64b"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/08fa6c07-b49e-5f18-82d2-3797cbafa1cf.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/08fa6c07-b49e-5f18-82d2-3797cbafa1cf-d4_schwa_initial_o_initial-word.mp3",
+    "sha256": "7f6b26e6060c89366f0a2d4d7a9e3c4f9e38998169762e6b5afb3e1f64d3c8f1"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/08fa6c07-b49e-5f18-82d2-3797cbafa1cf.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/08fa6c07-b49e-5f18-82d2-3797cbafa1cf-d4_schwa_initial_o_initial-sentence.mp3",
+    "sha256": "7d89f4f0a3c87faef8d3e44519442aa19900675642ae5d615cf3bbf3fb92acf5"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/11371c35-da50-557e-9b97-f353fa3dbd5a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/11371c35-da50-557e-9b97-f353fa3dbd5a-d4_schwa_initial_o_initial-word.mp3",
+    "sha256": "496bfea8fa376d1fe26b292cd847f5e944c152ed62ca04323c9b025e99d10805"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/11371c35-da50-557e-9b97-f353fa3dbd5a.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/11371c35-da50-557e-9b97-f353fa3dbd5a-d4_schwa_initial_o_initial-sentence.mp3",
+    "sha256": "d1c4ee2ccd022417e55b8e7e7c9c19cd841ebfcfa6da7ffc399d4e3424601baf"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/c72fe2a0-160c-5d48-9074-2ff610a3da74.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/c72fe2a0-160c-5d48-9074-2ff610a3da74-d4_schwa_medial_common_weak_vowels-word.mp3",
+    "sha256": "d4193df0da6f372e17c7f28a410c3219f8e95867a678ac644c6991e426098ef9"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/c72fe2a0-160c-5d48-9074-2ff610a3da74.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/c72fe2a0-160c-5d48-9074-2ff610a3da74-d4_schwa_medial_common_weak_vowels-sentence.mp3",
+    "sha256": "70a78bb0afb1579c755f69263c187953fa942f755cee06f5366857d47462095a"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/1e7bd33a-68bd-545f-b05f-57b4b6047bbb.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/1e7bd33a-68bd-545f-b05f-57b4b6047bbb-d4_schwa_medial_common_weak_vowels-word.mp3",
+    "sha256": "23891480bb01d394c05cc3f08307d41cc1d7276df41de715d5a04d7b2a8bcdd3"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/1e7bd33a-68bd-545f-b05f-57b4b6047bbb.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/1e7bd33a-68bd-545f-b05f-57b4b6047bbb-d4_schwa_medial_common_weak_vowels-sentence.mp3",
+    "sha256": "82189a5a297314964e6f726aa4d6a623287c81fa3393d338d2dae447be8829b4"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/895b50ae-de74-5c86-b437-76fe8dcfd1e3.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/895b50ae-de74-5c86-b437-76fe8dcfd1e3-d4_schwa_medial_common_weak_vowels-word.mp3",
+    "sha256": "973024b5f89b0dfe559d036328171731dfbbe05879142cf028de95fdeaf61fc4"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/895b50ae-de74-5c86-b437-76fe8dcfd1e3.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/895b50ae-de74-5c86-b437-76fe8dcfd1e3-d4_schwa_medial_common_weak_vowels-sentence.mp3",
+    "sha256": "836795386cab59a81c86155da938ef552659b8f8ed25ff84b3f9510208be7835"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/25335f3d-32de-5b22-ac22-c8cc6b6e39f9.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/25335f3d-32de-5b22-ac22-c8cc6b6e39f9-d4_schwa_medial_common_weak_vowels-word.mp3",
+    "sha256": "3a41213557df2c114dfd210ed61f74716c2d829e5bfd72dfc4f8ac32a72d9a7f"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/25335f3d-32de-5b22-ac22-c8cc6b6e39f9.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/25335f3d-32de-5b22-ac22-c8cc6b6e39f9-d4_schwa_medial_common_weak_vowels-sentence.mp3",
+    "sha256": "ed590a3ceec219234abda3844ceca5fcd705990dbd62d60ba0e1f29ab9c5186f"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/00caa1c8-fb67-5a12-8641-0e322980e039.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00caa1c8-fb67-5a12-8641-0e322980e039-d4_schwa_medial_common_weak_vowels-word.mp3",
+    "sha256": "e1a28280a70611410307f343086b645ddbeca03f5be8c17021389ac3a1c587f1"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/00caa1c8-fb67-5a12-8641-0e322980e039.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00caa1c8-fb67-5a12-8641-0e322980e039-d4_schwa_medial_common_weak_vowels-sentence.mp3",
+    "sha256": "efaa486380d7c4e994c917142ba5acdd6f1c4da146f6f1ac1a0037b7837266a8"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4-d4_schwa_medial_natural_actual-word.mp3",
+    "sha256": "5e1ce076c2895455b9d87f8f686a294619015a863c89c4d011e0acc596aab7bc"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4-d4_schwa_medial_natural_actual-sentence.mp3",
+    "sha256": "d4359dface92d377b41af16bba17e78b1646b95fafabc41ed92804bc08eb7b2b"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/2804f136-fa24-5a40-a0c5-a9013e85d29e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/2804f136-fa24-5a40-a0c5-a9013e85d29e-d4_schwa_medial_natural_actual-word.mp3",
+    "sha256": "7b1813a01d8f2fdbc328d6a3b14ac6820700ddcc1833a6f26e49612e005cf009"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/2804f136-fa24-5a40-a0c5-a9013e85d29e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/2804f136-fa24-5a40-a0c5-a9013e85d29e-d4_schwa_medial_natural_actual-sentence.mp3",
+    "sha256": "7dba75d2ecc49055e7f02f3aa004089a871f432c2fa60d005fd323a79845f110"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/4c6b684d-e155-5725-b664-d412c5b7443e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4c6b684d-e155-5725-b664-d412c5b7443e-d4_schwa_medial_natural_actual-word.mp3",
+    "sha256": "94e8be22a4bf3d987fbe597bd2f1c18aed559d940dedcc2c7ad522417b1691f0"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/4c6b684d-e155-5725-b664-d412c5b7443e.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/4c6b684d-e155-5725-b664-d412c5b7443e-d4_schwa_medial_natural_actual-sentence.mp3",
+    "sha256": "bf5e02c317585488a0d418bc9ca40d032eb93f354e4772dfd72a8c56b2eb405a"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/00d738d7-5c8f-5813-b5fc-cc4f59774cc1.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00d738d7-5c8f-5813-b5fc-cc4f59774cc1-d4_schwa_medial_natural_actual-word.mp3",
+    "sha256": "7e17aad810affc8e722b3c3da42311cd061d449ea274675f24e9176e2434f605"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/00d738d7-5c8f-5813-b5fc-cc4f59774cc1.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/00d738d7-5c8f-5813-b5fc-cc4f59774cc1-d4_schwa_medial_natural_actual-sentence.mp3",
+    "sha256": "3c5a43d3878ce6bb8be9bed58739672fae8178ce9d6b6359f38c9965aa22667c"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/word/73501415-cf58-5442-9435-7406d8cb95d8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/73501415-cf58-5442-9435-7406d8cb95d8-d4_schwa_medial_natural_actual-word.mp3",
+    "sha256": "0aa5fe2f704a4c40fab16a32fb4ddb18120b44e515224bb7dc1323650a9cec54"
+  },
+  {
+    "source": "/Users/katiesanderson/Documents/Scarletts Spells/scarletts-spells/outputs/secret-life-of-vowels/audio-candidates-google-2026-10-17/generated/dictation/73501415-cf58-5442-9435-7406d8cb95d8.mp3",
+    "destination": "public/audio/secret-life-of-vowels/lesson-preview/73501415-cf58-5442-9435-7406d8cb95d8-d4_schwa_medial_natural_actual-sentence.mp3",
+    "sha256": "e6b693af3ab90f51e1a371ae4b47cad764cafbfa79dd25e01fc9202740eac152"
+  }
+]

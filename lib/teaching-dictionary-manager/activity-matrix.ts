@@ -2,7 +2,7 @@ import type { LessonActivityKind } from "../adle/composable-lesson/contracts";
 import type { WordActivityAssessment } from "./activity-assessment";
 
 const ORDER: readonly LessonActivityKind[] = [
-  "introduction", "discovery", "guided_prompt", "family_reveal", "cleaver",
+  "introduction", "discovery", "guided_prompt", "family_reveal", "cleaver", "call_it_to_dinner", "vowel_detective",
   "word_build", "compound_jigsaw", "meaning_match", "meaning_sort",
   "cover_check", "dictation", "review_quick_sort", "must_use_writing",
   "diagnostic_probe", "reflection",
@@ -10,7 +10,7 @@ const ORDER: readonly LessonActivityKind[] = [
 
 export const ACTIVITY_LABELS: Record<LessonActivityKind, string> = {
   introduction: "Intro", discovery: "Discover", guided_prompt: "Guided prompt",
-  family_reveal: "Word family", cleaver: "Cleaver", word_build: "Word build",
+  family_reveal: "Word family", cleaver: "Cleaver", call_it_to_dinner: "Call It to Dinner", vowel_detective: "Vowel Detective", word_build: "Word build",
   compound_jigsaw: "Compound", meaning_match: "Meaning match",
   meaning_sort: "Meaning sort", cover_check: "Cover check",
   dictation: "Dictation", review_quick_sort: "Review sort",

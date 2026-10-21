@@ -115,11 +115,16 @@ export interface SyllableSplitHandleProps {
   selectedBoundaries: readonly number[];
   onSelectedBoundariesChange: (boundaries: number[]) => void;
   onBoundaryAttempt?: (boundaries: number[]) => boolean;
+  /** Keep reviewed cuts visible while the child selects letters on the same board. */
+  boundariesLocked?: boolean;
   lettersSelectable?: boolean;
   selectedLetterStart?: number | null;
   selectedLetterEnd?: number | null;
   onLetterSelect?: (index: number) => void;
   feedback?: string;
+  showInstructions?: boolean;
+  showJoinAll?: boolean;
+  showPieceCount?: boolean;
   muted?: boolean;
   disabled?: boolean;
 }
@@ -304,7 +309,7 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
   }, [props.lettersSelectable, props.disabled]);
 
   function toggle(point: number) {
-    if (props.disabled) return;
+    if (props.disabled || props.boundariesLocked) return;
     const next = selected.includes(point) ? selected.filter((cut) => cut !== point) : [...selected, point].sort((a, b) => a - b);
     if (props.onBoundaryAttempt && !props.onBoundaryAttempt(next)) {
       setWrongBoundary(point);
@@ -317,7 +322,7 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
   }
 
   return <section className="grid gap-5" aria-label={`Cut ${props.word} into the syllables you hear`}>
-    <p className="text-center text-sm font-semibold text-[color:var(--mid)]">{props.lettersSelectable ? "Now select the unstressed sound. Tap its letter or neighbouring letters in the word to highlight the whole spelling." : "Move the cleaver over a letter gap, then click or tap to cut. Tap a cut again to join it."}</p>
+    {props.showInstructions !== false ? <p className="text-center text-sm font-semibold text-[color:var(--mid)]">{props.lettersSelectable ? "Now select the unstressed sound. Tap its letter or neighbouring letters in the word to highlight the whole spelling." : "Move the cleaver over a letter gap, then click or tap to cut. Tap a cut again to join it."}</p> : null}
     <div ref={board} onPointerMove={(event) => {
       if (event.pointerType === "touch") return;
       const bounds = board.current?.getBoundingClientRect();
@@ -334,15 +339,15 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
             aria-label={`Letter ${letter}, position ${index + 1}`}
             onClick={() => props.onLetterSelect?.(index)}
             style={{ fontSize: "clamp(1.875rem, 4vw, 2.25rem)", fontWeight: 900, lineHeight: 1 }}
-            className={`grid min-h-16 min-w-8 place-items-center rounded-xl text-3xl font-black outline-none focus-visible:ring-4 focus-visible:ring-amber-400 sm:min-w-10 sm:text-4xl ${props.selectedLetterStart != null && props.selectedLetterEnd != null && index >= props.selectedLetterStart && index < props.selectedLetterEnd ? "bg-amber-200 text-amber-950 ring-2 ring-amber-400" : "text-[color:var(--ink)] hover:bg-white"}`}
-          >{letter}</button> : <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-[color:var(--ink)] sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>}
+            className={`grid min-h-16 min-w-8 place-items-center rounded-xl text-3xl font-black outline-none focus-visible:ring-4 focus-visible:ring-amber-400 sm:min-w-10 sm:text-4xl ${props.selectedLetterStart != null && props.selectedLetterEnd != null && index >= props.selectedLetterStart && index < props.selectedLetterEnd ? "bg-amber-200 text-amber-950 ring-2 ring-amber-400" : "text-slate-950 hover:bg-white"}`}
+          >{letter}</button> : <span className={`grid min-h-16 min-w-8 place-items-center text-3xl font-black text-slate-950 sm:min-w-10 sm:text-4xl ${!reducedMotion ? "transition-transform duration-150" : ""}`}>{letter}</span>}
           {index < props.word.length - 1 && <button
             type="button"
             aria-pressed={selected.includes(index + 1)}
-            aria-label={`${selected.includes(index + 1) ? "Remove" : "Make"} cut after ${props.word.slice(0, index + 1)}`}
-            disabled={props.disabled}
+            aria-label={`${props.boundariesLocked ? selected.includes(index + 1) ? "Confirmed" : "Unavailable" : selected.includes(index + 1) ? "Remove" : "Make"} cut after ${props.word.slice(0, index + 1)}`}
+            disabled={props.disabled || props.boundariesLocked}
             onClick={() => toggle(index + 1)}
-            className={`relative -mx-1.5 min-h-16 min-w-11 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300 ${pointer ? "cursor-none" : "cursor-pointer"} ${wrongBoundary === index + 1 ? "bg-rose-100" : selected.includes(index + 1) ? "bg-amber-200" : "hover:bg-white"}`}
+            className={`relative -mx-1.5 min-h-16 min-w-11 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-amber-300 ${props.disabled || props.boundariesLocked ? "cursor-default" : pointer ? "cursor-none" : "cursor-pointer"} ${wrongBoundary === index + 1 ? "bg-rose-100" : selected.includes(index + 1) ? "bg-amber-200" : props.boundariesLocked ? "" : "hover:bg-white"}`}
           ><span aria-hidden="true" className={`mx-auto grid h-10 w-5 place-items-center rounded-full text-2xl font-black ${wrongBoundary === index + 1 ? "text-rose-700" : selected.includes(index + 1) ? "text-amber-700" : "text-cyan-300"}`}>{wrongBoundary === index + 1 ? "×" : "│"}</span></button>}
         </span>)}
       </div>
@@ -350,9 +355,7 @@ function SyllableSplitHandle(props: SyllableSplitHandleProps) {
         {parts.map((part, index) => <span key={`${index}-${part}`} className="rounded-xl border border-cyan-200 bg-white px-4 py-2 text-lg font-bold text-cyan-950">{part}</span>)}
       </div>
     </div>
-    <div className="flex flex-wrap items-center justify-center gap-3">
-      {selected.length > 0 && !props.disabled && <button type="button" onClick={() => { setWrongBoundary(null); props.onSelectedBoundariesChange([]); }} className="brand-secondary-btn min-h-12">Join all</button>}
-    </div>
-    <p role="status" aria-live="polite" className={`min-h-6 text-center font-semibold ${wrongBoundary !== null ? "text-rose-700" : "text-[color:var(--mid)]"}`}>{wrongBoundary !== null ? "× That cut does not match the syllables in this recording. Try another gap." : props.feedback || `${parts.length} ${parts.length === 1 ? "piece" : "pieces"} on the board.`}</p>
+    {props.showJoinAll !== false && selected.length > 0 && !props.disabled && <div className="flex flex-wrap items-center justify-center gap-3"><button type="button" onClick={() => { setWrongBoundary(null); props.onSelectedBoundariesChange([]); }} className="brand-secondary-btn min-h-12">Join all</button></div>}
+    {(wrongBoundary !== null || props.feedback || props.showPieceCount !== false) && <p role="status" aria-live="polite" className={`min-h-6 text-center font-semibold ${wrongBoundary !== null ? "text-rose-700" : "text-[color:var(--mid)]"}`}>{wrongBoundary !== null ? "× That cut does not match the syllables in this recording. Try another gap." : props.feedback || `${parts.length} ${parts.length === 1 ? "piece" : "pieces"} on the board.`}</p>}
   </section>;
 }

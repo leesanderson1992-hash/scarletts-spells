@@ -8,6 +8,7 @@ import type {
 import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 import { ING_MICRO_SKILLS } from "../ing/contracts";
 import { HOMOPHONE_LESSONS } from "../homophone/lesson";
+import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 
 /**
  * Declarative implementation inventory for the central curriculum-readiness
@@ -81,6 +82,18 @@ export interface CurriculumRouteDefinition {
 }
 
 export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[] = [
+  {
+    routeId: "weak_vowel_word_lab", routeVersion: "v1", supportedMicroSkillKeys: [...WEAK_VOWEL_MICRO_SKILLS].sort(),
+    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: false,
+    requiresAuthenticSelectableItem: true, payloadKind: "weak_vowel_lesson_v1", payloadVersions: [1],
+    activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",
+    compatibilityScope: { kind: "declared_micro_skills" }, recipes: [{ recipeKey: "weak_vowel_word_lab", recipeVersion: "v1" }],
+    runtimeAdapterKey: "weak_vowel_v1", rendererKey: "weak_vowel_guided", legacyDetectionRules: [],
+    requiredActivities: ["introduction", "call_it_to_dinner", "vowel_detective", "cover_check", "dictation", "reflection"],
+    // The assignment writer is gated; declare its item count when that writer is staged.
+    intentionalItemCounts: [], wordCounts: { lesson: [4, 6], authentic: [1, 6], transfer: [0, 5] },
+    coverageRequirements: ["unique_dictation_sentences"],
+  },
   {
     routeId: "homophone_word_lab", routeVersion: "v2", supportedMicroSkillKeys: HOMOPHONE_LESSONS.map(lesson => lesson.microSkillKey).sort(),
     routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,

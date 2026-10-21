@@ -3,6 +3,7 @@ import candidates from "../content/secret-life-of-vowels/dinner-preview-candidat
 import {
   DINNER_ACTIVITY_VERSION,
   DINNER_ROUND_VERSION,
+  dinnerAnswerTarget,
   isDinnerCutPrefix,
   parseDinnerActivityConfig,
   parseDinnerRound,
@@ -24,8 +25,18 @@ assert.equal(fixture.schemaVersion, DINNER_ACTIVITY_VERSION);
 assert.equal(byWord.sofa.schemaVersion, DINNER_ROUND_VERSION);
 assert.equal(byWord.sofa.target.text, "a");
 assert.equal(byWord.dinner.target.text, "er");
-assert.equal(scoreDinnerTarget(byWord.dinner, 4, 5), false, "A partial spelling group is incorrect");
-assert.equal(scoreDinnerTarget(byWord.dinner, 4, 6), true);
+assert.deepEqual(dinnerAnswerTarget(byWord.dinner), { start: 4, end: 5, text: "e" });
+assert.equal(scoreDinnerTarget(byWord.dinner, 4, 5), true, "Only e is selected in final -er Dinner");
+assert.equal(scoreDinnerTarget(byWord.dinner, 4, 6), false, "The full -er is no longer the new Dinner answer");
+assert.equal(scoreDinnerTarget({ ...byWord.dinner, selectionTarget: undefined }, 4, 6), true,
+  "Older frozen rounds retain their full-span answer");
+const finalAR = { ...byWord.dinner, spelling: "sugar", microSkillKey: "D4_SCHWA_FINAL_AR_FINAL",
+  target: { ...byWord.dinner.target, start: 3, end: 5, text: "ar" },
+  selectionTarget: { start: 3, end: 4, text: "a" }, acceptedCutSets: [[3]] };
+assert.ok(parseDinnerRound(finalAR, true));
+assert.equal(scoreDinnerTarget(finalAR, 3, 4), true, "Only a is selected in final -ar Dinner");
+assert.equal(scoreDinnerTarget(finalAR, 3, 5), false, "The full -ar is not the new Dinner answer");
+assert.equal(parseDinnerRound({ ...finalAR, selectionTarget: { start: 3, end: 5, text: "ar" } }, true), null);
 assert.equal(scoreDinnerCuts(byWord.player, [4]), "correct");
 assert.equal(byWord.player.spokenSyllableCount, 2);
 assert.equal(scoreDinnerCuts(byWord.different, [3]), "wrong_count");
@@ -44,6 +55,8 @@ assert.equal(parseDinnerRound({ ...alternative, acceptedCutSets: [[5]] }), null,
 assert.equal(parseDinnerRound({ ...alternative, spokenSyllableCount: 1 }), null, "Never invent a compressed syllable");
 assert.equal(parseDinnerRound({ ...alternative, target: { ...alternative.target, start: 4, end: 6, text: "e" } }), null,
   "The reviewed spelling must match its full indexed span");
+assert.equal(parseDinnerRound({ ...alternative, selectionTarget: { start: 4, end: 6, text: "er" } }), null,
+  "A new final -er selection must be only e");
 
 const published = [{ ...byWord.sofa, reviewStatus: "approved" as const, pronunciationId: "registered-sofa-uk-v1" }];
 const selected = { canonicalWordId: byWord.sofa.canonicalWordId, spelling: byWord.sofa.spelling,
@@ -54,6 +67,11 @@ assert.equal(resolveDinnerForSelectedWords([{ ...selected, assignmentStatus: "de
 assert.equal(resolveDinnerForSelectedWords([{ ...selected, sourceFingerprint: "0".repeat(64) }], published).blockers[0].reason, "dinner_source_changed");
 assert.equal(resolveDinnerForSelectedWords([{ ...selected, canonicalWordId: "new-dictionary-word" }], published).blockers[0].reason, "dinner_content_not_approved");
 assert.equal(resolveDinnerForSelectedWords([selected], []).ready.length, 0);
+const dinnerSelection = { ...selected, canonicalWordId: byWord.dinner.canonicalWordId, spelling: byWord.dinner.spelling,
+  microSkillKey: byWord.dinner.microSkillKey, sourceFingerprint: byWord.dinner.sourceFingerprint,
+  pronunciationId: "registered-dinner-uk-v1", wordSense: byWord.dinner.wordSense, recordingSha256: byWord.dinner.recording.sha256 };
+assert.equal(resolveDinnerForSelectedWords([dinnerSelection], [{ ...byWord.dinner, reviewStatus: "approved", pronunciationId: "registered-dinner-uk-v1", selectionTarget: undefined }]).blockers[0].reason,
+  "dinner_vowel_selection_not_published", "Old release content cannot silently power new vowel-only assignments");
 assert.equal(WEAK_VOWEL_MICRO_SKILLS.length, 8);
 const composerSlots = [
   { canonicalWordId: byWord.dinner.canonicalWordId, provenance: "learning_item" as const, learningItemId: "demand-dinner", complexityLevel: 1 },
@@ -93,4 +111,4 @@ assert.equal(compiled.snapshot.words.length, 5, "Unready demand remains in the l
 assert.equal(compiled.snapshot.activities[0].wordSlotIds.length, 1, "Only Dinner-ready words enter Dinner");
 snapshotConfig.rounds[0].spelling = "changed later";
 assert.equal((compiled.snapshot.activities[0].config.rounds as { spelling: string }[])[0].spelling, "sofa", "Snapshot content is frozen");
-console.log("Call It to Dinner contract, selection, cut and full-span regression passed.");
+console.log("Call It to Dinner contract, selection, cut and vowel-only final-ending regression passed.");

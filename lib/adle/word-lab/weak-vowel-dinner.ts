@@ -21,8 +21,8 @@ export const WEAK_VOWEL_DINNER_CANDIDATE_RECIPE: WordLabRecipeDefinitionV1 = {
   identity: { recipeKey: "weak_vowel_dinner_candidate", recipeVersion: 1, status: "candidate" },
   compatibility: { routeKey: "weak_vowel_word_lab", routeVersion: 1, familyKey: "D4_SCHWA", clusterKeys: [], microSkillKeys: WEAK_VOWEL_MICRO_SKILLS },
   wordRequirements: {
-    lesson: { min: 5, preferred: 5, max: 5 }, authentic: { min: 1, max: 5 }, transfer: { min: 0, max: 4 }, practice: { min: 0, max: 4 },
-    guided: { roles: ["authentic_target", "transfer", "practice"], min: 1, max: 5 },
+    lesson: { min: 4, preferred: 6, max: 6 }, authentic: { min: 1, max: 6 }, transfer: { min: 0, max: 5 }, practice: { min: 0, max: 5 },
+    guided: { roles: ["authentic_target", "transfer", "practice"], min: 1, max: 6 },
     coverCheck: { roles: [], min: 0, max: 0 }, dictation: { roles: [], min: 0, max: 0 }, coverage: [],
     bandingPolicyVersion: "composer_banding_v1_1", taughtHistoryPolicyVersion: "composer_taught_history_v1",
   },
