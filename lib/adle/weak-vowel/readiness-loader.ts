@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { WordSelectionResult } from "../composer-word-selection";
 import type { DailyPlanFacts } from "../daily-assignment-composer";
 import type { IsoDate } from "../review-scheduler";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
@@ -12,7 +13,7 @@ import type { WeakVowelContentBlocker } from "./prepare";
 import { selectWeakVowelLessonWords } from "./selection";
 
 export type WeakVowelReadiness =
-  | { status: "ready"; lesson: WeakVowelLessonV1; selectedWordIds: string[] }
+  | { status: "ready"; lesson: WeakVowelLessonV1; selectedWordIds: string[]; selection: WordSelectionResult }
   | { status: "blocked"; reason: string; selectedWordIds: string[]; blockers: WeakVowelContentBlocker[] };
 
 /** The official selection order is settled before route content is loaded.
@@ -58,5 +59,7 @@ export async function loadWeakVowelLessonReadiness(input: {
     published, currentFamilyAuthorities: [],
   });
   if (!prepared.lesson) return blocked("selected_word_content_not_ready", selectedWordIds, prepared.blockers);
-  return { status: "ready", lesson: prepared.lesson, selectedWordIds };
+  // Retain the composer's probe and stretch-intake decisions for the atomic
+  // writer; the preview/readiness layer must not discard their provenance.
+  return { status: "ready", lesson: prepared.lesson, selectedWordIds, selection };
 }
