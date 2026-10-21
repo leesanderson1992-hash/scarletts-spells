@@ -106,6 +106,10 @@ function restoreForm(form: HTMLFormElement) {
   }
 }
 
+function isSubmissionRequestId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 type LessonSubmissionControlsProps = {
   submitLabel: string;
   canSubmit?: boolean;
@@ -131,16 +135,20 @@ export function LessonSubmissionControls({
   );
 
   function ensureRequestId() {
-    if (requestIdRef.current && !requestIdRef.current.value) {
+    if (requestIdRef.current && !isSubmissionRequestId(requestIdRef.current.value)) {
       requestIdRef.current.value = crypto.randomUUID();
     }
   }
 
   useEffect(() => {
-    ensureRequestId();
     const form = requestIdRef.current?.form;
     if (form && new URLSearchParams(window.location.search).has("error"))
       restoreForm(form);
+    ensureRequestId();
+    // A keyboard submit does not run the button's click handler. Keep the
+    // request id valid even after form recovery or a client rerender.
+    form?.addEventListener("submit", ensureRequestId, { capture: true });
+    return () => form?.removeEventListener("submit", ensureRequestId, { capture: true });
   }, []);
 
   function beginFormAction(
@@ -169,6 +177,7 @@ export function LessonSubmissionControls({
         await onBeforeAction();
         const form = button.form;
         if (!form) throw new Error("Lesson form is unavailable");
+        ensureRequestId();
         preserveForm(form);
         form.requestSubmit(button);
       } catch {

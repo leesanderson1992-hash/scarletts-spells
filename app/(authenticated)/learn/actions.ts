@@ -499,6 +499,12 @@ export async function submitTaskResponse(formData: FormData) {
     typeof childId !== "string" || !childId ||
     !isUuid(requestId)
   ) {
+    console.warn("[course-task-submission] invalid form envelope", {
+      hasTaskId: typeof taskId === "string" && taskId.length > 0,
+      hasCourseId: typeof courseId === "string" && courseId.length > 0,
+      hasChildId: typeof childId === "string" && childId.length > 0,
+      validRequestId: isUuid(requestId),
+    });
     redirect(buildRedirectWithMessage(redirectPath, "error", "We couldn't start that submission safely. Please reload and try again."));
   }
 
