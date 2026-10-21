@@ -62,8 +62,10 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   database still has zero weak-vowel content versions and zero activation heads.
 - A fresh production-source preflight again found 182 assigned pairs, 358
   matching staged clips and zero failed pairs. Production publication remains
-  untouched. This checkout has no Supabase preview-branch credential, so the
-  repository's disposable-preview migration proof has not run.
+  untouched. The signed-in Supabase dashboard for the production project shows
+  preview-branch creation behind an upgrade to Pro (from $25/month), with branch
+  compute quoted at $0.01344/hour. The upgrade was not made; the repository's required
+  disposable-preview migration proof has not run.
 
 ## Release gates still required
 
