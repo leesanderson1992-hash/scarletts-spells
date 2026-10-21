@@ -61,7 +61,7 @@ export function WeakVowelFactsEditor(props: {
     <p className="text-xs text-[color:var(--mid)]">These facts are reviewed for this word and micro-skill. Saving a draft does not approve it or make the word selectable.</p>
     <div className="grid gap-3 md:grid-cols-2">
       {input("Word sense (blank only when unambiguous)", facts.wordSense, (value) => patch({ wordSense: value.trim() ? value : null }))}
-      {input("Current source fingerprint", facts.sourceFingerprint, (value) => patch({ sourceFingerprint: value }), "Publication checks this against the latest governed word and assignment facts.")}
+      {input("Reviewed source fingerprint", facts.sourceFingerprint, (value) => patch({ sourceFingerprint: value }), "Copy the exact fingerprint from the repair export. Review checks the current dictionary facts; lesson selection checks the current word–skill assignment.")}
       {input("Reviewed pronunciation ID", facts.pronunciationId, (value) => patch({ pronunciationId: value }))}
       {input("British word recording path", wordRecording.src, (value) => nested("wordRecording", { src: value }), "Use a published /audio/ path.")}
       {input("Word recording SHA-256", wordRecording.sha256, (value) => nested("wordRecording", { sha256: value }))}
