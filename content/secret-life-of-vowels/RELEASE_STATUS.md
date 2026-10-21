@@ -24,14 +24,36 @@ publication gates are not yet implemented for `weak_vowel_word_lab`.
   omitted optional family exploration; 21 rows have a family authority ID and
   three approved-family rows lack one.
 
+## Work completed in the next release-gate pass
+
+- The candidate package now includes the Teaching Dictionary route's required
+  word meaning; all 182 rows pass its schema validator.
+- A read-only production preflight re-exports current assignment authority and
+  checks every selected pair, its source fingerprint, reviewed Sheet decision,
+  current shared definition and all 358 staged audio hashes. It currently
+  reports zero failed pairs. Its command is
+  `NODE_OPTIONS=--conditions=react-server npx tsx scripts/preflight-weak-vowel-publication.ts --env-file ../scarletts-spells/.env.local`.
+- A route-only governed publication migration and Teaching Dictionary
+  review/publish controls are prepared. The migration passed a rollback-only
+  proof against the current Production schema. The publisher also staged,
+  reviewed and published one row from each of the eight skills in a serializable
+  transaction, read all eight back and rolled the transaction back. It has
+  **not been applied**. The publisher dry run passes. Initial publication requires deployment of the
+  migration and then an exact-source, atomic batch apply by a verified admin.
+- A published-content assembler and loader now reject deassigned, missing,
+  ambiguous, stale-dictionary and changed-audio selected words. The assembler
+  freezes approved rows for the exact demand-led slots. Regression tests pass.
+- The optimized Next.js build and TypeScript checks pass. The live Production
+  database still has zero weak-vowel content versions and zero activation heads.
+
 ## Release gates still required
 
-1. Publish the 182 candidate route facts through a weak-vowel-specific governed
-   review and publication path, with exact source-fingerprint and audio-hash
-   checks. The current native lesson publisher supports other routes, not this one.
-2. Compile the demand-led selected words into an immutable official assignment
-   snapshot. The current weak-vowel runtime adapter returns `route_unavailable`
-   and the route registry has `newAssignmentCapable: false`.
+1. Deploy the route-content publication migration; stage, review and publish
+   the 182 initial versions atomically, then read back exact hashes and counts.
+   Publication must stay separate from route activation.
+2. Connect current demand-led selected words and the new governed loader to an
+   immutable official specialist assignment snapshot. The runtime adapter still
+   returns `route_unavailable` and the registry has `newAssignmentCapable: false`.
 3. Wire the official ADLE runner, durable checkpoint and controlled-production
    evidence writer for Memory Lock and dictation. Guided Dinner and Detective
    attempts must not create independent spelling successes.

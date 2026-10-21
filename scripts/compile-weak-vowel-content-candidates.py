@@ -131,7 +131,8 @@ def main() -> None:
                      "soundTypeEvidence": {"kind": "selected_ipa_target_syllable", "ipa": row["pronunciation_candidate"],
                                            "targetSyllableIpa": sound_ipa, "needsGovernedPublication": True},
                      "routeContent": {"routeId": "weak_vowel_word_lab", "routeVersion": "v1",
-                                      "microSkillKey": pair[1], "content": {"weakVowel": facts}}})
+                                      "microSkillKey": pair[1], "wordMeaning": definition["definition"],
+                                      "wordSum": "", "content": {"weakVowel": facts}}})
     if len(rows) != report["assignedCount"]:
         raise ValueError("Candidate package does not cover every assigned pair")
     package = {"schemaVersion": "weak_vowel_route_candidates_v1", "reviewStatus": "candidate",

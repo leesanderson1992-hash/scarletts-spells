@@ -16,6 +16,7 @@ import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { WordWorkspace } from "./word-workspace";
+import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
 
 type Params = {
   draft?: string;
@@ -218,6 +219,18 @@ export async function TeachingDictionaryDetail({
   const rolledBackIds = new Set(
     (rolledBack?.data ?? []).map((row) => row.content_version_id),
   );
+  const weakVersions = (routeVersions?.data ?? []).filter((row) =>
+    row.route_id === "weak_vowel_word_lab" && !rolledBackIds.has(row.id));
+  const weakVersionIds = weakVersions.map((row) => row.id);
+  const [weakReviews, weakPublications] = weakVersionIds.length ? await Promise.all([
+    db.from("teaching_dictionary_route_content_reviews").select("content_version_id")
+      .in("content_version_id", weakVersionIds),
+    db.from("adle_weak_vowel_content_publications").select("content_version_id")
+      .in("content_version_id", weakVersionIds),
+  ]) : [{ data: [], error: null }, { data: [], error: null }];
+  if (weakReviews.error || weakPublications.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
+  const reviewedWeakIds = new Set((weakReviews.data ?? []).map((row) => row.content_version_id));
+  const publishedWeakIds = new Set((weakPublications.data ?? []).map((row) => row.content_version_id));
   const routeContents: RouteContentDraft[] = [];
   for (const row of (routeVersions?.data ?? []).filter(
     (row) => !rolledBackIds.has(row.id),
@@ -427,6 +440,24 @@ export async function TeachingDictionaryDetail({
           </div>
         }
       />
+      {wordId && weakVersions.length ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5" aria-label="Weak-vowel route publications">
+        <h2 className="text-lg font-bold">Weak-vowel lesson content</h2>
+        <p className="mt-1 text-sm">Each word–skill version needs editorial review, then publication. Publication prepares future assignments; it does not activate the route.</p>
+        <div className="mt-4 grid gap-3">{weakVersions.map((version) => {
+          const reviewed = reviewedWeakIds.has(version.id);
+          const published = publishedWeakIds.has(version.id);
+          return <div key={version.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] p-3">
+            <div><p className="font-semibold">{version.micro_skill_key}</p><p className="text-xs">Version {version.id} · {published ? "Published" : reviewed ? "Reviewed" : "Awaiting review"}</p></div>
+            {!published && <form action={reviewed ? publishWeakVowelRouteContent : reviewTeachingDictionaryRouteContent}>
+              <input type="hidden" name="word_id" value={wordId} />
+              <input type="hidden" name="content_version_id" value={version.id} />
+              <button className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold" type="submit">
+                {reviewed ? "Publish reviewed content" : "Review this version"}
+              </button>
+            </form>}
+          </div>;
+        })}</div>
+      </section> : null}
     </main>
   );
 }

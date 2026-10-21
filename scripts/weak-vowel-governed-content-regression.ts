@@ -1,0 +1,53 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { prepareLessonFromPublishedWeakVowelWords, type PublishedWeakVowelWord } from "../lib/adle/weak-vowel/governed-content";
+
+const candidates = JSON.parse(readFileSync("content/secret-life-of-vowels/weak-vowel-route-content-candidates.json", "utf8")) as {
+  rows: Array<PublishedWeakVowelWord & { sharedDefinition: { definition: string } }>;
+};
+const sheet = JSON.parse(readFileSync("content/secret-life-of-vowels/reviewed-sheet-snapshot.json", "utf8")) as {
+  rows: Array<{ canonical_word_id: string; micro_skill_key: string; rhythm_sentence_text: string }>;
+};
+const sentences = new Map(sheet.rows.map((row) => [`${row.canonical_word_id}|${row.micro_skill_key}`, row.rhythm_sentence_text]));
+const source = candidates.rows.filter((row) => row.microSkillKey === "D4_SCHWA_FINAL_A_FINAL").slice(0, 4);
+assert.equal(source.length, 4);
+const published: PublishedWeakVowelWord[] = source.map((row, index) => ({
+  ...row, contentVersionId: `publication-${index}`, definition: row.sharedDefinition.definition,
+  sentence: sentences.get(`${row.canonicalWordId}|${row.microSkillKey}`)!,
+  dictionaryFingerprintAtReview: `fingerprint-${index}`,
+  currentDictionaryFingerprint: `fingerprint-${index}`,
+  wordAudioSha256AtPublication: row.routeContent.content.weakVowel.wordRecording.sha256,
+  sentenceAudioSha256AtPublication: row.routeContent.content.weakVowel.sentenceRecording.sha256,
+}));
+const slots = published.map((row, index) => ({ canonicalWordId: row.canonicalWordId,
+  provenance: index === 0 ? "learning_item" as const : "stretch" as const,
+  learningItemId: index === 0 ? `demand-${index}` : null, complexityLevel: null }));
+const currentAssignedPairs = published.map((row) => ({ canonicalWordId: row.canonicalWordId,
+  microSkillKey: row.microSkillKey, assignmentStatus: "assigned" as const }));
+const input = { assignmentKey: "frozen-governed-test", contentVersion: "test-release-v1",
+  microSkillKey: "D4_SCHWA_FINAL_A_FINAL" as const, slots, currentAssignedPairs,
+  published, currentFamilyAuthorities: [] };
+const ready = prepareLessonFromPublishedWeakVowelWords(input);
+assert.deepEqual(ready.blockers, []);
+assert(ready.lesson);
+assert.deepEqual(ready.lesson.words.map((row) => row.canonicalWordId), slots.map((row) => row.canonicalWordId));
+assert.equal(ready.lesson.words[0].provenance, "learning_item");
+
+const stale = prepareLessonFromPublishedWeakVowelWords({ ...input, published: [
+  { ...published[0], currentDictionaryFingerprint: "changed" }, ...published.slice(1),
+] });
+assert.equal(stale.lesson, null);
+assert.deepEqual(stale.blockers, [{ canonicalWordId: published[0].canonicalWordId,
+  reason: "published_content_or_dictionary_source_changed" }]);
+
+const deassigned = prepareLessonFromPublishedWeakVowelWords({ ...input, currentAssignedPairs: [
+  { ...currentAssignedPairs[0], assignmentStatus: "deassigned" }, ...currentAssignedPairs.slice(1),
+] });
+assert.equal(deassigned.lesson, null);
+assert.equal(deassigned.blockers[0].reason, "word_skill_pair_not_currently_assigned");
+
+const missing = prepareLessonFromPublishedWeakVowelWords({ ...input, published: published.slice(1) });
+assert.equal(missing.lesson, null);
+assert.deepEqual(missing.blockers, [{ canonicalWordId: published[0].canonicalWordId,
+  reason: "required_route_content_unpublished" }]);
+console.log("PASS: published weak-vowel content freezes selected demand words and blocks stale, deassigned and unpublished pairs");

@@ -4,6 +4,9 @@ import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { recordJoinedBaseSkillReview } from "@/lib/teaching-dictionary-manager/word-skill-review";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -109,6 +112,55 @@ export async function reviewTeachingDictionaryRouteContent(form: FormData) {
       p_content_version: contentId, p_actor: actor.id,
     });
     if (reviewed.error) throw new Error(reviewed.error.message.match(/TEACHING_[A-Z_]+/)?.[0] ?? "TEACHING_ROUTE_REVIEW_FAILED");
+  } catch (error) { finish(path, error); }
+  finish(path);
+}
+
+/** Reviewing a staged version and publishing it are separate decisions.
+ * Publication cannot activate a route or modify shared dictionary facts. */
+export async function publishWeakVowelRouteContent(form: FormData) {
+  const actor = await requireAdminUser();
+  const contentId = value(form, "content_version_id");
+  const wordId = value(form, "word_id");
+  const path = `${PATH}/${wordId}`;
+  try {
+    if (!isUuid(contentId) || !isUuid(wordId)) throw new Error("WEAK_VOWEL_CONTENT_ID_INVALID");
+    const db = createServiceRoleClient();
+    const result = await db.from("teaching_dictionary_route_content_versions")
+      .select("id,canonical_word_id,route_id,route_version,micro_skill_key,content,draft_id")
+      .eq("id", contentId).eq("canonical_word_id", wordId).single();
+    if (result.error || result.data.route_id !== "weak_vowel_word_lab" || result.data.route_version !== "v1")
+      throw new Error("WEAK_VOWEL_CONTENT_VERSION_INVALID");
+    const draft = await db.from("teaching_dictionary_manager_drafts")
+      .select("payload").eq("id", result.data.draft_id).single();
+    if (draft.error || routeBlockers(result.data.content as RouteContentDraft, draft.data.payload as WordDraftPayload).length)
+      throw new Error("WEAK_VOWEL_CONTENT_REVIEW_INCOMPLETE");
+    const facts = (result.data.content as RouteContentDraft).content.weakVowel as {
+      sourceFingerprint: string;
+      wordRecording: { src: string; sha256: string };
+      sentenceRecording: { src: string; sha256: string };
+    };
+    for (const recording of [facts.wordRecording, facts.sentenceRecording]) {
+      if (!/^\/audio\/[a-z0-9/_-]+\.mp3$/i.test(recording.src) || !/^[a-f0-9]{64}$/.test(recording.sha256))
+        throw new Error("WEAK_VOWEL_AUDIO_IDENTITY_INVALID");
+      const bytes = process.env.VERCEL_URL
+        ? await (async () => {
+            const response = await fetch(`https://${process.env.VERCEL_URL}${recording.src}`, { cache: "no-store" });
+            if (!response.ok) throw new Error("WEAK_VOWEL_AUDIO_NOT_SERVED");
+            return Buffer.from(await response.arrayBuffer());
+          })()
+        : readFileSync(resolve(process.cwd(), "public", `.${recording.src}`));
+      if (createHash("sha256").update(bytes).digest("hex") !== recording.sha256)
+        throw new Error("WEAK_VOWEL_AUDIO_HASH_CHANGED");
+    }
+    const published = await db.rpc("publish_adle_weak_vowel_content_v1", {
+      p_content_version: contentId, p_actor: actor.id,
+      p_expected_source_fingerprint: facts.sourceFingerprint,
+      p_expected_word_audio_sha256: facts.wordRecording.sha256,
+      p_expected_sentence_audio_sha256: facts.sentenceRecording.sha256,
+    });
+    if (published.error || published.data !== contentId)
+      throw new Error(published.error?.message.match(/WEAK_VOWEL_[A-Z_]+/)?.[0] ?? "WEAK_VOWEL_PUBLICATION_FAILED");
   } catch (error) { finish(path, error); }
   finish(path);
 }
