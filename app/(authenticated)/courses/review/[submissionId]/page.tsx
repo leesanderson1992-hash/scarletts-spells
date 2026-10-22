@@ -1056,7 +1056,9 @@ export default async function CourseReviewDetailPage({
                   redirectPath={buildScopedPath(`/courses/review/${reviewEntryId}`, selectedChild.id, mode)} />
                 {passageReview.status === "pending" ? <p role="status" className="rounded-xl bg-sky-50 p-3 text-sm text-sky-900">Context checking is still running. Refresh before sending work back.</p> : null}
                 {passageReview.status === "complete" ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">AI context analysis is complete. {passageReview.rows.length ? "Review the findings below." : "No context choices were suggested."}</p> : null}
-                {passageReview.status === "unavailable" ? <p role="status" className="rounded-xl bg-slate-50 p-3 text-sm text-slate-800">AI context analysis was unavailable for this submission. If the writing has verified word positions, you can add a contextual word in Original writing.</p> : null}
+                {passageReview.status === "unavailable" ? <p role="status" className="rounded-xl bg-slate-50 p-3 text-sm text-slate-800">{passageReview.exceedsScanLimit
+                  ? "This writing exceeds Luna's 15-window scan limit, so it was not sent to Luna. You can add a contextual word manually in Original writing."
+                  : "AI context analysis was unavailable for this submission. If the writing has verified word positions, you can add a contextual word in Original writing."}</p> : null}
                 {passageReview.status === "failed" ? <div role="status" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900">
                   {passageReview.errorCode === "AI_PASSAGE_TOO_LONG"
                     ? passageReview.exceedsScanLimit

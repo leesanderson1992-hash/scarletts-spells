@@ -10,13 +10,19 @@ const finding = { id: "finding", occurrence_id: "occurrence", field_hash: fieldH
   start_utf16: 10, end_utf16: 15, observed_text: "threw", correction: "through" };
 type Event = { finding_id: string; action: string; correction: string | null };
 async function load(events: Event[], options: { proof?: boolean; corrupt?: boolean; issueStatus?: string;
-  jobError?: string } = {}) {
+  jobError?: string; uncapturedLong?: boolean } = {}) {
   const reads: string[] = [];
   const tables: Record<string, unknown> = {
     writing_source_snapshots: { id: "snapshot", submission_id: "submission", child_id: "writer",
       parent_user_id: "owner", source_revision: "1", occurred_at: "2026-09-30T00:00:00Z",
       source_purpose: options.proof ? "DISPOSABLE_PROVIDER_PROOF" : "REAL_LEARNER",
-      envelope: { rawSubmissionText: text, contextAiShadowCapture: true, contextAiModeAtCapture: "shadow" } },
+      envelope: { rawSubmissionText: text,
+        contextAiShadowCapture: !options.uncapturedLong, contextAiModeAtCapture: "shadow",
+        ...(options.uncapturedLong ? {
+          draftPayload: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`answer-${i}`, "word"])),
+          taskContext: { lessonSchema: { blocks: Array.from({ length: 16 }, (_, i) =>
+            ({ block_id: `answer-${i}`, block_type: "question_text" })) } },
+        } : {}) } },
     writing_context_shadow_jobs: { status: options.jobError ? "failed" : "complete",
       error_code: options.jobError ?? null },
     writing_context_advisory_control: { enabled: false, ai_mode: "disabled" },
@@ -50,6 +56,11 @@ async function main() {
   assert.match(reviewPage, /passageReview\.errorCode === "AI_PASSAGE_TOO_LONG"/);
   assert.match(reviewPage, /exceeds Luna's 15-window scan limit/);
   assert.match(reviewPage, /exceeded the earlier scan limit/);
+  assert.match(reviewPage, /so it was not sent to Luna/);
+  const uncapturedLong = await load([], { uncapturedLong: true });
+  assert.equal(uncapturedLong.status, "unavailable");
+  assert.equal(uncapturedLong.exceedsScanLimit, true,
+    "An uncaptured 16-window submission still gets the length-specific Review message");
   const tooLong = await load([], { jobError: "AI_PASSAGE_TOO_LONG" });
   assert.equal(tooLong.status, "failed");
   assert.equal(tooLong.errorCode, "AI_PASSAGE_TOO_LONG");
