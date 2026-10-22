@@ -75,7 +75,7 @@ export function ReviewAddWordForm(props: {
       setPending(false);
     }
   }
-  return <section className="grid gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
+  return <section className="grid self-start gap-3 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
     <p className="text-sm font-medium text-[color:var(--ink)]">Add word</p>
     <p className="text-xs text-[color:var(--mid)]">Select one word in the original writing, or enter it and choose its exact occurrence.</p>
     <div className="flex gap-4 text-sm">

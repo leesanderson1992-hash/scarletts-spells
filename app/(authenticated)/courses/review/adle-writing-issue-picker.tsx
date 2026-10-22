@@ -177,7 +177,7 @@ export function AdleWritingIssuePicker(props: {
           {renderHighlightedWriting(props.submittedWritingText, [...props.highlights, ...addedHighlights])}
         </p>
       </div>
-      {!props.readOnly ? <div className="rounded-2xl border border-[var(--border)] bg-white p-4">
+      {!props.readOnly ? <div className="self-start rounded-2xl border border-[var(--border)] bg-white p-4">
         <h3 className="font-semibold text-[var(--ink)]">Add Word</h3>
         <p className="mt-1 text-xs text-[var(--mid)]">Select a word, then enter the correction.</p>
         <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--ink)]">
