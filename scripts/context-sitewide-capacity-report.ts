@@ -2,7 +2,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 import { extractWholeWriting, type SourceSnapshot } from "../lib/writing-engine/whole-writing/source";
-import { planPassageWindows } from "../lib/writing-engine/whole-writing/context-passage-scan";
+import { PASSAGE_CONTEXT_MAX_WINDOWS, planPassageWindows } from "../lib/writing-engine/whole-writing/context-passage-scan";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SB_SERVICE_ROLE_KEY;
@@ -60,12 +60,12 @@ function day(date: string) {
 for (const row of lessons) {
   const d = day(row.submitted_at); d.lessons++;
   const snapshot = snapshots.get(row.id);
-  if (!snapshot) { d.forecastWindows += row.submission_text?.trim() ? 3 : 0; d.manual++; continue; }
+  if (!snapshot) { d.forecastWindows += row.submission_text?.trim() ? PASSAGE_CONTEXT_MAX_WINDOWS : 0; d.manual++; continue; }
   const extraction = extractWholeWriting(snapshot);
   const fields = extraction.fields.filter(f => f.provenance === "learner_response")
     .map(f => ({ path: f.key, hash: f.textHash, text: f.rawText }));
   const windows = planPassageWindows({ fields });
-  if (windows === null || !fields.length) { d.manual++; d.forecastWindows += 3; continue; }
+  if (windows === null || !fields.length) { d.manual++; d.forecastWindows += PASSAGE_CONTEXT_MAX_WINDOWS; continue; }
   d.windows += windows.length;
 }
 for (const row of reviews) {

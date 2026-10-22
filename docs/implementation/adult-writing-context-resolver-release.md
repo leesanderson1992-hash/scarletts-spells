@@ -34,13 +34,13 @@ If the product later serves minors, review actual use against the provider's
 [under-18 guidance](https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance).
 
 Submission writes the immutable source; spelling processing remains independent.
-The context worker indexes authored occurrences and scans at most three non-overlapping
+The context worker indexes authored occurrences and scans at most fifteen non-overlapping
 3,000 UTF-16-character windows per submission. Work that exceeds those bounds,
 cannot be proven authored, or fails source/hash/occurrence checks receives no
 partial Luna scan. The reviewer can still use Add word manually. A structured
 Luna receives the bounded passage plus an ordered list of its authored words.
 Each complete request, including indexed words, prompt and schema, must also fit
-the 16,000-byte request cap. Three text windows do not by themselves
+the 16,000-byte request cap. Fifteen text windows do not by themselves
 establish that a submission fits that separate bound.
 It returns a zero-based request-local word index, observed word and correction;
 the server validates that reference against the immutable source occurrence and
@@ -136,14 +136,12 @@ Secret values never enter the repository, Preview, browser, API output or logs.
 The server-only request uses `/v1/responses`, `gpt-6-luna`, default tier,
 `store:false`, no tools/background mode, explicit cache mode, one HTTP send,
 a 15-second full-body deadline and 50-second worker budget and no automatic retry.
-The current source implementation is `CONTEXT_SHADOW_DISPATCH_V10`: three
-windows, the 16,000-byte complete-request cap, a 15-second full-body deadline,
+The 15-window implementation uses `CONTEXT_SHADOW_DISPATCH_V12_15_WINDOWS`:
+the 16,000-byte complete-request cap, a 15-second full-body deadline,
 a 50-second worker budget, zero automatic retries and 32 maximum requests per
-submission. Its public pins are recorded in the current-state audit. The V7
-website proof establishes the earlier deployed runtime only. Before any later
-activation, Production must read back the V10 deployment SHA, migration ledger,
-configuration and runtime fingerprint; the V10 source branch is not that
-evidence. The forward migration
+submission remain in force. Its configuration and runtime fingerprints must be
+approved for the exact deployed SHA before Production admission. The earlier V7
+website proof and V10 release retain their historical scope. The forward migration
 `20261001100000_increase_context_request_cap.sql` aligns the dispatch constraint
 and conservative cost reservation with the larger request; existing spend caps
 must cover that bound before any new admission.

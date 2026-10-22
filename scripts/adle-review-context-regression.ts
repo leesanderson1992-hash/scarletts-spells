@@ -69,7 +69,11 @@ function fixture(text: string, options: { cap?: boolean; wrongOwner?: boolean } 
         const dispatch = tables.adle_review_context_dispatches.find(d => d.id === args.p_dispatch_id)!;
         dispatch.state = "finished"; return { data: true, error: null };
       }
-      if (name === "finish_adle_review_context_job" || name === "defer_adle_review_context_job")
+      if (name === "defer_adle_review_context_briefly" || name === "defer_adle_review_context_job") {
+        claimed = false;
+        return { data: true, error: null };
+      }
+      if (name === "finish_adle_review_context_job")
         return { data: true, error: null };
       if (name === "stop_writing_context_shadow") { stopped = true; return { data: true, error: null }; }
       throw new Error(`unexpected RPC ${name}`);
@@ -127,6 +131,41 @@ async function main() {
     assert.equal(capped.tables.adle_review_context_attempts.length, 0);
     assert.equal(capped.tables.adle_review_context_dispatches.length, 0);
     assert.equal(capped.stopped(), false);
+    const longText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(700);
+    const long = fixture(longText);
+    const seen = new Set<string>();
+    const actualNow = Date.now;
+    let simulatedNow = actualNow();
+    Date.now = () => simulatedNow;
+    try {
+      globalThis.fetch = async (_url, options) => {
+        long.countCall();
+        const sent = JSON.parse(JSON.parse(String(options?.body)).input[1].content);
+        assert(!seen.has(sent.case_id), "ADLE does not resend a completed window");
+        seen.add(sent.case_id);
+        simulatedNow += 14000;
+        return new Response(JSON.stringify({ id: `resp-adle-long-${long.calls()}`, model: "gpt-6-luna",
+          status: "completed", service_tier: "default",
+          usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
+            output_tokens_details: { reasoning_tokens: 5 } },
+          output: [{ type: "message", content: [{ type: "output_text",
+            text: JSON.stringify({ case_id: sent.case_id, findings: [] }) }] }] }));
+      };
+      for (let run = 0; run < 5; run++) {
+        const outcome = await recoverAdleReviewContextJobs(long.source.review_session_id, long.client);
+        assert.equal(outcome.status, run === 4 ? "complete" : "deferred",
+          JSON.stringify({ run, calls: long.calls(), attempts: long.tables.adle_review_context_attempts.length,
+            rpcCalls: long.rpcCalls.slice(-8) }));
+        assert.equal(long.tables.adle_review_context_attempts.length, (run + 1) * 3);
+      }
+      assert.equal(seen.size, 15);
+      assert.equal(long.calls(), 15);
+      assert.equal((await recoverAdleReviewContextJobs(long.source.review_session_id, long.client)).status, "idle");
+    } finally { Date.now = actualNow; }
+    const overLimit = fixture("ordinary words ".repeat(3100));
+    assert.equal((await recoverAdleReviewContextJobs(overLimit.source.review_session_id, overLimit.client)).status, "failed");
+    assert.equal(overLimit.tables.adle_review_context_attempts.length, 0);
+    assert.equal(overLimit.stopped(), false);
     const wrongOwner = fixture("I herd the bell at dawn.", { wrongOwner: true });
     assert.equal((await recoverAdleReviewContextJobs(wrongOwner.source.review_session_id, wrongOwner.client)).status, "failed");
     assert(!wrongOwner.rpcCalls.includes("reserve_adle_review_context_window"));

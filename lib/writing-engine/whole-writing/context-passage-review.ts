@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { reconstructOccurrenceContext } from "./context-source";
+import { planPassageWindows } from "./context-passage-scan";
 import { sentenceContext } from "./sentence-context";
 import { extractWholeWriting, type SourceSnapshot } from "./source";
 
@@ -12,23 +13,26 @@ export type PassageReviewRow = {
   issueStatus: string | null; issueCorrection: string | null; issueSourceKind: string | null;
 };
 export type PassageReview = { status: "unavailable" | "pending" | "complete" | "failed";
-  rows: PassageReviewRow[]; sourceFields: { path: string; text: string }[]; readError: boolean; canRetry: boolean };
+  rows: PassageReviewRow[]; sourceFields: { path: string; text: string }[]; readError: boolean;
+  canRetry: boolean; errorCode: string | null; exceedsScanLimit: boolean };
 
 export async function loadPassageContextReview(input: { client: SupabaseClient; submissionId: string;
   parentUserId: string; childId: string }): Promise<PassageReview> {
   const loaded = await input.client.from("writing_source_snapshots").select("*")
     .eq("submission_id", input.submissionId).eq("parent_user_id", input.parentUserId)
     .eq("child_id", input.childId).maybeSingle();
-  if (loaded.error) return { status: "failed", rows: [], sourceFields: [], readError: true, canRetry: false };
-  if (!loaded.data) return { status: "unavailable", rows: [], sourceFields: [], readError: false, canRetry: false };
+  if (loaded.error) return { status: "failed", rows: [], sourceFields: [], readError: true, canRetry: false, errorCode: null, exceedsScanLimit: false };
+  if (!loaded.data) return { status: "unavailable", rows: [], sourceFields: [], readError: false, canRetry: false, errorCode: null, exceedsScanLimit: false };
   const snapshot = loaded.data as SourceSnapshot;
   if (snapshot.source_purpose !== "REAL_LEARNER")
-    return { status: "unavailable", rows: [], sourceFields: [], readError: false, canRetry: false };
-  const sourceFields = extractWholeWriting(snapshot).fields
-    .filter((field) => field.provenance === "learner_response")
+    return { status: "unavailable", rows: [], sourceFields: [], readError: false, canRetry: false, errorCode: null, exceedsScanLimit: false };
+  const authoredFields = extractWholeWriting(snapshot).fields.filter((field) => field.provenance === "learner_response");
+  const sourceFields = authoredFields
     .map((field) => ({ path: field.key, text: field.rawText }));
+  const exceedsScanLimit = planPassageWindows({ fields: authoredFields.map((field) => ({
+    path: field.key, hash: field.textHash, text: field.rawText })) }) === null;
   if (snapshot.envelope.contextAiShadowCapture !== true)
-    return { status: "unavailable", rows: [], sourceFields, readError: false, canRetry: false };
+    return { status: "unavailable", rows: [], sourceFields, readError: false, canRetry: false, errorCode: null, exceedsScanLimit };
   const [job, findings, control] = await Promise.all([
     input.client.from("writing_context_shadow_jobs").select("status,error_code,claimed_at")
       .eq("snapshot_id", snapshot.id).order("created_at", { ascending: false })
@@ -40,7 +44,7 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
       .eq("singleton", true).maybeSingle(),
   ]);
   if (job.error || findings.error || control.error || !control.data)
-    return { status: "failed", rows: [], sourceFields, readError: true, canRetry: false };
+    return { status: "failed", rows: [], sourceFields, readError: true, canRetry: false, errorCode: null, exceedsScanLimit };
   const processingEnabled = control.data.enabled === false && control.data.ai_mode === "shadow";
   const leaseStale = typeof job.data?.claimed_at === "string" &&
     Date.parse(job.data.claimed_at) < Date.now() - 60000;
@@ -50,7 +54,8 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
       (job.data?.status !== "processing" || leaseStale))
       ? "failed" as const : "pending" as const;
   const canRetry = processingEnabled && status === "failed" && job.data?.error_code === "AI_PROVIDER_UNAVAILABLE";
-  if (!findings.data?.length) return { status, rows: [], sourceFields, readError: false, canRetry };
+  const errorCode = status === "failed" ? job.data?.error_code ?? null : null;
+  if (!findings.data?.length) return { status, rows: [], sourceFields, readError: false, canRetry, errorCode, exceedsScanLimit };
   const ids = findings.data.map((f) => f.id);
   const occurrenceIds = findings.data.map((f) => f.occurrence_id);
   const [occurrences, events, issues] = await Promise.all([
@@ -63,7 +68,7 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
       .eq("task_submission_id", input.submissionId).eq("parent_user_id", input.parentUserId)
       .in("source_writing_occurrence_id", occurrenceIds),
   ]);
-  if (occurrences.error || events.error || issues.error) return { status: "failed", rows: [], sourceFields, readError: true, canRetry: false };
+  if (occurrences.error || events.error || issues.error) return { status: "failed", rows: [], sourceFields, readError: true, canRetry: false, errorCode: null, exceedsScanLimit };
   const indexed = new Map((occurrences.data ?? []).map((o) => [o.id, o]));
   const latest = new Map<string, { action: string; correction: string | null }>();
   const edited = new Map<string, string>();
@@ -94,5 +99,5 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
       issueCorrection: issue.get(f.occurrence_id)?.approved_replacement ?? null,
       issueSourceKind: (issue.get(f.occurrence_id)?.metadata as Record<string, unknown> | null)?.source_kind as string ?? null };
   });
-  return { status, rows, sourceFields, readError: false, canRetry };
+  return { status, rows, sourceFields, readError: false, canRetry, errorCode, exceedsScanLimit };
 }

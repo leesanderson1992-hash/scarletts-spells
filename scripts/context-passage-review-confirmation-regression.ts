@@ -9,14 +9,16 @@ const fieldHash = fingerprint(text);
 const finding = { id: "finding", occurrence_id: "occurrence", field_hash: fieldHash,
   start_utf16: 10, end_utf16: 15, observed_text: "threw", correction: "through" };
 type Event = { finding_id: string; action: string; correction: string | null };
-async function load(events: Event[], options: { proof?: boolean; corrupt?: boolean; issueStatus?: string } = {}) {
+async function load(events: Event[], options: { proof?: boolean; corrupt?: boolean; issueStatus?: string;
+  jobError?: string } = {}) {
   const reads: string[] = [];
   const tables: Record<string, unknown> = {
     writing_source_snapshots: { id: "snapshot", submission_id: "submission", child_id: "writer",
       parent_user_id: "owner", source_revision: "1", occurred_at: "2026-09-30T00:00:00Z",
       source_purpose: options.proof ? "DISPOSABLE_PROVIDER_PROOF" : "REAL_LEARNER",
       envelope: { rawSubmissionText: text, contextAiShadowCapture: true, contextAiModeAtCapture: "shadow" } },
-    writing_context_shadow_jobs: { status: "complete" },
+    writing_context_shadow_jobs: { status: options.jobError ? "failed" : "complete",
+      error_code: options.jobError ?? null },
     writing_context_advisory_control: { enabled: false, ai_mode: "disabled" },
     writing_context_passage_findings: [finding],
     writing_occurrences: [{ id: "occurrence", field_path: "/rawSubmissionText", field_hash: fieldHash,
@@ -41,9 +43,18 @@ async function load(events: Event[], options: { proof?: boolean; corrupt?: boole
 }
 async function main() {
   const reviewTable = readFileSync(new URL("../app/(authenticated)/courses/review/unified-spelling-review-table.tsx", import.meta.url), "utf8");
+  const reviewPage = readFileSync(new URL("../app/(authenticated)/courses/review/[submissionId]/page.tsx", import.meta.url), "utf8");
   assert.match(reviewTable,
     /readOnly=\{reviewWorkflowPhase === "read_only" \|\| reviewWorkflowPhase === "adle_observational"\}/,
     "Reviewer flow keeps fresh passage suggestions actionable before approval");
+  assert.match(reviewPage, /passageReview\.errorCode === "AI_PASSAGE_TOO_LONG"/);
+  assert.match(reviewPage, /exceeds Luna's 15-window scan limit/);
+  assert.match(reviewPage, /exceeded the earlier scan limit/);
+  const tooLong = await load([], { jobError: "AI_PASSAGE_TOO_LONG" });
+  assert.equal(tooLong.status, "failed");
+  assert.equal(tooLong.errorCode, "AI_PASSAGE_TOO_LONG");
+  assert.equal(tooLong.exceedsScanLimit, false);
+  assert.equal(tooLong.canRetry, false);
   const edit = { finding_id: "finding", action: "EDIT", correction: "through" };
   assert.equal((await load([])).rows[0].confirmed, false, "Unreviewed model output is only Suggested");
   const saved = (await load([edit])).rows[0];

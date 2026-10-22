@@ -74,14 +74,25 @@ export async function recoverAdleReviewContextJobs(reviewSessionId?: string, sup
       cardRead.data.fingerprint === process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT
       ? cardRead.data as ContextRateCard : null;
     if (!identity || !card) throw new ManualReview("AI_CONFIGURATION_UNAVAILABLE");
+    const repeatedContent = new Set(windows.filter((window, index) =>
+      windows.findIndex((other) => other.windowFingerprint === window.windowFingerprint) !== index)
+      .map((window) => window.windowFingerprint));
     const deadline = Date.now() + CONTEXT_SHADOW_WORKER_BUDGET_MS;
     for (const window of windows) {
       const prior = await client.from("adle_review_context_dispatches").select("id,sent_at")
-        .eq("job_id", job.id).eq("window_fingerprint", window.windowFingerprint).maybeSingle();
+        .eq("job_id", job.id).eq("window_fingerprint", window.caseId).maybeSingle();
       if (prior.error) throw new ManualReview("AI_ADLE_LEDGER_UNAVAILABLE");
-      if (prior.data) {
+      // Earlier jobs keyed dispatches by text alone. Reuse those receipts only
+      // when that text occurs once; repeated legacy content cannot be anchored.
+      const legacy = prior.data ? null : await client.from("adle_review_context_dispatches").select("id,sent_at")
+        .eq("job_id", job.id).eq("window_fingerprint", window.windowFingerprint).maybeSingle();
+      if (legacy?.error) throw new ManualReview("AI_ADLE_LEDGER_UNAVAILABLE");
+      if (legacy?.data && repeatedContent.has(window.windowFingerprint))
+        throw new ManualReview("AI_RESERVED_OUTCOME_AMBIGUOUS");
+      const previous = prior.data ?? legacy?.data;
+      if (previous) {
         const attempt = await client.from("adle_review_context_attempts").select("result_status")
-          .eq("dispatch_id", prior.data.id).maybeSingle();
+          .eq("dispatch_id", previous.id).maybeSingle();
         if (attempt.error || !attempt.data || attempt.data.result_status !== "SCANNED")
           throw new ManualReview("AI_RESERVED_OUTCOME_AMBIGUOUS");
         continue;
@@ -95,7 +106,7 @@ export async function recoverAdleReviewContextJobs(reviewSessionId?: string, sup
       if (monitored.error || monitored.data !== true) throw new ManualReview("AI_MONITOR_UNAVAILABLE");
       const reservation = await client.rpc("reserve_adle_review_context_window", {
         p_job_id: job.id, p_claim_token: job.claim_token,
-        p_window_fingerprint: window.windowFingerprint, p_request_bytes: bytes,
+        p_window_fingerprint: window.caseId, p_request_bytes: bytes,
         p_environment: identity.environment, p_project_ref: identity.projectRef,
         p_deployment_sha: identity.deploymentSha,
         p_config_fingerprint: AI_CONTEXT_CONFIG_FINGERPRINT,
@@ -121,7 +132,7 @@ export async function recoverAdleReviewContextJobs(reviewSessionId?: string, sup
         : gatePassageFindings(provider.value, window, occurrences);
       const attempt = await client.from("adle_review_context_attempts").insert({
         dispatch_id: dispatchId, source_id: source.id,
-        window_fingerprint: window.windowFingerprint,
+        window_fingerprint: window.caseId,
         result_status: gated.reason ? "NOT_ASSESSED" : "SCANNED",
         reason_code: gated.reason ?? "AI_PASSAGE_SCANNED",
         provider_request_id: provider.requestId, provider_response_id: provider.responseId,

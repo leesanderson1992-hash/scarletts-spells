@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { gatePassageFindings, indexedPassageWords, passageContextSchema, passageRequestBody, planPassageWindows } from
+import { PASSAGE_CONTEXT_MAX_WINDOWS, gatePassageFindings, indexedPassageWords, passageContextSchema, passageRequestBody, planPassageWindows } from
   "../lib/writing-engine/whole-writing/context-passage-scan";
 
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -55,8 +55,15 @@ const laterIndex = indexedPassageWords(later[2], laterWords).findIndex(o => o.ob
 assert.equal(gatePassageFindings({ case_id: later[2].caseId, findings: [{ ...finding, word_index: laterIndex }] },
   later[2], laterWords).findings?.[0].startUtf16, longText.indexOf("threw"));
 assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: "0".repeat(64), text }] }), null);
-assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: hash(JSON.stringify("x ".repeat(5000))),
-  text: "x ".repeat(5000) }] }), null, "Four-window work fails closed without a partial scan");
+assert.equal(PASSAGE_CONTEXT_MAX_WINDOWS, 15);
+const longFields = Array.from({ length: 15 }, (_, i) => ({ path: `/answer/${i}`, text: `Answer ${i} has words.` }));
+const hashedFields = longFields.map(f => ({ ...f, hash: hash(JSON.stringify(f.text)) }));
+assert.equal(planPassageWindows({ fields: hashedFields })?.length, 15, "Fifteen separate answers are covered");
+assert.equal(planPassageWindows({ fields: hashedFields.slice(0, 10) })?.length, 10,
+  "The linked submission's ten-answer shape fits the new ceiling");
+assert.equal(planPassageWindows({ fields: [...hashedFields, {
+  path: "/answer/15", text, hash: fieldHash }] }), null,
+"Sixteen windows fail closed without a partial scan");
 const body = JSON.parse(passageRequestBody(window, occurrences));
 assert.equal(body.store, false); assert.equal(body.service_tier, "default");
 assert.deepEqual(body.text.format.schema.properties.case_id.enum, [window.caseId],

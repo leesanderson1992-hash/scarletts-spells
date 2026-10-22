@@ -32,6 +32,7 @@
     "writing:context-ai-disabled-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-context-ai-disabled-regression.ts",
     "writing:context-shadow-worker-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/whole-writing-context-shadow-worker-regression.ts",
     "writing:context-shadow-db-proof": "node scripts/prove-writing-context-advisory-local.mjs --stage1",
+    "writing:context-15-window-replay-db-regression": "node scripts/context-15-window-replay-db-regression.mjs",
     "writing:context-shadow-manifest": "NODE_OPTIONS=--conditions=react-server tsx scripts/context-shadow-manifest.ts",
     "writing:context-sitewide-capacity": "NODE_OPTIONS=--conditions=react-server tsx scripts/context-sitewide-capacity-report.ts",
     "writing:adle-review-context-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-review-context-regression.ts",
