@@ -17,6 +17,7 @@ import {
 } from "../canonical-intake";
 import { compiledAffixMemberIds, compiledPrefixMemberIds } from "../canonical-intake/affix-compiler-readiness";
 import { resolveCanonicalIntakeRoute } from "../canonical-intake/route-readiness";
+import { loadSpecialistReleaseIntakeFacts, type SpecialistIntakeTarget } from "../canonical-intake/specialist-release-facts";
 import {
   compileBaseWordCanonicalIntakeRouteFacts,
 } from "../canonical-intake/base-word-route-readiness";
@@ -187,7 +188,8 @@ function throwQuery(
   throw new Error(`${context}: ${error?.message ?? "unknown error"}`);
 }
 
-export async function routeActivationFacts(client: AdleClient, childId: string) {
+export async function routeActivationFacts(client: AdleClient, childId: string,
+  targets: readonly SpecialistIntakeTarget[] = []) {
   const enabled = new Set<string>();
   const readyPairs = new Set<string>();
   const routeReadiness: CanonicalIntakeRouteReadinessFact[] = [];
@@ -199,6 +201,8 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
   }> = [];
   const activationEnvironment = resolveAdleRouteActivationEnvironment();
   const compoundFactsPromise = loadReleasedCompoundWordIntakeFacts(client);
+  const specialistFactsPromise = loadSpecialistReleaseIntakeFacts({ client, childId,
+    environmentKey: activationEnvironment ?? "local", targets: activationEnvironment ? targets : [] });
   const { data: selectorProfiles, error: selectorProfileError } = await client
     .from("canonical_teaching_dictionary_transfer_selector_profiles")
     .select("micro_skill_key,row_status,review_status,allowed_age_bands")
@@ -358,6 +362,10 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
       for (const skill of compoundFacts.enabledSkills) enabled.add(skill);
       for (const pair of compoundFacts.readyPairs) readyPairs.add(pair);
       routeReadiness.push(...compoundFacts.routeReadiness);
+      const specialist = await specialistFactsPromise;
+      for (const skill of specialist.enabled) enabled.add(skill);
+      for (const pair of specialist.readyPairs) readyPairs.add(pair);
+      routeReadiness.push(...specialist.routeReadiness);
       return { enabled, readyPairs, routeReadiness, selectorProfiles: selectorProfiles ?? [], baseWordClosureWords };
     }
     const activations = await loadEnabledBaseWordReleaseAuthorities({
@@ -386,6 +394,10 @@ export async function routeActivationFacts(client: AdleClient, childId: string) 
   for (const skill of compoundFacts.enabledSkills) enabled.add(skill);
   for (const pair of compoundFacts.readyPairs) readyPairs.add(pair);
   routeReadiness.push(...compoundFacts.routeReadiness);
+  const specialist = await specialistFactsPromise;
+  for (const skill of specialist.enabled) enabled.add(skill);
+  for (const pair of specialist.readyPairs) readyPairs.add(pair);
+  routeReadiness.push(...specialist.routeReadiness);
   return {
     enabled,
     readyPairs,
@@ -746,7 +758,9 @@ async function intakeApprovedParentVerifiedCorrections(params: {
           .eq("event_type", "resolver_visibility_enabled")
           .eq("new_resolver_visibility_status", "visible")
       : Promise.resolve({ data: [], error: null }),
-    routeActivationFacts(client, params.childId),
+    routeActivationFacts(client, params.childId, handoffEligibleCandidateRows.flatMap((candidate: any) =>
+      (words ?? []).filter((word: any) => word.normalised_word === candidate.correct_spelling_normalized)
+        .map((word: any) => ({ canonicalWordId: word.id, microSkillKey: candidate.micro_skill_key })))),
   ]);
   if (supportsError) throwQuery("canonical intake supports", supportsError);
   if (contentError) throwQuery("canonical intake content", contentError);

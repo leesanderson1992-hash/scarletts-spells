@@ -25,11 +25,12 @@ function date(value: string | null) {
 }
 
 function Indicator({ facet, label }: { facet: Facet; label: string }) {
-  const status = facet.state === "complete" ? "Complete" : facet.state === "missing" ? "Missing" : "Not yet checkable";
-  return <span className={`adle-admin-indicator is-${facet.state}`} title={`${label}: ${status}`}>
-    <span aria-hidden="true">{facet.state === "complete" ? "✓" : facet.state === "missing" ? "!" : "—"}</span>
-    <span className="sr-only">{label}: {status}</span>
+  const status = facet.applicable === false ? "Not relevant" : facet.state === "complete" ? "Confirmed" : "Pending";
+  const indicator = <span className={`adle-admin-indicator is-${facet.applicable === false ? "unknown" : facet.state}`} title={`${label}: ${status}${facet.details[0] ? ` — ${facet.details[0]}` : ""}`}>
+    <span aria-hidden="true">{facet.applicable === false ? "—" : facet.state === "complete" ? "✓" : facet.state === "missing" ? "!" : "—"}</span>
+    <span>{status}</span>
   </span>;
+  return facet.href ? <Link href={facet.href} aria-label={`${label}: ${status}. Open the relevant review area.`}>{indicator}</Link> : indicator;
 }
 
 function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: () => void; preview: boolean }) {
@@ -55,12 +56,13 @@ function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: (
     description={<span>{row.routeId} {row.routeVersion} · Last evaluated {date(row.lastEvaluatedAt)}</span>}
     footer={<button type="button" className="adle-admin-dialog-close" onClick={onClose}>Close</button>}>
     <div className="adle-admin-dialog-body">
-      <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Admission to ADLE is separate from mastery.</p>
+      <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Admission is separate from mastery and from having enough eligible words to schedule a complete lesson.</p>
       {incomplete.length ? incomplete.map((key) => <section key={key} className="adle-admin-detail-section">
-        <h4>{LABELS[key]} <span className="text-xs font-normal text-[#69717b]">{row.facets[key].state === "unknown" ? "Not yet checkable" : "Missing"}</span></h4>
+        <h4>{LABELS[key]} <span className="text-xs font-normal text-[#69717b]">Pending</span></h4>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#414a55]">
           {row.facets[key].details.map((detail) => <li key={detail}>{detail}</li>)}
         </ul>
+        {row.facets[key].href && <Link className="mt-2 inline-block text-sm font-semibold underline" href={row.facets[key].href}>Open the next review area</Link>}
       </section>) : <p className="text-sm text-[#414a55]">All five readiness checks are complete.</p>}
       <div className="mt-5 border-t border-[#e5e8eb] pt-4 text-sm text-[#59616b]">
         <p><strong>{row.occurrences}</strong> authentic occurrences · <strong>{row.usersWaiting}</strong> users waiting · Last seen {date(row.lastSeenAt)}</p>

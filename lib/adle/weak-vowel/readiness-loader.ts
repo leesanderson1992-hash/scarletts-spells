@@ -6,6 +6,7 @@ import type { DailyPlanFacts } from "../daily-assignment-composer";
 import type { IsoDate } from "../review-scheduler";
 import { activationAllowsChild } from "../route-activation-scope";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
+import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 import { prepareLessonFromPublishedWeakVowelWords } from "./governed-content";
 import { loadPublishedWeakVowelWords } from "./governed-content-loader";
@@ -74,7 +75,9 @@ export async function loadWeakVowelLessonReadiness(input: {
     return blocked("four_to_six_words_unavailable", selectedWordIds);
 
   const [authority, published] = await Promise.all([
-    loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey }),
+    loadPublishedWritingAssociations(input.client, input.environmentKey).then((explicitReviewedAssociations) =>
+      loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey,
+        explicitReviewedAssociations })),
     loadPublishedWeakVowelWords({ client: input.client, microSkillKey: skill, canonicalWordIds: selectedWordIds }),
   ]);
   const currentAssignedPairs = selectedWordIds.map((id) => ({ canonicalWordId: id, microSkillKey: skill,

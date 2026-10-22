@@ -23,7 +23,7 @@ assert(
 );
 assert(
   loader.includes('activationEnvironment === "staging"') &&
-    loader.includes('process.env.VERCEL_ENV === "preview"') &&
+    loader.includes('resolveAdleRouteActivationEnvironment()') &&
     loader.includes("allowStagingProfiles,"),
   "staging intake evaluates approved staging Prefix profiles without enabling them in production",
 );

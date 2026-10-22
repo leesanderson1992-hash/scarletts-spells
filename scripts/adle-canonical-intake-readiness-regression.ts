@@ -9,6 +9,7 @@ import {
   type IntakeReadinessBlockerCode,
 } from "../lib/adle/canonical-intake";
 import { resolveCanonicalIntakeRoute } from "../lib/adle/canonical-intake/route-readiness";
+import { getCurriculumRouteDefinition } from "../lib/adle/curriculum-readiness/route-registry";
 
 const SKILL = "D4_MOR_PREFIXES_UN";
 const WORD_ID = "word-unlocked";
@@ -323,5 +324,30 @@ assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_SPELLING_OTHER"), {
   routeId: "adle_word_level",
   routeVersion: "v1",
 });
+
+for (const [routeId, routeVersion] of [
+  ["weak_vowel_word_lab", "v1"], ["homophone_word_lab", "v2"],
+  ["ing_endings_word_lab", "v1"], ["comparative_superlative_word_lab", "v1"],
+] as const) {
+  const skill = getCurriculumRouteDefinition(routeId, routeVersion)?.supportedMicroSkillKeys[0];
+  assert.ok(skill);
+  assert.deepEqual(resolveCanonicalIntakeRoute(skill), { routeId, routeVersion });
+}
+
+const weak = facts();
+weak.candidate = { ...weak.candidate, microSkillKey: "D4_SCHWA_FINAL_A_FINAL", correctSpellingNormalized: "camera" };
+weak.canonicalMappings = [{ ...weak.canonicalMappings[0]!, microSkillKey: weak.candidate.microSkillKey, correctSpellingNormalized: "camera" }];
+weak.microSkills = [{ ...weak.microSkills[0]!, microSkillKey: weak.candidate.microSkillKey, skillClusterKey: null }];
+weak.words = [{ canonicalWordId: "camera-id", normalisedWord: "camera", rowStatus: "active",
+  reviewStatus: "approved_for_first_exposure", ageBand: "middle_primary", frequencyBand: "high" }];
+weak.productionEnabledSkillKeys = new Set([weak.candidate.microSkillKey]);
+weak.routeSpecificReadyWordSkillPairs = new Set([canonicalWordSkillPair("camera-id", weak.candidate.microSkillKey)]);
+weak.routeReadiness = [{ canonicalWordId: "camera-id", microSkillKey: weak.candidate.microSkillKey,
+  ready: true, blockers: [], contentReady: true, memberReady: true, activationReady: true,
+  routeActivationId: "activation-id", curriculumRelease: { releaseManifestId: "release-id",
+    releaseKey: "weak-vowels", releaseManifestSha256: "a".repeat(64), dependencyFingerprint: "b".repeat(64) } }];
+assert.equal(evaluateCanonicalIntakeReadiness(weak).status, "ready", "an exact published weak-vowel member enters intake");
+weak.routeReadiness = [{ ...weak.routeReadiness[0]!, ready: false, contentReady: false, blockers: ["payload_not_compilable"] }];
+assert.equal(evaluateCanonicalIntakeReadiness(weak).status, "blocked", "publication gaps cannot use generic teaching content");
 
 console.log("adle-canonical-intake-readiness-regression: ok");

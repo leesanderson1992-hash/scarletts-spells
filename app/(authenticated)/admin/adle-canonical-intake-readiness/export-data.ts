@@ -25,15 +25,31 @@ export async function allUnresolvedReadinessRows(): Promise<ReadinessRow[]> {
 }
 
 export const READINESS_CSV_COLUMNS = ["word", "micro_skill_key", "route_id", "occurrences", "users_waiting",
-  "resolver", "teaching_content", "dictionary", "metadata", "adle_lesson", "intake_status", "intake_activated", "intake_pending", "dictionary_word_id", "last_evaluated_at"] as const;
+  "resolver", "resolver_reason", "resolver_link", "teaching_content", "teaching_content_reason", "teaching_content_link",
+  "dictionary", "dictionary_reason", "dictionary_link", "metadata", "metadata_reason", "metadata_link",
+  "adle_lesson", "adle_lesson_reason", "adle_lesson_link", "next_action", "next_action_link",
+  "intake_status", "intake_activated", "intake_pending", "dictionary_word_id", "last_evaluated_at"] as const;
+
+function exportStatus(facet: ReadinessRow["facets"][keyof ReadinessRow["facets"]]) {
+  return facet.applicable === false ? "not_relevant" : facet.state === "complete" ? "confirmed" : "pending";
+}
 
 export function readinessCsvRows(rows: ReadinessRow[]): Array<Record<string, unknown>> {
-  return rows.map((row) => ({ word: row.word, micro_skill_key: row.microSkillKey, route_id: row.routeId,
-    occurrences: row.occurrences, users_waiting: row.usersWaiting, resolver: row.facets.resolver.state,
-    teaching_content: row.facets.teaching.state, dictionary: row.facets.dictionary.state,
-    metadata: row.facets.metadata.state, adle_lesson: row.facets.lesson.state,
+  return rows.map((row) => { const next = Object.values(row.facets).find((facet) => facet.state !== "complete");
+    return { word: row.word, micro_skill_key: row.microSkillKey, route_id: row.routeId,
+    occurrences: row.occurrences, users_waiting: row.usersWaiting, resolver: exportStatus(row.facets.resolver),
+    resolver_reason: row.facets.resolver.details.join("; "), resolver_link: row.facets.resolver.href ?? "",
+    teaching_content: exportStatus(row.facets.teaching), teaching_content_reason: row.facets.teaching.details.join("; "),
+    teaching_content_link: row.facets.teaching.href ?? "",
+    dictionary: exportStatus(row.facets.dictionary), dictionary_reason: row.facets.dictionary.details.join("; "),
+    dictionary_link: row.facets.dictionary.href ?? "",
+    metadata: exportStatus(row.facets.metadata), metadata_reason: row.facets.metadata.details.join("; "),
+    metadata_link: row.facets.metadata.href ?? "",
+    adle_lesson: exportStatus(row.facets.lesson), adle_lesson_reason: row.facets.lesson.details.join("; "),
+    adle_lesson_link: row.facets.lesson.href ?? "",
+    next_action: next?.details[0] ?? "", next_action_link: next?.href ?? "",
     intake_status: row.intake.state, intake_activated: row.intake.activated, intake_pending: row.intake.pending, dictionary_word_id: row.dictionaryWordId,
-    last_evaluated_at: row.lastEvaluatedAt }));
+    last_evaluated_at: row.lastEvaluatedAt }; });
 }
 
 export const DICTIONARY_CSV_COLUMNS = ["normalised_word", "affected_micro_skills", "word_key", "display_word",

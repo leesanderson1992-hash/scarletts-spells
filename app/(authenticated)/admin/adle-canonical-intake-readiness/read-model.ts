@@ -152,7 +152,7 @@ export async function loadReadinessRows(params: {
   const skillKeys = [...new Set(pageGroups.map((group) => group.skill))];
   const sourceIds = [...new Set(pageGroups.flatMap((group) => group.candidates.map((candidate) => candidate.source_candidate_mapping_id)))];
   const [wordResult, skillResult, sourceResult, contentResult, supportResult] = await Promise.all([
-    db.from("canonical_teaching_dictionary_words").select("id,normalised_word,row_status,review_status,age_band,frequency_band").in("normalised_word", targets),
+    db.from("canonical_teaching_dictionary_words").select("id,normalised_word,row_status,review_status,dialect_code,age_band,frequency_band").in("normalised_word", targets),
     db.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,skill_cluster_key,is_active,is_assignable").in("micro_skill_key", skillKeys),
     sourceIds.length ? db.from("parent_verified_spelling_candidate_mappings").select("id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key").in("id", sourceIds) : Promise.resolve({ data: [], error: null }),
     db.from("canonical_teaching_dictionary_content_versions").select("micro_skill_key,version_status,is_active,final_readiness_review_status,child_friendly_explanation,rule_explanation").in("micro_skill_key", skillKeys),
@@ -178,8 +178,11 @@ export async function loadReadinessRows(params: {
   const visibleIds = new Set((visibilityResult.data ?? []).map((row: any) => row.mapping_id));
   const childIds = [...new Set(pageGroups.flatMap((group) =>
     (group.waiting.length ? group.waiting : group.candidates.slice(0, 1)).map((candidate) => candidate.child_id)))];
+  const specialistTargets = pageGroups.flatMap((group) =>
+    (wordResult.data ?? []).filter((word: any) => word.normalised_word === group.word)
+      .map((word: any) => ({ canonicalWordId: word.id as string, microSkillKey: group.skill })));
   const routeFactsByChild = new Map(await Promise.all(childIds.map(async (childId) =>
-    [childId, await routeActivationFacts(db, childId)] as const)));
+    [childId, await routeActivationFacts(db, childId, specialistTargets)] as const)));
 
   const rows: ReadinessRow[] = pageGroups.map((group) => {
     const skill = (skillResult.data ?? []).find((row: any) => row.micro_skill_key === group.skill);
@@ -197,7 +200,13 @@ export async function loadReadinessRows(params: {
       return { childId, enabled: facts?.enabled.has(group.skill) ?? false,
         readyPair: exactPair ? (facts?.readyPairs.has(exactPair) ?? false) : false,
         exactReady: exact?.ready ?? null,
+        contentReady: exact?.contentReady ?? null,
+        memberReady: exact?.memberReady ?? null,
+        activationReady: exact?.activationReady ?? null,
+        routeActive: exact?.routeActive ?? null,
+        childEligible: exact?.childEligible ?? null,
         blockerCodes: exact?.blockers ? [...exact.blockers] : [],
+        contentEvidence: exact?.evidence?.map((item) => item.status ?? "") ?? [],
         hasSelector: (facts?.selectorProfiles ?? []).some((profile: any) => profile.micro_skill_key === group.skill &&
           profile.row_status === "active" && profile.review_status === "approved_for_first_exposure" &&
           (!wordRows[0]?.age_band || profile.allowed_age_bands?.includes(wordRows[0].age_band))),
@@ -216,7 +225,7 @@ export async function loadReadinessRows(params: {
         visibility: mapping.resolver_visibility_status, hasEnableEvent: visibleIds.has(mapping.id),
       })),
       words: wordRows.map((word: any) => ({ id: word.id, target: word.normalised_word,
-        rowStatus: word.row_status, reviewStatus: word.review_status,
+        rowStatus: word.row_status, reviewStatus: word.review_status, dialectCode: word.dialect_code,
         ageBand: word.age_band, frequencyBand: word.frequency_band })),
       routeFacts,
       teaching: teachingRow ? { active: teachingRow.version_status === "active" && teachingRow.is_active,
@@ -230,6 +239,16 @@ export async function loadReadinessRows(params: {
       allowedAgeBands: ADLE_PILOT_CHILD_BAND.allowedAgeBands,
       allowedFrequencyBands: ADLE_PILOT_CHILD_BAND.allowedFrequencyBands,
     });
+    const dictionaryHref = canonicalWordId
+      ? `/admin/teaching-dictionary/${canonicalWordId}`
+      : `/admin/teaching-dictionary?q=${encodeURIComponent(group.word)}`;
+    facets.resolver.href = `/admin/canonical-mappings/resolve?word=${encodeURIComponent(group.word)}&skill=${encodeURIComponent(group.skill)}`;
+    facets.dictionary.href = `${dictionaryHref}#td-overview`;
+    facets.metadata.href = `${dictionaryHref}#td-overview`;
+    facets.teaching.href = route.routeId === "weak_vowel_word_lab"
+      ? `${dictionaryHref}#td-route-${group.skill}`
+      : `/admin/adle-lesson-readiness?route=${encodeURIComponent(route.routeId)}&skill=${encodeURIComponent(group.skill)}`;
+    facets.lesson.href = `/admin/adle-lesson-readiness?route=${encodeURIComponent(route.routeId)}&skill=${encodeURIComponent(group.skill)}`;
     const intake = intakeOutcome(group.demands, group.candidates);
     if (intake.state === "waiting" && Object.values(facets).every((facet) => facet.state === "complete")) intake.label = "Ready · awaiting intake";
     return { key: group.key, word: group.word, dictionaryWordId: wordRows.filter((word: any) => word.row_status === "active").length === 1 ? wordRows.find((word: any) => word.row_status === "active")!.id : null,

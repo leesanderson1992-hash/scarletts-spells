@@ -51,6 +51,24 @@ assert.equal(projectReadiness(unknownRoute).lesson.state, "unknown");
 const staleStoredBlocker = ready();
 assert.deepEqual(projectReadiness(staleStoredBlocker), allReady, "historical demand blockers must not affect live facets");
 
+const specialist = ready();
+specialist.routeId = "weak_vowel_word_lab";
+specialist.routeFacts[0] = { ...specialist.routeFacts[0], contentReady: false, memberReady: true,
+  exactReady: false, contentEvidence: ["required_route_content_unpublished"] };
+assert.equal(projectReadiness(specialist).teaching.state, "missing",
+  "generic signed-off teaching cannot certify an unpublished specialist word");
+specialist.routeFacts[0] = { ...specialist.routeFacts[0], contentReady: true, memberReady: true,
+  exactReady: true };
+assert.equal(projectReadiness(specialist).teaching.state, "complete");
+specialist.routeFacts.push({ ...specialist.routeFacts[0], childId: "child-2", contentReady: false, exactReady: false });
+specialist.candidates.push({ ...specialist.candidates[0], childId: "child-2" });
+assert.equal(projectReadiness(specialist).teaching.state, "missing", "mixed child readiness cannot appear universally complete");
+specialist.routeFacts[1] = { ...specialist.routeFacts[1], contentReady: true, exactReady: false,
+  routeActive: true, childEligible: false };
+assert.match(projectReadiness(specialist).lesson.details.join(" "), /outside its activation scope/);
+specialist.routeFacts[1] = { ...specialist.routeFacts[1], routeActive: false, childEligible: false };
+assert.match(projectReadiness(specialist).lesson.details.join(" "), /release is missing, stale or disabled/);
+
 const candidates = [
   { child_id: "child-1", source_candidate_mapping_id: "source-1" },
   { child_id: "child-1", source_candidate_mapping_id: "source-1" },

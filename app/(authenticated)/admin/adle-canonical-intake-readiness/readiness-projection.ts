@@ -1,7 +1,7 @@
 export const FACET_KEYS = ["resolver", "teaching", "dictionary", "metadata", "lesson"] as const;
 export type FacetKey = (typeof FACET_KEYS)[number];
 export type FacetState = "complete" | "missing" | "unknown";
-export type Facet = { state: FacetState; details: string[] };
+export type Facet = { state: FacetState; details: string[]; href?: string; applicable?: boolean };
 export type Facets = Record<FacetKey, Facet>;
 
 export type CandidateFact = {
@@ -23,6 +23,7 @@ export type WordFact = {
   target: string;
   rowStatus: string;
   reviewStatus: string;
+  dialectCode?: string;
   ageBand: string | null;
   frequencyBand: string | null;
 };
@@ -31,6 +32,12 @@ export type RouteFact = {
   enabled: boolean;
   readyPair: boolean;
   exactReady: boolean | null;
+  contentReady?: boolean | null;
+  memberReady?: boolean | null;
+  activationReady?: boolean | null;
+  routeActive?: boolean | null;
+  childEligible?: boolean | null;
+  contentEvidence?: string[];
   blockerCodes: string[];
   hasSelector: boolean;
 };
@@ -96,18 +103,21 @@ export function projectReadiness(input: ProjectionInput): Facets {
       ? missing(active.length !== 1
           ? `Expected one active dictionary word; found ${active.length}.`
           : `Dictionary review is “${active[0].reviewStatus}”; approval for first exposure is required.`)
-      : complete();
+      : word.dialectCode && word.dialectCode !== "en-GB"
+        ? missing(`Dictionary pronunciation is “${word.dialectCode}”; this route requires reviewed British English.`)
+        : complete();
 
   const routeByChild = new Map(input.routeFacts.map((fact) => [fact.childId, fact]));
   const relevantRoutes = [...new Set(candidates.map((candidate) => candidate.childId))]
     .map((childId) => routeByChild.get(childId)).filter((fact): fact is RouteFact => Boolean(fact));
   const routeCertified = relevantRoutes.length > 0 && relevantRoutes.every((fact) => fact.exactReady === true && fact.readyPair);
-  const routeCanOverrideBand = routeCertified && input.routeId !== "adle_word_level";
+  const routeCanOverrideBand = routeCertified && ["base_word_lab", "compound_word_lab",
+    "dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(input.routeId);
   const routeCanSupplyWord = routeCertified && (input.routeId === "base_word_lab" || input.routeId === "compound_word_lab");
-  const dictionaryResult = routeCanSupplyWord && !rows.length ? complete() : dictionary;
+  const dictionaryResult = routeCanSupplyWord && !rows.length ? { ...complete(), applicable: false } : dictionary;
 
   let metadata: Facet;
-  if (!word) metadata = routeCanSupplyWord ? complete() : unknown("Metadata cannot be checked until an approved dictionary word is linked.");
+  if (!word) metadata = routeCanSupplyWord ? { ...complete(), applicable: false } : unknown("Metadata cannot be checked until an approved dictionary word is linked.");
   else {
     const problems: string[] = [];
     if (!word.ageBand && !routeCanSupplyWord) problems.push("Missing age_band on the canonical word.");
@@ -127,6 +137,14 @@ export function projectReadiness(input: ProjectionInput): Facets {
     if (!input.teaching?.childExplanation?.trim()) problems.push("Missing child_friendly_explanation.");
     if (!input.teaching?.ruleExplanation?.trim()) problems.push("Missing rule_explanation.");
     teaching = problems.length ? missing(...problems) : complete();
+  } else if (["weak_vowel_word_lab", "homophone_word_lab", "ing_endings_word_lab",
+    "comparative_superlative_word_lab"].includes(input.routeId)) {
+    const absent = relevantRoutes.filter((fact) => fact.contentReady !== true);
+    teaching = !relevantRoutes.length
+      ? unknown("No child-scoped route content check is available yet.")
+      : absent.length ? missing(...[...new Set(absent.flatMap((fact) => fact.contentEvidence?.length
+        ? fact.contentEvidence.map((reason) => `The exact route content needs review: ${reason.replaceAll("_", " ")}.`)
+        : ["The exact reviewed route content is missing or stale."]))]) : complete();
   } else if (routeCertified) teaching = complete();
   else {
     const contentCodes = relevantRoutes.flatMap((fact) => fact.blockerCodes).filter((code) =>
@@ -140,7 +158,15 @@ export function projectReadiness(input: ProjectionInput): Facets {
   if (!input.skill?.active || !input.skill?.assignable || input.skill?.domain !== "D4")
     lessonProblems.push("The D4 micro skill must be active and assignable.");
   if (relevantRoutes.length) {
-    if (relevantRoutes.some((fact) => !fact.enabled)) lessonProblems.push("The ADLE route or approved selector profile is not enabled for every waiting child.");
+    const specialist = ["weak_vowel_word_lab", "homophone_word_lab", "ing_endings_word_lab",
+      "comparative_superlative_word_lab"].includes(input.routeId);
+    if (specialist && relevantRoutes.some((fact) => fact.routeActive === false))
+      lessonProblems.push("The current governed route release is missing, stale or disabled.");
+    if (specialist && relevantRoutes.some((fact) => fact.routeActive === true && fact.childEligible === false))
+      lessonProblems.push("The route is active, but at least one waiting child is outside its activation scope.");
+    if (!specialist && relevantRoutes.some((fact) => !fact.enabled))
+      lessonProblems.push("The ADLE route or approved selector profile is not enabled for every waiting child.");
+    if (relevantRoutes.some((fact) => fact.memberReady === false)) lessonProblems.push("This word is not an eligible member of the current lesson release or has been deassigned.");
     if (input.routeId === "adle_word_level") {
       if (relevantRoutes.some((fact) => !fact.hasSelector) && !input.hasApprovedSupport)
         lessonProblems.push("An approved transfer selector or exact word support is missing.");

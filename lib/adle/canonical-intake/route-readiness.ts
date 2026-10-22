@@ -52,34 +52,8 @@ export function resolveCanonicalIntakeRoute(
   routeId: string;
   routeVersion: string;
 } {
-  if (isBaseWordIntakeSkill(microSkillKey, skillClusterKey)) {
-    const route = getCurriculumRouteOwnerForTaxonomy({
-      microSkillKey,
-      skillClusterKey,
-    });
-    if (!route) throw new Error(`Base Word route disappeared for ${microSkillKey}`);
-    return { routeId: route.routeId, routeVersion: route.routeVersion };
-  }
-  if (isCompoundWordIntakeSkill(microSkillKey, skillClusterKey)) {
-    const route = getCurriculumRouteOwnerForTaxonomy({
-      microSkillKey,
-      skillClusterKey,
-    });
-    if (!route) throw new Error(`Compound Word route disappeared for ${microSkillKey}`);
-    return { routeId: route.routeId, routeVersion: route.routeVersion };
-  }
-  if (isDynamicPrefixIntakeSkill(microSkillKey)) {
-    return {
-        routeId: DYNAMIC_PREFIX_INTAKE_ROUTE_ID,
-        routeVersion: DYNAMIC_PREFIX_INTAKE_ROUTE_VERSION,
-      };
-  }
-  if (isDynamicAffixIntakeSkill(microSkillKey)) {
-    return {
-      routeId: DYNAMIC_AFFIX_INTAKE_ROUTE_ID,
-      routeVersion: DYNAMIC_AFFIX_INTAKE_ROUTE_VERSION,
-    };
-  }
+  const route = getCurriculumRouteOwnerForTaxonomy({ microSkillKey, skillClusterKey });
+  if (route) return { routeId: route.routeId, routeVersion: route.routeVersion };
   return {
     routeId: GENERIC_ADLE_INTAKE_ROUTE_ID,
     routeVersion: GENERIC_ADLE_INTAKE_ROUTE_VERSION,

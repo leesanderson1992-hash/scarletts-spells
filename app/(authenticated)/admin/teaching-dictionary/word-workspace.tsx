@@ -1012,7 +1012,7 @@ export function WordWorkspace(props: {
           microSkillKey: key,
         });
         const published = props.weakPublicationState.find(row => row.microSkillKey === key);
-        return <section key={key} className={`${section} p-4`} aria-label={`${name(key)} weak-vowel route`}>
+        return <section id={`td-route-${key}`} key={key} className={`${section} p-4 scroll-mt-6`} aria-label={`${name(key)} weak-vowel route`}>
           <h2 className="text-lg font-semibold">{name(key)} · weak-vowel lesson</h2>
           <p className="mt-1 text-sm">This word can join a new lesson when its micro-skill assignment is current and its lesson content has been reviewed and published.</p>
           <div className="mt-3 grid gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-3 text-sm sm:grid-cols-2">

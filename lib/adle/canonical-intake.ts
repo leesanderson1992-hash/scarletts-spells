@@ -194,6 +194,12 @@ export interface CanonicalIntakeRouteReadinessFact {
   ready: boolean;
   blockers: readonly IntakeReadinessBlockerCode[];
   evidence?: readonly CurriculumEvidence[];
+  /** Separate route-content and membership facts for the admin read model. */
+  contentReady?: boolean;
+  memberReady?: boolean;
+  activationReady?: boolean;
+  routeActive?: boolean;
+  childEligible?: boolean;
   routeActivationId?: string;
   curriculumRelease?: IntakeCurriculumReleaseAuthorityV2;
 }
@@ -420,6 +426,8 @@ export function evaluateCanonicalIntakeReadiness(
   const route = canonicalIntakeRouteForFacts(facts);
   const baseWordCandidate = isBaseWordCandidate(facts);
   const compoundWordCandidate = isCompoundWordCandidate(facts);
+  const releaseSpecialistCandidate = ["weak_vowel_word_lab", "homophone_word_lab",
+    "ing_endings_word_lab", "comparative_superlative_word_lab"].includes(route.routeId);
 
   if (!APPROVED_CANDIDATE_STATUSES.has(candidate.candidateStatus)) {
     return blockedOutcome({
@@ -679,6 +687,21 @@ export function evaluateCanonicalIntakeReadiness(
       return blockedOutcome({
         facts,
         codes: ["profile_membership_missing"],
+        targetIdentityStatus: "established",
+        targetToken,
+        canonicalWordId: word.canonicalWordId,
+        canonicalMappingId: mapping.mappingId,
+        evidence: [...(explicitRouteReadiness?.evidence ?? [])],
+      });
+    }
+  } else if (releaseSpecialistCandidate) {
+    if (explicitRouteReadiness?.ready !== true ||
+      !explicitRouteReadiness.routeActivationId ||
+      !explicitRouteReadiness.curriculumRelease ||
+      !facts.routeSpecificReadyWordSkillPairs.has(pair)) {
+      return blockedOutcome({
+        facts,
+        codes: [explicitRouteReadiness?.contentReady === false ? "payload_not_compilable" : "profile_membership_missing"],
         targetIdentityStatus: "established",
         targetToken,
         canonicalWordId: word.canonicalWordId,
