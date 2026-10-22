@@ -4,6 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { validateCompiledReviewSnapshotV3 } from "./snapshot-validator";
 import { CONUNDRUM_VIDEO_BLOCKER } from "./conundrum-video";
+import {
+  canResumeOlderAdleSession,
+  type LaterReviewProgress,
+  type OpenAdleSession,
+} from "./r6-session-carryover";
 import type {
   AdleTodaySessionReadModel,
   AdleSpecialistCheckpointR6View,
@@ -29,12 +34,12 @@ export async function loadAdleTodaySessionR6(input: {
 }): Promise<AdleTodaySessionReadModel | null> {
   const orchestrationResult = await input.client
     .from("adle_today_session_orchestrations")
-    .select("daily_assignment_id,assignment_date,major_stage,state_version,blocker_code")
+    .select("daily_assignment_id,assignment_date,major_stage,review_generation_status,state_version,blocker_code")
     .eq("child_id", input.childId)
     .eq("parent_user_id", input.parentUserId)
     .neq("major_stage", "session_complete")
     .order("assignment_date", { ascending: true })
-    .limit(2);
+    .limit(3);
   if (orchestrationResult.error) {
     if (orchestrationResult.error.message.includes("adle_today_session_orchestrations")) return null;
     failure("loadAdleTodaySessionR6:orchestration", orchestrationResult.error);
@@ -43,7 +48,7 @@ export async function loadAdleTodaySessionR6(input: {
   if (rows.length === 0) {
     const completed = await input.client
       .from("adle_today_session_orchestrations")
-      .select("daily_assignment_id,assignment_date,major_stage,state_version,blocker_code")
+      .select("daily_assignment_id,assignment_date,major_stage,review_generation_status,state_version,blocker_code")
       .eq("child_id", input.childId)
       .eq("parent_user_id", input.parentUserId)
       .eq("assignment_date", input.assignmentDate)
@@ -54,16 +59,31 @@ export async function loadAdleTodaySessionR6(input: {
   }
   if (rows.length === 0) return null;
   if (rows.length > 1) {
-    return {
-      childId: input.childId,
-      assignmentDate: input.assignmentDate,
-      assignmentId: null,
-      majorStage: "blocked",
-      stateVersion: 0,
-      blockerCode: "multiple_unfinished_adle_today_sessions",
-      review: null,
-      specialist: null,
-    };
+    let laterReview: LaterReviewProgress | null = null;
+    if (rows.length === 2) {
+      const progress = await input.client.from("adle_review_sessions")
+        .select("stage,completed_at,selected_challenge_type,writing_started_at,submitted_writing_text")
+        .eq("daily_assignment_id", rows[1].daily_assignment_id)
+        .eq("child_id", input.childId)
+        .eq("parent_user_id", input.parentUserId)
+        .maybeSingle();
+      if (progress.error) failure("loadAdleTodaySessionR6:laterReview", progress.error);
+      laterReview = progress.data as LaterReviewProgress | null;
+    }
+    if (canResumeOlderAdleSession(rows as OpenAdleSession[], laterReview)) {
+      rows = [rows[0]];
+    } else {
+      return {
+        childId: input.childId,
+        assignmentDate: input.assignmentDate,
+        assignmentId: null,
+        majorStage: "blocked",
+        stateVersion: 0,
+        blockerCode: "multiple_unfinished_adle_today_sessions",
+        review: null,
+        specialist: null,
+      };
+    }
   }
   const orchestration = rows[0] as {
     daily_assignment_id: string;
