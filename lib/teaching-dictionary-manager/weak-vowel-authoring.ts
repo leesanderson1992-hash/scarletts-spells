@@ -14,7 +14,7 @@ export interface WeakVowelRouteFactsV1 {
   spokenSyllableCount: number;
   acceptedCutSets: number[][];
   target: { text: string; start: number; end: number; syllableIndex: number;
-    soundType: "schwa" | "other_unstressed" };
+    soundType: "schwa" | "other_unstressed" | "" };
   selectionTarget: { text: string; start: number; end: number };
   detectiveVowelIndex: number;
   familyDecision: "approve" | "skip";

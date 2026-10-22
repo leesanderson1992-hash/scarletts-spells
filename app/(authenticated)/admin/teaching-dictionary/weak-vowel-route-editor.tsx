@@ -46,7 +46,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
   const updateTarget = (start: number, end: number) => change({ target: {
     text: word.slice(start, end), start, end,
     syllableIndex: target?.syllableIndex ?? 0,
-    soundType: target?.soundType ?? "schwa",
+    soundType: target?.soundType ?? "",
   } });
   const updateSelected = (start: number) => change({
     selectionTarget: { text: word.slice(start, start + 1), start, end: start + 1 },
@@ -74,7 +74,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
           dinner: { status: "blocked", reason: "Awaiting review" }, detective: { status: "blocked", reason: "Awaiting review" },
           memoryLock: { status: "blocked", reason: "Awaiting review" }, dictation: { status: "blocked", reason: "Awaiting review" },
           family: { status: "not_applicable", reason: null },
-        }, familyDecision: "skip", familyAuthorityId: null })}>
+        }, familyAuthorityId: null })}>
       Start weak-vowel review record
     </button>}
     <fieldset className="grid gap-3 sm:grid-cols-2">
@@ -100,7 +100,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
       {label("Full target start", id("targetStart"), target ? String(target.start) : "", v => updateTarget(integer(v), target?.end ?? 0))}
       {label("Full target end (exclusive)", id("targetEnd"), target ? String(target.end) : "", v => updateTarget(target?.start ?? 0, integer(v)))}
       <p className="text-sm">Full reviewed target: <strong>{target?.text || "missing"}</strong></p>
-      {label("Target spoken syllable (1-based)", id("targetSyllable"), target?.syllableIndex ? String(target.syllableIndex) : "", v => change({ target: { text: target?.text ?? "", start: target?.start ?? 0, end: target?.end ?? 0, syllableIndex: integer(v), soundType: target?.soundType ?? "schwa" } }))}
+      {label("Target spoken syllable (1-based)", id("targetSyllable"), target?.syllableIndex ? String(target.syllableIndex) : "", v => change({ target: { text: target?.text ?? "", start: target?.start ?? 0, end: target?.end ?? 0, syllableIndex: integer(v), soundType: target?.soundType ?? "" } }))}
       <label className="text-sm" htmlFor={id("soundType")}>Sound heard
         <select id={id("soundType")} className={`${field} mt-1`} value={target?.soundType ?? ""} onChange={e => change({ target: { text: target?.text ?? "", start: target?.start ?? 0, end: target?.end ?? 0, syllableIndex: target?.syllableIndex ?? 0, soundType: e.target.value as "schwa" | "other_unstressed" } })}>
           <option value="">Review sound</option><option value="schwa">Schwa /ə/</option><option value="other_unstressed">Other unstressed vowel</option>

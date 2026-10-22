@@ -39,4 +39,9 @@ const falseBinding = { ...facts as Record<string, unknown>, sentenceTarget: { st
 assert.ok(weakVowelRouteBlockers(falseBinding, { displayWord: "he", definition: "pronoun",
   dictationSentence: "the teacher waited", microSkillKey: sample.microSkillKey })
   .some(blocker => blocker.includes("exact span")), "a substring inside another word is not a valid sentence target");
+const unreviewedSound = { ...facts, target: { ...facts.target, soundType: "" } };
+assert.ok(weakVowelRouteBlockers(unreviewedSound, { displayWord: sample.spelling,
+  definition: sample.sharedDefinition.definition, dictationSentence: sentence,
+  microSkillKey: sample.microSkillKey }).some(blocker => blocker.includes("sound type")),
+"choosing a target span must not implicitly approve schwa");
 console.log("PASS: published facts survive hydration and structured weak-vowel fields are populated");
