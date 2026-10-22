@@ -50,6 +50,8 @@ import {
 } from "./paired-dictation-editor";
 import { PartSequenceEditor } from "./word-editor";
 import { ActionSubmitButton } from "./action-submit-button";
+import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
+import { weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 const button =
   "rounded-lg bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50";
@@ -185,6 +187,9 @@ export function WordWorkspace(props: {
   draftId: string | null;
   normalisedWord: string;
   initial: WordDraftPayload;
+  weakPublicationState: { microSkillKey: string; contentVersionId: string; sourceCurrent: boolean }[];
+  initialAssignedSkillKeys: string[] | null;
+  dictionaryFingerprint: string | null;
   sourceReference: string;
   skills: Skill[];
   affixMeanings: Record<string, string[]>;
@@ -223,6 +228,7 @@ export function WordWorkspace(props: {
   const [draftId, setDraftId] = useState(props.draftId);
   const [overviewReviewed, setOverviewReviewed] = useState(props.overviewReviewed);
   const [preflights, setPreflights] = useState<LessonReadinessRow[]>([]);
+  const [assignedSkillKeys, setAssignedSkillKeys] = useState<string[] | null>(props.initialAssignedSkillKeys);
   const [checksState, setChecksState] = useState<"loading" | "ready" | "error">(props.wordId ? "loading" : "ready");
   const [checkVersion, setCheckVersion] = useState(0);
   const initialChecksApplied = useRef(false);
@@ -254,6 +260,7 @@ export function WordWorkspace(props: {
         setSaveMessage("Saved. Updating lesson checks…");
         setChecksState(props.wordId ? "loading" : "ready");
         setCheckVersion(version => version + 1);
+        if (String(form.get("review_section") ?? "").startsWith("lesson:")) router.refresh();
       }
       return null;
     }, null,
@@ -266,11 +273,12 @@ export function WordWorkspace(props: {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
       if (!response.ok) throw new Error("TEACHING_READINESS_LOAD_FAILED");
-      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[] }>;
+      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[]; assignedSkillKeys: string[] }>;
     }).then(result => {
       if (controller.signal.aborted) return;
       setChecksLoadedMs(Math.round(performance.now()));
       setPreflights(result.preflights);
+      setAssignedSkillKeys(result.assignedSkillKeys);
       if (!initialChecksApplied.current) {
         // Late native facts fill gaps only; edits and an explicitly selected draft win.
         setPayload(current => hydrateWorkspaceFacts({ current, initial: props.initial, draftId: props.draftId,
@@ -370,7 +378,11 @@ export function WordWorkspace(props: {
   }, [checksState]);
   const selectedRoutes = payload.skillKeys.flatMap((key) => {
     const route = routeForSkill(key);
-    return route?.newAssignmentCapable ? [{ key, route }] : [];
+    return route?.newAssignmentCapable && route.routeId !== "weak_vowel_word_lab" ? [{ key, route }] : [];
+  });
+  const weakRows = payload.skillKeys.flatMap(key => {
+    const route = routeForSkill(key);
+    return route?.routeId === "weak_vowel_word_lab" ? [{ key, content: routeContent(key)! }] : [];
   });
   const name = (key: string) =>
     props.skills.find((skill) => skill.micro_skill_key === key)?.display_name ??
@@ -991,8 +1003,43 @@ export function WordWorkspace(props: {
           </div>
         </div>
       </details>
+      {weakRows.map(({ key, content }) => {
+        const facts = content.content.weakVowel as Partial<WeakVowelRouteFactsV1> | undefined;
+        const blockers = weakVowelRouteBlockers(facts ?? { schemaVersion: "weak_vowel_route_facts_v1" }, {
+          displayWord: payload.displayWord,
+          dictationSentence: payload.dictationSentence,
+          definition: content.wordMeaning || payload.definition,
+          microSkillKey: key,
+        });
+        const published = props.weakPublicationState.find(row => row.microSkillKey === key);
+        return <section key={key} className={`${section} p-4`} aria-label={`${name(key)} weak-vowel route`}>
+          <h2 className="text-lg font-semibold">{name(key)} · weak-vowel lesson</h2>
+          <p className="mt-1 text-sm">This word can join a new lesson when its micro-skill assignment is current and its lesson content has been reviewed and published.</p>
+          <div className="mt-3 grid gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-3 text-sm sm:grid-cols-2">
+            <p className="sm:col-span-2"><strong>Route validation:</strong> {assignedSkillKeys === null ? "Checking assignment authority…" : assignedSkillKeys.includes(key) && published?.sourceCurrent ? "Ready to be selected when a child needs this word" : "Not yet eligible for a new lesson"}</p>
+            <p><strong>Word–skill assignment:</strong> {assignedSkillKeys === null ? "Checking authority…" : assignedSkillKeys.includes(key) ? "Assigned" : "Not assigned (cannot enter new lessons)"}</p>
+            <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
+            <p><strong>Editor content:</strong> {blockers.length ? `${blockers.length} requirement(s) outstanding` : "Fields valid; editorial review and publication still required for changes"}</p>
+            {published && <p className="break-all text-xs sm:col-span-2">Published version: {published.contentVersionId}</p>}
+          </div>
+          <details className="mt-3" open={!published || !published.sourceCurrent}>
+            <summary className="cursor-pointer font-semibold">Required fields and activity decisions</summary>
+            <div className="mt-3">
+              <p className="mb-3 text-sm">The shared <a className="underline" href="#td-definition">definition</a> and <a className="underline" href="#td-dictation">complete dictation sentence</a> are edited above. All fields below belong to this word in this micro-skill.</p>
+              <WeakVowelRouteEditor skillKey={key} word={payload.displayWord} sentence={payload.dictationSentence} facts={facts}
+                dictionaryFingerprint={props.dictionaryFingerprint} dictionarySyllables={payload.metadata.syllables}
+                blockers={blockers} onChange={next => updateRoute(key, { weakVowel: next })} />
+            </div>
+          </details>
+          <div className={actions}>
+            <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>
+            <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>
+          </div>
+        </section>;
+      })}
       <section id="td-lesson-checks" className={`${section} p-4`}>
         <h2 className="font-semibold">3 · Lesson checks</h2>
+        {weakRows.length > 0 && <p className="mt-1 text-sm">Weak-vowel publication status and its required fields are shown above. This table covers the other lesson routes.</p>}
         {checksState !== "ready" && <p role="status" className="mt-2 text-sm text-[color:var(--mid)]">
           {checksState === "loading" ? "Checking complete lesson groups… You can edit Overview while checks run." : "Lesson checks could not load. Approval and Launch are unavailable."}
           {checksState === "error" && <button type="button" className="ml-2 text-[color:var(--scarlett)] underline" onClick={() => { setChecksState("loading"); setCheckVersion(version => version + 1); }}>Retry checks</button>}

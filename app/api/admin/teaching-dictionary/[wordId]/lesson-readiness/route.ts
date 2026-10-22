@@ -19,6 +19,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   ]);
   return NextResponse.json({
     routeContents: wordRoutesFromPreflights(preflights, wordId, ""),
+    assignedSkillKeys: (authority?.relationships ?? []).filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey),
     skillKeys: [...new Set([
       ...(authority?.relationships ?? []).filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey),
       ...preflights.map(row => row.microSkillKey),

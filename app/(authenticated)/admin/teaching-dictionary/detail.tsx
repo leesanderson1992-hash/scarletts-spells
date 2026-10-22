@@ -15,6 +15,8 @@ import {
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
+import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
 
@@ -225,12 +227,31 @@ export async function TeachingDictionaryDetail({
   const [weakReviews, weakPublications] = weakVersionIds.length ? await Promise.all([
     db.from("teaching_dictionary_route_content_reviews").select("content_version_id")
       .in("content_version_id", weakVersionIds),
-    db.from("adle_weak_vowel_content_publications").select("content_version_id")
+    db.from("adle_weak_vowel_content_publications").select("content_version_id,micro_skill_key,dictionary_fingerprint,published_at")
       .in("content_version_id", weakVersionIds),
   ]) : [{ data: [], error: null }, { data: [], error: null }];
   if (weakReviews.error || weakPublications.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
   const reviewedWeakIds = new Set((weakReviews.data ?? []).map((row) => row.content_version_id));
   const publishedWeakIds = new Set((weakPublications.data ?? []).map((row) => row.content_version_id));
+  const dictionaryFingerprint = wordId
+    ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId })
+    : null;
+  if (dictionaryFingerprint?.error) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
+  const weakPublicationState = [...(weakPublications.data ?? [])]
+    .sort((a, b) => b.published_at.localeCompare(a.published_at))
+    .filter((row, index, rows) => rows.findIndex(candidate => candidate.micro_skill_key === row.micro_skill_key) === index)
+    .map((row) => ({
+    microSkillKey: row.micro_skill_key,
+    contentVersionId: row.content_version_id,
+    sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data,
+  }));
+  const environment = resolveAdleRouteActivationEnvironment();
+  const assignmentAuthority = wordId && environment && weakVersions.length
+    ? await loadCachedTeachingDictionaryEvidenceAuthority(environment).catch(() => null)
+    : null;
+  const initialAssignedSkillKeys = (assignmentAuthority?.relationships ?? [])
+    .filter(row => row.canonicalWordId === wordId)
+    .map(row => row.microSkillKey);
   const routeContents: RouteContentDraft[] = [];
   for (const row of (routeVersions?.data ?? []).filter(
     (row) => !rolledBackIds.has(row.id),
@@ -379,6 +400,9 @@ export async function TeachingDictionaryDetail({
         draftId={draft?.id ?? null}
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
+        weakPublicationState={weakPublicationState}
+        initialAssignedSkillKeys={assignmentAuthority ? initialAssignedSkillKeys : null}
+        dictionaryFingerprint={typeof dictionaryFingerprint?.data === "string" ? dictionaryFingerprint.data : null}
         sourceReference={
           draft?.source_reference ??
           word?.source_use_note ??

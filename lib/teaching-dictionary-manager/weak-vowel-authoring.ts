@@ -140,7 +140,9 @@ export function weakVowelRouteBlockers(
   if (!sentenceTarget || !integer(sentenceTarget.start) || !integer(sentenceTarget.end) ||
     sentenceTarget.start < 0 || sentenceTarget.end <= sentenceTarget.start ||
     input.dictationSentence.slice(sentenceTarget.start, sentenceTarget.end).toLocaleLowerCase("en-GB") !==
-      word.toLocaleLowerCase("en-GB")) {
+      word.toLocaleLowerCase("en-GB") ||
+    (sentenceTarget.start > 0 && /[\p{L}\p{N}]/u.test(input.dictationSentence[sentenceTarget.start - 1])) ||
+    (sentenceTarget.end < input.dictationSentence.length && /[\p{L}\p{N}]/u.test(input.dictationSentence[sentenceTarget.end]))) {
     blockers.push("Bind the target word to its exact span in the complete dictation sentence.");
   }
   if (!input.definition.trim()) blockers.push("Add the shared child-friendly definition.");
