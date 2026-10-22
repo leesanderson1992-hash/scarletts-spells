@@ -10,21 +10,22 @@ const finding = { id: "finding", occurrence_id: "occurrence", field_hash: fieldH
   start_utf16: 10, end_utf16: 15, observed_text: "threw", correction: "through" };
 type Event = { finding_id: string; action: string; correction: string | null };
 async function load(events: Event[], options: { proof?: boolean; corrupt?: boolean; issueStatus?: string;
-  jobError?: string; uncapturedLong?: boolean } = {}) {
+  jobError?: string; uncapturedLong?: boolean; replayUncaptured?: boolean } = {}) {
   const reads: string[] = [];
   const tables: Record<string, unknown> = {
     writing_source_snapshots: { id: "snapshot", submission_id: "submission", child_id: "writer",
       parent_user_id: "owner", source_revision: "1", occurred_at: "2026-09-30T00:00:00Z",
       source_purpose: options.proof ? "DISPOSABLE_PROVIDER_PROOF" : "REAL_LEARNER",
       envelope: { rawSubmissionText: text,
-        contextAiShadowCapture: !options.uncapturedLong, contextAiModeAtCapture: "shadow",
+        contextAiShadowCapture: !options.uncapturedLong && !options.replayUncaptured,
+        contextAiModeAtCapture: "shadow",
         ...(options.uncapturedLong ? {
-          draftPayload: Object.fromEntries(Array.from({ length: 16 }, (_, i) => [`answer-${i}`, "word"])),
-          taskContext: { lessonSchema: { blocks: Array.from({ length: 16 }, (_, i) =>
+          draftPayload: Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`answer-${i}`, "word"])),
+          taskContext: { lessonSchema: { blocks: Array.from({ length: 21 }, (_, i) =>
             ({ block_id: `answer-${i}`, block_type: "question_text" })) } },
         } : {}) } },
-    writing_context_shadow_jobs: { status: options.jobError ? "failed" : "complete",
-      error_code: options.jobError ?? null },
+    writing_context_shadow_jobs: options.uncapturedLong ? null :
+      { status: options.jobError ? "failed" : "complete", error_code: options.jobError ?? null },
     writing_context_advisory_control: { enabled: false, ai_mode: "disabled" },
     writing_context_passage_findings: [finding],
     writing_occurrences: [{ id: "occurrence", field_path: "/rawSubmissionText", field_hash: fieldHash,
@@ -54,13 +55,17 @@ async function main() {
     /readOnly=\{reviewWorkflowPhase === "read_only" \|\| reviewWorkflowPhase === "adle_observational"\}/,
     "Reviewer flow keeps fresh passage suggestions actionable before approval");
   assert.match(reviewPage, /passageReview\.errorCode === "AI_PASSAGE_TOO_LONG"/);
-  assert.match(reviewPage, /exceeds Luna's 15-window scan limit/);
+  assert.match(reviewPage, /exceeds Luna's 20-window scan limit/);
   assert.match(reviewPage, /exceeded the earlier scan limit/);
   assert.match(reviewPage, /so it was not sent to Luna/);
   const uncapturedLong = await load([], { uncapturedLong: true });
   assert.equal(uncapturedLong.status, "unavailable");
   assert.equal(uncapturedLong.exceedsScanLimit, true,
-    "An uncaptured 16-window submission still gets the length-specific Review message");
+    "An uncaptured 21-window submission gets the length-specific Review message");
+  const uncapturedReplay = await load([], { replayUncaptured: true });
+  assert.equal(uncapturedReplay.status, "complete");
+  assert.equal(uncapturedReplay.rows.length, 1,
+    "An authorised replay created after capture remains visible in Review");
   const tooLong = await load([], { jobError: "AI_PASSAGE_TOO_LONG" });
   assert.equal(tooLong.status, "failed");
   assert.equal(tooLong.errorCode, "AI_PASSAGE_TOO_LONG");

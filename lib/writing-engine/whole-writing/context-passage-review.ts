@@ -31,8 +31,6 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
     .map((field) => ({ path: field.key, text: field.rawText }));
   const exceedsScanLimit = planPassageWindows({ fields: authoredFields.map((field) => ({
     path: field.key, hash: field.textHash, text: field.rawText })) }) === null;
-  if (snapshot.envelope.contextAiShadowCapture !== true)
-    return { status: "unavailable", rows: [], sourceFields, readError: false, canRetry: false, errorCode: null, exceedsScanLimit };
   const [job, findings, control] = await Promise.all([
     input.client.from("writing_context_shadow_jobs").select("status,error_code,claimed_at")
       .eq("snapshot_id", snapshot.id).order("created_at", { ascending: false })
@@ -43,6 +41,8 @@ export async function loadPassageContextReview(input: { client: SupabaseClient; 
     input.client.from("writing_context_advisory_control").select("enabled,ai_mode")
       .eq("singleton", true).maybeSingle(),
   ]);
+  if (snapshot.envelope.contextAiShadowCapture !== true && !job.data)
+    return { status: "unavailable", rows: [], sourceFields, readError: false, canRetry: false, errorCode: null, exceedsScanLimit };
   if (job.error || findings.error || control.error || !control.data)
     return { status: "failed", rows: [], sourceFields, readError: true, canRetry: false, errorCode: null, exceedsScanLimit };
   const processingEnabled = control.data.enabled === false && control.data.ai_mode === "shadow";

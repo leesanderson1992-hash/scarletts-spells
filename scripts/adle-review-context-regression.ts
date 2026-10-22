@@ -131,7 +131,7 @@ async function main() {
     assert.equal(capped.tables.adle_review_context_attempts.length, 0);
     assert.equal(capped.tables.adle_review_context_dispatches.length, 0);
     assert.equal(capped.stopped(), false);
-    const longText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(700);
+    const longText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(930);
     const long = fixture(longText);
     const seen = new Set<string>();
     const actualNow = Date.now;
@@ -151,18 +151,18 @@ async function main() {
           output: [{ type: "message", content: [{ type: "output_text",
             text: JSON.stringify({ case_id: sent.case_id, findings: [] }) }] }] }));
       };
-      for (let run = 0; run < 5; run++) {
+      for (let run = 0; run < 7; run++) {
         const outcome = await recoverAdleReviewContextJobs(long.source.review_session_id, long.client);
-        assert.equal(outcome.status, run === 4 ? "complete" : "deferred",
+        assert.equal(outcome.status, run === 6 ? "complete" : "deferred",
           JSON.stringify({ run, calls: long.calls(), attempts: long.tables.adle_review_context_attempts.length,
             rpcCalls: long.rpcCalls.slice(-8) }));
-        assert.equal(long.tables.adle_review_context_attempts.length, (run + 1) * 3);
+        assert.equal(long.tables.adle_review_context_attempts.length, Math.min((run + 1) * 3, 20));
       }
-      assert.equal(seen.size, 15);
-      assert.equal(long.calls(), 15);
+      assert.equal(seen.size, 20);
+      assert.equal(long.calls(), 20);
       assert.equal((await recoverAdleReviewContextJobs(long.source.review_session_id, long.client)).status, "idle");
     } finally { Date.now = actualNow; }
-    const overLimit = fixture("ordinary words ".repeat(3100));
+    const overLimit = fixture("ordinary words ".repeat(4200));
     assert.equal((await recoverAdleReviewContextJobs(overLimit.source.review_session_id, overLimit.client)).status, "failed");
     assert.equal(overLimit.tables.adle_review_context_attempts.length, 0);
     assert.equal(overLimit.stopped(), false);

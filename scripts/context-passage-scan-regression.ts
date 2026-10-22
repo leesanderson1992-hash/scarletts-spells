@@ -55,15 +55,17 @@ const laterIndex = indexedPassageWords(later[2], laterWords).findIndex(o => o.ob
 assert.equal(gatePassageFindings({ case_id: later[2].caseId, findings: [{ ...finding, word_index: laterIndex }] },
   later[2], laterWords).findings?.[0].startUtf16, longText.indexOf("threw"));
 assert.equal(planPassageWindows({ fields: [{ path: window.fieldPath, hash: "0".repeat(64), text }] }), null);
-assert.equal(PASSAGE_CONTEXT_MAX_WINDOWS, 15);
-const longFields = Array.from({ length: 15 }, (_, i) => ({ path: `/answer/${i}`, text: `Answer ${i} has words.` }));
+assert.equal(PASSAGE_CONTEXT_MAX_WINDOWS, 20);
+const longFields = Array.from({ length: 20 }, (_, i) => ({ path: `/answer/${i}`, text: `Answer ${i} has words.` }));
 const hashedFields = longFields.map(f => ({ ...f, hash: hash(JSON.stringify(f.text)) }));
-assert.equal(planPassageWindows({ fields: hashedFields })?.length, 15, "Fifteen separate answers are covered");
+assert.equal(planPassageWindows({ fields: hashedFields })?.length, 20, "Twenty separate answers are covered");
 assert.equal(planPassageWindows({ fields: hashedFields.slice(0, 10) })?.length, 10,
-  "The linked submission's ten-answer shape fits the new ceiling");
+  "The earlier ten-answer shape fits the new ceiling");
+assert.equal(planPassageWindows({ fields: hashedFields.slice(0, 16) })?.length, 16,
+  "The linked sixteen-answer shape fits the new ceiling");
 assert.equal(planPassageWindows({ fields: [...hashedFields, {
-  path: "/answer/15", text, hash: fieldHash }] }), null,
-"Sixteen windows fail closed without a partial scan");
+  path: "/answer/20", text, hash: fieldHash }] }), null,
+"Twenty-one windows fail closed without a partial scan");
 const body = JSON.parse(passageRequestBody(window, occurrences));
 assert.equal(body.store, false); assert.equal(body.service_tier, "default");
 assert.deepEqual(body.text.format.schema.properties.case_id.enum, [window.caseId],

@@ -249,10 +249,10 @@ async function main() {
     } finally {
       Date.now = previousNow;
     }
-    const fifteenWindowText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(700);
-    const fifteenWindow = fixture(fifteenWindowText, { adult: true });
-    const fifteenWindowBefore = calls;
-    const fifteenCases = new Set<string>();
+    const twentyWindowText = "Neighbourhood storytellers remembered extraordinary adventures. ".repeat(930);
+    const twentyWindow = fixture(twentyWindowText, { adult: true });
+    const twentyWindowBefore = calls;
+    const twentyCases = new Set<string>();
     const previousLongNow = Date.now;
     let longNow = previousLongNow();
     Date.now = () => longNow;
@@ -260,10 +260,10 @@ async function main() {
       globalThis.fetch = async (_url, options) => {
         calls++;
         const sent = JSON.parse(JSON.parse(String(options?.body)).input[1].content);
-        assert(!fifteenCases.has(sent.case_id), "A completed window is never sent twice");
-        fifteenCases.add(sent.case_id);
+        assert(!twentyCases.has(sent.case_id), "A completed window is never sent twice");
+        twentyCases.add(sent.case_id);
         longNow += 14000;
-        return new Response(JSON.stringify({ id: `resp-fifteen-window-${calls}`, model: "gpt-6-luna",
+        return new Response(JSON.stringify({ id: `resp-twenty-window-${calls}`, model: "gpt-6-luna",
           status: "completed", service_tier: "default",
           usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 0 }, output_tokens: 20,
             output_tokens_details: { reasoning_tokens: 5 } },
@@ -271,16 +271,16 @@ async function main() {
             case_id: sent.case_id, findings: [],
           }) }] }] }));
       };
-      for (let run = 0; run < 5; run++) {
-        const outcome = await recoverContextShadowJobs(fifteenWindow.snapshot.submission_id, fifteenWindow.client);
-        assert.equal(outcome.status, run === 4 ? "complete" : "deferred");
-        assert.equal(fifteenWindow.tables.writing_context_ai_attempts.length, (run + 1) * 3);
+      for (let run = 0; run < 7; run++) {
+        const outcome = await recoverContextShadowJobs(twentyWindow.snapshot.submission_id, twentyWindow.client);
+        assert.equal(outcome.status, run === 6 ? "complete" : "deferred");
+        assert.equal(twentyWindow.tables.writing_context_ai_attempts.length, Math.min((run + 1) * 3, 20));
       }
-      assert.equal(calls, fifteenWindowBefore + 15);
-      assert.equal(fifteenCases.size, 15);
-      assert(fifteenWindow.tables.writing_context_ai_attempts.every(a => a.result_status === "SCANNED"));
-      assert.equal((await recoverContextShadowJobs(fifteenWindow.snapshot.submission_id, fifteenWindow.client)).status, "idle");
-      assert.equal(calls, fifteenWindowBefore + 15);
+      assert.equal(calls, twentyWindowBefore + 20);
+      assert.equal(twentyCases.size, 20);
+      assert(twentyWindow.tables.writing_context_ai_attempts.every(a => a.result_status === "SCANNED"));
+      assert.equal((await recoverContextShadowJobs(twentyWindow.snapshot.submission_id, twentyWindow.client)).status, "idle");
+      assert.equal(calls, twentyWindowBefore + 20);
     } finally {
       Date.now = previousLongNow;
     }
@@ -398,7 +398,7 @@ async function main() {
     assert.equal(calls, before429 + 1);
     assert.equal(adult429.tables.writing_context_ai_attempts[0].result_status, "NOT_ASSESSED");
     assert(!adult429.stopped(), "definite 429 leaves the owner-controlled retry available");
-    const adultLong = fixture(`An adult wrote ${"ordinary words ".repeat(3100)}`, { adult: true });
+    const adultLong = fixture(`An adult wrote ${"ordinary words ".repeat(4200)}`, { adult: true });
     const beforeLong = calls;
     assert.equal((await recoverContextShadowJobs(adultLong.snapshot.submission_id, adultLong.client)).status, "manual_review");
     assert.equal(calls, beforeLong, "oversize writing is never sent or partially scanned");
