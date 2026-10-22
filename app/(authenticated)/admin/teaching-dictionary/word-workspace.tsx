@@ -496,7 +496,7 @@ export function WordWorkspace(props: {
     return (
       <ActionSubmitButton
         pending={saving}
-        disabled={checksState !== "ready"}
+        disabled={review !== "draft" && checksState !== "ready"}
         form={formId}
         name="review_section"
         value={review}
@@ -653,7 +653,7 @@ export function WordWorkspace(props: {
               ? "Edited · needs approval"
               : overviewReviewed
                 ? "Reviewed"
-                : "Review required"}
+                : weakRows.length ? "General dictionary review required" : "Review required"}
           </span>
         </summary>
         <div className="px-4 pb-4">
@@ -1037,7 +1037,7 @@ export function WordWorkspace(props: {
           </div>
         </section>;
       })}
-      <section id="td-lesson-checks" className={`${section} p-4`}>
+      {(selectedRoutes.length > 0 || payload.skillKeys.some(key => !routeForSkill(key)?.newAssignmentCapable)) && <section id="td-lesson-checks" className={`${section} p-4`}>
         <h2 className="font-semibold">3 · Lesson checks</h2>
         {weakRows.length > 0 && <p className="mt-1 text-sm">Weak-vowel publication status and its required fields are shown above. This table covers the other lesson routes.</p>}
         {checksState !== "ready" && <p role="status" className="mt-2 text-sm text-[color:var(--mid)]">
@@ -1133,7 +1133,7 @@ export function WordWorkspace(props: {
             {[...new Map(row.requirements.filter(requirement => requirement.status !== "present").map(requirement => [requirement.editTarget, requirement])).values()].map(requirement => <li key={requirement.editTarget}><a className="text-amber-900 underline" href={`#${requirement.editTarget}`}>{requirement.label}</a></li>)}
           </ul></div>)}
         </details>}
-      </section>
+      </section>}
       {checks.map((row, index) => {
         const route = routeWithSharedFacts(row.content, payload);
         const profile = props.profileOptions.find(

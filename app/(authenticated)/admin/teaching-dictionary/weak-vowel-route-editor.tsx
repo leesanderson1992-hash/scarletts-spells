@@ -115,7 +115,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
     </fieldset>
     <fieldset className="grid gap-3 sm:grid-cols-2">
       <legend className="mb-2 font-semibold">Sentence and optional family</legend>
-      <p className="text-sm sm:col-span-2">Dictionary sentence: {sentence || "not recorded"}. Confirm the target binding and recording below.</p>
+      <p className="text-sm sm:col-span-2">Dictionary sentence: {sentence || "not recorded"} Confirm the target binding and recording below.</p>
       {label("British sentence recording path", id("sentenceAudio"), sentenceRecording?.src ?? "", v => change({ sentenceRecording: { src: v, sha256: sentenceRecording?.sha256 ?? "" } }))}
       {label("Sentence recording SHA-256", id("sentenceHash"), sentenceRecording?.sha256 ?? "", v => change({ sentenceRecording: { src: sentenceRecording?.src ?? "", sha256: v } }))}
       {sentenceRecording?.src?.startsWith("/audio/") && <audio className="w-full sm:col-span-2" controls preload="none" src={sentenceRecording.src} aria-label="Play reviewed dictation sentence" />}
