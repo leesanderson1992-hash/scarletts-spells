@@ -41,7 +41,7 @@ import { generateGuardedCompoundWordAssignment } from "./loaders/compound-word-a
 import { COMPOUND_WORD_MICRO_SKILL_KEYS } from "./morphology/compound-word-structure-v2";
 import type { IsoDate } from "./review-scheduler";
 import { ensureReviewAssignmentR6 } from "./review-v3/r6-generation";
-import { adoptSpecialistOnlySessionR6 } from "./review-v3/r6-persistence";
+import { adoptSpecialistOnlySessionR6, loadAdleTodaySessionR6 } from "./review-v3/r6-persistence";
 import { prepareComparativeAssignment } from "./inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "./inflection/contracts";
 import { prepareIngAssignment } from "./ing/readiness-loader";
@@ -288,6 +288,37 @@ export async function ensureParentAdleTodayAssignment(params: {
       blockerCode: childError ? "ownership_read_failed" : "child_not_owned_or_inactive",
     });
     return { outcome: "rejected" };
+  }
+
+  // Resume an older Review-first session through its specialist stage before
+  // considering a new Review. A completed Review can still have an unfinished
+  // lesson, so checking only adle_review_sessions.completed_at misses it.
+  try {
+    const unfinished = await loadAdleTodaySessionR6({
+      client: params.serviceClient,
+      parentUserId: params.parentUserId,
+      childId: params.childId,
+      assignmentDate: practiceDate,
+    });
+    if (unfinished && unfinished.majorStage !== "session_complete") {
+      if (!unfinished.assignmentId) {
+        const blockerCode = unfinished.blockerCode ?? "adle_unfinished_session_conflict";
+        emitGenerationEvent({ parentUserId: params.parentUserId, childId: params.childId,
+          practiceDate, outcome: "failed", blockerCode });
+        return { outcome: "failed", blockerCode };
+      }
+      const result = { outcome: "ready" as const, assignmentId: unfinished.assignmentId,
+        href: learnerHref(params.childId), reused: true };
+      emitGenerationEvent({ parentUserId: params.parentUserId, childId: params.childId,
+        practiceDate, outcome: "ready", routeId: "existing_r6_session" });
+      return result;
+    }
+  } catch (error) {
+    const blockerCode = error instanceof Error ? error.message.slice(0, 240)
+      : "adle_unfinished_session_read_failed";
+    emitGenerationEvent({ parentUserId: params.parentUserId, childId: params.childId,
+      practiceDate, outcome: "failed", blockerCode });
+    return { outcome: "failed", blockerCode };
   }
 
   // R6 precedence is deliberately ahead of the same-day specialist header
