@@ -55,10 +55,14 @@ try {
     create table public.writing_context_learner_authorisations(id uuid primary key,
       child_id uuid, parent_user_id uuid, policy_version text, authorisation_kind text,
       approved_by uuid, expires_at timestamptz);
+    create function public.reject_writing_fact_update() returns trigger language plpgsql as $$
+      begin raise exception 'immutable'; end $$;
   `);
   const migration = readFileSync(new URL('../supabase/migrations/20261022130000_replay_15_window_course_scan.sql', import.meta.url), 'utf8');
   stage = 'migration';
   await db.query(migration);
+  const capacityMigration = readFileSync(new URL('../supabase/migrations/20261022210000_allow_distinct_15_window_capacity_replay.sql', import.meta.url), 'utf8');
+  await db.query(capacityMigration);
   stage = 'fixture';
   const signature = 'public.replay_named_15_window_course_scan(text,uuid,text,timestamptz)';
   for (const role of ['anon', 'authenticated']) assert.equal((await db.query(
@@ -98,6 +102,12 @@ try {
   const sourceHash = (await db.query(`select encode(extensions.digest(
     convert_to(envelope::text,'UTF8'),'sha256'),'hex') hash
     from writing_source_snapshots where id=$1`, [source])).rows[0].hash;
+  await db.query(`insert into course_context_replay_grants
+    (id,snapshot_id,source_hash,approved_by,evidence_ref,expires_at)
+    values('d2f1eb3a-24f7-4e85-bb3b-32fcc5b3cddd',$1,$2,$3,
+      'owner/2026-10-08/reactivate-current-course-review',clock_timestamp()-interval '1 day')`,
+    [source, sourceHash, owner]);
+  assert.equal((await db.query('select course_context_replay_authorised($1) authorised', [source])).rows[0].authorised, false);
   const args = [sourceHash, owner, 'owner/2026-10-22/15-window-replay',
     new Date(Date.now() + 86400_000).toISOString()];
   const replay = () => db.query('select replay_named_15_window_course_scan($1,$2,$3,$4) job_id', args);
@@ -111,6 +121,7 @@ try {
   stage = 'guards';
   await denied('source hash', async () => { args[0] = '0'.repeat(64); });
   args[0] = sourceHash;
+  await denied('missing historical grant', () => db.query('delete from course_context_replay_grants where snapshot_id=$1', [source]));
   await denied('prior dispatch', () => db.query('insert into writing_context_shadow_dispatches values($1)', [job]));
   await denied('prior attempt', () => db.query('insert into writing_context_ai_attempts values($1)', [source]));
   await denied('prior finding', () => db.query('insert into writing_context_passage_findings values($1)', [source]));
@@ -129,6 +140,8 @@ try {
   assert.equal(state.claimed_at, null); assert.equal(state.completed_at, null);
   assert.match(state.run_key, /^capacity-replay:/);
   assert.equal((await db.query('select count(*)::int n from course_context_replay_grants where snapshot_id=$1', [source])).rows[0].n, 1);
+  assert.equal((await db.query('select count(*)::int n from course_context_capacity_replay_grants where snapshot_id=$1', [source])).rows[0].n, 1);
+  assert.equal((await db.query('select course_context_replay_authorised($1) authorised', [source])).rows[0].authorised, true);
   await db.query('savepoint replay_twice');
   await assert.rejects(replay(), /named_15_window_replay_ineligible/, 'second replay denied');
   await db.query('rollback to savepoint replay_twice');
