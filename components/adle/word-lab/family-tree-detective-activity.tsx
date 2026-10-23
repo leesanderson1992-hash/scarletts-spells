@@ -235,6 +235,7 @@ export function FamilyTreeDetectiveActivity(props: {
 
     {(current.phase === "initial" || current.phase === "final") && <div className="detective-option-three-desk">
       <div className="detective-option-three-challenge">
+        <div className="detective-option-three-scroll-content">
         <p className="detective-option-three-eyebrow">Word {state.index + 1} of {props.config.rounds.length} · {current.phase === "initial" ? "First thought" : "Try again from memory"}</p>
         {current.phase === "final" && (current.finalChoice !== null && current.finalChoice !== correct ||
           !round.family && current.initialChoice !== correct) && <p role="alert" className="detective-option-three-error">× Not quite. That vowel was incorrect. Listen and try another vowel.</p>}
@@ -247,6 +248,7 @@ export function FamilyTreeDetectiveActivity(props: {
             if (rect && point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom) choose(letter);
           }} />)}</div>
         <p className="detective-option-three-hint">Tap a vowel tile, or drag it into the gap.</p>
+        </div>
         <button type="button" className="detective-option-three-submit" disabled={!current.selectedTile} onClick={submitChoice}>Submit vowel</button>
       </div>
       <aside className="detective-option-three-side" aria-label={current.phase === "initial" ? "Upcoming family investigation" : "Memory reminder"}>
@@ -258,6 +260,7 @@ export function FamilyTreeDetectiveActivity(props: {
 
     {current.phase === "explore" && round.family && <div className="detective-option-three-desk">
       <div className="detective-option-three-investigate">
+        <div className="detective-option-three-scroll-content">
         <p className="detective-option-three-eyebrow">Word {state.index + 1} of {props.config.rounds.length} · Family investigation</p>
         {current.initialChoice !== correct && <p role="alert" className="detective-option-three-error">× Not quite. Your first vowel was incorrect. Explore this family, then try again.</p>}
         <h3>{round.family.relationKind === "base_to_derived" ? `How ${round.family.name} becomes ${round.spelling}` : `Explore the ${round.family.name} family`}</h3>
@@ -265,6 +268,7 @@ export function FamilyTreeDetectiveActivity(props: {
         {round.family.preservedBaseSpan && <p>Blue shows preserved base letters; yellow marks the target vowel letter.</p>}
         <div className="detective-option-three-family">{round.family.members.map((member) => <FamilyCard key={member.canonicalWordId} member={member} round={round}
           chosen={current.clues[member.canonicalWordId] ?? []} muted={Boolean(props.muted)} onHear={() => hear(member)} onClue={(clue) => toggleClue(member.canonicalWordId, clue)} />)}</div>
+        </div>
         <button type="button" className="detective-option-three-submit" onClick={() => {
           change({ ...current, phase: "final", selectedTile: null });
           void playAudio(round.recording.src);
@@ -280,12 +284,14 @@ export function FamilyTreeDetectiveActivity(props: {
     </div>}
 
     {current.phase === "done" && <div className="detective-option-three-done">
+      <div className="detective-option-three-scroll-content">
       <p className="detective-option-three-eyebrow">Investigation complete · Word {state.index + 1} of {props.config.rounds.length}</p>
       <h3>The missing vowel is {correct}.</h3>
       <p>{current.initialChoice === correct ? "You chose it on your first try." : current.finalChoice === correct ? "Your first choice was incorrect; you found the vowel on your next try." : "Your earlier choices were incorrect; you found the vowel after trying again."}
         {round.family && current.finalChoice !== null ? ` Your first choice after exploring was ${current.finalChoice}.` : ""}</p>
       <p>{round.family?.explanation ?? `The reviewed spelling is ${round.spelling}.`}</p>
       {!round.family && <p><strong>Tip:</strong> Try saying the word with its written vowel sounded clearly, like HU-MAN. This can help you remember the letters even when the everyday vowel is quiet.</p>}
+      </div>
       <button type="button" className="detective-option-three-submit" onClick={next}>{state.index + 1 < props.config.rounds.length ? "Next word" : "Finish investigation"}</button>
     </div>}
     {props.reducedMotion && <p className="sr-only">Reduced motion is on.</p>}

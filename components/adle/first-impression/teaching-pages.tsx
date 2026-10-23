@@ -96,6 +96,7 @@ export function TeachingPages(props: {
   }, [props.onPageChange]);
 
   useEffect(() => {
+    focusRef.current?.scrollTo({ top: 0 });
     focusRef.current?.focus({ preventScroll: true });
     onPageChangeRef.current?.(pageIndex);
   }, [pageIndex]);

@@ -66,6 +66,7 @@ export function LessonReflection(props: LessonReflectionProps) {
   const recaps = props.specialistRecaps ?? [];
   return (
     <div className="grid gap-5 text-cyan-50" data-lesson-reflection="canonical" data-reflection-appearance={props.appearance}>
+      <div className="lesson-reflection-content grid gap-5">
       <SpecialistRecaps recaps={recaps} position="before_mistakes" />
       {props.showMistakeSection !== false ? <section className="reflection-panel reflection-panel-pink rounded-3xl border border-cyan-300/40 bg-slate-950/45 p-5" aria-labelledby={titleId}>
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">Look back</p>
@@ -153,6 +154,7 @@ export function LessonReflection(props: LessonReflectionProps) {
       </label>
 
       <SpecialistRecaps recaps={recaps} position="after_response" />
+      </div>
       <button
         type={props.completionType ?? "button"}
         disabled={props.disabled || props.pending || !responseReady}

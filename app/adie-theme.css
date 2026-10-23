@@ -288,6 +288,18 @@
 :root[data-theme="light"] .word-lab-workspace { background: #f1ecfb; border-color: #d8bde9; }
 .word-lab-workspace [data-teaching-page-type="reading"] { padding: clamp(1rem, 2vw, 1.75rem); border: 2px solid var(--adie-line); border-left: 7px solid var(--adie-pink); border-radius: 1.5rem; background: var(--adie-surface); box-shadow: 0 12px 32px rgb(128 54 113 / 13%); }
 .word-lab-workspace .teaching-pages { width: min(100%, 64rem); margin-inline: auto; }
+@media (min-width: 768px) {
+  .word-lab-workspace:has(.teaching-pages) { overflow: hidden; }
+  .word-lab-workspace:has(.teaching-pages) .word-lab-task { display: flex; flex: 1; min-height: 0; margin-block: 0; }
+  .word-lab-workspace:has(.teaching-pages) .teaching-pages { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .word-lab-workspace:has(.teaching-pages) .teaching-pages > div:first-child { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+  .word-lab-workspace:has(.teaching-pages) .teaching-pages > nav { flex: none; border-top: 1px solid var(--adie-line); padding-top: .65rem; }
+  .word-lab-workspace:has([data-lesson-reflection]) { overflow: hidden; }
+  .word-lab-workspace:has([data-lesson-reflection]) .word-lab-task { display: flex; flex: 1; min-height: 0; margin-block: 0; }
+  .word-lab-workspace [data-lesson-reflection] { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .word-lab-workspace .lesson-reflection-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .word-lab-workspace [data-lesson-reflection] > button { flex: none; }
+}
 .word-lab-workspace .teaching-key-idea { width: fit-content; max-width: 100%; justify-self: center; }
 .word-lab-workspace .teaching-examples { width: min(100%, 56rem); margin-inline: auto; }
 .word-lab-workspace .teaching-example[data-transformation="true"] { border: 2px solid #51b7cb; background: #e7faff; text-align: center; }
@@ -443,6 +455,14 @@
 .dinner-option-two-listen:disabled { opacity: .58; }
 .dinner-option-two-error { margin: 0; padding: .55rem .75rem; border-radius: .8rem; background: #fff0f2; color: #8a1d38; font-weight: 800; }
 .dinner-option-two-actions { display: flex; align-items: center; justify-content: space-between; gap: .8rem; width: 100%; min-height: 3.4rem; margin-top: .35rem; }
+@media (min-width: 768px) {
+  .weak-vowel-dinner-layout .word-lab-workspace { overflow: hidden; }
+  .weak-vowel-dinner-layout .word-lab-task { display: flex; flex: 1; min-height: 0; }
+  .dinner-option-two { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .dinner-option-two-board { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
+  .dinner-option-two-board > section { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .dinner-option-two-listen, .dinner-option-two-actions { flex: none; }
+}
 .dinner-option-two-assists { display: flex; flex-wrap: wrap; gap: .45rem; min-width: 9rem; }
 .dinner-option-two-confirm, .dinner-success-popup button { min-height: 3.2rem; padding: .6rem 1.3rem; border-radius: 1rem; background: var(--dinner-button); color: white; font-weight: 900; }
 .dinner-option-two-confirm { min-width: 14rem; }
@@ -489,7 +509,19 @@
 .detective-option-three-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; width: 100%; }
 .detective-option-three-tiles > button { min-width: 3.7rem; min-height: 3.7rem; padding: .5rem .75rem; border: 2px solid var(--detective-board-border); border-radius: .85rem; background: var(--detective-card); color: var(--detective-ink); font-size: 1.6rem; }
 .detective-option-three-hint { margin: 0; color: var(--detective-muted); font-size: .9rem; font-weight: 650; text-align: center; }
+.detective-option-three-scroll-content { display: grid; align-content: start; justify-items: center; gap: .75rem; width: 100%; }
+.detective-option-three-investigate .detective-option-three-scroll-content { justify-items: stretch; }
 .detective-option-three-submit { min-height: 3.4rem; min-width: 13rem; padding: .6rem 1.4rem; border-radius: 1rem; background: var(--detective-button); color: #fff; font-weight: 900; }
+@media (min-width: 768px) {
+  .weak-vowel-detective-layout .word-lab-workspace { overflow: hidden; }
+  .weak-vowel-detective-layout .word-lab-task { display: flex; flex: 1; min-height: 0; }
+  .detective-option-three { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .detective-option-three-desk, .detective-option-three-done { flex: 1; min-height: 0; overflow: hidden; }
+  .detective-option-three :is(.detective-option-three-challenge, .detective-option-three-investigate, .detective-option-three-done) { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .detective-option-three-side { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .detective-option-three-scroll-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .detective-option-three :is(.detective-option-three-challenge, .detective-option-three-investigate, .detective-option-three-done) > .detective-option-three-submit { flex: none; align-self: center; }
+}
 .detective-option-three-submit:disabled { background: #c6b7c7; color: #433849; cursor: not-allowed; }
 .detective-option-three-side { display: grid; align-content: start; gap: .8rem; min-width: 0; padding: 1.3rem 1.5rem; border: 2px solid var(--detective-card-border); border-radius: 1.5rem; background: var(--detective-side); color: var(--detective-ink); }
 .detective-option-three-side h3 { margin: 0; font-size: clamp(1.2rem, 1.7vw, 1.5rem); font-weight: 900; }
