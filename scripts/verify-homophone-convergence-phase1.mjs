@@ -44,6 +44,22 @@ try {
     join public.adle_route_activation_revisions r on r.id=h.current_revision_id
     where h.micro_skill_key like 'D4_HOM_%' order by h.environment_key,h.micro_skill_key`);
   assert.deepEqual(heads, baseline.activationHeads, "existing activation heads changed");
+  const dictionary = await query(`select w.id, w.normalised_word, w.display_word, w.row_status, w.review_status,
+      exists(select 1 from public.canonical_teaching_dictionary_word_metadata m
+        where m.canonical_word_id=w.id and m.row_status='active'
+          and m.review_status='approved_for_first_exposure') as approved_metadata
+    from public.canonical_teaching_dictionary_words w
+    where w.dialect_code='en-GB' and w.normalised_word=any($1::text[])
+    order by w.normalised_word, w.created_at`, [
+    [...new Set(manifest.skills.flatMap(skill => skill.sets.flatMap(set => set.members)))],
+  ]);
+  assert.deepEqual(dictionary, baseline.dictionary, "canonical dictionary identities changed");
+  const support = await query(`select s.micro_skill_key, w.normalised_word, s.support_role,
+      s.row_status, s.review_status
+    from public.canonical_teaching_dictionary_word_support s
+    join public.canonical_teaching_dictionary_words w on w.id=s.canonical_word_id
+    where s.micro_skill_key like 'D4_HOM_%' order by s.micro_skill_key,w.normalised_word`);
+  assert.deepEqual(support, baseline.support, "existing dictionary assignments changed");
   const snapshots = await query(`select encode(extensions.digest(
       convert_to(compiled_lesson_snapshot::text,'UTF8'),'sha256'),'hex') as snapshot_sha256
     from public.daily_assignments
@@ -57,7 +73,7 @@ try {
   const contrast = await query("select count(*)::integer n from public.homophone_contrast_sets");
   assert.equal(contrast[0].n, 0);
   await client.query("commit");
-  console.log("Phase 1 verified: 68 target keys, 10 retained IDs, 58 inactive drafts, 14 unchanged heads, 8 draft redirects, unchanged historical snapshots");
+  console.log("Phase 1 verified: 68 target keys, 10 retained IDs, 58 inactive drafts, 14 unchanged heads, 8 draft redirects, unchanged dictionary/support and historical snapshots");
 } finally {
   await client.end().catch(() => {});
 }
