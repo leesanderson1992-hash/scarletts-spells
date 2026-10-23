@@ -267,6 +267,10 @@ export function priceWordEvidence(
     });
   }
   for (const event of authenticUse) {
+    // These rows preserve Review/context history, but the child was shown or
+    // supplied the spelling. They cannot establish independent word mastery.
+    if (event.provenanceKind === "prompted_review_writing_application" ||
+        event.provenanceKind === "parent_verified_supplied_spelling_application") continue;
     candidates.push({
       kind: event.useKind === "authentic_correct_use" ? "authentic_use" : "self_correction",
       occurredOn: event.occurredOn,

@@ -4,9 +4,11 @@ import Link from "next/link";
 import { ChildSwitcher } from "@/components/child-switcher";
 import { buildScopedPath } from "@/lib/children";
 import { groupInsightSkills, loadParentInsightSkills } from "@/lib/parent-insights/proficiency";
+import { loadParentV2Dashboard } from "@/lib/parent-insights/proficiency-v2";
 import { loadReviewCycle } from "@/lib/parent-insights/review-cycle";
 import { createClient } from "@/lib/supabase/server";
 import { InsightsWorkspace } from "./workspace";
+import { V2InsightsWorkspace } from "./v2-workspace";
 
 type Child = { id: string; first_name: string; last_name: string | null };
 
@@ -28,12 +30,14 @@ export function ParentInsights({ child, childOptions }: { child: Child | null; c
   }
   const today = londonDate();
   const reviewPromise = loadReviewCycle(child.id, today);
+  const v2Enabled = process.env.PARENT_PROFICIENCY_V2_ENABLED === "true";
   return <div className="parent-insights brand-page">
     <header className="parent-insights-header">
       <div>
         <p className="brand-eyebrow">Parent insights</p>
         <h1 className="brand-title">{child.first_name}&apos;s spelling progress</h1>
-        <p className="brand-copy">See the level each microskill has achieved and the words behind each level.</p>
+        <p className="brand-copy">{v2Enabled ? "See micro-skill proficiency and individual word mastery." :
+          "See the level each microskill has achieved and the words behind each level."}</p>
       </div>
       <div className="parent-insights-actions">
         <ChildSwitcher activeChildId={child.id} childOptions={childOptions} redirectPath="/insights" compact showSingleChild />
@@ -41,9 +45,36 @@ export function ParentInsights({ child, childOptions }: { child: Child | null; c
       </div>
     </header>
     <Suspense fallback={<div className="insights-skeleton-grid" aria-busy="true"><div className="insights-skeleton" /><div className="insights-skeleton" /></div>}>
-      <ProficiencySection childId={child.id} today={today} reviewPromise={reviewPromise} />
+      {v2Enabled ? <V2ProficiencySection childId={child.id} today={today} reviewPromise={reviewPromise} /> :
+        <ProficiencySection childId={child.id} today={today} reviewPromise={reviewPromise} />}
     </Suspense>
   </div>;
+}
+
+async function V2ProficiencySection({ childId, today, reviewPromise }: {
+  childId: string;
+  today: string;
+  reviewPromise: ReturnType<typeof loadReviewCycle>;
+}) {
+  let dashboard: Awaited<ReturnType<typeof loadParentV2Dashboard>> | null = null;
+  try {
+    dashboard = await loadParentV2Dashboard(childId, today);
+  } catch (error) {
+    console.error("Failed to load parent V2 proficiency", error);
+  }
+  if (!dashboard) return <section className="brand-card p-6" role="alert">
+    <h2 className="text-lg font-semibold">Learning insights are unavailable</h2>
+    <p className="brand-copy mt-2">Please try this page again. Your learning records have not changed.</p>
+  </section>;
+  return <V2InsightsWorkspace key={childId} skills={dashboard.skills.map((skill) => ({
+    key: skill.key, label: skill.label, familyLabel: skill.familyLabel,
+    result: { level: skill.result.level, status: skill.result.status, trend: skill.result.trend,
+      confidence: skill.result.confidence, nextRequirement: skill.result.nextRequirement,
+      levels: skill.result.levels, observed: skill.result.observed },
+  }))} words={dashboard.words}
+    reviewSlot={<Suspense fallback={<div className="insights-skeleton" aria-busy="true" aria-label="Loading review cycle" />}>
+      <ReviewCycleSection promise={reviewPromise} />
+    </Suspense>} />;
 }
 
 async function ProficiencySection({ childId, today, reviewPromise }: {

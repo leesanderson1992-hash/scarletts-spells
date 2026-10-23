@@ -129,6 +129,10 @@ export interface DailyPlanFactsLoad {
   /** Released proficiency calculation; reusable by evidence consumers. */
   proficiencyRelationships: { canonicalWordId: string; microSkillKey: string }[];
   proficiencyReports: ReturnType<typeof computeAllSkillProficiency>;
+  /** Existing Slice 4 states, exposed for parent word-mastery reads. */
+  wordStates: WordEvidenceStateResult[];
+  wordMasteryEvidence: Map<string, { productions: number; distinctDays: number; verifiedAuthenticUses: number }>;
+  wordNextReviewDueByWordId: Map<string, IsoDate>;
   proficiencyFingerprint: string;
   facts: DailyPlanFacts;
   /** canonical_word_id -> primary micro_skill_key (also the completion
@@ -172,8 +176,8 @@ export async function loadDailyPlanFacts(
   const sharedRoutesEnabled = isCanonicalIntakeEnabled();
   const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
     .select(sharedRoutesEnabled
-      ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"
-      : "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count")
+      ? "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, word_next_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count, adle_review_schedule_word_routes(learning_item_id, micro_skill_key, attachment_ordinal, attached_on, row_status)"
+      : "id, child_id, canonical_word_id, bundle_id, membership_status, catch_up_stage, next_retest_due_on, word_next_due_on, failed_review_on, pre_retirement_check_due_on, last_28_day_review_on, reteach_cycle_count, taught_on, row_status, word_schedule_policy_version, word_schedule_version, word_schedule_transition_count")
     .eq("child_id", childId)
     .eq("row_status", "active");
 
@@ -433,6 +437,14 @@ export async function loadDailyPlanFacts(
 
   const bundles = bundleRows.map(bundleFromRow);
   const scheduleWords = scheduleWordRows.map(scheduleWordFromRow);
+  const bundleDueById = new Map(bundleRows.map((row) => [row.id, row.next_due_on]));
+  const wordNextReviewDueByWordId = new Map<string, IsoDate>();
+  for (const row of scheduleWordRows) {
+    if (row.row_status !== "active" || row.membership_status === "retired") continue;
+    const due = row.membership_status === "catch_up" ? row.next_retest_due_on :
+      row.word_next_due_on ?? bundleDueById.get(row.bundle_id) ?? row.pre_retirement_check_due_on;
+    if (due) wordNextReviewDueByWordId.set(row.canonical_word_id, due);
+  }
   const learningItems = learningItemRows.map(learningItemFromRow);
   const words = wordRows.map(dictionaryWordFromRow);
   let supports = supportRows.map(wordSupportFromRow);
@@ -666,6 +678,7 @@ export async function loadDailyPlanFacts(
     ...retirementReceiptRows.map((receipt) => receipt.canonical_word_id),
   ]);
   const wordStates: WordEvidenceStateResult[] = [];
+  const wordMasteryEvidence = new Map<string, { productions: number; distinctDays: number; verifiedAuthenticUses: number }>();
   for (const wordId of [...evidenceWordIds].sort()) {
     const normalisedWord = normalisedWordByWordId.get(wordId);
     if (normalisedWord === undefined) {
@@ -681,6 +694,11 @@ export async function loadDailyPlanFacts(
       taughtHistory,
       authenticUseEvents,
       slippageEvents,
+    });
+    wordMasteryEvidence.set(wordId, {
+      productions: pricing.productions.length,
+      distinctDays: new Set(pricing.productions.map((entry) => entry.occurredOn)).size,
+      verifiedAuthenticUses: pricing.productions.filter((entry) => entry.kind === "authentic_use" && entry.parentVerified).length,
     });
     wordStates.push(
       computeWordEvidenceState(EVIDENCE_POLICY_V1, pricing, {
@@ -761,6 +779,9 @@ export async function loadDailyPlanFacts(
   };
 
   return {
+    wordStates,
+    wordMasteryEvidence,
+    wordNextReviewDueByWordId,
     proficiencyRelationships: supports.filter(s => s.rowStatus === "active" && s.supportRole !== "contrast").map(s => ({ canonicalWordId: s.canonicalWordId, microSkillKey: s.microSkillKey })),
     proficiencyReports,
     proficiencyFingerprint: fingerprint({ wordStates, words, supports, bandings, overrides, activeBandingVersion, childBand, allocations, policy: PROFICIENCY_POLICY_V1 }),

@@ -108,8 +108,16 @@ export async function loadLearnerEvidenceProjection(params: {
     readAll<any>(client, "child_word_treasure_evidence_candidates", "id,treasure_id,child_id,task_submission_id,confirmation_status,created_at,metadata", childOnly),
   ]);
   const ids = (values: readonly (string | null | undefined)[]) => [...new Set(values.filter((value): value is string => !!value))];
-  const scopedRead = (table: string, columns: string, values: string[], column = "id") =>
-    values.length ? readAll<any>(client, table, columns, (query) => query.in(column, values)) : Promise.resolve([] as any[]);
+  const scopedRead = async (table: string, columns: string, values: string[], column = "id") => {
+    const result: any[] = [];
+    // PostgREST GET filters containing hundreds of UUIDs can exceed the URL
+    // accepted by the hosted proxy. Keep every learner-related lookup bounded.
+    for (let index = 0; index < values.length; index += 75) {
+      result.push(...await readAll<any>(client, table, columns,
+        (query) => query.in(column, values.slice(index, index + 75))));
+    }
+    return result;
+  };
   const [reviewEncounterRows, repairRows, verificationRows, reviewSessionRows, reviewIssueLinkRows, treasureRows] = await Promise.all([
     params.learnerId ? scopedRead("adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id", ids([
       ...reviewOutcomeRows.map((row) => row.review_encounter_id), ...authenticRows.map((row) => row.review_encounter_id),

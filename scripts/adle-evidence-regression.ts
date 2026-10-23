@@ -98,6 +98,21 @@ function authenticUse(occurredOn: string, pieceRef: string, parentVerified = tru
 // --- 1. weight table + deduction table truth --------------------------------
 
 assert(policy.evidencePolicyVersion === "evidence_policy_v1_2026-07-04", "policy version");
+const otherLearnerFacts = emptyFacts({
+  authenticUseEvents: [{ ...authenticUse("2026-10-01", "other-learner"), childId: "child-2" }],
+  slippageEvents: [{ childId: "child-2", canonicalWordId: WORD, occurredOn: "2026-10-02",
+    contextKind: "authentic_writing", selfCorrected: false, attemptText: "becuase",
+    sourceRef: "other-learner-slip", slipOrdinal: 1, rowStatus: "active" }],
+});
+const isolated = computeWordEvidenceState(policy, priceWordEvidence(policy, otherLearnerFacts), otherLearnerFacts);
+assert(isolated.state === "unseen" && isolated.score === 0 && !isolated.slipped,
+  "another learner's authentic use and slip cannot change this learner's word state");
+for (const provenanceKind of ["prompted_review_writing_application", "parent_verified_supplied_spelling_application"] as const) {
+  const supplied = emptyFacts({ authenticUseEvents: [{ ...authenticUse("2026-10-01", provenanceKind), provenanceKind }] });
+  const state = computeWordEvidenceState(policy, priceWordEvidence(policy, supplied), supplied);
+  assert(state.state === "unseen" && state.score === 0,
+    `${provenanceKind} cannot price as independent spelling production`);
+}
 approx(policy.weights.authenticCorrectUse, 2.0, "authentic weight");
 approx(policy.weights.selfCorrectionInWriting, 1.5, "self-correction weight");
 approx(policy.weights.dictationCold, 1.5, "cold weight");

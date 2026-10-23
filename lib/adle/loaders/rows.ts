@@ -92,6 +92,7 @@ export interface ScheduleWordRow {
   membership_status: string;
   catch_up_stage: number;
   next_retest_due_on: IsoDate | null;
+  word_next_due_on?: IsoDate | null;
   failed_review_on: IsoDate | null;
   pre_retirement_check_due_on: IsoDate | null;
   last_28_day_review_on: IsoDate | null;
