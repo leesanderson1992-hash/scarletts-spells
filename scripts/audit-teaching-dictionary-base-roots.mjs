@@ -1,5 +1,5 @@
 /** Read-only production audit of lexical bases, roots, and family coverage. */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import pg from "pg";
@@ -108,7 +108,14 @@ try {
   writeFileSync(resolve(out, "full-dictionary-missing-base-root-review.csv"), csv(
     ["component", "component_kind", "canonical_word_key", "canonical_word_present",
       "matching_family_keys", "source_word_count", "source_word_examples", "proposed_action", "review_status"], gapRows));
-  writeFileSync(resolve(out, "full-dictionary-unanalysed-words-review.csv"), csv(
+  const unanalysedPath = resolve(out, "full-dictionary-unanalysed-words-review.csv");
+  const existingUnanalysed = existsSync(unanalysedPath) ? readFileSync(unanalysedPath, "utf8") : "";
+  if (existingUnanalysed.split("\n", 1)[0].includes("word_sum_candidate")) {
+    const keys = new Set(existingUnanalysed.split("\n").slice(1).filter(Boolean)
+      .map(line => line.slice(0, line.indexOf(","))));
+    if (keys.size !== unanalysed.length || unanalysed.some(row => !keys.has(row.word_key)))
+      throw new Error("Enriched morphology review has drifted; reconcile before rerunning audit");
+  } else writeFileSync(unanalysedPath, csv(
     ["word_key", "word", "morphology_status", "existing_family_keys", "proposed_action", "review_status"], unanalysed));
   writeFileSync(resolve(out, "full-dictionary-family-link-review.csv"), csv(
     ["word_key", "word", "word_sum", "morphology_part_count", "proposed_action", "review_status"], unlinked));

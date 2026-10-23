@@ -73,8 +73,17 @@ or root components from approved morphology without an existing matched family,
 plus the four missing free bases and `had` needed by the incoming contractions.
 Its `canonical_word_present` column distinguishes an absent canonical word
 from a present word lacking a family. The 886 words without approved morphology
-are listed in `full-dictionary-unanalysed-words-review.csv`; their roots cannot
-be determined reliably yet. `full-dictionary-family-link-review.csv` lists
+are listed in `full-dictionary-unanalysed-words-review.csv`. That sheet now
+contains source morphology notes, proposed structured parts and surface forms,
+word sums, candidate bases, family links, confidence, and review priority for
+all 886 words. It has 113 high-priority cases, including spelling changes,
+contractions, and uncertain bound-root or historical relations. These are
+editorial proposals, not approved canonical morphology; the missing-base/root
+backlog still uses approved morphology only and should be refreshed after
+review. Run `node scripts/build-full-dictionary-morphology-review.mjs` to
+rebuild the proposals from the read-only Production metadata. The audit script
+preserves an enriched review sheet when the frozen word set is unchanged.
+`full-dictionary-family-link-review.csv` lists
 1,105 analysed words without a legacy Base Word Lab family membership. The
 snapshot and counts are reproducible with
 `node scripts/audit-teaching-dictionary-base-roots.mjs` and checked by
