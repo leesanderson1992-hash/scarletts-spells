@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { AdlePlanHeader, AdleEmptyPlan, AdleReviewCompleteTransition } from "@/components/adle/adle-plan-presentation";
+import { AdlePlanNotices, AdleEmptyPlan, AdleReviewCompleteTransition } from "@/components/adle/adle-plan-presentation";
 import { AppShell } from "@/components/app-shell";
 import { AdleSessionRunner } from "@/components/adle-session-runner";
 import {
@@ -227,7 +227,7 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
       hideLearnerIdentity={isComparativeLesson}
     >
       <section className="grid gap-4">
-        <AdlePlanHeader planDate={readModel.planDate} backPath={backPath} saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />
+        <AdlePlanNotices saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />
 
         {r6Session?.majorStage === "review" && r6Session.review ? (
           <ReviewR6Session
