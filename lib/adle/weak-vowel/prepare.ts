@@ -68,7 +68,10 @@ export function prepareWeakVowelLesson(input: {
     if (sentence && dinnerRound && (sentence.sourceFingerprint !== dinnerRound.sourceFingerprint ||
       sentence.recording.reviewStatus !== "approved")) blockers.push({ canonicalWordId: id, reason: "dictation_source_changed" });
     return dinnerRound && detectiveRound && sentence && definition ? [{ canonicalWordId: id, spelling: dinnerRound.spelling,
-      provenance: slot.provenance, learningItemId: slot.learningItemId, dinner: dinnerRound, detective: detectiveRound,
+      // Stretch words are transfer practice here. This route creates no learning-item
+      // intake, so the composer's provisional item key must not become persisted lineage.
+      provenance: slot.provenance, learningItemId: slot.provenance === "stretch" ? null : slot.learningItemId,
+      dinner: dinnerRound, detective: detectiveRound,
       definition: { text: definition.text, sourceFingerprint: definition.sourceFingerprint, reviewStatus: definition.reviewStatus },
       ...(input.publishedContentHashes?.get(id) ? { routeContentSha256: input.publishedContentHashes.get(id)! } : {}),
       dictation: { sentence: sentence.sentence, targetStart: sentence.targetStart, targetEnd: sentence.targetEnd, recording: sentence.recording } }] : [];

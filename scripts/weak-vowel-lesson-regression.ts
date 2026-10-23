@@ -138,6 +138,15 @@ const ready = prepareWeakVowelLesson(input);
 assert.deepEqual(ready.blockers, []);
 assert.ok(ready.lesson);
 assert.deepEqual(ready.lesson.words.map((word) => word.canonicalWordId), slots.map((slot) => slot.canonicalWordId));
+const stretchSlots = slots.map((slot, index) => index === slots.length - 1
+  ? { ...slot, provenance: "stretch" as const, learningItemId: "li:stretch_selection:provisional" }
+  : slot);
+const stretchLesson = prepareWeakVowelLesson({ ...input, slots: stretchSlots });
+assert.ok(stretchLesson.lesson);
+assert.equal(stretchLesson.lesson.words.at(-1)?.learningItemId, null,
+  "transfer practice cannot persist a provisional learning-item key");
+assert.equal(stretchLesson.lesson.words[0].learningItemId, slots[0].learningItemId,
+  "the child's existing learning-item lineage remains intact");
 assert.equal(weakVowelReadyToFinish(initialWeakVowelProgress(ready.lesson), ready.lesson), false);
 const fourWordLesson = prepareWeakVowelLesson({ ...input,
   slots: slots.slice(0, 4),
