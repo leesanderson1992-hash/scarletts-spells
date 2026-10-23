@@ -1,0 +1,11 @@
+# Reviewable relationship drafts for the ten unchanged v2 skills; no route content is replaced.
+peace|noun|a state without fighting or disturbance|The neighbours hoped for peace after the dispute.;piece|noun|one part of a larger whole|I saved a piece of cake for you.
+threw|verb past tense|sent something through the air in the past|Liam threw the ball across the field.;through|preposition|from one side or end to the other|We walked through the tunnel together.
+see|verb|notice with the eyes|I can see a boat on the lake.;sea|noun|a large area of salt water|The sea looked calm this morning.
+right|adjective|correct|You chose the right answer.;write|verb|form words on a surface|Please write your name on the page.
+flower|noun|the coloured part of a plant|A yellow flower opened in the garden.;flour|noun|powder made from grain for baking|We need flour to make the bread.
+herd|noun|a group of grazing animals|A herd of cows crossed the lane.;heard|verb past tense|noticed a sound in the past|I heard a bell behind the door.
+there|adverb|in that place|Put the box there by the wall.;their|determiner|belonging to them|The children put on their coats.;they're|contraction|they are|They're waiting outside the classroom.
+to|preposition|towards a place or person|We walked to the library.;too|adverb|also|I would like to come too.;two|number|the number after one|We found two shells on the beach.
+were|verb past tense|past form of are|The children were tired after swimming.;where|adverb|in which place|Where did you put the keys?;wear|verb|have clothing on your body|I will wear a coat today.
+your|determiner|belonging to you|Is this your pencil case?;you're|contraction|you are|You're welcome to join our game.

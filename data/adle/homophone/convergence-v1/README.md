@@ -16,7 +16,39 @@ of the 68 target keys. The Phase 1 verifier checks that the baseline's ten
 retained identities, fourteen activation heads and historical snapshot hashes
 are still unchanged.
 
-## Review gates
+## Editorial draft packet (2026-10-23)
+
+`editorial-seeds.txt` contains original wording for the 74 new contrast sets.
+`retained-set-editorial-seeds.txt` supplies meaning and sentence drafts for the
+ten unchanged v2 sets without replacing their lessons or dictionary support.
+`pronunciation-reference.json` records candidate UK IPA and the Cambridge
+pronunciation page for each of the 38 absent words. `leased` and `lets` are
+explicitly marked as inflectional inferences requiring direct review; `she'd`
+uses Cambridge's strong form and also has a weak form. These references are
+for fact checking only; no Cambridge definitions or example sentences were
+copied. All definitions, teaching sentences and choice prompts are original
+editorial drafts.
+
+Run `python3 scripts/build-homophone-editorial-drafts.py` to reproduce the
+unsigned review sheets and `editorial-draft-lessons.json`. The builder rejects
+changes that would overwrite non-empty review-sheet fields. Run
+`python3 scripts/verify-homophone-editorial-drafts.py` to check all 38 words,
+84 sets, 175 member relationships, 58 new lessons, and 152 complete-sentence
+questions. It also verifies that every set member is tested independently and
+that no approval fields have been set.
+
+Reviewers should check the en-GB relation class, pronunciation and stress,
+intended sense, role, sentence clarity, morphology, age suitability, and source
+rights. In particular, review religious vocabulary (`hell`, `altar`,
+`prophet`) and the context-dependent expansions of `'d`. A classification
+such as `contraction_real_word` is a teaching contrast, not a claim that both
+words have identical pronunciation. `WERE_WHERE_WEAR` remains the existing
+skill and route; its proposed set relation is `near_homophone` for en-GB.
+Lesson editorial copy and questions remain drafts until the content owner
+signs the review sheets with a real approval reference. This packet does not
+write dictionary rows or release lesson routes.
+
+## Release gates
 
 The four CSV files are **draft review work**, not importable approvals:
 

@@ -1,0 +1,3836 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "draft",
+  "lessons": [
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare accept (agree to receive something) / except (leaving one thing out).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "accept",
+              "grammaticalRole": "verb",
+              "intendedSense": "agree to receive something",
+              "teachingSentence": "Mina will accept the invitation today.",
+              "sentenceWithBlank": "Mina will ____ the invitation today."
+            },
+            {
+              "word": "except",
+              "grammaticalRole": "preposition",
+              "intendedSense": "leaving one thing out",
+              "teachingSentence": "Everyone except Omar brought a coat.",
+              "sentenceWithBlank": "Everyone ____ Omar brought a coat."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_ACCEPT_EXCEPT:accept",
+          "setKey": "CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+          "sentenceWithBlank": "Mina will ____ the invitation today.",
+          "correctWord": "accept",
+          "optionWords": [
+            "accept",
+            "except"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_ACCEPT_EXCEPT:except",
+          "setKey": "CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+          "sentenceWithBlank": "Everyone ____ Omar brought a coat.",
+          "correctWord": "except",
+          "optionWords": [
+            "accept",
+            "except"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare affect (cause a change in something) / effect (a result or change).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_AFFECT_EFFECT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "affect",
+              "grammaticalRole": "verb",
+              "intendedSense": "cause a change in something",
+              "teachingSentence": "Heavy rain may affect the match.",
+              "sentenceWithBlank": "Heavy rain may ____ the match."
+            },
+            {
+              "word": "effect",
+              "grammaticalRole": "noun",
+              "intendedSense": "a result or change",
+              "teachingSentence": "The new rule had a clear effect on play.",
+              "sentenceWithBlank": "The new rule had a clear ____ on play."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_AFFECT_EFFECT:affect",
+          "setKey": "CONFUSABLE_WORDS_AFFECT_EFFECT",
+          "sentenceWithBlank": "Heavy rain may ____ the match.",
+          "correctWord": "affect",
+          "optionWords": [
+            "affect",
+            "effect"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_AFFECT_EFFECT:effect",
+          "setKey": "CONFUSABLE_WORDS_AFFECT_EFFECT",
+          "sentenceWithBlank": "The new rule had a clear ____ on play.",
+          "correctWord": "effect",
+          "optionWords": [
+            "affect",
+            "effect"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare breath (air taken into or sent out of the lungs) / breathe (take air into and out of the lungs).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_BREATH_BREATHE",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "breath",
+              "grammaticalRole": "noun",
+              "intendedSense": "air taken into or sent out of the lungs",
+              "teachingSentence": "I took a deep breath before diving.",
+              "sentenceWithBlank": "I took a deep ____ before diving."
+            },
+            {
+              "word": "breathe",
+              "grammaticalRole": "verb",
+              "intendedSense": "take air into and out of the lungs",
+              "teachingSentence": "Remember to breathe slowly after running.",
+              "sentenceWithBlank": "Remember to ____ slowly after running."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_BREATH_BREATHE:breath",
+          "setKey": "CONFUSABLE_WORDS_BREATH_BREATHE",
+          "sentenceWithBlank": "I took a deep ____ before diving.",
+          "correctWord": "breath",
+          "optionWords": [
+            "breath",
+            "breathe"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_BREATH_BREATHE:breathe",
+          "setKey": "CONFUSABLE_WORDS_BREATH_BREATHE",
+          "sentenceWithBlank": "Remember to ____ slowly after running.",
+          "correctWord": "breathe",
+          "optionWords": [
+            "breath",
+            "breathe"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare loose (not firmly fixed or tightly held) / lose (no longer have something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_LOOSE_LOSE",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "loose",
+              "grammaticalRole": "adjective",
+              "intendedSense": "not firmly fixed or tightly held",
+              "teachingSentence": "The loose button fell from my coat.",
+              "sentenceWithBlank": "The ____ button fell from my coat."
+            },
+            {
+              "word": "lose",
+              "grammaticalRole": "verb",
+              "intendedSense": "no longer have something",
+              "teachingSentence": "Please do not lose your library card.",
+              "sentenceWithBlank": "Please do not ____ your library card."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_LOOSE_LOSE:loose",
+          "setKey": "CONFUSABLE_WORDS_LOOSE_LOSE",
+          "sentenceWithBlank": "The ____ button fell from my coat.",
+          "correctWord": "loose",
+          "optionWords": [
+            "loose",
+            "lose"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_LOOSE_LOSE:lose",
+          "setKey": "CONFUSABLE_WORDS_LOOSE_LOSE",
+          "sentenceWithBlank": "Please do not ____ your library card.",
+          "correctWord": "lose",
+          "optionWords": [
+            "loose",
+            "lose"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare desert (a very dry place with little rain) / dessert (sweet food eaten after a meal).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DESERT_DESSERT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "desert",
+              "grammaticalRole": "noun",
+              "intendedSense": "a very dry place with little rain",
+              "teachingSentence": "The camel crossed the hot desert.",
+              "sentenceWithBlank": "The camel crossed the hot ____."
+            },
+            {
+              "word": "dessert",
+              "grammaticalRole": "noun",
+              "intendedSense": "sweet food eaten after a meal",
+              "teachingSentence": "We shared a fruit dessert after lunch.",
+              "sentenceWithBlank": "We shared a fruit ____ after lunch."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_DESERT_DESSERT:desert",
+          "setKey": "CONFUSABLE_WORDS_DESERT_DESSERT",
+          "sentenceWithBlank": "The camel crossed the hot ____.",
+          "correctWord": "desert",
+          "optionWords": [
+            "desert",
+            "dessert"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_DESERT_DESSERT:dessert",
+          "setKey": "CONFUSABLE_WORDS_DESERT_DESSERT",
+          "sentenceWithBlank": "We shared a fruit ____ after lunch.",
+          "correctWord": "dessert",
+          "optionWords": [
+            "desert",
+            "dessert"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_OF_OFF",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare of (showing a part or belonging) / off (away from a surface or position).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_OF_OFF",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "of",
+              "grammaticalRole": "preposition",
+              "intendedSense": "showing a part or belonging",
+              "teachingSentence": "A slice of cake remained on the plate.",
+              "sentenceWithBlank": "A slice ____ cake remained on the plate."
+            },
+            {
+              "word": "off",
+              "grammaticalRole": "adverb",
+              "intendedSense": "away from a surface or position",
+              "teachingSentence": "The kite blew off the roof.",
+              "sentenceWithBlank": "The kite blew ____ the roof."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_OF_OFF:of",
+          "setKey": "CONFUSABLE_WORDS_OF_OFF",
+          "sentenceWithBlank": "A slice ____ cake remained on the plate.",
+          "correctWord": "of",
+          "optionWords": [
+            "of",
+            "off"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_OF_OFF:off",
+          "setKey": "CONFUSABLE_WORDS_OF_OFF",
+          "sentenceWithBlank": "The kite blew ____ the roof.",
+          "correctWord": "off",
+          "optionWords": [
+            "of",
+            "off"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare quite (to a considerable degree) / quiet (making very little noise).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_QUITE_QUIET",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "quite",
+              "grammaticalRole": "adverb",
+              "intendedSense": "to a considerable degree",
+              "teachingSentence": "The puzzle was quite difficult for us.",
+              "sentenceWithBlank": "The puzzle was ____ difficult for us."
+            },
+            {
+              "word": "quiet",
+              "grammaticalRole": "adjective",
+              "intendedSense": "making very little noise",
+              "teachingSentence": "The classroom became quiet during reading.",
+              "sentenceWithBlank": "The classroom became ____ during reading."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_QUITE_QUIET:quite",
+          "setKey": "CONFUSABLE_WORDS_QUITE_QUIET",
+          "sentenceWithBlank": "The puzzle was ____ difficult for us.",
+          "correctWord": "quite",
+          "optionWords": [
+            "quite",
+            "quiet"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_QUITE_QUIET:quiet",
+          "setKey": "CONFUSABLE_WORDS_QUITE_QUIET",
+          "sentenceWithBlank": "The classroom became ____ during reading.",
+          "correctWord": "quiet",
+          "optionWords": [
+            "quite",
+            "quiet"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_BERRY_BURY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare berry (a small round fruit) / bury (put something under the ground).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_BERRY_BURY",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "berry",
+              "grammaticalRole": "noun",
+              "intendedSense": "a small round fruit",
+              "teachingSentence": "A red berry grew beside the path.",
+              "sentenceWithBlank": "A red ____ grew beside the path."
+            },
+            {
+              "word": "bury",
+              "grammaticalRole": "verb",
+              "intendedSense": "put something under the ground",
+              "teachingSentence": "We will bury the seed in damp soil.",
+              "sentenceWithBlank": "We will ____ the seed in damp soil."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_BERRY_BURY:berry",
+          "setKey": "CONFUSABLE_WORDS_BERRY_BURY",
+          "sentenceWithBlank": "A red ____ grew beside the path.",
+          "correctWord": "berry",
+          "optionWords": [
+            "berry",
+            "bury"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_BERRY_BURY:bury",
+          "setKey": "CONFUSABLE_WORDS_BERRY_BURY",
+          "sentenceWithBlank": "We will ____ the seed in damp soil.",
+          "correctWord": "bury",
+          "optionWords": [
+            "berry",
+            "bury"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare compliment (words of praise) / complement (go well with something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "compliment",
+              "grammaticalRole": "noun",
+              "intendedSense": "words of praise",
+              "teachingSentence": "Her kind compliment made Ben smile.",
+              "sentenceWithBlank": "Her kind ____ made Ben smile."
+            },
+            {
+              "word": "complement",
+              "grammaticalRole": "verb",
+              "intendedSense": "go well with something",
+              "teachingSentence": "The blue scarf will complement her coat.",
+              "sentenceWithBlank": "The blue scarf will ____ her coat."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT:compliment",
+          "setKey": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+          "sentenceWithBlank": "Her kind ____ made Ben smile.",
+          "correctWord": "compliment",
+          "optionWords": [
+            "compliment",
+            "complement"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT:complement",
+          "setKey": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+          "sentenceWithBlank": "The blue scarf will ____ her coat.",
+          "correctWord": "complement",
+          "optionWords": [
+            "compliment",
+            "complement"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare farther (at a greater physical distance) / father (a male parent).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_FARTHER_FATHER",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "farther",
+              "grammaticalRole": "adverb",
+              "intendedSense": "at a greater physical distance",
+              "teachingSentence": "The park is farther away than the shop.",
+              "sentenceWithBlank": "The park is ____ away than the shop."
+            },
+            {
+              "word": "father",
+              "grammaticalRole": "noun",
+              "intendedSense": "a male parent",
+              "teachingSentence": "Her father fixed the bicycle tyre.",
+              "sentenceWithBlank": "Her ____ fixed the bicycle tyre."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_FARTHER_FATHER:farther",
+          "setKey": "CONFUSABLE_WORDS_FARTHER_FATHER",
+          "sentenceWithBlank": "The park is ____ away than the shop.",
+          "correctWord": "farther",
+          "optionWords": [
+            "farther",
+            "father"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_FARTHER_FATHER:father",
+          "setKey": "CONFUSABLE_WORDS_FARTHER_FATHER",
+          "sentenceWithBlank": "Her ____ fixed the bicycle tyre.",
+          "correctWord": "father",
+          "optionWords": [
+            "farther",
+            "father"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_LED_LEAD",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare led (guided someone in the past) / lead (guide someone now or later).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_LED_LEAD",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "led",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "guided someone in the past",
+              "teachingSentence": "The guide led us through the museum.",
+              "sentenceWithBlank": "The guide ____ us through the museum."
+            },
+            {
+              "word": "lead",
+              "grammaticalRole": "verb",
+              "intendedSense": "guide someone now or later",
+              "teachingSentence": "I will lead the team onto the pitch.",
+              "sentenceWithBlank": "I will ____ the team onto the pitch."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_LED_LEAD:led",
+          "setKey": "CONFUSABLE_WORDS_LED_LEAD",
+          "sentenceWithBlank": "The guide ____ us through the museum.",
+          "correctWord": "led",
+          "optionWords": [
+            "led",
+            "lead"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_LED_LEAD:lead",
+          "setKey": "CONFUSABLE_WORDS_LED_LEAD",
+          "sentenceWithBlank": "I will ____ the team onto the pitch.",
+          "correctWord": "lead",
+          "optionWords": [
+            "led",
+            "lead"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare precede (come before something in order) / proceed (continue or move forward).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_PRECEDE_PROCEED",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "precede",
+              "grammaticalRole": "verb",
+              "intendedSense": "come before something in order",
+              "teachingSentence": "The warm-up will precede the race.",
+              "sentenceWithBlank": "The warm-up will ____ the race."
+            },
+            {
+              "word": "proceed",
+              "grammaticalRole": "verb",
+              "intendedSense": "continue or move forward",
+              "teachingSentence": "We can proceed when the bell rings.",
+              "sentenceWithBlank": "We can ____ when the bell rings."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_PRECEDE_PROCEED:precede",
+          "setKey": "CONFUSABLE_WORDS_PRECEDE_PROCEED",
+          "sentenceWithBlank": "The warm-up will ____ the race.",
+          "correctWord": "precede",
+          "optionWords": [
+            "precede",
+            "proceed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_PRECEDE_PROCEED:proceed",
+          "setKey": "CONFUSABLE_WORDS_PRECEDE_PROCEED",
+          "sentenceWithBlank": "We can ____ when the bell rings.",
+          "correctWord": "proceed",
+          "optionWords": [
+            "precede",
+            "proceed"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare descent (a journey or movement downwards) / dissent (disagreement with a view or decision).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DESCENT_DISSENT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "descent",
+              "grammaticalRole": "noun",
+              "intendedSense": "a journey or movement downwards",
+              "teachingSentence": "The steep descent made us walk slowly.",
+              "sentenceWithBlank": "The steep ____ made us walk slowly."
+            },
+            {
+              "word": "dissent",
+              "grammaticalRole": "noun",
+              "intendedSense": "disagreement with a view or decision",
+              "teachingSentence": "One pupil voiced dissent about the new rule.",
+              "sentenceWithBlank": "One pupil voiced ____ about the new rule."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_DESCENT_DISSENT:descent",
+          "setKey": "CONFUSABLE_WORDS_DESCENT_DISSENT",
+          "sentenceWithBlank": "The steep ____ made us walk slowly.",
+          "correctWord": "descent",
+          "optionWords": [
+            "descent",
+            "dissent"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_DESCENT_DISSENT:dissent",
+          "setKey": "CONFUSABLE_WORDS_DESCENT_DISSENT",
+          "sentenceWithBlank": "One pupil voiced ____ about the new rule.",
+          "correctWord": "dissent",
+          "optionWords": [
+            "descent",
+            "dissent"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare draft (an early version of a piece of writing) / draught (a current of cold air indoors).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "draft",
+              "grammaticalRole": "noun",
+              "intendedSense": "an early version of a piece of writing",
+              "teachingSentence": "I wrote a draft of my story first.",
+              "sentenceWithBlank": "I wrote a ____ of my story first."
+            },
+            {
+              "word": "draught",
+              "grammaticalRole": "noun",
+              "intendedSense": "a current of cold air indoors",
+              "teachingSentence": "A cold draught came through the window.",
+              "sentenceWithBlank": "A cold ____ came through the window."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_DRAFT_DRAUGHT:draft",
+          "setKey": "CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+          "sentenceWithBlank": "I wrote a ____ of my story first.",
+          "correctWord": "draft",
+          "optionWords": [
+            "draft",
+            "draught"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_DRAFT_DRAUGHT:draught",
+          "setKey": "CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+          "sentenceWithBlank": "A cold ____ came through the window.",
+          "correctWord": "draught",
+          "optionWords": [
+            "draft",
+            "draught"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare principal (the head of a school) / principle (an important belief or rule).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "principal",
+              "grammaticalRole": "noun",
+              "intendedSense": "the head of a school",
+              "teachingSentence": "The principal spoke at the assembly.",
+              "sentenceWithBlank": "The ____ spoke at the assembly."
+            },
+            {
+              "word": "principle",
+              "grammaticalRole": "noun",
+              "intendedSense": "an important belief or rule",
+              "teachingSentence": "Fairness is a principle we try to follow.",
+              "sentenceWithBlank": "Fairness is a ____ we try to follow."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE:principal",
+          "setKey": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+          "sentenceWithBlank": "The ____ spoke at the assembly.",
+          "correctWord": "principal",
+          "optionWords": [
+            "principal",
+            "principle"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE:principle",
+          "setKey": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+          "sentenceWithBlank": "Fairness is a ____ we try to follow.",
+          "correctWord": "principle",
+          "optionWords": [
+            "principal",
+            "principle"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_WARY_WEARY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare wary (careful because danger may be present) / weary (very tired).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_WARY_WEARY",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "wary",
+              "grammaticalRole": "adjective",
+              "intendedSense": "careful because danger may be present",
+              "teachingSentence": "The dog was wary of the icy steps.",
+              "sentenceWithBlank": "The dog was ____ of the icy steps."
+            },
+            {
+              "word": "weary",
+              "grammaticalRole": "adjective",
+              "intendedSense": "very tired",
+              "teachingSentence": "After the long walk we felt weary.",
+              "sentenceWithBlank": "After the long walk we felt ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_WARY_WEARY:wary",
+          "setKey": "CONFUSABLE_WORDS_WARY_WEARY",
+          "sentenceWithBlank": "The dog was ____ of the icy steps.",
+          "correctWord": "wary",
+          "optionWords": [
+            "wary",
+            "weary"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_WARY_WEARY:weary",
+          "setKey": "CONFUSABLE_WORDS_WARY_WEARY",
+          "sentenceWithBlank": "After the long walk we felt ____.",
+          "correctWord": "weary",
+          "optionWords": [
+            "wary",
+            "weary"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare conscience (inner sense of right and wrong) / conscious (awake and aware of what is happening).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "conscience",
+              "grammaticalRole": "noun",
+              "intendedSense": "inner sense of right and wrong",
+              "teachingSentence": "His conscience told him to return the purse.",
+              "sentenceWithBlank": "His ____ told him to return the purse."
+            },
+            {
+              "word": "conscious",
+              "grammaticalRole": "adjective",
+              "intendedSense": "awake and aware of what is happening",
+              "teachingSentence": "She was conscious when the nurse arrived.",
+              "sentenceWithBlank": "She was ____ when the nurse arrived."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS:conscience",
+          "setKey": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+          "sentenceWithBlank": "His ____ told him to return the purse.",
+          "correctWord": "conscience",
+          "optionWords": [
+            "conscience",
+            "conscious"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS:conscious",
+          "setKey": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+          "sentenceWithBlank": "She was ____ when the nurse arrived.",
+          "correctWord": "conscious",
+          "optionWords": [
+            "conscience",
+            "conscious"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare especially (more than usual or more than others) / specially (for a particular purpose).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+          "relationKindCandidate": "confusable",
+          "members": [
+            {
+              "word": "especially",
+              "grammaticalRole": "adverb",
+              "intendedSense": "more than usual or more than others",
+              "teachingSentence": "I especially enjoyed the final song.",
+              "sentenceWithBlank": "I ____ enjoyed the final song."
+            },
+            {
+              "word": "specially",
+              "grammaticalRole": "adverb",
+              "intendedSense": "for a particular purpose",
+              "teachingSentence": "This bag was specially made for the camera.",
+              "sentenceWithBlank": "This bag was ____ made for the camera."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY:especially",
+          "setKey": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+          "sentenceWithBlank": "I ____ enjoyed the final song.",
+          "correctWord": "especially",
+          "optionWords": [
+            "especially",
+            "specially"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY:specially",
+          "setKey": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+          "sentenceWithBlank": "This bag was ____ made for the camera.",
+          "correctWord": "specially",
+          "optionWords": [
+            "especially",
+            "specially"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare advice (guidance about what to do) / advise (give someone guidance); device (a tool or piece of equipment) / devise (invent or plan something); practice (repeated training to improve a skill) / practise (repeat an activity to improve); licence (official permission recorded in a document) / license (grant official permission); prophecy (a statement about what may happen in the future) / prophesy (say what will happen in the future).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "advice",
+              "grammaticalRole": "noun",
+              "intendedSense": "guidance about what to do",
+              "teachingSentence": "The coach gave me useful advice.",
+              "sentenceWithBlank": "The coach gave me useful ____."
+            },
+            {
+              "word": "advise",
+              "grammaticalRole": "verb",
+              "intendedSense": "give someone guidance",
+              "teachingSentence": "The coach will advise us before the game.",
+              "sentenceWithBlank": "The coach will ____ us before the game."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "device",
+              "grammaticalRole": "noun",
+              "intendedSense": "a tool or piece of equipment",
+              "teachingSentence": "This device measures the room temperature.",
+              "sentenceWithBlank": "This ____ measures the room temperature."
+            },
+            {
+              "word": "devise",
+              "grammaticalRole": "verb",
+              "intendedSense": "invent or plan something",
+              "teachingSentence": "We will devise a plan for the garden.",
+              "sentenceWithBlank": "We will ____ a plan for the garden."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "practice",
+              "grammaticalRole": "noun",
+              "intendedSense": "repeated training to improve a skill",
+              "teachingSentence": "Daily practice improved my drumming.",
+              "sentenceWithBlank": "Daily ____ improved my drumming."
+            },
+            {
+              "word": "practise",
+              "grammaticalRole": "verb",
+              "intendedSense": "repeat an activity to improve",
+              "teachingSentence": "I practise the piano after school.",
+              "sentenceWithBlank": "I ____ the piano after school."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "licence",
+              "grammaticalRole": "noun",
+              "intendedSense": "official permission recorded in a document",
+              "teachingSentence": "The driver carried a valid licence.",
+              "sentenceWithBlank": "The driver carried a valid ____."
+            },
+            {
+              "word": "license",
+              "grammaticalRole": "verb",
+              "intendedSense": "grant official permission",
+              "teachingSentence": "The council will license the new stall.",
+              "sentenceWithBlank": "The council will ____ the new stall."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "prophecy",
+              "grammaticalRole": "noun",
+              "intendedSense": "a statement about what may happen in the future",
+              "teachingSentence": "The story began with an old prophecy.",
+              "sentenceWithBlank": "The story began with an old ____."
+            },
+            {
+              "word": "prophesy",
+              "grammaticalRole": "verb",
+              "intendedSense": "say what will happen in the future",
+              "teachingSentence": "The character claims to prophesy the ending.",
+              "sentenceWithBlank": "The character claims to ____ the ending."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise:advice",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise",
+          "sentenceWithBlank": "The coach gave me useful ____.",
+          "correctWord": "advice",
+          "optionWords": [
+            "advice",
+            "advise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise:advise",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise",
+          "sentenceWithBlank": "The coach will ____ us before the game.",
+          "correctWord": "advise",
+          "optionWords": [
+            "advice",
+            "advise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise:device",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise",
+          "sentenceWithBlank": "This ____ measures the room temperature.",
+          "correctWord": "device",
+          "optionWords": [
+            "device",
+            "devise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise:devise",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise",
+          "sentenceWithBlank": "We will ____ a plan for the garden.",
+          "correctWord": "devise",
+          "optionWords": [
+            "device",
+            "devise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise:practice",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise",
+          "sentenceWithBlank": "Daily ____ improved my drumming.",
+          "correctWord": "practice",
+          "optionWords": [
+            "practice",
+            "practise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise:practise",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise",
+          "sentenceWithBlank": "I ____ the piano after school.",
+          "correctWord": "practise",
+          "optionWords": [
+            "practice",
+            "practise"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license:licence",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license",
+          "sentenceWithBlank": "The driver carried a valid ____.",
+          "correctWord": "licence",
+          "optionWords": [
+            "licence",
+            "license"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license:license",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license",
+          "sentenceWithBlank": "The council will ____ the new stall.",
+          "correctWord": "license",
+          "optionWords": [
+            "licence",
+            "license"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy:prophecy",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy",
+          "sentenceWithBlank": "The story began with an old ____.",
+          "correctWord": "prophecy",
+          "optionWords": [
+            "prophecy",
+            "prophesy"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy:prophesy",
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy",
+          "sentenceWithBlank": "The character claims to ____ the ending.",
+          "correctWord": "prophesy",
+          "optionWords": [
+            "prophecy",
+            "prophesy"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare brake (part of a vehicle used to slow it) / break (damage or separate something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "brake",
+              "grammaticalRole": "noun",
+              "intendedSense": "part of a vehicle used to slow it",
+              "teachingSentence": "Dad pressed the brake before the bend.",
+              "sentenceWithBlank": "Dad pressed the ____ before the bend."
+            },
+            {
+              "word": "break",
+              "grammaticalRole": "verb",
+              "intendedSense": "damage or separate something",
+              "teachingSentence": "Be careful not to break the glass.",
+              "sentenceWithBlank": "Be careful not to ____ the glass."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK:brake",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+          "sentenceWithBlank": "Dad pressed the ____ before the bend.",
+          "correctWord": "brake",
+          "optionWords": [
+            "brake",
+            "break"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK:break",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+          "sentenceWithBlank": "Be careful not to ____ the glass.",
+          "correctWord": "break",
+          "optionWords": [
+            "brake",
+            "break"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare allowed (given permission to do something) / aloud (in a voice that can be heard).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "allowed",
+              "grammaticalRole": "verb past participle",
+              "intendedSense": "given permission to do something",
+              "teachingSentence": "We were allowed to visit the library.",
+              "sentenceWithBlank": "We were ____ to visit the library."
+            },
+            {
+              "word": "aloud",
+              "grammaticalRole": "adverb",
+              "intendedSense": "in a voice that can be heard",
+              "teachingSentence": "Please read the first line aloud.",
+              "sentenceWithBlank": "Please read the first line ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD:allowed",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+          "sentenceWithBlank": "We were ____ to visit the library.",
+          "correctWord": "allowed",
+          "optionWords": [
+            "allowed",
+            "aloud"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD:aloud",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+          "sentenceWithBlank": "Please read the first line ____.",
+          "correctWord": "aloud",
+          "optionWords": [
+            "allowed",
+            "aloud"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare sent (caused something to go to someone) / cent (one hundredth of a euro or dollar) / scent (a noticeable smell).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "sent",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "caused something to go to someone",
+              "teachingSentence": "Ella sent a postcard to her aunt.",
+              "sentenceWithBlank": "Ella ____ a postcard to her aunt."
+            },
+            {
+              "word": "cent",
+              "grammaticalRole": "noun",
+              "intendedSense": "one hundredth of a euro or dollar",
+              "teachingSentence": "The coin was worth one cent.",
+              "sentenceWithBlank": "The coin was worth one ____."
+            },
+            {
+              "word": "scent",
+              "grammaticalRole": "noun",
+              "intendedSense": "a noticeable smell",
+              "teachingSentence": "The scent of roses filled the garden.",
+              "sentenceWithBlank": "The ____ of roses filled the garden."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT:sent",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+          "sentenceWithBlank": "Ella ____ a postcard to her aunt.",
+          "correctWord": "sent",
+          "optionWords": [
+            "sent",
+            "cent",
+            "scent"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT:cent",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+          "sentenceWithBlank": "The coin was worth one ____.",
+          "correctWord": "cent",
+          "optionWords": [
+            "sent",
+            "cent",
+            "scent"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT:scent",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+          "sentenceWithBlank": "The ____ of roses filled the garden.",
+          "correctWord": "scent",
+          "optionWords": [
+            "sent",
+            "cent",
+            "scent"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare whether (introducing a choice or uncertainty) / weather (conditions outside such as rain or sunshine).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "whether",
+              "grammaticalRole": "conjunction",
+              "intendedSense": "introducing a choice or uncertainty",
+              "teachingSentence": "I wonder whether the bus is late.",
+              "sentenceWithBlank": "I wonder ____ the bus is late."
+            },
+            {
+              "word": "weather",
+              "grammaticalRole": "noun",
+              "intendedSense": "conditions outside such as rain or sunshine",
+              "teachingSentence": "The weather changed before our picnic.",
+              "sentenceWithBlank": "The ____ changed before our picnic."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER:whether",
+          "setKey": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+          "sentenceWithBlank": "I wonder ____ the bus is late.",
+          "correctWord": "whether",
+          "optionWords": [
+            "whether",
+            "weather"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER:weather",
+          "setKey": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+          "sentenceWithBlank": "The ____ changed before our picnic.",
+          "correctWord": "weather",
+          "optionWords": [
+            "whether",
+            "weather"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare stationary (not moving) / stationery (paper and other writing supplies).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "stationary",
+              "grammaticalRole": "adjective",
+              "intendedSense": "not moving",
+              "teachingSentence": "The train remained stationary at the platform.",
+              "sentenceWithBlank": "The train remained ____ at the platform."
+            },
+            {
+              "word": "stationery",
+              "grammaticalRole": "noun",
+              "intendedSense": "paper and other writing supplies",
+              "teachingSentence": "We bought stationery for the new term.",
+              "sentenceWithBlank": "We bought ____ for the new term."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY:stationary",
+          "setKey": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+          "sentenceWithBlank": "The train remained ____ at the platform.",
+          "correctWord": "stationary",
+          "optionWords": [
+            "stationary",
+            "stationery"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY:stationery",
+          "setKey": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+          "sentenceWithBlank": "We bought ____ for the new term.",
+          "correctWord": "stationery",
+          "optionWords": [
+            "stationary",
+            "stationery"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare here (in this place) / hear (notice a sound with your ears).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "here",
+              "grammaticalRole": "adverb",
+              "intendedSense": "in this place",
+              "teachingSentence": "Please leave your bag here by the door.",
+              "sentenceWithBlank": "Please leave your bag ____ by the door."
+            },
+            {
+              "word": "hear",
+              "grammaticalRole": "verb",
+              "intendedSense": "notice a sound with your ears",
+              "teachingSentence": "I can hear the birds outside.",
+              "sentenceWithBlank": "I can ____ the birds outside."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_HERE_HEAR:here",
+          "setKey": "CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+          "sentenceWithBlank": "Please leave your bag ____ by the door.",
+          "correctWord": "here",
+          "optionWords": [
+            "here",
+            "hear"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_HERE_HEAR:hear",
+          "setKey": "CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+          "sentenceWithBlank": "I can ____ the birds outside.",
+          "correctWord": "hear",
+          "optionWords": [
+            "here",
+            "hear"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare bare (uncovered) / bear (a large furry animal).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "bare",
+              "grammaticalRole": "adjective",
+              "intendedSense": "uncovered",
+              "teachingSentence": "The tree had bare branches in winter.",
+              "sentenceWithBlank": "The tree had ____ branches in winter."
+            },
+            {
+              "word": "bear",
+              "grammaticalRole": "noun",
+              "intendedSense": "a large furry animal",
+              "teachingSentence": "A brown bear appeared in the picture.",
+              "sentenceWithBlank": "A brown ____ appeared in the picture."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BARE_BEAR:bare",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+          "sentenceWithBlank": "The tree had ____ branches in winter.",
+          "correctWord": "bare",
+          "optionWords": [
+            "bare",
+            "bear"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BARE_BEAR:bear",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+          "sentenceWithBlank": "A brown ____ appeared in the picture.",
+          "correctWord": "bear",
+          "optionWords": [
+            "bare",
+            "bear"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare one (the number before two) / won (came first in a contest).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ONE_WON",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "one",
+              "grammaticalRole": "number",
+              "intendedSense": "the number before two",
+              "teachingSentence": "Only one biscuit was left.",
+              "sentenceWithBlank": "Only ____ biscuit was left."
+            },
+            {
+              "word": "won",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "came first in a contest",
+              "teachingSentence": "Our team won the final match.",
+              "sentenceWithBlank": "Our team ____ the final match."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ONE_WON:one",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ONE_WON",
+          "sentenceWithBlank": "Only ____ biscuit was left.",
+          "correctWord": "one",
+          "optionWords": [
+            "one",
+            "won"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ONE_WON:won",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ONE_WON",
+          "sentenceWithBlank": "Our team ____ the final match.",
+          "correctWord": "won",
+          "optionWords": [
+            "one",
+            "won"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare sun (the star that lights the Earth) / son (a male child of a parent).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SUN_SON",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "sun",
+              "grammaticalRole": "noun",
+              "intendedSense": "the star that lights the Earth",
+              "teachingSentence": "The sun warmed the playground.",
+              "sentenceWithBlank": "The ____ warmed the playground."
+            },
+            {
+              "word": "son",
+              "grammaticalRole": "noun",
+              "intendedSense": "a male child of a parent",
+              "teachingSentence": "Her son made a card for her birthday.",
+              "sentenceWithBlank": "Her ____ made a card for her birthday."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SUN_SON:sun",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SUN_SON",
+          "sentenceWithBlank": "The ____ warmed the playground.",
+          "correctWord": "sun",
+          "optionWords": [
+            "sun",
+            "son"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SUN_SON:son",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SUN_SON",
+          "sentenceWithBlank": "Her ____ made a card for her birthday.",
+          "correctWord": "son",
+          "optionWords": [
+            "sun",
+            "son"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare be (exist or become) / bee (an insect that collects nectar).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BE_BEE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "be",
+              "grammaticalRole": "verb",
+              "intendedSense": "exist or become",
+              "teachingSentence": "I want to be a pilot one day.",
+              "sentenceWithBlank": "I want to ____ a pilot one day."
+            },
+            {
+              "word": "bee",
+              "grammaticalRole": "noun",
+              "intendedSense": "an insect that collects nectar",
+              "teachingSentence": "A bee landed on the lavender.",
+              "sentenceWithBlank": "A ____ landed on the lavender."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BE_BEE:be",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BE_BEE",
+          "sentenceWithBlank": "I want to ____ a pilot one day.",
+          "correctWord": "be",
+          "optionWords": [
+            "be",
+            "bee"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BE_BEE:bee",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BE_BEE",
+          "sentenceWithBlank": "A ____ landed on the lavender.",
+          "correctWord": "bee",
+          "optionWords": [
+            "be",
+            "bee"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare blue (having the colour of a clear sky) / blew (sent air moving in the past).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "blue",
+              "grammaticalRole": "adjective",
+              "intendedSense": "having the colour of a clear sky",
+              "teachingSentence": "She chose a blue ribbon.",
+              "sentenceWithBlank": "She chose a ____ ribbon."
+            },
+            {
+              "word": "blew",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "sent air moving in the past",
+              "teachingSentence": "The wind blew the leaves across the path.",
+              "sentenceWithBlank": "The wind ____ the leaves across the path."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW:blue",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+          "sentenceWithBlank": "She chose a ____ ribbon.",
+          "correctWord": "blue",
+          "optionWords": [
+            "blue",
+            "blew"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW:blew",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+          "sentenceWithBlank": "The wind ____ the leaves across the path.",
+          "correctWord": "blew",
+          "optionWords": [
+            "blue",
+            "blew"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare night (the dark part of the day) / knight (a person given an old title of honour).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "night",
+              "grammaticalRole": "noun",
+              "intendedSense": "the dark part of the day",
+              "teachingSentence": "We saw stars in the sky at night.",
+              "sentenceWithBlank": "We saw stars in the sky at ____."
+            },
+            {
+              "word": "knight",
+              "grammaticalRole": "noun",
+              "intendedSense": "a person given an old title of honour",
+              "teachingSentence": "The knight rode towards the castle.",
+              "sentenceWithBlank": "The ____ rode towards the castle."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT:night",
+          "setKey": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+          "sentenceWithBlank": "We saw stars in the sky at ____.",
+          "correctWord": "night",
+          "optionWords": [
+            "night",
+            "knight"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT:knight",
+          "setKey": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+          "sentenceWithBlank": "The ____ rode towards the castle.",
+          "correctWord": "knight",
+          "optionWords": [
+            "night",
+            "knight"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare ball (a round object used in games) / bawl (cry or shout very loudly).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "ball",
+              "grammaticalRole": "noun",
+              "intendedSense": "a round object used in games",
+              "teachingSentence": "The ball rolled under the bench.",
+              "sentenceWithBlank": "The ____ rolled under the bench."
+            },
+            {
+              "word": "bawl",
+              "grammaticalRole": "verb",
+              "intendedSense": "cry or shout very loudly",
+              "teachingSentence": "The tired baby began to bawl.",
+              "sentenceWithBlank": "The tired baby began to ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BALL_BAWL:ball",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+          "sentenceWithBlank": "The ____ rolled under the bench.",
+          "correctWord": "ball",
+          "optionWords": [
+            "ball",
+            "bawl"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BALL_BAWL:bawl",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+          "sentenceWithBlank": "The tired baby began to ____.",
+          "correctWord": "bawl",
+          "optionWords": [
+            "ball",
+            "bawl"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare fair (treating people equally) / fare (the price paid for a journey).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "fair",
+              "grammaticalRole": "adjective",
+              "intendedSense": "treating people equally",
+              "teachingSentence": "The referee made a fair decision.",
+              "sentenceWithBlank": "The referee made a ____ decision."
+            },
+            {
+              "word": "fare",
+              "grammaticalRole": "noun",
+              "intendedSense": "the price paid for a journey",
+              "teachingSentence": "The bus fare increased this year.",
+              "sentenceWithBlank": "The bus ____ increased this year."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_FAIR_FARE:fair",
+          "setKey": "CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+          "sentenceWithBlank": "The referee made a ____ decision.",
+          "correctWord": "fair",
+          "optionWords": [
+            "fair",
+            "fare"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_FAIR_FARE:fare",
+          "setKey": "CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+          "sentenceWithBlank": "The bus ____ increased this year.",
+          "correctWord": "fare",
+          "optionWords": [
+            "fair",
+            "fare"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare grate (shred food into small pieces) / great (very good or large in degree).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "grate",
+              "grammaticalRole": "verb",
+              "intendedSense": "shred food into small pieces",
+              "teachingSentence": "Please grate the cheese for the pasta.",
+              "sentenceWithBlank": "Please ____ the cheese for the pasta."
+            },
+            {
+              "word": "great",
+              "grammaticalRole": "adjective",
+              "intendedSense": "very good or large in degree",
+              "teachingSentence": "We had a great time at the museum.",
+              "sentenceWithBlank": "We had a ____ time at the museum."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT:grate",
+          "setKey": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+          "sentenceWithBlank": "Please ____ the cheese for the pasta.",
+          "correctWord": "grate",
+          "optionWords": [
+            "grate",
+            "great"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT:great",
+          "setKey": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+          "sentenceWithBlank": "We had a ____ time at the museum.",
+          "correctWord": "great",
+          "optionWords": [
+            "grate",
+            "great"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare groan (make a low sound of pain or annoyance) / grown (become larger or older).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "groan",
+              "grammaticalRole": "verb",
+              "intendedSense": "make a low sound of pain or annoyance",
+              "teachingSentence": "I heard him groan when the game ended.",
+              "sentenceWithBlank": "I heard him ____ when the game ended."
+            },
+            {
+              "word": "grown",
+              "grammaticalRole": "verb past participle",
+              "intendedSense": "become larger or older",
+              "teachingSentence": "The small sapling has grown taller.",
+              "sentenceWithBlank": "The small sapling has ____ taller."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN:groan",
+          "setKey": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+          "sentenceWithBlank": "I heard him ____ when the game ended.",
+          "correctWord": "groan",
+          "optionWords": [
+            "groan",
+            "grown"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN:grown",
+          "setKey": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+          "sentenceWithBlank": "The small sapling has ____ taller.",
+          "correctWord": "grown",
+          "optionWords": [
+            "groan",
+            "grown"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare heel (the back part of a foot) / he'll (he will) / heal (become healthy again).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "heel",
+              "grammaticalRole": "noun",
+              "intendedSense": "the back part of a foot",
+              "teachingSentence": "A stone rubbed against my heel.",
+              "sentenceWithBlank": "A stone rubbed against my ____."
+            },
+            {
+              "word": "he'll",
+              "grammaticalRole": "contraction",
+              "intendedSense": "he will",
+              "teachingSentence": "He'll carry the heavy bag for us.",
+              "sentenceWithBlank": "____ carry the heavy bag for us."
+            },
+            {
+              "word": "heal",
+              "grammaticalRole": "verb",
+              "intendedSense": "become healthy again",
+              "teachingSentence": "The cut will heal in a few days.",
+              "sentenceWithBlank": "The cut will ____ in a few days."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL:heel",
+          "setKey": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+          "sentenceWithBlank": "A stone rubbed against my ____.",
+          "correctWord": "heel",
+          "optionWords": [
+            "heel",
+            "he'll",
+            "heal"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL:he'll",
+          "setKey": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+          "sentenceWithBlank": "____ carry the heavy bag for us.",
+          "correctWord": "he'll",
+          "optionWords": [
+            "heel",
+            "he'll",
+            "heal"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL:heal",
+          "setKey": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+          "sentenceWithBlank": "The cut will ____ in a few days.",
+          "correctWord": "heal",
+          "optionWords": [
+            "heel",
+            "he'll",
+            "heal"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare knot (a tight fastening made with rope) / not (used to make a statement negative).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "knot",
+              "grammaticalRole": "noun",
+              "intendedSense": "a tight fastening made with rope",
+              "teachingSentence": "She tied a knot in the string.",
+              "sentenceWithBlank": "She tied a ____ in the string."
+            },
+            {
+              "word": "not",
+              "grammaticalRole": "adverb",
+              "intendedSense": "used to make a statement negative",
+              "teachingSentence": "I am not ready to leave yet.",
+              "sentenceWithBlank": "I am ____ ready to leave yet."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_KNOT_NOT:knot",
+          "setKey": "CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+          "sentenceWithBlank": "She tied a ____ in the string.",
+          "correctWord": "knot",
+          "optionWords": [
+            "knot",
+            "not"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_KNOT_NOT:not",
+          "setKey": "CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+          "sentenceWithBlank": "I am ____ ready to leave yet.",
+          "correctWord": "not",
+          "optionWords": [
+            "knot",
+            "not"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare mail (letters and parcels delivered to people) / male (relating to a boy or man).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "mail",
+              "grammaticalRole": "noun",
+              "intendedSense": "letters and parcels delivered to people",
+              "teachingSentence": "The mail arrived before breakfast.",
+              "sentenceWithBlank": "The ____ arrived before breakfast."
+            },
+            {
+              "word": "male",
+              "grammaticalRole": "adjective",
+              "intendedSense": "relating to a boy or man",
+              "teachingSentence": "The male duck had a green head.",
+              "sentenceWithBlank": "The ____ duck had a green head."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MAIL_MALE:mail",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+          "sentenceWithBlank": "The ____ arrived before breakfast.",
+          "correctWord": "mail",
+          "optionWords": [
+            "mail",
+            "male"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MAIL_MALE:male",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+          "sentenceWithBlank": "The ____ duck had a green head.",
+          "correctWord": "male",
+          "optionWords": [
+            "mail",
+            "male"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare main (most important) / mane (long hair on a horse's neck).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "main",
+              "grammaticalRole": "adjective",
+              "intendedSense": "most important",
+              "teachingSentence": "The main path leads to the gate.",
+              "sentenceWithBlank": "The ____ path leads to the gate."
+            },
+            {
+              "word": "mane",
+              "grammaticalRole": "noun",
+              "intendedSense": "long hair on a horse's neck",
+              "teachingSentence": "The horse's mane moved in the wind.",
+              "sentenceWithBlank": "The horse's ____ moved in the wind."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MAIN_MANE:main",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+          "sentenceWithBlank": "The ____ path leads to the gate.",
+          "correctWord": "main",
+          "optionWords": [
+            "main",
+            "mane"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MAIN_MANE:mane",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+          "sentenceWithBlank": "The horse's ____ moved in the wind.",
+          "correctWord": "mane",
+          "optionWords": [
+            "main",
+            "mane"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare meat (animal flesh used as food) / meet (come together with someone).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "meat",
+              "grammaticalRole": "noun",
+              "intendedSense": "animal flesh used as food",
+              "teachingSentence": "The cook added meat to the stew.",
+              "sentenceWithBlank": "The cook added ____ to the stew."
+            },
+            {
+              "word": "meet",
+              "grammaticalRole": "verb",
+              "intendedSense": "come together with someone",
+              "teachingSentence": "We will meet outside the library.",
+              "sentenceWithBlank": "We will ____ outside the library."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MEAT_MEET:meat",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+          "sentenceWithBlank": "The cook added ____ to the stew.",
+          "correctWord": "meat",
+          "optionWords": [
+            "meat",
+            "meet"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MEAT_MEET:meet",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+          "sentenceWithBlank": "We will ____ outside the library.",
+          "correctWord": "meet",
+          "optionWords": [
+            "meat",
+            "meet"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare medal (a metal prize for an achievement) / meddle (interfere in another person's affairs).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "medal",
+              "grammaticalRole": "noun",
+              "intendedSense": "a metal prize for an achievement",
+              "teachingSentence": "Jaya received a medal after the race.",
+              "sentenceWithBlank": "Jaya received a ____ after the race."
+            },
+            {
+              "word": "meddle",
+              "grammaticalRole": "verb",
+              "intendedSense": "interfere in another person's affairs",
+              "teachingSentence": "Please do not meddle in their game.",
+              "sentenceWithBlank": "Please do not ____ in their game."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE:medal",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+          "sentenceWithBlank": "Jaya received a ____ after the race.",
+          "correctWord": "medal",
+          "optionWords": [
+            "medal",
+            "meddle"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE:meddle",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+          "sentenceWithBlank": "Please do not ____ in their game.",
+          "correctWord": "meddle",
+          "optionWords": [
+            "medal",
+            "meddle"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare plain (simple without decoration) / plane (an aircraft with wings).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "plain",
+              "grammaticalRole": "adjective",
+              "intendedSense": "simple without decoration",
+              "teachingSentence": "He wore a plain white shirt.",
+              "sentenceWithBlank": "He wore a ____ white shirt."
+            },
+            {
+              "word": "plane",
+              "grammaticalRole": "noun",
+              "intendedSense": "an aircraft with wings",
+              "teachingSentence": "The plane flew above the clouds.",
+              "sentenceWithBlank": "The ____ flew above the clouds."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE:plain",
+          "setKey": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+          "sentenceWithBlank": "He wore a ____ white shirt.",
+          "correctWord": "plain",
+          "optionWords": [
+            "plain",
+            "plane"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE:plane",
+          "setKey": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+          "sentenceWithBlank": "The ____ flew above the clouds.",
+          "correctWord": "plane",
+          "optionWords": [
+            "plain",
+            "plane"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare rain (water falling from clouds) / rein (a strap used to guide a horse) / reign (the period when a ruler governs).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "rain",
+              "grammaticalRole": "noun",
+              "intendedSense": "water falling from clouds",
+              "teachingSentence": "Heavy rain stopped the match.",
+              "sentenceWithBlank": "Heavy ____ stopped the match."
+            },
+            {
+              "word": "rein",
+              "grammaticalRole": "noun",
+              "intendedSense": "a strap used to guide a horse",
+              "teachingSentence": "She held the rein as the horse walked.",
+              "sentenceWithBlank": "She held the ____ as the horse walked."
+            },
+            {
+              "word": "reign",
+              "grammaticalRole": "noun",
+              "intendedSense": "the period when a ruler governs",
+              "teachingSentence": "The queen's reign lasted many years.",
+              "sentenceWithBlank": "The queen's ____ lasted many years."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN:rain",
+          "setKey": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+          "sentenceWithBlank": "Heavy ____ stopped the match.",
+          "correctWord": "rain",
+          "optionWords": [
+            "rain",
+            "rein",
+            "reign"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN:rein",
+          "setKey": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+          "sentenceWithBlank": "She held the ____ as the horse walked.",
+          "correctWord": "rein",
+          "optionWords": [
+            "rain",
+            "rein",
+            "reign"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN:reign",
+          "setKey": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+          "sentenceWithBlank": "The queen's ____ lasted many years.",
+          "correctWord": "reign",
+          "optionWords": [
+            "rain",
+            "rein",
+            "reign"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare scene (one part of a play or film) / seen (noticed with the eyes in the past).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "scene",
+              "grammaticalRole": "noun",
+              "intendedSense": "one part of a play or film",
+              "teachingSentence": "The final scene took place at sea.",
+              "sentenceWithBlank": "The final ____ took place at sea."
+            },
+            {
+              "word": "seen",
+              "grammaticalRole": "verb past participle",
+              "intendedSense": "noticed with the eyes in the past",
+              "teachingSentence": "I have seen that bird before.",
+              "sentenceWithBlank": "I have ____ that bird before."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN:scene",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+          "sentenceWithBlank": "The final ____ took place at sea.",
+          "correctWord": "scene",
+          "optionWords": [
+            "scene",
+            "seen"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN:seen",
+          "setKey": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+          "sentenceWithBlank": "I have ____ that bird before.",
+          "correctWord": "seen",
+          "optionWords": [
+            "scene",
+            "seen"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare aisle (a passage between rows of seats) / isle (a small island).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "aisle",
+              "grammaticalRole": "noun",
+              "intendedSense": "a passage between rows of seats",
+              "teachingSentence": "We walked down the aisle to our seats.",
+              "sentenceWithBlank": "We walked down the ____ to our seats."
+            },
+            {
+              "word": "isle",
+              "grammaticalRole": "noun",
+              "intendedSense": "a small island",
+              "teachingSentence": "They visited an isle off the coast.",
+              "sentenceWithBlank": "They visited an ____ off the coast."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE:aisle",
+          "setKey": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+          "sentenceWithBlank": "We walked down the ____ to our seats.",
+          "correctWord": "aisle",
+          "optionWords": [
+            "aisle",
+            "isle"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE:isle",
+          "setKey": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+          "sentenceWithBlank": "They visited an ____ off the coast.",
+          "correctWord": "isle",
+          "optionWords": [
+            "aisle",
+            "isle"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare altar (a table used in religious ceremonies) / alter (change something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "altar",
+              "grammaticalRole": "noun",
+              "intendedSense": "a table used in religious ceremonies",
+              "teachingSentence": "Flowers stood beside the altar.",
+              "sentenceWithBlank": "Flowers stood beside the ____."
+            },
+            {
+              "word": "alter",
+              "grammaticalRole": "verb",
+              "intendedSense": "change something",
+              "teachingSentence": "We had to alter the plan after the rain.",
+              "sentenceWithBlank": "We had to ____ the plan after the rain."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER:altar",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+          "sentenceWithBlank": "Flowers stood beside the ____.",
+          "correctWord": "altar",
+          "optionWords": [
+            "altar",
+            "alter"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER:alter",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+          "sentenceWithBlank": "We had to ____ the plan after the rain.",
+          "correctWord": "alter",
+          "optionWords": [
+            "altar",
+            "alter"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare ascent (an upward climb) / assent (agreement to a suggestion or request).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "ascent",
+              "grammaticalRole": "noun",
+              "intendedSense": "an upward climb",
+              "teachingSentence": "The ascent to the hilltop took an hour.",
+              "sentenceWithBlank": "The ____ to the hilltop took an hour."
+            },
+            {
+              "word": "assent",
+              "grammaticalRole": "noun",
+              "intendedSense": "agreement to a suggestion or request",
+              "teachingSentence": "The group gave its assent to the plan.",
+              "sentenceWithBlank": "The group gave its ____ to the plan."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT:ascent",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+          "sentenceWithBlank": "The ____ to the hilltop took an hour.",
+          "correctWord": "ascent",
+          "optionWords": [
+            "ascent",
+            "assent"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT:assent",
+          "setKey": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+          "sentenceWithBlank": "The group gave its ____ to the plan.",
+          "correctWord": "assent",
+          "optionWords": [
+            "ascent",
+            "assent"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare bridal (relating to a bride or wedding) / bridle (headgear used to guide a horse).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "bridal",
+              "grammaticalRole": "adjective",
+              "intendedSense": "relating to a bride or wedding",
+              "teachingSentence": "The bridal party gathered for a photograph.",
+              "sentenceWithBlank": "The ____ party gathered for a photograph."
+            },
+            {
+              "word": "bridle",
+              "grammaticalRole": "noun",
+              "intendedSense": "headgear used to guide a horse",
+              "teachingSentence": "The rider checked the horse's bridle.",
+              "sentenceWithBlank": "The rider checked the horse's ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE:bridal",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+          "sentenceWithBlank": "The ____ party gathered for a photograph.",
+          "correctWord": "bridal",
+          "optionWords": [
+            "bridal",
+            "bridle"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE:bridle",
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+          "sentenceWithBlank": "The rider checked the horse's ____.",
+          "correctWord": "bridle",
+          "optionWords": [
+            "bridal",
+            "bridle"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare cereal (a breakfast food made from grains) / serial (appearing in several regular parts).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "cereal",
+              "grammaticalRole": "noun",
+              "intendedSense": "a breakfast food made from grains",
+              "teachingSentence": "I ate cereal with milk this morning.",
+              "sentenceWithBlank": "I ate ____ with milk this morning."
+            },
+            {
+              "word": "serial",
+              "grammaticalRole": "adjective",
+              "intendedSense": "appearing in several regular parts",
+              "teachingSentence": "The magazine printed a serial story.",
+              "sentenceWithBlank": "The magazine printed a ____ story."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL:cereal",
+          "setKey": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+          "sentenceWithBlank": "I ate ____ with milk this morning.",
+          "correctWord": "cereal",
+          "optionWords": [
+            "cereal",
+            "serial"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL:serial",
+          "setKey": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+          "sentenceWithBlank": "The magazine printed a ____ story.",
+          "correctWord": "serial",
+          "optionWords": [
+            "cereal",
+            "serial"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare morning (the early part of the day) / mourning (sadness after someone dies).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "morning",
+              "grammaticalRole": "noun",
+              "intendedSense": "the early part of the day",
+              "teachingSentence": "We left home in the morning.",
+              "sentenceWithBlank": "We left home in the ____."
+            },
+            {
+              "word": "mourning",
+              "grammaticalRole": "noun",
+              "intendedSense": "sadness after someone dies",
+              "teachingSentence": "The family was in mourning after the funeral.",
+              "sentenceWithBlank": "The family was in ____ after the funeral."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING:morning",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+          "sentenceWithBlank": "We left home in the ____.",
+          "correctWord": "morning",
+          "optionWords": [
+            "morning",
+            "mourning"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING:mourning",
+          "setKey": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+          "sentenceWithBlank": "The family was in ____ after the funeral.",
+          "correctWord": "mourning",
+          "optionWords": [
+            "morning",
+            "mourning"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare steal (take something that belongs to someone else) / steel (a strong metal).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "steal",
+              "grammaticalRole": "verb",
+              "intendedSense": "take something that belongs to someone else",
+              "teachingSentence": "It is wrong to steal another person's lunch.",
+              "sentenceWithBlank": "It is wrong to ____ another person's lunch."
+            },
+            {
+              "word": "steel",
+              "grammaticalRole": "noun",
+              "intendedSense": "a strong metal",
+              "teachingSentence": "The bridge was built from steel.",
+              "sentenceWithBlank": "The bridge was built from ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL:steal",
+          "setKey": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+          "sentenceWithBlank": "It is wrong to ____ another person's lunch.",
+          "correctWord": "steal",
+          "optionWords": [
+            "steal",
+            "steel"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL:steel",
+          "setKey": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+          "sentenceWithBlank": "The bridge was built from ____.",
+          "correctWord": "steel",
+          "optionWords": [
+            "steal",
+            "steel"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare profit (money left after costs are paid) / prophet (a person said to speak with divine guidance).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "profit",
+              "grammaticalRole": "noun",
+              "intendedSense": "money left after costs are paid",
+              "teachingSentence": "The shop made a small profit in June.",
+              "sentenceWithBlank": "The shop made a small ____ in June."
+            },
+            {
+              "word": "prophet",
+              "grammaticalRole": "noun",
+              "intendedSense": "a person said to speak with divine guidance",
+              "teachingSentence": "The ancient story described a prophet.",
+              "sentenceWithBlank": "The ancient story described a ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET:profit",
+          "setKey": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+          "sentenceWithBlank": "The shop made a small ____ in June.",
+          "correctWord": "profit",
+          "optionWords": [
+            "profit",
+            "prophet"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET:prophet",
+          "setKey": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+          "sentenceWithBlank": "The ancient story described a ____.",
+          "correctWord": "prophet",
+          "optionWords": [
+            "profit",
+            "prophet"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare missed (failed to catch or attend in the past) / mist (thin cloud close to the ground); guessed (gave an answer without being sure) / guest (a person invited to visit); past (beyond a place or time) / passed (moved beyond something in the past); least (the smallest amount or number) / leased (rented property under an agreement); packed (put things into a bag or case) / pact (a formal agreement).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "missed",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "failed to catch or attend in the past",
+              "teachingSentence": "I missed the bus this morning.",
+              "sentenceWithBlank": "I ____ the bus this morning."
+            },
+            {
+              "word": "mist",
+              "grammaticalRole": "noun",
+              "intendedSense": "thin cloud close to the ground",
+              "teachingSentence": "A light mist covered the field.",
+              "sentenceWithBlank": "A light ____ covered the field."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "guessed",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "gave an answer without being sure",
+              "teachingSentence": "I guessed the answer to the riddle.",
+              "sentenceWithBlank": "I ____ the answer to the riddle."
+            },
+            {
+              "word": "guest",
+              "grammaticalRole": "noun",
+              "intendedSense": "a person invited to visit",
+              "teachingSentence": "Our guest arrived just before lunch.",
+              "sentenceWithBlank": "Our ____ arrived just before lunch."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "past",
+              "grammaticalRole": "preposition",
+              "intendedSense": "beyond a place or time",
+              "teachingSentence": "We walked past the old mill.",
+              "sentenceWithBlank": "We walked ____ the old mill."
+            },
+            {
+              "word": "passed",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "moved beyond something in the past",
+              "teachingSentence": "The train passed the station at noon.",
+              "sentenceWithBlank": "The train ____ the station at noon."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "least",
+              "grammaticalRole": "determiner",
+              "intendedSense": "the smallest amount or number",
+              "teachingSentence": "This jar has the least sugar.",
+              "sentenceWithBlank": "This jar has the ____ sugar."
+            },
+            {
+              "word": "leased",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "rented property under an agreement",
+              "teachingSentence": "They leased the empty shop for a year.",
+              "sentenceWithBlank": "They ____ the empty shop for a year."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact",
+          "relationKindCandidate": "morphological_contrast",
+          "members": [
+            {
+              "word": "packed",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "put things into a bag or case",
+              "teachingSentence": "I packed my suitcase before breakfast.",
+              "sentenceWithBlank": "I ____ my suitcase before breakfast."
+            },
+            {
+              "word": "pact",
+              "grammaticalRole": "noun",
+              "intendedSense": "a formal agreement",
+              "teachingSentence": "The two clubs signed a pact to share the field.",
+              "sentenceWithBlank": "The two clubs signed a ____ to share the field."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist:missed",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist",
+          "sentenceWithBlank": "I ____ the bus this morning.",
+          "correctWord": "missed",
+          "optionWords": [
+            "missed",
+            "mist"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist:mist",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist",
+          "sentenceWithBlank": "A light ____ covered the field.",
+          "correctWord": "mist",
+          "optionWords": [
+            "missed",
+            "mist"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest:guessed",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest",
+          "sentenceWithBlank": "I ____ the answer to the riddle.",
+          "correctWord": "guessed",
+          "optionWords": [
+            "guessed",
+            "guest"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest:guest",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest",
+          "sentenceWithBlank": "Our ____ arrived just before lunch.",
+          "correctWord": "guest",
+          "optionWords": [
+            "guessed",
+            "guest"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed:past",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed",
+          "sentenceWithBlank": "We walked ____ the old mill.",
+          "correctWord": "past",
+          "optionWords": [
+            "past",
+            "passed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed:passed",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed",
+          "sentenceWithBlank": "The train ____ the station at noon.",
+          "correctWord": "passed",
+          "optionWords": [
+            "past",
+            "passed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased:least",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased",
+          "sentenceWithBlank": "This jar has the ____ sugar.",
+          "correctWord": "least",
+          "optionWords": [
+            "least",
+            "leased"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased:leased",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased",
+          "sentenceWithBlank": "They ____ the empty shop for a year.",
+          "correctWord": "leased",
+          "optionWords": [
+            "least",
+            "leased"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact:packed",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact",
+          "sentenceWithBlank": "I ____ my suitcase before breakfast.",
+          "correctWord": "packed",
+          "optionWords": [
+            "packed",
+            "pact"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact:pact",
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact",
+          "sentenceWithBlank": "The two clubs signed a ____ to share the field.",
+          "correctWord": "pact",
+          "optionWords": [
+            "packed",
+            "pact"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare for (intended for a person or purpose) / four (the number after three).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "for",
+              "grammaticalRole": "preposition",
+              "intendedSense": "intended for a person or purpose",
+              "teachingSentence": "This present is for my sister.",
+              "sentenceWithBlank": "This present is ____ my sister."
+            },
+            {
+              "word": "four",
+              "grammaticalRole": "number",
+              "intendedSense": "the number after three",
+              "teachingSentence": "There are four chairs at the table.",
+              "sentenceWithBlank": "There are ____ chairs at the table."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR:for",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+          "sentenceWithBlank": "This present is ____ my sister.",
+          "correctWord": "for",
+          "optionWords": [
+            "for",
+            "four"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR:four",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+          "sentenceWithBlank": "There are ____ chairs at the table.",
+          "correctWord": "four",
+          "optionWords": [
+            "for",
+            "four"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare by (beside or near) / bye (a word said when leaving) / buy (pay money to get something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "by",
+              "grammaticalRole": "preposition",
+              "intendedSense": "beside or near",
+              "teachingSentence": "The cat slept by the fire.",
+              "sentenceWithBlank": "The cat slept ____ the fire."
+            },
+            {
+              "word": "bye",
+              "grammaticalRole": "interjection",
+              "intendedSense": "a word said when leaving",
+              "teachingSentence": "We waved and said bye at the gate.",
+              "sentenceWithBlank": "We waved and said ____ at the gate."
+            },
+            {
+              "word": "buy",
+              "grammaticalRole": "verb",
+              "intendedSense": "pay money to get something",
+              "teachingSentence": "I will buy some bread on the way home.",
+              "sentenceWithBlank": "I will ____ some bread on the way home."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY:by",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+          "sentenceWithBlank": "The cat slept ____ the fire.",
+          "correctWord": "by",
+          "optionWords": [
+            "by",
+            "bye",
+            "buy"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY:bye",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+          "sentenceWithBlank": "We waved and said ____ at the gate.",
+          "correctWord": "bye",
+          "optionWords": [
+            "by",
+            "bye",
+            "buy"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY:buy",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+          "sentenceWithBlank": "I will ____ some bread on the way home.",
+          "correctWord": "buy",
+          "optionWords": [
+            "by",
+            "bye",
+            "buy"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare our (belonging to us) / hour (a period of sixty minutes).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "our",
+              "grammaticalRole": "determiner",
+              "intendedSense": "belonging to us",
+              "teachingSentence": "Our class planted a tree.",
+              "sentenceWithBlank": "____ class planted a tree."
+            },
+            {
+              "word": "hour",
+              "grammaticalRole": "noun",
+              "intendedSense": "a period of sixty minutes",
+              "teachingSentence": "The lesson lasted an hour.",
+              "sentenceWithBlank": "The lesson lasted an ____."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR:our",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+          "sentenceWithBlank": "____ class planted a tree.",
+          "correctWord": "our",
+          "optionWords": [
+            "our",
+            "hour"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR:hour",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+          "sentenceWithBlank": "The lesson lasted an ____.",
+          "correctWord": "hour",
+          "optionWords": [
+            "our",
+            "hour"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare who's (who is or who has) / whose (belonging to which person).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+          "relationKindCandidate": "homophone",
+          "members": [
+            {
+              "word": "who's",
+              "grammaticalRole": "contraction",
+              "intendedSense": "who is or who has",
+              "teachingSentence": "Who's coming to the party tonight?",
+              "sentenceWithBlank": "____ coming to the party tonight?"
+            },
+            {
+              "word": "whose",
+              "grammaticalRole": "determiner",
+              "intendedSense": "belonging to which person",
+              "teachingSentence": "Whose coat is hanging by the door?",
+              "sentenceWithBlank": "____ coat is hanging by the door?"
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE:who's",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+          "sentenceWithBlank": "____ coming to the party tonight?",
+          "correctWord": "who's",
+          "optionWords": [
+            "who's",
+            "whose"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE:whose",
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+          "sentenceWithBlank": "____ coat is hanging by the door?",
+          "correctWord": "whose",
+          "optionWords": [
+            "who's",
+            "whose"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    },
+    {
+      "microSkillKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
+      "contentVersion": "editorial-draft-1",
+      "reviewStatus": "draft",
+      "teachingExplanation": "Choose by meaning in the whole sentence. Compare it's (it is or it has) / its (belonging to it); we're (we are) / were (past form of are); i'll (I will) / ill (unwell); we'll (we will) / well (in a good or satisfactory way); she'd (she had or she would) / shed (a small building for storage); we'd (we had or we would) / wed (marry); he'll (he will) / hell (a place of suffering in some religious beliefs); she'll (she will) / shell (a hard outer covering); let's (let us) / lets (allows someone to do something).",
+      "commonMisconception": "Choosing a word because it looks or sounds familiar without checking its meaning and grammatical role in the sentence.",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "it's",
+              "grammaticalRole": "contraction",
+              "intendedSense": "it is or it has",
+              "teachingSentence": "It's raining outside today.",
+              "sentenceWithBlank": "____ raining outside today."
+            },
+            {
+              "word": "its",
+              "grammaticalRole": "determiner",
+              "intendedSense": "belonging to it",
+              "teachingSentence": "The dog wagged its tail.",
+              "sentenceWithBlank": "The dog wagged ____ tail."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "we're",
+              "grammaticalRole": "contraction",
+              "intendedSense": "we are",
+              "teachingSentence": "We're going to the library now.",
+              "sentenceWithBlank": "____ going to the library now."
+            },
+            {
+              "word": "were",
+              "grammaticalRole": "verb past tense",
+              "intendedSense": "past form of are",
+              "teachingSentence": "We were at the library yesterday.",
+              "sentenceWithBlank": "We ____ at the library yesterday."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "i'll",
+              "grammaticalRole": "contraction",
+              "intendedSense": "I will",
+              "teachingSentence": "I'll bring the maps tomorrow.",
+              "sentenceWithBlank": "____ bring the maps tomorrow."
+            },
+            {
+              "word": "ill",
+              "grammaticalRole": "adjective",
+              "intendedSense": "unwell",
+              "teachingSentence": "Marta stayed home because she felt ill.",
+              "sentenceWithBlank": "Marta stayed home because she felt ____."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "we'll",
+              "grammaticalRole": "contraction",
+              "intendedSense": "we will",
+              "teachingSentence": "We'll meet at the gate after lunch.",
+              "sentenceWithBlank": "____ meet at the gate after lunch."
+            },
+            {
+              "word": "well",
+              "grammaticalRole": "adverb",
+              "intendedSense": "in a good or satisfactory way",
+              "teachingSentence": "She played the piano well.",
+              "sentenceWithBlank": "She played the piano ____."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "she'd",
+              "grammaticalRole": "contraction",
+              "intendedSense": "she had or she would",
+              "teachingSentence": "She'd already finished the puzzle.",
+              "sentenceWithBlank": "____ already finished the puzzle."
+            },
+            {
+              "word": "shed",
+              "grammaticalRole": "noun",
+              "intendedSense": "a small building for storage",
+              "teachingSentence": "The tools are in the garden shed.",
+              "sentenceWithBlank": "The tools are in the garden ____."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "we'd",
+              "grammaticalRole": "contraction",
+              "intendedSense": "we had or we would",
+              "teachingSentence": "We'd already eaten before the film.",
+              "sentenceWithBlank": "____ already eaten before the film."
+            },
+            {
+              "word": "wed",
+              "grammaticalRole": "verb",
+              "intendedSense": "marry",
+              "teachingSentence": "The couple plan to wed next spring.",
+              "sentenceWithBlank": "The couple plan to ____ next spring."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "he'll",
+              "grammaticalRole": "contraction",
+              "intendedSense": "he will",
+              "teachingSentence": "He'll join us after school.",
+              "sentenceWithBlank": "____ join us after school."
+            },
+            {
+              "word": "hell",
+              "grammaticalRole": "noun",
+              "intendedSense": "a place of suffering in some religious beliefs",
+              "teachingSentence": "The story described hell as a place of suffering.",
+              "sentenceWithBlank": "The story described ____ as a place of suffering."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "she'll",
+              "grammaticalRole": "contraction",
+              "intendedSense": "she will",
+              "teachingSentence": "She'll read the next chapter tonight.",
+              "sentenceWithBlank": "____ read the next chapter tonight."
+            },
+            {
+              "word": "shell",
+              "grammaticalRole": "noun",
+              "intendedSense": "a hard outer covering",
+              "teachingSentence": "The snail carried its shell across the path.",
+              "sentenceWithBlank": "The snail carried its ____ across the path."
+            }
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets",
+          "relationKindCandidate": "contraction_real_word",
+          "members": [
+            {
+              "word": "let's",
+              "grammaticalRole": "contraction",
+              "intendedSense": "let us",
+              "teachingSentence": "Let's go to the park after lunch.",
+              "sentenceWithBlank": "____ go to the park after lunch."
+            },
+            {
+              "word": "lets",
+              "grammaticalRole": "verb",
+              "intendedSense": "allows someone to do something",
+              "teachingSentence": "Dad lets me help in the kitchen.",
+              "sentenceWithBlank": "Dad ____ me help in the kitchen."
+            }
+          ]
+        }
+      ],
+      "questions": [
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its:it's",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its",
+          "sentenceWithBlank": "____ raining outside today.",
+          "correctWord": "it's",
+          "optionWords": [
+            "it's",
+            "its"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its:its",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its",
+          "sentenceWithBlank": "The dog wagged ____ tail.",
+          "correctWord": "its",
+          "optionWords": [
+            "it's",
+            "its"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were:we're",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were",
+          "sentenceWithBlank": "____ going to the library now.",
+          "correctWord": "we're",
+          "optionWords": [
+            "we're",
+            "were"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were:were",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were",
+          "sentenceWithBlank": "We ____ at the library yesterday.",
+          "correctWord": "were",
+          "optionWords": [
+            "we're",
+            "were"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill:i'll",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill",
+          "sentenceWithBlank": "____ bring the maps tomorrow.",
+          "correctWord": "i'll",
+          "optionWords": [
+            "i'll",
+            "ill"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill:ill",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill",
+          "sentenceWithBlank": "Marta stayed home because she felt ____.",
+          "correctWord": "ill",
+          "optionWords": [
+            "i'll",
+            "ill"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well:we'll",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well",
+          "sentenceWithBlank": "____ meet at the gate after lunch.",
+          "correctWord": "we'll",
+          "optionWords": [
+            "we'll",
+            "well"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well:well",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well",
+          "sentenceWithBlank": "She played the piano ____.",
+          "correctWord": "well",
+          "optionWords": [
+            "we'll",
+            "well"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed:she'd",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed",
+          "sentenceWithBlank": "____ already finished the puzzle.",
+          "correctWord": "she'd",
+          "optionWords": [
+            "she'd",
+            "shed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed:shed",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed",
+          "sentenceWithBlank": "The tools are in the garden ____.",
+          "correctWord": "shed",
+          "optionWords": [
+            "she'd",
+            "shed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed:we'd",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed",
+          "sentenceWithBlank": "____ already eaten before the film.",
+          "correctWord": "we'd",
+          "optionWords": [
+            "we'd",
+            "wed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed:wed",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed",
+          "sentenceWithBlank": "The couple plan to ____ next spring.",
+          "correctWord": "wed",
+          "optionWords": [
+            "we'd",
+            "wed"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell:he'll",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell",
+          "sentenceWithBlank": "____ join us after school.",
+          "correctWord": "he'll",
+          "optionWords": [
+            "he'll",
+            "hell"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell:hell",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell",
+          "sentenceWithBlank": "The story described ____ as a place of suffering.",
+          "correctWord": "hell",
+          "optionWords": [
+            "he'll",
+            "hell"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell:she'll",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell",
+          "sentenceWithBlank": "____ read the next chapter tonight.",
+          "correctWord": "she'll",
+          "optionWords": [
+            "she'll",
+            "shell"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell:shell",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell",
+          "sentenceWithBlank": "The snail carried its ____ across the path.",
+          "correctWord": "shell",
+          "optionWords": [
+            "she'll",
+            "shell"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets:let's",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets",
+          "sentenceWithBlank": "____ go to the park after lunch.",
+          "correctWord": "let's",
+          "optionWords": [
+            "let's",
+            "lets"
+          ],
+          "evidenceMode": "independent_sentence"
+        },
+        {
+          "questionId": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets:lets",
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets",
+          "sentenceWithBlank": "Dad ____ me help in the kitchen.",
+          "correctWord": "lets",
+          "optionWords": [
+            "let's",
+            "lets"
+          ],
+          "evidenceMode": "independent_sentence"
+        }
+      ]
+    }
+  ]
+}

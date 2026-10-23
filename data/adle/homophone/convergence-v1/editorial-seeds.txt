@@ -1,0 +1,76 @@
+# Each non-comment line follows manifest order for the 58 new skills and their 74 sets.
+# Member syntax: word|grammatical role|intended sense|original complete sentence.
+accept|verb|agree to receive something|Mina will accept the invitation today.;except|preposition|leaving one thing out|Everyone except Omar brought a coat.
+affect|verb|cause a change in something|Heavy rain may affect the match.;effect|noun|a result or change|The new rule had a clear effect on play.
+breath|noun|air taken into or sent out of the lungs|I took a deep breath before diving.;breathe|verb|take air into and out of the lungs|Remember to breathe slowly after running.
+loose|adjective|not firmly fixed or tightly held|The loose button fell from my coat.;lose|verb|no longer have something|Please do not lose your library card.
+desert|noun|a very dry place with little rain|The camel crossed the hot desert.;dessert|noun|sweet food eaten after a meal|We shared a fruit dessert after lunch.
+of|preposition|showing a part or belonging|A slice of cake remained on the plate.;off|adverb|away from a surface or position|The kite blew off the roof.
+quite|adverb|to a considerable degree|The puzzle was quite difficult for us.;quiet|adjective|making very little noise|The classroom became quiet during reading.
+berry|noun|a small round fruit|A red berry grew beside the path.;bury|verb|put something under the ground|We will bury the seed in damp soil.
+compliment|noun|words of praise|Her kind compliment made Ben smile.;complement|verb|go well with something|The blue scarf will complement her coat.
+farther|adverb|at a greater physical distance|The park is farther away than the shop.;father|noun|a male parent|Her father fixed the bicycle tyre.
+led|verb past tense|guided someone in the past|The guide led us through the museum.;lead|verb|guide someone now or later|I will lead the team onto the pitch.
+precede|verb|come before something in order|The warm-up will precede the race.;proceed|verb|continue or move forward|We can proceed when the bell rings.
+descent|noun|a journey or movement downwards|The steep descent made us walk slowly.;dissent|noun|disagreement with a view or decision|One pupil voiced dissent about the new rule.
+draft|noun|an early version of a piece of writing|I wrote a draft of my story first.;draught|noun|a current of cold air indoors|A cold draught came through the window.
+principal|noun|the head of a school|The principal spoke at the assembly.;principle|noun|an important belief or rule|Fairness is a principle we try to follow.
+wary|adjective|careful because danger may be present|The dog was wary of the icy steps.;weary|adjective|very tired|After the long walk we felt weary.
+conscience|noun|inner sense of right and wrong|His conscience told him to return the purse.;conscious|adjective|awake and aware of what is happening|She was conscious when the nurse arrived.
+especially|adverb|more than usual or more than others|I especially enjoyed the final song.;specially|adverb|for a particular purpose|This bag was specially made for the camera.
+advice|noun|guidance about what to do|The coach gave me useful advice.;advise|verb|give someone guidance|The coach will advise us before the game.
+device|noun|a tool or piece of equipment|This device measures the room temperature.;devise|verb|invent or plan something|We will devise a plan for the garden.
+practice|noun|repeated training to improve a skill|Daily practice improved my drumming.;practise|verb|repeat an activity to improve|I practise the piano after school.
+licence|noun|official permission recorded in a document|The driver carried a valid licence.;license|verb|grant official permission|The council will license the new stall.
+prophecy|noun|a statement about what may happen in the future|The story began with an old prophecy.;prophesy|verb|say what will happen in the future|The character claims to prophesy the ending.
+brake|noun|part of a vehicle used to slow it|Dad pressed the brake before the bend.;break|verb|damage or separate something|Be careful not to break the glass.
+allowed|verb past participle|given permission to do something|We were allowed to visit the library.;aloud|adverb|in a voice that can be heard|Please read the first line aloud.
+sent|verb past tense|caused something to go to someone|Ella sent a postcard to her aunt.;cent|noun|one hundredth of a euro or dollar|The coin was worth one cent.;scent|noun|a noticeable smell|The scent of roses filled the garden.
+whether|conjunction|introducing a choice or uncertainty|I wonder whether the bus is late.;weather|noun|conditions outside such as rain or sunshine|The weather changed before our picnic.
+stationary|adjective|not moving|The train remained stationary at the platform.;stationery|noun|paper and other writing supplies|We bought stationery for the new term.
+here|adverb|in this place|Please leave your bag here by the door.;hear|verb|notice a sound with your ears|I can hear the birds outside.
+bare|adjective|uncovered|The tree had bare branches in winter.;bear|noun|a large furry animal|A brown bear appeared in the picture.
+one|number|the number before two|Only one biscuit was left.;won|verb past tense|came first in a contest|Our team won the final match.
+sun|noun|the star that lights the Earth|The sun warmed the playground.;son|noun|a male child of a parent|Her son made a card for her birthday.
+be|verb|exist or become|I want to be a pilot one day.;bee|noun|an insect that collects nectar|A bee landed on the lavender.
+blue|adjective|having the colour of a clear sky|She chose a blue ribbon.;blew|verb past tense|sent air moving in the past|The wind blew the leaves across the path.
+night|noun|the dark part of the day|We saw stars in the sky at night.;knight|noun|a person given an old title of honour|The knight rode towards the castle.
+ball|noun|a round object used in games|The ball rolled under the bench.;bawl|verb|cry or shout very loudly|The tired baby began to bawl.
+fair|adjective|treating people equally|The referee made a fair decision.;fare|noun|the price paid for a journey|The bus fare increased this year.
+grate|verb|shred food into small pieces|Please grate the cheese for the pasta.;great|adjective|very good or large in degree|We had a great time at the museum.
+groan|verb|make a low sound of pain or annoyance|I heard him groan when the game ended.;grown|verb past participle|become larger or older|The small sapling has grown taller.
+heel|noun|the back part of a foot|A stone rubbed against my heel.;he'll|contraction|he will|He'll carry the heavy bag for us.;heal|verb|become healthy again|The cut will heal in a few days.
+knot|noun|a tight fastening made with rope|She tied a knot in the string.;not|adverb|used to make a statement negative|I am not ready to leave yet.
+mail|noun|letters and parcels delivered to people|The mail arrived before breakfast.;male|adjective|relating to a boy or man|The male duck had a green head.
+main|adjective|most important|The main path leads to the gate.;mane|noun|long hair on a horse's neck|The horse's mane moved in the wind.
+meat|noun|animal flesh used as food|The cook added meat to the stew.;meet|verb|come together with someone|We will meet outside the library.
+medal|noun|a metal prize for an achievement|Jaya received a medal after the race.;meddle|verb|interfere in another person's affairs|Please do not meddle in their game.
+plain|adjective|simple without decoration|He wore a plain white shirt.;plane|noun|an aircraft with wings|The plane flew above the clouds.
+rain|noun|water falling from clouds|Heavy rain stopped the match.;rein|noun|a strap used to guide a horse|She held the rein as the horse walked.;reign|noun|the period when a ruler governs|The queen's reign lasted many years.
+scene|noun|one part of a play or film|The final scene took place at sea.;seen|verb past participle|noticed with the eyes in the past|I have seen that bird before.
+aisle|noun|a passage between rows of seats|We walked down the aisle to our seats.;isle|noun|a small island|They visited an isle off the coast.
+altar|noun|a table used in religious ceremonies|Flowers stood beside the altar.;alter|verb|change something|We had to alter the plan after the rain.
+ascent|noun|an upward climb|The ascent to the hilltop took an hour.;assent|noun|agreement to a suggestion or request|The group gave its assent to the plan.
+bridal|adjective|relating to a bride or wedding|The bridal party gathered for a photograph.;bridle|noun|headgear used to guide a horse|The rider checked the horse's bridle.
+cereal|noun|a breakfast food made from grains|I ate cereal with milk this morning.;serial|adjective|appearing in several regular parts|The magazine printed a serial story.
+morning|noun|the early part of the day|We left home in the morning.;mourning|noun|sadness after someone dies|The family was in mourning after the funeral.
+steal|verb|take something that belongs to someone else|It is wrong to steal another person's lunch.;steel|noun|a strong metal|The bridge was built from steel.
+profit|noun|money left after costs are paid|The shop made a small profit in June.;prophet|noun|a person said to speak with divine guidance|The ancient story described a prophet.
+missed|verb past tense|failed to catch or attend in the past|I missed the bus this morning.;mist|noun|thin cloud close to the ground|A light mist covered the field.
+guessed|verb past tense|gave an answer without being sure|I guessed the answer to the riddle.;guest|noun|a person invited to visit|Our guest arrived just before lunch.
+past|preposition|beyond a place or time|We walked past the old mill.;passed|verb past tense|moved beyond something in the past|The train passed the station at noon.
+least|determiner|the smallest amount or number|This jar has the least sugar.;leased|verb past tense|rented property under an agreement|They leased the empty shop for a year.
+packed|verb past tense|put things into a bag or case|I packed my suitcase before breakfast.;pact|noun|a formal agreement|The two clubs signed a pact to share the field.
+for|preposition|intended for a person or purpose|This present is for my sister.;four|number|the number after three|There are four chairs at the table.
+by|preposition|beside or near|The cat slept by the fire.;bye|interjection|a word said when leaving|We waved and said bye at the gate.;buy|verb|pay money to get something|I will buy some bread on the way home.
+our|determiner|belonging to us|Our class planted a tree.;hour|noun|a period of sixty minutes|The lesson lasted an hour.
+who's|contraction|who is or who has|Who's coming to the party tonight?;whose|determiner|belonging to which person|Whose coat is hanging by the door?
+it's|contraction|it is or it has|It's raining outside today.;its|determiner|belonging to it|The dog wagged its tail.
+we're|contraction|we are|We're going to the library now.;were|verb past tense|past form of are|We were at the library yesterday.
+i'll|contraction|I will|I'll bring the maps tomorrow.;ill|adjective|unwell|Marta stayed home because she felt ill.
+we'll|contraction|we will|We'll meet at the gate after lunch.;well|adverb|in a good or satisfactory way|She played the piano well.
+she'd|contraction|she had or she would|She'd already finished the puzzle.;shed|noun|a small building for storage|The tools are in the garden shed.
+we'd|contraction|we had or we would|We'd already eaten before the film.;wed|verb|marry|The couple plan to wed next spring.
+he'll|contraction|he will|He'll join us after school.;hell|noun|a place of suffering in some religious beliefs|The story described hell as a place of suffering.
+she'll|contraction|she will|She'll read the next chapter tonight.;shell|noun|a hard outer covering|The snail carried its shell across the path.
+let's|contraction|let us|Let's go to the park after lunch.;lets|verb|allows someone to do something|Dad lets me help in the kitchen.
