@@ -49,5 +49,27 @@ export function contextShadowIdentity() {
     /^[a-f0-9]{64}$/.test(process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT ?? "");
   return valid ? { environment: environment!, deploymentSha: deploymentSha!, projectRef: projectRef! } : null;
 }
+/** Authenticated release diagnostics: names only, never configuration values. */
+export function contextShadowIdentityFailures(): string[] {
+  const environment = process.env.CONTEXT_AI_ENVIRONMENT;
+  const deploymentSha = process.env.CONTEXT_AI_DEPLOYMENT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA;
+  const checks: Record<string, boolean> = {
+    retention: process.env.CONTEXT_AI_STANDARD_RETENTION_ACCEPTED === "accepted",
+    providerKey: Boolean(process.env.OPENAI_API_KEY?.trim()),
+    environment: (environment === "production" && process.env.VERCEL_ENV === "production") ||
+      (environment === "staging" && process.env.VERCEL_ENV === "preview"),
+    deploymentSha: /^[a-f0-9]{40}$/.test(deploymentSha ?? ""),
+    projectRef: /^[A-Za-z0-9_-]{1,100}$/.test(process.env.CONTEXT_AI_OPENAI_PROJECT_REF ?? ""),
+    model: process.env.CONTEXT_AI_MODEL === AI_CONTEXT_MODEL,
+    prompt: process.env.CONTEXT_AI_PROMPT_FINGERPRINT === AI_CONTEXT_PROMPT_FINGERPRINT,
+    schema: process.env.CONTEXT_AI_SCHEMA_FINGERPRINT === AI_CONTEXT_SCHEMA_FINGERPRINT,
+    config: process.env.CONTEXT_AI_CONFIG_FINGERPRINT === AI_CONTEXT_CONFIG_FINGERPRINT,
+    gate: process.env.CONTEXT_AI_GATE_VERSION === AI_CONTEXT_GATE_VERSION,
+    runtime: process.env.CONTEXT_AI_RUNTIME_FINGERPRINT === CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
+    rateCard: /^[A-Za-z0-9_.-]{1,80}$/.test(process.env.CONTEXT_AI_RATE_CARD_VERSION ?? ""),
+    rateFingerprint: /^[a-f0-9]{64}$/.test(process.env.CONTEXT_AI_RATE_CARD_FINGERPRINT ?? ""),
+  };
+  return Object.entries(checks).filter(([, valid]) => !valid).map(([name]) => name);
+}
 /** SDK/database exceptions may contain prose. Never log their arbitrary messages. */
 export function contextShadowErrorCode(): string { return "CONTEXT_SHADOW_WORKER_UNAVAILABLE"; }

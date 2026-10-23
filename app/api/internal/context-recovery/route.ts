@@ -4,7 +4,7 @@ import { recoverContextShadowJobs } from "@/lib/writing-engine/whole-writing/con
 import { recoverAdleReviewContextJobs } from "@/lib/writing-engine/whole-writing/adle-review-context-worker";
 import { validContextRateCard, type ContextRateCard } from "@/lib/writing-engine/whole-writing/context-ai-cost";
 import { AI_CONTEXT_CONFIG_FINGERPRINT } from "@/lib/writing-engine/whole-writing/context-ai-gate";
-import { CONTEXT_SHADOW_RUNTIME_FINGERPRINT, contextShadowIdentity } from "@/lib/writing-engine/whole-writing/context-shadow-policy";
+import { CONTEXT_SHADOW_RUNTIME_FINGERPRINT, contextShadowIdentity, contextShadowIdentityFailures } from "@/lib/writing-engine/whole-writing/context-shadow-policy";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +28,7 @@ export async function HEAD(request: NextRequest) {
     "X-Context-Runtime-Fingerprint": CONTEXT_SHADOW_RUNTIME_FINGERPRINT,
     "X-Context-Release-Hold": process.env.CONTEXT_AI_RELEASE_HOLD === "enabled" ? "enabled" : "disabled",
     "X-Context-Identity-Valid": contextShadowIdentity() ? "true" : "false",
+    "X-Context-Identity-Failures": contextShadowIdentityFailures().join(",") || "none",
   } });
 }
 
