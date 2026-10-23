@@ -1,0 +1,1609 @@
+{
+  "schemaVersion": 1,
+  "environment": "production",
+  "capturedAt": "2026-10-23T14:34:07.196Z",
+  "sourceSha256": "19d8ba8c82f531d62f665d26face17ba4c62a14fdfbabd8c5e222ef5b9d86297",
+  "catalog": [
+    {
+      "id": "c33aefd8-4cb9-4d49-bc3c-79ad3d3e37bc",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "287ca82f-b013-4b13-a4b2-fc0242fc181e",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "b0590730-f5a6-430d-adeb-726f28b837f3",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "7bcd2d1b-7406-4784-900a-6b7d3cb5fea1",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "73c22779-fece-4393-a9d8-ba3d0be8f1e4",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PIECE_PEACE",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": false,
+      "is_assignable": false
+    },
+    {
+      "id": "7323fe69-fb34-416f-bb57-1660b6df65b7",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "5421db8f-0031-420a-b14f-6f94ed4c4719",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "06323a9d-ee1f-4916-a6ae-bc8bd304600b",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "skill_cluster_key": "D4_HOM_CONTENT_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "4e43d95d-8681-44e3-a002-dde2629c2959",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "skill_cluster_key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "8fb56c31-a68f-4dd6-a3df-e6265d8084fc",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "skill_cluster_key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "cab11b7d-7835-498a-abad-a05bb0b8c86d",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "skill_cluster_key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "ee8f5ce4-4bb8-43f7-99f5-028f43590a05",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "skill_cluster_key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "30107770-07e6-4d76-9079-4b0cb3e36625",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "skill_cluster_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "9d61cba6-ada5-4390-86a4-a0398c5b25e8",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "skill_cluster_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "ebe2e3b2-bf77-4eed-8458-d5d87059ea11",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "skill_cluster_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    },
+    {
+      "id": "14ec9f3d-0c4d-45b0-bae8-b1b2de186638",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "skill_cluster_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES",
+      "is_active": true,
+      "is_assignable": true
+    }
+  ],
+  "dictionary": [
+    {
+      "id": "08f81040-5cd5-5ad6-b24c-70625aa3c1d6",
+      "normalised_word": "accept",
+      "display_word": "accept",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "cb15be8a-c5d4-5572-b7b1-73d588268bea",
+      "normalised_word": "advice",
+      "display_word": "advice",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "111ad28a-9989-592a-a801-83a6a7cce1e2",
+      "normalised_word": "advise",
+      "display_word": "advise",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b43638dd-5a16-5b8c-9d11-e991c2611b46",
+      "normalised_word": "affect",
+      "display_word": "affect",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "a9fde3de-8bb2-5905-abf2-92c1a3139e36",
+      "normalised_word": "aisle",
+      "display_word": "aisle",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "832dd1a7-71ae-5308-8dab-4f90c8810981",
+      "normalised_word": "allowed",
+      "display_word": "allowed",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "5f1d0e5b-dea8-59e5-babc-05c0f7926edd",
+      "normalised_word": "aloud",
+      "display_word": "aloud",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "39be4d0b-9149-5f16-993b-4ede15ba6e65",
+      "normalised_word": "altar",
+      "display_word": "altar",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d94233e7-dd82-514e-8beb-ec0bdfdefc49",
+      "normalised_word": "alter",
+      "display_word": "alter",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c95a7b7f-0cac-5513-b374-95cba442dca7",
+      "normalised_word": "ball",
+      "display_word": "ball",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "83dccd54-2ff4-5ef9-b6ea-d003a1e34f83",
+      "normalised_word": "bare",
+      "display_word": "bare",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d4f6b50f-b966-56c2-bb4e-33d06aa1f817",
+      "normalised_word": "be",
+      "display_word": "be",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "9c73ce2b-e810-58b4-bdab-3902412a6d86",
+      "normalised_word": "bear",
+      "display_word": "bear",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2e029946-8e6d-597d-87a5-3d248fce6181",
+      "normalised_word": "bee",
+      "display_word": "bee",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2cb2e62f-b8f1-534e-8317-1f51a06ed3d4",
+      "normalised_word": "berry",
+      "display_word": "berry",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6f43ca52-ec45-5951-a801-878e7f145f98",
+      "normalised_word": "blew",
+      "display_word": "blew",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "83ba3513-2bd1-5aff-a1f1-f1dbf5ad94ff",
+      "normalised_word": "blue",
+      "display_word": "blue",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "3ec9f148-76d3-5f85-a618-beba065cf15b",
+      "normalised_word": "brake",
+      "display_word": "brake",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "475feb8e-7a12-5050-ab66-f1b9feae8eb0",
+      "normalised_word": "break",
+      "display_word": "break",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c247e2de-9737-5257-8035-a1b4e27670ea",
+      "normalised_word": "breath",
+      "display_word": "breath",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "989cc3f8-f596-55e8-a8db-ee96855dfbba",
+      "normalised_word": "breathe",
+      "display_word": "breathe",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d2deecff-eaea-5050-9943-1961ea0a61b3",
+      "normalised_word": "bury",
+      "display_word": "bury",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "abfea96a-7fb7-5455-af9f-ecce9fbc01e7",
+      "normalised_word": "by",
+      "display_word": "by",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "58731636-541d-5b94-ab4e-bb2ce50e6e7a",
+      "normalised_word": "cent",
+      "display_word": "cent",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "5a300306-21ff-5ddc-b444-c96d5c5f8bec",
+      "normalised_word": "cereal",
+      "display_word": "cereal",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "1595407d-8a5c-5dfd-b159-0d910bb2e382",
+      "normalised_word": "complement",
+      "display_word": "complement",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b29b702a-64fd-5925-900d-3954f45b350a",
+      "normalised_word": "compliment",
+      "display_word": "compliment",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c56ff4c0-620b-5777-a725-ec962fd1710f",
+      "normalised_word": "conscience",
+      "display_word": "conscience",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "a51b50ca-e4bc-5fbb-aa32-0974ce4d2aa6",
+      "normalised_word": "conscious",
+      "display_word": "conscious",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c5f0e2d6-7092-5d88-a0f0-4e87fa5eb7da",
+      "normalised_word": "descent",
+      "display_word": "descent",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "cf6d1df7-6858-5e23-a859-1b16762f680b",
+      "normalised_word": "desert",
+      "display_word": "desert",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "7825eac2-b6c3-5fab-ad28-9660bb72cfea",
+      "normalised_word": "dessert",
+      "display_word": "dessert",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "eec7c5af-b5df-5ffb-b19d-7817993f6c05",
+      "normalised_word": "device",
+      "display_word": "device",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "acbca5dd-8b6c-5fda-8710-5bc6f5a89647",
+      "normalised_word": "draft",
+      "display_word": "draft",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "37bd395f-0af0-54fb-a474-9592a329a509",
+      "normalised_word": "effect",
+      "display_word": "effect",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "8e6ffc7d-6166-5816-88d7-773e4017a417",
+      "normalised_word": "especially",
+      "display_word": "especially",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "284ce0c5-8dde-53b3-b85f-9856af12b954",
+      "normalised_word": "except",
+      "display_word": "except",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2a9533bc-877a-5e2c-968e-e94b79d2b045",
+      "normalised_word": "fair",
+      "display_word": "fair",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "15d74473-dd67-5e3b-8982-72d043803f46",
+      "normalised_word": "fare",
+      "display_word": "fare",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "05641e80-0fdb-575b-aac4-7f5a1923cb86",
+      "normalised_word": "farther",
+      "display_word": "farther",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "12d8d29b-3f3a-511e-b4dd-bcbbd876d5e2",
+      "normalised_word": "father",
+      "display_word": "father",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d1e158a6-24cb-5034-8cf3-aea786464595",
+      "normalised_word": "flour",
+      "display_word": "flour",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "7133c536-ab7f-523a-a760-5c26ee1b934f",
+      "normalised_word": "flower",
+      "display_word": "flower",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "30593070-0df3-5057-b084-fa3282939349",
+      "normalised_word": "for",
+      "display_word": "for",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "cb3d7ab1-8bdf-5314-b62a-f061a99172a3",
+      "normalised_word": "four",
+      "display_word": "four",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "061ae62a-9d5c-530b-9711-dacb1c13c4d1",
+      "normalised_word": "great",
+      "display_word": "great",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "11ed3dd1-772f-5da0-9c09-818e94bb1615",
+      "normalised_word": "grown",
+      "display_word": "grown",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "46498253-4a05-5cc1-b50a-ff88b24291ed",
+      "normalised_word": "guessed",
+      "display_word": "guessed",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6746d2eb-b901-570b-b88c-ab6d543e203a",
+      "normalised_word": "guest",
+      "display_word": "guest",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "37590e11-477a-5426-b7e8-ff8e6226fa56",
+      "normalised_word": "he'll",
+      "display_word": "he'll",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c426c642-ea0d-5401-8656-38631d46e248",
+      "normalised_word": "heal",
+      "display_word": "heal",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "9bdfb3b7-2c77-56ae-8b50-d87e21f3fcdc",
+      "normalised_word": "hear",
+      "display_word": "hear",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "34081646-aa25-50d1-b202-668782a2cb8b",
+      "normalised_word": "heard",
+      "display_word": "heard",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2ae3fdc0-37ed-5329-ae86-b31dfc8b8cf2",
+      "normalised_word": "heel",
+      "display_word": "heel",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2fd9e4aa-54e3-5538-82e6-7464063cf560",
+      "normalised_word": "herd",
+      "display_word": "herd",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2c8415f5-1a2a-5541-96a6-7ca0c0ed34e5",
+      "normalised_word": "here",
+      "display_word": "here",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d9a74190-959c-54b4-9afe-f6a7a3673d93",
+      "normalised_word": "hour",
+      "display_word": "hour",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "646ac905-848b-579c-b777-d94d8d31866a",
+      "normalised_word": "i'll",
+      "display_word": "I'll",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "3ddf9294-d778-5966-8f2c-9aa59d9ce077",
+      "normalised_word": "isle",
+      "display_word": "isle",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6ffa36dc-06d2-5c2c-b1f0-1b8bd73137e4",
+      "normalised_word": "it's",
+      "display_word": "it's",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d44d717b-46e4-545f-beb9-58dd9f834a8a",
+      "normalised_word": "its",
+      "display_word": "its",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "e9abd30f-1892-5ae6-b8e3-a94c0ce8591a",
+      "normalised_word": "knight",
+      "display_word": "knight",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "051423de-0ae1-5f46-a9c3-06c569834d6d",
+      "normalised_word": "knot",
+      "display_word": "knot",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "64ec1b41-5e01-5d05-a49b-6c406b9ac25b",
+      "normalised_word": "lead",
+      "display_word": "lead",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "fb1f8b36-9964-5102-85ab-8c31fe0297af",
+      "normalised_word": "led",
+      "display_word": "led",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b5cc648f-2537-5027-9453-a5c77c0345f5",
+      "normalised_word": "let's",
+      "display_word": "let's",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c2345e53-4978-5a38-a236-7f7976f2dde2",
+      "normalised_word": "licence",
+      "display_word": "licence",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "67f2edbb-45ce-54aa-a0c5-8c09b8c81ec3",
+      "normalised_word": "license",
+      "display_word": "license",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ab656aaa-6063-5948-94c5-65d64ea4d9ec",
+      "normalised_word": "mail",
+      "display_word": "mail",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "aa0f6f56-e437-516f-b5d9-7f41dc539c8a",
+      "normalised_word": "main",
+      "display_word": "main",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ee60d461-c3ae-52fc-8c27-0144f51aa005",
+      "normalised_word": "male",
+      "display_word": "male",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "01f43b50-c6f3-5288-abaf-9a88085ad04d",
+      "normalised_word": "meat",
+      "display_word": "meat",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "86105545-06cb-5da4-8073-f47364542e96",
+      "normalised_word": "medal",
+      "display_word": "medal",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "8b084b1f-a42c-585d-a03e-874ed52a99a3",
+      "normalised_word": "meet",
+      "display_word": "meet",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "7860b5f5-02c4-5a33-8d28-c9db4095520b",
+      "normalised_word": "missed",
+      "display_word": "missed",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b20da935-af82-527a-872b-f30129204b17",
+      "normalised_word": "morning",
+      "display_word": "morning",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ae806036-5c4f-5c39-9e99-8ced56c35172",
+      "normalised_word": "mourning",
+      "display_word": "mourning",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ced81e2b-f4ed-52eb-a253-2e755df20f21",
+      "normalised_word": "night",
+      "display_word": "night",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b9f95643-306b-5ffe-96a2-7f2ab5d9879d",
+      "normalised_word": "not",
+      "display_word": "not",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2f135613-2e7f-5266-99df-19d14ffc6369",
+      "normalised_word": "of",
+      "display_word": "of",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "e3768fe5-98ff-5348-afc2-438ca8dff244",
+      "normalised_word": "off",
+      "display_word": "off",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "e9be258c-42ea-5876-9b94-dd3706e5d4d8",
+      "normalised_word": "one",
+      "display_word": "one",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "1475c880-e978-5be5-bdd6-d0b64b6b19f9",
+      "normalised_word": "our",
+      "display_word": "our",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "35e3e9e3-fce4-5f02-9c7c-7d006f1c3cf7",
+      "normalised_word": "passed",
+      "display_word": "passed",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "77a09d70-cf31-5b25-b16d-f2150534b452",
+      "normalised_word": "past",
+      "display_word": "past",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6f831796-7e30-5a37-a60d-c8b1a6ea5285",
+      "normalised_word": "peace",
+      "display_word": "peace",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "9c9a74cb-6514-5bbd-b6f9-653e8946b099",
+      "normalised_word": "piece",
+      "display_word": "piece",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "198baad7-4304-56d5-b64c-82ca66bc1386",
+      "normalised_word": "plain",
+      "display_word": "plain",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "944e63f5-04e4-5c32-ab0d-a2b30bd45802",
+      "normalised_word": "plane",
+      "display_word": "plane",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ebd4ba3d-01e6-5411-bf92-152162b9f2ae",
+      "normalised_word": "practice",
+      "display_word": "practice",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "9524ad3a-7edc-5456-83e6-e2493b15ba69",
+      "normalised_word": "principal",
+      "display_word": "principal",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "2fbd3208-5fb0-5c31-8741-e2a14da79079",
+      "normalised_word": "principle",
+      "display_word": "principle",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "957e5836-f5ab-507c-8887-f8984280871c",
+      "normalised_word": "proceed",
+      "display_word": "proceed",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "21fee2b8-3723-5eb8-9e05-5c1d2d6d678b",
+      "normalised_word": "profit",
+      "display_word": "profit",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "a592b41a-1f9d-5f47-9096-a51543e2beda",
+      "normalised_word": "prophet",
+      "display_word": "prophet",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+      "normalised_word": "quiet",
+      "display_word": "quiet",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "e9125d5c-7ba7-5da0-8e3b-0137ccb634dc",
+      "normalised_word": "quite",
+      "display_word": "quite",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "369d9884-1928-53ca-97ea-6d9c3e6a46ca",
+      "normalised_word": "rain",
+      "display_word": "rain",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "4f915a3e-debf-5364-88a1-ead2e2758df4",
+      "normalised_word": "reign",
+      "display_word": "reign",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "8f24e1e0-545b-544e-b9d8-e3471446ba98",
+      "normalised_word": "right",
+      "display_word": "right",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "79bd7d64-fc74-562e-b38a-14861920cdfd",
+      "normalised_word": "scene",
+      "display_word": "scene",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b9ed990e-1453-561a-9e3c-387f479db903",
+      "normalised_word": "scent",
+      "display_word": "scent",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "be981607-5739-5cc1-8b23-4bb8725bfccd",
+      "normalised_word": "sea",
+      "display_word": "sea",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "9e6bc6bf-5db3-552b-9532-04a29b0dcd9b",
+      "normalised_word": "see",
+      "display_word": "see",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "472032e6-90e8-59dc-b45a-4e00d7f6d0f5",
+      "normalised_word": "seen",
+      "display_word": "seen",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "8932d3c2-4d23-5a2e-ac4a-e831d6ad8af2",
+      "normalised_word": "serial",
+      "display_word": "serial",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "03d7eb5e-f2e1-5de2-96e9-8ea391465b24",
+      "normalised_word": "she'll",
+      "display_word": "she'll",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "30ab3df0-a17f-519f-997d-23429668b868",
+      "normalised_word": "shell",
+      "display_word": "shell",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ff480c8b-0a32-5426-b135-0d5aef7cf052",
+      "normalised_word": "son",
+      "display_word": "son",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "f7752a9b-3dfd-5ac3-b9a6-9a15abe7943a",
+      "normalised_word": "specially",
+      "display_word": "specially",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6b07b0bd-172d-57bd-bde4-8d8c1de46ce7",
+      "normalised_word": "steal",
+      "display_word": "steal",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "50e99208-3eb9-5007-99a9-cc81cdbbe8ce",
+      "normalised_word": "steel",
+      "display_word": "steel",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "ef54e01f-d0d4-5bc7-b518-c1a56b341554",
+      "normalised_word": "sun",
+      "display_word": "sun",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "e37e0b94-6493-5232-92e8-8465e20bb6db",
+      "normalised_word": "their",
+      "display_word": "their",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "df6a2937-ae61-5b74-b980-c0ce53bd2f28",
+      "normalised_word": "there",
+      "display_word": "there",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "80d4068c-2d08-5381-a4a4-3fd38e29dc34",
+      "normalised_word": "they're",
+      "display_word": "they're",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "d9120e1a-0bda-5356-8c43-bba03bd384ca",
+      "normalised_word": "threw",
+      "display_word": "threw",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "1c51b176-f075-511d-9f9c-87f2eb67cc2d",
+      "normalised_word": "through",
+      "display_word": "through",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "fbb36c08-73bd-5165-a77a-bf7483d52317",
+      "normalised_word": "to",
+      "display_word": "to",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "231dd18e-fb1d-5a0d-9005-084c4c1c9cdd",
+      "normalised_word": "too",
+      "display_word": "too",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "f03e542d-195f-5ba5-83c9-4895e9c812f9",
+      "normalised_word": "two",
+      "display_word": "two",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "56f78607-31cf-56ca-ab7a-da07241bce10",
+      "normalised_word": "we'll",
+      "display_word": "we'll",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "4d1730d2-c298-56f0-aeea-3a367fa2e514",
+      "normalised_word": "we're",
+      "display_word": "we're",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "5a8d44f1-2251-56ce-940a-b41c78590f38",
+      "normalised_word": "wear",
+      "display_word": "wear",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "b132e87a-660f-5f8f-89e1-5bb39abb5694",
+      "normalised_word": "weather",
+      "display_word": "weather",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "6efd4600-f744-5e18-b522-33a6c59154c3",
+      "normalised_word": "well",
+      "display_word": "well",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "70f26eff-131c-582a-b977-df754fabac67",
+      "normalised_word": "were",
+      "display_word": "were",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "fad33cb9-cfe3-591a-aa27-8b47f03ea1ce",
+      "normalised_word": "where",
+      "display_word": "where",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c9c0e7e0-99d2-5530-af79-15ad5e31e8df",
+      "normalised_word": "whether",
+      "display_word": "whether",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "be02dd0f-ba4c-573c-8318-ed0eea1a5834",
+      "normalised_word": "who's",
+      "display_word": "who's",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "c0e8f649-d3ab-5624-8ea7-280cec89342c",
+      "normalised_word": "whose",
+      "display_word": "whose",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "4ef55718-d270-55a5-81d5-47b8bd300568",
+      "normalised_word": "won",
+      "display_word": "won",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "da3c223a-ca34-5308-9772-ffc95ef39154",
+      "normalised_word": "write",
+      "display_word": "write",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "56b0db89-54e2-54c8-9611-aa72a304f51f",
+      "normalised_word": "you're",
+      "display_word": "you're",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    },
+    {
+      "id": "beceb0dc-5253-5595-8b71-338426397cff",
+      "normalised_word": "your",
+      "display_word": "your",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure",
+      "approved_metadata": true
+    }
+  ],
+  "support": [
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "normalised_word": "allowed",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "normalised_word": "aloud",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "normalised_word": "passed",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS",
+      "normalised_word": "past",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "normalised_word": "flour",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "normalised_word": "flower",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "normalised_word": "heard",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "normalised_word": "herd",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "normalised_word": "peace",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "normalised_word": "piece",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "normalised_word": "right",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "normalised_word": "write",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "normalised_word": "sea",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "normalised_word": "see",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "normalised_word": "threw",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "normalised_word": "through",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "normalised_word": "it's",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "normalised_word": "its",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "normalised_word": "we're",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "normalised_word": "were",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "normalised_word": "who's",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "normalised_word": "whose",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "normalised_word": "you're",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "normalised_word": "your",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "normalised_word": "for",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "normalised_word": "four",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "normalised_word": "of",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "normalised_word": "off",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "normalised_word": "their",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "normalised_word": "there",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "normalised_word": "they're",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "normalised_word": "to",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "normalised_word": "too",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "normalised_word": "two",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "normalised_word": "wear",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "normalised_word": "were",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "normalised_word": "where",
+      "support_role": "support_example",
+      "row_status": "active",
+      "review_status": "approved_for_first_exposure"
+    }
+  ],
+  "activationHeads": [
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "current_revision_id": "962a89bc-649e-4c25-9895-1965f0ade286",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "current_revision_id": "f61bfa49-36a2-4a3e-bc90-3282f23d90bf",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "current_revision_id": "13f0ea9c-71b7-4973-8ef1-bb75da67d71b",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "current_revision_id": "2983e904-35da-425b-a29c-e7e633220814",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "current_revision_id": "347cd1d2-5350-40c3-84c3-71db4989d24a",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "current_revision_id": "e7d2d607-b5c7-44e5-ae2d-70359b3c8ba4",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+      "current_revision_id": "a238d64a-6b35-45e8-87fb-2ec9b4f2eacf",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+      "current_revision_id": "7906ff7a-bf39-4ed6-82c7-0ab51d562fdd",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+      "current_revision_id": "9e16e2ef-25a7-44d4-9c77-82a7aa22f70b",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "current_revision_id": "44bf005e-ec8e-4e2f-ae6b-f2bc4f79ee97",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+      "current_revision_id": "2be0f023-31bc-40ca-91b3-fb9b68f7a8af",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "current_revision_id": "b692c421-bef8-4d81-816b-117bc794138c",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "current_revision_id": "6d4eb8d3-0c84-4df4-abaa-aca2157faa28",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    },
+    {
+      "environment_key": "production",
+      "route_id": "homophone_word_lab",
+      "route_version": "v2",
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "current_revision_id": "0320c1d2-ac75-461b-a7fb-c6bae51f1337",
+      "activation_status": "enabled",
+      "release_manifest_sha256": "b92d667495c78c7179dcf3b8db1de9abde8da63750d02628a356d9eafc07f116"
+    }
+  ],
+  "learningItems": [
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "item_status": "awaiting_review_outcome",
+      "row_status": "active",
+      "count": 1
+    },
+    {
+      "micro_skill_key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "item_status": "pending",
+      "row_status": "active",
+      "count": 2
+    }
+  ],
+  "immutableLessonSnapshotCount": 1,
+  "immutableLessonSnapshotHashes": [
+    "9c60602d5c47f6ee222a86618c29598bff7012e9e4e5d42973c8ed4434b3a395"
+  ]
+}

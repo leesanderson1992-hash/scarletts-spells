@@ -5,6 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "homophone:convergence:build": "python3 scripts/build-homophone-convergence.py",
+    "homophone:convergence:report": "python3 scripts/report-homophone-convergence-readiness.py",
+    "homophone:convergence:preflight": "python3 scripts/preflight-homophone-convergence.py --release",
+    "homophone:convergence:contrast-import": "tsx scripts/import-homophone-contrast-sets.mts",
+    "homophone:convergence:regression": "tsx scripts/homophone-contrast-selection-regression.ts && tsx scripts/homophone-contextual-choice-regression.ts && npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/homophone-convergence-sql-regression.mjs'",
     "lesson:autosave-regression": "tsx scripts/lesson-draft-autosave-regression.ts",
     "start": "next start",
     "no-matching-skill:regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/no-matching-skill-regression.mjs'",

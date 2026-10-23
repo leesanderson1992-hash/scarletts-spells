@@ -1,0 +1,69 @@
+micro_skill_key,lesson_plan,production_route_status,contrast_set_count,word_count,missing_dictionary_words,outstanding
+D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE,new_specialist_lesson,not_activated,1,2,loose;lose,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_OF_OFF,adapt_released_content,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_BERRY_BURY,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_LED_LEAD,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED,new_specialist_lesson,not_activated,1,2,precede,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT,new_specialist_lesson,not_activated,1,2,dissent,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT,new_specialist_lesson,not_activated,1,2,draught,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_WARY_WEARY,new_specialist_lesson,not_activated,1,2,wary;weary,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY,new_specialist_lesson,not_activated,5,10,devise;practise;prophecy;prophesy,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT,new_specialist_lesson,not_activated,1,3,sent,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY,new_specialist_lesson,not_activated,1,2,stationary;stationery,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL,new_specialist_lesson,not_activated,1,2,bawl,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT,new_specialist_lesson,not_activated,1,2,grate,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN,new_specialist_lesson,not_activated,1,2,groan,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL,new_specialist_lesson,not_activated,1,3,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE,new_specialist_lesson,not_activated,1,2,mane,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE,new_specialist_lesson,not_activated,1,2,meddle,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN,new_specialist_lesson,not_activated,1,3,rein,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT,new_specialist_lesson,not_activated,1,2,ascent;assent,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE,new_specialist_lesson,not_activated,1,2,bridal;bridle,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T,new_specialist_lesson,not_activated,5,10,leased;least;mist;packed;pact,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE,retain_existing_v2,enabled_v2,1,3,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR,adapt_released_content,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO,retain_existing_v2,enabled_v2,1,3,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY,new_specialist_lesson,not_activated,1,3,buy;bye,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR,new_specialist_lesson,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE,adapt_released_content,not_activated,1,2,,review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR,retain_existing_v2,enabled_v2,1,3,,review word-set relationships for convergence; no lesson or route change
+D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS,adapt_released_content,not_activated,9,18,hell;ill;lets;she'd;shed;we'd;wed,import reviewed dictionary facts; review contrast sets; author and review contextual lesson; wire/publish/activate v1 route
+D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE,retain_existing_v2,enabled_v2,1,2,,review word-set relationships for convergence; no lesson or route change

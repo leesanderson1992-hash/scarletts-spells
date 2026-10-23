@@ -1,0 +1,1347 @@
+{
+  "schemaVersion": 1,
+  "status": "draft_requires_editorial_review",
+  "sourceSha256": "19d8ba8c82f531d62f665d26face17ba4c62a14fdfbabd8c5e222ef5b9d86297",
+  "targetSkillCount": 68,
+  "retainedV2Count": 10,
+  "newLessonCount": 58,
+  "distinctWordCount": 173,
+  "absentDictionaryWords": [
+    "ascent",
+    "assent",
+    "bawl",
+    "bridal",
+    "bridle",
+    "buy",
+    "bye",
+    "devise",
+    "dissent",
+    "draught",
+    "grate",
+    "groan",
+    "hell",
+    "ill",
+    "leased",
+    "least",
+    "lets",
+    "loose",
+    "lose",
+    "mane",
+    "meddle",
+    "mist",
+    "packed",
+    "pact",
+    "practise",
+    "precede",
+    "prophecy",
+    "prophesy",
+    "rein",
+    "sent",
+    "she'd",
+    "shed",
+    "stationary",
+    "stationery",
+    "wary",
+    "we'd",
+    "weary",
+    "wed"
+  ],
+  "sourceRetirements": {
+    "D4_HOM_CONTENT_WORD_HOMOPHONES_COMMON_VERB_NOUN_PAIRS": [
+      "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+      "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T"
+    ],
+    "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF": [
+      "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+      "D4_HOM_CONFUSABLE_WORDS_OF_OFF"
+    ],
+    "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS": [
+      "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS"
+    ],
+    "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE": [
+      "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS"
+    ],
+    "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE": [
+      "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE"
+    ],
+    "D4_HOM_CONTENT_WORD_HOMOPHONES_PIECE_PEACE": [
+      "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE"
+    ]
+  },
+  "skills": [
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+      "description": "Choose accept or except by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+          "members": [
+            "accept",
+            "except"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT",
+      "description": "Choose affect or effect by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_AFFECT_EFFECT",
+          "members": [
+            "affect",
+            "effect"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE",
+      "description": "Choose breath or breathe by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_BREATH_BREATHE",
+          "members": [
+            "breath",
+            "breathe"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE",
+      "description": "Choose loose or lose by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_LOOSE_LOSE",
+          "members": [
+            "loose",
+            "lose"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT",
+      "description": "Choose desert or dessert by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DESERT_DESSERT",
+          "members": [
+            "desert",
+            "dessert"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_OF_OFF",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_OF_OFF",
+      "description": "Choose of or off by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_OF_OFF",
+          "members": [
+            "of",
+            "off"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET",
+      "description": "Choose quite or quiet by meaning and context",
+      "sourceNote": "Near-homophone",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_QUITE_QUIET",
+          "members": [
+            "quite",
+            "quiet"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_BERRY_BURY",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_BERRY_BURY",
+      "description": "Choose berry or bury by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_BERRY_BURY",
+          "members": [
+            "berry",
+            "bury"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+      "description": "Choose compliment or complement by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+          "members": [
+            "compliment",
+            "complement"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER",
+      "description": "Choose farther or father by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_FARTHER_FATHER",
+          "members": [
+            "farther",
+            "father"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_LED_LEAD",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_LED_LEAD",
+      "description": "Choose led or lead by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_LED_LEAD",
+          "members": [
+            "led",
+            "lead"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED",
+      "description": "Choose precede or proceed by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_PRECEDE_PROCEED",
+          "members": [
+            "precede",
+            "proceed"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT",
+      "description": "Choose descent or dissent by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DESCENT_DISSENT",
+          "members": [
+            "descent",
+            "dissent"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+      "description": "Choose draft or draught by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+          "members": [
+            "draft",
+            "draught"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+      "description": "Choose principal or principle by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+          "members": [
+            "principal",
+            "principle"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_WARY_WEARY",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_WARY_WEARY",
+      "description": "Choose wary or weary by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_WARY_WEARY",
+          "members": [
+            "wary",
+            "weary"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+      "description": "Choose conscience or conscious by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+          "members": [
+            "conscience",
+            "conscious"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+      "description": "Choose especially or specially by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+          "members": [
+            "especially",
+            "specially"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY",
+      "sourceKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY",
+      "description": "Learn to distinguish related nouns and verbs with different endings. In these British English word pairs, nouns use -ce or -cy, while verbs use -se or -sy. Teach using [advice, advise], [device, devise], [practice, practise], [licence, license], [prophecy, prophesy]. The child learns to identify whether the sentence requires a noun or verb and select the correct spelling. This is a pattern found in these word pairs, not a universal spelling rule.",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:advice-advise",
+          "members": [
+            "advice",
+            "advise"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:device-devise",
+          "members": [
+            "device",
+            "devise"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:practice-practise",
+          "members": [
+            "practice",
+            "practise"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:licence-license",
+          "members": [
+            "licence",
+            "license"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY:prophecy-prophesy",
+          "members": [
+            "prophecy",
+            "prophesy"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PIECE_PEACE",
+      "description": "Choose piece or peace by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+          "members": [
+            "peace",
+            "piece"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+      "description": "Choose threw or through by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+          "members": [
+            "threw",
+            "through"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+      "description": "Choose see or sea by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SEE_SEA",
+          "members": [
+            "see",
+            "sea"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+      "description": "Choose right or write by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+          "members": [
+            "right",
+            "write"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+      "description": "Choose flower or flour by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+          "members": [
+            "flower",
+            "flour"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+      "description": "Choose herd or heard by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+          "members": [
+            "herd",
+            "heard"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+      "description": "Choose brake or break by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+          "members": [
+            "brake",
+            "break"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+      "description": "Choose allowed or aloud by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+          "members": [
+            "allowed",
+            "aloud"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT",
+      "description": "Choose sent, cent or scent by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+          "members": [
+            "sent",
+            "cent",
+            "scent"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+      "description": "Choose whether or weather by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+          "members": [
+            "whether",
+            "weather"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+      "description": "Choose stationary or stationery by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+          "members": [
+            "stationary",
+            "stationery"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+      "description": "Choose here or hear by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+          "members": [
+            "here",
+            "hear"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+      "description": "Choose bare or bear by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+          "members": [
+            "bare",
+            "bear"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON",
+      "description": "Choose one or won by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ONE_WON",
+          "members": [
+            "one",
+            "won"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON",
+      "description": "Choose sun or son by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SUN_SON",
+          "members": [
+            "sun",
+            "son"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE",
+      "description": "Choose be or bee by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BE_BEE",
+          "members": [
+            "be",
+            "bee"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+      "description": "Choose blue or blew by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+          "members": [
+            "blue",
+            "blew"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+      "description": "Choose night or knight by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+          "members": [
+            "night",
+            "knight"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+      "description": "Choose ball or bawl by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+          "members": [
+            "ball",
+            "bawl"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+      "description": "Choose fair or fare by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+          "members": [
+            "fair",
+            "fare"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+      "description": "Choose grate or great by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+          "members": [
+            "grate",
+            "great"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+      "description": "Choose groan or grown by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+          "members": [
+            "groan",
+            "grown"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+      "description": "Choose heel, he'll or heal by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+          "members": [
+            "heel",
+            "he'll",
+            "heal"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+      "description": "Choose knot or not by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+          "members": [
+            "knot",
+            "not"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+      "description": "Choose mail or male by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+          "members": [
+            "mail",
+            "male"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+      "description": "Choose main or mane by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+          "members": [
+            "main",
+            "mane"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+      "description": "Choose meat or meet by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+          "members": [
+            "meat",
+            "meet"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+      "description": "Choose medal or meddle by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+          "members": [
+            "medal",
+            "meddle"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+      "description": "Choose plain or plane by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+          "members": [
+            "plain",
+            "plane"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+      "description": "Choose rain, rein or reign by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+          "members": [
+            "rain",
+            "rein",
+            "reign"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+      "description": "Choose scene or seen by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+          "members": [
+            "scene",
+            "seen"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+      "description": "Choose aisle or isle by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+          "members": [
+            "aisle",
+            "isle"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+      "description": "Choose altar or alter by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+          "members": [
+            "altar",
+            "alter"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+      "description": "Choose ascent or assent by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+          "members": [
+            "ascent",
+            "assent"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+      "description": "Choose bridal or bridle by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+          "members": [
+            "bridal",
+            "bridle"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+      "description": "Choose cereal or serial by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+          "members": [
+            "cereal",
+            "serial"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+      "description": "Choose morning or mourning by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+          "members": [
+            "morning",
+            "mourning"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+      "description": "Choose steal or steel by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+          "members": [
+            "steal",
+            "steel"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+      "description": "Choose profit or prophet by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+          "members": [
+            "profit",
+            "prophet"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
+      "sourceKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
+      "description": "Confusing ed for T lesson is taught with multiple pairs. [Missed, Mist], [Guessed, Guest], [past, passed], [least, leased], [packed, pact]",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:missed-mist",
+          "members": [
+            "missed",
+            "mist"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:guessed-guest",
+          "members": [
+            "guessed",
+            "guest"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:past-passed",
+          "members": [
+            "past",
+            "passed"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:least-leased",
+          "members": [
+            "least",
+            "leased"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T:packed-pact",
+          "members": [
+            "packed",
+            "pact"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEY_RE",
+      "description": "Choose there, their or they're by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+          "members": [
+            "there",
+            "their",
+            "they're"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+      "description": "Choose for or four by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+          "members": [
+            "for",
+            "four"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+      "description": "Choose to, too or two by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+          "members": [
+            "to",
+            "too",
+            "two"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+      "description": "Choose by, bye or buy by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+          "members": [
+            "by",
+            "bye",
+            "buy"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+      "description": "Choose our or hour by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+          "members": [
+            "our",
+            "hour"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+      "description": "Choose who's or whose by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE",
+          "members": [
+            "who's",
+            "whose"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+      "sourceKey": "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHERE_WEAR_WE_RE",
+      "description": "Choose where, we're or wear by meaning and context",
+      "sourceNote": "",
+      "sets": [
+        {
+          "setKey": "FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR",
+          "members": [
+            "were",
+            "where",
+            "wear"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
+      "sourceKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
+      "description": "Choose the contraction when omitting its apostrophe would make a different valid English word",
+      "sourceNote": "Pairs: it's/its; we're/were; I'll/ill; we'll/well; she'd/shed; we'd/wed; he'll/hell; she'll/shell; let's/lets. This is contextual discrimination, not contraction construction.",
+      "sets": [
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:its-its",
+          "members": [
+            "it's",
+            "its"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:were-were",
+          "members": [
+            "we're",
+            "were"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:ill-ill",
+          "members": [
+            "i'll",
+            "ill"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:well-well",
+          "members": [
+            "we'll",
+            "well"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shed-shed",
+          "members": [
+            "she'd",
+            "shed"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:wed-wed",
+          "members": [
+            "we'd",
+            "wed"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:hell-hell",
+          "members": [
+            "he'll",
+            "hell"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:shell-shell",
+          "members": [
+            "she'll",
+            "shell"
+          ]
+        },
+        {
+          "setKey": "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS:lets-lets",
+          "members": [
+            "let's",
+            "lets"
+          ]
+        }
+      ],
+      "routeStatus": "needs_contextual_choice_v1",
+      "reviewStatus": "draft_requires_editorial_review"
+    },
+    {
+      "key": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "sourceKey": "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+      "description": "Choose your or you're by meaning and context",
+      "sets": [
+        {
+          "setKey": "YOUR_YOURE",
+          "members": [
+            "your",
+            "you're"
+          ]
+        }
+      ],
+      "routeStatus": "retain_v2",
+      "reviewStatus": "draft_requires_editorial_review"
+    }
+  ]
+}
