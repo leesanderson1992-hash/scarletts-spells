@@ -57,7 +57,26 @@ reviewed root or released family does not inflate breadth. Correctly applied
 components inside an otherwise misspelt word are not inferred from its whole
 word outcome; they require an exact reviewed source projection.
 
-The Production parent switch remains default off until the deployment and
-public parent readback are complete. The current child view, queue and rewards
-are outside this release. Disabling the flag restores the existing parent
-three-band display.
+## Production release
+
+The repository's `main` branch contains the release code at
+`698500f77bd2d3c7f38d7ef606182dfea838e20d`. Production deployment
+`dpl_5XpdDkEktWXCqduJPLo11Ab6APGo` was staged with the all-learner parent
+flag enabled, then promoted to `https://scarletts-spells.vercel.app`. The
+authenticated public readback returned that exact SHA, the approved runtime
+fingerprint, valid identity and disabled release hold. A fresh provider
+approval (`ea8ecf32-090d-4646-bd00-2f53f73d5b72`) cites the owner's
+9 October standing permission and retains the existing model, endpoint,
+retention, sharing, rate card and spending limits. Policy revision
+`b644726c-b6ed-44e4-b393-8b748eb03e8c` and the recovery scheduler were
+bound to the new SHA together; execution readiness was true. The next Cron
+run succeeded, and the new deployment had zero error log entries in the
+release window.
+
+The authenticated public parent page displayed all 243 skills and 371 studied
+words, with separate proficiency and mastery sections. An expanded Level 4
+skill displayed its Level 5 accuracy, breadth, retention and challenge gates.
+The child view, queue and rewards were not switched. The parent flag is a
+per-deployment override; promoting the prior deployment restores the existing
+three-band parent display. Runtime calculation error counts and page latency
+should continue to be watched during real use.
