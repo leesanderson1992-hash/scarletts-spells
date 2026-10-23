@@ -74,15 +74,23 @@ plus the four missing free bases and `had` needed by the incoming contractions.
 Its `canonical_word_present` column distinguishes an absent canonical word
 from a present word lacking a family. The 886 words without approved morphology
 are listed in `full-dictionary-unanalysed-words-review.csv`. That sheet now
-contains source morphology notes, proposed structured parts and surface forms,
-word sums, candidate bases, family links, confidence, and review priority for
-all 886 words. It has 113 high-priority cases, including spelling changes,
-contractions, and uncertain bound-root or historical relations. These are
-editorial proposals, not approved canonical morphology; the missing-base/root
-backlog still uses approved morphology only and should be refreshed after
-review. Run `node scripts/build-full-dictionary-morphology-review.mjs` to
-rebuild the proposals from the read-only Production metadata. The audit script
-preserves an enriched review sheet when the frozen word set is unchanged.
+contains source morphology notes, structured parts and surface forms,
+underlying and visible word sums, candidate bases, family links, confidence,
+and review priority for all 886 words. The owner approved the corrected
+analysis in the 2026-10-23 Codex chat: `interesting` is `interest + ing`,
+`potential` is underlying `poten + ial` with visible `poten + tial`, and a
+word with two bases belongs to both families. `two-base-family-links-review.csv`
+records the 26 required memberships across 13 words. `photograph` and
+`photography` each point to both existing `photo_base_family` and
+`graph_base_family`. Missing families and bound roots remain identified for
+creation before memberships can be imported. Review approval in the CSV is
+distinct from database import: the 886 structured analyses are not yet active
+canonical morphology. The missing-base/root backlog still uses database-approved
+morphology only and should be refreshed after import. The original draft
+proposals can be rebuilt from read-only Production metadata with
+`node scripts/build-full-dictionary-morphology-review.mjs`; this builder
+refuses to overwrite the approved review sheet. The audit script preserves an
+enriched review sheet when the frozen word set is unchanged.
 `full-dictionary-family-link-review.csv` lists
 1,105 analysed words without a legacy Base Word Lab family membership. The
 snapshot and counts are reproducible with

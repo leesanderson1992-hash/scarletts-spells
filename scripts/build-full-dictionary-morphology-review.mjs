@@ -64,7 +64,6 @@ const canonical = new Map(parseCsv(readFileSync(resolve(root,
   .map(row => [row.word, row]));
 const key = word => word.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 const part = (kind, sourceText, surfaceText) => ({ kind, sourceText, surfaceText });
-const transformations = [];
 const IRREGULAR = {
   are:["be","present form of be"],best:["good","irregular superlative"],came:["come","irregular past"],
   children:["child","irregular plural"],could:["can","irregular modal past"],did:["do","irregular past"],
@@ -91,7 +90,7 @@ const NONPRODUCTIVE = new Set(["align","attention","basic","chemist","community"
   "history","initial","invention","object","official","oppose","picture","politician",
   "popular","possibility","potential","receive","science","separate","station","tension",
   "unit","usually","vegetable","visible","vision","weight"]);
-const WHOLE = new Set(["business","automatic","interesting","nature","history",
+const WHOLE = new Set(["business","automatic","nature","history",
   "ingredient","tall","yoghurt","chin","honour","path","phone","align","actual"]);
 const SOURCE_CORRECTIONS = {
   illegal:[["prefix","il"],["root","legal"]],
@@ -109,6 +108,7 @@ const SOURCE_CORRECTIONS = {
 const SPELLING = {
   dying:["die","ing","change ie to y"],lying:["lie","ing","change ie to y"],tying:["tie","ing","change ie to y"],
   vying:["vie","ing","change ie to y"],studies:["study","es","change y to i"],
+  interesting:["interest","ing","Owner-reviewed interest + ing analysis"],
 };
 const POS = { NN:"noun", VB:"verb", JJ:"adjective", RB:"adverb", minor:"function_word",
   encl:"contraction" };
@@ -172,6 +172,12 @@ function analysis(row, evidence) {
     sum=`${source} + ${suffix} → ${word}`;
     transforms=[{kind:"spelling_change",source,surface:stem,description:change}];
     note=change;
+  } else if (word==="potential") {
+    base="poten";kind="derived";
+    parts=[part("base","poten","poten"),part("suffix","ial","tial")];
+    sum="poten + ial → potential";
+    transforms=[{kind:"insert_t_at_suffix_boundary",underlying:"poten + ial",visible:"poten + tial"}];
+    note="Owner-reviewed analysis: underlying poten + ial; visible poten + tial.";
   } else if (IRREGULAR[word]) {
     [base,note]=IRREGULAR[word]; kind="irregular_inflection";
     parts=[part("base",base,word)]; sum=`${base} → ${word}`;
@@ -224,14 +230,30 @@ function analysis(row, evidence) {
   if (SOURCE_CORRECTIONS[word]) note=[note,"Source segmentation corrected editorially; verify the corrected morphemes."].filter(Boolean).join(" ");
   const lexical=classCandidates(evidence.morphology_notes);
   const pos=lexical.split(" | ");
-  const baseRecord=canonical.get(base);
-  const familyKeys=baseRecord?.base_family_keys??"";
-  const familyCandidate=familyKeys.split(" | ").filter(Boolean)[0]
-    || (pos.length===1 && pos[0] && kind==="free_base" ? `${key(base)}_${key(pos[0])}_base_family` : "");
+  const baseComponents=[...new Set(parts.filter(part=>part.kind==="base").map(part=>part.sourceText.toLowerCase()))];
+  const familyLinks=baseComponents.map(component=>{
+    const record=canonical.get(component);
+    const existing=[...new Set((record?.base_family_keys??"").split(" | ").filter(Boolean))];
+    const proposed=existing.length?"":component==="interest"?"interest_verb_base_family"
+      :component==="poten"?"poten_root_base_family":kind==="free_base"&&pos.length===1&&pos[0]
+        ?`${key(component)}_${key(pos[0])}_base_family`:"";
+    const status=existing.length?"existing_family":record?"family_missing":"base_or_root_missing";
+    return {component,canonicalWordKey:record?.word_key??"",existingFamilyKeys:existing,
+      proposedFamilyKey:proposed,status,
+      membershipAction:existing.length?"assign_word_to_existing_family":"create_family_then_assign_word"};
+  });
+  const familyKeys=[...new Set(familyLinks.flatMap(link=>link.existingFamilyKeys))].join(" | ");
+  const familyCandidate=[...new Set(familyLinks.flatMap(link=>[...link.existingFamilyKeys,
+    ...(link.proposedFamilyKey?[link.proposedFamilyKey]:[])]))].join(" | ");
+  const baseKeys=familyLinks.map(link=>link.canonicalWordKey).filter(Boolean).join(" | ");
+  const visibleSum=parts.length===1?parts[0].surfaceText
+    :`${parts.map(part=>part.surfaceText).join(" + ")} → ${word}`;
   return {source_morphemes:evidence.morphemes??"",source_morphology_notes:evidence.morphology_notes??"",
-    lexical_class_candidates:lexical,analysis_kind_candidate:kind,base_or_root_candidate:base,
-    base_canonical_word_key:baseRecord?.word_key??"",existing_base_family_keys:familyKeys,
-    base_family_key_candidate:familyCandidate,word_sum_candidate:sum,
+    lexical_class_candidates:lexical,analysis_kind_candidate:kind,
+    base_or_root_candidate:baseComponents.join(" | "),base_canonical_word_key:baseKeys,
+    existing_base_family_keys:familyKeys,base_family_key_candidate:familyCandidate,
+    base_family_links_json:JSON.stringify(familyLinks),word_sum_candidate:sum,
+    visible_word_sum_candidate:visibleSum,
     morphology_parts_json:JSON.stringify(parts),morphology_joins_json:JSON.stringify([]),
     morphology_transformations_json:JSON.stringify(transforms),analysis_notes:note,
     analysis_confidence:confidence,review_priority:priority,metadata_source_name:evidence.source_name??"",
@@ -240,7 +262,8 @@ function analysis(row, evidence) {
 }
 const extra=["source_morphemes","source_morphology_notes","lexical_class_candidates","analysis_kind_candidate",
   "base_or_root_candidate","base_canonical_word_key","existing_base_family_keys","base_family_key_candidate",
-  "word_sum_candidate","morphology_parts_json","morphology_joins_json","morphology_transformations_json",
+  "base_family_links_json","word_sum_candidate","visible_word_sum_candidate",
+  "morphology_parts_json","morphology_joins_json","morphology_transformations_json",
   "analysis_notes","analysis_confidence","review_priority","metadata_source_name","metadata_source_url"];
 const fields=["word_key","word","morphology_status","existing_family_keys",...extra,
   "proposed_action","review_status","reviewed_by","approval_reference"];
@@ -248,5 +271,19 @@ const rows=current.map(row=>({...row,...analysis(row,byKey.get(row.word_key))}))
 if (rows.length!==886 || rows.some(row=>!row.word_sum_candidate || !row.morphology_parts_json))
   throw new Error("Incomplete morphology candidates");
 writeFileSync(file,csv(fields,rows));
+const twoBase=rows.filter(row=>JSON.parse(row.base_family_links_json).length===2)
+  .flatMap(row=>JSON.parse(row.base_family_links_json).map((link,index)=>({
+    word_key:row.word_key,word:row.word,component_ordinal:index+1,base_or_root:link.component,
+    canonical_word_key:link.canonicalWordKey,existing_family_keys:link.existingFamilyKeys.join(" | "),
+    proposed_family_key:link.proposedFamilyKey,family_link_status:link.status,
+    membership_action:link.membershipAction,membership_status:"pending_morphology_and_family_import",
+    morphology_review_status:row.review_status,
+  })));
+writeFileSync(resolve(root,"data/adle/homophone/convergence-v1/two-base-family-links-review.csv"),csv(
+  ["word_key","word","component_ordinal","base_or_root","canonical_word_key",
+    "existing_family_keys","proposed_family_key","family_link_status","membership_action",
+    "membership_status","morphology_review_status"],twoBase));
 const counts={}; for(const row of rows) counts[row.analysis_kind_candidate]=(counts[row.analysis_kind_candidate]??0)+1;
-console.log(JSON.stringify({rows:rows.length,analysisKinds:counts,highPriority:rows.filter(row=>row.review_priority==="high").length}));
+console.log(JSON.stringify({rows:rows.length,analysisKinds:counts,
+  highPriority:rows.filter(row=>row.review_priority==="high").length,
+  twoBaseWords:twoBase.length/2,twoBaseLinks:twoBase.length}));
