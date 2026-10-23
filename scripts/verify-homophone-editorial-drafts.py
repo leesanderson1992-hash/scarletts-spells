@@ -61,6 +61,10 @@ assert len(new) == len(package["lessons"]) == len(lesson_review) == 58
 by_key = {lesson["microSkillKey"]: lesson for lesson in package["lessons"]}
 assert set(by_key) == {skill["key"] for skill in new}
 question_count = 0
+exported = rows("lesson-drafts.csv")
+assert len(exported) == 152
+exported_by_question = {(row["micro_skill_key"], row["question_id"]): row for row in exported}
+assert len(exported_by_question) == 152
 for skill in new:
     lesson = by_key[skill["key"]]
     assert lesson["reviewStatus"] == "draft" and lesson["teachingExplanation"]
@@ -81,6 +85,13 @@ for skill in new:
         assert question["sentenceWithBlank"][-1] in ".!?"
         member = next(m for m in item["members"] if m["word"] == question["correctWord"])
         assert question["sentenceWithBlank"] == member["sentenceWithBlank"]
+        flat = exported_by_question[(skill["key"], question["questionId"])]
+        assert flat["review_status"] == "draft"
+        assert flat["set_key"] == item["setKey"]
+        assert flat["sentence_with_blank"] == question["sentenceWithBlank"]
+        assert flat["choice_options"] == " | ".join(question["optionWords"])
+        assert flat["correct_answer"] == question["correctWord"]
+        assert flat["intended_sense"] == member["intendedSense"]
     for item in sets.values():
         assert {q["correctWord"] for q in questions if q["setKey"] == item["setKey"]} == {
             m["word"] for m in item["members"]}

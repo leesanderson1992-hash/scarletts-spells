@@ -29,6 +29,14 @@ for fact checking only; no Cambridge definitions or example sentences were
 copied. All definitions, teaching sentences and choice prompts are original
 editorial drafts.
 
+`lesson-drafts.csv` is the spreadsheet-friendly export of the 58 new lesson
+drafts. It has one row per sentence-choice question (152 rows), repeating the
+lesson teaching text and showing the complete contrast set, proposed relation,
+intended sense, grammatical role, sentence, options, and correct answer. It
+excludes the ten retained v2 lessons, whose content remains unchanged. Run
+`python3 scripts/export-homophone-lesson-drafts-csv.py` to regenerate it from
+`editorial-draft-lessons.json`.
+
 Run `python3 scripts/build-homophone-editorial-drafts.py` to reproduce the
 unsigned review sheets and `editorial-draft-lessons.json`. The builder rejects
 changes that would overwrite non-empty review-sheet fields. Run
