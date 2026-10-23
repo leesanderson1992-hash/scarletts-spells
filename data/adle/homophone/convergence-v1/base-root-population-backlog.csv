@@ -1,0 +1,898 @@
+component,component_kind,canonical_word_present,canonical_word_key,canonical_word_required,source_scope,source_word_examples,proposed_action,part_of_speech_review,base_meaning_review,proposed_family_key,en_gb_pronunciation_review,syllables_review,stress_pattern_review,morphology_parts_review,word_sum_review,context_sentence_review,source_reference_review,reviewed_by,approval_reference,review_status
+able,base,FALSE,,TRUE,current_dictionary,ability,add_canonical_base_then_family,,,,,,,,,,,,,draft
+accept,base,TRUE,accept_en_gb,FALSE,current_dictionary,accept,create_or_review_base_family,,,,,,,,,,,,,draft
+access,base,FALSE,,TRUE,current_dictionary,accessible,add_canonical_base_then_family,,,,,,,,,,,,,draft
+accident,base,TRUE,accident_en_gb,FALSE,current_dictionary,accident | accidentally,create_or_review_base_family,,,,,,,,,,,,,draft
+accommodate,base,TRUE,accommodate_en_gb,FALSE,current_dictionary,accommodate,create_or_review_base_family,,,,,,,,,,,,,draft
+according,base,TRUE,according_en_gb,FALSE,current_dictionary,according,create_or_review_base_family,,,,,,,,,,,,,draft
+ace,base,TRUE,ace_en_gb,FALSE,current_dictionary,ace,create_or_review_base_family,,,,,,,,,,,,,draft
+achieve,base,TRUE,achieve_en_gb,FALSE,current_dictionary,achieve,create_or_review_base_family,,,,,,,,,,,,,draft
+add,base,FALSE,,TRUE,current_dictionary,addition,add_canonical_base_then_family,,,,,,,,,,,,,draft
+address,base,TRUE,address_en_gb,FALSE,current_dictionary,address,create_or_review_base_family,,,,,,,,,,,,,draft
+admit,base,TRUE,admit_en_gb,FALSE,current_dictionary,admit | admitted | admitting,create_or_review_base_family,,,,,,,,,,,,,draft
+adore,base,TRUE,adore_en_gb,FALSE,current_dictionary,adorable | adore,create_or_review_base_family,,,,,,,,,,,,,draft
+advent,base,FALSE,,TRUE,current_dictionary,adventure,add_canonical_base_then_family,,,,,,,,,,,,,draft
+advice,base,TRUE,advice_en_gb,FALSE,current_dictionary,advice,create_or_review_base_family,,,,,,,,,,,,,draft
+advise,base,TRUE,advise_en_gb,FALSE,current_dictionary,advise,create_or_review_base_family,,,,,,,,,,,,,draft
+after,base,TRUE,after_en_gb,FALSE,current_dictionary,after,create_or_review_base_family,,,,,,,,,,,,,draft
+age,base,TRUE,age_en_gb,FALSE,current_dictionary,age,create_or_review_base_family,,,,,,,,,,,,,draft
+aggress,base,FALSE,,TRUE,current_dictionary,aggressive,add_canonical_base_then_family,,,,,,,,,,,,,draft
+agree,base,TRUE,agree_en_gb,FALSE,current_dictionary,agree | disagree,create_or_review_base_family,,,,,,,,,,,,,draft
+aisle,base,TRUE,aisle_en_gb,FALSE,current_dictionary,aisle,create_or_review_base_family,,,,,,,,,,,,,draft
+almost,base,TRUE,almost_en_gb,FALSE,current_dictionary,almost,create_or_review_base_family,,,,,,,,,,,,,draft
+already,base,TRUE,already_en_gb,FALSE,current_dictionary,already,create_or_review_base_family,,,,,,,,,,,,,draft
+also,base,TRUE,also_en_gb,FALSE,current_dictionary,also,create_or_review_base_family,,,,,,,,,,,,,draft
+altar,base,TRUE,altar_en_gb,FALSE,current_dictionary,altar,create_or_review_base_family,,,,,,,,,,,,,draft
+alter,base,TRUE,alter_en_gb,FALSE,current_dictionary,alter,create_or_review_base_family,,,,,,,,,,,,,draft
+although,base,TRUE,although_en_gb,FALSE,current_dictionary,although,create_or_review_base_family,,,,,,,,,,,,,draft
+always,base,TRUE,always_en_gb,FALSE,current_dictionary,always,create_or_review_base_family,,,,,,,,,,,,,draft
+amateur,base,TRUE,amateur_en_gb,FALSE,current_dictionary,amateur,create_or_review_base_family,,,,,,,,,,,,,draft
+ambit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,ambitious,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+anchor,base,TRUE,anchor_en_gb,FALSE,current_dictionary,anchor,create_or_review_base_family,,,,,,,,,,,,,draft
+ancient,base,TRUE,ancient_en_gb,FALSE,current_dictionary,ancient,create_or_review_base_family,,,,,,,,,,,,,draft
+angel,base,TRUE,angel_en_gb,FALSE,current_dictionary,angel,create_or_review_base_family,,,,,,,,,,,,,draft
+angry,base,TRUE,angry_en_gb,FALSE,current_dictionary,angry,create_or_review_base_family,,,,,,,,,,,,,draft
+any,base,TRUE,any_en_gb,FALSE,current_dictionary,any,create_or_review_base_family,,,,,,,,,,,,,draft
+appar,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,apparent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+appear,base,TRUE,appear_en_gb,FALSE,current_dictionary,appear,create_or_review_base_family,,,,,,,,,,,,,draft
+applic,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,application,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+applicable,base,TRUE,applicable_en_gb,FALSE,current_dictionary,applicable,create_or_review_base_family,,,,,,,,,,,,,draft
+apply,base,TRUE,apply_en_gb,FALSE,current_dictionary,apply,create_or_review_base_family,,,,,,,,,,,,,draft
+appoint,base,TRUE,appoint_en_gb,FALSE,current_dictionary,appoint,create_or_review_base_family,,,,,,,,,,,,,draft
+april,base,TRUE,april_en_gb,FALSE,current_dictionary,april,create_or_review_base_family,,,,,,,,,,,,,draft
+arch,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,monarch,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+archer,base,TRUE,archer_en_gb,FALSE,current_dictionary,archer,create_or_review_base_family,,,,,,,,,,,,,draft
+architect,base,TRUE,architect_en_gb,FALSE,current_dictionary,architect,create_or_review_base_family,,,,,,,,,,,,,draft
+are,base,TRUE,are_en_gb,FALSE,current_dictionary,aren't,create_or_review_base_family,,,,,,,,,,,,,draft
+argue,base,TRUE,argue_en_gb,FALSE,current_dictionary,argue,create_or_review_base_family,,,,,,,,,,,,,draft
+arm,base,TRUE,arm_en_gb,FALSE,current_dictionary,arm,create_or_review_base_family,,,,,,,,,,,,,draft
+arrive,base,TRUE,arrive_en_gb,FALSE,current_dictionary,arrive,create_or_review_base_family,,,,,,,,,,,,,draft
+art,base,TRUE,art_en_gb,FALSE,current_dictionary,art,create_or_review_base_family,,,,,,,,,,,,,draft
+artific,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,artificial,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+ask,base,TRUE,ask_en_gb,FALSE,current_dictionary,ask | asking,create_or_review_base_family,,,,,,,,,,,,,draft
+assist,base,FALSE,,TRUE,current_dictionary,assistance | assistant,add_canonical_base_then_family,,,,,,,,,,,,,draft
+attach,base,FALSE,,TRUE,current_dictionary,attached,add_canonical_base_then_family,,,,,,,,,,,,,draft
+august,base,TRUE,august_en_gb,FALSE,current_dictionary,august,create_or_review_base_family,,,,,,,,,,,,,draft
+author,base,TRUE,author_en_gb,FALSE,current_dictionary,co-author,create_or_review_base_family,,,,,,,,,,,,,draft
+automatic,base,TRUE,automatic_en_gb,FALSE,current_dictionary,automatically,create_or_review_base_family,,,,,,,,,,,,,draft
+autumn,base,TRUE,autumn_en_gb,FALSE,current_dictionary,autumn,create_or_review_base_family,,,,,,,,,,,,,draft
+avail,base,FALSE,,TRUE,current_dictionary,available,add_canonical_base_then_family,,,,,,,,,,,,,draft
+average,base,TRUE,average_en_gb,FALSE,current_dictionary,average,create_or_review_base_family,,,,,,,,,,,,,draft
+award,base,TRUE,award_en_gb,FALSE,current_dictionary,award,create_or_review_base_family,,,,,,,,,,,,,draft
+awe,base,FALSE,,TRUE,current_dictionary,awful,add_canonical_base_then_family,,,,,,,,,,,,,draft
+awkward,base,TRUE,awkward_en_gb,FALSE,current_dictionary,awkward,create_or_review_base_family,,,,,,,,,,,,,draft
+bad,base,TRUE,bad_en_gb,FALSE,current_dictionary,badly,create_or_review_base_family,,,,,,,,,,,,,draft
+ball,base,TRUE,ball_en_gb,FALSE,current_dictionary,ball,create_or_review_base_family,,,,,,,,,,,,,draft
+ban,base,FALSE,,TRUE,current_dictionary,banned,add_canonical_base_then_family,,,,,,,,,,,,,draft
+band,base,TRUE,band_en_gb,FALSE,current_dictionary,band,create_or_review_base_family,,,,,,,,,,,,,draft
+bare,base,TRUE,bare_en_gb,FALSE,current_dictionary,bare,create_or_review_base_family,,,,,,,,,,,,,draft
+bargain,base,TRUE,bargain_en_gb,FALSE,current_dictionary,bargain,create_or_review_base_family,,,,,,,,,,,,,draft
+baron,base,TRUE,baron_en_gb,FALSE,current_dictionary,baron,create_or_review_base_family,,,,,,,,,,,,,draft
+base,base,FALSE,,TRUE,current_dictionary,basically,add_canonical_base_then_family,,,,,,,,,,,,,draft
+be,base,TRUE,be_en_gb,FALSE,current_dictionary,be,create_or_review_base_family,,,,,,,,,,,,,draft
+bear,base,TRUE,bear_en_gb,FALSE,current_dictionary,bear,create_or_review_base_family,,,,,,,,,,,,,draft
+beauty,base,TRUE,beauty_en_gb,FALSE,current_dictionary,beauty,create_or_review_base_family,,,,,,,,,,,,,draft
+bee,base,TRUE,bee_en_gb,FALSE,current_dictionary,bee,create_or_review_base_family,,,,,,,,,,,,,draft
+beg,base,TRUE,beg_en_gb,FALSE,current_dictionary,beg | begging,create_or_review_base_family,,,,,,,,,,,,,draft
+begin,base,TRUE,begin_en_gb,FALSE,current_dictionary,begin | beginning,create_or_review_base_family,,,,,,,,,,,,,draft
+behave,base,TRUE,behave_en_gb,FALSE,current_dictionary,behave,create_or_review_base_family,,,,,,,,,,,,,draft
+behind,base,TRUE,behind_en_gb,FALSE,current_dictionary,behind,create_or_review_base_family,,,,,,,,,,,,,draft
+belie,base,FALSE,,TRUE,current_dictionary,belying,add_canonical_base_then_family,,,,,,,,,,,,,draft
+belief,base,TRUE,belief_en_gb,FALSE,current_dictionary,belief,create_or_review_base_family,,,,,,,,,,,,,draft
+believe,base,TRUE,believe_en_gb,FALSE,current_dictionary,believe | unbelievable,create_or_review_base_family,,,,,,,,,,,,,draft
+bell,base,TRUE,bell_en_gb,FALSE,current_dictionary,bell,create_or_review_base_family,,,,,,,,,,,,,draft
+bene,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,beneficial,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+berry,base,TRUE,berry_en_gb,FALSE,current_dictionary,berry,create_or_review_base_family,,,,,,,,,,,,,draft
+better,base,TRUE,better_en_gb,FALSE,current_dictionary,better,create_or_review_base_family,,,,,,,,,,,,,draft
+bite,base,TRUE,bite_en_gb,FALSE,current_dictionary,bite,create_or_review_base_family,,,,,,,,,,,,,draft
+blew,base,TRUE,blew_en_gb,FALSE,current_dictionary,blew,create_or_review_base_family,,,,,,,,,,,,,draft
+blow,base,TRUE,blow_en_gb,FALSE,current_dictionary,blow,create_or_review_base_family,,,,,,,,,,,,,draft
+body,base,FALSE,,TRUE,current_dictionary,everybody,add_canonical_base_then_family,,,,,,,,,,,,,draft
+bone,base,TRUE,bone_en_gb,FALSE,current_dictionary,bone,create_or_review_base_family,,,,,,,,,,,,,draft
+boot,base,TRUE,boot_en_gb,FALSE,current_dictionary,boot,create_or_review_base_family,,,,,,,,,,,,,draft
+bore,base,FALSE,,TRUE,current_dictionary,bored,add_canonical_base_then_family,,,,,,,,,,,,,draft
+born,base,TRUE,born_en_gb,FALSE,current_dictionary,born,create_or_review_base_family,,,,,,,,,,,,,draft
+borough,base,TRUE,borough_en_gb,FALSE,current_dictionary,borough,create_or_review_base_family,,,,,,,,,,,,,draft
+both,base,TRUE,both_en_gb,FALSE,current_dictionary,both,create_or_review_base_family,,,,,,,,,,,,,draft
+bought,base,TRUE,bought_en_gb,FALSE,current_dictionary,bought,create_or_review_base_family,,,,,,,,,,,,,draft
+bow,base,TRUE,bow_en_gb,FALSE,current_dictionary,bow | rainbow,create_or_review_base_family,,,,,,,,,,,,,draft
+box,base,FALSE,,TRUE,current_dictionary,boxer | boxing,add_canonical_base_then_family,,,,,,,,,,,,,draft
+boy,base,TRUE,boy_en_gb,FALSE,current_dictionary,boy's | boys,create_or_review_base_family,,,,,,,,,,,,,draft
+brake,base,TRUE,brake_en_gb,FALSE,current_dictionary,brake,create_or_review_base_family,,,,,,,,,,,,,draft
+bread,base,TRUE,bread_en_gb,FALSE,current_dictionary,bread,create_or_review_base_family,,,,,,,,,,,,,draft
+break,base,TRUE,break_en_gb,FALSE,current_dictionary,breakthrough,create_or_review_base_family,,,,,,,,,,,,,draft
+breath,base,TRUE,breath_en_gb,FALSE,current_dictionary,breath,create_or_review_base_family,,,,,,,,,,,,,draft
+breathe,base,TRUE,breathe_en_gb,FALSE,current_dictionary,breathe,create_or_review_base_family,,,,,,,,,,,,,draft
+brother,base,TRUE,brother_en_gb,FALSE,current_dictionary,brother,create_or_review_base_family,,,,,,,,,,,,,draft
+brought,base,TRUE,brought_en_gb,FALSE,current_dictionary,brought,create_or_review_base_family,,,,,,,,,,,,,draft
+brown,base,TRUE,brown_en_gb,FALSE,current_dictionary,brownie,create_or_review_base_family,,,,,,,,,,,,,draft
+build,base,TRUE,build_en_gb,FALSE,current_dictionary,rebuild,create_or_review_base_family,,,,,,,,,,,,,draft
+bully,base,TRUE,bully_en_gb,FALSE,current_dictionary,bullied | bully | bullying,create_or_review_base_family,,,,,,,,,,,,,draft
+bury,base,TRUE,bury_en_gb,FALSE,current_dictionary,bury,create_or_review_base_family,,,,,,,,,,,,,draft
+butcher,base,TRUE,butcher_en_gb,FALSE,current_dictionary,butcher,create_or_review_base_family,,,,,,,,,,,,,draft
+by,base,TRUE,by_en_gb,FALSE,current_dictionary,by,create_or_review_base_family,,,,,,,,,,,,,draft
+calcul,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,calculation,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+call,base,TRUE,call_en_gb,FALSE,current_dictionary,call,create_or_review_base_family,,,,,,,,,,,,,draft
+campaign,base,TRUE,campaign_en_gb,FALSE,current_dictionary,campaign,create_or_review_base_family,,,,,,,,,,,,,draft
+capit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,capital,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+capt,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,capture,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+caption,base,TRUE,caption_en_gb,FALSE,current_dictionary,caption,create_or_review_base_family,,,,,,,,,,,,,draft
+case,base,TRUE,case_en_gb,FALSE,current_dictionary,case,create_or_review_base_family,,,,,,,,,,,,,draft
+catalogue,base,TRUE,catalogue_en_gb,FALSE,current_dictionary,catalogue,create_or_review_base_family,,,,,,,,,,,,,draft
+categor,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,category,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+caught,base,TRUE,caught_en_gb,FALSE,current_dictionary,caught,create_or_review_base_family,,,,,,,,,,,,,draft
+caut,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,cautious,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+ceive,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,perceive | receiver,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+celebrate,base,FALSE,,TRUE,current_dictionary,celebration,add_canonical_base_then_family,,,,,,,,,,,,,draft
+cemetery,base,TRUE,cemetery_en_gb,FALSE,current_dictionary,cemetery,create_or_review_base_family,,,,,,,,,,,,,draft
+centr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,concentration,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+centre,base,TRUE,centre_en_gb,FALSE,current_dictionary,centre,create_or_review_base_family,,,,,,,,,,,,,draft
+century,base,TRUE,century_en_gb,FALSE,current_dictionary,century,create_or_review_base_family,,,,,,,,,,,,,draft
+cept,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,except,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+cereal,base,TRUE,cereal_en_gb,FALSE,current_dictionary,cereal,create_or_review_base_family,,,,,,,,,,,,,draft
+certain,base,TRUE,certain_en_gb,FALSE,current_dictionary,certain,create_or_review_base_family,,,,,,,,,,,,,draft
+chair,base,TRUE,chair_en_gb,FALSE,current_dictionary,chair,create_or_review_base_family,,,,,,,,,,,,,draft
+chalk,base,TRUE,chalk_en_gb,FALSE,current_dictionary,chalk,create_or_review_base_family,,,,,,,,,,,,,draft
+champagne,base,TRUE,champagne_en_gb,FALSE,current_dictionary,champagne,create_or_review_base_family,,,,,,,,,,,,,draft
+chaos,base,TRUE,chaos_en_gb,FALSE,current_dictionary,chaos,create_or_review_base_family,,,,,,,,,,,,,draft
+character,base,TRUE,character_en_gb,FALSE,current_dictionary,character,create_or_review_base_family,,,,,,,,,,,,,draft
+charge,base,TRUE,charge_en_gb,FALSE,current_dictionary,charge,create_or_review_base_family,,,,,,,,,,,,,draft
+chat,base,TRUE,chat_en_gb,FALSE,current_dictionary,chatting,create_or_review_base_family,,,,,,,,,,,,,draft
+choir,base,TRUE,choir_en_gb,FALSE,current_dictionary,choir,create_or_review_base_family,,,,,,,,,,,,,draft
+christmas,base,TRUE,christmas_en_gb,FALSE,current_dictionary,christmas,create_or_review_base_family,,,,,,,,,,,,,draft
+clap,base,TRUE,clap_en_gb,FALSE,current_dictionary,clapping,create_or_review_base_family,,,,,,,,,,,,,draft
+class,base,TRUE,class_en_gb,FALSE,current_dictionary,class,create_or_review_base_family,,,,,,,,,,,,,draft
+close,base,TRUE,close_en_gb,FALSE,current_dictionary,close | closer | closest | closing,create_or_review_base_family,,,,,,,,,,,,,draft
+clothes,base,TRUE,clothes_en_gb,FALSE,current_dictionary,clothes,create_or_review_base_family,,,,,,,,,,,,,draft
+clown,base,TRUE,clown_en_gb,FALSE,current_dictionary,clown,create_or_review_base_family,,,,,,,,,,,,,draft
+clue,base,TRUE,clue_en_gb,FALSE,current_dictionary,clue,create_or_review_base_family,,,,,,,,,,,,,draft
+coil,base,TRUE,coil_en_gb,FALSE,current_dictionary,coil,create_or_review_base_family,,,,,,,,,,,,,draft
+cold,base,TRUE,cold_en_gb,FALSE,current_dictionary,colder | coldest,create_or_review_base_family,,,,,,,,,,,,,draft
+colleague,base,TRUE,colleague_en_gb,FALSE,current_dictionary,colleague,create_or_review_base_family,,,,,,,,,,,,,draft
+collis,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,collision,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+column,base,TRUE,column_en_gb,FALSE,current_dictionary,column,create_or_review_base_family,,,,,,,,,,,,,draft
+come,base,TRUE,come_en_gb,FALSE,current_dictionary,come | coming,create_or_review_base_family,,,,,,,,,,,,,draft
+comfort,base,FALSE,,TRUE,current_dictionary,comfortable | comfortably,add_canonical_base_then_family,,,,,,,,,,,,,draft
+commend,base,FALSE,,TRUE,current_dictionary,recommend,add_canonical_base_then_family,,,,,,,,,,,,,draft
+commerce,base,FALSE,,TRUE,current_dictionary,commercial,add_canonical_base_then_family,,,,,,,,,,,,,draft
+commit,base,TRUE,commit_en_gb,FALSE,current_dictionary,commit | committed | committing,create_or_review_base_family,,,,,,,,,,,,,draft
+common,base,FALSE,,TRUE,current_dictionary,uncommon,add_canonical_base_then_family,,,,,,,,,,,,,draft
+communic,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,communicate,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+company,base,FALSE,,TRUE,current_dictionary,accompany,add_canonical_base_then_family,,,,,,,,,,,,,draft
+compatible,base,TRUE,compatible_en_gb,FALSE,current_dictionary,compatible,create_or_review_base_family,,,,,,,,,,,,,draft
+compete,base,FALSE,,TRUE,current_dictionary,competition,add_canonical_base_then_family,,,,,,,,,,,,,draft
+complete,base,TRUE,complete_en_gb,FALSE,current_dictionary,completely | completion | incomplete,create_or_review_base_family,,,,,,,,,,,,,draft
+compliment,base,TRUE,compliment_en_gb,FALSE,current_dictionary,compliment,create_or_review_base_family,,,,,,,,,,,,,draft
+confer,base,FALSE,,TRUE,current_dictionary,conference,add_canonical_base_then_family,,,,,,,,,,,,,draft
+confess,base,FALSE,,TRUE,current_dictionary,confession,add_canonical_base_then_family,,,,,,,,,,,,,draft
+confid,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,confident | confidential,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+confident,base,TRUE,confident_en_gb,FALSE,current_dictionary,confidence,create_or_review_base_family,,,,,,,,,,,,,draft
+conscience,base,TRUE,conscience_en_gb,FALSE,current_dictionary,conscience,create_or_review_base_family,,,,,,,,,,,,,draft
+conscious,base,TRUE,conscious_en_gb,FALSE,current_dictionary,conscious,create_or_review_base_family,,,,,,,,,,,,,draft
+consider,base,TRUE,consider_en_gb,FALSE,current_dictionary,consider | considerable | considerably | consideration,create_or_review_base_family,,,,,,,,,,,,,draft
+consist,base,FALSE,,TRUE,current_dictionary,consistency,add_canonical_base_then_family,,,,,,,,,,,,,draft
+continue,base,TRUE,continue_en_gb,FALSE,current_dictionary,continually | continue,create_or_review_base_family,,,,,,,,,,,,,draft
+convenient,base,FALSE,,TRUE,current_dictionary,convenience,add_canonical_base_then_family,,,,,,,,,,,,,draft
+converse,base,FALSE,,TRUE,current_dictionary,conversation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+convey,base,TRUE,convey_en_gb,FALSE,current_dictionary,convey,create_or_review_base_family,,,,,,,,,,,,,draft
+cook,base,TRUE,cook_en_gb,FALSE,current_dictionary,cook,create_or_review_base_family,,,,,,,,,,,,,draft
+correct,base,TRUE,correct_en_gb,FALSE,current_dictionary,correct | correction | correctly,create_or_review_base_family,,,,,,,,,,,,,draft
+could,base,TRUE,could_en_gb,FALSE,current_dictionary,could've,create_or_review_base_family,,,,,,,,,,,,,draft
+count,base,TRUE,count_en_gb,FALSE,current_dictionary,count,create_or_review_base_family,,,,,,,,,,,,,draft
+country,base,TRUE,country_en_gb,FALSE,current_dictionary,country,create_or_review_base_family,,,,,,,,,,,,,draft
+couple,base,TRUE,couple_en_gb,FALSE,current_dictionary,couple,create_or_review_base_family,,,,,,,,,,,,,draft
+courage,base,TRUE,courage_en_gb,FALSE,current_dictionary,courage,create_or_review_base_family,,,,,,,,,,,,,draft
+cousin,base,TRUE,cousin_en_gb,FALSE,current_dictionary,cousin,create_or_review_base_family,,,,,,,,,,,,,draft
+cover,base,FALSE,,TRUE,current_dictionary,covered,add_canonical_base_then_family,,,,,,,,,,,,,draft
+crawl,base,TRUE,crawl_en_gb,FALSE,current_dictionary,crawl,create_or_review_base_family,,,,,,,,,,,,,draft
+cream,base,TRUE,cream_en_gb,FALSE,current_dictionary,cream,create_or_review_base_family,,,,,,,,,,,,,draft
+crease,base,FALSE,,TRUE,current_dictionary,increase,add_canonical_base_then_family,,,,,,,,,,,,,draft
+cred,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,credible | incredible | incredibly,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+crew,base,TRUE,crew_en_gb,FALSE,current_dictionary,crew,create_or_review_base_family,,,,,,,,,,,,,draft
+crown,base,TRUE,crown_en_gb,FALSE,current_dictionary,crown,create_or_review_base_family,,,,,,,,,,,,,draft
+crucial,base,TRUE,crucial_en_gb,FALSE,current_dictionary,crucial,create_or_review_base_family,,,,,,,,,,,,,draft
+cruel,base,TRUE,cruel_en_gb,FALSE,current_dictionary,cruel,create_or_review_base_family,,,,,,,,,,,,,draft
+crystal,base,TRUE,crystal_en_gb,FALSE,current_dictionary,crystal,create_or_review_base_family,,,,,,,,,,,,,draft
+culture,base,TRUE,culture_en_gb,FALSE,current_dictionary,culture,create_or_review_base_family,,,,,,,,,,,,,draft
+curious,base,TRUE,curious_en_gb,FALSE,current_dictionary,curiosity | curious,create_or_review_base_family,,,,,,,,,,,,,draft
+current,base,TRUE,current_en_gb,FALSE,current_dictionary,current,create_or_review_base_family,,,,,,,,,,,,,draft
+cut,base,FALSE,,TRUE,current_dictionary,cutting,add_canonical_base_then_family,,,,,,,,,,,,,draft
+cycle,base,TRUE,cycle_en_gb,FALSE,current_dictionary,bicycle,create_or_review_base_family,,,,,,,,,,,,,draft
+dad,base,FALSE,,TRUE,current_dictionary,dad's,add_canonical_base_then_family,,,,,,,,,,,,,draft
+dairy,base,TRUE,dairy_en_gb,FALSE,current_dictionary,dairy,create_or_review_base_family,,,,,,,,,,,,,draft
+dance,base,TRUE,dance_en_gb,FALSE,current_dictionary,dancer | dancing,create_or_review_base_family,,,,,,,,,,,,,draft
+dare,base,TRUE,dare_en_gb,FALSE,current_dictionary,dare,create_or_review_base_family,,,,,,,,,,,,,draft
+day,base,TRUE,day_en_gb,FALSE,current_dictionary,today,create_or_review_base_family,,,,,,,,,,,,,draft
+dead,base,TRUE,dead_en_gb,FALSE,current_dictionary,dead,create_or_review_base_family,,,,,,,,,,,,,draft
+dear,base,TRUE,dear_en_gb,FALSE,current_dictionary,dear,create_or_review_base_family,,,,,,,,,,,,,draft
+debris,base,TRUE,debris_en_gb,FALSE,current_dictionary,debris,create_or_review_base_family,,,,,,,,,,,,,draft
+december,base,TRUE,december_en_gb,FALSE,current_dictionary,december,create_or_review_base_family,,,,,,,,,,,,,draft
+decide,base,TRUE,decide_en_gb,FALSE,current_dictionary,decide,create_or_review_base_family,,,,,,,,,,,,,draft
+defin,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,definite,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+delicious,base,TRUE,delicious_en_gb,FALSE,current_dictionary,delicious,create_or_review_base_family,,,,,,,,,,,,,draft
+depart,base,FALSE,,TRUE,current_dictionary,departure,add_canonical_base_then_family,,,,,,,,,,,,,draft
+descend,base,FALSE,,TRUE,current_dictionary,descendants,add_canonical_base_then_family,,,,,,,,,,,,,draft
+desert,base,TRUE,desert_en_gb,FALSE,current_dictionary,desert,create_or_review_base_family,,,,,,,,,,,,,draft
+desire,base,TRUE,desire_en_gb,FALSE,current_dictionary,desirable | desire,create_or_review_base_family,,,,,,,,,,,,,draft
+desperate,base,TRUE,desperate_en_gb,FALSE,current_dictionary,desperate,create_or_review_base_family,,,,,,,,,,,,,draft
+dessert,base,TRUE,dessert_en_gb,FALSE,current_dictionary,dessert,create_or_review_base_family,,,,,,,,,,,,,draft
+determine,base,FALSE,,TRUE,current_dictionary,determined,add_canonical_base_then_family,,,,,,,,,,,,,draft
+develop,base,TRUE,develop_en_gb,FALSE,current_dictionary,develop,create_or_review_base_family,,,,,,,,,,,,,draft
+device,base,TRUE,device_en_gb,FALSE,current_dictionary,device,create_or_review_base_family,,,,,,,,,,,,,draft
+devil,base,TRUE,devil_en_gb,FALSE,current_dictionary,devil,create_or_review_base_family,,,,,,,,,,,,,draft
+diabetes,base,TRUE,diabetes_en_gb,FALSE,current_dictionary,diabetes,create_or_review_base_family,,,,,,,,,,,,,draft
+dice,base,TRUE,dice_en_gb,FALSE,current_dictionary,dice,create_or_review_base_family,,,,,,,,,,,,,draft
+dict,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,dictionary | predictable,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+did,base,FALSE,,TRUE,current_dictionary,didn't,add_canonical_base_then_family,,,,,,,,,,,,,draft
+diesel,base,TRUE,diesel_en_gb,FALSE,current_dictionary,diesel,create_or_review_base_family,,,,,,,,,,,,,draft
+diet,base,TRUE,diet_en_gb,FALSE,current_dictionary,diet,create_or_review_base_family,,,,,,,,,,,,,draft
+differ,base,TRUE,differ_en_gb,FALSE,current_dictionary,differ | difference,create_or_review_base_family,,,,,,,,,,,,,draft
+difficult,base,TRUE,difficult_en_gb,FALSE,current_dictionary,difficult,create_or_review_base_family,,,,,,,,,,,,,draft
+dino,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,dinosaur,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+direct,base,FALSE,,TRUE,current_dictionary,direction,add_canonical_base_then_family,,,,,,,,,,,,,draft
+dirt,base,TRUE,dirt_en_gb,FALSE,current_dictionary,dirt,create_or_review_base_family,,,,,,,,,,,,,draft
+discipline,base,TRUE,discipline_en_gb,FALSE,current_dictionary,discipline,create_or_review_base_family,,,,,,,,,,,,,draft
+discuss,base,FALSE,,TRUE,current_dictionary,discussion,add_canonical_base_then_family,,,,,,,,,,,,,draft
+distance,base,TRUE,distance_en_gb,FALSE,current_dictionary,distance,create_or_review_base_family,,,,,,,,,,,,,draft
+distant,base,TRUE,distant_en_gb,FALSE,current_dictionary,distant,create_or_review_base_family,,,,,,,,,,,,,draft
+dive,base,TRUE,dive_en_gb,FALSE,current_dictionary,dive,create_or_review_base_family,,,,,,,,,,,,,draft
+divid,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,individual,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+dodge,base,TRUE,dodge_en_gb,FALSE,current_dictionary,dodge,create_or_review_base_family,,,,,,,,,,,,,draft
+does,base,TRUE,does_en_gb,FALSE,current_dictionary,doesn't,create_or_review_base_family,,,,,,,,,,,,,draft
+domin,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,dominance | dominant | dominate | domination,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+done,base,TRUE,done_en_gb,FALSE,current_dictionary,done,create_or_review_base_family,,,,,,,,,,,,,draft
+door,base,TRUE,door_en_gb,FALSE,current_dictionary,door,create_or_review_base_family,,,,,,,,,,,,,draft
+double,base,TRUE,double_en_gb,FALSE,current_dictionary,double,create_or_review_base_family,,,,,,,,,,,,,draft
+dough,base,TRUE,dough_en_gb,FALSE,current_dictionary,dough,create_or_review_base_family,,,,,,,,,,,,,draft
+draft,base,TRUE,draft_en_gb,FALSE,current_dictionary,draft,create_or_review_base_family,,,,,,,,,,,,,draft
+drama,base,FALSE,,TRUE,current_dictionary,dramatically,add_canonical_base_then_family,,,,,,,,,,,,,draft
+drop,base,TRUE,drop_en_gb,FALSE,current_dictionary,drop | dropped | dropping,create_or_review_base_family,,,,,,,,,,,,,draft
+drought,base,TRUE,drought_en_gb,FALSE,current_dictionary,drought,create_or_review_base_family,,,,,,,,,,,,,draft
+drum,base,FALSE,,TRUE,current_dictionary,drumming,add_canonical_base_then_family,,,,,,,,,,,,,draft
+dry,base,TRUE,dry_en_gb,FALSE,current_dictionary,dry,create_or_review_base_family,,,,,,,,,,,,,draft
+dumb,base,TRUE,dumb_en_gb,FALSE,current_dictionary,dumb,create_or_review_base_family,,,,,,,,,,,,,draft
+ease,base,FALSE,,TRUE,current_dictionary,easily | easy,add_canonical_base_then_family,,,,,,,,,,,,,draft
+easy,base,TRUE,easy_en_gb,FALSE,current_dictionary,easier | easiest,create_or_review_base_family,,,,,,,,,,,,,draft
+eat,base,TRUE,eat_en_gb,FALSE,current_dictionary,eat,create_or_review_base_family,,,,,,,,,,,,,draft
+educate,base,TRUE,educate_en_gb,FALSE,current_dictionary,educate,create_or_review_base_family,,,,,,,,,,,,,draft
+efficiency,base,TRUE,efficiency_en_gb,FALSE,current_dictionary,efficiency,create_or_review_base_family,,,,,,,,,,,,,draft
+efficient,base,TRUE,efficient_en_gb,FALSE,current_dictionary,efficient,create_or_review_base_family,,,,,,,,,,,,,draft
+eight,base,TRUE,eight_en_gb,FALSE,current_dictionary,eighteen | eighth,create_or_review_base_family,,,,,,,,,,,,,draft
+either,base,TRUE,either_en_gb,FALSE,current_dictionary,either,create_or_review_base_family,,,,,,,,,,,,,draft
+elect,base,FALSE,,TRUE,current_dictionary,re-elect,add_canonical_base_then_family,,,,,,,,,,,,,draft
+elegant,base,TRUE,elegant_en_gb,FALSE,current_dictionary,elegant,create_or_review_base_family,,,,,,,,,,,,,draft
+elephant,base,TRUE,elephant_en_gb,FALSE,current_dictionary,elephant,create_or_review_base_family,,,,,,,,,,,,,draft
+elig,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,eligible,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+end,base,FALSE,,TRUE,current_dictionary,ending | weekend,add_canonical_base_then_family,,,,,,,,,,,,,draft
+energ,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,energy,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+engine,base,TRUE,engine_en_gb,FALSE,current_dictionary,engine,create_or_review_base_family,,,,,,,,,,,,,draft
+enormous,base,TRUE,enormous_en_gb,FALSE,current_dictionary,enormous,create_or_review_base_family,,,,,,,,,,,,,draft
+enter,base,FALSE,,TRUE,current_dictionary,re-enter,add_canonical_base_then_family,,,,,,,,,,,,,draft
+environ,base,FALSE,,TRUE,current_dictionary,environment,add_canonical_base_then_family,,,,,,,,,,,,,draft
+equip,base,FALSE,,TRUE,current_dictionary,equipment | equipped,add_canonical_base_then_family,,,,,,,,,,,,,draft
+escape,base,TRUE,escape_en_gb,FALSE,current_dictionary,re-escape,create_or_review_base_family,,,,,,,,,,,,,draft
+especial,base,FALSE,,TRUE,current_dictionary,especially,add_canonical_base_then_family,,,,,,,,,,,,,draft
+evening,base,TRUE,evening_en_gb,FALSE,current_dictionary,evening,create_or_review_base_family,,,,,,,,,,,,,draft
+event,base,FALSE,,TRUE,current_dictionary,eventually,add_canonical_base_then_family,,,,,,,,,,,,,draft
+every,base,TRUE,every_en_gb,FALSE,current_dictionary,everybody | everywhere,create_or_review_base_family,,,,,,,,,,,,,draft
+evil,base,TRUE,evil_en_gb,FALSE,current_dictionary,evil,create_or_review_base_family,,,,,,,,,,,,,draft
+examine,base,FALSE,,TRUE,current_dictionary,re-examine,add_canonical_base_then_family,,,,,,,,,,,,,draft
+excel,base,FALSE,,TRUE,current_dictionary,excellent,add_canonical_base_then_family,,,,,,,,,,,,,draft
+excite,base,FALSE,,TRUE,current_dictionary,excitement,add_canonical_base_then_family,,,,,,,,,,,,,draft
+exercise,base,TRUE,exercise_en_gb,FALSE,current_dictionary,exercise,create_or_review_base_family,,,,,,,,,,,,,draft
+exhaust,base,TRUE,exhaust_en_gb,FALSE,current_dictionary,exhaust,create_or_review_base_family,,,,,,,,,,,,,draft
+exist,base,FALSE,,TRUE,current_dictionary,existence,add_canonical_base_then_family,,,,,,,,,,,,,draft
+expand,base,TRUE,expand_en_gb,FALSE,current_dictionary,expand,create_or_review_base_family,,,,,,,,,,,,,draft
+expans,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,expansion,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+expect,base,TRUE,expect_en_gb,FALSE,current_dictionary,expect | expectation,create_or_review_base_family,,,,,,,,,,,,,draft
+experience,base,TRUE,experience_en_gb,FALSE,current_dictionary,experience,create_or_review_base_family,,,,,,,,,,,,,draft
+experiment,base,TRUE,experiment_en_gb,FALSE,current_dictionary,experiment,create_or_review_base_family,,,,,,,,,,,,,draft
+explan,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,explanation,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fabul,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,fabulous,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fairy,base,TRUE,fairy_en_gb,FALSE,current_dictionary,fairy,create_or_review_base_family,,,,,,,,,,,,,draft
+fall,base,TRUE,fall_en_gb,FALSE,current_dictionary,fall,create_or_review_base_family,,,,,,,,,,,,,draft
+famili,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,familiar,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fancy,base,TRUE,fancy_en_gb,FALSE,current_dictionary,fancy,create_or_review_base_family,,,,,,,,,,,,,draft
+fare,base,TRUE,fare_en_gb,FALSE,current_dictionary,fare,create_or_review_base_family,,,,,,,,,,,,,draft
+farm,base,TRUE,farm_en_gb,FALSE,current_dictionary,farm,create_or_review_base_family,,,,,,,,,,,,,draft
+farther,base,TRUE,farther_en_gb,FALSE,current_dictionary,farther,create_or_review_base_family,,,,,,,,,,,,,draft
+fashion,base,TRUE,fashion_en_gb,FALSE,current_dictionary,fashion,create_or_review_base_family,,,,,,,,,,,,,draft
+father,base,TRUE,father_en_gb,FALSE,current_dictionary,father,create_or_review_base_family,,,,,,,,,,,,,draft
+fear,base,TRUE,fear_en_gb,FALSE,current_dictionary,fear,create_or_review_base_family,,,,,,,,,,,,,draft
+feas,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,feasible,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+february,base,TRUE,february_en_gb,FALSE,current_dictionary,february,create_or_review_base_family,,,,,,,,,,,,,draft
+fect,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,affect | affection | effect | infectious,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+feel,base,TRUE,feel_en_gb,FALSE,current_dictionary,feel,create_or_review_base_family,,,,,,,,,,,,,draft
+fere,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,interfere,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fess,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,profession,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fic,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,beneficial,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fict,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,fiction,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fierce,base,TRUE,fierce_en_gb,FALSE,current_dictionary,fierce,create_or_review_base_family,,,,,,,,,,,,,draft
+final,base,TRUE,final_en_gb,FALSE,current_dictionary,finally,create_or_review_base_family,,,,,,,,,,,,,draft
+finance,base,FALSE,,TRUE,current_dictionary,financial,add_canonical_base_then_family,,,,,,,,,,,,,draft
+five,base,TRUE,five_en_gb,FALSE,current_dictionary,five,create_or_review_base_family,,,,,,,,,,,,,draft
+flex,base,FALSE,,TRUE,current_dictionary,flexible,add_canonical_base_then_family,,,,,,,,,,,,,draft
+floor,base,TRUE,floor_en_gb,FALSE,current_dictionary,floor,create_or_review_base_family,,,,,,,,,,,,,draft
+flower,base,TRUE,flower_en_gb,FALSE,current_dictionary,sunflower,create_or_review_base_family,,,,,,,,,,,,,draft
+flu,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,influential,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+fly,base,TRUE,fly_en_gb,FALSE,current_dictionary,flies,create_or_review_base_family,,,,,,,,,,,,,draft
+focus,base,FALSE,,TRUE,current_dictionary,focused,add_canonical_base_then_family,,,,,,,,,,,,,draft
+foil,base,TRUE,foil_en_gb,FALSE,current_dictionary,foil,create_or_review_base_family,,,,,,,,,,,,,draft
+forbid,base,FALSE,,TRUE,current_dictionary,forbidden,add_canonical_base_then_family,,,,,,,,,,,,,draft
+fore,base,FALSE,,TRUE,current_dictionary,therefore,add_canonical_base_then_family,,,,,,,,,,,,,draft
+foreign,base,TRUE,foreign_en_gb,FALSE,current_dictionary,foreign,create_or_review_base_family,,,,,,,,,,,,,draft
+forget,base,TRUE,forget_en_gb,FALSE,current_dictionary,forget | forgetting | forgotten,create_or_review_base_family,,,,,,,,,,,,,draft
+fort,base,TRUE,fort_en_gb,FALSE,current_dictionary,fort,create_or_review_base_family,,,,,,,,,,,,,draft
+fortune,base,FALSE,,TRUE,current_dictionary,unfortunately,add_canonical_base_then_family,,,,,,,,,,,,,draft
+forward,base,TRUE,forward_en_gb,FALSE,current_dictionary,forward | forwards,create_or_review_base_family,,,,,,,,,,,,,draft
+fossil,base,TRUE,fossil_en_gb,FALSE,current_dictionary,fossil,create_or_review_base_family,,,,,,,,,,,,,draft
+fought,base,TRUE,fought_en_gb,FALSE,current_dictionary,fought,create_or_review_base_family,,,,,,,,,,,,,draft
+foul,base,TRUE,foul_en_gb,FALSE,current_dictionary,foul,create_or_review_base_family,,,,,,,,,,,,,draft
+four,base,TRUE,four_en_gb,FALSE,current_dictionary,forty,create_or_review_base_family,,,,,,,,,,,,,draft
+fract,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,fracture,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+freight,base,TRUE,freight_en_gb,FALSE,current_dictionary,freight,create_or_review_base_family,,,,,,,,,,,,,draft
+frequ,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,frequency,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+frequent,base,TRUE,frequent_en_gb,FALSE,current_dictionary,frequent | frequently,create_or_review_base_family,,,,,,,,,,,,,draft
+friday,base,TRUE,friday_en_gb,FALSE,current_dictionary,friday,create_or_review_base_family,,,,,,,,,,,,,draft
+front,base,FALSE,,TRUE,current_dictionary,confrontation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+fry,base,TRUE,fry_en_gb,FALSE,current_dictionary,fried | fries | fry,create_or_review_base_family,,,,,,,,,,,,,draft
+fur,base,TRUE,fur_en_gb,FALSE,current_dictionary,fur,create_or_review_base_family,,,,,,,,,,,,,draft
+furniture,base,TRUE,furniture_en_gb,FALSE,current_dictionary,furniture,create_or_review_base_family,,,,,,,,,,,,,draft
+fuse,base,FALSE,,TRUE,current_dictionary,fusion,add_canonical_base_then_family,,,,,,,,,,,,,draft
+gave,base,TRUE,gave_en_gb,FALSE,current_dictionary,gave,create_or_review_base_family,,,,,,,,,,,,,draft
+gentle,base,TRUE,gentle_en_gb,FALSE,current_dictionary,gentle | gently,create_or_review_base_family,,,,,,,,,,,,,draft
+get,base,FALSE,,TRUE,current_dictionary,getting,add_canonical_base_then_family,,,,,,,,,,,,,draft
+ghost,base,TRUE,ghost_en_gb,FALSE,current_dictionary,ghost,create_or_review_base_family,,,,,,,,,,,,,draft
+girl,base,TRUE,girl_en_gb,FALSE,current_dictionary,girl's | girls,create_or_review_base_family,,,,,,,,,,,,,draft
+goal,base,TRUE,goal_en_gb,FALSE,current_dictionary,goal,create_or_review_base_family,,,,,,,,,,,,,draft
+gold,base,TRUE,gold_en_gb,FALSE,current_dictionary,gold,create_or_review_base_family,,,,,,,,,,,,,draft
+gorgeous,base,TRUE,gorgeous_en_gb,FALSE,current_dictionary,gorgeous,create_or_review_base_family,,,,,,,,,,,,,draft
+grand,base,TRUE,grand_en_gb,FALSE,current_dictionary,grand | grandmother,create_or_review_base_family,,,,,,,,,,,,,draft
+gress,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,progression,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+grew,base,TRUE,grew_en_gb,FALSE,current_dictionary,grew,create_or_review_base_family,,,,,,,,,,,,,draft
+grief,base,TRUE,grief_en_gb,FALSE,current_dictionary,grief,create_or_review_base_family,,,,,,,,,,,,,draft
+ground,base,TRUE,ground_en_gb,FALSE,current_dictionary,ground,create_or_review_base_family,,,,,,,,,,,,,draft
+guarant,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,guarantee,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+guard,base,TRUE,guard_en_gb,FALSE,current_dictionary,guard,create_or_review_base_family,,,,,,,,,,,,,draft
+guess,base,FALSE,,TRUE,current_dictionary,guessed,add_canonical_base_then_family,,,,,,,,,,,,,draft
+guest,base,TRUE,guest_en_gb,FALSE,current_dictionary,guest,create_or_review_base_family,,,,,,,,,,,,,draft
+guide,base,TRUE,guide_en_gb,FALSE,current_dictionary,guide,create_or_review_base_family,,,,,,,,,,,,,draft
+had,auxiliary_expansion,FALSE,had_en_gb,TRUE,incoming_homophone_words,she'd | we'd,author_full_canonical_word_for_expansion,auxiliary_verb,used with a past participle to place an action before another past time,had_verb_base_family,,,,,,,,,,draft
+hair,base,TRUE,hair_en_gb,FALSE,current_dictionary,hair,create_or_review_base_family,,,,,,,,,,,,,draft
+hall,base,TRUE,hall_en_gb,FALSE,current_dictionary,hall,create_or_review_base_family,,,,,,,,,,,,,draft
+happen,base,TRUE,happen_en_gb,FALSE,current_dictionary,happen | happened | happening,create_or_review_base_family,,,,,,,,,,,,,draft
+has,base,TRUE,has_en_gb,FALSE,current_dictionary,hasn't,create_or_review_base_family,,,,,,,,,,,,,draft
+hate,base,FALSE,,TRUE,current_dictionary,hated,add_canonical_base_then_family,,,,,,,,,,,,,draft
+haul,base,TRUE,haul_en_gb,FALSE,current_dictionary,haul,create_or_review_base_family,,,,,,,,,,,,,draft
+have,base,TRUE,have_en_gb,FALSE,current_dictionary,haven't,create_or_review_base_family,,,,,,,,,,,,,draft
+hay,base,TRUE,hay_en_gb,FALSE,current_dictionary,hay,create_or_review_base_family,,,,,,,,,,,,,draft
+he,base,TRUE,he_en_gb,FALSE,current_dictionary,he'll | he's,create_or_review_base_family,,,,,,,,,,,,,draft
+head,base,TRUE,head_en_gb,FALSE,current_dictionary,head,create_or_review_base_family,,,,,,,,,,,,,draft
+heard,base,TRUE,heard_en_gb,FALSE,current_dictionary,heard,create_or_review_base_family,,,,,,,,,,,,,draft
+heart,base,TRUE,heart_en_gb,FALSE,current_dictionary,heart,create_or_review_base_family,,,,,,,,,,,,,draft
+heavy,base,TRUE,heavy_en_gb,FALSE,current_dictionary,heavier | heaviest | heavily | heavy,create_or_review_base_family,,,,,,,,,,,,,draft
+hedge,base,TRUE,hedge_en_gb,FALSE,current_dictionary,hedge,create_or_review_base_family,,,,,,,,,,,,,draft
+heel,base,TRUE,heel_en_gb,FALSE,current_dictionary,heel,create_or_review_base_family,,,,,,,,,,,,,draft
+height,base,TRUE,height_en_gb,FALSE,current_dictionary,height,create_or_review_base_family,,,,,,,,,,,,,draft
+herd,base,TRUE,herd_en_gb,FALSE,current_dictionary,herd,create_or_review_base_family,,,,,,,,,,,,,draft
+here,base,TRUE,here_en_gb,FALSE,current_dictionary,here,create_or_review_base_family,,,,,,,,,,,,,draft
+herit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,inheritance,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+hesit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,hesitate,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+hibit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,exhibition,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+high,base,TRUE,high_en_gb,FALSE,current_dictionary,high,create_or_review_base_family,,,,,,,,,,,,,draft
+hike,base,FALSE,,TRUE,current_dictionary,hiking,add_canonical_base_then_family,,,,,,,,,,,,,draft
+history,base,TRUE,history_en_gb,FALSE,current_dictionary,historically,create_or_review_base_family,,,,,,,,,,,,,draft
+hit,base,FALSE,,TRUE,current_dictionary,hitting,add_canonical_base_then_family,,,,,,,,,,,,,draft
+hold,base,TRUE,hold_en_gb,FALSE,current_dictionary,hold,create_or_review_base_family,,,,,,,,,,,,,draft
+hole,base,TRUE,hole_en_gb,FALSE,current_dictionary,hole,create_or_review_base_family,,,,,,,,,,,,,draft
+home,base,TRUE,home_en_gb,FALSE,current_dictionary,homework,create_or_review_base_family,,,,,,,,,,,,,draft
+hook,base,TRUE,hook_en_gb,FALSE,current_dictionary,hook,create_or_review_base_family,,,,,,,,,,,,,draft
+horn,base,TRUE,horn_en_gb,FALSE,current_dictionary,horn,create_or_review_base_family,,,,,,,,,,,,,draft
+horr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,horrible,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+hospital,base,TRUE,hospital_en_gb,FALSE,current_dictionary,hospital,create_or_review_base_family,,,,,,,,,,,,,draft
+how,base,TRUE,how_en_gb,FALSE,current_dictionary,how,create_or_review_base_family,,,,,,,,,,,,,draft
+hug,base,TRUE,hug_en_gb,FALSE,current_dictionary,hug,create_or_review_base_family,,,,,,,,,,,,,draft
+humble,base,TRUE,humble_en_gb,FALSE,current_dictionary,humble,create_or_review_base_family,,,,,,,,,,,,,draft
+humour,base,TRUE,humour_en_gb,FALSE,current_dictionary,humour,create_or_review_base_family,,,,,,,,,,,,,draft
+hunt,base,FALSE,,TRUE,current_dictionary,hunter | hunting,add_canonical_base_then_family,,,,,,,,,,,,,draft
+hurry,base,TRUE,hurry_en_gb,FALSE,current_dictionary,hurry,create_or_review_base_family,,,,,,,,,,,,,draft
+hygiene,base,TRUE,hygiene_en_gb,FALSE,current_dictionary,hygiene,create_or_review_base_family,,,,,,,,,,,,,draft
+i,base,TRUE,i_en_gb,FALSE,current_dictionary,i | i'll,create_or_review_base_family,,,,,,,,,,,,,draft
+iatr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,psychiatrist,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+ice,base,TRUE,ice_en_gb,FALSE,current_dictionary,ice,create_or_review_base_family,,,,,,,,,,,,,draft
+ident,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,identity,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+ignore,base,FALSE,,TRUE,current_dictionary,ignorance | ignorant,add_canonical_base_then_family,,,,,,,,,,,,,draft
+ill,base,FALSE,,TRUE,current_dictionary,illness,add_canonical_base_then_family,,,,,,,,,,,,,draft
+imagine,base,TRUE,imagine_en_gb,FALSE,current_dictionary,imagination | imagine,create_or_review_base_family,,,,,,,,,,,,,draft
+immediate,base,TRUE,immediate_en_gb,FALSE,current_dictionary,immediate | immediately,create_or_review_base_family,,,,,,,,,,,,,draft
+import,base,FALSE,,TRUE,current_dictionary,important,add_canonical_base_then_family,,,,,,,,,,,,,draft
+import,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,importance,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+in,base,TRUE,in_en_gb,FALSE,current_dictionary,in | into | mother-in-law,create_or_review_base_family,,,,,,,,,,,,,draft
+ingredient,base,TRUE,ingredient_en_gb,FALSE,current_dictionary,ingredients,create_or_review_base_family,,,,,,,,,,,,,draft
+intellig,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,intelligence | intelligent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+interest,base,TRUE,interest_en_gb,FALSE,current_dictionary,interest,create_or_review_base_family,,,,,,,,,,,,,draft
+island,base,TRUE,island_en_gb,FALSE,current_dictionary,island,create_or_review_base_family,,,,,,,,,,,,,draft
+isle,base,TRUE,isle_en_gb,FALSE,current_dictionary,isle,create_or_review_base_family,,,,,,,,,,,,,draft
+it,base,FALSE,,TRUE,current_dictionary,it'll | it's,add_canonical_base_then_family,,,,,,,,,,,,,draft
+jacket,base,TRUE,jacket_en_gb,FALSE,current_dictionary,jacket,create_or_review_base_family,,,,,,,,,,,,,draft
+january,base,TRUE,january_en_gb,FALSE,current_dictionary,january,create_or_review_base_family,,,,,,,,,,,,,draft
+jar,base,TRUE,jar_en_gb,FALSE,current_dictionary,jar,create_or_review_base_family,,,,,,,,,,,,,draft
+jaw,base,TRUE,jaw_en_gb,FALSE,current_dictionary,jaw,create_or_review_base_family,,,,,,,,,,,,,draft
+jealous,base,TRUE,jealous_en_gb,FALSE,current_dictionary,jealous,create_or_review_base_family,,,,,,,,,,,,,draft
+ject,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,injection,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+jog,base,TRUE,jog_en_gb,FALSE,current_dictionary,jogging,create_or_review_base_family,,,,,,,,,,,,,draft
+join,base,TRUE,join_en_gb,FALSE,current_dictionary,join,create_or_review_base_family,,,,,,,,,,,,,draft
+judge,base,TRUE,judge_en_gb,FALSE,current_dictionary,judge,create_or_review_base_family,,,,,,,,,,,,,draft
+judice,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,prejudice,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+july,base,TRUE,july_en_gb,FALSE,current_dictionary,july,create_or_review_base_family,,,,,,,,,,,,,draft
+june,base,TRUE,june_en_gb,FALSE,current_dictionary,june,create_or_review_base_family,,,,,,,,,,,,,draft
+jungle,base,TRUE,jungle_en_gb,FALSE,current_dictionary,jungle,create_or_review_base_family,,,,,,,,,,,,,draft
+just,base,FALSE,,TRUE,current_dictionary,justify,add_canonical_base_then_family,,,,,,,,,,,,,draft
+key,base,TRUE,key_en_gb,FALSE,current_dictionary,keys,create_or_review_base_family,,,,,,,,,,,,,draft
+kick,base,FALSE,,TRUE,current_dictionary,kicking,add_canonical_base_then_family,,,,,,,,,,,,,draft
+kiss,base,TRUE,kiss_en_gb,FALSE,current_dictionary,kisses,create_or_review_base_family,,,,,,,,,,,,,draft
+kitchen,base,TRUE,kitchen_en_gb,FALSE,current_dictionary,kitchen,create_or_review_base_family,,,,,,,,,,,,,draft
+knew,base,TRUE,knew_en_gb,FALSE,current_dictionary,knew,create_or_review_base_family,,,,,,,,,,,,,draft
+knight,base,TRUE,knight_en_gb,FALSE,current_dictionary,knight,create_or_review_base_family,,,,,,,,,,,,,draft
+knot,base,TRUE,knot_en_gb,FALSE,current_dictionary,knot,create_or_review_base_family,,,,,,,,,,,,,draft
+know,base,TRUE,know_en_gb,FALSE,current_dictionary,unknown,create_or_review_base_family,,,,,,,,,,,,,draft
+knowledge,base,TRUE,knowledge_en_gb,FALSE,current_dictionary,knowledge,create_or_review_base_family,,,,,,,,,,,,,draft
+known,base,TRUE,known_en_gb,FALSE,current_dictionary,known | well-known,create_or_review_base_family,,,,,,,,,,,,,draft
+label,base,TRUE,label_en_gb,FALSE,current_dictionary,label,create_or_review_base_family,,,,,,,,,,,,,draft
+laid,base,TRUE,laid_en_gb,FALSE,current_dictionary,laid,create_or_review_base_family,,,,,,,,,,,,,draft
+language,base,TRUE,language_en_gb,FALSE,current_dictionary,language,create_or_review_base_family,,,,,,,,,,,,,draft
+last,base,TRUE,last_en_gb,FALSE,current_dictionary,last,create_or_review_base_family,,,,,,,,,,,,,draft
+launch,base,TRUE,launch_en_gb,FALSE,current_dictionary,launch,create_or_review_base_family,,,,,,,,,,,,,draft
+launder,base,FALSE,,TRUE,current_dictionary,laundry,add_canonical_base_then_family,,,,,,,,,,,,,draft
+law,base,TRUE,law_en_gb,FALSE,current_dictionary,law | mother-in-law,create_or_review_base_family,,,,,,,,,,,,,draft
+lay,base,TRUE,lay_en_gb,FALSE,current_dictionary,lay,create_or_review_base_family,,,,,,,,,,,,,draft
+lead,base,TRUE,lead_en_gb,FALSE,current_dictionary,lead,create_or_review_base_family,,,,,,,,,,,,,draft
+league,base,TRUE,league_en_gb,FALSE,current_dictionary,league,create_or_review_base_family,,,,,,,,,,,,,draft
+lease,base,FALSE,lease_en_gb,TRUE,incoming_homophone_words,leased,author_full_canonical_word_then_family,verb,allow someone to use property for payment over an agreed time,lease_verb_base_family,,,,,,,,,,draft
+led,base,TRUE,led_en_gb,FALSE,current_dictionary,led,create_or_review_base_family,,,,,,,,,,,,,draft
+legal,base,TRUE,legal_en_gb,FALSE,current_dictionary,legal,create_or_review_base_family,,,,,,,,,,,,,draft
+leisure,base,TRUE,leisure_en_gb,FALSE,current_dictionary,leisure,create_or_review_base_family,,,,,,,,,,,,,draft
+length,base,TRUE,length_en_gb,FALSE,current_dictionary,length,create_or_review_base_family,,,,,,,,,,,,,draft
+let,base,FALSE,let_en_gb,TRUE,incoming_homophone_words,lets,author_full_canonical_word_then_family,verb,allow someone to do something,let_verb_base_family,,,,,,,,,,draft
+licence,base,TRUE,licence_en_gb,FALSE,current_dictionary,licence,create_or_review_base_family,,,,,,,,,,,,,draft
+license,base,TRUE,license_en_gb,FALSE,current_dictionary,license,create_or_review_base_family,,,,,,,,,,,,,draft
+lightning,base,TRUE,lightning_en_gb,FALSE,current_dictionary,lightning,create_or_review_base_family,,,,,,,,,,,,,draft
+limb,base,TRUE,limb_en_gb,FALSE,current_dictionary,limb,create_or_review_base_family,,,,,,,,,,,,,draft
+limit,base,TRUE,limit_en_gb,FALSE,current_dictionary,limit | limited | limiting,create_or_review_base_family,,,,,,,,,,,,,draft
+line,base,TRUE,line_en_gb,FALSE,current_dictionary,line,create_or_review_base_family,,,,,,,,,,,,,draft
+listen,base,TRUE,listen_en_gb,FALSE,current_dictionary,listen | listened | listening,create_or_review_base_family,,,,,,,,,,,,,draft
+living,base,TRUE,living_en_gb,FALSE,current_dictionary,living | living room,create_or_review_base_family,,,,,,,,,,,,,draft
+load,base,FALSE,,TRUE,current_dictionary,loads,add_canonical_base_then_family,,,,,,,,,,,,,draft
+logic,base,FALSE,,TRUE,current_dictionary,logical,add_canonical_base_then_family,,,,,,,,,,,,,draft
+long,base,TRUE,long_en_gb,FALSE,current_dictionary,longer | longest,create_or_review_base_family,,,,,,,,,,,,,draft
+loud,base,TRUE,loud_en_gb,FALSE,current_dictionary,loud | louder,create_or_review_base_family,,,,,,,,,,,,,draft
+love,base,TRUE,love_en_gb,FALSE,current_dictionary,lovely,create_or_review_base_family,,,,,,,,,,,,,draft
+luck,base,FALSE,,TRUE,current_dictionary,luckily | lucky,add_canonical_base_then_family,,,,,,,,,,,,,draft
+mail,base,TRUE,mail_en_gb,FALSE,current_dictionary,mail,create_or_review_base_family,,,,,,,,,,,,,draft
+main,base,TRUE,main_en_gb,FALSE,current_dictionary,main,create_or_review_base_family,,,,,,,,,,,,,draft
+male,base,TRUE,male_en_gb,FALSE,current_dictionary,male,create_or_review_base_family,,,,,,,,,,,,,draft
+man,base,FALSE,,TRUE,current_dictionary,man's,add_canonical_base_then_family,,,,,,,,,,,,,draft
+march,base,TRUE,march_en_gb,FALSE,current_dictionary,march,create_or_review_base_family,,,,,,,,,,,,,draft
+marry,base,TRUE,marry_en_gb,FALSE,current_dictionary,married | marry | marrying,create_or_review_base_family,,,,,,,,,,,,,draft
+marshal,base,TRUE,marshal_en_gb,FALSE,current_dictionary,marshal,create_or_review_base_family,,,,,,,,,,,,,draft
+martial,base,TRUE,martial_en_gb,FALSE,current_dictionary,martial,create_or_review_base_family,,,,,,,,,,,,,draft
+mate,base,TRUE,mate_en_gb,FALSE,current_dictionary,mate,create_or_review_base_family,,,,,,,,,,,,,draft
+material,base,TRUE,material_en_gb,FALSE,current_dictionary,material,create_or_review_base_family,,,,,,,,,,,,,draft
+mature,base,TRUE,mature_en_gb,FALSE,current_dictionary,mature,create_or_review_base_family,,,,,,,,,,,,,draft
+mean,base,FALSE,,TRUE,current_dictionary,means,add_canonical_base_then_family,,,,,,,,,,,,,draft
+measure,base,TRUE,measure_en_gb,FALSE,current_dictionary,measure,create_or_review_base_family,,,,,,,,,,,,,draft
+meat,base,TRUE,meat_en_gb,FALSE,current_dictionary,meat,create_or_review_base_family,,,,,,,,,,,,,draft
+mechan,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,mechanic,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+medal,base,TRUE,medal_en_gb,FALSE,current_dictionary,medal,create_or_review_base_family,,,,,,,,,,,,,draft
+medicine,base,TRUE,medicine_en_gb,FALSE,current_dictionary,medicine,create_or_review_base_family,,,,,,,,,,,,,draft
+meet,base,TRUE,meet_en_gb,FALSE,current_dictionary,meet,create_or_review_base_family,,,,,,,,,,,,,draft
+merry,base,TRUE,merry_en_gb,FALSE,current_dictionary,merry,create_or_review_base_family,,,,,,,,,,,,,draft
+mess,base,TRUE,mess_en_gb,FALSE,current_dictionary,mess,create_or_review_base_family,,,,,,,,,,,,,draft
+metal,base,TRUE,metal_en_gb,FALSE,current_dictionary,metal,create_or_review_base_family,,,,,,,,,,,,,draft
+might,base,TRUE,might_en_gb,FALSE,current_dictionary,might,create_or_review_base_family,,,,,,,,,,,,,draft
+migr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,immigrants,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+minute,base,TRUE,minute_en_gb,FALSE,current_dictionary,minute,create_or_review_base_family,,,,,,,,,,,,,draft
+miss,base,TRUE,miss_en_gb,FALSE,current_dictionary,missed,create_or_review_base_family,,,,,,,,,,,,,draft
+miss,root,TRUE,miss_en_gb,REVIEW_BOUND_ROOT,current_dictionary,admission | permission | transmission,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+mit,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,committee,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+mix,base,FALSE,,TRUE,current_dictionary,mixed | mixing | mixture,add_canonical_base_then_family,,,,,,,,,,,,,draft
+mobile,base,FALSE,,TRUE,current_dictionary,automobile,add_canonical_base_then_family,,,,,,,,,,,,,draft
+monday,base,TRUE,monday_en_gb,FALSE,current_dictionary,monday,create_or_review_base_family,,,,,,,,,,,,,draft
+monkey,base,TRUE,monkey_en_gb,FALSE,current_dictionary,monkey | monkeys,create_or_review_base_family,,,,,,,,,,,,,draft
+month,base,TRUE,month_en_gb,FALSE,current_dictionary,month,create_or_review_base_family,,,,,,,,,,,,,draft
+morning,base,TRUE,morning_en_gb,FALSE,current_dictionary,morning,create_or_review_base_family,,,,,,,,,,,,,draft
+mort,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,immortal,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+mosque,base,TRUE,mosque_en_gb,FALSE,current_dictionary,mosque,create_or_review_base_family,,,,,,,,,,,,,draft
+most,base,TRUE,most_en_gb,FALSE,current_dictionary,most,create_or_review_base_family,,,,,,,,,,,,,draft
+mother,base,TRUE,mother_en_gb,FALSE,current_dictionary,grandmother | mother-in-law,create_or_review_base_family,,,,,,,,,,,,,draft
+motion,base,TRUE,motion_en_gb,FALSE,current_dictionary,motion,create_or_review_base_family,,,,,,,,,,,,,draft
+mourn,base,FALSE,,TRUE,current_dictionary,mourning,add_canonical_base_then_family,,,,,,,,,,,,,draft
+mouth,base,TRUE,mouth_en_gb,FALSE,current_dictionary,mouth,create_or_review_base_family,,,,,,,,,,,,,draft
+move,base,TRUE,move_en_gb,FALSE,current_dictionary,movement,create_or_review_base_family,,,,,,,,,,,,,draft
+mr,base,TRUE,mr_en_gb,FALSE,current_dictionary,mr,create_or_review_base_family,,,,,,,,,,,,,draft
+mrs,base,TRUE,mrs_en_gb,FALSE,current_dictionary,mrs,create_or_review_base_family,,,,,,,,,,,,,draft
+muscle,base,TRUE,muscle_en_gb,FALSE,current_dictionary,muscle,create_or_review_base_family,,,,,,,,,,,,,draft
+myst,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,mystery,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+myth,base,TRUE,myth_en_gb,FALSE,current_dictionary,myth,create_or_review_base_family,,,,,,,,,,,,,draft
+nail,base,TRUE,nail_en_gb,FALSE,current_dictionary,nail,create_or_review_base_family,,,,,,,,,,,,,draft
+name,base,TRUE,name_en_gb,FALSE,current_dictionary,name,create_or_review_base_family,,,,,,,,,,,,,draft
+nation,base,TRUE,nation_en_gb,FALSE,current_dictionary,international | nation,create_or_review_base_family,,,,,,,,,,,,,draft
+naughty,base,TRUE,naughty_en_gb,FALSE,current_dictionary,naughty,create_or_review_base_family,,,,,,,,,,,,,draft
+near,base,TRUE,near_en_gb,FALSE,current_dictionary,nearly,create_or_review_base_family,,,,,,,,,,,,,draft
+necess,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,necessary,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+need,base,TRUE,need_en_gb,FALSE,current_dictionary,need,create_or_review_base_family,,,,,,,,,,,,,draft
+new,base,TRUE,new_en_gb,FALSE,current_dictionary,renew,create_or_review_base_family,,,,,,,,,,,,,draft
+nine,base,TRUE,nine_en_gb,FALSE,current_dictionary,nine,create_or_review_base_family,,,,,,,,,,,,,draft
+no,base,TRUE,no_en_gb,FALSE,current_dictionary,nothing,create_or_review_base_family,,,,,,,,,,,,,draft
+noble,base,TRUE,noble_en_gb,FALSE,current_dictionary,noble,create_or_review_base_family,,,,,,,,,,,,,draft
+noc,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,innocence | innocent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+not,base,TRUE,not_en_gb,FALSE,current_dictionary,not,create_or_review_base_family,,,,,,,,,,,,,draft
+note,base,TRUE,note_en_gb,FALSE,current_dictionary,note,create_or_review_base_family,,,,,,,,,,,,,draft
+notice,base,TRUE,notice_en_gb,FALSE,current_dictionary,notice | noticeable,create_or_review_base_family,,,,,,,,,,,,,draft
+november,base,TRUE,november_en_gb,FALSE,current_dictionary,november,create_or_review_base_family,,,,,,,,,,,,,draft
+numer,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,numerous,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+obey,base,TRUE,obey_en_gb,FALSE,current_dictionary,obey,create_or_review_base_family,,,,,,,,,,,,,draft
+observe,base,TRUE,observe_en_gb,FALSE,current_dictionary,observation | observe,create_or_review_base_family,,,,,,,,,,,,,draft
+obsess,base,FALSE,,TRUE,current_dictionary,obsession,add_canonical_base_then_family,,,,,,,,,,,,,draft
+obvious,base,TRUE,obvious_en_gb,FALSE,current_dictionary,obvious,create_or_review_base_family,,,,,,,,,,,,,draft
+occasion,base,TRUE,occasion_en_gb,FALSE,current_dictionary,occasion | occasionally,create_or_review_base_family,,,,,,,,,,,,,draft
+occupy,base,TRUE,occupy_en_gb,FALSE,current_dictionary,occupy,create_or_review_base_family,,,,,,,,,,,,,draft
+occur,base,TRUE,occur_en_gb,FALSE,current_dictionary,occurred | occurrence | occurring,create_or_review_base_family,,,,,,,,,,,,,draft
+october,base,TRUE,october_en_gb,FALSE,current_dictionary,october,create_or_review_base_family,,,,,,,,,,,,,draft
+offer,base,TRUE,offer_en_gb,FALSE,current_dictionary,offer | offered | offering,create_or_review_base_family,,,,,,,,,,,,,draft
+office,base,TRUE,office_en_gb,FALSE,current_dictionary,office | post office,create_or_review_base_family,,,,,,,,,,,,,draft
+often,base,TRUE,often_en_gb,FALSE,current_dictionary,often,create_or_review_base_family,,,,,,,,,,,,,draft
+oil,base,TRUE,oil_en_gb,FALSE,current_dictionary,oil,create_or_review_base_family,,,,,,,,,,,,,draft
+old,base,TRUE,old_en_gb,FALSE,current_dictionary,older | oldest,create_or_review_base_family,,,,,,,,,,,,,draft
+only,base,TRUE,only_en_gb,FALSE,current_dictionary,only,create_or_review_base_family,,,,,,,,,,,,,draft
+open,base,FALSE,,TRUE,current_dictionary,opening,add_canonical_base_then_family,,,,,,,,,,,,,draft
+oper,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,operation,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+operate,base,FALSE,,TRUE,current_dictionary,co-operate,add_canonical_base_then_family,,,,,,,,,,,,,draft
+opportune,base,FALSE,,TRUE,current_dictionary,opportunity,add_canonical_base_then_family,,,,,,,,,,,,,draft
+opposite,base,TRUE,opposite_en_gb,FALSE,current_dictionary,opposite,create_or_review_base_family,,,,,,,,,,,,,draft
+orchestr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,orchestra,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+ordin,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,ordinary,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+organise,base,FALSE,,TRUE,current_dictionary,organisation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+other,base,TRUE,other_en_gb,FALSE,current_dictionary,other,create_or_review_base_family,,,,,,,,,,,,,draft
+ought,base,TRUE,ought_en_gb,FALSE,current_dictionary,ought,create_or_review_base_family,,,,,,,,,,,,,draft
+our,base,TRUE,our_en_gb,FALSE,current_dictionary,our,create_or_review_base_family,,,,,,,,,,,,,draft
+outrage,base,FALSE,,TRUE,current_dictionary,outrageous,add_canonical_base_then_family,,,,,,,,,,,,,draft
+over,base,TRUE,over_en_gb,FALSE,current_dictionary,over,create_or_review_base_family,,,,,,,,,,,,,draft
+overlie,base,FALSE,,TRUE,current_dictionary,overlying,add_canonical_base_then_family,,,,,,,,,,,,,draft
+own,base,TRUE,own_en_gb,FALSE,current_dictionary,co-own,create_or_review_base_family,,,,,,,,,,,,,draft
+oxygen,base,TRUE,oxygen_en_gb,FALSE,current_dictionary,oxygen,create_or_review_base_family,,,,,,,,,,,,,draft
+pace,base,TRUE,pace_en_gb,FALSE,current_dictionary,pace,create_or_review_base_family,,,,,,,,,,,,,draft
+pack,base,FALSE,pack_en_gb,TRUE,incoming_homophone_words,packed,author_full_canonical_word_then_family,verb,put things together into a bag or container,pack_verb_base_family,,,,,,,,,,draft
+paid,base,TRUE,paid_en_gb,FALSE,current_dictionary,paid,create_or_review_base_family,,,,,,,,,,,,,draft
+pain,base,TRUE,pain_en_gb,FALSE,current_dictionary,pain | painful,create_or_review_base_family,,,,,,,,,,,,,draft
+pair,base,TRUE,pair_en_gb,FALSE,current_dictionary,pair,create_or_review_base_family,,,,,,,,,,,,,draft
+par,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,transparency | transparent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+parent,base,FALSE,,TRUE,current_dictionary,parents,add_canonical_base_then_family,,,,,,,,,,,,,draft
+parliament,base,TRUE,parliament_en_gb,FALSE,current_dictionary,parliament,create_or_review_base_family,,,,,,,,,,,,,draft
+part,base,TRUE,part_en_gb,FALSE,current_dictionary,part | part-time,create_or_review_base_family,,,,,,,,,,,,,draft
+part,root,TRUE,part_en_gb,REVIEW_BOUND_ROOT,current_dictionary,particular,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+party,base,TRUE,party_en_gb,FALSE,current_dictionary,party,create_or_review_base_family,,,,,,,,,,,,,draft
+pass,base,TRUE,pass_en_gb,FALSE,current_dictionary,pass,create_or_review_base_family,,,,,,,,,,,,,draft
+pat,base,TRUE,pat_en_gb,FALSE,current_dictionary,pat,create_or_review_base_family,,,,,,,,,,,,,draft
+patience,base,TRUE,patience_en_gb,FALSE,current_dictionary,patience,create_or_review_base_family,,,,,,,,,,,,,draft
+patient,base,TRUE,patient_en_gb,FALSE,current_dictionary,patient,create_or_review_base_family,,,,,,,,,,,,,draft
+pause,base,TRUE,pause_en_gb,FALSE,current_dictionary,pause,create_or_review_base_family,,,,,,,,,,,,,draft
+pay,base,TRUE,pay_en_gb,FALSE,current_dictionary,pay,create_or_review_base_family,,,,,,,,,,,,,draft
+pencil,base,TRUE,pencil_en_gb,FALSE,current_dictionary,pencil,create_or_review_base_family,,,,,,,,,,,,,draft
+pend,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,depend | independence | independent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+pension,base,TRUE,pension_en_gb,FALSE,current_dictionary,pension,create_or_review_base_family,,,,,,,,,,,,,draft
+perhaps,base,TRUE,perhaps_en_gb,FALSE,current_dictionary,perhaps,create_or_review_base_family,,,,,,,,,,,,,draft
+permit,base,TRUE,permit_en_gb,FALSE,current_dictionary,permit,create_or_review_base_family,,,,,,,,,,,,,draft
+persuade,base,TRUE,persuade_en_gb,FALSE,current_dictionary,persuade,create_or_review_base_family,,,,,,,,,,,,,draft
+phys,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,physical | physician,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+pierce,base,TRUE,pierce_en_gb,FALSE,current_dictionary,pierce,create_or_review_base_family,,,,,,,,,,,,,draft
+plague,base,TRUE,plague_en_gb,FALSE,current_dictionary,plague,create_or_review_base_family,,,,,,,,,,,,,draft
+plant,base,TRUE,plant_en_gb,FALSE,current_dictionary,plant,create_or_review_base_family,,,,,,,,,,,,,draft
+plaque,base,TRUE,plaque_en_gb,FALSE,current_dictionary,plaque,create_or_review_base_family,,,,,,,,,,,,,draft
+ple,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,complement,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+please,base,TRUE,please_en_gb,FALSE,current_dictionary,pleasure,create_or_review_base_family,,,,,,,,,,,,,draft
+plos,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,explosion,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+pneumonia,base,TRUE,pneumonia_en_gb,FALSE,current_dictionary,pneumonia,create_or_review_base_family,,,,,,,,,,,,,draft
+polite,base,TRUE,polite_en_gb,FALSE,current_dictionary,polite,create_or_review_base_family,,,,,,,,,,,,,draft
+pollute,base,FALSE,,TRUE,current_dictionary,pollution,add_canonical_base_then_family,,,,,,,,,,,,,draft
+poor,base,TRUE,poor_en_gb,FALSE,current_dictionary,poor,create_or_review_base_family,,,,,,,,,,,,,draft
+popul,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,population,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+pose,base,FALSE,,TRUE,current_dictionary,suppose,add_canonical_base_then_family,,,,,,,,,,,,,draft
+posit,base,FALSE,,TRUE,current_dictionary,position,add_canonical_base_then_family,,,,,,,,,,,,,draft
+poss,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,possibly,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+possess,base,TRUE,possess_en_gb,FALSE,current_dictionary,possess | possession,create_or_review_base_family,,,,,,,,,,,,,draft
+post,base,TRUE,post_en_gb,FALSE,current_dictionary,post office,create_or_review_base_family,,,,,,,,,,,,,draft
+potato,base,FALSE,,TRUE,current_dictionary,potatoes,add_canonical_base_then_family,,,,,,,,,,,,,draft
+pract,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,practice,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+preci,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,appreciate,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+prefer,base,TRUE,prefer_en_gb,FALSE,current_dictionary,prefer | preference | preferred,create_or_review_base_family,,,,,,,,,,,,,draft
+prehend,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,comprehend,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+prepare,base,FALSE,,TRUE,current_dictionary,preparation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+press,base,FALSE,,TRUE,current_dictionary,expression | impression | pressure,add_canonical_base_then_family,,,,,,,,,,,,,draft
+pretty,base,TRUE,pretty_en_gb,FALSE,current_dictionary,prettier | prettiest,create_or_review_base_family,,,,,,,,,,,,,draft
+prince,base,TRUE,prince_en_gb,FALSE,current_dictionary,prince | princess,create_or_review_base_family,,,,,,,,,,,,,draft
+principal,base,TRUE,principal_en_gb,FALSE,current_dictionary,principal,create_or_review_base_family,,,,,,,,,,,,,draft
+principle,base,TRUE,principle_en_gb,FALSE,current_dictionary,principle,create_or_review_base_family,,,,,,,,,,,,,draft
+privilege,base,TRUE,privilege_en_gb,FALSE,current_dictionary,privilege,create_or_review_base_family,,,,,,,,,,,,,draft
+prob,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,probable | probably,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+proceed,base,TRUE,proceed_en_gb,FALSE,current_dictionary,proceed,create_or_review_base_family,,,,,,,,,,,,,draft
+profit,base,TRUE,profit_en_gb,FALSE,current_dictionary,profit,create_or_review_base_family,,,,,,,,,,,,,draft
+programme,base,TRUE,programme_en_gb,FALSE,current_dictionary,programme,create_or_review_base_family,,,,,,,,,,,,,draft
+prophet,base,TRUE,prophet_en_gb,FALSE,current_dictionary,prophet,create_or_review_base_family,,,,,,,,,,,,,draft
+proud,base,FALSE,,TRUE,current_dictionary,proudly,add_canonical_base_then_family,,,,,,,,,,,,,draft
+prove,base,TRUE,prove_en_gb,FALSE,current_dictionary,improve,create_or_review_base_family,,,,,,,,,,,,,draft
+psych,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,psychiatrist | psychology,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+public,base,TRUE,public_en_gb,FALSE,current_dictionary,publicly,create_or_review_base_family,,,,,,,,,,,,,draft
+purpose,base,TRUE,purpose_en_gb,FALSE,current_dictionary,purpose,create_or_review_base_family,,,,,,,,,,,,,draft
+put,base,TRUE,put_en_gb,FALSE,current_dictionary,putting,create_or_review_base_family,,,,,,,,,,,,,draft
+puzzle,base,TRUE,puzzle_en_gb,FALSE,current_dictionary,puzzle,create_or_review_base_family,,,,,,,,,,,,,draft
+pyramid,base,TRUE,pyramid_en_gb,FALSE,current_dictionary,pyramid,create_or_review_base_family,,,,,,,,,,,,,draft
+quad,base,TRUE,quad_en_gb,FALSE,current_dictionary,quad,create_or_review_base_family,,,,,,,,,,,,,draft
+quant,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,quantity,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+queue,base,TRUE,queue_en_gb,FALSE,current_dictionary,queue,create_or_review_base_family,,,,,,,,,,,,,draft
+quiet,base,TRUE,quiet_en_gb,FALSE,current_dictionary,quiet | quietly,create_or_review_base_family,,,,,,,,,,,,,draft
+quite,base,TRUE,quite_en_gb,FALSE,current_dictionary,quite,create_or_review_base_family,,,,,,,,,,,,,draft
+race,base,TRUE,race_en_gb,FALSE,current_dictionary,race | racial,create_or_review_base_family,,,,,,,,,,,,,draft
+rage,base,TRUE,rage_en_gb,FALSE,current_dictionary,rage,create_or_review_base_family,,,,,,,,,,,,,draft
+rain,base,TRUE,rain_en_gb,FALSE,current_dictionary,rainbow,create_or_review_base_family,,,,,,,,,,,,,draft
+raw,base,TRUE,raw_en_gb,FALSE,current_dictionary,raw,create_or_review_base_family,,,,,,,,,,,,,draft
+reason,base,TRUE,reason_en_gb,FALSE,current_dictionary,reason | reasonable | reasonably,create_or_review_base_family,,,,,,,,,,,,,draft
+receipt,base,TRUE,receipt_en_gb,FALSE,current_dictionary,receipt,create_or_review_base_family,,,,,,,,,,,,,draft
+recent,base,TRUE,recent_en_gb,FALSE,current_dictionary,recent,create_or_review_base_family,,,,,,,,,,,,,draft
+recognise,base,TRUE,recognise_en_gb,FALSE,current_dictionary,recognise,create_or_review_base_family,,,,,,,,,,,,,draft
+red,base,TRUE,red_en_gb,FALSE,current_dictionary,redder | reddest,create_or_review_base_family,,,,,,,,,,,,,draft
+refer,base,TRUE,refer_en_gb,FALSE,current_dictionary,refer | referee | reference | referred | referring,create_or_review_base_family,,,,,,,,,,,,,draft
+regret,base,TRUE,regret_en_gb,FALSE,current_dictionary,regret,create_or_review_base_family,,,,,,,,,,,,,draft
+regul,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,regular | regularly,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+reign,base,TRUE,reign_en_gb,FALSE,current_dictionary,reign,create_or_review_base_family,,,,,,,,,,,,,draft
+relate,base,TRUE,relate_en_gb,FALSE,current_dictionary,relate | relation,create_or_review_base_family,,,,,,,,,,,,,draft
+relev,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,irrelevant | relevant,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+relevant,base,TRUE,relevant_en_gb,FALSE,current_dictionary,relevance,create_or_review_base_family,,,,,,,,,,,,,draft
+reluctant,base,TRUE,reluctant_en_gb,FALSE,current_dictionary,reluctant,create_or_review_base_family,,,,,,,,,,,,,draft
+rely,base,FALSE,,TRUE,current_dictionary,reliable | relied | relies,add_canonical_base_then_family,,,,,,,,,,,,,draft
+remark,base,FALSE,,TRUE,current_dictionary,remarkably,add_canonical_base_then_family,,,,,,,,,,,,,draft
+repeat,base,FALSE,,TRUE,current_dictionary,repeated,add_canonical_base_then_family,,,,,,,,,,,,,draft
+reply,base,TRUE,reply_en_gb,FALSE,current_dictionary,replied | reply,create_or_review_base_family,,,,,,,,,,,,,draft
+reside,base,FALSE,,TRUE,current_dictionary,residence,add_canonical_base_then_family,,,,,,,,,,,,,draft
+resident,base,FALSE,,TRUE,current_dictionary,residential,add_canonical_base_then_family,,,,,,,,,,,,,draft
+resign,base,TRUE,resign_en_gb,FALSE,current_dictionary,resign,create_or_review_base_family,,,,,,,,,,,,,draft
+respect,base,FALSE,,TRUE,current_dictionary,respectable | respectful,add_canonical_base_then_family,,,,,,,,,,,,,draft
+respons,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,responsible,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+restaurant,base,TRUE,restaurant_en_gb,FALSE,current_dictionary,restaurant,create_or_review_base_family,,,,,,,,,,,,,draft
+retie,base,FALSE,,TRUE,current_dictionary,retying,add_canonical_base_then_family,,,,,,,,,,,,,draft
+retrieve,base,TRUE,retrieve_en_gb,FALSE,current_dictionary,retrieve,create_or_review_base_family,,,,,,,,,,,,,draft
+rhythm,base,TRUE,rhythm_en_gb,FALSE,current_dictionary,rhythm,create_or_review_base_family,,,,,,,,,,,,,draft
+rich,base,TRUE,rich_en_gb,FALSE,current_dictionary,richer,create_or_review_base_family,,,,,,,,,,,,,draft
+ride,base,TRUE,ride_en_gb,FALSE,current_dictionary,ride | riding,create_or_review_base_family,,,,,,,,,,,,,draft
+ridicule,base,FALSE,,TRUE,current_dictionary,ridiculous,add_canonical_base_then_family,,,,,,,,,,,,,draft
+rob,base,TRUE,rob_en_gb,FALSE,current_dictionary,rob | robbed,create_or_review_base_family,,,,,,,,,,,,,draft
+rogue,base,TRUE,rogue_en_gb,FALSE,current_dictionary,rogue,create_or_review_base_family,,,,,,,,,,,,,draft
+roof,base,TRUE,roof_en_gb,FALSE,current_dictionary,roof,create_or_review_base_family,,,,,,,,,,,,,draft
+room,base,TRUE,room_en_gb,FALSE,current_dictionary,living room | room,create_or_review_base_family,,,,,,,,,,,,,draft
+round,base,TRUE,round_en_gb,FALSE,current_dictionary,round,create_or_review_base_family,,,,,,,,,,,,,draft
+sack,base,TRUE,sack_en_gb,FALSE,current_dictionary,sack,create_or_review_base_family,,,,,,,,,,,,,draft
+sacr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,sacrifice,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+safe,base,TRUE,safe_en_gb,FALSE,current_dictionary,safe | safer | safest,create_or_review_base_family,,,,,,,,,,,,,draft
+sail,base,TRUE,sail_en_gb,FALSE,current_dictionary,sail,create_or_review_base_family,,,,,,,,,,,,,draft
+sank,base,TRUE,sank_en_gb,FALSE,current_dictionary,sank,create_or_review_base_family,,,,,,,,,,,,,draft
+saturday,base,TRUE,saturday_en_gb,FALSE,current_dictionary,saturday,create_or_review_base_family,,,,,,,,,,,,,draft
+saur,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,dinosaur,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+save,base,FALSE,,TRUE,current_dictionary,saving,add_canonical_base_then_family,,,,,,,,,,,,,draft
+scare,base,TRUE,scare_en_gb,FALSE,current_dictionary,scare | scary,create_or_review_base_family,,,,,,,,,,,,,draft
+scenario,base,TRUE,scenario_en_gb,FALSE,current_dictionary,scenario,create_or_review_base_family,,,,,,,,,,,,,draft
+scent,root,TRUE,scent_en_gb,REVIEW_BOUND_ROOT,current_dictionary,descent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+scheme,base,TRUE,scheme_en_gb,FALSE,current_dictionary,scheme,create_or_review_base_family,,,,,,,,,,,,,draft
+sci,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,scientist,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+scribe,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,describe,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+scroll,base,FALSE,,TRUE,current_dictionary,scrolling,add_canonical_base_then_family,,,,,,,,,,,,,draft
+sculpt,base,FALSE,,TRUE,current_dictionary,sculpture,add_canonical_base_then_family,,,,,,,,,,,,,draft
+secretary,base,TRUE,secretary_en_gb,FALSE,current_dictionary,secretary,create_or_review_base_family,,,,,,,,,,,,,draft
+sect,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,section,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+see,base,TRUE,see_en_gb,FALSE,current_dictionary,seen,create_or_review_base_family,,,,,,,,,,,,,draft
+seize,base,TRUE,seize_en_gb,FALSE,current_dictionary,seize,create_or_review_base_family,,,,,,,,,,,,,draft
+send,base,FALSE,send_en_gb,TRUE,incoming_homophone_words,sent,author_full_canonical_word_then_family,verb,cause something to go to a person or place,send_verb_base_family,,,,,,,,,,draft
+sens,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,sensation,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+sense,base,FALSE,,TRUE,current_dictionary,sensible,add_canonical_base_then_family,,,,,,,,,,,,,draft
+sentence,base,TRUE,sentence_en_gb,FALSE,current_dictionary,sentence,create_or_review_base_family,,,,,,,,,,,,,draft
+september,base,TRUE,september_en_gb,FALSE,current_dictionary,september,create_or_review_base_family,,,,,,,,,,,,,draft
+seri,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,serial,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+serious,base,TRUE,serious_en_gb,FALSE,current_dictionary,serious,create_or_review_base_family,,,,,,,,,,,,,draft
+session,base,TRUE,session_en_gb,FALSE,current_dictionary,session,create_or_review_base_family,,,,,,,,,,,,,draft
+she,base,TRUE,she_en_gb,FALSE,current_dictionary,she | she'll,create_or_review_base_family,,,,,,,,,,,,,draft
+shine,base,TRUE,shine_en_gb,FALSE,current_dictionary,shine | shining | shiny,create_or_review_base_family,,,,,,,,,,,,,draft
+shop,base,TRUE,shop_en_gb,FALSE,current_dictionary,shopping,create_or_review_base_family,,,,,,,,,,,,,draft
+should,base,TRUE,should_en_gb,FALSE,current_dictionary,should've | shouldn't,create_or_review_base_family,,,,,,,,,,,,,draft
+shoulder,base,TRUE,shoulder_en_gb,FALSE,current_dictionary,shoulder,create_or_review_base_family,,,,,,,,,,,,,draft
+shy,base,TRUE,shy_en_gb,FALSE,current_dictionary,shy,create_or_review_base_family,,,,,,,,,,,,,draft
+side,base,TRUE,side_en_gb,FALSE,current_dictionary,side,create_or_review_base_family,,,,,,,,,,,,,draft
+siege,base,TRUE,siege_en_gb,FALSE,current_dictionary,siege,create_or_review_base_family,,,,,,,,,,,,,draft
+sight,base,TRUE,sight_en_gb,FALSE,current_dictionary,sight,create_or_review_base_family,,,,,,,,,,,,,draft
+simple,base,TRUE,simple_en_gb,FALSE,current_dictionary,simply,create_or_review_base_family,,,,,,,,,,,,,draft
+sincere,base,TRUE,sincere_en_gb,FALSE,current_dictionary,sincere | sincerely,create_or_review_base_family,,,,,,,,,,,,,draft
+sing,base,TRUE,sing_en_gb,FALSE,current_dictionary,singer | singing,create_or_review_base_family,,,,,,,,,,,,,draft
+sir,base,TRUE,sir_en_gb,FALSE,current_dictionary,sir,create_or_review_base_family,,,,,,,,,,,,,draft
+sist,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,consistent,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+sister,base,TRUE,sister_en_gb,FALSE,current_dictionary,sister,create_or_review_base_family,,,,,,,,,,,,,draft
+site,base,TRUE,site_en_gb,FALSE,current_dictionary,site,create_or_review_base_family,,,,,,,,,,,,,draft
+situate,base,FALSE,,TRUE,current_dictionary,situation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+size,base,TRUE,size_en_gb,FALSE,current_dictionary,size,create_or_review_base_family,,,,,,,,,,,,,draft
+sketch,base,TRUE,sketch_en_gb,FALSE,current_dictionary,sketch,create_or_review_base_family,,,,,,,,,,,,,draft
+skin,base,TRUE,skin_en_gb,FALSE,current_dictionary,skin,create_or_review_base_family,,,,,,,,,,,,,draft
+skip,base,TRUE,skip_en_gb,FALSE,current_dictionary,skipping,create_or_review_base_family,,,,,,,,,,,,,draft
+skirt,base,TRUE,skirt_en_gb,FALSE,current_dictionary,skirt,create_or_review_base_family,,,,,,,,,,,,,draft
+slaughter,base,TRUE,slaughter_en_gb,FALSE,current_dictionary,slaughter,create_or_review_base_family,,,,,,,,,,,,,draft
+slip,base,FALSE,,TRUE,current_dictionary,slipping,add_canonical_base_then_family,,,,,,,,,,,,,draft
+soci,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,society,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+soldier,base,TRUE,soldier_en_gb,FALSE,current_dictionary,soldier,create_or_review_base_family,,,,,,,,,,,,,draft
+some,base,TRUE,some_en_gb,FALSE,current_dictionary,some,create_or_review_base_family,,,,,,,,,,,,,draft
+son,base,TRUE,son_en_gb,FALSE,current_dictionary,son,create_or_review_base_family,,,,,,,,,,,,,draft
+soon,base,TRUE,soon_en_gb,FALSE,current_dictionary,soon,create_or_review_base_family,,,,,,,,,,,,,draft
+sore,base,TRUE,sore_en_gb,FALSE,current_dictionary,sore,create_or_review_base_family,,,,,,,,,,,,,draft
+sort,base,TRUE,sort_en_gb,FALSE,current_dictionary,sort,create_or_review_base_family,,,,,,,,,,,,,draft
+sought,base,TRUE,sought_en_gb,FALSE,current_dictionary,sought,create_or_review_base_family,,,,,,,,,,,,,draft
+sovereign,base,TRUE,sovereign_en_gb,FALSE,current_dictionary,sovereign,create_or_review_base_family,,,,,,,,,,,,,draft
+space,base,FALSE,,TRUE,current_dictionary,spatial,add_canonical_base_then_family,,,,,,,,,,,,,draft
+spare,base,TRUE,spare_en_gb,FALSE,current_dictionary,spare,create_or_review_base_family,,,,,,,,,,,,,draft
+spear,base,TRUE,spear_en_gb,FALSE,current_dictionary,spear,create_or_review_base_family,,,,,,,,,,,,,draft
+special,base,TRUE,special_en_gb,FALSE,current_dictionary,specially,create_or_review_base_family,,,,,,,,,,,,,draft
+species,base,TRUE,species_en_gb,FALSE,current_dictionary,species,create_or_review_base_family,,,,,,,,,,,,,draft
+spin,base,TRUE,spin_en_gb,FALSE,current_dictionary,spinning,create_or_review_base_family,,,,,,,,,,,,,draft
+spontane,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,spontaneous,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+sport,base,TRUE,sport_en_gb,FALSE,current_dictionary,sport,create_or_review_base_family,,,,,,,,,,,,,draft
+spy,base,TRUE,spy_en_gb,FALSE,current_dictionary,spies | spy,create_or_review_base_family,,,,,,,,,,,,,draft
+stack,base,TRUE,stack_en_gb,FALSE,current_dictionary,stack,create_or_review_base_family,,,,,,,,,,,,,draft
+stall,base,TRUE,stall_en_gb,FALSE,current_dictionary,stall,create_or_review_base_family,,,,,,,,,,,,,draft
+stand,base,FALSE,,TRUE,current_dictionary,understand,add_canonical_base_then_family,,,,,,,,,,,,,draft
+star,base,TRUE,star_en_gb,FALSE,current_dictionary,superstar,create_or_review_base_family,,,,,,,,,,,,,draft
+stare,base,TRUE,stare_en_gb,FALSE,current_dictionary,stare,create_or_review_base_family,,,,,,,,,,,,,draft
+steal,base,TRUE,steal_en_gb,FALSE,current_dictionary,steal,create_or_review_base_family,,,,,,,,,,,,,draft
+steel,base,TRUE,steel_en_gb,FALSE,current_dictionary,steel,create_or_review_base_family,,,,,,,,,,,,,draft
+stir,base,TRUE,stir_en_gb,FALSE,current_dictionary,stir,create_or_review_base_family,,,,,,,,,,,,,draft
+stomach,base,TRUE,stomach_en_gb,FALSE,current_dictionary,stomach,create_or_review_base_family,,,,,,,,,,,,,draft
+straight,base,TRUE,straight_en_gb,FALSE,current_dictionary,straight,create_or_review_base_family,,,,,,,,,,,,,draft
+strange,base,TRUE,strange_en_gb,FALSE,current_dictionary,stranger,create_or_review_base_family,,,,,,,,,,,,,draft
+straw,base,TRUE,straw_en_gb,FALSE,current_dictionary,straw,create_or_review_base_family,,,,,,,,,,,,,draft
+strength,base,TRUE,strength_en_gb,FALSE,current_dictionary,strength,create_or_review_base_family,,,,,,,,,,,,,draft
+struct,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,construction,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+study,base,TRUE,study_en_gb,FALSE,current_dictionary,studied | study | studying,create_or_review_base_family,,,,,,,,,,,,,draft
+submit,base,TRUE,submit_en_gb,FALSE,current_dictionary,submission | submit,create_or_review_base_family,,,,,,,,,,,,,draft
+substant,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,substantial,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+success,base,FALSE,,TRUE,current_dictionary,successfully,add_canonical_base_then_family,,,,,,,,,,,,,draft
+suffer,base,TRUE,suffer_en_gb,FALSE,current_dictionary,suffer | suffered,create_or_review_base_family,,,,,,,,,,,,,draft
+suffici,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,sufficient,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+sugar,base,TRUE,sugar_en_gb,FALSE,current_dictionary,sugar,create_or_review_base_family,,,,,,,,,,,,,draft
+suggest,base,TRUE,suggest_en_gb,FALSE,current_dictionary,suggest,create_or_review_base_family,,,,,,,,,,,,,draft
+suite,base,TRUE,suite_en_gb,FALSE,current_dictionary,suite,create_or_review_base_family,,,,,,,,,,,,,draft
+summ,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,summary,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+sunday,base,TRUE,sunday_en_gb,FALSE,current_dictionary,sunday,create_or_review_base_family,,,,,,,,,,,,,draft
+sure,base,TRUE,sure_en_gb,FALSE,current_dictionary,sure,create_or_review_base_family,,,,,,,,,,,,,draft
+surf,base,TRUE,surf_en_gb,FALSE,current_dictionary,surf,create_or_review_base_family,,,,,,,,,,,,,draft
+surprise,base,TRUE,surprise_en_gb,FALSE,current_dictionary,surprise,create_or_review_base_family,,,,,,,,,,,,,draft
+suspens,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,suspension,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+suspici,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,suspicious,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+swallow,base,TRUE,swallow_en_gb,FALSE,current_dictionary,swallow,create_or_review_base_family,,,,,,,,,,,,,draft
+swan,base,TRUE,swan_en_gb,FALSE,current_dictionary,swan,create_or_review_base_family,,,,,,,,,,,,,draft
+swear,base,TRUE,swear_en_gb,FALSE,current_dictionary,swear,create_or_review_base_family,,,,,,,,,,,,,draft
+symbol,base,TRUE,symbol_en_gb,FALSE,current_dictionary,symbol,create_or_review_base_family,,,,,,,,,,,,,draft
+syrup,base,TRUE,syrup_en_gb,FALSE,current_dictionary,syrup,create_or_review_base_family,,,,,,,,,,,,,draft
+system,base,TRUE,system_en_gb,FALSE,current_dictionary,system,create_or_review_base_family,,,,,,,,,,,,,draft
+tain,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,containing,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+tap,base,TRUE,tap_en_gb,FALSE,current_dictionary,tapping,create_or_review_base_family,,,,,,,,,,,,,draft
+tape,base,TRUE,tape_en_gb,FALSE,current_dictionary,tape,create_or_review_base_family,,,,,,,,,,,,,draft
+target,base,TRUE,target_en_gb,FALSE,current_dictionary,target | targeted,create_or_review_base_family,,,,,,,,,,,,,draft
+tea,base,TRUE,tea_en_gb,FALSE,current_dictionary,tea,create_or_review_base_family,,,,,,,,,,,,,draft
+tear,base,TRUE,tear_en_gb,FALSE,current_dictionary,tear,create_or_review_base_family,,,,,,,,,,,,,draft
+techn,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,technician | technology,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+temper,base,FALSE,,TRUE,current_dictionary,temperature,add_canonical_base_then_family,,,,,,,,,,,,,draft
+tempt,base,FALSE,,TRUE,current_dictionary,temptation,add_canonical_base_then_family,,,,,,,,,,,,,draft
+tend,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,extend,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+tense,base,TRUE,tense_en_gb,FALSE,current_dictionary,tense,create_or_review_base_family,,,,,,,,,,,,,draft
+terr,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,terrible | terribly,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+texture,base,TRUE,texture_en_gb,FALSE,current_dictionary,texture,create_or_review_base_family,,,,,,,,,,,,,draft
+there,base,TRUE,there_en_gb,FALSE,current_dictionary,therefore,create_or_review_base_family,,,,,,,,,,,,,draft
+they,base,TRUE,they_en_gb,FALSE,current_dictionary,they're | they've,create_or_review_base_family,,,,,,,,,,,,,draft
+thief,base,TRUE,thief_en_gb,FALSE,current_dictionary,thief,create_or_review_base_family,,,,,,,,,,,,,draft
+thin,base,TRUE,thin_en_gb,FALSE,current_dictionary,thinner | thinnest,create_or_review_base_family,,,,,,,,,,,,,draft
+thing,base,TRUE,thing_en_gb,FALSE,current_dictionary,nothing,create_or_review_base_family,,,,,,,,,,,,,draft
+think,base,TRUE,think_en_gb,FALSE,current_dictionary,think,create_or_review_base_family,,,,,,,,,,,,,draft
+thorough,base,TRUE,thorough_en_gb,FALSE,current_dictionary,thorough | thoroughly,create_or_review_base_family,,,,,,,,,,,,,draft
+those,base,TRUE,those_en_gb,FALSE,current_dictionary,those,create_or_review_base_family,,,,,,,,,,,,,draft
+though,base,TRUE,though_en_gb,FALSE,current_dictionary,though,create_or_review_base_family,,,,,,,,,,,,,draft
+thought,base,TRUE,thought_en_gb,FALSE,current_dictionary,thought | thoughtful,create_or_review_base_family,,,,,,,,,,,,,draft
+threw,base,TRUE,threw_en_gb,FALSE,current_dictionary,threw,create_or_review_base_family,,,,,,,,,,,,,draft
+through,base,TRUE,through_en_gb,FALSE,current_dictionary,breakthrough,create_or_review_base_family,,,,,,,,,,,,,draft
+thursday,base,TRUE,thursday_en_gb,FALSE,current_dictionary,thursday,create_or_review_base_family,,,,,,,,,,,,,draft
+tight,base,TRUE,tight_en_gb,FALSE,current_dictionary,tight,create_or_review_base_family,,,,,,,,,,,,,draft
+time,base,TRUE,time_en_gb,FALSE,current_dictionary,part-time,create_or_review_base_family,,,,,,,,,,,,,draft
+tissue,base,TRUE,tissue_en_gb,FALSE,current_dictionary,tissue,create_or_review_base_family,,,,,,,,,,,,,draft
+to,base,TRUE,to_en_gb,FALSE,current_dictionary,into | today,create_or_review_base_family,,,,,,,,,,,,,draft
+told,base,TRUE,told_en_gb,FALSE,current_dictionary,told,create_or_review_base_family,,,,,,,,,,,,,draft
+toler,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,tolerate,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+tolerate,base,TRUE,tolerate_en_gb,FALSE,current_dictionary,tolerance,create_or_review_base_family,,,,,,,,,,,,,draft
+tomb,base,TRUE,tomb_en_gb,FALSE,current_dictionary,tomb,create_or_review_base_family,,,,,,,,,,,,,draft
+tongue,base,TRUE,tongue_en_gb,FALSE,current_dictionary,tongue,create_or_review_base_family,,,,,,,,,,,,,draft
+took,base,TRUE,took_en_gb,FALSE,current_dictionary,took,create_or_review_base_family,,,,,,,,,,,,,draft
+tore,base,TRUE,tore_en_gb,FALSE,current_dictionary,tore,create_or_review_base_family,,,,,,,,,,,,,draft
+total,base,TRUE,total_en_gb,FALSE,current_dictionary,total,create_or_review_base_family,,,,,,,,,,,,,draft
+touch,base,TRUE,touch_en_gb,FALSE,current_dictionary,touch,create_or_review_base_family,,,,,,,,,,,,,draft
+towel,base,TRUE,towel_en_gb,FALSE,current_dictionary,towel,create_or_review_base_family,,,,,,,,,,,,,draft
+town,base,TRUE,town_en_gb,FALSE,current_dictionary,town,create_or_review_base_family,,,,,,,,,,,,,draft
+tract,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,attraction,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+transfer,base,TRUE,transfer_en_gb,FALSE,current_dictionary,transfer | transferred | transferring,create_or_review_base_family,,,,,,,,,,,,,draft
+translate,base,TRUE,translate_en_gb,FALSE,current_dictionary,translate | translation,create_or_review_base_family,,,,,,,,,,,,,draft
+travel,base,TRUE,travel_en_gb,FALSE,current_dictionary,travel | travelling,create_or_review_base_family,,,,,,,,,,,,,draft
+treasure,base,TRUE,treasure_en_gb,FALSE,current_dictionary,treasure,create_or_review_base_family,,,,,,,,,,,,,draft
+tremendous,base,TRUE,tremendous_en_gb,FALSE,current_dictionary,tremendous,create_or_review_base_family,,,,,,,,,,,,,draft
+trip,base,TRUE,trip_en_gb,FALSE,current_dictionary,trip,create_or_review_base_family,,,,,,,,,,,,,draft
+trouble,base,TRUE,trouble_en_gb,FALSE,current_dictionary,trouble,create_or_review_base_family,,,,,,,,,,,,,draft
+true,base,TRUE,true_en_gb,FALSE,current_dictionary,truly,create_or_review_base_family,,,,,,,,,,,,,draft
+tube,base,TRUE,tube_en_gb,FALSE,current_dictionary,tube,create_or_review_base_family,,,,,,,,,,,,,draft
+tuesday,base,TRUE,tuesday_en_gb,FALSE,current_dictionary,tuesday,create_or_review_base_family,,,,,,,,,,,,,draft
+tunnel,base,TRUE,tunnel_en_gb,FALSE,current_dictionary,tunnel,create_or_review_base_family,,,,,,,,,,,,,draft
+turn,base,TRUE,turn_en_gb,FALSE,current_dictionary,return,create_or_review_base_family,,,,,,,,,,,,,draft
+twenty,base,TRUE,twenty_en_gb,FALSE,current_dictionary,twenty,create_or_review_base_family,,,,,,,,,,,,,draft
+type,base,FALSE,,TRUE,current_dictionary,typical,add_canonical_base_then_family,,,,,,,,,,,,,draft
+uncle,base,TRUE,uncle_en_gb,FALSE,current_dictionary,uncle,create_or_review_base_family,,,,,,,,,,,,,draft
+under,base,TRUE,under_en_gb,FALSE,current_dictionary,under,create_or_review_base_family,,,,,,,,,,,,,draft
+underlie,base,FALSE,,TRUE,current_dictionary,underlying,add_canonical_base_then_family,,,,,,,,,,,,,draft
+understand,base,TRUE,understand_en_gb,FALSE,current_dictionary,understandable,create_or_review_base_family,,,,,,,,,,,,,draft
+untie,base,TRUE,untie_en_gb,FALSE,current_dictionary,untying,create_or_review_base_family,,,,,,,,,,,,,draft
+usual,base,TRUE,usual_en_gb,FALSE,current_dictionary,usual,create_or_review_base_family,,,,,,,,,,,,,draft
+vari,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,variety,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+variety,base,TRUE,variety_en_gb,FALSE,current_dictionary,varieties,create_or_review_base_family,,,,,,,,,,,,,draft
+vary,base,FALSE,,TRUE,current_dictionary,varied | varies | various,add_canonical_base_then_family,,,,,,,,,,,,,draft
+vas,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,invasion,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+vehicle,base,TRUE,vehicle_en_gb,FALSE,current_dictionary,vehicle,create_or_review_base_family,,,,,,,,,,,,,draft
+vein,base,TRUE,vein_en_gb,FALSE,current_dictionary,vein,create_or_review_base_family,,,,,,,,,,,,,draft
+verb,base,TRUE,verb_en_gb,FALSE,current_dictionary,verb,create_or_review_base_family,,,,,,,,,,,,,draft
+vers,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,controversy,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+very,base,TRUE,very_en_gb,FALSE,current_dictionary,very,create_or_review_base_family,,,,,,,,,,,,,draft
+vey,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,survey,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+vicious,base,TRUE,vicious_en_gb,FALSE,current_dictionary,vicious,create_or_review_base_family,,,,,,,,,,,,,draft
+viol,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,violence,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+vis,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,invisible | supervision | television,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+visit,base,TRUE,visit_en_gb,FALSE,current_dictionary,visit | visited | visiting,create_or_review_base_family,,,,,,,,,,,,,draft
+voc,root,FALSE,,REVIEW_BOUND_ROOT,current_dictionary,vocabulary,review_bound_root_and_create_family,,,,,,,,,,,,,draft
+waist,base,TRUE,waist_en_gb,FALSE,current_dictionary,waist,create_or_review_base_family,,,,,,,,,,,,,draft
+wall,base,TRUE,wall_en_gb,FALSE,current_dictionary,wall,create_or_review_base_family,,,,,,,,,,,,,draft
+was,base,TRUE,was_en_gb,FALSE,current_dictionary,wasn't,create_or_review_base_family,,,,,,,,,,,,,draft
+wash,base,TRUE,wash_en_gb,FALSE,current_dictionary,washing,create_or_review_base_family,,,,,,,,,,,,,draft
+waste,base,TRUE,waste_en_gb,FALSE,current_dictionary,waste,create_or_review_base_family,,,,,,,,,,,,,draft
+water,base,TRUE,water_en_gb,FALSE,current_dictionary,water,create_or_review_base_family,,,,,,,,,,,,,draft
+way,base,TRUE,way_en_gb,FALSE,current_dictionary,subway,create_or_review_base_family,,,,,,,,,,,,,draft
+we,base,TRUE,we_en_gb,FALSE,current_dictionary,we'll | we've,create_or_review_base_family,,,,,,,,,,,,,draft
+weather,base,TRUE,weather_en_gb,FALSE,current_dictionary,weather,create_or_review_base_family,,,,,,,,,,,,,draft
+wednesday,base,TRUE,wednesday_en_gb,FALSE,current_dictionary,wednesday,create_or_review_base_family,,,,,,,,,,,,,draft
+week,base,FALSE,,TRUE,current_dictionary,weekend,add_canonical_base_then_family,,,,,,,,,,,,,draft
+weird,base,TRUE,weird_en_gb,FALSE,current_dictionary,weird,create_or_review_base_family,,,,,,,,,,,,,draft
+well,base,TRUE,well_en_gb,FALSE,current_dictionary,well | well-known,create_or_review_base_family,,,,,,,,,,,,,draft
+were,base,TRUE,were_en_gb,FALSE,current_dictionary,weren't,create_or_review_base_family,,,,,,,,,,,,,draft
+wet,base,TRUE,wet_en_gb,FALSE,current_dictionary,wet | wetter | wettest,create_or_review_base_family,,,,,,,,,,,,,draft
+whale,base,TRUE,whale_en_gb,FALSE,current_dictionary,whale,create_or_review_base_family,,,,,,,,,,,,,draft
+wheel,base,TRUE,wheel_en_gb,FALSE,current_dictionary,wheel,create_or_review_base_family,,,,,,,,,,,,,draft
+where,base,TRUE,where_en_gb,FALSE,current_dictionary,everywhere,create_or_review_base_family,,,,,,,,,,,,,draft
+whether,base,TRUE,whether_en_gb,FALSE,current_dictionary,whether,create_or_review_base_family,,,,,,,,,,,,,draft
+which,base,TRUE,which_en_gb,FALSE,current_dictionary,which,create_or_review_base_family,,,,,,,,,,,,,draft
+while,base,TRUE,while_en_gb,FALSE,current_dictionary,while,create_or_review_base_family,,,,,,,,,,,,,draft
+whistle,base,TRUE,whistle_en_gb,FALSE,current_dictionary,whistle,create_or_review_base_family,,,,,,,,,,,,,draft
+white,base,TRUE,white_en_gb,FALSE,current_dictionary,white,create_or_review_base_family,,,,,,,,,,,,,draft
+who,base,TRUE,who_en_gb,FALSE,current_dictionary,who's,create_or_review_base_family,,,,,,,,,,,,,draft
+whole,base,TRUE,whole_en_gb,FALSE,current_dictionary,wholly,create_or_review_base_family,,,,,,,,,,,,,draft
+why,base,TRUE,why_en_gb,FALSE,current_dictionary,why,create_or_review_base_family,,,,,,,,,,,,,draft
+wide,base,TRUE,wide_en_gb,FALSE,current_dictionary,wide | wider | widest,create_or_review_base_family,,,,,,,,,,,,,draft
+win,base,TRUE,win_en_gb,FALSE,current_dictionary,winning,create_or_review_base_family,,,,,,,,,,,,,draft
+winter,base,TRUE,winter_en_gb,FALSE,current_dictionary,winter,create_or_review_base_family,,,,,,,,,,,,,draft
+witch,base,TRUE,witch_en_gb,FALSE,current_dictionary,witch,create_or_review_base_family,,,,,,,,,,,,,draft
+woke,base,TRUE,woke_en_gb,FALSE,current_dictionary,woke,create_or_review_base_family,,,,,,,,,,,,,draft
+woman,base,TRUE,woman_en_gb,FALSE,current_dictionary,women,create_or_review_base_family,,,,,,,,,,,,,draft
+won,base,TRUE,won_en_gb,FALSE,current_dictionary,won,create_or_review_base_family,,,,,,,,,,,,,draft
+wood,base,TRUE,wood_en_gb,FALSE,current_dictionary,wood,create_or_review_base_family,,,,,,,,,,,,,draft
+wore,base,TRUE,wore_en_gb,FALSE,current_dictionary,wore,create_or_review_base_family,,,,,,,,,,,,,draft
+worry,base,TRUE,worry_en_gb,FALSE,current_dictionary,worried | worry | worrying,create_or_review_base_family,,,,,,,,,,,,,draft
+would,base,TRUE,would_en_gb,FALSE,current_dictionary,wouldn't,create_or_review_base_family,,,,,,,,,,,,,draft
+wreck,base,TRUE,wreck_en_gb,FALSE,current_dictionary,wreck,create_or_review_base_family,,,,,,,,,,,,,draft
+wrestle,base,FALSE,,TRUE,current_dictionary,wrestling,add_canonical_base_then_family,,,,,,,,,,,,,draft
+wrote,base,TRUE,wrote_en_gb,FALSE,current_dictionary,wrote,create_or_review_base_family,,,,,,,,,,,,,draft
+yacht,base,TRUE,yacht_en_gb,FALSE,current_dictionary,yacht,create_or_review_base_family,,,,,,,,,,,,,draft
+you,base,TRUE,you_en_gb,FALSE,current_dictionary,you'll | you're | you've,create_or_review_base_family,,,,,,,,,,,,,draft
+young,base,TRUE,young_en_gb,FALSE,current_dictionary,young,create_or_review_base_family,,,,,,,,,,,,,draft

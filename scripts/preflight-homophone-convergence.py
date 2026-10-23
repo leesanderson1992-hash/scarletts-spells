@@ -24,8 +24,14 @@ def main() -> None:
     members = read("contrast-set-review.csv")
     lessons = read("lesson-content-review.csv")
     redirects = read("redirect-review.csv")
+    structure = read("incoming-canonical-structure-review.csv")
+    base_dependencies = read("incoming-missing-base-and-expansion-words-review.csv")
+    lexical_families = read("incoming-lexical-base-families-review.csv")
+    lexical_members = read("incoming-lexical-base-family-members-review.csv")
     assert len(manifest["skills"]) == 68
     assert len(dictionary) == 38 and len(members) == 175 and len(lessons) == 58 and len(redirects) == 8
+    assert len(structure) == 38 and len(base_dependencies) == 5
+    assert len(lexical_families) == len(lexical_members) == 38
     dictionary_fields = ["en_gb_pronunciation", "syllables", "stress_pattern", "has_schwa",
                          "frequency_band", "age_band", "complexity_band", "reviewed_definition",
                          "morphology_parts_json", "child_facing_word_sum",
@@ -37,6 +43,11 @@ def main() -> None:
                      "target_sentence", "sense_source_reference", "reviewed_by", "approval_reference"]
     lesson_fields = ["teaching_explanation", "common_misconception",
                      "sentence_choice_items_reference", "reviewed_by", "approval_reference"]
+    structure_fields = ["part_of_speech", "analysis_kind", "base_or_root", "base_part_of_speech",
+                        "base_family_key", "word_sum", "morphology_parts_json",
+                        "morphology_joins_json", "morphology_transformations_json",
+                        "morphology_notes", "morphology_source_reference",
+                        "child_friendly_meaning", "content_approval_reference"]
     blockers = {
         "dictionary": sorted(row["word"] for row in dictionary
                              if row["review_status"] != "approved_for_first_exposure"
@@ -44,6 +55,21 @@ def main() -> None:
         "contrastSets": sorted({row["set_key"] for row in members
                                 if row["review_status"] != "approved"
                                 or any(not row[field].strip() for field in member_fields)}),
+        "canonicalStructure": sorted(row["word"] for row in structure
+                                     if row["structure_review_status"] != "approved"
+                                     or row["family_review_status"] != "approved"
+                                     or any(not row[field].strip() for field in structure_fields)),
+        "baseDependencies": sorted(row["word"] for row in base_dependencies
+                                   if row["review_status"] != "approved_for_first_exposure"),
+        "lexicalFamilies": sorted(row["base_family_key"] for row in lexical_families
+                                  if row["structure_review_status"] != "approved"
+                                  or not all(row[field].strip() for field in
+                                             ("base_meaning", "reviewed_by", "approval_reference"))),
+        "lexicalMemberships": sorted(row["word"] for row in lexical_members
+                                     if row["structure_review_status"] != "approved"
+                                     or not all(row[field].strip() for field in
+                                                ("intended_meaning", "word_sum", "morphology_parts_json",
+                                                 "reviewed_by", "approval_reference"))),
         "lessons": sorted(row["micro_skill_key"] for row in lessons
                           if row["review_status"] != "approved"
                           or any(not row[field].strip() for field in lesson_fields)),

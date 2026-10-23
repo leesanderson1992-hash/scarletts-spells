@@ -31,10 +31,10 @@ actual = {(row["micro_skill_key"], row["set_key"], row["member_ordinal"], row["w
           for row in members}
 assert actual == expected and len(members) == len(expected) == 175
 for row in members:
-    assert row["review_status"] == "draft" and not row["reviewed_by"] and not row["approval_reference"]
+    assert row["review_status"] == "approved" and row["reviewed_by"] and row["approval_reference"]
     assert row["proposed_relation_kind"] in {"homophone", "near_homophone", "confusable",
                                              "morphological_contrast", "contraction_real_word"}
-    assert not row["reviewed_relation_kind"]
+    assert row["reviewed_relation_kind"] == row["proposed_relation_kind"]
     assert row["intended_sense"] and row["grammatical_role"] and row["sense_source_reference"]
     assert target_count(row["target_sentence"], row["word"]) == 1
     assert len(row["target_sentence"].split()) >= 4 and row["target_sentence"][-1] in ".!?"
@@ -105,4 +105,5 @@ assert question_count == 152
 print(json.dumps({"valid": True, "dictionaryWords": 38, "contrastSets": 84,
                   "memberRelationships": 175, "draftLessons": 58,
                   "independentSentenceQuestions": 152,
-                  "releaseApprovals": 0}, indent=2))
+                  "approvedContrastSets": 84, "dictionaryImportApprovals": 0,
+                  "lessonApprovals": 0}, indent=2))

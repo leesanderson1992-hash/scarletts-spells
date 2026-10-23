@@ -1,0 +1,1106 @@
+word_key,word,word_sum,morphology_part_count,proposed_action,review_status
+ability_en_gb,ability,able + ity → ability,2,review_and_assign_family,draft
+accept_en_gb,accept,accept,1,review_and_assign_family,draft
+accessible_en_gb,accessible,access + ible → accessible,2,review_and_assign_family,draft
+accident_en_gb,accident,accident,1,review_and_assign_family,draft
+accidentally_en_gb,accidentally,accident + al + ly → accidentally,3,review_and_assign_family,draft
+accommodate_en_gb,accommodate,accommodate,1,review_and_assign_family,draft
+accompany_en_gb,accompany,ac + company → accompany,2,review_and_assign_family,draft
+according_en_gb,according,according,1,review_and_assign_family,draft
+ace_en_gb,ace,ace,1,review_and_assign_family,draft
+achieve_en_gb,achieve,achieve,1,review_and_assign_family,draft
+active_en_gb,active,act + ive → active,2,review_and_assign_family,draft
+actually_en_gb,actually,act + ual + ly → actually,3,review_and_assign_family,draft
+addition_en_gb,addition,add + ition → addition,2,review_and_assign_family,draft
+address_en_gb,address,address,1,review_and_assign_family,draft
+admission_en_gb,admission,ad + miss + ion → admission,3,review_and_assign_family,draft
+admit_en_gb,admit,admit,1,review_and_assign_family,draft
+admitted_en_gb,admitted,admit + ed → admitted,2,review_and_assign_family,draft
+admitting_en_gb,admitting,admit + ing → admitting,2,review_and_assign_family,draft
+adorable_en_gb,adorable,adore + able → adorable,2,review_and_assign_family,draft
+adore_en_gb,adore,adore,1,review_and_assign_family,draft
+adventure_en_gb,adventure,advent + ure → adventure,2,review_and_assign_family,draft
+advice_en_gb,advice,advice,1,review_and_assign_family,draft
+advise_en_gb,advise,advise,1,review_and_assign_family,draft
+affect_en_gb,affect,af + fect → affect,2,review_and_assign_family,draft
+affection_en_gb,affection,af + fect + ion → affection,3,review_and_assign_family,draft
+after_en_gb,after,after,1,review_and_assign_family,draft
+age_en_gb,age,age,1,review_and_assign_family,draft
+aggressive_en_gb,aggressive,aggress + ive → aggressive,2,review_and_assign_family,draft
+agree_en_gb,agree,agree,1,review_and_assign_family,draft
+aisle_en_gb,aisle,aisle,1,review_and_assign_family,draft
+almost_en_gb,almost,almost,1,review_and_assign_family,draft
+already_en_gb,already,already,1,review_and_assign_family,draft
+also_en_gb,also,also,1,review_and_assign_family,draft
+altar_en_gb,altar,altar,1,review_and_assign_family,draft
+alter_en_gb,alter,alter,1,review_and_assign_family,draft
+although_en_gb,although,although,1,review_and_assign_family,draft
+always_en_gb,always,always,1,review_and_assign_family,draft
+amateur_en_gb,amateur,amateur,1,review_and_assign_family,draft
+ambitious_en_gb,ambitious,ambit + ious → ambitious,2,review_and_assign_family,draft
+anchor_en_gb,anchor,anchor,1,review_and_assign_family,draft
+ancient_en_gb,ancient,ancient,1,review_and_assign_family,draft
+angel_en_gb,angel,angel,1,review_and_assign_family,draft
+angry_en_gb,angry,angry,1,review_and_assign_family,draft
+any_en_gb,any,any,1,review_and_assign_family,draft
+apparent_en_gb,apparent,appar + ent → apparent,2,review_and_assign_family,draft
+appear_en_gb,appear,appear,1,review_and_assign_family,draft
+applicable_en_gb,applicable,applicable,1,review_and_assign_family,draft
+application_en_gb,application,applic + ation → application,2,review_and_assign_family,draft
+apply_en_gb,apply,apply,1,review_and_assign_family,draft
+appoint_en_gb,appoint,appoint,1,review_and_assign_family,draft
+appreciate_en_gb,appreciate,ap + preci + ate → appreciate,3,review_and_assign_family,draft
+april_en_gb,april,april,1,review_and_assign_family,draft
+archer_en_gb,archer,archer,1,review_and_assign_family,draft
+architect_en_gb,architect,architect,1,review_and_assign_family,draft
+aren_t_en_gb,aren't,are + n't → aren't,2,review_and_assign_family,draft
+argue_en_gb,argue,argue,1,review_and_assign_family,draft
+arm_en_gb,arm,arm,1,review_and_assign_family,draft
+arrive_en_gb,arrive,arrive,1,review_and_assign_family,draft
+art_en_gb,art,art,1,review_and_assign_family,draft
+artificial_en_gb,artificial,artific + ial → artificial,2,review_and_assign_family,draft
+ask_en_gb,ask,ask,1,review_and_assign_family,draft
+asking_en_gb,asking,ask + ing → asking,2,review_and_assign_family,draft
+assistance_en_gb,assistance,assist + ance → assistance,2,review_and_assign_family,draft
+assistant_en_gb,assistant,assist + ant → assistant,2,review_and_assign_family,draft
+attached_en_gb,attached,attach + ed → attached,2,review_and_assign_family,draft
+attraction_en_gb,attraction,at + tract + ion → attraction,3,review_and_assign_family,draft
+august_en_gb,august,august,1,review_and_assign_family,draft
+automatically_en_gb,automatically,automatic + ally → automatically,2,review_and_assign_family,draft
+automobile_en_gb,automobile,auto + mobile → automobile,2,review_and_assign_family,draft
+autumn_en_gb,autumn,autumn,1,review_and_assign_family,draft
+available_en_gb,available,avail + able → available,2,review_and_assign_family,draft
+average_en_gb,average,average,1,review_and_assign_family,draft
+award_en_gb,award,award,1,review_and_assign_family,draft
+awful_en_gb,awful,awe + ful → awful,2,review_and_assign_family,draft
+awkward_en_gb,awkward,awkward,1,review_and_assign_family,draft
+badly_en_gb,badly,bad + ly → badly,2,review_and_assign_family,draft
+baker_en_gb,baker,bake + er → baker,2,review_and_assign_family,draft
+baking_en_gb,baking,bake + ing → baking,2,review_and_assign_family,draft
+ball_en_gb,ball,ball,1,review_and_assign_family,draft
+band_en_gb,band,band,1,review_and_assign_family,draft
+banned_en_gb,banned,ban + ed → banned,2,review_and_assign_family,draft
+bare_en_gb,bare,bare,1,review_and_assign_family,draft
+bargain_en_gb,bargain,bargain,1,review_and_assign_family,draft
+baron_en_gb,baron,baron,1,review_and_assign_family,draft
+basically_en_gb,basically,base + ic + ally → basically,3,review_and_assign_family,draft
+be_en_gb,be,be,1,review_and_assign_family,draft
+bear_en_gb,bear,bear,1,review_and_assign_family,draft
+beauty_en_gb,beauty,beauty,1,review_and_assign_family,draft
+bee_en_gb,bee,bee,1,review_and_assign_family,draft
+beg_en_gb,beg,beg,1,review_and_assign_family,draft
+begging_en_gb,begging,beg + ing → begging,2,review_and_assign_family,draft
+begin_en_gb,begin,begin,1,review_and_assign_family,draft
+beginning_en_gb,beginning,begin + ing → beginning,2,review_and_assign_family,draft
+behave_en_gb,behave,behave,1,review_and_assign_family,draft
+behind_en_gb,behind,behind,1,review_and_assign_family,draft
+belief_en_gb,belief,belief,1,review_and_assign_family,draft
+believe_en_gb,believe,believe,1,review_and_assign_family,draft
+bell_en_gb,bell,bell,1,review_and_assign_family,draft
+belying_en_gb,belying,belie + ing → belying,2,review_and_assign_family,draft
+beneficial_en_gb,beneficial,bene + fic + ial → beneficial,3,review_and_assign_family,draft
+berry_en_gb,berry,berry,1,review_and_assign_family,draft
+better_en_gb,better,better,1,review_and_assign_family,draft
+bicycle_en_gb,bicycle,bi + cycle → bicycle,2,review_and_assign_family,draft
+bite_en_gb,bite,bite,1,review_and_assign_family,draft
+blew_en_gb,blew,blew,1,review_and_assign_family,draft
+blow_en_gb,blow,blow,1,review_and_assign_family,draft
+bone_en_gb,bone,bone,1,review_and_assign_family,draft
+boot_en_gb,boot,boot,1,review_and_assign_family,draft
+bored_en_gb,bored,bore + ed → bored,2,review_and_assign_family,draft
+born_en_gb,born,born,1,review_and_assign_family,draft
+borough_en_gb,borough,borough,1,review_and_assign_family,draft
+both_en_gb,both,both,1,review_and_assign_family,draft
+bought_en_gb,bought,bought,1,review_and_assign_family,draft
+bow_en_gb,bow,bow,1,review_and_assign_family,draft
+boxer_en_gb,boxer,box + er → boxer,2,review_and_assign_family,draft
+boxing_en_gb,boxing,box + ing → boxing,2,review_and_assign_family,draft
+boy_s_en_gb,boy's,boy + 's → boy's,2,review_and_assign_family,draft
+boys_en_gb,boys,boy + s → boys,2,review_and_assign_family,draft
+brake_en_gb,brake,brake,1,review_and_assign_family,draft
+bread_en_gb,bread,bread,1,review_and_assign_family,draft
+breakthrough_en_gb,breakthrough,break + through → breakthrough,2,review_and_assign_family,draft
+breath_en_gb,breath,breath,1,review_and_assign_family,draft
+breathe_en_gb,breathe,breathe,1,review_and_assign_family,draft
+brother_en_gb,brother,brother,1,review_and_assign_family,draft
+brought_en_gb,brought,brought,1,review_and_assign_family,draft
+brownie_en_gb,brownie,brown + ie → brownie,2,review_and_assign_family,draft
+bullied_en_gb,bullied,bully + ed → bullied,2,review_and_assign_family,draft
+bully_en_gb,bully,bully,1,review_and_assign_family,draft
+bullying_en_gb,bullying,bully + ing → bullying,2,review_and_assign_family,draft
+bury_en_gb,bury,bury,1,review_and_assign_family,draft
+butcher_en_gb,butcher,butcher,1,review_and_assign_family,draft
+by_en_gb,by,by,1,review_and_assign_family,draft
+calculation_en_gb,calculation,calcul + ate + ion → calculation,3,review_and_assign_family,draft
+call_en_gb,call,call,1,review_and_assign_family,draft
+campaign_en_gb,campaign,campaign,1,review_and_assign_family,draft
+capital_en_gb,capital,capit + al → capital,2,review_and_assign_family,draft
+caption_en_gb,caption,caption,1,review_and_assign_family,draft
+capture_en_gb,capture,capt + ure → capture,2,review_and_assign_family,draft
+cared_en_gb,cared,care + ed → cared,2,review_and_assign_family,draft
+caring_en_gb,caring,care + ing → caring,2,review_and_assign_family,draft
+carrying_en_gb,carrying,carry + ing → carrying,2,review_and_assign_family,draft
+case_en_gb,case,case,1,review_and_assign_family,draft
+catalogue_en_gb,catalogue,catalogue,1,review_and_assign_family,draft
+category_en_gb,category,categor + y → category,2,review_and_assign_family,draft
+caught_en_gb,caught,caught,1,review_and_assign_family,draft
+cautious_en_gb,cautious,caut + ious → cautious,2,review_and_assign_family,draft
+celebration_en_gb,celebration,celebrate + ion → celebration,2,review_and_assign_family,draft
+cemetery_en_gb,cemetery,cemetery,1,review_and_assign_family,draft
+centre_en_gb,centre,centre,1,review_and_assign_family,draft
+century_en_gb,century,century,1,review_and_assign_family,draft
+cereal_en_gb,cereal,cereal,1,review_and_assign_family,draft
+certain_en_gb,certain,certain,1,review_and_assign_family,draft
+chair_en_gb,chair,chair,1,review_and_assign_family,draft
+chalk_en_gb,chalk,chalk,1,review_and_assign_family,draft
+champagne_en_gb,champagne,champagne,1,review_and_assign_family,draft
+chaos_en_gb,chaos,chaos,1,review_and_assign_family,draft
+character_en_gb,character,character,1,review_and_assign_family,draft
+charge_en_gb,charge,charge,1,review_and_assign_family,draft
+chatting_en_gb,chatting,chat + ing → chatting,2,review_and_assign_family,draft
+child_s_en_gb,child's,child + 's → child's,2,review_and_assign_family,draft
+choir_en_gb,choir,choir,1,review_and_assign_family,draft
+christmas_en_gb,christmas,christmas,1,review_and_assign_family,draft
+clapping_en_gb,clapping,clap + ing → clapping,2,review_and_assign_family,draft
+class_en_gb,class,class,1,review_and_assign_family,draft
+close_en_gb,close,close,1,review_and_assign_family,draft
+closer_en_gb,closer,close + er → closer,2,review_and_assign_family,draft
+closest_en_gb,closest,close + est → closest,2,review_and_assign_family,draft
+closing_en_gb,closing,close + ing → closing,2,review_and_assign_family,draft
+clothes_en_gb,clothes,clothes,1,review_and_assign_family,draft
+clown_en_gb,clown,clown,1,review_and_assign_family,draft
+clue_en_gb,clue,clue,1,review_and_assign_family,draft
+co_author_en_gb,co-author,co + author → co-author,2,review_and_assign_family,draft
+co_operate_en_gb,co-operate,co + operate → co-operate,2,review_and_assign_family,draft
+co_own_en_gb,co-own,co + own → co-own,2,review_and_assign_family,draft
+coil_en_gb,coil,coil,1,review_and_assign_family,draft
+colder_en_gb,colder,cold + er → colder,2,review_and_assign_family,draft
+coldest_en_gb,coldest,cold + est → coldest,2,review_and_assign_family,draft
+colleague_en_gb,colleague,colleague,1,review_and_assign_family,draft
+collision_en_gb,collision,collis + ion → collision,2,review_and_assign_family,draft
+colour_en_gb,colour,colour,1,review_and_assign_family,draft
+colourful_en_gb,colourful,colour + ful → colourful,2,review_and_assign_family,draft
+colourless_en_gb,colourless,colour + less → colourless,2,review_and_assign_family,draft
+column_en_gb,column,column,1,review_and_assign_family,draft
+come_en_gb,come,come,1,review_and_assign_family,draft
+comfortable_en_gb,comfortable,comfort + able → comfortable,2,review_and_assign_family,draft
+comfortably_en_gb,comfortably,comfort + able + ly → comfortably,3,review_and_assign_family,draft
+coming_en_gb,coming,come + ing → coming,2,review_and_assign_family,draft
+commercial_en_gb,commercial,commerce + ial → commercial,2,review_and_assign_family,draft
+commit_en_gb,commit,commit,1,review_and_assign_family,draft
+committed_en_gb,committed,commit + ed → committed,2,review_and_assign_family,draft
+committee_en_gb,committee,com + mit + ee → committee,3,review_and_assign_family,draft
+committing_en_gb,committing,commit + ing → committing,2,review_and_assign_family,draft
+communicate_en_gb,communicate,communic + ate → communicate,2,review_and_assign_family,draft
+compatible_en_gb,compatible,compatible,1,review_and_assign_family,draft
+competition_en_gb,competition,compete + ition → competition,2,review_and_assign_family,draft
+complement_en_gb,complement,com + ple + ment → complement,3,review_and_assign_family,draft
+completely_en_gb,completely,complete + ly → completely,2,review_and_assign_family,draft
+completion_en_gb,completion,complete + ion → completion,2,review_and_assign_family,draft
+compliment_en_gb,compliment,compliment,1,review_and_assign_family,draft
+comprehend_en_gb,comprehend,com + prehend → comprehend,2,review_and_assign_family,draft
+concentration_en_gb,concentration,con + centr + ate + ion → concentration,4,review_and_assign_family,draft
+conference_en_gb,conference,confer + ence → conference,2,review_and_assign_family,draft
+confession_en_gb,confession,confess + ion → confession,2,review_and_assign_family,draft
+confidence_en_gb,confidence,confident + ence → confidence,2,review_and_assign_family,draft
+confident_en_gb,confident,confid + ent → confident,2,review_and_assign_family,draft
+confidential_en_gb,confidential,confid + ent + ial → confidential,3,review_and_assign_family,draft
+confrontation_en_gb,confrontation,con + front + ation → confrontation,3,review_and_assign_family,draft
+conscience_en_gb,conscience,conscience,1,review_and_assign_family,draft
+conscious_en_gb,conscious,conscious,1,review_and_assign_family,draft
+consider_en_gb,consider,consider,1,review_and_assign_family,draft
+considerable_en_gb,considerable,consider + able → considerable,2,review_and_assign_family,draft
+considerably_en_gb,considerably,consider + able + ly → considerably,3,review_and_assign_family,draft
+consideration_en_gb,consideration,consider + ation → consideration,2,review_and_assign_family,draft
+consistency_en_gb,consistency,consist + ency → consistency,2,review_and_assign_family,draft
+consistent_en_gb,consistent,con + sist + ent → consistent,3,review_and_assign_family,draft
+construction_en_gb,construction,con + struct + ion → construction,3,review_and_assign_family,draft
+containing_en_gb,containing,con + tain + ing → containing,3,review_and_assign_family,draft
+continually_en_gb,continually,continue + al + ly → continually,3,review_and_assign_family,draft
+continue_en_gb,continue,continue,1,review_and_assign_family,draft
+controversy_en_gb,controversy,contro + vers + y → controversy,3,review_and_assign_family,draft
+convenience_en_gb,convenience,convenient + ence → convenience,2,review_and_assign_family,draft
+conversation_en_gb,conversation,converse + ation → conversation,2,review_and_assign_family,draft
+convey_en_gb,convey,convey,1,review_and_assign_family,draft
+cook_en_gb,cook,cook,1,review_and_assign_family,draft
+correct_en_gb,correct,correct,1,review_and_assign_family,draft
+correction_en_gb,correction,correct + ion → correction,2,review_and_assign_family,draft
+correctly_en_gb,correctly,correct + ly → correctly,2,review_and_assign_family,draft
+could_ve_en_gb,could've,could + 've → could've,2,review_and_assign_family,draft
+count_en_gb,count,count,1,review_and_assign_family,draft
+country_en_gb,country,country,1,review_and_assign_family,draft
+couple_en_gb,couple,couple,1,review_and_assign_family,draft
+courage_en_gb,courage,courage,1,review_and_assign_family,draft
+cousin_en_gb,cousin,cousin,1,review_and_assign_family,draft
+covered_en_gb,covered,cover + ed → covered,2,review_and_assign_family,draft
+crawl_en_gb,crawl,crawl,1,review_and_assign_family,draft
+cream_en_gb,cream,cream,1,review_and_assign_family,draft
+credible_en_gb,credible,cred + ible → credible,2,review_and_assign_family,draft
+crew_en_gb,crew,crew,1,review_and_assign_family,draft
+crown_en_gb,crown,crown,1,review_and_assign_family,draft
+crucial_en_gb,crucial,crucial,1,review_and_assign_family,draft
+cruel_en_gb,cruel,cruel,1,review_and_assign_family,draft
+crystal_en_gb,crystal,crystal,1,review_and_assign_family,draft
+culture_en_gb,culture,culture,1,review_and_assign_family,draft
+curiosity_en_gb,curiosity,curious + ity → curiosity,2,review_and_assign_family,draft
+curious_en_gb,curious,curious,1,review_and_assign_family,draft
+current_en_gb,current,current,1,review_and_assign_family,draft
+cutting_en_gb,cutting,cut + ing → cutting,2,review_and_assign_family,draft
+dad_s_en_gb,dad's,dad + 's → dad's,2,review_and_assign_family,draft
+dairy_en_gb,dairy,dairy,1,review_and_assign_family,draft
+dancer_en_gb,dancer,dance + er → dancer,2,review_and_assign_family,draft
+dancing_en_gb,dancing,dance + ing → dancing,2,review_and_assign_family,draft
+dare_en_gb,dare,dare,1,review_and_assign_family,draft
+dead_en_gb,dead,dead,1,review_and_assign_family,draft
+dear_en_gb,dear,dear,1,review_and_assign_family,draft
+debris_en_gb,debris,debris,1,review_and_assign_family,draft
+december_en_gb,december,december,1,review_and_assign_family,draft
+decide_en_gb,decide,decide,1,review_and_assign_family,draft
+definite_en_gb,definite,defin + ite → definite,2,review_and_assign_family,draft
+delicious_en_gb,delicious,delicious,1,review_and_assign_family,draft
+departure_en_gb,departure,depart + ure → departure,2,review_and_assign_family,draft
+depend_en_gb,depend,de + pend → depend,2,review_and_assign_family,draft
+descendants_en_gb,descendants,descend + ant + s → descendants,3,review_and_assign_family,draft
+descent_en_gb,descent,de + scent → descent,2,review_and_assign_family,draft
+describe_en_gb,describe,de + scribe → describe,2,review_and_assign_family,draft
+desert_en_gb,desert,desert,1,review_and_assign_family,draft
+desirable_en_gb,desirable,desire + able → desirable,2,review_and_assign_family,draft
+desire_en_gb,desire,desire,1,review_and_assign_family,draft
+desperate_en_gb,desperate,desperate,1,review_and_assign_family,draft
+dessert_en_gb,dessert,dessert,1,review_and_assign_family,draft
+determined_en_gb,determined,determine + ed → determined,2,review_and_assign_family,draft
+develop_en_gb,develop,develop,1,review_and_assign_family,draft
+device_en_gb,device,device,1,review_and_assign_family,draft
+devil_en_gb,devil,devil,1,review_and_assign_family,draft
+diabetes_en_gb,diabetes,diabetes,1,review_and_assign_family,draft
+dice_en_gb,dice,dice,1,review_and_assign_family,draft
+dictionary_en_gb,dictionary,dict + ion + ary → dictionary,3,review_and_assign_family,draft
+didn_t_en_gb,didn't,did + n't → didn't,2,review_and_assign_family,draft
+diesel_en_gb,diesel,diesel,1,review_and_assign_family,draft
+diet_en_gb,diet,diet,1,review_and_assign_family,draft
+differ_en_gb,differ,differ,1,review_and_assign_family,draft
+difference_en_gb,difference,differ + ence → difference,2,review_and_assign_family,draft
+difficult_en_gb,difficult,difficult,1,review_and_assign_family,draft
+dinosaur_en_gb,dinosaur,dino + saur → dinosaur,2,review_and_assign_family,draft
+direction_en_gb,direction,direct + ion → direction,2,review_and_assign_family,draft
+dirt_en_gb,dirt,dirt,1,review_and_assign_family,draft
+disagree_en_gb,disagree,dis + agree → disagree,2,review_and_assign_family,draft
+discipline_en_gb,discipline,discipline,1,review_and_assign_family,draft
+discussion_en_gb,discussion,discuss + ion → discussion,2,review_and_assign_family,draft
+distance_en_gb,distance,distance,1,review_and_assign_family,draft
+distant_en_gb,distant,distant,1,review_and_assign_family,draft
+dive_en_gb,dive,dive,1,review_and_assign_family,draft
+dodge_en_gb,dodge,dodge,1,review_and_assign_family,draft
+doesn_t_en_gb,doesn't,does + n't → doesn't,2,review_and_assign_family,draft
+dominance_en_gb,dominance,domin + ance → dominance,2,review_and_assign_family,draft
+dominant_en_gb,dominant,domin + ant → dominant,2,review_and_assign_family,draft
+dominate_en_gb,dominate,domin + ate → dominate,2,review_and_assign_family,draft
+domination_en_gb,domination,domin + ate + ion → domination,3,review_and_assign_family,draft
+done_en_gb,done,done,1,review_and_assign_family,draft
+door_en_gb,door,door,1,review_and_assign_family,draft
+double_en_gb,double,double,1,review_and_assign_family,draft
+dough_en_gb,dough,dough,1,review_and_assign_family,draft
+draft_en_gb,draft,draft,1,review_and_assign_family,draft
+dramatically_en_gb,dramatically,drama + tic + ally → dramatically,3,review_and_assign_family,draft
+drop_en_gb,drop,drop,1,review_and_assign_family,draft
+dropped_en_gb,dropped,drop + ed → dropped,2,review_and_assign_family,draft
+dropping_en_gb,dropping,drop + ing → dropping,2,review_and_assign_family,draft
+drought_en_gb,drought,drought,1,review_and_assign_family,draft
+drumming_en_gb,drumming,drum + ing → drumming,2,review_and_assign_family,draft
+dry_en_gb,dry,dry,1,review_and_assign_family,draft
+dumb_en_gb,dumb,dumb,1,review_and_assign_family,draft
+easier_en_gb,easier,easy + er → easier,2,review_and_assign_family,draft
+easiest_en_gb,easiest,easy + est → easiest,2,review_and_assign_family,draft
+easily_en_gb,easily,ease + y + ly → easily,3,review_and_assign_family,draft
+easy_en_gb,easy,ease + y → easy,2,review_and_assign_family,draft
+eat_en_gb,eat,eat,1,review_and_assign_family,draft
+educate_en_gb,educate,educate,1,review_and_assign_family,draft
+effect_en_gb,effect,ef + fect → effect,2,review_and_assign_family,draft
+efficiency_en_gb,efficiency,efficiency,1,review_and_assign_family,draft
+efficient_en_gb,efficient,efficient,1,review_and_assign_family,draft
+eighteen_en_gb,eighteen,eight + teen → eighteen,2,review_and_assign_family,draft
+eighth_en_gb,eighth,eight + th → eighth,2,review_and_assign_family,draft
+either_en_gb,either,either,1,review_and_assign_family,draft
+elegant_en_gb,elegant,elegant,1,review_and_assign_family,draft
+elephant_en_gb,elephant,elephant,1,review_and_assign_family,draft
+eligible_en_gb,eligible,elig + ible → eligible,2,review_and_assign_family,draft
+ending_en_gb,ending,end + ing → ending,2,review_and_assign_family,draft
+energy_en_gb,energy,energ + y → energy,2,review_and_assign_family,draft
+engine_en_gb,engine,engine,1,review_and_assign_family,draft
+enormous_en_gb,enormous,enormous,1,review_and_assign_family,draft
+environment_en_gb,environment,environ + ment → environment,2,review_and_assign_family,draft
+equipment_en_gb,equipment,equip + ment → equipment,2,review_and_assign_family,draft
+equipped_en_gb,equipped,equip + ed → equipped,2,review_and_assign_family,draft
+especially_en_gb,especially,especial + ly → especially,2,review_and_assign_family,draft
+evening_en_gb,evening,evening,1,review_and_assign_family,draft
+eventually_en_gb,eventually,event + ual + ly → eventually,3,review_and_assign_family,draft
+everybody_en_gb,everybody,every + body → everybody,2,review_and_assign_family,draft
+everywhere_en_gb,everywhere,every + where → everywhere,2,review_and_assign_family,draft
+evil_en_gb,evil,evil,1,review_and_assign_family,draft
+excellent_en_gb,excellent,excel + ent → excellent,2,review_and_assign_family,draft
+except_en_gb,except,ex + cept → except,2,review_and_assign_family,draft
+excitement_en_gb,excitement,excite + ment → excitement,2,review_and_assign_family,draft
+exercise_en_gb,exercise,exercise,1,review_and_assign_family,draft
+exhaust_en_gb,exhaust,exhaust,1,review_and_assign_family,draft
+exhibition_en_gb,exhibition,ex + hibit + ion → exhibition,3,review_and_assign_family,draft
+existence_en_gb,existence,exist + ence → existence,2,review_and_assign_family,draft
+expand_en_gb,expand,expand,1,review_and_assign_family,draft
+expansion_en_gb,expansion,expans + ion → expansion,2,review_and_assign_family,draft
+expect_en_gb,expect,expect,1,review_and_assign_family,draft
+expectation_en_gb,expectation,expect + ation → expectation,2,review_and_assign_family,draft
+experience_en_gb,experience,experience,1,review_and_assign_family,draft
+experiment_en_gb,experiment,experiment,1,review_and_assign_family,draft
+explanation_en_gb,explanation,explan + ation → explanation,2,review_and_assign_family,draft
+explosion_en_gb,explosion,ex + plos + ion → explosion,3,review_and_assign_family,draft
+expression_en_gb,expression,ex + press + ion → expression,3,review_and_assign_family,draft
+extend_en_gb,extend,ex + tend → extend,2,review_and_assign_family,draft
+fabulous_en_gb,fabulous,fabul + ous → fabulous,2,review_and_assign_family,draft
+fairy_en_gb,fairy,fairy,1,review_and_assign_family,draft
+fall_en_gb,fall,fall,1,review_and_assign_family,draft
+familiar_en_gb,familiar,famili + ar → familiar,2,review_and_assign_family,draft
+fancy_en_gb,fancy,fancy,1,review_and_assign_family,draft
+fare_en_gb,fare,fare,1,review_and_assign_family,draft
+farm_en_gb,farm,farm,1,review_and_assign_family,draft
+farther_en_gb,farther,farther,1,review_and_assign_family,draft
+fashion_en_gb,fashion,fashion,1,review_and_assign_family,draft
+father_en_gb,father,father,1,review_and_assign_family,draft
+fear_en_gb,fear,fear,1,review_and_assign_family,draft
+feasible_en_gb,feasible,feas + ible → feasible,2,review_and_assign_family,draft
+february_en_gb,february,february,1,review_and_assign_family,draft
+feel_en_gb,feel,feel,1,review_and_assign_family,draft
+fiction_en_gb,fiction,fict + ion → fiction,2,review_and_assign_family,draft
+fierce_en_gb,fierce,fierce,1,review_and_assign_family,draft
+finally_en_gb,finally,final + ly → finally,2,review_and_assign_family,draft
+financial_en_gb,financial,finance + ial → financial,2,review_and_assign_family,draft
+five_en_gb,five,five,1,review_and_assign_family,draft
+flexible_en_gb,flexible,flex + ible → flexible,2,review_and_assign_family,draft
+flies_en_gb,flies,fly + es → flies,2,review_and_assign_family,draft
+floor_en_gb,floor,floor,1,review_and_assign_family,draft
+focused_en_gb,focused,focus + ed → focused,2,review_and_assign_family,draft
+foil_en_gb,foil,foil,1,review_and_assign_family,draft
+forbidden_en_gb,forbidden,forbid + en → forbidden,2,review_and_assign_family,draft
+foreign_en_gb,foreign,foreign,1,review_and_assign_family,draft
+forget_en_gb,forget,forget,1,review_and_assign_family,draft
+forgetting_en_gb,forgetting,forget + ing → forgetting,2,review_and_assign_family,draft
+forgotten_en_gb,forgotten,forget + en → forgotten,2,review_and_assign_family,draft
+fort_en_gb,fort,fort,1,review_and_assign_family,draft
+forty_en_gb,forty,four + ty → forty,2,review_and_assign_family,draft
+forward_en_gb,forward,forward,1,review_and_assign_family,draft
+forwards_en_gb,forwards,forward + s → forwards,2,review_and_assign_family,draft
+fossil_en_gb,fossil,fossil,1,review_and_assign_family,draft
+fought_en_gb,fought,fought,1,review_and_assign_family,draft
+foul_en_gb,foul,foul,1,review_and_assign_family,draft
+fracture_en_gb,fracture,fract + ure → fracture,2,review_and_assign_family,draft
+freight_en_gb,freight,freight,1,review_and_assign_family,draft
+frequency_en_gb,frequency,frequ + ency → frequency,2,review_and_assign_family,draft
+frequent_en_gb,frequent,frequent,1,review_and_assign_family,draft
+frequently_en_gb,frequently,frequent + ly → frequently,2,review_and_assign_family,draft
+friday_en_gb,friday,friday,1,review_and_assign_family,draft
+fried_en_gb,fried,fry + ed → fried,2,review_and_assign_family,draft
+fries_en_gb,fries,fry + s → fries,2,review_and_assign_family,draft
+fry_en_gb,fry,fry,1,review_and_assign_family,draft
+fur_en_gb,fur,fur,1,review_and_assign_family,draft
+furniture_en_gb,furniture,furniture,1,review_and_assign_family,draft
+fusion_en_gb,fusion,fuse + ion → fusion,2,review_and_assign_family,draft
+gave_en_gb,gave,gave,1,review_and_assign_family,draft
+gentle_en_gb,gentle,gentle,1,review_and_assign_family,draft
+gently_en_gb,gently,gentle + ly → gently,2,review_and_assign_family,draft
+getting_en_gb,getting,get + ing → getting,2,review_and_assign_family,draft
+ghost_en_gb,ghost,ghost,1,review_and_assign_family,draft
+girl_s_en_gb,girl's,girl + 's → girl's,2,review_and_assign_family,draft
+girls_en_gb,girls,girl + s → girls,2,review_and_assign_family,draft
+goal_en_gb,goal,goal,1,review_and_assign_family,draft
+gold_en_gb,gold,gold,1,review_and_assign_family,draft
+gorgeous_en_gb,gorgeous,gorgeous,1,review_and_assign_family,draft
+grabbing_en_gb,grabbing,grab + ing → grabbing,2,review_and_assign_family,draft
+grand_en_gb,grand,grand,1,review_and_assign_family,draft
+grandmother_en_gb,grandmother,grand + mother → grandmother,2,review_and_assign_family,draft
+grew_en_gb,grew,grew,1,review_and_assign_family,draft
+grief_en_gb,grief,grief,1,review_and_assign_family,draft
+ground_en_gb,ground,ground,1,review_and_assign_family,draft
+guarantee_en_gb,guarantee,guarant + ee → guarantee,2,review_and_assign_family,draft
+guard_en_gb,guard,guard,1,review_and_assign_family,draft
+guessed_en_gb,guessed,guess + ed → guessed,2,review_and_assign_family,draft
+guest_en_gb,guest,guest,1,review_and_assign_family,draft
+guide_en_gb,guide,guide,1,review_and_assign_family,draft
+hair_en_gb,hair,hair,1,review_and_assign_family,draft
+hall_en_gb,hall,hall,1,review_and_assign_family,draft
+happen_en_gb,happen,happen,1,review_and_assign_family,draft
+happened_en_gb,happened,happen + ed → happened,2,review_and_assign_family,draft
+happening_en_gb,happening,happen + ing → happening,2,review_and_assign_family,draft
+happiest_en_gb,happiest,happy + est → happiest,2,review_and_assign_family,draft
+happily_en_gb,happily,happy + ly → happily,2,review_and_assign_family,draft
+hasn_t_en_gb,hasn't,has + n't → hasn't,2,review_and_assign_family,draft
+hated_en_gb,hated,hate + ed → hated,2,review_and_assign_family,draft
+haul_en_gb,haul,haul,1,review_and_assign_family,draft
+haven_t_en_gb,haven't,have + n't → haven't,2,review_and_assign_family,draft
+hay_en_gb,hay,hay,1,review_and_assign_family,draft
+he_ll_en_gb,he'll,he + 'll → he'll,2,review_and_assign_family,draft
+he_s_en_gb,he's,he + 's → he's,2,review_and_assign_family,draft
+head_en_gb,head,head,1,review_and_assign_family,draft
+heard_en_gb,heard,heard,1,review_and_assign_family,draft
+heart_en_gb,heart,heart,1,review_and_assign_family,draft
+heavier_en_gb,heavier,heavy + er → heavier,2,review_and_assign_family,draft
+heaviest_en_gb,heaviest,heavy + est → heaviest,2,review_and_assign_family,draft
+heavily_en_gb,heavily,heavy + ly → heavily,2,review_and_assign_family,draft
+heavy_en_gb,heavy,heavy,1,review_and_assign_family,draft
+hedge_en_gb,hedge,hedge,1,review_and_assign_family,draft
+heel_en_gb,heel,heel,1,review_and_assign_family,draft
+height_en_gb,height,height,1,review_and_assign_family,draft
+helping_en_gb,helping,help + ing → helping,2,review_and_assign_family,draft
+herd_en_gb,herd,herd,1,review_and_assign_family,draft
+here_en_gb,here,here,1,review_and_assign_family,draft
+hesitate_en_gb,hesitate,hesit + ate → hesitate,2,review_and_assign_family,draft
+high_en_gb,high,high,1,review_and_assign_family,draft
+hiking_en_gb,hiking,hike + ing → hiking,2,review_and_assign_family,draft
+historically_en_gb,historically,history + ic + al + ly → historically,4,review_and_assign_family,draft
+hitting_en_gb,hitting,hit + ing → hitting,2,review_and_assign_family,draft
+hold_en_gb,hold,hold,1,review_and_assign_family,draft
+hole_en_gb,hole,hole,1,review_and_assign_family,draft
+homework_en_gb,homework,home + work → homework,2,review_and_assign_family,draft
+hook_en_gb,hook,hook,1,review_and_assign_family,draft
+hopping_en_gb,hopping,hop + ing → hopping,2,review_and_assign_family,draft
+horn_en_gb,horn,horn,1,review_and_assign_family,draft
+horrible_en_gb,horrible,horr + ible → horrible,2,review_and_assign_family,draft
+hospital_en_gb,hospital,hospital,1,review_and_assign_family,draft
+how_en_gb,how,how,1,review_and_assign_family,draft
+hug_en_gb,hug,hug,1,review_and_assign_family,draft
+humble_en_gb,humble,humble,1,review_and_assign_family,draft
+humour_en_gb,humour,humour,1,review_and_assign_family,draft
+hunter_en_gb,hunter,hunt + er → hunter,2,review_and_assign_family,draft
+hunting_en_gb,hunting,hunt + ing → hunting,2,review_and_assign_family,draft
+hurry_en_gb,hurry,hurry,1,review_and_assign_family,draft
+hygiene_en_gb,hygiene,hygiene,1,review_and_assign_family,draft
+i_en_gb,i,i,1,review_and_assign_family,draft
+i_ll_en_gb,i'll,I + 'll → i'll,2,review_and_assign_family,draft
+ice_en_gb,ice,ice,1,review_and_assign_family,draft
+identity_en_gb,identity,ident + ity → identity,2,review_and_assign_family,draft
+ignorance_en_gb,ignorance,ignore + ance → ignorance,2,review_and_assign_family,draft
+ignorant_en_gb,ignorant,ignore + ant → ignorant,2,review_and_assign_family,draft
+illness_en_gb,illness,ill + ness → illness,2,review_and_assign_family,draft
+imagination_en_gb,imagination,imagine + ation → imagination,2,review_and_assign_family,draft
+imagine_en_gb,imagine,imagine,1,review_and_assign_family,draft
+immediate_en_gb,immediate,immediate,1,review_and_assign_family,draft
+immediately_en_gb,immediately,immediate + ly → immediately,2,review_and_assign_family,draft
+immigrant_en_gb,immigrant,im + migrant → immigrant,2,review_and_assign_family,draft
+immigrants_en_gb,immigrants,im + migr + ant + s → immigrants,4,review_and_assign_family,draft
+immortal_en_gb,immortal,im + mort + al → immortal,3,review_and_assign_family,draft
+importance_en_gb,importance,import + ance → importance,2,review_and_assign_family,draft
+important_en_gb,important,import + ant → important,2,review_and_assign_family,draft
+impression_en_gb,impression,im + press + ion → impression,3,review_and_assign_family,draft
+improve_en_gb,improve,im + prove → improve,2,review_and_assign_family,draft
+in_en_gb,in,in,1,review_and_assign_family,draft
+incomplete_en_gb,incomplete,in + complete → incomplete,2,review_and_assign_family,draft
+increase_en_gb,increase,in + crease → increase,2,review_and_assign_family,draft
+incredible_en_gb,incredible,in + cred + ible → incredible,3,review_and_assign_family,draft
+incredibly_en_gb,incredibly,in + cred + ible + ly → incredibly,4,review_and_assign_family,draft
+independence_en_gb,independence,in + de + pend + ence → independence,4,review_and_assign_family,draft
+independent_en_gb,independent,in + de + pend + ent → independent,4,review_and_assign_family,draft
+individual_en_gb,individual,in + divid + ual → individual,3,review_and_assign_family,draft
+infectious_en_gb,infectious,in + fect + ious → infectious,3,review_and_assign_family,draft
+influential_en_gb,influential,in + flu + ent + ial → influential,4,review_and_assign_family,draft
+ingredients_en_gb,ingredients,ingredient + s → ingredients,2,review_and_assign_family,draft
+inheritance_en_gb,inheritance,in + herit + ance → inheritance,3,review_and_assign_family,draft
+injection_en_gb,injection,in + ject + ion → injection,3,review_and_assign_family,draft
+innocence_en_gb,innocence,in + noc + ence → innocence,3,review_and_assign_family,draft
+innocent_en_gb,innocent,in + noc + ent → innocent,3,review_and_assign_family,draft
+intelligence_en_gb,intelligence,intellig + ence → intelligence,2,review_and_assign_family,draft
+intelligent_en_gb,intelligent,intellig + ent → intelligent,2,review_and_assign_family,draft
+interest_en_gb,interest,interest,1,review_and_assign_family,draft
+interfere_en_gb,interfere,inter + fere → interfere,2,review_and_assign_family,draft
+international_en_gb,international,inter + nation + al → international,3,review_and_assign_family,draft
+into_en_gb,into,in + to → into,2,review_and_assign_family,draft
+invasion_en_gb,invasion,in + vas + ion → invasion,3,review_and_assign_family,draft
+invisible_en_gb,invisible,in + vis + ible → invisible,3,review_and_assign_family,draft
+irrelevant_en_gb,irrelevant,ir + relev + ant → irrelevant,3,review_and_assign_family,draft
+island_en_gb,island,island,1,review_and_assign_family,draft
+isle_en_gb,isle,isle,1,review_and_assign_family,draft
+it_ll_en_gb,it'll,it + 'll → it'll,2,review_and_assign_family,draft
+it_s_en_gb,it's,it + 's → it's,2,review_and_assign_family,draft
+jacket_en_gb,jacket,jacket,1,review_and_assign_family,draft
+january_en_gb,january,january,1,review_and_assign_family,draft
+jar_en_gb,jar,jar,1,review_and_assign_family,draft
+jaw_en_gb,jaw,jaw,1,review_and_assign_family,draft
+jealous_en_gb,jealous,jealous,1,review_and_assign_family,draft
+jogging_en_gb,jogging,jog + ing → jogging,2,review_and_assign_family,draft
+join_en_gb,join,join,1,review_and_assign_family,draft
+judge_en_gb,judge,judge,1,review_and_assign_family,draft
+july_en_gb,july,july,1,review_and_assign_family,draft
+jumper_en_gb,jumper,jump + er → jumper,2,review_and_assign_family,draft
+june_en_gb,june,june,1,review_and_assign_family,draft
+jungle_en_gb,jungle,jungle,1,review_and_assign_family,draft
+justify_en_gb,justify,just + ify → justify,2,review_and_assign_family,draft
+keys_en_gb,keys,key + s → keys,2,review_and_assign_family,draft
+kicking_en_gb,kicking,kick + ing → kicking,2,review_and_assign_family,draft
+kindly_en_gb,kindly,kind + ly → kindly,2,review_and_assign_family,draft
+kisses_en_gb,kisses,kiss + es → kisses,2,review_and_assign_family,draft
+kitchen_en_gb,kitchen,kitchen,1,review_and_assign_family,draft
+knew_en_gb,knew,knew,1,review_and_assign_family,draft
+knight_en_gb,knight,knight,1,review_and_assign_family,draft
+knot_en_gb,knot,knot,1,review_and_assign_family,draft
+knowledge_en_gb,knowledge,knowledge,1,review_and_assign_family,draft
+known_en_gb,known,known,1,review_and_assign_family,draft
+label_en_gb,label,label,1,review_and_assign_family,draft
+laid_en_gb,laid,laid,1,review_and_assign_family,draft
+language_en_gb,language,language,1,review_and_assign_family,draft
+last_en_gb,last,last,1,review_and_assign_family,draft
+launch_en_gb,launch,launch,1,review_and_assign_family,draft
+laundry_en_gb,laundry,launder + y → laundry,2,review_and_assign_family,draft
+law_en_gb,law,law,1,review_and_assign_family,draft
+lay_en_gb,lay,lay,1,review_and_assign_family,draft
+lead_en_gb,lead,lead,1,review_and_assign_family,draft
+league_en_gb,league,league,1,review_and_assign_family,draft
+led_en_gb,led,led,1,review_and_assign_family,draft
+legal_en_gb,legal,legal,1,review_and_assign_family,draft
+leisure_en_gb,leisure,leisure,1,review_and_assign_family,draft
+length_en_gb,length,length,1,review_and_assign_family,draft
+licence_en_gb,licence,licence,1,review_and_assign_family,draft
+license_en_gb,license,license,1,review_and_assign_family,draft
+lied_en_gb,lied,lie + ed → lied,2,review_and_assign_family,draft
+lightning_en_gb,lightning,lightning,1,review_and_assign_family,draft
+limb_en_gb,limb,limb,1,review_and_assign_family,draft
+limit_en_gb,limit,limit,1,review_and_assign_family,draft
+limited_en_gb,limited,limit + ed → limited,2,review_and_assign_family,draft
+limiting_en_gb,limiting,limit + ing → limiting,2,review_and_assign_family,draft
+line_en_gb,line,line,1,review_and_assign_family,draft
+listen_en_gb,listen,listen,1,review_and_assign_family,draft
+listened_en_gb,listened,listen + ed → listened,2,review_and_assign_family,draft
+listening_en_gb,listening,listen + ing → listening,2,review_and_assign_family,draft
+living_en_gb,living,living,1,review_and_assign_family,draft
+living_room_en_gb,living room,living + room → living room,2,review_and_assign_family,draft
+loads_en_gb,loads,load + s → loads,2,review_and_assign_family,draft
+lock_en_gb,lock,lock,1,review_and_assign_family,draft
+locking_en_gb,locking,lock + ing → locking,2,review_and_assign_family,draft
+logical_en_gb,logical,logic + al → logical,2,review_and_assign_family,draft
+longer_en_gb,longer,long + er → longer,2,review_and_assign_family,draft
+longest_en_gb,longest,long + est → longest,2,review_and_assign_family,draft
+loud_en_gb,loud,loud,1,review_and_assign_family,draft
+louder_en_gb,louder,loud + er → louder,2,review_and_assign_family,draft
+lovely_en_gb,lovely,love + ly → lovely,2,review_and_assign_family,draft
+luckily_en_gb,luckily,luck + y + ly → luckily,3,review_and_assign_family,draft
+lucky_en_gb,lucky,luck + y → lucky,2,review_and_assign_family,draft
+mail_en_gb,mail,mail,1,review_and_assign_family,draft
+main_en_gb,main,main,1,review_and_assign_family,draft
+male_en_gb,male,male,1,review_and_assign_family,draft
+man_s_en_gb,man's,man + 's → man's,2,review_and_assign_family,draft
+march_en_gb,march,march,1,review_and_assign_family,draft
+married_en_gb,married,marry + ed → married,2,review_and_assign_family,draft
+marry_en_gb,marry,marry,1,review_and_assign_family,draft
+marrying_en_gb,marrying,marry + ing → marrying,2,review_and_assign_family,draft
+marshal_en_gb,marshal,marshal,1,review_and_assign_family,draft
+martial_en_gb,martial,martial,1,review_and_assign_family,draft
+mate_en_gb,mate,mate,1,review_and_assign_family,draft
+material_en_gb,material,material,1,review_and_assign_family,draft
+mature_en_gb,mature,mature,1,review_and_assign_family,draft
+means_en_gb,means,mean + s → means,2,review_and_assign_family,draft
+measure_en_gb,measure,measure,1,review_and_assign_family,draft
+meat_en_gb,meat,meat,1,review_and_assign_family,draft
+mechanic_en_gb,mechanic,mechan + ic → mechanic,2,review_and_assign_family,draft
+medal_en_gb,medal,medal,1,review_and_assign_family,draft
+medicine_en_gb,medicine,medicine,1,review_and_assign_family,draft
+meet_en_gb,meet,meet,1,review_and_assign_family,draft
+merry_en_gb,merry,merry,1,review_and_assign_family,draft
+mess_en_gb,mess,mess,1,review_and_assign_family,draft
+metal_en_gb,metal,metal,1,review_and_assign_family,draft
+might_en_gb,might,might,1,review_and_assign_family,draft
+migrant_en_gb,migrant,migrant,1,review_and_assign_family,draft
+minute_en_gb,minute,minute,1,review_and_assign_family,draft
+misplace_en_gb,misplace,mis + place → misplace,2,review_and_assign_family,draft
+missed_en_gb,missed,miss + ed → missed,2,review_and_assign_family,draft
+mixed_en_gb,mixed,mix + ed → mixed,2,review_and_assign_family,draft
+mixing_en_gb,mixing,mix + ing → mixing,2,review_and_assign_family,draft
+mixture_en_gb,mixture,mix + ture → mixture,2,review_and_assign_family,draft
+monarch_en_gb,monarch,mono + arch → monarch,2,review_and_assign_family,draft
+monday_en_gb,monday,monday,1,review_and_assign_family,draft
+monkey_en_gb,monkey,monkey,1,review_and_assign_family,draft
+monkeys_en_gb,monkeys,monkey + s → monkeys,2,review_and_assign_family,draft
+month_en_gb,month,month,1,review_and_assign_family,draft
+morning_en_gb,morning,morning,1,review_and_assign_family,draft
+mosque_en_gb,mosque,mosque,1,review_and_assign_family,draft
+most_en_gb,most,most,1,review_and_assign_family,draft
+mother_in_law_en_gb,mother-in-law,mother + in + law → mother-in-law,3,review_and_assign_family,draft
+motion_en_gb,motion,motion,1,review_and_assign_family,draft
+mourning_en_gb,mourning,mourn + ing → mourning,2,review_and_assign_family,draft
+mouth_en_gb,mouth,mouth,1,review_and_assign_family,draft
+movement_en_gb,movement,move + ment → movement,2,review_and_assign_family,draft
+mr_en_gb,mr,mr,1,review_and_assign_family,draft
+mrs_en_gb,mrs,mrs,1,review_and_assign_family,draft
+muscle_en_gb,muscle,muscle,1,review_and_assign_family,draft
+mystery_en_gb,mystery,myst + ery → mystery,2,review_and_assign_family,draft
+myth_en_gb,myth,myth,1,review_and_assign_family,draft
+nail_en_gb,nail,nail,1,review_and_assign_family,draft
+name_en_gb,name,name,1,review_and_assign_family,draft
+nation_en_gb,nation,nation,1,review_and_assign_family,draft
+naughty_en_gb,naughty,naughty,1,review_and_assign_family,draft
+nearly_en_gb,nearly,near + ly → nearly,2,review_and_assign_family,draft
+necessary_en_gb,necessary,necess + ary → necessary,2,review_and_assign_family,draft
+need_en_gb,need,need,1,review_and_assign_family,draft
+nine_en_gb,nine,nine,1,review_and_assign_family,draft
+noble_en_gb,noble,noble,1,review_and_assign_family,draft
+not_en_gb,not,not,1,review_and_assign_family,draft
+note_en_gb,note,note,1,review_and_assign_family,draft
+nothing_en_gb,nothing,no + thing → nothing,2,review_and_assign_family,draft
+notice_en_gb,notice,notice,1,review_and_assign_family,draft
+noticeable_en_gb,noticeable,notice + able → noticeable,2,review_and_assign_family,draft
+november_en_gb,november,november,1,review_and_assign_family,draft
+numerous_en_gb,numerous,numer + ous → numerous,2,review_and_assign_family,draft
+obey_en_gb,obey,obey,1,review_and_assign_family,draft
+observation_en_gb,observation,observe + ation → observation,2,review_and_assign_family,draft
+observe_en_gb,observe,observe,1,review_and_assign_family,draft
+obsession_en_gb,obsession,obsess + ion → obsession,2,review_and_assign_family,draft
+obvious_en_gb,obvious,obvious,1,review_and_assign_family,draft
+occasion_en_gb,occasion,occasion,1,review_and_assign_family,draft
+occasionally_en_gb,occasionally,occasion + al + ly → occasionally,3,review_and_assign_family,draft
+occupy_en_gb,occupy,occupy,1,review_and_assign_family,draft
+occurred_en_gb,occurred,occur + ed → occurred,2,review_and_assign_family,draft
+occurrence_en_gb,occurrence,occur + ence → occurrence,2,review_and_assign_family,draft
+occurring_en_gb,occurring,occur + ing → occurring,2,review_and_assign_family,draft
+october_en_gb,october,october,1,review_and_assign_family,draft
+offer_en_gb,offer,offer,1,review_and_assign_family,draft
+offered_en_gb,offered,offer + ed → offered,2,review_and_assign_family,draft
+offering_en_gb,offering,offer + ing → offering,2,review_and_assign_family,draft
+office_en_gb,office,office,1,review_and_assign_family,draft
+often_en_gb,often,often,1,review_and_assign_family,draft
+oil_en_gb,oil,oil,1,review_and_assign_family,draft
+older_en_gb,older,old + er → older,2,review_and_assign_family,draft
+oldest_en_gb,oldest,old + est → oldest,2,review_and_assign_family,draft
+only_en_gb,only,only,1,review_and_assign_family,draft
+opening_en_gb,opening,open + ing → opening,2,review_and_assign_family,draft
+operation_en_gb,operation,oper + ate + ion → operation,3,review_and_assign_family,draft
+opportunity_en_gb,opportunity,opportune + ity → opportunity,2,review_and_assign_family,draft
+opposite_en_gb,opposite,opposite,1,review_and_assign_family,draft
+orchestra_en_gb,orchestra,orchestr + a → orchestra,2,review_and_assign_family,draft
+ordinary_en_gb,ordinary,ordin + ary → ordinary,2,review_and_assign_family,draft
+organisation_en_gb,organisation,organise + ation → organisation,2,review_and_assign_family,draft
+other_en_gb,other,other,1,review_and_assign_family,draft
+ought_en_gb,ought,ought,1,review_and_assign_family,draft
+our_en_gb,our,our,1,review_and_assign_family,draft
+outrageous_en_gb,outrageous,outrage + ous → outrageous,2,review_and_assign_family,draft
+over_en_gb,over,over,1,review_and_assign_family,draft
+overlying_en_gb,overlying,overlie + ing → overlying,2,review_and_assign_family,draft
+oxygen_en_gb,oxygen,oxygen,1,review_and_assign_family,draft
+pace_en_gb,pace,pace,1,review_and_assign_family,draft
+paid_en_gb,paid,paid,1,review_and_assign_family,draft
+pain_en_gb,pain,pain,1,review_and_assign_family,draft
+painful_en_gb,painful,pain + ful → painful,2,review_and_assign_family,draft
+painter_en_gb,painter,paint + er → painter,2,review_and_assign_family,draft
+painting_en_gb,painting,paint + ing → painting,2,review_and_assign_family,draft
+pair_en_gb,pair,pair,1,review_and_assign_family,draft
+parents_en_gb,parents,parent + s → parents,2,review_and_assign_family,draft
+parliament_en_gb,parliament,parliament,1,review_and_assign_family,draft
+part_en_gb,part,part,1,review_and_assign_family,draft
+part_time_en_gb,part-time,part + time → part-time,2,review_and_assign_family,draft
+particular_en_gb,particular,part + icular → particular,2,review_and_assign_family,draft
+party_en_gb,party,party,1,review_and_assign_family,draft
+pass_en_gb,pass,pass,1,review_and_assign_family,draft
+pat_en_gb,pat,pat,1,review_and_assign_family,draft
+patience_en_gb,patience,patience,1,review_and_assign_family,draft
+patient_en_gb,patient,patient,1,review_and_assign_family,draft
+pause_en_gb,pause,pause,1,review_and_assign_family,draft
+pay_en_gb,pay,pay,1,review_and_assign_family,draft
+pencil_en_gb,pencil,pencil,1,review_and_assign_family,draft
+pension_en_gb,pension,pension,1,review_and_assign_family,draft
+perceive_en_gb,perceive,per + ceive → perceive,2,review_and_assign_family,draft
+perhaps_en_gb,perhaps,perhaps,1,review_and_assign_family,draft
+permission_en_gb,permission,per + miss + ion → permission,3,review_and_assign_family,draft
+permit_en_gb,permit,permit,1,review_and_assign_family,draft
+persuade_en_gb,persuade,persuade,1,review_and_assign_family,draft
+photographer_en_gb,photographer,photo + graph + er → photographer,3,review_and_assign_family,draft
+physical_en_gb,physical,phys + ic + al → physical,3,review_and_assign_family,draft
+physician_en_gb,physician,phys + ic + ian → physician,3,review_and_assign_family,draft
+pierce_en_gb,pierce,pierce,1,review_and_assign_family,draft
+plague_en_gb,plague,plague,1,review_and_assign_family,draft
+planning_en_gb,planning,plan + ing → planning,2,review_and_assign_family,draft
+plant_en_gb,plant,plant,1,review_and_assign_family,draft
+plaque_en_gb,plaque,plaque,1,review_and_assign_family,draft
+pleasure_en_gb,pleasure,please + ure → pleasure,2,review_and_assign_family,draft
+pneumonia_en_gb,pneumonia,pneumonia,1,review_and_assign_family,draft
+polite_en_gb,polite,polite,1,review_and_assign_family,draft
+pollution_en_gb,pollution,pollute + ion → pollution,2,review_and_assign_family,draft
+poor_en_gb,poor,poor,1,review_and_assign_family,draft
+population_en_gb,population,popul + ate + ion → population,3,review_and_assign_family,draft
+position_en_gb,position,posit + ion → position,2,review_and_assign_family,draft
+possess_en_gb,possess,possess,1,review_and_assign_family,draft
+possession_en_gb,possession,possess + ion → possession,2,review_and_assign_family,draft
+possibly_en_gb,possibly,poss + ible + ly → possibly,3,review_and_assign_family,draft
+post_office_en_gb,post office,post + office → post office,2,review_and_assign_family,draft
+potatoes_en_gb,potatoes,potato + es → potatoes,2,review_and_assign_family,draft
+practice_en_gb,practice,pract + ice → practice,2,review_and_assign_family,draft
+predictable_en_gb,predictable,pre + dict + able → predictable,3,review_and_assign_family,draft
+prefer_en_gb,prefer,prefer,1,review_and_assign_family,draft
+preference_en_gb,preference,prefer + ence → preference,2,review_and_assign_family,draft
+preferred_en_gb,preferred,prefer + ed → preferred,2,review_and_assign_family,draft
+prejudice_en_gb,prejudice,pre + judice → prejudice,2,review_and_assign_family,draft
+preparation_en_gb,preparation,prepare + ation → preparation,2,review_and_assign_family,draft
+pressure_en_gb,pressure,press + ure → pressure,2,review_and_assign_family,draft
+prettier_en_gb,prettier,pretty + er → prettier,2,review_and_assign_family,draft
+prettiest_en_gb,prettiest,pretty + est → prettiest,2,review_and_assign_family,draft
+prince_en_gb,prince,prince,1,review_and_assign_family,draft
+princess_en_gb,princess,prince + ess → princess,2,review_and_assign_family,draft
+principal_en_gb,principal,principal,1,review_and_assign_family,draft
+principle_en_gb,principle,principle,1,review_and_assign_family,draft
+privilege_en_gb,privilege,privilege,1,review_and_assign_family,draft
+probable_en_gb,probable,prob + able → probable,2,review_and_assign_family,draft
+probably_en_gb,probably,prob + able + ly → probably,3,review_and_assign_family,draft
+proceed_en_gb,proceed,proceed,1,review_and_assign_family,draft
+profession_en_gb,profession,pro + fess + ion → profession,3,review_and_assign_family,draft
+profit_en_gb,profit,profit,1,review_and_assign_family,draft
+programme_en_gb,programme,programme,1,review_and_assign_family,draft
+progression_en_gb,progression,pro + gress + ion → progression,3,review_and_assign_family,draft
+prophet_en_gb,prophet,prophet,1,review_and_assign_family,draft
+proudly_en_gb,proudly,proud + ly → proudly,2,review_and_assign_family,draft
+psychiatrist_en_gb,psychiatrist,psych + iatr + ist → psychiatrist,3,review_and_assign_family,draft
+psychology_en_gb,psychology,psych + ology → psychology,2,review_and_assign_family,draft
+publicly_en_gb,publicly,public + ly → publicly,2,review_and_assign_family,draft
+purpose_en_gb,purpose,purpose,1,review_and_assign_family,draft
+putting_en_gb,putting,put + ing → putting,2,review_and_assign_family,draft
+puzzle_en_gb,puzzle,puzzle,1,review_and_assign_family,draft
+pyramid_en_gb,pyramid,pyramid,1,review_and_assign_family,draft
+quad_en_gb,quad,quad,1,review_and_assign_family,draft
+quantity_en_gb,quantity,quant + ity → quantity,2,review_and_assign_family,draft
+queue_en_gb,queue,queue,1,review_and_assign_family,draft
+quiet_en_gb,quiet,quiet,1,review_and_assign_family,draft
+quietly_en_gb,quietly,quiet + ly → quietly,2,review_and_assign_family,draft
+quite_en_gb,quite,quite,1,review_and_assign_family,draft
+race_en_gb,race,race,1,review_and_assign_family,draft
+racial_en_gb,racial,race + ial → racial,2,review_and_assign_family,draft
+rage_en_gb,rage,rage,1,review_and_assign_family,draft
+rainbow_en_gb,rainbow,rain + bow → rainbow,2,review_and_assign_family,draft
+raw_en_gb,raw,raw,1,review_and_assign_family,draft
+re_elect_en_gb,re-elect,re + elect → re-elect,2,review_and_assign_family,draft
+re_enter_en_gb,re-enter,re + enter → re-enter,2,review_and_assign_family,draft
+re_escape_en_gb,re-escape,re + escape → re-escape,2,review_and_assign_family,draft
+re_examine_en_gb,re-examine,re + examine → re-examine,2,review_and_assign_family,draft
+reaction_en_gb,reaction,re + act + ion → reaction,3,review_and_assign_family,draft
+reason_en_gb,reason,reason,1,review_and_assign_family,draft
+reasonable_en_gb,reasonable,reason + able → reasonable,2,review_and_assign_family,draft
+reasonably_en_gb,reasonably,reason + able + ly → reasonably,3,review_and_assign_family,draft
+rebuild_en_gb,rebuild,re + build → rebuild,2,review_and_assign_family,draft
+receipt_en_gb,receipt,receipt,1,review_and_assign_family,draft
+receiver_en_gb,receiver,re + ceive + er → receiver,3,review_and_assign_family,draft
+recent_en_gb,recent,recent,1,review_and_assign_family,draft
+recognise_en_gb,recognise,recognise,1,review_and_assign_family,draft
+recommend_en_gb,recommend,re + commend → recommend,2,review_and_assign_family,draft
+redder_en_gb,redder,red + er → redder,2,review_and_assign_family,draft
+reddest_en_gb,reddest,red + est → reddest,2,review_and_assign_family,draft
+refer_en_gb,refer,refer,1,review_and_assign_family,draft
+referee_en_gb,referee,refer + ee → referee,2,review_and_assign_family,draft
+reference_en_gb,reference,refer + ence → reference,2,review_and_assign_family,draft
+referred_en_gb,referred,refer + ed → referred,2,review_and_assign_family,draft
+referring_en_gb,referring,refer + ing → referring,2,review_and_assign_family,draft
+regret_en_gb,regret,regret,1,review_and_assign_family,draft
+regular_en_gb,regular,regul + ar → regular,2,review_and_assign_family,draft
+regularly_en_gb,regularly,regul + ar + ly → regularly,3,review_and_assign_family,draft
+reign_en_gb,reign,reign,1,review_and_assign_family,draft
+relate_en_gb,relate,relate,1,review_and_assign_family,draft
+relation_en_gb,relation,relate + ion → relation,2,review_and_assign_family,draft
+relevance_en_gb,relevance,relevant + ance → relevance,2,review_and_assign_family,draft
+relevant_en_gb,relevant,relev + ant → relevant,2,review_and_assign_family,draft
+reliable_en_gb,reliable,rely + able → reliable,2,review_and_assign_family,draft
+relied_en_gb,relied,rely + ed → relied,2,review_and_assign_family,draft
+relies_en_gb,relies,rely + es → relies,2,review_and_assign_family,draft
+reluctant_en_gb,reluctant,reluctant,1,review_and_assign_family,draft
+remarkably_en_gb,remarkably,remark + able + ly → remarkably,3,review_and_assign_family,draft
+renew_en_gb,renew,re + new → renew,2,review_and_assign_family,draft
+repeated_en_gb,repeated,repeat + ed → repeated,2,review_and_assign_family,draft
+replace_en_gb,replace,re + place → replace,2,review_and_assign_family,draft
+replied_en_gb,replied,reply + ed → replied,2,review_and_assign_family,draft
+reply_en_gb,reply,reply,1,review_and_assign_family,draft
+residence_en_gb,residence,reside + ence → residence,2,review_and_assign_family,draft
+residential_en_gb,residential,resident + ial → residential,2,review_and_assign_family,draft
+resign_en_gb,resign,resign,1,review_and_assign_family,draft
+respectable_en_gb,respectable,respect + able → respectable,2,review_and_assign_family,draft
+respectful_en_gb,respectful,respect + ful → respectful,2,review_and_assign_family,draft
+responsible_en_gb,responsible,respons + ible → responsible,2,review_and_assign_family,draft
+restaurant_en_gb,restaurant,restaurant,1,review_and_assign_family,draft
+retrieve_en_gb,retrieve,retrieve,1,review_and_assign_family,draft
+return_en_gb,return,re + turn → return,2,review_and_assign_family,draft
+retying_en_gb,retying,retie + ing → retying,2,review_and_assign_family,draft
+review_en_gb,review,re + view → review,2,review_and_assign_family,draft
+rhythm_en_gb,rhythm,rhythm,1,review_and_assign_family,draft
+richer_en_gb,richer,rich + er → richer,2,review_and_assign_family,draft
+ride_en_gb,ride,ride,1,review_and_assign_family,draft
+ridiculous_en_gb,ridiculous,ridicule + ous → ridiculous,2,review_and_assign_family,draft
+riding_en_gb,riding,ride + ing → riding,2,review_and_assign_family,draft
+rob_en_gb,rob,rob,1,review_and_assign_family,draft
+robbed_en_gb,robbed,rob + ed → robbed,2,review_and_assign_family,draft
+rogue_en_gb,rogue,rogue,1,review_and_assign_family,draft
+roof_en_gb,roof,roof,1,review_and_assign_family,draft
+room_en_gb,room,room,1,review_and_assign_family,draft
+round_en_gb,round,round,1,review_and_assign_family,draft
+sack_en_gb,sack,sack,1,review_and_assign_family,draft
+sacrifice_en_gb,sacrifice,sacr + ifice → sacrifice,2,review_and_assign_family,draft
+safe_en_gb,safe,safe,1,review_and_assign_family,draft
+safer_en_gb,safer,safe + er → safer,2,review_and_assign_family,draft
+safest_en_gb,safest,safe + est → safest,2,review_and_assign_family,draft
+sail_en_gb,sail,sail,1,review_and_assign_family,draft
+sank_en_gb,sank,sank,1,review_and_assign_family,draft
+saturday_en_gb,saturday,saturday,1,review_and_assign_family,draft
+saving_en_gb,saving,save + ing → saving,2,review_and_assign_family,draft
+scare_en_gb,scare,scare,1,review_and_assign_family,draft
+scary_en_gb,scary,scare + y → scary,2,review_and_assign_family,draft
+scenario_en_gb,scenario,scenario,1,review_and_assign_family,draft
+scheme_en_gb,scheme,scheme,1,review_and_assign_family,draft
+scientist_en_gb,scientist,sci + ent + ist → scientist,3,review_and_assign_family,draft
+scrolling_en_gb,scrolling,scroll + ing → scrolling,2,review_and_assign_family,draft
+sculpture_en_gb,sculpture,sculpt + ure → sculpture,2,review_and_assign_family,draft
+secretary_en_gb,secretary,secretary,1,review_and_assign_family,draft
+section_en_gb,section,sect + ion → section,2,review_and_assign_family,draft
+seen_en_gb,seen,see + n → seen,2,review_and_assign_family,draft
+seize_en_gb,seize,seize,1,review_and_assign_family,draft
+sensation_en_gb,sensation,sens + ation → sensation,2,review_and_assign_family,draft
+sensible_en_gb,sensible,sense + ible → sensible,2,review_and_assign_family,draft
+sentence_en_gb,sentence,sentence,1,review_and_assign_family,draft
+september_en_gb,september,september,1,review_and_assign_family,draft
+serial_en_gb,serial,seri + al → serial,2,review_and_assign_family,draft
+serious_en_gb,serious,serious,1,review_and_assign_family,draft
+session_en_gb,session,session,1,review_and_assign_family,draft
+she_en_gb,she,she,1,review_and_assign_family,draft
+she_ll_en_gb,she'll,she + 'll → she'll,2,review_and_assign_family,draft
+shine_en_gb,shine,shine,1,review_and_assign_family,draft
+shining_en_gb,shining,shine + ing → shining,2,review_and_assign_family,draft
+shiny_en_gb,shiny,shine + y → shiny,2,review_and_assign_family,draft
+shopping_en_gb,shopping,shop + ing → shopping,2,review_and_assign_family,draft
+should_ve_en_gb,should've,should + 've → should've,2,review_and_assign_family,draft
+shoulder_en_gb,shoulder,shoulder,1,review_and_assign_family,draft
+shouldn_t_en_gb,shouldn't,should + n't → shouldn't,2,review_and_assign_family,draft
+shy_en_gb,shy,shy,1,review_and_assign_family,draft
+side_en_gb,side,side,1,review_and_assign_family,draft
+siege_en_gb,siege,siege,1,review_and_assign_family,draft
+sight_en_gb,sight,sight,1,review_and_assign_family,draft
+simply_en_gb,simply,simple + ly → simply,2,review_and_assign_family,draft
+sincere_en_gb,sincere,sincere,1,review_and_assign_family,draft
+sincerely_en_gb,sincerely,sincere + ly → sincerely,2,review_and_assign_family,draft
+singer_en_gb,singer,sing + er → singer,2,review_and_assign_family,draft
+singing_en_gb,singing,sing + ing → singing,2,review_and_assign_family,draft
+sir_en_gb,sir,sir,1,review_and_assign_family,draft
+sister_en_gb,sister,sister,1,review_and_assign_family,draft
+site_en_gb,site,site,1,review_and_assign_family,draft
+situation_en_gb,situation,situate + ion → situation,2,review_and_assign_family,draft
+size_en_gb,size,size,1,review_and_assign_family,draft
+sketch_en_gb,sketch,sketch,1,review_and_assign_family,draft
+skin_en_gb,skin,skin,1,review_and_assign_family,draft
+skipping_en_gb,skipping,skip + ing → skipping,2,review_and_assign_family,draft
+skirt_en_gb,skirt,skirt,1,review_and_assign_family,draft
+slaughter_en_gb,slaughter,slaughter,1,review_and_assign_family,draft
+slipping_en_gb,slipping,slip + ing → slipping,2,review_and_assign_family,draft
+slow_en_gb,slow,slow,1,review_and_assign_family,draft
+slower_en_gb,slower,slow + er → slower,2,review_and_assign_family,draft
+slowly_en_gb,slowly,slow + ly → slowly,2,review_and_assign_family,draft
+society_en_gb,society,soci + ety → society,2,review_and_assign_family,draft
+soldier_en_gb,soldier,soldier,1,review_and_assign_family,draft
+some_en_gb,some,some,1,review_and_assign_family,draft
+son_en_gb,son,son,1,review_and_assign_family,draft
+soon_en_gb,soon,soon,1,review_and_assign_family,draft
+sore_en_gb,sore,sore,1,review_and_assign_family,draft
+sort_en_gb,sort,sort,1,review_and_assign_family,draft
+sought_en_gb,sought,sought,1,review_and_assign_family,draft
+sovereign_en_gb,sovereign,sovereign,1,review_and_assign_family,draft
+spare_en_gb,spare,spare,1,review_and_assign_family,draft
+spatial_en_gb,spatial,space + ial → spatial,2,review_and_assign_family,draft
+spear_en_gb,spear,spear,1,review_and_assign_family,draft
+specially_en_gb,specially,special + ly → specially,2,review_and_assign_family,draft
+species_en_gb,species,species,1,review_and_assign_family,draft
+spies_en_gb,spies,spy + s → spies,2,review_and_assign_family,draft
+spinning_en_gb,spinning,spin + ing → spinning,2,review_and_assign_family,draft
+spontaneous_en_gb,spontaneous,spontane + ous → spontaneous,2,review_and_assign_family,draft
+sport_en_gb,sport,sport,1,review_and_assign_family,draft
+spy_en_gb,spy,spy,1,review_and_assign_family,draft
+stack_en_gb,stack,stack,1,review_and_assign_family,draft
+stall_en_gb,stall,stall,1,review_and_assign_family,draft
+stare_en_gb,stare,stare,1,review_and_assign_family,draft
+steal_en_gb,steal,steal,1,review_and_assign_family,draft
+steel_en_gb,steel,steel,1,review_and_assign_family,draft
+stir_en_gb,stir,stir,1,review_and_assign_family,draft
+stomach_en_gb,stomach,stomach,1,review_and_assign_family,draft
+straight_en_gb,straight,straight,1,review_and_assign_family,draft
+stranger_en_gb,stranger,strange + er → stranger,2,review_and_assign_family,draft
+straw_en_gb,straw,straw,1,review_and_assign_family,draft
+strength_en_gb,strength,strength,1,review_and_assign_family,draft
+studied_en_gb,studied,study + ed → studied,2,review_and_assign_family,draft
+study_en_gb,study,study,1,review_and_assign_family,draft
+studying_en_gb,studying,study + ing → studying,2,review_and_assign_family,draft
+submission_en_gb,submission,submit + ion → submission,2,review_and_assign_family,draft
+submit_en_gb,submit,submit,1,review_and_assign_family,draft
+substantial_en_gb,substantial,substant + ial → substantial,2,review_and_assign_family,draft
+subway_en_gb,subway,sub + way → subway,2,review_and_assign_family,draft
+successfully_en_gb,successfully,success + ful + ly → successfully,3,review_and_assign_family,draft
+suffer_en_gb,suffer,suffer,1,review_and_assign_family,draft
+suffered_en_gb,suffered,suffer + ed → suffered,2,review_and_assign_family,draft
+sufficient_en_gb,sufficient,suffici + ent → sufficient,2,review_and_assign_family,draft
+sugar_en_gb,sugar,sugar,1,review_and_assign_family,draft
+suggest_en_gb,suggest,suggest,1,review_and_assign_family,draft
+suite_en_gb,suite,suite,1,review_and_assign_family,draft
+summary_en_gb,summary,summ + ary → summary,2,review_and_assign_family,draft
+sunday_en_gb,sunday,sunday,1,review_and_assign_family,draft
+sunflower_en_gb,sunflower,sun + flower → sunflower,2,review_and_assign_family,draft
+superstar_en_gb,superstar,super + star → superstar,2,review_and_assign_family,draft
+supervision_en_gb,supervision,super + vis + ion → supervision,3,review_and_assign_family,draft
+suppose_en_gb,suppose,sup + pose → suppose,2,review_and_assign_family,draft
+sure_en_gb,sure,sure,1,review_and_assign_family,draft
+surf_en_gb,surf,surf,1,review_and_assign_family,draft
+surprise_en_gb,surprise,surprise,1,review_and_assign_family,draft
+survey_en_gb,survey,sur + vey → survey,2,review_and_assign_family,draft
+suspension_en_gb,suspension,suspens + ion → suspension,2,review_and_assign_family,draft
+suspicious_en_gb,suspicious,suspici + ous → suspicious,2,review_and_assign_family,draft
+swallow_en_gb,swallow,swallow,1,review_and_assign_family,draft
+swan_en_gb,swan,swan,1,review_and_assign_family,draft
+swear_en_gb,swear,swear,1,review_and_assign_family,draft
+sweet_en_gb,sweet,sweet,1,review_and_assign_family,draft
+sweetly_en_gb,sweetly,sweet + ly → sweetly,2,review_and_assign_family,draft
+sweetness_en_gb,sweetness,sweet + ness → sweetness,2,review_and_assign_family,draft
+symbol_en_gb,symbol,symbol,1,review_and_assign_family,draft
+syrup_en_gb,syrup,syrup,1,review_and_assign_family,draft
+system_en_gb,system,system,1,review_and_assign_family,draft
+taking_en_gb,taking,take + ing → taking,2,review_and_assign_family,draft
+tape_en_gb,tape,tape,1,review_and_assign_family,draft
+tapping_en_gb,tapping,tap + ing → tapping,2,review_and_assign_family,draft
+target_en_gb,target,target,1,review_and_assign_family,draft
+targeted_en_gb,targeted,target + ed → targeted,2,review_and_assign_family,draft
+tea_en_gb,tea,tea,1,review_and_assign_family,draft
+tear_en_gb,tear,tear,1,review_and_assign_family,draft
+technician_en_gb,technician,techn + ician → technician,2,review_and_assign_family,draft
+technology_en_gb,technology,techn + ology → technology,2,review_and_assign_family,draft
+television_en_gb,television,tele + vis + ion → television,3,review_and_assign_family,draft
+temperature_en_gb,temperature,temper + ature → temperature,2,review_and_assign_family,draft
+temptation_en_gb,temptation,tempt + ation → temptation,2,review_and_assign_family,draft
+tense_en_gb,tense,tense,1,review_and_assign_family,draft
+terrible_en_gb,terrible,terr + ible → terrible,2,review_and_assign_family,draft
+terribly_en_gb,terribly,terr + ible + ly → terribly,3,review_and_assign_family,draft
+texture_en_gb,texture,texture,1,review_and_assign_family,draft
+therefore_en_gb,therefore,there + fore → therefore,2,review_and_assign_family,draft
+they_re_en_gb,they're,they + 're → they're,2,review_and_assign_family,draft
+they_ve_en_gb,they've,they + 've → they've,2,review_and_assign_family,draft
+thief_en_gb,thief,thief,1,review_and_assign_family,draft
+think_en_gb,think,think,1,review_and_assign_family,draft
+thinner_en_gb,thinner,thin + er → thinner,2,review_and_assign_family,draft
+thinnest_en_gb,thinnest,thin + est → thinnest,2,review_and_assign_family,draft
+thorough_en_gb,thorough,thorough,1,review_and_assign_family,draft
+thoroughly_en_gb,thoroughly,thorough + ly → thoroughly,2,review_and_assign_family,draft
+those_en_gb,those,those,1,review_and_assign_family,draft
+though_en_gb,though,though,1,review_and_assign_family,draft
+thought_en_gb,thought,thought,1,review_and_assign_family,draft
+thoughtful_en_gb,thoughtful,thought + ful → thoughtful,2,review_and_assign_family,draft
+threw_en_gb,threw,threw,1,review_and_assign_family,draft
+thursday_en_gb,thursday,thursday,1,review_and_assign_family,draft
+tied_en_gb,tied,tie + ed → tied,2,review_and_assign_family,draft
+tight_en_gb,tight,tight,1,review_and_assign_family,draft
+tissue_en_gb,tissue,tissue,1,review_and_assign_family,draft
+today_en_gb,today,to + day → today,2,review_and_assign_family,draft
+told_en_gb,told,told,1,review_and_assign_family,draft
+tolerance_en_gb,tolerance,tolerate + ance → tolerance,2,review_and_assign_family,draft
+tolerate_en_gb,tolerate,toler + ate → tolerate,2,review_and_assign_family,draft
+tomb_en_gb,tomb,tomb,1,review_and_assign_family,draft
+tongue_en_gb,tongue,tongue,1,review_and_assign_family,draft
+took_en_gb,took,took,1,review_and_assign_family,draft
+tore_en_gb,tore,tore,1,review_and_assign_family,draft
+total_en_gb,total,total,1,review_and_assign_family,draft
+touch_en_gb,touch,touch,1,review_and_assign_family,draft
+towel_en_gb,towel,towel,1,review_and_assign_family,draft
+town_en_gb,town,town,1,review_and_assign_family,draft
+transfer_en_gb,transfer,transfer,1,review_and_assign_family,draft
+transferred_en_gb,transferred,transfer + ed → transferred,2,review_and_assign_family,draft
+transferring_en_gb,transferring,transfer + ing → transferring,2,review_and_assign_family,draft
+translate_en_gb,translate,translate,1,review_and_assign_family,draft
+translation_en_gb,translation,translate + ion → translation,2,review_and_assign_family,draft
+transmission_en_gb,transmission,trans + miss + ion → transmission,3,review_and_assign_family,draft
+transparency_en_gb,transparency,trans + par + ency → transparency,3,review_and_assign_family,draft
+transparent_en_gb,transparent,trans + par + ent → transparent,3,review_and_assign_family,draft
+travel_en_gb,travel,travel,1,review_and_assign_family,draft
+travelling_en_gb,travelling,travel + ing → travelling,2,review_and_assign_family,draft
+treasure_en_gb,treasure,treasure,1,review_and_assign_family,draft
+tremendous_en_gb,tremendous,tremendous,1,review_and_assign_family,draft
+trip_en_gb,trip,trip,1,review_and_assign_family,draft
+trouble_en_gb,trouble,trouble,1,review_and_assign_family,draft
+truly_en_gb,truly,true + ly → truly,2,review_and_assign_family,draft
+tube_en_gb,tube,tube,1,review_and_assign_family,draft
+tuesday_en_gb,tuesday,tuesday,1,review_and_assign_family,draft
+tunnel_en_gb,tunnel,tunnel,1,review_and_assign_family,draft
+twenty_en_gb,twenty,twenty,1,review_and_assign_family,draft
+typical_en_gb,typical,type + ical → typical,2,review_and_assign_family,draft
+unbelievable_en_gb,unbelievable,un + believe + able → unbelievable,3,review_and_assign_family,draft
+uncle_en_gb,uncle,uncle,1,review_and_assign_family,draft
+uncommon_en_gb,uncommon,un + common → uncommon,2,review_and_assign_family,draft
+under_en_gb,under,under,1,review_and_assign_family,draft
+underlying_en_gb,underlying,underlie + ing → underlying,2,review_and_assign_family,draft
+understand_en_gb,understand,under + stand → understand,2,review_and_assign_family,draft
+understandable_en_gb,understandable,understand + able → understandable,2,review_and_assign_family,draft
+unfortunately_en_gb,unfortunately,un + fortune + ate + ly → unfortunately,4,review_and_assign_family,draft
+unknown_en_gb,unknown,un + know + n → unknown,3,review_and_assign_family,draft
+unlocked_en_gb,unlocked,un + lock + ed → unlocked,3,review_and_assign_family,draft
+untie_en_gb,untie,un + tie → untie,2,review_and_assign_family,draft
+untying_en_gb,untying,untie + ing → untying,2,review_and_assign_family,draft
+useless_en_gb,useless,use + less → useless,2,review_and_assign_family,draft
+using_en_gb,using,use + ing → using,2,review_and_assign_family,draft
+usual_en_gb,usual,usual,1,review_and_assign_family,draft
+varied_en_gb,varied,vary + ed → varied,2,review_and_assign_family,draft
+varies_en_gb,varies,vary + es → varies,2,review_and_assign_family,draft
+varieties_en_gb,varieties,variety + es → varieties,2,review_and_assign_family,draft
+variety_en_gb,variety,vari + ety → variety,2,review_and_assign_family,draft
+various_en_gb,various,vary + ous → various,2,review_and_assign_family,draft
+vehicle_en_gb,vehicle,vehicle,1,review_and_assign_family,draft
+vein_en_gb,vein,vein,1,review_and_assign_family,draft
+verb_en_gb,verb,verb,1,review_and_assign_family,draft
+very_en_gb,very,very,1,review_and_assign_family,draft
+vicious_en_gb,vicious,vicious,1,review_and_assign_family,draft
+view_en_gb,view,view,1,review_and_assign_family,draft
+violence_en_gb,violence,viol + ence → violence,2,review_and_assign_family,draft
+visit_en_gb,visit,visit,1,review_and_assign_family,draft
+visited_en_gb,visited,visit + ed → visited,2,review_and_assign_family,draft
+visiting_en_gb,visiting,visit + ing → visiting,2,review_and_assign_family,draft
+vocabulary_en_gb,vocabulary,voc + abulary → vocabulary,2,review_and_assign_family,draft
+waist_en_gb,waist,waist,1,review_and_assign_family,draft
+wall_en_gb,wall,wall,1,review_and_assign_family,draft
+washing_en_gb,washing,wash + ing → washing,2,review_and_assign_family,draft
+wasn_t_en_gb,wasn't,was + n't → wasn't,2,review_and_assign_family,draft
+waste_en_gb,waste,waste,1,review_and_assign_family,draft
+water_en_gb,water,water,1,review_and_assign_family,draft
+we_ll_en_gb,we'll,we + 'll → we'll,2,review_and_assign_family,draft
+we_ve_en_gb,we've,we + 've → we've,2,review_and_assign_family,draft
+weather_en_gb,weather,weather,1,review_and_assign_family,draft
+wednesday_en_gb,wednesday,wednesday,1,review_and_assign_family,draft
+weekend_en_gb,weekend,week + end → weekend,2,review_and_assign_family,draft
+weird_en_gb,weird,weird,1,review_and_assign_family,draft
+well_en_gb,well,well,1,review_and_assign_family,draft
+well_known_en_gb,well-known,well + known → well-known,2,review_and_assign_family,draft
+weren_t_en_gb,weren't,were + n't → weren't,2,review_and_assign_family,draft
+wet_en_gb,wet,wet,1,review_and_assign_family,draft
+wetter_en_gb,wetter,wet + er → wetter,2,review_and_assign_family,draft
+wettest_en_gb,wettest,wet + est → wettest,2,review_and_assign_family,draft
+whale_en_gb,whale,whale,1,review_and_assign_family,draft
+wheel_en_gb,wheel,wheel,1,review_and_assign_family,draft
+whether_en_gb,whether,whether,1,review_and_assign_family,draft
+which_en_gb,which,which,1,review_and_assign_family,draft
+while_en_gb,while,while,1,review_and_assign_family,draft
+whistle_en_gb,whistle,whistle,1,review_and_assign_family,draft
+white_en_gb,white,white,1,review_and_assign_family,draft
+who_s_en_gb,who's,who + 's → who's,2,review_and_assign_family,draft
+wholly_en_gb,wholly,whole + ly → wholly,2,review_and_assign_family,draft
+why_en_gb,why,why,1,review_and_assign_family,draft
+wide_en_gb,wide,wide,1,review_and_assign_family,draft
+wider_en_gb,wider,wide + er → wider,2,review_and_assign_family,draft
+widest_en_gb,widest,wide + est → widest,2,review_and_assign_family,draft
+wind_en_gb,wind,wind,1,review_and_assign_family,draft
+windier_en_gb,windier,wind + ier → windier,2,review_and_assign_family,draft
+windy_en_gb,windy,wind + y → windy,2,review_and_assign_family,draft
+winning_en_gb,winning,win + ing → winning,2,review_and_assign_family,draft
+winter_en_gb,winter,winter,1,review_and_assign_family,draft
+witch_en_gb,witch,witch,1,review_and_assign_family,draft
+woke_en_gb,woke,woke,1,review_and_assign_family,draft
+women_en_gb,women,woman → women,1,review_and_assign_family,draft
+won_en_gb,won,won,1,review_and_assign_family,draft
+wood_en_gb,wood,wood,1,review_and_assign_family,draft
+wore_en_gb,wore,wore,1,review_and_assign_family,draft
+working_en_gb,working,work + ing → working,2,review_and_assign_family,draft
+worried_en_gb,worried,worry + ed → worried,2,review_and_assign_family,draft
+worry_en_gb,worry,worry,1,review_and_assign_family,draft
+worrying_en_gb,worrying,worry + ing → worrying,2,review_and_assign_family,draft
+wouldn_t_en_gb,wouldn't,would + n't → wouldn't,2,review_and_assign_family,draft
+wreck_en_gb,wreck,wreck,1,review_and_assign_family,draft
+wrestling_en_gb,wrestling,wrestle + ing → wrestling,2,review_and_assign_family,draft
+wrote_en_gb,wrote,wrote,1,review_and_assign_family,draft
+yacht_en_gb,yacht,yacht,1,review_and_assign_family,draft
+you_ll_en_gb,you'll,you + 'll → you'll,2,review_and_assign_family,draft
+you_re_en_gb,you're,you + 're → you're,2,review_and_assign_family,draft
+you_ve_en_gb,you've,you + 've → you've,2,review_and_assign_family,draft
+young_en_gb,young,young,1,review_and_assign_family,draft

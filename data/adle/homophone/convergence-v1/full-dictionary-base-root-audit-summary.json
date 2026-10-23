@@ -1,0 +1,13 @@
+{
+  "source": "read_only_production_en_GB_approved_words",
+  "wordCount": 1993,
+  "activeApprovedMorphologyCount": 1107,
+  "activeFamilyRows": 183,
+  "activeFamilyMemberRows": 454,
+  "distinctBaseRootComponents": 921,
+  "missingBaseRootCandidates": 892,
+  "unanalysedWords": 886,
+  "reviewedMorphologyWithoutFamilyLink": 1105,
+  "malformedBaseRootParts": 0,
+  "sourceFingerprint": "230d0b5ce2c2a2c5b2a8f7fa9272250855b0cf1f4deea83e3a9156fd13fd8a83"
+}

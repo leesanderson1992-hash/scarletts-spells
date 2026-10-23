@@ -1,0 +1,893 @@
+component,component_kind,canonical_word_key,canonical_word_present,matching_family_keys,source_word_count,source_word_examples,proposed_action,review_status
+able,base,,FALSE,,1,ability,add_canonical_base_then_family,draft
+accept,base,accept_en_gb,TRUE,,1,accept,create_or_review_base_family,draft
+access,base,,FALSE,,1,accessible,add_canonical_base_then_family,draft
+accident,base,accident_en_gb,TRUE,,2,accident | accidentally,create_or_review_base_family,draft
+accommodate,base,accommodate_en_gb,TRUE,,1,accommodate,create_or_review_base_family,draft
+according,base,according_en_gb,TRUE,,1,according,create_or_review_base_family,draft
+ace,base,ace_en_gb,TRUE,,1,ace,create_or_review_base_family,draft
+achieve,base,achieve_en_gb,TRUE,,1,achieve,create_or_review_base_family,draft
+add,base,,FALSE,,1,addition,add_canonical_base_then_family,draft
+address,base,address_en_gb,TRUE,,1,address,create_or_review_base_family,draft
+admit,base,admit_en_gb,TRUE,,3,admit | admitted | admitting,create_or_review_base_family,draft
+adore,base,adore_en_gb,TRUE,,2,adorable | adore,create_or_review_base_family,draft
+advent,base,,FALSE,,1,adventure,add_canonical_base_then_family,draft
+advice,base,advice_en_gb,TRUE,,1,advice,create_or_review_base_family,draft
+advise,base,advise_en_gb,TRUE,,1,advise,create_or_review_base_family,draft
+after,base,after_en_gb,TRUE,,1,after,create_or_review_base_family,draft
+age,base,age_en_gb,TRUE,,1,age,create_or_review_base_family,draft
+aggress,base,,FALSE,,1,aggressive,add_canonical_base_then_family,draft
+agree,base,agree_en_gb,TRUE,,2,agree | disagree,create_or_review_base_family,draft
+aisle,base,aisle_en_gb,TRUE,,1,aisle,create_or_review_base_family,draft
+almost,base,almost_en_gb,TRUE,,1,almost,create_or_review_base_family,draft
+already,base,already_en_gb,TRUE,,1,already,create_or_review_base_family,draft
+also,base,also_en_gb,TRUE,,1,also,create_or_review_base_family,draft
+altar,base,altar_en_gb,TRUE,,1,altar,create_or_review_base_family,draft
+alter,base,alter_en_gb,TRUE,,1,alter,create_or_review_base_family,draft
+although,base,although_en_gb,TRUE,,1,although,create_or_review_base_family,draft
+always,base,always_en_gb,TRUE,,1,always,create_or_review_base_family,draft
+amateur,base,amateur_en_gb,TRUE,,1,amateur,create_or_review_base_family,draft
+ambit,root,,FALSE,,1,ambitious,review_bound_root_and_create_family,draft
+anchor,base,anchor_en_gb,TRUE,,1,anchor,create_or_review_base_family,draft
+ancient,base,ancient_en_gb,TRUE,,1,ancient,create_or_review_base_family,draft
+angel,base,angel_en_gb,TRUE,,1,angel,create_or_review_base_family,draft
+angry,base,angry_en_gb,TRUE,,1,angry,create_or_review_base_family,draft
+any,base,any_en_gb,TRUE,,1,any,create_or_review_base_family,draft
+appar,root,,FALSE,,1,apparent,review_bound_root_and_create_family,draft
+appear,base,appear_en_gb,TRUE,,1,appear,create_or_review_base_family,draft
+applic,root,,FALSE,,1,application,review_bound_root_and_create_family,draft
+applicable,base,applicable_en_gb,TRUE,,1,applicable,create_or_review_base_family,draft
+apply,base,apply_en_gb,TRUE,,1,apply,create_or_review_base_family,draft
+appoint,base,appoint_en_gb,TRUE,,1,appoint,create_or_review_base_family,draft
+april,base,april_en_gb,TRUE,,1,april,create_or_review_base_family,draft
+arch,root,,FALSE,,1,monarch,review_bound_root_and_create_family,draft
+archer,base,archer_en_gb,TRUE,,1,archer,create_or_review_base_family,draft
+architect,base,architect_en_gb,TRUE,,1,architect,create_or_review_base_family,draft
+are,base,are_en_gb,TRUE,,1,aren't,create_or_review_base_family,draft
+argue,base,argue_en_gb,TRUE,,1,argue,create_or_review_base_family,draft
+arm,base,arm_en_gb,TRUE,,1,arm,create_or_review_base_family,draft
+arrive,base,arrive_en_gb,TRUE,,1,arrive,create_or_review_base_family,draft
+art,base,art_en_gb,TRUE,,1,art,create_or_review_base_family,draft
+artific,root,,FALSE,,1,artificial,review_bound_root_and_create_family,draft
+ask,base,ask_en_gb,TRUE,,2,ask | asking,create_or_review_base_family,draft
+assist,base,,FALSE,,2,assistance | assistant,add_canonical_base_then_family,draft
+attach,base,,FALSE,,1,attached,add_canonical_base_then_family,draft
+august,base,august_en_gb,TRUE,,1,august,create_or_review_base_family,draft
+author,base,author_en_gb,TRUE,,1,co-author,create_or_review_base_family,draft
+automatic,base,automatic_en_gb,TRUE,,1,automatically,create_or_review_base_family,draft
+autumn,base,autumn_en_gb,TRUE,,1,autumn,create_or_review_base_family,draft
+avail,base,,FALSE,,1,available,add_canonical_base_then_family,draft
+average,base,average_en_gb,TRUE,,1,average,create_or_review_base_family,draft
+award,base,award_en_gb,TRUE,,1,award,create_or_review_base_family,draft
+awe,base,,FALSE,,1,awful,add_canonical_base_then_family,draft
+awkward,base,awkward_en_gb,TRUE,,1,awkward,create_or_review_base_family,draft
+bad,base,bad_en_gb,TRUE,,1,badly,create_or_review_base_family,draft
+ball,base,ball_en_gb,TRUE,,1,ball,create_or_review_base_family,draft
+ban,base,,FALSE,,1,banned,add_canonical_base_then_family,draft
+band,base,band_en_gb,TRUE,,1,band,create_or_review_base_family,draft
+bare,base,bare_en_gb,TRUE,,1,bare,create_or_review_base_family,draft
+bargain,base,bargain_en_gb,TRUE,,1,bargain,create_or_review_base_family,draft
+baron,base,baron_en_gb,TRUE,,1,baron,create_or_review_base_family,draft
+base,base,,FALSE,,1,basically,add_canonical_base_then_family,draft
+be,base,be_en_gb,TRUE,,1,be,create_or_review_base_family,draft
+bear,base,bear_en_gb,TRUE,,1,bear,create_or_review_base_family,draft
+beauty,base,beauty_en_gb,TRUE,,1,beauty,create_or_review_base_family,draft
+bee,base,bee_en_gb,TRUE,,1,bee,create_or_review_base_family,draft
+beg,base,beg_en_gb,TRUE,,2,beg | begging,create_or_review_base_family,draft
+begin,base,begin_en_gb,TRUE,,2,begin | beginning,create_or_review_base_family,draft
+behave,base,behave_en_gb,TRUE,,1,behave,create_or_review_base_family,draft
+behind,base,behind_en_gb,TRUE,,1,behind,create_or_review_base_family,draft
+belie,base,,FALSE,,1,belying,add_canonical_base_then_family,draft
+belief,base,belief_en_gb,TRUE,,1,belief,create_or_review_base_family,draft
+believe,base,believe_en_gb,TRUE,,2,believe | unbelievable,create_or_review_base_family,draft
+bell,base,bell_en_gb,TRUE,,1,bell,create_or_review_base_family,draft
+bene,root,,FALSE,,1,beneficial,review_bound_root_and_create_family,draft
+berry,base,berry_en_gb,TRUE,,1,berry,create_or_review_base_family,draft
+better,base,better_en_gb,TRUE,,1,better,create_or_review_base_family,draft
+bite,base,bite_en_gb,TRUE,,1,bite,create_or_review_base_family,draft
+blew,base,blew_en_gb,TRUE,,1,blew,create_or_review_base_family,draft
+blow,base,blow_en_gb,TRUE,,1,blow,create_or_review_base_family,draft
+body,base,,FALSE,,1,everybody,add_canonical_base_then_family,draft
+bone,base,bone_en_gb,TRUE,,1,bone,create_or_review_base_family,draft
+boot,base,boot_en_gb,TRUE,,1,boot,create_or_review_base_family,draft
+bore,base,,FALSE,,1,bored,add_canonical_base_then_family,draft
+born,base,born_en_gb,TRUE,,1,born,create_or_review_base_family,draft
+borough,base,borough_en_gb,TRUE,,1,borough,create_or_review_base_family,draft
+both,base,both_en_gb,TRUE,,1,both,create_or_review_base_family,draft
+bought,base,bought_en_gb,TRUE,,1,bought,create_or_review_base_family,draft
+bow,base,bow_en_gb,TRUE,,2,bow | rainbow,create_or_review_base_family,draft
+box,base,,FALSE,,2,boxer | boxing,add_canonical_base_then_family,draft
+boy,base,boy_en_gb,TRUE,,2,boy's | boys,create_or_review_base_family,draft
+brake,base,brake_en_gb,TRUE,,1,brake,create_or_review_base_family,draft
+bread,base,bread_en_gb,TRUE,,1,bread,create_or_review_base_family,draft
+break,base,break_en_gb,TRUE,,1,breakthrough,create_or_review_base_family,draft
+breath,base,breath_en_gb,TRUE,,1,breath,create_or_review_base_family,draft
+breathe,base,breathe_en_gb,TRUE,,1,breathe,create_or_review_base_family,draft
+brother,base,brother_en_gb,TRUE,,1,brother,create_or_review_base_family,draft
+brought,base,brought_en_gb,TRUE,,1,brought,create_or_review_base_family,draft
+brown,base,brown_en_gb,TRUE,,1,brownie,create_or_review_base_family,draft
+build,base,build_en_gb,TRUE,,1,rebuild,create_or_review_base_family,draft
+bully,base,bully_en_gb,TRUE,,3,bullied | bully | bullying,create_or_review_base_family,draft
+bury,base,bury_en_gb,TRUE,,1,bury,create_or_review_base_family,draft
+butcher,base,butcher_en_gb,TRUE,,1,butcher,create_or_review_base_family,draft
+by,base,by_en_gb,TRUE,,1,by,create_or_review_base_family,draft
+calcul,root,,FALSE,,1,calculation,review_bound_root_and_create_family,draft
+call,base,call_en_gb,TRUE,,1,call,create_or_review_base_family,draft
+campaign,base,campaign_en_gb,TRUE,,1,campaign,create_or_review_base_family,draft
+capit,root,,FALSE,,1,capital,review_bound_root_and_create_family,draft
+capt,root,,FALSE,,1,capture,review_bound_root_and_create_family,draft
+caption,base,caption_en_gb,TRUE,,1,caption,create_or_review_base_family,draft
+case,base,case_en_gb,TRUE,,1,case,create_or_review_base_family,draft
+catalogue,base,catalogue_en_gb,TRUE,,1,catalogue,create_or_review_base_family,draft
+categor,root,,FALSE,,1,category,review_bound_root_and_create_family,draft
+caught,base,caught_en_gb,TRUE,,1,caught,create_or_review_base_family,draft
+caut,root,,FALSE,,1,cautious,review_bound_root_and_create_family,draft
+ceive,root,,FALSE,,2,perceive | receiver,review_bound_root_and_create_family,draft
+celebrate,base,,FALSE,,1,celebration,add_canonical_base_then_family,draft
+cemetery,base,cemetery_en_gb,TRUE,,1,cemetery,create_or_review_base_family,draft
+centr,root,,FALSE,,1,concentration,review_bound_root_and_create_family,draft
+centre,base,centre_en_gb,TRUE,,1,centre,create_or_review_base_family,draft
+century,base,century_en_gb,TRUE,,1,century,create_or_review_base_family,draft
+cept,root,,FALSE,,1,except,review_bound_root_and_create_family,draft
+cereal,base,cereal_en_gb,TRUE,,1,cereal,create_or_review_base_family,draft
+certain,base,certain_en_gb,TRUE,,1,certain,create_or_review_base_family,draft
+chair,base,chair_en_gb,TRUE,,1,chair,create_or_review_base_family,draft
+chalk,base,chalk_en_gb,TRUE,,1,chalk,create_or_review_base_family,draft
+champagne,base,champagne_en_gb,TRUE,,1,champagne,create_or_review_base_family,draft
+chaos,base,chaos_en_gb,TRUE,,1,chaos,create_or_review_base_family,draft
+character,base,character_en_gb,TRUE,,1,character,create_or_review_base_family,draft
+charge,base,charge_en_gb,TRUE,,1,charge,create_or_review_base_family,draft
+chat,base,chat_en_gb,TRUE,,1,chatting,create_or_review_base_family,draft
+choir,base,choir_en_gb,TRUE,,1,choir,create_or_review_base_family,draft
+christmas,base,christmas_en_gb,TRUE,,1,christmas,create_or_review_base_family,draft
+clap,base,clap_en_gb,TRUE,,1,clapping,create_or_review_base_family,draft
+class,base,class_en_gb,TRUE,,1,class,create_or_review_base_family,draft
+close,base,close_en_gb,TRUE,,4,close | closer | closest | closing,create_or_review_base_family,draft
+clothes,base,clothes_en_gb,TRUE,,1,clothes,create_or_review_base_family,draft
+clown,base,clown_en_gb,TRUE,,1,clown,create_or_review_base_family,draft
+clue,base,clue_en_gb,TRUE,,1,clue,create_or_review_base_family,draft
+coil,base,coil_en_gb,TRUE,,1,coil,create_or_review_base_family,draft
+cold,base,cold_en_gb,TRUE,,2,colder | coldest,create_or_review_base_family,draft
+colleague,base,colleague_en_gb,TRUE,,1,colleague,create_or_review_base_family,draft
+collis,root,,FALSE,,1,collision,review_bound_root_and_create_family,draft
+column,base,column_en_gb,TRUE,,1,column,create_or_review_base_family,draft
+come,base,come_en_gb,TRUE,,2,come | coming,create_or_review_base_family,draft
+comfort,base,,FALSE,,2,comfortable | comfortably,add_canonical_base_then_family,draft
+commend,base,,FALSE,,1,recommend,add_canonical_base_then_family,draft
+commerce,base,,FALSE,,1,commercial,add_canonical_base_then_family,draft
+commit,base,commit_en_gb,TRUE,,3,commit | committed | committing,create_or_review_base_family,draft
+common,base,,FALSE,,1,uncommon,add_canonical_base_then_family,draft
+communic,root,,FALSE,,1,communicate,review_bound_root_and_create_family,draft
+company,base,,FALSE,,1,accompany,add_canonical_base_then_family,draft
+compatible,base,compatible_en_gb,TRUE,,1,compatible,create_or_review_base_family,draft
+compete,base,,FALSE,,1,competition,add_canonical_base_then_family,draft
+complete,base,complete_en_gb,TRUE,,3,completely | completion | incomplete,create_or_review_base_family,draft
+compliment,base,compliment_en_gb,TRUE,,1,compliment,create_or_review_base_family,draft
+confer,base,,FALSE,,1,conference,add_canonical_base_then_family,draft
+confess,base,,FALSE,,1,confession,add_canonical_base_then_family,draft
+confid,root,,FALSE,,2,confident | confidential,review_bound_root_and_create_family,draft
+confident,base,confident_en_gb,TRUE,,1,confidence,create_or_review_base_family,draft
+conscience,base,conscience_en_gb,TRUE,,1,conscience,create_or_review_base_family,draft
+conscious,base,conscious_en_gb,TRUE,,1,conscious,create_or_review_base_family,draft
+consider,base,consider_en_gb,TRUE,,4,consider | considerable | considerably | consideration,create_or_review_base_family,draft
+consist,base,,FALSE,,1,consistency,add_canonical_base_then_family,draft
+continue,base,continue_en_gb,TRUE,,2,continually | continue,create_or_review_base_family,draft
+convenient,base,,FALSE,,1,convenience,add_canonical_base_then_family,draft
+converse,base,,FALSE,,1,conversation,add_canonical_base_then_family,draft
+convey,base,convey_en_gb,TRUE,,1,convey,create_or_review_base_family,draft
+cook,base,cook_en_gb,TRUE,,1,cook,create_or_review_base_family,draft
+correct,base,correct_en_gb,TRUE,,3,correct | correction | correctly,create_or_review_base_family,draft
+could,base,could_en_gb,TRUE,,1,could've,create_or_review_base_family,draft
+count,base,count_en_gb,TRUE,,1,count,create_or_review_base_family,draft
+country,base,country_en_gb,TRUE,,1,country,create_or_review_base_family,draft
+couple,base,couple_en_gb,TRUE,,1,couple,create_or_review_base_family,draft
+courage,base,courage_en_gb,TRUE,,1,courage,create_or_review_base_family,draft
+cousin,base,cousin_en_gb,TRUE,,1,cousin,create_or_review_base_family,draft
+cover,base,,FALSE,,1,covered,add_canonical_base_then_family,draft
+crawl,base,crawl_en_gb,TRUE,,1,crawl,create_or_review_base_family,draft
+cream,base,cream_en_gb,TRUE,,1,cream,create_or_review_base_family,draft
+crease,base,,FALSE,,1,increase,add_canonical_base_then_family,draft
+cred,root,,FALSE,,3,credible | incredible | incredibly,review_bound_root_and_create_family,draft
+crew,base,crew_en_gb,TRUE,,1,crew,create_or_review_base_family,draft
+crown,base,crown_en_gb,TRUE,,1,crown,create_or_review_base_family,draft
+crucial,base,crucial_en_gb,TRUE,,1,crucial,create_or_review_base_family,draft
+cruel,base,cruel_en_gb,TRUE,,1,cruel,create_or_review_base_family,draft
+crystal,base,crystal_en_gb,TRUE,,1,crystal,create_or_review_base_family,draft
+culture,base,culture_en_gb,TRUE,,1,culture,create_or_review_base_family,draft
+curious,base,curious_en_gb,TRUE,,2,curiosity | curious,create_or_review_base_family,draft
+current,base,current_en_gb,TRUE,,1,current,create_or_review_base_family,draft
+cut,base,,FALSE,,1,cutting,add_canonical_base_then_family,draft
+cycle,base,cycle_en_gb,TRUE,,1,bicycle,create_or_review_base_family,draft
+dad,base,,FALSE,,1,dad's,add_canonical_base_then_family,draft
+dairy,base,dairy_en_gb,TRUE,,1,dairy,create_or_review_base_family,draft
+dance,base,dance_en_gb,TRUE,,2,dancer | dancing,create_or_review_base_family,draft
+dare,base,dare_en_gb,TRUE,,1,dare,create_or_review_base_family,draft
+day,base,day_en_gb,TRUE,,1,today,create_or_review_base_family,draft
+dead,base,dead_en_gb,TRUE,,1,dead,create_or_review_base_family,draft
+dear,base,dear_en_gb,TRUE,,1,dear,create_or_review_base_family,draft
+debris,base,debris_en_gb,TRUE,,1,debris,create_or_review_base_family,draft
+december,base,december_en_gb,TRUE,,1,december,create_or_review_base_family,draft
+decide,base,decide_en_gb,TRUE,,1,decide,create_or_review_base_family,draft
+defin,root,,FALSE,,1,definite,review_bound_root_and_create_family,draft
+delicious,base,delicious_en_gb,TRUE,,1,delicious,create_or_review_base_family,draft
+depart,base,,FALSE,,1,departure,add_canonical_base_then_family,draft
+descend,base,,FALSE,,1,descendants,add_canonical_base_then_family,draft
+desert,base,desert_en_gb,TRUE,,1,desert,create_or_review_base_family,draft
+desire,base,desire_en_gb,TRUE,,2,desirable | desire,create_or_review_base_family,draft
+desperate,base,desperate_en_gb,TRUE,,1,desperate,create_or_review_base_family,draft
+dessert,base,dessert_en_gb,TRUE,,1,dessert,create_or_review_base_family,draft
+determine,base,,FALSE,,1,determined,add_canonical_base_then_family,draft
+develop,base,develop_en_gb,TRUE,,1,develop,create_or_review_base_family,draft
+device,base,device_en_gb,TRUE,,1,device,create_or_review_base_family,draft
+devil,base,devil_en_gb,TRUE,,1,devil,create_or_review_base_family,draft
+diabetes,base,diabetes_en_gb,TRUE,,1,diabetes,create_or_review_base_family,draft
+dice,base,dice_en_gb,TRUE,,1,dice,create_or_review_base_family,draft
+dict,root,,FALSE,,2,dictionary | predictable,review_bound_root_and_create_family,draft
+did,base,,FALSE,,1,didn't,add_canonical_base_then_family,draft
+diesel,base,diesel_en_gb,TRUE,,1,diesel,create_or_review_base_family,draft
+diet,base,diet_en_gb,TRUE,,1,diet,create_or_review_base_family,draft
+differ,base,differ_en_gb,TRUE,,2,differ | difference,create_or_review_base_family,draft
+difficult,base,difficult_en_gb,TRUE,,1,difficult,create_or_review_base_family,draft
+dino,root,,FALSE,,1,dinosaur,review_bound_root_and_create_family,draft
+direct,base,,FALSE,,1,direction,add_canonical_base_then_family,draft
+dirt,base,dirt_en_gb,TRUE,,1,dirt,create_or_review_base_family,draft
+discipline,base,discipline_en_gb,TRUE,,1,discipline,create_or_review_base_family,draft
+discuss,base,,FALSE,,1,discussion,add_canonical_base_then_family,draft
+distance,base,distance_en_gb,TRUE,,1,distance,create_or_review_base_family,draft
+distant,base,distant_en_gb,TRUE,,1,distant,create_or_review_base_family,draft
+dive,base,dive_en_gb,TRUE,,1,dive,create_or_review_base_family,draft
+divid,root,,FALSE,,1,individual,review_bound_root_and_create_family,draft
+dodge,base,dodge_en_gb,TRUE,,1,dodge,create_or_review_base_family,draft
+does,base,does_en_gb,TRUE,,1,doesn't,create_or_review_base_family,draft
+domin,root,,FALSE,,4,dominance | dominant | dominate | domination,review_bound_root_and_create_family,draft
+done,base,done_en_gb,TRUE,,1,done,create_or_review_base_family,draft
+door,base,door_en_gb,TRUE,,1,door,create_or_review_base_family,draft
+double,base,double_en_gb,TRUE,,1,double,create_or_review_base_family,draft
+dough,base,dough_en_gb,TRUE,,1,dough,create_or_review_base_family,draft
+draft,base,draft_en_gb,TRUE,,1,draft,create_or_review_base_family,draft
+drama,base,,FALSE,,1,dramatically,add_canonical_base_then_family,draft
+drop,base,drop_en_gb,TRUE,,3,drop | dropped | dropping,create_or_review_base_family,draft
+drought,base,drought_en_gb,TRUE,,1,drought,create_or_review_base_family,draft
+drum,base,,FALSE,,1,drumming,add_canonical_base_then_family,draft
+dry,base,dry_en_gb,TRUE,,1,dry,create_or_review_base_family,draft
+dumb,base,dumb_en_gb,TRUE,,1,dumb,create_or_review_base_family,draft
+ease,base,,FALSE,,2,easily | easy,add_canonical_base_then_family,draft
+easy,base,easy_en_gb,TRUE,,2,easier | easiest,create_or_review_base_family,draft
+eat,base,eat_en_gb,TRUE,,1,eat,create_or_review_base_family,draft
+educate,base,educate_en_gb,TRUE,,1,educate,create_or_review_base_family,draft
+efficiency,base,efficiency_en_gb,TRUE,,1,efficiency,create_or_review_base_family,draft
+efficient,base,efficient_en_gb,TRUE,,1,efficient,create_or_review_base_family,draft
+eight,base,eight_en_gb,TRUE,,2,eighteen | eighth,create_or_review_base_family,draft
+either,base,either_en_gb,TRUE,,1,either,create_or_review_base_family,draft
+elect,base,,FALSE,,1,re-elect,add_canonical_base_then_family,draft
+elegant,base,elegant_en_gb,TRUE,,1,elegant,create_or_review_base_family,draft
+elephant,base,elephant_en_gb,TRUE,,1,elephant,create_or_review_base_family,draft
+elig,root,,FALSE,,1,eligible,review_bound_root_and_create_family,draft
+end,base,,FALSE,,2,ending | weekend,add_canonical_base_then_family,draft
+energ,root,,FALSE,,1,energy,review_bound_root_and_create_family,draft
+engine,base,engine_en_gb,TRUE,,1,engine,create_or_review_base_family,draft
+enormous,base,enormous_en_gb,TRUE,,1,enormous,create_or_review_base_family,draft
+enter,base,,FALSE,,1,re-enter,add_canonical_base_then_family,draft
+environ,base,,FALSE,,1,environment,add_canonical_base_then_family,draft
+equip,base,,FALSE,,2,equipment | equipped,add_canonical_base_then_family,draft
+escape,base,escape_en_gb,TRUE,,1,re-escape,create_or_review_base_family,draft
+especial,base,,FALSE,,1,especially,add_canonical_base_then_family,draft
+evening,base,evening_en_gb,TRUE,,1,evening,create_or_review_base_family,draft
+event,base,,FALSE,,1,eventually,add_canonical_base_then_family,draft
+every,base,every_en_gb,TRUE,,2,everybody | everywhere,create_or_review_base_family,draft
+evil,base,evil_en_gb,TRUE,,1,evil,create_or_review_base_family,draft
+examine,base,,FALSE,,1,re-examine,add_canonical_base_then_family,draft
+excel,base,,FALSE,,1,excellent,add_canonical_base_then_family,draft
+excite,base,,FALSE,,1,excitement,add_canonical_base_then_family,draft
+exercise,base,exercise_en_gb,TRUE,,1,exercise,create_or_review_base_family,draft
+exhaust,base,exhaust_en_gb,TRUE,,1,exhaust,create_or_review_base_family,draft
+exist,base,,FALSE,,1,existence,add_canonical_base_then_family,draft
+expand,base,expand_en_gb,TRUE,,1,expand,create_or_review_base_family,draft
+expans,root,,FALSE,,1,expansion,review_bound_root_and_create_family,draft
+expect,base,expect_en_gb,TRUE,,2,expect | expectation,create_or_review_base_family,draft
+experience,base,experience_en_gb,TRUE,,1,experience,create_or_review_base_family,draft
+experiment,base,experiment_en_gb,TRUE,,1,experiment,create_or_review_base_family,draft
+explan,root,,FALSE,,1,explanation,review_bound_root_and_create_family,draft
+fabul,root,,FALSE,,1,fabulous,review_bound_root_and_create_family,draft
+fairy,base,fairy_en_gb,TRUE,,1,fairy,create_or_review_base_family,draft
+fall,base,fall_en_gb,TRUE,,1,fall,create_or_review_base_family,draft
+famili,root,,FALSE,,1,familiar,review_bound_root_and_create_family,draft
+fancy,base,fancy_en_gb,TRUE,,1,fancy,create_or_review_base_family,draft
+fare,base,fare_en_gb,TRUE,,1,fare,create_or_review_base_family,draft
+farm,base,farm_en_gb,TRUE,,1,farm,create_or_review_base_family,draft
+farther,base,farther_en_gb,TRUE,,1,farther,create_or_review_base_family,draft
+fashion,base,fashion_en_gb,TRUE,,1,fashion,create_or_review_base_family,draft
+father,base,father_en_gb,TRUE,,1,father,create_or_review_base_family,draft
+fear,base,fear_en_gb,TRUE,,1,fear,create_or_review_base_family,draft
+feas,root,,FALSE,,1,feasible,review_bound_root_and_create_family,draft
+february,base,february_en_gb,TRUE,,1,february,create_or_review_base_family,draft
+fect,root,,FALSE,,4,affect | affection | effect | infectious,review_bound_root_and_create_family,draft
+feel,base,feel_en_gb,TRUE,,1,feel,create_or_review_base_family,draft
+fere,root,,FALSE,,1,interfere,review_bound_root_and_create_family,draft
+fess,root,,FALSE,,1,profession,review_bound_root_and_create_family,draft
+fic,root,,FALSE,,1,beneficial,review_bound_root_and_create_family,draft
+fict,root,,FALSE,,1,fiction,review_bound_root_and_create_family,draft
+fierce,base,fierce_en_gb,TRUE,,1,fierce,create_or_review_base_family,draft
+final,base,final_en_gb,TRUE,,1,finally,create_or_review_base_family,draft
+finance,base,,FALSE,,1,financial,add_canonical_base_then_family,draft
+five,base,five_en_gb,TRUE,,1,five,create_or_review_base_family,draft
+flex,base,,FALSE,,1,flexible,add_canonical_base_then_family,draft
+floor,base,floor_en_gb,TRUE,,1,floor,create_or_review_base_family,draft
+flower,base,flower_en_gb,TRUE,,1,sunflower,create_or_review_base_family,draft
+flu,root,,FALSE,,1,influential,review_bound_root_and_create_family,draft
+fly,base,fly_en_gb,TRUE,,1,flies,create_or_review_base_family,draft
+focus,base,,FALSE,,1,focused,add_canonical_base_then_family,draft
+foil,base,foil_en_gb,TRUE,,1,foil,create_or_review_base_family,draft
+forbid,base,,FALSE,,1,forbidden,add_canonical_base_then_family,draft
+fore,base,,FALSE,,1,therefore,add_canonical_base_then_family,draft
+foreign,base,foreign_en_gb,TRUE,,1,foreign,create_or_review_base_family,draft
+forget,base,forget_en_gb,TRUE,,3,forget | forgetting | forgotten,create_or_review_base_family,draft
+fort,base,fort_en_gb,TRUE,,1,fort,create_or_review_base_family,draft
+fortune,base,,FALSE,,1,unfortunately,add_canonical_base_then_family,draft
+forward,base,forward_en_gb,TRUE,,2,forward | forwards,create_or_review_base_family,draft
+fossil,base,fossil_en_gb,TRUE,,1,fossil,create_or_review_base_family,draft
+fought,base,fought_en_gb,TRUE,,1,fought,create_or_review_base_family,draft
+foul,base,foul_en_gb,TRUE,,1,foul,create_or_review_base_family,draft
+four,base,four_en_gb,TRUE,,1,forty,create_or_review_base_family,draft
+fract,root,,FALSE,,1,fracture,review_bound_root_and_create_family,draft
+freight,base,freight_en_gb,TRUE,,1,freight,create_or_review_base_family,draft
+frequ,root,,FALSE,,1,frequency,review_bound_root_and_create_family,draft
+frequent,base,frequent_en_gb,TRUE,,2,frequent | frequently,create_or_review_base_family,draft
+friday,base,friday_en_gb,TRUE,,1,friday,create_or_review_base_family,draft
+front,base,,FALSE,,1,confrontation,add_canonical_base_then_family,draft
+fry,base,fry_en_gb,TRUE,,3,fried | fries | fry,create_or_review_base_family,draft
+fur,base,fur_en_gb,TRUE,,1,fur,create_or_review_base_family,draft
+furniture,base,furniture_en_gb,TRUE,,1,furniture,create_or_review_base_family,draft
+fuse,base,,FALSE,,1,fusion,add_canonical_base_then_family,draft
+gave,base,gave_en_gb,TRUE,,1,gave,create_or_review_base_family,draft
+gentle,base,gentle_en_gb,TRUE,,2,gentle | gently,create_or_review_base_family,draft
+get,base,,FALSE,,1,getting,add_canonical_base_then_family,draft
+ghost,base,ghost_en_gb,TRUE,,1,ghost,create_or_review_base_family,draft
+girl,base,girl_en_gb,TRUE,,2,girl's | girls,create_or_review_base_family,draft
+goal,base,goal_en_gb,TRUE,,1,goal,create_or_review_base_family,draft
+gold,base,gold_en_gb,TRUE,,1,gold,create_or_review_base_family,draft
+gorgeous,base,gorgeous_en_gb,TRUE,,1,gorgeous,create_or_review_base_family,draft
+grand,base,grand_en_gb,TRUE,,2,grand | grandmother,create_or_review_base_family,draft
+gress,root,,FALSE,,1,progression,review_bound_root_and_create_family,draft
+grew,base,grew_en_gb,TRUE,,1,grew,create_or_review_base_family,draft
+grief,base,grief_en_gb,TRUE,,1,grief,create_or_review_base_family,draft
+ground,base,ground_en_gb,TRUE,,1,ground,create_or_review_base_family,draft
+guarant,root,,FALSE,,1,guarantee,review_bound_root_and_create_family,draft
+guard,base,guard_en_gb,TRUE,,1,guard,create_or_review_base_family,draft
+guess,base,,FALSE,,1,guessed,add_canonical_base_then_family,draft
+guest,base,guest_en_gb,TRUE,,1,guest,create_or_review_base_family,draft
+guide,base,guide_en_gb,TRUE,,1,guide,create_or_review_base_family,draft
+hair,base,hair_en_gb,TRUE,,1,hair,create_or_review_base_family,draft
+hall,base,hall_en_gb,TRUE,,1,hall,create_or_review_base_family,draft
+happen,base,happen_en_gb,TRUE,,3,happen | happened | happening,create_or_review_base_family,draft
+has,base,has_en_gb,TRUE,,1,hasn't,create_or_review_base_family,draft
+hate,base,,FALSE,,1,hated,add_canonical_base_then_family,draft
+haul,base,haul_en_gb,TRUE,,1,haul,create_or_review_base_family,draft
+have,base,have_en_gb,TRUE,,1,haven't,create_or_review_base_family,draft
+hay,base,hay_en_gb,TRUE,,1,hay,create_or_review_base_family,draft
+he,base,he_en_gb,TRUE,,2,he'll | he's,create_or_review_base_family,draft
+head,base,head_en_gb,TRUE,,1,head,create_or_review_base_family,draft
+heard,base,heard_en_gb,TRUE,,1,heard,create_or_review_base_family,draft
+heart,base,heart_en_gb,TRUE,,1,heart,create_or_review_base_family,draft
+heavy,base,heavy_en_gb,TRUE,,4,heavier | heaviest | heavily | heavy,create_or_review_base_family,draft
+hedge,base,hedge_en_gb,TRUE,,1,hedge,create_or_review_base_family,draft
+heel,base,heel_en_gb,TRUE,,1,heel,create_or_review_base_family,draft
+height,base,height_en_gb,TRUE,,1,height,create_or_review_base_family,draft
+herd,base,herd_en_gb,TRUE,,1,herd,create_or_review_base_family,draft
+here,base,here_en_gb,TRUE,,1,here,create_or_review_base_family,draft
+herit,root,,FALSE,,1,inheritance,review_bound_root_and_create_family,draft
+hesit,root,,FALSE,,1,hesitate,review_bound_root_and_create_family,draft
+hibit,root,,FALSE,,1,exhibition,review_bound_root_and_create_family,draft
+high,base,high_en_gb,TRUE,,1,high,create_or_review_base_family,draft
+hike,base,,FALSE,,1,hiking,add_canonical_base_then_family,draft
+history,base,history_en_gb,TRUE,,1,historically,create_or_review_base_family,draft
+hit,base,,FALSE,,1,hitting,add_canonical_base_then_family,draft
+hold,base,hold_en_gb,TRUE,,1,hold,create_or_review_base_family,draft
+hole,base,hole_en_gb,TRUE,,1,hole,create_or_review_base_family,draft
+home,base,home_en_gb,TRUE,,1,homework,create_or_review_base_family,draft
+hook,base,hook_en_gb,TRUE,,1,hook,create_or_review_base_family,draft
+horn,base,horn_en_gb,TRUE,,1,horn,create_or_review_base_family,draft
+horr,root,,FALSE,,1,horrible,review_bound_root_and_create_family,draft
+hospital,base,hospital_en_gb,TRUE,,1,hospital,create_or_review_base_family,draft
+how,base,how_en_gb,TRUE,,1,how,create_or_review_base_family,draft
+hug,base,hug_en_gb,TRUE,,1,hug,create_or_review_base_family,draft
+humble,base,humble_en_gb,TRUE,,1,humble,create_or_review_base_family,draft
+humour,base,humour_en_gb,TRUE,,1,humour,create_or_review_base_family,draft
+hunt,base,,FALSE,,2,hunter | hunting,add_canonical_base_then_family,draft
+hurry,base,hurry_en_gb,TRUE,,1,hurry,create_or_review_base_family,draft
+hygiene,base,hygiene_en_gb,TRUE,,1,hygiene,create_or_review_base_family,draft
+i,base,i_en_gb,TRUE,,2,i | i'll,create_or_review_base_family,draft
+iatr,root,,FALSE,,1,psychiatrist,review_bound_root_and_create_family,draft
+ice,base,ice_en_gb,TRUE,,1,ice,create_or_review_base_family,draft
+ident,root,,FALSE,,1,identity,review_bound_root_and_create_family,draft
+ignore,base,,FALSE,,2,ignorance | ignorant,add_canonical_base_then_family,draft
+ill,base,,FALSE,,1,illness,add_canonical_base_then_family,draft
+imagine,base,imagine_en_gb,TRUE,,2,imagination | imagine,create_or_review_base_family,draft
+immediate,base,immediate_en_gb,TRUE,,2,immediate | immediately,create_or_review_base_family,draft
+import,base,,FALSE,,1,important,add_canonical_base_then_family,draft
+import,root,,FALSE,,1,importance,review_bound_root_and_create_family,draft
+in,base,in_en_gb,TRUE,,3,in | into | mother-in-law,create_or_review_base_family,draft
+ingredient,base,ingredient_en_gb,TRUE,,1,ingredients,create_or_review_base_family,draft
+intellig,root,,FALSE,,2,intelligence | intelligent,review_bound_root_and_create_family,draft
+interest,base,interest_en_gb,TRUE,,1,interest,create_or_review_base_family,draft
+island,base,island_en_gb,TRUE,,1,island,create_or_review_base_family,draft
+isle,base,isle_en_gb,TRUE,,1,isle,create_or_review_base_family,draft
+it,base,,FALSE,,2,it'll | it's,add_canonical_base_then_family,draft
+jacket,base,jacket_en_gb,TRUE,,1,jacket,create_or_review_base_family,draft
+january,base,january_en_gb,TRUE,,1,january,create_or_review_base_family,draft
+jar,base,jar_en_gb,TRUE,,1,jar,create_or_review_base_family,draft
+jaw,base,jaw_en_gb,TRUE,,1,jaw,create_or_review_base_family,draft
+jealous,base,jealous_en_gb,TRUE,,1,jealous,create_or_review_base_family,draft
+ject,root,,FALSE,,1,injection,review_bound_root_and_create_family,draft
+jog,base,jog_en_gb,TRUE,,1,jogging,create_or_review_base_family,draft
+join,base,join_en_gb,TRUE,,1,join,create_or_review_base_family,draft
+judge,base,judge_en_gb,TRUE,,1,judge,create_or_review_base_family,draft
+judice,root,,FALSE,,1,prejudice,review_bound_root_and_create_family,draft
+july,base,july_en_gb,TRUE,,1,july,create_or_review_base_family,draft
+june,base,june_en_gb,TRUE,,1,june,create_or_review_base_family,draft
+jungle,base,jungle_en_gb,TRUE,,1,jungle,create_or_review_base_family,draft
+just,base,,FALSE,,1,justify,add_canonical_base_then_family,draft
+key,base,key_en_gb,TRUE,,1,keys,create_or_review_base_family,draft
+kick,base,,FALSE,,1,kicking,add_canonical_base_then_family,draft
+kiss,base,kiss_en_gb,TRUE,,1,kisses,create_or_review_base_family,draft
+kitchen,base,kitchen_en_gb,TRUE,,1,kitchen,create_or_review_base_family,draft
+knew,base,knew_en_gb,TRUE,,1,knew,create_or_review_base_family,draft
+knight,base,knight_en_gb,TRUE,,1,knight,create_or_review_base_family,draft
+knot,base,knot_en_gb,TRUE,,1,knot,create_or_review_base_family,draft
+know,base,know_en_gb,TRUE,,1,unknown,create_or_review_base_family,draft
+knowledge,base,knowledge_en_gb,TRUE,,1,knowledge,create_or_review_base_family,draft
+known,base,known_en_gb,TRUE,,2,known | well-known,create_or_review_base_family,draft
+label,base,label_en_gb,TRUE,,1,label,create_or_review_base_family,draft
+laid,base,laid_en_gb,TRUE,,1,laid,create_or_review_base_family,draft
+language,base,language_en_gb,TRUE,,1,language,create_or_review_base_family,draft
+last,base,last_en_gb,TRUE,,1,last,create_or_review_base_family,draft
+launch,base,launch_en_gb,TRUE,,1,launch,create_or_review_base_family,draft
+launder,base,,FALSE,,1,laundry,add_canonical_base_then_family,draft
+law,base,law_en_gb,TRUE,,2,law | mother-in-law,create_or_review_base_family,draft
+lay,base,lay_en_gb,TRUE,,1,lay,create_or_review_base_family,draft
+lead,base,lead_en_gb,TRUE,,1,lead,create_or_review_base_family,draft
+league,base,league_en_gb,TRUE,,1,league,create_or_review_base_family,draft
+led,base,led_en_gb,TRUE,,1,led,create_or_review_base_family,draft
+legal,base,legal_en_gb,TRUE,,1,legal,create_or_review_base_family,draft
+leisure,base,leisure_en_gb,TRUE,,1,leisure,create_or_review_base_family,draft
+length,base,length_en_gb,TRUE,,1,length,create_or_review_base_family,draft
+licence,base,licence_en_gb,TRUE,,1,licence,create_or_review_base_family,draft
+license,base,license_en_gb,TRUE,,1,license,create_or_review_base_family,draft
+lightning,base,lightning_en_gb,TRUE,,1,lightning,create_or_review_base_family,draft
+limb,base,limb_en_gb,TRUE,,1,limb,create_or_review_base_family,draft
+limit,base,limit_en_gb,TRUE,,3,limit | limited | limiting,create_or_review_base_family,draft
+line,base,line_en_gb,TRUE,,1,line,create_or_review_base_family,draft
+listen,base,listen_en_gb,TRUE,,3,listen | listened | listening,create_or_review_base_family,draft
+living,base,living_en_gb,TRUE,,2,living | living room,create_or_review_base_family,draft
+load,base,,FALSE,,1,loads,add_canonical_base_then_family,draft
+logic,base,,FALSE,,1,logical,add_canonical_base_then_family,draft
+long,base,long_en_gb,TRUE,,2,longer | longest,create_or_review_base_family,draft
+loud,base,loud_en_gb,TRUE,,2,loud | louder,create_or_review_base_family,draft
+love,base,love_en_gb,TRUE,,1,lovely,create_or_review_base_family,draft
+luck,base,,FALSE,,2,luckily | lucky,add_canonical_base_then_family,draft
+mail,base,mail_en_gb,TRUE,,1,mail,create_or_review_base_family,draft
+main,base,main_en_gb,TRUE,,1,main,create_or_review_base_family,draft
+male,base,male_en_gb,TRUE,,1,male,create_or_review_base_family,draft
+man,base,,FALSE,,1,man's,add_canonical_base_then_family,draft
+march,base,march_en_gb,TRUE,,1,march,create_or_review_base_family,draft
+marry,base,marry_en_gb,TRUE,,3,married | marry | marrying,create_or_review_base_family,draft
+marshal,base,marshal_en_gb,TRUE,,1,marshal,create_or_review_base_family,draft
+martial,base,martial_en_gb,TRUE,,1,martial,create_or_review_base_family,draft
+mate,base,mate_en_gb,TRUE,,1,mate,create_or_review_base_family,draft
+material,base,material_en_gb,TRUE,,1,material,create_or_review_base_family,draft
+mature,base,mature_en_gb,TRUE,,1,mature,create_or_review_base_family,draft
+mean,base,,FALSE,,1,means,add_canonical_base_then_family,draft
+measure,base,measure_en_gb,TRUE,,1,measure,create_or_review_base_family,draft
+meat,base,meat_en_gb,TRUE,,1,meat,create_or_review_base_family,draft
+mechan,root,,FALSE,,1,mechanic,review_bound_root_and_create_family,draft
+medal,base,medal_en_gb,TRUE,,1,medal,create_or_review_base_family,draft
+medicine,base,medicine_en_gb,TRUE,,1,medicine,create_or_review_base_family,draft
+meet,base,meet_en_gb,TRUE,,1,meet,create_or_review_base_family,draft
+merry,base,merry_en_gb,TRUE,,1,merry,create_or_review_base_family,draft
+mess,base,mess_en_gb,TRUE,,1,mess,create_or_review_base_family,draft
+metal,base,metal_en_gb,TRUE,,1,metal,create_or_review_base_family,draft
+might,base,might_en_gb,TRUE,,1,might,create_or_review_base_family,draft
+migr,root,,FALSE,,1,immigrants,review_bound_root_and_create_family,draft
+minute,base,minute_en_gb,TRUE,,1,minute,create_or_review_base_family,draft
+miss,base,miss_en_gb,TRUE,,1,missed,create_or_review_base_family,draft
+miss,root,miss_en_gb,TRUE,,3,admission | permission | transmission,review_bound_root_and_create_family,draft
+mit,root,,FALSE,,1,committee,review_bound_root_and_create_family,draft
+mix,base,,FALSE,,3,mixed | mixing | mixture,add_canonical_base_then_family,draft
+mobile,base,,FALSE,,1,automobile,add_canonical_base_then_family,draft
+monday,base,monday_en_gb,TRUE,,1,monday,create_or_review_base_family,draft
+monkey,base,monkey_en_gb,TRUE,,2,monkey | monkeys,create_or_review_base_family,draft
+month,base,month_en_gb,TRUE,,1,month,create_or_review_base_family,draft
+morning,base,morning_en_gb,TRUE,,1,morning,create_or_review_base_family,draft
+mort,root,,FALSE,,1,immortal,review_bound_root_and_create_family,draft
+mosque,base,mosque_en_gb,TRUE,,1,mosque,create_or_review_base_family,draft
+most,base,most_en_gb,TRUE,,1,most,create_or_review_base_family,draft
+mother,base,mother_en_gb,TRUE,,2,grandmother | mother-in-law,create_or_review_base_family,draft
+motion,base,motion_en_gb,TRUE,,1,motion,create_or_review_base_family,draft
+mourn,base,,FALSE,,1,mourning,add_canonical_base_then_family,draft
+mouth,base,mouth_en_gb,TRUE,,1,mouth,create_or_review_base_family,draft
+move,base,move_en_gb,TRUE,,1,movement,create_or_review_base_family,draft
+mr,base,mr_en_gb,TRUE,,1,mr,create_or_review_base_family,draft
+mrs,base,mrs_en_gb,TRUE,,1,mrs,create_or_review_base_family,draft
+muscle,base,muscle_en_gb,TRUE,,1,muscle,create_or_review_base_family,draft
+myst,root,,FALSE,,1,mystery,review_bound_root_and_create_family,draft
+myth,base,myth_en_gb,TRUE,,1,myth,create_or_review_base_family,draft
+nail,base,nail_en_gb,TRUE,,1,nail,create_or_review_base_family,draft
+name,base,name_en_gb,TRUE,,1,name,create_or_review_base_family,draft
+nation,base,nation_en_gb,TRUE,,2,international | nation,create_or_review_base_family,draft
+naughty,base,naughty_en_gb,TRUE,,1,naughty,create_or_review_base_family,draft
+near,base,near_en_gb,TRUE,,1,nearly,create_or_review_base_family,draft
+necess,root,,FALSE,,1,necessary,review_bound_root_and_create_family,draft
+need,base,need_en_gb,TRUE,,1,need,create_or_review_base_family,draft
+new,base,new_en_gb,TRUE,,1,renew,create_or_review_base_family,draft
+nine,base,nine_en_gb,TRUE,,1,nine,create_or_review_base_family,draft
+no,base,no_en_gb,TRUE,,1,nothing,create_or_review_base_family,draft
+noble,base,noble_en_gb,TRUE,,1,noble,create_or_review_base_family,draft
+noc,root,,FALSE,,2,innocence | innocent,review_bound_root_and_create_family,draft
+not,base,not_en_gb,TRUE,,1,not,create_or_review_base_family,draft
+note,base,note_en_gb,TRUE,,1,note,create_or_review_base_family,draft
+notice,base,notice_en_gb,TRUE,,2,notice | noticeable,create_or_review_base_family,draft
+november,base,november_en_gb,TRUE,,1,november,create_or_review_base_family,draft
+numer,root,,FALSE,,1,numerous,review_bound_root_and_create_family,draft
+obey,base,obey_en_gb,TRUE,,1,obey,create_or_review_base_family,draft
+observe,base,observe_en_gb,TRUE,,2,observation | observe,create_or_review_base_family,draft
+obsess,base,,FALSE,,1,obsession,add_canonical_base_then_family,draft
+obvious,base,obvious_en_gb,TRUE,,1,obvious,create_or_review_base_family,draft
+occasion,base,occasion_en_gb,TRUE,,2,occasion | occasionally,create_or_review_base_family,draft
+occupy,base,occupy_en_gb,TRUE,,1,occupy,create_or_review_base_family,draft
+occur,base,occur_en_gb,TRUE,,3,occurred | occurrence | occurring,create_or_review_base_family,draft
+october,base,october_en_gb,TRUE,,1,october,create_or_review_base_family,draft
+offer,base,offer_en_gb,TRUE,,3,offer | offered | offering,create_or_review_base_family,draft
+office,base,office_en_gb,TRUE,,2,office | post office,create_or_review_base_family,draft
+often,base,often_en_gb,TRUE,,1,often,create_or_review_base_family,draft
+oil,base,oil_en_gb,TRUE,,1,oil,create_or_review_base_family,draft
+old,base,old_en_gb,TRUE,,2,older | oldest,create_or_review_base_family,draft
+only,base,only_en_gb,TRUE,,1,only,create_or_review_base_family,draft
+open,base,,FALSE,,1,opening,add_canonical_base_then_family,draft
+oper,root,,FALSE,,1,operation,review_bound_root_and_create_family,draft
+operate,base,,FALSE,,1,co-operate,add_canonical_base_then_family,draft
+opportune,base,,FALSE,,1,opportunity,add_canonical_base_then_family,draft
+opposite,base,opposite_en_gb,TRUE,,1,opposite,create_or_review_base_family,draft
+orchestr,root,,FALSE,,1,orchestra,review_bound_root_and_create_family,draft
+ordin,root,,FALSE,,1,ordinary,review_bound_root_and_create_family,draft
+organise,base,,FALSE,,1,organisation,add_canonical_base_then_family,draft
+other,base,other_en_gb,TRUE,,1,other,create_or_review_base_family,draft
+ought,base,ought_en_gb,TRUE,,1,ought,create_or_review_base_family,draft
+our,base,our_en_gb,TRUE,,1,our,create_or_review_base_family,draft
+outrage,base,,FALSE,,1,outrageous,add_canonical_base_then_family,draft
+over,base,over_en_gb,TRUE,,1,over,create_or_review_base_family,draft
+overlie,base,,FALSE,,1,overlying,add_canonical_base_then_family,draft
+own,base,own_en_gb,TRUE,,1,co-own,create_or_review_base_family,draft
+oxygen,base,oxygen_en_gb,TRUE,,1,oxygen,create_or_review_base_family,draft
+pace,base,pace_en_gb,TRUE,,1,pace,create_or_review_base_family,draft
+paid,base,paid_en_gb,TRUE,,1,paid,create_or_review_base_family,draft
+pain,base,pain_en_gb,TRUE,,2,pain | painful,create_or_review_base_family,draft
+pair,base,pair_en_gb,TRUE,,1,pair,create_or_review_base_family,draft
+par,root,,FALSE,,2,transparency | transparent,review_bound_root_and_create_family,draft
+parent,base,,FALSE,,1,parents,add_canonical_base_then_family,draft
+parliament,base,parliament_en_gb,TRUE,,1,parliament,create_or_review_base_family,draft
+part,base,part_en_gb,TRUE,,2,part | part-time,create_or_review_base_family,draft
+part,root,part_en_gb,TRUE,,1,particular,review_bound_root_and_create_family,draft
+party,base,party_en_gb,TRUE,,1,party,create_or_review_base_family,draft
+pass,base,pass_en_gb,TRUE,,1,pass,create_or_review_base_family,draft
+pat,base,pat_en_gb,TRUE,,1,pat,create_or_review_base_family,draft
+patience,base,patience_en_gb,TRUE,,1,patience,create_or_review_base_family,draft
+patient,base,patient_en_gb,TRUE,,1,patient,create_or_review_base_family,draft
+pause,base,pause_en_gb,TRUE,,1,pause,create_or_review_base_family,draft
+pay,base,pay_en_gb,TRUE,,1,pay,create_or_review_base_family,draft
+pencil,base,pencil_en_gb,TRUE,,1,pencil,create_or_review_base_family,draft
+pend,root,,FALSE,,3,depend | independence | independent,review_bound_root_and_create_family,draft
+pension,base,pension_en_gb,TRUE,,1,pension,create_or_review_base_family,draft
+perhaps,base,perhaps_en_gb,TRUE,,1,perhaps,create_or_review_base_family,draft
+permit,base,permit_en_gb,TRUE,,1,permit,create_or_review_base_family,draft
+persuade,base,persuade_en_gb,TRUE,,1,persuade,create_or_review_base_family,draft
+phys,root,,FALSE,,2,physical | physician,review_bound_root_and_create_family,draft
+pierce,base,pierce_en_gb,TRUE,,1,pierce,create_or_review_base_family,draft
+plague,base,plague_en_gb,TRUE,,1,plague,create_or_review_base_family,draft
+plant,base,plant_en_gb,TRUE,,1,plant,create_or_review_base_family,draft
+plaque,base,plaque_en_gb,TRUE,,1,plaque,create_or_review_base_family,draft
+ple,root,,FALSE,,1,complement,review_bound_root_and_create_family,draft
+please,base,please_en_gb,TRUE,,1,pleasure,create_or_review_base_family,draft
+plos,root,,FALSE,,1,explosion,review_bound_root_and_create_family,draft
+pneumonia,base,pneumonia_en_gb,TRUE,,1,pneumonia,create_or_review_base_family,draft
+polite,base,polite_en_gb,TRUE,,1,polite,create_or_review_base_family,draft
+pollute,base,,FALSE,,1,pollution,add_canonical_base_then_family,draft
+poor,base,poor_en_gb,TRUE,,1,poor,create_or_review_base_family,draft
+popul,root,,FALSE,,1,population,review_bound_root_and_create_family,draft
+pose,base,,FALSE,,1,suppose,add_canonical_base_then_family,draft
+posit,base,,FALSE,,1,position,add_canonical_base_then_family,draft
+poss,root,,FALSE,,1,possibly,review_bound_root_and_create_family,draft
+possess,base,possess_en_gb,TRUE,,2,possess | possession,create_or_review_base_family,draft
+post,base,post_en_gb,TRUE,,1,post office,create_or_review_base_family,draft
+potato,base,,FALSE,,1,potatoes,add_canonical_base_then_family,draft
+pract,root,,FALSE,,1,practice,review_bound_root_and_create_family,draft
+preci,root,,FALSE,,1,appreciate,review_bound_root_and_create_family,draft
+prefer,base,prefer_en_gb,TRUE,,3,prefer | preference | preferred,create_or_review_base_family,draft
+prehend,root,,FALSE,,1,comprehend,review_bound_root_and_create_family,draft
+prepare,base,,FALSE,,1,preparation,add_canonical_base_then_family,draft
+press,base,,FALSE,,3,expression | impression | pressure,add_canonical_base_then_family,draft
+pretty,base,pretty_en_gb,TRUE,,2,prettier | prettiest,create_or_review_base_family,draft
+prince,base,prince_en_gb,TRUE,,2,prince | princess,create_or_review_base_family,draft
+principal,base,principal_en_gb,TRUE,,1,principal,create_or_review_base_family,draft
+principle,base,principle_en_gb,TRUE,,1,principle,create_or_review_base_family,draft
+privilege,base,privilege_en_gb,TRUE,,1,privilege,create_or_review_base_family,draft
+prob,root,,FALSE,,2,probable | probably,review_bound_root_and_create_family,draft
+proceed,base,proceed_en_gb,TRUE,,1,proceed,create_or_review_base_family,draft
+profit,base,profit_en_gb,TRUE,,1,profit,create_or_review_base_family,draft
+programme,base,programme_en_gb,TRUE,,1,programme,create_or_review_base_family,draft
+prophet,base,prophet_en_gb,TRUE,,1,prophet,create_or_review_base_family,draft
+proud,base,,FALSE,,1,proudly,add_canonical_base_then_family,draft
+prove,base,prove_en_gb,TRUE,,1,improve,create_or_review_base_family,draft
+psych,root,,FALSE,,2,psychiatrist | psychology,review_bound_root_and_create_family,draft
+public,base,public_en_gb,TRUE,,1,publicly,create_or_review_base_family,draft
+purpose,base,purpose_en_gb,TRUE,,1,purpose,create_or_review_base_family,draft
+put,base,put_en_gb,TRUE,,1,putting,create_or_review_base_family,draft
+puzzle,base,puzzle_en_gb,TRUE,,1,puzzle,create_or_review_base_family,draft
+pyramid,base,pyramid_en_gb,TRUE,,1,pyramid,create_or_review_base_family,draft
+quad,base,quad_en_gb,TRUE,,1,quad,create_or_review_base_family,draft
+quant,root,,FALSE,,1,quantity,review_bound_root_and_create_family,draft
+queue,base,queue_en_gb,TRUE,,1,queue,create_or_review_base_family,draft
+quiet,base,quiet_en_gb,TRUE,,2,quiet | quietly,create_or_review_base_family,draft
+quite,base,quite_en_gb,TRUE,,1,quite,create_or_review_base_family,draft
+race,base,race_en_gb,TRUE,,2,race | racial,create_or_review_base_family,draft
+rage,base,rage_en_gb,TRUE,,1,rage,create_or_review_base_family,draft
+rain,base,rain_en_gb,TRUE,,1,rainbow,create_or_review_base_family,draft
+raw,base,raw_en_gb,TRUE,,1,raw,create_or_review_base_family,draft
+reason,base,reason_en_gb,TRUE,,3,reason | reasonable | reasonably,create_or_review_base_family,draft
+receipt,base,receipt_en_gb,TRUE,,1,receipt,create_or_review_base_family,draft
+recent,base,recent_en_gb,TRUE,,1,recent,create_or_review_base_family,draft
+recognise,base,recognise_en_gb,TRUE,,1,recognise,create_or_review_base_family,draft
+red,base,red_en_gb,TRUE,,2,redder | reddest,create_or_review_base_family,draft
+refer,base,refer_en_gb,TRUE,,5,refer | referee | reference | referred | referring,create_or_review_base_family,draft
+regret,base,regret_en_gb,TRUE,,1,regret,create_or_review_base_family,draft
+regul,root,,FALSE,,2,regular | regularly,review_bound_root_and_create_family,draft
+reign,base,reign_en_gb,TRUE,,1,reign,create_or_review_base_family,draft
+relate,base,relate_en_gb,TRUE,,2,relate | relation,create_or_review_base_family,draft
+relev,root,,FALSE,,2,irrelevant | relevant,review_bound_root_and_create_family,draft
+relevant,base,relevant_en_gb,TRUE,,1,relevance,create_or_review_base_family,draft
+reluctant,base,reluctant_en_gb,TRUE,,1,reluctant,create_or_review_base_family,draft
+rely,base,,FALSE,,3,reliable | relied | relies,add_canonical_base_then_family,draft
+remark,base,,FALSE,,1,remarkably,add_canonical_base_then_family,draft
+repeat,base,,FALSE,,1,repeated,add_canonical_base_then_family,draft
+reply,base,reply_en_gb,TRUE,,2,replied | reply,create_or_review_base_family,draft
+reside,base,,FALSE,,1,residence,add_canonical_base_then_family,draft
+resident,base,,FALSE,,1,residential,add_canonical_base_then_family,draft
+resign,base,resign_en_gb,TRUE,,1,resign,create_or_review_base_family,draft
+respect,base,,FALSE,,2,respectable | respectful,add_canonical_base_then_family,draft
+respons,root,,FALSE,,1,responsible,review_bound_root_and_create_family,draft
+restaurant,base,restaurant_en_gb,TRUE,,1,restaurant,create_or_review_base_family,draft
+retie,base,,FALSE,,1,retying,add_canonical_base_then_family,draft
+retrieve,base,retrieve_en_gb,TRUE,,1,retrieve,create_or_review_base_family,draft
+rhythm,base,rhythm_en_gb,TRUE,,1,rhythm,create_or_review_base_family,draft
+rich,base,rich_en_gb,TRUE,,1,richer,create_or_review_base_family,draft
+ride,base,ride_en_gb,TRUE,,2,ride | riding,create_or_review_base_family,draft
+ridicule,base,,FALSE,,1,ridiculous,add_canonical_base_then_family,draft
+rob,base,rob_en_gb,TRUE,,2,rob | robbed,create_or_review_base_family,draft
+rogue,base,rogue_en_gb,TRUE,,1,rogue,create_or_review_base_family,draft
+roof,base,roof_en_gb,TRUE,,1,roof,create_or_review_base_family,draft
+room,base,room_en_gb,TRUE,,2,living room | room,create_or_review_base_family,draft
+round,base,round_en_gb,TRUE,,1,round,create_or_review_base_family,draft
+sack,base,sack_en_gb,TRUE,,1,sack,create_or_review_base_family,draft
+sacr,root,,FALSE,,1,sacrifice,review_bound_root_and_create_family,draft
+safe,base,safe_en_gb,TRUE,,3,safe | safer | safest,create_or_review_base_family,draft
+sail,base,sail_en_gb,TRUE,,1,sail,create_or_review_base_family,draft
+sank,base,sank_en_gb,TRUE,,1,sank,create_or_review_base_family,draft
+saturday,base,saturday_en_gb,TRUE,,1,saturday,create_or_review_base_family,draft
+saur,root,,FALSE,,1,dinosaur,review_bound_root_and_create_family,draft
+save,base,,FALSE,,1,saving,add_canonical_base_then_family,draft
+scare,base,scare_en_gb,TRUE,,2,scare | scary,create_or_review_base_family,draft
+scenario,base,scenario_en_gb,TRUE,,1,scenario,create_or_review_base_family,draft
+scent,root,scent_en_gb,TRUE,,1,descent,review_bound_root_and_create_family,draft
+scheme,base,scheme_en_gb,TRUE,,1,scheme,create_or_review_base_family,draft
+sci,root,,FALSE,,1,scientist,review_bound_root_and_create_family,draft
+scribe,root,,FALSE,,1,describe,review_bound_root_and_create_family,draft
+scroll,base,,FALSE,,1,scrolling,add_canonical_base_then_family,draft
+sculpt,base,,FALSE,,1,sculpture,add_canonical_base_then_family,draft
+secretary,base,secretary_en_gb,TRUE,,1,secretary,create_or_review_base_family,draft
+sect,root,,FALSE,,1,section,review_bound_root_and_create_family,draft
+see,base,see_en_gb,TRUE,,1,seen,create_or_review_base_family,draft
+seize,base,seize_en_gb,TRUE,,1,seize,create_or_review_base_family,draft
+sens,root,,FALSE,,1,sensation,review_bound_root_and_create_family,draft
+sense,base,,FALSE,,1,sensible,add_canonical_base_then_family,draft
+sentence,base,sentence_en_gb,TRUE,,1,sentence,create_or_review_base_family,draft
+september,base,september_en_gb,TRUE,,1,september,create_or_review_base_family,draft
+seri,root,,FALSE,,1,serial,review_bound_root_and_create_family,draft
+serious,base,serious_en_gb,TRUE,,1,serious,create_or_review_base_family,draft
+session,base,session_en_gb,TRUE,,1,session,create_or_review_base_family,draft
+she,base,she_en_gb,TRUE,,2,she | she'll,create_or_review_base_family,draft
+shine,base,shine_en_gb,TRUE,,3,shine | shining | shiny,create_or_review_base_family,draft
+shop,base,shop_en_gb,TRUE,,1,shopping,create_or_review_base_family,draft
+should,base,should_en_gb,TRUE,,2,should've | shouldn't,create_or_review_base_family,draft
+shoulder,base,shoulder_en_gb,TRUE,,1,shoulder,create_or_review_base_family,draft
+shy,base,shy_en_gb,TRUE,,1,shy,create_or_review_base_family,draft
+side,base,side_en_gb,TRUE,,1,side,create_or_review_base_family,draft
+siege,base,siege_en_gb,TRUE,,1,siege,create_or_review_base_family,draft
+sight,base,sight_en_gb,TRUE,,1,sight,create_or_review_base_family,draft
+simple,base,simple_en_gb,TRUE,,1,simply,create_or_review_base_family,draft
+sincere,base,sincere_en_gb,TRUE,,2,sincere | sincerely,create_or_review_base_family,draft
+sing,base,sing_en_gb,TRUE,,2,singer | singing,create_or_review_base_family,draft
+sir,base,sir_en_gb,TRUE,,1,sir,create_or_review_base_family,draft
+sist,root,,FALSE,,1,consistent,review_bound_root_and_create_family,draft
+sister,base,sister_en_gb,TRUE,,1,sister,create_or_review_base_family,draft
+site,base,site_en_gb,TRUE,,1,site,create_or_review_base_family,draft
+situate,base,,FALSE,,1,situation,add_canonical_base_then_family,draft
+size,base,size_en_gb,TRUE,,1,size,create_or_review_base_family,draft
+sketch,base,sketch_en_gb,TRUE,,1,sketch,create_or_review_base_family,draft
+skin,base,skin_en_gb,TRUE,,1,skin,create_or_review_base_family,draft
+skip,base,skip_en_gb,TRUE,,1,skipping,create_or_review_base_family,draft
+skirt,base,skirt_en_gb,TRUE,,1,skirt,create_or_review_base_family,draft
+slaughter,base,slaughter_en_gb,TRUE,,1,slaughter,create_or_review_base_family,draft
+slip,base,,FALSE,,1,slipping,add_canonical_base_then_family,draft
+soci,root,,FALSE,,1,society,review_bound_root_and_create_family,draft
+soldier,base,soldier_en_gb,TRUE,,1,soldier,create_or_review_base_family,draft
+some,base,some_en_gb,TRUE,,1,some,create_or_review_base_family,draft
+son,base,son_en_gb,TRUE,,1,son,create_or_review_base_family,draft
+soon,base,soon_en_gb,TRUE,,1,soon,create_or_review_base_family,draft
+sore,base,sore_en_gb,TRUE,,1,sore,create_or_review_base_family,draft
+sort,base,sort_en_gb,TRUE,,1,sort,create_or_review_base_family,draft
+sought,base,sought_en_gb,TRUE,,1,sought,create_or_review_base_family,draft
+sovereign,base,sovereign_en_gb,TRUE,,1,sovereign,create_or_review_base_family,draft
+space,base,,FALSE,,1,spatial,add_canonical_base_then_family,draft
+spare,base,spare_en_gb,TRUE,,1,spare,create_or_review_base_family,draft
+spear,base,spear_en_gb,TRUE,,1,spear,create_or_review_base_family,draft
+special,base,special_en_gb,TRUE,,1,specially,create_or_review_base_family,draft
+species,base,species_en_gb,TRUE,,1,species,create_or_review_base_family,draft
+spin,base,spin_en_gb,TRUE,,1,spinning,create_or_review_base_family,draft
+spontane,root,,FALSE,,1,spontaneous,review_bound_root_and_create_family,draft
+sport,base,sport_en_gb,TRUE,,1,sport,create_or_review_base_family,draft
+spy,base,spy_en_gb,TRUE,,2,spies | spy,create_or_review_base_family,draft
+stack,base,stack_en_gb,TRUE,,1,stack,create_or_review_base_family,draft
+stall,base,stall_en_gb,TRUE,,1,stall,create_or_review_base_family,draft
+stand,base,,FALSE,,1,understand,add_canonical_base_then_family,draft
+star,base,star_en_gb,TRUE,,1,superstar,create_or_review_base_family,draft
+stare,base,stare_en_gb,TRUE,,1,stare,create_or_review_base_family,draft
+steal,base,steal_en_gb,TRUE,,1,steal,create_or_review_base_family,draft
+steel,base,steel_en_gb,TRUE,,1,steel,create_or_review_base_family,draft
+stir,base,stir_en_gb,TRUE,,1,stir,create_or_review_base_family,draft
+stomach,base,stomach_en_gb,TRUE,,1,stomach,create_or_review_base_family,draft
+straight,base,straight_en_gb,TRUE,,1,straight,create_or_review_base_family,draft
+strange,base,strange_en_gb,TRUE,,1,stranger,create_or_review_base_family,draft
+straw,base,straw_en_gb,TRUE,,1,straw,create_or_review_base_family,draft
+strength,base,strength_en_gb,TRUE,,1,strength,create_or_review_base_family,draft
+struct,root,,FALSE,,1,construction,review_bound_root_and_create_family,draft
+study,base,study_en_gb,TRUE,,3,studied | study | studying,create_or_review_base_family,draft
+submit,base,submit_en_gb,TRUE,,2,submission | submit,create_or_review_base_family,draft
+substant,root,,FALSE,,1,substantial,review_bound_root_and_create_family,draft
+success,base,,FALSE,,1,successfully,add_canonical_base_then_family,draft
+suffer,base,suffer_en_gb,TRUE,,2,suffer | suffered,create_or_review_base_family,draft
+suffici,root,,FALSE,,1,sufficient,review_bound_root_and_create_family,draft
+sugar,base,sugar_en_gb,TRUE,,1,sugar,create_or_review_base_family,draft
+suggest,base,suggest_en_gb,TRUE,,1,suggest,create_or_review_base_family,draft
+suite,base,suite_en_gb,TRUE,,1,suite,create_or_review_base_family,draft
+summ,root,,FALSE,,1,summary,review_bound_root_and_create_family,draft
+sunday,base,sunday_en_gb,TRUE,,1,sunday,create_or_review_base_family,draft
+sure,base,sure_en_gb,TRUE,,1,sure,create_or_review_base_family,draft
+surf,base,surf_en_gb,TRUE,,1,surf,create_or_review_base_family,draft
+surprise,base,surprise_en_gb,TRUE,,1,surprise,create_or_review_base_family,draft
+suspens,root,,FALSE,,1,suspension,review_bound_root_and_create_family,draft
+suspici,root,,FALSE,,1,suspicious,review_bound_root_and_create_family,draft
+swallow,base,swallow_en_gb,TRUE,,1,swallow,create_or_review_base_family,draft
+swan,base,swan_en_gb,TRUE,,1,swan,create_or_review_base_family,draft
+swear,base,swear_en_gb,TRUE,,1,swear,create_or_review_base_family,draft
+symbol,base,symbol_en_gb,TRUE,,1,symbol,create_or_review_base_family,draft
+syrup,base,syrup_en_gb,TRUE,,1,syrup,create_or_review_base_family,draft
+system,base,system_en_gb,TRUE,,1,system,create_or_review_base_family,draft
+tain,root,,FALSE,,1,containing,review_bound_root_and_create_family,draft
+tap,base,tap_en_gb,TRUE,,1,tapping,create_or_review_base_family,draft
+tape,base,tape_en_gb,TRUE,,1,tape,create_or_review_base_family,draft
+target,base,target_en_gb,TRUE,,2,target | targeted,create_or_review_base_family,draft
+tea,base,tea_en_gb,TRUE,,1,tea,create_or_review_base_family,draft
+tear,base,tear_en_gb,TRUE,,1,tear,create_or_review_base_family,draft
+techn,root,,FALSE,,2,technician | technology,review_bound_root_and_create_family,draft
+temper,base,,FALSE,,1,temperature,add_canonical_base_then_family,draft
+tempt,base,,FALSE,,1,temptation,add_canonical_base_then_family,draft
+tend,root,,FALSE,,1,extend,review_bound_root_and_create_family,draft
+tense,base,tense_en_gb,TRUE,,1,tense,create_or_review_base_family,draft
+terr,root,,FALSE,,2,terrible | terribly,review_bound_root_and_create_family,draft
+texture,base,texture_en_gb,TRUE,,1,texture,create_or_review_base_family,draft
+there,base,there_en_gb,TRUE,,1,therefore,create_or_review_base_family,draft
+they,base,they_en_gb,TRUE,,2,they're | they've,create_or_review_base_family,draft
+thief,base,thief_en_gb,TRUE,,1,thief,create_or_review_base_family,draft
+thin,base,thin_en_gb,TRUE,,2,thinner | thinnest,create_or_review_base_family,draft
+thing,base,thing_en_gb,TRUE,,1,nothing,create_or_review_base_family,draft
+think,base,think_en_gb,TRUE,,1,think,create_or_review_base_family,draft
+thorough,base,thorough_en_gb,TRUE,,2,thorough | thoroughly,create_or_review_base_family,draft
+those,base,those_en_gb,TRUE,,1,those,create_or_review_base_family,draft
+though,base,though_en_gb,TRUE,,1,though,create_or_review_base_family,draft
+thought,base,thought_en_gb,TRUE,,2,thought | thoughtful,create_or_review_base_family,draft
+threw,base,threw_en_gb,TRUE,,1,threw,create_or_review_base_family,draft
+through,base,through_en_gb,TRUE,,1,breakthrough,create_or_review_base_family,draft
+thursday,base,thursday_en_gb,TRUE,,1,thursday,create_or_review_base_family,draft
+tight,base,tight_en_gb,TRUE,,1,tight,create_or_review_base_family,draft
+time,base,time_en_gb,TRUE,,1,part-time,create_or_review_base_family,draft
+tissue,base,tissue_en_gb,TRUE,,1,tissue,create_or_review_base_family,draft
+to,base,to_en_gb,TRUE,,2,into | today,create_or_review_base_family,draft
+told,base,told_en_gb,TRUE,,1,told,create_or_review_base_family,draft
+toler,root,,FALSE,,1,tolerate,review_bound_root_and_create_family,draft
+tolerate,base,tolerate_en_gb,TRUE,,1,tolerance,create_or_review_base_family,draft
+tomb,base,tomb_en_gb,TRUE,,1,tomb,create_or_review_base_family,draft
+tongue,base,tongue_en_gb,TRUE,,1,tongue,create_or_review_base_family,draft
+took,base,took_en_gb,TRUE,,1,took,create_or_review_base_family,draft
+tore,base,tore_en_gb,TRUE,,1,tore,create_or_review_base_family,draft
+total,base,total_en_gb,TRUE,,1,total,create_or_review_base_family,draft
+touch,base,touch_en_gb,TRUE,,1,touch,create_or_review_base_family,draft
+towel,base,towel_en_gb,TRUE,,1,towel,create_or_review_base_family,draft
+town,base,town_en_gb,TRUE,,1,town,create_or_review_base_family,draft
+tract,root,,FALSE,,1,attraction,review_bound_root_and_create_family,draft
+transfer,base,transfer_en_gb,TRUE,,3,transfer | transferred | transferring,create_or_review_base_family,draft
+translate,base,translate_en_gb,TRUE,,2,translate | translation,create_or_review_base_family,draft
+travel,base,travel_en_gb,TRUE,,2,travel | travelling,create_or_review_base_family,draft
+treasure,base,treasure_en_gb,TRUE,,1,treasure,create_or_review_base_family,draft
+tremendous,base,tremendous_en_gb,TRUE,,1,tremendous,create_or_review_base_family,draft
+trip,base,trip_en_gb,TRUE,,1,trip,create_or_review_base_family,draft
+trouble,base,trouble_en_gb,TRUE,,1,trouble,create_or_review_base_family,draft
+true,base,true_en_gb,TRUE,,1,truly,create_or_review_base_family,draft
+tube,base,tube_en_gb,TRUE,,1,tube,create_or_review_base_family,draft
+tuesday,base,tuesday_en_gb,TRUE,,1,tuesday,create_or_review_base_family,draft
+tunnel,base,tunnel_en_gb,TRUE,,1,tunnel,create_or_review_base_family,draft
+turn,base,turn_en_gb,TRUE,,1,return,create_or_review_base_family,draft
+twenty,base,twenty_en_gb,TRUE,,1,twenty,create_or_review_base_family,draft
+type,base,,FALSE,,1,typical,add_canonical_base_then_family,draft
+uncle,base,uncle_en_gb,TRUE,,1,uncle,create_or_review_base_family,draft
+under,base,under_en_gb,TRUE,,1,under,create_or_review_base_family,draft
+underlie,base,,FALSE,,1,underlying,add_canonical_base_then_family,draft
+understand,base,understand_en_gb,TRUE,,1,understandable,create_or_review_base_family,draft
+untie,base,untie_en_gb,TRUE,,1,untying,create_or_review_base_family,draft
+usual,base,usual_en_gb,TRUE,,1,usual,create_or_review_base_family,draft
+vari,root,,FALSE,,1,variety,review_bound_root_and_create_family,draft
+variety,base,variety_en_gb,TRUE,,1,varieties,create_or_review_base_family,draft
+vary,base,,FALSE,,3,varied | varies | various,add_canonical_base_then_family,draft
+vas,root,,FALSE,,1,invasion,review_bound_root_and_create_family,draft
+vehicle,base,vehicle_en_gb,TRUE,,1,vehicle,create_or_review_base_family,draft
+vein,base,vein_en_gb,TRUE,,1,vein,create_or_review_base_family,draft
+verb,base,verb_en_gb,TRUE,,1,verb,create_or_review_base_family,draft
+vers,root,,FALSE,,1,controversy,review_bound_root_and_create_family,draft
+very,base,very_en_gb,TRUE,,1,very,create_or_review_base_family,draft
+vey,root,,FALSE,,1,survey,review_bound_root_and_create_family,draft
+vicious,base,vicious_en_gb,TRUE,,1,vicious,create_or_review_base_family,draft
+viol,root,,FALSE,,1,violence,review_bound_root_and_create_family,draft
+vis,root,,FALSE,,3,invisible | supervision | television,review_bound_root_and_create_family,draft
+visit,base,visit_en_gb,TRUE,,3,visit | visited | visiting,create_or_review_base_family,draft
+voc,root,,FALSE,,1,vocabulary,review_bound_root_and_create_family,draft
+waist,base,waist_en_gb,TRUE,,1,waist,create_or_review_base_family,draft
+wall,base,wall_en_gb,TRUE,,1,wall,create_or_review_base_family,draft
+was,base,was_en_gb,TRUE,,1,wasn't,create_or_review_base_family,draft
+wash,base,wash_en_gb,TRUE,,1,washing,create_or_review_base_family,draft
+waste,base,waste_en_gb,TRUE,,1,waste,create_or_review_base_family,draft
+water,base,water_en_gb,TRUE,,1,water,create_or_review_base_family,draft
+way,base,way_en_gb,TRUE,,1,subway,create_or_review_base_family,draft
+we,base,we_en_gb,TRUE,,2,we'll | we've,create_or_review_base_family,draft
+weather,base,weather_en_gb,TRUE,,1,weather,create_or_review_base_family,draft
+wednesday,base,wednesday_en_gb,TRUE,,1,wednesday,create_or_review_base_family,draft
+week,base,,FALSE,,1,weekend,add_canonical_base_then_family,draft
+weird,base,weird_en_gb,TRUE,,1,weird,create_or_review_base_family,draft
+well,base,well_en_gb,TRUE,,2,well | well-known,create_or_review_base_family,draft
+were,base,were_en_gb,TRUE,,1,weren't,create_or_review_base_family,draft
+wet,base,wet_en_gb,TRUE,,3,wet | wetter | wettest,create_or_review_base_family,draft
+whale,base,whale_en_gb,TRUE,,1,whale,create_or_review_base_family,draft
+wheel,base,wheel_en_gb,TRUE,,1,wheel,create_or_review_base_family,draft
+where,base,where_en_gb,TRUE,,1,everywhere,create_or_review_base_family,draft
+whether,base,whether_en_gb,TRUE,,1,whether,create_or_review_base_family,draft
+which,base,which_en_gb,TRUE,,1,which,create_or_review_base_family,draft
+while,base,while_en_gb,TRUE,,1,while,create_or_review_base_family,draft
+whistle,base,whistle_en_gb,TRUE,,1,whistle,create_or_review_base_family,draft
+white,base,white_en_gb,TRUE,,1,white,create_or_review_base_family,draft
+who,base,who_en_gb,TRUE,,1,who's,create_or_review_base_family,draft
+whole,base,whole_en_gb,TRUE,,1,wholly,create_or_review_base_family,draft
+why,base,why_en_gb,TRUE,,1,why,create_or_review_base_family,draft
+wide,base,wide_en_gb,TRUE,,3,wide | wider | widest,create_or_review_base_family,draft
+win,base,win_en_gb,TRUE,,1,winning,create_or_review_base_family,draft
+winter,base,winter_en_gb,TRUE,,1,winter,create_or_review_base_family,draft
+witch,base,witch_en_gb,TRUE,,1,witch,create_or_review_base_family,draft
+woke,base,woke_en_gb,TRUE,,1,woke,create_or_review_base_family,draft
+woman,base,woman_en_gb,TRUE,,1,women,create_or_review_base_family,draft
+won,base,won_en_gb,TRUE,,1,won,create_or_review_base_family,draft
+wood,base,wood_en_gb,TRUE,,1,wood,create_or_review_base_family,draft
+wore,base,wore_en_gb,TRUE,,1,wore,create_or_review_base_family,draft
+worry,base,worry_en_gb,TRUE,,3,worried | worry | worrying,create_or_review_base_family,draft
+would,base,would_en_gb,TRUE,,1,wouldn't,create_or_review_base_family,draft
+wreck,base,wreck_en_gb,TRUE,,1,wreck,create_or_review_base_family,draft
+wrestle,base,,FALSE,,1,wrestling,add_canonical_base_then_family,draft
+wrote,base,wrote_en_gb,TRUE,,1,wrote,create_or_review_base_family,draft
+yacht,base,yacht_en_gb,TRUE,,1,yacht,create_or_review_base_family,draft
+you,base,you_en_gb,TRUE,,3,you'll | you're | you've,create_or_review_base_family,draft
+young,base,young_en_gb,TRUE,,1,young,create_or_review_base_family,draft
