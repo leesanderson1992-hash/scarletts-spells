@@ -1,0 +1,53 @@
+.shell {
+  min-height: 100vh;
+  padding: clamp(1rem, 2.5vw, 2.5rem);
+  color: #26334c;
+  background: radial-gradient(circle at 85% 8%, #ffe4f3 0, transparent 30%), #f8f3fc;
+}
+
+.reviewBar { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.reviewBar h1 { margin: .25rem 0; font-size: clamp(1.3rem, 2.5vw, 1.85rem); font-weight: 850; }
+.reviewBar p:last-child { color: #56627a; }
+.reviewEyebrow { font-size: .7rem; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; color: #9f1d66; }
+.reviewBar a { flex: none; border: 1px solid #cfa5c2; border-radius: 999px; padding: .65rem 1rem; color: #682050; background: white; font-weight: 750; }
+
+.exampleNav { max-width: 1120px; margin: 1.5rem auto; display: flex; flex-wrap: wrap; gap: .65rem; }
+.exampleNav a { border: 2px solid #d6c2e6; border-radius: 999px; padding: .55rem 1rem; color: #46315b; background: #fff; font-weight: 800; }
+.exampleNav a[aria-current="page"] { border-color: #a82a75; color: #fff; background: #a82a75; }
+
+.lessonFrame { max-width: 1120px; margin: 0 auto; border: 2px solid #dcb8d1; border-left: 7px solid #c41070; border-radius: 1.75rem; padding: clamp(1.15rem, 3vw, 2.4rem); background: #fff; box-shadow: 0 20px 48px #89356520; }
+.pageTopline { display: flex; justify-content: space-between; gap: 1rem; color: #8d3b73; font-size: .7rem; font-weight: 900; letter-spacing: .15em; }
+.lessonHeader { margin: .8rem auto 1.2rem; max-width: 800px; text-align: center; }
+.lessonHeader h2 { margin: .2rem 0 .55rem; color: #26334c; font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 900; line-height: 1.1; }
+.standardIntro { max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.standardIntro p { border: 1px solid #ddd0e9; border-radius: 1rem; padding: .85rem 1rem; background: #fbf8fe; color: #44516d; font-size: .9rem; font-weight: 650; line-height: 1.4; }
+.category { width: fit-content; max-width: 100%; margin: 1rem auto 1.4rem; border: 2px solid #e4c06c; border-radius: 999px; padding: .5rem 1rem; color: #67481a; background: #fff4cc; font-weight: 850; text-align: center; }
+
+.focusArea { max-width: 920px; margin: 0 auto; text-align: center; }
+.focusArea > h3 { color: #84215e; font-size: clamp(1.3rem, 2vw, 1.65rem); font-weight: 900; }
+.focusArea > p { margin: .25rem 0 1.3rem; color: #526079; font-weight: 600; }
+.sets { display: grid; gap: 1.5rem; }
+.setLabel { margin: 0 0 .65rem; color: #5d4872; font-size: .85rem; font-weight: 850; text-align: left; }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.cards.triad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wordCard { min-width: 0; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-radius: 1.5rem; padding: 1.15rem; box-shadow: 0 7px 0 #1d274716; text-align: center; }
+.role { display: inline-block; border-radius: 999px; padding: .28rem .7rem; background: #ffffffad; font-size: .7rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.wordCard h5 { margin: .4rem 0 .45rem; font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 900; line-height: 1.1; overflow-wrap: anywhere; }
+.wordCard p { max-width: 22rem; font-size: clamp(1rem, 1.7vw, 1.2rem); font-weight: 700; line-height: 1.35; }
+.tone0 { color: #5d237d; border-color: #b98ad5; background: #f0dcfc; }
+.tone1 { color: #095868; border-color: #73c6d5; background: #d8f7fb; }
+.tone2 { color: #8b3439; border-color: #e6a9a8; background: #ffe7e3; }
+.tone3 { color: #69520d; border-color: #d9c064; background: #fff4bd; }
+.tone4 { color: #1a674e; border-color: #8bd7b5; background: #e0faeb; }
+.tone5 { color: #852654; border-color: #e5a0bf; background: #ffe1ef; }
+.takeaway { width: fit-content; max-width: 100%; margin: 1.7rem auto 0; display: flex; align-items: center; gap: .7rem; border: 2px solid #e6c76d; border-radius: 1rem; padding: .8rem 1.1rem; color: #574212; background: #fff8db; font-size: 1rem; }
+.takeaway > span { font-size: 1.5rem; }
+.mockupNote { margin-top: 1.8rem; color: #6a7588; font-size: .7rem; text-align: center; }
+
+@media (max-width: 700px) {
+  .reviewBar { align-items: flex-start; flex-direction: column; }
+  .standardIntro { grid-template-columns: 1fr; }
+  .cards, .cards.triad { grid-template-columns: 1fr; }
+  .wordCard { min-height: 145px; }
+  .lessonFrame { border-left-width: 4px; }
+}

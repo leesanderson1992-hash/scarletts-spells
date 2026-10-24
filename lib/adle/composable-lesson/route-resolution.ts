@@ -54,6 +54,7 @@ import { isIngSnapshotV3, validateIngSnapshotV3 } from "../ing/snapshot";
 import type { IngLessonV1 } from "../ing/contracts";
 import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "../homophone/snapshot";
 import type { HomophoneLessonSnapshotV1 } from "../homophone/lesson";
+import { validateFrozenConvergenceAssignment, type FrozenConvergenceAssignment } from "../homophone/convergence-assignment";
 import { isWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../weak-vowel/snapshot";
 import type { WeakVowelLessonV1 } from "../weak-vowel/lesson";
 
@@ -87,6 +88,7 @@ export const ADLE_IMPLEMENTED_RUNTIME_ADAPTER_KEYS = [
   "comparative_superlative_v1",
   "ing_endings_v1",
   "homophone_v2",
+  "homophone_contextual_v1",
 ] as const satisfies readonly LessonRuntimeAdapterKey[];
 
 export type ResolvedLessonRuntime =
@@ -94,6 +96,7 @@ export type ResolvedLessonRuntime =
   | { adapterKey: "comparative_superlative_v1"; rendererKey: "comparative_superlative_guided"; payload: ComparativeLessonV1 }
   | { adapterKey: "ing_endings_v1"; rendererKey: "ing_endings_guided"; payload: IngLessonV1 }
   | { adapterKey: "homophone_v2"; rendererKey: "homophone_guided"; payload: HomophoneLessonSnapshotV1 }
+  | { adapterKey: "homophone_contextual_v1"; rendererKey: "homophone_contextual_guided"; payload: FrozenConvergenceAssignment }
   | {
       adapterKey: "generic_composer_v1";
       rendererKey: "generic_session";
@@ -256,6 +259,7 @@ function runAdapter(
     case "comparative_superlative_v1":
     case "ing_endings_v1":
     case "homophone_v2":
+    case "homophone_contextual_v1":
       return { ok: false, blocker: "persisted_payload_missing" };
     case "generic_composer_v1":
       return {
@@ -515,6 +519,24 @@ export function resolvePersistedLessonRoute(input: {
     if (!validation.ok) return blocked("persisted_metadata", "persisted_payload_malformed");
     return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route, recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
       runtime: { adapterKey: "homophone_v2", rendererKey: "homophone_guided", payload: input.compiledLessonSnapshot.payload.resolvedLesson } };
+  }
+  if (route.routeId === "homophone_contextual_choice") {
+    if (parsed.metadata.metadataSchemaVersion !== 2
+      || !validateFrozenConvergenceAssignment(input.compiledLessonSnapshot))
+      return blocked("persisted_metadata", "persisted_payload_missing");
+    const snapshot = input.compiledLessonSnapshot;
+    const contextItems = items.filter(item => item.sectionKey === "lesson_context_choice");
+    if (contextItems.length !== snapshot.contextCheck.questions.length
+      || items.some(item => item.sectionKey !== "lesson_context_choice"
+        && !item.sectionKey.startsWith("review_"))
+      || contextItems.some((item, index) => item.templateKey !== "HOMOPHONE_CONTEXT_SENTENCE_CHOICE"
+        || item.position !== index + 1
+        || item.promptData.questionId !== snapshot.contextCheck.questions[index].questionId
+        || item.canonicalWordId !== snapshot.contextCheck.questions[index].correctWordId))
+      return blocked("persisted_metadata", "assignment_binding_mismatch");
+    return { status: "resolved_explicit", source: "persisted_metadata", route: parsed.metadata.route,
+      recipe: parsed.metadata.recipe, payloadRef: parsed.metadata.payload,
+      runtime: { adapterKey: "homophone_contextual_v1", rendererKey: "homophone_contextual_guided", payload: snapshot } };
   }
   let adapterItems = items;
   let frozenCompoundLesson: ResolvedCompoundWordFirstImpressionV2 | null = null;

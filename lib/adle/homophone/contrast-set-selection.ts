@@ -31,28 +31,30 @@ export function selectContrastSets(input: {
     throw new Error("contrast_rotation_index_invalid");
   }
   const seen = new Set<string>();
-  const eligible = input.sets.filter(set => {
+  const reviewed = input.sets.map(set => {
     if (set.reviewStatus !== "approved" || !set.setId || !set.setKey || seen.has(set.setId)
       || set.memberWordIds.length < 2 || set.memberWordIds.length > 3
       || new Set(set.memberWordIds).size !== set.memberWordIds.length) {
       throw new Error("contrast_set_invalid");
     }
     seen.add(set.setId);
-    return set.memberWordIds.every(wordId => !input.masteredWordIds.has(wordId));
+    return set;
   });
   const queueDate = new Map<string, string>();
   for (const item of input.queuedItems) {
-    if (item.status !== "pending" && item.status !== "pending_reteach") continue;
+    if ((item.status !== "pending" && item.status !== "pending_reteach")
+      || input.masteredWordIds.has(item.canonicalWordId)) continue;
     const previous = queueDate.get(item.canonicalWordId);
     if (!previous || item.intakeOn < previous) queueDate.set(item.canonicalWordId, item.intakeOn);
   }
-  const queued = eligible.flatMap(set => {
+  const queued = reviewed.flatMap(set => {
     const first = set.memberWordIds.map(id => queueDate.get(id)).filter((date): date is string => Boolean(date)).sort()[0];
     return first ? [{ set, first }] : [];
   }).sort((a, b) => a.first.localeCompare(b.first) || a.set.setKey.localeCompare(b.set.setKey));
   const selected = queued.slice(0, maximum).map(entry => entry.set);
   const selectedIds = new Set(selected.map(set => set.setId));
-  const remaining = eligible.filter(set => !selectedIds.has(set.setId))
+  const remaining = reviewed.filter(set => !selectedIds.has(set.setId)
+    && set.memberWordIds.every(wordId => !input.masteredWordIds.has(wordId)))
     .sort((a, b) => a.setKey.localeCompare(b.setKey));
   if (remaining.length) {
     const offset = input.rotationIndex % remaining.length;

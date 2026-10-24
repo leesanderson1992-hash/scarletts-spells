@@ -181,7 +181,9 @@ function validateBinSort(props: unknown): boolean {
   return isRecord(props)
     && Array.isArray(props.items)
     && props.items.length > 0
-    && props.items.every((item) => isRecord(item) && nonEmptyString(item.id) && nonEmptyString(item.text) && nonEmptyString(item.destination))
+    && props.items.every((item) => isRecord(item) && nonEmptyString(item.id) && nonEmptyString(item.text) && nonEmptyString(item.destination)
+      && (item.choiceIds === undefined || (Array.isArray(item.choiceIds) && item.choiceIds.length >= 2
+        && item.choiceIds.includes(item.destination) && item.choiceIds.every(nonEmptyString))))
     && Array.isArray(props.bins)
     && props.bins.length > 0
     && props.bins.every((bin) => isRecord(bin) && nonEmptyString(bin.id) && nonEmptyString(bin.label));
@@ -194,7 +196,9 @@ function validateBalloonPop(props: unknown): boolean {
     && words.every(word => isRecord(word) && nonEmptyString(word.word) && nonEmptyString(word.feedbackReason))
     && props.prompts.length >= words.length
     && props.prompts.every(prompt => isRecord(prompt) && nonEmptyString(prompt.sentence) && nonEmptyString(prompt.answer)
-      && prompt.sentence.split("____").length === 2 && words.some(word => word.word === prompt.answer))
+      && prompt.sentence.split("____").length === 2 && words.some(word => word.word === prompt.answer)
+      && (prompt.choices === undefined || (Array.isArray(prompt.choices) && prompt.choices.length >= 2
+        && prompt.choices.includes(prompt.answer) && prompt.choices.every(choice => words.some(word => word.word === choice)))))
     && typeof props.initialBest === "number" && props.initialBest >= 0
     && functionValue(props.onFinish) && functionValue(props.onContinue);
 }

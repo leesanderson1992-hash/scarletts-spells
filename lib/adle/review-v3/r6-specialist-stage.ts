@@ -3,6 +3,8 @@ import { prepareComparativeAssignment } from "../inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "../inflection/contracts";
 import { prepareIngAssignment } from "../ing/readiness-loader";
 import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "../homophone/readiness-loader";
+import { contextualHomophoneRouteSelectedForChild, prepareContextualHomophoneAssignment } from "../homophone/convergence-readiness-loader";
+import { validateFrozenConvergenceAssignment } from "../homophone/convergence-assignment";
 import { weakVowelRouteSelectedForChild } from "../weak-vowel/readiness-loader";
 import { prepareWeakVowelAssignment } from "../weak-vowel/assignment-writer";
 import type { IngMicroSkill } from "../ing/contracts";
@@ -63,6 +65,7 @@ export async function resolveSpecialistRouteR6(input: {
   microSkillKey: string;
   environmentKey: "local" | "staging" | "production";
 }): Promise<string | null> {
+  if (await contextualHomophoneRouteSelectedForChild(input)) return "homophone_contextual_choice";
   if (await weakVowelRouteSelectedForChild(input)) return "weak_vowel_word_lab";
   if (await homophoneRouteSelectedForChild(input)) return "homophone_word_lab";
   return resolveParentManualAdleRoute(input.microSkillKey);
@@ -95,7 +98,8 @@ async function append(input: {
   lessonRouteMetadata: unknown;
 }): Promise<EnsureSpecialistStageR6Result> {
   const validation = validateCompiledSpecialistSnapshotV3(input.snapshot);
-  if (!validation.ok && (input.snapshot as { route?: { routeId?: string } })?.route?.routeId !== "generic_composer") {
+  if (!validation.ok && !validateFrozenConvergenceAssignment(input.snapshot)
+    && (input.snapshot as { route?: { routeId?: string } })?.route?.routeId !== "generic_composer") {
     return {
       outcome: "blocked",
       assignmentId: input.assignmentId,
@@ -103,7 +107,7 @@ async function append(input: {
     };
   }
   const routeId = (input.snapshot as { route?: { routeId?: string } })?.route?.routeId;
-  const rpc = routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : routeId === "weak_vowel_word_lab" ? "append_adle_weak_vowel_stage_r6" : "append_adle_specialist_stage_r6";
+  const rpc = routeId === "homophone_contextual_choice" ? "append_adle_homophone_contextual_stage_r6" : routeId === "comparative_superlative_word_lab" ? "append_adle_comparative_stage_r6" : routeId === "ing_endings_word_lab" ? "append_adle_ing_stage_r6" : routeId === "homophone_word_lab" ? "append_adle_homophone_stage_r6" : routeId === "weak_vowel_word_lab" ? "append_adle_weak_vowel_stage_r6" : "append_adle_specialist_stage_r6";
   const result = await input.client.rpc(rpc, {
     p_daily_assignment_id: input.assignmentId,
     p_snapshot: input.snapshot,
@@ -169,7 +173,7 @@ async function ensureSpecialistStageR6Internal(input: {
     sessionCap: frozen.session_cap_at_start,
     lessonAllowed: frozen.lesson_allowed_at_start,
   } };
-  const { facts } = await loadDailyPlanFacts(input.serviceClient, {
+  const { facts, wordStates } = await loadDailyPlanFacts(input.serviceClient, {
     childId: input.childId,
     today: input.assignmentDate as IsoDate,
   });
@@ -195,6 +199,17 @@ async function ensureSpecialistStageR6Internal(input: {
   const routeId = await resolveSpecialistRouteR6({ client: input.serviceClient, childId: input.childId,
     microSkillKey: selection.microSkillKey, environmentKey });
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
+  if (routeId === "homophone_contextual_choice") {
+    const prepared = await prepareContextualHomophoneAssignment({ client: input.serviceClient,
+      childId: input.childId, parentUserId: input.parentUserId, date: input.assignmentDate,
+      microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,
+      wordStates, environmentKey });
+    if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId,
+      blockerCode: prepared.reason };
+    return append({ client: input.serviceClient, assignmentId: input.assignmentId,
+      snapshot: prepared.snapshot, items: prepared.items,
+      lessonRouteMetadata: prepared.header.lessonRouteMetadata });
+  }
   if (routeId === "weak_vowel_word_lab") {
     const prepared = await prepareWeakVowelAssignment({ client: input.serviceClient,
       childId: input.childId, parentUserId: input.parentUserId, date: input.assignmentDate as IsoDate,

@@ -388,6 +388,25 @@
 }
 @media (max-height: 620px) and (min-width: 768px) { .adie-guide-portrait img { width: 80px; } .adie-guide-bubble { font-size: .78rem; } .word-lab-progress { margin-bottom: .35rem; } }
 
+/* On short phones, keep the illustrated cheat page and its navigation visible together. */
+@media (max-width: 640px) and (max-height: 640px) {
+  .word-lab-scene:has([data-homophone-compact-cheat]) .word-lab-progress { margin-bottom: .35rem; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .word-lab-layout { gap: .35rem; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .35rem; padding: .35rem; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide-portrait,
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide-cue { display: none; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide-bubble { padding: .35rem .5rem; font-size: .7rem; line-height: 1.2; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide-actions { grid-column: auto; display: grid; gap: .2rem; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .adie-guide-actions button { min-height: 30px; padding: .2rem .4rem; font-size: .7rem; }
+  .word-lab-scene:has([data-homophone-compact-cheat]) .word-lab-workspace { padding: .5rem; }
+}
+@media (max-width: 340px) and (max-height: 640px) {
+  [data-homophone-compact-cheat] > header { padding: .4rem .5rem; }
+  [data-homophone-compact-cheat] > header h1 { font-size: 1.05rem; line-height: 1.15; }
+  [data-homophone-compact-cheat] > article { gap: .15rem; padding: .55rem; }
+  [data-teaching-page-type="homophone-retained-cheat"] > article > div > p { font-size: .72rem; line-height: 1.2; }
+}
+
 /* Short desktop viewports keep the task and its action visible without changing tile targets. */
 @media (min-width: 1024px) and (max-height: 800px) {
   .brand-shell:has(> .adle-preview-stack) { padding-block: 8px; }

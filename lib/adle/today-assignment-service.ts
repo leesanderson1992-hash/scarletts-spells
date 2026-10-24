@@ -46,6 +46,8 @@ import { prepareComparativeAssignment } from "./inflection/readiness-loader";
 import type { ComparativeMicroSkill } from "./inflection/contracts";
 import { prepareIngAssignment } from "./ing/readiness-loader";
 import { homophoneRouteSelectedForChild, prepareHomophoneAssignment } from "./homophone/readiness-loader";
+import { contextualHomophoneRouteSelectedForChild, prepareContextualHomophoneAssignment,
+  persistContextualHomophoneAssignment } from "./homophone/convergence-readiness-loader";
 import { weakVowelRouteSelectedForChild } from "./weak-vowel/readiness-loader";
 import { prepareWeakVowelAssignment } from "./weak-vowel/assignment-writer";
 import type { IngMicroSkill } from "./ing/contracts";
@@ -401,7 +403,7 @@ export async function ensureParentAdleTodayAssignment(params: {
     if (handoffs.hasMore) {
       throw new Error("contextual_handoff_child_sweep_incomplete");
     }
-    const { facts } = await loadDailyPlanFacts(params.serviceClient, {
+    const { facts, wordStates } = await loadDailyPlanFacts(params.serviceClient, {
       childId: params.childId,
       today: practiceDate as IsoDate,
     });
@@ -431,7 +433,9 @@ export async function ensureParentAdleTodayAssignment(params: {
 
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging"
       : process.env.NODE_ENV === "production" ? "production" : "local";
-    routeId = await weakVowelRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+    routeId = await contextualHomophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
+      microSkillKey: selection.microSkillKey, environmentKey }) ? "homophone_contextual_choice"
+      : await weakVowelRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
       microSkillKey: selection.microSkillKey, environmentKey }) ? "weak_vowel_word_lab"
       : await homophoneRouteSelectedForChild({ client: params.serviceClient, childId: params.childId,
         microSkillKey: selection.microSkillKey, environmentKey }) ? "homophone_word_lab"
@@ -524,7 +528,15 @@ export async function ensureParentAdleTodayAssignment(params: {
       process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
     let generatedAssignmentId: string | null = null;
     let blockerCode: string | null = null;
-    if (routeId === "weak_vowel_word_lab") {
+    if (routeId === "homophone_contextual_choice") {
+      const prepared = await prepareContextualHomophoneAssignment({ client: params.serviceClient,
+        childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
+        microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,
+        wordStates, environmentKey });
+      if (prepared.status !== "ready") blockerCode = prepared.reason;
+      else generatedAssignmentId = await persistContextualHomophoneAssignment({ client: params.serviceClient,
+        parentUserId: params.parentUserId, childId: params.childId, date: practiceDate, prepared });
+    } else if (routeId === "weak_vowel_word_lab") {
       const prepared = await prepareWeakVowelAssignment({ client: params.serviceClient,
         childId: params.childId, parentUserId: params.parentUserId, date: practiceDate,
         microSkillKey: selection.microSkillKey, facts, environmentKey });

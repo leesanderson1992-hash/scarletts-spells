@@ -14,6 +14,7 @@ const lessons = [
   { name: "Compound words", href: "/dev/adle/compound-word", detail: "Combine two words" },
   { name: "-ing endings", href: "/dev/adle/ing-endings", detail: "Add -ing and practise the spelling change" },
   { name: "Comparatives and superlatives", href: "/dev/adle/comparative-superlative", detail: "Compare with -er and -est" },
+  { name: "Homophones and confusables", href: "/dev/adle/homophone-convergence", detail: "Review all 58 approved contextual lessons and their contrast sets" },
   { name: "Review", href: "/dev/adle/review-conundrum", detail: "Spin the wheel and try a review challenge" },
 ] as const;
 

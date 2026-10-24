@@ -35,6 +35,7 @@ import {
   type GenericSnapshotResolutionResult,
 } from "../composable-lesson/generic-snapshot-reader";
 import { isSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-validator";
+import { validateFrozenConvergenceAssignment } from "../homophone/convergence-assignment";
 import type { CanonicalActivitySpec } from "../canonical-activity-spec";
 import {
   dailyPlanHeaderProjection,
@@ -72,6 +73,7 @@ export const ADLE_PART_TWO_SECTION_KEYS = [
   "lesson_production",
   "lesson_probe",
   "lesson_dictation",
+  "lesson_context_choice",
   "lesson_reflection",
 ] as const;
 
@@ -280,7 +282,8 @@ export async function getAdleDailyPlanReadModel(params: {
   const genericSnapshotResolution =
     isExplicitGeneric || (compiledLessonSnapshot !== null
       && compiledLessonSnapshot !== undefined
-      && !isSpecialistSnapshotV3(compiledLessonSnapshot))
+      && !isSpecialistSnapshotV3(compiledLessonSnapshot)
+      && !validateFrozenConvergenceAssignment(compiledLessonSnapshot))
       ? resolveGenericLessonSnapshot({
           mode: snapshotMode,
           lessonRouteMetadata: header.lesson_route_metadata,

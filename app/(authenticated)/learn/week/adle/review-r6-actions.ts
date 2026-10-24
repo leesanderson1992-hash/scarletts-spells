@@ -39,6 +39,8 @@ import { isIngSnapshotV3, validateIngSnapshotV3 } from "@/lib/adle/ing/snapshot"
 import { ingProgressTransitionValid, ingCheckpointReplayVersion } from "@/lib/adle/ing/progress";
 import { isHomophoneSnapshotV3, validateHomophoneSnapshotV3 } from "@/lib/adle/homophone/snapshot";
 import { homophoneProgressTransitionValid, homophoneCheckpointReplayVersion } from "@/lib/adle/homophone/progress";
+import { validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
+import { contextualProgressTransitionValid } from "@/lib/adle/homophone/contextual-progress";
 import { isWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "@/lib/adle/weak-vowel/snapshot";
 import { weakVowelProgressTransitionValid, weakVowelCheckpointReplayVersion } from "@/lib/adle/weak-vowel/progress";
 
@@ -249,6 +251,28 @@ export async function persistAdleSpecialistCheckpointR6Action(request: {
     throw new Error("adle_specialist_checkpoint_assignment_not_owned");
   }
   const serviceClient = createServiceRoleClient();
+  if (request.adapterKey === "homophone_contextual_v1"
+    || (header.data.compiled_lesson_snapshot as { route?: { routeId?: string } })?.route?.routeId === "homophone_contextual_choice") {
+    const snapshot = header.data.compiled_lesson_snapshot;
+    if (!validateFrozenConvergenceAssignment(snapshot)
+      || request.adapterKey !== "homophone_contextual_v1"
+      || request.checkpointSchemaVersion !== "homophone_contextual_progress_v1"
+      || request.lessonSnapshotFingerprint !== snapshot.sourceFingerprint)
+      throw new Error("contextual_homophone_checkpoint_contract_invalid");
+    const previous = await serviceClient.from("adle_specialist_stage_checkpoints")
+      .select("checkpoint_payload,state_version,adapter_key,checkpoint_schema_version,lesson_snapshot_fingerprint")
+      .eq("daily_assignment_id", request.assignmentId).maybeSingle();
+    if (previous.error || !contextualProgressTransitionValid(previous.data?.checkpoint_payload?.state,
+      request.checkpointPayload.state, snapshot))
+      throw new Error("contextual_homophone_checkpoint_answer_lock_conflict");
+    if (previous.data?.adapter_key === request.adapterKey
+      && previous.data.checkpoint_schema_version === request.checkpointSchemaVersion
+      && previous.data.lesson_snapshot_fingerprint === request.lessonSnapshotFingerprint) {
+      const replayVersion = homophoneCheckpointReplayVersion(previous.data.checkpoint_payload,
+        request.checkpointPayload, previous.data.state_version, request.expectedStateVersion);
+      if (replayVersion !== null) return { stateVersion: replayVersion };
+    }
+  }
   if (isWeakVowelSnapshotV3(header.data.compiled_lesson_snapshot) || request.adapterKey === "weak_vowel_v1") {
     const validated = validateWeakVowelSnapshotV3(header.data.compiled_lesson_snapshot);
     if (!validated.ok || !isWeakVowelSnapshotV3(validated.snapshot) || request.adapterKey !== "weak_vowel_v1"

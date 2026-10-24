@@ -8,6 +8,7 @@ import type {
 import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 import { ING_MICRO_SKILLS } from "../ing/contracts";
 import { HOMOPHONE_LESSONS } from "../homophone/lesson";
+import approvedContextualLessons from "@/data/adle/homophone/convergence-v1/approved-lesson-content.json";
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 
 /**
@@ -103,6 +104,20 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     runtimeAdapterKey: "homophone_v2", rendererKey: "homophone_guided", legacyDetectionRules: [],
     requiredActivities: ["introduction", "meaning_sort", "cover_check", "dictation", "reflection"],
     intentionalItemCounts: [14, 15, 16], wordCounts: { lesson: [2, 4], authentic: [1, 4], transfer: [0, 3] },
+    coverageRequirements: ["distinct_forms", "unique_dictation_sentences"],
+  },
+  {
+    routeId: "homophone_contextual_choice", routeVersion: "v1",
+    supportedMicroSkillKeys: approvedContextualLessons.lessons.map(lesson => lesson.microSkillKey).sort(),
+    routeOwnership: { kind: "declared_micro_skills" }, implementationState: "registered", newAssignmentCapable: true,
+    requiresAuthenticSelectableItem: true, payloadKind: "homophone_contextual_lesson_v1", payloadVersions: [1],
+    activationAuthority: "database_route_activation", wordSupportAuthority: "route_content", canonicalContentAuthority: "route_content",
+    compatibilityScope: { kind: "declared_micro_skills" },
+    recipes: [{ recipeKey: "homophone_contextual_choice", recipeVersion: "v1" }],
+    runtimeAdapterKey: "homophone_contextual_v1", rendererKey: "homophone_contextual_guided", legacyDetectionRules: [],
+    requiredActivities: ["introduction", "meaning_sort", "cover_check", "dictation", "reflection"],
+    intentionalItemCounts: [2, 3, 4, 5, 6, 7, 8, 9],
+    wordCounts: { lesson: [2, 9], authentic: [1, 9], transfer: [0, 8] },
     coverageRequirements: ["distinct_forms", "unique_dictation_sentences"],
   },
   {

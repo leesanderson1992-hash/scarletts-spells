@@ -98,6 +98,7 @@ function WeakVowelPart({ session, lesson }: { session: AdleSessionRunnerProps; l
 }
 
 const HomophoneGuidedLesson = dynamic(() => import("@/components/adle/homophone/homophone-guided-lesson").then(module => module.HomophoneGuidedLesson), { ssr: false });
+const ContextualChoiceLesson = dynamic(() => import("@/components/adle/homophone/contextual-choice-lesson").then(module => module.ContextualChoiceLesson), { ssr: false });
 function HomophonePart({ session, snapshot }: { session: AdleSessionRunnerProps; snapshot: HomophoneLessonSnapshotV1 }) {
   const version = useRef(session.r6SpecialistCheckpoint?.stateVersion ?? 0);
   const chain = useRef<Promise<void>>(Promise.resolve());
@@ -903,7 +904,7 @@ export function AdleSessionRunner(props: AdleSessionRunnerProps) {
       ) : null}
 
       {partTwo.present && (partOne.complete || !partOne.present) && !partTwo.complete ? (
-        runtime.adapterKey === "weak_vowel_v1" ? <WeakVowelPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "homophone_v2" ? <HomophonePart key={props.assignmentId} session={props} snapshot={runtime.payload} /> : runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
+        runtime.adapterKey === "weak_vowel_v1" ? <WeakVowelPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "homophone_v2" ? <HomophonePart key={props.assignmentId} session={props} snapshot={runtime.payload} /> : runtime.adapterKey === "homophone_contextual_v1" ? <ContextualChoiceLesson key={props.assignmentId} assignmentId={props.assignmentId} childId={props.childId} snapshot={runtime.payload} snapshotFingerprint={props.snapshotFingerprint} checkpoint={props.r6SpecialistCheckpoint} /> : runtime.adapterKey === "ing_endings_v1" ? <IngPart key={props.assignmentId} session={props} lesson={runtime.payload} /> : runtime.adapterKey === "comparative_superlative_v1" ? <ComparativePart session={props} lesson={runtime.payload} /> : runtime.rendererKey === "morphology_guided" ? (
           <MorphologyGuidedLesson childId={props.childId} assignmentId={props.assignmentId} items={partTwo.items} payload={runtime.payload} durableResumeState={durableState} onDurableResumeStateChange={(state) => saveR6Checkpoint(runtime.adapterKey, "morphology_resume_v1", state)} />
         ) : (
           <LessonPart childId={props.childId} assignmentId={props.assignmentId} snapshotFingerprint={props.snapshotFingerprint} durableGenericV3Enabled={props.durableGenericV3Enabled} durableGenericV3Checkpoints={props.durableGenericV3Checkpoints} items={partTwo.items} />

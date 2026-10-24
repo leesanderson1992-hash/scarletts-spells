@@ -41,7 +41,8 @@ export function homophoneProgressValid(value: unknown, lesson: HomophoneLesson):
   const p = value as Partial<HomophoneProgressV1>;
   const words = new Set(lesson.words.map(entry => entry.word));
   return typeof p.stage === "string" && ["teaching", "activity:bin-sort", "activity:balloon-pop", "cover", "dictation", "reflection"].includes(p.stage)
-    && Number.isInteger(p.teachingPage) && p.teachingPage! >= 0 && p.teachingPage! < lesson.words.length + 1
+    && Number.isInteger(p.teachingPage) && p.teachingPage! >= 0
+    && p.teachingPage! < lesson.words.length + (lesson.contrastSets ? 2 : 1)
     && typeof p.muted === "boolean" && typeof p.completed === "boolean"
     && typeof p.binSortCompleted === "boolean" && typeof p.balloonCompleted === "boolean"
     && Number.isInteger(p.coverIndex) && p.coverIndex! >= 0 && p.coverIndex! < lesson.coverCheck.length

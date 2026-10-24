@@ -40,6 +40,7 @@ import {
 } from "@/lib/adle/composable-lesson/route-resolution";
 import { databaseActivatedAssignmentRuntimeAllowed } from "@/lib/adle/loaders/curriculum-release-authority";
 import { homophoneCheckpointReadRequired, homophoneParentManualSnapshotFingerprint } from "@/lib/adle/homophone/snapshot";
+import { validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
 import {
   loadGenericV3Checkpoints,
   type GenericV3DurableCheckpoint,
@@ -152,7 +153,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     }));
   let durableGenericV3Checkpoints: GenericV3DurableCheckpoint[] = [];
   const homophoneParentManualRoute = routeResolution?.status === "resolved_explicit"
-    && routeResolution.runtime.adapterKey === "homophone_v2";
+    && (routeResolution.runtime.adapterKey === "homophone_v2"
+      || routeResolution.runtime.adapterKey === "homophone_contextual_v1");
   const r6SpecialistCheckpoint = homophoneCheckpointReadRequired(r6Session?.majorStage ?? null, homophoneParentManualRoute) && readModel.assignmentId
     ? await loadAdleSpecialistCheckpointR6({ client: serviceClient, assignmentId: readModel.assignmentId })
     : null;
@@ -191,7 +193,9 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     ? (r6Session.specialist.compiledLessonSnapshot as { provenance?: { sourceFingerprint?: string } }).provenance?.sourceFingerprint
     : undefined;
   const homophoneLessonFingerprint = homophoneParentManualRoute
-    ? homophoneParentManualSnapshotFingerprint(readModel.compiledLessonSnapshot, "homophone_v2")
+    ? validateFrozenConvergenceAssignment(readModel.compiledLessonSnapshot)
+      ? readModel.compiledLessonSnapshot.sourceFingerprint
+      : homophoneParentManualSnapshotFingerprint(readModel.compiledLessonSnapshot, "homophone_v2")
     : null;
 
   // Slice 7a-D: on the completed screen, read the child's Word Treasure state and

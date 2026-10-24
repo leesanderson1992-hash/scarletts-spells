@@ -20,7 +20,10 @@ assert.deepEqual(run(0, new Set(), [
 ]), ["pair-3", "pair-5", "pair-1"]);
 assert.deepEqual(run(0, new Set(["a3"]), [
   { canonicalWordId: "b3", intakeOn: "2026-10-19", status: "pending" },
-]), ["pair-1", "pair-2", "pair-4"]);
+]), ["pair-3", "pair-1", "pair-2"]);
+assert.deepEqual(run(0, new Set(["a1", "a2", "a3", "a4", "a5"]), [
+  { canonicalWordId: "b5", intakeOn: "2026-10-19", status: "pending" },
+]), ["pair-5"]);
 const triad = [{ setId: "triad", setKey: "triad", memberWordIds: ["rain", "rein", "reign"],
   reviewStatus: "approved" as const }];
 assert.deepEqual(selectContrastSets({ sets: triad, queuedItems: [], masteredWordIds: new Set(), rotationIndex: 0 }),

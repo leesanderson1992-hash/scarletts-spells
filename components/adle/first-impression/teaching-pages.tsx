@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { HomophoneCheatPage, HomophoneConceptPage, HomophoneMeetWordsPage, HomophonePairPage, HomophoneStandardIntroPage,
+  type HomophoneConcept, type HomophoneTeachingGroup } from "@/components/adle/homophone/homophone-teaching-pages";
 
 export interface TeachingPageExample {
   text: string;
@@ -38,6 +40,9 @@ export interface TeachingPageConfig {
   model?: { first: string; second: string; result: string };
   examples?: readonly TeachingPageExample[];
   sections?: readonly TeachingPageSection[];
+  homophoneStandardIntro?: boolean;
+  homophoneFocus?: string;
+  homophoneConcept?: HomophoneConcept;
   weakVowelFeature?:
     | { kind: "sound_contrast"; stress: readonly [string, string]; fact: string; schwaExamples: readonly string[]; otherExamples: readonly string[]; vowelReminder: string }
     | { kind: "final_a_groups"; groups: readonly { heading: string; words: readonly string[] }[]; note: string }
@@ -54,15 +59,18 @@ export interface MeetWordConfig {
   detail?: string;
   provenance?: string;
   imageSrc?: string;
+  imageAlt?: string;
   highlightStart?: number;
   highlightLength?: number;
 }
 
 export interface TeachingPagesConfig {
   pages: readonly TeachingPageConfig[];
+  homophone?: { presentation: "word_pages" | "pair_pages"; groups: HomophoneTeachingGroup[]; concept?: HomophoneConcept };
   meetWords: {
     title?: string;
     introduction?: string;
+    homophoneStyle?: boolean;
     presentation?: "combined" | "one_word_per_page";
     words: readonly MeetWordConfig[];
   };
@@ -73,7 +81,10 @@ export function validateTeachingPagesConfig(config: TeachingPagesConfig): boolea
     && config.pages.length <= 3
     && config.pages.every((page) => page.type === "teaching" && page.id.trim() !== "" && page.title.trim() !== "")
     && config.meetWords.words.length > 0
-    && config.meetWords.words.every((word) => word.id.trim() !== "" && word.word.trim() !== "");
+    && config.meetWords.words.every((word) => word.id.trim() !== "" && word.word.trim() !== "")
+    && (!config.homophone || (config.homophone.groups.length > 0
+      && config.homophone.groups.every(group => group.id.trim() !== "" && group.words.length >= 2
+        && group.words.every(word => word.word.trim() !== "" && word.definition.trim() !== "" && word.cheatCode.trim() !== ""))));
 }
 
 export function TeachingPages(props: {
@@ -84,10 +95,14 @@ export function TeachingPages(props: {
   completionLabel?: string;
 }) {
   const oneWordPerPage = props.config.meetWords.presentation === "one_word_per_page";
-  const total = props.config.pages.length + (oneWordPerPage ? props.config.meetWords.words.length : 1);
+  const homophone = props.config.homophone;
+  const homophoneWords = homophone?.groups.flatMap(group => group.words) ?? [];
+  const homophoneComparisonPages = homophone?.presentation === "pair_pages" ? Math.ceil(homophone.groups.length / 2) : homophoneWords.length;
+  const total = props.config.pages.length + (homophone ? homophoneComparisonPages + 1 : oneWordPerPage ? props.config.meetWords.words.length : 1);
   const initialPageIndex = Math.min(Math.max(props.initialPageIndex ?? 0, 0), total - 1);
   const [pageIndex, setPageIndex] = useState(initialPageIndex);
   const focusRef = useRef<HTMLDivElement>(null);
+  const previousPageIndex = useRef(initialPageIndex);
   const onPageChangeRef = useRef(props.onPageChange);
   const isMeetWords = pageIndex >= props.config.pages.length;
 
@@ -96,7 +111,10 @@ export function TeachingPages(props: {
   }, [props.onPageChange]);
 
   useEffect(() => {
-    focusRef.current?.scrollTo({ top: 0 });
+    if (previousPageIndex.current !== pageIndex) {
+      focusRef.current?.closest(".word-lab-workspace")?.scrollTo({ top: 0 });
+      previousPageIndex.current = pageIndex;
+    }
     focusRef.current?.focus({ preventScroll: true });
     onPageChangeRef.current?.(pageIndex);
   }, [pageIndex]);
@@ -106,30 +124,39 @@ export function TeachingPages(props: {
   }
 
   const page = props.config.pages[pageIndex];
+  const homophoneIndex = pageIndex - props.config.pages.length;
+  const compactHomophonePage = Boolean(isMeetWords && (homophone
+    ? homophone.presentation === "word_pages" && homophoneIndex < homophoneComparisonPages
+    : oneWordPerPage && props.config.meetWords.homophoneStyle));
   return (
-    <section className="teaching-pages grid gap-5 text-cyan-50" aria-label="Lesson teaching pages">
-      <div ref={focusRef} tabIndex={-1} className="outline-none">
-        {isMeetWords ? (
+    <section className={`teaching-pages grid text-cyan-50 ${compactHomophonePage ? "gap-2" : "gap-5"}`} aria-label="Lesson teaching pages">
+      <div ref={focusRef} tabIndex={-1} className={homophone ? "flex min-h-0 flex-col [justify-content:safe_center] outline-none sm:min-h-[32rem]" : "outline-none"}>
+        {isMeetWords && homophone ? homophoneIndex === homophoneComparisonPages
+          ? <HomophoneMeetWordsPage groups={homophone.groups} pageNumber={pageIndex + 1} pageCount={total} />
+          : homophone.presentation === "pair_pages" && homophone.concept
+            ? <HomophonePairPage groups={homophone.groups.slice(homophoneIndex * 2, homophoneIndex * 2 + 2)} concept={homophone.concept} pageNumber={pageIndex + 1} pageCount={total} />
+            : <HomophoneCheatPage word={homophoneWords[homophoneIndex]} pageNumber={pageIndex + 1} pageCount={total} />
+        : isMeetWords ? (
           <MeetWords config={props.config.meetWords} pageNumber={pageIndex + 1} pageCount={total} wordIndex={oneWordPerPage ? pageIndex - props.config.pages.length : undefined} />
         ) : page ? (
           <TeachingPage page={page} pageNumber={pageIndex + 1} pageCount={total} />
         ) : null}
       </div>
-      <nav className="flex flex-wrap items-center justify-between gap-3" aria-label="Teaching page navigation">
+      <nav className={`flex items-center justify-between ${compactHomophonePage ? "flex-nowrap gap-2" : "flex-wrap gap-3"}`} aria-label="Teaching page navigation">
         <button
           type="button"
           disabled={pageIndex === 0}
-          className="min-h-12 rounded-full border border-cyan-200/60 px-6 font-black text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className={`min-h-12 rounded-full border border-cyan-200/60 font-black text-white disabled:cursor-not-allowed disabled:opacity-40 ${compactHomophonePage ? "px-3 text-sm" : "px-6"}`}
           onClick={() => move(pageIndex - 1)}
         >
           Back
         </button>
         {pageIndex === total - 1 ? (
-          <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={props.onComplete}>
+          <button type="button" className={`min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 ${compactHomophonePage ? "px-3 text-sm" : "px-7"}`} onClick={props.onComplete}>
             {props.completionLabel ?? "Start the activities"}
           </button>
         ) : (
-          <button type="button" className="min-h-12 rounded-full bg-cyan-300 px-7 font-black text-slate-950" onClick={() => move(pageIndex + 1)}>
+          <button type="button" className={`min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 ${compactHomophonePage ? "px-3 text-sm" : "px-7"}`} onClick={() => move(pageIndex + 1)}>
             Next page
           </button>
         )}
@@ -140,6 +167,10 @@ export function TeachingPages(props: {
 
 function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pageCount: number }) {
   const { page } = props;
+  if (page.homophoneStandardIntro) return <HomophoneStandardIntroPage title={page.title} paragraphs={page.paragraphs}
+    focus={page.homophoneFocus ?? ""} focusWords={page.highlightFocusWords ?? []} category={page.callout ?? ""}
+    pageNumber={props.pageNumber} pageCount={props.pageCount} />;
+  if (page.homophoneConcept) return <HomophoneConceptPage concept={page.homophoneConcept} pageNumber={props.pageNumber} pageCount={props.pageCount} />;
   const feature = page.weakVowelFeature;
   return (
     <article className={`grid gap-5 text-left ${feature ? "weak-vowel-teaching-page" : ""}`} data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
@@ -264,8 +295,27 @@ function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber
   const familyColumns = words.length === 6 && [0, 3].every(start =>
     ["base", "comparative", "superlative"].every((degree, offset) => words[start + offset].label?.startsWith(`${degree} · `)));
   const singleWord = props.wordIndex !== undefined;
+  if (singleWord && props.config.homophoneStyle) {
+    const word = words[0];
+    return <section className="mx-auto grid w-full max-w-2xl gap-2 sm:gap-3" data-teaching-page-type="homophone-retained-cheat" data-homophone-compact-cheat>
+      <header className="rounded-3xl border-2 border-indigo-300 bg-indigo-100 px-3 py-2 text-center text-indigo-950 shadow-lg sm:px-4 sm:py-3">
+        <p className="text-xs font-black uppercase tracking-[.2em]">Cheat Codes to Remember · Page {props.pageNumber} of {props.pageCount}</p>
+        <h1 className="mt-1 text-xl font-black sm:text-2xl">{props.config.title ?? "Today’s words"}</h1>
+      </header>
+      <article className="grid gap-1 rounded-3xl border-2 border-rose-300 bg-rose-100 p-3 text-center text-rose-950 shadow-lg sm:gap-2 sm:p-4">
+        <h2 className="text-2xl font-black leading-tight sm:text-3xl">{word.word}</h2>
+        <div className="mt-1 grid grid-cols-[minmax(0,46%)_minmax(0,54%)] items-center gap-2 sm:gap-3">
+          {word.imageSrc ? <Image src={word.imageSrc} alt={word.imageAlt ?? `Visual reminder for ${word.word}`}
+            width={768} height={512} className="aspect-[3/2] w-full rounded-xl border border-white/80 bg-white/80 object-cover shadow-sm" /> : <div />}
+          <p className="rounded-2xl bg-white/80 p-2 text-left text-xs font-bold leading-snug sm:p-3 sm:text-sm sm:leading-relaxed">
+            <span className="mb-1 block text-[10px] font-black uppercase tracking-wide sm:text-xs">Cheat code</span>{word.detail}
+          </p>
+        </div>
+      </article>
+    </section>;
+  }
   const card = (word: MeetWordConfig) => <li key={word.id} className={`rounded-2xl border border-white/25 bg-white p-4 text-left text-slate-950 shadow-[0_10px_0_rgba(8,47,73,.2)] ${singleWord ? "mx-auto flex w-full max-w-2xl items-center gap-4 sm:gap-7 sm:p-6" : ""}`}>
-    {word.imageSrc ? <Image src={word.imageSrc} alt="" width={320} height={220} className={singleWord ? "h-28 w-28 shrink-0 rounded-xl object-contain sm:h-40 sm:w-44" : "mx-auto mb-2 h-36 w-full rounded-xl object-contain"} /> : null}
+    {word.imageSrc ? <Image src={word.imageSrc} alt={word.imageAlt ?? ""} width={320} height={220} className={singleWord ? "h-28 w-28 shrink-0 rounded-xl object-contain sm:h-40 sm:w-44" : "mx-auto mb-2 h-36 w-full rounded-xl object-contain"} /> : null}
     <div className={singleWord ? "min-w-0 flex-1" : ""}>
       {word.label ? <p className="text-xs font-black uppercase tracking-[.14em] text-cyan-700">{word.label}</p> : null}
       <p className="mt-1 text-2xl font-black sm:text-3xl">{word.wordParts?.length ? <><span className="text-cyan-800">{word.wordParts.join(" + ")}</span><span aria-hidden="true" className="mx-2 text-slate-400">→</span></> : null}{word.highlightStart !== undefined && word.highlightLength !== undefined ? <>{word.word.slice(0, word.highlightStart)}<span className="rounded bg-amber-200 px-0.5 text-amber-950">{word.word.slice(word.highlightStart, word.highlightStart + word.highlightLength)}</span>{word.word.slice(word.highlightStart + word.highlightLength)}</> : word.word}</p>
@@ -275,10 +325,10 @@ function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber
   </li>;
   return (
     <section className="grid gap-5 text-center" aria-labelledby="meet-the-words-title" data-teaching-page-type="meet_words">
-      <header>
-        <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">{props.wordIndex === undefined ? "Meet the Words" : "Cheat Codes to Remember"} · Page {props.pageNumber} of {props.pageCount}</p>
-        <h1 id="meet-the-words-title" className="mt-2 text-3xl font-black text-white md:text-4xl">{props.config.title ?? "Today’s words"}</h1>
-        {props.config.introduction ? <p className="mx-auto mt-3 max-w-2xl text-lg leading-8 text-cyan-50">{props.config.introduction}</p> : null}
+      <header className={props.config.homophoneStyle ? "mx-auto w-full max-w-2xl rounded-3xl border-2 border-indigo-300 bg-indigo-100 p-4 text-indigo-950 shadow-lg" : ""}>
+        <p className={`text-xs font-black uppercase tracking-[.2em] ${props.config.homophoneStyle ? "" : "text-cyan-200"}`}>{props.wordIndex === undefined ? "Meet the Words" : "Cheat Codes to Remember"} · Page {props.pageNumber} of {props.pageCount}</p>
+        <h1 id="meet-the-words-title" className={`mt-2 text-3xl font-black md:text-4xl ${props.config.homophoneStyle ? "" : "text-white"}`}>{props.config.title ?? "Today’s words"}</h1>
+        {props.config.introduction ? <p className={`mx-auto mt-3 max-w-2xl text-lg leading-8 ${props.config.homophoneStyle ? "rounded-2xl bg-white/80 p-3" : "text-cyan-50"}`}>{props.config.introduction}</p> : null}
       </header>
       {familyColumns ? <div className="grid gap-4 sm:grid-cols-2" aria-label="Lesson word families">
         {[0, 3].map(start => <section key={words[start].id} aria-label={`${words[start].word} family`}>

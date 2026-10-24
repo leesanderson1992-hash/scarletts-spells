@@ -17,7 +17,7 @@ export interface HomophoneWord {
   highlightLength: number | null;
 }
 
-export interface HomophoneSentencePrompt { sentence: string; answer: string }
+export interface HomophoneSentencePrompt { sentence: string; answer: string; setKey?: string }
 export interface HomophonePassage { id: string; segments: [string, string, string]; targets: [string, string] }
 export interface HomophoneTeachingIntro { title: string; paragraphs: string[]; focus: string; category: string }
 export interface HomophoneLesson {
@@ -25,6 +25,8 @@ export interface HomophoneLesson {
   title: string;
   contrastKind: "homophone" | "confusable" | "near_homophone_and_confusable";
   words: HomophoneWord[];
+  contrastSets?: { setKey: string; members: string[] }[];
+  teachingGroups?: { id: string; words: { word: string; definition: string; cheatCode: string; imageSrc?: string; imageDescription?: string }[] }[];
   binSort: HomophoneSentencePrompt[];
   balloonPrompts: HomophoneSentencePrompt[];
   coverCheck: string[];

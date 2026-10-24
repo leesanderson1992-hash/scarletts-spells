@@ -29,6 +29,7 @@ export type LessonRouteId =
   | "comparative_superlative_word_lab"
   | "ing_endings_word_lab"
   | "homophone_word_lab"
+  | "homophone_contextual_choice"
   | "weak_vowel_word_lab";
 
 export type LessonPayloadKind =
@@ -40,6 +41,7 @@ export type LessonPayloadKind =
   | "comparative_superlative_lesson_v1"
   | "ing_endings_lesson_v1"
   | "homophone_lesson_v2"
+  | "homophone_contextual_lesson_v1"
   | "weak_vowel_lesson_v1";
 
 export type VersionedLessonRouteReference = {
@@ -93,6 +95,7 @@ export type LessonRuntimeAdapterKey =
   | "comparative_superlative_v1"
   | "ing_endings_v1"
   | "homophone_v2"
+  | "homophone_contextual_v1"
   | "weak_vowel_v1";
 
 export type LessonRendererKey =
@@ -103,6 +106,7 @@ export type LessonRendererKey =
   | "comparative_superlative_guided"
   | "ing_endings_guided"
   | "homophone_guided"
+  | "homophone_contextual_guided"
   | "weak_vowel_guided";
 
 export type LessonRouteResolutionSource =

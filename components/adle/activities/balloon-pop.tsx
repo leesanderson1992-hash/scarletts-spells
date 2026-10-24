@@ -13,6 +13,7 @@ export interface BalloonWord {
 export interface BalloonPrompt {
   sentence: string;
   answer: string;
+  choices?: readonly string[];
 }
 
 export interface BalloonPopProps {
@@ -50,6 +51,7 @@ export function BalloonPop(props: BalloonPopProps) {
   const reportedFeedback = useRef(-1);
   const reducedMotion = useReducedMotion();
   const prompt = props.prompts[state.promptOrder[state.promptNumber % state.promptOrder.length] ?? (state.promptNumber % props.prompts.length)];
+  const activeWords = prompt?.choices ? props.words.filter(entry => prompt.choices?.includes(entry.word)) : props.words;
 
   useEffect(() => {
     if (state.phase !== "feedback" || !state.feedback || reportedFeedback.current === state.promptNumber) return;
@@ -132,11 +134,11 @@ export function BalloonPop(props: BalloonPopProps) {
     {state.phase === "ready" ? <div className="balloon-pop-starter grid gap-5 rounded-3xl p-6 text-center sm:p-10"><Image src="/adie/adie-head.png" width={92} height={92} alt="Adie" className="mx-auto h-20 w-20 object-contain" /><p>Pop the word that completes each sentence. Each set of balloons takes ten seconds to float away.</p><button type="button" className="balloon-pop-start-button mx-auto min-h-12 rounded-full px-8 font-black" onClick={() => { const current = Date.now(); submitted.current = false; setSaveError(false); setNow(current); setState({ ...START, phase: "active", roundEnd: current + ROUND_MS, promptStart: current, promptOrder: shuffledIndices(props.prompts.length) }); }}>Start 45-second round</button></div> : null}
     {renderWords ? <>
       <p className="min-h-16 rounded-2xl bg-white px-5 py-4 text-center text-2xl font-black text-slate-950" aria-live="polite">{prompt?.sentence}</p>
-      <div className="balloon-pop-sky relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-sky-200 via-cyan-100 to-emerald-100" aria-label="Choose a balloon" style={{ "--balloon-count": props.words.length } as CSSProperties}>
-        {props.words.map((entry, index) => {
+      <div className="balloon-pop-sky relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-sky-200 via-cyan-100 to-emerald-100" aria-label="Choose a balloon" style={{ "--balloon-count": activeWords.length } as CSSProperties}>
+        {activeWords.map((entry, index) => {
           const status = feedback?.answer === entry.word ? "correct" : feedback?.selected === entry.word ? "incorrect" : "neutral";
           return <button key={`${state.promptNumber}-${entry.word}`} type="button" disabled={state.phase !== "active"} onClick={() => choose(entry.word)} aria-label={`Pop ${entry.word}`} data-balloon-status={status} className={`balloon-pop-choice absolute bottom-0 grid place-items-center rounded-full border-4 px-2 text-lg font-black shadow-lg focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-slate-900 ${status === "correct" ? "border-green-900 bg-green-400 text-green-950" : status === "incorrect" ? "border-red-900 bg-red-400 text-red-950" : "border-white bg-pink-400 text-slate-950"} ${reducedMotion ? "" : "balloon-pop-rise"}`}
-            style={{ left: `${((index + 0.5) / props.words.length) * 100}%`, transform: "translateX(-50%)", animationPlayState: state.phase === "feedback" ? "paused" : "running" }}>
+            style={{ left: `${((index + 0.5) / activeWords.length) * 100}%`, transform: "translateX(-50%)", animationPlayState: state.phase === "feedback" ? "paused" : "running" }}>
             <span>{entry.word}</span><span aria-hidden="true" className="absolute -bottom-8 h-8 w-px bg-slate-700" />
           </button>;
         })}

@@ -7,13 +7,27 @@ import { FirstImpressionLesson } from "@/components/adle/first-impression/first-
 import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 import { readMorphologyResume, writeMorphologyResume } from "@/lib/adle/morphology/resume";
 import { fullHomophonePassage, validateHomophoneLessonSnapshot, type HomophoneLesson, type HomophoneLessonSnapshotV1 } from "@/lib/adle/homophone/lesson";
+import { validateConvergencePreview } from "@/lib/adle/homophone/convergence-preview-validation";
+import { convergenceTeachingConfig } from "@/lib/adle/homophone/convergence-teaching";
 import { shuffledIndices } from "@/lib/adle/homophone/random-order";
+import { retainedBinDefinitions } from "@/lib/adle/homophone/retained-bin-definitions";
 import { homophoneProgressComplete, homophoneProgressValid, initialHomophoneProgress, type HomophoneProgressV1 } from "@/lib/adle/homophone/progress";
 import type { GuideBeatV1 } from "@/lib/adle/morphology/payload";
 
 function teachingConfig(snapshot: HomophoneLessonSnapshotV1): TeachingPagesConfig {
   const lesson = snapshot.lesson;
-  return { pages: [{ id: "homophone-intro", type: "teaching", title: lesson.teachingIntro.title, paragraphs: [...lesson.teachingIntro.paragraphs, lesson.teachingIntro.focus], highlightFocusWords: lesson.words.map(entry => entry.word), callout: lesson.teachingIntro.category }], meetWords: { title: "Cheat Codes to Remember", presentation: "one_word_per_page", introduction: "Look at this word, its meaning clue and its spelling pattern.", words: lesson.words.map(entry => ({ id: entry.word, word: entry.word, detail: entry.memoryCue, imageSrc: entry.imageSrc ?? undefined, highlightStart: entry.highlightStart ?? undefined, highlightLength: entry.highlightLength ?? undefined })) } };
+  const supplementalArt: Record<string, string> = {
+    "you're": "/adle/homophones/convergence-v1/word-art/you-re.jpg",
+    "they're": "/adle/homophones/convergence-v1/word-art/they-re.jpg",
+  };
+  const supplementalAlt: Record<string, string> = {
+    "you're": "A giant letter A transforming into an apostrophe between YOU and RE.",
+    "they're": "Three smiling friends holding a large apostrophe between THEY and RE.",
+  };
+  return { pages: [{ id: "homophone-intro", type: "teaching", title: lesson.teachingIntro.title, paragraphs: lesson.teachingIntro.paragraphs,
+    homophoneStandardIntro: true, homophoneFocus: lesson.teachingIntro.focus,
+    highlightFocusWords: lesson.words.map(entry => entry.word), callout: lesson.teachingIntro.category }],
+    meetWords: { title: "Cheat Codes to Remember", presentation: "one_word_per_page", introduction: "Look at this word, its meaning clue and its spelling pattern.", homophoneStyle: true, words: lesson.words.map(entry => ({ id: entry.word, word: entry.word, detail: entry.memoryCue, imageSrc: entry.imageSrc ?? supplementalArt[entry.word], imageAlt: supplementalAlt[entry.word], highlightStart: entry.highlightStart ?? undefined, highlightLength: entry.highlightLength ?? undefined })) } };
 }
 function sameWord(attempt: string, expected: string): boolean {
   return attempt.trim().toLocaleLowerCase("en-GB").replace(/’/g, "'") === expected.toLocaleLowerCase("en-GB");
@@ -50,9 +64,12 @@ export function HomophoneGuidedLesson(props: {
   onCheckpoint?: (progress: HomophoneProgressV1) => Promise<void>;
   onFinish?: (progress: HomophoneProgressV1) => Promise<void>;
   onComplete?: (progress: HomophoneProgressV1) => void;
+  developmentPreview?: boolean;
 }) {
   const lesson = props.snapshot.lesson;
-  const issues = validateHomophoneLessonSnapshot(props.snapshot);
+  const pairScopedChoices = ["D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS", "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY", "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T"].includes(lesson.microSkillKey);
+  const choicesBySet = useMemo(() => pairScopedChoices ? new Map(lesson.contrastSets?.map(set => [set.setKey, set.members])) : null, [lesson, pairScopedChoices]);
+  const issues = props.developmentPreview ? validateConvergencePreview(props.snapshot) : validateHomophoneLessonSnapshot(props.snapshot);
   const [state, setState] = useState<HomophoneProgressV1>(() => props.initialProgress && homophoneProgressValid(props.initialProgress, lesson) ? props.initialProgress : initialHomophoneProgress());
   const current = useRef(state);
   const [ready, setReady] = useState(false);
@@ -84,9 +101,16 @@ export function HomophoneGuidedLesson(props: {
     finally { setPending(false); }
   }
   useEffect(() => { if (!props.childId) return; let active = true; getHomophoneBalloonBest(props.childId, props.assignmentId, lesson.microSkillKey).then(score => { if (active) setBest(score); }).catch(() => undefined); return () => { active = false; }; }, [props.childId, props.assignmentId, lesson.microSkillKey]);
-  const teaching = useMemo(() => teachingConfig(props.snapshot), [props.snapshot]);
-  const binItems = useMemo(() => shuffledIndices(lesson.binSort.length).map(index => ({ id: String(index), text: lesson.binSort[index].sentence, destination: lesson.binSort[index].answer })), [lesson]);
-  const binChoices = useMemo(() => shuffledIndices(lesson.words.length).map(index => ({ id: lesson.words[index].word, label: lesson.words[index].word })), [lesson]);
+  const teaching = useMemo(() => props.developmentPreview ? convergenceTeachingConfig(lesson) : teachingConfig(props.snapshot), [props.developmentPreview, lesson, props.snapshot]);
+  const binItems = useMemo(() => shuffledIndices(lesson.binSort.length).map(index => ({ id: String(index), text: lesson.binSort[index].sentence, destination: lesson.binSort[index].answer, choiceIds: choicesBySet?.get(lesson.binSort[index].setKey ?? "") })), [lesson, choicesBySet]);
+  const binChoices = useMemo(() => {
+    const reviewedDefinitions = new Map(lesson.teachingGroups?.flatMap(group => group.words.map(entry => [entry.word, entry.definition] as const)));
+    return shuffledIndices(lesson.words.length).map(index => {
+      const word = lesson.words[index].word;
+      return { id: word, label: word, description: reviewedDefinitions.get(word) ?? retainedBinDefinitions[lesson.microSkillKey]?.[word] };
+    });
+  }, [lesson]);
+  const balloonPrompts = useMemo(() => lesson.balloonPrompts.map(prompt => ({ ...prompt, choices: choicesBySet?.get(prompt.setKey ?? "") })), [lesson, choicesBySet]);
   const beat = useMemo<GuideBeatV1>(() => ({ id: `homophone-${state.stage}`, activityId: state.stage, state: state.stage === "cover" || state.stage === "dictation" ? "guideSilent" : "invite", say: "Choose the spelling that matches the meaning.", goal: "Use meaning to choose and spell each word.", waitFor: "the next step", onComplete: "continue" }), [state.stage]);
   if (issues.length) return <p role="alert">This homophone lesson is not ready: {issues.join(", ")}.</p>;
   if (!ready) return <p role="status">Restoring the homophone lesson…</p>;
@@ -95,8 +119,8 @@ export function HomophoneGuidedLesson(props: {
   const passage = lesson.dictationPassages[state.dictationIndex];
   const passageKey = String(state.dictationIndex);
   return <><FirstImpressionLesson teaching={teaching} activities={[
-    { id: "bin-sort", type: "MEANING_SORT", label: "Bin Sort", binding: createCanonicalActivityBinding({ id: "bin-sort", concept: "MEANING_SORT", mode: "meaning", contractVersion: 1, label: "Bin Sort", createProps: ({ complete }) => ({ items: binItems, bins: binChoices, instruction: "Read the sentence and choose the word that fits its gap.", showOverview: true, showBinDescriptions: false, onIncorrect: ({ item, selectedBinId }: { item: { text: string; destination: string }; selectedBinId: string }) => change({ choiceMistakes: [...current.current.choiceMistakes, { activity: "bin-sort", word: item.destination, selected: selectedBinId, sentence: item.text }] }), onContinue: () => { change({ binSortCompleted: true }); complete(); } }) }) },
-    { id: "balloon-pop", type: "BALLOON_POP", label: "Balloon Pop", layout: "immersive", binding: createCanonicalActivityBinding({ id: "balloon-pop", concept: "BALLOON_POP", mode: "timed_sentence_choice", contractVersion: 1, label: "Balloon Pop", createProps: ({ complete }) => ({ words: lesson.words.map(entry => ({ word: entry.word, feedbackReason: entry.feedbackReason })), prompts: lesson.balloonPrompts, initialBest: best, onMistake: (mistake: { answer: string; selected: string | null; sentence: string }) => change({ choiceMistakes: [...current.current.choiceMistakes, { activity: "balloon-pop", word: mistake.answer, selected: mistake.selected, sentence: mistake.sentence }] }), onFinish: async (score: number) => { const saved = props.childId ? await recordHomophoneBalloonBest(props.childId, props.assignmentId, lesson.microSkillKey, score) : Math.max(best, score); setBest(saved); return saved; }, onContinue: () => { change({ balloonCompleted: true }); complete(); } }) }) },
+    { id: "bin-sort", type: "MEANING_SORT", label: "Bin Sort", binding: createCanonicalActivityBinding({ id: "bin-sort", concept: "MEANING_SORT", mode: "meaning", contractVersion: 1, label: "Bin Sort", createProps: ({ complete }) => ({ items: binItems, bins: binChoices, instruction: "Read the sentence and choose the word that fits its gap.", showOverview: true, showBinDescriptions: false, overviewDescriptionLayout: "inline", onIncorrect: ({ item, selectedBinId }: { item: { text: string; destination: string }; selectedBinId: string }) => change({ choiceMistakes: [...current.current.choiceMistakes, { activity: "bin-sort", word: item.destination, selected: selectedBinId, sentence: item.text }] }), onContinue: () => { change({ binSortCompleted: true }); complete(); } }) }) },
+    { id: "balloon-pop", type: "BALLOON_POP", label: "Balloon Pop", layout: "immersive", binding: createCanonicalActivityBinding({ id: "balloon-pop", concept: "BALLOON_POP", mode: "timed_sentence_choice", contractVersion: 1, label: "Balloon Pop", createProps: ({ complete }) => ({ words: lesson.words.map(entry => ({ word: entry.word, feedbackReason: entry.feedbackReason })), prompts: balloonPrompts, initialBest: best, onMistake: (mistake: { answer: string; selected: string | null; sentence: string }) => change({ choiceMistakes: [...current.current.choiceMistakes, { activity: "balloon-pop", word: mistake.answer, selected: mistake.selected, sentence: mistake.sentence }] }), onFinish: async (score: number) => { const saved = props.childId ? await recordHomophoneBalloonBest(props.childId, props.assignmentId, lesson.microSkillKey, score) : Math.max(best, score); setBest(saved); return saved; }, onContinue: () => { change({ balloonCompleted: true }); complete(); } }) }) },
   ]} initialStageId={state.stage} initialTeachingPageIndex={state.teachingPage}
     onTeachingPageChange={teachingPage => change({ teachingPage })}
     onStageChange={stage => change({ stage, coverIndex: stage === "cover" ? 0 : current.current.coverIndex, dictationIndex: stage === "dictation" ? 0 : current.current.dictationIndex })}
