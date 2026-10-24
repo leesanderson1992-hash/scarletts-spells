@@ -65,7 +65,7 @@ type Skill = {
   skill_family_key: string;
   skill_cluster_key: string;
 };
-type Family = { name: string; words: { id: string; word: string }[] };
+type Family = { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] };
 type Field = {
   key: string;
   label: string;
@@ -885,6 +885,8 @@ export function WordWorkspace(props: {
                   className="mt-2 flex flex-wrap items-center gap-2 text-sm"
                 >
                   <strong>Base Family: {item.name}</strong>
+                  {item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
+                  {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
                   {item.words.map((word) => (
                     <Link
                       key={word.id}

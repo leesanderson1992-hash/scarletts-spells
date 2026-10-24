@@ -4,7 +4,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { WeakVowelRouteEditor } from "../app/(authenticated)/admin/teaching-dictionary/weak-vowel-route-editor";
 import { hydrateWorkspaceFacts } from "../lib/teaching-dictionary-manager/workspace-hydration";
-import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 import type { WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 
 const packageRows = JSON.parse(readFileSync("content/secret-life-of-vowels/weak-vowel-route-content-candidates.json", "utf8")) as {
@@ -22,7 +22,7 @@ const hydrated = hydrateWorkspaceFacts({ current, initial: current, draftId: nul
   skillKeys: [sample.microSkillKey], routeContents: [placeholder] });
 assert.deepEqual(hydrated.routeContents[0], sample.routeContent,
   "generic group preflight must not erase published weak-vowel facts");
-const facts = sample.routeContent.content.weakVowel;
+const facts = sample.routeContent.content.weakVowel as WeakVowelRouteFactsV1;
 assert.deepEqual(weakVowelRouteBlockers(facts, { displayWord: sample.spelling,
   definition: sample.sharedDefinition.definition, dictationSentence: sentence,
   microSkillKey: sample.microSkillKey }), []);
@@ -35,7 +35,7 @@ for (const label of ["Reviewed pronunciation ID", "Accepted cut positions", "Vow
   assert.ok(html.includes(label), `missing structured field: ${label}`);
 }
 assert.ok(html.includes("44ecea36307dec5c"), "approved word recording hash should be populated");
-const falseBinding = { ...facts as Record<string, unknown>, sentenceTarget: { start: 1, end: 3 } };
+const falseBinding = { ...facts, sentenceTarget: { start: 1, end: 3 } };
 assert.ok(weakVowelRouteBlockers(falseBinding, { displayWord: "he", definition: "pronoun",
   dictationSentence: "the teacher waited", microSkillKey: sample.microSkillKey })
   .some(blocker => blocker.includes("exact span")), "a substring inside another word is not a valid sentence target");

@@ -27,7 +27,7 @@ assert.equal(canResumeOlderAdleSession([older, newer, newer], untouched), false)
 
 const snapshot = reviewConundrumDevSnapshot();
 let olderStage: OpenAdleSession["major_stage"] = "blocked";
-let newerProgress = untouched;
+let newerProgress: typeof untouched | (Omit<typeof untouched, "writing_started_at"> & { writing_started_at: string }) = untouched;
 const client = { from(table: string) {
   const filters: Record<string, unknown> = {};
   const query = {

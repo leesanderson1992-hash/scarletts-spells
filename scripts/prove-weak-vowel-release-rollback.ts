@@ -216,7 +216,7 @@ async function main() {
         promptText: prepared.lesson.reflectionPrompt, reflectionText: progress.reflection };
       const finishArgs = [parentId, childId, created.rows[0].id, "2026-10-21", skill,
         sourceRef, items.map((item) => item.id), JSON.stringify(attempts),
-        JSON.stringify(completion), JSON.stringify(reflection)] as const;
+        JSON.stringify(completion), JSON.stringify(reflection)];
       const finished = await client.query<{ outcome: { status: string } }>(
         "SELECT public.complete_adle_weak_vowel_lesson_v1($1,$2,$3,$4,$5,$6,$7::uuid[],$8::jsonb,$9::jsonb,$10::jsonb) outcome",
         finishArgs);

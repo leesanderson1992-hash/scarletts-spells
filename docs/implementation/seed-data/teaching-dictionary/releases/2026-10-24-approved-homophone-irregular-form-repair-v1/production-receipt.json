@@ -1,0 +1,12 @@
+{
+  "target": "production",
+  "mode": "apply",
+  "releaseId": "2026-10-24-approved-homophone-irregular-form-repair-v1",
+  "packageHash": "2fc6810bd22f3fe3aac58ee6c54119ffc423a07429e8f6ee12981e79bec3b020",
+  "forms": 5,
+  "familyRevisions": 5,
+  "metadataRevisions": 5,
+  "approvedBy": "Katie Sanderson",
+  "approval": "Correction of five approved irregular-family analyses to the Teaching Dictionary transformation schema; owner approval 2026-10-24",
+  "at": "2026-10-24T20:36:12.766Z"
+}

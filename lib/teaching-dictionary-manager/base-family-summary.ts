@@ -6,12 +6,65 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 export async function loadWordBaseFamilies(
   db: SupabaseClient,
   wordId: string,
-): Promise<{ name: string; words: { id: string; word: string }[] }[]> {
+): Promise<{ name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[]> {
   const read = async (query: PromiseLike<any>): Promise<any[]> => {
     const result = await query;
     if (result.error) throw new Error("TEACHING_FAMILY_SUMMARY_READ_FAILED");
     return result.data ?? [];
   };
+  // Lexical families are canonical dictionary facts. Read only the families
+  // touching this word, then resolve their latest approved revision so older
+  // immutable revisions do not appear as duplicate memberships.
+  const lexicalMatches = await read(
+    db.from("canonical_teaching_dictionary_lexical_base_family_members")
+      .select("family_key,revision").eq("canonical_word_id", wordId),
+  );
+  if (lexicalMatches.length) {
+    const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
+    const revisions = await read(
+      db.from("canonical_teaching_dictionary_lexical_base_families")
+        .select("family_key,revision,base_lemma,base_kind,base_meaning")
+        .in("family_key", keys).eq("review_status", "approved")
+        .order("revision", { ascending: false }),
+    );
+    const latest = new Map<string, any>();
+    for (const row of revisions) if (!latest.has(row.family_key)) latest.set(row.family_key, row);
+    if (latest.size) {
+      const currentMembers = (await read(
+        db.from("canonical_teaching_dictionary_lexical_base_family_members")
+          .select("family_key,revision,canonical_word_id").in("family_key", [...latest.keys()]),
+      )).filter((row) => latest.get(row.family_key)?.revision === row.revision);
+      const activeKeys = [...latest.keys()].filter((key) =>
+        currentMembers.some((row) => row.family_key === key && row.canonical_word_id === wordId));
+      if (activeKeys.length) {
+        const rootKeys = activeKeys.filter((key) => latest.get(key)?.base_kind === "bound_root");
+        const rootDetails = rootKeys.length ? await read(
+          db.from("canonical_teaching_dictionary_lexical_root_metadata")
+            .select("family_key,revision,pronunciation_ipa")
+            .in("family_key", rootKeys),
+        ) : [];
+        const rootPronunciation = new Map(rootDetails
+          .filter((row) => latest.get(row.family_key)?.revision === row.revision)
+          .map((row) => [row.family_key, String(row.pronunciation_ipa)]));
+        const ids = [...new Set(currentMembers.filter((row) => activeKeys.includes(row.family_key))
+          .map((row) => String(row.canonical_word_id)))];
+        const lexicalWords = await read(
+          db.from("canonical_teaching_dictionary_words").select("id,display_word")
+            .in("id", ids).eq("row_status", "active"),
+        );
+        const display = new Map(lexicalWords.map((row) => [row.id, String(row.display_word)]));
+        return activeKeys.map((key) => ({
+          name: key,
+          meaning: String(latest.get(key)?.base_meaning ?? ""),
+          pronunciation: rootPronunciation.get(key),
+          words: currentMembers.filter((row) => row.family_key === key)
+            .flatMap((row) => display.has(row.canonical_word_id)
+              ? [{ id: String(row.canonical_word_id), word: display.get(row.canonical_word_id)! }] : [])
+            .sort((a, b) => a.word.localeCompare(b.word, "en-GB")),
+        }));
+      }
+    }
+  }
   const environment = resolveAdleRouteActivationEnvironment();
   const [legacyMembers, reviews, withdrawals, skillWithdrawals] =
     await Promise.all([

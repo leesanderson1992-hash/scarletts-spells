@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the approved meanings against unsigned morphology and family plans."""
+"""Validate reviewed homophone morphology and family plans."""
 
 import csv
 import json
@@ -46,9 +46,9 @@ assert len(family_by_key) == len(member_by_word) == 38
 for row in structure:
     word = row["word"]
     source = dictionary_by_word[word]
-    assert source["review_status"] == "draft" and source["content_approval_reference"]
-    assert source["structure_review_status"] == source["family_review_status"] == "draft"
-    assert row["structure_review_status"] == row["family_review_status"] == "draft"
+    assert source["review_status"] == "approved_for_first_exposure" and source["content_approval_reference"]
+    assert source["structure_review_status"] == source["family_review_status"] == "approved"
+    assert row["structure_review_status"] == row["family_review_status"] == "approved"
     assert row["content_approval_reference"] == source["content_approval_reference"]
     assert row["word_sum"] == source["child_facing_word_sum"]
     assert row["base_family_key"] == source["base_family_key"]
@@ -76,11 +76,11 @@ for row in structure:
     member = member_by_word[word]
     assert family["base_lemma"] == row["base_or_root"]
     assert family["base_part_of_speech"] == row["base_part_of_speech"]
-    assert family["base_meaning"] and family["structure_review_status"] == "draft"
+    assert family["base_meaning"] and family["structure_review_status"] == "approved"
     assert member["base_family_key"] == row["base_family_key"]
     assert member["word_sum"] == row["word_sum"]
     assert member["morphology_parts_json"] == row["morphology_parts_json"]
-    assert member["structure_review_status"] == "draft"
+    assert member["structure_review_status"] == "approved"
     assert member["relationship_kind"] in {"free_base", "regular_inflection", "irregular_inflection", "contraction"}
 assert len(families) == 38
 assert {row["word"] for row in dependencies if row["dependency_type"] == "free_base"} == {
@@ -91,4 +91,4 @@ print(json.dumps({"valid": True, "incomingWords": 38, "proposedFamilies": 38,
                   "missingIncomingDependencies": 5, "wholeDictionaryGapCandidates": 892,
                   "combinedBacklog": 897, "unanalysedCanonicalWords": 886,
                   "approvedMeaningAndContrastContent": True,
-                  "morphologyAndFamilyApproved": False}, indent=2))
+                  "morphologyAndFamilyApproved": True}, indent=2))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that unsigned homophone drafts cover every required word and set."""
+"""Check the original draft export and its approved lesson review."""
 
 import csv
 import json
@@ -21,6 +21,7 @@ def target_count(sentence, word):
 
 manifest = json.loads((DIR / "manifest.json").read_text(encoding="utf-8"))
 package = json.loads((DIR / "editorial-draft-lessons.json").read_text(encoding="utf-8"))
+approved = json.loads((DIR / "approved-lesson-content.json").read_text(encoding="utf-8"))
 dictionary = rows("dictionary-intake-review.csv")
 members = rows("contrast-set-review.csv")
 lesson_review = rows("lesson-content-review.csv")
@@ -42,9 +43,9 @@ for row in members:
 assert {row["word"] for row in dictionary} == set(manifest["absentDictionaryWords"])
 assert len(dictionary) == 38
 for row in dictionary:
-    assert row["review_status"] == "draft" and not row["reviewed_by"] and not row["reviewed_at"]
-    assert row["source_importability_status"] == "requires_editorial_review"
-    assert row["source_legal_review_status"] == "required"
+    assert row["review_status"] == "approved_for_first_exposure" and row["reviewed_by"] and row["reviewed_at"]
+    assert row["source_importability_status"] == "importable"
+    assert row["source_legal_review_status"] == "not_required"
     assert row["en_gb_pronunciation"].startswith("/") and row["en_gb_pronunciation"].endswith("/")
     assert int(row["syllables"]) >= 1 and len(row["stress_pattern"].split("-")) == int(row["syllables"])
     assert row["frequency_band"] in {"high", "medium", "low"}
@@ -52,7 +53,7 @@ for row in dictionary:
     assert row["complexity_band"] in {"low", "medium", "high"}
     assert isinstance(json.loads(row["morphology_parts_json"]), list)
     assert target_count(row["dictation_sentence"], row["word"]) == 1
-    tokens = re.findall(r"[\w]+(?:['’][\w]+)?", row["dictation_sentence"])
+    tokens = [token.strip(".,!?;:") for token in row["dictation_sentence"].split()]
     assert tokens[int(row["dictation_target_index"])].lower() == row["word"]
     assert row["dictation_audio_text"] == row["dictation_sentence"]
 
@@ -97,13 +98,18 @@ for skill in new:
             m["word"] for m in item["members"]}
     question_count += len(questions)
 for row in lesson_review:
-    assert row["review_status"] == "draft" and not row["reviewed_by"] and not row["approval_reference"]
+    assert row["review_status"] == "approved" and row["reviewed_by"] and row["approval_reference"]
+    assert approved["sourceSha256"] in row["approval_reference"]
     assert row["teaching_explanation"] == by_key[row["micro_skill_key"]]["teachingExplanation"]
-    assert row["sentence_choice_items_reference"] == f"editorial-draft-lessons.json#{row['micro_skill_key']}"
+    approved_lesson = next(lesson for lesson in approved["lessons"]
+                           if lesson["microSkillKey"] == row["micro_skill_key"])
+    assert row["teaching_explanation"] == approved_lesson["teachingExplanation"]
+    assert row["common_misconception"] == approved_lesson["commonMisconception"]
+    assert row["sentence_choice_items_reference"] == f"approved-lesson-content.json#{row['micro_skill_key']}"
 
 assert question_count == 152
 print(json.dumps({"valid": True, "dictionaryWords": 38, "contrastSets": 84,
                   "memberRelationships": 175, "draftLessons": 58,
                   "independentSentenceQuestions": 152,
-                  "approvedContrastSets": 84, "dictionaryImportApprovals": 0,
-                  "lessonApprovals": 0}, indent=2))
+                  "approvedContrastSets": 84, "dictionaryImportApprovals": 38,
+                  "lessonApprovals": len(lesson_review)}, indent=2))

@@ -22,15 +22,24 @@ Schema migrations and content releases are separate:
   the configured project ref;
 - `TEACHING_DICTIONARY_RELEASE_ACTOR` for the operational receipt.
 
-The project refs are fixed in the release tool:
+The Production project ref is fixed in the release tool. Set
+`SUPABASE_STAGING_PROJECT_REF` to the ref of the current disposable staging
+project; the old default is retained only for historical compatibility:
 
 ```text
-staging:    jlhotktspjvffslvuyfz
+staging default (retired): jlhotktspjvffslvuyfz
 production: wwohrqtunajrbwxyssjf
 ```
 
 Credentials belong in environment secrets. Never pass them as command
 arguments or commit them.
+
+On the Free plan, use a schema-only staging copy and synthetic fixtures. Check
+database size and egress before copying anything; do not clone learner rows.
+The public schema must match the Production baseline. Reconcile its migration
+history using `supabase migration repair` only after checking the restored
+schema, then run the release preflight. Retire the disposable project after
+the release proof and receipts have been saved.
 
 ## Prepare
 

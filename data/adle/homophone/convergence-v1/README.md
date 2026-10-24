@@ -1,5 +1,35 @@
 # Homophone convergence v1
 
+## Local teaching-page review
+
+`approved-cheat-codes.json` pins the supplied “Ultimate Cheat Codes” CSV by
+reviewed contrast-set key and word. Regenerate it with
+`python3 scripts/import-homophone-cheat-codes.py <word-pages.csv>`; the import
+requires a cue for every member of all 74 new-lesson sets and records the CSV
+SHA-256. The local preview freezes each selected cue and its approved meaning
+into the lesson snapshot and includes the CSV hash in the preview content
+version. Ordinary lessons show one word, meaning and cue per page, followed by
+all selected groups together. The three multi-pair lessons have a concept page,
+then two intact pairs per comparison page, then the grouped recap. These pages
+are available at `/dev/adle/homophone-convergence` for review; this preview
+does not activate a Production route.
+
+Page 1 uses the same existing “Why are some words so confusing?” copy in all
+homophone lessons, including the retained v2 lessons. It follows the retained
+white panel with pink border, highlighted focus words and a category callout;
+the three explanatory paragraphs are identical while the focus and category
+identify the selected lesson words. Each of the 114 word pages in the 55 single-set new lessons
+has an illustration based on its `imageDescription` in
+`approved-cheat-codes.json`. Web-sized artwork is stored in
+`public/adle/homophones/convergence-v1/word-art`; the reviewed description is
+also frozen with the image path in each local preview snapshot. These generated
+illustrations are visual drafts for lesson review.
+The retained `you're` and `they're` teaching pages use supplemental artwork
+from the same sheet without changing their immutable v2 lesson snapshots.
+Illustrated word pages in both the new and retained lessons use a compact
+image-and-cheat-code layout that keeps the card and navigation visible on
+short phone screens.
+
 The uploaded microskill list is preserved in `source-microskills.csv`. Run
 `python3 scripts/build-homophone-convergence.py` from the repository root to
 verify the frozen manifest. It creates review CSVs only if none exist, so
@@ -58,13 +88,14 @@ not write dictionary rows or release lesson routes.
 
 ## Release gates
 
-The content owner approved the dictionary meanings/sentences and the 84
-contrast sets in the 2026-10-23 Codex chat. `contrast-set-review.csv` records
-that approval. The dictionary review sheet retains `draft` as its **import**
-status until the new morphology, lexical-family links, five missing dependent
-words, and source review are complete. The approved content wording is recorded
-in `content_approval_reference`; it is not a blanket approval of the newly
-proposed structural analysis.
+The content owner approved the dictionary meanings/sentences, the 84 contrast
+sets, canonical structures, and incoming lexical-family definitions and
+memberships in the 2026-10-23 Codex chat. Those review CSVs now record the
+approval. The 38 words and all five missing base/expansion dependencies are in
+the validated 194-word canonical package
+`2026-10-23-reviewed-root-homophone-words-v2`. That package and its 194 approved
+definitions were released and verified in staging and Production on 2026-10-23.
+The review CSV approval does not activate lexical families or ADLE routes.
 
 The whole-dictionary read-only production audit covers 1,993 approved en-GB
 words. Of these, 1,107 have approved active morphology. The separate
@@ -115,12 +146,13 @@ exact match to each member's approved canonical morphology. `bridal` and
 `stationary` are kept as whole lexical bases in this review: their apparent
 suffix splits would misstate their word history.
 
-The review files are **not yet an importable dictionary release**:
+The review files are not themselves the database input:
 
-- `dictionary-intake-review.csv`: 38 absent words and required en-GB facts,
-  with structure and base-family enrichment still unsigned.
+- `dictionary-intake-review.csv`: 38 approved absent words and en-GB facts;
+  `ill` overlaps with the full-dictionary dependency intake, so the immutable
+  canonical package includes 37 additional homophone words.
 - `contrast-set-review.csv`: 84 approved sets and 175 word–set relationships.
-- `lesson-content-review.csv`: 58 contextual-choice lesson packages. Each
+- `lesson-content-review.csv`: 58 draft contextual-choice lesson packages. Each
   referenced package must contain teaching copy and independently chosen words
   in complete sentences, covering every member of every selected set.
 - `redirect-review.csv`: eight draft source-to-destination relationships from
@@ -129,10 +161,10 @@ The review files are **not yet an importable dictionary release**:
   reviewed case-level migration in `homophone_evidence_migration_reviews`.
 
 Run `python3 scripts/preflight-homophone-convergence.py --release` before any
-content publication. It fails until the review fields are populated and signed
-off. The current report-only invocation lists blocker counts. Human approval
-must be backed by an actual review reference; filling a status field alone
-does not constitute approval.
+content publication. The dictionary, contrast, canonical-structure, dependency
+and lexical-family review gates are clear. The 58 lesson content reviews and
+six redirect sources remain separate blockers. The database release and
+activation checks are additional gates beyond this review-file preflight.
 
 After the reviewed dictionary import is active, run
 `npx tsx scripts/import-homophone-contrast-sets.mts` for a dry-run of the

@@ -1,0 +1,17 @@
+{
+  "target": "production",
+  "mode": "apply",
+  "releaseId": "2026-10-24-approved-homophone-dictionary-v1",
+  "packageHash": "fab7bd2e9cfba610263548e909d1b18a77a516c5e30ba410296c467992da9642",
+  "canonicalTargets": 173,
+  "newCanonicalWords": 1,
+  "morphologyRevisions": 175,
+  "writtenSyllableSplits": 38,
+  "newFamilies": 63,
+  "revisedFamilies": 101,
+  "familyMembers": 214,
+  "approvedVariants": 2,
+  "approvedBy": "Katie Sanderson",
+  "approval": "Katie Sanderson approval in Codex chat, 2026-10-24: homophone Teaching Dictionary resolution package",
+  "at": "2026-10-24T20:33:41.407Z"
+}

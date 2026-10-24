@@ -1,0 +1,22 @@
+{
+  "target": "production",
+  "sourceSha256": "9ac752f5c65c6548ed64ed905b9e59e18a1774a422844338bfc93c2971a63214",
+  "before": {
+    "families": 720,
+    "approved": 0,
+    "members": 899,
+    "variants": 0,
+    "active_words": 2190,
+    "migration": 1
+  },
+  "after": {
+    "families": 866,
+    "approved": 866,
+    "members": 1096,
+    "variants": 4,
+    "words": 1083
+  },
+  "approvedBy": "Katie Sanderson",
+  "approvedAt": "2026-10-23T21:48:44.595Z",
+  "canonicalPrerequisiteRelease": "2026-10-23-family-prerequisite-canonical-v1"
+}

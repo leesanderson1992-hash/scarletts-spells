@@ -1,0 +1,10 @@
+{
+  "target": "production",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "releaseId": "2026-10-23-reviewed-root-homophone-words-v2",
+  "packageSha256": "7a6bbffd6b989309746cb238dc056836bd42f064abdcd9ca0d7ed7fe2e06cb25",
+  "approvedSourceSha256": "6a6a05e6d38ff7164c7d260bff18425ed09b548bd0c380aa06c0deadffdde57b",
+  "definitionsPublished": 194,
+  "definitionsPreviouslyPublished": 0,
+  "publishedAt": "2026-10-23T21:01:00.971Z"
+}

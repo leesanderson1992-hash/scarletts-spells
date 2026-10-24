@@ -55,7 +55,7 @@ const CHUNK_SIZE = 100;
 
 export const TARGETS = {
   staging: {
-    projectRef: "jlhotktspjvffslvuyfz",
+    projectRef: process.env.SUPABASE_STAGING_PROJECT_REF ?? "jlhotktspjvffslvuyfz",
     databaseUrlEnv: "SUPABASE_STAGING_DB_URL",
     importMode: "staging_release",
   },
@@ -65,6 +65,11 @@ export const TARGETS = {
     importMode: "production_release",
   },
 } as const;
+
+if (!/^[a-z]{20}$/.test(TARGETS.staging.projectRef) ||
+    TARGETS.staging.projectRef === TARGETS.production.projectRef) {
+  throw new Error("SUPABASE_STAGING_PROJECT_REF must identify a separate Supabase project.");
+}
 
 const PROTECTED_TABLES = [
   "children",
@@ -905,7 +910,7 @@ async function schemaPreflight(
     fail(`${target} requires ${RELEASE_ROLE} as NOLOGIN NOINHERIT BYPASSRLS.`);
   }
   const membership = await client.query<{ allowed: boolean }>(
-    "select pg_has_role(current_user, $1, 'MEMBER') as allowed",
+    "select pg_has_role(current_user, $1, 'SET') as allowed",
     [RELEASE_ROLE],
   );
   if (!membership.rows[0].allowed) {
@@ -1595,7 +1600,19 @@ async function verification(
     );
     counts[spec.table] = result.rowCount ?? result.rows.length;
     const expectedDigest = rowsDigest(expected, spec.columns);
-    const actualDigest = rowsDigest(result.rows, spec.columns);
+    // Existing written-syllable approvals attach three provenance fields to
+    // replacement metadata rows. Preserve them while comparing every field
+    // owned by this canonical package exactly.
+    const actualRows = spec.table === "canonical_teaching_dictionary_word_metadata"
+      ? result.rows.map((row) => {
+          const metadata = row.source_metadata as Record<string, unknown> | null;
+          if (!metadata) return row;
+          const { humanReviewDate: _date, humanReviewManifestSha256: _manifest,
+            humanApprovedWrittenSyllableBreakdown: _breakdown, ...sourceMetadata } = metadata;
+          return { ...row, source_metadata: sourceMetadata };
+        })
+      : result.rows;
+    const actualDigest = rowsDigest(actualRows, spec.columns);
     if ((result.rowCount ?? result.rows.length) !== expected.length || actualDigest !== expectedDigest) {
       fail(`Persisted row verification failed for ${spec.table}.`);
     }

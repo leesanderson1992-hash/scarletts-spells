@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "teaching_dictionary_release_receipt_v1",
+  "target": "production",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "releaseId": "2026-10-23-family-prerequisite-canonical-v1",
+  "packageSha256": "3b4c5377b0955172686a18062dff8036164b57921820720d89aa2c2960ac0767",
+  "workbookSha256": "154d75538546bd922b4e322d3f780f62f1361e3f06c5b3e21febf9ce435b0b6f",
+  "sourceCommit": "2272796460afb3f9d97e03e1e130578424965062",
+  "importerVersion": "teaching_dictionary_release_v1",
+  "batchId": "e2e79369-5d82-5002-9f1f-70c430dc1dac",
+  "verification": {
+    "status": "verified",
+    "releaseId": "2026-10-23-family-prerequisite-canonical-v1",
+    "packageSha256": "3b4c5377b0955172686a18062dff8036164b57921820720d89aa2c2960ac0767",
+    "batchId": "e2e79369-5d82-5002-9f1f-70c430dc1dac",
+    "counts": {
+      "canonical_teaching_dictionary_sources": 1,
+      "canonical_teaching_dictionary_words": 6,
+      "canonical_teaching_dictionary_word_metadata": 6,
+      "canonical_teaching_dictionary_word_morphology": 6,
+      "canonical_teaching_dictionary_dictation_sentences": 6
+    },
+    "digests": {
+      "canonical_teaching_dictionary_sources": "27123c8f848559f54558022643e47e6d057aebea0af8f94fa9792ff768580f60",
+      "canonical_teaching_dictionary_words": "ef51b0a6950fa461ffc9cb93926f5413d1e1841cadfc7c38a080ed9458ac1803",
+      "canonical_teaching_dictionary_word_metadata": "b9b356d42839626fdd9343395d1a5f57a7b1405264f7ad6e3daa034d00f7b002",
+      "canonical_teaching_dictionary_word_morphology": "6b177fb8fc25eef69b8fea7698c526f186457e71b89d6d9f6b129ad7ec3cb7b4",
+      "canonical_teaching_dictionary_dictation_sentences": "3f6cd259a3f3ab2c17ca7fe732fd360005b90125971a88808f8c3b0fc4b53ed6"
+    },
+    "activeWordCountBefore": 2187,
+    "activeWordCountAfter": 2190,
+    "newWords": 3,
+    "reusedWords": 3,
+    "restrictedRole": "canonical_word_releaser",
+    "deferredRepairIntents": 0
+  },
+  "protectedCountsBefore": {
+    "adle_assignment_attempt_events": 818,
+    "adle_authentic_use_events": 1322,
+    "adle_learning_items": 102,
+    "adle_slippage_events": 0,
+    "assignment_items": 1023,
+    "child_word_treasure_events": 172,
+    "child_word_treasures": 78,
+    "children": 33,
+    "daily_assignments": 223,
+    "learning_item_evidence": 185,
+    "learning_items": 49,
+    "spelling_canonical_mapping_events": 3013,
+    "spelling_canonical_mappings": 1006,
+    "spelling_catalog_review_cases": 28
+  },
+  "protectedCountsAfter": {
+    "adle_assignment_attempt_events": 818,
+    "adle_authentic_use_events": 1322,
+    "adle_learning_items": 102,
+    "adle_slippage_events": 0,
+    "assignment_items": 1023,
+    "child_word_treasure_events": 172,
+    "child_word_treasures": 78,
+    "children": 33,
+    "daily_assignments": 223,
+    "learning_item_evidence": 185,
+    "learning_items": 49,
+    "spelling_canonical_mapping_events": 3013,
+    "spelling_canonical_mappings": 1006,
+    "spelling_catalog_review_cases": 28
+  },
+  "generatedAt": "2026-10-23T21:50:22.265Z"
+}

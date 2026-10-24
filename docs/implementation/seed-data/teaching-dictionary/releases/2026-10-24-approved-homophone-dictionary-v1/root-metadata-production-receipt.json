@@ -1,0 +1,12 @@
+{
+  "target": "production",
+  "projectRef": "wwohrqtunajrbwxyssjf",
+  "migration": "20261024200000_teaching_dictionary_lexical_root_metadata.sql",
+  "migrationVerified": true,
+  "rootCount": 2,
+  "roots": ["fect", "ple"],
+  "sourceSha256": "70cca3c9969af13bb015007b0b742601a5a68842e03e2d4f52b233b78e8d26be",
+  "approvedBy": "Katie Sanderson",
+  "approvalReference": "Katie Sanderson approval in Codex chat, 2026-10-24: homophone Teaching Dictionary package",
+  "verifiedAt": "2026-10-24T20:39:30Z"
+}

@@ -44,9 +44,10 @@ function SearchPicker({ label, name, value, onChange, options, create = false, r
   </label>;
 }
 
-function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedSkillKey, onClose }: {
+function CreateDialog({ row, skills, families, clusters, membersBySkill, approvedGroupsBySkill, mappedSkillKey, onClose }: {
   row: NoSkillRow; skills: Skill[]; families: Family[]; clusters: Cluster[];
-  membersBySkill: Record<string, string[]>; mappedSkillKey?: string; onClose: () => void;
+  membersBySkill: Record<string, string[]>; approvedGroupsBySkill: Record<string, string[][]>;
+  mappedSkillKey?: string; onClose: () => void;
 }) {
   const [mode, setMode] = useState<"existing" | "new">("existing");
   const [classification, setClassification] = useState<"context" | "spelling">(
@@ -62,6 +63,12 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
   const clusterKey = cluster === "__new__" ? newClusterKey : cluster;
   const context = classification === "context";
   const knownMembers = selectedSkill ? membersBySkill[selectedSkill.micro_skill_key] ?? [] : [];
+  const normalize = (word: string) => word.toLowerCase().replace(/[’ʼ]/g, "'");
+  const reviewedFor = (key: string) => (approvedGroupsBySkill[key] ?? []).find((group) => {
+    const words = group.map(normalize);
+    return words.includes(normalize(row.misspelling)) && words.includes(normalize(row.correction));
+  });
+  const reviewedGroup = reviewedFor(skill);
 
   return <AppDialog open onOpenChange={(open) => { if (!open) onClose(); }} size="lg"
     title="Create or link a micro skill"
@@ -94,7 +101,7 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
         onChange={(key) => {
           if (key === "__new__") { setMode("new"); setSkill(""); return; }
           setSkill(key);
-          setMembers([...new Set([...(membersBySkill[key] ?? []), row.misspelling, row.correction])].join(", "));
+          setMembers((reviewedFor(key) ?? [...new Set([...(membersBySkill[key] ?? []), row.misspelling, row.correction])]).join(", "));
         }} options={skills.map((item) => ({ key: item.micro_skill_key, name: item.display_name }))} />
         : <>
           <SearchPicker label="Family" name="family_selection" value={family} create
@@ -137,9 +144,10 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
           placeholder="there, their, they’re" className="rounded border px-3 py-2 font-normal" />
         <span className="text-xs font-normal text-[#59616b]">Separate words with commas. All approved words share one micro skill.</span>
       </label> : null}
-      {context && knownMembers.length ? <p className="text-xs text-[#59616b]">Existing approved words: {knownMembers.join(", ")}</p> : null}
+      {context && reviewedGroup ? <p className="text-xs text-[#59616b]">Reviewed contrast set: {reviewedGroup.join(", ")}</p>
+        : context && knownMembers.length ? <p className="text-xs text-[#59616b]">Existing approved words: {knownMembers.join(", ")}</p> : null}
       <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-        The skill appears in dropdowns immediately. An ADLE lesson waits for approved words, word support, teaching content, and three parent-confirmed misuses.
+        The skill appears in dropdowns immediately. Homophone lessons use approved contrast sets, dictionary words, a reviewed lesson release, and route activation. Learner assignment also needs an eligible queued item.
       </p>
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onClose} className="adle-admin-secondary">Cancel</button>
@@ -149,9 +157,10 @@ function CreateDialog({ row, skills, families, clusters, membersBySkill, mappedS
   </AppDialog>;
 }
 
-export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, membersBySkill, mappedSkillsByQueueId }: {
+export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, membersBySkill, approvedGroupsBySkill, mappedSkillsByQueueId }: {
   rows: NoSkillRow[]; skills: Skill[]; families: Family[]; clusters: Cluster[];
-  membersBySkill: Record<string, string[]>; mappedSkillsByQueueId: Record<string, string>;
+  membersBySkill: Record<string, string[]>; approvedGroupsBySkill: Record<string, string[][]>;
+  mappedSkillsByQueueId: Record<string, string>;
 }) {
   const [menu, setMenu] = useState<{ row: NoSkillRow; top: number; left: number } | null>(null);
   const [dialog, setDialog] = useState<{ kind: "create" | "delete"; row: NoSkillRow } | null>(null);
@@ -210,6 +219,7 @@ export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, mem
     </div>, document.body) : null}
     {dialog?.kind === "create" ? <CreateDialog key={dialog.row.queue_id} row={dialog.row} skills={skills}
       families={families} clusters={clusters} membersBySkill={membersBySkill}
+      approvedGroupsBySkill={approvedGroupsBySkill}
       mappedSkillKey={mappedSkillsByQueueId[dialog.row.queue_id]} onClose={() => setDialog(null)} /> : null}
     {dialog?.kind === "delete" ? <AppDialog open onOpenChange={(open) => { if (!open) setDialog(null); }}
       title="Delete admin case" description={`Remove ${dialog.row.misspelling} → ${dialog.row.correction} from No Matching Skill?`}>

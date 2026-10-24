@@ -8,6 +8,7 @@ import { auditDerivedItyCandidates } from "@/lib/adle/morphology/derived-suffix-
 import { compareItyDerivedSelection } from "@/lib/adle/morphology/ity-derived-shadow-comparison";
 import { ityDerivedBlockerAction, ityShadowBlockerMessage } from "@/lib/adle/morphology/ity-derived-blockers";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { loadHomophoneRequirementsSummary } from "@/lib/teaching-dictionary-manager/homophone-requirements-summary";
 
 export const dynamic = "force-dynamic";
 const ZERO_CHILD_ID = "00000000-0000-0000-0000-000000000000";
@@ -18,6 +19,7 @@ export default async function TeachingDictionaryRoutesPage({ searchParams }: {
   await requireAdminUser();
   const { audit, child } = await searchParams;
   const db = createServiceRoleClient();
+  const homophones = await loadHomophoneRequirementsSummary();
   const children = audit === "ity" ? await db.from("children")
     .select("id,first_name,last_name").eq("is_archived", false).order("first_name").limit(200) : null;
   if (children?.error) throw new Error("ITY_AUDIT_CHILD_LIST_FAILED");
@@ -39,6 +41,19 @@ export default async function TeachingDictionaryRoutesPage({ searchParams }: {
       <h1 className="mt-3 text-3xl font-semibold">ADLE activity requirements</h1>
       <p className="mt-2 text-sm">Question variants and lesson group checks from the current released route recipes. This inventory does not activate a new route.</p>
     </header>
+    <section className="rounded-xl border border-[var(--border)] bg-white p-4" aria-label="Homophone Production requirements">
+      <h2 className="text-lg font-semibold">Homophone family · Production</h2>
+      <p className="mt-1 text-sm">The reviewed roster has {homophones.skillCount} micro skills, {homophones.setCount} contrast sets and {homophones.wordCount} distinct words.</p>
+      <p className="mt-2 text-sm"><strong>{homophones.readySkills}/{homophones.skillCount}</strong> lesson releases have enabled matching routes · <strong>{homophones.wordCount - homophones.missingWords.length}/{homophones.wordCount}</strong> dictionary words approved · <strong>{homophones.setCount - homophones.missingSets.length}/{homophones.setCount}</strong> contrast sets approved.</p>
+      {homophones.missingWords.length || homophones.missingSets.length || homophones.inactiveSkills.length
+        ? <ul className="mt-2 list-disc pl-5 text-sm text-amber-900">
+          {homophones.missingWords.length ? <li>Dictionary words: {homophones.missingWords.join(", ")}</li> : null}
+          {homophones.missingSets.length ? <li>Contrast sets: {homophones.missingSets.join(", ")}</li> : null}
+          {homophones.inactiveSkills.length ? <li>Lesson routes: {homophones.inactiveSkills.join(", ")}</li> : null}
+        </ul>
+        : <p className="mt-2 text-sm text-emerald-900">All reviewed family requirements pass. Individual assignment still depends on a learner having an eligible queued item.</p>}
+      <Link className="mt-2 inline-block text-sm underline" href="/admin/adle-lesson-readiness?route=homophone_contextual_choice">Inspect contextual lesson releases</Link>
+    </section>
     <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="text-lg font-semibold">-ity dictionary comparison</h2>
       <p className="mt-1 text-sm">Compare directly derivable reviewed words with released members. A word is excluded when its structure, meaning or dictation cannot be validated. This read-only audit does not change learner selection.</p>
