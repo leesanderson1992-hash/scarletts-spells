@@ -34,6 +34,7 @@ type SupabaseServerClient = {
 type RecommendationCanonicalExactPairLookup = (input: {
   misspellingNormalized: string | null | undefined;
   correctSpellingNormalized: string | null | undefined;
+  deassignedMicroSkillKeys?: ReadonlySet<string>;
 }) => Promise<RecommendationCanonicalExactPairMappingSignal[]>;
 
 type RecommendationCanonicalWordMapLookup = (input: {
@@ -1291,11 +1292,18 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
         return row;
       }
 
+      const { findCurrentDeassignedMicroSkillKeysForWord } = await import(
+        "./spelling-canonical-mappings"
+      );
+      const deassignedMicroSkillKeys = await findCurrentDeassignedMicroSkillKeysForWord({
+        correctSpellingNormalized: row.expectedCorrection,
+      });
       const [trustedCanonicalMappings, trustedWordMapMetadataSignals] =
         await Promise.all([
           canonicalExactPairLookup({
             misspellingNormalized: row.observedText,
             correctSpellingNormalized: row.expectedCorrection,
+            deassignedMicroSkillKeys,
           }),
           canonicalWordMapLookup({
             misspellingNormalized: row.observedText,
@@ -1324,6 +1332,7 @@ export async function attachStage2aMicroSkillRecommendationsToUnifiedRows(input:
           }),
         ),
         trustedWordMapMetadataSignals,
+        deassignedMicroSkillKeys,
       });
       const recommendation = recommendStage2aMicroSkillForSpellingPair(
         recommendationInput,

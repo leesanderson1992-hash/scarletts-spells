@@ -34,14 +34,6 @@ type CatalogRow = {
   metadata: Record<string, unknown> | null;
 };
 
-type CanonicalMappingRow = {
-  id: string;
-  misspelling_normalized: string;
-  correct_spelling_normalized: string;
-  micro_skill_key: string;
-  mapping_status: string;
-};
-
 type ParentLocalMappingRow = {
   id: string;
   parent_user_id: string;
@@ -135,13 +127,13 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
   writingSampleId?: string | null;
   trustedCanonicalMappings?: WritingEngineStage2aCanonicalMappingSignal[];
   trustedWordMapMetadataSignals?: WritingEngineStage2aWordMapMetadataSignal[];
+  deassignedMicroSkillKeys?: ReadonlySet<string>;
 }): Promise<WritingEngineStage2aRecommendationInput> {
   const misspellingNormalized = normalizeWord(input.misspelling);
   const correctionNormalized = normalizeWord(input.correction);
 
   const [
     catalogRows,
-    canonicalRows,
     parentLocalRows,
     writingIssueRows,
     frequencyRows,
@@ -169,17 +161,6 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
         .eq("is_active", true)
         .eq("is_assignable", true),
     ),
-    misspellingNormalized
-      ? optionalSelect<CanonicalMappingRow>(
-          input.supabase
-            .from("spelling_canonical_mappings")
-            .select(
-              "id, misspelling_normalized, correct_spelling_normalized, micro_skill_key, mapping_status",
-            )
-            .eq("misspelling_normalized", misspellingNormalized)
-            .eq("mapping_status", "active"),
-        )
-      : Promise.resolve([]),
     input.parentUserId && input.childId && misspellingNormalized
       ? optionalSelect<ParentLocalMappingRow>(
           input.supabase
@@ -305,7 +286,8 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
     childId: input.childId,
     taskSubmissionId: input.taskSubmissionId,
     writingSampleId: input.writingSampleId,
-    catalogEntries: catalogRows.map((row) => ({
+    catalogEntries: catalogRows.filter((row) =>
+      !input.deassignedMicroSkillKeys?.has(row.micro_skill_key)).map((row) => ({
       microSkillKey: row.micro_skill_key,
       masteryDomainKey: row.mastery_domain_key,
       skillFamilyKey: row.skill_family_key,
@@ -317,16 +299,8 @@ export async function buildStage2aMicroSkillRecommendationReadModel(input: {
       allowedTemplateKeys: row.allowed_template_keys ?? [],
       metadata: row.metadata ?? {},
     })),
-    canonicalMappings: [
-      ...(input.trustedCanonicalMappings ?? []),
-      ...canonicalRows.map((row): WritingEngineStage2aCanonicalMappingSignal => ({
-        mappingId: row.id,
-        misspellingNormalized: row.misspelling_normalized,
-        correctSpellingNormalized: row.correct_spelling_normalized,
-        microSkillKey: row.micro_skill_key,
-        mappingStatus: row.mapping_status,
-      })),
-    ],
+    canonicalMappings: (input.trustedCanonicalMappings ?? []).filter((mapping) =>
+      !input.deassignedMicroSkillKeys?.has(mapping.microSkillKey)),
     parentLocalPromotedMappings: parentLocalRows.map(
       (row): WritingEngineStage2aParentLocalPromotedMappingSignal => ({
         mappingId: row.id,

@@ -673,6 +673,12 @@ async function runReadModelRegression() {
       misspellingNormalized: "taik",
       correctSpellingNormalized: "take",
     });
+    const withdrawnMappings = await findRecommendationCanonicalExactPairMappings({
+      supabase: supabase as never,
+      misspellingNormalized: "natrual",
+      correctSpellingNormalized: "natural",
+      deassignedMicroSkillKeys: new Set([naturalPattern.microSkillKey]),
+    });
 
     assert.equal(JSON.stringify(hiddenMappings), JSON.stringify([{
       mappingId: "canonical-business-hidden",
@@ -691,6 +697,7 @@ async function runReadModelRegression() {
     assert.equal(JSON.stringify(inactiveMappings), JSON.stringify([]));
     assert.equal(JSON.stringify(nonAssignableMappings), JSON.stringify([]));
     assert.equal(JSON.stringify(nonD4Mappings), JSON.stringify([]));
+    assert.equal(JSON.stringify(withdrawnMappings), "[]", "A withdrawn pair cannot become a canonical recommendation.");
   }
 
   {
@@ -718,11 +725,28 @@ async function runReadModelRegression() {
     assert.equal(result.recommendationAuthority, "possible_match");
     assert.equal(result.recommendedMicroSkillKey, finalE.microSkillKey);
     assert.equal(result.isPrefillAllowed, true);
-    assert.equal(
-      supabase.readTables.includes("spelling_canonical_mappings"),
-      true,
-      "Read model should attempt optional canonical mappings but fail soft when RLS denies them.",
-    );
+    assert.equal(supabase.readTables.includes("spelling_canonical_mappings"), false,
+      "Read model must not repeat the authoritative canonical lookup.");
+  }
+
+  {
+    const readModel = await buildStage2aMicroSkillRecommendationReadModel({
+      supabase: createStage2aFakeSupabase() as never,
+      misspelling: "hav",
+      correction: "have",
+      trustedCanonicalMappings: [{
+        mappingId: "canonical-hav-have",
+        misspellingNormalized: "hav",
+        correctSpellingNormalized: "have",
+        microSkillKey: finalE.microSkillKey,
+        mappingStatus: "active",
+      }],
+      deassignedMicroSkillKeys: new Set([finalE.microSkillKey]),
+    });
+    assert.deepEqual(readModel.canonicalMappings, []);
+    assert.deepEqual(readModel.catalogEntries, []);
+    assert.equal(recommendStage2aMicroSkillForSpellingPair(readModel).recommendationStatus,
+      "no_matching_skill_candidate");
   }
 
   {
@@ -802,7 +826,7 @@ async function runReadModelRegression() {
       buildStage2aMicroSkillRecommendationReadModel({
         supabase: createStage2aFakeSupabase({
           errorsByTable: {
-            spelling_canonical_mappings: {
+            writing_issues: {
               code: "08006",
               message: "connection failure while reading optional source",
             },

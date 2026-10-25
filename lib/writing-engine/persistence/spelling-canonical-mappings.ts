@@ -27,7 +27,8 @@ export type ResolverVisibleCanonicalExactPairUnresolved = {
     | "missing_pair"
     | "no_visible_mapping"
     | "missing_visibility_enable_event"
-    | "inactive_or_non_assignable_micro_skill";
+    | "inactive_or_non_assignable_micro_skill"
+    | "withdrawn_micro_skill_relationship";
 };
 
 export type ResolverVisibleCanonicalExactPairBlocked = {
@@ -78,6 +79,28 @@ export type RecommendationCanonicalExactPairMappingSignal = {
   microSkillKey: string;
   resolverVisibilityStatus: SpellingCanonicalResolverVisibilityStatus;
 };
+
+/** Current teaching veto for one canonical word; spelling correction authority is separate. */
+export async function findCurrentDeassignedMicroSkillKeysForWord(input: {
+  supabase?: ServiceRoleClient;
+  correctSpellingNormalized: string | null | undefined;
+  dialectCode?: string | null;
+  relationshipEnvironment?: AdleRouteActivationEnvironment | null;
+}): Promise<ReadonlySet<string>> {
+  const correction = normalizeLookupText(input.correctSpellingNormalized);
+  const environment = input.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
+  if (!correction || !environment) return new Set();
+  const supabase = input.supabase ?? createServiceRoleClient();
+  const { data, error } = await supabase.rpc("find_current_deassigned_micro_skill_keys_for_word", {
+    p_correct_spelling_normalized: correction,
+    p_dialect_code: normalizeLookupCode(input.dialectCode, "en-GB"),
+    p_environment_key: environment,
+  });
+  if (error) throw new Error(error.message || "Failed to read current teaching pair withdrawals.");
+  return new Set(((data ?? []) as Array<{ micro_skill_key?: unknown }>)
+    .map((row) => row.micro_skill_key)
+    .filter((key): key is string => typeof key === "string"));
+}
 
 export type CreateSpellingCanonicalMappingInput = {
   misspellingNormalized: string;
@@ -446,6 +469,7 @@ export async function findRecommendationCanonicalExactPairMappings(input: {
   correctSpellingNormalized: string | null | undefined;
   dialectCode?: string | null;
   normalizationVersion?: string | null;
+  deassignedMicroSkillKeys?: ReadonlySet<string>;
 }): Promise<RecommendationCanonicalExactPairMappingSignal[]> {
   const misspellingNormalized = normalizeLookupText(input.misspellingNormalized);
   const correctSpellingNormalized = normalizeLookupText(
@@ -497,8 +521,16 @@ export async function findRecommendationCanonicalExactPairMappings(input: {
     return [];
   }
 
+  const deassignedKeys = input.deassignedMicroSkillKeys ?? await findCurrentDeassignedMicroSkillKeysForWord({
+    supabase,
+    correctSpellingNormalized,
+    dialectCode,
+  });
+  const liveMappings = mappings.filter((mapping) => !deassignedKeys.has(mapping.micro_skill_key));
+  if (liveMappings.length === 0) return [];
+
   const candidateMicroSkillKeys = dedupeStrings(
-    mappings.map((mapping) => mapping.micro_skill_key),
+    liveMappings.map((mapping) => mapping.micro_skill_key),
   );
 
   const { data: microSkillRows, error: microSkillError } = await supabase
@@ -524,7 +556,7 @@ export async function findRecommendationCanonicalExactPairMappings(input: {
   );
   const selectedByMicroSkill = new Map<string, RecommendationCanonicalExactPairMappingRow>();
 
-  for (const mapping of mappings) {
+  for (const mapping of liveMappings) {
     if (!validMicroSkillKeys.has(mapping.micro_skill_key)) {
       continue;
     }
@@ -607,7 +639,19 @@ export async function findResolverVisibleExactPairMapping(input: {
     };
   }
 
-  const conflictingCorrectionMappings = visibleMappings.filter(
+  const deassignedKeys = await findCurrentDeassignedMicroSkillKeysForWord({
+    supabase,
+    correctSpellingNormalized,
+    dialectCode,
+  });
+  const liveVisibleMappings = visibleMappings.filter(
+    (mapping) => !deassignedKeys.has(mapping.micro_skill_key),
+  );
+  if (liveVisibleMappings.length === 0) {
+    return { status: "unresolved", reason: "withdrawn_micro_skill_relationship" };
+  }
+
+  const conflictingCorrectionMappings = liveVisibleMappings.filter(
     (mapping) =>
       mapping.correct_spelling_normalized !== correctSpellingNormalized,
   );
@@ -620,7 +664,7 @@ export async function findResolverVisibleExactPairMapping(input: {
     };
   }
 
-  const exactPairMappings = visibleMappings.filter(
+  const exactPairMappings = liveVisibleMappings.filter(
     (mapping) =>
       mapping.correct_spelling_normalized === correctSpellingNormalized,
   );
