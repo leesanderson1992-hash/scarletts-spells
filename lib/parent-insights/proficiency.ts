@@ -80,7 +80,7 @@ export async function loadParentInsightSkills(childId: string): Promise<InsightS
   const relationshipEnvironment = resolveAdleRouteActivationEnvironment()
     ?? (process.env.VERCEL_ENV === "preview" ? "production" : undefined);
   const { proficiencyReports, displayWordByWordId } = await loadDailyPlanFacts(service, {
-    childId, today, relationshipEnvironment,
+    childId, today, relationshipEnvironment, wordReadMode: "scoped",
   });
   const keys = proficiencyReports.map((report) => report.microSkillKey);
   if (keys.length === 0) return [];

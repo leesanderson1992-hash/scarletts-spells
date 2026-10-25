@@ -45,6 +45,15 @@ async function main() {
   assert.deepEqual(pairKeys(scoped.loaded.proficiencyRelationships), pairKeys(full.loaded.proficiencyRelationships), "Relationship projection changed after word scope");
   assert.deepEqual(scoped.loaded.withdrawnLearningItems, full.loaded.withdrawnLearningItems, "Withdrawal handling changed after word scope");
   assert.deepEqual(scoped.loaded.wordNextReviewDueByWordId, full.loaded.wordNextReviewDueByWordId, "Review queue changed after word scope");
+  const parentWordIds = new Set([
+    ...full.loaded.proficiencyReports.flatMap((report) => report.levels.flatMap((level) => level.mappedWords.map((word) => word.canonicalWordId))),
+    ...full.loaded.wordStates.map((word) => word.canonicalWordId),
+  ]);
+  for (const wordId of parentWordIds) {
+    assert.equal(scoped.loaded.displayWordByWordId.get(wordId), full.loaded.displayWordByWordId.get(wordId),
+      `Parent insight display word changed after word scope: ${wordId}`);
+  }
+  if (process.argv.includes("--require-parent-word")) assert.ok(parentWordIds.size > 0, "Expected a parent insight word in the staging fixture");
   console.log(JSON.stringify({ event: "adle_scoped_word_read_staging_v1", passed: true,
     childHasActiveLearningItem: full.loaded.facts.learningItems.length > 0,
     modes: results.map(({ mode, loaded, measured, durationMs }) => ({ mode,
@@ -56,6 +65,7 @@ async function main() {
     })),
     fullFingerprintPresent: full.loaded.proficiencyFingerprint !== null,
     scopedFingerprintAbsent: scoped.loaded.proficiencyFingerprint === null,
+    parentDisplayWordsCompared: parentWordIds.size,
   }));
 }
 

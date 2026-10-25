@@ -79,7 +79,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const client = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment() ?? "production";
   const [daily, published, childResult, words, catalog, families, members, morphology, contextualResult, attemptRows] = await Promise.all([
-    loadDailyPlanFacts(client, { childId, today: asOf, relationshipEnvironment: environment }),
+    loadDailyPlanFacts(client, { childId, today: asOf, relationshipEnvironment: environment, wordReadMode: "scoped" }),
     loadPublishedWritingAssociations(client, environment),
     client.from("children").select("id,date_of_birth").eq("id", childId).maybeSingle(),
     all<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status,age_band,frequency_band"),

@@ -637,8 +637,10 @@ uses that default and now rejects a missing calculation fingerprint. A scoped
 load deliberately returns no fingerprint. The dynamic-prefix assignment writer
 was the first caller of scoped mode. The ordinary daily assignment, R6
 specialist stage, daily preview, dynamic affix and compound assignment now
-request it explicitly. Authentic Use delivery and parent insight reads retain
-the full calculation path.
+request it explicitly. Parent insight reads also use scoped mode for their
+daily fact projection; the newer dashboard still separately reads the full
+dictionary for its own group authority. Authentic Use delivery retains the
+full calculation path and fingerprint.
 
 Read-only Production counts found 2,191 active words, 1,144 active support
 rows covering 925 word IDs, and zero approved generic transfer-selector
@@ -712,6 +714,14 @@ to enqueue. Scoped mode correctly fell back to the full 166-word catalogue,
 and its composed plan and proficiency reports matched full mode. The profile
 was deleted before the fixture completed; cleanup again found no residual
 learner writes or import batches.
+
+The parent insight daily fact reads were switched to scoped mode. Their
+proficiency and mastery projections were already equal in the full/scoped
+comparison. A second staging comparison after a withdrawn word received a
+historical review checked the actual parent display word for that mastery
+state as well; it matched in both modes and the review continued to credit
+word mastery while not contributing to the withdrawn micro-skill. The Parent
+Insights regression, TypeScript and targeted lint passed.
 
 Remaining validation before Production release: route-level generic/R6
 snapshot comparison against the deployed selector. Staging currently has no
