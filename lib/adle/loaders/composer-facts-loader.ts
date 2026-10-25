@@ -229,10 +229,12 @@ async function loadDailyPlanFactsUnmeasured(
   }
 
   const completeProficiencyHistory = authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled;
-  const pagedContexts = new Set(["words", "supports", "bandings", "overrides", "allocations", "taughtHistory", "outcomeEvents", "authenticUse", "slippage", "retirementReceipts"]);
+  const pagedContexts = new Set(["words", "bandings", "overrides", "allocations", "taughtHistory", "outcomeEvents", "authenticUse", "slippage", "retirementReceipts"]);
+  // Lesson support reads can exceed PostgREST's row limit even without an
+  // Authentic Use calculation; never silently drop the tail of the catalogue.
   const factRows = <T>(query: FactQuery, context: string): Promise<T[]> =>
     (completeProficiencyHistory && pagedContexts.has(context.split(":")[1]))
-      || (params.wordReadMode === "scoped" && context.endsWith(":supports"))
+      || context.endsWith(":supports")
       ? readProficiencyFactRows<T>(query, context, context.endsWith(":supports") ? ["canonical_word_id", "micro_skill_key", "support_role", "id"] : ["id"])
       : rows<T>(query, context);
   const supportSourceQuery = client.from("canonical_teaching_dictionary_word_support")

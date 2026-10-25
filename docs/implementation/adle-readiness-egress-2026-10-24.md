@@ -751,3 +751,34 @@ Staging had no morphology rows in this fixture, hence the two-byte response
 difference. Compiler parity, withdrawal, saved replay and cleanup passed.
 Median timings were 481 ms for facts and 995 ms for preparation in this run;
 these were slower than the earlier runs, so no speed improvement is claimed.
+
+## Support-source reuse and catalogue completeness — 25 Oct 2026
+
+The Authentic Use proficiency path read the complete support table in
+`loadDailyPlanFacts` and then read it again inside relationship authority.
+Commit `28c02fc5f1db329c759e4264e70760d5745ea9da` reuses the request's
+complete source rows, including inactive rows and governance fields, while
+retaining the authority's prior ID order and source fingerprint. A focused
+relationship regression found identical decisions and fingerprint without the
+second table read. In the disposable 1,006-support fixture, the full/scoped
+comparison used six support requests across both loads versus twelve before
+the change. Composed lessons and proficiency reports matched. Withdrawal,
+review mastery credit, saved assignment replay and fixture cleanup also
+passed. These are staging request counts, not measured Production egress.
+
+The commit was released as Production deployment
+`dpl_2SYGocQAcagj9pwRGLyMNh3Tmcfi`. Its public authenticated HEAD readback
+reported the exact SHA, valid identity, unchanged runtime fingerprint and
+release hold disabled. Fresh exact-SHA approval
+`fb35215e-c663-45bc-b9ae-2d178e9166f5` cites the owner's 9 Oct standing
+permission. The policy and five-minute scheduler were rebound to that SHA.
+The 23:10 UTC job returned HTTP 200 from the new SHA, both workers idle,
+zero unrecorded sends and no deployment error logs.
+
+An additional Production aggregate found 1,144 active support rows. The
+ordinary full fact loader's former unpaged support request could return only
+the first 1,000 rows under the PostgREST limit. The next bounded fix pages
+support rows in every mode. A disposable staging fixture with 1,006 rows
+returned all 1,006 in three pages without changing the lesson, withdrawal or
+replay checks. This completeness fix may add requests to ordinary full reads;
+its measured Production egress effect remains unknown.
