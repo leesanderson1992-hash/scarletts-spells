@@ -41,6 +41,7 @@ import {
   type ReviewedTransformation,
 } from "@/lib/teaching-dictionary-manager/authoring";
 import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesson-preflight";
+import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 import { saveWordWorkspace } from "./actions";
 import { launchReviewedAdleLesson } from "../adle-lesson-readiness/actions";
 import { CompoundPartsEditor } from "./compound-parts-editor";
@@ -228,6 +229,7 @@ export function WordWorkspace(props: {
   const [draftId, setDraftId] = useState(props.draftId);
   const [overviewReviewed, setOverviewReviewed] = useState(props.overviewReviewed);
   const [preflights, setPreflights] = useState<LessonReadinessRow[]>([]);
+  const [wordRouteStatuses, setWordRouteStatuses] = useState<WordRouteStatus[]>([]);
   const [assignedSkillKeys, setAssignedSkillKeys] = useState<string[] | null>(props.initialAssignedSkillKeys);
   const [checksState, setChecksState] = useState<"loading" | "ready" | "error">(props.wordId ? "loading" : "ready");
   const [checkVersion, setCheckVersion] = useState(0);
@@ -273,11 +275,12 @@ export function WordWorkspace(props: {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
       if (!response.ok) throw new Error("TEACHING_READINESS_LOAD_FAILED");
-      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[]; assignedSkillKeys: string[] }>;
+      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[]; assignedSkillKeys: string[]; wordRouteStatuses: WordRouteStatus[] }>;
     }).then(result => {
       if (controller.signal.aborted) return;
       setChecksLoadedMs(Math.round(performance.now()));
       setPreflights(result.preflights);
+      setWordRouteStatuses(result.wordRouteStatuses);
       setAssignedSkillKeys(result.assignedSkillKeys);
       if (!initialChecksApplied.current) {
         // Late native facts fill gaps only; edits and an explicitly selected draft win.
@@ -939,6 +942,7 @@ export function WordWorkspace(props: {
                 const preflight = preflights.find(
                   (row) => row.microSkillKey === key,
                 );
+                const statuses = wordRouteStatuses.filter((row) => row.microSkillKey === key);
                 return (
                   <tr key={key} className="border-b last:border-0">
                     <td data-label="Micro-skill" className="p-2">{name(key)}</td>
@@ -948,6 +952,10 @@ export function WordWorkspace(props: {
                         : preflight?.activationEnabled
                           ? "Active"
                           : "Built · inactive"}
+                      {statuses.map((status) => <div key={status.routeId} className="mt-1 text-xs">
+                        {status.routeId.replaceAll("_", " ")}: {status.administrativeCandidate ? "Ready for child selection checks" : status.blockers[0] ?? "Needs review"}
+                        {status.blockers.length > 1 && <details><summary>All {status.blockers.length} blockers</summary><ul className="list-disc pl-4">{status.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></details>}
+                      </div>)}
                     </td>
                     <td data-label="Action" className="p-2">
                       <button

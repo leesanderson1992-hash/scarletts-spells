@@ -158,86 +158,51 @@ export function collectWordFacts(
 }
 
 export async function loadLessonReadiness(
-  scope: { wordId?: string; routeId?: string; microSkillKey?: string } = {},
+  scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
 ): Promise<LessonReadinessRow[]> {
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
+  const scoped = (query: any, column: string, value?: string) => value ? query.eq(column, value) : query;
   const [
     prefixRows,
     suffixRows,
-    prefixMembers,
-    suffixMembers,
     contentRows,
-    reviewRows,
-    publicationRows,
-    rollbackRows,
     activationHeads,
-    activationRevisions,
     releaseRows,
     overviewRows,
     managerPublications,
   ] = await Promise.all([
-    selectRows(
+    scope.routeId && scope.routeId !== "dynamic_prefix_word_lab" ? Promise.resolve([]) : selectRows(
       db,
       "canonical_teaching_dictionary_prefix_profiles",
       "id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash,source_metadata,reviewed_by,reviewed_at",
-      (q) => q.eq("row_status", "active"),
+      (q) => scoped(q.eq("row_status", "active"), "micro_skill_key", scope.microSkillKey),
     ),
-    selectRows(
+    scope.routeId && scope.routeId !== "dynamic_affix_word_lab" ? Promise.resolve([]) : selectRows(
       db,
       "canonical_teaching_dictionary_suffix_profiles",
       "id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash,source_metadata,reviewed_by,reviewed_at",
-      (q) => q.eq("row_status", "active"),
-    ),
-    selectRows(
-      db,
-      "canonical_teaching_dictionary_prefix_members",
-      "id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins",
-    ),
-    selectRows(
-      db,
-      "canonical_teaching_dictionary_suffix_members",
-      "id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance",
+      (q) => scoped(q.eq("row_status", "active"), "micro_skill_key", scope.microSkillKey),
     ),
     selectRows(
       db,
       "teaching_dictionary_route_content_versions",
       "id,draft_id,canonical_word_id,route_id,route_version,micro_skill_key,published_at,content",
-    ),
-    selectRows(
-      db,
-      "teaching_dictionary_route_content_reviews",
-      "content_version_id,dictionary_fingerprint,reviewed_by",
-    ),
-    selectRows(
-      db,
-      "teaching_dictionary_route_content_publications",
-      "content_version_id,route_profile_id",
-    ),
-    selectRows(
-      db,
-      "teaching_dictionary_route_content_rollbacks",
-      "content_version_id",
+      (q) => scoped(scoped(q, "route_id", scope.routeId), "micro_skill_key", scope.microSkillKey),
     ),
     environment
       ? selectRows(
           db,
           "adle_route_activation_heads",
           "environment_key,route_id,route_version,micro_skill_key,current_revision_id",
-          (q) => q.eq("environment_key", environment),
-        )
-      : Promise.resolve([]),
-    environment
-      ? selectRows(
-          db,
-          "adle_route_activation_revisions",
-          "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint",
+          (q) => scoped(scoped(q.eq("environment_key", environment), "route_id", scope.routeId), "micro_skill_key", scope.microSkillKey),
         )
       : Promise.resolve([]),
     selectRows(
       db,
       "adle_curriculum_release_manifests",
       "id,manifest_payload,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,published_by,published_at",
+      (q) => scoped(q, "route_id", scope.routeId),
     ),
     selectRows(
       db,
@@ -245,6 +210,24 @@ export async function loadLessonReadiness(
       "draft_id,content_fingerprint,base_dictionary_fingerprint",
     ),
     selectRows(db, "teaching_dictionary_manager_publications", "draft_id"),
+  ]);
+  const contentIds = [...new Set(contentRows.map((row) => String(row.id)))];
+  const selectForIds = async (table: string, columns: string, key: string, ids: string[]) => {
+    if (ids.length === 0) return [] as Row[];
+    const batches = Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) => ids.slice(index * 100, (index + 1) * 100));
+    return (await Promise.all(batches.map(batch => selectRows(db, table, columns, q => q.in(key, batch))))).flat();
+  };
+  const [prefixMembers, suffixMembers, reviewRows, publicationRows, rollbackRows, activationRevisions] = await Promise.all([
+    selectForIds("canonical_teaching_dictionary_prefix_members",
+      "id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins",
+      "prefix_profile_id", prefixRows.map((row) => String(row.id))),
+    selectForIds("canonical_teaching_dictionary_suffix_members",
+      "id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,suffix_variant,semantic_base_text,semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,teaching_split_joins,true_morphology_parts,true_morphology_joins,true_morphology_transformations,transformation_notes,true_morphology_provenance",
+      "suffix_profile_id", suffixRows.map((row) => String(row.id))),
+    selectForIds("teaching_dictionary_route_content_reviews", "content_version_id,dictionary_fingerprint,reviewed_by", "content_version_id", contentIds),
+    selectForIds("teaching_dictionary_route_content_publications", "content_version_id,route_profile_id", "content_version_id", contentIds),
+    selectForIds("teaching_dictionary_route_content_rollbacks", "content_version_id", "content_version_id", contentIds),
+    selectForIds("adle_route_activation_revisions", "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint", "id", activationHeads.map((row) => String(row.current_revision_id))),
   ]);
   const revisionById = new Map(
     activationRevisions.map((row) => [row.id as string, row]),
@@ -286,6 +269,9 @@ export async function loadLessonReadiness(
         if (scope.routeId && scope.routeId !== route.routeId) return false;
         if (scope.microSkillKey && scope.microSkillKey !== skill) return false;
         if (!scope.wordId) return true;
+        // A reviewed relationship with no route content is itself a readiness
+        // gap, so the word workspace must still receive that route's report.
+        if (scope.approvedSkillKeys?.includes(skill)) return true;
         if (
           contentRows.some(
             (row) =>

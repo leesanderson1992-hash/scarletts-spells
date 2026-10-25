@@ -5,6 +5,8 @@ import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-pr
 import { wordRoutesFromPreflights } from "@/lib/teaching-dictionary-manager/workspace-read-model";
 import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { wordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 
 export const dynamic = "force-dynamic";
 export async function GET(_request: Request, { params }: { params: Promise<{ wordId: string }> }) {
@@ -13,17 +15,29 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   const { wordId } = await params;
   if (!isUuid(wordId)) return NextResponse.json({ error: "TEACHING_WORD_ID_INVALID" }, { status: 400 });
   const environment = resolveAdleRouteActivationEnvironment();
-  const [preflights, authority] = await Promise.all([
-    loadLessonReadiness({ wordId }),
+  const [authority, dictionary] = await Promise.all([
     environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : null,
+    createServiceRoleClient().from("canonical_teaching_dictionary_words")
+      .select("id,row_status,review_status").eq("id", wordId).single(),
   ]);
+  if (dictionary.error || !dictionary.data) return NextResponse.json({ error: "TEACHING_WORD_NOT_FOUND" }, { status: 404 });
+  const assignedSkillKeys = [...new Set((authority?.relationships ?? [])
+    .filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey))];
+  const approvedSkillKeys = new Set(assignedSkillKeys);
+  const preflights = await loadLessonReadiness({ wordId, approvedSkillKeys: assignedSkillKeys });
   return NextResponse.json({
     routeContents: wordRoutesFromPreflights(preflights, wordId, ""),
-    assignedSkillKeys: (authority?.relationships ?? []).filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey),
+    assignedSkillKeys,
     skillKeys: [...new Set([
-      ...(authority?.relationships ?? []).filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey),
+      ...assignedSkillKeys,
       ...preflights.map(row => row.microSkillKey),
     ])],
+    wordRouteStatuses: preflights.map(lesson => wordRouteStatus({
+      wordId,
+      dictionaryApproved: dictionary.data.row_status === "active" && dictionary.data.review_status === "approved_for_first_exposure",
+      approvedSkillKeys,
+      lesson,
+    })),
     preflights: preflights.map(({ releasePackage: _package, ...row }) => {
       void _package;
       return { ...row, compilerWitnesses: row.compilerWitnesses[wordId] ? { [wordId]: row.compilerWitnesses[wordId] } : {}, words: row.words.filter(word => word.id === wordId),

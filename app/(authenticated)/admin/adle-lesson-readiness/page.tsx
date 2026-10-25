@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { loadLessonReadiness } from "./read-model";
+import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { launchReviewedAdleLesson, rollbackReviewedAdleLessonVersion } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -10,12 +11,10 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
 }) {
   await requireAdminUser();
   const params = await searchParams;
-  const allRows = await loadLessonReadiness();
-  const rows = allRows.filter((row) => (!params.route || row.routeId === params.route)
-    && (!params.skill || row.microSkillKey === params.skill));
-  const counts = { released: allRows.filter((row) => row.released).length,
-    ready: allRows.filter((row) => row.status === "ready_to_launch").length,
-    blocked: allRows.filter((row) => ["blocked", "needs_review"].includes(row.status)).length };
+  const rows = await loadLessonReadiness({ routeId: params.route || undefined, microSkillKey: params.skill || undefined });
+  const counts = { released: rows.filter((row) => row.released).length,
+    ready: rows.filter((row) => row.status === "ready_to_launch").length,
+    blocked: rows.filter((row) => ["blocked", "needs_review"].includes(row.status)).length };
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
     <header><Link href="/admin/teaching-dictionary" className="text-sm underline">← Teaching Dictionary</Link>
       <h1 className="mt-3 text-3xl font-semibold">ADLE lesson readiness</h1>
@@ -25,11 +24,11 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
     {params.rolled_back && <p role="status" className="rounded-lg bg-amber-50 p-3 text-amber-950">The most recent reviewed profile version was rolled back. Earlier assignments keep their saved lesson snapshot.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-950">Launch stopped: {params.error.replaceAll("_", " ")}.</p>}
     <section className="grid gap-2 rounded-xl border border-[var(--border)] bg-white p-4 sm:grid-cols-3" aria-label="Lesson readiness summary">
-      <p><strong>{counts.released}</strong> content releases</p><p><strong>{counts.ready}</strong> ready to launch</p><p><strong>{counts.blocked}</strong> need work</p>
+      <p><strong>{counts.released}</strong> content releases in this view</p><p><strong>{counts.ready}</strong> ready to launch in this view</p><p><strong>{counts.blocked}</strong> need work in this view</p>
     </section>
     <form action="/admin/adle-lesson-readiness" method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-[var(--border)] bg-white p-4 text-sm">
-      <label className="grid gap-1">Route<select name="route" defaultValue={params.route ?? ""} className="rounded-lg border border-[var(--border)] p-2"><option value="">All routes</option>{[...new Set(allRows.map((row) => row.routeId))].map((route) => <option key={route} value={route}>{route.replaceAll("_", " ")}</option>)}</select></label>
-      <label className="grid gap-1">Micro-skill<select name="skill" defaultValue={params.skill ?? ""} className="max-w-xs rounded-lg border border-[var(--border)] p-2"><option value="">All skills</option>{[...new Set(allRows.map((row) => row.microSkillKey))].map((skill) => <option key={skill} value={skill}>{skill.replaceAll("_", " ")}</option>)}</select></label>
+      <label className="grid gap-1">Route<select name="route" defaultValue={params.route ?? ""} className="rounded-lg border border-[var(--border)] p-2"><option value="">All routes</option>{[...new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.map((row) => row.routeId))].map((route) => <option key={route} value={route}>{route.replaceAll("_", " ")}</option>)}</select></label>
+      <label className="grid gap-1">Micro-skill<select name="skill" defaultValue={params.skill ?? ""} className="max-w-xs rounded-lg border border-[var(--border)] p-2"><option value="">All skills</option>{[...new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap((row) => row.supportedMicroSkillKeys))].sort().map((skill) => <option key={skill} value={skill}>{skill.replaceAll("_", " ")}</option>)}</select></label>
 
       <button className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold">Show readiness</button>
     </form>

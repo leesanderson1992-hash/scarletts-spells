@@ -246,8 +246,8 @@ export async function TeachingDictionaryDetail({
     sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data,
   }));
   const environment = resolveAdleRouteActivationEnvironment();
-  const assignmentAuthority = wordId && environment && weakVersions.length
-    ? await loadCachedTeachingDictionaryEvidenceAuthority(environment).catch(() => null)
+  const assignmentAuthority = wordId && environment
+    ? await loadCachedTeachingDictionaryEvidenceAuthority(environment)
     : null;
   const initialAssignedSkillKeys = (assignmentAuthority?.relationships ?? [])
     .filter(row => row.canonicalWordId === wordId)
