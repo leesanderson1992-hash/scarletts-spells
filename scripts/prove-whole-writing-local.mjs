@@ -81,6 +81,13 @@ try {
   await db.query(migration("20260906180000_allow_unknown_enrichment_gap_skill_keys.sql"));
   await db.query(migration("20260906190000_integrate_e1_s5_current_evidence.sql"));
   await db.query(migration("20260907100000_add_whole_writing_known_errors_and_retries.sql"));
+  // This historical isolated fixture predates pair-decision tables. Give its
+  // worker transport the scoped signature while retaining the original S6 SQL.
+  await db.query(`create function materialize_writing_known_error_review_candidates_scoped(p_limit integer,p_environment_key text)
+    returns integer language sql security definer as $$
+    select materialize_writing_known_error_review_candidates(p_limit)
+    $$`);
+  process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "local";
   const parent = randomUUID(), otherParent = randomUUID(), child = randomUUID(), course = randomUUID(), task = randomUUID();
   await db.query("insert into auth.users values($1),($2)", [parent, otherParent]);
   await db.query("insert into children values($1,$2)", [child,parent]);

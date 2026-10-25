@@ -48,6 +48,12 @@ assert.equal(conflicting.checks[0].disposition, "ABSTAINED");
 const replay = buildWholeWritingKnownErrorFindings({ occurrences, mappings: [mapping()] });
 assert.deepEqual(replay.findings.map((finding) => finding.findingKey), first.findings.map((finding) => finding.findingKey));
 
+const withdrawn = buildWholeWritingKnownErrorFindings({
+  occurrences: [occurrences[0]], mappings: [{ ...mapping(), teachingMicroSkillKey: null }],
+});
+assert.equal(withdrawn.findings.length, 0, "withdrawn mapping cannot publish skill-bearing known-error finding");
+assert.equal(withdrawn.checks[0].disposition, "ABSTAINED");
+
 assert.deepEqual(
   getReturnedCorrectionEvidenceFlags({ approvedReplacement: "because", attemptedCorrection: "because" }),
   { markedFixed: true, correctionOutcome: "correct", correctedIndependently: false, assistanceState: "unknown", answerVisibility: "unknown" },

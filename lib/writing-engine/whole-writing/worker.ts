@@ -39,14 +39,14 @@ export async function recoverWritingShadowRuns(client: SupabaseClient = createSe
 }
 
 async function recoverWritingShadowRunsUnmeasured(client: SupabaseClient) {
+  const materializationEnvironment = resolveAdleRouteActivationEnvironment();
+  if (!materializationEnvironment) throw new Error("KNOWN_ERROR_MATERIALIZATION_ENVIRONMENT_UNSET");
   const materializeStarted = performance.now();
-  const materializedBefore = await client.rpc("materialize_writing_known_error_review_candidates", { p_limit: 100 });
-  recordAdleReadPage("rpc:materialize_writing_known_error_review_candidates", Array.isArray(materializedBefore.data) ? materializedBefore.data : [], performance.now() - materializeStarted);
-  if (materializedBefore.error && !["PGRST202", "42883"].includes(materializedBefore.error.code)) {
-    console.error("[writing-shadow] known-error review materialization failed", {
-      code: "KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED",
-    });
-  }
+  const materializedBefore = await client.rpc("materialize_writing_known_error_review_candidates_scoped", {
+    p_limit: 100, p_environment_key: materializationEnvironment,
+  });
+  recordAdleReadPage("rpc:materialize_writing_known_error_review_candidates_scoped", Array.isArray(materializedBefore.data) ? materializedBefore.data : [], performance.now() - materializeStarted);
+  if (materializedBefore.error) throw new Error("KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED");
   const replayStarted = performance.now();
   const replay = await client.rpc("schedule_writing_enrichment_replays", { p_limit: 20 });
   recordAdleReadPage("rpc:schedule_writing_enrichment_replays", Array.isArray(replay.data) ? replay.data : [], performance.now() - replayStarted);
@@ -135,6 +135,7 @@ async function recoverWritingShadowRunsUnmeasured(client: SupabaseClient) {
         knownErrorMappings = await findResolverVisibleTokenSafeCanonicalMappings({
           supabase: client as never,
           observedNormalizedTokens: occurrences.map((occurrence) => occurrence.observedText),
+          relationshipEnvironment: scope?.environment_key ?? resolveAdleRouteActivationEnvironment(),
         });
       }
       const knownSpellingErrors = controls.data.known_error_detection_enabled
@@ -159,6 +160,7 @@ async function recoverWritingShadowRunsUnmeasured(client: SupabaseClient) {
         const currentMappings = await findResolverVisibleTokenSafeCanonicalMappings({
           supabase: client as never,
           observedNormalizedTokens: occurrences.map((occurrence) => occurrence.observedText),
+          relationshipEnvironment: scope?.environment_key ?? resolveAdleRouteActivationEnvironment(),
         });
         if (
           knownErrorMappingAuthorityFingerprint(currentMappings) !==
@@ -175,7 +177,9 @@ async function recoverWritingShadowRunsUnmeasured(client: SupabaseClient) {
         shadowEvidence, knownSpellingErrors, qualification: "NOT_QUALIFIED", aiCalls: 0, processingMs: Date.now() - started };
       const saved = await client.rpc("persist_writing_shadow_result_with_known_errors", { p_run_id: run.id, p_lease_token: run.lease_token, p_result: result });
       if (saved.error || saved.data !== true) throw new Error("RESULT_SAVE_FAILED");
-      const materialized = await client.rpc("materialize_writing_known_error_review_candidates", { p_limit: 100 });
+      const materialized = await client.rpc("materialize_writing_known_error_review_candidates_scoped", {
+        p_limit: 100, p_environment_key: scope?.environment_key ?? materializationEnvironment,
+      });
       if (materialized.error) {
         console.error("[writing-shadow] known-error review materialization failed", {
           code: "KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED",

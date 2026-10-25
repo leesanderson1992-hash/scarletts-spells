@@ -175,6 +175,18 @@ function heuristic(
   assert.deepEqual(result, []);
 }
 
+{
+  const withdrawn = { ...mapping({ id: "withdrawn-map", misspelling: "becuase", correction: "because" }),
+    teachingMicroSkillKey: null };
+  const [result] = mergeHeuristicAndCanonicalMisspellings({
+    tokens: tokenizeText("becuase"), heuristicMisspellings: [], canonicalMappings: [withdrawn],
+  });
+  assert.equal(result?.correction, "because", "canonical spelling correction survives pair withdrawal");
+  assert.deepEqual(result?.canonicalProvenance?.microSkillKeys, [], "withdrawn skill is not attributed");
+  assert.deepEqual(result?.canonicalProvenance?.canonicalMappingIds, ["withdrawn-map"],
+    "historical canonical mapping identity survives withdrawal");
+}
+
 const migration = readFileSync(
   "supabase/migrations/20260807130000_add_canonical_misspelling_intake.sql",
   "utf8",

@@ -19,6 +19,8 @@ export type ResolverVisibleCanonicalMisspellingMapping = {
   misspellingNormalized: string;
   correctSpellingNormalized: string;
   microSkillKey: string;
+  /** Omitted in older fixtures; null means correction-only after withdrawal. */
+  teachingMicroSkillKey?: string | null;
   dialectCode: string;
   normalizationVersion: string;
   authorityReference: string;
@@ -98,7 +100,10 @@ function buildCanonicalDetection(
   const [correction, correctionMappings] = correctionEntry;
   const mappingIds = dedupe(correctionMappings.map((mapping) => mapping.mappingId));
   const microSkillKeys = dedupe(
-    correctionMappings.map((mapping) => mapping.microSkillKey),
+    correctionMappings.map((mapping) =>
+      mapping.teachingMicroSkillKey === undefined
+        ? mapping.microSkillKey
+        : mapping.teachingMicroSkillKey ?? ""),
   );
   const authorityReferences = dedupe(
     correctionMappings.map((mapping) => mapping.authorityReference),

@@ -10,7 +10,7 @@ const rpcArguments = {
   claim_writing_shadow_runs:["p_limit"],
   persist_writing_shadow_result:["p_run_id","p_lease_token","p_result"],
   persist_writing_shadow_result_with_known_errors:["p_run_id","p_lease_token","p_result"],
-  materialize_writing_known_error_review_candidates:["p_limit"],
+  materialize_writing_known_error_review_candidates_scoped:["p_limit","p_environment_key"],
   finish_writing_shadow_run:["p_run_id","p_lease_token","p_result","p_error_code"],
 };
 const identifier = (value) => {

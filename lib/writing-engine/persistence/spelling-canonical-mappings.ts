@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServiceRoleClient } from "../../supabase/service-role";
+import { resolveAdleRouteActivationEnvironment, type AdleRouteActivationEnvironment } from "../../adle/route-activation-environment";
 
 type ServiceRoleClient = ReturnType<typeof createServiceRoleClient>;
 
@@ -120,6 +121,8 @@ export type ResolverVisibleTokenSafeCanonicalMapping = {
   misspellingNormalized: string;
   correctSpellingNormalized: string;
   microSkillKey: string;
+  /** Null after an exact-pair withdrawal. The mapping still proves the spelling correction. */
+  teachingMicroSkillKey?: string | null;
   dialectCode: string;
   normalizationVersion: string;
   authorityReference: string;
@@ -725,6 +728,7 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
   observedNormalizedTokens: string[];
   dialectCode?: string | null;
   normalizationVersion?: string | null;
+  relationshipEnvironment?: AdleRouteActivationEnvironment | null;
 }): Promise<ResolverVisibleTokenSafeCanonicalMapping[]> {
   const observedNormalizedTokens = dedupeStrings(
     input.observedNormalizedTokens
@@ -758,7 +762,7 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
     );
   }
 
-  return ((data ?? []) as unknown[]).flatMap((value) => {
+  const mappings: ResolverVisibleTokenSafeCanonicalMapping[] = ((data ?? []) as unknown[]).flatMap((value) => {
     if (!value || typeof value !== "object") {
       return [];
     }
@@ -797,4 +801,27 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
       },
     ];
   });
+  if (mappings.length === 0) return [];
+
+  // Resolver visibility is spelling authority, not permission to attribute
+  // a new teaching skill. Keep the correction while vetoing withdrawn pairs.
+  const environment = input.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
+  if (!environment) return mappings.map((mapping) => ({ ...mapping, teachingMicroSkillKey: null }));
+  const authorityClient = createServiceRoleClient();
+  const withdrawnIds = new Set<string>();
+  for (let offset = 0; offset < mappings.length; offset += 500) {
+    const ids = mappings.slice(offset, offset + 500).map((mapping) => mapping.mappingId);
+    const { data: withdrawn, error: withdrawalError } = await authorityClient.rpc(
+      "find_withdrawn_resolver_mapping_ids", {
+        p_environment_key: environment,
+        p_mapping_ids: ids,
+      },
+    );
+    if (withdrawalError) throw new Error(`Failed to read resolver pair withdrawals: ${withdrawalError.message}`);
+    for (const row of withdrawn ?? []) withdrawnIds.add(row.mapping_id);
+  }
+  return mappings.map((mapping) => ({
+    ...mapping,
+    teachingMicroSkillKey: withdrawnIds.has(mapping.mappingId) ? null : mapping.microSkillKey,
+  }));
 }

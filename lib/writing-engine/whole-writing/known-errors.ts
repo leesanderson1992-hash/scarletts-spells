@@ -115,6 +115,13 @@ export function buildWholeWritingKnownErrorFindings(input: {
     const provenance = detection.canonicalProvenance;
     const mappingIds = sortedUnique(provenance.canonicalMappingIds);
     const microSkillKeys = sortedUnique(provenance.microSkillKeys);
+    if (microSkillKeys.length === 0) {
+      // Preserve correction provenance for legacy/Review spelling checks,
+      // but do not create a new skill-bearing known-error finding.
+      abstainedOccurrenceCount += 1;
+      checks.push({ occurrenceId: occurrence.id, disposition: "ABSTAINED", findingKey: null });
+      continue;
+    }
     const authorityReferences = sortedUnique(provenance.authorityReferences);
     const findingKey = fingerprint({
       version: WHOLE_WRITING_KNOWN_ERROR_VERSION,
