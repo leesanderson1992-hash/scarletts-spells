@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- new release tables are ahead of generated database types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordAdleReadPage, withAdleReadMetrics } from "@/lib/adle/observability/read-metrics";
 import {
   ADLE_CURRICULUM_ROUTE_REGISTRY,
   type CurriculumRouteDefinition,
@@ -99,7 +100,9 @@ async function selectRows(
         ? filter(db.from(table).select(columns))
         : db.from(table).select(columns)
     ).range(offset, offset + 499);
+    const started = performance.now();
     const { data, error } = await query;
+    recordAdleReadPage(table, data ?? [], performance.now() - started);
     if (error) throw new Error(`ADLE_LESSON_READ_${table}: ${error.message}`);
     out.push(...(data ?? []));
     if ((data ?? []).length < 500) return out;
@@ -158,6 +161,12 @@ export function collectWordFacts(
 }
 
 export async function loadLessonReadiness(
+  scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
+): Promise<LessonReadinessRow[]> {
+  return withAdleReadMetrics("lesson_preflight", () => loadLessonReadinessUnmeasured(scope));
+}
+
+async function loadLessonReadinessUnmeasured(
   scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
 ): Promise<LessonReadinessRow[]> {
   const db = createServiceRoleClient();

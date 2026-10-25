@@ -2,6 +2,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- governed tables intentionally lead generated database types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import {
   baseWordFamilyMemberAppliesToMicroSkill,
@@ -42,7 +43,9 @@ async function readAll<T>(
   for (;;) {
     let query = configure(client.from(table).select(columns)).order(key, { ascending: true }).limit(PAGE_SIZE);
     if (after) query = query.gt(key, after);
+    const started = performance.now();
     const { data, error } = await query;
+    recordAdleReadPage(table, data ?? [], performance.now() - started);
     if (error) throw new Error(`word-skill relationship read ${table}: ${error.message}`);
     const page = (data ?? []) as T[];
     rows.push(...page);
@@ -127,6 +130,16 @@ async function loadCompoundRouteContent(client: SupabaseClient, environmentKey: 
 }
 
 export async function loadCanonicalWordSkillRelationshipAuthority(params: {
+  client: SupabaseClient;
+  environmentKey: "local" | "staging" | "production";
+  explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[];
+  ignorePairDecisionsFor?: readonly { canonicalWordId: string; microSkillKey: string }[];
+}): Promise<CanonicalWordSkillRelationshipReadResult> {
+  return withAdleReadMetrics("word_skill_relationship_authority", () =>
+    loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params));
+}
+
+async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   client: SupabaseClient;
   environmentKey: "local" | "staging" | "production";
   explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[];

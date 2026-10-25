@@ -30,6 +30,7 @@ export type ActivityVariant = {
   conditional: boolean;
   enabled: boolean;
   requiredFacts: readonly ActivityFactRequirement[];
+  optionalFacts: readonly ActivityFactRequirement[];
   /** The current specialist compiler owns answer construction and validation. */
   compilerAdapter: string;
   validatorAdapter: string;
@@ -97,6 +98,11 @@ export function activityVariantsForRoute(
       || candidate.supportedMicroSkillKeys.includes(microSkillKey)));
   if (!route) return [];
   const mapping = getSharedAffixProfileMapping(microSkillKey);
+  const routeFact = (fact: ActivityFactRequirement): ActivityFactRequirement =>
+    route.compatibilityScope.kind !== "generic_composer_fallback"
+      && fact.factKey === "word_micro_skill_support"
+      ? { ...fact, factKey: "route_applicability", owner: "reviewed_word_route_facts" }
+      : fact;
   const kinds = [...route.requiredActivities];
   if (routeId === "dynamic_affix_word_lab") {
     kinds.splice(kinds.indexOf("word_build"), 0, "meaning_sort");
@@ -114,11 +120,8 @@ export function activityVariantsForRoute(
       wordScope: scope(kind),
       conditional,
       enabled: !conditional || mapping?.policy.meaning.kind === "sort_all_words",
-      requiredFacts: route.compatibilityScope.kind === "generic_composer_fallback"
-        ? definition.requiredFacts
-        : definition.requiredFacts.map((fact) => fact.factKey === "word_micro_skill_support"
-          ? { ...fact, factKey: "route_applicability" as const, owner: "reviewed_word_route_facts" as const }
-          : fact),
+      requiredFacts: definition.requiredFacts.map(routeFact),
+      optionalFacts: definition.optionalFacts.map(routeFact),
       compilerAdapter: route.runtimeAdapterKey,
       validatorAdapter: route.runtimeAdapterKey,
     };
