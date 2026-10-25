@@ -42,7 +42,7 @@ architectural exception.
 | Completed lesson and skill level | `daily_assignments.compiled_lesson_snapshot` replays unchanged. `proficiency/evidence/projector.ts` projects positive evidence through *current* approved `demonstrates` relationships, so withdrawing a pair can change the shadow/current level while the completed lesson and raw event remain. `composer-facts-loader.ts` uses governed relationships only when authentic-use proficiency is enabled; its other path uses active dictionary supports. Thus displayed level behaviour can differ by mode. | Preserve completion and raw evidence, recompute current level consistently, and explain any changed level from the relationship revision. Test both proficiency modes before switching the live display. |
 | Pending ADLE learning item | `adle_learning_items` is stored by child, word and skill and is not changed by a pair decision. The guarded prefix selector excludes a deassigned word from its profile, so that item cannot launch this route; another reviewed word may fill the lesson. Other selectors and generic intake need the same live veto. | Keep the child's need visible with an explicit blocked/reclassification status; do not erase it or silently substitute a different skill. |
 | Authentic misspelling detection | `find_resolver_visible_token_safe_canonical_mappings` reads active visible mappings and skill catalog state, but no pair-decision state. A deassignment therefore does not by itself stop canonical detection or remove the mapping's skill label. The relationship authority can reject that same word–skill pair downstream. | Separate spelling correction authority from skill attribution. Decide whether a mapping remains resolver-visible with a blocked/unknown teaching skill or needs editorial remapping. |
-| Scheduled review | `review-due-queue.ts` uses schedule rows; `composer-facts-loader.ts` obtains route attachments and learning items without a pair-decision check in the review-word construction. A due review can continue after deassignment. | Decide whether it remains a word-level spelling review, is paused for route review, or moves to another approved skill. Do not remove historical review outcomes. |
+| Scheduled review | `review-due-queue.ts` uses schedule rows; `composer-facts-loader.ts` obtains route attachments and learning items without a pair-decision check in the review-word construction. A due review can continue after deassignment. `evidence-pricing.ts` credits a successful review by child and canonical word, independently of the pair decision. | **Owner decision, 25 Oct 2026:** keep the word in the child's reviews and continue counting qualifying review outcomes toward that word's mastery. Do not count them as positive evidence for the withdrawn micro-skill. Preserve historical review outcomes and test the full review-to-word-mastery path. The `mastered` state also requires a parent-reviewed authentic use under the current evidence policy; reviews alone can advance the score and secure state but cannot satisfy that final gate. |
 
 These are code-path findings, not a claim that all current production learners
 have these states. The authenticated staging proof exercised new assignment
@@ -171,8 +171,10 @@ these states.
   governed relationship and explain any resulting level change. Mark affected
   pending learning items as blocked or route them to a reviewed alternative;
   never silently delete the child's need. Evaluate active review schedules and
-  route attachments separately from new lesson eligibility: a spelling review
-  may still be valid when the word no longer demonstrates that micro-skill.
+  route attachments separately from new lesson eligibility. The owner decided
+  that a withdrawn word remains in reviews and qualifying review outcomes
+  continue contributing to word-level mastery, while the withdrawn pair cannot
+  receive new positive skill evidence.
 - Decide resolver policy explicitly. A pair de-assignment currently does not
   disable an independent visible canonical mapping. Preserve spelling
   detection where appropriate while separating it from skill attribution;
