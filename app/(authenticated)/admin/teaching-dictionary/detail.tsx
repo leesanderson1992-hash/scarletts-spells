@@ -15,7 +15,7 @@ import {
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
-import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
@@ -247,7 +247,7 @@ export async function TeachingDictionaryDetail({
   }));
   const environment = resolveAdleRouteActivationEnvironment();
   const assignmentAuthority = wordId && environment
-    ? await loadCachedTeachingDictionaryEvidenceAuthority(environment)
+    ? await loadCachedTeachingDictionaryEvidenceAuthorityForWord(environment, wordId)
     : null;
   const initialAssignedSkillKeys = (assignmentAuthority?.relationships ?? [])
     .filter(row => row.canonicalWordId === wordId)

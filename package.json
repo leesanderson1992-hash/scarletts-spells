@@ -86,6 +86,7 @@
     "lint": "eslint",
     "adle:authority-docs-check": "tsx scripts/adle-authority-docs-check.ts",
     "adle:word-skill-relationship-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-relationship-regression.ts",
+    "adle:word-skill-scoped-read-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-scoped-read-regression.ts",
     "adle:word-skill-reconciliation": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-word-skill-reconciliation.ts",
     "adle:learner-evidence-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/adle-learner-evidence-regression.ts",
     "adle:teaching-dictionary-manager-regression": "tsx scripts/teaching-dictionary-manager-regression.ts",

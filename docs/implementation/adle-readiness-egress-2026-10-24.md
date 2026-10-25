@@ -191,3 +191,42 @@ Focused status, Teaching Dictionary and route-contract regressions, authority
 documentation check, lint, TypeScript and the full Next.js build passed.
 Phase 2 still needs scoped governed relationship reads, cross-page consumers,
 and representative reviewed staging fixtures before any selector is switched.
+
+## Word-scoped governed read slice — 25 Oct 2026
+
+The Teaching Dictionary word detail and its lesson-readiness API now request
+one word's governed relationship evidence. The shared repository still uses
+the existing adapters and canonical interpreter. It scopes canonical mappings
+by normalized spelling; visibility events by mapping ID; generic supports,
+specialist members and pair decisions by canonical word ID; then follows the
+referenced profiles and import batches. It also reads all canonical identities
+with the same normalized spelling so a duplicate remains an unstable identity.
+Reviewed writing pairs are read by word first, then their releases and
+withdrawals are fetched and ordered as in the all-word path. The result uses
+the existing evidence cache tag and 60-second TTL, so the detail render and
+its API can share a recent word result. List and background consumers retain
+their full authority read; no alternate approval or selector rule was added.
+
+An isolated staging comparison used five synthetic words. It temporarily
+added and then removed three synthetic generic-support rows: one approved
+example, one approved contrast and one unreviewed example. For all five words,
+the scoped and full loaders returned identical exact-word relationships and
+decisions. On that small fixture, the full authority read transferred 67 rows
+and 7,713 serialized JSON bytes across 12 instrumented table requests; the
+approved word's scoped read transferred 5 rows and 788 bytes across 10
+instrumented requests. Those counts exclude the writing-release loader's
+direct reads and the base-word loader's direct reads. They measure application
+JSON, not HTTP transfer or billed Supabase egress. A committed in-memory
+PostgREST regression additionally compares positive resolver and reviewed
+release evidence, deassignment, withdrawn release evidence and duplicate
+normalized spelling identities between full and scoped reads.
+
+This slice reduces per-word data transfer on a cold read. It does not prove a
+site-wide latency or billing improvement. The scoped read still makes several
+dependent requests, and activated base/compound releases can carry larger
+route-wide projections. Manager mutations expire the shared tag immediately;
+external publication and resolver changes may remain cached for up to 60
+seconds. The next read-efficiency work should measure real Production request
+and egress attribution, scope route release projections where authority checks
+allow it, and wire cross-system invalidation before promising immediate
+readiness updates. The list page and lesson selectors were not switched.

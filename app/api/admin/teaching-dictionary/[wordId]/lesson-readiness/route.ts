@@ -3,7 +3,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { wordRoutesFromPreflights } from "@/lib/teaching-dictionary-manager/workspace-read-model";
-import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { wordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
@@ -15,9 +15,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   const { wordId } = await params;
   if (!isUuid(wordId)) return NextResponse.json({ error: "TEACHING_WORD_ID_INVALID" }, { status: 400 });
   const environment = resolveAdleRouteActivationEnvironment();
+  const db = createServiceRoleClient();
   const [authority, dictionary] = await Promise.all([
-    environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : null,
-    createServiceRoleClient().from("canonical_teaching_dictionary_words")
+    environment ? loadCachedTeachingDictionaryEvidenceAuthorityForWord(environment, wordId) : null,
+    db.from("canonical_teaching_dictionary_words")
       .select("id,row_status,review_status").eq("id", wordId).single(),
   ]);
   if (dictionary.error || !dictionary.data) return NextResponse.json({ error: "TEACHING_WORD_NOT_FOUND" }, { status: 404 });
