@@ -269,3 +269,18 @@ their cache visibility is still bounded by the 60-second TTL. A later slice
 needs an explicit affected-word/version signal or scoped tags for those
 writers, with measured query counts before adding a database event mechanism.
 No billed-egress saving is claimed for this invalidation slice.
+
+Commit `8ccda25` passed focused Teaching Dictionary and word-skill scoped-read
+regressions, lint, TypeScript, and the full Next.js build. Its exact changed
+files were copied into the isolated staging source and deployed as Preview
+`dpl_8fm3eY4Hho1fMuRQyA98WzB61dw4` at
+`https://scarletts-spells-adle-staging-20261025-jxjbcvhfm.vercel.app`.
+The Preview reached `READY`; the synthetic `fixtureword001` workspace loaded
+with one joined but unapproved skill, eight blockers, and an inactive route.
+Canonical Resolver and Word–skill review pages also loaded. The review,
+publication and withdrawal controls are off in this disposable project, so
+this smoke did not exercise a publication or prove immediate post-mutation
+cache visibility. The sampled Preview error-log query returned no errors.
+The browser screenshot is retained locally at
+`.tmp/adle-staging-2026-10-25/cache-preview.png` (ignored fixture evidence).
+No Production deployment or database mutation occurred in this slice.

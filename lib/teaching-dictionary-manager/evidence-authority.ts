@@ -23,8 +23,8 @@ export async function loadTeachingDictionaryEvidenceAuthorityForWord(client: Sup
 }
 
 /** Share a word's governed read between the detail render and its readiness
- * request. The existing evidence tag invalidates manager mutations; external
- * publication/withdrawal changes remain bounded by the same 60-second TTL. */
+ * request. Admin Server Actions expire the evidence tag after governed writes;
+ * out-of-band writes remain bounded by the 60-second TTL. */
 export const loadCachedTeachingDictionaryEvidenceAuthorityForWord = unstable_cache(
   (environment: AdleRouteActivationEnvironment, canonicalWordId: string) =>
     loadTeachingDictionaryEvidenceAuthorityForWord(createServiceRoleClient(), environment, canonicalWordId),
@@ -32,8 +32,8 @@ export const loadCachedTeachingDictionaryEvidenceAuthorityForWord = unstable_cac
   { revalidate: 60, tags: [TEACHING_DICTIONARY_EVIDENCE_TAG] },
 );
 
-/** Shared admin read model. Manager actions expire it immediately; independent
- * releases are picked up within a minute without caching the approval writer. */
+/** Shared admin read model. Governed admin actions expire it immediately;
+ * out-of-band releases are picked up within a minute. */
 export const loadCachedTeachingDictionaryEvidenceAuthority = unstable_cache(
   (environment: AdleRouteActivationEnvironment) =>
     loadTeachingDictionaryEvidenceAuthority(createServiceRoleClient(), environment),
