@@ -183,7 +183,9 @@ export interface DailyPlanFactsLoad {
   /** Persisted child needs held out of new lessons by an exact-pair withdrawal. */
   withdrawnLearningItems: LearningItemFact[];
   wordNextReviewDueByWordId: Map<string, IsoDate>;
-  proficiencyFingerprint: string;
+  /** Present only for a complete catalogue read. Authentic Use must never
+   * identify a calculation from a scoped lesson-selection projection. */
+  proficiencyFingerprint: string | null;
   facts: DailyPlanFacts;
   /** canonical_word_id -> primary micro_skill_key (also the completion
    * helpers' microSkillKeyByWordId input). */
@@ -200,6 +202,10 @@ export interface LoadDailyPlanFactsParams {
   childId: string;
   today: IsoDate;
   childBand?: ChildBandProfile;
+  /** Comparison-only until route parity is proved. Authentic Use callers use
+   * the default full mode; reviewed generic transfer profiles also require
+   * the complete catalogue. Scoped loads do not return a calculation fingerprint. */
+  wordReadMode?: "full" | "scoped";
   /** A caller with its own deployment boundary may provide the reviewed
    * relationship environment without changing the application's global route gate. */
   relationshipEnvironment?: "local" | "staging" | "production";
@@ -225,8 +231,9 @@ async function loadDailyPlanFactsUnmeasured(
   const completeProficiencyHistory = authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled;
   const pagedContexts = new Set(["words", "supports", "bandings", "overrides", "allocations", "taughtHistory", "outcomeEvents", "authenticUse", "slippage", "retirementReceipts"]);
   const factRows = <T>(query: FactQuery, context: string): Promise<T[]> =>
-    completeProficiencyHistory && pagedContexts.has(context.split(":")[1])
-      ? readProficiencyFactRows<T>(query, context, context.endsWith(":supports") ? ["canonical_word_id", "micro_skill_key", "support_role"] : ["id"])
+    (completeProficiencyHistory && pagedContexts.has(context.split(":")[1]))
+      || (params.wordReadMode === "scoped" && context.endsWith(":supports"))
+      ? readProficiencyFactRows<T>(query, context, context.endsWith(":supports") ? ["canonical_word_id", "micro_skill_key", "support_role", "id"] : ["id"])
       : rows<T>(query, context);
 
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
@@ -248,7 +255,7 @@ async function loadDailyPlanFactsUnmeasured(
     activityTemplateRows,
     teachingContentRows,
     catalogRows,
-    wordRows,
+    initialWordRows,
     supportRows,
     bandingRows,
     overrideRows,
@@ -312,13 +319,15 @@ async function loadDailyPlanFactsUnmeasured(
       client.from("micro_skill_catalog").select("micro_skill_key, skill_family_key").eq("is_active", true),
       "loadDailyPlanFacts:microSkillCatalog",
     ),
-    factRows<DictionaryWordRow>(
+    params.wordReadMode === "scoped"
+      ? Promise.resolve(null)
+      : factRows<DictionaryWordRow>(
       client
         .from("canonical_teaching_dictionary_words")
         .select("id, word_key, normalised_word, display_word, row_status, review_status, frequency_band, age_band")
         .eq("row_status", "active"),
       "loadDailyPlanFacts:words",
-    ),
+      ),
     factRows<WordSupportRow>(
       client
         .from("canonical_teaching_dictionary_word_support")
@@ -444,7 +453,37 @@ async function loadDailyPlanFactsUnmeasured(
   // The generic transfer selector is the only consumer of morphology facts.
   // Without an active selector profile these rows cannot affect a lesson or
   // proficiency report, so avoid reading the entire morphology catalogue.
-  const [contextualPairRows, contextualDemandRows, reviewedMorphologyRows] = await Promise.all([
+  const wordRowsPromise = initialWordRows === null ? (async (): Promise<DictionaryWordRow[]> => {
+    const wordQuery = () => client.from("canonical_teaching_dictionary_words")
+      .select("id, word_key, normalised_word, display_word, row_status, review_status, frequency_band, age_band")
+      .eq("row_status", "active");
+    // An approved transfer profile may select a morphology word that has no
+    // support pair. Keep its catalogue complete until that selector is scoped.
+    if (transferSelectorProfileRows.some((row) => row.review_status === "approved_for_first_exposure")) {
+      return readProficiencyFactRows<DictionaryWordRow>(wordQuery(), "loadDailyPlanFacts:words", ["id"]);
+    }
+    const ids = new Set<string>();
+    const include = (entries: readonly { canonical_word_id?: string | null }[]) => {
+      for (const entry of entries) if (entry.canonical_word_id) ids.add(entry.canonical_word_id);
+    };
+    include(supportRows);
+    include(scheduleWordRows);
+    include(learningItemRows);
+    include(taughtHistoryRows);
+    include(outcomeEventRows);
+    include(authenticUseRows);
+    include(slippageRows);
+    include(retirementReceiptRows);
+    const candidateIds = [...ids];
+    const batches = Array.from({ length: Math.ceil(candidateIds.length / 500) }, (_, index) =>
+      candidateIds.slice(index * 500, index * 500 + 500));
+    const pages = await Promise.all(batches.map((batch) => rows<DictionaryWordRow>(
+      wordQuery().in("id", batch).order("id", { ascending: true }),
+      "loadDailyPlanFacts:words:scoped",
+    )));
+    return pages.flat().sort((a, b) => a.id.localeCompare(b.id));
+  })() : Promise.resolve(initialWordRows);
+  const [contextualPairRows, contextualDemandRows, reviewedMorphologyRows, wordRows] = await Promise.all([
     rows<{ micro_skill_key: string }>(
       client.from("contextual_micro_skill_pairs").select("micro_skill_key"),
       "loadDailyPlanFacts:contextualSkillPairs",
@@ -464,6 +503,7 @@ async function loadDailyPlanFactsUnmeasured(
           "loadDailyPlanFacts:reviewedMorphology",
         )
       : Promise.resolve([] as ReviewedMorphologyRow[]),
+    wordRowsPromise,
   ]);
   const contextualSkillKeys = new Set(contextualPairRows.map((row) => row.micro_skill_key));
   const homophoneThresholdMetSkillKeys = new Set(contextualDemandRows
@@ -818,7 +858,8 @@ async function loadDailyPlanFactsUnmeasured(
     wordNextReviewDueByWordId,
     proficiencyRelationships: supports.filter(s => s.rowStatus === "active" && s.supportRole !== "contrast").map(s => ({ canonicalWordId: s.canonicalWordId, microSkillKey: s.microSkillKey })),
     proficiencyReports,
-    proficiencyFingerprint: fingerprint({ wordStates, words, supports, bandings, overrides, activeBandingVersion, childBand, allocations, policy: PROFICIENCY_POLICY_V1 }),
+    proficiencyFingerprint: params.wordReadMode === "scoped" ? null
+      : fingerprint({ wordStates, words, supports, bandings, overrides, activeBandingVersion, childBand, allocations, policy: PROFICIENCY_POLICY_V1 }),
     facts,
     microSkillKeyByWordId,
     microSkillKeysByWordId,

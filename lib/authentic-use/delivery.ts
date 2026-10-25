@@ -28,6 +28,10 @@ export async function calculateAuthenticUseProficiency(client: SupabaseClient, c
     today: new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" }),
     relationshipEnvironment: process.env.VERCEL_ENV === "production" ? "production" : undefined,
   });
+  if (loaded.proficiencyFingerprint === null) {
+    throw new Error("AUTHENTIC_USE_COMPLETE_PROFICIENCY_FINGERPRINT_REQUIRED");
+  }
+  const proficiencyFingerprint = loaded.proficiencyFingerprint;
   const events = await readAll<{ source_ref: string; row_status: string }>(client, "adle_authentic_use_events", "id,source_ref,row_status", childId);
   const projected = new Set(events.filter(event => event.row_status === "active").map(event => event.source_ref));
   const credits = await readAll<Credit>(client, "authentic_use_credits", "id,canonical_word_id", childId);
@@ -42,7 +46,7 @@ export async function calculateAuthenticUseProficiency(client: SupabaseClient, c
     if (!sourceCreditIds.length && !prior) return [];
     return [{ microSkillKey: report.microSkillKey, sourceCreditIds, report, priorReport: prior?.report ?? null,
       policyVersion: report.proficiencyPolicyVersion,
-      fingerprint: fingerprint({ input: loaded.proficiencyFingerprint, skill: report.microSkillKey, sourceCreditIds }) }];
+      fingerprint: fingerprint({ input: proficiencyFingerprint, skill: report.microSkillKey, sourceCreditIds }) }];
   });
 }
 

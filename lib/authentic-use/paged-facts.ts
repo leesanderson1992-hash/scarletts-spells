@@ -1,3 +1,5 @@
+import { recordAdleReadPage } from "../adle/observability/read-metrics";
+
 type Result = { data: unknown; error: { message: string } | null };
 export type FactQuery = PromiseLike<Result>;
 type PagedQuery = FactQuery & { order(column: string): PagedQuery; range(from: number, to: number): PagedQuery };
@@ -8,7 +10,9 @@ export async function readProficiencyFactRows<T>(query: FactQuery, context: stri
   for (const key of order) ordered = ordered.order(key);
   const result: T[] = [];
   for (let offset = 0; ; offset += 500) {
+    const started = performance.now();
     const response = await ordered.range(offset, offset + 499);
+    recordAdleReadPage(context, Array.isArray(response.data) ? response.data : [], performance.now() - started);
     if (response.error) throw new Error(`${context}: ${response.error.message}`);
     const page = (response.data ?? []) as T[];
     result.push(...page);

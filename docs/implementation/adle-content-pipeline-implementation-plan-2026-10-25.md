@@ -623,3 +623,55 @@ fingerprint semantics across representative routes, then preserve or
 explicitly version that calculation identity before narrowing the SQL word
 read. Until those comparisons pass, the Production loader keeps its complete
 word read.
+
+## Wider word-read optimisation candidate — 25 Oct 2026
+
+The shared fact loader now has an explicit `scoped` word-read mode. It gathers
+IDs from active support pairs and the child's learning, review, taught,
+outcome, Authentic Use, slippage and retirement facts, then fetches only those
+dictionary rows in bounded 500-ID requests. It pages the support relationship
+set before constructing that scope. A reviewed generic transfer-selector
+profile still uses the full word catalogue because it can choose morphology
+words without support pairs. The default remains `full`; Authentic Use delivery
+uses that default and now rejects a missing calculation fingerprint. A scoped
+load deliberately returns no fingerprint. The dynamic-prefix assignment writer
+is the first caller of scoped mode. Other routes still use the previous path.
+
+Read-only Production counts found 2,191 active words, 1,144 active support
+rows covering 925 word IDs, and zero approved generic transfer-selector
+profiles. The union of all support and historical child word IDs covers 1,077
+active dictionary words. The eight fields read by the loader occupy 530,059
+bytes across the full catalogue and 258,188 bytes across that union as SQL
+row-JSON text. This is an upper-bound candidate-pool proxy across all
+children, not measured HTTP transfer or a promised Production saving. The
+1,144 support rows are above a typical 1,000-row PostgREST result cap;
+scoped mode explicitly pages them to avoid losing candidate relationships.
+
+The disposable staging prefix fixture added 100 unrelated words and compared
+the full and scoped loads. The last direct comparison read 166 versus 5 words,
+with identical composed plans, proficiency reports and word states. It
+recorded 25 Supabase requests in both modes and 50,244 versus 2,532 decoded
+response-body bytes in that single synthetic run. With Authentic Use
+proficiency enabled for the fixture, the plans and reports still matched;
+the full load retained a fingerprint and the scoped load returned none. A
+separate reusable staging comparator recorded 41 requests in both modes and
+68,607 versus 25,568 decoded bytes for that enabled-control fixture. These
+runs are small staging samples with different query contexts and do not
+establish Production latency or billed egress savings.
+
+After the prefix writer switched to scoped mode, its staged compiler parity,
+concurrent pre-save withdrawal veto, replacement selection, historical
+snapshot replay, continued review and word-mastery credit, and fixture cleanup
+all passed. `tsc --noEmit`, the composer regression, Authentic Use regression,
+word-skill relationship regression and prefix shared-authority regression
+passed. Instrumented paged fact reads now count their actual pages, so the
+read-metrics log no longer understates those requests.
+
+Before widening the read to the daily generic/R6 entry points, compare a
+representative child with more than 1,000 active support rows and an approved
+transfer-profile fixture, then verify generic and specialist snapshots and
+word selection. The full loader's ordinary non-Authentic-Use path still uses
+unpaged table reads; its behavior at the API row cap is a separate correctness
+issue to resolve during that comparison. Do not claim a before/after
+Production improvement until matched-window billed egress, request count and
+latency observations are available after release.
