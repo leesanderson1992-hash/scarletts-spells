@@ -25,6 +25,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import {
   routeBlockers,
   publicationBlockers,
+  isStructurallyUsableWordDraftPayload,
   type RouteContentDraft,
   type WordDraftPayload,
 } from "@/lib/teaching-dictionary-manager/contracts";
@@ -409,6 +410,7 @@ async function loadLessonReadinessUnmeasured(
     reviewRows.map((row) => [row.content_version_id as string, row]),
   );
   const draftById = new Map<string, WordDraftPayload>();
+  const invalidDraftIds = new Set<string>();
   const draftIds = [...new Set(contentRows.map((row) => String(row.draft_id)))];
   for (let at = 0; at < draftIds.length; at += 100) {
     const result = await db
@@ -417,9 +419,13 @@ async function loadLessonReadinessUnmeasured(
       .in("id", draftIds.slice(at, at + 100));
     if (result.error)
       throw new Error(`ADLE_LESSON_DRAFT_READ: ${result.error.message}`);
-    for (const draft of result.data ?? [])
-      draftById.set(draft.id, draft.payload as WordDraftPayload);
+    for (const draft of result.data ?? []) {
+      if (isStructurallyUsableWordDraftPayload(draft.payload)) draftById.set(draft.id, draft.payload);
+      else invalidDraftIds.add(draft.id);
+    }
   }
+  const draftBlocker = (id: string) => invalidDraftIds.has(id)
+    ? "Source draft payload is malformed" : "Source draft unavailable";
   const published = new Set(
     publicationRows.map((row) => row.content_version_id),
   );
@@ -651,6 +657,7 @@ async function loadLessonReadinessUnmeasured(
               }
             : dictationByWord.get(member.canonical_word_id);
           const blockers: string[] = [];
+          if (candidate && !proposed) blockers.push(draftBlocker(String(candidate.draft_id)));
           if (proposed)
             blockers.push(
               ...publicationBlockers(
@@ -782,7 +789,7 @@ async function loadLessonReadinessUnmeasured(
                   ),
                   ...routeBlockers(content.content as RouteContentDraft, draft),
                 ]
-              : ["Source draft unavailable"];
+              : [draftBlocker(String(content.draft_id))];
             missing.push("Editorial sign-off missing or stale");
             entries.unshift({
               id: content.canonical_word_id,
@@ -813,7 +820,7 @@ async function loadLessonReadinessUnmeasured(
                   ),
                   ...routeBlockers(content.content as RouteContentDraft, draft),
                 ]
-              : ["Source draft unavailable"];
+              : [draftBlocker(String(content.draft_id))];
             if (!reviews.has(content.id))
               missing.push("Editorial sign-off missing or stale");
             entries.push({

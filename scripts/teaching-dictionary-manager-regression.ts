@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { emptyMorphology, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults } from "../lib/teaching-dictionary-manager/contracts";
+import { emptyMorphology, isStructurallyUsableWordDraftPayload, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { routeEditorPayload } from "../lib/teaching-dictionary-manager/route-editor-payload";
 import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
@@ -22,6 +22,9 @@ const [row] = parseDictionaryCsv([
 assert.equal(row.normalisedWord, "renew");
 assert.equal(row.payload.dictationTargetTokenIndex, 1);
 assert.equal(row.payload.definition, "make new, again");
+assert.equal(isStructurallyUsableWordDraftPayload(row.payload), true);
+assert.equal(isStructurallyUsableWordDraftPayload({ ...row.payload, displayWord: undefined }), false);
+assert.equal(isStructurallyUsableWordDraftPayload({ ...row.payload, metadata: null }), false);
 const route = row.payload.routeContents[0]!;
 route.content = derivePrefixRouteFacts({ word: "renew", source: route.content,
   meaningBins: [{ id: "again_back", prefixText: "re" }, { id: "before", prefixText: "pre" }],

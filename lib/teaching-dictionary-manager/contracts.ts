@@ -70,6 +70,31 @@ export type WordDraftPayload = {
   routeContents: RouteContentDraft[];
 };
 
+/** Preflight reads historical JSON rows. Check their shape before calling the
+ * authoring validators, which expect a complete editor payload. */
+export function isStructurallyUsableWordDraftPayload(value: unknown): value is WordDraftPayload {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  const metadata = row.metadata as Record<string, unknown> | null;
+  const morphology = row.canonicalMorphology as Record<string, unknown> | null;
+  const provenance = row.provenance as Record<string, unknown> | null;
+  return ["displayWord", "definition", "dictationSentence", "ageBand", "frequencyBand", "complexityBand"]
+    .every((key) => typeof row[key] === "string")
+    && Number.isInteger(row.dictationTargetTokenIndex)
+    && Array.isArray(row.skillKeys)
+    && Array.isArray(row.routeContents)
+    && Boolean(metadata) && !Array.isArray(metadata)
+    && WORD_METADATA_FIELDS.every((key) => typeof metadata?.[key] === "string")
+    && (metadata?.has_schwa === null || typeof metadata?.has_schwa === "boolean")
+    && Boolean(morphology) && !Array.isArray(morphology)
+    && ["parts", "featureKeys", "joins"].every((key) => Array.isArray(morphology?.[key]))
+    && ["rawSegmentation", "rawPartOfSpeech", "transformationNotes", "wordSum", "analysisStatus", "reviewNotes"]
+      .every((key) => typeof morphology?.[key] === "string")
+    && Boolean(provenance) && !Array.isArray(provenance)
+    && ["sourceCategory", "sourceName", "sourceUrl", "sourceLicence", "sourceUseNote", "confidence"]
+      .every((key) => typeof provenance?.[key] === "string");
+}
+
 export function normaliseWord(value: string) {
   return value.trim().toLocaleLowerCase("en-GB").replace(/[’ʼ]/g, "'");
 }
