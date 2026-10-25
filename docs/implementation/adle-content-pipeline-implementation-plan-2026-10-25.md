@@ -519,3 +519,11 @@ Both include a 16,661-byte active canonical-word read. The next optimization
 design should scope the general candidate pool in SQL without dropping valid
 transfer or review words. It needs a cross-route parity corpus before any
 read-path cutover; the current baseline covers one prefix route and one child.
+The loader's complete word and support arrays also enter the current
+proficiency fingerprint, while `selectLessonWords` searches the dictionary
+for same-skill probe and stretch candidates. Therefore a simple filter to
+the child's queued IDs would change both selection and fingerprint semantics.
+The candidate design should first separate child evidence/review IDs from
+eligible same-skill transfer pools, then compare selected skill, probe,
+stretch, proficiency fingerprint, blocked reasons and saved snapshots across
+generic and specialist routes before switching the read.
