@@ -693,9 +693,21 @@ fact load in the same fixture. The base-word canonical-intake route regression
 also passed. This removes the redundant dictionary, review and proficiency
 reads from that route without changing its selector.
 
-Remaining validation before Production release: a representative staging
-case with more than 1,000 active support rows, an approved transfer-profile
-fallback case, and route-level generic/R6 snapshot comparison against the
+An expanded disposable staging fixture added 1,001 unapproved support pairs to
+the five reviewed pairs. The initial scoped 500-UUID `in` request failed with
+`TypeError: fetch failed`; the precise network limit was not exposed by the
+client. The loader now sends at most 100 IDs per URL and runs at most four
+word requests concurrently. The rerun read the 1,006-row support pool, made
+12 support-table requests across the two complete loads (including the
+separate relationship-authority read), fetched 1,006 scoped dictionary words,
+and kept composed plans and proficiency reports equal. Fixture cleanup
+completed with no residual learner writes or import batches. This proves the
+affected pagination path against a larger staging set. The duplicate support
+read in the relationship authority remains a separate optimisation candidate;
+request count must be measured alongside transferred bytes and latency.
+
+Remaining validation before Production release: an approved transfer-profile
+fallback case and route-level generic/R6 snapshot comparison against the
 deployed selector. Staging currently has no active generic method/template
 set for an end-to-end database lesson, so the generic comparison is a pure
 composer regression plus fact-read comparison rather than a staged full

@@ -476,12 +476,17 @@ async function loadDailyPlanFactsUnmeasured(
     include(slippageRows);
     include(retirementReceiptRows);
     const candidateIds = [...ids];
-    const batches = Array.from({ length: Math.ceil(candidateIds.length / 500) }, (_, index) =>
-      candidateIds.slice(index * 500, index * 500 + 500));
-    const pages = await Promise.all(batches.map((batch) => rows<DictionaryWordRow>(
-      wordQuery().in("id", batch).order("id", { ascending: true }),
-      "loadDailyPlanFacts:words:scoped",
-    )));
+    // UUID lists live in the PostgREST URL. Keep each request comfortably
+    // below proxy URL limits and cap fan-out for larger catalogues.
+    const batches = Array.from({ length: Math.ceil(candidateIds.length / 100) }, (_, index) =>
+      candidateIds.slice(index * 100, index * 100 + 100));
+    const pages: DictionaryWordRow[][] = [];
+    for (let offset = 0; offset < batches.length; offset += 4) {
+      pages.push(...await Promise.all(batches.slice(offset, offset + 4).map((batch) => rows<DictionaryWordRow>(
+        wordQuery().in("id", batch).order("id", { ascending: true }),
+        "loadDailyPlanFacts:words:scoped",
+      ))));
+    }
     return pages.flat().sort((a, b) => a.id.localeCompare(b.id));
   })() : Promise.resolve(initialWordRows);
   const [contextualPairRows, contextualDemandRows, reviewedMorphologyRows, wordRows] = await Promise.all([
