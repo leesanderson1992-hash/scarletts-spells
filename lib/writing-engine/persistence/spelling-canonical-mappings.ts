@@ -740,20 +740,25 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
     return [];
   }
 
-  const supabase = input.supabase ?? createServiceRoleClient();
+  const environment = input.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
+  const supabase = environment ? createServiceRoleClient() : input.supabase ?? createServiceRoleClient();
   const dialectCode = normalizeLookupCode(input.dialectCode, "en-GB");
   const normalizationVersion = normalizeLookupCode(
     input.normalizationVersion,
     "spelling_normalize_v1",
   );
-  const { data, error } = await supabase.rpc(
-    "find_resolver_visible_token_safe_canonical_mappings",
-    {
-      p_dialect_code: dialectCode,
-      p_normalization_version: normalizationVersion,
-      p_observed_normalized_tokens: observedNormalizedTokens,
-    },
-  );
+  const { data, error } = environment
+    ? await supabase.rpc("find_resolver_visible_token_safe_canonical_mappings_scoped", {
+        p_dialect_code: dialectCode,
+        p_normalization_version: normalizationVersion,
+        p_observed_normalized_tokens: observedNormalizedTokens,
+        p_environment_key: environment,
+      })
+    : await supabase.rpc("find_resolver_visible_token_safe_canonical_mappings", {
+        p_dialect_code: dialectCode,
+        p_normalization_version: normalizationVersion,
+        p_observed_normalized_tokens: observedNormalizedTokens,
+      });
 
   if (error) {
     throw new Error(
@@ -775,6 +780,7 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
       dialect_code: string;
       normalization_version: string;
       authority_reference: string;
+      teaching_micro_skill_key: string | null;
     }>;
 
     if (
@@ -795,33 +801,13 @@ export async function findResolverVisibleTokenSafeCanonicalMappings(input: {
         misspellingNormalized: row.misspelling_normalized,
         correctSpellingNormalized: row.correct_spelling_normalized,
         microSkillKey: row.micro_skill_key,
+        teachingMicroSkillKey: environment && typeof row.teaching_micro_skill_key === "string"
+          ? row.teaching_micro_skill_key : null,
         dialectCode: row.dialect_code,
         normalizationVersion: row.normalization_version,
         authorityReference: row.authority_reference,
       },
     ];
   });
-  if (mappings.length === 0) return [];
-
-  // Resolver visibility is spelling authority, not permission to attribute
-  // a new teaching skill. Keep the correction while vetoing withdrawn pairs.
-  const environment = input.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
-  if (!environment) return mappings.map((mapping) => ({ ...mapping, teachingMicroSkillKey: null }));
-  const authorityClient = createServiceRoleClient();
-  const withdrawnIds = new Set<string>();
-  for (let offset = 0; offset < mappings.length; offset += 500) {
-    const ids = mappings.slice(offset, offset + 500).map((mapping) => mapping.mappingId);
-    const { data: withdrawn, error: withdrawalError } = await authorityClient.rpc(
-      "find_withdrawn_resolver_mapping_ids", {
-        p_environment_key: environment,
-        p_mapping_ids: ids,
-      },
-    );
-    if (withdrawalError) throw new Error(`Failed to read resolver pair withdrawals: ${withdrawalError.message}`);
-    for (const row of withdrawn ?? []) withdrawnIds.add(row.mapping_id);
-  }
-  return mappings.map((mapping) => ({
-    ...mapping,
-    teachingMicroSkillKey: withdrawnIds.has(mapping.mappingId) ? null : mapping.microSkillKey,
-  }));
+  return mappings;
 }
