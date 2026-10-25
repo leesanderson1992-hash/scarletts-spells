@@ -318,7 +318,8 @@ Disabling the profile also emptied the native pool. All fixture rows were
 removed. The existing atomic prefix publisher already creates reviewed
 member snapshots, so no new route-specific word list was introduced.
 
-Next gate: deploy this writer slice to the isolated Preview, then prove the
+The writer slice built successfully in isolated Preview
+`dpl_3PeFjtr2c1s29jtfWcBTMGcNtWtS`. Next gate: prove the
 normal authenticated assignment action with a disposable child and a reviewed
 five-word profile. Verify a withdrawn transfer is replaced by another approved
 word, saved snapshots replay, and a post-selection withdrawal cannot race a

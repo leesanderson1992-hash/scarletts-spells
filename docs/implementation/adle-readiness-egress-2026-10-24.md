@@ -430,3 +430,12 @@ boundary. It proves the loader, authority projection, veto query and selector
 decision, not a completed learner assignment or historical snapshot replay.
 The additional veto read has a bounded selected-column payload; billed egress
 and end-to-end response time still need an authenticated staging baseline.
+
+Commit `65199b5` contains the prefix writer veto and regression. The isolated
+Vercel project `scarletts-spells-adle-staging-20261025` built it as Preview
+`dpl_3PeFjtr2c1s29jtfWcBTMGcNtWtS`, with a `READY` inspection at
+`https://scarletts-spells-adle-staging-20261025-r0n15no19.vercel.app`.
+Production was not deployed. A final disposable database check found zero
+children, zero ADLE learning items, zero proof profiles, and zero proof import
+batches. Preview build success does not establish an authenticated assignment
+or historical replay; that remains the next proof gate.
