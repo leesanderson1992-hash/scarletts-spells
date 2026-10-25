@@ -132,6 +132,7 @@ export async function prepareDynamicPrefixAssignment(
   const loaded = await loadDynamicPrefixProfiles(params.serviceClient, params.childId, {
     dictationSeed: `${params.childId}:${params.planDate}`,
     allowStagingProfiles: params.allowStagingProfiles,
+    microSkillKeys: params.requiredProfileKey ? [params.requiredProfileKey] : undefined,
   });
   const selectableFacts = params.requiredProfileKey
     ? {

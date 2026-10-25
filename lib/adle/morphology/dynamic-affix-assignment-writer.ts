@@ -126,6 +126,7 @@ export async function previewDynamicAffixAssignment(
   const loaded = await loadDynamicSuffixProfiles(params.serviceClient, params.childId, {
     dictationSeed: `${params.childId}:${params.planDate ?? new Date().toISOString().slice(0,10)}`,
     allowStagingProfiles: params.allowStagingProfiles,
+    microSkillKeys: params.requiredProfileKey ? [params.requiredProfileKey] : undefined,
     includeDerivedItyCandidates: process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "enabled",
   });
   if (process.env.ADLE_ITY_DERIVED_SELECTION_MODE === "shadow"

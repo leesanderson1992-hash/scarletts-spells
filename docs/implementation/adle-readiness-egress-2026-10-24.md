@@ -678,3 +678,28 @@ is shared by other lesson routes, so narrowing its word pool requires proving
 transfer-word, review, banding, family/group and child-selection coverage
 before changing its query. The fixture's withdrawal, snapshot replay and
 cleanup checks passed after measurement.
+
+## Specialist profile scope — 25 Oct 2026
+
+When a prefix or suffix assignment names a required profile, its writer now
+passes that micro-skill key to the existing profile loader before the database
+read. The previous writer loaded every profile in the family and filtered the
+result afterward. Unspecified-profile selection still reads the whole family.
+
+Read-only Production aggregate queries found 5 active approved prefix profiles
+with 38 members and 10 active approved suffix profiles with 45 members. An
+exact-profile request therefore has a narrower profile/member read. This is a
+query-shape improvement, not a measured Production byte or latency saving.
+The same aggregates found 2,191 active canonical words; their eight selected
+fields totalled 530,059 bytes as SQL `row_to_json` text before response-array
+and HTTP framing. The daily-plan loader reads this full catalogue and remains
+the larger measured optimization target. No word text or learner evidence was
+retrieved in these aggregate checks.
+
+The disposable staging prefix fixture has only one active profile, so a
+five-sample preparation comparison remained at 33 Supabase requests and
+33,542 decoded response bytes per run. Its compiler parity, withdrawal veto,
+saved snapshot replay, and cleanup passed. This sample does not prove a speed
+gain: the median preparation time was 712 ms versus the earlier 673 ms and
+the runs were taken at different times. The suffix route was covered by its
+loader and shared-authority regressions, not by a signed-in staging lesson.
