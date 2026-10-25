@@ -324,3 +324,47 @@ event references it. No learner, route activation, Production record or
 `everywhere` assignment changed. Final screenshot:
 `.tmp/adle-staging-2026-10-25/cache-transition-withdrawn.png` (ignored
 fixture evidence).
+
+### Shared route-word status in admin views — 25 Oct 2026
+
+Commit `80960be` added a route/skill-scoped governed status read to ADLE
+lesson readiness and the filtered ADLE Requirements detail. It batches the
+same relationship interpreter used by the Teaching Dictionary word workspace,
+including pair decisions and withdrawn reviewed releases. The route view
+discovers candidates from route content, reviewed pairs, generic support,
+visible active resolver mappings, and prefix/suffix memberships. A withdrawn
+reviewed pair with no other current source is excluded from its candidate
+list. The intake view requests only dictionary IDs on its 25-row page. Both
+views use `wordRouteStatus`; intake facets and child selection retain their
+separate meanings. No selector, release, approval or Production database state
+was changed.
+
+The batch authority regression matched full-read relationships and decisions
+for approved, deassigned, withdrawn and unstable-identity fixtures. TypeScript,
+targeted lint, the word-route-status regression and the isolated staging
+comparison passed. In the disposable staging project, synthetic
+`fixtureword001` had the same relationship, technical, editorial, activation
+and administrative gates in the route read and the existing word-scoped read.
+The route read showed one candidate, zero approved relationships and zero
+administrative admissions; the withdrawn-only `fixtureword002` was absent.
+
+The local staging read emitted 15 instrumented table requests, eight returned
+rows and 892 serialized JSON bytes for route-wide candidate discovery and
+status; the two-word explicit scope emitted 10 instrumented requests, seven
+rows and 778 serialized JSON bytes. Durations were 616 ms and 465 ms in that
+run. Instrumentation does not cover every underlying call, so these are
+lower bounds for request count and application payload proxies, not HTTP
+transfer or Supabase billed egress. No like-for-like prior route-status
+baseline exists because that status was not previously displayed.
+
+The isolated Preview `dpl_H3yY7DwrFAFjFafYqCo4nPikFapB` reached `READY` at
+`https://scarletts-spells-adle-staging-20261025-lblwwjqnr.vercel.app`.
+Chrome displayed the selected prefix route's one blocked word and its eight
+gate messages. A temporary synthetic intake demand then displayed the same
+governed gates and blocker messages in ADLE Requirements, alongside its
+separate intake facets. The demand was deleted and a reload showed zero rows.
+The screenshot is retained locally at
+`.tmp/adle-staging-2026-10-25/shared-route-status-intake-preview.png`.
+The disposable project has no learner data and its route and intake execution
+controls remain off. This proves the admin projection, not automatic lesson
+admission, Production egress savings, or the child-specific selector.

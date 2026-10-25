@@ -281,3 +281,24 @@ group constraint. Do not connect it to selector admission or persist readiness
 in this slice. This gives phase 2 a stable decision vocabulary and phase 4 a
 real byte/query baseline. Follow with one route's scoped status service and
 staging parity before expanding to all routes.
+
+## Progress after the scoped admin status slice — 25 Oct 2026
+
+The Teaching Dictionary word workspace, selected route activation view and
+filtered ADLE Requirements detail now call the same governed relationship
+interpreter and `wordRouteStatus` projection. Route activation uses a
+micro-skill-scoped candidate discovery followed by batched word IDs; intake
+uses only its displayed canonical word IDs. A disposable staging comparison
+matched the word workspace gates, kept a withdrawn-only pair out of the route
+candidate list, and admitted zero words on an inactive route. The temporary
+intake fixture was removed after the UI proof. See the egress ledger for the
+instrumented request and payload counts.
+
+This is an administrative read slice. The legacy intake facets still describe
+learner demand and child-specific admission; the native lesson selector and
+release controls still own delivery. The next implementation gate is to
+separate the route-wide technical fact result from editorial review in native
+validators, connect affected-scope invalidation for writes and route changes,
+then shadow a single route's candidate adapter against its current selector.
+Remove overlapping page calculations only after their distinct intake or
+native-selection meaning has been confirmed and the shadow comparison passes.
