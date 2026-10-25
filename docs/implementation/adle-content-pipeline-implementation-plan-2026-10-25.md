@@ -606,3 +606,20 @@ exact SHA, valid identity and no failures. The public alias remained on
 `dpl_Cv7SaR8hSgZj9icVuaFsrKWHKEXy`. Supabase billed egress and page
 latency still need a comparable post-release observation window before
 claiming a sitewide saving.
+
+## Next read-path investigation after release
+
+A read-only Production count after the release found 2,191 active canonical
+words, while the union of word IDs referenced by active support, learning,
+review-schedule and child evidence tables contained 1,077 IDs. There were no
+active, first-exposure-approved generic transfer selector profiles at that
+moment. This shows a potentially smaller ordinary candidate pool, but it is
+not a measured byte saving or a safe selector change by itself: a future
+approved transfer profile can introduce words through morphology, and
+`proficiencyFingerprint` currently hashes the complete word array. Authentic
+Use delivery uses that fingerprint to identify report calculations. The next
+cutover must compare generic and specialist selection, proficiency report and
+fingerprint semantics across representative routes, then preserve or
+explicitly version that calculation identity before narrowing the SQL word
+read. Until those comparisons pass, the Production loader keeps its complete
+word read.
