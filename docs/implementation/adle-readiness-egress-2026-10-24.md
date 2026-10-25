@@ -144,6 +144,16 @@ the disposable staging database measured the relationship-authority loader:
 time, and zero approved relationships in this synthetic fixture. These are
 single staging observations, not Production baselines or before/after savings.
 
+The measurement extension in `454d5a0` was deployed to the same isolated
+project as Preview `dpl_5x7AoFubbZZNNxzQarXjDa9UVNcH` at
+`https://scarletts-spells-adle-staging-20261025-1e0b4vkne.vercel.app`.
+Its six-page synthetic smoke returned HTTP 200 with the expected 50/1/50/11/0
+Teaching Dictionary row counts; ADLE Requirements also loaded. Its preflight
+event reported `status=ok`, 13 instrumented requests, 62 rows and 9,245 JSON
+payload bytes. The sampled Preview request logs contained no errors. The
+writing-shadow worker was not invoked against staging because there is no
+claimed synthetic run fixture; its existing isolated worker regression passed.
+
 `npm run adle:route-content-contract-regression`,
 `npm run adle:teaching-dictionary-manager-regression`, `npx tsc --noEmit`,
 the Next.js build and `npm run adle:authority-docs-check` passed. The Preview
