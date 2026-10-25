@@ -616,3 +616,33 @@ writes. Combined elapsed median was 1,923 ms in this fresh run, reinforcing
 that the limited timing data cannot establish a speed benefit. The Preview
 itself was built and READY; this proof exercised the exact code against the
 isolated staging database, not a signed-in browser request to that Preview.
+
+## Route-scoped draft approval reads — 25 Oct 2026
+
+`loadLessonReadiness` also read the entire
+`teaching_dictionary_overview_reviews` and
+`teaching_dictionary_manager_publications` tables on each scoped route check.
+It now reads only draft IDs present in the selected route-content versions,
+using the existing bounded ID batch helper. The selected draft and review
+interpretation is unchanged.
+
+The ordinary prefix fixture had one scoped route-content version and zero
+rows in either approval table. Its request and byte counts stayed at 46 and
+40,526 per run, as expected. To test transfer, 60 disposable **unrelated**
+drafts, reviews and publications were added in isolated staging. The same
+held child/route state was read with the previous and revised code, with one
+warm-up and five measured repetitions each:
+
+| Same-state staging read | Previous full-table read | Scoped draft read |
+|---|---:|---:|
+| Supabase requests per run | 46 | 46 |
+| Decoded HTTP response bytes per run | 52,878 | 40,526 |
+| Status read requests / bytes | 41 / 41,056 | 41 / 28,704 |
+| Statuses / native pool / selected | 6 / 4 / 4 | 6 / 4 / 4 |
+
+The complete six-word shadow decision projection matched before and after,
+including blocker codes and the withdrawn pair. This synthetic comparison
+shows 12,352 fewer decoded bytes when unrelated review rows exist; it is not
+a Production egress or latency estimate. Every disposable draft, review and
+publication was removed, its staging immutability trigger was verified
+enabled, and the original child/assignment fixture passed replay and cleanup.

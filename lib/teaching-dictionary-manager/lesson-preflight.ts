@@ -183,8 +183,6 @@ async function loadLessonReadinessUnmeasured(
     contentRows,
     activationHeads,
     releaseRows,
-    overviewRows,
-    managerPublications,
   ] = await Promise.all([
     scope.routeId && scope.routeId !== "dynamic_prefix_word_lab" ? Promise.resolve([]) : selectRows(
       db,
@@ -218,20 +216,15 @@ async function loadLessonReadinessUnmeasured(
       "id,manifest_payload,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,published_by,published_at",
       (q) => scoped(q, "route_id", scope.routeId),
     ),
-    selectRows(
-      db,
-      "teaching_dictionary_overview_reviews",
-      "draft_id,content_fingerprint,base_dictionary_fingerprint",
-    ),
-    selectRows(db, "teaching_dictionary_manager_publications", "draft_id"),
   ]);
   const contentIds = [...new Set(contentRows.map((row) => String(row.id)))];
+  const draftIds = [...new Set(contentRows.map((row) => String(row.draft_id)))];
   const selectForIds = async (table: string, columns: string, key: string, ids: string[]) => {
     if (ids.length === 0) return [] as Row[];
     const batches = Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) => ids.slice(index * 100, (index + 1) * 100));
     return (await Promise.all(batches.map(batch => selectRows(db, table, columns, q => q.in(key, batch))))).flat();
   };
-  const [prefixMembers, suffixMembers, reviewRows, publicationRows, rollbackRows, activationRevisions] = await Promise.all([
+  const [prefixMembers, suffixMembers, reviewRows, publicationRows, rollbackRows, activationRevisions, overviewRows, managerPublications] = await Promise.all([
     selectForIds("canonical_teaching_dictionary_prefix_members",
       "id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins",
       "prefix_profile_id", prefixRows.map((row) => String(row.id))),
@@ -242,6 +235,8 @@ async function loadLessonReadinessUnmeasured(
     selectForIds("teaching_dictionary_route_content_publications", "content_version_id,route_profile_id", "content_version_id", contentIds),
     selectForIds("teaching_dictionary_route_content_rollbacks", "content_version_id", "content_version_id", contentIds),
     selectForIds("adle_route_activation_revisions", "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint", "id", activationHeads.map((row) => String(row.current_revision_id))),
+    selectForIds("teaching_dictionary_overview_reviews", "draft_id,content_fingerprint,base_dictionary_fingerprint", "draft_id", draftIds),
+    selectForIds("teaching_dictionary_manager_publications", "draft_id", "draft_id", draftIds),
   ]);
   const revisionById = new Map(
     activationRevisions.map((row) => [row.id as string, row]),
@@ -415,7 +410,6 @@ async function loadLessonReadinessUnmeasured(
   );
   const draftById = new Map<string, WordDraftPayload>();
   const invalidDraftIds = new Set<string>();
-  const draftIds = [...new Set(contentRows.map((row) => String(row.draft_id)))];
   for (let at = 0; at < draftIds.length; at += 100) {
     const result = await db
       .from("teaching_dictionary_manager_drafts")
