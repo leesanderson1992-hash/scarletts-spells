@@ -487,3 +487,16 @@ Five repeat reads again made 50 requests and returned 51,349 decoded bytes
 each. The assignment fixture then passed replacement, replay and cleanup;
 the Preview dashboard loaded signed in through Chrome. No Production change
 or selector cutover occurred.
+
+The next bounded prefix preflight slice is commit `9c435b1`: when no reviewed
+draft member is overlaid, it reuses the current validated prefix profile for
+candidate evaluation. The isolated staging workload fell from 50 to 46
+requests and from 51,349 to 40,526 decoded response bytes per status plus
+selector check. A fresh fixture after Preview
+`dpl_Bzom2avrjrkXTZkHUSLJzVCodxi5` repeated the counts, preserved four
+selected/approved words and passed withdrawal, replay and cleanup. Median
+elapsed time was not improved in these small runs; see the egress ledger for
+the exact measurements. Historical profile-member discovery remains unchanged
+because the proposed shortcut could hide inactive members. A safe scoped
+replacement for that discovery read needs its own regression fixture and
+comparison before removal.

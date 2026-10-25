@@ -603,3 +603,16 @@ transfer or billed Supabase egress. The four selected words matched the four
 governed candidates, had administrative admission, compiled, and the
 withdrawal/replay fixture passed and cleaned up. Production and other routes
 remain unmeasured for this change.
+
+Commit `9c435b1` built successfully in isolated staging Preview
+`dpl_Bzom2avrjrkXTZkHUSLJzVCodxi5`. A new synthetic fixture after that
+build repeated five status/selector reads: 46 requests and 40,526 decoded
+bytes per read, six statuses, four governed candidates, four selected words,
+and none selected without administrative admission. The native compiler
+passed. The assignment gate rejected a withdrawn pair before save; a
+replacement lesson saved and replayed; a later withdrawal left the historical
+snapshot unchanged. Cleanup reported zero residual batches and learner
+writes. Combined elapsed median was 1,923 ms in this fresh run, reinforcing
+that the limited timing data cannot establish a speed benefit. The Preview
+itself was built and READY; this proof exercised the exact code against the
+isolated staging database, not a signed-in browser request to that Preview.
