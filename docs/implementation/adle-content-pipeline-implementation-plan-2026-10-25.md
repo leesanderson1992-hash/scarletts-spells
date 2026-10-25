@@ -706,10 +706,17 @@ affected pagination path against a larger staging set. The duplicate support
 read in the relationship authority remains a separate optimisation candidate;
 request count must be measured alongside transferred bytes and latency.
 
-Remaining validation before Production release: an approved transfer-profile
-fallback case and route-level generic/R6 snapshot comparison against the
-deployed selector. Staging currently has no active generic method/template
-set for an end-to-end database lesson, so the generic comparison is a pure
+An approved transfer-selector profile was then created temporarily in
+disposable staging after confirming the skill had no pending intake candidates
+to enqueue. Scoped mode correctly fell back to the full 166-word catalogue,
+and its composed plan and proficiency reports matched full mode. The profile
+was deleted before the fixture completed; cleanup again found no residual
+learner writes or import batches.
+
+Remaining validation before Production release: route-level generic/R6
+snapshot comparison against the deployed selector. Staging currently has no
+active generic method/template set for an end-to-end database lesson, so the
+generic comparison is a pure
 composer regression plus fact-read comparison rather than a staged full
 lesson. The full loader's ordinary non-Authentic-Use path still uses unpaged
 table reads; its behavior at the API row cap remains a separate correctness
