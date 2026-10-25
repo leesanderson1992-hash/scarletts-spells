@@ -478,3 +478,12 @@ returned 51,349 decoded bytes per repetition. The contract adds no database
 read or transfer saving. Its status read still makes 45 requests on this small
 fixture; that measured path is the next optimization candidate. A Production
 seven-day egress baseline and equivalent checks for other routes remain open.
+
+Commit `22c5f8a` built as isolated Preview
+`dpl_5SdvBf74Fu2eC4668DopCX6pgoy6`. A fresh staging fixture after that
+build again reported four governed, four live native and four selected words,
+zero selected without administrative admission, and a successful compiler.
+Five repeat reads again made 50 requests and returned 51,349 decoded bytes
+each. The assignment fixture then passed replacement, replay and cleanup;
+the Preview dashboard loaded signed in through Chrome. No Production change
+or selector cutover occurred.

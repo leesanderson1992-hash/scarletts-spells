@@ -564,3 +564,11 @@ The status service made 45 of the 50 requests, so it is the next scoped-read
 optimization target. The baseline does not cover the five-minute worker,
 other routes, browser page timing, Storage, or Production's seven-day billed
 egress; those require separate comparable observations before sitewide claims.
+
+The exact diagnostic commit `22c5f8a` was built in isolated Preview
+`dpl_5SdvBf74Fu2eC4668DopCX6pgoy6`. A fresh synthetic fixture after the
+build repeated five reads at 50 requests and 51,349 decoded bytes each, with
+1,772 ms median combined elapsed time. Its four selected words matched all
+four governed candidates and compiled. The fixture completed its historical
+replay checks and cleaned up. Latency remains a small, noisy staging sample;
+the unchanged request and byte counts are the supported conclusion.
