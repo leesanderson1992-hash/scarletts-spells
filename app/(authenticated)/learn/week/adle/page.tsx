@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { AdlePlanNotices, AdleEmptyPlan, AdleReviewCompleteTransition } from "@/components/adle/adle-plan-presentation";
@@ -48,6 +49,33 @@ import {
 import { loadAdleSpecialistCheckpointR6, loadAdleTodaySessionR6 } from "@/lib/adle/review-v3/r6-persistence";
 import { ReviewR6Session } from "@/components/adle/review/review-r6-session";
 import { continueAdleAfterReviewR6Action } from "./review-r6-actions";
+import { loadWithdrawnLearningNeeds } from "@/lib/adle/loaders/withdrawn-learning-needs";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+
+async function WithdrawnNeedsNotice({ childId }: { childId: string }) {
+  const environmentKey = resolveAdleRouteActivationEnvironment();
+  if (!environmentKey) return null;
+  let needs;
+  try {
+    needs = await loadWithdrawnLearningNeeds({
+      client: createServiceRoleClient(), childId, environmentKey,
+    });
+  } catch (error) {
+    console.error("[adle-session] withdrawn needs read failed", error);
+    return <section className="brand-card rounded-3xl p-5" role="status">
+      <h2 className="text-lg font-semibold">Queue status unavailable</h2>
+      <p className="mt-2 text-sm text-[color:var(--mid)]">We could not check whether any queued words are awaiting reassignment. Please reload this page to try again.</p>
+    </section>;
+  }
+  if (!needs.length) return null;
+  return <section className="brand-card rounded-3xl p-5" aria-labelledby="withdrawn-adle-needs">
+    <h2 id="withdrawn-adle-needs" className="text-lg font-semibold">Queued words awaiting reassignment</h2>
+    <p className="mt-2 text-sm text-[color:var(--mid)]">These spelling needs are still recorded. Their previous skill assignment was withdrawn, so they will not start a new lesson for that skill until reviewed. Scheduled reviews continue, and successful reviews still count toward each word&apos;s mastery.</p>
+    <ul className="mt-3 space-y-1 text-sm">
+      {needs.map((need) => <li key={need.learningItemId}><strong>{need.word}</strong> · {need.microSkillLabel}</li>)}
+    </ul>
+  </section>;
+}
 
 type AdleSessionPageProps = {
   searchParams?: Promise<{
@@ -232,6 +260,9 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     >
       <section className="grid gap-4">
         <AdlePlanNotices saved={resolvedSearchParams?.saved} error={resolvedSearchParams?.error} />
+        {mode === "parent" ? <Suspense fallback={null}>
+          <WithdrawnNeedsNotice childId={selectedChild.id} />
+        </Suspense> : null}
 
         {r6Session?.majorStage === "review" && r6Session.review ? (
           <ReviewR6Session
