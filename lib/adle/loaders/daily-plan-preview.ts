@@ -143,7 +143,7 @@ export async function previewAdleDailyPlan(params: {
   const { userClient, serviceClient, parentUserId, childId, assignmentDate } = params;
 
   const [{ facts, displayWordByWordId }, assignmentRows] = await Promise.all([
-    loadDailyPlanFacts(serviceClient, { childId, today: assignmentDate }),
+    loadDailyPlanFacts(serviceClient, { childId, today: assignmentDate, wordReadMode: "scoped" }),
     rows<{
       id: string;
       child_id: string;

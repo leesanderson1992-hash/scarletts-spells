@@ -406,6 +406,7 @@ export async function ensureParentAdleTodayAssignment(params: {
     const { facts, wordStates } = await loadDailyPlanFacts(params.serviceClient, {
       childId: params.childId,
       today: practiceDate as IsoDate,
+      wordReadMode: "scoped",
     });
     const selection = selectPartTwoSkill({
       learningItems: facts.learningItems.filter((item) => item.childId === params.childId),

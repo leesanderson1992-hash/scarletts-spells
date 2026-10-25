@@ -653,6 +653,25 @@ const LESSON_ITEMS = [
   item({ canonicalWordId: "wi-5", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-05" }),
 ];
 
+{
+  // A dictionary word with no support relationship or child history is not
+  // a generic lesson candidate. Pruning it must preserve the actual lesson.
+  const unrelated = buildDictionary([{ id: "unrelated-word", level: 2, skills: [] }]);
+  const catalogue = {
+    ...FILL_DICTIONARY,
+    words: [...FILL_DICTIONARY.words, ...unrelated.words],
+    bandings: [...FILL_DICTIONARY.bandings, ...unrelated.bandings],
+  };
+  const scoped = composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: FILL_DICTIONARY }), TODAY);
+  const full = composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: catalogue }), TODAY);
+  assert(scoped.partTwo.composed, "generic parity fixture must compose a lesson");
+  assert(JSON.stringify(scoped) === JSON.stringify(full), "unrelated dictionary word cannot alter a generic lesson");
+  const frozen = { frozenReviewWorkload: { dueCount: 0, sessionCap: 10, lessonAllowed: true } };
+  assert(JSON.stringify(composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: FILL_DICTIONARY }), TODAY, frozen))
+    === JSON.stringify(composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: catalogue }), TODAY, frozen)),
+  "unrelated dictionary word cannot alter an R6 lesson");
+}
+
 function dueFixture(count: number) {
   const wordIds = Array.from({ length: count }, (_, index) => `rev-${String(index + 1).padStart(2, "0")}`);
   const { bundle, words } = dueBundle("bundle-throttle", wordIds);

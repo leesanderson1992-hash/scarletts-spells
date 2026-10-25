@@ -635,7 +635,10 @@ profile still uses the full word catalogue because it can choose morphology
 words without support pairs. The default remains `full`; Authentic Use delivery
 uses that default and now rejects a missing calculation fingerprint. A scoped
 load deliberately returns no fingerprint. The dynamic-prefix assignment writer
-is the first caller of scoped mode. Other routes still use the previous path.
+was the first caller of scoped mode. The ordinary daily assignment, R6
+specialist stage, daily preview, dynamic affix and compound assignment now
+request it explicitly. Authentic Use delivery and parent insight reads retain
+the full calculation path.
 
 Read-only Production counts found 2,191 active words, 1,144 active support
 rows covering 925 word IDs, and zero approved generic transfer-selector
@@ -667,11 +670,37 @@ word-skill relationship regression and prefix shared-authority regression
 passed. Instrumented paged fact reads now count their actual pages, so the
 read-metrics log no longer understates those requests.
 
-Before widening the read to the daily generic/R6 entry points, compare a
-representative child with more than 1,000 active support rows and an approved
-transfer-profile fixture, then verify generic and specialist snapshots and
-word selection. The full loader's ordinary non-Authentic-Use path still uses
-unpaged table reads; its behavior at the API row cap is a separate correctness
-issue to resolve during that comparison. Do not claim a before/after
-Production improvement until matched-window billed egress, request count and
-latency observations are available after release.
+The ordinary daily generic/R6 entry points now use scoped mode. A composer
+regression adds an unrelated approved dictionary word with no support or child
+history and compares complete generic and R6 plans; the generic fixture must
+actually compose a lesson. Existing generic snapshot, frozen R6 workload,
+weak-vowel R6, dynamic affix, compound and prefix regressions passed. The
+staging prefix fixture again matched full versus scoped plans, proficiency and
+word states, including the Authentic Use enabled control. In its latest
+synthetic run, the full read returned 166 words in 25 requests and 51,033
+decoded response bytes; scoped returned 5 words in 25 requests and 3,315
+bytes. A separately paged enabled-control comparison returned 41 requests in
+each mode and 73,454 versus 27,403 decoded bytes. Timings in these small
+runs are noisy and are not Production latency estimates.
+
+The base-word family pilot was reading the complete daily-plan fact set while
+using only the child's selectable learning items. Its new focused loader pages
+that child's queue and applies the same latest-deassignment veto. The staging
+fixture compared its item IDs with the previous fact load, then verified the
+same withdrawal projection. That focused read made 2 requests and returned
+465 decoded bytes, versus 25 requests and 51,033 decoded bytes for the full
+fact load in the same fixture. The base-word canonical-intake route regression
+also passed. This removes the redundant dictionary, review and proficiency
+reads from that route without changing its selector.
+
+Remaining validation before Production release: a representative staging
+case with more than 1,000 active support rows, an approved transfer-profile
+fallback case, and route-level generic/R6 snapshot comparison against the
+deployed selector. Staging currently has no active generic method/template
+set for an end-to-end database lesson, so the generic comparison is a pure
+composer regression plus fact-read comparison rather than a staged full
+lesson. The full loader's ordinary non-Authentic-Use path still uses unpaged
+table reads; its behavior at the API row cap remains a separate correctness
+issue. Do not claim a before/after Production improvement until matched-window
+billed egress, request count and latency observations are available after
+release.

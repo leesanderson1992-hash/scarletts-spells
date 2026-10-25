@@ -238,6 +238,7 @@ export async function prepareDynamicAffixAssignment(
   const { facts } = await loadDailyPlanFacts(params.serviceClient, {
     childId: params.childId,
     today: params.planDate,
+    wordReadMode: "scoped",
   });
   const plan = buildDynamicAffixAssignmentPlan({
     basePlan: composeDailyPlan(facts, params.planDate, params.r6SpecialistComposeOptions),

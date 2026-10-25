@@ -202,9 +202,10 @@ export interface LoadDailyPlanFactsParams {
   childId: string;
   today: IsoDate;
   childBand?: ChildBandProfile;
-  /** Comparison-only until route parity is proved. Authentic Use callers use
-   * the default full mode; reviewed generic transfer profiles also require
-   * the complete catalogue. Scoped loads do not return a calculation fingerprint. */
+  /** Lesson selection may scope its dictionary read to relationship and child
+   * history IDs. Authentic Use callers use the default full mode; reviewed
+   * generic transfer profiles still require the complete catalogue. Scoped
+   * loads do not return a calculation fingerprint. */
   wordReadMode?: "full" | "scoped";
   /** A caller with its own deployment boundary may provide the reviewed
    * relationship environment without changing the application's global route gate. */

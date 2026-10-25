@@ -84,6 +84,7 @@ export async function persistCompoundWordAssignment(params: {
   const { facts } = await loadDailyPlanFacts(params.serviceClient, {
     childId: params.childId,
     today: params.planDate as IsoDate,
+    wordReadMode: "scoped",
   });
   const plan = buildCompoundWordAssignmentPlanV2(
     composeDailyPlan(facts, params.planDate as IsoDate),

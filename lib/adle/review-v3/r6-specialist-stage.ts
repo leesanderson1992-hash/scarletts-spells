@@ -176,6 +176,7 @@ async function ensureSpecialistStageR6Internal(input: {
   const { facts, wordStates } = await loadDailyPlanFacts(input.serviceClient, {
     childId: input.childId,
     today: input.assignmentDate as IsoDate,
+    wordReadMode: "scoped",
   });
   const selection = selectPartTwoSkill({
     learningItems: facts.learningItems.filter((item) => item.childId === input.childId),
