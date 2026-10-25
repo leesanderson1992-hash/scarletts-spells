@@ -531,3 +531,36 @@ Vercel inspection reported `READY`; a signed-in Chrome dashboard loaded,
 and the sampled Preview error-log query returned no errors. The CLI's initial
 deployment polling timed out after upload, but deployment inspection confirmed
 the build completed. No Production deployment occurred.
+
+## Comparable dynamic-prefix status/selector baseline — 25 Oct 2026
+
+The disposable staging project ran one held five-word `D4_MOR_PREFIXES_UN`
+fixture with a live deassignment and synthetic child. The measurement script
+ran the route word status read, native profile and queue read, current pair
+veto, and read-only selector/compiler shadow in that order. It discarded one
+warm-up and recorded five repetitions against the **same database state**.
+`fetch` response clones supplied decoded HTTP body sizes; these are neither
+compressed wire bytes nor Supabase billed egress. No raw learner evidence was
+logged. The fixture later verified saved snapshot replay and removed every
+synthetic learner and content row.
+
+| Same-workload measure | Before pilot contract | After pilot contract |
+|---|---:|---:|
+| Supabase requests per run | 50 | 50 |
+| Decoded response bytes per run | 51,349 | 51,349 |
+| Status read requests / bytes | 45 / 39,527 | 45 / 39,527 |
+| Native profile, queue and veto requests / bytes | 5 / 11,822 | 5 / 11,822 |
+| Combined elapsed median, five warm runs | 1,573 ms | 1,641 ms |
+| Combined elapsed observed range | 1,469–1,714 ms | 1,578–1,929 ms |
+| Statuses / live native members / selected | 6 / 4 / 4 | 6 / 4 / 4 |
+| Selected without administrative admission | 0 | 0 |
+
+The after result is a **diagnostic contract change**, not a transfer
+optimization. Request count and decoded bytes remained exactly equal; the
+small latency difference across five runs does not establish a regression or
+improvement. Across the five baseline repetitions, the prefix-profile path
+returned 144,615 decoded bytes in 30 requests, the largest measured path.
+The status service made 45 of the 50 requests, so it is the next scoped-read
+optimization target. The baseline does not cover the five-minute worker,
+other routes, browser page timing, Storage, or Production's seven-day billed
+egress; those require separate comparable observations before sitewide claims.

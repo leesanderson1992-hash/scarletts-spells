@@ -452,3 +452,29 @@ signed-in dashboard in Chrome. This is not an egress or latency saving claim:
 the new scoped decision read replaces the duplicate raw mapping read in
 Stage 2a, and exact-pair review adds a small decision read. Measure both
 under representative review traffic before setting a performance target.
+
+## Dynamic-prefix status contract pilot — 25 Oct 2026
+
+The `D4_MOR_PREFIXES_UN` pilot now has a read-only comparison contract in
+`prefix-candidate-shadow.ts`. It derives enabled activity variants and their
+required facts from `routeContentContractFor`, carries the existing
+`WordRouteStatus` dictionary, relationship, technical, editorial, release and
+activation dimensions, and reports native member/role, child queue and
+selector decisions separately. The native selector and compiler remain the
+authority for an individual lesson. The comparison requires the current
+environment's pair-deassignment set, matching the assignment writer's veto.
+
+The held disposable staging fixture yielded six admin statuses, four live
+native members and four selected words. All four selected words had
+administrative admission; the native compiler passed. The two excluded
+statuses exposed stable relationship, content/editorial or native-member
+blockers. Regression cases also cover a missing member, pending editorial
+review, malformed dictation, a withdrawn pair and a disabled profile. The
+pilot did not alter selector admission or activate content.
+
+The same fixture supplied the before/after query and decoded-byte baseline
+in the companion egress ledger. Both runs made 50 Supabase requests and
+returned 51,349 decoded bytes per repetition. The contract adds no database
+read or transfer saving. Its status read still makes 45 requests on this small
+fixture; that measured path is the next optimization candidate. A Production
+seven-day egress baseline and equivalent checks for other routes remain open.

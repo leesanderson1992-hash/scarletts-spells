@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { compareDynamicPrefixCandidates } from "../lib/adle/morphology/prefix-candidate-shadow";
+import { compareDynamicPrefixCandidates, DYNAMIC_PREFIX_STATUS_CONTRACT_VERSION } from "../lib/adle/morphology/prefix-candidate-shadow";
 import { excludeDeassignedDynamicPrefixWords } from "../lib/adle/morphology/dynamic-prefix-pair-eligibility";
 import { canonicalPairKey } from "../lib/adle/word-skill-relationships/pair-key";
 import { selectDynamicPrefixWordLab } from "../lib/adle/morphology/dynamic-prefix-word-lab";
@@ -32,7 +32,7 @@ const status = (wordId: string, administrativeCandidate: boolean) =>
   ({ wordId, routeId: "dynamic_prefix_word_lab", microSkillKey: skill, administrativeCandidate }) as WordRouteStatus;
 const report = compareDynamicPrefixCandidates({ microSkillKey: skill,
   statuses: [status("a", true), status("b", true), status("c", true), status("d", false), status("x", true)],
-  profiles: [profile], learningItems: [item] });
+  profiles: [profile], learningItems: [item], deassignedPairs: new Set() });
 assert.deepEqual(report.presentInBoth, ["a", "b", "c"]);
 assert.deepEqual(report.governedOnly, ["x"], "eligible but absent native member is flagged, not admitted");
 assert.deepEqual(report.nativeOnly, ["d"], "native member lacking governed status is flagged");
@@ -42,12 +42,47 @@ assert.equal(report.routeActivated, false);
 assert.equal(report.routeReleased, false);
 assert.equal(report.nativeSelectionCompiles, true);
 assert.equal(report.nativeCompilerBlockerCode, null);
+assert.equal(report.contractVersion, DYNAMIC_PREFIX_STATUS_CONTRACT_VERSION);
+assert.equal(report.routeVersion, "v2");
+assert.ok(report.requiredActivityVariants.some((variant) => variant.startsWith("dictation:")));
+assert.ok(report.requiredFactsByActivity.find((activity) => activity.activity.startsWith("dictation:"))
+  ?.facts.some((fact) => fact.key === "dictation_sentence"));
+assert.equal(report.wordDecisions.find((decision) => decision.wordId === "a")?.authenticQueueEligible, true);
+assert.equal(report.wordDecisions.find((decision) => decision.wordId === "b")?.approvedTransfer, true);
+assert.equal(report.wordDecisions.find((decision) => decision.wordId === "d")?.selected, true);
+assert.deepEqual(report.wordDecisions.find((decision) => decision.wordId === "x")?.blockerCodes,
+  ["NATIVE_MEMBER_MISSING"]);
+const unreviewed = compareDynamicPrefixCandidates({ microSkillKey: skill,
+  statuses: [
+    status("a", true),
+    { ...status("b", false), editorialApproved: false,
+      blockerDetails: [{ code: "CONTENT_REVIEW_PENDING", gate: "editorial", message: "Review pending" }] } as WordRouteStatus,
+    status("c", true), status("d", true),
+  ], profiles: [profile], learningItems: [item], deassignedPairs: new Set() });
+assert.deepEqual(unreviewed.selectedWithoutAdminAdmission, ["b"],
+  "A native selection must never silently override editorial status");
+assert.ok(unreviewed.wordDecisions.find((decision) => decision.wordId === "b")?.blockerCodes
+  .includes("CONTENT_REVIEW_PENDING"));
+const malformedProfile = { ...profile, wordsByCanonicalId: new Map(profile.wordsByCanonicalId) };
+malformedProfile.wordsByCanonicalId.set("b", { ...words[1],
+  dictationSentence: "Please write another word." });
+const malformed = compareDynamicPrefixCandidates({ microSkillKey: skill,
+  statuses: words.map((entry) => status(entry.canonicalWordId, true)),
+  profiles: [malformedProfile], learningItems: [item], deassignedPairs: new Set() });
+assert.equal(malformed.nativeSelectionCompiles, false,
+  "Malformed native dictation cannot pass the specialist compiler");
+assert.ok(malformed.nativeCompilerBlockerCode);
 const disabled = compareDynamicPrefixCandidates({ microSkillKey: skill, statuses: [status("a", false)],
-  profiles: [{ ...profile, productionEnabled: false }], learningItems: [item] });
+  profiles: [{ ...profile, productionEnabled: false }], learningItems: [item], deassignedPairs: new Set() });
 assert.deepEqual(disabled.nativePoolIds, []);
 assert.deepEqual(disabled.nativeSelectedIds, []);
 assert.equal(disabled.nativeSelectionCompiles, false);
 const withdrawn = new Set([canonicalPairKey("d", skill)]);
+const withdrawnReport = compareDynamicPrefixCandidates({ microSkillKey: skill,
+  statuses: [status("a", true), status("b", true), status("c", true), status("d", false)],
+  profiles: [profile], learningItems: [item], deassignedPairs: withdrawn });
+assert.deepEqual(withdrawnReport.nativeSelectedIds, []);
+assert.equal(withdrawnReport.wordDecisions.find((decision) => decision.wordId === "d")?.nativeMember, false);
 const filtered = excludeDeassignedDynamicPrefixWords([profile], withdrawn);
 assert.equal(selectDynamicPrefixWordLab({ profiles: filtered, learningItems: [item] }), null,
   "with only three approved words the native selector must refuse a lesson");

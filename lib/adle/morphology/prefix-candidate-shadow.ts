@@ -1,12 +1,42 @@
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
+import { routeContentContractFor } from "../composable-lesson/route-content-contract";
 import type { LearningItemFact } from "../learning-items";
+import { selectableLearningItems } from "../learning-items";
 import { compileDynamicPrefixWordLabDecision } from "./dynamic-prefix-compiler-rollout";
+import { excludeDeassignedDynamicPrefixWords } from "./dynamic-prefix-pair-eligibility";
 import {
   selectDynamicPrefixWordLab,
   type DynamicPrefixProfile,
 } from "./dynamic-prefix-word-lab";
 
+export const DYNAMIC_PREFIX_STATUS_CONTRACT_VERSION = "dynamic_prefix_status_contract_v1";
+
+export type PrefixCandidateDecision = {
+  wordId: string;
+  contentRole: string | null;
+  dictionaryApproved: boolean;
+  relationshipApproved: boolean;
+  technicalFacts: WordRouteStatus["technicalFacts"];
+  editorialApproved: boolean;
+  routeReleased: boolean;
+  routeActivated: boolean;
+  nativeMember: boolean;
+  authenticQueueEligible: boolean;
+  approvedTransfer: boolean;
+  administrativeCandidate: boolean;
+  nativeSelectable: boolean;
+  selected: boolean;
+  blockerCodes: string[];
+};
+
 export type PrefixCandidateShadow = {
+  contractVersion: typeof DYNAMIC_PREFIX_STATUS_CONTRACT_VERSION;
+  routeContentContractVersion: string;
+  routeVersion: string;
+  requiredActivityVariants: string[];
+  requiredFactsByActivity: Array<{ activity: string; wordScope: string;
+    facts: Array<{ key: string; owner: string }> }>;
+  wordDecisions: PrefixCandidateDecision[];
   microSkillKey: string;
   routeActivated: boolean;
   routeReleased: boolean;
@@ -28,11 +58,21 @@ export function compareDynamicPrefixCandidates(input: {
   statuses: readonly WordRouteStatus[];
   profiles: readonly DynamicPrefixProfile[];
   learningItems: readonly LearningItemFact[];
+  deassignedPairs: ReadonlySet<string>;
 }): PrefixCandidateShadow {
-  const activeProfiles = input.profiles.filter((profile) => profile.microSkillKey === input.microSkillKey && profile.productionEnabled);
+  const contract = routeContentContractFor("dynamic_prefix_word_lab", input.microSkillKey);
+  if (!contract) throw new Error(`DYNAMIC_PREFIX_STATUS_CONTRACT_UNAVAILABLE:${input.microSkillKey}`);
+  const activeProfiles = excludeDeassignedDynamicPrefixWords(input.profiles, input.deassignedPairs)
+    .filter((profile) => profile.microSkillKey === input.microSkillKey && profile.productionEnabled);
   const governed = new Set(input.statuses.filter((status) => status.routeId === "dynamic_prefix_word_lab"
     && status.microSkillKey === input.microSkillKey && status.administrativeCandidate).map((status) => status.wordId));
-  const native = new Set(activeProfiles.flatMap((profile) => [...profile.wordsByCanonicalId.keys()]));
+  const nativeWords = new Map(activeProfiles.flatMap((profile) => [...profile.wordsByCanonicalId.entries()]));
+  const native = new Set(nativeWords.keys());
+  const authenticQueue = new Set(selectableLearningItems(input.learningItems)
+    .filter((item) => item.microSkillKey === input.microSkillKey
+      && item.sourceKind === "verified_misspelling" && native.has(item.canonicalWordId))
+    .map((item) => item.canonicalWordId));
+  const transfer = new Set(activeProfiles.flatMap((profile) => profile.transferCanonicalWordIds));
   const selection = selectDynamicPrefixWordLab({ profiles: activeProfiles,
     learningItems: input.learningItems.filter((item) => item.microSkillKey === input.microSkillKey) });
   const compile = selection ? compileDynamicPrefixWordLabDecision(selection, { sourceKind: "teaching_dictionary" }) : null;
@@ -41,7 +81,46 @@ export function compareDynamicPrefixCandidates(input: {
     ...selection.authenticTargets.map((item) => item.canonicalWordId),
     ...selection.transfers.map((word) => word.canonicalWordId),
   ]) : [];
+  const selectedSet = new Set(selectedIds);
+  const statusById = new Map(input.statuses.filter((status) => status.routeId === contract.routeId
+    && status.microSkillKey === input.microSkillKey).map((status) => [status.wordId, status]));
+  const wordDecisions: PrefixCandidateDecision[] = sorted(new Set([...statusById.keys(), ...native]))
+    .map((wordId) => {
+      const status = statusById.get(wordId);
+      const word = nativeWords.get(wordId);
+      const authenticQueueEligible = authenticQueue.has(wordId);
+      const approvedTransfer = Boolean(word?.approvedTransfer && transfer.has(wordId));
+      const blockerCodes = [...new Set([
+        ...(status?.blockerDetails?.map((blocker) => blocker.code) ?? []),
+        ...(!status ? ["ADMIN_STATUS_MISSING"] : []),
+        ...(!word ? ["NATIVE_MEMBER_MISSING"] : []),
+        ...(word && !authenticQueueEligible && !approvedTransfer ? ["NATIVE_ROLE_NOT_SELECTABLE"] : []),
+      ])];
+      return {
+        wordId, contentRole: status?.contentRole ?? null,
+        dictionaryApproved: status?.dictionaryApproved === true,
+        relationshipApproved: status?.relationshipApproved === true,
+        technicalFacts: status?.technicalFacts ?? "not_evaluated",
+        editorialApproved: status?.editorialApproved === true,
+        routeReleased: status?.routeReleased === true,
+        routeActivated: status?.routeActivated === true,
+        nativeMember: Boolean(word), authenticQueueEligible, approvedTransfer,
+        administrativeCandidate: status?.administrativeCandidate === true,
+        nativeSelectable: Boolean(word && (authenticQueueEligible || approvedTransfer)),
+        selected: selectedSet.has(wordId), blockerCodes,
+      };
+    });
   return {
+    contractVersion: DYNAMIC_PREFIX_STATUS_CONTRACT_VERSION,
+    routeContentContractVersion: contract.contractVersion,
+    routeVersion: contract.routeVersion,
+    requiredActivityVariants: contract.activities.filter((activity) => activity.enabled)
+      .map((activity) => `${activity.kind}:${activity.variantKey}`),
+    requiredFactsByActivity: contract.activities.filter((activity) => activity.enabled)
+      .map((activity) => ({ activity: `${activity.kind}:${activity.variantKey}`,
+        wordScope: activity.wordScope,
+        facts: activity.requiredFacts.map((fact) => ({ key: fact.factKey, owner: fact.owner })) })),
+    wordDecisions,
     microSkillKey: input.microSkillKey,
     routeActivated: input.statuses.some((status) => status.routeId === "dynamic_prefix_word_lab"
       && status.microSkillKey === input.microSkillKey && status.routeActivated),
