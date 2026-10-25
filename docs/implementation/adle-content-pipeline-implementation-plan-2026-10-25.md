@@ -500,3 +500,13 @@ the exact measurements. Historical profile-member discovery remains unchanged
 because the proposed shortcut could hide inactive members. A safe scoped
 replacement for that discovery read needs its own regression fixture and
 comparison before removal.
+
+Commit `fc6dd4b` scopes preflight overview-review and manager-publication
+reads to the selected route's draft IDs. A held staging comparison with 60
+unrelated disposable drafts kept all six word decisions identical and reduced
+decoded response bytes from 52,878 to 40,526 per status-plus-selector read;
+request count remained 46. The unrelated rows and child fixture were cleaned
+up. The new isolated Preview built and a fresh fixture passed selection,
+withdrawal and historical replay checks. Production billed egress and browser
+response time remain unmeasured for this slice; the next read target should
+be chosen from a comparable daily-plan and worker baseline.

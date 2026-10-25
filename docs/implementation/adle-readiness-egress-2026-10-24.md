@@ -646,3 +646,13 @@ shows 12,352 fewer decoded bytes when unrelated review rows exist; it is not
 a Production egress or latency estimate. Every disposable draft, review and
 publication was removed, its staging immutability trigger was verified
 enabled, and the original child/assignment fixture passed replay and cleanup.
+
+Commit `fc6dd4b` built and typechecked in isolated staging Preview
+`dpl_ArEP19HUjc2jvYtyBmoZJtbKSZpH`. A new synthetic child/route fixture
+after the build repeated five measured reads at 46 requests and 40,526
+decoded bytes each. All four governed candidates were the four native
+selected words, with zero selected without administrative admission; the
+native compiler passed. Withdrawal before save, replacement and historical
+replay passed, and the fixture cleaned up. This is a code-plus-staging proof;
+the protected Preview's authenticated page was not exercised in Chrome in
+this pass.
