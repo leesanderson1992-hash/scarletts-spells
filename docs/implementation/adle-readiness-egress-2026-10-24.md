@@ -703,3 +703,25 @@ saved snapshot replay, and cleanup passed. This sample does not prove a speed
 gain: the median preparation time was 712 ms versus the earlier 673 ms and
 the runs were taken at different times. The suffix route was covered by its
 loader and shared-authority regressions, not by a signed-in staging lesson.
+
+## Conditional generic morphology read — 25 Oct 2026
+
+The daily-plan fact loader fetched active word morphology even when no active,
+reviewed generic transfer-selector profile could consume it. The morphology
+read now runs only when such a profile exists. It remains live when a reviewed
+profile exists; no approval or child gate is cached or bypassed.
+
+Read-only Production aggregates found 2,191 active, approved morphology rows
+and **zero** active transfer-selector profiles. Their selected columns totalled
+681,228 bytes as SQL `row_to_json` text over the full table. That total is a
+table-size proxy, not measured PostgREST transfer or billed egress; the old
+unpaged read could also be capped by the API row limit. It does confirm the
+Production read is currently unnecessary for generic transfer selection.
+
+The same held synthetic child, one warm-up and five measured staging runs
+changed `loadDailyPlanFacts` from 27 requests / 21,718 decoded response bytes
+to 26 / 21,716. Prefix preparation changed from 33 / 33,542 to 32 / 33,540.
+Staging had no morphology rows in this fixture, hence the two-byte response
+difference. Compiler parity, withdrawal, saved replay and cleanup passed.
+Median timings were 481 ms for facts and 995 ms for preparation in this run;
+these were slower than the earlier runs, so no speed improvement is claimed.

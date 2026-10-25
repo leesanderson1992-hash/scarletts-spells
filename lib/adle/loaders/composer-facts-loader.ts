@@ -105,6 +105,15 @@ export const ADLE_PILOT_CHILD_BAND: ChildBandProfile = {
 };
 
 type AdleClient = SupabaseClient;
+type ReviewedMorphologyRow = {
+  canonical_word_id: string;
+  morphology_parts: unknown;
+  feature_keys: unknown;
+  transformation_notes: string | null;
+  analysis_status: "approved" | "not_applicable" | "rejected" | "in_review";
+  row_status: "draft" | "active" | "retired";
+  review_status: string;
+};
 
 async function rows<T>(query: PromiseLike<{ data: unknown; error: { message: string } | null }>, context: string): Promise<T[]> {
   const started = performance.now();
@@ -220,7 +229,6 @@ async function loadDailyPlanFactsUnmeasured(
     slippageRows,
     retirementReceiptRows,
     transferSelectorProfileRows,
-    reviewedMorphologyRows,
     deassignedPairs,
   ] = await Promise.all([
     loadActiveReviewPolicy(client),
@@ -410,29 +418,15 @@ async function loadDailyPlanFactsUnmeasured(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:transferSelectorProfiles",
     ),
-    factRows<{
-      canonical_word_id: string;
-      morphology_parts: unknown;
-      feature_keys: unknown;
-      transformation_notes: string | null;
-      analysis_status: "approved" | "not_applicable" | "rejected" | "in_review";
-      row_status: "draft" | "active" | "retired";
-      review_status: string;
-    }>(
-      client
-        .from("canonical_teaching_dictionary_word_morphology")
-        .select(
-          "canonical_word_id,morphology_parts,feature_keys,transformation_notes,analysis_status,row_status,review_status",
-        )
-        .eq("row_status", "active"),
-      "loadDailyPlanFacts:reviewedMorphology",
-    ),
     relationshipEnvironment
       ? loadAllCurrentPairDeassignments({ client, environmentKey: relationshipEnvironment })
       : Promise.resolve(new Set<string>()),
   ]);
 
-  const [contextualPairRows, contextualDemandRows] = await Promise.all([
+  // The generic transfer selector is the only consumer of morphology facts.
+  // Without an active selector profile these rows cannot affect a lesson or
+  // proficiency report, so avoid reading the entire morphology catalogue.
+  const [contextualPairRows, contextualDemandRows, reviewedMorphologyRows] = await Promise.all([
     rows<{ micro_skill_key: string }>(
       client.from("contextual_micro_skill_pairs").select("micro_skill_key"),
       "loadDailyPlanFacts:contextualSkillPairs",
@@ -443,6 +437,15 @@ async function loadDailyPlanFactsUnmeasured(
         .eq("child_id", childId),
       "loadDailyPlanFacts:contextualSkillDemands",
     ),
+    transferSelectorProfileRows.some((row) => row.review_status === "approved_for_first_exposure")
+      ? factRows<ReviewedMorphologyRow>(
+          client
+            .from("canonical_teaching_dictionary_word_morphology")
+            .select("canonical_word_id,morphology_parts,feature_keys,transformation_notes,analysis_status,row_status,review_status")
+            .eq("row_status", "active"),
+          "loadDailyPlanFacts:reviewedMorphology",
+        )
+      : Promise.resolve([] as ReviewedMorphologyRow[]),
   ]);
   const contextualSkillKeys = new Set(contextualPairRows.map((row) => row.micro_skill_key));
   const homophoneThresholdMetSkillKeys = new Set(contextualDemandRows
