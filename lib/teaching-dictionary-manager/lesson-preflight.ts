@@ -493,22 +493,25 @@ async function loadLessonReadinessUnmeasured(
       wordMeaning: String(row.content?.wordMeaning ?? ""),
       dictionary: draftById.get(String(row.draft_id)),
     }));
-  const [loadedPrefix, loadedSuffix, candidatePrefix, candidateSuffix] =
+  const prefixCandidateMembers = candidateMembers.filter((row) =>
+    reviewedCandidates.some(
+      (candidate) =>
+        candidate.route_id === "dynamic_prefix_word_lab" &&
+        candidate.canonical_word_id === row.canonicalWordId &&
+        candidate.micro_skill_key === row.microSkillKey,
+    ),
+  );
+  const [loadedPrefix, loadedSuffix, candidatePrefixRead, candidateSuffix] =
     await Promise.all([
       loadDynamicPrefixProfiles(db, ZERO_CHILD, { microSkillKeys: prefixKeys }),
       loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys }),
-      loadDynamicPrefixProfiles(db, ZERO_CHILD, {
-        microSkillKeys: prefixKeys,
-        allowStagingProfiles: true,
-        candidateMembers: candidateMembers.filter((row) =>
-          reviewedCandidates.some(
-            (candidate) =>
-              candidate.route_id === "dynamic_prefix_word_lab" &&
-              candidate.canonical_word_id === row.canonicalWordId &&
-              candidate.micro_skill_key === row.microSkillKey,
-          ),
-        ),
-      }),
+      prefixCandidateMembers.length
+        ? loadDynamicPrefixProfiles(db, ZERO_CHILD, {
+            microSkillKeys: prefixKeys,
+            allowStagingProfiles: true,
+            candidateMembers: prefixCandidateMembers,
+          })
+        : Promise.resolve(null),
       loadDynamicSuffixProfiles(db, ZERO_CHILD, {
         microSkillKeys: suffixKeys,
         allowStagingProfiles: true,
@@ -522,6 +525,15 @@ async function loadLessonReadinessUnmeasured(
         ),
       }),
     ]);
+  // With no proposed member overlay, the candidate loader differs only in
+  // productionEnabled. Reuse its already validated profile and read results.
+  const candidatePrefix = candidatePrefixRead ?? {
+    ...loadedPrefix,
+    profiles: loadedPrefix.profiles.map((profile) => ({
+      ...profile,
+      productionEnabled: true,
+    })),
+  };
   const currentRevisionIds = new Set<string>();
   await Promise.all(
     activationHeads.filter(head => relevant.has(`${head.route_id}:${head.micro_skill_key}`)).map(async (head) => {

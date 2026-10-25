@@ -572,3 +572,34 @@ build repeated five reads at 50 requests and 51,349 decoded bytes each, with
 four governed candidates and compiled. The fixture completed its historical
 replay checks and cleaned up. Latency remains a small, noisy staging sample;
 the unchanged request and byte counts are the supported conclusion.
+
+## Dynamic-prefix preflight duplicate-read reduction — 25 Oct 2026
+
+`loadLessonReadiness` previously called `loadDynamicPrefixProfiles` twice
+for the same route even when there was no reviewed draft member to overlay.
+The candidate call's only difference in that case is its
+`productionEnabled` presentation flag. Preflight now reuses the first
+validated profile result and enables that flag on a copy. It still performs
+the separate candidate read when reviewed draft members exist. Relationship
+discovery is unchanged, including inactive and historical profile members.
+
+The same five-word, post-withdrawal synthetic staging workload was repeated
+with one warm-up and five measured reads:
+
+| Measure per run | Recorded baseline | Optimized local code |
+|---|---:|---:|
+| Supabase requests | 50 | 46 |
+| Decoded HTTP response bytes | 51,349 | 40,526 |
+| Admin status requests / bytes | 45 / 39,527 | 41 / 28,704 |
+| Native selector requests / bytes | 5 / 11,822 | 5 / 11,822 |
+| Combined median elapsed | 1,573 ms | 1,795 ms |
+| Statuses / native members / selected | 6 / 4 / 4 | 6 / 4 / 4 |
+
+This proves four fewer requests and 10,823 fewer decoded response bytes for
+the measured route/status operation. It does **not** prove a response-time
+improvement: the small latency sample was slower, and runs used different
+synthetic fixtures and network conditions. It also does not measure compressed
+transfer or billed Supabase egress. The four selected words matched the four
+governed candidates, had administrative admission, compiled, and the
+withdrawal/replay fixture passed and cleaned up. Production and other routes
+remain unmeasured for this change.
