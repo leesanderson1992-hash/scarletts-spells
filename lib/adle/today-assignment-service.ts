@@ -19,7 +19,7 @@ import { composeDailyPlan } from "./daily-assignment-composer";
 import { authorCompleteGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-forward-authoring";
 import { supabaseGenericSnapshotV3PersistencePort } from "./composable-lesson/generic-snapshot-v3-persistence";
 import { compileAndPersistGuardedGenericSnapshotV3 } from "./composable-lesson/generic-snapshot-v3-writer";
-import { loadDailyPlanFacts } from "./loaders/composer-facts-loader";
+import { loadDailyPlanFacts, loadGenericV3DictationForWords } from "./loaders/composer-facts-loader";
 import {
   generateGuardedBaseWordFamilyPilot,
 } from "./loaders/base-word-family-pilot-loader";
@@ -441,9 +441,17 @@ export async function ensureParentAdleTodayAssignment(params: {
         microSkillKey: selection.microSkillKey, environmentKey }) ? "homophone_word_lab"
         : resolveParentManualAdleRoute(selection.microSkillKey) ?? undefined;
     if (!routeId) {
+      const composed = composeDailyPlan(facts, practiceDate as IsoDate);
+      const genericFacts = {
+        ...facts,
+        genericV3Dictation: await loadGenericV3DictationForWords(
+          params.serviceClient,
+          composed.partTwo.lessonWords.map((word) => word.canonicalWordId),
+        ),
+      };
       const authored = authorCompleteGenericSnapshotV3(
-        facts,
-        composeDailyPlan(facts, practiceDate as IsoDate),
+        genericFacts,
+        composed,
       );
       if (!authored.ok) {
         const result = { outcome: "no_eligible" as const, blockerCode: authored.blockerCode };
@@ -487,7 +495,7 @@ export async function ensureParentAdleTodayAssignment(params: {
       }
       const persistedV3 = await compileAndPersistGuardedGenericSnapshotV3({
         compiler: {
-          facts,
+          facts: genericFacts,
           plan: authored.plan,
           persistence: persistence as typeof persistence & { action: "insert"; header: NonNullable<typeof persistence.header> },
         },

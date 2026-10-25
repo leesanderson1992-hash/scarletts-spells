@@ -718,6 +718,32 @@ table-size proxy, not measured PostgREST transfer or billed egress; the old
 unpaged read could also be capped by the API row limit. It does confirm the
 Production read is currently unnecessary for generic transfer selection.
 
+## Scoped generic dictation read — 25 Oct 2026
+
+The shared daily-plan fact loader previously fetched every active, approved
+dictation sentence even for specialist routes. Generic v3 authoring is its
+only consumer. The generic path now composes the lesson first, then fetches
+approved dictation only for its selected word IDs. Empty selections issue no
+dictation request. Missing or unapproved sentences still block generic
+authoring; the compiler receives the same selected facts.
+
+Production has 2,191 active, approved dictation rows. Their five selected
+fields total 627,007 bytes as SQL `row_to_json` text across the full table.
+This is a size proxy, not HTTP or billed egress; the former unpaged HTTP read
+may have returned at most 1,000 rows. The scoped request contains at most the
+composed lesson's five words and cannot be silently truncated at that limit.
+
+On the same disposable five-word prefix fixture, five measured runs after one
+warm-up changed the daily-plan fact read from 26 requests/21,716 decoded bytes
+to 25 requests/20,406 decoded bytes; prefix preparation changed from
+32/33,540 to 31/32,230. The 1,310-byte reduction is specific to the
+fixture's five approved sentence rows. Median elapsed times were 318 ms and
+706 ms respectively, so this sample does not establish a speed improvement.
+The prefix compiler parity, concurrent withdrawal before save, replacement,
+historical snapshot replay and zero-residual cleanup passed. The generic v3
+regression verifies the scoped ID query, approval filters, unchanged authoring
+and missing-content block. Production endpoint egress remains unmeasured.
+
 The same held synthetic child, one warm-up and five measured staging runs
 changed `loadDailyPlanFacts` from 27 requests / 21,718 decoded response bytes
 to 26 / 21,716. Prefix preparation changed from 33 / 33,542 to 32 / 33,540.

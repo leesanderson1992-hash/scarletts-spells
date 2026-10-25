@@ -527,3 +527,9 @@ The candidate design should first separate child evidence/review IDs from
 eligible same-skill transfer pools, then compare selected skill, probe,
 stretch, proficiency fingerprint, blocked reasons and saved snapshots across
 generic and specialist routes before switching the read.
+
+The generic v3 dictation read is now deferred until the composer has chosen
+lesson words and is scoped to those word IDs. Specialist routes no longer pay
+for the generic sentence catalogue. The shared fact loader still reads the
+full active word catalogue for proficiency and candidate selection, so the
+cross-route parity work above remains the next dependency before narrowing it.

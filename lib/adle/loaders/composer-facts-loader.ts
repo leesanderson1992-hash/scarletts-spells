@@ -140,6 +140,39 @@ export async function loadActiveReviewPolicy(client: AdleClient): Promise<Review
   return reviewPolicyFromRow(policies[0]);
 }
 
+/** The generic v3 author needs sentences only for its composed lesson words. */
+export async function loadGenericV3DictationForWords(
+  client: AdleClient,
+  canonicalWordIds: readonly string[],
+): Promise<ReadonlyMap<string, GenericV3DictationFact>> {
+  const ids = [...new Set(canonicalWordIds)];
+  if (ids.length === 0) return new Map();
+  const dictationRows = await rows<{
+    canonical_word_id: string;
+    dictation_sentence: string;
+    dictation_target_token_index: number;
+    audio_text: string;
+    source_row_hash: string;
+  }>(
+    client.from("canonical_teaching_dictionary_dictation_sentences")
+      .select("canonical_word_id, dictation_sentence, dictation_target_token_index, audio_text, source_row_hash")
+      .in("canonical_word_id", ids)
+      .eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure"),
+    "loadGenericV3DictationForWords",
+  );
+  return new Map(dictationRows.map((row): [string, GenericV3DictationFact] => [
+    row.canonical_word_id,
+    {
+      canonicalWordId: row.canonical_word_id,
+      sentence: row.dictation_sentence,
+      audioText: row.audio_text,
+      targetTokenIndex: row.dictation_target_token_index,
+      sourceRowHash: row.source_row_hash,
+    },
+  ]));
+}
+
 export interface DailyPlanFactsLoad {
   /** Released proficiency calculation; reusable by evidence consumers. */
   proficiencyRelationships: { canonicalWordId: string; microSkillKey: string }[];
@@ -214,7 +247,6 @@ async function loadDailyPlanFactsUnmeasured(
     familyMethodRows,
     activityTemplateRows,
     teachingContentRows,
-    genericV3DictationRows,
     catalogRows,
     wordRows,
     supportRows,
@@ -275,20 +307,6 @@ async function loadDailyPlanFactsUnmeasured(
         .select("micro_skill_key, teaching_objective, reflection_prompt_key, reflection_prompt_text, child_friendly_explanation, rule_explanation, common_misconceptions, content_version, source_row_hash, import_batch_id, canonical_teaching_dictionary_field_reviews(field_key, review_status)")
         .eq("is_active", true),
       "loadDailyPlanFacts:teachingContent",
-    ),
-    factRows<{
-      canonical_word_id: string;
-      dictation_sentence: string;
-      dictation_target_token_index: number;
-      audio_text: string;
-      source_row_hash: string;
-    }>(
-      client
-        .from("canonical_teaching_dictionary_dictation_sentences")
-        .select("canonical_word_id, dictation_sentence, dictation_target_token_index, audio_text, source_row_hash")
-        .eq("row_status", "active")
-        .eq("review_status", "approved_for_first_exposure"),
-      "loadDailyPlanFacts:genericV3Dictation",
     ),
     factRows<{ micro_skill_key: string; skill_family_key: string }>(
       client.from("micro_skill_catalog").select("micro_skill_key, skill_family_key").eq("is_active", true),
@@ -758,16 +776,6 @@ async function loadDailyPlanFactsUnmeasured(
     activityTemplates: activityTemplateRows.map(activityTemplateFromRow),
     teachingContent,
     genericV3Reflection,
-    genericV3Dictation: new Map(genericV3DictationRows.map((row): [string, GenericV3DictationFact] => [
-      row.canonical_word_id,
-      {
-        canonicalWordId: row.canonical_word_id,
-        sentence: row.dictation_sentence,
-        audioText: row.audio_text,
-        targetTokenIndex: row.dictation_target_token_index,
-        sourceRowHash: row.source_row_hash,
-      },
-    ])),
     skillFamilyKeyBySkill,
     contextualSkillKeys,
     homophoneThresholdMetSkillKeys,

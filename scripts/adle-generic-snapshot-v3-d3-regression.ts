@@ -5,6 +5,7 @@ import type { ComposedDailyPlan, DailyPlanFacts, PlanItemCandidate } from "../li
 import { authorCompleteGenericSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-forward-authoring";
 import { compileGenericLessonSnapshotV3 } from "../lib/adle/composable-lesson/generic-snapshot-v3-compiler";
 import { persistGuardedGenericSnapshotV3, type GenericSnapshotJsonPersistencePort } from "../lib/adle/composable-lesson/generic-snapshot-v3-persistence";
+import { loadGenericV3DictationForWords } from "../lib/adle/loaders/composer-facts-loader";
 
 const CHILD = "11111111-1111-4111-8111-111111111111";
 const PARENT = "33333333-3333-4333-8333-333333333333";
@@ -65,6 +66,46 @@ function facts(): DailyPlanFacts {
 }
 
 async function main() {
+  const selectedIds: string[][] = [];
+  let rowStatus = "";
+  let reviewStatus = "";
+  const scopedQuery = {
+    select: (columns: string) => ({
+      in: (_column: string, ids: string[]) => {
+        assert(columns.includes("dictation_sentence"));
+        selectedIds.push(ids);
+        return {
+          eq: (column: string, value: string) => {
+            if (column === "row_status") rowStatus = value;
+            if (column === "review_status") reviewStatus = value;
+            return {
+              eq: (nextColumn: string, nextValue: string) => {
+                if (nextColumn === "row_status") rowStatus = nextValue;
+                if (nextColumn === "review_status") reviewStatus = nextValue;
+                return Promise.resolve({ data: [{ canonical_word_id: WORD_ID,
+                  dictation_sentence: "The helpful child smiled.",
+                  audio_text: "The helpful child smiled.",
+                  dictation_target_token_index: 1, source_row_hash: "dictation-hash" }], error: null });
+              },
+            };
+          },
+        };
+      },
+    }),
+  };
+  let table = "";
+  const scopedClient = { from: (name: string) => { table = name; return scopedQuery; } } as unknown as
+    Parameters<typeof loadGenericV3DictationForWords>[0];
+  assert.equal((await loadGenericV3DictationForWords(scopedClient, [])).size, 0);
+  assert.equal(table, "", "empty plans must not query dictation");
+  const selectedDictation = await loadGenericV3DictationForWords(scopedClient, [WORD_ID, WORD_ID]);
+  assert.equal(table, "canonical_teaching_dictionary_dictation_sentences");
+  assert.deepEqual(selectedIds, [[WORD_ID]], "only composed word IDs are requested");
+  assert.equal(rowStatus, "active");
+  assert.equal(reviewStatus, "approved_for_first_exposure");
+  assert.deepEqual(selectedDictation.get(WORD_ID), facts().genericV3Dictation?.get(WORD_ID));
+  assert(authorCompleteGenericSnapshotV3({ ...facts(), genericV3Dictation: selectedDictation }, rawPlan()).ok);
+
   const eligibleFacts = facts();
   const eligible = authorCompleteGenericSnapshotV3(eligibleFacts, rawPlan());
   assert(eligible.ok);
