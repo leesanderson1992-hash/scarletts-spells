@@ -533,3 +533,24 @@ lesson words and is scoped to those word IDs. Specialist routes no longer pay
 for the generic sentence catalogue. The shared fact loader still reads the
 full active word catalogue for proficiency and candidate selection, so the
 cross-route parity work above remains the next dependency before narrowing it.
+
+## Release rollback compatibility — 25 Oct 2026
+
+The current Production worker still calls the one-argument known-error
+materializer. Migration `20261025170000` drops that signature when the new
+worker moves to an environment-scoped implementation. Migration
+`20261025200000` restores the old signature as a service-role-only wrapper
+that delegates to the withdrawal-aware implementation with the Production
+environment. This keeps an older worker executable during an alias rollback
+without reviving its unscoped SQL body. The wrapper is a temporary rollback
+interface; remove it after the rollback window and after Production callers
+have been observed using the scoped RPC.
+
+Disposable staging applied the exact new migration and recorded its version.
+`service_role` can execute it, `anon` and `authenticated` cannot, an invalid
+limit is rejected, and a transaction-rolled-back comparison returned the same
+result as the scoped function on the empty staging findings fixture. This
+comparison does not prove the previous worker's complete rollback flow.
+Rolling back to the previous application code also restores its older
+resolver interpretation, so the writing shadow worker must be held during
+such a rollback until the live-pair attribution is restored or checked.
