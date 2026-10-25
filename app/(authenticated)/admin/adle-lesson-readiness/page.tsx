@@ -3,6 +3,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { loadLessonReadiness } from "./read-model";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { launchReviewedAdleLesson, rollbackReviewedAdleLessonVersion } from "./actions";
+import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,10 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
   await requireAdminUser();
   const params = await searchParams;
   const rows = await loadLessonReadiness({ routeId: params.route || undefined, microSkillKey: params.skill || undefined });
+  const selectedLesson = params.route && params.skill
+    ? rows.find((row) => row.routeId === params.route && row.microSkillKey === params.skill) : undefined;
+  const routeWords = selectedLesson ? await loadRouteWordStatuses({ routeId: selectedLesson.routeId,
+    microSkillKey: selectedLesson.microSkillKey, lesson: selectedLesson }) : null;
   const counts = { released: rows.filter((row) => row.released).length,
     ready: rows.filter((row) => row.status === "ready_to_launch").length,
     blocked: rows.filter((row) => ["blocked", "needs_review"].includes(row.status)).length };
@@ -32,6 +37,18 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
 
       <button className="rounded-lg border border-[var(--border)] px-4 py-2 font-semibold">Show readiness</button>
     </form>
+    {routeWords && <section className="rounded-xl border border-[var(--border)] bg-white p-4" aria-label="Governed word readiness">
+      <h2 className="text-lg font-semibold">Word readiness for this route</h2>
+      <p className="mt-1 text-sm">{routeWords.counts.candidates} associated or route-content words · {routeWords.counts.approvedRelationships} approved relationships · {routeWords.counts.technicalComplete} technically complete · {routeWords.counts.awaitingEditorial} awaiting content review · {routeWords.counts.missingContent} missing route content · {routeWords.counts.administrativeCandidates} through all administrative gates. Child selection is evaluated separately.</p>
+      <details className="mt-3"><summary className="cursor-pointer font-semibold">Inspect word gates and blockers</summary>
+        <ul className="mt-3 grid gap-2 text-sm">{routeWords.words.slice(0, 50).map((word) => <li key={word.wordId} className="rounded-lg border border-[var(--border)] p-2">
+          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.wordId}`}>{word.displayWord}</Link>
+          <span> · {word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate ? "administratively eligible" : "blocked"}</span>
+          {word.status.blockerDetails.length > 0 && <ul className="mt-1 list-disc pl-5">{word.status.blockerDetails.map((blocker, index) => <li key={`${blocker.code}:${index}`}>{blocker.gate}: {blocker.message}</li>)}</ul>}
+        </li>)}</ul>
+        {routeWords.words.length > 50 && <p className="mt-2 text-sm">Showing the first 50 words alphabetically; the counts cover all {routeWords.words.length} words.</p>}
+      </details>
+    </section>}
     <section className="grid gap-4" aria-label="Registered ADLE lessons">{rows.map((row) =>
       <article key={`${row.routeId}:${row.microSkillKey}`} className="rounded-xl border border-[var(--border)] bg-white p-4">
         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs uppercase tracking-wide text-[color:var(--mid)]">{row.routeId.replaceAll("_", " ")} · {row.routeVersion}</p><h2 className="mt-1 text-lg font-semibold">{row.title}</h2></div>

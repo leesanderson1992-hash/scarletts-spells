@@ -2,7 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publishedAssociationsToPhaseB, type PublishedAssociation } from "./knowledge";
 
-export async function loadPublishedWritingAssociations(client: SupabaseClient, environment: "local" | "staging" | "production", canonicalWordId?: string) {
+export async function loadPublishedWritingAssociations(client: SupabaseClient, environment: "local" | "staging" | "production", canonicalWordId?: string | readonly string[]) {
   const releases: { id: string; release_key: string; reviewed_by: string }[] = [];
   const pairs: PublishedAssociation[] = [];
   const withdrawn = new Set<string>();
@@ -10,12 +10,17 @@ export async function loadPublishedWritingAssociations(client: SupabaseClient, e
     // Find this word's pair rows first; historical releases can be large while
     // only a handful ever mention one word. Keep withdrawn releases so the
     // governed interpreter can report their inactive evidence.
-    for (let offset = 0; ; offset += 500) {
-      const response = await client.from("adle_reviewed_word_skill_pairs").select("*")
-        .eq("canonical_word_id", canonicalWordId).order("id").range(offset, offset + 499);
-      if (response.error) throw new Error("WRITING_KNOWLEDGE_PAIR_READ_FAILED");
-      pairs.push(...response.data as PublishedAssociation[]);
-      if (response.data.length < 500) break;
+    const wordIds = typeof canonicalWordId === "string" ? [canonicalWordId] : [...new Set(canonicalWordId)];
+    for (let start = 0; start < wordIds.length; start += 100) {
+      const ids = wordIds.slice(start, start + 100);
+      for (let offset = 0; ; offset += 500) {
+        const query = client.from("adle_reviewed_word_skill_pairs").select("*");
+        const response = await (ids.length === 1 ? query.eq("canonical_word_id", ids[0])
+          : query.in("canonical_word_id", ids)).order("id").range(offset, offset + 499);
+        if (response.error) throw new Error("WRITING_KNOWLEDGE_PAIR_READ_FAILED");
+        pairs.push(...response.data as PublishedAssociation[]);
+        if (response.data.length < 500) break;
+      }
     }
     const releaseIds = [...new Set(pairs.map((pair) => pair.release_id))];
     for (let start = 0; start < releaseIds.length; start += 100) {

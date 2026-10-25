@@ -81,6 +81,17 @@ async function main() {
       assert.ok(!reads.some((read) => read.table === "canonical_teaching_dictionary_word_support" && read.rows > 1));
     }
   }
+  reads.length = 0;
+  const batchIds = ["word-a", "word-b", "word-dup-1", "word-dup-2"];
+  const batchAssociations = await loadPublishedWritingAssociations(client, "staging", batchIds);
+  const batch = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: "staging",
+    explicitReviewedAssociations: batchAssociations, canonicalWordIds: batchIds });
+  assert.deepEqual(batch.relationships, full.relationships, "batch interpretation matches complete authority");
+  assert.deepEqual(batch.decisions, full.decisions, "batch decisions match complete authority");
+  const batchWordRows = reads.filter((read) => read.table === "canonical_teaching_dictionary_words").reduce((sum, read) => sum + read.rows, 0);
+  assert.equal(batchWordRows, 8, "batch retrieves four target identities and four spelling collision rows");
+  assert.equal(reads.filter((read) => read.table === "canonical_teaching_dictionary_word_support").length, 1,
+    "batch support read uses one ID-filtered query");
   assert.equal(full.relationships.filter((row) => row.canonicalWordId === "word-a").length, 1, "reviewed and resolver evidence admitted");
   assert.equal(full.relationships.filter((row) => row.canonicalWordId === "word-b").length, 0, "deassignment and withdrawal respected");
   assert.equal(full.relationships.filter((row) => row.canonicalWordId.startsWith("word-dup")).length, 0, "unstable spelling identity blocked");

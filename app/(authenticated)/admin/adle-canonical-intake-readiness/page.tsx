@@ -2,6 +2,9 @@ import Link from "next/link";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { isCanonicalIntakeEnabled } from "@/lib/adle/canonical-intake";
+import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
+import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
+import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 
 import { loadReadinessRows, type ReadinessView } from "./read-model";
 import { parseReadinessControls, readinessHref } from "./readiness-controls";
@@ -35,6 +38,27 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
   } catch (cause) {
     console.error("[adle-readiness-admin] read model failed", cause);
     error = "The readiness facts could not be loaded. Try again shortly.";
+  }
+  const routeStatuses: Record<string, WordRouteStatus> = {};
+  if (result && controls.microSkill) {
+    const grouped = new Map<string, { routeId: string; microSkillKey: string; wordIds: string[] }>();
+    for (const row of result.rows) {
+      if (!row.dictionaryWordId) continue;
+      const registered = ADLE_CURRICULUM_ROUTE_REGISTRY.some((route) => route.routeId === row.routeId && route.supportedMicroSkillKeys.includes(row.microSkillKey));
+      if (!registered) continue;
+      const key = `${row.routeId}\u0000${row.microSkillKey}`;
+      const group = grouped.get(key) ?? { routeId: row.routeId, microSkillKey: row.microSkillKey, wordIds: [] };
+      group.wordIds.push(row.dictionaryWordId);
+      grouped.set(key, group);
+    }
+    for (const group of grouped.values()) {
+      const status = await loadRouteWordStatuses({ ...group, wordIds: group.wordIds });
+      for (const row of result.rows) {
+        if (row.routeId !== group.routeId || row.microSkillKey !== group.microSkillKey) continue;
+        const match = status.words.find((word) => word.wordId === row.dictionaryWordId);
+        if (match) routeStatuses[row.key] = match.status;
+      }
+    }
   }
   return <main className="adle-admin-page min-h-screen px-4 py-8 sm:px-6 lg:px-8">
     <div className="mx-auto max-w-[1440px]">
@@ -100,7 +124,7 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
             </details>
           </div>
         </div>
-        <ReadinessTable rows={result.rows} view={view} controls={controls} search={search} />
+        <ReadinessTable rows={result.rows} view={view} controls={controls} search={search} routeStatuses={routeStatuses} />
         {result.total > 25 ? <nav aria-label="Table pages" className="mt-5 flex items-center justify-end gap-3 text-sm">
           {page > 1 ? <Link href={readinessHref({ ...controls, view, search, page: page - 1 })} className="adle-admin-secondary">Previous</Link> : null}
           <span>Page {page} of {Math.ceil(result.total / 25)}</span>

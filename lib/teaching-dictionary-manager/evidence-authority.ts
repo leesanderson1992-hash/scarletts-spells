@@ -22,6 +22,13 @@ export async function loadTeachingDictionaryEvidenceAuthorityForWord(client: Sup
   return loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment, explicitReviewedAssociations, canonicalWordId });
 }
 
+/** Route/skill admin read: resolve a bounded set of identities in one governed
+ * interpretation, including withdrawals and pair decisions. */
+export async function loadTeachingDictionaryEvidenceAuthorityForWords(client: SupabaseClient, environment: AdleRouteActivationEnvironment, canonicalWordIds: readonly string[]) {
+  const explicitReviewedAssociations = await loadPublishedWritingAssociations(client, environment, canonicalWordIds);
+  return loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment, explicitReviewedAssociations, canonicalWordIds });
+}
+
 /** Share a word's governed read between the detail render and its readiness
  * request. Admin Server Actions expire the evidence tag after governed writes;
  * out-of-band writes remain bounded by the 60-second TTL. */

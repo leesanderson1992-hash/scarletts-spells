@@ -9,6 +9,7 @@ import Link from "next/link";
 import { enqueueIntakeDemandRecheck, setIntakeDemandArchived } from "./actions";
 import { FACET_KEYS, type Facet, type FacetKey } from "./readiness-projection";
 import type { ReadinessRow, ReadinessView } from "./read-model";
+import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 import { readinessHref, type ReadinessControls, type SortKey } from "./readiness-controls";
 
 const LABELS: Record<FacetKey, string> = {
@@ -33,7 +34,7 @@ function Indicator({ facet, label }: { facet: Facet; label: string }) {
   return facet.href ? <Link href={facet.href} aria-label={`${label}: ${status}. Open the relevant review area.`}>{indicator}</Link> : indicator;
 }
 
-function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: () => void; preview: boolean }) {
+function DetailDialog({ row, onClose, preview, routeStatus }: { row: ReadinessRow; onClose: () => void; preview: boolean; routeStatus?: WordRouteStatus }) {
   const [history, setHistory] = useState<ReadinessRow["history"] | null>(preview ? row.history : null);
   const [historyError, setHistoryError] = useState(false);
   useEffect(() => {
@@ -57,6 +58,12 @@ function DetailDialog({ row, onClose, preview }: { row: ReadinessRow; onClose: (
     footer={<button type="button" className="adle-admin-dialog-close" onClick={onClose}>Close</button>}>
     <div className="adle-admin-dialog-body">
       <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Admission is separate from mastery and from having enough eligible words to schedule a complete lesson.</p>
+      {routeStatus && <section className="adle-admin-detail-section">
+        <h4>Governed route readiness</h4>
+        <p className="mt-2 text-sm">Dictionary {routeStatus.dictionaryApproved ? "approved" : "not approved"} · relationship {routeStatus.relationshipApproved ? "approved" : "not approved"} · technical facts {routeStatus.technicalFacts.replaceAll("_", " ")} · content review {routeStatus.editorialApproved ? "approved" : "pending"} · route {routeStatus.routeActivated ? "active" : "inactive"}. Child selection is evaluated separately.</p>
+        {routeStatus.blockerDetails.length > 0 && <ul className="mt-2 list-disc pl-5 text-sm">{routeStatus.blockerDetails.map((blocker, index) => <li key={`${blocker.code}:${index}`}>{blocker.gate}: {blocker.message}</li>)}</ul>}
+      </section>}
+      {!routeStatus && row.dictionaryWordId && !preview && <p className="mt-2 text-sm text-[#59616b]">Filter to this micro-skill to load its governed route gates.</p>}
       {incomplete.length ? incomplete.map((key) => <section key={key} className="adle-admin-detail-section">
         <h4>{LABELS[key]} <span className="text-xs font-normal text-[#69717b]">Pending</span></h4>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[#414a55]">
@@ -94,8 +101,8 @@ function SortHeading({ field, label, className = "", controls, view, search }: {
 
 export function ReadinessTable({ rows, view, controls = {
   microSkill: "", without: "all", sort: "usersWaiting", direction: "desc",
-}, search = "", preview = false }: { rows: ReadinessRow[]; view: ReadinessView;
-  controls?: ReadinessControls; search?: string; preview?: boolean }) {
+}, search = "", preview = false, routeStatuses = {} }: { rows: ReadinessRow[]; view: ReadinessView;
+  controls?: ReadinessControls; search?: string; preview?: boolean; routeStatuses?: Record<string, WordRouteStatus> }) {
   const [selected, setSelected] = useState<ReadinessRow | null>(null);
   const [optionsMenu, setOptionsMenu] = useState<{
     row: ReadinessRow; top: number; left: number;
@@ -197,6 +204,6 @@ export function ReadinessTable({ rows, view, controls = {
         <button type="submit" role="menuitem">{optionsMenu.row.archived ? "Restore" : "Archive"}</button>
       </form> : null}
     </div>, document.body) : null}
-    {selected ? <DetailDialog key={selected.key} row={selected} preview={preview} onClose={() => setSelected(null)} /> : null}
+    {selected ? <DetailDialog key={selected.key} row={selected} preview={preview} routeStatus={routeStatuses[selected.key]} onClose={() => setSelected(null)} /> : null}
   </>;
 }
