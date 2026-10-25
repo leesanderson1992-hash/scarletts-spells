@@ -31,7 +31,10 @@ import { COMPOSER_POLICY_V1 } from "../composer-policy";
 import { EVIDENCE_POLICY_V1 } from "../evidence-policy";
 import { PROFICIENCY_POLICY_V1 } from "../proficiency-policy";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
+import { loadAllCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
+import { excludeWithdrawnTeachingSupports, partitionWithdrawnLearningItems } from "../word-skill-relationships/withdrawal-impact";
 import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
+import type { LearningItemFact } from "../learning-items";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 import { readProficiencyFactRows, type FactQuery } from "../../authentic-use/paged-facts";
 import { fingerprint } from "../../writing-engine/baseline/source";
@@ -135,6 +138,8 @@ export interface DailyPlanFactsLoad {
   /** Existing Slice 4 states, exposed for parent word-mastery reads. */
   wordStates: WordEvidenceStateResult[];
   wordMasteryEvidence: Map<string, { productions: number; distinctDays: number; verifiedAuthenticUses: number }>;
+  /** Persisted child needs held out of new lessons by an exact-pair withdrawal. */
+  withdrawnLearningItems: LearningItemFact[];
   wordNextReviewDueByWordId: Map<string, IsoDate>;
   proficiencyFingerprint: string;
   facts: DailyPlanFacts;
@@ -183,6 +188,7 @@ async function loadDailyPlanFactsUnmeasured(
       : rows<T>(query, context);
 
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
+  const relationshipEnvironment = params.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
   const sharedRoutesEnabled = isCanonicalIntakeEnabled();
   const scheduleWordQuery = (client.from("adle_review_schedule_words") as any)
     .select(sharedRoutesEnabled
@@ -215,6 +221,7 @@ async function loadDailyPlanFactsUnmeasured(
     retirementReceiptRows,
     transferSelectorProfileRows,
     reviewedMorphologyRows,
+    deassignedPairs,
   ] = await Promise.all([
     loadActiveReviewPolicy(client),
     factRows<ReviewBundleRow>(
@@ -420,6 +427,9 @@ async function loadDailyPlanFactsUnmeasured(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:reviewedMorphology",
     ),
+    relationshipEnvironment
+      ? loadAllCurrentPairDeassignments({ client, environmentKey: relationshipEnvironment })
+      : Promise.resolve(new Set<string>()),
   ]);
 
   const [contextualPairRows, contextualDemandRows] = await Promise.all([
@@ -456,10 +466,12 @@ async function loadDailyPlanFactsUnmeasured(
     if (due) wordNextReviewDueByWordId.set(row.canonical_word_id, due);
   }
   const learningItems = learningItemRows.map(learningItemFromRow);
+  const { selectable: lessonLearningItems, withdrawn: withdrawnLearningItems } =
+    partitionWithdrawnLearningItems(learningItems, deassignedPairs);
   const words = wordRows.map(dictionaryWordFromRow);
-  let supports = supportRows.map(wordSupportFromRow);
+  let supports = excludeWithdrawnTeachingSupports(supportRows.map(wordSupportFromRow), deassignedPairs);
   if (authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled) {
-    const environmentKey = params.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
+    const environmentKey = relationshipEnvironment;
     if (!environmentKey) throw new Error("loadDailyPlanFacts: relationship environment unavailable");
     const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
       explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey) });
@@ -605,7 +617,7 @@ async function loadDailyPlanFactsUnmeasured(
       supportSkillByWord.set(support.canonicalWordId, support.microSkillKey);
     }
   }
-  const itemsNewestFirst = [...learningItems].sort((a, b) =>
+  const itemsNewestFirst = [...lessonLearningItems].sort((a, b) =>
     a.intakeOn !== b.intakeOn ? (a.intakeOn > b.intakeOn ? -1 : 1) : a.learningItemId < b.learningItemId ? -1 : 1,
   );
   for (const item of itemsNewestFirst) {
@@ -672,7 +684,7 @@ async function loadDailyPlanFactsUnmeasured(
 
   // Today's completed cold-probe misses: active probe-miss items taken in
   // today (their intake landed via the probe completion path).
-  const probeMissWordIdsToday = learningItems
+  const probeMissWordIdsToday = lessonLearningItems
     .filter((item) => item.rowStatus === "active" && item.sourceKind === "probe_miss" && item.intakeOn === today)
     .map((item) => item.canonicalWordId)
     .sort();
@@ -756,7 +768,7 @@ async function loadDailyPlanFactsUnmeasured(
     skillFamilyKeyBySkill,
     contextualSkillKeys,
     homophoneThresholdMetSkillKeys,
-    learningItems,
+    learningItems: lessonLearningItems,
     // No taxonomy prerequisite storage exists yet; the tier is pinned
     // fail-open on empty facts (Slice 6 pin).
     prerequisiteKeysBySkill: new Map(),
@@ -791,6 +803,7 @@ async function loadDailyPlanFactsUnmeasured(
   return {
     wordStates,
     wordMasteryEvidence,
+    withdrawnLearningItems,
     wordNextReviewDueByWordId,
     proficiencyRelationships: supports.filter(s => s.rowStatus === "active" && s.supportRole !== "contrast").map(s => ({ canonicalWordId: s.canonicalWordId, microSkillKey: s.microSkillKey })),
     proficiencyReports,

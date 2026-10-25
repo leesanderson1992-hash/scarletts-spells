@@ -55,6 +55,8 @@ import {
   type ScheduleWordFact,
 } from "../lib/adle/review-scheduler";
 import { dueReviewWords } from "../lib/adle/review-due-queue";
+import { canonicalPairKey } from "../lib/adle/word-skill-relationships/pair-key";
+import { excludeWithdrawnTeachingSupports, partitionWithdrawnLearningItems } from "../lib/adle/word-skill-relationships/withdrawal-impact";
 
 function assert(condition: unknown, message: string) {
   if (!condition) {
@@ -563,6 +565,33 @@ assert(diffDays("2026-01-01", "2026-01-29") === 28, "diffDays");
 
   const rerun = () => JSON.stringify(extractAuthenticUseCandidates(piece));
   assert(rerun() === rerun(), "extraction is deterministic");
+}
+
+// A pair withdrawal closes new teaching without removing the word's review
+// schedule or its successful review evidence for word-level mastery.
+{
+  const skill = "D4_PAT_X";
+  const deassigned = new Set([canonicalPairKey(WORD, skill)]);
+  const childItem = { learningItemId: "item-withdrawn", childId: CHILD, canonicalWordId: WORD,
+    microSkillKey: skill, itemStatus: "pending" as const,
+    sourceKind: "verified_misspelling" as const, sourceRef: "fixture", sourceAttemptText: null,
+    reteachPriority: false, ejectedOn: null, intakeOn: "2026-01-01" as const,
+    rowStatus: "active" as const };
+  const partition = partitionWithdrawnLearningItems([childItem], deassigned);
+  assert(partition.selectable.length === 0 && partition.withdrawn[0] === childItem,
+    "withdrawn need is retained but cannot feed a new lesson");
+  const supports = excludeWithdrawnTeachingSupports([{ canonicalWordId: WORD, microSkillKey: skill,
+    supportRole: "support_example", rowStatus: "active", reviewStatus: "approved_for_first_exposure" }], deassigned);
+  assert(supports.length === 0, "withdrawn pair cannot feed skill proficiency");
+  const { bundle, words } = createReviewBundle(reviewPolicy, { bundleId: "withdrawn-review", childId: CHILD,
+    sourceRef: "historical-lesson", taughtOn: "2026-01-01", words: [{ canonicalWordId: WORD }] });
+  assert(dueReviewWords([bundle], words, bundle.nextDueOn).length === 1,
+    "the withdrawn word remains due for review");
+  const reviewed = emptyFacts({ outcomeEvents: [outcome({ childId: CHILD, canonicalWordId: WORD,
+    bundleId: bundle.bundleId, eventType: "review_pass", occurredOn: bundle.nextDueOn,
+    intervalIndex: bundle.intervalIndex, schedulePolicyVersion: reviewPolicy.schedulePolicyVersion })] });
+  assert(priceWordEvidence(policy, reviewed).productions.some((entry) => entry.kind === "review_production"),
+    "successful review still contributes to word-level mastery evidence");
 }
 
 console.log("adle-evidence-regression: all checks passed");

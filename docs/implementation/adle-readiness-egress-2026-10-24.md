@@ -481,3 +481,34 @@ fails closed on a null environment, route or word set. The authenticated
 five-word proof passed again after that hardening. A final staging count found
 zero children, learning items, assignments, proof profiles, proof batches and
 temporary active policy versions. Production was not migrated or deployed.
+
+## Withdrawn word queue and review proof — 25 Oct 2026
+
+The daily-plan fact loader now reads current exact-pair deassignments in
+bounded, selected-column pages. It keeps the persisted child learning item but
+excludes the withdrawn pair from new-lesson inputs, probe-miss candidate
+inputs, and active teaching/proficiency supports. The word's existing review
+schedule and review-word facts remain available. Review outcomes still feed
+word-level evidence pricing; current governed relationships, rather than the
+historical review attachment, determine whether positive evidence contributes
+to a micro-skill. A newest withdrawn learning item cannot override an active
+pair as the new lesson's primary skill for the same word.
+
+The pure evidence regression passed. An authenticated disposable staging
+fixture then inserted a pending item and historical review for a selected
+transfer, withdrew its exact pair, and called the real `loadDailyPlanFacts`
+boundary. It observed one blocked-but-retained item, zero withdrawn pairs in
+new-lesson needs or proficiency supports, a retained scheduled review, and
+positive word-level review credit. The same run proved stale assignment
+rejection, fifth-word replacement, saved snapshot replay and post-save
+withdrawal replay. The temporary child, outcome, schedule, decisions, words,
+policies and batch were removed; the append-only trigger disabled solely for
+deleting the synthetic outcome was restored and verified. Production was not
+queried or changed.
+
+This establishes word-level credit, not automatic `mastered` status: the
+current mastery policy also requires parent-reviewed authentic use. Resolver
+skill attribution on a deassigned mapping and a learner-facing explanation of
+blocked queued needs remain separate gates. The extra latest-decision read is
+instrumented; a before/after Supabase billed-egress and p95 comparison remains
+required before claiming a speed or cost improvement.

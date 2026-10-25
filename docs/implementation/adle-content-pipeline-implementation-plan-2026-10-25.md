@@ -354,3 +354,26 @@ word, saved snapshots replay, and a post-selection withdrawal cannot race a
 persisted assignment. Retain the full governed relationship interpreter as
 the status authority; this single-query veto closes the newly proved writer
 gap without adding its full read cost to each assignment.
+
+## Progress after the authenticated save and withdrawal review gates — 25 Oct 2026
+
+The authenticated five-word staging proof now covers stale selection
+rejection before save, replacement with another reviewed transfer, frozen
+snapshot replay, and post-save withdrawal replay. The database guard orders
+the pair decision and assignment save within the same transaction boundary.
+
+The subsequent child-lifecycle slice keeps a withdrawn learning item stored
+but removes its pair from new lesson needs and skill-proficiency supports.
+Historical review schedule rows and review-word facts remain; qualifying
+reviews still contribute to word-level mastery evidence. A disposable staging
+fixture exercised these paths through `loadDailyPlanFacts` and verified full
+cleanup. This implements the owner's review and word-mastery decision without
+restoring the withdrawn pair's teaching eligibility.
+
+Remaining gates are resolver skill attribution after exact-pair withdrawal,
+a parent/admin explanation for a blocked queued need, concurrency stress for
+the save lock, and a browser completion/retry verifier for the released route.
+Measure the daily-plan decision query's payload and latency against a
+comparable baseline before claiming sitewide speed or egress savings. The
+review policy's final `mastered` state still requires parent-reviewed
+authentic use; review success supplies word-level production evidence only.

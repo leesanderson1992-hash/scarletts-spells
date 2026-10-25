@@ -7,6 +7,33 @@ import { canonicalPairKey } from "./pair-key";
 
 const PAGE_SIZE = 100;
 
+/** Daily-plan proficiency needs the complete withdrawal set across its
+ * dictionary support pool. Read only current deassignments, in bounded pages. */
+export async function loadAllCurrentPairDeassignments(input: {
+  client: SupabaseClient;
+  environmentKey: AdleRouteActivationEnvironment;
+}): Promise<ReadonlySet<string>> {
+  const deassigned = new Set<string>();
+  let afterSequence = 0;
+  for (;;) {
+    const started = performance.now();
+    const { data, error } = await input.client.from("teaching_dictionary_pair_latest_decisions")
+      .select("canonical_word_id,micro_skill_key,sequence_number")
+      .eq("environment_key", input.environmentKey)
+      .eq("action", "deassign")
+      .gt("sequence_number", afterSequence)
+      .order("sequence_number", { ascending: true })
+      .limit(500);
+    recordAdleReadPage("teaching_dictionary_pair_latest_decisions", data ?? [], performance.now() - started);
+    if (error) throw new Error(`all pair decision veto read: ${error.message}`);
+    for (const row of data ?? []) {
+      deassigned.add(canonicalPairKey(row.canonical_word_id, row.micro_skill_key));
+      afterSequence = row.sequence_number;
+    }
+    if ((data ?? []).length < 500) return deassigned;
+  }
+}
+
 /** The latest governed decision is an explicit veto over otherwise reviewed
  * route membership. Read only the candidate pairs for this assignment. */
 export async function loadCurrentPairDeassignments(input: {
