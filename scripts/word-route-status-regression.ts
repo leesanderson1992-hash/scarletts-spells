@@ -8,7 +8,7 @@ const lesson = {
   released: true, activationEnabled: true,
   words: [{ id: "where", word: "where", role: "released lesson word", ready: true,
     blockers: [], editHref: "", contentPreview: {} }],
-} as LessonReadinessRow;
+} as unknown as LessonReadinessRow;
 
 const where = wordRouteStatus({ wordId: "where", dictionaryApproved: true,
   approvedSkillKeys: new Set([skill]), lesson });
