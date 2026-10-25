@@ -598,7 +598,11 @@ this release window; the equivalent isolated staging pages had passed.
 
 The deployed build's per-deployment fingerprint overrides are correct. Updating
 the two stale sensitive project-level Vercel variables through CLI failed with
-"You cannot change the key of a Sensitive Environment Variable"; future
-deployments must retain the verified overrides until that configuration is
-repaired. Supabase billed egress and page latency still need a comparable
-post-release observation window before claiming a sitewide saving.
+"You cannot change the key of a Sensitive Environment Variable". The Vercel
+project API then updated both values. A separate unaliased build
+`dpl_5SWbhp4ACvM6N1wPm7hwYY44cmSq` relied on the project fingerprints
+without those two overrides; its authenticated readback reported the same
+exact SHA, valid identity and no failures. The public alias remained on
+`dpl_Cv7SaR8hSgZj9icVuaFsrKWHKEXy`. Supabase billed egress and page
+latency still need a comparable post-release observation window before
+claiming a sitewide saving.
