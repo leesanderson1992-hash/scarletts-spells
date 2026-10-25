@@ -723,13 +723,22 @@ state as well; it matched in both modes and the review continued to credit
 word mastery while not contributing to the withdrawn micro-skill. The Parent
 Insights regression, TypeScript and targeted lint passed.
 
-Remaining validation before Production release: route-level generic/R6
-snapshot comparison against the deployed selector. Staging currently has no
-active generic method/template set for an end-to-end database lesson, so the
-generic comparison is a pure
-composer regression plus fact-read comparison rather than a staged full
-lesson. The full loader's ordinary non-Authentic-Use path still uses unpaged
-table reads; its behavior at the API row cap remains a separate correctness
-issue. Do not claim a before/after Production improvement until matched-window
-billed egress, request count and latency observations are available after
-release.
+The remaining generic/R6 selector comparison uses the exact change boundary:
+the deployed selector and snapshot code is unchanged; the new entry points
+pass `wordReadMode: "scoped"` to the fact loader. The disposable staging
+fixture compared full and scoped facts, composed plans, proficiency, mastery,
+withdrawal and parent display outputs under ordinary and Authentic Use
+enabled conditions. A positive pure generic fixture and a positive frozen-R6
+fixture each compose the same complete plan with or without an unrelated
+dictionary word. The D3 generic regression now also authors and compiles an
+identical snapshot, including its source fingerprint, with both catalogues.
+The generic writer's persistence/readback regression and the R6 frozen
+workload regression pass. This closes the selector cutover comparison without
+creating artificial generic content or assignments in staging, which has no
+active generic method/template set. It does not constitute a browser Finish
+proof for a generic lesson.
+
+The full loader's ordinary non-Authentic-Use path still uses unpaged table
+reads; its behavior at the API row cap remains a separate correctness issue.
+Do not claim a before/after Production improvement until matched-window billed
+egress, request count and latency observations are available after release.

@@ -667,8 +667,10 @@ const LESSON_ITEMS = [
   assert(scoped.partTwo.composed, "generic parity fixture must compose a lesson");
   assert(JSON.stringify(scoped) === JSON.stringify(full), "unrelated dictionary word cannot alter a generic lesson");
   const frozen = { frozenReviewWorkload: { dueCount: 0, sessionCap: 10, lessonAllowed: true } };
-  assert(JSON.stringify(composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: FILL_DICTIONARY }), TODAY, frozen))
-    === JSON.stringify(composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: catalogue }), TODAY, frozen)),
+  const r6Scoped = composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: FILL_DICTIONARY }), TODAY, frozen);
+  const r6Full = composeDailyPlan(planFacts({ learningItems: LESSON_ITEMS, dictionary: catalogue }), TODAY, frozen);
+  assert(r6Scoped.partTwo.composed, "R6 parity fixture must compose a lesson");
+  assert(JSON.stringify(r6Scoped) === JSON.stringify(r6Full),
   "unrelated dictionary word cannot alter an R6 lesson");
 }
 

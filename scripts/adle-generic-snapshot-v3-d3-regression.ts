@@ -140,6 +140,23 @@ async function main() {
   if (!first.ok || !second.ok) throw new Error("expected compilation");
   assert.deepEqual(first.snapshot, second.snapshot);
   assert.equal(first.snapshot.provenance.sourceFingerprint, second.snapshot.provenance.sourceFingerprint);
+  const unrelatedWord = { ...eligibleFacts.dictionary.words[0], canonicalWordId: "unrelated-word",
+    wordKey: "unrelated", normalisedWord: "unrelated", displayWord: "unrelated" };
+  const fullCatalogueFacts: DailyPlanFacts = { ...eligibleFacts,
+    dictionary: { ...eligibleFacts.dictionary, words: [...eligibleFacts.dictionary.words, unrelatedWord] } };
+  const fullCatalogueAuthoring = authorCompleteGenericSnapshotV3(fullCatalogueFacts, rawPlan());
+  assert(fullCatalogueAuthoring.ok, "An unrelated dictionary word must not block generic authoring");
+  if (!fullCatalogueAuthoring.ok) throw new Error("expected full catalogue authoring");
+  const fullCataloguePersistence = planAssignmentPersistence(fullCatalogueAuthoring.plan,
+    { parentUserId: PARENT, existingHeaders: [], generationTrigger: "parent_manual" });
+  assert(fullCataloguePersistence.action === "insert" && fullCataloguePersistence.header);
+  const fullCatalogueSnapshot = compileGenericLessonSnapshotV3({ facts: fullCatalogueFacts,
+    plan: fullCatalogueAuthoring.plan,
+    persistence: fullCataloguePersistence as typeof fullCataloguePersistence & { action: "insert"; header: NonNullable<typeof fullCataloguePersistence.header> } });
+  assert(fullCatalogueSnapshot.ok, "An unrelated dictionary word must not block generic compilation");
+  if (!fullCatalogueSnapshot.ok) throw new Error("expected full catalogue snapshot");
+  assert.deepEqual(fullCatalogueSnapshot.snapshot, first.snapshot,
+    "Scoped and full dictionary catalogues must compile the same generic snapshot");
   const reflectionActivity = first.snapshot.activities.find((activity) => activity.canonical.concept === "LESSON_REFLECTION");
   assert(reflectionActivity);
   assert.equal(reflectionActivity.payload.prompt, "What helped you spell this word?");
