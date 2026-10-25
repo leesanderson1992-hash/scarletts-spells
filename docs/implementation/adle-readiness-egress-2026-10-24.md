@@ -439,3 +439,45 @@ Production was not deployed. A final disposable database check found zero
 children, zero ADLE learning items, zero proof profiles, and zero proof import
 batches. Preview build success does not establish an authenticated assignment
 or historical replay; that remains the next proof gate.
+
+## Authenticated prefix save gate — 25 Oct 2026
+
+The next disposable Supabase fixture created one child under the synthetic
+staging admin, one verified-misspelling ADLE learning item, five reviewed
+`un-` profile words and their required morphology, support and dictation
+facts. Temporary active review and banding policies made the normal daily
+plan writer runnable in the otherwise empty isolated project. The signed-in
+admin's user client and the normal service-role writer prepared a four-word
+prefix lesson; the shared compiler's shadow comparison matched.
+
+After preparation, an exact-pair `deassign` event withdrew one selected
+transfer. The new transaction-scoped persistence RPC rejected the stale
+lesson with `ADLE_PREFIX_PAIR_DEASSIGNED`; the writer returned
+`relationship_withdrawn_before_persistence`, and the child had zero saved
+assignments. A fresh prepare selected the fifth reviewed word in its place,
+saved one assignment, and loaded a `ready` frozen lesson snapshot. Withdrawing
+that replacement **after** save left the historical snapshot byte-for-byte
+unchanged on a second read. The fixture's `finally` cleanup removed the
+assignment, child, policies, decisions, words and batch; a final read found
+zero residual batch and decision rows. This proves the normal authenticated
+writer and read-model boundaries in isolated staging, not a browser lesson
+interaction or Production behaviour.
+
+The transaction lock is shared by prefix pair-decision inserts and the new
+prefix save RPC. It orders a concurrent withdrawal against assignment save:
+withdrawal first rejects the save; save first produces a historical assignment.
+The five-word test proves the former order and post-save replay. A concurrent
+two-session stress test and browser completion remain separate acceptance
+checks. This change does not alter existing child proficiency, queued learning
+items, resolver mappings or review schedules on de-assignment. Those lifecycle
+behaviours need the phase-3 policy and tests in the implementation plan.
+
+The isolated Preview containing the new writer is
+`dpl_ASq9yfdQUrtMHDduMRj3PqHnJxUA` at
+`https://scarletts-spells-adle-staging-20261025-8g2848x6z.vercel.app`;
+its build and TypeScript check passed and Vercel reported `READY`. The applied
+staging schema ledger ends at `20261025150000`; the follow-up definition
+fails closed on a null environment, route or word set. The authenticated
+five-word proof passed again after that hardening. A final staging count found
+zero children, learning items, assignments, proof profiles, proof batches and
+temporary active policy versions. Production was not migrated or deployed.

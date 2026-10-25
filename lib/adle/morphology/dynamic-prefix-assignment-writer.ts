@@ -248,7 +248,16 @@ export async function persistPreparedDynamicPrefixAssignment(params: WriterParam
     const resolved = resolveDynamicPrefixLessonAuthorityV2(params.prepared.payload);
     if (!resolved) throw new Error("persistDynamicPrefixAssignment:specialist_snapshot:resolved_lesson_invalid");
     const snapshot = compileDynamicPrefixSpecialistSnapshotV3({ payload: resolved, selection: params.prepared.selection, compilerDecision: params.prepared.compilerDecision, header: persistence.header, items: persistence.items });
-    assignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { parentUserId: params.parentUserId, childId: params.childId, planDate: params.prepared.planDate, header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot });
+    try {
+      assignmentId = await persistSpecialistSnapshotV3(supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), { parentUserId: params.parentUserId, childId: params.childId, planDate: params.prepared.planDate, header: persistence.header, items: persistence.items, intakes: persistence.learningItemIntakes, snapshot });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("ADLE_PREFIX_PAIR_DEASSIGNED")) return {
+        status: "not_ready", profileKey: params.prepared.profileKey, planDate: params.prepared.planDate,
+        assignmentId: null, existingProfileKey: null, itemCount: null,
+        reason: "relationship_withdrawn_before_persistence",
+      };
+      throw error;
+    }
   }
   if (!assignmentId) {
     return {

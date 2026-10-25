@@ -4,6 +4,7 @@ import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-p
 import type { LearningItemFact } from "../learning-items";
 import type { CompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-contracts";
 import { validateCompiledSpecialistSnapshotV3 } from "./specialist-snapshot-v3-validator";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
 
 export type SpecialistSnapshotV3PersistenceInput = {
   parentUserId: string;
@@ -27,11 +28,16 @@ export function supabaseSpecialistSnapshotV3PersistencePort(
   return {
     async persist(input) {
       const routeId = input.compiledLessonSnapshot.route.routeId;
+      const prefix = routeId === "dynamic_prefix_word_lab";
+      const environmentKey = prefix ? resolveAdleRouteActivationEnvironment() : null;
+      if (prefix && !environmentKey) throw new Error("persistSpecialistSnapshotV3:prefix environment unavailable");
       const rpc = routeId === "comparative_superlative_word_lab" ? "persist_adle_comparative_daily_plan_v3"
         : routeId === "ing_endings_word_lab" ? "persist_adle_ing_daily_plan_v3"
         : routeId === "weak_vowel_word_lab" ? "persist_adle_weak_vowel_daily_plan_v3"
+        : prefix ? "persist_adle_dynamic_prefix_daily_plan_v3_current_pair"
         : routeId === "homophone_word_lab" ? "persist_adle_homophone_daily_plan_v3" : "persist_adle_specialist_daily_plan_v3";
       const { data, error } = await serviceClient.rpc(rpc, {
+        ...(prefix ? { p_environment_key: environmentKey } : {}),
         p_parent_user_id: input.parentUserId,
         p_child_id: input.childId,
         p_plan_date: input.planDate,

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { canonicalSnapshotJson } from "../lib/adle/composable-lesson/canonical-fingerprint";
 import { compileBaseWordSpecialistSnapshotV3, compileDynamicPrefixSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
 import { validateCompiledSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-validator";
-import { persistSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-persistence";
+import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "../lib/adle/composable-lesson/specialist-snapshot-v3-persistence";
 import { resolvePersistedLessonRoute } from "../lib/adle/composable-lesson/route-resolution";
 import { createPersistedRouteMetadataV2 } from "../lib/adle/composable-lesson/persisted-route-metadata";
 import { buildDynamicPrefixAssignmentPlan } from "../lib/adle/morphology/dynamic-prefix-assignment-plan";
@@ -55,6 +55,24 @@ const frozen=resolvePersistedLessonRoute({lessonRouteMetadata:baseMetadata,items
 assert(legacy.status!=="blocked"&&frozen.status!=="blocked"&&legacy.runtime.adapterKey==="base_word_family_v1"&&frozen.runtime.adapterKey==="base_word_family_v1"); assert.equal(canonicalSnapshotJson(legacy.runtime.resolvedLesson),canonicalSnapshotJson(frozen.runtime.resolvedLesson));
 let calls=0;
 async function persistenceProof() {
+  const priorEnvironment = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT;
+  process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "staging";
+  try {
+    let calledRpc = "";
+    let calledEnvironment: unknown = null;
+    const port = supabaseSpecialistSnapshotV3PersistencePort({ rpc: async (name: string, args: Record<string, unknown>) => {
+      calledRpc = name;
+      calledEnvironment = args.p_environment_key;
+      return { data: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee", error: null };
+    } } as never);
+    await port.persist({ parentUserId: parentId, childId, planDate: date, header: prefixPersist.header!, items: prefixPersist.items,
+      intakes: [], compiledLessonSnapshot: prefixA });
+    assert.equal(calledRpc, "persist_adle_dynamic_prefix_daily_plan_v3_current_pair");
+    assert.equal(calledEnvironment, "staging");
+  } finally {
+    if (priorEnvironment === undefined) delete process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT;
+    else process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = priorEnvironment;
+  }
   await persistSpecialistSnapshotV3({persist:async()=>{calls++;return "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";}},{parentUserId:parentId,childId,planDate:date,header:baseHeader,items:baseItems,intakes:[],snapshot:baseA}); assert.equal(calls,1);
   const invalid=structuredClone(baseA); invalid.assignment.itemCount+=1;
   await assert.rejects(()=>persistSpecialistSnapshotV3({persist:async()=>{calls++;return "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";}},{parentUserId:parentId,childId,planDate:date,header:baseHeader,items:baseItems,intakes:[],snapshot:invalid})); assert.equal(calls,1);

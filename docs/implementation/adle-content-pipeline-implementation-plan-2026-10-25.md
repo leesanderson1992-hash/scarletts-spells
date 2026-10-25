@@ -35,6 +35,20 @@ architectural exception.
 | Release | `lib/adle/loaders/curriculum-release-authority.ts`, route activation revisions, release manifests | Preserve immutable release fingerprints, activation revision currentness, and rollback to an earlier head. |
 | Egress | Teaching Dictionary SQL paging is staged; `loadCachedTeachingDictionaryEvidenceAuthority` still caches a full relationship authority for 60 seconds | Optimize authority reads and invalidation from measurements, not a larger global TTL. |
 
+### Withdrawal lifecycle found during the prefix save gate
+
+| Existing child state | Current code path and observed implication | Phase-3 decision |
+|---|---|---|
+| Completed lesson and skill level | `daily_assignments.compiled_lesson_snapshot` replays unchanged. `proficiency/evidence/projector.ts` projects positive evidence through *current* approved `demonstrates` relationships, so withdrawing a pair can change the shadow/current level while the completed lesson and raw event remain. `composer-facts-loader.ts` uses governed relationships only when authentic-use proficiency is enabled; its other path uses active dictionary supports. Thus displayed level behaviour can differ by mode. | Preserve completion and raw evidence, recompute current level consistently, and explain any changed level from the relationship revision. Test both proficiency modes before switching the live display. |
+| Pending ADLE learning item | `adle_learning_items` is stored by child, word and skill and is not changed by a pair decision. The guarded prefix selector excludes a deassigned word from its profile, so that item cannot launch this route; another reviewed word may fill the lesson. Other selectors and generic intake need the same live veto. | Keep the child's need visible with an explicit blocked/reclassification status; do not erase it or silently substitute a different skill. |
+| Authentic misspelling detection | `find_resolver_visible_token_safe_canonical_mappings` reads active visible mappings and skill catalog state, but no pair-decision state. A deassignment therefore does not by itself stop canonical detection or remove the mapping's skill label. The relationship authority can reject that same word–skill pair downstream. | Separate spelling correction authority from skill attribution. Decide whether a mapping remains resolver-visible with a blocked/unknown teaching skill or needs editorial remapping. |
+| Scheduled review | `review-due-queue.ts` uses schedule rows; `composer-facts-loader.ts` obtains route attachments and learning items without a pair-decision check in the review-word construction. A due review can continue after deassignment. | Decide whether it remains a word-level spelling review, is paused for route review, or moves to another approved skill. Do not remove historical review outcomes. |
+
+These are code-path findings, not a claim that all current production learners
+have these states. The authenticated staging proof exercised new assignment
+selection and historical snapshot replay; it did not mutate an existing
+learner's proficiency or review schedule.
+
 ## Decision model to implement
 
 Use `canonical_word_id + micro_skill_key + route_id + route_version` as the
@@ -152,13 +166,25 @@ these states.
   false immediately even if a queued projection has not refreshed; selectors
   must check live release/withdrawal authority or a transactionally maintained
   revision. Provide repair/rebuild and drift reports.
+- Treat withdrawal as a four-consumer lifecycle event. Keep completed lessons
+  and raw evidence, but recompute current skill interpretation against the
+  governed relationship and explain any resulting level change. Mark affected
+  pending learning items as blocked or route them to a reviewed alternative;
+  never silently delete the child's need. Evaluate active review schedules and
+  route attachments separately from new lesson eligibility: a spelling review
+  may still be valid when the word no longer demonstrates that micro-skill.
+- Decide resolver policy explicitly. A pair de-assignment currently does not
+  disable an independent visible canonical mapping. Preserve spelling
+  detection where appropriate while separating it from skill attribution;
+  do not silently leave an invalid skill label on new authentic evidence.
 - Activation UI reports counts by technical complete, missing/invalid facts,
   awaiting editorial review, released/active, and child-eligibility unevaluated.
   Activation remains an explicit reviewed release action; evaluation alone
   cannot publish content.
 - Gate: one-row mutations re-evaluate only their affected keys; route changes
   re-evaluate only route/skill scope; disabled/withdrawn authority blocks new
-  lessons even during a delayed worker run.
+  lessons even during a delayed worker run. Cover proficiency, pending queues,
+  resolver attribution, reviews and saved replay in withdrawal lifecycle tests.
 
 ### 4. Reduce Supabase transfers with measured, scoped reads
 
