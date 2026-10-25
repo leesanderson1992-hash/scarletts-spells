@@ -230,3 +230,15 @@ seconds. The next read-efficiency work should measure real Production request
 and egress attribution, scope route release projections where authority checks
 allow it, and wire cross-system invalidation before promising immediate
 readiness updates. The list page and lesson selectors were not switched.
+
+Commit `f093b6a` was copied file-for-file into the dedicated staging Vercel
+project and deployed as Preview `dpl_26aEb33Voo4FagXRtqJhFswV6ctK` at
+`https://scarletts-spells-adle-staging-20261025-aellhhn8j.vercel.app`.
+The synthetic admin signed in through Chrome, opened `fixtureword001`, and
+saw the word workspace and completed lesson checks. The inactive prefix route
+still showed the malformed draft, missing editorial sign-off, missing reviewed
+release and profile gate blockers; Launch lesson remained disabled. The
+Preview error log query returned no errors for the sampled window. The
+browser proof is saved locally at
+`.tmp/adle-staging-2026-10-25/scoped-word-preview.png` (ignored fixture
+evidence). No Production deployment or schema change occurred.
