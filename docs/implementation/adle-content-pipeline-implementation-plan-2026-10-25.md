@@ -377,3 +377,53 @@ Measure the daily-plan decision query's payload and latency against a
 comparable baseline before claiming sitewide speed or egress savings. The
 review policy's final `mastered` state still requires parent-reviewed
 authentic use; review success supplies word-level production evidence only.
+
+## Withdrawal gate results — 25 Oct 2026
+
+All four named withdrawal gates above passed in the **disposable staging**
+project `qkpjbajicacbrphthibk`. These are staging acceptance results, not a
+Production rollout or a claim of sitewide speed improvement.
+
+1. **Resolver attribution:** migrations `20261025160000` and
+   `20261025170000` scope the token-safe resolver lookup to the current
+   environment's pair decision. The spelling correction and mapping ID remain
+   available; a `deassign` returns a null teaching skill and the whole-writing
+   detector abstains from a new skill-bearing finding. A disposable mapping
+   passed visible → deassigned → restored checks through the application
+   wrapper. The scoped materializer excludes an older stored finding if any
+   of its skill pairs is currently withdrawn. It conservatively defers that
+   entire finding rather than publishing a partial skill set. The old
+   unscoped materializer and intermediate second-request helper were removed;
+   the live resolver uses one scoped PostgREST RPC.
+2. **Blocked queued need:** the parent ADLE page shows the retained word,
+   previous skill, new-lesson block, ongoing reviews, and word-mastery credit.
+   A signed-in Chrome run on Preview
+   `dpl_9ae4Ey7hmw228x9p3ZfPQwUCb8KA` showed synthetic `unkind` in that
+   notice; child mode omitted it, and a fresh parent load showed it again.
+   The notice reads only that child's bounded unresolved queue.
+3. **Concurrent save:** a two-session staging test held a deassignment
+   transaction while the authenticated lesson save waited on the advisory
+   lock, then confirmed `relationship_withdrawn_before_persistence` and zero
+   assignments. The reverse lock order made a later withdrawal wait for the
+   save lock; the already persisted lesson snapshot replayed unchanged.
+4. **Browser Finish and retry:** a second disposable child completed the
+   dynamic prefix Word Lab in Chrome on the same Preview through teaching,
+   discovery, split, meaning, build, four cover checks, four dictations,
+   reflection and the named Finish action. Reloading the assignment date
+   showed “All done for today” with the saved reflection; returning to the
+   same route remained complete and offered no second Finish control. The
+   database verifier found one completed assignment, 16/16 completed items,
+   14 attempt events, one reflection, four taught events and two scheduled
+   words. The fixture cleanup and independent readback found zero synthetic
+   child, assignment, item, attempt, reflection, taught, bundle or schedule
+   rows. The browser could not resubmit the disabled Finish control after
+   completion, so this proves route-level retry behavior and durable
+   idempotence counts, not a duplicate POST replay.
+
+Commits `ea7b3fd`, `fa291d0`, and `1b16224` contain these slices. The
+consolidated resolver Preview `dpl_GNY3tSr5DNkZVovhZ9aRFvGKJDVE` built and
+typechecked successfully after the direct staging resolver probe. No
+Production database, assignment, approval, route activation or deployment was
+changed. The daily-plan decision read still needs a like-for-like baseline
+before setting a performance target; current synthetic payloads and timings
+are recorded in the companion egress ledger.
