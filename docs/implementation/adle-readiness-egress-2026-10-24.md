@@ -284,3 +284,43 @@ cache visibility. The sampled Preview error-log query returned no errors.
 The browser screenshot is retained locally at
 `.tmp/adle-staging-2026-10-25/cache-preview.png` (ignored fixture evidence).
 No Production deployment or database mutation occurred in this slice.
+
+### Live cache-transition proof on disposable staging — 25 Oct 2026
+
+After the read-only smoke above, a separate synthetic proof exercised both
+mutation paths on the same Preview. The disposable staging review controls
+were temporarily enabled; enrichment inventory, generation and replay stayed
+disabled. A reviewed `demonstrates` pair linked synthetic `fixtureword002`
+(`f3b1173c-a1c6-4925-9968-72b9c4d28ab1`) to
+`D4_MOR_PREFIXES_UN`. The package is
+`5a7df74e-a2d9-4e8c-9ce1-47128e367e55` and its release is
+`00e5b8c2-9727-41d3-ad3f-f879146e527f`.
+
+| Transition | Word workspace result | Observation |
+| --- | --- | --- |
+| Warm read before publication, 12:55:42 UTC | 0 joined skills | Within the 60-second cache lifetime before publication. |
+| Publish reviewed pair, 12:55:51 UTC; read at 12:55:58 | 1 joined skill | The changed status appeared within 16 seconds of the warm read. The route remained inactive and the word lacked reviewed route content. |
+| Warm read before withdrawal, 12:56:19 UTC | 1 joined skill | Same exact word and Preview. |
+| Withdraw release, 12:56:25 UTC; read at 12:56:29 | 0 joined skills | The prior status disappeared within 10 seconds of the warm read. |
+
+The instrumented relationship loader emitted nine table requests, three rows
+and 279 serialized JSON bytes on the first word reads after publication and
+withdrawal. At 12:58:17–20 UTC, two further same-word reloads produced one
+relationship-loader event, consistent with the second read using the cache.
+These are application JSON and query counts, not billed Supabase egress.
+The before/after UI transitions within the TTL, together with fresh loader
+events after the writes, are evidence that the deployed publication and
+withdrawal actions expired this cache entry. They do not cover every other
+admin writer or prove Production behavior.
+
+The first publication attempt exposed a missing seed row in the schema-only
+staging copy: `writing_enrichment_authority_events.environment_key` required a
+`writing_enrichment_controls` row for `staging`. The row was inserted with all
+execution flags false, then a transactionally rolled-back publication check
+passed before retrying through the UI. The reviewed synthetic release was
+withdrawn, review/publication/withdrawal controls were restored to off, and
+the disabled enrichment control row remains because the immutable publication
+event references it. No learner, route activation, Production record or
+`everywhere` assignment changed. Final screenshot:
+`.tmp/adle-staging-2026-10-25/cache-transition-withdrawn.png` (ignored
+fixture evidence).
