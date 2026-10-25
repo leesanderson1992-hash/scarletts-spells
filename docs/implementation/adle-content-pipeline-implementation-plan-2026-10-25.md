@@ -554,3 +554,51 @@ comparison does not prove the previous worker's complete rollback flow.
 Rolling back to the previous application code also restores its older
 resolver interpretation, so the writing shadow worker must be held during
 such a rollback until the live-pair attribution is restored or checked.
+
+## Production release of the bounded first slice — 25 Oct 2026
+
+The owner authorised the controlled release after the disposable staging proof.
+The exact application commit was `15b4aa314f324bce1da5d9dbffdb4d15f505d445`.
+The Production migration ledger initially contained 251 rows and none of the
+eight new versions. An isolated Supabase workdir omitted only the existing
+unapplied local-only `20261013120000` migration; its dry run listed exactly
+the eight versions from `20261024210000` through `20261025200000`, with no
+seeds, roles or Vault changes. The bounded push applied those eight versions.
+A second dry run was empty. Readback found all eight ledger rows, the expected
+RPCs and a service-role-only legacy materializer wrapper. Active dictionary
+words and relationship-event counts remained 2,191 and 1,743.
+
+The candidate Production deployment was staged without assigning the public
+alias. Its first readback exposed stale project-level AI configuration and
+runtime fingerprint values, so it was not promoted. A second staged build used
+the existing approved fingerprints as deployment-specific overrides. Its
+authenticated `HEAD /api/internal/context-recovery` readback reported the
+exact SHA, expected runtime fingerprint, release hold disabled, valid identity
+and no failures. Deployment `dpl_Cv7SaR8hSgZj9icVuaFsrKWHKEXy` was promoted
+after `main` was pushed to the same SHA. The public alias then returned the
+same readback.
+
+A fresh provider approval `a0dc8586-e1f9-4107-a789-710f954a86f3` cites the
+owner's 2026-10-09 standing permission and preserves the existing Production
+project, model, endpoint, retention and data-sharing terms. Policy and scheduler
+were bound to the new SHA in one transaction. The limits remained 37 requests
+per day, USD 0.1147 per day and USD 0.0031 per request. The policy execution
+readiness check passed. The next scheduled recovery run at 21:10 UTC succeeded:
+its HTTP response was 200, returned the new SHA, had release hold false, and
+reported both job lanes idle. The safety monitor passed with zero unrecorded
+sends; no new dispatches occurred in the 20-minute inspection window. Vercel
+reported no Production error or 500 logs in the initial post-release window.
+
+Read-only Production SQL returned 50 words from the 2,191-word bounded first
+dictionary page (8,598 serialized JSON bytes), 16 missing-metadata words and
+11 route-blocked content candidates. These are database-function results, not
+browser page timing or billed Supabase egress. The staged `/login` route served
+HTTP 200. An authenticated Production admin-browser smoke was not obtained in
+this release window; the equivalent isolated staging pages had passed.
+
+The deployed build's per-deployment fingerprint overrides are correct. Updating
+the two stale sensitive project-level Vercel variables through CLI failed with
+"You cannot change the key of a Sensitive Environment Variable"; future
+deployments must retain the verified overrides until that configuration is
+repaired. Supabase billed egress and page latency still need a comparable
+post-release observation window before claiming a sitewide saving.
