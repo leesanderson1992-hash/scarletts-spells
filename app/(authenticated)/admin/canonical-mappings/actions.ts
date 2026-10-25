@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import {
   disableResolverVisibilityForCanonicalMappingAdmin,
   enableResolverVisibilityForCanonicalMappingAdmin,
@@ -66,6 +67,7 @@ export async function enableCanonicalMappingResolverVisibility(
     );
   }
 
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(ADMIN_CANONICAL_MAPPINGS_PATH);
   redirect(
     buildRedirectWithMessage("saved", "Resolver visibility enabled."),
@@ -111,6 +113,7 @@ export async function disableCanonicalMappingResolverVisibility(
     );
   }
 
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(ADMIN_CANONICAL_MAPPINGS_PATH);
   redirect(
     buildRedirectWithMessage("saved", "Resolver visibility disabled."),

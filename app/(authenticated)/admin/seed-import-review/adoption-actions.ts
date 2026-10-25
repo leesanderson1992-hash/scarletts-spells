@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { adoptSeedImportRowHiddenCanonicalAdmin } from "@/lib/writing-engine/persistence/spelling-canonical-mappings";
 
 import {
@@ -132,6 +133,7 @@ export async function adoptSeedImportRowHiddenCanonical(formData: FormData) {
     );
   }
 
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(ADMIN_SEED_IMPORT_REVIEW_PATH);
   redirect(
     buildRedirectWithMessage(

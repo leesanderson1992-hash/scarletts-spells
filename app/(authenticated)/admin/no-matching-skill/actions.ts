@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
@@ -8,6 +8,7 @@ import { isKnownWordLike } from "@/lib/spelling/lexicon";
 import { isKnownWord } from "@/lib/spelling/suggestCorrection";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveCanonicalIntakeRoute } from "@/lib/adle/canonical-intake/route-readiness";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 
 export async function returnToCanonicalResolver(formData: FormData) {
   const admin = await requireAdminUser();
@@ -20,6 +21,7 @@ export async function returnToCanonicalResolver(formData: FormData) {
     p_admin_user_id: admin.id,
   });
   if (error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(error.message)}`);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath("/admin/no-matching-skill");
   revalidatePath("/admin/canonical-mappings");
   redirect("/admin/no-matching-skill?saved=Returned%20to%20Canonical%20Misspelling%20Resolver");
@@ -115,6 +117,7 @@ export async function createOrLinkMicroSkill(formData: FormData) {
     p_queue_id: id, p_admin_user_id: admin.id, p_admin_email: admin.email ?? null, p_payload: payload,
   });
   if (error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(error.message)}`);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath("/admin/no-matching-skill");
   revalidatePath("/admin/canonical-mappings");
   revalidatePath("/courses/review");
@@ -131,6 +134,7 @@ export async function deleteNoMatchingSkillCase(formData: FormData) {
     p_queue_id: id, p_admin_user_id: admin.id,
   });
   if (error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(error.message)}`);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath("/admin/no-matching-skill");
   revalidatePath("/admin/canonical-mappings");
   redirect("/admin/no-matching-skill?saved=Admin%20case%20deleted");

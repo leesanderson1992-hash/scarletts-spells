@@ -1,12 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { reviewedWordCanLaunch } from "@/lib/teaching-dictionary-manager/editorial-review";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadLessonReadiness } from "./read-model";
 
@@ -48,6 +49,7 @@ export async function launchReviewedAdleLesson(form: FormData) {
       p_preflight_fingerprint: current.preflightFingerprint, p_compiler_witnesses: current.compilerWitnesses,
     });
     if (published.error || !published.data) throw new Error(published.error?.message.match(/TEACHING_[A-Z_]+/)?.[0] ?? "ADLE_LESSON_PUBLICATION_FAILED");
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     let verified = false;
     try {
       const after = (await loadLessonReadiness({routeId,microSkillKey})).find((row) => row.routeId === routeId && row.microSkillKey === microSkillKey);
@@ -59,6 +61,7 @@ export async function launchReviewedAdleLesson(form: FormData) {
         p_reason: "Whole lesson failed runtime compiler verification after publication",
       });
       if (rollback.error) throw new Error("ADLE_LESSON_ROLLBACK_FAILED");
+      updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
       throw new Error("ADLE_LESSON_COMPILER_VERIFY_FAILED");
     }
     released = true;
@@ -90,6 +93,7 @@ export async function rollbackReviewedAdleLessonVersion(form: FormData) {
     const result = launches.data ? await db.rpc("rollback_teaching_dictionary_launch_v2", {p_launch:launches.data.id,p_actor:actor.id,p_reason:reason})
       : await db.rpc(routeId === "dynamic_prefix_word_lab" ? "rollback_teaching_dictionary_prefix_content" : "rollback_teaching_dictionary_suffix_content", {p_content_version:contentId,p_actor:actor.id,p_reason:reason});
     if (result.error) throw new Error(result.error.message.match(/TEACHING_[A-Z_]+/)?.[0] ?? "ADLE_LESSON_ROLLBACK_FAILED");
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath(BASE);
     revalidatePath("/admin/teaching-dictionary");
   } catch (error) {

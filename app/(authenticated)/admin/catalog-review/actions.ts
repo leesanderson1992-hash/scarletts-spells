@@ -1,11 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { applyAdleCatalogReviewDecision } from "@/lib/adle/review-work/admin-catalog-route";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { surfaceReturnedCorrectionReplayRecommendations } from "@/lib/writing-engine/persistence/returned-correction-deferred-route-replay-apply";
 import { continueUnknownErrorAfterAdminDecision } from "@/lib/writing-engine/whole-writing/unknown-error-continuation";
 
@@ -168,6 +169,10 @@ export async function resolveSpellingCatalogReviewCase(formData: FormData) {
       ),
     );
   }
+
+  // The canonical decision is committed even if a downstream continuation
+  // reports an error. Expire its relationship projection at this boundary.
+  if (decisionType === "add_canonical_mapping") updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
 
   try {
     await applyAdleCatalogReviewDecision({

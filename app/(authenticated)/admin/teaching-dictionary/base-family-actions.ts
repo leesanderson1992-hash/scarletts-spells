@@ -172,6 +172,7 @@ export async function withdrawBaseFamilyMember(form: FormData) {
       p_review_id: reviewId, p_reason: field(form, "reason"), p_actor: actor.id,
     });
     if (result.error) throw new Error("BASE_FAMILY_WITHDRAWAL_FAILED");
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
   } catch (error) {
     failure = error instanceof Error && /^BASE_FAMILY_[A-Z_]+$/.test(error.message)

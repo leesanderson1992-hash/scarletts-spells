@@ -1,12 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { isUuid, parsePairDecisions, parsePairRejectionReasons, parseWordSkillCandidates } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 
 const PATH = "/admin/word-skill-review";
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -69,6 +70,7 @@ export async function publishWordSkillReview(form: FormData) {
     if (!isUuid(id)) throw new Error("WORD_SKILL_PACKAGE_NOT_FOUND");
     if (form.get("confirm_publication") !== "yes") throw new Error("WORD_SKILL_PUBLICATION_CONFIRMATION_REQUIRED");
     await publishWordSkillPackage(client, environment, id, actor.id, text(form, "authority_fingerprint"));
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   } catch (error) { finish(id, error); }
   finish(id);
 }
@@ -83,6 +85,7 @@ export async function withdrawWordSkillReview(form: FormData) {
     if (!reason || reason.length > 2000) throw new Error("WORD_SKILL_WITHDRAWAL_REASON_REQUIRED");
     const result = await client.rpc("withdraw_word_skill_reviewed_release", { p_release: loaded.publication.release_id, p_environment: environment, p_actor: actor.id, p_reason: reason });
     if (result.error) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   } catch (error) { finish(id, error); }
   finish(id);
 }

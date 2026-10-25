@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag, updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
@@ -388,9 +388,9 @@ export async function saveTeachingDictionaryDraft(form: FormData) {
 export async function saveWordWorkspace(form: FormData) {
   const result = await performWorkspaceSave(form);
   if (!result.error) {
-    // Other readers refresh their evidence on their next read. This action returns
-    // its own confirmed result and does not force the whole editor to rerender.
-    revalidateTag(TEACHING_DICTIONARY_EVIDENCE_TAG, "max");
+    // The next word read must see confirmed editorial and relationship writes.
+    // Cache expiry does not force the whole editor to rerender.
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   }
   return result;
 }

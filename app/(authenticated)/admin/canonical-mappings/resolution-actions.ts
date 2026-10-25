@@ -1,11 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { applyAdleCatalogReviewDecision } from "@/lib/adle/review-work/admin-catalog-route";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import {
   disableResolverVisibilityForCanonicalMappingAdmin,
   enableResolverVisibilityForCanonicalMappingAdmin,
@@ -53,6 +54,7 @@ export async function reopenResolution(formData: FormData) {
     p_note: "Reopened for editing in the unified canonical resolver.",
   });
   if (error) message("error", error.message);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   message("saved", "Mapping reopened for editing. Resolver use is paused.");
 }
 
@@ -112,6 +114,7 @@ export async function confirmResolution(formData: FormData) {
   } catch (cause) {
     message("error", errorText(cause));
   }
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   if (warning) message("error", `Mapping confirmed, but ${warning}`);
   message("saved", "Canonical mapping confirmed. Resolver use remains off until enabled.");
 }
@@ -181,6 +184,7 @@ export async function applyBulkResolution(action: BulkResolutionAction, itemIds:
     }
   }
   if (succeeded) {
+    updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath(PATH);
     if (action === "noSkill") revalidatePath("/admin/no-matching-skill");
   }
@@ -209,6 +213,7 @@ export async function setResolutionResolverVisibility(formData: FormData) {
   } catch (cause) {
     message("error", errorText(cause));
   }
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   message("saved", mode === "enable" ? "Added to Resolver." : "Removed from Resolver.");
 }
 
@@ -220,6 +225,7 @@ export async function deleteResolution(formData: FormData) {
     p_confirmation: value(formData, "confirmation", 250),
   });
   if (error) message("error", error.message);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   message("saved", "Spelling resolution and linked admin evidence permanently deleted.");
 }
 
@@ -232,6 +238,7 @@ export async function moveResolutionToNoMatchingSkill(formData: FormData) {
     p_admin_email: admin.email ?? null,
   });
   if (error) message("error", error.message);
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath("/admin/no-matching-skill");
   message("saved", "Moved to No Matching Skill.");
 }

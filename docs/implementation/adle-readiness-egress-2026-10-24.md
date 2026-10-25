@@ -225,7 +225,7 @@ This slice reduces per-word data transfer on a cold read. It does not prove a
 site-wide latency or billing improvement. The scoped read still makes several
 dependent requests, and activated base/compound releases can carry larger
 route-wide projections. Manager mutations expire the shared tag immediately;
-external publication and resolver changes may remain cached for up to 60
+out-of-band publication and resolver changes may remain cached for up to 60
 seconds. The next read-efficiency work should measure real Production request
 and egress attribution, scope route release projections where authority checks
 allow it, and wire cross-system invalidation before promising immediate
@@ -242,3 +242,30 @@ Preview error log query returned no errors for the sampled window. The
 browser proof is saved locally at
 `.tmp/adle-staging-2026-10-25/scoped-word-preview.png` (ignored fixture
 evidence). No Production deployment or schema change occurred.
+
+## Cross-system admin cache invalidation slice — 25 Oct 2026
+
+The shared Teaching Dictionary evidence cache already had a tag, but its
+successful invalidation calls were largely confined to Teaching Dictionary
+actions. Resolver visibility changes, unified resolver confirmations and
+demotions, reviewed word-skill publication and withdrawal, No Matching Skill
+resolution, hidden mapping adoption, catalog mapping decisions, and lesson
+release/rollback could therefore leave the word workspace and evidence-filter
+list showing an older relationship result until the 60-second TTL elapsed.
+The corresponding successful Server Actions now expire that shared tag after
+their governed write. The lesson-launch action also expires it after a
+compensating rollback, and catalog mapping creation expires it immediately
+after its committed RPC even if downstream continuation later reports an
+error. Teaching Dictionary workspace saves now expire the tag on success
+instead of marking it stale for background revalidation. The base-family
+withdrawal action also expires it.
+
+This is cache coordination, not automatic editorial approval, route
+activation or selector admission. The tag is currently shared by the full
+list and every word-scoped entry; invalidation is lazy and does not scan the
+dictionary, but the next visits to many different words may each re-fetch.
+Out-of-band SQL and release scripts do not call a Next.js Server Action, so
+their cache visibility is still bounded by the 60-second TTL. A later slice
+needs an explicit affected-word/version signal or scoped tags for those
+writers, with measured query counts before adding a database event mechanism.
+No billed-egress saving is claimed for this invalidation slice.

@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { createSpellingCanonicalMappingAdmin, enableResolverVisibilityForCanonicalMappingAdmin } from "@/lib/writing-engine/persistence/spelling-canonical-mappings";
 
 const PATH = "/admin/canonical-mappings/resolve";
@@ -49,6 +50,7 @@ export async function createIntakeResolverMapping(form: FormData) {
   } catch (error) {
     redirect(target(word, skill, "error", error instanceof Error ? error.message : "Mapping could not be created."));
   }
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(PATH);
   revalidatePath("/admin/adle-canonical-intake-readiness");
   redirect(target(word, skill, "saved", "Mapping created hidden. Enable resolver visibility after review."));
@@ -74,6 +76,7 @@ export async function enableIntakeResolverMapping(form: FormData) {
   } catch (error) {
     redirect(target(word, skill, "error", error instanceof Error ? error.message : "Visibility could not be enabled."));
   }
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(PATH);
   revalidatePath("/admin/adle-canonical-intake-readiness");
   redirect(target(word, skill, "saved", "Resolver visibility enabled. Recheck the intake row."));
