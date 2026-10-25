@@ -656,3 +656,25 @@ native compiler passed. Withdrawal before save, replacement and historical
 replay passed, and the fixture cleaned up. This is a code-plus-staging proof;
 the protected Preview's authenticated page was not exercised in Chrome in
 this pass.
+
+## Daily-plan read baseline — 25 Oct 2026
+
+`scripts/adle-daily-plan-performance-staging.ts` measures two read-only
+operations against the held five-word synthetic child after one warm-up and
+five repetitions. It signs in the disposable staging admin before measurement
+and counts only Supabase response bodies during each measured phase. The
+preparation phase does **not** persist an assignment.
+
+| Staging operation | Requests per run | Decoded response bytes per run | Median elapsed |
+|---|---:|---:|---:|
+| `loadDailyPlanFacts` | 27 | 21,718 | 233 ms |
+| `prepareDynamicPrefixAssignment` | 33 | 33,542 | 673 ms |
+
+The active canonical-word read returned 16,661 decoded bytes per run in
+**each** operation, 77% of the fact-load response bytes. The preparation
+also read a prefix profile and child queue. This is a synthetic one-child
+baseline, not billed egress or a Production latency estimate. The fact loader
+is shared by other lesson routes, so narrowing its word pool requires proving
+transfer-word, review, banding, family/group and child-selection coverage
+before changing its query. The fixture's withdrawal, snapshot replay and
+cleanup checks passed after measurement.

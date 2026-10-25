@@ -510,3 +510,12 @@ up. The new isolated Preview built and a fresh fixture passed selection,
 withdrawal and historical replay checks. Production billed egress and browser
 response time remain unmeasured for this slice; the next read target should
 be chosen from a comparable daily-plan and worker baseline.
+
+The first reproducible daily-plan read baseline now exists in
+`scripts/adle-daily-plan-performance-staging.ts`. On the held synthetic child,
+`loadDailyPlanFacts` made 27 requests and returned 21,718 decoded bytes;
+prefix assignment preparation made 33 requests and returned 33,542 bytes.
+Both include a 16,661-byte active canonical-word read. The next optimization
+design should scope the general candidate pool in SQL without dropping valid
+transfer or review words. It needs a cross-route parity corpus before any
+read-path cutover; the current baseline covers one prefix route and one child.
