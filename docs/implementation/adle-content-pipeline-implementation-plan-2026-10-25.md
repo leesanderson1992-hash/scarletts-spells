@@ -427,3 +427,28 @@ Production database, assignment, approval, route activation or deployment was
 changed. The daily-plan decision read still needs a like-for-like baseline
 before setting a performance target; current synthetic payloads and timings
 are recorded in the companion egress ledger.
+
+## Review attribution follow-through — 25 Oct 2026
+
+A further check found two review paths that still interpreted an active
+canonical mapping as an active teaching relationship. The exact-pair helper
+could supply a withdrawn skill to parent review; Stage 2a recommendation
+also read the raw mapping table independently of its trusted exact-pair
+lookup. Commit `c7f842b` closes this bounded gap. Migration
+`20261025180000` adds a service-role-only, word-scoped read of current
+deassignments. Exact-pair review now returns
+`withdrawn_micro_skill_relationship` for a withdrawn pair, which blocks its
+catalog or parent-local fallback. Stage 2a filters the withdrawn skill from
+its candidate catalog and trusted mapping signals and removes its duplicate
+raw canonical table read. Other live skill candidates can still be assessed.
+
+The disposable staging fixture proved visible → deassigned → restored for
+both exact-pair review and canonical recommendations, while preserving the
+correction in the token-safe resolver. The new RPC denies `anon` and
+`authenticated`, grants `service_role`, and left zero synthetic rows. TypeScript,
+lint and affected regressions passed. Preview
+`dpl_CSRvHSra8PHjS5DaNMj5h7ibcVG2` built, typechecked and loaded the
+signed-in dashboard in Chrome. This is not an egress or latency saving claim:
+the new scoped decision read replaces the duplicate raw mapping read in
+Stage 2a, and exact-pair review adds a small decision read. Measure both
+under representative review traffic before setting a performance target.
