@@ -512,3 +512,22 @@ skill attribution on a deassigned mapping and a learner-facing explanation of
 blocked queued needs remain separate gates. The extra latest-decision read is
 instrumented; a before/after Supabase billed-egress and p95 comparison remains
 required before claiming a speed or cost improvement.
+
+The instrumented repeat in the disposable staging database reported three
+`daily_plan_facts` reads at 26 instrumented queries each, 80–85 rows,
+19,668–21,494 serialized JSON bytes, and 353.5–723.1 ms end-to-end. The
+new latest-decision query returned 0 or 1 rows (2 or 122 serialized JSON
+bytes) and took 150.9–496.3 ms in this small sample. Those reads run in
+parallel with other fact queries, so their individual latency is not an
+end-to-end latency delta. These are application instrumentation proxies from
+three synthetic calls, not billed egress or a comparative production baseline.
+The fixture again finished with zero proof batches, children and temporary
+policies; the review outcome append-only trigger was enabled.
+
+Commit `5ec0a4e` was copied into the staging-only Vercel source and built as
+Preview `dpl_2NRd7w7QzqocezJHrzYKMYeo2rbz` at
+`https://scarletts-spells-adle-staging-20261025-dyw914jh6.vercel.app`.
+Vercel inspection reported `READY`; a signed-in Chrome dashboard loaded,
+and the sampled Preview error-log query returned no errors. The CLI's initial
+deployment polling timed out after upload, but deployment inspection confirmed
+the build completed. No Production deployment occurred.
