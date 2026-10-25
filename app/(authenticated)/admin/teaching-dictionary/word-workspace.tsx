@@ -954,6 +954,7 @@ export function WordWorkspace(props: {
                           : "Built · inactive"}
                       {statuses.map((status) => <div key={status.routeId} className="mt-1 text-xs">
                         {status.routeId.replaceAll("_", " ")}: {status.administrativeCandidate ? "Ready for child selection checks" : status.blockers[0] ?? "Needs review"}
+                        <div>Route facts: {status.technicalFacts === "complete" ? "complete" : status.technicalFacts === "not_proven" ? "not yet proven complete" : "not evaluated"} · Editorial review: {status.editorialApproved ? "approved" : "pending"}</div>
                         {status.blockers.length > 1 && <details><summary>All {status.blockers.length} blockers</summary><ul className="list-disc pl-4">{status.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></details>}
                       </div>)}
                     </td>

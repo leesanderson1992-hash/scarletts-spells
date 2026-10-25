@@ -47,8 +47,12 @@ type WordEntry = {
   role: string;
   requiredForRelease?: boolean;
   reviewedDraftId?: string | null;
+  editorialApproved?: boolean;
   ready: boolean;
   blockers: string[];
+  /** Native draft validation before editorial sign-off is added. Absence
+   * means this loader has not isolated validation from other gates. */
+  validationBlockers?: string[];
   editHref: string;
   contentPreview: unknown;
 };
@@ -766,6 +770,7 @@ async function loadLessonReadinessUnmeasured(
             word: dictionary?.display_word ?? member.canonical_word_id,
             role: member.member_role,
             reviewedDraftId: candidate?.draft_id ?? null,
+            editorialApproved: member.review_status === "approved_for_first_exposure",
             ready: blockers.length === 0,
             blockers,
             contentPreview: {
@@ -781,7 +786,7 @@ async function loadLessonReadinessUnmeasured(
           for (const content of unreviewed) {
             const draft = draftById.get(content.draft_id);
             const dictionary = words.get(content.canonical_word_id);
-            const missing = draft
+            const validationBlockers = draft
               ? [
                   ...publicationBlockers(
                     draft,
@@ -790,15 +795,17 @@ async function loadLessonReadinessUnmeasured(
                   ...routeBlockers(content.content as RouteContentDraft, draft),
                 ]
               : [draftBlocker(String(content.draft_id))];
-            missing.push("Editorial sign-off missing or stale");
+            const missing = [...validationBlockers, "Editorial sign-off missing or stale"];
             entries.unshift({
               id: content.canonical_word_id,
               word: dictionary?.display_word ?? content.canonical_word_id,
               role: "unreleased draft",
               requiredForRelease: false,
               reviewedDraftId: null,
+              editorialApproved: false,
               ready: false,
               blockers: missing,
+              validationBlockers,
               contentPreview: { routeContent: content.content },
               editHref: `/admin/teaching-dictionary/${content.canonical_word_id}?draft=${content.draft_id}#td-route-${skill}`,
             });
@@ -812,7 +819,7 @@ async function loadLessonReadinessUnmeasured(
           )) {
             const dictionary = words.get(content.canonical_word_id);
             const draft = draftById.get(content.draft_id);
-            const missing = draft
+            const validationBlockers = draft
               ? [
                   ...publicationBlockers(
                     draft,
@@ -821,6 +828,7 @@ async function loadLessonReadinessUnmeasured(
                   ...routeBlockers(content.content as RouteContentDraft, draft),
                 ]
               : [draftBlocker(String(content.draft_id))];
+            const missing = [...validationBlockers];
             if (!reviews.has(content.id))
               missing.push("Editorial sign-off missing or stale");
             entries.push({
@@ -831,8 +839,10 @@ async function loadLessonReadinessUnmeasured(
               reviewedDraftId: reviews.has(content.id)
                 ? content.draft_id
                 : null,
+              editorialApproved: reviews.has(content.id),
               ready: missing.length === 0,
               blockers: missing,
+              validationBlockers,
               contentPreview: {
                 routeContent: content.content,
                 dictionaryWord: dictionary,
@@ -921,6 +931,7 @@ async function loadLessonReadinessUnmeasured(
               id,
               word: dictionary?.display_word ?? id,
               role: "released lesson word",
+              editorialApproved: true,
               ready: blockers.length === 0,
               blockers,
               contentPreview: fact,

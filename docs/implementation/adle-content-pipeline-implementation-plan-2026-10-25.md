@@ -237,6 +237,27 @@ these states.
   lesson, no snapshot replay difference, and the measured request/byte/latency
   dashboard remains within the phase-0-derived budget.
 
+### 8. Retire superseded paths after each verified cutover
+
+- Keep a short ownership inventory for each route and admin page: the canonical
+  status service, the remaining native validator/selector, and every legacy
+  calculator, loader or cache still called. Delete a superseded implementation
+  in the same route cutover follow-up once comparison, rollback and historical
+  replay checks pass; do not leave two permanent authorities behind.
+- Remove page-local readiness calculations, redundant relationship/release
+  fetches, unused adapters and duplicate route-specific candidate lists only
+  when their callers have moved to the shared service. Preserve native
+  pedagogical validators, child selection gates, release controls, migrations
+  and historical snapshots while they still own distinct responsibilities.
+- Use call-site searches, query traces and the cross-page parity corpus to
+  prove each removed path is unused and its decision is covered. Record the
+  before/after query count, returned bytes and p50/p95 time for the affected
+  path. If a temporary fallback must remain, name its owner and removal gate.
+- Gate: each migrated route/page has one documented decision owner, no
+  unbounded duplicate read, passing parity and replay tests, and a measured
+  performance comparison. A route is not considered fully migrated while an
+  obsolete parallel readiness calculation remains active.
+
 ## Test and measurement matrix
 
 | Scenario | Required observation |

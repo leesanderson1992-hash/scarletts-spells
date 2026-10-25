@@ -161,3 +161,33 @@ build also passed. No schema migration, learner row, Production deployment,
 mapping, content approval, route activation or selector was changed in this
 slice. Production measurement still needs a comparable window and reliable
 request/response attribution before numeric savings targets can be set.
+
+## First phase-2 status slice — 25 Oct 2026
+
+The existing `wordRouteStatus` evaluator now attaches the versioned route
+contract and stable gate codes while retaining the legacy blocker text and
+native `administrativeCandidate` decision. It distinguishes route facts known
+to pass native validation from facts not yet proven complete, and keeps
+editorial review separate. The preflight now carries native validation
+blockers separately for route-content drafts; it does not infer technical
+completeness from an approval or a release. A present unreviewed draft is
+reported as present and awaiting review, rather than as absent route content.
+The Teaching Dictionary word workspace displays the facts and editorial
+dimensions. The evaluator remains read-only and is not a selector authority.
+
+The isolated staging Preview `dpl_AVTWMxa7zfkhBjNQHKYY7AnKX18g` at
+`https://scarletts-spells-adle-staging-20261025-1x6ivqmkt.vercel.app` was
+built from the staging-only Vercel project with no cron or schema change. The
+synthetic `fixtureword001` page rendered separate “Route facts: not yet proven
+complete” and “Editorial review: pending” labels. Its status API returned one
+`dynamic_prefix_word_lab` status with `administrativeCandidate=false`,
+`technicalFacts=not_proven`, `editorialApproved=false`, and eight explicit
+blockers. The prior Preview also returned `administrativeCandidate=false`, but
+incorrectly said route content was absent; the new status exposes the existing
+malformed draft and its pending editorial sign-off. This is a controlled status
+correction, not a lesson-admission change or a Production performance result.
+
+Focused status, Teaching Dictionary and route-contract regressions, authority
+documentation check, lint, TypeScript and the full Next.js build passed.
+Phase 2 still needs scoped governed relationship reads, cross-page consumers,
+and representative reviewed staging fixtures before any selector is switched.
