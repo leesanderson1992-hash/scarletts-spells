@@ -1,6 +1,6 @@
 # ADLE content pipeline implementation plan — 2026-10-25
 
-Status: implementation proposal. This document schedules work; it does not
+Status: implementation in progress. This document schedules work; it does not
 change curriculum policy, approve content, alter a relationship, or activate a
 route. The policy owners remain [the ADLE authority map](../architecture/adle-authority-map.md)
 and its manifest. The measured baseline and completed first query slice are in
@@ -302,3 +302,26 @@ validators, connect affected-scope invalidation for writes and route changes,
 then shadow a single route's candidate adapter against its current selector.
 Remove overlapping page calculations only after their distinct intake or
 native-selection meaning has been confirmed and the shadow comparison passes.
+
+The prefix route now has a read-only shadow comparator. An affected-word
+staging transition proved that approval and withdrawal appear on the next
+route-scoped read without a dictionary-wide readiness rebuild. A disposable
+database fixture then loaded four approved prefix members through the native
+profile loader. Both the admin status and native selector admitted four, and
+the compiler accepted the selection. A governed pair de-assignment reduced
+admin admission to three while the unguarded native selector still chose four.
+The prefix assignment writer now reads the latest exact pair decisions for
+its candidate words and excludes de-assigned members before selection. The
+same fixture proved that four words become insufficient after that veto;
+a later restore removed the veto and returned admin admission to four.
+Disabling the profile also emptied the native pool. All fixture rows were
+removed. The existing atomic prefix publisher already creates reviewed
+member snapshots, so no new route-specific word list was introduced.
+
+Next gate: deploy this writer slice to the isolated Preview, then prove the
+normal authenticated assignment action with a disposable child and a reviewed
+five-word profile. Verify a withdrawn transfer is replaced by another approved
+word, saved snapshots replay, and a post-selection withdrawal cannot race a
+persisted assignment. Retain the full governed relationship interpreter as
+the status authority; this single-query veto closes the newly proved writer
+gap without adding its full read cost to each assignment.

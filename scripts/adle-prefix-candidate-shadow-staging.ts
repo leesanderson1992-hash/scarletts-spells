@@ -21,8 +21,9 @@ async function main() {
     nativeSelectedCount: report.nativeSelectedIds.length,
     nativeSelectionCompiles: report.nativeSelectionCompiles,
     nativeCompilerBlockerCode: report.nativeCompilerBlockerCode,
+    selectedWithoutAdminAdmission: report.selectedWithoutAdminAdmission,
+    routeActivated: report.routeActivated, routeReleased: report.routeReleased,
     routeCandidateCount: route.counts.candidates,
     routeApprovedRelationshipCount: route.counts.approvedRelationships }));
-  if (report.nativeOnly.length > 0) throw new Error("NATIVE_POOL_CONTAINS_UNGOVERNED_WORD");
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });

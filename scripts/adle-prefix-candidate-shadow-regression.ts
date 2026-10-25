@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { compareDynamicPrefixCandidates } from "../lib/adle/morphology/prefix-candidate-shadow";
+import { excludeDeassignedDynamicPrefixWords } from "../lib/adle/morphology/dynamic-prefix-pair-eligibility";
+import { canonicalPairKey } from "../lib/adle/word-skill-relationships/pair-key";
+import { selectDynamicPrefixWordLab } from "../lib/adle/morphology/dynamic-prefix-word-lab";
 import type { DynamicPrefixProfile, DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-word-lab";
 import type { LearningItemFact } from "../lib/adle/learning-items";
 import type { WordRouteStatus } from "../lib/teaching-dictionary-manager/word-route-status";
@@ -34,6 +37,9 @@ assert.deepEqual(report.presentInBoth, ["a", "b", "c"]);
 assert.deepEqual(report.governedOnly, ["x"], "eligible but absent native member is flagged, not admitted");
 assert.deepEqual(report.nativeOnly, ["d"], "native member lacking governed status is flagged");
 assert.deepEqual(report.nativeSelectedIds, ["a", "b", "c", "d"], "shadow observes actual native four-word selection");
+assert.deepEqual(report.selectedWithoutAdminAdmission, ["d"], "selection and administrative admission stay distinct");
+assert.equal(report.routeActivated, false);
+assert.equal(report.routeReleased, false);
 assert.equal(report.nativeSelectionCompiles, true);
 assert.equal(report.nativeCompilerBlockerCode, null);
 const disabled = compareDynamicPrefixCandidates({ microSkillKey: skill, statuses: [status("a", false)],
@@ -41,4 +47,17 @@ const disabled = compareDynamicPrefixCandidates({ microSkillKey: skill, statuses
 assert.deepEqual(disabled.nativePoolIds, []);
 assert.deepEqual(disabled.nativeSelectedIds, []);
 assert.equal(disabled.nativeSelectionCompiles, false);
+const withdrawn = new Set([canonicalPairKey("d", skill)]);
+const filtered = excludeDeassignedDynamicPrefixWords([profile], withdrawn);
+assert.equal(selectDynamicPrefixWordLab({ profiles: filtered, learningItems: [item] }), null,
+  "with only three approved words the native selector must refuse a lesson");
+assert.equal(profile.wordsByCanonicalId.size, 4, "the reviewed source profile remains unchanged");
+const replacement = word("e", "unhappy");
+const fiveWordProfile = { ...profile, wordsByCanonicalId: new Map([...profile.wordsByCanonicalId, ["e", replacement]]),
+  transferCanonicalWordIds: [...profile.transferCanonicalWordIds, "e"] };
+const replacementSelection = selectDynamicPrefixWordLab({
+  profiles: excludeDeassignedDynamicPrefixWords([fiveWordProfile], withdrawn), learningItems: [item],
+});
+assert.deepEqual(replacementSelection?.transfers.map((entry) => entry.canonicalWordId), ["b", "c", "e"],
+  "a reviewed alternative replaces the withdrawn transfer word");
 console.log("ADLE prefix candidate shadow regression passed.");

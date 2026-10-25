@@ -368,3 +368,65 @@ The screenshot is retained locally at
 The disposable project has no learner data and its route and intake execution
 controls remain off. This proves the admin projection, not automatic lesson
 admission, Production egress savings, or the child-specific selector.
+
+### Affected-word transition and prefix selector shadow — 25 Oct 2026
+
+Commit `e1e36ae` added a read-only comparison for the dynamic prefix route.
+It compares governed administrative candidates with the current production-
+enabled prefix profile pool, observes the native four-word selector and runs
+its existing compiler. It never passes a candidate into the assignment
+writer. The synthetic regression detects both an otherwise eligible word
+missing from the native pool and a native member without governed readiness;
+it also verifies a compiling four-word selection and a disabled profile.
+
+The disposable staging read for `D4_MOR_PREFIXES_UN` found one blocked route
+word, zero governed candidates and zero native profile words. No child or
+released prefix profile exists in this schema-only project, so this is a
+negative comparison only. The prefix route's existing atomic publisher in
+`20261015151000_teaching_dictionary_atomic_launch.sql` already inserts a
+reviewed content word into a new profile snapshot as a member after checking
+editorial review, dictionary facts and profile identity. The shadow therefore
+tests that governed handoff rather than introducing a second runtime word
+list.
+
+A temporary synthetic approved support row for `fixtureword001` changed its
+route relationship gate from unapproved to approved on the next live scoped
+read. Its administrative candidate gate stayed false because content,
+release and activation remained blocked. Deleting the support row restored
+the unapproved gate on the next read. The temporary import batch and support
+row were removed in `finally`; no route, child, Production record or
+`everywhere` mapping changed. The three route reads emitted 27, 28 and 27
+instrumented requests, respectively; 10, 13 and 10 returned rows; and
+1,375, 1,996 and 1,375 serialized JSON bytes. These include the route
+preflight and are lower bounds on request count and application payload
+proxies, not Supabase billed egress or a before/after savings claim.
+
+The status projection is computed on read: a word read scopes the word, and
+route activation view scopes the route and micro-skill. Governed admin writes
+invalidate the shared word-evidence cache; out-of-band writes can remain in
+that 60-second word cache until its TTL expires, while the route view reads
+live. There is no persisted readiness projection to backfill or refresh in
+this slice.
+
+A later disposable database fixture supplied four synthetic approved prefix
+words, metadata, dictation, support relationships and one enabled reviewed
+profile. A synthetic child item was passed in memory; no child or assignment
+row was written. The real profile loader returned four words, the native
+selector chose four, the compiler passed, and the shared admin status
+reported four candidates with released and activated gates. A temporary
+staging pair de-assignment then reduced the admin candidates to three while
+the unguarded selector still chose four and compiled. This is a confirmed
+selection gap for current exact-pair decisions. The new writer veto reads the
+latest pair decisions for its profile candidates in one scoped PostgREST read
+per 100 word IDs; the same fixture proved the guarded selector returned no
+lesson with only three approved words. The pure regression also proves a fifth
+reviewed word can replace a withdrawn transfer. A later restore returned the
+admin count to four and removed the veto. Disabling the profile emptied the
+native pool. All synthetic profile, word, support, decision and batch rows
+were deleted; the final staging read again found no native prefix profile.
+
+This test stops before the authenticated assignment writer and persistence
+boundary. It proves the loader, authority projection, veto query and selector
+decision, not a completed learner assignment or historical snapshot replay.
+The additional veto read has a bounded selected-column payload; billed egress
+and end-to-end response time still need an authenticated staging baseline.

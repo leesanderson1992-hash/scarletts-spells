@@ -20,8 +20,11 @@ import {
   type DynamicPrefixCompilerDecision,
 } from "./dynamic-prefix-compiler-rollout";
 import { loadDynamicPrefixProfiles } from "./dynamic-prefix-profile-loader";
+import { excludeDeassignedDynamicPrefixWords } from "./dynamic-prefix-pair-eligibility";
 import { selectDynamicPrefixWordLab } from "./dynamic-prefix-word-lab";
 import type { DynamicPrefixLessonPayloadV2, DynamicPrefixSelection } from "./dynamic-prefix-word-lab";
+import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
+import { loadCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
 
 const ISO_DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -140,7 +143,16 @@ export async function prepareDynamicPrefixAssignment(
         ),
       }
     : loaded;
-  const selection = selectDynamicPrefixWordLab(selectableFacts);
+  const environmentKey = resolveAdleRouteActivationEnvironment();
+  if (!environmentKey) return {
+    status: "not_ready", profileKey, planDate: params.planDate, assignmentId: null,
+    existingProfileKey: null, itemCount: null, reason: "relationship_environment_unavailable",
+  };
+  const deassignedPairs = await loadCurrentPairDeassignments({ client: params.serviceClient, environmentKey,
+    pairs: selectableFacts.profiles.flatMap((profile) => [...profile.wordsByCanonicalId.keys()].map((canonicalWordId) =>
+      ({ canonicalWordId, microSkillKey: profile.microSkillKey }))) });
+  const selection = selectDynamicPrefixWordLab({ ...selectableFacts,
+    profiles: excludeDeassignedDynamicPrefixWords(selectableFacts.profiles, deassignedPairs) });
   if (!selection || (params.requiredProfileKey && selection.profile.microSkillKey !== params.requiredProfileKey)) {
     return {
       status: "not_ready",
