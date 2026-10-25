@@ -70,6 +70,13 @@ async function main() {
   const full = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: "staging", explicitReviewedAssociations: fullAssociations });
   const fullWordRows = reads.filter((read) => read.table === "canonical_teaching_dictionary_words").reduce((sum, read) => sum + read.rows, 0);
   assert.equal(fullWordRows, 4);
+  reads.length = 0;
+  const reused = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: "staging",
+    explicitReviewedAssociations: fullAssociations,
+    genericSupportSourceRows: tables.canonical_teaching_dictionary_word_support });
+  assert.deepEqual(reused, full, "preloaded support source preserves relationship decisions and fingerprint");
+  assert.equal(reads.filter((read) => read.table === "canonical_teaching_dictionary_word_support").length, 0,
+    "preloaded support source avoids a second support-table read");
   for (const id of ["word-a", "word-b", "word-dup-1", "word-dup-2"]) {
     reads.length = 0;
     const associations = await loadPublishedWritingAssociations(client, "staging", id);

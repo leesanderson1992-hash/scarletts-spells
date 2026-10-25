@@ -31,6 +31,19 @@ const COMPOUND_SKILLS = [
   "D4_MOR_COMPOUND_WORDS_SEPARATED_HYPHENATED",
 ] as const;
 
+/** Complete source columns, including inactive rows, for a caller that has
+ * already read the governed support table in this request. */
+export type GenericSupportSourceRow = {
+  id: string;
+  import_batch_id: string;
+  canonical_word_id: string;
+  micro_skill_key: string;
+  support_role: string;
+  row_status: string;
+  review_status: string;
+  source_row_hash: string;
+};
+
 async function readAll<T>(
   client: SupabaseClient,
   table: string,
@@ -176,6 +189,7 @@ export async function loadCanonicalWordSkillRelationshipAuthority(params: {
   ignorePairDecisionsFor?: readonly { canonicalWordId: string; microSkillKey: string }[];
   canonicalWordId?: string;
   canonicalWordIds?: readonly string[];
+  genericSupportSourceRows?: readonly GenericSupportSourceRow[];
 }): Promise<CanonicalWordSkillRelationshipReadResult> {
   return withAdleReadMetrics("word_skill_relationship_authority", () =>
     loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params));
@@ -188,10 +202,12 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   ignorePairDecisionsFor?: readonly { canonicalWordId: string; microSkillKey: string }[];
   canonicalWordId?: string;
   canonicalWordIds?: readonly string[];
+  genericSupportSourceRows?: readonly GenericSupportSourceRow[];
 }): Promise<CanonicalWordSkillRelationshipReadResult> {
   const client = params.client;
   if (params.canonicalWordId && params.canonicalWordIds) throw new Error("Supply one relationship word scope");
   const scopedIds = params.canonicalWordId ? [params.canonicalWordId] : params.canonicalWordIds;
+  if (scopedIds && params.genericSupportSourceRows) throw new Error("Preloaded support rows require complete relationship scope");
   const [wordRows, skillRows, mappingRows, mappingEventRows, supportRows, batchRows, prefixProfiles, prefixMembers, suffixProfiles, suffixMembers, pairDecisions] = scopedIds
     ? await loadScopedSourceRows(client, params.environmentKey, scopedIds)
     : await Promise.all([
@@ -199,7 +215,9 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
     readAll<any>(client, "micro_skill_catalog", "micro_skill_key,is_active", undefined, "micro_skill_key"),
     readAll<any>(client, "spelling_canonical_mappings", "id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version"),
     readAll<any>(client, "spelling_canonical_mapping_events", "id,mapping_id,event_type,new_resolver_visibility_status", (query) => query.eq("event_type", "resolver_visibility_enabled").eq("new_resolver_visibility_status", "visible")),
-    readAll<any>(client, "canonical_teaching_dictionary_word_support", "id,import_batch_id,canonical_word_id,micro_skill_key,support_role,row_status,review_status,source_row_hash"),
+    params.genericSupportSourceRows
+      ? Promise.resolve([...params.genericSupportSourceRows].sort((a, b) => a.id.localeCompare(b.id)))
+      : readAll<any>(client, "canonical_teaching_dictionary_word_support", "id,import_batch_id,canonical_word_id,micro_skill_key,support_role,row_status,review_status,source_row_hash"),
     readAll<any>(client, "canonical_teaching_dictionary_import_batches", "id,batch_status,source_commit,source_folder_sha256"),
     readAll<any>(client, "canonical_teaching_dictionary_prefix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", (query) => query.in("micro_skill_key", [...DYNAMIC_PREFIX_PROFILE_KEYS])),
     readAll<any>(client, "canonical_teaching_dictionary_prefix_members", "id,import_batch_id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash"),

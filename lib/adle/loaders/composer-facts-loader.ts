@@ -30,7 +30,7 @@ import type { ReviewWordFact } from "../daily-assignment-composer";
 import { COMPOSER_POLICY_V1 } from "../composer-policy";
 import { EVIDENCE_POLICY_V1 } from "../evidence-policy";
 import { PROFICIENCY_POLICY_V1 } from "../proficiency-policy";
-import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
+import { loadCanonicalWordSkillRelationshipAuthority, type GenericSupportSourceRow } from "../word-skill-relationships/repository";
 import { loadAllCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
 import { excludeWithdrawnTeachingSupports, partitionWithdrawnLearningItems } from "../word-skill-relationships/withdrawal-impact";
 import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
@@ -94,7 +94,6 @@ import {
   type TaughtHistoryRow,
   type TeachingContentRow,
   type WordBandingRow,
-  type WordSupportRow,
 } from "./rows";
 
 /** Pilot default child band profile (Slice 6 pin, owner-tunable). Values are
@@ -236,6 +235,11 @@ async function loadDailyPlanFactsUnmeasured(
       || (params.wordReadMode === "scoped" && context.endsWith(":supports"))
       ? readProficiencyFactRows<T>(query, context, context.endsWith(":supports") ? ["canonical_word_id", "micro_skill_key", "support_role", "id"] : ["id"])
       : rows<T>(query, context);
+  const supportSourceQuery = client.from("canonical_teaching_dictionary_word_support")
+    .select("id, import_batch_id, canonical_word_id, micro_skill_key, support_role, row_status, review_status, source_row_hash");
+  // Complete authority needs inactive rows for its source fingerprint. Other
+  // lesson reads keep the existing active-only scope and response size.
+  if (!completeProficiencyHistory) supportSourceQuery.eq("row_status", "active");
 
   const childBand = params.childBand ?? ADLE_PILOT_CHILD_BAND;
   const relationshipEnvironment = params.relationshipEnvironment ?? resolveAdleRouteActivationEnvironment();
@@ -329,11 +333,8 @@ async function loadDailyPlanFactsUnmeasured(
         .eq("row_status", "active"),
       "loadDailyPlanFacts:words",
       ),
-    factRows<WordSupportRow>(
-      client
-        .from("canonical_teaching_dictionary_word_support")
-        .select("canonical_word_id, micro_skill_key, support_role, row_status, review_status")
-        .eq("row_status", "active"),
+    factRows<GenericSupportSourceRow>(
+      supportSourceQuery,
       "loadDailyPlanFacts:supports",
     ),
     factRows<WordBandingRow>(
@@ -467,7 +468,7 @@ async function loadDailyPlanFactsUnmeasured(
     const include = (entries: readonly { canonical_word_id?: string | null }[]) => {
       for (const entry of entries) if (entry.canonical_word_id) ids.add(entry.canonical_word_id);
     };
-    include(supportRows);
+    include(supportRows.filter((row) => row.row_status === "active"));
     include(scheduleWordRows);
     include(learningItemRows);
     include(taughtHistoryRows);
@@ -536,12 +537,14 @@ async function loadDailyPlanFactsUnmeasured(
   const { selectable: lessonLearningItems, withdrawn: withdrawnLearningItems } =
     partitionWithdrawnLearningItems(learningItems, deassignedPairs);
   const words = wordRows.map(dictionaryWordFromRow);
-  let supports = excludeWithdrawnTeachingSupports(supportRows.map(wordSupportFromRow), deassignedPairs);
+  let supports = excludeWithdrawnTeachingSupports(
+    supportRows.filter((row) => row.row_status === "active").map(wordSupportFromRow), deassignedPairs);
   if (authenticControl.data?.mode === "enabled" && authenticControl.data.proficiency_enabled) {
     const environmentKey = relationshipEnvironment;
     if (!environmentKey) throw new Error("loadDailyPlanFacts: relationship environment unavailable");
     const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
-      explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey) });
+      explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey),
+      genericSupportSourceRows: supportRows });
     // Published demonstrates relationships are projected through the released
     // calculation, including its dictionary/child-band/complexity gates.
     const admitted = new Set(authority.relationships.map(r => `${r.canonicalWordId}:${r.microSkillKey}`));
