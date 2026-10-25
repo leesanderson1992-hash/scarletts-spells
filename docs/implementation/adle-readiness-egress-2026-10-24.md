@@ -89,3 +89,65 @@ A further staging-only route-content fixture linked `fixtureword001` to a synthe
 The committed-code Preview was rechecked: All active words showed 50 rows, Route blocked one row with “Member missing”, Missing metadata 50 and 11 rows across pages, Evidence approved zero, and ADLE Requirements loaded. Every page returned HTTP 200. No Production deploy or migration followed this proof.
 
 Staging access details and fixture scripts are in ignored local files only. The schema contains two legacy production-reference literals in scheduler function confirmation strings; no staging cron is configured and those functions were not invoked. Before selector shadow comparison, staging still needs representative reviewed route, relationship, content and synthetic child fixtures. No selector switch, route activation, Production release, or historical snapshot replay has occurred.
+
+## Route contract and opt-in read measurement slice — 2026-10-25
+
+Commit `3912d24` added `routeContentContractFor` and a generated inventory of
+110 route/micro-skill combinations. It derives activity variants, required and
+optional fact owners, word scopes, conditional activity enablement, word counts
+and group coverage from the existing registries. This is an extraction of
+current route declarations; native validators, reviewed route content,
+release authorities and child selectors remain binding. The inventory is
+generated separately because the existing broader architecture generator
+currently attempts V1 metadata for release-V2 routes and has pre-existing
+output drift. Its failure was observed, not treated as a passing gate.
+
+The same commit added an opt-in `ADLE_READ_METRICS_ENABLED=1` aggregate event
+around the relationship-authority loader and ADLE lesson preflight. It records
+operation duration and, for their instrumented table reads, request count,
+rows and serialized JSON payload bytes. It logs no returned rows or raw
+spelling evidence. The byte count is the JSON representation received by the
+application, **not** measured HTTP wire bytes or Supabase billed egress. Some
+direct reads inside the operations are not yet instrumented; the event fields
+are deliberately prefixed `instrumented`.
+
+A following measurement extension adds the same wrapper to the daily-plan
+facts loader and writing-shadow recovery. It counts the daily-plan loader's
+shared `rows()` calls, the worker's initial claim/schedule RPCs and canonical
+word pages, and includes instrumented nested relationship reads in the parent
+operation. Nested events therefore overlap: do not sum a parent event and its
+child event as distinct Supabase traffic. Direct calls and paged proficiency
+helpers remain outside these counters. This is an attribution aid, not a
+complete five-minute-job egress accounting system.
+
+The first isolated Preview for `3912d24` (`dpl_EerK74Yjs126HwHS8msikM58CqiL`)
+exposed an existing sparse-fixture failure in ADLE Requirements: a synthetic
+route-content row pointed to a malformed draft without `displayWord`; the
+preflight called `.toLowerCase()` and threw, while the page returned HTTP 200.
+The earlier staging Preview logged the same error. Commit `60834de` made
+preflight classify malformed draft JSON as `Source draft payload is malformed`
+and block it. It did not approve that draft or change release behaviour.
+
+The repaired code was deployed to isolated Preview
+`dpl_CjvwBTQF6qEVdMmbi9n99hkbmBtR` at
+`https://scarletts-spells-adle-staging-20261025-f0gh9cp13.vercel.app` with
+the measurement flag enabled only for that deployment. Its Vercel project ID
+was verified as `prj_pJiDIw4lY9f8wBgLmJCONO0Pngjw` and its staging-only
+`vercel.json` has no cron. The six-page synthetic smoke reached HTTP 200:
+Teaching Dictionary All (50 rows), Route blocked (one row), Missing metadata
+(50 and 11 rows), Evidence approved (zero), and ADLE Requirements. The latest
+ADLE Requirements preflight event had `status=ok`, 13 instrumented table
+requests, 62 rows, 9,245 JSON payload bytes and 1,293.2 ms wall time; Vercel
+logged no other errors for that request. A separate service-role read against
+the disposable staging database measured the relationship-authority loader:
+12 instrumented requests, 63 rows, 6,482 JSON payload bytes, 1,255.8 ms wall
+time, and zero approved relationships in this synthetic fixture. These are
+single staging observations, not Production baselines or before/after savings.
+
+`npm run adle:route-content-contract-regression`,
+`npm run adle:teaching-dictionary-manager-regression`, `npx tsc --noEmit`,
+the Next.js build and `npm run adle:authority-docs-check` passed. The Preview
+build also passed. No schema migration, learner row, Production deployment,
+mapping, content approval, route activation or selector was changed in this
+slice. Production measurement still needs a comparable window and reliable
+request/response attribution before numeric savings targets can be set.

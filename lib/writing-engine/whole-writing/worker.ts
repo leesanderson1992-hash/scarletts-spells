@@ -1,6 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordAdleReadPage, withAdleReadMetrics } from "../../adle/observability/read-metrics";
 import { createServiceRoleClient } from "../../supabase/service-role";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../../adle/word-skill-relationships/repository";
 import { resolveAdleRouteActivationEnvironment } from "../../adle/route-activation-environment";
@@ -22,8 +23,10 @@ type StoredOccurrence = { id: string; snapshot_id: string; field_path: string; s
 async function allWords(client: SupabaseClient): Promise<WordIdentity[]> {
   const words: WordIdentity[] = [];
   for (let offset = 0; ; offset += 1000) {
+    const started = performance.now();
     const { data, error } = await client.from("canonical_teaching_dictionary_words")
       .select("id,normalised_word,dialect_code,row_status").order("id").range(offset, offset + 999);
+    recordAdleReadPage("canonical_teaching_dictionary_words", data ?? [], performance.now() - started);
     if (error) throw new Error("DICTIONARY_READ_FAILED");
     words.push(...(data ?? []).map((word) => ({ ...word, dialect: word.dialect_code })));
     if ((data ?? []).length < 1000) return words;
@@ -32,15 +35,25 @@ async function allWords(client: SupabaseClient): Promise<WordIdentity[]> {
 
 /** Separate dispatcher: never calls submission processing, rewards or intake. */
 export async function recoverWritingShadowRuns(client: SupabaseClient = createServiceRoleClient()) {
+  return withAdleReadMetrics("writing_shadow_recovery", () => recoverWritingShadowRunsUnmeasured(client));
+}
+
+async function recoverWritingShadowRunsUnmeasured(client: SupabaseClient) {
+  const materializeStarted = performance.now();
   const materializedBefore = await client.rpc("materialize_writing_known_error_review_candidates", { p_limit: 100 });
+  recordAdleReadPage("rpc:materialize_writing_known_error_review_candidates", Array.isArray(materializedBefore.data) ? materializedBefore.data : [], performance.now() - materializeStarted);
   if (materializedBefore.error && !["PGRST202", "42883"].includes(materializedBefore.error.code)) {
     console.error("[writing-shadow] known-error review materialization failed", {
       code: "KNOWN_ERROR_REVIEW_MATERIALIZATION_FAILED",
     });
   }
+  const replayStarted = performance.now();
   const replay = await client.rpc("schedule_writing_enrichment_replays", { p_limit: 20 });
+  recordAdleReadPage("rpc:schedule_writing_enrichment_replays", Array.isArray(replay.data) ? replay.data : [], performance.now() - replayStarted);
   if (replay.error && !["PGRST202", "42883"].includes(replay.error.code)) throw new Error("ENRICHMENT_SCHEDULE_FAILED");
+  const claimStarted = performance.now();
   const claimed = await client.rpc("claim_writing_shadow_runs", { p_limit: 20 });
+  recordAdleReadPage("rpc:claim_writing_shadow_runs", Array.isArray(claimed.data) ? claimed.data : [], performance.now() - claimStarted);
   // Forward compatibility: old deployments without the additive migration
   // retain their normal submission recovery response.
   if (claimed.error?.code === "PGRST202" || claimed.error?.code === "42883") return { status: "not_installed", claimed: 0 };

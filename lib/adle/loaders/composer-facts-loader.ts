@@ -22,6 +22,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- conditional nested route select is ahead of generated Supabase types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import type { ChildBandProfile } from "../dictionary-eligibility";
 import type { DailyPlanFacts, GenericV3DictationFact, GenericV3ReflectionFact } from "../daily-assignment-composer";
@@ -103,7 +104,9 @@ export const ADLE_PILOT_CHILD_BAND: ChildBandProfile = {
 type AdleClient = SupabaseClient;
 
 async function rows<T>(query: PromiseLike<{ data: unknown; error: { message: string } | null }>, context: string): Promise<T[]> {
+  const started = performance.now();
   const { data, error } = await query;
+  recordAdleReadPage(context, Array.isArray(data) ? data : [], performance.now() - started);
   if (error) {
     throw new Error(`${context}: ${error.message}`);
   }
@@ -156,6 +159,13 @@ export interface LoadDailyPlanFactsParams {
 }
 
 export async function loadDailyPlanFacts(
+  client: AdleClient,
+  params: LoadDailyPlanFactsParams,
+): Promise<DailyPlanFactsLoad> {
+  return withAdleReadMetrics("daily_plan_facts", () => loadDailyPlanFactsUnmeasured(client, params));
+}
+
+async function loadDailyPlanFactsUnmeasured(
   client: AdleClient,
   params: LoadDailyPlanFactsParams,
 ): Promise<DailyPlanFactsLoad> {

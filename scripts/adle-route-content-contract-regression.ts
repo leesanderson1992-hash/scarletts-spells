@@ -70,9 +70,14 @@ try {
   assert.equal(two.instrumentedQueryCount, 1);
   assert.equal(two.instrumentedRows, 2);
   assert(!JSON.stringify(emitted).includes("private spelling"));
+  await withAdleReadMetrics("outer", () => withAdleReadMetrics("inner", async () => {
+    recordAdleReadPage("shared", [{ id: 1 }], 1);
+  }));
+  assert.equal(emitted.find((item) => item.operation === "inner")?.instrumentedQueryCount, 1);
+  assert.equal(emitted.find((item) => item.operation === "outer")?.instrumentedQueryCount, 1);
   process.env.ADLE_READ_METRICS_ENABLED = "0";
   await withAdleReadMetrics("disabled", async () => recordAdleReadPage("words", [{}], 1));
-  assert.equal(emitted.length, 2);
+  assert.equal(emitted.length, 4);
 } finally {
   console.info = oldInfo;
   if (oldFlag === undefined) delete process.env.ADLE_READ_METRICS_ENABLED;
