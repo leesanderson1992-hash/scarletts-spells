@@ -219,39 +219,6 @@ export async function insertAssignmentAttemptEvents(
   await attachAttemptRoutes(client, events);
 }
 
-export async function markAssignmentCompletedIfAllItemsComplete(
-  client: AdleClient,
-  params: {
-    parentUserId: string;
-    childId: string;
-    assignmentId: string;
-  },
-): Promise<boolean> {
-  const { count, error: countError } = await client
-    .from("assignment_items")
-    .select("id", { count: "exact", head: true })
-    .eq("parent_user_id", params.parentUserId)
-    .eq("child_id", params.childId)
-    .eq("daily_assignment_id", params.assignmentId)
-    .neq("status", "completed");
-  if (countError) {
-    fail("markAssignmentCompletedIfAllItemsComplete:count", countError);
-  }
-  if ((count ?? 0) !== 0) {
-    return false;
-  }
-  const { error: headerError } = await client
-    .from("daily_assignments")
-    .update({ status: "completed" })
-    .eq("id", params.assignmentId)
-    .eq("parent_user_id", params.parentUserId)
-    .eq("child_id", params.childId);
-  if (headerError) {
-    fail("markAssignmentCompletedIfAllItemsComplete:header", headerError);
-  }
-  return true;
-}
-
 export async function hasTaughtEventsForSourceRef(
   client: AdleClient,
   childId: string,

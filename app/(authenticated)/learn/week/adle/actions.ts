@@ -51,7 +51,6 @@ import {
   hasProductionOutcomeEventsOn,
   hasTaughtEventsForSourceRef,
   insertAssignmentAttemptEvents,
-  markAssignmentCompletedIfAllItemsComplete,
   persistLessonCompletion,
   persistProbeCompletion,
   persistReviewSessionCompletion,
@@ -196,20 +195,15 @@ async function markItemsCompleted(
   if (ids.length === 0) {
     return;
   }
-  const { error } = await context.userClient
-    .from("assignment_items")
-    .update({ status: "completed" })
-    .eq("parent_user_id", context.parentUserId)
-    .eq("child_id", context.childId)
-    .in("id", ids);
+  const { error } = await context.userClient.rpc("complete_adle_assignment_items_v1", {
+    p_parent_user_id: context.parentUserId,
+    p_child_id: context.childId,
+    p_assignment_id: context.assignmentId,
+    p_item_ids: ids,
+  });
   if (error) {
     throw new Error(`markItemsCompleted: ${error.message}`);
   }
-  await markAssignmentCompletedIfAllItemsComplete(context.userClient, {
-    parentUserId: context.parentUserId,
-    childId: context.childId,
-    assignmentId: context.assignmentId,
-  });
 }
 
 function allSessionItems(readModel: Awaited<ReturnType<typeof getAdleDailyPlanReadModel>>): AdleSessionItem[] {

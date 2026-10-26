@@ -2,7 +2,6 @@ import { buildLessonAttemptEvents, buildReviewAttemptEvents } from "../lib/adle/
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 import {
   insertAssignmentAttemptEvents,
-  markAssignmentCompletedIfAllItemsComplete,
   type AssignmentAttemptEventWrite,
 } from "../lib/adle/loaders/session-completion-loader";
 import { onLessonCompleted, onReviewSessionCompleted } from "../lib/adle/composer-completions";
@@ -296,44 +295,6 @@ async function main() {
   };
   await insertAssignmentAttemptEvents(fakeClient as never, [event, event]);
   assert(inserted.length === 1, "duplicate attempt event inserts are idempotent");
-  }
-
-  // Header completion is derived after all assignment items are complete.
-  {
-  let headerUpdated = false;
-  const fakeClient = {
-    from(table: string) {
-      if (table === "assignment_items") {
-        return {
-          select() {
-            return this;
-          },
-          eq() {
-            return this;
-          },
-          async neq() {
-            return { count: 0, error: null };
-          },
-        };
-      }
-      assert(table === "daily_assignments", "completed header update targets daily_assignments");
-      return {
-        update(payload: { status: string }) {
-          assert(payload.status === "completed", "header status is completed");
-          headerUpdated = true;
-          return this;
-        },
-        eq() {
-          return this;
-        },
-        then(resolve: (value: { error: null }) => void) {
-          resolve({ error: null });
-        },
-      };
-    },
-  };
-  const completed = await markAssignmentCompletedIfAllItemsComplete(fakeClient as never, context);
-  assert(completed && headerUpdated, "assignment header is marked completed when no incomplete items remain");
   }
 
   console.log("ADLE attempt capture regression passed");
