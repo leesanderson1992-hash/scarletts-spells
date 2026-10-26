@@ -5,6 +5,18 @@ source continuation, and bounded automatic reconsideration are released
 authorities. Canonical intake feeds learning items and Today's ADLE Session;
 it does not create assignments or rewards directly.
 
+The 2026-10-26 manual-writing extension is implemented on the development
+branch and disposable staging only until its release gate completes. It accepts
+an exact, once-occurring word in an open, parent-owned manual writing sample.
+The parent supplies the correction and assignable micro-skill; the transaction
+records an occurrence, verification, and child-local candidate with manual
+sample provenance. The ordinary canonical intake evaluator then applies the
+same reviewed mapping, route, content, and child gates. This source never
+manufactures a task submission, dictionary approval, or lesson assignment.
+Retrying the same decision reuses its candidate; a conflicting or withdrawn
+decision is rejected. A blocked mapping or content decision stays visible for
+review and bounded reconciliation.
+
 ## Purpose
 
 Canonical intake converts a parent-approved spelling correction into durable
