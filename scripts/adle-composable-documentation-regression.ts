@@ -119,7 +119,11 @@ assert(
     sharedAffixInventory.includes('"D4_MOR_PREFIXES_UN"') &&
     sharedAffixInventory.includes('"D4_MOR_SUFFIXES_SION"'),
 );
-assert(!sharedCompiler.includes("D4_MOR_"), "shared compiler has no production microskill literal");
+assert.deepEqual(
+  new Set(sharedCompiler.match(/D4_MOR_[A-Z_]+/g) ?? []),
+  new Set(["D4_MOR_SUFFIXES_TION"]),
+  "shared compiler has only the reviewed -tion/-ion spelling exception",
+);
 assert(
   prefixWriter.includes("compileDynamicPrefixWordLabDecision") &&
     prefixWriter.includes("canPersistDynamicPrefixCompilerDecision") &&

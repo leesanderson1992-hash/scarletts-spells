@@ -412,6 +412,205 @@
       ],
       "implementationState": "registered",
       "intentionalItemCounts": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": true,
+      "payloadKind": "homophone_contextual_lesson_v1",
+      "payloadVersions": [
+        1
+      ],
+      "recipes": [
+        {
+          "recipeKey": "homophone_contextual_choice",
+          "recipeVersion": "v1"
+        }
+      ],
+      "rendererKey": "homophone_contextual_guided",
+      "requiredActivities": [
+        "introduction",
+        "meaning_sort",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "homophone_contextual_choice",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
+      "routeVersion": "v1",
+      "runtimeAdapterKey": "homophone_contextual_v1",
+      "supportedMicroSkillKeys": [
+        "D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT",
+        "D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT",
+        "D4_HOM_CONFUSABLE_WORDS_BERRY_BURY",
+        "D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE",
+        "D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT",
+        "D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS",
+        "D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT",
+        "D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT",
+        "D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT",
+        "D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY",
+        "D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER",
+        "D4_HOM_CONFUSABLE_WORDS_LED_LEAD",
+        "D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE",
+        "D4_HOM_CONFUSABLE_WORDS_OF_OFF",
+        "D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED",
+        "D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE",
+        "D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET",
+        "D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY",
+        "D4_HOM_CONFUSABLE_WORDS_WARY_WEARY",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER",
+        "D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE"
+      ],
+      "wordCounts": {
+        "authentic": [
+          1,
+          9
+        ],
+        "lesson": [
+          2,
+          9
+        ],
+        "transfer": [
+          0,
+          8
+        ]
+      },
+      "wordSupportAuthority": "route_content"
+    },
+    {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
+        "distinct_forms",
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
+        14,
+        15,
+        16
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": true,
+      "payloadKind": "homophone_lesson_v2",
+      "payloadVersions": [
+        2
+      ],
+      "recipes": [
+        {
+          "recipeKey": "homophone_word_lab",
+          "recipeVersion": "v2"
+        }
+      ],
+      "rendererKey": "homophone_guided",
+      "requiredActivities": [
+        "introduction",
+        "meaning_sort",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "homophone_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
+      "routeVersion": "v2",
+      "runtimeAdapterKey": "homophone_v2",
+      "supportedMicroSkillKeys": [
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA",
+        "D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH",
+        "D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS",
+        "D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE",
+        "D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE",
+        "D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO",
+        "D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR"
+      ],
+      "wordCounts": {
+        "authentic": [
+          1,
+          4
+        ],
+        "lesson": [
+          2,
+          4
+        ],
+        "transfer": [
+          0,
+          3
+        ]
+      },
+      "wordSupportAuthority": "route_content"
+    },
+    {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
+        "distinct_forms",
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
         20,
         21,
         22,
@@ -461,6 +660,75 @@
         ],
         "lesson": [
           6,
+          6
+        ],
+        "transfer": [
+          0,
+          5
+        ]
+      },
+      "wordSupportAuthority": "route_content"
+    },
+    {
+      "activationAuthority": "database_route_activation",
+      "canonicalContentAuthority": "route_content",
+      "compatibilityScope": {
+        "kind": "declared_micro_skills"
+      },
+      "coverageRequirements": [
+        "unique_dictation_sentences"
+      ],
+      "implementationState": "registered",
+      "intentionalItemCounts": [
+        17,
+        21,
+        25
+      ],
+      "legacyDetectionRules": [],
+      "newAssignmentCapable": true,
+      "payloadKind": "weak_vowel_lesson_v1",
+      "payloadVersions": [
+        1
+      ],
+      "recipes": [
+        {
+          "recipeKey": "weak_vowel_word_lab",
+          "recipeVersion": "v1"
+        }
+      ],
+      "rendererKey": "weak_vowel_guided",
+      "requiredActivities": [
+        "introduction",
+        "call_it_to_dinner",
+        "vowel_detective",
+        "cover_check",
+        "dictation",
+        "reflection"
+      ],
+      "requiresAuthenticSelectableItem": true,
+      "routeId": "weak_vowel_word_lab",
+      "routeOwnership": {
+        "kind": "declared_micro_skills"
+      },
+      "routeVersion": "v1",
+      "runtimeAdapterKey": "weak_vowel_v1",
+      "supportedMicroSkillKeys": [
+        "D4_SCHWA_FINAL_AR_FINAL",
+        "D4_SCHWA_FINAL_A_FINAL",
+        "D4_SCHWA_FINAL_ER_FINAL",
+        "D4_SCHWA_FINAL_OR_FINAL",
+        "D4_SCHWA_INITIAL_E_INITIAL",
+        "D4_SCHWA_INITIAL_O_INITIAL",
+        "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+        "D4_SCHWA_MEDIAL_NATURAL_ACTUAL"
+      ],
+      "wordCounts": {
+        "authentic": [
+          1,
+          6
+        ],
+        "lesson": [
+          4,
           6
         ],
         "transfer": [

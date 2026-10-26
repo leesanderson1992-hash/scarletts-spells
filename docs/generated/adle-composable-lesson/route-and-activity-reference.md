@@ -14,7 +14,10 @@
 | dynamic_affix_word_lab:v3 | dynamic_affix_word_lab:v3 | dynamic_affix_lesson_v3 3 | dynamic_affix_v3 | morphology_guided | registered | 10 | 16/18 | introduction, discovery, cleaver, word_build, cover_check, dictation, reflection |
 | dynamic_prefix_word_lab:v2 | dynamic_prefix_word_lab:v2 | dynamic_prefix_lesson_v2 2 | dynamic_prefix_v2 | morphology_guided | registered | 5 | 16/18/20 | introduction, discovery, cleaver, meaning_sort, word_build, cover_check, dictation, reflection |
 | generic_composer:v1 | generic_first_exposure:v1 | composed_daily_plan 1 | generic_composer_v1 | generic_session | registered | fallback | variable | introduction, guided_prompt, cover_check, dictation |
+| homophone_contextual_choice:v1 | homophone_contextual_choice:v1 | homophone_contextual_lesson_v1 1 | homophone_contextual_v1 | homophone_contextual_guided | registered | 58 | 2/3/4/5/6/7/8/9 | introduction, meaning_sort, cover_check, dictation, reflection |
+| homophone_word_lab:v2 | homophone_word_lab:v2 | homophone_lesson_v2 2 | homophone_v2 | homophone_guided | registered | 14 | 14/15/16 | introduction, meaning_sort, cover_check, dictation, reflection |
 | ing_endings_word_lab:v1 | ing_endings_word_lab:v1 | ing_endings_lesson_v1 1 | ing_endings_v1 | ing_endings_guided | registered | 4 | 20/21/22/23/24/25 | introduction, meaning_match, word_build, cleaver, cover_check, dictation, reflection |
+| weak_vowel_word_lab:v1 | weak_vowel_word_lab:v1 | weak_vowel_lesson_v1 1 | weak_vowel_v1 | weak_vowel_guided | registered | 8 | 17/21/25 | introduction, call_it_to_dinner, vowel_detective, cover_check, dictation, reflection |
 
 ## Dark common Word Lab recipes
 
@@ -26,11 +29,14 @@
 | fixture_family_default:v1 | fixture | fixture_common_word_lab:v1 | FIXTURE_FAMILY | family default | none | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
 | fixture_microskill_variant:v1 | fixture | fixture_common_word_lab:v1 | FIXTURE_FAMILY | FIXTURE_CLUSTER | FIXTURE_MICRO_SKILL | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
 | inflection_transformation:v1 | candidate | inflection_word_lab:v1 | D4_INF | D4_INF_COMPARATIVE_SUPERLATIVE, D4_INF_ING_ENDINGS, D4_INF_IRREGULAR_INFLECTIONS, D4_INF_PAST_TENSE_ED, D4_INF_PLURALS, D4_INF_PRESENT_TENSE | none | 4-4 | strategy_notice:v1, guided_map:v1, cover_check:v1, dictation:v1, reflection:v1 |
+| weak_vowel_detective_candidate:v1 | candidate | weak_vowel_word_lab:v1 | D4_SCHWA | family default | D4_SCHWA_FINAL_A_FINAL, D4_SCHWA_FINAL_AR_FINAL, D4_SCHWA_FINAL_ER_FINAL, D4_SCHWA_FINAL_OR_FINAL, D4_SCHWA_INITIAL_E_INITIAL, D4_SCHWA_INITIAL_O_INITIAL, D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS, D4_SCHWA_MEDIAL_NATURAL_ACTUAL | 4-6 | family_tree_detective:v1 |
+| weak_vowel_dinner_candidate:v1 | candidate | weak_vowel_word_lab:v1 | D4_SCHWA | family default | D4_SCHWA_FINAL_A_FINAL, D4_SCHWA_FINAL_AR_FINAL, D4_SCHWA_FINAL_ER_FINAL, D4_SCHWA_FINAL_OR_FINAL, D4_SCHWA_INITIAL_E_INITIAL, D4_SCHWA_INITIAL_O_INITIAL, D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS, D4_SCHWA_MEDIAL_NATURAL_ACTUAL | 4-6 | call_it_to_dinner:v1 |
 
 ## Activity requirements
 
 | Activity | Visibility | Evidence | Required facts |
 |---|---|---|---|
+| call_it_to_dinner:v1 | guided | guided_completion | canonical_word.canonical_identity, canonical_word.display_word, reviewed_word_route_facts.reviewed_recording_hash, reviewed_word_route_facts.reviewed_target_span, reviewed_word_route_facts.reviewed_syllable_cuts, compiled_assignment_snapshot.assignment_binding |
 | cleaver:v1 | guided | guided_completion | word_micro_skill_support.teaching_decomposition, canonical_word.canonical_morphology, word_micro_skill_support.base_or_root, canonical_word.joins, canonical_word.transformations |
 | compound_jigsaw:v1 | guided | guided_completion | canonical_word.canonical_identity, canonical_word.display_word, word_micro_skill_support.compound_components, word_micro_skill_support.teaching_decomposition, canonical_word.canonical_morphology, canonical_word.joins |
 | cover_check:v1 | recall_neutral | independent_word | canonical_word.canonical_identity, canonical_word.display_word, canonical_word.pronunciation, word_micro_skill_support.word_micro_skill_support, compiled_assignment_snapshot.assignment_binding |
@@ -45,6 +51,7 @@
 | must_use_writing:v1 | recall_neutral | independent_sentence | canonical_word.canonical_identity, canonical_word.display_word, compiled_assignment_snapshot.assignment_binding |
 | reflection:v1 | post_submit | reflection | micro_skill_profile.reflection_prompt, compiled_assignment_snapshot.prior_attempt_summary |
 | review_quick_sort:v1 | guided | none | canonical_word.canonical_identity, word_micro_skill_support.meaning_group |
+| vowel_detective:v1 | guided | guided_completion | canonical_word.canonical_identity, canonical_word.display_word, reviewed_word_route_facts.reviewed_recording_hash, reviewed_word_route_facts.reviewed_target_span, reviewed_word_route_facts.reviewed_vowel_occurrence, compiled_assignment_snapshot.assignment_binding |
 | word_build:v1 | guided | guided_completion | word_micro_skill_support.teaching_decomposition, canonical_word.joins, canonical_word.transformations, word_micro_skill_support.child_meaning |
 
 ## Shared affix compiler
@@ -66,7 +73,7 @@
 | D4_MOR_SUFFIXES_ITY | dynamic_affix_word_lab:v3 | after | ity | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
 | D4_MOR_SUFFIXES_LY | dynamic_affix_word_lab:v3 | after | ly | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
 | D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | after | ous | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
-| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
+| D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | after | tion, ion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
 | D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | after | sion | 16 | one_per_form_else_direct_and_changed | every_lesson_word | none | shared_migration |
 
 ## Blockers

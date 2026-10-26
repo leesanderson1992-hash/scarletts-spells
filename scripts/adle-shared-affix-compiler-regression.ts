@@ -197,8 +197,10 @@ const wrongAdapter = adaptSharedAffixLessonToDynamicAffixV3(representativePrefix
 assert(!wrongAdapter.ok && wrongAdapter.blockers[0]?.code === "compatibility_adapter_mismatch");
 
 const compilerSource = readFileSync("lib/adle/morphology/shared-affix-compiler.ts", "utf8");
-assert(!compilerSource.includes("D4_MOR_"), "shared compiler contains no production microskill literal");
-for (const key of registryKeys) assert(!compilerSource.includes(key), `shared compiler must not recognise ${key}`);
+assert.deepEqual(new Set(compilerSource.match(/D4_MOR_[A-Z_]+/g) ?? []),
+  new Set(["D4_MOR_SUFFIXES_TION"]), "shared compiler has only the reviewed -tion/-ion spelling exception");
+for (const key of registryKeys.filter(key => key !== "D4_MOR_SUFFIXES_TION"))
+  assert(!compilerSource.includes(key), `shared compiler must not recognise ${key}`);
 assert(!/microSkillKey\s*===/.test(compilerSource), "shared compiler contains no microskill-key branch");
 
 console.log(`Shared affix compiler regression passed (${SHARED_AFFIX_PROFILE_REGISTRY.length} profiles, ${prefixTargetCases + suffixTargetCases} reviewed target slots).`);

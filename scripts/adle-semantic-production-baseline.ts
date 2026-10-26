@@ -54,6 +54,8 @@ for (const regression of regressions) {
       PATH: process.env.PATH,
       HOME: process.env.HOME,
       npm_config_cache: process.env.npm_config_cache,
+      NODE_OPTIONS: regression === "adle-generic-snapshot-v3-d3-regression.ts"
+        ? "--conditions=react-server" : undefined,
     },
     stdio: "inherit",
   });

@@ -1026,6 +1026,252 @@
           "min": 0
         }
       }
+    },
+    {
+      "activities": [
+        {
+          "activityKey": "family-tree-detective",
+          "answerVisibility": "post_submit_only",
+          "assignmentItemKind": "word_lab_guided",
+          "condition": {
+            "kind": "always"
+          },
+          "config": {
+            "rounds": [],
+            "schemaVersion": "family_tree_detective_activity_v1"
+          },
+          "contractVersion": 1,
+          "evidenceMode": "guided_recognition",
+          "kind": "family_tree_detective",
+          "order": 1,
+          "requiredForCompletion": true,
+          "words": {
+            "max": 5,
+            "min": 1,
+            "roles": [
+              "authentic_target",
+              "transfer",
+              "practice"
+            ]
+          }
+        }
+      ],
+      "compatibility": {
+        "clusterKeys": [],
+        "familyKey": "D4_SCHWA",
+        "microSkillKeys": [
+          "D4_SCHWA_FINAL_A_FINAL",
+          "D4_SCHWA_FINAL_AR_FINAL",
+          "D4_SCHWA_FINAL_ER_FINAL",
+          "D4_SCHWA_FINAL_OR_FINAL",
+          "D4_SCHWA_INITIAL_E_INITIAL",
+          "D4_SCHWA_INITIAL_O_INITIAL",
+          "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+          "D4_SCHWA_MEDIAL_NATURAL_ACTUAL"
+        ],
+        "routeKey": "weak_vowel_word_lab",
+        "routeVersion": 1
+      },
+      "completion": {
+        "contractVersion": 1,
+        "independentWordSelector": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "requireAllMarkedActivities": true,
+        "requireReflection": false
+      },
+      "identity": {
+        "recipeKey": "weak_vowel_detective_candidate",
+        "recipeVersion": 1,
+        "status": "candidate"
+      },
+      "probe": {
+        "consumesLessonWordQuota": false,
+        "placement": "separate_before_lesson"
+      },
+      "rewards": {
+        "policyVersion": "detective_candidate_no_reward_v1",
+        "roles": {
+          "authentic_target": "ineligible",
+          "practice": "ineligible",
+          "transfer": "ineligible"
+        }
+      },
+      "scheduling": {
+        "policyVersion": "detective_candidate_no_schedule_v1",
+        "roles": {
+          "authentic_target": "none",
+          "practice": "none",
+          "transfer": "none"
+        }
+      },
+      "schemaVersion": "word_lab_recipe_definition_v1",
+      "wordRequirements": {
+        "authentic": {
+          "max": 6,
+          "min": 1
+        },
+        "bandingPolicyVersion": "composer_banding_v1_1",
+        "coverage": [],
+        "coverCheck": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "dictation": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "guided": {
+          "max": 6,
+          "min": 1,
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "practice"
+          ]
+        },
+        "lesson": {
+          "max": 6,
+          "min": 4,
+          "preferred": 6
+        },
+        "practice": {
+          "max": 5,
+          "min": 0
+        },
+        "taughtHistoryPolicyVersion": "composer_taught_history_v1",
+        "transfer": {
+          "max": 5,
+          "min": 0
+        }
+      }
+    },
+    {
+      "activities": [
+        {
+          "activityKey": "call-it-to-dinner",
+          "answerVisibility": "teaching_visible",
+          "assignmentItemKind": "word_lab_guided",
+          "condition": {
+            "kind": "always"
+          },
+          "config": {
+            "rounds": [],
+            "schemaVersion": "call_it_to_dinner_activity_v1"
+          },
+          "contractVersion": 1,
+          "evidenceMode": "guided_recognition",
+          "kind": "call_it_to_dinner",
+          "order": 1,
+          "requiredForCompletion": true,
+          "words": {
+            "max": 5,
+            "min": 1,
+            "roles": [
+              "authentic_target",
+              "transfer",
+              "practice"
+            ]
+          }
+        }
+      ],
+      "compatibility": {
+        "clusterKeys": [],
+        "familyKey": "D4_SCHWA",
+        "microSkillKeys": [
+          "D4_SCHWA_FINAL_A_FINAL",
+          "D4_SCHWA_FINAL_AR_FINAL",
+          "D4_SCHWA_FINAL_ER_FINAL",
+          "D4_SCHWA_FINAL_OR_FINAL",
+          "D4_SCHWA_INITIAL_E_INITIAL",
+          "D4_SCHWA_INITIAL_O_INITIAL",
+          "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+          "D4_SCHWA_MEDIAL_NATURAL_ACTUAL"
+        ],
+        "routeKey": "weak_vowel_word_lab",
+        "routeVersion": 1
+      },
+      "completion": {
+        "contractVersion": 1,
+        "independentWordSelector": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "requireAllMarkedActivities": true,
+        "requireReflection": false
+      },
+      "identity": {
+        "recipeKey": "weak_vowel_dinner_candidate",
+        "recipeVersion": 1,
+        "status": "candidate"
+      },
+      "probe": {
+        "consumesLessonWordQuota": false,
+        "placement": "separate_before_lesson"
+      },
+      "rewards": {
+        "policyVersion": "dinner_candidate_no_reward_v1",
+        "roles": {
+          "authentic_target": "ineligible",
+          "practice": "ineligible",
+          "transfer": "ineligible"
+        }
+      },
+      "scheduling": {
+        "policyVersion": "dinner_candidate_no_schedule_v1",
+        "roles": {
+          "authentic_target": "none",
+          "practice": "none",
+          "transfer": "none"
+        }
+      },
+      "schemaVersion": "word_lab_recipe_definition_v1",
+      "wordRequirements": {
+        "authentic": {
+          "max": 6,
+          "min": 1
+        },
+        "bandingPolicyVersion": "composer_banding_v1_1",
+        "coverage": [],
+        "coverCheck": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "dictation": {
+          "max": 0,
+          "min": 0,
+          "roles": []
+        },
+        "guided": {
+          "max": 6,
+          "min": 1,
+          "roles": [
+            "authentic_target",
+            "transfer",
+            "practice"
+          ]
+        },
+        "lesson": {
+          "max": 6,
+          "min": 4,
+          "preferred": 6
+        },
+        "practice": {
+          "max": 5,
+          "min": 0
+        },
+        "taughtHistoryPolicyVersion": "composer_taught_history_v1",
+        "transfer": {
+          "max": 5,
+          "min": 0
+        }
+      }
     }
   ],
   "snapshotSchemaVersion": "word_lab_snapshot_v1",

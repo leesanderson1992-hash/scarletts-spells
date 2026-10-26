@@ -3,6 +3,63 @@
     {
       "answerVisibility": "guided",
       "applicableRecipes": [
+        "weak_vowel_word_lab:v1"
+      ],
+      "compiledOnlyFields": [
+        "wordOrder",
+        "cutSets",
+        "selectionTarget",
+        "recording"
+      ],
+      "contradictionRules": [
+        "cuts_must_match_recorded_syllable_count",
+        "selected_vowel_must_be_inside_target"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "call_it_to_dinner",
+      "optionalFacts": [
+        {
+          "factKey": "pronunciation",
+          "owner": "canonical_word"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "reviewed_recording_hash",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "reviewed_target_span",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "reviewed_syllable_cuts",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
         "dynamic_prefix_word_lab:v2",
         "dynamic_affix_word_lab:v3",
         "base_word_family:v1"
@@ -656,6 +713,62 @@
       ],
       "requirementVersion": 1,
       "roleRequirements": [
+        "review"
+      ]
+    },
+    {
+      "answerVisibility": "guided",
+      "applicableRecipes": [
+        "weak_vowel_word_lab:v1"
+      ],
+      "compiledOnlyFields": [
+        "wordOrder",
+        "vowelIndex",
+        "familySnapshot"
+      ],
+      "contradictionRules": [
+        "missing_vowel_must_be_reviewed_occurrence",
+        "family_must_have_governed_authority"
+      ],
+      "evidenceMode": "guided_completion",
+      "kind": "vowel_detective",
+      "optionalFacts": [
+        {
+          "factKey": "family_section",
+          "owner": "reviewed_word_route_facts"
+        }
+      ],
+      "requiredFacts": [
+        {
+          "factKey": "canonical_identity",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "display_word",
+          "owner": "canonical_word"
+        },
+        {
+          "factKey": "reviewed_recording_hash",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "reviewed_target_span",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "reviewed_vowel_occurrence",
+          "owner": "reviewed_word_route_facts"
+        },
+        {
+          "factKey": "assignment_binding",
+          "owner": "compiled_assignment_snapshot"
+        }
+      ],
+      "requirementVersion": 1,
+      "roleRequirements": [
+        "authentic_target",
+        "transfer",
+        "guided_example",
         "review"
       ]
     },

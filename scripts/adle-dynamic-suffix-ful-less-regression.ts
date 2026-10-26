@@ -23,6 +23,7 @@ import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-f
 const packagePath = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ful-less/reviewed-staging-package.json");
 const reviewed = JSON.parse(readFileSync(packagePath, "utf8"));
 const rendererSource = readFileSync(resolve("components/adle/morphology/morphology-guided-lesson.tsx"), "utf8");
+const activityCopySource = readFileSync(resolve("lib/adle/lesson-activity-copy.ts"), "utf8");
 const persistenceMigration = readFileSync(resolve("supabase/migrations/20260728100000_allow_ful_less_dynamic_suffix_18_item_plan.sql"), "utf8");
 const meaningStatement = "The suffix -ful means full of or having. The suffix -less means without or not having.";
 
@@ -34,7 +35,8 @@ assert.deepEqual(
   reviewed.profile.introContent.examples.map((example: any) => example.word),
   ["careful", "hopeful", "helpful", "colourful", "careless", "hopeless", "helpless", "colourless"],
 );
-assert(rendererSource.includes("Decide what the suffix means"), "meaning sort uses suffix language");
+assert(rendererSource.includes("LESSON_ACTIVITY_COPY.suffixMeaning")
+  && activityCopySource.includes("Decide what the suffix means"), "meaning sort uses suffix language");
 assert(
   rendererSource.includes('activity?.prefixLabel ?? payload.words.anchor.affixLabel ?? "the suffix"')
     && rendererSource.includes('"Suffix meanings, four words"'),

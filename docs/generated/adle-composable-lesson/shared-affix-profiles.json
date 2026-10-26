@@ -1284,7 +1284,8 @@
     },
     {
       "forms": [
-        "tion"
+        "tion",
+        "ion"
       ],
       "microSkillKey": "D4_MOR_SUFFIXES_TION",
       "policy": {

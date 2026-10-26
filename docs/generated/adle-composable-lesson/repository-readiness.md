@@ -6,16 +6,88 @@
 
 Mode: `repository/report`
 
-Input fingerprint: `7e03bf24146252c079346adafb800548fba256c7e9651d03122a9f913fab340a`
+Input fingerprint: `34ae5ef202ecf2e202ba6e11891bf27dd2b448b811c34d6d3f0c787aa50eeb1f`
 
-Production morphology micro-skills: 29
-Structurally declared: 29
+Production morphology micro-skills: 109
+Structurally declared: 109
 Ready: 0
 Blocked: 0
-Not assessed: 29
+Not assessed: 109
 
 | Micro-skill | Route | Status | Blockers |
 |---|---|---|---|
+| D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_AFFECT_EFFECT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_BERRY_BURY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_BREATH_BREATHE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_COMPLIMENT_COMPLEMENT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_CONSCIENCE_CONSCIOUS | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_DESCENT_DISSENT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_DESERT_DESSERT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_DRAFT_DRAUGHT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_ESPECIALLY_SPECIALLY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_FARTHER_FATHER | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_LED_LEAD | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_LOOSE_LOSE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_OF_OFF | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_PRECEDE_PROCEED | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_PRINCIPAL_PRINCIPLE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_QUITE_QUIET | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_SE_SY_CE_CY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONFUSABLE_WORDS_WARY_WEARY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_AISLE_ISLE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_ALLOWED_ALOUD | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_ALTAR_ALTER | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_ASCENT_ASSENT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BALL_BAWL | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BARE_BEAR | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BE_BEE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BLUE_BLEW | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BRAKE_BREAK | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_BRIDAL_BRIDLE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_CEREAL_SERIAL | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_ED_FOR_T | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_FAIR_FARE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_FLOWER_FLOUR | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_GRATE_GREAT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_GROAN_GROWN | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_HEEL_HEAL_HE_LL | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_HERD_HEARD | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_HERE_HEAR | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_KNOT_NOT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_MAIL_MALE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_MAIN_MANE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_MEAT_MEET | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_MEDAL_MEDDLE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_MORNING_MOURNING | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_NIGHT_KNIGHT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_ONE_WON | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_PEACE_PIECE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_PLAIN_PLANE | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_PROFIT_PROPHET | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_RAIN_REIN_REIGN | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_RIGHT_WRITE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_SCENE_SEEN | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_SEE_SEA | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_SENT_CENT_SCENT | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_STATIONARY_STATIONERY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_STEAL_STEEL | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_SUN_SON | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_THREW_THROUGH | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTENT_WORD_HOMOPHONES_WHETHER_WEATHER | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTRACTION_POSSESSIVE_HOMOPHONES_PAIRS | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_CONTRACTION_POSSESSIVE_ITS_ITS | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTRACTION_POSSESSIVE_WERE_WERE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTRACTION_POSSESSIVE_WHOS_WHOSE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_CONTRACTION_POSSESSIVE_YOUR_YOURE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_BY_BYE_BUY | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_FOR_FOUR_OF_OFF | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_OUR_HOUR | homophone_contextual_choice:v1 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_THERE_THEIR_THEYRE | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_TO_TOO_TWO | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_WERE_WHERE_WEAR | homophone_word_lab:v2 | not_assessed | none |
+| D4_HOM_FUNCTION_WORD_HOMOPHONES_WHO_S_WHOSE | homophone_contextual_choice:v1 | not_assessed | none |
 | D4_INF_COMPARATIVE_SUPERLATIVE_DOUBLE_FINAL_CONSONANT | comparative_superlative_word_lab:v1 | not_assessed | none |
 | D4_INF_COMPARATIVE_SUPERLATIVE_DROP_E | comparative_superlative_word_lab:v1 | not_assessed | none |
 | D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR | comparative_superlative_word_lab:v1 | not_assessed | none |
@@ -45,6 +117,14 @@ Not assessed: 29
 | D4_MOR_SUFFIXES_OUS | dynamic_affix_word_lab:v3 | not_assessed | none |
 | D4_MOR_SUFFIXES_SION | dynamic_affix_word_lab:v3 | not_assessed | none |
 | D4_MOR_SUFFIXES_TION | dynamic_affix_word_lab:v3 | not_assessed | none |
+| D4_SCHWA_FINAL_A_FINAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_FINAL_AR_FINAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_FINAL_ER_FINAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_FINAL_OR_FINAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_INITIAL_E_INITIAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_INITIAL_O_INITIAL | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS | weak_vowel_word_lab:v1 | not_assessed | none |
+| D4_SCHWA_MEDIAL_NATURAL_ACTUAL | weak_vowel_word_lab:v1 | not_assessed | none |
 
 ## Report-only known findings
 
