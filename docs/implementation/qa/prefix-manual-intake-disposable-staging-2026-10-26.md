@@ -7,11 +7,13 @@ The two defects exposed by the fresh Prefix proof have bounded repairs on branch
 spelling candidate, and assignment completion now records its first completion
 time while committing section items and the assignment header together.
 
-**The source and completion mechanisms passed staging checks. Full Prefix
-writing-to-lesson signoff has not passed.** This disposable project lacks the
-reviewed `un-` dictionary/profile/release and misspelling mappings needed to
-select an actual Prefix lesson. Existing Production Prefix lesson evidence used
-synthetic queue items and therefore cannot substitute for this intake proof.
+**The complete writing-to-lesson Prefix flow passed on disposable staging.**
+The parent-verified sample produced two governed candidates, both became
+learning items after exact reviewed mapping/content were available, and the
+ordinary generator selected them. The child completed the lesson in the browser;
+Finish, reload, assignment state, and next-day review schedule all agreed.
+This is staging evidence. The earlier Production Prefix proof used synthetic
+queue items and remains separately labelled as such.
 
 ## Environment and provenance
 
@@ -26,6 +28,15 @@ synthetic queue items and therefore cannot substitute for this intake proof.
   `6d048dac-e6fd-47e0-9806-ceaac40aabe7` are disposable QA fixtures.
 - The staging `D4_MOR_PREFIXES_UN` catalogue row was made assignable solely as
   disposable test configuration. No Production curriculum row was changed.
+- The sparse staging database initially had 61 dictionary words and no Prefix
+  profile or reviewed mapping. A bounded mirror copied only the eight approved
+  `un-` word/metadata/dictation/member rows, their active reviewed profile, and
+  the two exact active visible mapping facts from read-only Production queries
+  into staging. New staging rows carry QA source metadata and a dedicated import
+  batch `1953a335-44c6-4fd4-a223-6568050217b1`; no Production child data was
+  copied. The active review and banding policy versions were copied because the
+  disposable database had neither. The profile was kept `production_enabled`
+  false and admitted only by the staging route environment.
 
 ## Verified observations
 
@@ -35,28 +46,36 @@ synthetic queue items and therefore cannot substitute for this intake proof.
    expected source misspelling occurrence. It did not invent a task submission.
 2. The shared evaluator returned `pending_mapping` for both candidates. The
    Review Work page displayed both corrections and “Awaiting reviewed
-   misspelling mapping”; this is the correct blocker for this sparse staging
-   database. Repeating the first correction through the actual parent page
-   returned the saved confirmation and reused the candidate.
+   misspelling mapping”; this was the correct initial blocker. Repeating the
+   first correction through the actual parent page returned the saved
+   confirmation and reused the candidate. After mirroring approved source
+   facts, reevaluation returned `eligible=2`, `inserted=2`, and no blockers.
 3. The authenticated assignment RPC left the header pending after the first
    item, then marked the final item and header completed in one transaction.
    `session_completed_at` was non-null. This was a synthetic assignment probe,
-   not a Prefix lesson Finish action.
-4. The four focused PGlite SQL regressions, TypeScript check, targeted ESLint,
+   separate from the real Prefix lesson.
+4. The ordinary parent generator created Prefix assignment
+   `2e8b8e8a-0325-4fe1-9bfa-3eb720d45662`. Its lesson snapshot contains both
+   activated learning-item IDs; the four selected words were `unhappy`,
+   `unlocked`, `unfair`, and `unkind`. The latter two were transfer words. The
+   child browser completed teaching, discovery, split, meaning, build, four
+   covered recalls, four dictated sentences, and reflection. Finish returned
+   the completed screen after reload. [Completed staging lesson screenshot](screenshots/prefix-manual-staging-complete-2026-10-26.png).
+5. Durable readback: assignment `completed`, 16 of 16 items `completed`,
+   `session_completed_at=2026-10-26T13:59:41.029Z`, both authentic learning
+   items `awaiting_review_outcome`, and one active review bundle
+   `88f849a9-4a62-43e4-9ed0-21f5de567bdc` due 27 October containing exactly
+   `unhappy` and `unlocked`. The two learning-item source rows point to the
+   exact parent-verified candidate mappings. The assignment's legacy
+   `source_learning_item_ids` array stayed empty; its compiled lesson snapshot
+   carries the exact references used by this route.
+6. The four focused PGlite SQL regressions, TypeScript check, targeted ESLint,
    ADLE attempt-capture regression, and `git diff --check` passed. The local
    full Supabase reset stopped at an older seed-dependent migration requiring
    873 dictionary words; the new migrations were instead applied and read back
    on disposable staging.
 
-## Remaining proof gate
-
-The disposable database has 61 dictionary words and no Prefix profiles. Its
-legacy Prefix importers pin the retired staging project and assert historical
-word counts, so running them against this new project would be unsafe. An
-isolated, provenance-preserving import of the already reviewed `un-` content,
-mapping, release, and activation is needed before this child can become ready,
-generate a lesson, press Finish, reload, and verify review scheduling. No
-editorial approval should be fabricated to make the test pass.
+## Production release checks
 
 The earlier Production Review Work skill menu appeared empty. A read-only
 26 October database check under the `authenticated` role now returns 296 active,
