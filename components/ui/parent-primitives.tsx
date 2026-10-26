@@ -4,7 +4,7 @@ export function DashboardCard({ title, href, children, className = "" }: {
   title: string; href?: string; children: React.ReactNode; className?: string;
 }) {
   return <section className={"parent-card " + className}>
-    <div className="parent-card-heading"><h2>{title}</h2>{href ? <Link href={href} prefetch>View all <span aria-hidden="true">→</span></Link> : null}</div>
+    <div className="parent-card-heading"><h2>{title}</h2>{href ? <Link href={href} prefetch={false}>View all <span aria-hidden="true">→</span></Link> : null}</div>
     {children}
   </section>;
 }
