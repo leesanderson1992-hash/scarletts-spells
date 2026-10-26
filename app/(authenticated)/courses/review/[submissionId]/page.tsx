@@ -37,6 +37,8 @@ import type { ReviewWritingIssueSuggestionDetailProjection } from "@/lib/writing
 import {
   ManualSampleParentAuthoredIssuesSection,
   ManualSampleParentIssueSection,
+  ManualSampleSpellingCandidateSection,
+  ManualSampleSpellingStatusSection,
   type ReviewWritingIssueWithSourceSuggestionRow,
 } from "../manual-sample-sections";
 import { getManualReviewSampleStatus } from "../manual-sample-review-utils";
@@ -595,6 +597,8 @@ export default async function CourseReviewDetailPage({
       { data: writingIssueRows, error: writingIssueError },
       { data: writingIssueSuggestionRows, error: writingIssueSuggestionError },
       { data: parentVerificationRows, error: parentVerificationError },
+      manualCandidateSkillProvider,
+      { data: manualCandidateRows },
     ] = await Promise.all([
       supabase
         .from("misspelling_instances")
@@ -628,7 +632,39 @@ export default async function CourseReviewDetailPage({
         .eq("writing_sample_id", manualSample.id)
         .eq("parent_user_id", user.id)
         .order("verified_at", { ascending: false }),
+      getReviewWorkCandidateCaptureMicroSkillProvider({ supabase }),
+      supabase
+        .from("parent_verified_spelling_candidate_mappings")
+        .select("id,misspelling_normalized,correct_spelling_normalized,micro_skill_key")
+        .eq("parent_user_id", user.id)
+        .eq("child_id", selectedChild.id)
+        .eq("writing_sample_id", manualSample.id)
+        .eq("source_provenance", "manual_writing_sample_parent_verified")
+        .order("created_at", { ascending: false }),
     ]);
+
+    const candidateIds = (manualCandidateRows ?? []).map((row) => row.id);
+    const { data: manualIntakeRows } = candidateIds.length > 0
+      ? await createServiceRoleClient().from("adle_canonical_intake_candidates")
+          .select("source_candidate_mapping_id,candidate_state,blockers,learning_item_id")
+          .eq("child_id", selectedChild.id)
+          .in("source_candidate_mapping_id", candidateIds)
+      : { data: [] };
+    const intakeByCandidateId = new Map((manualIntakeRows ?? []).map((row) => [
+      row.source_candidate_mapping_id, row,
+    ]));
+    const manualCandidateStatuses = (manualCandidateRows ?? []).map((row) => {
+      const intake = intakeByCandidateId.get(row.id);
+      return {
+        id: row.id,
+        misspelling: row.misspelling_normalized,
+        correction: row.correct_spelling_normalized,
+        microSkillKey: row.micro_skill_key,
+        candidateState: intake?.candidate_state ?? null,
+        blockers: intake?.blockers ?? [],
+        learningItemId: intake?.learning_item_id ?? null,
+      };
+    });
 
     const misspellings = (misspellingRows ?? []) as MisspellingReviewRow[];
     const writingIssues = (writingIssueRows ??
@@ -782,6 +818,19 @@ export default async function CourseReviewDetailPage({
             }
           />
 
+          <ManualSampleSpellingCandidateSection
+            writingSampleId={manualSample.id}
+            redirectPath={buildScopedPath(
+              `/courses/review/${reviewEntryId}`,
+              selectedChild.id,
+              mode,
+            )}
+            options={manualCandidateSkillProvider.status === "available"
+              ? manualCandidateSkillProvider.options : []}
+          />
+
+          <ManualSampleSpellingStatusSection rows={manualCandidateStatuses} />
+
           <ManualSampleParentAuthoredIssuesSection
             rows={parentAuthoredManualIssues}
           />
@@ -799,6 +848,7 @@ export default async function CourseReviewDetailPage({
               reason: "no_options_available",
             }}
             pendingCandidateMappingsByMisspellingId={new Map()}
+            manualSampleCapture
           />
         </section>
       </AppShell>

@@ -43,6 +43,7 @@ export type SpellingReviewTableRow = {
 type SpellingReviewTableProps = {
   rows: SpellingReviewTableRow[];
   options: ReviewWorkCandidateCaptureMicroSkillOption[];
+  blockedMessage?: string;
   submissionId?: string;
   redirectPath: string;
   pendingCandidateMappingLabel: string;
@@ -498,6 +499,7 @@ function SpellingReviewTableRowView({
 export function SpellingReviewTable({
   rows,
   options,
+  blockedMessage,
   submissionId,
   redirectPath,
   pendingCandidateMappingLabel,
@@ -521,8 +523,7 @@ export function SpellingReviewTable({
   if (options.length === 0 || families.length === 0) {
     return (
       <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-        Candidate capture is blocked until assignable spelling micro-skills are
-        available.
+        {blockedMessage ?? "Candidate capture is blocked until assignable spelling micro-skills are available."}
       </div>
     );
   }

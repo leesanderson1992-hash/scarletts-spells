@@ -20,6 +20,7 @@ type SuggestedIssuesPanelProps = {
   pendingCandidateMappingsByMisspellingId?: Map<string, CandidateMappingRow>;
   openCatalogReviewCasesByMisspellingId?: Map<string, CatalogReviewCaseRow>;
   catalogReviewCaseCaptureAvailable?: boolean;
+  manualSampleCapture?: boolean;
 };
 
 type CandidateMappingRow = {
@@ -238,6 +239,9 @@ export function SuggestedIssuesPanel(props: SuggestedIssuesPanelProps) {
                         ? props.candidateCaptureMicroSkillProvider.options
                         : []
                     }
+                    blockedMessage={props.manualSampleCapture
+                      ? "For a manual writing sample, confirm a correction in the parent-verified spelling form above. Suggested rows cannot use the lesson-submission control."
+                      : undefined}
                     submissionId={props.submissionId}
                     redirectPath={props.redirectPath}
                     pendingCandidateMappingLabel={

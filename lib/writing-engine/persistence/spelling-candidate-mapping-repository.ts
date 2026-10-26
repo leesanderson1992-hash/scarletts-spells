@@ -27,7 +27,8 @@ export type PendingSpellingCandidateMappingInsert = {
   sourceProvenance:
     | "lesson_submission_existing_output"
     | "lesson_submission_parent_added_missed_word"
-    | "adle_review_submitted_writing_parent_identified";
+    | "adle_review_submitted_writing_parent_identified"
+    | "manual_writing_sample_parent_verified";
   reviewedEventSourceEntityId: string;
   originalChildSpelling: string | null;
   originalCorrectSpelling: string | null;

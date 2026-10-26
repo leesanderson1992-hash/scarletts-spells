@@ -1,14 +1,123 @@
 import { formatCourseDate } from "@/lib/courses/queries";
 import type { ReviewWritingIssueProjection } from "@/lib/writing-practice/types";
+import type { ReviewWorkCandidateCaptureMicroSkillOption } from "@/lib/writing-engine/persistence/learning-items";
 
 import {
   addManualWritingIssue,
+  captureManualSampleSpellingCandidate,
   completeManualWritingSampleReview,
 } from "./manual-sample-actions";
 
 export type ReviewWritingIssueWithSourceSuggestionRow = ReviewWritingIssueProjection & {
   source_suggestion_id: string | null;
 };
+
+export function ManualSampleSpellingCandidateSection(props: {
+  writingSampleId: string;
+  redirectPath: string;
+  options: ReviewWorkCandidateCaptureMicroSkillOption[];
+}) {
+  return (
+    <section className="brand-card rounded-3xl p-4 md:p-5">
+      <p className="brand-eyebrow">Parent-verified spelling</p>
+      <h2 className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
+        Confirm a spelling for lesson review
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--mid)]">
+        Enter a misspelling that appears once in this sample, its correction,
+        and the skill it demonstrates. This records your approval and checks
+        dictionary, mapping, and route requirements before it can enter a lesson.
+      </p>
+      {props.options.length === 0 ? (
+        <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          No active spelling micro-skills are available for this review.
+        </p>
+      ) : (
+        <form action={captureManualSampleSpellingCandidate} className="mt-4 grid gap-3">
+          <input type="hidden" name="writing_sample_id" value={props.writingSampleId} />
+          <input type="hidden" name="redirect_path" value={props.redirectPath} />
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Child&apos;s spelling</span>
+            <input required name="observed_text" type="text" autoComplete="off"
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2" />
+          </label>
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Correct spelling</span>
+            <input required name="correct_text" type="text" autoComplete="off"
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2" />
+          </label>
+          <label className="grid gap-1 text-sm text-[color:var(--ink)]">
+            <span className="font-medium">Spelling micro-skill</span>
+            <select required name="micro_skill_key" defaultValue=""
+              className="rounded-2xl border border-[var(--border)] bg-white px-3 py-2">
+              <option value="" disabled>Choose a skill</option>
+              {props.options.map((option) => (
+                <option key={option.microSkillKey} value={option.microSkillKey}>
+                  {option.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit" className="brand-secondary-btn justify-center">
+            Confirm correction and check lesson route
+          </button>
+        </form>
+      )}
+    </section>
+  );
+}
+
+export function ManualSampleSpellingStatusSection(props: {
+  rows: Array<{
+    id: string;
+    misspelling: string;
+    correction: string;
+    microSkillKey: string;
+    candidateState: string | null;
+    blockers: unknown;
+    learningItemId: string | null;
+  }>;
+}) {
+  if (props.rows.length === 0) return null;
+  return (
+    <section className="brand-card rounded-3xl p-4 md:p-5">
+      <h2 className="text-lg font-semibold text-[color:var(--ink)]">Reviewed spelling routes</h2>
+      <div className="mt-3 grid gap-3">
+        {props.rows.map((row) => {
+          const blockerCodes = Array.isArray(row.blockers)
+            ? row.blockers.map((blocker) => {
+                if (!blocker || typeof blocker !== "object") return null;
+                const code = (blocker as { code?: unknown }).code;
+                return typeof code === "string" ? code.replaceAll("_", " ") : null;
+              }).filter((code): code is string => code !== null)
+            : [];
+          return (
+            <div key={row.id} className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm">
+              <p className="font-medium text-[color:var(--ink)]">
+                {row.misspelling} → {row.correction}
+              </p>
+              <p className="mt-1 text-[color:var(--mid)]">{row.microSkillKey}</p>
+              <p className="mt-1 text-[color:var(--mid)]">
+                {row.learningItemId && row.candidateState === "activated"
+                  ? "Ready for this child's lesson selection"
+                  : row.candidateState === "pending_mapping"
+                    ? "Awaiting reviewed misspelling mapping"
+                    : row.candidateState === "pending_content"
+                      ? "Awaiting approved teaching content"
+                      : row.candidateState === "error_retryable"
+                        ? "Readiness check needs retry"
+                        : "Readiness check queued"}
+              </p>
+              {blockerCodes.length > 0 ? (
+                <p className="mt-1 text-amber-800">Missing: {blockerCodes.join(", ")}</p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 export function ManualSampleParentAuthoredIssuesSection(props: {
   rows: ReviewWritingIssueWithSourceSuggestionRow[];

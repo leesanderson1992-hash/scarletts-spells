@@ -8,6 +8,7 @@ type GovernedSourceAuthority = {
   childId: string;
   submissionId: string | null;
   adleReviewSessionId: string | null;
+  writingSampleId: string | null;
   occurrenceId: string | null;
   wholeWritingOccurrenceId: string | null;
   misspellingNormalized: string;
@@ -59,6 +60,7 @@ function parseAuthority(
       row.source_adle_review_session_id,
       "ADLE Review session ID",
     ),
+    writingSampleId: nullableString(row.writing_sample_id, "manual writing sample ID"),
     occurrenceId: nullableString(
       row.source_misspelling_instance_id,
       "occurrence ID",
@@ -91,7 +93,8 @@ function parseAuthority(
   }
   if (
     Number(Boolean(authority.submissionId)) +
-      Number(Boolean(authority.adleReviewSessionId)) !==
+      Number(Boolean(authority.adleReviewSessionId)) +
+      Number(Boolean(authority.writingSampleId)) !==
     1
   ) {
     throw new Error(

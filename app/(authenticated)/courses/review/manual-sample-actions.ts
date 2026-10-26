@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import { extractReviewableLessonFields } from "@/lib/lessons/review";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { intakeApprovedManualSampleCorrection } from "@/lib/adle/loaders/canonical-intake-live";
 
 function buildRedirectWithMessage(
   path: string,
@@ -85,6 +87,65 @@ function normaliseOptionalIssueText(value: FormDataEntryValue | null) {
 function normaliseMicroSkillKey(value: FormDataEntryValue | null) {
   const rawValue = typeof value === "string" ? value.trim() : "";
   return rawValue.length > 0 ? rawValue.slice(0, 120) : "unknown";
+}
+
+export async function captureManualSampleSpellingCandidate(formData: FormData) {
+  const writingSampleId = formData.get("writing_sample_id");
+  const redirectPath = formData.get("redirect_path");
+  const observedText = normaliseOptionalIssueText(formData.get("observed_text"));
+  const correctText = normaliseOptionalIssueText(formData.get("correct_text"));
+  const microSkillKey = normaliseMicroSkillKey(formData.get("micro_skill_key"));
+  const safeRedirectPath =
+    typeof redirectPath === "string" && redirectPath.startsWith("/courses/review/")
+      ? redirectPath
+      : "/courses/review";
+
+  if (typeof writingSampleId !== "string" || !writingSampleId ||
+    !observedText || !correctText || microSkillKey === "unknown") {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "Enter the child's spelling, its correction, and a spelling micro-skill."));
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const sample = await getOwnedManualWritingSample(supabase, writingSampleId, user.id);
+  if (!sample || sample.task_submission_id || sample.review_completed_at) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "This manual writing sample is no longer open for spelling review."));
+  }
+
+  const { data: candidateMappingId, error } = await supabase.rpc(
+    "capture_parent_manual_sample_spelling_candidate",
+    {
+      p_writing_sample_id: sample.id,
+      p_observed_text: observedText,
+      p_correct_text: correctText,
+      p_micro_skill_key: microSkillKey,
+    },
+  );
+  if (error || typeof candidateMappingId !== "string") {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      error?.message ?? "The reviewed spelling could not be saved."));
+  }
+
+  try {
+    await intakeApprovedManualSampleCorrection({
+      serviceClient: createServiceRoleClient(),
+      parentUserId: user.id,
+      childId: sample.child_id,
+      writingSampleId: sample.id,
+      candidateMappingIds: [candidateMappingId],
+    });
+  } catch (intakeError) {
+    console.error("Manual writing sample canonical intake failed", intakeError);
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "The correction was saved. Its lesson eligibility could not be checked yet; retry this same correction."));
+  }
+
+  revalidateReviewQueueAndDetail(safeRedirectPath);
+  redirect(buildRedirectWithMessage(safeRedirectPath, "saved",
+    "Parent-verified spelling saved. Its lesson route is being checked against the approved teaching content."));
 }
 
 type StructuredLessonReviewContext = {
@@ -331,38 +392,6 @@ export async function addManualWritingIssue(formData: FormData) {
     );
   }
 
-  const existingManualIssueQuery = supabase
-    .from("writing_issues")
-    .select("id")
-    .eq("parent_user_id", user.id)
-    .eq("writing_sample_id", linkedSample?.id ?? null)
-    .is("source_misspelling_instance_id", null)
-    .eq("observed_text", observedText);
-
-  if (submission) {
-    existingManualIssueQuery.eq("task_submission_id", submission.id);
-  } else {
-    existingManualIssueQuery.is("task_submission_id", null);
-  }
-
-  if (approvedReplacement) {
-    existingManualIssueQuery.eq("approved_replacement", approvedReplacement);
-  } else {
-    existingManualIssueQuery.is("approved_replacement", null);
-  }
-
-  const { data: existingManualIssue } = await existingManualIssueQuery.maybeSingle();
-
-  if (existingManualIssue) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "saved",
-        "That manual writing issue has already been saved.",
-      ),
-    );
-  }
-
   const matchedLessonField = inferStructuredLessonFieldMatch({
     reviewContext: structuredLessonReviewContext,
     observedText,
@@ -372,52 +401,19 @@ export async function addManualWritingIssue(formData: FormData) {
   const issueLevelParentNote =
     parentReviewNote ?? matchedLessonField?.feedback?.trim() ?? null;
 
-  const { data: suggestion, error: suggestionError } = await supabase
-    .from("writing_issue_suggestions")
-    .insert({
-      child_id: childId,
-      parent_user_id: user.id,
-      task_submission_id: submission?.id ?? null,
-      writing_sample_id: linkedSample?.id ?? null,
-      source_type: "parent_manual",
-      suggestion_status: "accepted",
-      observed_text: observedText,
-      suggested_replacement: approvedReplacement,
-      source_field_key: matchedLessonField?.key ?? null,
-      suggested_micro_skill_key: microSkillKey,
-      notes: issueLevelParentNote,
-      resolved_at: new Date().toISOString(),
-    })
-    .select("id")
-    .single();
-
-  if (suggestionError || !suggestion) {
-    redirect(
-      buildRedirectWithMessage(
-        safeRedirectPath,
-        "error",
-        "We couldn't prepare that manual issue just yet.",
-      ),
-    );
+  if (!linkedSample) {
+    redirect(buildRedirectWithMessage(safeRedirectPath, "error",
+      "The writing sample for this issue is unavailable."));
   }
-
-  const { error } = await supabase.from("writing_issues").insert({
-    child_id: childId,
-    parent_user_id: user.id,
-    task_submission_id: submission?.id ?? null,
-    writing_sample_id: linkedSample?.id ?? null,
-    source_suggestion_id: suggestion.id,
-    issue_status: "pending_parent_review",
-    final_classification: null,
-    observed_text: observedText,
-    suggested_replacement: approvedReplacement,
-    approved_replacement: approvedReplacement,
-    source_field_key: matchedLessonField?.key ?? null,
-    micro_skill_key: microSkillKey,
-    parent_review_note: issueLevelParentNote,
-    parent_marked_at: new Date().toISOString(),
+  const { error } = await supabase.rpc("save_parent_manual_writing_issue_v1", {
+    p_writing_sample_id: linkedSample.id,
+    p_task_submission_id: submission?.id ?? null,
+    p_observed_text: observedText,
+    p_approved_replacement: approvedReplacement,
+    p_micro_skill_key: microSkillKey,
+    p_note: issueLevelParentNote,
+    p_source_field_key: matchedLessonField?.key ?? null,
   });
-
   if (error) {
     redirect(
       buildRedirectWithMessage(
