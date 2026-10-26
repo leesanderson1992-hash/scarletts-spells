@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import { LogoutButton } from "@/app/dashboard/logout-button";
@@ -75,7 +75,6 @@ function AppShellFrame({
   children, currentPath: pagePath, mode: initialMode, activeChildId: initialChildId, availableChildren, userEmail,
   layout = "default", showAdminNav = false, hideLearnerIdentity = false,
 }: AppShellProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams();
   const isLayoutShell = pagePath === "/";
@@ -105,11 +104,8 @@ function AppShellFrame({
   }, []);
   useEffect(() => {
     const frame = requestAnimationFrame(() => setCollapsed(localStorage.getItem("scarlett-sidebar-collapsed") === "true"));
-    for (const item of mode === "parent" ? parentNav.slice(0, 3) : childNav.slice(0, 2)) {
-      router.prefetch(buildScopedPath(item.href, activeChildId, mode));
-    }
     return () => cancelAnimationFrame(frame);
-  }, [activeChildId, mode, router]);
+  }, []);
   useEffect(() => {
     if (!drawerOpen) return;
     const previous = document.body.style.overflow;
@@ -194,7 +190,7 @@ function AppShellFrame({
     return items.map((item) => {
       const href = buildScopedPath(item.href, selectedId, mode);
       const active = currentPath === item.href || currentPath.startsWith(item.href + "/");
-      return <Link key={item.href} href={href} prefetch onClick={() => setDrawerOpen(false)}
+      return <Link key={item.href} href={href} prefetch={false} onClick={() => setDrawerOpen(false)}
         title={collapsed ? item.label : undefined} aria-current={active ? "page" : undefined}
         className={"app-nav-link " + (active ? "is-active " : "") + extraClass}>
         <span className="app-nav-icon" aria-hidden="true">{
@@ -238,7 +234,7 @@ function AppShellFrame({
     <header className="app-topbar brand-topbar" inert={drawerOpen}>
       <button ref={hamburgerRef} type="button" className="app-icon-button" aria-label={drawerOpen ? "Close navigation" : "Toggle navigation"} aria-expanded={drawerOpen}
         aria-controls="app-sidebar" onClick={toggleSidebar}><span aria-hidden="true">☰</span></button>
-      <Link href={mode === "child" ? childHref : parentHref} className="app-wordmark" prefetch>
+      <Link href={mode === "child" ? childHref : parentHref} className="app-wordmark" prefetch={false}>
         <span aria-hidden="true" className="app-wordmark-mark">✧</span><span>Scarlett Spells</span>
       </Link>
       <div className="app-topbar-actions">
@@ -249,8 +245,8 @@ function AppShellFrame({
           setTheme(next);
         }}><span aria-hidden="true">{theme === "light" ? "☾" : "☀"}</span><span>{theme === "light" ? "Dark" : "Light"} mode</span></button> : null}
         <div className="app-mode-switch" aria-label="Experience mode">
-          <Link href={parentHref} prefetch aria-current={mode === "parent" ? "page" : undefined}>Parent Mode</Link>
-          <Link href={childHref} prefetch aria-current={mode === "child" ? "page" : undefined}>Child Mode</Link>
+          <Link href={parentHref} prefetch={false} aria-current={mode === "parent" ? "page" : undefined}>Parent Mode</Link>
+          <Link href={childHref} prefetch={false} aria-current={mode === "child" ? "page" : undefined}>Child Mode</Link>
         </div>
         <div className="app-profile" ref={profileRef}>
           <button ref={profileButtonRef} type="button" className="app-profile-trigger" aria-label={"Open profile menu for " + accountName} aria-haspopup="menu" aria-expanded={profileOpen} aria-controls="app-profile-menu"
@@ -268,12 +264,12 @@ function AppShellFrame({
                 <span>{childName(child)}</span>{selectedId === child.id ? <span aria-label="Selected child">✓</span> : null}
               </button>
             </form>)}
-            {mode === "parent" ? <Link role="menuitem" className="app-menu-item app-menu-accent" href="/children" onClick={() => setProfileOpen(false)}>+ Add Child</Link> : null}
+            {mode === "parent" ? <Link role="menuitem" className="app-menu-item app-menu-accent" href="/children" prefetch={false} onClick={() => setProfileOpen(false)}>+ Add Child</Link> : null}
             <p className="app-menu-heading">Mode</p>
-            <Link role="menuitem" className="app-menu-item" href={parentHref} onClick={() => setProfileOpen(false)}>Parent Mode {mode === "parent" ? "✓" : ""}</Link>
-            <Link role="menuitem" className="app-menu-item" href={childHref} onClick={() => setProfileOpen(false)}>Child Mode {mode === "child" ? "✓" : ""}</Link>
+            <Link role="menuitem" className="app-menu-item" href={parentHref} prefetch={false} onClick={() => setProfileOpen(false)}>Parent Mode {mode === "parent" ? "✓" : ""}</Link>
+            <Link role="menuitem" className="app-menu-item" href={childHref} prefetch={false} onClick={() => setProfileOpen(false)}>Child Mode {mode === "child" ? "✓" : ""}</Link>
             <div className="app-menu-divider" />
-            <Link role="menuitem" className="app-menu-item" href={buildScopedPath("/settings", selectedId, mode)} onClick={() => setProfileOpen(false)}>Account Settings</Link>
+            <Link role="menuitem" className="app-menu-item" href={buildScopedPath("/settings", selectedId, mode)} prefetch={false} onClick={() => setProfileOpen(false)}>Account Settings</Link>
             <div className="app-menu-logout"><LogoutButton menuItem /></div>
           </div> : null}
         </div>
