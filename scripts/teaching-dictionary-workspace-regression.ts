@@ -43,10 +43,10 @@ assert(!reviewedWordCanLaunch(reviewed,null,{}));
 console.log("PASS: ordered transformation chains and exact per-word review/witness launch guards");
 
 for (const activities of [{ introduction: { prompt: "Welcome" }, reflection: { prompt: "Reflect" } }, [], null]) {
-  const question = lessonActivityQuestion({kind:"reflection",route:{routeId:"dynamic_affix_word_lab",wordMeaning:"meaning",content:{}} as any,word:"responsible",wordId:null,compiled:{activities},sources:[]});
+  const question = lessonActivityQuestion({kind:"reflection",route:{routeId:"dynamic_affix_word_lab",wordMeaning:"meaning",content:{}} as unknown as Parameters<typeof lessonActivityQuestion>[0]["route"],word:"responsible",wordId:null,compiled:{activities},sources:[]});
   assert.equal(typeof question,"string");
 }
-assert.equal(lessonActivityQuestion({kind:"reflection",route:{} as any,word:"word",wordId:null,compiled:{activities:[{canonical:{concept:"LESSON_REFLECTION"},payload:{prompt:"What changed?"}}]},sources:[]}),"What changed?");
+assert.equal(lessonActivityQuestion({kind:"reflection",route:{} as Parameters<typeof lessonActivityQuestion>[0]["route"],word:"word",wordId:null,compiled:{activities:[{canonical:{concept:"LESSON_REFLECTION"},payload:{prompt:"What changed?"}}]},sources:[]}),"What changed?");
 console.log("PASS: activity questions support native object and flat activity array snapshots");
 
 const incompleteOverview:WordDraftPayload={displayWord:"word",definition:"a unit of language",dictationSentence:"Say a word.",dictationTargetTokenIndex:2,writtenSyllableBreakdown:"word",ageBand:"middle_primary",frequencyBand:"common",complexityBand:"simple",metadata:emptyMetadata(),canonicalMorphology:emptyMorphology(),provenance:{sourceCategory:"internal_authored",sourceName:"test",sourceUrl:"",sourceLicence:"",sourceUseNote:"test",confidence:"high"},skillKeys:[],routeContents:[]};

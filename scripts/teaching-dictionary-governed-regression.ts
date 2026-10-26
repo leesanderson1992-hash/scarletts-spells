@@ -28,7 +28,7 @@ assert.deepEqual(compoundDictionaryWordIds([{wholeCanonicalWordId:"whole",compon
 assert(found.has("whole"));assert(!found.has("component"),"a component is required teaching content, not a whole-word compound skill member");
 const db={from:()=>{throw new Error("Preflight must not read or mutate learner assignments");}} as unknown as SupabaseClient;
 let skillReviewWrites=0;
-const joinedReviewDb=(joined:boolean)=>({from:(table:string)=>{const data=table==="adle_route_activation_heads"?{current_revision_id:"revision"}:table==="adle_route_activation_revisions"?{release_manifest_id:"release"}:table==="adle_curriculum_release_dependencies"?{authority_id:"family"}:{id:"family",semantic_fingerprint:"source",semantic_projection:{schemaVersion:2,families:[{members:[{canonicalWordId:joined?"joined":"other",applicableMicroSkillKeys:["D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX"]}]}]}};const query:any={eq:()=>query,select:()=>query,single:async()=>({data,error:null}),maybeSingle:async()=>({data,error:null})};return query;},rpc:async()=>{skillReviewWrites++;return {data:null,error:{message:"Stop before test writes"}};}} as unknown as SupabaseClient);
+const joinedReviewDb=(joined:boolean)=>({from:(table:string)=>{const data=table==="adle_route_activation_heads"?{current_revision_id:"revision"}:table==="adle_route_activation_revisions"?{release_manifest_id:"release"}:table==="adle_curriculum_release_dependencies"?{authority_id:"family"}:{id:"family",semantic_fingerprint:"source",semantic_projection:{schemaVersion:2,families:[{members:[{canonicalWordId:joined?"joined":"other",applicableMicroSkillKeys:["D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX"]}]}]}};const query={eq:()=>query,select:()=>query,single:async()=>({data,error:null}),maybeSingle:async()=>({data,error:null})};return query;},rpc:async()=>{skillReviewWrites++;return {data:null,error:{message:"Stop before test writes"}};}} as unknown as SupabaseClient);
 const joinedInput={wordId:"joined",microSkillKey:"D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",actorId:randomUUID(),environment:"production" as const};
 await assert.rejects(recordJoinedBaseSkillReview(joinedReviewDb(false),joinedInput),/BASE_FAMILY_EXACT_SKILL_APPROVAL_MISSING/);assert.equal(skillReviewWrites,0);
 await assert.rejects(recordJoinedBaseSkillReview(joinedReviewDb(true),joinedInput),/WORD_SKILL_PACKAGE_CREATE_FAILED/);assert.equal(skillReviewWrites,1,"only exact released family membership may be confirmed by lesson Save");
@@ -79,11 +79,11 @@ const degreeCheck=await preflightGovernedRelease({...shared,routeId:"comparative
 assert(degreeCheck.ready,degreeCheck.blockers.join(","));
 const {packageSha256,...body}=degree.package;assert.equal(packageSha256,fingerprintSnapshotValue(body));
 const databaseHash="d".repeat(64);let hashCalls=0;
-const fingerprintDb={rpc:async(name:string,input:any)=>{assert.equal(name,"adle_generic_snapshot_json_sha256_v1");assert(input.p_value);hashCalls++;return {data:databaseHash,error:null};}} as unknown as Pick<SupabaseClient,"rpc">;
+const fingerprintDb={rpc:async(name:string,input:{p_value:unknown})=>{assert.equal(name,"adle_generic_snapshot_json_sha256_v1");assert(input.p_value);hashCalls++;return {data:databaseHash,error:null};}} as unknown as Pick<SupabaseClient,"rpc">;
 const bound=await bindNativePackageFingerprints(fingerprintDb,degree.package);
 assert.equal(bound.packageSha256,databaseHash);assert.equal(hashCalls,bound.authorities.length+1);
 assert(bound.authorities.every(a=>a.semanticFingerprint===databaseHash));
-assert(bound.manifest.microSkills.every((s:any)=>s.dependencies.every((d:any)=>d.semanticFingerprint===databaseHash)));
+assert(bound.manifest.microSkills.every((s:{dependencies:Array<{semanticFingerprint:string}>})=>s.dependencies.every(d=>d.semanticFingerprint===databaseHash)));
 assert.equal(degree.package.packageSha256,packageSha256,"database binding preserves the pure proposed package");
 const compoundHash="c".repeat(64);const compoundDb={rpc:async(name:string)=>({data:name==="adle_snapshot_json_sha256_v1"?compoundHash:databaseHash,error:null})} as unknown as Pick<SupabaseClient,"rpc">;
 const compoundBound=await bindNativePackageFingerprints(compoundDb,{schemaVersion:1,activation:"inactive",manifest:{microSkills:[{dependencies:[{authorityType:"compound_structure",authorityKey:"compound"}]}]},authorities:[{authorityType:"compound_structure",authorityKey:"compound",semanticProjection:{schemaVersion:1,structures:[]}}],packageSha256:"old"});

@@ -78,7 +78,18 @@ export function HomophoneGuidedLesson(props: {
   const [error, setError] = useState<string | null>(null);
   const finishing = useRef(false);
   const resumeKey = `adle:homophone:${props.assignmentId}:${props.snapshot.contentVersion}`;
-  useEffect(() => { if (!props.onFinish) { const restored = readMorphologyResume<unknown>(resumeKey, props.snapshot.contentVersion); if (homophoneProgressValid(restored, lesson)) { current.current = restored; setState(restored); } } setReady(true); }, [resumeKey, props.snapshot.contentVersion, lesson, props.onFinish]);
+  useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (!props.onFinish) {
+        const restored = readMorphologyResume<unknown>(resumeKey, props.snapshot.contentVersion);
+        if (homophoneProgressValid(restored, lesson)) { current.current = restored; setState(restored); }
+      }
+      setReady(true);
+    });
+    return () => { active = false; };
+  }, [resumeKey, props.snapshot.contentVersion, lesson, props.onFinish]);
   useEffect(() => { if (ready && !props.onFinish) writeMorphologyResume(resumeKey, props.snapshot.contentVersion, state); }, [ready, resumeKey, props.snapshot.contentVersion, state, props.onFinish]);
   function change(update: Partial<HomophoneProgressV1>) {
     const next = { ...current.current, ...update };

@@ -44,7 +44,8 @@ const START: State = { phase: "ready", roundEnd: 0, promptStart: 0, promptNumber
 export function BalloonPop(props: BalloonPopProps) {
   const [state, setState] = useState<State>(START);
   const [now, setNow] = useState(0);
-  const [best, setBest] = useState(props.initialBest);
+  const [savedBest, setSavedBest] = useState(props.initialBest);
+  const best = Math.max(savedBest, props.initialBest);
   const [saveError, setSaveError] = useState(false);
   const [saving, setSaving] = useState(false);
   const submitted = useRef(false);
@@ -58,11 +59,7 @@ export function BalloonPop(props: BalloonPopProps) {
     reportedFeedback.current = state.promptNumber;
     const missed = props.prompts[state.promptOrder[state.promptNumber % state.promptOrder.length] ?? (state.promptNumber % props.prompts.length)];
     props.onMistake?.({ answer: state.feedback.answer, selected: state.feedback.selected, sentence: missed.sentence });
-  }, [state.phase, state.feedback, state.promptNumber, props]);
-
-  useEffect(() => {
-    setBest(previous => Math.max(previous, props.initialBest));
-  }, [props.initialBest]);
+  }, [state.phase, state.feedback, state.promptNumber, state.promptOrder, props]);
 
   useEffect(() => {
     if (state.phase !== "active" && state.phase !== "feedback") return;
@@ -93,10 +90,10 @@ export function BalloonPop(props: BalloonPopProps) {
     setSaving(true);
     setSaveError(false);
     Promise.resolve(props.onFinish(state.score))
-      .then(saved => setBest(current => Math.max(current, saved)))
+      .then(saved => setSavedBest(current => Math.max(current, saved)))
       .catch(() => setSaveError(true))
       .finally(() => setSaving(false));
-  }, [props.onFinish, state.score]);
+  }, [props, state.score]);
 
   useEffect(() => {
     if (state.phase !== "done" || submitted.current) return;

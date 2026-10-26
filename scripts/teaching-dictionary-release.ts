@@ -1607,8 +1607,10 @@ async function verification(
       ? result.rows.map((row) => {
           const metadata = row.source_metadata as Record<string, unknown> | null;
           if (!metadata) return row;
-          const { humanReviewDate: _date, humanReviewManifestSha256: _manifest,
-            humanApprovedWrittenSyllableBreakdown: _breakdown, ...sourceMetadata } = metadata;
+          const sourceMetadata = { ...metadata };
+          delete sourceMetadata.humanReviewDate;
+          delete sourceMetadata.humanReviewManifestSha256;
+          delete sourceMetadata.humanApprovedWrittenSyllableBreakdown;
           return { ...row, source_metadata: sourceMetadata };
         })
       : result.rows;

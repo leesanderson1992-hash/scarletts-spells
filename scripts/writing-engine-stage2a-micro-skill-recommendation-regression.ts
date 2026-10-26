@@ -314,6 +314,7 @@ function loadCanonicalMappingHelper() {
       supabase: unknown;
       misspellingNormalized: string | null | undefined;
       correctSpellingNormalized: string | null | undefined;
+      deassignedMicroSkillKeys?: ReadonlySet<string>;
     }) => Promise<Array<{
       mappingId: string;
       misspellingNormalized: string;

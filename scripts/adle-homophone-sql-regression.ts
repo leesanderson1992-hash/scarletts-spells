@@ -133,7 +133,7 @@ async function main() {
       const altered = structuredClone(progress); altered.coverAttempts[lesson.words[0].word] = "altered";
       await assert.rejects(db.query("update adle_specialist_stage_checkpoints set checkpoint_payload=$2 where daily_assignment_id=$1", [assignmentId, { state: altered }]));
       const itemRows = (await db.query("select * from assignment_items where daily_assignment_id=$1 order by position", [assignmentId])).rows;
-      const items = itemRows.map((item: Record<string, any>) => ({ id: item.id, sourceEntityId: item.source_entity_id, position: item.position,
+      const items = itemRows.map((item: { id: string; source_entity_id: string; position: number; metadata: { sectionKey: string; canonicalWordId: string }; template_key: string; target_word: string; prompt_data: unknown }) => ({ id: item.id, sourceEntityId: item.source_entity_id, position: item.position,
         sectionKey: item.metadata.sectionKey, templateKey: item.template_key, canonicalWordId: item.metadata.canonicalWordId,
         targetWord: item.target_word, promptData: item.prompt_data, itemMetadata: item.metadata, microSkillKey: lesson.microSkillKey }));
       const completeProgress = { ...progress, completed: true };
