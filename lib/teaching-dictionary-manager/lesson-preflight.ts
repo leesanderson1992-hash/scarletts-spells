@@ -39,7 +39,7 @@ import { dictationVariants } from "./authoring";
 import { compilerCoverage } from "./compiler-coverage";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { loadApprovedContextualContentForSkills } from "@/lib/adle/homophone/published-contextual-content-loader";
-import { approvedFactsSupersedeDraft } from "./draft-freshness";
+import { approvedFactsSupersedeDraft, unpublishedDraftWordIds } from "./draft-freshness";
 
 const ZERO_CHILD = "00000000-0000-4000-8000-000000000001";
 type Row = Record<string, any>; // Database release tables are ahead of generated Supabase types.
@@ -487,20 +487,29 @@ async function loadLessonReadinessUnmeasured(
   }
   const draftBlocker = (id: string) => invalidDraftIds.has(id)
     ? "Source draft payload is malformed" : "Source draft unavailable";
-  const scopedMorphology = scope.wordId && contentRows.some((row) => row.canonical_word_id === scope.wordId)
-    ? await db.from("canonical_teaching_dictionary_word_morphology")
-      .select("created_at").eq("canonical_word_id", scope.wordId).eq("row_status", "active")
-      .order("created_at", { ascending: false }).limit(1).maybeSingle()
-    : null;
-  if (scopedMorphology?.error) throw new Error("ADLE_LESSON_CURRENT_MORPHOLOGY_READ_FAILED");
-  const sourceDraftIsStale = (draftId: string, wordId: string) => scope.wordId === wordId &&
-    approvedFactsSupersedeDraft(draftPublishedAtById.get(draftId) ?? draftCreatedAtById.get(draftId),
-      [scopedMorphology?.data?.created_at]);
-  const staleDraftBlocker = "Source draft predates approved dictionary morphology; save and review a new draft from current facts.";
   const published = new Set(
     publicationRows.map((row) => row.content_version_id),
   );
   const rolledBack = new Set(rollbackRows.map((row) => row.content_version_id));
+  // Evaluate freshness for the same words in a single-word editor and a
+  // route-wide admin view. Scope this narrow read to unpublished candidates;
+  // do not scan the whole morphology table or issue one query per word.
+  const staleWordIds = unpublishedDraftWordIds(contentRows, published, rolledBack, scope.wordId);
+  const morphologyDates = new Map<string, string>();
+  const morphologyBatches = Array.from({ length: Math.ceil(staleWordIds.length / 100) },
+    (_, index) => staleWordIds.slice(index * 100, (index + 1) * 100));
+  const morphologyRows = (await Promise.all(morphologyBatches.map((ids) => selectRows(
+    db, "canonical_teaching_dictionary_word_morphology", "canonical_word_id,created_at",
+    (query) => query.in("canonical_word_id", ids).eq("row_status", "active"),
+  )))).flat();
+  for (const row of morphologyRows) {
+    const previous = morphologyDates.get(row.canonical_word_id);
+    if (!previous || row.created_at > previous) morphologyDates.set(row.canonical_word_id, row.created_at);
+  }
+  const sourceDraftIsStale = (draftId: string, wordId: string) =>
+    approvedFactsSupersedeDraft(draftPublishedAtById.get(draftId) ?? draftCreatedAtById.get(draftId),
+      [morphologyDates.get(wordId)]);
+  const staleDraftBlocker = "Source draft predates approved dictionary morphology; save and review a new draft from current facts.";
   const latestContent = new Map<string, Row>();
   for (const row of contentRows
     .filter((row) => !rolledBack.has(row.id))

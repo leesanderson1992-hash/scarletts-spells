@@ -9,3 +9,16 @@ export function approvedFactsSupersedeDraft(
     return Number.isFinite(factTime) && factTime > draftTime;
   });
 }
+
+/** Identify only unpublished content whose source draft may need a freshness check. */
+export function unpublishedDraftWordIds(
+  rows: readonly Record<string, unknown>[],
+  published: ReadonlySet<string>,
+  rolledBack: ReadonlySet<string>,
+  scopedWordId?: string,
+): string[] {
+  return [...new Set(rows.filter((row) =>
+    !published.has(String(row.id)) && !rolledBack.has(String(row.id)) &&
+    (!scopedWordId || row.canonical_word_id === scopedWordId),
+  ).map((row) => String(row.canonical_word_id)))];
+}
