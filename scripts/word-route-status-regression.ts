@@ -15,7 +15,7 @@ const where = wordRouteStatus({ wordId: "where", dictionaryApproved: true,
 assert.equal(where.administrativeCandidate, true);
 assert.equal(where.childEligibility, "not_evaluated");
 assert.equal(where.technicalFacts, "complete");
-assert.equal(where.contractVersion, "adle_route_content_contract_v1");
+assert.equal(where.contractVersion, "adle_route_content_contract_v2");
 
 const everywhere = wordRouteStatus({ wordId: "everywhere", dictionaryApproved: true,
   approvedSkillKeys: new Set(), lesson });
@@ -63,7 +63,6 @@ const staleContract = wordRouteStatus({ wordId: "where", dictionaryApproved: tru
   approvedSkillKeys: new Set([skill]), lesson: { ...lesson, routeVersion: "v1" } });
 assert.equal(staleContract.contractVersion, null);
 assert(staleContract.blockerDetails.some(blocker => blocker.code === "ROUTE_CONTRACT_UNAVAILABLE"));
-
 const restricted = wordRouteStatus({ wordId: "where", dictionaryApproved: true,
   approvedSkillKeys: new Set([skill]), lesson: { ...lesson,
     activationBlockers: ["Active route has a limited release scope; global availability requires all_eligible scope"] } });
@@ -79,4 +78,16 @@ assert.equal(familyBase.administrativeCandidate, false);
 assert.equal(familyBase.contentRole, "reviewed family base (teaching support)");
 assert(familyBase.blockerDetails.some(blocker => blocker.code === "SUPPORT_FORM_NOT_TARGET"));
 assert(!familyBase.blockerDetails.some(blocker => blocker.code === "RELATIONSHIP_NOT_APPROVED"));
+
+const weakSkill = "D4_SCHWA_FINAL_A_FINAL";
+const weakPublished = wordRouteStatus({ wordId: "pizza", dictionaryApproved: true,
+  approvedSkillKeys: new Set([weakSkill]), lesson: { ...lesson, routeId: "weak_vowel_word_lab",
+    routeVersion: "v1", microSkillKey: weakSkill,
+    words: [{ id: "pizza", word: "pizza", role: "published route word", requiredForRelease: false,
+      editorialApproved: true, ready: true, nativeSelectionCheck: true,
+      blockers: [], editHref: "", contentPreview: {} }] } });
+assert.equal(weakPublished.editorialApproved, true);
+assert.equal(weakPublished.technicalFacts, "not_evaluated");
+assert.equal(weakPublished.contentPreflightReady, false);
+assert.equal(weakPublished.administrativeCandidate, true);
 console.log("word route status regression passed");

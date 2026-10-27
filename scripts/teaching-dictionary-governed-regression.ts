@@ -5,8 +5,8 @@ import { bindNativePackageFingerprints } from "../lib/teaching-dictionary-manage
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { buildGovernedPackage } from "../lib/teaching-dictionary-manager/governed-package";
-import { collectWordFacts } from "../lib/teaching-dictionary-manager/lesson-preflight";
-import { preflightGovernedRelease } from "../lib/teaching-dictionary-manager/governed-preflight";
+import { collectWordFacts, profileCompilerReady, profileWordErrorsBlockRoute } from "../lib/teaching-dictionary-manager/lesson-preflight";
+import { preflightGovernedRelease, requiredBaseWordPreflightTargets } from "../lib/teaching-dictionary-manager/governed-preflight";
 import { applyIngDictationVariants } from "../lib/adle/ing/reviewed-dictation";
 import { ING_MICRO_SKILLS, ingWordBlockers } from "../lib/adle/ing/contracts";
 import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
@@ -19,9 +19,46 @@ import { buildComparativeReleasePackage } from "../lib/adle/inflection/release";
 import type { AdjectiveFamilyV1 } from "../lib/adle/inflection/contracts";
 import { emptyMetadata, emptyMorphology, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
+import approvedContextual from "../data/adle/homophone/convergence-v1/approved-lesson-content.json";
+import { buildApprovedContextualContent } from "../lib/adle/homophone/approved-contextual-content";
+import { loadApprovedContextualContentForSkills } from "../lib/adle/homophone/published-contextual-content-loader";
+import { buildWeakVowelReleasePackage } from "../lib/adle/weak-vowel/release";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function main() {
+const v1BaseMembers = [
+  { canonicalWordId: "base-only", memberRole: "base", assignmentEligible: true,
+    lessonContentEligible: true, authenticSelectionEligible: true },
+  { canonicalWordId: "target", memberRole: "authentic_target", assignmentEligible: true,
+    lessonContentEligible: true, authenticSelectionEligible: true },
+  { canonicalWordId: "transfer-only", memberRole: "transfer", assignmentEligible: true,
+    lessonContentEligible: true, authenticSelectionEligible: true },
+];
+assert.deepEqual(requiredBaseWordPreflightTargets(1, v1BaseMembers), ["target"],
+  "historical reference and transfer words do not veto an authentic-target release");
+assert.deepEqual(requiredBaseWordPreflightTargets(2, v1BaseMembers),
+  ["base-only", "target", "transfer-only"], "v2 applicable members remain fully covered");
+assert.equal(profileWordErrorsBlockRoute({ productionEnabled: true, validatedMemberCount: 4,
+  minimumLessonWords: 4, unreadyExistingMembers: 1, unreadyReviewedCandidates: 0 }), false,
+"one incomplete member does not turn a compiling active suffix profile off");
+assert.equal(profileWordErrorsBlockRoute({ productionEnabled: true, validatedMemberCount: 3,
+  minimumLessonWords: 4, unreadyExistingMembers: 2, unreadyReviewedCandidates: 0 }), true);
+assert.equal(profileWordErrorsBlockRoute({ productionEnabled: true, validatedMemberCount: 4,
+  minimumLessonWords: 4, unreadyExistingMembers: 0, unreadyReviewedCandidates: 1 }), true,
+"an invalid proposed reviewed addition still blocks its new release");
+const validatedSuffixMembers = new Set(["careful", "careless", "hopeful", "hopeless"]);
+assert.equal(profileCompilerReady({ coverageComplete: true, productionEnabled: true,
+  validatedMemberIds: validatedSuffixMembers,
+  proposedMemberIds: [...validatedSuffixMembers, "helpful"], reviewedCandidateIds: [] }), true,
+"an active profile compiles from its four approved valid words while an existing unreviewed word stays blocked");
+assert.equal(profileCompilerReady({ coverageComplete: true, productionEnabled: true,
+  validatedMemberIds: validatedSuffixMembers,
+  proposedMemberIds: [...validatedSuffixMembers, "helpful"], reviewedCandidateIds: ["helpful"] }), false,
+"a newly reviewed but invalid candidate must block its proposed release");
+assert.equal(profileCompilerReady({ coverageComplete: true, productionEnabled: false,
+  validatedMemberIds: validatedSuffixMembers,
+  proposedMemberIds: [...validatedSuffixMembers, "helpful"], reviewedCandidateIds: [] }), false,
+"an inactive profile cannot be released with incomplete proposed membership");
 const found=new Map<string,unknown>();collectWordFacts({structures:[{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"}]}]},found);
 const scoped=new Map<string,unknown>();collectWordFacts({families:[{members:[{canonicalWordId:"applicable",applicableMicroSkillKeys:["skill"]},{canonicalWordId:"other",applicableMicroSkillKeys:["different"]}]}]},scoped,0,"skill");assert(scoped.has("applicable"));assert(!scoped.has("other"));
 assert.deepEqual(compoundDictionaryWordIds([{wholeCanonicalWordId:"whole",components:[{canonicalWordId:"component"},{canonicalWordId:"component"}]}]),["whole","component"],"component identities must remain in the immutable dictionary closure");
@@ -48,6 +85,64 @@ const ingAuthority=ing.package.authorities.find(a=>a.authorityType==="ing_word_m
 const varied=applyIngDictationVariants(ingAuthority.semanticProjection.words,ingAuthority.semanticProjection.dictationSets,"stable-date",ingAuthority.semanticFingerprint);
 assert.deepEqual(ingWordBlockers(varied.find(w=>w.canonicalWordId===word.canonicalWordId)!),[]);
 const shared={db,revision:{id:randomUUID()},release:{id:randomUUID(),release_key:"test",release_manifest_sha256:"a".repeat(64),dependency_fingerprint:"b".repeat(64)},environment:"staging" as const};
+const contextualLesson=approvedContextual.lessons[0];
+const contextualIds=new Map<string,string>();
+const contextualContent=buildApprovedContextualContent(contextualLesson.microSkillKey,contextualLesson.sets.map(set=>({
+  setId:`${set.setKey}@1`,setKey:set.setKey,microSkillKey:contextualLesson.microSkillKey,
+  revision:1,semanticFingerprint:"a".repeat(64),reviewStatus:"approved" as const,
+  relationKind:set.relationKind as "homophone" | "near_homophone" | "confusable" | "morphological_contrast" | "contraction_real_word",
+  members:set.members.map(member=>({canonicalWordId:contextualIds.get(member.word)??(() => {const id=randomUUID();contextualIds.set(member.word,id);return id;})(),...member})),
+})));
+const contextualProjection={schemaVersion:1,microSkillKey:contextualLesson.microSkillKey,content:contextualContent};
+const contextualTables:Record<string,Array<Record<string,unknown>>>={
+  homophone_contrast_sets:contextualContent.sets.map(set=>({set_key:set.setKey,revision:set.revision,
+    micro_skill_key:contextualContent.microSkillKey,relation_kind:set.relationKind,review_status:"approved",
+    semantic_fingerprint:set.semanticFingerprint})),
+  homophone_contrast_set_members:contextualContent.sets.flatMap(set=>set.members.map((member,index)=>({
+    set_key:set.setKey,revision:set.revision,member_ordinal:index+1,canonical_word_id:member.canonicalWordId,
+    intended_sense:member.intendedSense,grammatical_role:member.grammaticalRole,target_sentence:member.teachingSentence}))),
+  canonical_teaching_dictionary_words:contextualContent.sets.flatMap(set=>set.members.map(member=>({
+    id:member.canonicalWordId,normalised_word:member.word,row_status:"active",
+    review_status:"approved_for_first_exposure",dialect_code:"en-GB"}))),
+};
+const contextualReads:string[]=[];
+const contextualDb={from:(table:string)=>{const filters:Array<(row:Record<string,unknown>)=>boolean>=[];let window:[number,number]=[0,499];const query={
+  select:()=>query,in:(column:string,values:unknown[])=>{filters.push(row=>values.includes(row[column]));return query;},
+  eq:(column:string,value:unknown)=>{filters.push(row=>row[column]===value);return query;},order:()=>query,
+  range:(first:number,last:number)=>{window=[first,last];return query;},
+  then:(resolve:(value:{data:Record<string,unknown>[];error:null})=>unknown)=>{contextualReads.push(table);
+    return Promise.resolve({data:(contextualTables[table]??[]).filter(row=>filters.every(filter=>filter(row)))
+      .slice(window[0],window[1]+1),error:null}).then(resolve);},
+};return query;}} as unknown as SupabaseClient;
+const currentContextual=await loadApprovedContextualContentForSkills(contextualDb,[contextualLesson.microSkillKey]);
+assert.equal(fingerprintSnapshotValue(currentContextual.get(contextualLesson.microSkillKey)?.content),fingerprintSnapshotValue(contextualContent));
+assert.deepEqual(contextualReads,["homophone_contrast_sets","homophone_contrast_set_members","canonical_teaching_dictionary_words"]);
+contextualTables.homophone_contrast_sets=[];
+assert.match((await loadApprovedContextualContentForSkills(contextualDb,[contextualLesson.microSkillKey]))
+  .get(contextualLesson.microSkillKey)?.blocker??"",/sets_missing/);
+const contextualAuthority={id:randomUUID(),authority_type:"homophone_contextual_content",semantic_projection:contextualProjection,
+  semantic_fingerprint:fingerprintSnapshotValue(contextualProjection)};
+const contextualCheck=await preflightGovernedRelease({...shared,routeId:"homophone_contextual_choice",skill:contextualLesson.microSkillKey,authorities:[contextualAuthority]});
+assert(contextualCheck.ready,contextualCheck.blockers.join(","));
+assert.equal(Object.keys(contextualCheck.witnesses).length,contextualIds.size);
+assert.equal((await preflightGovernedRelease({...shared,routeId:"homophone_contextual_choice",skill:contextualLesson.microSkillKey,
+  authorities:[contextualAuthority],currentContextualContent:null,currentContextualBlocker:"review withdrawn"})).blockers[0],"review withdrawn");
+const changedCurrent=structuredClone(contextualContent);
+changedCurrent.teachingExplanation="A different reviewed explanation.";
+assert.equal((await preflightGovernedRelease({...shared,routeId:"homophone_contextual_choice",skill:contextualLesson.microSkillKey,
+  authorities:[contextualAuthority],currentContextualContent:changedCurrent})).ready,false);
+const contextualChanged=structuredClone(contextualAuthority);
+contextualChanged.semantic_projection.content.sets[0].members[0].teachingSentence="This unreviewed sentence changed.";
+assert.equal((await preflightGovernedRelease({...shared,routeId:"homophone_contextual_choice",skill:contextualLesson.microSkillKey,authorities:[contextualChanged]})).ready,false);
+const weakRelease=buildWeakVowelReleasePackage({releaseKey:"test:weak",approvalRefs:["test"]});
+const weakAuthority=weakRelease.authorities[0];
+const weakInput={...shared,routeId:"weak_vowel_word_lab",skill:weakAuthority.semanticProjection.microSkillKey,
+  authorities:[{id:randomUUID(),authority_type:weakAuthority.authorityType,semantic_projection:weakAuthority.semanticProjection,
+    semantic_fingerprint:weakAuthority.semanticFingerprint}]};
+assert((await preflightGovernedRelease(weakInput)).ready,"the immutable weak-vowel teaching template must validate");
+const weakChanged={...weakInput,authorities:structuredClone(weakInput.authorities)};
+weakChanged.authorities[0].semantic_projection.teachingTemplateSha256="0".repeat(64);
+assert.equal((await preflightGovernedRelease(weakChanged)).ready,false);
 const nativeAuthorities=(pkg:NonNullable<typeof ing.package>,skill:string)=>pkg.authorities.filter(a=>a.semanticProjection.microSkillKey===skill).map(a=>({id:a.authorityKey,authority_type:a.authorityType,semantic_projection:a.semanticProjection,semantic_fingerprint:a.semanticFingerprint}));
 const preflight=await preflightGovernedRelease({...shared,routeId:candidate.route.routeId,skill:word.microSkillKey,authorities:nativeAuthorities(ing.package,word.microSkillKey)});
 assert(preflight.ready,preflight.blockers.join(","));assert.equal(Object.keys(preflight.witnesses).length,7);

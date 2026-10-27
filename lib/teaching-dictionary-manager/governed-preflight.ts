@@ -47,6 +47,9 @@ import {
 import { loadBaseWordFamilyLessonReadModel } from "@/lib/adle/loaders/base-word-family-lesson-read-model";
 import { compileBaseWordFamilyLessonSnapshot } from "@/lib/adle/morphology/base-word-family-payload";
 import { compilerCoverage } from "./compiler-coverage";
+import { compileConvergenceAssignment, validateFrozenConvergenceAssignment } from "@/lib/adle/homophone/convergence-assignment";
+import { validateContextualChoiceContent, type ContextualChoiceContent } from "@/lib/adle/homophone/contextual-choice-contract";
+import { weakVowelTeaching, type WeakVowelMicroSkill } from "@/lib/adle/weak-vowel/lesson";
 
 export const PREFLIGHT_CHILD = "00000000-0000-4000-8000-000000000001";
 type BasePreflightMember = {
@@ -57,8 +60,8 @@ type BasePreflightMember = {
   authenticSelectionEligible: boolean;
 };
 
-/** Historical v1 base and transfer members provide teaching context, while
- * only authentic targets can independently trigger those lessons. */
+/** Historical v1 base/transfer roles supply teaching context but are not
+ * promises that the word can independently trigger a lesson. */
 export function requiredBaseWordPreflightTargets(
   schemaVersion: 1 | 2,
   members: readonly BasePreflightMember[],
@@ -109,6 +112,8 @@ async function preflightGovernedReleaseCore(input: {
     source_bindings?: any[];
   }[];
   environment: "local" | "staging" | "production" | null;
+  currentContextualContent?: ContextualChoiceContent | null;
+  currentContextualBlocker?: string;
 }): Promise<GovernedPreflight> {
   const { db, routeId, skill, authorities } = input;
   const projection = (kind: string) =>
@@ -120,6 +125,56 @@ async function preflightGovernedReleaseCore(input: {
     witnesses: {},
   });
   try {
+    if (routeId === "homophone_contextual_choice") {
+      const authority = authorities.filter((item) => item.authority_type === "homophone_contextual_content");
+      if (authority.length !== 1) return bad("Reviewed contextual homophone authority is missing or ambiguous");
+      const projection = authority[0].semantic_projection as {
+        schemaVersion?: number; microSkillKey?: string; content?: ContextualChoiceContent;
+      };
+      if (projection.schemaVersion !== 1 || projection.microSkillKey !== skill ||
+        !projection.content || projection.content.microSkillKey !== skill ||
+        fingerprintSnapshotValue(projection) !== authority[0].semantic_fingerprint)
+        return bad("Reviewed contextual homophone release content has changed");
+      if (input.currentContextualContent === null)
+        return bad(input.currentContextualBlocker ?? "Current approved contextual contrast set is unavailable");
+      if (input.currentContextualContent &&
+        fingerprintSnapshotValue(input.currentContextualContent) !== fingerprintSnapshotValue(projection.content))
+        return bad("Current approved contextual contrast set differs from the release");
+      validateContextualChoiceContent(projection.content);
+      const witnesses: Record<string, string[]> = {};
+      let preview: unknown = null;
+      for (const set of projection.content.sets) {
+        const selected = compileConvergenceAssignment({
+          content: projection.content,
+          queuedItems: [{ canonicalWordId: set.memberWordIds[0], intakeOn: "2026-01-01", status: "pending" }],
+          masteredWordIds: new Set(), rotationIndex: 0,
+        });
+        if (!selected || !validateFrozenConvergenceAssignment(selected) ||
+          !selected.selectedSetKeys.includes(set.setKey))
+          return bad(`Reviewed contextual set ${set.setKey} cannot compile`);
+        const ids = selected.contextCheck.selectedSets.flatMap((item) => item.members.map((member) => member.canonicalWordId));
+        for (const id of ids) witnesses[id] = ids;
+        preview ??= selected;
+      }
+      return { ready: true, blockers: [], preview, witnesses };
+    }
+    if (routeId === "weak_vowel_word_lab") {
+      const authority = authorities.filter((item) => item.authority_type === "weak_vowel_lesson_content");
+      if (authority.length !== 1) return bad("Reviewed weak-vowel teaching authority is missing or ambiguous");
+      const projection = authority[0].semantic_projection as {
+        schemaVersion?: number; microSkillKey?: string; teachingTemplate?: unknown; teachingTemplateSha256?: string;
+      };
+      const expected = weakVowelTeaching(skill as WeakVowelMicroSkill, []);
+      const expectedHash = fingerprintSnapshotValue(expected);
+      if (projection.schemaVersion !== 1 || projection.microSkillKey !== skill ||
+        projection.teachingTemplateSha256 !== expectedHash ||
+        fingerprintSnapshotValue(projection.teachingTemplate) !== expectedHash ||
+        fingerprintSnapshotValue(projection) !== authority[0].semantic_fingerprint)
+        return bad("Reviewed weak-vowel teaching template has changed");
+      // Word publications and family evidence are checked for the child's
+      // selected words by the native weak-vowel readiness loader.
+      return { ready: true, blockers: [], preview: null, witnesses: {} };
+    }
     if (routeId === "ing_endings_word_lab") {
       const words = projection("ing_word_members")?.words as
         IngDictionaryWordV1[] | undefined;
@@ -492,6 +547,11 @@ async function preflightGovernedReleaseCore(input: {
           preview ??= payload;
           if (witnesses[target.canonicalWordId]) break;
         }
+      // A v1 family can retain base and transfer members that are not
+      // authentic targets. They remain reviewed teaching material, but a
+      // singleton base or an unselected transfer must not veto an otherwise
+      // compiling released route. V2 permits every applicable member to be
+      // an authentic target, so it still requires full member coverage.
       const requiredTargets = requiredBaseWordPreflightTargets(authority.family.schemaVersion, members);
       const ready = requiredTargets.length >= 2 &&
         requiredTargets.every((id) => witnesses[id]);

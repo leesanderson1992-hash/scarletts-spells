@@ -13,7 +13,7 @@ import {
 
 /** A read-only description of the facts the registered route actually asks for.
  * The native compiler and release authority remain the admission gate. */
-export const ROUTE_CONTENT_CONTRACT_VERSION = "adle_route_content_contract_v1" as const;
+export const ROUTE_CONTENT_CONTRACT_VERSION = "adle_route_content_contract_v2" as const;
 
 export type RouteContentContract = {
   contractVersion: typeof ROUTE_CONTENT_CONTRACT_VERSION;
@@ -29,6 +29,12 @@ export type RouteContentContract = {
   requiresAuthenticSelectableItem: boolean;
   wordCounts: CurriculumRouteDefinition["wordCounts"];
   coverageRequirements: CurriculumRouteDefinition["coverageRequirements"];
+  /** The admin gate must reflect the validation the route actually owns.
+   * A valid release template never substitutes for a selected child lesson. */
+  readiness: {
+    releasePreflight: "profile_compiler" | "governed_compiler" | "contextual_set_compiler" | "teaching_template" | "fallback_policy";
+    selectedWordValidation: "profile_member" | "released_member" | "published_word_and_family" | "contextual_set_and_queue" | "generic_queue";
+  };
   activities: Array<{
     position: number;
     kind: CurriculumRouteDefinition["requiredActivities"][number];
@@ -43,6 +49,28 @@ export type RouteContentContract = {
     compiledOnlyFields: NonNullable<ReturnType<typeof getActivityRequirement>>["compiledOnlyFields"];
   }>;
 };
+
+function readinessForRoute(routeId: string): RouteContentContract["readiness"] {
+  switch (routeId) {
+    case "generic_composer":
+      return { releasePreflight: "fallback_policy", selectedWordValidation: "generic_queue" };
+    case "dynamic_prefix_word_lab":
+    case "dynamic_affix_word_lab":
+      return { releasePreflight: "profile_compiler", selectedWordValidation: "profile_member" };
+    case "weak_vowel_word_lab":
+      return { releasePreflight: "teaching_template", selectedWordValidation: "published_word_and_family" };
+    case "homophone_contextual_choice":
+      return { releasePreflight: "contextual_set_compiler", selectedWordValidation: "contextual_set_and_queue" };
+    case "ing_endings_word_lab":
+    case "comparative_superlative_word_lab":
+    case "homophone_word_lab":
+    case "compound_word_lab":
+    case "base_word_lab":
+      return { releasePreflight: "governed_compiler", selectedWordValidation: "released_member" };
+    default:
+      throw new Error(`ROUTE_READINESS_CONTRACT_MISSING:${routeId}`);
+  }
+}
 
 export function routeContentContractFor(
   routeId: string,
@@ -68,6 +96,7 @@ export function routeContentContractFor(
     requiresAuthenticSelectableItem: route.requiresAuthenticSelectableItem,
     wordCounts: route.wordCounts,
     coverageRequirements: route.coverageRequirements,
+    readiness: readinessForRoute(route.routeId),
     activities: variants.map((variant, position) => {
       const definition = getActivityRequirement(variant.kind);
       if (!definition) throw new Error(`ACTIVITY_REQUIREMENT_MISSING:${variant.kind}`);

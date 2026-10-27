@@ -38,6 +38,7 @@ import { preflightGovernedRelease } from "./governed-preflight";
 import { dictationVariants } from "./authoring";
 import { compilerCoverage } from "./compiler-coverage";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
+import { loadApprovedContextualContentForSkills } from "@/lib/adle/homophone/published-contextual-content-loader";
 
 const ZERO_CHILD = "00000000-0000-4000-8000-000000000001";
 type Row = Record<string, any>; // Database release tables are ahead of generated Supabase types.
@@ -53,6 +54,9 @@ type WordEntry = {
   /** Native draft validation before editorial sign-off is added. Absence
    * means this loader has not isolated validation from other gates. */
   validationBlockers?: string[];
+  /** A published weak-vowel word is checked against its live dictionary,
+   * family and assignment when the native selector chooses it. */
+  nativeSelectionCheck?: boolean;
   editHref: string;
   contentPreview: unknown;
 };
@@ -175,26 +179,31 @@ export function baseWordEntryLacksCompilerWitness(input: {
     !input.witnesses[input.canonicalWordId];
 }
 
-/** Existing enabled suffix profiles can use their validated subset. A new
- * reviewed addition must still pass before that proposed release is ready. */
-export function suffixProfileReadiness(input: {
+/** An already enabled profile can teach from its compiler-valid subset.
+ * Proposed reviewed additions still need complete validation before release. */
+export function profileWordErrorsBlockRoute(input: {
   productionEnabled: boolean;
-  coverageComplete: boolean;
-  validatedMemberIds: ReadonlySet<string>;
-  existingMemberIds: readonly string[];
-  reviewedCandidateIds: readonly string[];
+  validatedMemberCount: number;
   minimumLessonWords: number;
-}): { compilerReady: boolean; wordErrorsBlockRoute: boolean } {
-  const validCount = input.validatedMemberIds.size;
-  const invalidExisting = input.existingMemberIds.some((id) => !input.validatedMemberIds.has(id));
-  const invalidCandidate = input.reviewedCandidateIds.some((id) => !input.validatedMemberIds.has(id));
-  const enough = validCount >= input.minimumLessonWords;
-  return {
-    compilerReady: input.coverageComplete && enough && !invalidCandidate &&
-      (input.productionEnabled || !invalidExisting),
-    wordErrorsBlockRoute: !enough || invalidCandidate ||
-      (!input.productionEnabled && invalidExisting),
-  };
+  unreadyExistingMembers: number;
+  unreadyReviewedCandidates: number;
+}): boolean {
+  return input.unreadyReviewedCandidates > 0 ||
+    input.validatedMemberCount < input.minimumLessonWords ||
+    (!input.productionEnabled && input.unreadyExistingMembers > 0);
+}
+
+export function profileCompilerReady(input: {
+  coverageComplete: boolean;
+  productionEnabled: boolean;
+  validatedMemberIds: ReadonlySet<string>;
+  proposedMemberIds: readonly string[];
+  reviewedCandidateIds: readonly string[];
+}): boolean {
+  return input.coverageComplete &&
+    input.reviewedCandidateIds.every((id) => input.validatedMemberIds.has(id)) &&
+    (input.productionEnabled ||
+      input.proposedMemberIds.every((id) => input.validatedMemberIds.has(id)));
 }
 
 export async function loadLessonReadiness(
@@ -215,6 +224,7 @@ async function loadLessonReadinessUnmeasured(
     contentRows,
     activationHeads,
     releaseRows,
+    weakPublicationRows,
   ] = await Promise.all([
     scope.routeId && scope.routeId !== "dynamic_prefix_word_lab" ? Promise.resolve([]) : selectRows(
       db,
@@ -248,7 +258,18 @@ async function loadLessonReadinessUnmeasured(
       "id,manifest_payload,release_key,release_manifest_sha256,dependency_fingerprint,route_id,route_version,published_by,published_at",
       (q) => scoped(q, "route_id", scope.routeId),
     ),
+    scope.routeId && scope.routeId !== "weak_vowel_word_lab" ? Promise.resolve([]) : selectRows(
+      db,
+      "adle_weak_vowel_content_publications",
+      "content_version_id,canonical_word_id,micro_skill_key,published_at",
+      (q) => scoped(q, "micro_skill_key", scope.microSkillKey).order("content_version_id"),
+    ),
   ]);
+  const weakPublishedVersionIds = new Set(weakPublicationRows.map((row) => String(row.content_version_id)));
+  // Weak-vowel publications are their own reviewed authority. Their source
+  // drafts must not be reclassified as pending edits on every admin read.
+  contentRows.splice(0, contentRows.length, ...contentRows.filter((row) =>
+    !weakPublishedVersionIds.has(String(row.id))));
   const contentIds = [...new Set(contentRows.map((row) => String(row.id)))];
   const draftIds = [...new Set(contentRows.map((row) => String(row.draft_id)))];
   const selectForIds = async (table: string, columns: string, key: string, ids: string[]) => {
@@ -313,6 +334,8 @@ async function loadLessonReadinessUnmeasured(
         // A reviewed relationship with no route content is itself a readiness
         // gap, so the word workspace must still receive that route's report.
         if (scope.approvedSkillKeys?.includes(skill)) return true;
+        if (route.routeId === "weak_vowel_word_lab" && weakPublicationRows.some((row) =>
+          row.canonical_word_id === scope.wordId && row.micro_skill_key === skill)) return true;
         if (
           contentRows.some(
             (row) =>
@@ -371,6 +394,9 @@ async function loadLessonReadinessUnmeasured(
   const relevant = new Set(ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap(route =>
     (route.compatibilityScope.kind === "generic_composer_fallback" ? ["generic_composer_fallback"] : route.supportedMicroSkillKeys)
       .filter(skill => matchesScope(route, skill)).map(skill => `${route.routeId}:${skill}`)));
+  const contextualSkills = ADLE_CURRICULUM_ROUTE_REGISTRY.find(route => route.routeId === "homophone_contextual_choice")
+    ?.supportedMicroSkillKeys.filter(skill => relevant.has(`homophone_contextual_choice:${skill}`)) ?? [];
+  const currentContextual = await loadApprovedContextualContentForSkills(db, contextualSkills);
   const prefixKeys = prefixRows.filter(row => relevant.has(`dynamic_prefix_word_lab:${row.micro_skill_key}`)).map(row => String(row.micro_skill_key));
   const suffixKeys = suffixRows.filter(row => relevant.has(`dynamic_affix_word_lab:${row.micro_skill_key}`)).map(row => String(row.micro_skill_key));
   // The scope narrows groups, never members within a proposed group.
@@ -378,6 +404,7 @@ async function loadLessonReadinessUnmeasured(
   suffixRows.splice(0, suffixRows.length, ...suffixRows.filter(row => suffixKeys.includes(row.micro_skill_key)));
   contentRows.splice(0, contentRows.length, ...contentRows.filter(row => relevant.has(`${row.route_id}:${row.micro_skill_key}`)));
   const scopedWordIds = new Set<string>(contentRows.map(row => String(row.canonical_word_id)));
+  for (const publication of weakPublicationRows) scopedWordIds.add(String(publication.canonical_word_id));
   for (const row of prefixMembers) if (prefixRows.some(profile => profile.id === row.prefix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
   for (const row of suffixMembers) if (suffixRows.some(profile => profile.id === row.suffix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
   for (const dep of dependencies) {
@@ -397,7 +424,7 @@ async function loadLessonReadinessUnmeasured(
     })))).flat();
   };
   const [wordRows, metadataRows, dictationRows] = await Promise.all([
-    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status", "id"),
+    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status,dialect_code", "id"),
     readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
     readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
   ]);
@@ -475,7 +502,7 @@ async function loadLessonReadinessUnmeasured(
   const reviewedWords = [
     ...new Set(
       [...latestContent.values()]
-        .filter((row) => reviewByContentId.has(row.id))
+        .filter((row) => reviewByContentId.has(row.id) && !weakPublishedVersionIds.has(String(row.id)))
         .map((row) => String(row.canonical_word_id)),
     ),
   ];
@@ -495,7 +522,7 @@ async function loadLessonReadinessUnmeasured(
   const reviews = new Set(
     [...latestContent.values()]
       .filter((row) =>
-        hasCurrentEditorialReview(
+        !weakPublishedVersionIds.has(String(row.id)) && hasCurrentEditorialReview(
           reviewByContentId.get(row.id),
           currentFingerprints.get(String(row.canonical_word_id)),
         ),
@@ -620,16 +647,19 @@ async function loadLessonReadinessUnmeasured(
           (row) =>
             row.route_id === route.routeId &&
             row.micro_skill_key === skill &&
+            route.routeId !== "weak_vowel_word_lab" &&
             reviews.has(row.id) &&
             !published.has(row.id) &&
-            !rolledBack.has(row.id),
+            !rolledBack.has(row.id) &&
+            !weakPublishedVersionIds.has(String(row.id)),
         );
         const unreviewed = [...latestContent.values()].filter(
           (row) =>
             row.route_id === route.routeId &&
             row.micro_skill_key === skill &&
-            !reviews.has(row.id) &&
-            !published.has(row.id),
+            (route.routeId === "weak_vowel_word_lab" || !reviews.has(row.id)) &&
+            !published.has(row.id) &&
+            !weakPublishedVersionIds.has(String(row.id)),
         );
         const currentProfile = prefix
           ? loadedPrefix.profiles.find((row) => row.microSkillKey === skill)
@@ -853,7 +883,8 @@ async function loadLessonReadinessUnmeasured(
             (row) =>
               row.route_id === route.routeId &&
               row.micro_skill_key === skill &&
-              !published.has(row.id),
+              !published.has(row.id) &&
+              !(route.routeId === "weak_vowel_word_lab" && weakPublishedVersionIds.has(String(row.id))),
           )) {
             const dictionary = words.get(content.canonical_word_id);
             const draft = draftById.get(content.draft_id);
@@ -873,7 +904,7 @@ async function loadLessonReadinessUnmeasured(
               id: content.canonical_word_id,
               word: dictionary?.display_word ?? content.canonical_word_id,
               role: "route content candidate",
-              requiredForRelease: reviews.has(content.id),
+              requiredForRelease: route.routeId !== "weak_vowel_word_lab" && reviews.has(content.id),
               reviewedDraftId: reviews.has(content.id)
                 ? content.draft_id
                 : null,
@@ -888,6 +919,36 @@ async function loadLessonReadinessUnmeasured(
                 dictation: dictationByWord.get(content.canonical_word_id),
               },
               editHref: `/admin/teaching-dictionary/${content.canonical_word_id}?draft=${content.draft_id}#td-route-${skill}`,
+            });
+          }
+        }
+        if (route.routeId === "weak_vowel_word_lab") {
+          const latestByWord = new Map<string, Row>();
+          for (const publication of weakPublicationRows.filter((row) => row.micro_skill_key === skill)) {
+            const id = String(publication.canonical_word_id);
+            const current = latestByWord.get(id);
+            if (!current || String(publication.published_at) > String(current.published_at) ||
+              (publication.published_at === current.published_at &&
+                String(publication.content_version_id) > String(current.content_version_id)))
+              latestByWord.set(id, publication);
+          }
+          for (const [id, publication] of latestByWord) {
+            const dictionary = words.get(id);
+            const approved = dictionary?.row_status === "active" &&
+              dictionary?.review_status === "approved_for_first_exposure" &&
+              dictionary?.dialect_code === "en-GB";
+            entries.push({
+              id,
+              word: dictionary?.display_word ?? id,
+              role: "published route word",
+              requiredForRelease: false,
+              editorialApproved: true,
+              ready: approved,
+              blockers: approved ? [] : ["Dictionary word not approved"],
+              nativeSelectionCheck: true,
+              contentPreview: { contentVersionId: publication.content_version_id,
+                publishedAt: publication.published_at },
+              editHref: `/admin/teaching-dictionary/${id}#td-canonical-parts`,
             });
           }
         }
@@ -1024,19 +1085,15 @@ async function loadLessonReadinessUnmeasured(
           blockers.push(
             `Need at least ${route.wordCounts.lesson[0]} lesson words; found ${entries.length}`,
           );
-        if (suffix
-          ? suffixProfileReadiness({
-              productionEnabled: suffix.production_enabled === true,
-              coverageComplete: true,
-              validatedMemberIds: validIds,
-              existingMemberIds: members.map((member) => member.canonical_word_id),
-              reviewedCandidateIds: candidates.map((candidate) => candidate.canonical_word_id),
-              minimumLessonWords: route.wordCounts.lesson[0],
-            }).wordErrorsBlockRoute ||
-            entries.some((entry) => Boolean(entry.reviewedDraftId) && !entry.ready)
-          : entries.some(
-              (entry) => entry.requiredForRelease !== false && !entry.ready,
-            ))
+        if (profile ? profileWordErrorsBlockRoute({
+          productionEnabled: profile.production_enabled === true,
+          validatedMemberCount: validIds.size,
+          minimumLessonWords: route.wordCounts.lesson[0],
+          unreadyExistingMembers: entries.filter((entry) =>
+            entry.requiredForRelease !== false && !entry.ready && !entry.reviewedDraftId).length,
+          unreadyReviewedCandidates: entries.filter((entry) =>
+            entry.requiredForRelease !== false && !entry.ready && Boolean(entry.reviewedDraftId)).length,
+        }) : entries.some((entry) => entry.requiredForRelease !== false && !entry.ready))
           blockers.push("One or more words fail runtime validation");
         if (profile && !targetProfile)
           blockers.push(
@@ -1205,22 +1262,19 @@ async function loadLessonReadinessUnmeasured(
           }
           compilerWitnesses = coverage.witnesses;
           compiledPreview = coverage.previews[0] ?? null;
-          compilerReady = suffix
-            ? suffixProfileReadiness({
-                productionEnabled: suffix.production_enabled === true,
-                coverageComplete: coverage.complete,
-                validatedMemberIds: validIds,
-                existingMemberIds: members.map((member) => member.canonical_word_id),
-                reviewedCandidateIds: candidates.map((candidate) => candidate.canonical_word_id),
-                minimumLessonWords: route.wordCounts.lesson[0],
-              }).compilerReady
-            : coverage.complete && proposedMembers.every((member) =>
-                validIds.has(member.canonical_word_id));
+          // Compiler coverage describes the usable runtime pool. Rejected
+          // existing members stay blocked as word rows; a reviewed proposed
+          // addition still must validate before its release can proceed.
+          compilerReady = profileCompilerReady({
+            coverageComplete: coverage.complete,
+            productionEnabled: profile?.production_enabled === true,
+            validatedMemberIds: validIds,
+            proposedMemberIds: proposedMembers.map((member) => member.canonical_word_id),
+            reviewedCandidateIds: candidates.map((candidate) => candidate.canonical_word_id),
+          });
           if (!compilerReady)
             blockers.push(
-              suffix
-                ? "The valid word pool cannot compile a four-word selection"
-                : "Not every lesson word participates in a compiling four-word selection",
+              `The valid word pool cannot compile a ${route.wordCounts.lesson[0]}-word selection`,
             );
         }
         if (!profile && contentRelease && revision) {
@@ -1301,6 +1355,9 @@ async function loadLessonReadinessUnmeasured(
               typeof preflightGovernedRelease
             >[0]["authorities"],
             environment,
+            currentContextualContent: route.routeId === "homophone_contextual_choice"
+              ? currentContextual.get(skill)?.content ?? null : undefined,
+            currentContextualBlocker: currentContextual.get(skill)?.blocker ?? undefined,
           });
           compilerReady = governed.ready;
           compiledPreview = governed.preview;

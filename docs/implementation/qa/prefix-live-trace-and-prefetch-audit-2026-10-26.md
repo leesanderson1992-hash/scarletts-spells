@@ -70,3 +70,29 @@ confirm that unrelated routes do not appear in Vercel logs. After release,
 compare matched traffic windows and completed-day Supabase usage; first-click
 navigation timing should also be checked for a material regression. The
 scheduled 28 October retest remains the billed-egress comparison gate.
+
+## Production release and immediate check
+
+PR #95 passed `quality`, Vercel Preview, TypeScript, targeted lint and the
+production build. The merged application SHA `fab03a14dadf9a49875be01c25c493039e82f0a5`
+was staged as Production deployment `dpl_CUprDGbbbnrwoHem8q5Phq4QbLY1` and
+then promoted. Authenticated `HEAD /api/internal/context-recovery` on the
+unaliased deployment and public alias both returned that exact SHA, valid
+identity, no identity failures, the expected runtime fingerprint and release
+hold disabled. The existing writing-context policy and five-minute scheduler
+were bound to the new approval and SHA in one transaction; their existing
+request, cost and concurrency limits were preserved. Execution readiness
+returned true. At 20:55 UTC, scheduler job 43 succeeded, its HTTP response was
+200 with the new SHA and release hold false, and both job lanes reported idle.
+The first Production error-log check found no error entries.
+
+After promotion, the completed lesson was opened and its parent dashboard was
+loaded and reloaded. Vercel logs for 20:53–20:55 UTC on the new deployment
+contained seven GETs for `/dashboard` and six for `/learn/week/adle`, with no
+GETs for unrelated admin or navigation destinations. The pre-change 20:24–20:26
+UTC window contained GETs for twelve other destinations, including Teaching
+Dictionary, Canonical Resolver, No Matching Skill, courses, settings and
+insights. These windows include different user actions and any concurrent
+traffic, so this is a request-pattern check, not a like-for-like estimate of
+saved bytes or total request reduction. Completed-day billed egress still needs
+the scheduled 28 October comparison against 25 October.

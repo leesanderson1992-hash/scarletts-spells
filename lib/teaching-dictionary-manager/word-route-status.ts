@@ -44,19 +44,21 @@ export function wordRouteStatus(input: {
   const { wordId, lesson } = input;
   const contract = routeContentContractFor(lesson.routeId, lesson.microSkillKey);
   const contractCurrent = contract?.routeVersion === lesson.routeVersion;
-  const member = lesson.words.find((word) => word.id === wordId && word.requiredForRelease !== false)
+  const member = lesson.words.find((word) => word.id === wordId && word.role === "published route word")
+    ?? lesson.words.find((word) => word.id === wordId && word.requiredForRelease !== false)
     ?? lesson.words.find((word) => word.id === wordId);
   const comparativeBaseSupport = lesson.routeId === "comparative_superlative_word_lab" &&
     (member?.contentPreview as { degree?: string } | null)?.degree === "base";
   const relationshipApproved = input.approvedSkillKeys.has(lesson.microSkillKey);
   const contentPresent = Boolean(member);
-  const contentPreflightReady = member?.ready === true;
-  const technicalFacts = !member ? "not_evaluated"
+  const contentPreflightReady = member?.ready === true && !member.nativeSelectionCheck;
+  const technicalFacts = !member || member.nativeSelectionCheck ? "not_evaluated"
     : member.validationBlockers ? member.validationBlockers.length === 0 ? "complete" : "not_proven"
       : member.ready ? "complete" : "not_proven";
-  const editorialApproved = Boolean(member && member.requiredForRelease !== false
-    && (member.editorialApproved ?? Boolean(member.reviewedDraftId
-      || (lesson.released && member.role !== "route content candidate"))));
+  const editorialApproved = Boolean(member && (member.role === "published route word"
+    ? member.editorialApproved === true
+    : member.requiredForRelease !== false && (member.editorialApproved ?? Boolean(member.reviewedDraftId
+      || (lesson.released && member.role !== "route content candidate")))));
   const blockerDetails: WordRouteBlocker[] = [];
   const add = (code: string, gate: WordRouteBlocker["gate"], message: string) => {
     if (!blockerDetails.some((blocker) => blocker.code === code && blocker.message === message))
@@ -68,7 +70,7 @@ export function wordRouteStatus(input: {
   else if (!relationshipApproved) add("RELATIONSHIP_NOT_APPROVED", "relationship", "Word–micro-skill relationship is not approved");
   if (!contentPresent) add("ROUTE_CONTENT_MISSING", "content", "Word is not in the reviewed route content or member group");
   for (const message of member?.blockers ?? []) add("WORD_PREFLIGHT_BLOCKED", "content", message);
-  if (contentPresent && !contentPreflightReady && !member?.blockers.length)
+  if (contentPresent && !contentPreflightReady && !member?.nativeSelectionCheck && !member?.blockers.length)
     add("WORD_PREFLIGHT_BLOCKED", "content", "Route content preflight is blocked");
   if (contentPresent && !editorialApproved)
     add("CONTENT_REVIEW_PENDING", "editorial", "Route content awaits editorial review");

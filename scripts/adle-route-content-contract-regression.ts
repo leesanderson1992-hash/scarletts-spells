@@ -16,6 +16,8 @@ for (const contract of contracts) {
   assert.equal(contract.activities.filter((activity) => !activity.conditional).length, route.requiredActivities.length);
   assert.deepEqual(contract.wordCounts, route.wordCounts);
   assert.deepEqual(contract.coverageRequirements, route.coverageRequirements);
+  assert(contract.readiness.releasePreflight);
+  assert(contract.readiness.selectedWordValidation);
   for (const activity of contract.activities) {
     assert(activity.requiredFacts.length > 0 || activity.wordScope === "no_word");
     assert.equal(typeof activity.variantKey, "string");
@@ -41,6 +43,10 @@ assert(ity.activities.some((activity) => activity.requiredFacts.some(
   (fact) => fact.factKey === "route_applicability" && fact.owner === "reviewed_word_route_facts")));
 
 const generic = routeContentContractFor("generic_composer", "D4_EXAMPLE")!;
+assert.deepEqual(routeContentContractFor("weak_vowel_word_lab", "D4_SCHWA_FINAL_A_FINAL")?.readiness,
+  { releasePreflight: "teaching_template", selectedWordValidation: "published_word_and_family" });
+assert.deepEqual(routeContentContractFor("homophone_contextual_choice", "D4_HOM_CONFUSABLE_WORDS_ACCEPT_EXCEPT")?.readiness,
+  { releasePreflight: "contextual_set_compiler", selectedWordValidation: "contextual_set_and_queue" });
 assert.equal(generic.activities.filter((activity) => activity.kind === "dictation").length, 1);
 assert(generic.activities.some((activity) => activity.requiredFacts.some(
   (fact) => fact.factKey === "word_micro_skill_support")));
