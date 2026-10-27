@@ -157,6 +157,12 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
     throw new Error("BASE_FAMILY_SCOPED_READ_FAILED");
   const legacy = [...new Map([...(candidateLegacy.data ?? []), ...(selectedLegacy.data ?? [])]
     .map((family) => [family.id, family])).values()] as LegacyFamily[];
+  const selectedManualFamily = manualFamilyId ? legacy.find((family) => family.id === manualFamilyId) : undefined;
+  const manualBaseWord = selectedManualFamily && !baseWords.some((base) => base.id === selectedManualFamily.base_word_id)
+    ? await db.from("canonical_teaching_dictionary_words").select("id,display_word")
+      .eq("id", selectedManualFamily.base_word_id).maybeSingle()
+    : { data: null, error: null };
+  if (manualBaseWord.error) throw new Error("BASE_FAMILY_MANUAL_BASE_READ_FAILED");
   const definitions = [...new Map([...(candidateDefinitions.data ?? []), ...(selectedDefinitions.data ?? [])]
     .map((family) => [family.id, family])).values()] as Definition[];
   const baseDefinitions = candidates.length ? await db.from("teaching_dictionary_definition_versions")
@@ -250,7 +256,7 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
     </div>
     {manualFamilyId && <div className="grid gap-2"><h3 className="font-semibold">Selected ADLE lesson family</h3>
       {legacy.filter((family) => family.id === manualFamilyId).map((family) => <div key={`manual:${family.id}`}><FormFields
-        word={word} baseWordId={family.base_word_id} baseLabel={family.base_family_key} proposedKey={family.base_family_key} legacy={family} baseMeaning={family.base_meaning}
+        word={word} baseWordId={family.base_word_id} baseLabel={baseWords.find((base) => base.id === family.base_word_id)?.displayWord ?? manualBaseWord.data?.display_word ?? family.base_family_key} proposedKey={family.base_family_key} legacy={family} baseMeaning={family.base_meaning}
         morphology={null} meaning={meaning} /></div>)}
       {!legacy.some((family) => family.id === manualFamilyId) && <p role="alert">This ADLE family is unavailable or no longer approved.</p>}
     </div>}
