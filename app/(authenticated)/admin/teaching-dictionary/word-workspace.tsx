@@ -1016,12 +1016,16 @@ export function WordWorkspace(props: {
                 const preflight = preflights.find(
                   (row) => row.microSkillKey === key,
                 );
-                const statuses = wordRouteStatuses.filter((row) => row.microSkillKey === key);
+                const statuses = checksState === "ready"
+                  ? wordRouteStatuses.filter((row) => row.microSkillKey === key)
+                  : [];
                 return (
                   <tr key={key} className="border-b last:border-0">
                     <td data-label="Micro-skill" className="p-2">{name(key)}</td>
                     <td data-label="Route" className="p-2">
-                      {!route?.newAssignmentCapable
+                      {checksState !== "ready"
+                        ? checksState === "loading" ? "Checking route status…" : "Route status unavailable · retry checks below"
+                        : !route?.newAssignmentCapable
                         ? "No Route Available"
                         : preflight?.activationEnabled
                           ? "Active"
