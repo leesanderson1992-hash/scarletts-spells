@@ -60,3 +60,14 @@ export function shortlistBaseFamilyPairs(
   }
   return pairs;
 }
+
+/** Explain families that are reviewed but cannot supply this recipe's six
+ * distinct words with any other released family. */
+export function unpairableBaseFamilyBlockers(
+  counts: readonly EligibleFamilyCount[],
+  pairs: readonly (readonly [string, string])[],
+): string[] {
+  const paired = new Set(pairs.flatMap(([left, right]) => [left, right]));
+  return counts.filter((family) => family.eligibleCount > 1 && !paired.has(family.baseFamilyKey))
+    .map((family) => `${family.baseFamilyKey} has ${family.eligibleCount} eligible words. This lesson needs six distinct words from two families; add approved family members or pair it with a larger family.`);
+}

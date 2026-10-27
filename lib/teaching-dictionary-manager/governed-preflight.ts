@@ -43,6 +43,7 @@ import {
 import {
   indexedEligibleBaseFamilyCounts,
   shortlistBaseFamilyPairs,
+  unpairableBaseFamilyBlockers,
 } from "@/lib/adle/base-word-family-counts";
 import { loadBaseWordFamilyLessonReadModel } from "@/lib/adle/loaders/base-word-family-lesson-read-model";
 import { compileBaseWordFamilyLessonSnapshot } from "@/lib/adle/morphology/base-word-family-payload";
@@ -453,9 +454,8 @@ async function preflightGovernedReleaseCore(input: {
         return bad(
           "Current Base Word family, teaching content and closure do not resolve together",
         );
-      const familyPairs = shortlistBaseFamilyPairs(
-        indexedEligibleBaseFamilyCounts(authority),
-      );
+      const familyCounts = indexedEligibleBaseFamilyCounts(authority);
+      const familyPairs = shortlistBaseFamilyPairs(familyCounts);
       const families = authority.family.families.map((f) => ({
         baseFamilyKey: f.baseFamilyKey,
         microSkillKey: skill,
@@ -555,12 +555,14 @@ async function preflightGovernedReleaseCore(input: {
       const requiredTargets = requiredBaseWordPreflightTargets(authority.family.schemaVersion, members);
       const ready = requiredTargets.length >= 2 &&
         requiredTargets.every((id) => witnesses[id]);
+      const unpairableFamilyBlockers = unpairableBaseFamilyBlockers(familyCounts, familyPairs);
       return {
         ready,
         blockers: ready
           ? []
           : [
               "Every eligible Base Word target needs a complete reviewed family selection",
+              ...unpairableFamilyBlockers,
             ],
         preview,
         witnesses,
