@@ -122,7 +122,8 @@ export function adaptSpecialistMemberships(rows: readonly SpecialistMembershipAd
     sourceAuthorityVersion: row.authorityVersion,
     canonicalWordId: row.canonicalWordId || null,
     microSkillKey: row.microSkillKey || null,
-    relationshipRole: row.memberRole === "contrast" ? "contrast_only" : "demonstrates",
+    relationshipRole: row.memberRole === "contrast" ? "contrast_only"
+      : row.memberRole === "support_base" ? "non_positive" : "demonstrates",
     sourceState: activeState(row.rowStatus),
     exactPairApproval: row.exactPairApproved ? "approved" : "unapproved",
     reviewState: reviewState(row.reviewStatus),

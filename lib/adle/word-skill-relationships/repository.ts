@@ -19,6 +19,7 @@ import {
   type SpecialistMembershipAdapterRow,
 } from "./adapters";
 import { readCanonicalWordSkillRelationships } from "./authority";
+import { loadReleasedInflectionMemberships } from "./released-inflection-memberships";
 import type {
   CanonicalWordIdentityFact,
   CanonicalWordSkillRelationshipReadResult,
@@ -340,7 +341,8 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
     }
   }
   const compoundRows = await loadCompoundRouteContent(client, params.environmentKey);
-  const specialistFacts = adaptSpecialistMemberships([...profileRows, ...baseRows, ...compoundRows]);
+  const inflectionRows = await loadReleasedInflectionMemberships(client, params.environmentKey);
+  const specialistFacts = adaptSpecialistMemberships([...profileRows, ...baseRows, ...compoundRows, ...inflectionRows]);
   const explicitFacts = adaptExplicitReviewedAssociations(params.explicitReviewedAssociations ?? []);
   const ignored = new Set((params.ignorePairDecisionsFor ?? []).map((pair) => `${pair.canonicalWordId}\u0000${pair.microSkillKey}`));
   const result = readCanonicalWordSkillRelationships({
