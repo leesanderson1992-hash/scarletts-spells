@@ -1,7 +1,7 @@
 const messages:Record<string,string>={
   TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED:"Your change was saved in a draft, but it is not yet in the live dictionary. This word has an active lesson relationship, so its shared facts require a reviewed lesson release. Reopen the saved draft to keep editing; complete the lesson checks before publication.",
   TEACHING_OVERVIEW_FACTS_INCOMPLETE:"Overview is saved as a draft. Complete the required fields before approval.",
-  TEACHING_OVERVIEW_REVIEW_REQUIRED:"Save and approve Overview before reviewing this lesson.",
+  TEACHING_OVERVIEW_REVIEW_REQUIRED:"The new draft was saved. Review its Overview above, then select Save and approve. After that, approve the lesson details.",
   TEACHING_ROUTE_FACTS_INCOMPLETE:"Lesson details are saved. Complete the fields marked below before approval.",
   ADLE_LESSON_PREFLIGHT_STALE:"The word or lesson changed. Refresh and review the latest version.",
   ADLE_LESSON_WORD_REVIEW_REQUIRED:"This word's current draft needs review before it can be included in the release.",

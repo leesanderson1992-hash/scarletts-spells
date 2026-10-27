@@ -253,6 +253,13 @@ export function WordWorkspace(props: {
       const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
       setActionError(error);
       setDraftId(destination.searchParams.get("draft"));
+      if (result.error === "TEACHING_OVERVIEW_REVIEW_REQUIRED") {
+        // The save created a new draft. Show that draft's required Overview
+        // review instead of leaving the editor on the apparently reviewed live word.
+        destination.searchParams.set("error", result.error);
+        router.replace(`${destination.pathname}${destination.search}#td-overview`);
+        return null;
+      }
       if (!props.wordId && destination.pathname !== "/admin/teaching-dictionary/new" && !result.error) {
         router.push(result.destination);
         return null;
@@ -704,7 +711,7 @@ export function WordWorkspace(props: {
             {dirty
               ? "Edited · needs approval"
               : overviewReviewed
-                ? "Reviewed"
+                ? draftId ? "Reviewed" : "Dictionary approved"
                 : weakRows.length ? "General dictionary review required" : "Review required"}
           </span>
         </summary>
