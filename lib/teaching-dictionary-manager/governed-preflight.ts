@@ -49,6 +49,27 @@ import { compileBaseWordFamilyLessonSnapshot } from "@/lib/adle/morphology/base-
 import { compilerCoverage } from "./compiler-coverage";
 
 export const PREFLIGHT_CHILD = "00000000-0000-4000-8000-000000000001";
+type BasePreflightMember = {
+  canonicalWordId: string;
+  memberRole: string;
+  assignmentEligible: boolean;
+  lessonContentEligible: boolean;
+  authenticSelectionEligible: boolean;
+};
+
+/** Historical v1 base and transfer members provide teaching context, while
+ * only authentic targets can independently trigger those lessons. */
+export function requiredBaseWordPreflightTargets(
+  schemaVersion: 1 | 2,
+  members: readonly BasePreflightMember[],
+): string[] {
+  return [...new Set(members.filter((member) =>
+    member.assignmentEligible && member.lessonContentEligible &&
+    member.authenticSelectionEligible &&
+    (schemaVersion === 2 || member.memberRole === "authentic_target"),
+  ).map((member) => member.canonicalWordId))];
+}
+
 export function preflightItems(
   skill: string,
   ids: readonly string[],
@@ -471,21 +492,15 @@ async function preflightGovernedReleaseCore(input: {
           preview ??= payload;
           if (witnesses[target.canonicalWordId]) break;
         }
-      const eligible = members.filter(
-        (m) =>
-          m.assignmentEligible &&
-          m.lessonContentEligible &&
-          m.authenticSelectionEligible,
-      );
-      const ready =
-        eligible.length >= 6 &&
-        eligible.every((m) => witnesses[m.canonicalWordId]);
+      const requiredTargets = requiredBaseWordPreflightTargets(authority.family.schemaVersion, members);
+      const ready = requiredTargets.length >= 2 &&
+        requiredTargets.every((id) => witnesses[id]);
       return {
         ready,
         blockers: ready
           ? []
           : [
-              "Every Base Word member needs a complete reviewed family selection",
+              "Every eligible Base Word target needs a complete reviewed family selection",
             ],
         preview,
         witnesses,
