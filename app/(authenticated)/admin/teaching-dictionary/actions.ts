@@ -17,7 +17,7 @@ import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, rou
 import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
-import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadTeachingDictionaryEvidenceAuthorityForWord, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
 import { PART_OF_SPEECH_OPTIONS } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
@@ -738,7 +738,7 @@ async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: st
         if (result.error) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
       }
     }
-    const authority = await loadTeachingDictionaryEvidenceAuthority(db, environment);
+    const authority = await loadTeachingDictionaryEvidenceAuthorityForWord(db, environment, wordId);
     const effective = new Set(authority.relationships.filter((row) => row.canonicalWordId === wordId).map((row) => row.microSkillKey));
     for (const key of keys) {
       if (effective.has(key)) continue;

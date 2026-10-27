@@ -12,58 +12,13 @@ const MEMBER_CHECK_ROUTES = new Set(["dynamic_prefix_word_lab", "dynamic_affix_w
 
 type Word = { id: string; normalised_word: string; display_word: string; age_band: string | null; frequency_band: string | null; row_status: string };
 type SearchParams = { q?: string; filter?: string; page?: string; saved?: string; error?: string };
-type PrefixMember = { canonical_word_id: string; prefix_profile_id: string; row_status: string };
-type SuffixMember = { canonical_word_id: string; suffix_profile_id: string; row_status: string };
-type BaseMember = { canonical_word_id: string; row_status: string };
-type Profile = { id: string; micro_skill_key: string; row_status: string; production_enabled: boolean };
-type RouteContent = { canonical_word_id: string; route_id: string; micro_skill_key: string };
+type Metadata = { canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null };
+type PageFacts = { metadata: Metadata[]; dictation: { canonical_word_id: string; row_status: string; review_status: string }[]; route_members: { canonical_word_id: string; micro_skill_key: string }[]; route_content: { canonical_word_id: string; micro_skill_key: string }[] };
 
-async function readAll<T>(table: string, columns: string): Promise<T[]> {
-  const db = createServiceRoleClient();
-  const rows: T[] = [];
-  for (let start = 0; ; start += 500) {
-    const result = await db.from(table).select(columns).order("id", { ascending: true }).range(start, start + 499);
-    if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
-    rows.push(...(result.data as T[]));
-    if ((result.data?.length ?? 0) < 500) return rows;
-  }
-}
-
-async function readForWords<T>(table: string, columns: string, wordIds: string[]): Promise<T[]> {
-  if (wordIds.length === 0) return [];
-  const rows: T[] = [];
-  const db = createServiceRoleClient();
-  for (let at = 0; at < wordIds.length; at += 100) {
-    for (let start = 0; ; start += 500) {
-      const result = await db.from(table).select(columns).in("canonical_word_id", wordIds.slice(at, at + 100))
-        .order("id", { ascending: true }).range(start, start + 499);
-      if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
-      rows.push(...(result.data as T[]));
-      if ((result.data?.length ?? 0) < 500) break;
-    }
-  }
-  return rows;
-}
-
-async function loadRouteFacts(wordIds: string[]) {
-  const read = <T,>(table: string, columns: string) => readForWords<T>(table, columns, wordIds);
-  const [prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent] = await Promise.all([
-    read<PrefixMember>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
-    read<SuffixMember>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
-    read<BaseMember>("canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,row_status"),
-    readAll<Profile>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled"),
-    readAll<Profile>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled"),
-    read<RouteContent>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
-  ]);
-  const prefixById = new Map(prefixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
-  const suffixById = new Map(suffixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
-  const routeMembers = new Set([
-    ...prefixes.filter((row) => row.row_status === "active" && prefixById.has(row.prefix_profile_id)).map((row) => `${row.canonical_word_id}:${prefixById.get(row.prefix_profile_id)}`),
-    ...suffixes.filter((row) => row.row_status === "active" && suffixById.has(row.suffix_profile_id)).map((row) => `${row.canonical_word_id}:${suffixById.get(row.suffix_profile_id)}`),
-    ...baseMembers.filter((row) => row.row_status === "active").map((row) => `${row.canonical_word_id}:base_word_lab`),
-  ]);
+function displayRouteFacts(facts: PageFacts) {
+  const routeMembers = new Set(facts.route_members.map(row => `${row.canonical_word_id}:${row.micro_skill_key}`));
   const routeKeysByWord = new Map<string, string[]>();
-  for (const content of routeContent) routeKeysByWord.set(content.canonical_word_id,
+  for (const content of facts.route_content) routeKeysByWord.set(content.canonical_word_id,
     [...new Set([...(routeKeysByWord.get(content.canonical_word_id) ?? []), content.micro_skill_key])]);
   return { routeMembers, routeKeysByWord };
 }
@@ -112,20 +67,21 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const shown = pageData?.words ?? [];
   const total = pageData?.total ?? 0;
   const wordIds = shown.map((word) => word.id);
-  const [drafts, authority, metadata, dictation, displayRouteFacts] = await Promise.all([
+  const [drafts, authority, pageFactsResult] = await Promise.all([
     draftsPromise,
     authorityPromise,
-    readForWords<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,written_syllable_breakdown,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes", wordIds),
-    readForWords<{ canonical_word_id: string; row_status: string; review_status: string }>("canonical_teaching_dictionary_dictation_sentences", "id,canonical_word_id,row_status,review_status", wordIds),
-    wordIds.length ? loadRouteFacts(wordIds) : Promise.resolve(null),
+    wordIds.length ? db.rpc("teaching_dictionary_admin_page_facts", { p_word_ids: wordIds })
+      : Promise.resolve({ data: { metadata: [], dictation: [], route_members: [], route_content: [] }, error: null }),
   ]);
   if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
+  if (pageFactsResult.error || !pageFactsResult.data) throw new Error("TEACHING_DICTIONARY_PAGE_FACTS_READ_FAILED");
+  const facts = pageFactsResult.data as PageFacts;
+  const { metadata, dictation } = facts;
   const skillsByWord = new Map<string, string[]>();
   for (const relationship of authority?.relationships ?? []) {
     skillsByWord.set(relationship.canonicalWordId, [...(skillsByWord.get(relationship.canonicalWordId) ?? []), relationship.microSkillKey]);
   }
-  const routeKeysByWord = displayRouteFacts?.routeKeysByWord ?? new Map<string, string[]>();
-  const routeMembers = displayRouteFacts?.routeMembers ?? new Set<string>();
+  const { routeKeysByWord, routeMembers } = displayRouteFacts(facts);
   const metadataReady = new Set(metadata.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure"
     && row.syllables?.trim() && row.phoneme_hint?.trim() && row.stress_pattern?.trim()
     && typeof row.has_schwa === "boolean" && row.morphemes?.trim() && row.morphology_notes != null).map((row) => row.canonical_word_id));
