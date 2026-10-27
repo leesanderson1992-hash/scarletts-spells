@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import pg from "pg";
 import { buildReviewedBaseFamilyProjection, type ReviewedFamilyDefinition, type ReviewedFamilyMember, type ReviewedLegacyFamily } from
   "../lib/adle/base-word-reviewed-family-release";
+import { appendReviewedLexicalFamilies, type ApprovedLexicalFamily } from "../lib/adle/lexical-base-family-release";
 import type { BaseWordFamilyAuthorityProjectionV2 } from "../lib/adle/curriculum-release-activation";
 import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
 import {
@@ -29,11 +30,12 @@ function args() {
   const approvalRef = get("--approval-ref");
   const environment = get("--environment");
   const output = get("--out");
+  const lexicalFamilyKey = values.includes("--lexical-family-key") ? get("--lexical-family-key") : null;
   if (!parentRelease || !microSkillKey || !releaseKey || !approvalRef || !output ||
     !["local", "staging", "production"].includes(environment) ||
     !BASE_WORD_SKILLS.some((skill) => skill === microSkillKey))
     throw new Error("Usage: --parent-release UUID --environment local|staging|production --micro-skill BASE_WORD_KEY --release-key KEY --approval-ref REVIEW_REF --out DIR [--publish]");
-  return { parentRelease, environment, microSkillKey, releaseKey, approvalRef, output,
+  return { parentRelease, environment, microSkillKey, releaseKey, approvalRef, output, lexicalFamilyKey,
     publish: values.includes("--publish") };
 }
 
@@ -101,18 +103,94 @@ async function main() {
       reviewedAt: new Date(String(row.reviewed_at)).toISOString(),
       withdrawn: Boolean(row.withdrawn), skillReleaseWithdrawn: Boolean(row.skill_release_withdrawn),
     }));
-    const projection = buildReviewedBaseFamilyProjection({ parent, microSkillKey: config.microSkillKey,
+    let projection = buildReviewedBaseFamilyProjection({ parent, microSkillKey: config.microSkillKey,
       definitions, legacyFamilies, reviews: reviewedMembers });
+    let lexicalApprovalRef: string | null = null;
+    if (config.lexicalFamilyKey) {
+      const lexical = (await db.query<Row>(`select * from public.canonical_teaching_dictionary_lexical_base_families
+        where family_key=$1 and review_status='approved' order by revision desc limit 1`,
+        [config.lexicalFamilyKey])).rows[0];
+      if (!lexical || lexical.base_kind !== "free_base" || !lexical.canonical_base_word_id)
+        throw new Error("An approved free-base lexical family is required");
+      const lexicalMembers = (await db.query<Row>(`select member.* from public.canonical_teaching_dictionary_lexical_base_family_members member
+        join public.canonical_teaching_dictionary_word_morphology morphology
+          on morphology.id=member.canonical_morphology_id and morphology.canonical_word_id=member.canonical_word_id
+          and morphology.review_status='approved_for_first_exposure'
+          and morphology.analysis_status='approved' and morphology.word_sum=member.word_sum
+          and morphology.morphology_parts=member.morphology_parts and morphology.morphology_joins=member.morphology_joins
+          and morphology.morphology_transformations=member.morphology_transformations
+        where member.family_key=$1 and member.revision=$2
+          and exists (select 1 from public.canonical_teaching_dictionary_word_morphology current_morphology
+            where current_morphology.canonical_word_id=member.canonical_word_id
+              and current_morphology.row_status='active'
+              and current_morphology.review_status='approved_for_first_exposure'
+              and current_morphology.analysis_status='approved'
+              and current_morphology.word_sum=member.word_sum
+              and current_morphology.morphology_parts=member.morphology_parts
+              and current_morphology.morphology_joins=member.morphology_joins
+              and current_morphology.morphology_transformations=member.morphology_transformations)`,
+        [config.lexicalFamilyKey, lexical.revision])).rows;
+      const total = (await db.query<{ count: string }>(`select count(*) from public.canonical_teaching_dictionary_lexical_base_family_members
+        where family_key=$1 and revision=$2`, [config.lexicalFamilyKey, lexical.revision])).rows[0];
+      if (lexicalMembers.length !== Number(total.count)) throw new Error("Approved lexical morphology changed");
+      const targetIds = lexicalMembers.filter((row) => String(row.canonical_word_id) !== String(lexical.canonical_base_word_id))
+        .map((row) => String(row.canonical_word_id));
+      const pairs = targetIds.length ? (await db.query<Row>(`select distinct pair.canonical_word_id
+        from public.adle_reviewed_word_skill_pairs pair
+        join public.adle_reviewed_word_skill_releases release on release.id=pair.release_id
+        where pair.canonical_word_id=any($1::uuid[]) and pair.micro_skill_key=$2
+          and pair.relationship_role='demonstrates' and release.environment_key=$3
+          and not exists (select 1 from public.adle_reviewed_word_skill_withdrawals withdrawal
+            where withdrawal.release_id=release.id)`,
+        [targetIds, config.microSkillKey, config.environment])).rows : [];
+      const reviewed = targetIds.length ? (await db.query<Row>(`select distinct content.canonical_word_id
+        from public.teaching_dictionary_route_content_versions content
+        join public.teaching_dictionary_route_content_reviews review on review.content_version_id=content.id
+        where content.canonical_word_id=any($1::uuid[]) and content.route_id='base_word_lab'
+          and content.micro_skill_key=$2 and content.content->'content'->>'familyKey'=$3
+          and review.dictionary_fingerprint=public.teaching_dictionary_route_dictionary_fingerprint(content.canonical_word_id)
+          and review.content_sha256=encode(extensions.digest(convert_to(content.content::text,'UTF8'),'sha256'),'hex')
+          and not exists (select 1 from public.teaching_dictionary_route_content_versions newer
+            where newer.canonical_word_id=content.canonical_word_id and newer.route_id=content.route_id
+              and newer.route_version=content.route_version and newer.micro_skill_key=content.micro_skill_key
+              and (newer.published_at,newer.id)>(content.published_at,content.id))`,
+        [targetIds, config.microSkillKey, config.lexicalFamilyKey])).rows : [];
+      const pairIds = new Set(pairs.map((row) => String(row.canonical_word_id)));
+      const reviewedIds = new Set(reviewed.map((row) => String(row.canonical_word_id)));
+      const family: ApprovedLexicalFamily = {
+        familyKey: String(lexical.family_key), revision: Number(lexical.revision),
+        baseLemma: String(lexical.base_lemma), baseKind: "free_base",
+        baseWordId: String(lexical.canonical_base_word_id), baseMeaning: String(lexical.base_meaning),
+        semanticFingerprint: String(lexical.semantic_fingerprint),
+        members: lexicalMembers.map((row) => ({
+          canonicalWordId: String(row.canonical_word_id), wordPartOfSpeech: String(row.word_part_of_speech),
+          relationshipKind: String(row.relationship_kind), canonicalMorphologyId: String(row.canonical_morphology_id),
+          wordSum: String(row.word_sum), morphologyParts: row.morphology_parts as unknown[],
+          morphologyJoins: row.morphology_joins as unknown[],
+          morphologyTransformations: row.morphology_transformations as unknown[],
+          intendedMeaning: String(row.intended_meaning),
+          complexityLevel: levelByWord.get(String(row.canonical_word_id)) ?? null,
+          demonstratesSkill: pairIds.has(String(row.canonical_word_id)),
+          routeContentReviewed: reviewedIds.has(String(row.canonical_word_id)),
+        })),
+      };
+      lexicalApprovalRef = String(lexical.approval_reference);
+      projection = appendReviewedLexicalFamilies({ parent: projection, microSkillKey: config.microSkillKey,
+        environment: config.environment as "local" | "staging" | "production", families: [family] });
+      if (!projection.families.some((entry) => entry.baseFamilyKey === config.lexicalFamilyKey))
+        throw new Error("Lexical family is not yet a reviewed lesson candidate");
+    }
     const parentReviewIds = new Set(parent.families.flatMap((family) => family.members
       .filter((member) => "morphologySource" in member && member.morphologySource.sourceKind === "approved_manager_review")
       .map((member) => member.memberId)));
     const effectiveReviewIds = new Set(projection.families.flatMap((family) => family.members
       .filter((member) => "morphologySource" in member && member.morphologySource.sourceKind === "approved_manager_review")
       .map((member) => member.memberId)).filter((id) => !parentReviewIds.has(id)));
-    if (effectiveReviewIds.size === 0) throw new Error("No new reviewed relationships to release");
+    if (effectiveReviewIds.size === 0 && !config.lexicalFamilyKey) throw new Error("No new reviewed relationships to release");
     const approvalRefs = [...new Set([
       ...(Array.isArray(family.approval_refs) ? family.approval_refs as string[] : []),
-      config.approvalRef, ...[...effectiveReviewIds].map((id) => `manager-family-review:${id}`),
+      config.approvalRef, ...(lexicalApprovalRef ? [lexicalApprovalRef] : []),
+      ...[...effectiveReviewIds].map((id) => `manager-family-review:${id}`),
     ])].sort();
     const familyManifest = { ...projection,
       authorityKey: `base_word_family_membership:manager:${config.releaseKey}`,

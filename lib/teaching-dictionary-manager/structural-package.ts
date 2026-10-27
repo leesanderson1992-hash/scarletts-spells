@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- exact native manifest projections are checked by route compilers and publishers */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildReviewedBaseFamilyProjection } from "@/lib/adle/base-word-reviewed-family-release";
+import { appendReviewedLexicalFamilies } from "@/lib/adle/lexical-base-family-release";
+import { loadReviewedLexicalFamilies } from "@/lib/adle/lexical-base-family-loader";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { dictationVariants } from "./authoring";
 import type { GovernedCandidate, NativePackage } from "./governed-package";
@@ -152,6 +154,16 @@ export async function buildStructuralPackage(input: {
           ),
         })),
       });
+      if (input.environment && ["local", "staging", "production"].includes(input.environment)) {
+        const lexical = await loadReviewedLexicalFamilies({
+          db: input.db, candidateWordIds: input.candidates.map((candidate) => candidate.canonicalWordId),
+          microSkillKey: input.skill, environment: input.environment as "local" | "staging" | "production",
+        });
+        structure.semanticProjection = appendReviewedLexicalFamilies({
+          parent: structure.semanticProjection, microSkillKey: input.skill,
+          environment: input.environment as "local" | "staging" | "production", families: lexical,
+        });
+      }
       for (const candidate of input.candidates) {
         const member = structure.semanticProjection.families
           .flatMap((family: any) => family.members)
@@ -252,6 +264,15 @@ export async function buildStructuralPackage(input: {
         candidate,
       ]),
     );
+    const supportIds = ids.filter((id) => !candidates.has(id) && !oldById.has(id));
+    const supportRows = supportIds.length ? await read(input.db
+      .from("canonical_teaching_dictionary_dictation_sentences")
+      .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,dictation_variants")
+      .in("canonical_word_id", supportIds).eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure")) : [];
+    const supportById = new Map<string, any>(supportRows.map((row: any) => [row.canonical_word_id, row]));
+    if (supportIds.some((id) => !supportById.has(id)))
+      throw new Error("A structural base needs approved dictionary dictation before release");
     closure.sourceBindings = ids.map((canonicalWordId) => ({
       canonicalWordId,
       wordKey: wordById.get(canonicalWordId)?.word_key,
@@ -263,10 +284,25 @@ export async function buildStructuralPackage(input: {
         const row = wordById.get(id);
         if (!row)
           throw new Error("A lesson word has no canonical dictionary identity");
-        if (!candidate && !prior)
-          throw new Error(
-            `${row.display_word}: save and review the Overview before adding this family member`,
-          );
+        if (!candidate && !prior) {
+          const support = supportById.get(id);
+          const variants = Array.isArray(support.dictation_variants) && support.dictation_variants.length
+            ? support.dictation_variants : [{ id: "primary", sentence: support.dictation_sentence,
+              targetTokenIndex: support.dictation_target_token_index,
+              audioText: support.audio_text || support.dictation_sentence }];
+          const identity = { wordKey: row.word_key, normalisedWord: row.normalised_word,
+            displayWord: row.display_word, dialectCode: row.dialect_code };
+          const pool = { dictationVariants: variants, dictationSetFingerprint: fingerprintSnapshotValue(variants) };
+          return closure.schemaVersion === 1
+            ? { ...identity, dictationSentence: support.dictation_sentence,
+              dictationTargetTokenIndex: support.dictation_target_token_index,
+              audioText: support.audio_text || support.dictation_sentence, ...pool }
+            : { ...identity, dictation: { sentence: support.dictation_sentence,
+              audioText: support.audio_text || support.dictation_sentence,
+              targetStart: support.dictation_target_token_index,
+              targetEndExclusive: support.dictation_target_token_index + row.display_word.trim().split(/\s+/u).length,
+              exactGovernedAnswer: row.display_word }, ...pool };
+        }
         if (!candidate) return prior;
         const variants = dictationVariants(candidate.dictionary);
         const identity = {

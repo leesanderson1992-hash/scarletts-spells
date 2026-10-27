@@ -52,11 +52,12 @@ function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | n
           !["base", "authentic_target", "transfer", "optional_transfer_check"].includes(rawMember.memberRole)) return null;
       if (value.schemaVersion === 2 && (
           !["base", "family_member"].includes(rawMember.structuralRole) ||
+          (rawMember.authenticTargetEligible !== undefined && typeof rawMember.authenticTargetEligible !== "boolean") ||
           !Array.isArray(rawMember.applicableMicroSkillKeys) || rawMember.applicableMicroSkillKeys.length === 0 ||
           !rawMember.applicableMicroSkillKeys.every(string) ||
           new Set(rawMember.applicableMicroSkillKeys).size !== rawMember.applicableMicroSkillKeys.length ||
           !record(rawMember.morphologySource) ||
-          !["base_word_family_member", "approved_repository_analysis", "approved_manager_review"].includes(rawMember.morphologySource.sourceKind) ||
+          !["base_word_family_member", "approved_repository_analysis", "approved_manager_review", "approved_lexical_family_member"].includes(rawMember.morphologySource.sourceKind) ||
           !string(rawMember.morphologySource.sourceId) || !/^[a-f0-9]{64}$/.test(rawMember.morphologySource.sourceFingerprint) ||
           !string(rawMember.morphologySource.sourceAuthorityKey) ||
           !value.sourceAuthorities.some((source: unknown) => record(source) && source.authorityKey === rawMember.morphologySource.sourceAuthorityKey)

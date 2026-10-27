@@ -8,6 +8,8 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { recordJoinedBaseSkillReview } from "@/lib/teaching-dictionary-manager/word-skill-review";
+import { exactSkillRelease } from "@/lib/teaching-dictionary-manager/exact-base-skill-review";
+import { lexicalFamilyId } from "@/lib/adle/lexical-base-family-release";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -289,6 +291,42 @@ async function performWorkspaceSave(form: FormData) {
     const sourceReference = value(form, "source_reference");
     if (!sourceReference || sourceReference.length > 2000) throw new Error("TEACHING_SOURCE_REQUIRED");
     const db = createServiceRoleClient();
+    // A reviewed lexical family is the dictionary source for Base Word Lab.
+    // Rebase a newly approved lesson draft to that exact revision rather than
+    // creating a second, conflicting manager family for the same base.
+    const reviewSection = value(form, "review_section");
+    if (wordId && reviewSection.startsWith("lesson:")) {
+      const skill = reviewSection.slice(7);
+      const route = payload.routeContents.find((entry) => entry.routeId === "base_word_lab" && entry.microSkillKey === skill);
+      if (route) {
+        const memberships = await db.from("canonical_teaching_dictionary_lexical_base_family_members")
+          .select("family_key,revision,word_sum,morphology_parts,morphology_joins")
+          .eq("canonical_word_id", wordId);
+        if (memberships.error) throw new Error("BASE_FAMILY_LEXICAL_READ_FAILED");
+        const keys = [...new Set((memberships.data ?? []).map((member) => member.family_key))];
+        if (keys.length) {
+          const families = await db.from("canonical_teaching_dictionary_lexical_base_families")
+            .select("family_key,revision,canonical_base_word_id,base_kind")
+            .in("family_key", keys).eq("review_status", "approved").order("revision", { ascending: false });
+          if (families.error) throw new Error("BASE_FAMILY_LEXICAL_READ_FAILED");
+          const latest = new Map<string, (typeof families.data)[number]>();
+          for (const family of families.data ?? []) if (!latest.has(family.family_key)) latest.set(family.family_key, family);
+          const matching = (memberships.data ?? []).filter((member) =>
+            latest.get(member.family_key)?.revision === member.revision &&
+            latest.get(member.family_key)?.base_kind === "free_base" &&
+            latest.get(member.family_key)?.canonical_base_word_id !== wordId &&
+            member.word_sum === payload.canonicalMorphology.wordSum &&
+            JSON.stringify(member.morphology_parts) === JSON.stringify(payload.canonicalMorphology.parts) &&
+            JSON.stringify(member.morphology_joins) === JSON.stringify(payload.canonicalMorphology.joins));
+          if (matching.length > 1) throw new Error("BASE_FAMILY_LEXICAL_AMBIGUOUS");
+          if (matching.length === 1) {
+            const family = matching[0];
+            route.content.familyKey = family.family_key;
+            route.content.familyId = lexicalFamilyId(family.family_key, family.revision);
+          }
+        }
+      }
+    }
     const prefixKeys = [...new Set(payload.routeContents.filter((route) => route.routeId === "dynamic_prefix_word_lab").map((route) => route.microSkillKey))];
     if (prefixKeys.length) {
       const profiles = await db.from("canonical_teaching_dictionary_prefix_profiles").select("id,micro_skill_key,source_row_hash")
@@ -332,7 +370,6 @@ async function performWorkspaceSave(form: FormData) {
     }).select("id").single();
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
-    const reviewSection = value(form, "review_section");
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
       if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
       if(reviewSection.startsWith("lesson:")) {
@@ -373,6 +410,17 @@ async function performWorkspaceSave(form: FormData) {
           const environment=resolveAdleRouteActivationEnvironment();
           const familyKey=String(lesson.content.familyKey ?? "");
           const familyId=String(lesson.content.familyId ?? "");
+          const lexical=await db.from("canonical_teaching_dictionary_lexical_base_families")
+            .select("family_key,revision,canonical_base_word_id")
+            .eq("family_key",familyKey).eq("review_status","approved")
+            .order("revision",{ascending:false}).limit(1).maybeSingle();
+          if(lexical.error)throw new Error("BASE_FAMILY_LEXICAL_READ_FAILED");
+          const lexicalMatch=lexical.data && lexical.data.canonical_base_word_id!==wordId &&
+            lexicalFamilyId(lexical.data.family_key,lexical.data.revision)===familyId;
+          if(lexicalMatch) {
+            if(!environment)throw new Error("BASE_FAMILY_REVIEW_REQUIRED");
+            await exactSkillRelease(db,environment,wordId,key,actor.id,randomUUID());
+          } else {
           const [legacy,definition,pairs]=await Promise.all([
             (isUuid(familyId) ? db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("id",familyId) : db.from("canonical_teaching_dictionary_base_word_families").select("id,base_word_id,base_meaning").eq("base_family_key",familyKey)).eq("row_status","active").maybeSingle(),
             (isUuid(familyId) ? db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("id",familyId) : db.from("teaching_dictionary_base_family_definitions").select("id,base_word_id,base_meaning").eq("family_key",familyKey)).maybeSingle(),
@@ -394,6 +442,7 @@ async function performWorkspaceSave(form: FormData) {
             p_review_note:payload.canonicalMorphology.reviewNotes||"Explicit lesson details approval",p_actor:actor.id,
           });
           if(familyReview.error)throw new Error(familyReview.error.message.match(/BASE_FAMILY_[A-Z_]+/)?.[0]??"BASE_FAMILY_REVIEW_FAILED");
+          }
         }
         const stage = await db.rpc("stage_teaching_dictionary_route_draft", { p_draft: result.data.id, p_actor: actor.id });
         if (stage.error) throw new Error("TEACHING_ROUTE_STAGE_FAILED");

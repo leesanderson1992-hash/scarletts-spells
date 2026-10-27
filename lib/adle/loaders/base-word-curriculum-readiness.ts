@@ -21,7 +21,7 @@ import { loadBaseWordFamilyLessonReadModel } from "./base-word-family-lesson-rea
 import { isBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
 import { compileBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
 import {
-  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberAuthenticTargetEligible,
   baseWordFamilyMemberSelectionRole,
 } from "../curriculum-release-activation";
 import {
@@ -98,7 +98,7 @@ function projectAuthority(authority: ActivatedBaseWordReleaseAuthority): Project
       memberRole: baseWordFamilyMemberSelectionRole(authority.family, member),
       applicableMicroSkillKeys: authority.family.schemaVersion === 2 && "applicableMicroSkillKeys" in member ? member.applicableMicroSkillKeys : [authority.microSkillKey],
       authenticSelectionEligible: authority.family.schemaVersion === 2
-        ? baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, authority.microSkillKey)
+        ? baseWordFamilyMemberAuthenticTargetEligible(authority.family, member, authority.microSkillKey)
         : "memberRole" in member && member.memberRole === "authentic_target",
       lessonContentEligible: closureWordIds.has(member.canonicalWordId),
       assignmentEligible: member.assignmentEligible,

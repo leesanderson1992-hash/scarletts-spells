@@ -18,7 +18,7 @@ import {
   loadEnabledBaseWordReleaseAuthorities,
 } from "./curriculum-release-authority";
 import {
-  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberAuthenticTargetEligible,
   baseWordFamilyMemberSelectionRole,
   persistedReleaseAuthority,
   type ActivatedBaseWordReleaseAuthority,
@@ -93,7 +93,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
           ? member.applicableMicroSkillKeys
           : [activation.microSkillKey],
         authenticSelectionEligible: activation.family.schemaVersion === 2
-          ? baseWordFamilyMemberAppliesToMicroSkill(activation.family, member, activation.microSkillKey)
+          ? baseWordFamilyMemberAuthenticTargetEligible(activation.family, member, activation.microSkillKey)
           : "memberRole" in member && member.memberRole === "authentic_target",
         lessonContentEligible: closureWordIds.has(member.canonicalWordId),
         assignmentEligible: member.assignmentEligible,

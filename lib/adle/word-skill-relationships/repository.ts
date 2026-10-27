@@ -5,7 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import {
-  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberAuthenticTargetEligible,
 } from "../curriculum-release-activation";
 import { loadEnabledBaseWordReleaseAuthorities } from "../loaders/curriculum-release-authority";
 import { DYNAMIC_PREFIX_PROFILE_KEYS } from "../morphology/dynamic-prefix-profile-loader";
@@ -323,7 +323,7 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   for (const activation of baseActivations) {
     for (const family of activation.family.families) {
       for (const member of family.members) {
-        if (!baseWordFamilyMemberAppliesToMicroSkill(activation.family, member, activation.microSkillKey)) continue;
+        if (!baseWordFamilyMemberAuthenticTargetEligible(activation.family, member, activation.microSkillKey)) continue;
         baseRows.push({
           sourceKind: "route_content",
           provenanceId: `${activation.familyAuthorityId}:${member.memberId}`,

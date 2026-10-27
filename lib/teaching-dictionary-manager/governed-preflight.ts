@@ -37,7 +37,7 @@ import { dictationVariantBlockers } from "./authoring";
 import { applyIngDictationVariants } from "@/lib/adle/ing/reviewed-dictation";
 import { selectBaseWordFamilyLesson } from "@/lib/adle/base-word-family-selection";
 import {
-  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberAuthenticTargetEligible,
   baseWordFamilyMemberSelectionRole,
 } from "@/lib/adle/curriculum-release-activation";
 import {
@@ -478,7 +478,7 @@ async function preflightGovernedReleaseCore(input: {
             "applicableMicroSkillKeys" in member
               ? member.applicableMicroSkillKeys
               : [skill],
-          authenticSelectionEligible: baseWordFamilyMemberAppliesToMicroSkill(
+          authenticSelectionEligible: baseWordFamilyMemberAuthenticTargetEligible(
             authority.family,
             member,
             skill,

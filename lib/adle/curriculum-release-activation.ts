@@ -27,9 +27,13 @@ export interface BaseWordFamilyAuthorityMemberV1 extends BaseWordFamilyAuthority
 
 export interface BaseWordFamilyAuthorityMemberV2 extends BaseWordFamilyAuthorityMemberCommon {
   structuralRole: "base" | "family_member";
+  /** A base may support guided family work without demonstrating the target
+   * transformation in authentic writing. Older authorities retain their
+   * original selection semantics when this field is absent. */
+  authenticTargetEligible?: boolean;
   applicableMicroSkillKeys: string[];
   morphologySource: {
-    sourceKind: "base_word_family_member" | "approved_repository_analysis" | "approved_manager_review";
+    sourceKind: "base_word_family_member" | "approved_repository_analysis" | "approved_manager_review" | "approved_lexical_family_member";
     sourceId: string;
     sourceFingerprint: string;
     sourceAuthorityKey: string;
@@ -96,6 +100,17 @@ export function baseWordFamilyMemberAppliesToMicroSkill(
   return authority.schemaVersion === 1
     ? authority.microSkillKey === microSkillKey
     : "applicableMicroSkillKeys" in member && member.applicableMicroSkillKeys.includes(microSkillKey);
+}
+
+export function baseWordFamilyMemberAuthenticTargetEligible(
+  authority: BaseWordFamilyAuthorityProjection,
+  member: BaseWordFamilyAuthorityMember,
+  microSkillKey: string,
+): boolean {
+  if (!baseWordFamilyMemberAppliesToMicroSkill(authority, member, microSkillKey)) return false;
+  return authority.schemaVersion === 1
+    ? "memberRole" in member && member.memberRole === "authentic_target"
+    : !("authenticTargetEligible" in member) || member.authenticTargetEligible !== false;
 }
 
 export function baseWordFamilyMemberStructuralRole(

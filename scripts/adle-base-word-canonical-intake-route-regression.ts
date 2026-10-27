@@ -147,7 +147,10 @@ const baseAsLearnerTarget = structuredClone(baseLedActivation);
 const baseAsLearnerMember = baseAsLearnerTarget.family.families[0].members[0];
 if (!("structuralRole" in baseAsLearnerMember)) throw new Error("base-led fixture must use family authority v2");
 baseAsLearnerMember.structuralRole = "base";
-assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseAsLearnerTarget] }).readyPairs.size, 1, "a structural base member is not blacklisted from genuine learner evidence");
+assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseAsLearnerTarget] }).readyPairs.size, 1, "historical v2 structural bases retain their frozen selection semantics");
+baseAsLearnerMember.authenticTargetEligible = false;
+assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseAsLearnerTarget] }).readyPairs.size, 0,
+  "a new lexical base can support the family without creating a suffix misspelling target");
 
 function facts(skill: string = SKILLS[0]): CanonicalIntakeReadinessFacts {
   return {
@@ -301,7 +304,7 @@ const migration = readFileSync("supabase/migrations/20260809150000_integrate_bas
 const baseLedMigration = readFileSync("supabase/migrations/20260810201000_bind_base_led_family_selection.sql", "utf8");
 assert.match(loader, /BASE_WORD_ROUTE\.supportedMicroSkillKeys/);
 assert.match(loader, /loadEnabledBaseWordReleaseAuthorities/);
-assert.match(membershipCompiler, /memberRole === "authentic_target"/);
+assert.match(membershipCompiler, /baseWordFamilyMemberAuthenticTargetEligible/);
 assert.match(membershipCompiler, /curriculumRelease: persistedReleaseAuthority/);
 assert.match(migration, /member->>'memberRole' = 'authentic_target'/);
 assert.match(baseLedMigration, /member->'applicableMicroSkillKeys' \? p_micro_skill_key/);

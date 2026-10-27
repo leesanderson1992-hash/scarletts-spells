@@ -4,7 +4,7 @@ import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-regi
 import type { ActivatedBaseWordReleaseAuthority } from "../curriculum-release-activation";
 import {
   baseWordFamilyAuthorityAppliesToMicroSkill,
-  baseWordFamilyMemberAppliesToMicroSkill,
+  baseWordFamilyMemberAuthenticTargetEligible,
   baseWordFamilyMemberStructuralRole,
   persistedReleaseAuthority,
 } from "../curriculum-release-activation";
@@ -37,9 +37,8 @@ export function compileBaseWordCanonicalIntakeRouteFacts(input: {
     for (const family of activation.family.families) {
       for (const member of family.members) {
         const pair = canonicalWordSkillPair(member.canonicalWordId, activation.microSkillKey);
-        const exactFamilyRelationship =
-          baseWordFamilyMemberAppliesToMicroSkill(activation.family, member, activation.microSkillKey) &&
-          (activation.family.schemaVersion === 2 || ("memberRole" in member && member.memberRole === "authentic_target"));
+        const exactFamilyRelationship = baseWordFamilyMemberAuthenticTargetEligible(
+          activation.family, member, activation.microSkillKey);
         const exactAuthenticMember =
           exactFamilyRelationship &&
           member.assignmentEligible &&

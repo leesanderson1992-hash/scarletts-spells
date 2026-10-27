@@ -4,6 +4,8 @@ import { reviewedMorphologyFamilyCandidates, suggestedBaseWordSkill, virtualFami
   type FamilyCandidateWord } from "../lib/teaching-dictionary-manager/base-family-candidates";
 import { eligibleBaseFamilyCounts, indexedEligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../lib/adle/base-word-family-counts";
 import { buildReviewedBaseFamilyProjection } from "../lib/adle/base-word-reviewed-family-release";
+import { appendReviewedLexicalFamilies } from "../lib/adle/lexical-base-family-release";
+import { baseWordFamilyMemberAuthenticTargetEligible } from "../lib/adle/curriculum-release-activation";
 import type { ActivatedBaseWordReleaseAuthority, BaseWordFamilyAuthorityProjectionV2, BaseWordFamilyAuthorityMemberV2 } from
   "../lib/adle/curriculum-release-activation";
 
@@ -130,4 +132,38 @@ const large = Array.from({ length: 500 }, (_, index) => ({
   eligibleWordIds: new Set([`base_${index}`, `derived_${index}`]),
 }));
 assert.equal(shortlistBaseFamilyPairs(large).length, 0);
+const suffixSkill = "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
+const ingredient = randomUUID();
+const ingredients = randomUUID();
+const lexical = { familyKey: "ingredient_noun_base_family", revision: 4,
+  baseLemma: "ingredient", baseKind: "free_base" as const, baseWordId: ingredient,
+  baseMeaning: "a component of food", semanticFingerprint: hash,
+  members: [
+    { canonicalWordId: ingredient, wordPartOfSpeech: "noun", relationshipKind: "free_base",
+      canonicalMorphologyId: randomUUID(), wordSum: "ingredient → ingredient", morphologyParts: [],
+      morphologyJoins: [], morphologyTransformations: [], intendedMeaning: "one component",
+      complexityLevel: 2, demonstratesSkill: false, routeContentReviewed: false },
+    { canonicalWordId: ingredients, wordPartOfSpeech: "noun", relationshipKind: "regular_inflection",
+      canonicalMorphologyId: randomUUID(), wordSum: "ingredient + s → ingredients", morphologyParts: [],
+      morphologyJoins: [], morphologyTransformations: [], intendedMeaning: "more than one component",
+      complexityLevel: 2, demonstratesSkill: true, routeContentReviewed: true },
+  ] };
+const lexicalRelease = appendReviewedLexicalFamilies({ parent, microSkillKey: suffixSkill,
+  environment: "staging", families: [lexical] });
+const ingredientFamily = lexicalRelease.families.find((family) => family.baseFamilyKey === lexical.familyKey);
+assert.equal(ingredientFamily?.members.length, 2, "a two-word family is a valid release candidate");
+assert.equal(ingredientFamily?.members.find((member) => member.canonicalWordId === ingredient)?.assignmentEligible, true);
+assert.equal(baseWordFamilyMemberAuthenticTargetEligible(lexicalRelease,
+  ingredientFamily!.members.find((member) => member.canonicalWordId === ingredient)!, suffixSkill), false,
+  "the free base supports the lesson without becoming a suffix target");
+assert.equal(baseWordFamilyMemberAuthenticTargetEligible(lexicalRelease,
+  ingredientFamily!.members.find((member) => member.canonicalWordId === ingredients)!, suffixSkill), true);
+assert.equal(appendReviewedLexicalFamilies({ parent, microSkillKey: suffixSkill, environment: "staging",
+  families: [{ ...lexical, members: lexical.members.map((member) => ({ ...member,
+    routeContentReviewed: false })) }] }).families.length, parent.families.length,
+  "dictionary approval and a skill link cannot bypass route-content review");
+assert.equal(appendReviewedLexicalFamilies({ parent, microSkillKey: suffixSkill, environment: "staging",
+  families: [{ ...lexical, members: lexical.members.map((member) => ({ ...member,
+    demonstratesSkill: false })) }] }).families.length, parent.families.length,
+  "route content alone cannot bypass relationship approval");
 console.log("Base family candidate and release regressions passed");

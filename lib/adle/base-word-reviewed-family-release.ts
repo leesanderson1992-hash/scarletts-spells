@@ -96,6 +96,7 @@ export function buildReviewedBaseFamilyProjection(input: {
     const member: BaseWordFamilyAuthorityMemberV2 = {
       memberId: review.id, canonicalWordId: review.canonicalWordId,
       structuralRole: review.canonicalWordId === family.baseWordId ? "base" : "family_member",
+      authenticTargetEligible: review.canonicalWordId !== family.baseWordId,
       applicableMicroSkillKeys: [microSkillKey], assignmentEligible: true,
       complexityLevel: review.complexityLevel, wordSum: review.wordSum,
       morphologyParts: review.morphologyParts, morphologyJoins: review.morphologyJoins,
