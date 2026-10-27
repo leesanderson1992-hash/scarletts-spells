@@ -39,6 +39,7 @@ import { dictationVariants } from "./authoring";
 import { compilerCoverage } from "./compiler-coverage";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { loadApprovedContextualContentForSkills } from "@/lib/adle/homophone/published-contextual-content-loader";
+import { approvedFactsSupersedeDraft } from "./draft-freshness";
 
 const ZERO_CHILD = "00000000-0000-4000-8000-000000000001";
 type Row = Record<string, any>; // Database release tables are ahead of generated Supabase types.
@@ -289,7 +290,7 @@ async function loadLessonReadinessUnmeasured(
     selectForIds("teaching_dictionary_route_content_rollbacks", "content_version_id", "content_version_id", contentIds),
     selectForIds("adle_route_activation_revisions", "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint", "id", activationHeads.map((row) => String(row.current_revision_id))),
     selectForIds("teaching_dictionary_overview_reviews", "draft_id,content_fingerprint,base_dictionary_fingerprint", "draft_id", draftIds),
-    selectForIds("teaching_dictionary_manager_publications", "draft_id", "draft_id", draftIds),
+    selectForIds("teaching_dictionary_manager_publications", "draft_id,published_at", "draft_id", draftIds),
   ]);
   const revisionById = new Map(
     activationRevisions.map((row) => [row.id as string, row]),
@@ -468,21 +469,34 @@ async function loadLessonReadinessUnmeasured(
     reviewRows.map((row) => [row.content_version_id as string, row]),
   );
   const draftById = new Map<string, WordDraftPayload>();
+  const draftCreatedAtById = new Map<string, string>();
+  const draftPublishedAtById = new Map(managerPublications.map((row) => [String(row.draft_id), String(row.published_at)]));
   const invalidDraftIds = new Set<string>();
   for (let at = 0; at < draftIds.length; at += 100) {
     const result = await db
       .from("teaching_dictionary_manager_drafts")
-      .select("id,payload")
+      .select("id,payload,created_at")
       .in("id", draftIds.slice(at, at + 100));
     if (result.error)
       throw new Error(`ADLE_LESSON_DRAFT_READ: ${result.error.message}`);
     for (const draft of result.data ?? []) {
+      draftCreatedAtById.set(draft.id, draft.created_at);
       if (isStructurallyUsableWordDraftPayload(draft.payload)) draftById.set(draft.id, draft.payload);
       else invalidDraftIds.add(draft.id);
     }
   }
   const draftBlocker = (id: string) => invalidDraftIds.has(id)
     ? "Source draft payload is malformed" : "Source draft unavailable";
+  const scopedMorphology = scope.wordId && contentRows.some((row) => row.canonical_word_id === scope.wordId)
+    ? await db.from("canonical_teaching_dictionary_word_morphology")
+      .select("created_at").eq("canonical_word_id", scope.wordId).eq("row_status", "active")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle()
+    : null;
+  if (scopedMorphology?.error) throw new Error("ADLE_LESSON_CURRENT_MORPHOLOGY_READ_FAILED");
+  const sourceDraftIsStale = (draftId: string, wordId: string) => scope.wordId === wordId &&
+    approvedFactsSupersedeDraft(draftPublishedAtById.get(draftId) ?? draftCreatedAtById.get(draftId),
+      [scopedMorphology?.data?.created_at]);
+  const staleDraftBlocker = "Source draft predates approved dictionary morphology; save and review a new draft from current facts.";
   const published = new Set(
     publicationRows.map((row) => row.content_version_id),
   );
@@ -854,7 +868,8 @@ async function loadLessonReadinessUnmeasured(
           for (const content of unreviewed) {
             const draft = draftById.get(content.draft_id);
             const dictionary = words.get(content.canonical_word_id);
-            const validationBlockers = draft
+            const staleDraft = sourceDraftIsStale(String(content.draft_id), String(content.canonical_word_id));
+            const validationBlockers = staleDraft ? [staleDraftBlocker] : draft
               ? [
                   ...publicationBlockers(
                     draft,
@@ -875,7 +890,7 @@ async function loadLessonReadinessUnmeasured(
               blockers: missing,
               validationBlockers,
               contentPreview: { routeContent: content.content },
-              editHref: `/admin/teaching-dictionary/${content.canonical_word_id}?draft=${content.draft_id}#td-route-${skill}`,
+              editHref: `/admin/teaching-dictionary/${content.canonical_word_id}${staleDraft ? "" : `?draft=${content.draft_id}`}#td-route-${skill}`,
             });
           }
         if (!profile && route.routeId !== "generic_composer") {
@@ -888,7 +903,8 @@ async function loadLessonReadinessUnmeasured(
           )) {
             const dictionary = words.get(content.canonical_word_id);
             const draft = draftById.get(content.draft_id);
-            const validationBlockers = draft
+            const staleDraft = sourceDraftIsStale(String(content.draft_id), String(content.canonical_word_id));
+            const validationBlockers = staleDraft ? [staleDraftBlocker] : draft
               ? [
                   ...publicationBlockers(
                     draft,
@@ -918,7 +934,7 @@ async function loadLessonReadinessUnmeasured(
                 pronunciation: metadataByWord.get(content.canonical_word_id),
                 dictation: dictationByWord.get(content.canonical_word_id),
               },
-              editHref: `/admin/teaching-dictionary/${content.canonical_word_id}?draft=${content.draft_id}#td-route-${skill}`,
+              editHref: `/admin/teaching-dictionary/${content.canonical_word_id}${staleDraft ? "" : `?draft=${content.draft_id}`}#td-route-${skill}`,
             });
           }
         }

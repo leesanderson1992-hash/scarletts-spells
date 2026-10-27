@@ -5,7 +5,7 @@ import { TeachingDictionaryDetail } from "../detail";
 export const dynamic = "force-dynamic";
 export default async function WordPage({ params, searchParams }: {
   params: Promise<{ wordId: string }>;
-  searchParams: Promise<{ draft?: string; saved?: string; error?: string; route_error?: string; family_error?: string; manual_family?: string }>;
+  searchParams: Promise<{ draft?: string; historical?: string; saved?: string; error?: string; route_error?: string; family_error?: string; manual_family?: string }>;
 }) {
   const { wordId } = await params;
   if (!isUuid(wordId)) notFound();

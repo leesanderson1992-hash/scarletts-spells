@@ -15,6 +15,7 @@ import {
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
+import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/draft-freshness";
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
@@ -22,6 +23,7 @@ import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } fr
 
 type Params = {
   draft?: string;
+  historical?: string;
   saved?: string;
   error?: string;
   route_error?: string;
@@ -42,6 +44,7 @@ export async function TeachingDictionaryDetail({
   const [
     wordResult,
     draftResult,
+    draftPublicationResult,
     skillResult,
     prefixProfiles,
     suffixProfiles,
@@ -69,6 +72,10 @@ export async function TeachingDictionaryDetail({
           .select("*")
           .eq("id", params.draft)
           .maybeSingle()
+      : null,
+    params.draft && isUuid(params.draft)
+      ? db.from("teaching_dictionary_manager_publications")
+          .select("published_at").eq("draft_id", params.draft).maybeSingle()
       : null,
     db
       .from("micro_skill_catalog")
@@ -168,6 +175,7 @@ export async function TeachingDictionaryDetail({
   for (const result of [
     wordResult,
     draftResult,
+    draftPublicationResult,
     skillResult,
     prefixProfiles,
     suffixProfiles,
@@ -262,9 +270,7 @@ export async function TeachingDictionaryDetail({
       )
     )
       routeContents.push(routeContentFromStoredRow(row));
-  const initial: WordDraftPayload = draft
-    ? (draft.payload as WordDraftPayload)
-    : {
+  const currentInitial: WordDraftPayload = {
         displayWord: word?.display_word ?? "",
         definition:
           definitions?.data?.[0]?.definition ??
@@ -318,6 +324,13 @@ export async function TeachingDictionaryDetail({
         ],
         routeContents,
       };
+  const staleDraft = Boolean(draft && approvedFactsSupersedeDraft(
+    draftPublicationResult?.data?.published_at ?? draft.created_at, [
+    word?.updated_at, metadata?.created_at, morphology?.created_at,
+    dictation?.created_at, definitions?.data?.[0]?.published_at,
+  ]));
+  const activeDraft = staleDraft ? null : draft;
+  const initial: WordDraftPayload = activeDraft ? activeDraft.payload as WordDraftPayload : currentInitial;
   const suggestions = [
     ...routeContents.map((route) => ({
       label: `Existing ${route.microSkillKey.replaceAll("_", " ")} analysis`,
@@ -379,6 +392,14 @@ export async function TeachingDictionaryDetail({
           (affixMeanings[form] ??= []).push(bin.description || bin.label);
       }
     }
+  if (staleDraft && params.historical === "1" && draft && wordId) return (
+    <main className="mx-auto grid max-w-5xl gap-4 p-6 text-[color:var(--ink)]">
+      <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}`}>← Current approved facts</Link>
+      <h1 className="text-2xl font-semibold">Historical draft for {word?.display_word}</h1>
+      <p role="status">This older snapshot is read-only. It cannot replace the current approved dictionary word.</p>
+      <pre className="overflow-auto rounded border border-[var(--border)] bg-[var(--paper)] p-4 text-xs">{JSON.stringify(draft.payload, null, 2)}</pre>
+    </main>
+  );
   return (
     <main className="mx-auto grid w-full min-w-0 max-w-7xl grid-cols-[minmax(0,1fr)] gap-4 p-4 text-[color:var(--ink)] sm:p-6">
       <nav className="flex gap-4 text-sm">
@@ -394,17 +415,24 @@ export async function TeachingDictionaryDetail({
           {word?.display_word ?? "New word"}
         </h1>
       </header>
+      {staleDraft && <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm">
+        <strong>This draft predates newer approved dictionary facts.</strong>{" "}
+        Current approved facts are shown. Save a new draft to review this lesson content; the older draft is preserved.
+        {wordId && draft && <>{" "}<Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}&historical=1`}>
+          View historical draft
+        </Link></>}
+      </div>}
       <WordWorkspace
-        key={`${draft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
+        key={`${activeDraft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
         wordId={wordId}
-        draftId={draft?.id ?? null}
+        draftId={activeDraft?.id ?? null}
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         weakPublicationState={weakPublicationState}
         initialAssignedSkillKeys={assignmentAuthority ? initialAssignedSkillKeys : null}
         dictionaryFingerprint={typeof dictionaryFingerprint?.data === "string" ? dictionaryFingerprint.data : null}
         sourceReference={
-          draft?.source_reference ??
+          activeDraft?.source_reference ??
           word?.source_use_note ??
           "Internally authored and reviewed"
         }
@@ -415,7 +443,7 @@ export async function TeachingDictionaryDetail({
         familyReviewContext={{ error: params.family_error, manualFamilyId: params.manual_family }}
         overviewReviewed={
           publicationBlockers(initial, word?.normalised_word ?? draft?.normalised_word ?? "").length === 0 &&
-          (draft
+          (activeDraft
             ? Boolean(overviewReview?.data)
             : word?.review_status === "approved_for_first_exposure")
         }
