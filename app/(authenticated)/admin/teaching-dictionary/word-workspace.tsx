@@ -238,6 +238,7 @@ export function WordWorkspace(props: {
   const [assignedSkillKeys, setAssignedSkillKeys] = useState<string[] | null>(props.initialAssignedSkillKeys);
   const [checksState, setChecksState] = useState<"loading" | "ready" | "error">(props.wordId ? "loading" : "ready");
   const [checkVersion, setCheckVersion] = useState(0);
+  const checksGeneration = useRef(0);
   const initialChecksApplied = useRef(false);
   const [saveMessage, setSaveMessage] = useState(props.saved ? "Saved." : "");
   const [actionError, setActionError] = useState(props.error);
@@ -265,6 +266,11 @@ export function WordWorkspace(props: {
         return null;
       }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
+      if (props.wordId) {
+        checksGeneration.current += 1;
+        setChecksState("loading");
+        setCheckVersion(version => version + 1);
+      }
       if (!result.error) {
         if (String(form.get("review_section") ?? "").startsWith("lesson:")) splitDialog.current?.close();
         if (editRevision.current === revision) {
@@ -272,8 +278,6 @@ export function WordWorkspace(props: {
           setOverviewReviewed(result.overviewApproved);
         }
         setSaveMessage("Saved. Updating lesson checks…");
-        setChecksState(props.wordId ? "loading" : "ready");
-        setCheckVersion(version => version + 1);
         if (String(form.get("review_section") ?? "").startsWith("lesson:")) router.refresh();
       }
       return null;
@@ -283,13 +287,14 @@ export function WordWorkspace(props: {
   useEffect(() => {
     if (!props.wordId) return;
     const controller = new AbortController();
+    const generation = checksGeneration.current;
     fetch(`/api/admin/teaching-dictionary/${props.wordId}/lesson-readiness`, {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
       if (!response.ok) throw new Error("TEACHING_READINESS_LOAD_FAILED");
       return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[]; assignedSkillKeys: string[]; wordRouteStatuses: WordRouteStatus[] }>;
     }).then(result => {
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted || generation !== checksGeneration.current) return;
       setChecksLoadedMs(Math.round(performance.now()));
       setPreflights(result.preflights);
       setWordRouteStatuses(result.wordRouteStatuses);
@@ -303,7 +308,7 @@ export function WordWorkspace(props: {
       setChecksState("ready");
       setSaveMessage(message => message ? "Saved. Lesson checks updated." : "");
     }).catch(() => {
-      if (!controller.signal.aborted) setChecksState("error");
+      if (!controller.signal.aborted && generation === checksGeneration.current) setChecksState("error");
     });
     return () => controller.abort();
   }, [props.wordId, props.draftId, props.initial, checkVersion]);
