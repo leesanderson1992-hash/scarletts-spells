@@ -436,6 +436,8 @@ export async function TeachingDictionaryDetail({
       <WordWorkspace
         key={`${activeDraft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
         wordId={wordId}
+        currentMorphologyId={morphology?.id ?? null}
+        currentApprovedPartOfSpeech={morphology?.raw_morpholex_pos ?? ""}
         draftId={activeDraft?.id ?? null}
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}

@@ -43,7 +43,7 @@ import {
 } from "@/lib/teaching-dictionary-manager/authoring";
 import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
-import { saveWordWorkspace } from "./actions";
+import { approveTeachingDictionaryPartOfSpeech, saveWordWorkspace } from "./actions";
 
 type FamilySearchResult = { kind: "lexical" | "adle"; id: string; name: string; meaning: string; baseLemma: string; skillKey: string };
 import { launchReviewedAdleLesson } from "../adle-lesson-readiness/actions";
@@ -188,6 +188,8 @@ function Editable({
 
 export function WordWorkspace(props: {
   wordId: string | null;
+  currentMorphologyId: string | null;
+  currentApprovedPartOfSpeech: string;
   draftId: string | null;
   normalisedWord: string;
   initial: WordDraftPayload;
@@ -740,6 +742,20 @@ export function WordWorkspace(props: {
               </tbody>
             </table>
           </div>
+          {props.wordId && props.currentMorphologyId &&
+            payload.canonicalMorphology.rawPartOfSpeech.toLowerCase() !== props.currentApprovedPartOfSpeech.toLowerCase() &&
+            partOfSpeechOptions("").some(option => option.value === payload.canonicalMorphology.rawPartOfSpeech.toLowerCase()) && (
+            <form action={approveTeachingDictionaryPartOfSpeech} className="mt-3 rounded-lg border border-sky-300 bg-sky-50 p-3 text-sm">
+              <input type="hidden" name="word_id" value={props.wordId} />
+              <input type="hidden" name="expected_morphology_id" value={props.currentMorphologyId} />
+              <input type="hidden" name="part_of_speech" value={payload.canonicalMorphology.rawPartOfSpeech} />
+              <p>Approve <strong>{payload.canonicalMorphology.rawPartOfSpeech}</strong> as the live part of speech. This publishes only that dictionary fact; lesson content still needs its own review.</p>
+              {dirty && <p className="mt-1 text-amber-900">Other edits on this page will not be published by this action. Save them as a draft first if needed.</p>}
+              <label className="mt-2 block" htmlFor="td-pos-review-note">Reason for correction</label>
+              <input id="td-pos-review-note" name="review_note" className={input} required maxLength={1000} placeholder="Why is this classification correct?" />
+              <ActionSubmitButton className={`${button} mt-2`} pendingLabel="Approving…">Approve part of speech</ActionSubmitButton>
+            </form>
+          )}
           <div className="mt-3 overflow-x-auto border-t border-[var(--border)] pt-3">
             <table className="td-reflow-table w-full text-left text-sm">
               <thead className="text-xs text-[color:var(--mid)]">

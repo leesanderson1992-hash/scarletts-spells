@@ -17,12 +17,42 @@ import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
+import { PART_OF_SPEECH_OPTIONS } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 const errorCode = (error: unknown) => error instanceof Error && /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : "TEACHING_DICTIONARY_ACTION_FAILED";
+
+/** Publish one reviewed dictionary fact without releasing any ADLE lesson content. */
+export async function approveTeachingDictionaryPartOfSpeech(form: FormData) {
+  const actor = await requireAdminUser();
+  const wordId = value(form, "word_id");
+  const morphologyId = value(form, "expected_morphology_id");
+  const partOfSpeech = value(form, "part_of_speech").toLowerCase();
+  const reviewNote = value(form, "review_note");
+  const path = isUuid(wordId) ? `${PATH}/${wordId}` : PATH;
+  try {
+    if (!isUuid(wordId) || !isUuid(morphologyId) ||
+      !PART_OF_SPEECH_OPTIONS.some(option => option.value === partOfSpeech) ||
+      !reviewNote || reviewNote.length > 1000) throw new Error("TEACHING_POS_REVIEW_INVALID");
+    const db = createServiceRoleClient();
+    const result = await db.rpc("approve_teaching_dictionary_part_of_speech", {
+      p_request_id: randomUUID(),
+      p_word_id: wordId,
+      p_expected_morphology_id: morphologyId,
+      p_part_of_speech: partOfSpeech,
+      p_actor: actor.id,
+      p_review_note: reviewNote,
+    });
+    if (result.error || !result.data) {
+      const code = result.error?.message.match(/TEACHING_POS_[A-Z_]+/)?.[0];
+      throw new Error(code ?? "TEACHING_POS_REVIEW_FAILED");
+    }
+  } catch (error) { finish(path, error); }
+  finish(path);
+}
 
 function finish(path: string, error?: unknown): never {
   if (!error) {
