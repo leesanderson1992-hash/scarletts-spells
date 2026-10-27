@@ -18,7 +18,7 @@ function FamilySubmitButton({ children, pendingLabel, className }: { children: R
 
 type Word = FamilyCandidateWord;
 type Morphology = FamilyCandidateMorphology & { id: string; joins: unknown[]; transformations: unknown[] };
-type LegacyFamily = { id: string; base_family_key: string; base_word_id: string; base_meaning: string };
+type LegacyFamily = { id: string; base_family_key: string; base_word_id: string; base_meaning: string; micro_skill_key: string };
 type Definition = { id: string; family_key: string; base_word_id: string; base_meaning: string };
 type LexicalFamily = { family_key: string; revision: number; base_lemma: string; review_status: string };
 
@@ -30,12 +30,17 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
   morphology: Morphology | null; meaning: string;
 }) {
   const isBase = word.id === baseWordId;
+  const exactMorphology = !isBase && morphology?.analysisStatus === "approved" &&
+    morphology.reviewStatus === "approved_for_first_exposure" && Array.isArray(morphology.parts) &&
+    morphology.parts.every((raw) => raw && typeof raw === "object" && !Array.isArray(raw) &&
+      typeof raw.kind === "string" && typeof raw.sourceText === "string" && typeof raw.surfaceText === "string") &&
+    morphology.parts.map((raw) => raw.surfaceText).join("") === word.displayWord;
   const parts = isBase ? [{ id: "base", kind: "base", sourceText: word.normalisedWord,
       surfaceText: word.displayWord, gloss: baseMeaning, displayRange: { start: 0, end: word.displayWord.length } }]
-    : morphology?.analysisStatus === "approved" && morphology.reviewStatus === "approved_for_first_exposure"
+    : exactMorphology
       ? morphology.parts : [];
-  const joins = isBase ? [] : morphology?.analysisStatus === "approved" ? morphology.joins : [];
-  const governedMorphology = !isBase && Boolean(morphology?.analysisStatus === "approved" && morphology.reviewStatus === "approved_for_first_exposure");
+  const joins = isBase ? [] : exactMorphology ? morphology.joins : [];
+  const governedMorphology = Boolean(exactMorphology);
   return <form action={reviewBaseFamilyMember} className="grid gap-3 rounded border border-[var(--border)] p-3">
     <input type="hidden" name="request_id" value={randomUUID()} />
     <input type="hidden" name="word_id" value={word.id} />
@@ -44,9 +49,13 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
     <input type="hidden" name="morphology_id" value={governedMorphology ? morphology?.id ?? "" : ""} />
     <p className="text-sm font-semibold">{legacy?.base_family_key ?? `${proposedKey} candidate`} · {word.displayWord}</p>
     <p className="text-xs">Proposed base: {baseLabel}</p>
-    <p className="text-xs text-[color:var(--mid)]">{governedMorphology ? "Approved dictionary morphology" : isBase ? "Virtual standalone base" : "Manual relationship review"}. Approval adds a reviewed source; an ADLE release is still required.</p>
+    <p className="text-xs text-[color:var(--mid)]">{governedMorphology ? "Approved dictionary morphology" : isBase ? "Virtual standalone base" : morphology ?
+      "The base is suggested by older approved morphology. Review complete parts and joins manually before approving this ADLE relationship" :
+      "Manual relationship review. Supply complete parts and joins before approval"}.
+      Approval adds a reviewed source; an ADLE release is still required.</p>
     <label className={labelClass}>Base meaning<input className={inputClass} name="base_meaning" defaultValue={baseMeaning} readOnly={Boolean(legacy)} required /></label>
-    <label className={labelClass}>Micro skill<select className={inputClass} name="skill_key" defaultValue={suggestedBaseWordSkill(parts)} required>{BASE_WORD_SKILLS.map((skill) => <option key={skill} value={skill}>{skill.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}</option>)}</select></label>
+    <label className={labelClass}>Micro skill<select className={inputClass} name="skill_key" defaultValue={legacy && BASE_WORD_SKILLS.some((skill) => skill === legacy.micro_skill_key)
+      ? legacy.micro_skill_key : suggestedBaseWordSkill(isBase ? parts : morphology?.parts)} required>{BASE_WORD_SKILLS.map((skill) => <option key={skill} value={skill}>{skill.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}</option>)}</select></label>
     <label className={labelClass}>Child-friendly word meaning<input className={inputClass} name="child_meaning" defaultValue={meaning} required /></label>
     <label className={labelClass}>Reviewed word sum<input className={inputClass} name="word_sum" defaultValue={isBase ? word.displayWord : morphology?.wordSum || ""} required /></label>
     <label className={labelClass}>Morphology parts JSON<textarea className={inputClass} name="parts_json" rows={4} defaultValue={JSON.stringify(parts, null, 2)} required /></label>
@@ -57,8 +66,8 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
   </form>;
 }
 
-async function BaseFamilyReviewContent({ word, morphology, meaning, error, manualFamilyId }: {
-  word: Word; morphology: Morphology | null; meaning: string; error?: string; manualFamilyId?: string;
+async function BaseFamilyReviewContent({ word, morphology, meaning, error, manualFamilyId, lexicalFamilyKey }: {
+  word: Word; morphology: Morphology | null; meaning: string; error?: string; manualFamilyId?: string; lexicalFamilyKey?: string;
 }) {
   const db = createServiceRoleClient();
   let familyMorphology = morphology?.analysisStatus === "approved" &&
@@ -82,14 +91,9 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
     return part.kind === "base" && typeof part.sourceText === "string" ? [part.sourceText.toLowerCase()] : [];
   }) : [];
   const lexicalBaseTexts = approvedLexicalBaseTexts(familyMorphology);
-  const [baseWordsResult, legacyResult, definitionsResult, reviewedResult, derivedMorphologyResult, lexicalResult] = await Promise.all([
+  const [baseWordsResult, reviewedResult, derivedMorphologyResult, lexicalSuggested, lexicalSelected] = await Promise.all([
     db.from("canonical_teaching_dictionary_words").select("id,normalised_word,display_word,dialect_code,row_status,review_status")
       .in("normalised_word", [...new Set([word.normalisedWord, ...baseTexts, ...lexicalBaseTexts])]).eq("dialect_code", word.dialectCode),
-    db.from("canonical_teaching_dictionary_base_word_families")
-      .select("id,base_family_key,base_word_id,base_meaning").eq("row_status", "active")
-      .eq("review_status", "approved_for_first_exposure").order("base_family_key"),
-    db.from("teaching_dictionary_base_family_definitions")
-      .select("id,family_key,base_word_id,base_meaning").order("family_key"),
     db.from("teaching_dictionary_base_family_member_reviews")
       .select("id,canonical_word_id,micro_skill_key,legacy_family_id,definition_id,word_sum,child_friendly_meaning,reviewed_at")
       .eq("canonical_word_id", word.id).order("reviewed_at", { ascending: false }).limit(50),
@@ -102,14 +106,16 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
       .select("family_key,revision,base_lemma,review_status")
       .in("base_lemma", lexicalBaseTexts).eq("base_kind", "free_base")
       .order("revision", { ascending: false }) : Promise.resolve({ data: [] as LexicalFamily[], error: null }),
+    lexicalFamilyKey ? db.from("canonical_teaching_dictionary_lexical_base_families")
+      .select("family_key,revision,base_lemma,review_status")
+      .eq("family_key", lexicalFamilyKey).eq("base_kind", "free_base")
+      .order("revision", { ascending: false }).limit(1) : Promise.resolve({ data: [] as LexicalFamily[], error: null }),
   ]);
   for (const [table, failure] of [
     ["canonical_teaching_dictionary_words", baseWordsResult.error],
-    ["canonical_teaching_dictionary_base_word_families", legacyResult.error],
-    ["teaching_dictionary_base_family_definitions", definitionsResult.error],
     ["teaching_dictionary_base_family_member_reviews", reviewedResult.error],
     ["canonical_teaching_dictionary_word_morphology", derivedMorphologyResult.error],
-    ["canonical_teaching_dictionary_lexical_base_families", lexicalResult.error],
+    ["canonical_teaching_dictionary_lexical_base_families", lexicalSuggested.error ?? lexicalSelected.error],
   ] as const) if (failure) {
     console.error("BASE_FAMILY_REVIEW_READ_FAILED", { wordId: word.id, table, code: failure.code, message: failure.message });
     throw new Error("BASE_FAMILY_REVIEW_READ_FAILED");
@@ -117,7 +123,8 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
   const baseWords: Word[] = (baseWordsResult.data ?? []).map((row) => ({ id: row.id, normalisedWord: row.normalised_word,
     displayWord: row.display_word, dialectCode: row.dialect_code, rowStatus: row.row_status, reviewStatus: row.review_status }));
   const latestLexical = new Map<string, LexicalFamily>();
-  for (const family of lexicalResult.data ?? []) if (!latestLexical.has(family.family_key)) latestLexical.set(family.family_key, family);
+  for (const family of [...(lexicalSelected.data ?? []), ...(lexicalSuggested.data ?? [])])
+    if (!latestLexical.has(family.family_key)) latestLexical.set(family.family_key, family);
   const lexicalFamilies = [...latestLexical.values()];
   const lexicalMemberships = lexicalFamilies.length ? await db.from("canonical_teaching_dictionary_lexical_base_family_members")
     .select("family_key,revision").eq("canonical_word_id", word.id)
@@ -128,9 +135,30 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
     .map((member) => member.family_key));
   const virtual = virtualFamilyCandidate(word);
   const suggestions = reviewedMorphologyFamilyCandidates(word, familyMorphology, baseWords);
-  const candidates = [...(virtual ? [virtual] : []), ...suggestions];
-  const legacy = legacyResult.data as LegacyFamily[];
-  const definitions = definitionsResult.data as Definition[];
+  const candidates = [...suggestions, ...(suggestions.length || lexicalFamilies.length || !virtual ? [] : [virtual])];
+  const reviewed = reviewedResult.data ?? [];
+  const candidateBaseIds = [...new Set(candidates.map((item) => item.baseWordId))];
+  const legacyIds = [...new Set([...reviewed.flatMap((row) => row.legacy_family_id ? [row.legacy_family_id] : []),
+    ...(manualFamilyId ? [manualFamilyId] : [])])];
+  const definitionIds = [...new Set(reviewed.flatMap((row) => row.definition_id ? [row.definition_id] : []))];
+  const [candidateLegacy, selectedLegacy, candidateDefinitions, selectedDefinitions] = await Promise.all([
+    candidateBaseIds.length ? db.from("canonical_teaching_dictionary_base_word_families")
+      .select("id,base_family_key,base_word_id,base_meaning,micro_skill_key").eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure").in("base_word_id", candidateBaseIds) : Promise.resolve({ data: [] as LegacyFamily[], error: null }),
+    legacyIds.length ? db.from("canonical_teaching_dictionary_base_word_families")
+      .select("id,base_family_key,base_word_id,base_meaning,micro_skill_key").eq("row_status", "active")
+      .eq("review_status", "approved_for_first_exposure").in("id", legacyIds) : Promise.resolve({ data: [] as LegacyFamily[], error: null }),
+    candidateBaseIds.length ? db.from("teaching_dictionary_base_family_definitions")
+      .select("id,family_key,base_word_id,base_meaning").in("base_word_id", candidateBaseIds) : Promise.resolve({ data: [] as Definition[], error: null }),
+    definitionIds.length ? db.from("teaching_dictionary_base_family_definitions")
+      .select("id,family_key,base_word_id,base_meaning").in("id", definitionIds) : Promise.resolve({ data: [] as Definition[], error: null }),
+  ]);
+  if (candidateLegacy.error || selectedLegacy.error || candidateDefinitions.error || selectedDefinitions.error)
+    throw new Error("BASE_FAMILY_SCOPED_READ_FAILED");
+  const legacy = [...new Map([...(candidateLegacy.data ?? []), ...(selectedLegacy.data ?? [])]
+    .map((family) => [family.id, family])).values()] as LegacyFamily[];
+  const definitions = [...new Map([...(candidateDefinitions.data ?? []), ...(selectedDefinitions.data ?? [])]
+    .map((family) => [family.id, family])).values()] as Definition[];
   const baseDefinitions = candidates.length ? await db.from("teaching_dictionary_definition_versions")
     .select("canonical_word_id,definition,published_at").in("canonical_word_id", candidates.map((item) => item.baseWordId))
     .is("route_id", null).order("published_at", { ascending: false }) : { data: [], error: null };
@@ -138,7 +166,6 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
   const meaningByBase = new Map<string, string>();
   for (const row of baseDefinitions.data ?? []) if (!meaningByBase.has(row.canonical_word_id))
     meaningByBase.set(row.canonical_word_id, row.definition);
-  const reviewed = reviewedResult.data ?? [];
   const withdrawals = reviewed.length ? await db.from("teaching_dictionary_base_family_member_withdrawals")
     .select("review_id").in("review_id", reviewed.map((row) => row.id)) : { data: [], error: null };
   if (withdrawals.error) throw new Error("BASE_FAMILY_WITHDRAWAL_READ_FAILED");
@@ -161,13 +188,17 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
       {lexicalFamilies.map((family) => {
         const member = lexicalMemberKeys.has(family.family_key);
         const morphologyReady = lexicalMorphologyReady(familyMorphology, word.displayWord, family.base_lemma);
+        const legacyParts = Array.isArray(familyMorphology?.parts) && familyMorphology.parts.some((part) =>
+          part && typeof part === "object" && !Array.isArray(part) && "type" in part && "text" in part);
         return <div key={family.family_key} className="grid gap-2 border-t border-[var(--border)] pt-2">
           <p><strong>{family.family_key}</strong> · revision {family.revision} · {family.review_status}
             {member ? " · this word is a member" : " · this word is not a member"}</p>
           {!member && family.review_status !== "approved" && <p>A family revision is awaiting review. Finish or withdraw it before another member can be added.</p>}
           {!member && family.review_status === "approved" && !morphologyReady && <p>
-            This family is available, but the word&apos;s approved morphology lacks the exact base and surface parts required for a new lexical revision.
-            Review the word sum and parts in <Link href="#td-overview" className="underline">Overview</Link> first.
+            This family is available. {legacyParts ? <>The approved word sum identifies its base, but the older morphology parts use
+              <code> type/text</code> instead of the reviewed <code>kind/sourceText/surfaceText</code> format.</>
+              : <>The approved morphology does not yet provide an exact base and reconstructed spelling for this family.</>}
+            {" "}Close this window, review the word parts in Overview, then return to approve the family membership.
           </p>}
           {!member && family.review_status === "approved" && morphologyReady && <form action={reviewLexicalFamilyMember} className="grid gap-2">
             <input type="hidden" name="word_id" value={word.id} />
@@ -217,15 +248,12 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
           morphology={familyMorphology} meaning={meaning} />];
       })}
     </div>
-    <details open={Boolean(manualFamilyId)}><summary className="cursor-pointer text-sm font-semibold">Link an ADLE lesson family manually when morphology has no suggestion</summary>
-      <p className="mt-2 text-xs">This picker contains ADLE Base Word families. Dictionary lexical families appear above. Choose a reviewed lesson family, then supply the word sum and parts that show its base.</p>
-      <form method="get" className="mt-2 flex flex-wrap gap-2"><select name="manual_family" className={inputClass} defaultValue={manualFamilyId ?? ""} required>
-        <option value="">Choose a family</option>{legacy.map((family) => <option key={family.id} value={family.id}>{family.base_family_key} · {family.base_meaning}</option>)}
-      </select><button className="rounded border border-[var(--border)] px-3 py-1 text-sm font-semibold">Open family</button></form>
-      {legacy.filter((family) => family.id === manualFamilyId).map((family) => <div className="mt-3" key={`manual:${family.id}`}><FormFields
+    {manualFamilyId && <div className="grid gap-2"><h3 className="font-semibold">Selected ADLE lesson family</h3>
+      {legacy.filter((family) => family.id === manualFamilyId).map((family) => <div key={`manual:${family.id}`}><FormFields
         word={word} baseWordId={family.base_word_id} baseLabel={family.base_family_key} proposedKey={family.base_family_key} legacy={family} baseMeaning={family.base_meaning}
         morphology={null} meaning={meaning} /></div>)}
-    </details>
+      {!legacy.some((family) => family.id === manualFamilyId) && <p role="alert">This ADLE family is unavailable or no longer approved.</p>}
+    </div>}
   </section>;
 }
 

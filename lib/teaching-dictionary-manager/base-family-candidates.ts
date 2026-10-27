@@ -72,7 +72,7 @@ export function reviewedMorphologyFamilyCandidates(
   const baseTexts = new Set(morphology.parts.flatMap((raw) => {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
     const part = raw as Record<string, unknown>;
-    if (part.kind !== "base" && part.partType !== "free_base" && part.role !== "base") return [];
+    if (part.kind !== "base" && part.type !== "base" && part.partType !== "free_base" && part.role !== "base") return [];
     const source = part.sourceText ?? part.text;
     return typeof source === "string" && source.trim() ? [normaliseWord(source)] : [];
   }));

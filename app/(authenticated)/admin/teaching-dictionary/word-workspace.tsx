@@ -43,6 +43,8 @@ import {
 import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 import { saveWordWorkspace } from "./actions";
+
+type FamilySearchResult = { kind: "lexical" | "adle"; id: string; name: string; meaning: string; baseLemma: string; skillKey: string };
 import { launchReviewedAdleLesson } from "../adle-lesson-readiness/actions";
 import { CompoundPartsEditor } from "./compound-parts-editor";
 import {
@@ -302,13 +304,56 @@ export function WordWorkspace(props: {
   const family = useRef<HTMLDialogElement>(null);
   const [familyReview, setFamilyReview] = useState<ReactNode>(null);
   const [familyLoading, setFamilyLoading] = useState(false);
+  const [familyOpen, setFamilyOpen] = useState(false);
+  const [familyQuery, setFamilyQuery] = useState("");
+  const [familyMatches, setFamilyMatches] = useState<FamilySearchResult[]>([]);
+  const [familySearchBusy, setFamilySearchBusy] = useState(false);
+  const [familySearchError, setFamilySearchError] = useState(false);
+  const [familySearchLimited, setFamilySearchLimited] = useState(false);
+  const [selectedFamilyLabel, setSelectedFamilyLabel] = useState("");
+  const familyLoadVersion = useRef(0);
+  useEffect(() => {
+    const query = familyQuery.trim();
+    if (!familyOpen || query.length < 2) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setFamilySearchBusy(true);
+      setFamilySearchError(false);
+      try {
+        const response = await fetch(`/api/admin/teaching-dictionary/family-search?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal, cache: "no-store" });
+        if (!response.ok) throw new Error("FAMILY_SEARCH_FAILED");
+        const payload = await response.json() as { results: FamilySearchResult[]; limited: boolean };
+        if (!controller.signal.aborted) {
+          setFamilyMatches(payload.results);
+          setFamilySearchLimited(payload.limited);
+        }
+      } catch {
+        if (!controller.signal.aborted) setFamilySearchError(true);
+      } finally {
+        if (!controller.signal.aborted) setFamilySearchBusy(false);
+      }
+    }, 250);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [familyOpen, familyQuery]);
+  async function showFamilyReview(manualFamilyId?: string, lexicalFamilyKey?: string, error?: string) {
+    if (!props.wordId) return;
+    const version = ++familyLoadVersion.current;
+    setFamilyLoading(true);
+    try {
+      const review = await loadWordFamilyReview(props.wordId, manualFamilyId, error, lexicalFamilyKey);
+      if (version === familyLoadVersion.current) setFamilyReview(review);
+    } catch {
+      if (version === familyLoadVersion.current) setFamilyReview(<p role="alert">Family suggestions could not load. Close this window and reopen the page to try again.</p>);
+    } finally {
+      if (version === familyLoadVersion.current) setFamilyLoading(false);
+    }
+  }
   async function openFamily() {
     family.current?.showModal();
-    if (!props.wordId || familyReview || familyLoading) return;
-    setFamilyLoading(true);
-    try { setFamilyReview(await loadWordFamilyReview(props.wordId, props.familyReviewContext.manualFamilyId, props.familyReviewContext.error)); }
-    catch { setFamilyReview(<p role="alert">Family suggestions could not load. Close this window and reopen the page to try again.</p>); }
-    finally { setFamilyLoading(false); }
+    setFamilyOpen(true);
+    if (!familyReview && !familyLoading) await showFamilyReview(props.familyReviewContext.manualFamilyId,
+      undefined, props.familyReviewContext.error);
   }
   const formId = "word-workspace-save";
   function change(update: Partial<WordDraftPayload>) {
@@ -906,6 +951,10 @@ export function WordWorkspace(props: {
                 No reviewed family joined
               </p>
             )}
+            {props.familyReviewContext.error && <p role="alert" className="mt-2 rounded bg-rose-50 p-2 text-sm text-rose-900">
+              Family review needs attention: {props.familyReviewContext.error.replaceAll("_", " ")}.
+              Open the family editor to check the details.
+            </p>}
             <div className={actions}>
               <button
                 type="button"
@@ -2042,6 +2091,7 @@ export function WordWorkspace(props: {
       </dialog>
       <dialog
         ref={family}
+        onClose={() => setFamilyOpen(false)}
         onSubmitCapture={event => {
           const submitter = (event.nativeEvent as SubmitEvent).submitter;
           if (submitter instanceof HTMLButtonElement && submitter.dataset.pendingLabel) {
@@ -2051,6 +2101,48 @@ export function WordWorkspace(props: {
         }}
         className="w-[min(850px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
       >
+        <div className="mb-4 grid gap-2 rounded border border-[var(--border)] p-3">
+          <label className="grid gap-1 text-sm font-semibold" htmlFor="family-search">Find an existing word family
+            <input id="family-search" type="search" autoComplete="off" value={familyQuery}
+              onChange={event => {
+                const value = event.target.value;
+                setFamilyQuery(value);
+                setFamilyMatches([]);
+                setFamilySearchLimited(false);
+                setFamilySearchError(false);
+                setFamilySearchBusy(value.trim().length >= 2);
+              }}
+              placeholder="Type a base word or family name, e.g. ingredient"
+              className="w-full rounded border border-[var(--border)] bg-white px-3 py-2 font-normal" />
+          </label>
+          <p className="text-xs text-[color:var(--mid)]">Searches approved dictionary and ADLE families. Type at least two letters; only matching results are loaded.</p>
+          {selectedFamilyLabel && <p className="text-sm">Selected: <strong>{selectedFamilyLabel}</strong></p>}
+          {familyQuery.trim().length >= 2 && <div role="status" className="text-sm">
+            {familySearchBusy ? "Searching families…" : familySearchError ? "Family search could not load. Try again."
+              : familyMatches.length === 0 ? "No matching approved families." : `${familyMatches.length} matching families`}
+          </div>}
+          {familyQuery.trim().length >= 2 && !familySearchBusy && familyMatches.length > 0 &&
+            <ul className="max-h-48 overflow-auto rounded border border-[var(--border)]">
+              {familyMatches.map((match) => <li key={`${match.kind}:${match.id}`}>
+                <button type="button" className="w-full border-b border-[var(--border)] px-3 py-2 text-left text-sm hover:bg-rose-50"
+                  onClick={() => {
+                    setSelectedFamilyLabel(`${match.name} · ${match.kind === "lexical" ? "dictionary" : match.skillKey.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}`);
+                    setFamilyQuery("");
+                    setFamilyMatches([]);
+                    setFamilySearchBusy(false);
+                    setFamilySearchLimited(false);
+                    void showFamilyReview(match.kind === "adle" ? match.id : undefined,
+                      match.kind === "lexical" ? match.id : undefined);
+                  }}>
+                  <strong>{match.name}</strong> · {match.kind === "lexical" ? "dictionary family" : match.skillKey.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}
+                  {familyMatches.filter((other) => other.kind === match.kind && other.name === match.name && other.skillKey === match.skillKey).length > 1
+                    ? ` · source ${match.id.slice(0, 8)}` : ""}
+                  {match.meaning ? ` · ${match.meaning}` : ""}
+                </button>
+              </li>)}
+            </ul>}
+          {familyQuery.trim().length >= 2 && familySearchLimited && <p className="text-xs">Refine the search to see further families.</p>}
+        </div>
         {familyLoading ? <p role="status">Loading family suggestions…</p> : familyReview}
         <div className={actions}>
           <button

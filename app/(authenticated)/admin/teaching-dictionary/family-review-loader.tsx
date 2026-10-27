@@ -6,7 +6,7 @@ import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { BaseFamilyReview } from "./base-family-review";
 
 /** Only load the relationship editor when the admin opens it. */
-export async function loadWordFamilyReview(wordId: string, manualFamilyId?: string, error?: string) {
+export async function loadWordFamilyReview(wordId: string, manualFamilyId?: string, error?: string, lexicalFamilyKey?: string) {
   await requireAdminUser();
   if (!isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
   const db = createServiceRoleClient();
@@ -22,5 +22,7 @@ export async function loadWordFamilyReview(wordId: string, manualFamilyId?: stri
     dialectCode: row.dialect_code, rowStatus: row.row_status, reviewStatus: row.review_status }}
     morphology={parts ? { id: parts.id, analysisStatus: parts.analysis_status, reviewStatus: parts.review_status,
       parts: parts.morphology_parts, joins: parts.morphology_joins ?? [], transformations: parts.morphology_transformations ?? [], wordSum: parts.word_sum } : null}
-    meaning={definition.data?.definition ?? ""} manualFamilyId={manualFamilyId && isUuid(manualFamilyId) ? manualFamilyId : undefined} error={error} />;
+    meaning={definition.data?.definition ?? ""} manualFamilyId={manualFamilyId && isUuid(manualFamilyId) ? manualFamilyId : undefined}
+    lexicalFamilyKey={lexicalFamilyKey && /^[a-z0-9_]+_base_family$/.test(lexicalFamilyKey) ? lexicalFamilyKey : undefined}
+    error={error} />;
 }

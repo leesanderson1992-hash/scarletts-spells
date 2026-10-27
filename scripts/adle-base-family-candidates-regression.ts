@@ -17,6 +17,8 @@ const painter = approved("painter");
 const foreignPaint = approved("paint", "en-US");
 assert.equal(suggestedBaseWordSkill([{ kind: "base" }, { kind: "suffix" }]),
   "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", "colourful suggests its suffix skill");
+assert.equal(suggestedBaseWordSkill([{ type: "base" }, { type: "suffix" }]),
+  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", "ingredients keeps its suffix suggestion with older parts");
 assert.equal(suggestedBaseWordSkill([{ type: "prefix" }, { type: "base" }]),
   "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "legacy prefix parts suggest the prefix skill");
 assert.equal(suggestedBaseWordSkill([{ kind: "base" }]), skill);
@@ -28,6 +30,11 @@ assert.deepEqual(reviewedMorphologyFamilyCandidates(painter, {
   analysisStatus: "approved", reviewStatus: "approved_for_first_exposure", wordSum: "paint + er → painter",
   parts: [{ kind: "base", sourceText: "paint", surfaceText: "paint" }, { kind: "suffix", sourceText: "er", surfaceText: "er" }],
 }, [paint, foreignPaint]).map((candidate) => candidate.baseWordId), [paint.id]);
+assert.deepEqual(reviewedMorphologyFamilyCandidates(painter, {
+  analysisStatus: "approved", reviewStatus: "approved_for_first_exposure", wordSum: "paint + er → painter",
+  parts: [{ type: "base", text: "paint" }, { type: "suffix", text: "er" }],
+}, [paint]).map((candidate) => candidate.baseWordId), [paint.id],
+"older approved parts still reveal the exact base candidate");
 assert.deepEqual(reviewedMorphologyFamilyCandidates(painter, {
   analysisStatus: "in_review", reviewStatus: "approved_for_first_exposure", wordSum: "paint + er",
   parts: [{ kind: "base", sourceText: "paint" }],
