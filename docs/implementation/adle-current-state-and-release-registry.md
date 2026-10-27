@@ -1,6 +1,30 @@
 # ADLE Current State and Lesson Release Registry
 
-Updated: 2026-10-15
+Updated: 2026-10-27
+
+## 2026-10-27 active-route readiness release
+
+Production application SHA `2cc5ab419362b168e82319ad35934bf371689212`
+is live. Administrative readiness now reads the registered route-content
+contracts and native release preflights for active routes, while continuing to
+show dictionary approval, word–skill approval, technical facts, editorial
+review, route release/activation, and child selection as distinct gates.
+Already enabled suffix profiles can teach from a compiler-valid reviewed
+subset; rejected members remain individually blocked. Historical Base Word v1
+support members do not veto a compiling authentic-target route, and an
+unwitnessed word is still blocked individually. Reviewed `-ing` and comparative
+release members contribute canonical word–skill relationships; comparative
+base forms remain teaching supports, not independent targets. A manager
+deassignment still removes the effective relationship.
+
+The additive read-only `adle_released_inflection_memberships_v1` function is
+live with service-role-only execution and optional word-ID scope. It projects
+current enabled, fingerprint-matched inflection release memberships and their
+review/content status from existing immutable authorities. It does not create
+or approve curriculum content. The [Production receipt](qa/adle-active-route-production-release-2026-10-27.md)
+records the exact release and the [staging proof](qa/adle-active-route-staging-proof-2026-10-27.md)
+records the child Finish/reload checks. The dated sections below remain
+historical snapshots.
 
 ## 2026-10-15 Teaching Dictionary launch workspace
 
