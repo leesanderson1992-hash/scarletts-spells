@@ -165,6 +165,16 @@ export function collectWordFacts(
       collectWordFacts(part, found, depth + 1, microSkillKey);
 }
 
+export function baseWordEntryLacksCompilerWitness(input: {
+  requiredForRelease: boolean;
+  assignmentEligible: boolean;
+  canonicalWordId: string;
+  witnesses: Readonly<Record<string, string[]>>;
+}): boolean {
+  return input.requiredForRelease && input.assignmentEligible &&
+    !input.witnesses[input.canonicalWordId];
+}
+
 /** Existing enabled suffix profiles can use their validated subset. A new
  * reviewed addition must still pass before that proposed release is ready. */
 export function suffixProfileReadiness(input: {
@@ -1296,17 +1306,21 @@ async function loadLessonReadinessUnmeasured(
           compiledPreview = governed.preview;
           compilerWitnesses = governed.witnesses;
           blockers.push(...governed.blockers);
-          if (route.routeId === "base_word_lab" && !governed.ready) {
+          // Route readiness and per-word selection are separate. Historical
+          // base or transfer members can support a valid lesson without each
+          // word being an independently selectable authentic target.
+          if (route.routeId === "base_word_lab") {
             for (const entry of entries) {
               const fact = entry.contentPreview as Record<
                 string,
                 unknown
               > | null;
-              if (
-                entry.requiredForRelease !== false &&
-                fact?.assignmentEligible !== false &&
-                !governed.witnesses[entry.id]
-              ) {
+              if (baseWordEntryLacksCompilerWitness({
+                requiredForRelease: entry.requiredForRelease !== false,
+                assignmentEligible: fact?.assignmentEligible !== false,
+                canonicalWordId: entry.id,
+                witnesses: governed.witnesses,
+              })) {
                 entry.ready = false;
                 entry.blockers.push(
                   "Reviewed base family has no complete compiler-valid selection for this word",
