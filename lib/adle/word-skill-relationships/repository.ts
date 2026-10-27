@@ -341,7 +341,7 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
     }
   }
   const compoundRows = await loadCompoundRouteContent(client, params.environmentKey);
-  const inflectionRows = await loadReleasedInflectionMemberships(client, params.environmentKey);
+  const inflectionRows = await loadReleasedInflectionMemberships(client, params.environmentKey, scopedIds);
   const specialistFacts = adaptSpecialistMemberships([...profileRows, ...baseRows, ...compoundRows, ...inflectionRows]);
   const explicitFacts = adaptExplicitReviewedAssociations(params.explicitReviewedAssociations ?? []);
   const ignored = new Set((params.ignorePairDecisionsFor ?? []).map((pair) => `${pair.canonicalWordId}\u0000${pair.microSkillKey}`));

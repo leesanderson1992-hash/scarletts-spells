@@ -63,7 +63,12 @@ class Query {
     return Promise.resolve({ data, error: null }).then(resolve, reject);
   }
 }
-const client = { from(table: string) { return new Query(table); } } as any;
+const client = { from(table: string) { return new Query(table); },
+  async rpc(name: string, params: { p_word_ids: string[] | null }) {
+    assert.equal(name, "adle_released_inflection_memberships_v1");
+    void params;
+    return { data: [], error: null };
+  } } as any;
 
 async function main() {
   const fullAssociations = await loadPublishedWritingAssociations(client, "staging");
