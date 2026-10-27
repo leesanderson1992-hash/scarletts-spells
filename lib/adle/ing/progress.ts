@@ -62,7 +62,9 @@ export function ingProgressValid(value: unknown, lesson: IngLessonV1): value is 
 }
 export function ingProgressTransitionValid(previous: unknown, next: unknown, lesson: IngLessonV1): boolean {
   if (!ingProgressValid(next, lesson)) return false;
-  if (previous === null) return true;
+  // A missing PostgREST checkpoint arrives as undefined; explicit null is
+  // also used by callers that have already normalised the empty read.
+  if (previous == null) return true;
   if (!ingProgressValid(previous, lesson)) return false;
   if (previous.finished) return semanticJson(previous) === semanticJson(next);
   if (previous.meaningConnected.some(id => !next.meaningConnected.includes(id)) || previous.scrabbleComplete.some(id => !next.scrabbleComplete.includes(id))) return false;

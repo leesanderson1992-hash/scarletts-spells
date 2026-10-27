@@ -54,6 +54,7 @@ for (const skill of ING_MICRO_SKILLS) {
     const initial = initialIngProgress(lesson);
     const covered = { ...initial, coverAttempts: { [firstWord.canonicalWordId]: firstWord.word } };
     assert(ingProgressTransitionValid(initial, covered, lesson)); checks++;
+    assert(ingProgressTransitionValid(undefined, covered, lesson), "the first durable checkpoint has no previous row"); checks++;
     assert(!ingProgressTransitionValid(covered, { ...covered, coverAttempts: { [firstWord.canonicalWordId]: "changed" } }, lesson)); checks++;
     const dictated = { ...covered, dictationValues: { [firstWord.canonicalWordId]: firstWord.word }, dictationChecked: [firstWord.canonicalWordId] };
     assert(ingProgressTransitionValid(covered, dictated, lesson)); checks++;
