@@ -1,5 +1,6 @@
 import "./word-workspace.css";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -19,6 +20,7 @@ import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/d
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
+import { SpellingCasesForWord } from "./spelling-cases";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
 
 type Params = {
@@ -241,7 +243,7 @@ export async function TeachingDictionaryDetail({
   if (weakReviews.error || weakPublications.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
   const reviewedWeakIds = new Set((weakReviews.data ?? []).map((row) => row.content_version_id));
   const publishedWeakIds = new Set((weakPublications.data ?? []).map((row) => row.content_version_id));
-  const dictionaryFingerprint = wordId
+  const dictionaryFingerprint = wordId && (weakPublications.data?.length ?? 0) > 0
     ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId })
     : null;
   if (dictionaryFingerprint?.error) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
@@ -505,6 +507,9 @@ export async function TeachingDictionaryDetail({
           </div>
         }
       />
+      {wordId && word && <Suspense fallback={<p className="text-sm text-[color:var(--mid)]">Checking open spelling cases…</p>}>
+        <SpellingCasesForWord wordId={wordId} normalisedWord={word.normalised_word} skills={skillResult.data ?? []} />
+      </Suspense>}
       {wordId && weakVersions.length ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5" aria-label="Weak-vowel route publications">
         <h2 className="text-lg font-bold">Weak-vowel lesson content</h2>
         <p className="mt-1 text-sm">Each word–skill version needs editorial review, then publication. Publication prepares future assignments; it does not activate the route.</p>

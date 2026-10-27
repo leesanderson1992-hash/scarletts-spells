@@ -9,6 +9,7 @@ import { isKnownWord } from "@/lib/spelling/suggestCorrection";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveCanonicalIntakeRoute } from "@/lib/adle/canonical-intake/route-readiness";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { caseTargetsDictionaryWord } from "@/lib/admin/no-matching-skill-cases";
 
 export async function returnToCanonicalResolver(formData: FormData) {
   const admin = await requireAdminUser();
@@ -38,20 +39,38 @@ function queueId(formData: FormData) {
 export async function createOrLinkMicroSkill(formData: FormData) {
   const admin = await requireAdminUser();
   const id = queueId(formData);
+  const returnWordId = formData.get("return_word_id");
+  let returnPath = "/admin/no-matching-skill";
+  if (typeof returnWordId === "string" && /^[0-9a-f-]{36}$/i.test(returnWordId)) {
+    const db = createServiceRoleClient();
+    const [caseRead, wordRead] = await Promise.all([
+      db.from("spelling_no_matching_skill_queue").select("correction").eq("queue_id", id).maybeSingle(),
+      db.from("canonical_teaching_dictionary_words").select("normalised_word,row_status,dialect_code")
+        .eq("id", returnWordId).maybeSingle(),
+    ]);
+    if (caseRead.error || wordRead.error || !caseRead.data || !wordRead.data ||
+      !caseTargetsDictionaryWord(caseRead.data.correction, wordRead.data)) {
+      redirect("/admin/no-matching-skill?error=Case%20and%20dictionary%20word%20do%20not%20match");
+    }
+    returnPath = `/admin/teaching-dictionary/${returnWordId}`;
+  }
+  function fail(message: string): never {
+    redirect(`${returnPath}?error=${encodeURIComponent(message)}`);
+  }
   const mode = formData.get("mode");
   const classification = formData.get("classification");
   if (classification === "spelling") {
     const { data: queued, error: queueError } = await createServiceRoleClient()
       .from("spelling_no_matching_skill_queue").select("misspelling")
       .eq("queue_id", id).maybeSingle();
-    if (queueError || !queued) redirect("/admin/no-matching-skill?error=Case%20is%20no%20longer%20open");
+    if (queueError || !queued) fail("Case is no longer open");
     const observed = queued.misspelling.normalize("NFC").toLowerCase().replace(/[’ʼ]/g, "'");
     const { data: approvedWord, error: wordError } = await createServiceRoleClient()
       .from("canonical_teaching_dictionary_words").select("id")
       .eq("normalised_word", observed).eq("row_status", "active").limit(1);
-    if (wordError) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(wordError.message)}`);
+    if (wordError) fail(wordError.message);
     if (isKnownWordLike(observed) || isKnownWord(observed) || Boolean(approvedWord?.length)) {
-      redirect("/admin/no-matching-skill?error=Valid%20words%20must%20use%20the%20context%20route");
+      fail("Valid words must use the context route");
     }
   }
   const members = String(formData.get("members") ?? "").split(/[,\n]/).map((word) => word.trim()).filter(Boolean);
@@ -61,16 +80,16 @@ export async function createOrLinkMicroSkill(formData: FormData) {
     const skillRead = await db.from("micro_skill_catalog")
       .select("skill_cluster_key").eq("micro_skill_key", skillKey).maybeSingle();
     if (skillRead.error || !skillRead.data)
-      redirect("/admin/no-matching-skill?error=Homophone%20skill%20is%20unavailable");
+      fail("Homophone skill is unavailable");
     const route = resolveCanonicalIntakeRoute(skillKey, skillRead.data.skill_cluster_key);
     if (["homophone_contextual_choice", "homophone_word_lab"].includes(route.routeId)) {
       const caseRead = await db.from("spelling_no_matching_skill_queue")
         .select("misspelling,correction").eq("queue_id", id).maybeSingle();
       if (caseRead.error || !caseRead.data)
-        redirect("/admin/no-matching-skill?error=Case%20is%20no%20longer%20open");
+        fail("Case is no longer open");
       const setsRead = await db.from("homophone_contrast_sets")
         .select("set_key,revision").eq("micro_skill_key", skillKey).eq("review_status", "approved");
-      if (setsRead.error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(setsRead.error.message)}`);
+      if (setsRead.error) fail(setsRead.error.message);
       const latest = new Map<string, number>();
       for (const set of setsRead.data ?? [])
         latest.set(set.set_key, Math.max(latest.get(set.set_key) ?? 0, set.revision));
@@ -78,13 +97,13 @@ export async function createOrLinkMicroSkill(formData: FormData) {
       const memberRead = setKeys.length ? await db.from("homophone_contrast_set_members")
         .select("set_key,revision,canonical_word_id").in("set_key", setKeys)
         : { data: [], error: null };
-      if (memberRead.error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(memberRead.error.message)}`);
+      if (memberRead.error) fail(memberRead.error.message);
       const reviewedMembers = (memberRead.data ?? []).filter((member) =>
         latest.get(member.set_key) === member.revision);
       const wordIds = [...new Set(reviewedMembers.map((member) => member.canonical_word_id))];
       const wordsRead = wordIds.length ? await db.from("canonical_teaching_dictionary_words")
         .select("id,normalised_word").in("id", wordIds) : { data: [], error: null };
-      if (wordsRead.error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(wordsRead.error.message)}`);
+      if (wordsRead.error) fail(wordsRead.error.message);
       const byId = new Map((wordsRead.data ?? []).map((word) => [word.id, word.normalised_word]));
       const normalize = (word: string) => word.trim().toLowerCase().replace(/[’ʼ]/g, "'");
       const selected = new Set(members.map(normalize));
@@ -99,7 +118,7 @@ export async function createOrLinkMicroSkill(formData: FormData) {
           selected.size === expected.size && [...selected].every((word) => expected.has(word));
       });
       if (!completeSet)
-        redirect("/admin/no-matching-skill?error=Choose%20the%20complete%20approved%20contrast%20set");
+        fail("Choose the complete approved contrast set");
     }
   }
   const payload = {
@@ -116,12 +135,14 @@ export async function createOrLinkMicroSkill(formData: FormData) {
   const { data, error } = await createServiceRoleClient().rpc("resolve_no_matching_skill_admin", {
     p_queue_id: id, p_admin_user_id: admin.id, p_admin_email: admin.email ?? null, p_payload: payload,
   });
-  if (error) redirect(`/admin/no-matching-skill?error=${encodeURIComponent(error.message)}`);
+  if (error) fail(error.message);
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath("/admin/no-matching-skill");
   revalidatePath("/admin/canonical-mappings");
+  revalidatePath("/admin/adle-lesson-readiness");
+  if (returnPath !== "/admin/no-matching-skill") revalidatePath(returnPath);
   revalidatePath("/courses/review");
-  redirect(`/admin/no-matching-skill?saved=Micro%20skill%20linked&skill=${encodeURIComponent(String(data))}`);
+  redirect(`${returnPath}?saved=${encodeURIComponent("Micro skill linked")}${returnPath === "/admin/no-matching-skill" ? `&skill=${encodeURIComponent(String(data))}` : ""}`);
 }
 
 export async function deleteNoMatchingSkillCase(formData: FormData) {

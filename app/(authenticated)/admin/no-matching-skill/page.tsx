@@ -1,12 +1,10 @@
 import Link from "next/link";
 
 import { requireAdminUser } from "@/lib/admin/access";
-import { isKnownWordLike } from "@/lib/spelling/lexicon";
-import { isKnownWord } from "@/lib/spelling/suggestCorrection";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { resolveCanonicalIntakeRoute } from "@/lib/adle/canonical-intake/route-readiness";
+import { annotateNoSkillCases, type NoSkillRow } from "@/lib/admin/no-matching-skill-cases";
 import homophoneManifest from "@/data/adle/homophone/convergence-v1/manifest.json";
-import { NoMatchingSkillWorkspace, type NoSkillRow } from "./workspace";
+import { NoMatchingSkillWorkspace } from "./workspace";
 import { linkAdleContextCatalogCase } from "./actions";
 import "../adle-canonical-intake-readiness/readiness.css";
 import "../canonical-mappings/resolution.css";
@@ -15,112 +13,6 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 25;
 type SearchParams = Record<string, string | undefined>;
-
-async function loadSkillReadiness(skillKey: string) {
-  if (!/^D4_[A-Z0-9_]+$/.test(skillKey)) return null;
-  const db = createServiceRoleClient();
-  const skillLookup = await db.from("micro_skill_catalog")
-    .select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
-    .eq("micro_skill_key", skillKey).eq("mastery_domain_key", "D4").maybeSingle();
-  if (skillLookup.error || !skillLookup.data) return null;
-  const route = resolveCanonicalIntakeRoute(skillKey, skillLookup.data.skill_cluster_key);
-  if (["homophone_contextual_choice", "homophone_word_lab"].includes(route.routeId)) {
-    const setsRead = await db.from("homophone_contrast_sets")
-      .select("set_key,revision").eq("micro_skill_key", skillKey)
-      .eq("review_status", "approved");
-    if (setsRead.error) return null;
-    const latest = new Map<string, number>();
-    for (const set of setsRead.data ?? [])
-      latest.set(set.set_key, Math.max(latest.get(set.set_key) ?? 0, set.revision));
-    const setKeys = [...latest.keys()];
-    const membersRead = setKeys.length ? await db.from("homophone_contrast_set_members")
-      .select("set_key,revision,canonical_word_id").in("set_key", setKeys)
-      : { data: [], error: null };
-    if (membersRead.error) return null;
-    const wordIds = [...new Set((membersRead.data ?? [])
-      .filter((member) => latest.get(member.set_key) === member.revision)
-      .map((member) => member.canonical_word_id))];
-    const wordsRead = wordIds.length ? await db.from("canonical_teaching_dictionary_words")
-      .select("id,normalised_word,row_status,review_status,dialect_code").in("id", wordIds)
-      : { data: [], error: null };
-    if (wordsRead.error) return null;
-    const wordsById = new Map((wordsRead.data ?? []).map((word) => [word.id, word]));
-    const missingWords = wordIds.filter((id) => {
-      const word = wordsById.get(id);
-      return !word || word.row_status !== "active" ||
-        word.review_status !== "approved_for_first_exposure" || word.dialect_code !== "en-GB";
-    }).map((id) => wordsById.get(id)?.normalised_word ?? id);
-    const headRead = await db.from("adle_route_activation_heads")
-      .select("current_revision_id").eq("environment_key", "production")
-      .eq("route_id", route.routeId).eq("route_version", route.routeVersion)
-      .eq("micro_skill_key", skillKey).maybeSingle();
-    if (headRead.error) return null;
-    const revisionRead = headRead.data ? await db.from("adle_route_activation_revisions")
-      .select("id,activation_status,release_manifest_id,release_manifest_sha256,dependency_fingerprint")
-      .eq("id", headRead.data.current_revision_id).maybeSingle()
-      : { data: null, error: null };
-    if (revisionRead.error) return null;
-    const releaseRead = revisionRead.data ? await db.from("adle_curriculum_release_manifests")
-      .select("route_id,route_version,release_manifest_sha256,dependency_fingerprint")
-      .eq("id", revisionRead.data.release_manifest_id).maybeSingle()
-      : { data: null, error: null };
-    if (releaseRead.error) return null;
-    const releaseReady = releaseRead.data?.route_id === route.routeId &&
-      releaseRead.data.route_version === route.routeVersion &&
-      releaseRead.data.release_manifest_sha256 === revisionRead.data?.release_manifest_sha256 &&
-      releaseRead.data.dependency_fingerprint === revisionRead.data?.dependency_fingerprint;
-    return {
-      name: skillLookup.data.display_name, key: skillKey, isHomophoneRoute: true,
-      missingMembers: wordIds.length < 2, missingWords, missingSupport: [],
-      teachingReady: releaseReady, familyMethodReady: revisionRead.data?.activation_status === "enabled",
-    };
-  }
-  const [memberResult, contentResult] = await Promise.all([
-    db.from("contextual_micro_skill_members").select("member_normalized")
-      .eq("micro_skill_key", skillKey),
-    db.from("canonical_teaching_dictionary_content_versions")
-      .select("id").eq("micro_skill_key", skillKey).eq("is_active", true)
-      .eq("version_status", "active").eq("final_readiness_review_status", "signed_off").limit(1),
-  ]);
-  if (memberResult.error || contentResult.error) return null;
-  const methodResult = await db.from("adle_family_methods").select("id")
-    .eq("family_key", skillLookup.data.skill_family_key).eq("row_status", "active").limit(1);
-  if (methodResult.error) return null;
-  const members = (memberResult.data ?? []).map((row) => row.member_normalized);
-  const missingWords: string[] = [];
-  const missingSupport: string[] = [];
-  if (members.length) {
-    const wordsResult = await db.from("canonical_teaching_dictionary_words")
-      .select("id,normalised_word").in("normalised_word", members)
-      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure");
-    if (wordsResult.error) return null;
-    const words = wordsResult.data ?? [];
-    const wordByText = new Map(words.map((word) => [word.normalised_word, word.id]));
-    for (const member of members) if (!wordByText.has(member)) missingWords.push(member);
-    if (words.length) {
-      const supportResult = await db.from("canonical_teaching_dictionary_word_support")
-        .select("canonical_word_id").eq("micro_skill_key", skillKey)
-        .in("canonical_word_id", words.map((word) => word.id))
-        .eq("row_status", "active").eq("review_status", "approved_for_first_exposure");
-      if (supportResult.error) return null;
-      const supported = new Set((supportResult.data ?? []).map((row) => row.canonical_word_id));
-      for (const member of members) {
-        const id = wordByText.get(member);
-        if (id && !supported.has(id)) missingSupport.push(member);
-      }
-    }
-  }
-  return {
-    name: skillLookup.data.display_name,
-    key: skillLookup.data.micro_skill_key,
-    isHomophoneRoute: false,
-    missingMembers: skillLookup.data.skill_family_key.startsWith("D4_HOM") && members.length < 2,
-    missingWords,
-    missingSupport,
-    teachingReady: Boolean(contentResult.data?.length),
-    familyMethodReady: Boolean(methodResult.data?.length),
-  };
-}
 
 function pageHref(q: string, page: number) {
   const params = new URLSearchParams();
@@ -133,7 +25,6 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
   await requireAdminUser();
   const params = (await searchParams) ?? {};
   const q = (params.q ?? "").trim().slice(0, 100);
-  const readiness = params.skill ? await loadSkillReadiness(params.skill) : null;
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const safe = q.replace(/[^a-zA-Z0-9'’ʼ-]/g, "").trim();
   const db = createServiceRoleClient();
@@ -143,18 +34,8 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
   const { data, count, error } = await query.order("updated_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (error) throw new Error(error.message);
-  const rows = (data ?? []) as NoSkillRow[];
+  const rows = await annotateNoSkillCases(db, (data ?? []) as NoSkillRow[]);
   const observedWords = [...new Set(rows.map((row) => row.misspelling.toLowerCase()))];
-  const { data: approvedWords, error: wordError } = observedWords.length
-    ? await db.from("canonical_teaching_dictionary_words").select("normalised_word")
-      .in("normalised_word", observedWords).eq("row_status", "active")
-    : { data: [], error: null };
-  if (wordError) throw new Error(wordError.message);
-  const approvedWordSet = new Set((approvedWords ?? []).map((word) => word.normalised_word));
-  for (const row of rows) {
-    const observed = row.misspelling.toLowerCase().replace(/[’ʼ]/g, "'");
-    row.observed_is_valid_word = approvedWordSet.has(observed) || isKnownWordLike(observed) || isKnownWord(observed);
-  }
   const mappedSkillsByQueueId: Record<string, string> = {};
   const spellingRows = rows.filter((row) => row.source_type === "parent_catalog");
   if (spellingRows.length) {
@@ -213,21 +94,14 @@ export default async function NoMatchingSkillPage({ searchParams }: { searchPara
       </header>
       {params.saved ? <p role="status" className="adle-admin-success">{params.saved}</p> : null}
       {params.error ? <p role="alert" className="adle-admin-alert">{params.error}</p> : null}
-      {readiness ? <section className="adle-admin-detail-section mb-5 text-sm" aria-label="Micro skill lesson readiness">
-        <h2 className="font-semibold">Lesson readiness · {readiness.name}</h2>
-        <p className="break-all text-xs text-[#59616b]">{readiness.key}</p>
-        {!readiness.missingMembers && readiness.missingWords.length === 0 && readiness.missingSupport.length === 0 && readiness.teachingReady && readiness.familyMethodReady
-          ? <p className="mt-2">{readiness.isHomophoneRoute
-            ? "The approved contrast set, dictionary words, lesson release, and Production activation are in place. Learner assignment still follows its own queue and eligibility rules."
-            : "Words, word support, and teaching content are approved. Learner assignment still follows its own queue and eligibility rules."}</p>
-          : <ul className="mt-2 list-disc pl-5">
-            {readiness.missingMembers ? <li>The full confusable word set needs approval.</li> : null}
-            {readiness.missingWords.length ? <li>Canonical words need approval: {readiness.missingWords.join(", ")}</li> : null}
-            {readiness.missingSupport.length ? <li>Word support needs approval: {readiness.missingSupport.join(", ")}</li> : null}
-            {!readiness.teachingReady ? <li>{readiness.isHomophoneRoute ? "The governed homophone lesson release is missing or does not match its activation." : "Teaching content needs a signed-off active version."}</li> : null}
-            {!readiness.familyMethodReady ? <li>{readiness.isHomophoneRoute ? "The Production homophone route needs an enabled activation." : "This family needs an active ADLE teaching method."}</li> : null}
-          </ul>}
-      </section> : null}
+      {params.skill && (skillResult.data ?? []).some((skill) => skill.micro_skill_key === params.skill)
+        ? <section className="adle-admin-detail-section mb-5 text-sm" aria-label="Micro skill lesson readiness">
+          <h2 className="font-semibold">Micro skill linked</h2>
+          <p className="mt-2">The spelling case has been linked. Dictionary, content, editorial and release checks are shown by the shared ADLE route status.</p>
+          <Link className="underline" href={`/admin/adle-lesson-readiness?skill=${encodeURIComponent(params.skill)}`}>
+            Check this skill in ADLE Requirements
+          </Link>
+        </section> : null}
       <div className="adle-admin-toolbar">
         <form action="/admin/no-matching-skill" method="get" role="search" className="adle-admin-filter-form">
           <label htmlFor="no-skill-search" className="sr-only">Search observed or intended word</label>

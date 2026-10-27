@@ -18,17 +18,6 @@ type BaseMember = { canonical_word_id: string; row_status: string };
 type Profile = { id: string; micro_skill_key: string; row_status: string; production_enabled: boolean };
 type RouteContent = { canonical_word_id: string; route_id: string; micro_skill_key: string };
 
-async function readAll<T>(table: string, columns: string): Promise<T[]> {
-  const db = createServiceRoleClient();
-  const rows: T[] = [];
-  for (let start = 0; ; start += 500) {
-    const result = await db.from(table).select(columns).order("id", { ascending: true }).range(start, start + 499);
-    if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
-    rows.push(...(result.data as T[]));
-    if ((result.data?.length ?? 0) < 500) return rows;
-  }
-}
-
 async function readForWords<T>(table: string, columns: string, wordIds: string[]): Promise<T[]> {
   if (wordIds.length === 0) return [];
   const rows: T[] = [];
@@ -47,13 +36,27 @@ async function readForWords<T>(table: string, columns: string, wordIds: string[]
 
 async function loadRouteFacts(wordIds: string[]) {
   const read = <T,>(table: string, columns: string) => readForWords<T>(table, columns, wordIds);
-  const [prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent] = await Promise.all([
+  const [prefixes, suffixes, baseMembers, routeContent] = await Promise.all([
     read<PrefixMember>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
     read<SuffixMember>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
     read<BaseMember>("canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,row_status"),
-    readAll<Profile>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled"),
-    readAll<Profile>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled"),
     read<RouteContent>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
+  ]);
+  const readProfiles = async (table: string, ids: string[]): Promise<Profile[]> => {
+    if (!ids.length) return [];
+    const db = createServiceRoleClient();
+    const rows: Profile[] = [];
+    for (let at = 0; at < ids.length; at += 100) {
+      const result = await db.from(table).select("id,micro_skill_key,row_status,production_enabled")
+        .in("id", ids.slice(at, at + 100));
+      if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
+      rows.push(...result.data as Profile[]);
+    }
+    return rows;
+  };
+  const [prefixProfiles, suffixProfiles] = await Promise.all([
+    readProfiles("canonical_teaching_dictionary_prefix_profiles", [...new Set(prefixes.filter((row) => row.row_status === "active").map((row) => row.prefix_profile_id))]),
+    readProfiles("canonical_teaching_dictionary_suffix_profiles", [...new Set(suffixes.filter((row) => row.row_status === "active").map((row) => row.suffix_profile_id))]),
   ]);
   const prefixById = new Map(prefixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
   const suffixById = new Map(suffixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
@@ -146,9 +149,8 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
           const missing = !metadataReady.has(word.id) || !dictationReady.has(word.id) || !word.age_band || !word.frequency_band;
           const routeKeys = routeKeysByWord.get(word.id) ?? [];
           const missingRoute = [...new Set([...keys, ...routeKeys])].some((key) => memberMissing(word.id, key, routeMembers));
-          const governedPending = routeKeys.some((key) => ["base_word_lab", "compound_word_lab"].includes(routeForSkill(key)?.routeId ?? ""));
           const fact = metadataByWord.get(word.id);
-          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown || "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{keys.length} approved</td><td className="p-2">{missingRoute ? "Member missing" : governedPending ? "Governed release check" : keys.length ? "Check child gates" : "No specialist skill"}</td></tr>;
+          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown || "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{missingRoute ? "Member missing · " : null}{keys.length || routeKeys.length ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-skills`}>View route status</Link> : "No specialist skill"}</td></tr>;
         })}
       </tbody></table></div>
       <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < total && <Link href={href(page + 1)}>Next</Link>}</div>

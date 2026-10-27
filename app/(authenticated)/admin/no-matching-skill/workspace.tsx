@@ -1,22 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { AppDialog } from "@/components/app-dialog";
+import type { NoSkillRow } from "@/lib/admin/no-matching-skill-cases";
 import { createOrLinkMicroSkill, deleteNoMatchingSkillCase } from "./actions";
 
-export type NoSkillRow = {
-  queue_id: string;
-  misspelling: string;
-  correction: string;
-  source_type: "resolver_intake" | "parent_catalog" | "parent_context";
-  case_status: string;
-  updated_at: string;
-  parent_note: string | null;
-  source_evidence: Array<{ type: string; id: string }>;
-  observed_is_valid_word?: boolean;
-};
 type Skill = { micro_skill_key: string; display_name: string; skill_family_key: string; skill_cluster_key: string | null };
 type Family = { skill_family_key: string; display_name: string };
 type Cluster = { skill_cluster_key: string; skill_family_key: string; display_name: string };
@@ -190,7 +181,11 @@ export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, mem
           <th scope="col">Source</th><th scope="col">Status</th><th scope="col">Evidence</th>
           <th scope="col">Updated</th><th scope="col">Actions</th></tr></thead>
         <tbody>{rows.map((row) => <tr key={row.queue_id}>
-          <th scope="row" className="word">{row.misspelling}</th><td>{row.correction}</td>
+          <th scope="row" className="word">{row.misspelling}</th><td>{row.correction}
+            <div className="text-xs text-[#59616b]">{row.intended_dictionary_word_id
+              ? <Link className="underline" href={`/admin/teaching-dictionary/${row.intended_dictionary_word_id}`}>Dictionary word exists · review skill link</Link>
+              : "Dictionary word still needed"}</div>
+          </td>
           <td>{row.source_type === "parent_context" ? "Parent-confirmed context" :
             row.source_type === "parent_catalog" ? "Parent catalog case" : "Resolver intake"}</td>
           <td>{row.case_status.replaceAll("_", " ")}</td>
