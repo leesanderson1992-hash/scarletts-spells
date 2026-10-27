@@ -165,6 +165,28 @@ export function collectWordFacts(
       collectWordFacts(part, found, depth + 1, microSkillKey);
 }
 
+/** Existing enabled suffix profiles can use their validated subset. A new
+ * reviewed addition must still pass before that proposed release is ready. */
+export function suffixProfileReadiness(input: {
+  productionEnabled: boolean;
+  coverageComplete: boolean;
+  validatedMemberIds: ReadonlySet<string>;
+  existingMemberIds: readonly string[];
+  reviewedCandidateIds: readonly string[];
+  minimumLessonWords: number;
+}): { compilerReady: boolean; wordErrorsBlockRoute: boolean } {
+  const validCount = input.validatedMemberIds.size;
+  const invalidExisting = input.existingMemberIds.some((id) => !input.validatedMemberIds.has(id));
+  const invalidCandidate = input.reviewedCandidateIds.some((id) => !input.validatedMemberIds.has(id));
+  const enough = validCount >= input.minimumLessonWords;
+  return {
+    compilerReady: input.coverageComplete && enough && !invalidCandidate &&
+      (input.productionEnabled || !invalidExisting),
+    wordErrorsBlockRoute: !enough || invalidCandidate ||
+      (!input.productionEnabled && invalidExisting),
+  };
+}
+
 export async function loadLessonReadiness(
   scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
 ): Promise<LessonReadinessRow[]> {
@@ -992,11 +1014,19 @@ async function loadLessonReadinessUnmeasured(
           blockers.push(
             `Need at least ${route.wordCounts.lesson[0]} lesson words; found ${entries.length}`,
           );
-        if (
-          entries.some(
-            (entry) => entry.requiredForRelease !== false && !entry.ready,
-          )
-        )
+        if (suffix
+          ? suffixProfileReadiness({
+              productionEnabled: suffix.production_enabled === true,
+              coverageComplete: true,
+              validatedMemberIds: validIds,
+              existingMemberIds: members.map((member) => member.canonical_word_id),
+              reviewedCandidateIds: candidates.map((candidate) => candidate.canonical_word_id),
+              minimumLessonWords: route.wordCounts.lesson[0],
+            }).wordErrorsBlockRoute ||
+            entries.some((entry) => Boolean(entry.reviewedDraftId) && !entry.ready)
+          : entries.some(
+              (entry) => entry.requiredForRelease !== false && !entry.ready,
+            ))
           blockers.push("One or more words fail runtime validation");
         if (profile && !targetProfile)
           blockers.push(
@@ -1165,14 +1195,22 @@ async function loadLessonReadinessUnmeasured(
           }
           compilerWitnesses = coverage.witnesses;
           compiledPreview = coverage.previews[0] ?? null;
-          compilerReady =
-            coverage.complete &&
-            proposedMembers.every((member) =>
-              validIds.has(member.canonical_word_id),
-            );
+          compilerReady = suffix
+            ? suffixProfileReadiness({
+                productionEnabled: suffix.production_enabled === true,
+                coverageComplete: coverage.complete,
+                validatedMemberIds: validIds,
+                existingMemberIds: members.map((member) => member.canonical_word_id),
+                reviewedCandidateIds: candidates.map((candidate) => candidate.canonical_word_id),
+                minimumLessonWords: route.wordCounts.lesson[0],
+              }).compilerReady
+            : coverage.complete && proposedMembers.every((member) =>
+                validIds.has(member.canonical_word_id));
           if (!compilerReady)
             blockers.push(
-              "Not every lesson word participates in a compiling four-word selection",
+              suffix
+                ? "The valid word pool cannot compile a four-word selection"
+                : "Not every lesson word participates in a compiling four-word selection",
             );
         }
         if (!profile && contentRelease && revision) {
