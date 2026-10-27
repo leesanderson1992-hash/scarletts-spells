@@ -25,10 +25,19 @@ export async function loadReviewedLexicalFamilies(input: {
   const latest = new Map<string, (typeof families)[number]>();
   for (const family of families) if (!latest.has(family.family_key)) latest.set(family.family_key, family);
   if (!latest.size) return [];
+  const authorizations = await read(input.db.from("adle_base_word_lexical_family_authorizations")
+    .select("family_key,revision,semantic_fingerprint,withdrawn_at")
+    .in("family_key", [...latest.keys()]).is("withdrawn_at", null));
+  const authorized = new Set(authorizations.filter((approval) => {
+    const family = latest.get(approval.family_key);
+    return family && family.revision === approval.revision &&
+      family.semantic_fingerprint === approval.semantic_fingerprint;
+  }).map((approval) => approval.family_key));
+  if (!authorized.size) return [];
   const allMembers = (await read(input.db.from("canonical_teaching_dictionary_lexical_base_family_members")
     .select("family_key,revision,canonical_word_id,word_part_of_speech,relationship_kind,canonical_morphology_id,word_sum,morphology_parts,morphology_joins,morphology_transformations,intended_meaning")
     .in("family_key", [...latest.keys()])))
-    .filter((member) => latest.get(member.family_key)?.revision === member.revision);
+    .filter((member) => authorized.has(member.family_key) && latest.get(member.family_key)?.revision === member.revision);
   const memberIds = [...new Set(allMembers.map((member) => member.canonical_word_id))];
   const candidateIds = [...new Set(input.candidateWordIds)];
   const [pairs, bands, morphology] = await Promise.all([
@@ -55,7 +64,8 @@ export async function loadReviewedLexicalFamilies(input: {
   const morphologyById = new Map(morphology.map((row) => [row.id, row]));
   const activeMorphologyByWord = new Map(morphology.filter((row) => row.row_status === "active")
     .map((row) => [row.canonical_word_id, row]));
-  return [...latest.values()].filter((family) => family.base_kind === "free_base" && family.canonical_base_word_id &&
+  return [...latest.values()].filter((family) => authorized.has(family.family_key) &&
+    family.base_kind === "free_base" && family.canonical_base_word_id &&
     touching.some((row) => row.family_key === family.family_key && row.revision === family.revision))
     .map((family) => ({
       familyKey: family.family_key, revision: family.revision, baseLemma: family.base_lemma,

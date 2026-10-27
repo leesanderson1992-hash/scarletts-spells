@@ -99,6 +99,15 @@ async function main() {
     assert.ok(projected.families.some((entry) => entry.baseFamilyKey === familyKey));
     const manifest = { ...projected, authorityKey: `staging-lexical-proof:${randomUUID()}`,
       approvalRefs: ["staging-lexical-bridge-proof"] };
+    await db.query("savepoint unauthorized_case");
+    await assert.rejects(db.query(`select public.publish_teaching_dictionary_base_family_authority_v2(
+      $1,$2::jsonb,$3,$4)`, [parentRow.authority_id, JSON.stringify(manifest),
+      sha(JSON.stringify(manifest)), "staging proof"]), /BASE_FAMILY_LEXICAL_SOURCE_NOT_AUTHORIZED/);
+    await db.query("rollback to savepoint unauthorized_case");
+    await db.query(`insert into public.adle_base_word_lexical_family_authorizations
+      (family_key,revision,semantic_fingerprint,authorization_reference,authorized_by)
+      values ($1,$2,$3,'staging lexical bridge proof',$4)`, [familyKey, added,
+      lexical.semanticFingerprint, actor]);
     const positive = await db.query<{ id: string }>(`select public.publish_teaching_dictionary_base_family_authority_v2(
       $1,$2::jsonb,$3,$4) id`,
       [parentRow.authority_id, JSON.stringify(manifest), sha(JSON.stringify(manifest)), "staging proof"]);
@@ -131,7 +140,8 @@ async function main() {
     await db.query("rollback to savepoint withdrawn_case");
     console.log(JSON.stringify({ result: "passed", familyKey, memberCount: lexical.members.length,
       publishedInactiveAuthority: true, futureReleaseReplay: true,
-      baseAuthenticTarget: false, negativeBaseTest: "rejected", withdrawnPairTest: "rejected",
+      baseAuthenticTarget: false, unauthorizedSourceTest: "rejected",
+      negativeBaseTest: "rejected", withdrawnPairTest: "rejected",
       persistedFixture: false }));
   } finally {
     await db.query("rollback").catch(() => undefined);

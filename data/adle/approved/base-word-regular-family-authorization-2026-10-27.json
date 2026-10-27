@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 1,
+  "scope": "base_word_lab_candidate_source_only",
+  "authorizedBy": "a28d4885-8328-4853-ba11-6c676619b9ea",
+  "families": [
+    {
+      "familyKey": "act_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "4cc70d386a112785908945753fc4c4a952f3fb9f63cec9f835b59c3c7815e70e",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "big_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "c582dccb5b842707c7109bd28778a758089e106c91c3842f3722c3bd5a941ec5",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "brave_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "c1f134e05c6c31c9aa9417861b770ed498c55e308693cd4401f8bcec50d28ea8",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "busy_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "ac87c5e7a011e46e5857b41820950cd21b3ca2f8cdb2ebbf3528e3b7774acd8d",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "care_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "329739f8050be4be16a20563a4bede514181e9993948934a61b0d55b1a90a89f",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "carry_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "9d0779bab7c26ee5b8a3814c24e3bc84dd2019ddc97482295db185703d1b6883",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "cry_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "e20476e1dbcd5c7913eb51339caee95697ea6f150dd8b47a8e04472e07e237d1",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "fast_adverb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "d7fa496427b768645c6d4e2386ce9c139829774c2efdac0821aacf6ffc62278b",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "fun_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "ae8d16b3f8d7eb8ab5ba55efdcc756d9604bb6677b707fe279cc92708e7e26c6",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "govern_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "d7a55b686b8a9e615089edabbcd0deb377b21d0072281362fe0c378b7d9077ff",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "graph_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "708b5e9eb6a98ac4b40cf1b25caad69b55b693e5215c3cfadec580e648b0dbc8",
+      "memberCount": 5,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "happy_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "97ca997a775e5b3b34ca0ad10737755eb9211bc66f81a1f166df27bffb909a51",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "hope_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "72ac589e9cbf269e8994771699412dc63f4e6cbbfa7a2de35b5e11ef0990efbf",
+      "memberCount": 5,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "hot_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "f729eb0f0ca98cf27d7d9d3004206847825aa4d094e90aa7db297a35663142ae",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "ingredient_noun_base_family",
+      "revision": 4,
+      "semanticFingerprint": "f394b013f3c05a07cc54866b04a80785963f256b89a1d07cb217127601553487",
+      "memberCount": 2,
+      "authorizationReference": "owner-prior-ingredient-approval-2026-10-27"
+    },
+    {
+      "familyKey": "joy_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "08fe2cdcf9b0ad6b0fcff6bd39a10e6e3506e1ce8d0f0308d784693a738c28f0",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "jump_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "085ca178b64c0c043478e8a0630417098b55fc5ee4184275334a69359deb4b6d",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "kind_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "6b90701a78a901f6784b3271e91fe80f1914819629a61ba132f8e14de8151490",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "large_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "d03acc7b271029a21bbd28c4981478da6c6a43ba355451defdd7834a521d947a",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "late_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "2660de5f80fb151f98380cf44eefa54b60311597612366a78823be1077e55440",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "like_function_word_base_family",
+      "revision": 1,
+      "semanticFingerprint": "016b6f4eb5c69778cf00cabeca0fe95550a2c15854284b20072831186cac693d",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "look_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "b3686fd29d8e5c65bfbae2b86f33c9e973408f0991e176f039a0cccb4d3e5535",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "music_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "bba66e7db4d2b786d410d782f2f6af78d802b769b2541ab04613e141cc375610",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "nice_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "ed6334ebe39a86e075259329cccec18319aefc375973c1861629be165655b868",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "pack_verb_base_family",
+      "revision": 2,
+      "semanticFingerprint": "ec674c2d29ecc1a8fed8f2e4798eb3bdae6a897cdffe39cd9fa0413234bc61eb",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "photo_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "fa2598fc94e477e6fa16b7bc8cfdb31ad0374f9eefaf04c84776f555bc65e4fb",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "play_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "21ac0874582313994b9f0c9d9975ed5afc1af11209ddaef4a559658bb173fb24",
+      "memberCount": 8,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "possible_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "eb170e0bdbdd2d888e162be0e1d48c069065845fae5edaf8b0c6da35c05d5d9f",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "quick_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "5b03724ab92580e09f9099bd4699456429fee0014360876ea71a962cde93d021",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "read_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "13c710c408c007ec12bca03fb8dcc078950e594b45373a84160b50f5c76f2bc3",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "run_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "6584f24af17a6478a2935f3160974930362882048add7e398de5c6cc4ba6806d",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "sad_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "5e26df178a85eaf1b2965d1c2b4af02d08ce3dfe17dc36a2552fd8ddb4f52b76",
+      "memberCount": 5,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "sign_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "e150e3dbb84b8af6699a9802d16918a49d533909313ef30fb060e20c785d52e5",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "small_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "eae57a0bdda5611d5986eec1a9351c9ecb1b0709d9334a0afcf660388ae880d2",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "smile_noun_base_family",
+      "revision": 1,
+      "semanticFingerprint": "721abb5f9588432534870fa71c510b26935e20320a7f9b7b0e5ab40b7c4501ce",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "stop_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "670ad15756bf478262dcdb45be506c557d307285a3b2ed4f7477ff2cda81e2be",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "tall_adjective_base_family",
+      "revision": 1,
+      "semanticFingerprint": "2dde8f39ea3592a0b475d08bb32ffaf658c6beaa6742b0fbae5b3213bf39dbcc",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "try_verb_base_family",
+      "revision": 1,
+      "semanticFingerprint": "21dbebd6e59ed69a880b0337358e28da03bbed68807d64fc68aa90c6fd716a7b",
+      "memberCount": 3,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    },
+    {
+      "familyKey": "write_verb_base_family",
+      "revision": 2,
+      "semanticFingerprint": "8ae18418c17332cd68824ce014044a1af422168cac8bca63c8a1857f899666c4",
+      "memberCount": 4,
+      "authorizationReference": "owner-regular-family-authorization-2026-10-27"
+    }
+  ],
+  "excluded": [
+    {
+      "familyKey": "bad_adjective_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "be_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "can_modal_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "do_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "electr_bound_root_base_family",
+      "reason": "bound_root"
+    },
+    {
+      "familyKey": "foot_noun_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "go_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "have_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "he_function_word_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "i_pronoun_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "lead_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "let_verb_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "make_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "say_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "see_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "she_pronoun_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "sit_verb_base_family",
+      "reason": "irregular_form"
+    },
+    {
+      "familyKey": "they_function_word_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "we_pronoun_base_family",
+      "reason": "contraction_specialist_route"
+    },
+    {
+      "familyKey": "you_function_word_base_family",
+      "reason": "contraction_specialist_route"
+    }
+  ]
+}

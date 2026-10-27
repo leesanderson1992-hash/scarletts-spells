@@ -15,10 +15,19 @@ export default async function BaseFamiliesPage({ searchParams }: {
   const raw = Number((await searchParams).x ?? "1");
   const greaterThan = Number.isInteger(raw) && raw >= 0 && raw <= 20 ? raw : 1;
   const environment = resolveAdleRouteActivationEnvironment();
-  const releases = environment ? await loadEnabledBaseWordReleaseAuthorities({
-    client: createServiceRoleClient(), environmentKey: environment,
-    microSkillKeys: [...BASE_WORD_SKILLS],
-  }) : [];
+  const client = createServiceRoleClient();
+  const [releases, candidateResult] = await Promise.all([
+    environment ? loadEnabledBaseWordReleaseAuthorities({
+      client, environmentKey: environment, microSkillKeys: [...BASE_WORD_SKILLS],
+    }) : Promise.resolve([]),
+    client.from("adle_base_word_lexical_family_authorizations")
+      .select("family_key,revision,authorized_at")
+      .is("withdrawn_at", null).order("family_key"),
+  ]);
+  if (candidateResult.error) throw new Error(`Base Word candidate sources unavailable: ${candidateResult.error.message}`);
+  const candidates = candidateResult.data ?? [];
+  const releasedKeys = new Set(releases.flatMap((release) =>
+    release.family.families.map((family) => family.baseFamilyKey)));
   const views = releases.map((release) => {
     const counts = indexedEligibleBaseFamilyCounts(release);
     return { release, counts: counts.filter((family) => family.eligibleCount > greaterThan),
@@ -42,5 +51,14 @@ export default async function BaseFamiliesPage({ searchParams }: {
           <td>{pairs.some((pair) => pair.includes(family.baseFamilyKey)) ? "Possible" : "No"}</td>
         </tr>)}</tbody></table>
     </section>)}
+    <section className="grid gap-2 rounded border border-[var(--border)] bg-white p-4">
+      <h2 className="font-semibold">Authorised dictionary family sources</h2>
+      <p className="text-sm">{candidates.length} approved lexical family revisions may supply Base Word lesson candidates. This authorisation does not approve a word–skill relationship, lesson content, or a route release.</p>
+      <table className="w-full text-left text-sm"><thead><tr><th className="py-1">Family</th><th>Revision</th><th>Active release</th></tr></thead>
+        <tbody>{candidates.map((candidate) => <tr key={`${candidate.family_key}:${candidate.revision}`} className="border-t border-[var(--border)]">
+          <td className="py-1">{candidate.family_key}</td><td>{candidate.revision}</td>
+          <td>{releasedKeys.has(candidate.family_key) ? "Included" : "Needs word and content review"}</td>
+        </tr>)}</tbody></table>
+    </section>
   </main>;
 }

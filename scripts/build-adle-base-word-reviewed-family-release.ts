@@ -112,6 +112,10 @@ async function main() {
         [config.lexicalFamilyKey])).rows[0];
       if (!lexical || lexical.base_kind !== "free_base" || !lexical.canonical_base_word_id)
         throw new Error("An approved free-base lexical family is required");
+      const authorized = (await db.query<Row>(`select 1 from public.adle_base_word_lexical_family_authorizations
+        where family_key=$1 and revision=$2 and semantic_fingerprint=$3 and withdrawn_at is null`,
+        [config.lexicalFamilyKey, lexical.revision, lexical.semantic_fingerprint])).rows.length === 1;
+      if (!authorized) throw new Error("This lexical family is not authorized as a Base Word lesson candidate source");
       const lexicalMembers = (await db.query<Row>(`select member.* from public.canonical_teaching_dictionary_lexical_base_family_members member
         join public.canonical_teaching_dictionary_word_morphology morphology
           on morphology.id=member.canonical_morphology_id and morphology.canonical_word_id=member.canonical_word_id
