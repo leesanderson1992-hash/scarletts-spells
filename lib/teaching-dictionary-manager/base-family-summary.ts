@@ -66,57 +66,86 @@ export async function loadWordBaseFamilies(
     }
   }
   const environment = resolveAdleRouteActivationEnvironment();
-  const [legacyMembers, reviews, withdrawals, skillWithdrawals] =
-    await Promise.all([
-      read(
-        db
-          .from("canonical_teaching_dictionary_base_word_family_members")
-          .select("base_word_family_id,canonical_word_id")
-          .eq("row_status", "active"),
-      ),
-      environment
-        ? read(
-            db
-              .from("teaching_dictionary_base_family_member_reviews")
-              .select(
-                "id,canonical_word_id,legacy_family_id,definition_id,word_skill_release_id,reviewed_at",
-              )
-              .eq("environment_key", environment)
-              .order("reviewed_at"),
-          )
-        : Promise.resolve([]),
-      read(
-        db
-          .from("teaching_dictionary_base_family_member_withdrawals")
-          .select("review_id"),
-      ),
-      read(
-        db.from("adle_reviewed_word_skill_withdrawals").select("release_id"),
-      ),
-    ]);
+  // First find only families touching this word. The previous read fetched
+  // every legacy membership, review and withdrawal on every word page.
+  const [wordLegacy, wordReviews] = await Promise.all([
+    read(db.from("canonical_teaching_dictionary_base_word_family_members")
+      .select("base_word_family_id,canonical_word_id")
+      .eq("row_status", "active").eq("canonical_word_id", wordId)),
+    environment ? read(db.from("teaching_dictionary_base_family_member_reviews")
+      .select("id,canonical_word_id,legacy_family_id,definition_id,word_skill_release_id,reviewed_at")
+      .eq("environment_key", environment).eq("canonical_word_id", wordId)
+      .order("reviewed_at")) : Promise.resolve([]),
+  ]);
+  const candidateIds = [...new Set([
+    ...wordLegacy.map((row) => String(row.base_word_family_id)),
+    ...wordReviews.flatMap((row) => row.legacy_family_id || row.definition_id
+      ? [String(row.legacy_family_id ?? row.definition_id)] : []),
+  ])];
+  if (!candidateIds.length) return [];
+  const reviewIds = wordReviews.map((row) => String(row.id));
+  const releaseIds = [...new Set(wordReviews.map((row) => String(row.word_skill_release_id)))];
+  const [wordWithdrawals, wordSkillWithdrawals] = await Promise.all([
+    reviewIds.length ? read(db.from("teaching_dictionary_base_family_member_withdrawals")
+      .select("review_id").in("review_id", reviewIds)) : Promise.resolve([]),
+    releaseIds.length ? read(db.from("adle_reviewed_word_skill_withdrawals")
+      .select("release_id").in("release_id", releaseIds)) : Promise.resolve([]),
+  ]);
+  const withdrawnWordReviews = new Set(wordWithdrawals.map((row) => String(row.review_id)));
+  const withdrawnWordSkills = new Set(wordSkillWithdrawals.map((row) => String(row.release_id)));
+  const activeForWord = new Set(wordLegacy.map((row) => String(row.base_word_family_id)));
+  for (const row of wordReviews) {
+    const id = row.legacy_family_id ?? row.definition_id;
+    if (!id) continue;
+    if (withdrawnWordReviews.has(row.id) || withdrawnWordSkills.has(row.word_skill_release_id)) activeForWord.delete(id);
+    else activeForWord.add(id);
+  }
+  const familyIds = [...activeForWord];
+  if (!familyIds.length) return [];
+  const legacyIds = familyIds.filter((id) => wordLegacy.some((row) => row.base_word_family_id === id) ||
+    wordReviews.some((row) => row.legacy_family_id === id));
+  const definitionIds = familyIds.filter((id) => !legacyIds.includes(id));
+  const [legacyMembers, legacyReviews, definitionReviews] = await Promise.all([
+    legacyIds.length ? read(db.from("canonical_teaching_dictionary_base_word_family_members")
+      .select("base_word_family_id,canonical_word_id")
+      .eq("row_status", "active").in("base_word_family_id", legacyIds)) : Promise.resolve([]),
+    environment && legacyIds.length ? read(db.from("teaching_dictionary_base_family_member_reviews")
+      .select("id,canonical_word_id,legacy_family_id,definition_id,word_skill_release_id,reviewed_at")
+      .eq("environment_key", environment).in("legacy_family_id", legacyIds)
+      .order("reviewed_at")) : Promise.resolve([]),
+    environment && definitionIds.length ? read(db.from("teaching_dictionary_base_family_member_reviews")
+      .select("id,canonical_word_id,legacy_family_id,definition_id,word_skill_release_id,reviewed_at")
+      .eq("environment_key", environment).in("definition_id", definitionIds)
+      .order("reviewed_at")) : Promise.resolve([]),
+  ]);
+  const reviews = [...legacyReviews, ...definitionReviews].sort((a, b) =>
+    String(a.reviewed_at).localeCompare(String(b.reviewed_at)) || String(a.id).localeCompare(String(b.id)));
+  const allReviewIds = reviews.map((row) => String(row.id));
+  const allReleaseIds = [...new Set(reviews.map((row) => String(row.word_skill_release_id)))];
+  const [withdrawals, skillWithdrawals] = await Promise.all([
+    allReviewIds.length ? read(db.from("teaching_dictionary_base_family_member_withdrawals")
+      .select("review_id").in("review_id", allReviewIds)) : Promise.resolve([]),
+    allReleaseIds.length ? read(db.from("adle_reviewed_word_skill_withdrawals")
+      .select("release_id").in("release_id", allReleaseIds)) : Promise.resolve([]),
+  ]);
+  const withdrawn = new Set(withdrawals.map((row) => String(row.review_id)));
+  const withdrawnSkills = new Set(skillWithdrawals.map((row) => String(row.release_id)));
   const members = new Map<string, Set<string>>();
   for (const row of legacyMembers) {
     const words = members.get(row.base_word_family_id) ?? new Set<string>();
     words.add(row.canonical_word_id);
     members.set(row.base_word_family_id, words);
   }
-  // Latest reviewed decision wins over the mutable legacy relationship.
+  // Latest reviewed decision wins over a legacy relationship, including a
+  // withdrawal. Historical reviews remain available for mastery evidence.
   for (const row of reviews) {
     const id = row.legacy_family_id ?? row.definition_id;
     if (!id) continue;
     const words = members.get(id) ?? new Set<string>();
-    if (
-      withdrawals.some((w) => w.review_id === row.id) ||
-      skillWithdrawals.some((w) => w.release_id === row.word_skill_release_id)
-    )
-      words.delete(row.canonical_word_id);
+    if (withdrawn.has(row.id) || withdrawnSkills.has(row.word_skill_release_id)) words.delete(row.canonical_word_id);
     else words.add(row.canonical_word_id);
     members.set(id, words);
   }
-  const familyIds = [...members]
-    .filter(([, ids]) => ids.has(wordId))
-    .map(([id]) => id);
-  if (!familyIds.length) return [];
   const [legacy, definitions, words] = await Promise.all([
     read(
       db

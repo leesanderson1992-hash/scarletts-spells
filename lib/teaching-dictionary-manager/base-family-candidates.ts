@@ -9,6 +9,20 @@ export const BASE_WORD_SKILLS = [
 
 export type BaseWordSkill = (typeof BASE_WORD_SKILLS)[number];
 
+/** A form suggestion only. The reviewer still decides and approves the skill. */
+export function suggestedBaseWordSkill(parts: unknown): BaseWordSkill {
+  if (!Array.isArray(parts)) return "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+  const kinds = new Set(parts.flatMap((raw) => {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
+    const part = raw as Record<string, unknown>;
+    const kind = part.kind ?? part.type ?? part.partType;
+    return typeof kind === "string" ? [kind] : [];
+  }));
+  if (kinds.has("prefix") && !kinds.has("suffix")) return "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX";
+  if (kinds.has("suffix") && !kinds.has("prefix")) return "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
+  return "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+}
+
 export interface FamilyCandidateWord {
   id: string;
   normalisedWord: string;

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
-  BASE_WORD_SKILLS, reviewedMorphologyFamilyCandidates, virtualFamilyCandidate,
+  BASE_WORD_SKILLS, reviewedMorphologyFamilyCandidates, suggestedBaseWordSkill, virtualFamilyCandidate,
   type FamilyCandidateWord, type FamilyCandidateMorphology,
 } from "@/lib/teaching-dictionary-manager/base-family-candidates";
 import { approvedLexicalBaseTexts, lexicalMorphologyReady } from "@/lib/teaching-dictionary-manager/lexical-family-candidates";
@@ -46,7 +46,7 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
     <p className="text-xs">Proposed base: {baseLabel}</p>
     <p className="text-xs text-[color:var(--mid)]">{governedMorphology ? "Approved dictionary morphology" : isBase ? "Virtual standalone base" : "Manual relationship review"}. Approval adds a reviewed source; an ADLE release is still required.</p>
     <label className={labelClass}>Base meaning<input className={inputClass} name="base_meaning" defaultValue={baseMeaning} readOnly={Boolean(legacy)} required /></label>
-    <label className={labelClass}>Micro skill<select className={inputClass} name="skill_key" required>{BASE_WORD_SKILLS.map((skill) => <option key={skill} value={skill}>{skill.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}</option>)}</select></label>
+    <label className={labelClass}>Micro skill<select className={inputClass} name="skill_key" defaultValue={suggestedBaseWordSkill(parts)} required>{BASE_WORD_SKILLS.map((skill) => <option key={skill} value={skill}>{skill.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}</option>)}</select></label>
     <label className={labelClass}>Child-friendly word meaning<input className={inputClass} name="child_meaning" defaultValue={meaning} required /></label>
     <label className={labelClass}>Reviewed word sum<input className={inputClass} name="word_sum" defaultValue={isBase ? word.displayWord : morphology?.wordSum || ""} required /></label>
     <label className={labelClass}>Morphology parts JSON<textarea className={inputClass} name="parts_json" rows={4} defaultValue={JSON.stringify(parts, null, 2)} required /></label>

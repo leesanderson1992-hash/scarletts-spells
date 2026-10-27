@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { reviewedMorphologyFamilyCandidates, virtualFamilyCandidate,
+import { reviewedMorphologyFamilyCandidates, suggestedBaseWordSkill, virtualFamilyCandidate,
   type FamilyCandidateWord } from "../lib/teaching-dictionary-manager/base-family-candidates";
 import { eligibleBaseFamilyCounts, indexedEligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../lib/adle/base-word-family-counts";
 import { buildReviewedBaseFamilyProjection } from "../lib/adle/base-word-reviewed-family-release";
@@ -15,6 +15,13 @@ const approved = (displayWord: string, dialectCode = "en-GB"): FamilyCandidateWo
 const paint = approved("paint");
 const painter = approved("painter");
 const foreignPaint = approved("paint", "en-US");
+assert.equal(suggestedBaseWordSkill([{ kind: "base" }, { kind: "suffix" }]),
+  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", "colourful suggests its suffix skill");
+assert.equal(suggestedBaseWordSkill([{ type: "prefix" }, { type: "base" }]),
+  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "legacy prefix parts suggest the prefix skill");
+assert.equal(suggestedBaseWordSkill([{ kind: "base" }]), skill);
+assert.equal(suggestedBaseWordSkill([{ kind: "prefix" }, { kind: "suffix" }]), skill,
+  "mixed morphology needs a reviewer choice");
 assert.equal(virtualFamilyCandidate(paint)?.proposedKey, "paint_family");
 assert.equal(virtualFamilyCandidate({ ...paint, reviewStatus: "draft" }), null);
 assert.deepEqual(reviewedMorphologyFamilyCandidates(painter, {
