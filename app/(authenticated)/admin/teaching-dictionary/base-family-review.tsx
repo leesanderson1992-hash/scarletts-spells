@@ -6,6 +6,7 @@ import {
   type FamilyCandidateWord, type FamilyCandidateMorphology,
 } from "@/lib/teaching-dictionary-manager/base-family-candidates";
 import { approvedLexicalBaseTexts, lexicalMorphologyReady } from "@/lib/teaching-dictionary-manager/lexical-family-candidates";
+import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { reviewBaseFamilyMember, withdrawBaseFamilyMember } from "./base-family-actions";
 import { reviewLexicalFamilyMember } from "./lexical-family-actions";
 import type { ReactNode } from "react";
@@ -216,7 +217,10 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
               <option value="derived">Derived word</option><option value="contraction">Contraction</option>
               <option value="historical_relative">Historical relative</option>
             </select></label>
-            <label className={labelClass}>Word part of speech<input name="word_part_of_speech" className={inputClass} defaultValue="noun" required /></label>
+            <label className={labelClass}>Word part of speech<select name="word_part_of_speech" className={inputClass} defaultValue="" required>
+              <option value="">Select part of speech</option>
+              {partOfSpeechOptions("").map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select></label>
             <label className={labelClass}>Meaning in this family<input name="intended_meaning" className={inputClass} defaultValue={meaning} required /></label>
             <label className={labelClass}>Why this relationship is correct<input name="review_note" className={inputClass} required /></label>
             <FamilySubmitButton pendingLabel="Approving lexical family revision…" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 font-semibold text-white">Approve lexical member in new revision</FamilySubmitButton>

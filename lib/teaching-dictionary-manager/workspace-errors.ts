@@ -1,5 +1,5 @@
 const messages:Record<string,string>={
-  TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED:"Shared changes are saved for the lesson release. Open the lesson below to resolve its checks and launch.",
+  TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED:"Your change was saved in a draft, but it is not yet in the live dictionary. This word has an active lesson relationship, so its shared facts require a reviewed lesson release. Reopen the saved draft to keep editing; complete the lesson checks before publication.",
   TEACHING_OVERVIEW_FACTS_INCOMPLETE:"Overview is saved as a draft. Complete the required fields before approval.",
   TEACHING_OVERVIEW_REVIEW_REQUIRED:"Save and approve Overview before reviewing this lesson.",
   TEACHING_ROUTE_FACTS_INCOMPLETE:"Lesson details are saved. Complete the fields marked below before approval.",

@@ -27,6 +27,7 @@ import {
   type RouteContentDraft,
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
+import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { reviewedWordCanLaunch } from "@/lib/teaching-dictionary-manager/editorial-review";
 import { publicationBlockerTarget } from "@/lib/teaching-dictionary-manager/readiness";
 import {
@@ -499,6 +500,7 @@ export function WordWorkspace(props: {
       key: "speech",
       label: "Part of speech",
       value: payload.canonicalMorphology.rawPartOfSpeech,
+      options: partOfSpeechOptions(payload.canonicalMorphology.rawPartOfSpeech),
       change: (v: string) =>
         change({
           canonicalMorphology: {

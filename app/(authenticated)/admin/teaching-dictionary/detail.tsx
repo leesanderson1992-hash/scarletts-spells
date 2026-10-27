@@ -329,6 +329,11 @@ export async function TeachingDictionaryDetail({
     word?.updated_at, metadata?.created_at, morphology?.created_at,
     dictation?.created_at, definitions?.data?.[0]?.published_at,
   ]));
+  const approvedFactDates = [word?.updated_at, metadata?.created_at, morphology?.created_at,
+    dictation?.created_at, definitions?.data?.[0]?.published_at]
+    .map((date) => Date.parse(date ?? "")).filter(Number.isFinite);
+  const latestSavedDraft = !params.draft && (history?.data ?? []).find((version) =>
+    Date.parse(version.created_at) > Math.max(0, ...approvedFactDates));
   const activeDraft = staleDraft ? null : draft;
   const initial: WordDraftPayload = activeDraft ? activeDraft.payload as WordDraftPayload : currentInitial;
   const suggestions = [
@@ -415,6 +420,12 @@ export async function TeachingDictionaryDetail({
           {word?.display_word ?? "New word"}
         </h1>
       </header>
+      {wordId && latestSavedDraft && <div role="status" className="rounded-xl border border-sky-300 bg-sky-50 p-4 text-sm">
+        A newer saved draft exists, but its changes are not yet in the live dictionary.{" "}
+        <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${latestSavedDraft.id}`}>
+          Open the saved draft
+        </Link>{" "}to continue its review.
+      </div>}
       {staleDraft && <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm">
         <strong>This draft predates newer approved dictionary facts.</strong>{" "}
         Current approved facts are shown. Save a new draft to review this lesson content; the older draft is preserved.

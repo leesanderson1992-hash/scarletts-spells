@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { normaliseWord, WORD_METADATA_FIELDS } from "@/lib/teaching-dictionary-manager/contracts";
 import { routeEditorPayload } from "@/lib/teaching-dictionary-manager/route-editor-payload";
+import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { saveTeachingDictionaryDraft, saveTeachingDictionarySkillApprovals } from "./actions";
 import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelFactsEditor } from "./weak-vowel-facts-editor";
@@ -407,7 +408,7 @@ export function WordEditor(props: {
         <input type="hidden" name="morphology_joins" value={JSON.stringify(canonicalMorphologyEdited ? canonicalJoins : props.initial.canonicalMorphology.joins)} />
         <div className="grid gap-3 md:grid-cols-2">
           <label className={labelClass}><FieldTitle label="Raw segmentation" /><input className={fieldClass} name="raw_morpholex_segmentation" defaultValue={props.initial.canonicalMorphology.rawSegmentation} /></label>
-          <label className={labelClass}><FieldTitle label="Part of speech" /><input className={fieldClass} name="raw_morpholex_pos" defaultValue={props.initial.canonicalMorphology.rawPartOfSpeech} /></label>
+          <label className={labelClass}><FieldTitle label="Part of speech" /><select className={fieldClass} name="raw_morpholex_pos" defaultValue={props.initial.canonicalMorphology.rawPartOfSpeech}><option value="">Select part of speech</option>{partOfSpeechOptions(props.initial.canonicalMorphology.rawPartOfSpeech).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
           <label id="td-canonical-word-sum" className={`${labelClass} scroll-mt-6`}><FieldTitle label="Canonical word sum" /><input className={fieldClass} name="canonical_word_sum" value={canonicalWordSum} onChange={(event) => setCanonicalWordSum(event.target.value)} /></label>
           <label className={labelClass}><FieldTitle label="Analysis status" /><select className={fieldClass} name="analysis_status" defaultValue={props.initial.canonicalMorphology.analysisStatus}>{["in_review", "approved", "not_applicable", "rejected"].map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}</select></label>
           <label className={labelClass}><FieldTitle label="Transformation notes" /><textarea className={fieldClass} name="transformation_notes" rows={3} defaultValue={props.initial.canonicalMorphology.transformationNotes} /></label>
