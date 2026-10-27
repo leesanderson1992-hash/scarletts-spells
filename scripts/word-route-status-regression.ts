@@ -63,4 +63,20 @@ const staleContract = wordRouteStatus({ wordId: "where", dictionaryApproved: tru
   approvedSkillKeys: new Set([skill]), lesson: { ...lesson, routeVersion: "v1" } });
 assert.equal(staleContract.contractVersion, null);
 assert(staleContract.blockerDetails.some(blocker => blocker.code === "ROUTE_CONTRACT_UNAVAILABLE"));
+
+const restricted = wordRouteStatus({ wordId: "where", dictionaryApproved: true,
+  approvedSkillKeys: new Set([skill]), lesson: { ...lesson,
+    activationBlockers: ["Active route has a limited release scope; global availability requires all_eligible scope"] } });
+assert.equal(restricted.administrativeCandidate, true, "child allowlist does not erase a ready word");
+assert.equal(restricted.childEligibility, "not_evaluated");
+
+const degreeSkill = "D4_INF_COMPARATIVE_SUPERLATIVE_REGULAR";
+const familyBase = wordRouteStatus({ wordId: "fast", dictionaryApproved: true,
+  approvedSkillKeys: new Set(), lesson: { ...lesson, routeId: "comparative_superlative_word_lab",
+    routeVersion: "v1", microSkillKey: degreeSkill,
+    words: [{ ...lesson.words[0], id: "fast", contentPreview: { degree: "base" } }] } });
+assert.equal(familyBase.administrativeCandidate, false);
+assert.equal(familyBase.contentRole, "reviewed family base (teaching support)");
+assert(familyBase.blockerDetails.some(blocker => blocker.code === "SUPPORT_FORM_NOT_TARGET"));
+assert(!familyBase.blockerDetails.some(blocker => blocker.code === "RELATIONSHIP_NOT_APPROVED"));
 console.log("word route status regression passed");

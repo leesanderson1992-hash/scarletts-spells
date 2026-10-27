@@ -43,7 +43,8 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
       <details className="mt-3"><summary className="cursor-pointer font-semibold">Inspect word gates and blockers</summary>
         <ul className="mt-3 grid gap-2 text-sm">{routeWords.words.slice(0, 50).map((word) => <li key={word.wordId} className="rounded-lg border border-[var(--border)] p-2">
           <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.wordId}`}>{word.displayWord}</Link>
-          <span> · {word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate ? "administratively eligible" : "blocked"}</span>
+          <span> · {word.status.contentRole === "reviewed family base (teaching support)" ? "reviewed family base; teaching support only"
+            : word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate ? "administrative gates passed; child scope checked separately" : "blocked"}</span>
           {word.status.blockerDetails.length > 0 && <ul className="mt-1 list-disc pl-5">{word.status.blockerDetails.map((blocker, index) => <li key={`${blocker.code}:${index}`}>{blocker.gate}: {blocker.message}</li>)}</ul>}
         </li>)}</ul>
         {routeWords.words.length > 50 && <p className="mt-2 text-sm">Showing the first 50 words alphabetically; the counts cover all {routeWords.words.length} words.</p>}
@@ -62,7 +63,7 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
           ? <p className="mt-2 text-sm">This route uses a separate governed release package. Its published content and activation are shown here; this page does not yet publish a new package for this route.</p> : null}
         {row.route.activationAuthority === "database_route_activation" && !row.released
           ? <p className="mt-2 text-sm">This specialist route also needs its governed release manifest and dependencies. The Teaching Dictionary review alone cannot make it scheduler visible.</p> : null}
-        {row.compilerReady && <p className="mt-2 text-sm text-emerald-900">A four-word selection compiles with the proposed content.</p>}
+        {row.compilerReady && <p className="mt-2 text-sm text-emerald-900">A representative lesson selection compiles with the reviewed content.</p>}
         {row.blockers.length > 0 && <div className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-950"><strong>Content and review blockers</strong><ul className="mt-1 list-disc pl-5">{row.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></div>}
         {row.activationBlockers.length > 0 && <div className="mt-3 rounded-lg border border-amber-200 p-3 text-sm"><strong>Separate activation gate</strong><ul className="mt-1 list-disc pl-5">{row.activationBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></div>}
 

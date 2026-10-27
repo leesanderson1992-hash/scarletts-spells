@@ -46,6 +46,8 @@ export function wordRouteStatus(input: {
   const contractCurrent = contract?.routeVersion === lesson.routeVersion;
   const member = lesson.words.find((word) => word.id === wordId && word.requiredForRelease !== false)
     ?? lesson.words.find((word) => word.id === wordId);
+  const comparativeBaseSupport = lesson.routeId === "comparative_superlative_word_lab" &&
+    (member?.contentPreview as { degree?: string } | null)?.degree === "base";
   const relationshipApproved = input.approvedSkillKeys.has(lesson.microSkillKey);
   const contentPresent = Boolean(member);
   const contentPreflightReady = member?.ready === true;
@@ -62,7 +64,8 @@ export function wordRouteStatus(input: {
   };
   if (!contractCurrent) add("ROUTE_CONTRACT_UNAVAILABLE", "content", "This route/version has no current content contract");
   if (!input.dictionaryApproved) add("DICTIONARY_NOT_APPROVED", "dictionary", "Dictionary word is not approved");
-  if (!relationshipApproved) add("RELATIONSHIP_NOT_APPROVED", "relationship", "Word–micro-skill relationship is not approved");
+  if (comparativeBaseSupport) add("SUPPORT_FORM_NOT_TARGET", "relationship", "Reviewed base form supports this family; only its -er and -est forms are independent lesson targets");
+  else if (!relationshipApproved) add("RELATIONSHIP_NOT_APPROVED", "relationship", "Word–micro-skill relationship is not approved");
   if (!contentPresent) add("ROUTE_CONTENT_MISSING", "content", "Word is not in the reviewed route content or member group");
   for (const message of member?.blockers ?? []) add("WORD_PREFLIGHT_BLOCKED", "content", message);
   if (contentPresent && !contentPreflightReady && !member?.blockers.length)
@@ -70,7 +73,12 @@ export function wordRouteStatus(input: {
   if (contentPresent && !editorialApproved)
     add("CONTENT_REVIEW_PENDING", "editorial", "Route content awaits editorial review");
   for (const message of lesson.blockers ?? []) add("LESSON_PREFLIGHT_BLOCKED", "content", message);
-  for (const message of lesson.activationBlockers ?? []) add("ACTIVATION_BLOCKED", "activation", message);
+  for (const message of lesson.activationBlockers ?? []) {
+    // A child allowlist is checked by the native selector for each child. It
+    // does not make the reviewed word technically or editorially blocked.
+    if (message.includes("limited release scope")) continue;
+    add("ACTIVATION_BLOCKED", "activation", message);
+  }
   if (!lesson.released) add("ROUTE_NOT_RELEASED", "release", "Route content is not released");
   if (!lesson.activationEnabled) add("ROUTE_NOT_ACTIVE", "activation", "ADLE route is not activated");
   const blockers = [...new Set(blockerDetails.map((blocker) => blocker.message))];
@@ -81,7 +89,7 @@ export function wordRouteStatus(input: {
     microSkillKey: lesson.microSkillKey,
     dictionaryApproved: input.dictionaryApproved,
     relationshipApproved,
-    contentRole: member?.role ?? null,
+    contentRole: comparativeBaseSupport ? "reviewed family base (teaching support)" : member?.role ?? null,
     contentPresent,
     contentPreflightReady,
     technicalFacts,
