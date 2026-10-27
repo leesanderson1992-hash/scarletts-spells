@@ -18,6 +18,17 @@ type BaseMember = { canonical_word_id: string; row_status: string };
 type Profile = { id: string; micro_skill_key: string; row_status: string; production_enabled: boolean };
 type RouteContent = { canonical_word_id: string; route_id: string; micro_skill_key: string };
 
+async function readAll<T>(table: string, columns: string): Promise<T[]> {
+  const db = createServiceRoleClient();
+  const rows: T[] = [];
+  for (let start = 0; ; start += 500) {
+    const result = await db.from(table).select(columns).order("id", { ascending: true }).range(start, start + 499);
+    if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
+    rows.push(...(result.data as T[]));
+    if ((result.data?.length ?? 0) < 500) return rows;
+  }
+}
+
 async function readForWords<T>(table: string, columns: string, wordIds: string[]): Promise<T[]> {
   if (wordIds.length === 0) return [];
   const rows: T[] = [];
@@ -36,27 +47,13 @@ async function readForWords<T>(table: string, columns: string, wordIds: string[]
 
 async function loadRouteFacts(wordIds: string[]) {
   const read = <T,>(table: string, columns: string) => readForWords<T>(table, columns, wordIds);
-  const [prefixes, suffixes, baseMembers, routeContent] = await Promise.all([
+  const [prefixes, suffixes, baseMembers, prefixProfiles, suffixProfiles, routeContent] = await Promise.all([
     read<PrefixMember>("canonical_teaching_dictionary_prefix_members", "id,canonical_word_id,prefix_profile_id,row_status"),
     read<SuffixMember>("canonical_teaching_dictionary_suffix_members", "id,canonical_word_id,suffix_profile_id,row_status"),
     read<BaseMember>("canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,row_status"),
+    readAll<Profile>("canonical_teaching_dictionary_prefix_profiles", "id,micro_skill_key,row_status,production_enabled"),
+    readAll<Profile>("canonical_teaching_dictionary_suffix_profiles", "id,micro_skill_key,row_status,production_enabled"),
     read<RouteContent>("teaching_dictionary_route_content_versions", "id,canonical_word_id,route_id,micro_skill_key"),
-  ]);
-  const readProfiles = async (table: string, ids: string[]): Promise<Profile[]> => {
-    if (!ids.length) return [];
-    const db = createServiceRoleClient();
-    const rows: Profile[] = [];
-    for (let at = 0; at < ids.length; at += 100) {
-      const result = await db.from(table).select("id,micro_skill_key,row_status,production_enabled")
-        .in("id", ids.slice(at, at + 100));
-      if (result.error) throw new Error(`TEACHING_DICTIONARY_READ_FAILED:${table}`);
-      rows.push(...result.data as Profile[]);
-    }
-    return rows;
-  };
-  const [prefixProfiles, suffixProfiles] = await Promise.all([
-    readProfiles("canonical_teaching_dictionary_prefix_profiles", [...new Set(prefixes.filter((row) => row.row_status === "active").map((row) => row.prefix_profile_id))]),
-    readProfiles("canonical_teaching_dictionary_suffix_profiles", [...new Set(suffixes.filter((row) => row.row_status === "active").map((row) => row.suffix_profile_id))]),
   ]);
   const prefixById = new Map(prefixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
   const suffixById = new Map(suffixProfiles.filter((row) => row.row_status === "active" && row.production_enabled).map((row) => [row.id, row.micro_skill_key]));
@@ -86,16 +83,17 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const environment = resolveAdleRouteActivationEnvironment();
   const db = createServiceRoleClient();
+  const needsGlobalAuthority = filter === "evidence_approved" || filter === "route_blocked";
   const authorityPromise = environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
-  const [drafts, authority] = await Promise.all([draftsPromise, authorityPromise]);
-  if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
-  const skillsByWord = new Map<string, string[]>();
-  for (const relationship of authority?.relationships ?? []) {
-    skillsByWord.set(relationship.canonicalWordId, [...(skillsByWord.get(relationship.canonicalWordId) ?? []), relationship.microSkillKey]);
-  }
+  const initialPagePromise = !needsGlobalAuthority ? db.rpc("teaching_dictionary_admin_filtered_page", {
+    p_filter: filter, p_search: q, p_word_ids: null,
+    p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
+  }) : null;
+  const globalAuthority = needsGlobalAuthority ? await authorityPromise : null;
+  const globalApprovedIds = [...new Set((globalAuthority?.relationships ?? []).map((row) => row.canonicalWordId))];
   const routeBlockedResult = filter === "route_blocked" ? await db.rpc("teaching_dictionary_admin_route_blocked_ids", {
-    p_approved_pairs: (authority?.relationships ?? []).flatMap((relationship) => {
+    p_approved_pairs: (globalAuthority?.relationships ?? []).flatMap((relationship) => {
       const routeId = routeForSkill(relationship.microSkillKey)?.routeId;
       return routeId && MEMBER_CHECK_ROUTES.has(routeId)
         ? [{ wordId: relationship.canonicalWordId, microSkillKey: relationship.microSkillKey, routeId }]
@@ -103,22 +101,29 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     }),
   }) : null;
   if (routeBlockedResult?.error) throw new Error(`TEACHING_DICTIONARY_ROUTE_FILTER_FAILED:${routeBlockedResult.error.message}`);
-  const candidateIds = filter === "evidence_approved" ? [...skillsByWord.keys()]
+  const candidateIds = filter === "evidence_approved" ? globalApprovedIds
     : filter === "route_blocked" ? routeBlockedResult?.data as string[] ?? [] : null;
-  const pageResult = await db.rpc("teaching_dictionary_admin_filtered_page", {
+  const pageResult = await (initialPagePromise ?? db.rpc("teaching_dictionary_admin_filtered_page", {
     p_filter: filter, p_search: q, p_word_ids: candidateIds,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
-  });
+  }));
   if (pageResult.error) throw new Error(`TEACHING_DICTIONARY_WORD_READ_FAILED:${pageResult.error.message}`);
   const pageData = pageResult.data as { words: Word[]; total: number } | null;
   const shown = pageData?.words ?? [];
   const total = pageData?.total ?? 0;
   const wordIds = shown.map((word) => word.id);
-  const [metadata, dictation, displayRouteFacts] = await Promise.all([
+  const [drafts, authority, metadata, dictation, displayRouteFacts] = await Promise.all([
+    draftsPromise,
+    authorityPromise,
     readForWords<{ canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null }>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,review_status,syllables,written_syllable_breakdown,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes", wordIds),
     readForWords<{ canonical_word_id: string; row_status: string; review_status: string }>("canonical_teaching_dictionary_dictation_sentences", "id,canonical_word_id,row_status,review_status", wordIds),
     wordIds.length ? loadRouteFacts(wordIds) : Promise.resolve(null),
   ]);
+  if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
+  const skillsByWord = new Map<string, string[]>();
+  for (const relationship of authority?.relationships ?? []) {
+    skillsByWord.set(relationship.canonicalWordId, [...(skillsByWord.get(relationship.canonicalWordId) ?? []), relationship.microSkillKey]);
+  }
   const routeKeysByWord = displayRouteFacts?.routeKeysByWord ?? new Map<string, string[]>();
   const routeMembers = displayRouteFacts?.routeMembers ?? new Set<string>();
   const metadataReady = new Set(metadata.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure"

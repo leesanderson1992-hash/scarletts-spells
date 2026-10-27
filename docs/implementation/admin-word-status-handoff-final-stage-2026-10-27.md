@@ -34,11 +34,13 @@ or activate an ADLE release merely because content is complete.
 - The word workspace currently loads governed readiness after its main render.
   It must refresh after relevant saves and show an explicit loading/error state;
   a stale positive status must never survive a withdrawal.
-- Local, unreleased edits made during this investigation scope the Teaching
-  Dictionary list's profile reads to the displayed words, skip an unnecessary
-  weak-vowel fingerprint lookup, remove No Matching Skill's separate lesson
-  readiness calculation, and link a case to its existing dictionary word.
-  These are a first slice, not evidence of production speed improvement.
+- The first code slice overlaps independent Teaching Dictionary list reads,
+  skips an unnecessary weak-vowel fingerprint lookup, removes No Matching
+  Skill's separate lesson-readiness calculation, and links a case to its
+  existing dictionary word. A staging comparison found only one prefix and
+  one suffix profile, so a proposed second-round profile lookup was reverted;
+  it would have added latency for negligible transfer savings. These code
+  changes are not evidence of Production speed improvement.
 
 ## Implementation sequence
 
