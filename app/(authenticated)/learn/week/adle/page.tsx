@@ -51,6 +51,7 @@ import { ReviewR6Session } from "@/components/adle/review/review-r6-session";
 import { continueAdleAfterReviewR6Action } from "./review-r6-actions";
 import { loadWithdrawnLearningNeeds } from "@/lib/adle/loaders/withdrawn-learning-needs";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { specialistSnapshotFingerprint } from "@/lib/adle/specialist-snapshot-fingerprint";
 
 async function WithdrawnNeedsNotice({ childId }: { childId: string }) {
   const environmentKey = resolveAdleRouteActivationEnvironment();
@@ -183,7 +184,10 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
   const homophoneParentManualRoute = routeResolution?.status === "resolved_explicit"
     && (routeResolution.runtime.adapterKey === "homophone_v2"
       || routeResolution.runtime.adapterKey === "homophone_contextual_v1");
-  const r6SpecialistCheckpoint = homophoneCheckpointReadRequired(r6Session?.majorStage ?? null, homophoneParentManualRoute) && readModel.assignmentId
+  const weakVowelSpecialistRoute = routeResolution?.status === "resolved_explicit" &&
+    routeResolution.runtime.adapterKey === "weak_vowel_v1";
+  const r6SpecialistCheckpoint = (homophoneCheckpointReadRequired(r6Session?.majorStage ?? null, homophoneParentManualRoute)
+    || weakVowelSpecialistRoute) && readModel.assignmentId
     ? await loadAdleSpecialistCheckpointR6({ client: serviceClient, assignmentId: readModel.assignmentId })
     : null;
   if (readModel.assignmentId
@@ -215,11 +219,8 @@ export default async function AdleSessionPage({ searchParams }: AdleSessionPageP
     "contentVersion" in routeResolution.runtime.payload
       ? routeResolution.runtime.payload.contentVersion
       : null;
-  const r6LessonFingerprint = r6Session?.specialist?.compiledLessonSnapshot
-    && typeof r6Session.specialist.compiledLessonSnapshot === "object"
-    && "provenance" in r6Session.specialist.compiledLessonSnapshot
-    ? (r6Session.specialist.compiledLessonSnapshot as { provenance?: { sourceFingerprint?: string } }).provenance?.sourceFingerprint
-    : undefined;
+  const r6LessonFingerprint = specialistSnapshotFingerprint(
+    r6Session?.specialist?.compiledLessonSnapshot, readModel.compiledLessonSnapshot);
   const homophoneLessonFingerprint = homophoneParentManualRoute
     ? validateFrozenConvergenceAssignment(readModel.compiledLessonSnapshot)
       ? readModel.compiledLessonSnapshot.sourceFingerprint

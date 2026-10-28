@@ -20,6 +20,14 @@ const initialPlans: Array<{ skill: WeakVowelMicroSkill; date: string; words: str
 ];
 const plans = process.argv.includes("--et-retry")
   ? [{ ...initialPlans[0], date: "2026-10-30" }] : initialPlans;
+if (process.argv.includes("--device-voice")) {
+  plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-10-31",
+    words: ["jacket", "basket", "diet", "market", "quiet", "target"] });
+}
+if (process.argv.includes("--device-voice-retry")) {
+  plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-11-01",
+    words: ["market", "basket", "jacket", "diet", "quiet", "target"] });
+}
 const apply = process.argv.includes("--apply");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();
@@ -47,7 +55,11 @@ try {
         and route_id is null order by published_at desc,id desc limit 1) d on true
       join lateral (select dictation_sentence from public.canonical_teaching_dictionary_dictation_sentences where canonical_word_id=p.canonical_word_id
         and row_status='active' and review_status='approved_for_first_exposure' order by created_at desc,id desc limit 1) s on true
-      where p.micro_skill_key=$1 and w.display_word=any($2::text[]) order by array_position($2::text[],w.display_word)`,
+      where p.micro_skill_key=$1 and w.display_word=any($2::text[])
+        and p.content_version_id=(select current.content_version_id from public.adle_weak_vowel_content_publications current
+          where current.canonical_word_id=p.canonical_word_id and current.micro_skill_key=p.micro_skill_key
+          order by current.published_at desc,current.content_version_id desc limit 1)
+      order by array_position($2::text[],w.display_word)`,
       [plan.skill,plan.words]);
     if (published.rows.length !== 6 || published.rows.some((row,index) => row.display_word !== plan.words[index] ||
       row.dictionary_fingerprint !== row.current_dictionary_fingerprint)) throw Error(`STAGING_PUBLISHED_WORDS_CHANGED:${plan.skill}`);
