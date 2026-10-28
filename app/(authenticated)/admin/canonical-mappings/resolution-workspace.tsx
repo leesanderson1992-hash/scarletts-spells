@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -293,7 +292,7 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
       <p>{readOnlyPreview ? visibleRows.length : total} {(readOnlyPreview ? visibleRows.length : total) === 1 ? "spelling pair" : "spelling pairs"}</p>
       <div className="resolution-table-actions">
         {readOnlyPreview ? <span className="adle-admin-secondary" aria-disabled="true">Export canonical CSV</span> :
-          <Link className="adle-admin-secondary" href="/admin/canonical-mappings/export">Export canonical CSV</Link>}
+          <a className="adle-admin-secondary" href="/admin/canonical-mappings/export">Export canonical CSV</a>}
         <div className="resolution-import-anchor">
           <button type="button" className="adle-admin-primary" aria-expanded={importOpen}
             onClick={() => setImportOpen(!importOpen)}>Import <span aria-hidden="true">⌄</span></button>
@@ -302,7 +301,7 @@ export function ResolutionWorkspace({ rows, skills, families, clusters, total, r
             {readOnlyPreview ? <a download="seed-import-template.csv"
               href={`data:text/csv;charset=utf-8,${encodeURIComponent(`${SEED_IMPORT_TEMPLATE_HEADER}\r\n`)}`}
               onClick={() => setImportOpen(false)}>Download Template</a> :
-              <Link href="/admin/canonical-mappings/seed-template" onClick={() => setImportOpen(false)}>Download Template</Link>}
+              <a href="/admin/canonical-mappings/seed-template" onClick={() => setImportOpen(false)}>Download Template</a>}
           </div> : null}
         </div>
       </div>

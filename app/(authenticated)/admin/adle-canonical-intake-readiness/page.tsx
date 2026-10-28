@@ -117,9 +117,9 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
           <div className="adle-admin-toolbar-end"><p className="text-sm text-[#59616b]">{result.total} {result.total === 1 ? "word" : "words"}</p>
             <details className="adle-admin-export"><summary className="adle-admin-secondary">Export <span aria-hidden="true">⌄</span></summary>
               <div className="adle-admin-export-options">
-                <Link href={`/admin/adle-canonical-intake-readiness/export/readiness${readinessHref({ ...controls, view, search }).replace("/admin/adle-canonical-intake-readiness", "")}`}>Filtered readiness CSV</Link>
-                <Link href="/admin/adle-canonical-intake-readiness/export/dictionary">Missing dictionary metadata CSV</Link>
-                <Link href="/admin/adle-canonical-intake-readiness/export/teaching">Teaching content draft ZIP</Link>
+                <a href={`/admin/adle-canonical-intake-readiness/export/readiness${readinessHref({ ...controls, view, search }).replace("/admin/adle-canonical-intake-readiness", "")}`}>Filtered readiness CSV</a>
+                <a href="/admin/adle-canonical-intake-readiness/export/dictionary">Missing dictionary metadata CSV</a>
+                <a href="/admin/adle-canonical-intake-readiness/export/teaching">Teaching content draft ZIP</a>
               </div>
             </details>
           </div>
