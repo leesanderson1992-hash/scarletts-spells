@@ -28,7 +28,7 @@ async function read(table: string, columns: string, ids?: string[]) {
   const query = db.from(table).select(columns).order("id");
   const result = await (ids ? query.in("canonical_word_id", ids) : query);
   if (result.error) throw result.error;
-  return result.data as Record<string, unknown>[];
+  return result.data as unknown as Record<string, unknown>[];
 }
 async function oldFacts(ids: string[]) {
   const [metadata, dictation, prefix, suffix, base, prefixProfiles, suffixProfiles, routeContent] = await Promise.all([
