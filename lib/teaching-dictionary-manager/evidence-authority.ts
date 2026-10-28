@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { unstable_cache } from "next/cache";
+import { gzipSync, gunzipSync } from "node:zlib";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
 import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
@@ -39,11 +40,26 @@ export const loadCachedTeachingDictionaryEvidenceAuthorityForWord = unstable_cac
   { revalidate: 60, tags: [TEACHING_DICTIONARY_EVIDENCE_TAG] },
 );
 
-/** Shared admin read model. Governed admin actions expire it immediately;
- * out-of-band releases are picked up within a minute. */
-export const loadCachedTeachingDictionaryEvidenceAuthority = unstable_cache(
-  (environment: AdleRouteActivationEnvironment) =>
-    loadTeachingDictionaryEvidenceAuthority(createServiceRoleClient(), environment),
-  ["teaching-dictionary-evidence-v1"],
+/** A list page needs decisions for its displayed words, not the full release
+ * history. The bounded result also fits within Next's cache item limit. */
+export const loadCachedTeachingDictionaryEvidenceAuthorityForWords = unstable_cache(
+  (environment: AdleRouteActivationEnvironment, canonicalWordIds: string[]) =>
+    loadTeachingDictionaryEvidenceAuthorityForWords(createServiceRoleClient(), environment, canonicalWordIds),
+  ["teaching-dictionary-page-evidence-v1"],
   { revalidate: 60, tags: [TEACHING_DICTIONARY_EVIDENCE_TAG] },
 );
+
+/** The two whole-dictionary filters still need global decisions. Production's
+ * uncompressed authority exceeds Next's cache item limit; store the lossless
+ * compressed snapshot so these filters can reuse it until invalidation. */
+const loadCachedCompressedTeachingDictionaryEvidenceAuthority = unstable_cache(
+  async (environment: AdleRouteActivationEnvironment) =>
+    gzipSync(JSON.stringify(await loadTeachingDictionaryEvidenceAuthority(createServiceRoleClient(), environment))).toString("base64"),
+  ["teaching-dictionary-evidence-compressed-v1"],
+  { revalidate: 60, tags: [TEACHING_DICTIONARY_EVIDENCE_TAG] },
+);
+
+export async function loadCachedTeachingDictionaryEvidenceAuthority(environment: AdleRouteActivationEnvironment) {
+  const compressed = await loadCachedCompressedTeachingDictionaryEvidenceAuthority(environment);
+  return JSON.parse(gunzipSync(Buffer.from(compressed, "base64")).toString("utf8")) as Awaited<ReturnType<typeof loadTeachingDictionaryEvidenceAuthority>>;
+}

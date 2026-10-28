@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { loadCachedTeachingDictionaryEvidenceAuthority } from "@/lib/teaching-dictionary-manager/evidence-authority";
+import { loadCachedTeachingDictionaryEvidenceAuthority, loadCachedTeachingDictionaryEvidenceAuthorityForWords } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { CsvImportPanel } from "./csv-import-panel";
@@ -39,13 +39,14 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const environment = resolveAdleRouteActivationEnvironment();
   const db = createServiceRoleClient();
   const needsGlobalAuthority = filter === "evidence_approved" || filter === "route_blocked";
-  const authorityPromise = environment ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
+  const globalAuthorityPromise = environment && needsGlobalAuthority
+    ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
   const initialPagePromise = !needsGlobalAuthority ? db.rpc("teaching_dictionary_admin_filtered_page", {
     p_filter: filter, p_search: q, p_word_ids: null,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
   }) : null;
-  const globalAuthority = needsGlobalAuthority ? await authorityPromise : null;
+  const globalAuthority = await globalAuthorityPromise;
   const globalApprovedIds = [...new Set((globalAuthority?.relationships ?? []).map((row) => row.canonicalWordId))];
   const routeBlockedResult = filter === "route_blocked" ? await db.rpc("teaching_dictionary_admin_route_blocked_ids", {
     p_approved_pairs: (globalAuthority?.relationships ?? []).flatMap((relationship) => {
@@ -67,6 +68,9 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const shown = pageData?.words ?? [];
   const total = pageData?.total ?? 0;
   const wordIds = shown.map((word) => word.id);
+  const authorityPromise = needsGlobalAuthority ? globalAuthorityPromise
+    : environment && wordIds.length ? loadCachedTeachingDictionaryEvidenceAuthorityForWords(environment, wordIds)
+      : Promise.resolve(null);
   const [drafts, authority, pageFactsResult] = await Promise.all([
     draftsPromise,
     authorityPromise,
