@@ -31,6 +31,9 @@ export type WordRouteStatus = {
   contractVersion: RouteContentContract["contractVersion"] | null;
   blockerDetails: WordRouteBlocker[];
   blockers: string[];
+  /** Schwa roles are independent: a reviewed example needs a current pair;
+   * a pool word also needs complete, current published lesson content. */
+  schwaRole?: "unapproved" | "skill_example" | "lesson_pool_word";
 };
 
 /** An admin projection of distinct governed gates. The native selector still
@@ -40,6 +43,8 @@ export function wordRouteStatus(input: {
   dictionaryApproved: boolean;
   approvedSkillKeys: ReadonlySet<string>;
   lesson: LessonReadinessRow;
+  weakVowelContentBlockers?: readonly string[];
+  weakVowelPublished?: boolean;
 }): WordRouteStatus {
   const { wordId, lesson } = input;
   const contract = routeContentContractFor(lesson.routeId, lesson.microSkillKey);
@@ -69,6 +74,11 @@ export function wordRouteStatus(input: {
   if (comparativeBaseSupport) add("SUPPORT_FORM_NOT_TARGET", "relationship", "Reviewed base form supports this family; only its -er and -est forms are independent lesson targets");
   else if (!relationshipApproved) add("RELATIONSHIP_NOT_APPROVED", "relationship", "Word–micro-skill relationship is not approved");
   if (!contentPresent) add("ROUTE_CONTENT_MISSING", "content", "Word is not in the reviewed route content or member group");
+  if (lesson.routeId === "weak_vowel_word_lab") {
+    if (!input.weakVowelPublished) add("REQUIRED_ROUTE_CONTENT_UNPUBLISHED", "release", "Approved Schwa word facts are not published yet");
+    for (const message of input.weakVowelContentBlockers ?? [])
+      add("SCHWA_CONTENT_FACT_BLOCKED", "content", message);
+  }
   for (const message of member?.blockers ?? []) add("WORD_PREFLIGHT_BLOCKED", "content", message);
   if (contentPresent && !contentPreflightReady && !member?.nativeSelectionCheck && !member?.blockers.length)
     add("WORD_PREFLIGHT_BLOCKED", "content", "Route content preflight is blocked");
@@ -103,5 +113,8 @@ export function wordRouteStatus(input: {
     contractVersion: contractCurrent ? contract.contractVersion : null,
     blockerDetails,
     blockers,
+    ...(lesson.routeId === "weak_vowel_word_lab" ? { schwaRole: !relationshipApproved ? "unapproved" as const
+      : input.weakVowelPublished && (input.weakVowelContentBlockers?.length ?? 0) === 0
+        ? "lesson_pool_word" as const : "skill_example" as const } : {}),
   };
 }

@@ -12,6 +12,8 @@ export interface SentenceDictationProps {
   audioText: string;
   /** A fixed reviewed clip takes precedence over device speech synthesis. */
   recordingSrc?: string;
+  /** Schwa device-voice fallback must fail closed when speech synthesis is absent. */
+  deviceSpeechRequired?: boolean;
   correctSentence: string;
   value: string;
   checked: boolean;
@@ -105,6 +107,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
   const [saving, setSaving] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const [heardRecording, setHeardRecording] = useState(false);
+  const audioAvailable = useSyncExternalStore(subscribeAudioCapability, browserAudioAvailable, serverAudioAvailable);
   const recording = useRef<HTMLAudioElement | null>(null);
 
   async function playRecording() {
@@ -123,7 +126,8 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
 
   async function checkSentence() {
     if (props.checked || !props.value.trim() || checkRequested.current ||
-      (props.recordingSrc && (!heardRecording || audioError))) return;
+      (props.recordingSrc && (!heardRecording || audioError)) ||
+      (props.deviceSpeechRequired && !audioAvailable)) return;
     checkRequested.current = true;
     setSaving(true);
     setCheckpointError(null);
@@ -152,6 +156,7 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
         </> : <HearWordButton word={props.audioText} label="Play sentence" muted={props.muted} kind="dictation" />}
       </div>
       {audioError ? <p role="alert" className="text-center font-bold text-rose-200">The sentence recording could not play. Try replay before checking.</p> : null}
+      {props.deviceSpeechRequired && !audioAvailable ? <p role="alert" className="text-center font-bold text-rose-200">Device speech is unavailable. Dictation cannot be checked on this device.</p> : null}
       <label htmlFor={inputId} className="text-sm font-semibold text-cyan-50">
         {props.writingLabel ?? LESSON_ACTIVITY_COPY.sentenceDictation}
       </label>
@@ -176,7 +181,8 @@ function WholeSentenceDictation(props: SentenceDictationProps) {
       {!props.checked ? (
         <button
           type="button"
-          disabled={!props.value.trim() || saving || Boolean(props.recordingSrc && (!heardRecording || audioError))}
+          disabled={!props.value.trim() || saving || Boolean(props.recordingSrc && (!heardRecording || audioError)) ||
+            Boolean(props.deviceSpeechRequired && !audioAvailable)}
           onClick={() => void checkSentence()}
           className="min-h-12 rounded-full bg-cyan-300 font-black text-slate-950 disabled:opacity-40"
         >

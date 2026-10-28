@@ -11,9 +11,12 @@ export function speakAuthoredNarration(text: string, kind: NarrationKind = "word
 }
 
 function speakWithBrowserVoice(text: string, kind: NarrationKind): void {
-  if (typeof window === "undefined" || !("speechSynthesis" in window) || text.trim() === "") return;
+  if (typeof window === "undefined" || !("speechSynthesis" in window) ||
+    !("SpeechSynthesisUtterance" in window) || text.trim() === "") return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
+  const british = window.speechSynthesis.getVoices().find((voice) => /^en[-_]GB$/i.test(voice.lang));
+  if (british) { utterance.voice = british; utterance.lang = "en-GB"; }
   utterance.rate = kind === "dictation" ? 0.7 : kind === "guide" ? 0.85 : 0.8;
   window.speechSynthesis.speak(utterance);
 }

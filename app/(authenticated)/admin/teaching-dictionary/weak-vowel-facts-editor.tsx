@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { deviceSpeechSource, needsPronunciationImprovement } from "@/lib/adle/weak-vowel/audio-source";
 
 type Facts = Record<string, unknown>;
 const record = (value: unknown): Facts => value && typeof value === "object" && !Array.isArray(value) ? value as Facts : {};
@@ -36,6 +37,16 @@ export function WeakVowelFactsEditor(props: {
   function number(value: string) {
     return value.trim() && /^\d+$/.test(value.trim()) ? Number(value) : null;
   }
+  async function useDeviceVoice(kind: "wordRecording" | "sentenceRecording", text: string) {
+    if (!text.trim()) return;
+    const src = deviceSpeechSource(text);
+    const bytes = new TextEncoder().encode(src);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const sha256 = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    patch({ [kind]: { src, sha256 },
+      ...(kind === "wordRecording" && !string(facts.pronunciationId).trim()
+        ? { pronunciationId: `device-voice:${props.word.toLocaleLowerCase("en-GB")}` } : {}) });
+  }
   function saveCuts() {
     const variants = cutsText.split(/[;\n]+/).map((entry) => entry.trim()).filter(Boolean);
     if (!variants.length || variants.some((entry) => !/^\d+(?:\s*,\s*\d+)*$/.test(entry))) {
@@ -65,6 +76,8 @@ export function WeakVowelFactsEditor(props: {
       {input("Reviewed pronunciation ID", facts.pronunciationId, (value) => patch({ pronunciationId: value }))}
       {input("British word recording path", wordRecording.src, (value) => nested("wordRecording", { src: value }), "Use a published /audio/ path.")}
       {input("Word recording SHA-256", wordRecording.sha256, (value) => nested("wordRecording", { sha256: value }))}
+      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void useDeviceVoice("wordRecording", props.word)}>Use device voice for this word</button>
+        {needsPronunciationImprovement(wordRecording.src) && <span className="ml-3 text-amber-800">Pronunciation improvement needed</span>}</div>
       {numeric("Spoken syllable count", facts.spokenSyllableCount, (value) => patch({ spokenSyllableCount: value }))}
       {numeric("Target syllable (starts at 1)", target.syllableIndex, (value) => nested("target", { syllableIndex: value }))}
       {input("Full reviewed target letters", target.text, (value) => nested("target", { text: value }), "For final -er, -or or -ar this may be the two-letter ending.")}
@@ -94,6 +107,8 @@ export function WeakVowelFactsEditor(props: {
       {facts.familyDecision === "approve" ? input("Governed family authority ID", facts.familyAuthorityId, (value) => patch({ familyAuthorityId: value })) : null}
       {input("British sentence recording path", sentenceRecording.src, (value) => nested("sentenceRecording", { src: value }))}
       {input("Sentence recording SHA-256", sentenceRecording.sha256, (value) => nested("sentenceRecording", { sha256: value }))}
+      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void useDeviceVoice("sentenceRecording", props.sentence)}>Use device voice for this sentence</button>
+        {needsPronunciationImprovement(sentenceRecording.src) && <span className="ml-3 text-amber-800">Dictation pronunciation improvement needed</span>}</div>
       {numeric("Sentence target start (zero-based)", sentenceTarget.start, (value) => nested("sentenceTarget", { start: value }))}
       {numeric("Sentence target end (exclusive)", sentenceTarget.end, (value) => nested("sentenceTarget", { end: value }))}
       <p className="md:col-span-2 text-xs text-[color:var(--mid)]">Sentence: {props.sentence || "Add a shared dictation sentence above."} · Word: {props.word}</p>

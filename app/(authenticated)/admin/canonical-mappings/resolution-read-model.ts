@@ -1,6 +1,8 @@
 import "server-only";
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { WEAK_VOWEL_MICRO_SKILLS } from "@/lib/adle/word-lab/weak-vowel-dinner";
+import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
 
 export const RESOLUTION_PAGE_SIZE = 25;
 
@@ -52,6 +54,7 @@ export type ResolutionRow = {
   updatedAt: string;
   sources: SourceDetail[];
   audit: Array<{ event_type: string; created_at: string; note: string | null }>;
+  schwaLesson?: { role: string; blockers: string[] };
 };
 
 const statuses = new Set(["open", "pending", "confirmed", "closed", "all"]);
@@ -222,5 +225,26 @@ export async function loadResolutionPage(filters: ResolutionFilters) {
         .map((event) => ({ event_type: event.event_type, created_at: event.created_at, note: event.note })),
     };
   });
+  const schwaRows = rows.filter((row) => row.skillKey && WEAK_VOWEL_MICRO_SKILLS.some((key) => key === row.skillKey));
+  if (schwaRows.length) {
+    const spellings = [...new Set(schwaRows.map((row) => row.correction.toLocaleLowerCase("en-GB")))];
+    const canonical = await db.from("canonical_teaching_dictionary_words")
+      .select("id,normalised_word").in("normalised_word", spellings).eq("dialect_code", "en-GB");
+    if (canonical.error) throw new Error("SCHWA_RESOLVER_CANONICAL_READ_FAILED");
+    const bySpelling = new Map(canonical.data.map((word) => [word.normalised_word, word.id]));
+    for (const skill of [...new Set(schwaRows.map((row) => row.skillKey!))]) {
+      const matching = schwaRows.filter((row) => row.skillKey === skill);
+      const ids = matching.map((row) => bySpelling.get(row.correction.toLocaleLowerCase("en-GB"))).filter((id): id is string => Boolean(id));
+      const statuses = ids.length ? await loadRouteWordStatuses({ routeId: "weak_vowel_word_lab",
+        microSkillKey: skill, wordIds: ids }) : { words: [] };
+      const byId = new Map(statuses.words.map((word) => [word.wordId, word.status]));
+      for (const row of matching) {
+        const id = bySpelling.get(row.correction.toLocaleLowerCase("en-GB"));
+        const status = id ? byId.get(id) : null;
+        row.schwaLesson = status ? { role: status.schwaRole ?? "unapproved", blockers: status.blockers }
+          : { role: "trigger_only", blockers: ["Canonical teaching word is missing"] };
+      }
+    }
+  }
   return { rows, total: count ?? 0, skills, families, clusters };
 }

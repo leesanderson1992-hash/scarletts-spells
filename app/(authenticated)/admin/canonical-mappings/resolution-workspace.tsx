@@ -49,6 +49,12 @@ function displayStatus(value: string) {
 
 function SourceList({ row }: { row: ResolutionRow }) {
   return <div className="space-y-3">
+    {row.schwaLesson ? <section className="adle-admin-detail-section text-sm">
+      <h4>Schwa lesson eligibility</h4>
+      <p className="mt-2">This resolver pair can trigger its skill. Current word role: {displayStatus(row.schwaLesson.role)}.</p>
+      {row.schwaLesson.blockers.length ? <ul className="mt-2 list-disc pl-5">{row.schwaLesson.blockers.map((blocker, index) =>
+        <li key={`${blocker}:${index}`}>{blocker}</li>)}</ul> : <p>Eligible for the lesson pool.</p>}
+    </section> : null}
     {row.sources.length ? row.sources.map((source) => <details key={`${source.type}:${source.id}`} className="adle-admin-detail-section">
       <summary className="cursor-pointer text-sm font-bold">
         {displayStatus(source.type)} · {displayStatus(source.status)} · {displayDate(source.createdAt)}

@@ -1,4 +1,5 @@
 export const DINNER_ROUND_VERSION = "call_it_to_dinner_round_v1" as const;
+import { isWeakVowelAudioSource } from "../weak-vowel/audio-source";
 export const DINNER_ACTIVITY_VERSION = "call_it_to_dinner_activity_v1" as const;
 
 export interface DinnerRoundV1 {
@@ -54,18 +55,19 @@ function cutsValidForTarget(cuts: readonly number[], round: DinnerRoundV1): bool
   return start <= round.target.start && round.target.end <= end;
 }
 
-function finalVowel(round: DinnerRoundV1): "a" | "e" | "o" | null {
-  return round.microSkillKey === "D4_SCHWA_FINAL_ER_FINAL" ? "e" :
-    round.microSkillKey === "D4_SCHWA_FINAL_OR_FINAL" ? "o" :
-      round.microSkillKey === "D4_SCHWA_FINAL_AR_FINAL" ? "a" : null;
+function finalVowel(round: DinnerRoundV1): { vowel: "a" | "e" | "o"; ending: "ar" | "er" | "et" | "or" } | null {
+  return round.microSkillKey === "D4_SCHWA_FINAL_ER_FINAL" ? { vowel: "e", ending: "er" } :
+    round.microSkillKey === "D4_SCHWA_FINAL_ET" ? { vowel: "e", ending: "et" } :
+    round.microSkillKey === "D4_SCHWA_FINAL_OR_FINAL" ? { vowel: "o", ending: "or" } :
+      round.microSkillKey === "D4_SCHWA_FINAL_AR_FINAL" ? { vowel: "a", ending: "ar" } : null;
 }
 
-/** Derive a one-letter answer only from a reviewed final -ar/-er/-or target span. */
+/** Derive a one-letter answer only from a reviewed final two-letter target span. */
 export function reviewedDinnerFinalVowelSelection(round: DinnerRoundV1): { start: number; end: number; text: string } | null {
-  const vowel = finalVowel(round);
-  if (!vowel || round.target.text.toLocaleLowerCase("en-GB") !== `${vowel}r` ||
+  const final = finalVowel(round);
+  if (!final || round.target.text.toLocaleLowerCase("en-GB") !== final.ending ||
     round.target.start !== round.spelling.length - 2 || round.target.end !== round.spelling.length ||
-    round.spelling.slice(-2).toLocaleLowerCase("en-GB") !== `${vowel}r`) return null;
+    round.spelling.slice(-2).toLocaleLowerCase("en-GB") !== final.ending) return null;
   return { start: round.target.start, end: round.target.start + 1, text: round.spelling[round.target.start] };
 }
 
@@ -80,7 +82,7 @@ export function parseDinnerRound(value: unknown, allowCandidate = false): Dinner
     !text(value.microSkillKey) || !(value.wordSense === null || text(value.wordSense)) ||
     !text(value.pronunciationId) || !sha(value.sourceFingerprint) ||
     !(value.reviewStatus === "approved" || allowCandidate && value.reviewStatus === "candidate") ||
-    !record(value.recording) || !text(value.recording.src) || !value.recording.src.startsWith("/audio/") ||
+    !record(value.recording) || !isWeakVowelAudioSource(value.recording.src) ||
     !sha(value.recording.sha256) || value.recording.reviewStatus !== "approved" ||
     !Number.isInteger(value.spokenSyllableCount) || (value.spokenSyllableCount as number) < 1 ||
     !Array.isArray(value.acceptedCutSets) || value.acceptedCutSets.length < 1 ||

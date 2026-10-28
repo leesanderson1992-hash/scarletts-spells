@@ -534,6 +534,17 @@ function fillFacts(
 }
 
 {
+  // A specialist demand remains selected while new words require a ready pool.
+  const items = [item({ canonicalWordId: "wi-1", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-01" })];
+  const result = selectLessonWords("SKILL_PG_A", CHILD, fillFacts(items, {
+    lessonPoolWordIds: new Set(["wi-2"]),
+  }), CHILD_BAND, composerPolicy, TODAY);
+  assert(result.slots[0]?.canonicalWordId === "wi-1", "queued target remains first outside the content pool");
+  assert(result.slots.filter((slot) => slot.provenance === "stretch").every((slot) =>
+    slot.canonicalWordId === "wi-2"), "new lesson words must come from the ready pool");
+}
+
+{
   // Adjacent-band constraint: a much-harder outlier waits.
   const items = [
     item({ canonicalWordId: "wi-1", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-01" }),

@@ -3,7 +3,8 @@ import { createHash } from "node:crypto";
 /** Content-review scope only. This inventory never activates learner lessons. */
 export const WEAK_VOWEL_SKILLS = {
   D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS: "Preserve weak middle vowels in common words",
-  D4_SCHWA_MEDIAL_NATURAL_ACTUAL: "Preserve weak vowel in natural/actual type words",
+  D4_SCHWA_FINAL_AL: "Spell lexical final -al instead of -ul or -el",
+  D4_SCHWA_FINAL_ET: "Spell weak final -et instead of -it or -ut",
   D4_SCHWA_FINAL_A_FINAL: "Spell final unstressed -a",
   D4_SCHWA_FINAL_AR_FINAL: "Spell final unstressed -ar",
   D4_SCHWA_FINAL_ER_FINAL: "Spell final unstressed -er",
@@ -125,7 +126,9 @@ export function buildWeakVowelRepairRows(sources: readonly RepairSource[], expor
         explanation: "Written parts and spoken syllables differ. Compression may make this legitimate.", repair: "Verify the pronunciation-specific mapping. Retain a distinct written-inspection mode where a written vowel is compressed." });
       if (written && written.replace(/[^\p{L}]/gu, "").toLocaleLowerCase("en-GB") !== word.replace(/[^\p{L}]/gu, "").toLocaleLowerCase("en-GB")) add({ code: "WRITTEN_LETTERS_MISMATCH", classification: "Confirmed inconsistency", fields: ["written_breakdown"], observed: { written, word },
         explanation: "The written parts do not reconstruct the spelling.", repair: "Repair the reviewed written division without changing the canonical spelling." });
-      const monophthongHint = ipa.replace(/əʊ|ɪə|eə|ʊə/g, "");
+      // /aɪə/ and /ɔɪə/ can contain a separate weak /ə/ after /aɪ/ or /ɔɪ/.
+      // Do not erase that schwa while filtering the centring diphthong /ɪə/.
+      const monophthongHint = ipa.replace(/əʊ|(?<![aɔ])ɪə|eə|ʊə/g, "");
       if (metadata.has_schwa === true && ipa && !/[əɐɚ]/u.test(monophthongHint)) add({ code: "SCHWA_FLAG_NOT_LOCATED", classification: "Potential inconsistency requiring review", fields: ["ipa", "has_schwa"], observed: { ipa, hasSchwa: metadata.has_schwa },
         explanation: "The stored schwa flag is not explained by an identifiable schwa in this hint; a phonetic variant or source mismatch needs review.", repair: "Verify the flag and pronunciation variant together. Do not relabel another weak vowel as schwa." });
       if (source.microSkillKey.includes("INITIAL") && /^(primary|secondary)(-|$)/.test(stress)) add({ code: "INITIAL_VOWEL_STRESSED", classification: "Potential inconsistency requiring review", fields: ["stress_pattern", "assignment_status"], observed: stress,

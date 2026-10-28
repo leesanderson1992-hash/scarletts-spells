@@ -94,7 +94,9 @@ export function WeakVowelGuidedLesson(props: WeakVowelGuidedLessonProps) {
         onContinue: () => progress.coverIndex + 1 < lesson.words.length ? change({ coverIndex: progress.coverIndex + 1 }) : navigation.complete(),
       }), coverWord.canonicalWordId)}
       dictationActivity={binding("dictation", "DICTATION", "whole_sentence", (navigation) => ({
-        audioText: dictationWord.dictation.sentence, recordingSrc: dictationWord.dictation.recording.src,
+        audioText: dictationWord.dictation.sentence,
+        recordingSrc: dictationWord.dictation.recording.src.startsWith("device-speech:") ? undefined : dictationWord.dictation.recording.src,
+        deviceSpeechRequired: dictationWord.dictation.recording.src.startsWith("device-speech:"),
         correctSentence: dictationWord.dictation.sentence, value: progress.dictationValues[dictationWord.canonicalWordId] ?? "",
         checked: progress.dictationChecked.includes(dictationWord.canonicalWordId), stepLabel: `Dictation · sentence ${progress.dictationIndex + 1} of ${lesson.words.length}`, muted,
         onValueChange: (value: string) => change({ dictationValues: { ...current.current.dictationValues, [dictationWord.canonicalWordId]: value } }),

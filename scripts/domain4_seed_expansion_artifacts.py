@@ -31,13 +31,36 @@ EXCLUDED_MAPPING_FAMILY_IDS = ["D4_PROOF"]
 EXPECTED_COUNTS = {
     "ready_families": 8,
     "clusters": 46,
-    "micro_skills": 241,
+    "micro_skills": 242,
     "task_templates": 12,
     "family_level_template_mappings": 40,
 }
 
 RETIRED_CLUSTER_IDS = {"D4_MOR_WORD_FAMILIES"}
+RETIRED_MICRO_SKILL_IDS = {"D4_SCHWA_MEDIAL_NATURAL_ACTUAL"}
 CURRENT_TAXONOMY_ADDITIONS = [
+    {
+        "allowed_template_keys": ["T01", "T02", "T03", "T04", "T05", "T08", "T09", "T10", "T11"],
+        "display_name": "Spell weak final -et instead of -it or -ut",
+        "is_active": True, "is_assignable": True, "mastery_domain_key": "D4",
+        "metadata": {"cluster_name": "Final schwa", "developmental_foundation": "Unstressed vowel awareness",
+                     "example_words": ["basket", "jacket", "pocket", "ticket"],
+                     "teaching_point": "The weak final vowel in lexical -et words is written e; its sound must be checked in the chosen British recording.",
+                     "seed_version": "schwa-final-et-al-v1"},
+        "micro_skill_key": "D4_SCHWA_FINAL_ET", "practice_route": "word_practice",
+        "skill_cluster_key": "D4_SCHWA_FINAL", "skill_family_key": "D4_SCHWA",
+    },
+    {
+        "allowed_template_keys": ["T01", "T02", "T03", "T04", "T05", "T08", "T09", "T10", "T11"],
+        "display_name": "Spell lexical final -al instead of -ul or -el",
+        "is_active": True, "is_assignable": True, "mastery_domain_key": "D4",
+        "metadata": {"cluster_name": "Final schwa", "developmental_foundation": "Unstressed vowel awareness",
+                     "example_words": ["natural", "actual", "factual", "ritual"],
+                     "teaching_point": "Keep the written a in -al, including when relatives retain -al before -ly.",
+                     "seed_version": "schwa-final-et-al-v1"},
+        "micro_skill_key": "D4_SCHWA_FINAL_AL", "practice_route": "word_practice",
+        "skill_cluster_key": "D4_SCHWA_FINAL", "skill_family_key": "D4_SCHWA",
+    },
     {
         "allowed_template_keys": ["T01", "T02", "T03", "T04", "T05", "T06"],
         "display_name": "Spell words with suffix -ly",
@@ -491,6 +514,7 @@ def main() -> None:
         normalize_micro_skill(record, ready_family_ids, allowed_template_keys_by_family)
         for record in micro_skill_rows
         if clean_string(record.get("cluster_id")) not in RETIRED_CLUSTER_IDS
+        and clean_string(record.get("node_id")) not in RETIRED_MICRO_SKILL_IDS
     ]
     existing_micro_skill_keys = {row["micro_skill_key"] for row in micro_skills}
     micro_skills.extend(

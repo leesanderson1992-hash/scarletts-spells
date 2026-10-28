@@ -1,4 +1,5 @@
 export const DETECTIVE_ROUND_VERSION = "family_tree_detective_round_v1" as const;
+import { isWeakVowelAudioSource } from "../weak-vowel/audio-source";
 export const DETECTIVE_ACTIVITY_VERSION = "family_tree_detective_activity_v1" as const;
 
 export type VowelTile = "A" | "E" | "I" | "O" | "U" | "Y";
@@ -62,7 +63,7 @@ const nonEmpty = (value: unknown): value is string => typeof value === "string" 
 const record = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
 function validRecording(value: unknown): value is DetectiveRecordingV1 {
-  return record(value) && nonEmpty(value.src) && value.src.startsWith("/audio/") &&
+  return record(value) && isWeakVowelAudioSource(value.src) &&
     typeof value.sha256 === "string" && SHA.test(value.sha256) && value.reviewStatus === "approved";
 }
 

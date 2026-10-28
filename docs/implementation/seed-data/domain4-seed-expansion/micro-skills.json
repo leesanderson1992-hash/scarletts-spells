@@ -8591,66 +8591,6 @@
       "T09",
       "T11"
     ],
-    "display_name": "Preserve weak vowel in natural/actual type words",
-    "is_active": true,
-    "is_assignable": true,
-    "mastery_domain_key": "D4",
-    "metadata": {
-      "cluster_name": "Medial schwa",
-      "developmental_foundation": "Schwa / unstressed vowel awareness",
-      "example_words": [
-        "natural",
-        "actual",
-        "factual",
-        "ritual"
-      ],
-      "seed_version": "domain4-seed-expansion-v1",
-      "source_workbook": "docs/D4 Seeding Map Finale Final.xlsx",
-      "starter_word_bank": [
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "natural"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "actual"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "factual"
-        },
-        {
-          "common_wrong_spellings": [],
-          "difficulty": "seed",
-          "word": "ritual"
-        }
-      ],
-      "teaching_point": "In words such as natural and actual, a weak vowel must still be represented in the spelling.",
-      "unsupported_runtime_notes": [
-        "Task templates and family-level mappings are repo artifacts/config until dedicated schema exists.",
-        "Resolver adoption is intentionally separate from taxonomy seeding."
-      ]
-    },
-    "micro_skill_key": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
-    "practice_route": "word_practice",
-    "skill_cluster_key": "D4_SCHWA_MEDIAL",
-    "skill_family_key": "D4_SCHWA"
-  },
-  {
-    "allowed_template_keys": [
-      "T01",
-      "T02",
-      "T03",
-      "T04",
-      "T05",
-      "T08",
-      "T10",
-      "T09",
-      "T11"
-    ],
     "display_name": "Spell final unstressed -er",
     "is_active": true,
     "is_assignable": true,
@@ -14178,5 +14118,121 @@
     "practice_route": "word_practice",
     "skill_cluster_key": "D4_PG_DIPHTHONGS",
     "skill_family_key": "D4_PG"
+  },
+  {
+    "allowed_template_keys": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T05",
+      "T08",
+      "T09",
+      "T10",
+      "T11"
+    ],
+    "display_name": "Spell weak final -et instead of -it or -ut",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "cluster_name": "Final schwa",
+      "developmental_foundation": "Unstressed vowel awareness",
+      "example_words": [
+        "basket",
+        "jacket",
+        "pocket",
+        "ticket"
+      ],
+      "starter_word_bank": [
+        {
+          "word": "basket",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "jacket",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "pocket",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "ticket",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        }
+      ],
+      "seed_version": "schwa-final-et-al-v1",
+      "teaching_point": "The weak final vowel in lexical -et words is written e; check its sound in the chosen British recording.",
+      "unsupported_runtime_notes": [
+        "Resolver adoption is separate from taxonomy seeding."
+      ]
+    },
+    "micro_skill_key": "D4_SCHWA_FINAL_ET",
+    "practice_route": "word_practice",
+    "skill_cluster_key": "D4_SCHWA_FINAL",
+    "skill_family_key": "D4_SCHWA"
+  },
+  {
+    "allowed_template_keys": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T05",
+      "T08",
+      "T09",
+      "T10",
+      "T11"
+    ],
+    "display_name": "Spell lexical final -al instead of -ul or -el",
+    "is_active": true,
+    "is_assignable": true,
+    "mastery_domain_key": "D4",
+    "metadata": {
+      "cluster_name": "Final schwa",
+      "developmental_foundation": "Unstressed vowel awareness",
+      "example_words": [
+        "natural",
+        "actual",
+        "factual",
+        "ritual"
+      ],
+      "starter_word_bank": [
+        {
+          "word": "natural",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "actual",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "factual",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        },
+        {
+          "word": "ritual",
+          "difficulty": "seed",
+          "common_wrong_spellings": []
+        }
+      ],
+      "seed_version": "schwa-final-et-al-v1",
+      "teaching_point": "Keep the written a in -al, including when relatives retain -al before -ly.",
+      "unsupported_runtime_notes": [
+        "Resolver adoption is separate from taxonomy seeding."
+      ]
+    },
+    "micro_skill_key": "D4_SCHWA_FINAL_AL",
+    "practice_route": "word_practice",
+    "skill_cluster_key": "D4_SCHWA_FINAL",
+    "skill_family_key": "D4_SCHWA"
   }
 ]

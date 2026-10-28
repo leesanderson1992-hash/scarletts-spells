@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/components/adle/activities/shared/motion";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
+import { deviceSpeechAvailable, speakWeakVowelDeviceSource } from "@/components/adle/activities/shared/weak-vowel-device-speech";
+import { isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { dinnerAnswerTarget, isDinnerCutPrefix, scoreDinnerCuts, scoreDinnerTarget, type DinnerActivityConfigV1 } from "@/lib/adle/word-lab/call-it-to-dinner";
 
 type WordState = {
@@ -69,6 +71,10 @@ export function CallItToDinnerActivity(props: {
   const finalVowelOnly = round.selectionTarget !== undefined;
 
   useEffect(() => {
+    setAudioError(isDeviceSpeechSource(round.recording.src) && !deviceSpeechAvailable());
+  }, [round.recording.src]);
+
+  useEffect(() => {
     if (current.phase === "done") nextButton.current?.focus({ preventScroll: true });
     else if (current.phase === "cut") replayButton.current?.focus({ preventScroll: true });
   }, [state.index, current.phase]);
@@ -86,8 +92,13 @@ export function CallItToDinnerActivity(props: {
   }
 
   async function replay() {
-    if (props.muted || !audio.current) return;
+    if (props.muted) return;
     setAudioError(false);
+    if (isDeviceSpeechSource(round.recording.src)) {
+      if (!speakWeakVowelDeviceSource(round.recording.src)) setAudioError(true);
+      return;
+    }
+    if (!audio.current) return;
     try {
       audio.current.currentTime = 0;
       await audio.current.play();
@@ -170,7 +181,7 @@ export function CallItToDinnerActivity(props: {
   />;
 
   if (props.lessonLayout) return <section className="dinner-option-two" aria-labelledby="dinner-title" data-dinner-phase={current.phase} data-reduced-motion={props.reducedMotion || prefersReducedMotion ? "true" : "false"}>
-    <audio key={round.recording.src} ref={audio} src={round.recording.src} preload="none" onError={() => setAudioError(true)} />
+    <audio key={round.recording.src} ref={audio} src={isDeviceSpeechSource(round.recording.src) ? undefined : round.recording.src} preload="none" onError={() => setAudioError(true)} />
     <h2 id="dinner-title" className="dinner-option-two-title">Call It To Dinner</h2>
     <div className="dinner-option-two-cards">
       <section className="dinner-option-two-card" aria-labelledby="dinner-game-title">
@@ -188,7 +199,7 @@ export function CallItToDinnerActivity(props: {
         <p className="dinner-option-two-count">Word {state.index + 1} of {props.config.rounds.length}</p>
       </section>
     </div>
-    {audioError ? <p role="alert" className="dinner-option-two-error">The word recording could not play. Please try replay. This round cannot be checked without its recording.</p> : null}
+    {audioError ? <p role="alert" className="dinner-option-two-error">Word audio is unavailable on this device. This round cannot be checked until speech is available.</p> : null}
     <div className="dinner-option-two-board">
       {splitHandle}
       <button ref={replayButton} type="button" className="dinner-option-two-listen" disabled={props.muted} onClick={replay}>▶ Listen to the word</button>
@@ -210,7 +221,7 @@ export function CallItToDinnerActivity(props: {
   </section>;
 
   return <section className="grid gap-3 text-[color:var(--ink)]" aria-labelledby="dinner-title" data-dinner-phase={current.phase}>
-    <audio key={round.recording.src} ref={audio} src={round.recording.src} preload="none" onError={() => setAudioError(true)} />
+    <audio key={round.recording.src} ref={audio} src={isDeviceSpeechSource(round.recording.src) ? undefined : round.recording.src} preload="none" onError={() => setAudioError(true)} />
     {props.showInlineGuide === false ? <header className="grid gap-1"><h2 id="dinner-title" className="text-2xl font-black">Call It To Dinner</h2><p className="text-sm">Call each word as if you were shouting its name downstairs for dinner: <strong>SCAR-lett!</strong> The louder syllable is stressed. The quieter syllables can hide an <strong>“uh”</strong> or <strong>“ih”</strong> sound. Find the weak vowel in an unstressed syllable. Words can have more than two syllables.</p></header> : <header className="adie-inline">
       <Image src="/adie/adie-head.png" width={86} height={86} alt="ADIE, your robot guide" />
       <div className="adie-inline-bubble"><strong>Adie says</strong><h2 id="dinner-title" className="text-xl font-black">Call It To Dinner</h2><p>Shout the word as if calling it downstairs for dinner: <strong>SCAR-lett!</strong> Hear the strong syllable? The other syllables can hide a quiet “uh” or “ih”. Words can have more than two syllables.</p></div>
@@ -220,7 +231,7 @@ export function CallItToDinnerActivity(props: {
       <p className="font-bold">{current.phase === "cut" ? <>First, <strong>CALL IT TO DINNER!</strong> Chop the word into the syllables you hear. Which syllable sounds strongest?</> : current.phase === "target" ? <>Great! Well done. Now select the <strong>LAZY</strong> vowel sound {finalVowelOnly ? "by highlighting only its vowel letter." : "by highlighting every letter that spells it."}</> : current.answerRevealed ? <>Here is the reviewed spelling. Look carefully before moving on.</> : <><strong>Well done! You found the lazy sound.</strong> The next word will appear shortly.</>}</p>
       <span className="shrink-0 text-sm font-black">Word {state.index + 1} of {props.config.rounds.length}</span>
     </div>
-    {audioError && <p role="alert" className="rounded-xl bg-rose-100 p-3 font-bold text-rose-950">The word recording could not play. Please try replay. This round cannot be checked without its recording.</p>}
+    {audioError && <p role="alert" className="rounded-xl bg-rose-100 p-3 font-bold text-rose-950">Word audio is unavailable on this device. This round cannot be checked until speech is available.</p>}
     <div className="grid gap-3">{splitHandle}<button ref={replayButton} type="button" className="brand-secondary-btn mx-auto min-h-12" disabled={props.muted} onClick={replay}>▶ Listen to the word</button>
     {current.phase === "cut" && current.cutMisses >= 2 && <button type="button" className="brand-secondary-btn mx-auto min-h-12" onClick={showCuts}>Show where to cut</button>}
     {current.phase !== "cut" && <div className="grid gap-3 border-t border-cyan-200 pt-3">

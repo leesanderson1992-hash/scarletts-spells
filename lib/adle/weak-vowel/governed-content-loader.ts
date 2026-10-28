@@ -22,8 +22,9 @@ export async function loadPublishedWeakVowelWords(input: {
       .select("content_version_id,canonical_word_id,micro_skill_key,source_fingerprint,content_sha256,dictionary_fingerprint,word_audio_sha256,sentence_audio_sha256,published_at")
       .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", ids)
       .order("published_at", { ascending: false }).order("content_version_id", { ascending: false }),
-    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,dialect_code")
-      .in("id", ids).eq("row_status", "active").eq("dialect_code", "en-GB"),
+    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code")
+      .in("id", ids).eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
+      .eq("dialect_code", "en-GB"),
     db.from("teaching_dictionary_definition_versions").select("id,canonical_word_id,definition,published_at")
       .in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
     db.from("canonical_teaching_dictionary_dictation_sentences")

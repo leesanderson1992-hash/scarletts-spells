@@ -2662,7 +2662,7 @@
         }
       }
     ],
-    "D4_SCHWA_MEDIAL_NATURAL_ACTUAL": [
+    "D4_SCHWA_FINAL_AL": [
       {
         "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
         "spelling": "actual",
@@ -2674,7 +2674,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
           "spelling": "actual",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-5e1ce076c2895455",
           "sourceFingerprint": "c1f3e9a8ad4702d1602edf4fc5bf11a2a04dbfac9b1024b75a20060f88ea047e",
@@ -2704,7 +2704,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
           "spelling": "actual",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-5e1ce076c2895455",
           "sourceFingerprint": "c1f3e9a8ad4702d1602edf4fc5bf11a2a04dbfac9b1024b75a20060f88ea047e",
@@ -2749,7 +2749,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "2804f136-fa24-5a40-a0c5-a9013e85d29e",
           "spelling": "actually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-7b1813a01d8f2fdb",
           "sourceFingerprint": "bba521fd836b14b01fe4bd0744b65a7da88de44c2c8af5ceb91fefd552fdbb37",
@@ -2780,7 +2780,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "2804f136-fa24-5a40-a0c5-a9013e85d29e",
           "spelling": "actually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-7b1813a01d8f2fdb",
           "sourceFingerprint": "bba521fd836b14b01fe4bd0744b65a7da88de44c2c8af5ceb91fefd552fdbb37",
@@ -2825,7 +2825,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "4c6b684d-e155-5725-b664-d412c5b7443e",
           "spelling": "continually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-94e8be22a4bf3d98",
           "sourceFingerprint": "4c2294c5650a737a5749cc820a69a3ff902ace73ea6647fdb6e4e4f7f556dfbd",
@@ -2857,7 +2857,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "4c6b684d-e155-5725-b664-d412c5b7443e",
           "spelling": "continually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-94e8be22a4bf3d98",
           "sourceFingerprint": "4c2294c5650a737a5749cc820a69a3ff902ace73ea6647fdb6e4e4f7f556dfbd",
@@ -2902,7 +2902,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "00d738d7-5c8f-5813-b5fc-cc4f59774cc1",
           "spelling": "eventually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-7e17aad810affc8e",
           "sourceFingerprint": "70cd28c934bd514d11a9044490038400a85e7dd814fc6402e4d6e417aab1f45d",
@@ -2934,7 +2934,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "00d738d7-5c8f-5813-b5fc-cc4f59774cc1",
           "spelling": "eventually",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-7e17aad810affc8e",
           "sourceFingerprint": "70cd28c934bd514d11a9044490038400a85e7dd814fc6402e4d6e417aab1f45d",
@@ -2979,7 +2979,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
           "spelling": "factual",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-0aa5fe2f704a4c40",
           "sourceFingerprint": "9be667c870e86edb5ee002deca7c07b4b357eb0e5e5db1d1eed2c42b393d433e",
@@ -3009,7 +3009,7 @@
           "reviewStatus": "candidate",
           "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
           "spelling": "factual",
-          "microSkillKey": "D4_SCHWA_MEDIAL_NATURAL_ACTUAL",
+          "microSkillKey": "D4_SCHWA_FINAL_AL",
           "wordSense": null,
           "pronunciationId": "candidate-word-audio-0aa5fe2f704a4c40",
           "sourceFingerprint": "9be667c870e86edb5ee002deca7c07b4b357eb0e5e5db1d1eed2c42b393d433e",
@@ -3042,6 +3042,488 @@
           "sourceFingerprint": "301e72934aa4de08b4af53fe853862c0e975b3d04b8ab8a64684900a5bc8d6c8",
           "reviewStatus": "candidate"
         }
+      }
+    ],
+    "D4_SCHWA_FINAL_ET": [
+      {
+        "dinner": {
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed",
+            "syllableIndex": 2
+          },
+          "spelling": "basket",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/61b28348-95c7-544e-847d-47d823d29a85-88b0b26f4750bfed.wav",
+            "sha256": "88b0b26f4750bfed3172bc20bd70a27c9cb4d0cf1764d9042b7079f28fbcce5d",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "550811df-fd11-4c1a-bfa2-a84d3e50e74f",
+          "acceptedCutSets": [
+            [
+              3
+            ]
+          ],
+          "canonicalWordId": "61b28348-95c7-544e-847d-47d823d29a85",
+          "pronunciationId": "gb-word-88b0b26f4750bfed3172",
+          "selectionTarget": {
+            "end": 5,
+            "text": "e",
+            "start": 4
+          },
+          "sourceFingerprint": "fc1f5019e74da958babbd8c2097b4934e906f060cceefab708906fdfbf3effa4",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "basket",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed"
+          },
+          "spelling": "basket",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/61b28348-95c7-544e-847d-47d823d29a85-88b0b26f4750bfed.wav",
+            "sha256": "88b0b26f4750bfed3172bc20bd70a27c9cb4d0cf1764d9042b7079f28fbcce5d",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "550811df-fd11-4c1a-bfa2-a84d3e50e74f",
+          "canonicalWordId": "61b28348-95c7-544e-847d-47d823d29a85",
+          "pronunciationId": "gb-word-88b0b26f4750bfed3172",
+          "sourceFingerprint": "fc1f5019e74da958babbd8c2097b4934e906f060cceefab708906fdfbf3effa4",
+          "reviewedVowelIndex": 4
+        },
+        "dictation": {
+          "sentence": "Mia put the basket carefully on the table.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/61b28348-95c7-544e-847d-47d823d29a85-83646b73e1215699.wav",
+            "sha256": "83646b73e1215699d3746dfd73580ffa20556ae99069549885169aa142f2cd22",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 18,
+          "targetStart": 12
+        },
+        "definition": {
+          "text": "A container often made of woven strips with a handle.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "fc1f5019e74da958babbd8c2097b4934e906f060cceefab708906fdfbf3effa4"
+        },
+        "provenance": "learning_item",
+        "learningItemId": "preview-demand-61b28348-95c7-544e-847d-47d823d29a85",
+        "canonicalWordId": "61b28348-95c7-544e-847d-47d823d29a85",
+        "routeContentSha256": "bfe8b6058d37f2c4596828fce1b8481a6668cc9c8e595ab5e5953aa5bebe98b1"
+      },
+      {
+        "dinner": {
+          "target": {
+            "end": 4,
+            "text": "et",
+            "start": 2,
+            "soundType": "schwa",
+            "syllableIndex": 2
+          },
+          "spelling": "diet",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/d55f84e4-809e-52bf-bd3a-1a5983c79663-c38f97e3aa0f175d.wav",
+            "sha256": "c38f97e3aa0f175d478818976b664f3db947b20de1ab3bfbc7bfcbf67cdf9c48",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "fb8d2bbe-55e4-4781-a84c-f934bd54ab18",
+          "acceptedCutSets": [
+            [
+              2
+            ]
+          ],
+          "canonicalWordId": "d55f84e4-809e-52bf-bd3a-1a5983c79663",
+          "pronunciationId": "gb-word-c38f97e3aa0f175d4788",
+          "selectionTarget": {
+            "end": 3,
+            "text": "e",
+            "start": 2
+          },
+          "sourceFingerprint": "cfef4ab436e74cf8d1142a22e916b97fb74584b587bfc099f1ff1725a969fd0d",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "diet",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 4,
+            "text": "et",
+            "start": 2,
+            "soundType": "schwa"
+          },
+          "spelling": "diet",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/d55f84e4-809e-52bf-bd3a-1a5983c79663-c38f97e3aa0f175d.wav",
+            "sha256": "c38f97e3aa0f175d478818976b664f3db947b20de1ab3bfbc7bfcbf67cdf9c48",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "fb8d2bbe-55e4-4781-a84c-f934bd54ab18",
+          "canonicalWordId": "d55f84e4-809e-52bf-bd3a-1a5983c79663",
+          "pronunciationId": "gb-word-c38f97e3aa0f175d4788",
+          "sourceFingerprint": "cfef4ab436e74cf8d1142a22e916b97fb74584b587bfc099f1ff1725a969fd0d",
+          "reviewedVowelIndex": 2
+        },
+        "dictation": {
+          "sentence": "Fruit belongs in a healthy diet.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/d55f84e4-809e-52bf-bd3a-1a5983c79663-d196c9a025d483bd.wav",
+            "sha256": "d196c9a025d483bdf8774839476956a5a2ece830f60396eac4ff40e03d69b845",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 31,
+          "targetStart": 27
+        },
+        "definition": {
+          "text": "The food and drink a person usually has.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "cfef4ab436e74cf8d1142a22e916b97fb74584b587bfc099f1ff1725a969fd0d"
+        },
+        "provenance": "stretch",
+        "learningItemId": null,
+        "canonicalWordId": "d55f84e4-809e-52bf-bd3a-1a5983c79663",
+        "routeContentSha256": "9e60379568f6bfd2405706fbe9abfeb3ceee52338dfd5426c08c2ed427bde5d3"
+      },
+      {
+        "dinner": {
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed",
+            "syllableIndex": 2
+          },
+          "spelling": "jacket",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/6fa2a758-59d2-5875-835f-aa05ca232fe9-8b90157718a66fa9.wav",
+            "sha256": "8b90157718a66fa95690b016ebd382d0af45d022f2e2aa203a0148e7ef7411a9",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "2b1f5a46-2649-4ab1-a4e6-f447108cd12c",
+          "acceptedCutSets": [
+            [
+              4
+            ]
+          ],
+          "canonicalWordId": "6fa2a758-59d2-5875-835f-aa05ca232fe9",
+          "pronunciationId": "gb-word-8b90157718a66fa95690",
+          "selectionTarget": {
+            "end": 5,
+            "text": "e",
+            "start": 4
+          },
+          "sourceFingerprint": "3350ab86bdb17c11036790ee35a00e4602b149df7f49979f0b0b789bb63dd3ee",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "jacket",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed"
+          },
+          "spelling": "jacket",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/6fa2a758-59d2-5875-835f-aa05ca232fe9-8b90157718a66fa9.wav",
+            "sha256": "8b90157718a66fa95690b016ebd382d0af45d022f2e2aa203a0148e7ef7411a9",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "2b1f5a46-2649-4ab1-a4e6-f447108cd12c",
+          "canonicalWordId": "6fa2a758-59d2-5875-835f-aa05ca232fe9",
+          "pronunciationId": "gb-word-8b90157718a66fa95690",
+          "sourceFingerprint": "3350ab86bdb17c11036790ee35a00e4602b149df7f49979f0b0b789bb63dd3ee",
+          "reviewedVowelIndex": 4
+        },
+        "dictation": {
+          "sentence": "Wear your jacket outside.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/6fa2a758-59d2-5875-835f-aa05ca232fe9-7eadd59e842be7a7.wav",
+            "sha256": "7eadd59e842be7a719da9a0ea6651f371137848404e911a2ca12ec412aa1ca37",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 16,
+          "targetStart": 10
+        },
+        "definition": {
+          "text": "A short coat worn over other clothes.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "3350ab86bdb17c11036790ee35a00e4602b149df7f49979f0b0b789bb63dd3ee"
+        },
+        "provenance": "stretch",
+        "learningItemId": null,
+        "canonicalWordId": "6fa2a758-59d2-5875-835f-aa05ca232fe9",
+        "routeContentSha256": "4c619443d8c9b413d37f130c789b9b3d71229b2167a64fb4bacfd333b58c89dd"
+      },
+      {
+        "dinner": {
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed",
+            "syllableIndex": 2
+          },
+          "spelling": "market",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/829ec800-6b4e-5984-a54b-4eecf7f2ac07-ac2fa489cd379dc7.wav",
+            "sha256": "ac2fa489cd379dc7b5401933a7525263c799230ebd37fef62357183f85317c3d",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "c7204901-c2a9-4e53-b2ea-667d3e29254f",
+          "acceptedCutSets": [
+            [
+              3
+            ]
+          ],
+          "canonicalWordId": "829ec800-6b4e-5984-a54b-4eecf7f2ac07",
+          "pronunciationId": "gb-word-ac2fa489cd379dc7b540",
+          "selectionTarget": {
+            "end": 5,
+            "text": "e",
+            "start": 4
+          },
+          "sourceFingerprint": "e1085749e71051c96ab49cdc186d26661fe8c67836dcc3745474c884124adbf1",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "market",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed"
+          },
+          "spelling": "market",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/829ec800-6b4e-5984-a54b-4eecf7f2ac07-ac2fa489cd379dc7.wav",
+            "sha256": "ac2fa489cd379dc7b5401933a7525263c799230ebd37fef62357183f85317c3d",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "c7204901-c2a9-4e53-b2ea-667d3e29254f",
+          "canonicalWordId": "829ec800-6b4e-5984-a54b-4eecf7f2ac07",
+          "pronunciationId": "gb-word-ac2fa489cd379dc7b540",
+          "sourceFingerprint": "e1085749e71051c96ab49cdc186d26661fe8c67836dcc3745474c884124adbf1",
+          "reviewedVowelIndex": 4
+        },
+        "dictation": {
+          "sentence": "We visited the market on Saturday.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/829ec800-6b4e-5984-a54b-4eecf7f2ac07-1e6d66618c1e7c39.wav",
+            "sha256": "1e6d66618c1e7c391c0ff49e5561b45c3251350847d89d2cf11fedf7ebcde0fb",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 21,
+          "targetStart": 15
+        },
+        "definition": {
+          "text": "A place where people buy and sell things.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "e1085749e71051c96ab49cdc186d26661fe8c67836dcc3745474c884124adbf1"
+        },
+        "provenance": "stretch",
+        "learningItemId": null,
+        "canonicalWordId": "829ec800-6b4e-5984-a54b-4eecf7f2ac07",
+        "routeContentSha256": "ef621daa85234377c9658cdc8c51a0406170e504a3ada5e755f60c6c5bb4ee23"
+      },
+      {
+        "dinner": {
+          "target": {
+            "end": 5,
+            "text": "et",
+            "start": 3,
+            "soundType": "schwa",
+            "syllableIndex": 2
+          },
+          "spelling": "quiet",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/c32f6115-5343-52a4-a1ee-fa225ab85495-08f91998d8af14a5.wav",
+            "sha256": "08f91998d8af14a5cb6efdab5cea2f351eb71b5a287dab28fdac1672d3a4e4e9",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "d06a76cc-2e85-4922-9e2e-bb41cb84b5fe",
+          "acceptedCutSets": [
+            [
+              3
+            ]
+          ],
+          "canonicalWordId": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+          "pronunciationId": "gb-word-08f91998d8af14a5cb6e",
+          "selectionTarget": {
+            "end": 4,
+            "text": "e",
+            "start": 3
+          },
+          "sourceFingerprint": "936e465c6538423e975ac173b70f39e8a965bcba148c46f109151fd7d395d5cb",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "quiet",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 5,
+            "text": "et",
+            "start": 3,
+            "soundType": "schwa"
+          },
+          "spelling": "quiet",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/c32f6115-5343-52a4-a1ee-fa225ab85495-08f91998d8af14a5.wav",
+            "sha256": "08f91998d8af14a5cb6efdab5cea2f351eb71b5a287dab28fdac1672d3a4e4e9",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "d06a76cc-2e85-4922-9e2e-bb41cb84b5fe",
+          "canonicalWordId": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+          "pronunciationId": "gb-word-08f91998d8af14a5cb6e",
+          "sourceFingerprint": "936e465c6538423e975ac173b70f39e8a965bcba148c46f109151fd7d395d5cb",
+          "reviewedVowelIndex": 3
+        },
+        "dictation": {
+          "sentence": "The library stayed quiet.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/c32f6115-5343-52a4-a1ee-fa225ab85495-3a8fb5167b53027b.wav",
+            "sha256": "3a8fb5167b53027b8ed52645048e37a67f08f074ea41a8614920ad52369963d8",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 24,
+          "targetStart": 19
+        },
+        "definition": {
+          "text": "Making little or no noise.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "936e465c6538423e975ac173b70f39e8a965bcba148c46f109151fd7d395d5cb"
+        },
+        "provenance": "stretch",
+        "learningItemId": null,
+        "canonicalWordId": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+        "routeContentSha256": "7945d52d1495c900e59126e5c0fc9060f84f2d88ab279ed4fef1334313feb114"
+      },
+      {
+        "dinner": {
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed",
+            "syllableIndex": 2
+          },
+          "spelling": "target",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/a85f6002-777b-53a9-9d4c-4852e59cd947-6bca8c7821182cfe.wav",
+            "sha256": "6bca8c7821182cfe0146ed59393132b9d9c004d342314810ca1c618695daf3d6",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "call_it_to_dinner_round_v1",
+          "contentVersion": "f8ef904e-87e2-4ae4-acb1-09483c708121",
+          "acceptedCutSets": [
+            [
+              3
+            ]
+          ],
+          "canonicalWordId": "a85f6002-777b-53a9-9d4c-4852e59cd947",
+          "pronunciationId": "gb-word-6bca8c7821182cfe0146",
+          "selectionTarget": {
+            "end": 5,
+            "text": "e",
+            "start": 4
+          },
+          "sourceFingerprint": "1330cbadcbb0ac2ee78a14f33e4283c1ddef096e3022eeb73cee3ae763ec6dc3",
+          "spokenSyllableCount": 2
+        },
+        "spelling": "target",
+        "detective": {
+          "family": null,
+          "target": {
+            "end": 6,
+            "text": "et",
+            "start": 4,
+            "soundType": "other_unstressed"
+          },
+          "spelling": "target",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/word/a85f6002-777b-53a9-9d4c-4852e59cd947-6bca8c7821182cfe.wav",
+            "sha256": "6bca8c7821182cfe0146ed59393132b9d9c004d342314810ca1c618695daf3d6",
+            "reviewStatus": "approved"
+          },
+          "wordSense": null,
+          "reviewStatus": "approved",
+          "microSkillKey": "D4_SCHWA_FINAL_ET",
+          "schemaVersion": "family_tree_detective_round_v1",
+          "contentVersion": "f8ef904e-87e2-4ae4-acb1-09483c708121",
+          "canonicalWordId": "a85f6002-777b-53a9-9d4c-4852e59cd947",
+          "pronunciationId": "gb-word-6bca8c7821182cfe0146",
+          "sourceFingerprint": "1330cbadcbb0ac2ee78a14f33e4283c1ddef096e3022eeb73cee3ae763ec6dc3",
+          "reviewedVowelIndex": 4
+        },
+        "dictation": {
+          "sentence": "The arrow hit the target.",
+          "recording": {
+            "src": "/audio/secret-life-of-vowels/reviewed/sentence/a85f6002-777b-53a9-9d4c-4852e59cd947-3b1eeb8c9d8c31a7.wav",
+            "sha256": "3b1eeb8c9d8c31a774f94d8286ca942590cb7eaa753ff7114d75c7a9475ee0c9",
+            "reviewStatus": "approved"
+          },
+          "targetEnd": 24,
+          "targetStart": 18
+        },
+        "definition": {
+          "text": "Something you aim for or try to achieve.",
+          "reviewStatus": "approved",
+          "sourceFingerprint": "1330cbadcbb0ac2ee78a14f33e4283c1ddef096e3022eeb73cee3ae763ec6dc3"
+        },
+        "provenance": "stretch",
+        "learningItemId": null,
+        "canonicalWordId": "a85f6002-777b-53a9-9d4c-4852e59cd947",
+        "routeContentSha256": "2f7ca50cbca88c496b7fb7873bf5aa5144dfdd32ace6e4564b9c5ce399ad1708"
       }
     ]
   }

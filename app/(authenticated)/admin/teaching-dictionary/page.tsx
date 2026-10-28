@@ -5,6 +5,7 @@ import { loadCachedTeachingDictionaryEvidenceAuthority, loadCachedTeachingDictio
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { CsvImportPanel } from "./csv-import-panel";
+import { needsPronunciationImprovement } from "@/lib/adle/weak-vowel/audio-source";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
@@ -12,6 +13,37 @@ const MEMBER_CHECK_ROUTES = new Set(["dynamic_prefix_word_lab", "dynamic_affix_w
 
 type Word = { id: string; normalised_word: string; display_word: string; age_band: string | null; frequency_band: string | null; row_status: string };
 type SearchParams = { q?: string; filter?: string; page?: string; saved?: string; error?: string };
+
+async function deviceVoiceWordIds(db: ReturnType<typeof createServiceRoleClient>): Promise<string[]> {
+  const ids = new Set<string>();
+  const seenPairs = new Set<string>();
+  for (let offset = 0; ; offset += 500) {
+    const publications = await db.from("adle_weak_vowel_content_publications")
+      .select("content_version_id,canonical_word_id,micro_skill_key,published_at")
+      .order("published_at", { ascending: false }).order("content_version_id", { ascending: false })
+      .range(offset, offset + 499);
+    if (publications.error) throw new Error("SCHWA_DEVICE_VOICE_FILTER_READ_FAILED");
+    for (let start = 0; start < publications.data.length; start += 100) {
+      const batch = publications.data.slice(start, start + 100);
+      const versions = await db.from("teaching_dictionary_route_content_versions")
+        .select("id,content").in("id", batch.map((row) => row.content_version_id));
+      if (versions.error) throw new Error("SCHWA_DEVICE_VOICE_CONTENT_READ_FAILED");
+      const byId = new Map(versions.data.map((row) => [row.id, row.content as Record<string, unknown>]));
+      for (const publication of batch) {
+        const pair = `${publication.canonical_word_id}:${publication.micro_skill_key}`;
+        if (seenPairs.has(pair)) continue;
+        seenPairs.add(pair);
+        const content = byId.get(publication.content_version_id) as { content?: { weakVowel?: {
+          wordRecording?: { src?: string }; sentenceRecording?: { src?: string } } } } | undefined;
+        if (needsPronunciationImprovement(content?.content?.weakVowel?.wordRecording?.src) ||
+          needsPronunciationImprovement(content?.content?.weakVowel?.sentenceRecording?.src))
+          ids.add(publication.canonical_word_id);
+      }
+    }
+    if (publications.data.length < 500) break;
+  }
+  return [...ids];
+}
 type Metadata = { canonical_word_id: string; row_status: string; review_status: string; syllables: string | null; written_syllable_breakdown: string | null; phoneme_hint: string | null; stress_pattern: string | null; has_schwa: boolean | null; morphemes: string | null; morphology_notes: string | null };
 type PageFacts = { metadata: Metadata[]; dictation: { canonical_word_id: string; row_status: string; review_status: string }[]; route_members: { canonical_word_id: string; micro_skill_key: string }[]; route_content: { canonical_word_id: string; micro_skill_key: string }[] };
 
@@ -33,7 +65,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   await requireAdminUser();
   const params = await searchParams;
   const q = (params.q ?? "").trim().toLocaleLowerCase("en-GB").slice(0, 100);
-  const filter = ["all", "missing_metadata", "evidence_approved", "route_blocked"].includes(params.filter ?? "all")
+  const filter = ["all", "missing_metadata", "evidence_approved", "route_blocked", "device_voice"].includes(params.filter ?? "all")
     ? params.filter ?? "all" : "all";
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
   const environment = resolveAdleRouteActivationEnvironment();
@@ -42,7 +74,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const globalAuthorityPromise = environment && needsGlobalAuthority
     ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
-  const initialPagePromise = !needsGlobalAuthority ? db.rpc("teaching_dictionary_admin_filtered_page", {
+  const initialPagePromise = !needsGlobalAuthority && filter !== "device_voice" ? db.rpc("teaching_dictionary_admin_filtered_page", {
     p_filter: filter, p_search: q, p_word_ids: null,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
   }) : null;
@@ -58,9 +90,10 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   }) : null;
   if (routeBlockedResult?.error) throw new Error(`TEACHING_DICTIONARY_ROUTE_FILTER_FAILED:${routeBlockedResult.error.message}`);
   const candidateIds = filter === "evidence_approved" ? globalApprovedIds
-    : filter === "route_blocked" ? routeBlockedResult?.data as string[] ?? [] : null;
+    : filter === "route_blocked" ? routeBlockedResult?.data as string[] ?? []
+      : filter === "device_voice" ? await deviceVoiceWordIds(db) : null;
   const pageResult = await (initialPagePromise ?? db.rpc("teaching_dictionary_admin_filtered_page", {
-    p_filter: filter, p_search: q, p_word_ids: candidateIds,
+    p_filter: filter === "device_voice" ? "evidence_approved" : filter, p_search: q, p_word_ids: candidateIds,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
   }));
   if (pageResult.error) throw new Error(`TEACHING_DICTIONARY_WORD_READ_FAILED:${pageResult.error.message}`);
@@ -105,6 +138,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
         <select className="rounded-lg border border-[var(--border)] px-3 py-2" name="filter" defaultValue={filter}>
           <option value="all">All active words</option><option value="missing_metadata">Missing core facts or dictation</option>
           <option value="evidence_approved">Evidence approved</option><option value="route_blocked">Prefix, suffix or base member missing</option>
+          <option value="device_voice">Schwa pronunciation improvement needed</option>
         </select><button className="rounded-lg border border-[var(--border)] px-4 py-2">Filter</button>
       </form>
       <p className="my-4 text-sm">{total} words · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>

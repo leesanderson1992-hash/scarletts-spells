@@ -185,6 +185,7 @@ export function NoMatchingSkillWorkspace({ rows, skills, families, clusters, mem
             <div className="text-xs text-[#59616b]">{row.intended_dictionary_word_id
               ? <Link className="underline" href={`/admin/teaching-dictionary/${row.intended_dictionary_word_id}`}>Dictionary word exists · review skill link</Link>
               : "Dictionary word still needed"}</div>
+            <div className="text-xs text-amber-900">Lesson blocker: no matching active micro-skill. This case is not a lesson-pool word.</div>
           </td>
           <td>{row.source_type === "parent_context" ? "Parent-confirmed context" :
             row.source_type === "parent_catalog" ? "Parent catalog case" : "Resolver intake"}</td>

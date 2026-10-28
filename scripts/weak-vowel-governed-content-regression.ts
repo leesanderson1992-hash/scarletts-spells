@@ -4,6 +4,7 @@ import { prepareLessonFromPublishedWeakVowelWords, type PublishedWeakVowelWord }
 import { compileWeakVowelSnapshotV3, validateWeakVowelSnapshotV3 } from "../lib/adle/weak-vowel/snapshot";
 import { initialWeakVowelProgress, weakVowelProgressTransitionValid, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
 import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
+import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 const candidates = JSON.parse(readFileSync("content/secret-life-of-vowels/weak-vowel-route-content-candidates.json", "utf8")) as {
   rows: Array<PublishedWeakVowelWord & { sharedDefinition: { definition: string } }>;
@@ -12,6 +13,18 @@ const sheet = JSON.parse(readFileSync("content/secret-life-of-vowels/reviewed-sh
   rows: Array<{ canonical_word_id: string; micro_skill_key: string; rhythm_sentence_text: string }>;
 };
 const sentences = new Map(sheet.rows.map((row) => [`${row.canonical_word_id}|${row.micro_skill_key}`, row.rhythm_sentence_text]));
+for (const skill of ["D4_SCHWA_FINAL_A_FINAL", "D4_SCHWA_FINAL_AR_FINAL", "D4_SCHWA_FINAL_ER_FINAL",
+  "D4_SCHWA_FINAL_OR_FINAL", "D4_SCHWA_INITIAL_E_INITIAL", "D4_SCHWA_INITIAL_O_INITIAL",
+  "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS"]) {
+  const row = candidates.rows.find((entry) => entry.microSkillKey === skill)!;
+  const input = { displayWord: row.spelling,
+    dictationSentence: sentences.get(`${row.canonicalWordId}|${skill}`)!,
+    definition: row.sharedDefinition.definition, microSkillKey: skill };
+  assert.deepEqual(weakVowelRouteBlockers(row.routeContent.content.weakVowel, input), [], skill);
+  const wrong = { ...row.routeContent.content.weakVowel,
+    selectionTarget: { ...row.routeContent.content.weakVowel.selectionTarget, start: row.spelling.length } };
+  assert(weakVowelRouteBlockers(wrong, input).length > 0, `${skill} must reject a wrong written target`);
+}
 const source = candidates.rows.filter((row) => row.microSkillKey === "D4_SCHWA_FINAL_A_FINAL").slice(0, 4);
 assert.equal(source.length, 4);
 const published: PublishedWeakVowelWord[] = source.map((row, index) => ({
@@ -37,6 +50,35 @@ assert(ready.lesson);
 assert.deepEqual(ready.lesson.words.map((row) => row.canonicalWordId), slots.map((row) => row.canonicalWordId));
 assert.equal(ready.lesson.words[0].provenance, "learning_item");
 assert.match(ready.lesson.contentVersion, /^weak_vowel_selected_v1:[a-f0-9]{64}$/);
+const reviewedFinalEt = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-final-et-al-reviewed-word-facts.json", "utf8")) as {
+  rows: Array<{ canonicalWordId: string; word: string; microSkillKey: string; sourceFingerprint: string;
+    dictationSentence: string; routeContent: PublishedWeakVowelWord["routeContent"] }>;
+};
+const publishedFinalEt: PublishedWeakVowelWord[] = reviewedFinalEt.rows
+  .filter((row) => row.microSkillKey === "D4_SCHWA_FINAL_ET").slice(0, 4).map((row, index) => ({
+    contentVersionId: `final-et-publication-${index}`, canonicalWordId: row.canonicalWordId,
+    microSkillKey: "D4_SCHWA_FINAL_ET", spelling: row.word, sourceFingerprint: row.sourceFingerprint,
+    contentSha256AtPublication: fingerprintSnapshotValue(row.routeContent),
+    dictionaryFingerprintAtReview: `final-et-dictionary-${index}`,
+    currentDictionaryFingerprint: `final-et-dictionary-${index}`,
+    wordAudioSha256AtPublication: row.routeContent.content.weakVowel.wordRecording.sha256,
+    sentenceAudioSha256AtPublication: row.routeContent.content.weakVowel.sentenceRecording.sha256,
+    definition: row.routeContent.wordMeaning, sentence: row.dictationSentence, routeContent: row.routeContent,
+  }));
+assert.equal(publishedFinalEt.length, 4);
+const finalEtPrepared = prepareLessonFromPublishedWeakVowelWords({
+  assignmentKey: "final-et-single-letter-selection-regression", microSkillKey: "D4_SCHWA_FINAL_ET",
+  slots: publishedFinalEt.map((row, index) => ({ canonicalWordId: row.canonicalWordId,
+    provenance: index === 0 ? "learning_item" as const : "stretch" as const,
+    learningItemId: index === 0 ? "final-et-demand" : null, complexityLevel: null })),
+  currentAssignedPairs: publishedFinalEt.map((row) => ({ canonicalWordId: row.canonicalWordId,
+    microSkillKey: row.microSkillKey, assignmentStatus: "assigned" as const })),
+  published: publishedFinalEt, currentFamilyAuthorities: [],
+});
+assert(finalEtPrepared.lesson, JSON.stringify(finalEtPrepared.blockers));
+assert.equal(finalEtPrepared.lesson.words.every((word) => word.dinner.target.text === "et" &&
+  word.dinner.selectionTarget?.text === "e" && word.dinner.selectionTarget.start === word.detective.reviewedVowelIndex), true,
+"Call It To Dinner must accept the vowel e while preserving the reviewed lexical -et annotation");
 const release = { activationRevisionId: "revision-1", releaseManifestId: "manifest-1",
   releaseKey: "weak-vowel-test", releaseManifestSha256: "a".repeat(64), dependencyFingerprint: "b".repeat(64) };
 const { header, items, snapshot } = compileWeakVowelSnapshotV3({ lesson: ready.lesson, release,

@@ -14,7 +14,7 @@ export interface WeakVowelReleasePackageV1 {
   packageSha256: string;
 }
 
-/** The release freezes the eight teaching templates. Published word facts stay
+/** The release freezes the supported teaching templates. Published word facts stay
  * independent, so a later approved word can join without another code release. */
 export function buildWeakVowelReleasePackage(input: { releaseKey: string; approvalRefs: readonly string[] }): WeakVowelReleasePackageV1 {
   if (!input.releaseKey.trim() || !input.approvalRefs.length || input.approvalRefs.some((ref) => !ref.trim()))

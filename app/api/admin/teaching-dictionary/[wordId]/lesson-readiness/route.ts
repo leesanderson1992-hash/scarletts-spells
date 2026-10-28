@@ -7,6 +7,7 @@ import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teac
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { wordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
+import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
 
 export const dynamic = "force-dynamic";
 export async function GET(_request: Request, { params }: { params: Promise<{ wordId: string }> }) {
@@ -26,6 +27,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
     .filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey))];
   const approvedSkillKeys = new Set(assignedSkillKeys);
   const preflights = await loadLessonReadiness({ wordId, approvedSkillKeys: assignedSkillKeys });
+  const schwaStatuses = await Promise.all(preflights.filter((lesson) => lesson.routeId === "weak_vowel_word_lab")
+    .map(async (lesson) => (await loadRouteWordStatuses({ routeId: lesson.routeId, microSkillKey: lesson.microSkillKey,
+      lesson, wordIds: [wordId] })).words[0]?.status));
+  const schwaBySkill = new Map(schwaStatuses.filter((status) => Boolean(status))
+    .map((status) => [status!.microSkillKey, status!]));
   return NextResponse.json({
     routeContents: wordRoutesFromPreflights(preflights, wordId, ""),
     assignedSkillKeys,
@@ -33,7 +39,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
       ...assignedSkillKeys,
       ...preflights.map(row => row.microSkillKey),
     ])],
-    wordRouteStatuses: preflights.map(lesson => wordRouteStatus({
+    wordRouteStatuses: preflights.map(lesson => schwaBySkill.get(lesson.microSkillKey) ?? wordRouteStatus({
       wordId,
       dictionaryApproved: dictionary.data.row_status === "active" && dictionary.data.review_status === "approved_for_first_exposure",
       approvedSkillKeys,

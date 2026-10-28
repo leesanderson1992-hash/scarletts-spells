@@ -41,7 +41,7 @@ const newSource = source("futureword", { microSkillKey: "D4_SCHWA_FINAL_A_FINAL"
 const future = buildWeakVowelRepairRows([...input, newSource], when);
 assert.equal(future.length, 3, "new assignments enter the export without a word allowlist");
 assert(validateWeakVowelRepairs(rows, rows, future).errors.some(error => error.code === "INVENTORY_CHANGED"));
-assert.equal(Object.keys(WEAK_VOWEL_SKILLS).length, 8);
+assert.equal(Object.keys(WEAK_VOWEL_SKILLS).length, 9);
 const twoSkills = buildWeakVowelRepairRows([source("calendar"), source("calendar", { microSkillKey: "D4_SCHWA_FINAL_AR_FINAL" })], when);
 assert.equal(new Set(twoSkills.map(repairRowKey)).size, 2);
 const conflicting = twoSkills.map((row, index) => ({ ...row, approval_decision: "approve_changes", proposed_written_breakdown: index ? "ca·len·dar" : "cal·en·dar" }));
@@ -54,6 +54,12 @@ assert.equal(variants.length, 2);
 assert.equal(new Set(variants.map(repairRowKey)).size, 2);
 const noSchwa = buildWeakVowelRepairRows([source("every", { metadata: [{ id: "every", phoneme_hint: "/ˈevri/", syllables: "2", stress_pattern: "primary-unstressed", has_schwa: false, written_syllable_breakdown: "eve·ry" }] })], when)[0];
 assert(!noSchwa.issue_codes.includes("SCHWA_FLAG_NOT_LOCATED"), "compression without schwa is not a schwa-flag error");
+for (const [word, ipa] of [["diet", "/dˈaɪət/"], ["quiet", "/kwˈaɪət/"]] as const) {
+  const row = buildWeakVowelRepairRows([source(word, { microSkillKey: "D4_SCHWA_FINAL_ET",
+    metadata: [{ id: word, phoneme_hint: ipa, syllables: "2", stress_pattern: "primary-unstressed",
+      has_schwa: true, written_syllable_breakdown: word }] })], when)[0];
+  assert(!row.issue_codes.includes("SCHWA_FLAG_NOT_LOCATED"), `${word} has /ə/ after /aɪ/`);
+}
 assert.equal(noSchwa.linguistic_review_status, "No inconsistency detected");
 assert.equal(noSchwa.blocks_child_presentation, "true", "absence of a contradiction cannot approve a lesson");
 assert.equal(repairFingerprint({ b: 2, a: 1 }), repairFingerprint({ a: 1, b: 2 }));

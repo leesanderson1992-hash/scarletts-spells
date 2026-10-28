@@ -2,6 +2,7 @@ import type { TeachingPagesConfig, WeakVowelSecretTip } from "@/components/adle/
 import { parseDinnerRound, type DinnerRoundV1 } from "../word-lab/call-it-to-dinner";
 import { parseDetectiveRound, type DetectiveRoundV1 } from "../word-lab/family-tree-detective";
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
+import { isWeakVowelAudioSource } from "./audio-source";
 
 export const WEAK_VOWEL_LESSON_VERSION = 1 as const;
 export type WeakVowelMicroSkill = typeof WEAK_VOWEL_MICRO_SKILLS[number];
@@ -46,7 +47,8 @@ const descriptions: Record<WeakVowelMicroSkill, { name: string; focus: string; s
   D4_SCHWA_INITIAL_E_INITIAL: { name: "Quiet first e", focus: "An initial written e can be unstressed and easy to miss by ear.", strategy: "Listen to the complete word, then inspect its first letters before recalling the spelling." },
   D4_SCHWA_INITIAL_O_INITIAL: { name: "Quiet first o", focus: "An initial written o can be unstressed and easy to miss by ear.", strategy: "Listen to the complete word, then inspect its first letters before recalling the spelling." },
   D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS: { name: "Quiet middle vowels", focus: "A vowel in the middle of a word may be weak without disappearing from its spelling.", strategy: "Chop the spoken word into syllables, locate the quiet part, and inspect the letters that spell it." },
-  D4_SCHWA_MEDIAL_NATURAL_ACTUAL: { name: "Quiet vowels in longer words", focus: "Longer related words can contain a weak middle vowel that still needs to be written.", strategy: "Check the complete word and any verified family clue. A related word may preserve spelling without making a vowel louder." },
+  D4_SCHWA_FINAL_AL: { name: "Quiet final al", focus: "The written a in -al can sound weak, including when -ly follows it.", strategy: "Look for the -al spelling in the word and its verified relatives." },
+  D4_SCHWA_FINAL_ET: { name: "Quiet final et", focus: "The weak vowel in lexical final -et is written e.", strategy: "Listen to the reviewed recording, then picture the complete -et ending before spelling it." },
 };
 
 const INITIAL_E_TIPS: readonly WeakVowelSecretTip[] = [
@@ -304,7 +306,7 @@ const FINAL_OR_TIPS: readonly WeakVowelSecretTip[] = [
   ] },
 ];
 
-const NATURAL_ACTUAL_TIPS: readonly WeakVowelSecretTip[] = [
+const FINAL_AL_TIPS: readonly WeakVowelSecretTip[] = [
   { heading: "Detective Tip 1: Find the hidden A!", blocks: [
     { kind: "paragraph", text: "Look at **n a t u r a l**. In the clear three-syllable pronunciation, the last **a** has a weak /ə/ sound. In quicker speech, that ending may be even harder to hear." },
     { kind: "examples", items: [{ text: "natur**al** → NACH-uh-ruhl" }, { text: "actu**al** → AK-choo-uhl" }] },
@@ -312,18 +314,18 @@ const NATURAL_ACTUAL_TIPS: readonly WeakVowelSecretTip[] = [
   ] },
   { heading: "Detective Tip 2: Look for the -ual pattern!", blocks: [
     { kind: "paragraph", text: "These words share the written **u-a-l** pattern:" },
-    { kind: "examples", items: [{ text: "act**ual**" }, { text: "us**ual**" }, { text: "vis**ual**" }, { text: "grad**ual**" }, { text: "individ**ual**" }] },
+    { kind: "examples", items: [{ text: "act**ual**" }, { text: "us**ual**" }, { text: "fact**ual**" }, { text: "rit**ual**" }] },
     { kind: "paragraph", text: "The **a** before **l** is weak, but it still belongs in the spelling. The **u** is another vowel: listen to the chosen word recording to hear how it is said." },
     { kind: "paragraph", text: "**Memory trick:** Picture the three-letter spelling pattern **U-A-L**." },
   ] },
   { heading: "Detective Tip 3: Ask the word's relatives!", blocks: [
     { kind: "paragraph", text: "Related words often keep the written **-al** or **-ual** pattern:" },
-    { kind: "examples", items: [{ text: "natural → naturally → naturalness" }, { text: "actual → actually → actuality" }, { text: "usual → usually → unusual" }, { text: "visual → visually → visualise" }] },
+    { kind: "examples", items: [{ text: "natural → unnatural" }, { text: "actual → actually" }, { text: "usual → usually" }] },
     { kind: "paragraph", text: "**Detective trick:** If you know **actual**, its spelling helps you remember **actually**. A relative can preserve a spelling even when it does not make the vowel clearer." },
   ] },
   { heading: "Detective Tip 4: Keep the A when adding -ly!", blocks: [
     { kind: "paragraph", text: "Add **-ly** without dropping the **a** from **-al**:" },
-    { kind: "examples", items: [{ text: "natural + ly → naturally" }, { text: "actual + ly → actually" }, { text: "usual + ly → usually" }, { text: "visual + ly → visually" }, { text: "gradual + ly → gradually" }] },
+    { kind: "examples", items: [{ text: "natural + ly → naturally" }, { text: "actual + ly → actually" }, { text: "usual + ly → usually" }] },
     { kind: "paragraph", text: "Some speakers compress these words in everyday speech. Use the reviewed recording when counting syllables in an activity; use your spelling voice to remember all the letters." },
   ] },
   { heading: "Detective Tip 5: Beware of the ‘uhl’ spelling trap!", blocks: [
@@ -333,16 +335,29 @@ const NATURAL_ACTUAL_TIPS: readonly WeakVowelSecretTip[] = [
   ] },
 ];
 
+const FINAL_ET_TIPS: readonly WeakVowelSecretTip[] = [
+  { heading: "Detective Tip 1 — Don't let the sound trick you!", blocks: [
+    { kind: "examples", items: [{ text: "BAS-kit → basket, not baskit" }, { text: "JAK-it → jacket, not jackit" }, { text: "MAR-kit → market, not markit" }] },
+    { kind: "paragraph", text: "**Detective trick:** The ending might sound like “it”, but it can be hiding an **e**!" },
+  ] },
+  { heading: "Detective Tip 2 — Watch out for real -it endings!", blocks: [
+    { kind: "paragraph", text: "Not every ending that sounds like “it” is spelt **-et**." },
+    { kind: "comparison", columns: ["Sounds like “it”", "Correct ending"], rows: [["rabbit", "-it"], ["habit", "-it"], ["basket", "-et"], ["jacket", "-et"]] },
+    { kind: "paragraph", text: "You cannot always work out the spelling just by listening. You must learn which ending belongs to each word." },
+  ] },
+];
+
 export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: readonly WeakVowelLessonWordV1[]): TeachingPagesConfig {
   const copy = descriptions[microSkillKey];
   const finalA = microSkillKey === "D4_SCHWA_FINAL_A_FINAL";
+  const finalET = microSkillKey === "D4_SCHWA_FINAL_ET";
   const finalAR = microSkillKey === "D4_SCHWA_FINAL_AR_FINAL";
   const finalER = microSkillKey === "D4_SCHWA_FINAL_ER_FINAL";
   const finalOR = microSkillKey === "D4_SCHWA_FINAL_OR_FINAL";
   const initialE = microSkillKey === "D4_SCHWA_INITIAL_E_INITIAL";
   const initialO = microSkillKey === "D4_SCHWA_INITIAL_O_INITIAL";
   const medialWeak = microSkillKey === "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS";
-  const naturalActual = microSkillKey === "D4_SCHWA_MEDIAL_NATURAL_ACTUAL";
+  const naturalActual = microSkillKey === "D4_SCHWA_FINAL_AL";
   return {
     pages: [
       { id: "secret-life-intro-v2", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The disappearing vowel", paragraphs: ["Today we are looking at why unstressed vowels can seem to disappear in multisyllabic words."],
@@ -356,6 +371,19 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
           { heading: "Places, ideas and everyday things", words: ["sofa", "banana", "soda", "arena", "villa", "umbrella", "camera", "replica", "gorilla", "comma", "algebra"] },
           { heading: "Names and geography", words: ["America", "Canada", "China", "Africa", "Jessica", "Anna", "Maria"] },
         ], note: "These are examples to notice, not a rule for every noun. Listen, then check the whole spelling." } }
+        : finalET ? { id: "secret-life-final-et-story-v2", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Secret of the Quiet -et", subtitle: "When the ending looks like -et but sounds like “it”!", paragraphs: [],
+          weakVowelFeature: { kind: "final_et_story", intro: [
+              "Remember how vowels can become weaker when they are not in the strongest syllable of a word?",
+              "Sometimes a word ends with **-et**, but when we say it naturally, the ending sounds more like “it”.",
+              "Look at these words. Say them aloud and compare how they sound with how they are spelt.",
+            ], examples: [
+              { word: "basket", sound: "BAS-kit", spelling: "bask-et" },
+              { word: "jacket", sound: "JAK-it", spelling: "jack-et" },
+              { word: "market", sound: "MAR-kit", spelling: "mark-et" },
+              { word: "rocket", sound: "ROK-it", spelling: "rock-et" },
+              { word: "ticket", sound: "TIK-it", spelling: "tick-et" },
+              { word: "target", sound: "TAR-git", spelling: "targ-et" },
+            ], conclusion: ["Your ears might tell you to write **-it**, but these words are actually spelt with **-et**!", "The **e** has a weak vowel sound. It doesn't sound like the clear short **e** in **bed**."], tips: FINAL_ET_TIPS } }
         : finalAR ? { id: "secret-life-final-ar-story-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Secret of the Lazy -ar", subtitle: "When AR sounds like ‘uh’!", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_story", intro: [
             "You already know that **ar** can make a strong sound, as in **car**, **star** and **park**.",
@@ -427,22 +455,31 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
         : naturalActual ? { id: "secret-life-natural-actual-story-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Secret of the Lazy -al", subtitle: "When the ending -al sounds like ‘uhl’!", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_story", intro: [
             "You already know that vowels can become weak when they do not receive the strong beat in a word.",
-            "Some words hide a quiet **a** just before their final **l**. In the pronunciations shown here, it makes the weak **schwa /ə/** sound followed by **l**.",
+            "Some words hide a quiet **a** before **l** in **-al**. In the pronunciations shown here, it makes the weak **schwa /ə/** sound followed by **l**.",
             "Listen to these words in British English. The exact syllables can vary by speaker; follow the chosen recording in each activity.",
           ], examples: [
             { stem: "natur", ending: "al", sound: "NACH-uh-ruhl" },
             { stem: "actu", ending: "al", sound: "AK-choo-uhl" },
             { stem: "usu", ending: "al", sound: "YOO-zhoo-uhl" },
-            { stem: "visu", ending: "al", sound: "VIZH-oo-uhl" },
-            { stem: "individu", ending: "al", sound: "in-di-VIJ-oo-uhl" },
-            { stem: "gradu", ending: "al", sound: "GRAJ-oo-uhl" },
-          ], conclusion: "Notice the **a** near the end. It does not make its strong letter sound; in these examples it sounds like /ə/ before **l**. In today's activity words, follow the highlighted reviewed **a** and its recording.", tips: NATURAL_ACTUAL_TIPS } }
+          ], conclusion: "Notice the **a** near the end. It does not make its strong letter sound; in these examples it sounds like /ə/ before **l**. In today's activity words, follow the highlighted reviewed **a** and its recording.", tips: FINAL_AL_TIPS } }
         : { id: "secret-life-fallback-v2", type: "teaching", eyebrow: "Today's mission", title: copy.name, paragraphs: [copy.focus, "Call It to Dinner finds the syllables and quiet spelling. Vowel Detective lets you investigate a word family when one is available."], callout: copy.strategy },
       finalA ? { id: "secret-life-final-a-strategy-v2", type: "teaching", eyebrow: "How to remember", title: "Look for a spelling clue", paragraphs: ["When a noun ends in a weak ‘uh’ sound, ask what the word means. Then check its spelling."],
         weakVowelFeature: { kind: "final_a_strategy", choices: [
           { heading: "A person who does a job?", explanation: "The suffix -er often names someone who does an action.", example: "teach → teacher · print → printer" },
           { heading: "An object, idea or name?", explanation: "Many nouns of this kind finish with a written a.", example: "sofa · agenda · opera" },
         ], note: "This is a clue, not a test that always works: doctor and actor end in -or. Learn the whole word you hear." } }
+        : finalET ? { id: "secret-life-final-et-rule-v2", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Disguised E!", subtitle: "The E is pretending to be I!", paragraphs: [],
+          weakVowelFeature: { kind: "final_et_rule", intro: [
+              "Sometimes, the letter **E** puts on an **I** disguise!",
+              "When we say words like **basket**, **jacket** and **rocket**, the ending sounds like “it”.",
+              "But underneath that sound, there's a hidden **E** in the spelling.",
+              "Picture this: A cheeky letter **E** wearing an **I** costume, with the real **E** peeking out underneath.",
+            ], examples: [
+              { word: "basket", sound: "BAS-kit" }, { word: "jacket", sound: "JAK-it" },
+              { word: "rocket", sound: "ROK-it" }, { word: "market", sound: "MAR-kit" },
+              { word: "ticket", sound: "TIK-it" }, { word: "target", sound: "TAR-git" },
+            ], rule: ["Some words sound like they end in “it”, but they are spelt with **-et**.", "The letter **E** is only pretending to sound like **I**!"],
+            motto: "“Sounds like IT? Don't forget, E might be hiding in ET!”" } }
         : finalAR ? { id: "secret-life-final-ar-rule-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "Today's Secret Rule", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_rule", rule: "At the end of some British English words, **-ar** makes the weak **‘uh’** sound **/ə/**.",
             clues: ["**Spot -ular!** Remember the spelling **u-l-a-r**.", "**Check -ilar and -iliar!** Similar and familiar have different spellings.", "**Explore relatives!** A related word may make the vowel clearer.", "**Practise tricky words!** Some endings need whole-word memory."],
@@ -474,10 +511,10 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
             conclusion: "Listen to the chosen recording for its syllables; use the written word to remember every letter.",
             motto: "Sounds may fade away, but the letters are here to stay!", tips: MEDIAL_WEAK_TIPS } }
         : naturalActual ? { id: "secret-life-natural-actual-rule-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "Today's Secret Rule", paragraphs: [],
-          weakVowelFeature: { kind: "ending_secret_rule", rule: "In words such as **natural** and **actual**, an unstressed **a** before the final **l** makes a weak sound. Remember that the ending is spelt **-al**!",
-            clues: ["**Look for -ual!** Actual, usual and visual share a spelling pattern.", "**Investigate word families!** The **-al** stays in natural → naturally.", "**Keep the A!** The letter belongs in the spelling even when it is hard to hear."],
-            conclusion: "A word can have more than one weak vowel. In today's selected words, check the highlighted **a** before final **l** and its reviewed recording.",
-            motto: "Hear the ‘uhl’, look for the family, remember the AL!", tips: NATURAL_ACTUAL_TIPS } }
+          weakVowelFeature: { kind: "ending_secret_rule", rule: "In words such as **natural** and **actual**, an unstressed **a** before **l** in **-al** makes a weak sound. Keep that spelling when **-ly** follows.",
+            clues: ["**Look for -ual!** Actual, usual and factual share a spelling pattern.", "**Investigate word families!** The **-al** stays in actual → actually.", "**Keep the A!** The letter belongs in the spelling even when it is hard to hear."],
+            conclusion: "A word can have more than one weak vowel. In today's selected words, check the highlighted **a** in **-al** and its reviewed recording.",
+            motto: "Hear the ‘uhl’, look for the family, remember the AL!", tips: FINAL_AL_TIPS } }
         : { id: "secret-life-strategies-v2", type: "teaching", eyebrow: "How to remember", title: "Look, cover, spell, check", paragraphs: ["Study the complete word and its quiet letters. A word family may preserve the spelling even if the vowel stays hard to hear.", "Then cover the word, spell it from memory and write the whole sentence you hear."], callout: "A clue helps you investigate. Your own spelling attempt shows what you remember." },
     ],
     meetWords: { title: "Meet today's words", introduction: "These words were selected for you. Notice the quiet spelling and what each word means.", presentation: "combined", words: words.map((word) => ({ id: word.canonicalWordId, word: word.spelling, detail: word.definition.text, highlightStart: word.dinner.target.start, highlightLength: word.dinner.target.end - word.dinner.target.start, provenance: word.provenance === "learning_item" ? "Your word to practise" : word.provenance === "probe_miss" ? "From your listening check" : "A new stretch word" })) },
@@ -530,7 +567,7 @@ export function validateWeakVowelLesson(value: unknown, allowFixture = false): v
       dinner.recording.sha256 !== detective.recording.sha256 || dinner.target.start !== detective.target.start ||
       dinner.target.end !== detective.target.end || dinner.target.text !== detective.target.text ||
       !word.dictation.sentence || typeof word.dictation.recording.src !== "string" ||
-      !word.dictation.recording.src.startsWith("/audio/") ||
+      !isWeakVowelAudioSource(word.dictation.recording.src) ||
       word.dictation.recording.reviewStatus !== "approved" || !sha(word.dictation.recording.sha256) ||
       !Number.isInteger(word.dictation.targetStart) || !Number.isInteger(word.dictation.targetEnd) ||
       word.dictation.targetStart < 0 || word.dictation.targetEnd <= word.dictation.targetStart ||

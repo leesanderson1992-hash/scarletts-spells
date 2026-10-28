@@ -8,6 +8,11 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadTeachingDictionaryEvidenceAuthorityForWords } from "./evidence-authority";
 import { loadLessonReadiness, type LessonReadinessRow } from "./lesson-preflight";
 import { wordRouteStatus, type WordRouteStatus } from "./word-route-status";
+import { loadPublishedWeakVowelWords } from "@/lib/adle/weak-vowel/governed-content-loader";
+import { publishedWeakVowelWordBlockers } from "@/lib/adle/weak-vowel/governed-content";
+import type { WeakVowelMicroSkill } from "@/lib/adle/weak-vowel/lesson";
+import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
+import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
 
 type Candidate = { wordId: string; displayWord: string; status: WordRouteStatus };
 
@@ -83,7 +88,11 @@ async function loadRouteWordStatusesUnmeasured(input: {
   if (ids.length === 0) return { words: [], counts: { candidates: 0, approvedRelationships: 0, technicalComplete: 0, administrativeCandidates: 0, awaitingEditorial: 0, missingContent: 0 } };
   const environment = resolveAdleRouteActivationEnvironment();
   const [authority, dictionary] = await Promise.all([
-    environment ? loadTeachingDictionaryEvidenceAuthorityForWords(client, environment, ids) : Promise.resolve(null),
+    environment ? lesson.routeId === "weak_vowel_word_lab"
+      ? loadPublishedWritingAssociations(client, environment, ids).then((explicitReviewedAssociations) =>
+        loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment,
+          canonicalWordIds: ids, explicitReviewedAssociations }))
+      : loadTeachingDictionaryEvidenceAuthorityForWords(client, environment, ids) : Promise.resolve(null),
     readByIds(client, "canonical_teaching_dictionary_words", "id,display_word,row_status,review_status", "id", ids),
   ]);
   const approvedByWord = new Map<string, Set<string>>();
@@ -91,6 +100,15 @@ async function loadRouteWordStatusesUnmeasured(input: {
     const skills = approvedByWord.get(relationship.canonicalWordId) ?? new Set<string>();
     skills.add(relationship.microSkillKey);
     approvedByWord.set(relationship.canonicalWordId, skills);
+  }
+  const weakPublished = new Map<string, ReturnType<typeof publishedWeakVowelWordBlockers>>();
+  if (lesson.routeId === "weak_vowel_word_lab") {
+    for (let start = 0; start < ids.length; start += 6) {
+      const published = await loadPublishedWeakVowelWords({ client, microSkillKey: lesson.microSkillKey as WeakVowelMicroSkill,
+        canonicalWordIds: ids.slice(start, start + 6) });
+      for (const row of published) weakPublished.set(row.canonicalWordId,
+        publishedWeakVowelWordBlockers(row, lesson.microSkillKey as WeakVowelMicroSkill));
+    }
   }
   const words = dictionary.filter((row) => input.wordIds || discovery?.nonReviewedIds.has(row.id)
     || approvedByWord.get(row.id)?.has(lesson.microSkillKey)).map((row): Candidate => ({
@@ -101,6 +119,9 @@ async function loadRouteWordStatusesUnmeasured(input: {
       dictionaryApproved: row.row_status === "active" && row.review_status === "approved_for_first_exposure",
       approvedSkillKeys: approvedByWord.get(row.id) ?? new Set(),
       lesson,
+      ...(lesson.routeId === "weak_vowel_word_lab" ? {
+        weakVowelPublished: weakPublished.has(row.id), weakVowelContentBlockers: weakPublished.get(row.id) ?? [],
+      } : {}),
     }),
   })).sort((a, b) => a.displayWord.localeCompare(b.displayWord) || a.wordId.localeCompare(b.wordId));
   return { words, counts: {

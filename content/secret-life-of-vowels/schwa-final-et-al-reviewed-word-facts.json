@@ -1,0 +1,1139 @@
+{
+  "schemaVersion": "weak_vowel_route_review_drafts_v1",
+  "reviewStatus": "owner_approved_word_facts",
+  "productionPublished": false,
+  "rows": [
+    {
+      "canonicalWordId": "61b28348-95c7-544e-847d-47d823d29a85",
+      "word": "basket",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "b4824bfd24ac79c6524c5971dc61ed8f3959192e0c2023386ff34034cad7963b",
+      "dictionaryIpaHint": "/b\u02c8\u0251\u02d0sk\u026at/",
+      "dictationSentence": "Mia put the basket carefully on the table.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "A container often made of woven strips with a handle.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "b4824bfd24ac79c6524c5971dc61ed8f3959192e0c2023386ff34034cad7963b",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-88b0b26f4750bfed3172",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/61b28348-95c7-544e-847d-47d823d29a85-88b0b26f4750bfed.wav",
+              "sha256": "88b0b26f4750bfed3172bc20bd70a27c9cb4d0cf1764d9042b7079f28fbcce5d"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                3
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 4,
+              "end": 6,
+              "syllableIndex": 2,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/61b28348-95c7-544e-847d-47d823d29a85-83646b73e1215699.wav",
+              "sha256": "83646b73e1215699d3746dfd73580ffa20556ae99069549885169aa142f2cd22"
+            },
+            "sentenceTarget": {
+              "start": 12,
+              "end": 18
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "d55f84e4-809e-52bf-bd3a-1a5983c79663",
+      "word": "diet",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "532086251823324b70a5c24ce41a78075281ef9a7577aae14e1a4a3d8affcf55",
+      "dictionaryIpaHint": "/d\u02c8a\u026a\u0259t/",
+      "dictationSentence": "Fruit belongs in a healthy diet.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "The food and drink a person usually has.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "532086251823324b70a5c24ce41a78075281ef9a7577aae14e1a4a3d8affcf55",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-c38f97e3aa0f175d4788",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/d55f84e4-809e-52bf-bd3a-1a5983c79663-c38f97e3aa0f175d.wav",
+              "sha256": "c38f97e3aa0f175d478818976b664f3db947b20de1ab3bfbc7bfcbf67cdf9c48"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                2
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 2,
+              "end": 4,
+              "syllableIndex": 2,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 2,
+              "end": 3
+            },
+            "detectiveVowelIndex": 2,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/d55f84e4-809e-52bf-bd3a-1a5983c79663-d196c9a025d483bd.wav",
+              "sha256": "d196c9a025d483bdf8774839476956a5a2ece830f60396eac4ff40e03d69b845"
+            },
+            "sentenceTarget": {
+              "start": 27,
+              "end": 31
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "6fa2a758-59d2-5875-835f-aa05ca232fe9",
+      "word": "jacket",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "6630ae1c8ffe002b420aef1808515b2a71a6499ffcca16f088da18b8ab6690b6",
+      "dictionaryIpaHint": "/d\u0292\u02c8\u00e6k\u026at/",
+      "dictationSentence": "Wear your jacket outside.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "A short coat worn over other clothes.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "6630ae1c8ffe002b420aef1808515b2a71a6499ffcca16f088da18b8ab6690b6",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-8b90157718a66fa95690",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/6fa2a758-59d2-5875-835f-aa05ca232fe9-8b90157718a66fa9.wav",
+              "sha256": "8b90157718a66fa95690b016ebd382d0af45d022f2e2aa203a0148e7ef7411a9"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                4
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 4,
+              "end": 6,
+              "syllableIndex": 2,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/6fa2a758-59d2-5875-835f-aa05ca232fe9-7eadd59e842be7a7.wav",
+              "sha256": "7eadd59e842be7a719da9a0ea6651f371137848404e911a2ca12ec412aa1ca37"
+            },
+            "sentenceTarget": {
+              "start": 10,
+              "end": 16
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "829ec800-6b4e-5984-a54b-4eecf7f2ac07",
+      "word": "market",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "90b98a40d1b3801e38914b57748050deeb48ba5f8bb1ef39dfad77f8db5e67fc",
+      "dictionaryIpaHint": "/m\u02c8\u0251\u02d0k\u026at/",
+      "dictationSentence": "We visited the market on Saturday.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "A place where people buy and sell things.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "90b98a40d1b3801e38914b57748050deeb48ba5f8bb1ef39dfad77f8db5e67fc",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-ac2fa489cd379dc7b540",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/829ec800-6b4e-5984-a54b-4eecf7f2ac07-ac2fa489cd379dc7.wav",
+              "sha256": "ac2fa489cd379dc7b5401933a7525263c799230ebd37fef62357183f85317c3d"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                3
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 4,
+              "end": 6,
+              "syllableIndex": 2,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/829ec800-6b4e-5984-a54b-4eecf7f2ac07-1e6d66618c1e7c39.wav",
+              "sha256": "1e6d66618c1e7c391c0ff49e5561b45c3251350847d89d2cf11fedf7ebcde0fb"
+            },
+            "sentenceTarget": {
+              "start": 15,
+              "end": 21
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "a592b41a-1f9d-5f47-9096-a51543e2beda",
+      "word": "prophet",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "5c62e3665b73a5a17052ee1dd269d42bd4a0ac67635fc236d13ca457130dec62",
+      "dictionaryIpaHint": "/p\u0279\u02c8\u0252f\u026at/",
+      "dictationSentence": "The prophet warned the people.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "A person believed to carry a message from God about what is right or may happen.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "5c62e3665b73a5a17052ee1dd269d42bd4a0ac67635fc236d13ca457130dec62",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-27a3ba34c14a49d9a731",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/a592b41a-1f9d-5f47-9096-a51543e2beda-27a3ba34c14a49d9.wav",
+              "sha256": "27a3ba34c14a49d9a731b426028b658fcd95de84ca58e9ddedb9f8e0f5171f6d"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                3
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 5,
+              "end": 7,
+              "syllableIndex": 2,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 5,
+              "end": 6
+            },
+            "detectiveVowelIndex": 5,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/a592b41a-1f9d-5f47-9096-a51543e2beda-c8b3dc3e658b7317.wav",
+              "sha256": "c8b3dc3e658b73174426909bd5a424d2130ebd540e666ec7e7ccf33388d124c4"
+            },
+            "sentenceTarget": {
+              "start": 4,
+              "end": 11
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+      "word": "quiet",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "383934afa4f315686e7541115f06655a7df12b5f731002ea003fc5b260da6ab2",
+      "dictionaryIpaHint": "/kw\u02c8a\u026a\u0259t/",
+      "dictationSentence": "The library stayed quiet.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "Making little or no noise.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "383934afa4f315686e7541115f06655a7df12b5f731002ea003fc5b260da6ab2",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-08f91998d8af14a5cb6e",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/c32f6115-5343-52a4-a1ee-fa225ab85495-08f91998d8af14a5.wav",
+              "sha256": "08f91998d8af14a5cb6efdab5cea2f351eb71b5a287dab28fdac1672d3a4e4e9"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                3
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 3,
+              "end": 5,
+              "syllableIndex": 2,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 3,
+              "end": 4
+            },
+            "detectiveVowelIndex": 3,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/c32f6115-5343-52a4-a1ee-fa225ab85495-3a8fb5167b53027b.wav",
+              "sha256": "3a8fb5167b53027b8ed52645048e37a67f08f074ea41a8614920ad52369963d8"
+            },
+            "sentenceTarget": {
+              "start": 19,
+              "end": 24
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "8dfc0441-cd26-55e9-97c9-2fd9cd0e272f",
+      "word": "supermarket",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "c39b20e6672605163e58a65a54dc8df34ef346b249d7ee450764763eeccba113",
+      "dictionaryIpaHint": "/s\u02c8u\u02d0p\u0259m\u02cc\u0251\u02d0k\u026at/",
+      "dictationSentence": "We met near the supermarket after lunch.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "A large shop selling food and many household items.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "c39b20e6672605163e58a65a54dc8df34ef346b249d7ee450764763eeccba113",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-47214b432d3e59dee789",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f-47214b432d3e59de.wav",
+              "sha256": "47214b432d3e59dee789ef9a1929508a74aa2d8c7c4c0009a14b89246f6b4871"
+            },
+            "spokenSyllableCount": 4,
+            "acceptedCutSets": [
+              [
+                2,
+                5,
+                8
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 9,
+              "end": 11,
+              "syllableIndex": 4,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 9,
+              "end": 10
+            },
+            "detectiveVowelIndex": 9,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f-3fdeb40effbbe577.wav",
+              "sha256": "3fdeb40effbbe57751dd36bfd77e19c459c8e4724242d12fcd89d19f8265c80f"
+            },
+            "sentenceTarget": {
+              "start": 16,
+              "end": 27
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "a85f6002-777b-53a9-9d4c-4852e59cd947",
+      "word": "target",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "b92c57ffb47468bce43cbb757faeff860010818bfaf40a55030a63ec1d42429d",
+      "dictionaryIpaHint": "/t\u02c8\u0251\u02d0\u0261\u026at/",
+      "dictationSentence": "The arrow hit the target.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_ET",
+        "wordMeaning": "Something you aim for or try to achieve.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "b92c57ffb47468bce43cbb757faeff860010818bfaf40a55030a63ec1d42429d",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-6bca8c7821182cfe0146",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/a85f6002-777b-53a9-9d4c-4852e59cd947-6bca8c7821182cfe.wav",
+              "sha256": "6bca8c7821182cfe0146ed59393132b9d9c004d342314810ca1c618695daf3d6"
+            },
+            "spokenSyllableCount": 2,
+            "acceptedCutSets": [
+              [
+                3
+              ]
+            ],
+            "target": {
+              "text": "et",
+              "start": 4,
+              "end": 6,
+              "syllableIndex": 2,
+              "soundType": "other_unstressed"
+            },
+            "selectionTarget": {
+              "text": "e",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/a85f6002-777b-53a9-9d4c-4852e59cd947-3b1eeb8c9d8c31a7.wav",
+              "sha256": "3b1eeb8c9d8c31a774f94d8286ca942590cb7eaa753ff7114d75c7a9475ee0c9"
+            },
+            "sentenceTarget": {
+              "start": 18,
+              "end": 24
+            },
+            "reviewSourceReference": "Owner-approved audio 2026-10-28; pronunciation and target alignment are candidate facts pending separate review. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
+      "word": "actual",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "8798162e213cd71149be55600f34460b81f938f21af4cadb63135de93826a69d",
+      "dictionaryIpaHint": "/\u02c8\u00e6kt\u0283u\u02d0\u0259l/",
+      "dictationSentence": "The actual score was ten, not our guess of twelve.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "Real or true, rather than imagined or expected.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "8798162e213cd71149be55600f34460b81f938f21af4cadb63135de93826a69d",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-eed410ecd428c785c396",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4-5e1ce076c2895455.mp3",
+              "sha256": "5e1ce076c2895455b9d87f8f686a294619015a863c89c4d011e0acc596aab7bc"
+            },
+            "spokenSyllableCount": 3,
+            "acceptedCutSets": [
+              [
+                2,
+                4
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 4,
+              "end": 5,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/7505fdd4-93d2-5ae2-9bed-db2a126ee0e4-d4359dface92d377.mp3",
+              "sha256": "d4359dface92d377b41af16bba17e78b1646b95fafabc41ed92804bc08eb7b2b"
+            },
+            "sentenceTarget": {
+              "start": 4,
+              "end": 10
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "2804f136-fa24-5a40-a0c5-a9013e85d29e",
+      "word": "actually",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "106227b1664d9c6ac8f914b10ee536300c7d20457afc662c28fabbbdd4c6ad88",
+      "dictionaryIpaHint": "/\u02c8\u00e6kt\u0283u\u02d0\u0259li/",
+      "dictationSentence": "The spider is actually harmless.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "In fact; what is really true.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "106227b1664d9c6ac8f914b10ee536300c7d20457afc662c28fabbbdd4c6ad88",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-6ae39814300a789b620b",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/2804f136-fa24-5a40-a0c5-a9013e85d29e-7b1813a01d8f2fdb.mp3",
+              "sha256": "7b1813a01d8f2fdbc328d6a3b14ac6820700ddcc1833a6f26e49612e005cf009"
+            },
+            "spokenSyllableCount": 4,
+            "acceptedCutSets": [
+              [
+                2,
+                4,
+                6
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 4,
+              "end": 5,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 4,
+              "end": 5
+            },
+            "detectiveVowelIndex": 4,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/2804f136-fa24-5a40-a0c5-a9013e85d29e-7dba75d2ecc49055.mp3",
+              "sha256": "7dba75d2ecc49055e7f02f3aa004089a871f432c2fa60d005fd323a79845f110"
+            },
+            "sentenceTarget": {
+              "start": 14,
+              "end": 22
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
+      "word": "factual",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "7bc4c3b533c532baaf801f3fac51c19e882db69efba557ac085ad1f1a2e0d342",
+      "dictionaryIpaHint": "/f\u02c8\u00e6kt\u0283u\u02d0\u0259l/",
+      "dictationSentence": "The book gave factual information about space.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "Based on real facts rather than guesses or stories.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "7bc4c3b533c532baaf801f3fac51c19e882db69efba557ac085ad1f1a2e0d342",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-8f7d828b9bc9ae8d0389",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/73501415-cf58-5442-9435-7406d8cb95d8-0aa5fe2f704a4c40.mp3",
+              "sha256": "0aa5fe2f704a4c40fab16a32fb4ddb18120b44e515224bb7dc1323650a9cec54"
+            },
+            "spokenSyllableCount": 3,
+            "acceptedCutSets": [
+              [
+                3,
+                5
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 5,
+              "end": 6,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 5,
+              "end": 6
+            },
+            "detectiveVowelIndex": 5,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/73501415-cf58-5442-9435-7406d8cb95d8-e6b693af3ab90f51.mp3",
+              "sha256": "e6b693af3ab90f51e1a371ae4b47cad764cafbfa79dd25e01fc9202740eac152"
+            },
+            "sentenceTarget": {
+              "start": 14,
+              "end": 21
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+      "word": "natural",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "fae9f3d06c6e9d2e39116c37721896afbc6c07166be7448a3320d163e1b6a8b6",
+      "dictionaryIpaHint": "/n\u02c8\u00e6t\u0283\u0259\u0279\u0259l/",
+      "dictationSentence": "The natural cave formed without people building it.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "Existing in nature rather than made by people.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "fae9f3d06c6e9d2e39116c37721896afbc6c07166be7448a3320d163e1b6a8b6",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-587ceaf67de9098ab658",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/bd80fcac-79ff-573b-a0eb-a16530b15d4b-eeecf99d86b64e12.mp3",
+              "sha256": "eeecf99d86b64e120a15cfb6eee497f58814f17af1b76771b6879923d9e6e326"
+            },
+            "spokenSyllableCount": 3,
+            "acceptedCutSets": [
+              [
+                3,
+                4
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 5,
+              "end": 6,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 5,
+              "end": 6
+            },
+            "detectiveVowelIndex": 5,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/bd80fcac-79ff-573b-a0eb-a16530b15d4b-eeaa5be57090297b.mp3",
+              "sha256": "eeaa5be57090297bccea82fe89506a52ed60b01f0237c8994e853e6ced932be6"
+            },
+            "sentenceTarget": {
+              "start": 4,
+              "end": 11
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "4b245952-1cfb-5c08-8db3-168129d95c5a",
+      "word": "usual",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "67c92b6a682488349188977b8260b3e6411f1a88cdb69f81f13f14b8419e792b",
+      "dictionaryIpaHint": "/j\u02c8u\u02d0\u0292u\u02d0\u0259l/",
+      "dictationSentence": "We followed the usual route.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "Normal or happening most of the time.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "67c92b6a682488349188977b8260b3e6411f1a88cdb69f81f13f14b8419e792b",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-49838ed111724be889a0",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/4b245952-1cfb-5c08-8db3-168129d95c5a-f7154becd3a44f4f.mp3",
+              "sha256": "f7154becd3a44f4f1ad784416db9f867b1058c228f3d9e3551d78f1b9d481649"
+            },
+            "spokenSyllableCount": 3,
+            "acceptedCutSets": [
+              [
+                1,
+                3
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 3,
+              "end": 4,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 3,
+              "end": 4
+            },
+            "detectiveVowelIndex": 3,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/4b245952-1cfb-5c08-8db3-168129d95c5a-6dd3de3aed9c81dd.mp3",
+              "sha256": "6dd3de3aed9c81dd377fc6288ed10878ad22f01f23407a914197ce22e4e432d0"
+            },
+            "sentenceTarget": {
+              "start": 16,
+              "end": 21
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    },
+    {
+      "canonicalWordId": "9899dd59-3712-5a0c-a901-e25ffe3a90d7",
+      "word": "usually",
+      "microSkillKey": "D4_SCHWA_FINAL_AL",
+      "reviewStatus": "owner_approved_word_facts",
+      "sourceFingerprint": "36003f143350c1bc2369eb5ffa433a7fd7323f89e7d4e86dfce3a6659cebf485",
+      "dictionaryIpaHint": "/j\u02c8u\u02d0\u0292u\u02d0\u0259li/",
+      "dictationSentence": "We usually read before bed.",
+      "routeContent": {
+        "routeId": "weak_vowel_word_lab",
+        "routeVersion": "v1",
+        "microSkillKey": "D4_SCHWA_FINAL_AL",
+        "wordMeaning": "Most of the time.",
+        "wordSum": "",
+        "content": {
+          "weakVowel": {
+            "schemaVersion": "weak_vowel_route_facts_v1",
+            "sourceFingerprint": "36003f143350c1bc2369eb5ffa433a7fd7323f89e7d4e86dfce3a6659cebf485",
+            "activityEligibility": {
+              "dinner": {
+                "status": "ready",
+                "reason": null
+              },
+              "detective": {
+                "status": "ready",
+                "reason": null
+              },
+              "memoryLock": {
+                "status": "ready",
+                "reason": null
+              },
+              "dictation": {
+                "status": "ready",
+                "reason": null
+              },
+              "family": {
+                "status": "not_applicable",
+                "reason": null
+              }
+            },
+            "wordSense": null,
+            "pronunciationId": "gb-word-bc8be5f39ed9ca600172",
+            "wordRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/word/9899dd59-3712-5a0c-a901-e25ffe3a90d7-866c8bc11fa68d8d.mp3",
+              "sha256": "866c8bc11fa68d8d1a120619bfbdacba83f3bfa432aee98e60e59894d8c8f0b9"
+            },
+            "spokenSyllableCount": 4,
+            "acceptedCutSets": [
+              [
+                1,
+                3,
+                5
+              ]
+            ],
+            "target": {
+              "text": "a",
+              "start": 3,
+              "end": 4,
+              "syllableIndex": 3,
+              "soundType": "schwa"
+            },
+            "selectionTarget": {
+              "text": "a",
+              "start": 3,
+              "end": 4
+            },
+            "detectiveVowelIndex": 3,
+            "familyDecision": "skip",
+            "familyAuthorityId": null,
+            "sentenceRecording": {
+              "src": "/audio/secret-life-of-vowels/reviewed/sentence/9899dd59-3712-5a0c-a901-e25ffe3a90d7-711f53ee2fecaab5.mp3",
+              "sha256": "711f53ee2fecaab5bf52f39a810fef64da912413af4317daf1cc33443d40c577"
+            },
+            "sentenceTarget": {
+              "start": 3,
+              "end": 10
+            },
+            "reviewSourceReference": "https://docs.google.com/spreadsheets/d/1hFAJDCExNdlcLGC_xpxTfHCenm6DOU13hC7NOIOuUnQ/edit?gid=335559651; adapted for FINAL_AL candidate on 2026-10-28; re-review required. Owner approved pronunciation, target and spoken split on 2026-10-28."
+          }
+        }
+      }
+    }
+  ],
+  "editorialApprovalDate": "2026-10-28",
+  "editorialApprovalEvidence": "Owner approved the eight FINAL_ET pronunciation hints, targets, sound types and spoken splits, and the six adapted FINAL_AL word facts including stress differences, in this task."
+}

@@ -1,3 +1,5 @@
+import { deviceSpeechSource, isDeviceSpeechSource, isWeakVowelAudioSource } from "../adle/weak-vowel/audio-source";
+
 /** Lesson-specific weak-vowel facts. Shared spelling, meaning and dictionary
  * metadata stay on the canonical word; review/publication stays in the existing
  * governed route-content workflow. */
@@ -30,7 +32,7 @@ const object = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 const integer = (value: unknown): value is number => Number.isInteger(value);
 const clip = (value: unknown): value is { src: string; sha256: string } =>
-  object(value) && typeof value.src === "string" && value.src.startsWith("/audio/") &&
+  object(value) && isWeakVowelAudioSource(value.src) &&
   typeof value.sha256 === "string" && SHA.test(value.sha256);
 
 /** Used by the editor and the release compiler; it never guesses a vowel from
@@ -63,8 +65,10 @@ export function weakVowelRouteBlockers(
     blockers.push("Choose the word sense or explicitly mark it unambiguous.");
   if (typeof value.pronunciationId !== "string" || !value.pronunciationId.trim() ||
     value.pronunciationId.startsWith("candidate-"))
-    blockers.push("Bind a reviewed pronunciation variant.");
-  if (!clip(value.wordRecording)) blockers.push("Bind the reviewed British word recording and SHA-256.");
+    blockers.push("Bind the reviewed pronunciation facts or a device-voice source.");
+  if (!clip(value.wordRecording)) blockers.push("Bind reviewed word audio or an approved device-voice source and SHA-256.");
+  else if (isDeviceSpeechSource(value.wordRecording.src) && value.wordRecording.src !== deviceSpeechSource(word))
+    blockers.push("Device word voice must say the exact canonical spelling.");
   if (!integer(value.spokenSyllableCount) || value.spokenSyllableCount < 1)
     blockers.push("Review the spoken syllable count.");
   const target = object(value.target) ? value.target : null;
@@ -92,12 +96,31 @@ export function weakVowelRouteBlockers(
     selected.start !== word.length - 2)) {
     blockers.push(`The ${finalEnding[0]} lesson needs its full ending annotated and only its vowel selected in Dinner.`);
   }
-  if (input.microSkillKey === "D4_SCHWA_MEDIAL_NATURAL_ACTUAL") {
+  if (input.microSkillKey === "D4_SCHWA_FINAL_ET" && (!target || target.text !== "et" || target.end !== word.length ||
+    !selected || selected.text !== "e" || selected.start !== word.length - 2)) {
+    blockers.push("The final -et lesson targets the written e in the complete -et ending.");
+  }
+  if (input.microSkillKey === "D4_SCHWA_FINAL_A_FINAL" && (!target || typeof target.text !== "string" ||
+    target.text.toLowerCase() !== "a" ||
+    target.end !== word.length || !selected || selected.start !== word.length - 1))
+    blockers.push("The final -a lesson targets the written final a.");
+  if (input.microSkillKey === "D4_SCHWA_INITIAL_E_INITIAL" && (!target || typeof target.text !== "string" ||
+    target.text.toLowerCase() !== "e" ||
+    target.start !== 0 || !selected || selected.start !== 0))
+    blockers.push("The initial e- lesson targets the written first e.");
+  if (input.microSkillKey === "D4_SCHWA_INITIAL_O_INITIAL" && (!target || typeof target.text !== "string" ||
+    target.text.toLowerCase() !== "o" ||
+    target.start !== 0 || !selected || selected.start !== 0))
+    blockers.push("The initial o- lesson targets the written first o.");
+  if (input.microSkillKey === "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS" && (!selected ||
+    !integer(selected.start) || !integer(selected.end) || selected.start < 1 || selected.end >= word.length))
+    blockers.push("The medial weak-vowel lesson needs a written vowel inside the word.");
+  if (input.microSkillKey === "D4_SCHWA_FINAL_AL") {
     const finalAl = word.toLocaleLowerCase("en-GB").lastIndexOf("al");
     if (finalAl < 0 || finalAl < word.length - 5 || !target || target.text !== word.slice(finalAl, finalAl + 1) ||
       target.start !== finalAl || target.end !== finalAl + 1 || !selected ||
       selected.text !== word.slice(finalAl, finalAl + 1) || selected.start !== finalAl) {
-      blockers.push("The natural/actual lesson targets the written a in -al, including -ally forms.");
+      blockers.push("The final -al lesson targets the written a in -al, including -ally forms.");
     }
   }
   if (!integer(value.detectiveVowelIndex) || !selected ||
@@ -135,7 +158,10 @@ export function weakVowelRouteBlockers(
   if (value.familyDecision === "approve" && familyEligibility?.status === "not_applicable" ||
     value.familyDecision === "skip" && familyEligibility?.status !== "not_applicable")
     blockers.push("Family eligibility must match the approved exploration decision.");
-  if (!clip(value.sentenceRecording)) blockers.push("Bind the reviewed British sentence recording and SHA-256.");
+  if (!clip(value.sentenceRecording)) blockers.push("Bind reviewed sentence audio or an approved device-voice source and SHA-256.");
+  else if (isDeviceSpeechSource(value.sentenceRecording.src) &&
+    value.sentenceRecording.src !== deviceSpeechSource(input.dictationSentence))
+    blockers.push("Device dictation voice must say the exact approved sentence.");
   const sentenceTarget = object(value.sentenceTarget) ? value.sentenceTarget : null;
   if (!sentenceTarget || !integer(sentenceTarget.start) || !integer(sentenceTarget.end) ||
     sentenceTarget.start < 0 || sentenceTarget.end <= sentenceTarget.start ||

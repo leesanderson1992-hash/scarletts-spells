@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { weakVowelPreviewLesson, WEAK_VOWEL_PREVIEW_SKILLS } from "../lib/adle/weak-vowel/preview-fixture";
 import { prepareWeakVowelLesson } from "../lib/adle/weak-vowel/prepare";
 import { reviewedBritishPronunciationId } from "../lib/adle/weak-vowel/pronunciation-id";
-import { validateWeakVowelLesson } from "../lib/adle/weak-vowel/lesson";
+import { validateWeakVowelLesson, weakVowelTeaching } from "../lib/adle/weak-vowel/lesson";
 import { initialWeakVowelProgress, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
 import { weakVowelReflectionReview } from "../lib/adle/weak-vowel/reflection-review";
 import { getCurriculumRouteDefinition } from "../lib/adle/curriculum-readiness/route-registry";
@@ -11,7 +11,22 @@ import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-
 const registeredRoute = getCurriculumRouteDefinition("weak_vowel_word_lab", "v1");
 assert.ok(registeredRoute);
 assert.equal(registeredRoute.newAssignmentCapable, true, "new assignments require the enabled database release gate");
-assert.deepEqual([...registeredRoute.supportedMicroSkillKeys].sort(), [...WEAK_VOWEL_PREVIEW_SKILLS].sort());
+assert.ok(WEAK_VOWEL_PREVIEW_SKILLS.every((key) => registeredRoute.supportedMicroSkillKeys.includes(key)));
+assert.ok(registeredRoute.supportedMicroSkillKeys.includes("D4_SCHWA_FINAL_ET"));
+const finalETTeaching = weakVowelTeaching("D4_SCHWA_FINAL_ET", []);
+assert.equal(finalETTeaching.pages.length, 3);
+assert.equal(finalETTeaching.pages[0].title, "The disappearing vowel");
+assert.equal(finalETTeaching.pages[1].title, "The Secret of the Quiet -et");
+assert.equal(finalETTeaching.pages[2].title, "The Disguised E!");
+const etStory = finalETTeaching.pages[1].weakVowelFeature;
+const etRule = finalETTeaching.pages[2].weakVowelFeature;
+assert.equal(etStory?.kind, "final_et_story");
+assert.equal(etStory?.kind === "final_et_story" && etStory.examples.length, 6);
+assert.equal(etStory?.kind === "final_et_story" && etStory.examples.some(example => example.word === "rocket" && example.spelling === "rock-et"), true);
+assert.equal(etStory?.kind === "final_et_story" && etStory.tips[1].blocks.some(block => block.kind === "comparison" && block.rows.some(row => row[0] === "rabbit" && row[1] === "-it")), true);
+assert.equal(etRule?.kind, "final_et_rule");
+assert.equal(etRule?.kind === "final_et_rule" && etRule.examples.length, 6);
+assert.equal(etRule?.kind === "final_et_rule" && etRule.motto.includes("E might be hiding in ET"), true);
 
 for (const key of WEAK_VOWEL_PREVIEW_SKILLS) {
   const lesson = weakVowelPreviewLesson(key, 1);
@@ -76,11 +91,11 @@ assert.equal(medialStory?.kind === "ending_secret_story" && medialStory.examples
 assert.equal(medialStory?.kind === "ending_secret_story" && medialStory.tips.length, 6);
 assert.equal(medialStory?.kind === "ending_secret_story" && medialStory.tips.some((tip) => tip.blocks.some((block) => block.kind === "comparison")), true);
 assert.equal(medialRule?.kind === "ending_secret_rule" && medialRule.tips.length, 6);
-const naturalActual = weakVowelPreviewLesson("D4_SCHWA_MEDIAL_NATURAL_ACTUAL", 1);
+const naturalActual = weakVowelPreviewLesson("D4_SCHWA_FINAL_AL", 1);
 const naturalActualStory = naturalActual.teaching.pages[1].weakVowelFeature;
 const naturalActualRule = naturalActual.teaching.pages[2].weakVowelFeature;
 assert.equal(naturalActualStory?.kind, "ending_secret_story");
-assert.equal(naturalActualStory?.kind === "ending_secret_story" && naturalActualStory.examples.length, 6);
+assert.equal(naturalActualStory?.kind === "ending_secret_story" && naturalActualStory.examples.length, 3);
 assert.equal(naturalActualStory?.kind === "ending_secret_story" && naturalActualStory.tips.length, 5);
 assert.equal(naturalActualRule?.kind === "ending_secret_rule" && naturalActualRule.tips.length, 5);
 assert.equal(naturalActual.words.every((word) => word.dinner.target.text === "a" &&
@@ -180,7 +195,7 @@ const naturalFacts = { ...sampleFacts,
   sentenceTarget: { start: naturalSample.dictation.targetStart, end: naturalSample.dictation.targetEnd },
 };
 const naturalInput = { displayWord: naturalSample.spelling, dictationSentence: naturalSample.dictation.sentence,
-  definition: naturalSample.definition.text, microSkillKey: "D4_SCHWA_MEDIAL_NATURAL_ACTUAL" };
+  definition: naturalSample.definition.text, microSkillKey: "D4_SCHWA_FINAL_AL" };
 assert.deepEqual(weakVowelRouteBlockers(naturalFacts, naturalInput), []);
 assert.ok(weakVowelRouteBlockers({ ...naturalFacts,
   target: { ...naturalFacts.target, text: "u", start: naturalTargetStart - 1, end: naturalTargetStart },
@@ -231,4 +246,4 @@ const revised = prepareWeakVowelLesson({ ...input,
 assert.ok(revised.lesson);
 assert.equal(revised.lesson.words[4].canonicalWordId, newId);
 
-console.log("Weak-vowel lesson regression passed for all eight configurations.");
+console.log("Weak-vowel lesson regression passed for all eight preview configurations.");

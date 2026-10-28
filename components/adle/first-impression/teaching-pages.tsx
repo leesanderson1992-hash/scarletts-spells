@@ -48,7 +48,9 @@ export interface TeachingPageConfig {
     | { kind: "final_a_groups"; groups: readonly { heading: string; words: readonly string[] }[]; note: string }
     | { kind: "final_a_strategy"; choices: readonly { heading: string; example: string; explanation: string }[]; note: string }
     | { kind: "ending_secret_story"; intro: readonly string[]; examples: readonly { stem: string; ending: string; suffix?: string; sound: string }[]; conclusion: string; tips: readonly WeakVowelSecretTip[]; targetPosition?: "initial" | "medial" | "final" }
-    | { kind: "ending_secret_rule"; rule: string; clues: readonly string[]; conclusion: string; motto: string; tips: readonly WeakVowelSecretTip[] };
+    | { kind: "ending_secret_rule"; rule: string; clues: readonly string[]; conclusion: string; motto: string; tips: readonly WeakVowelSecretTip[] }
+    | { kind: "final_et_story"; intro: readonly string[]; examples: readonly { word: string; sound: string; spelling: string }[]; conclusion: readonly string[]; tips: readonly WeakVowelSecretTip[] }
+    | { kind: "final_et_rule"; intro: readonly string[]; examples: readonly { word: string; sound: string }[]; rule: readonly string[]; motto: string };
 }
 
 export interface MeetWordConfig {
@@ -216,6 +218,27 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
           <p className="weak-vowel-secret-conclusion"><RichCopy text={feature.conclusion} /></p>
         </section>
         <SecretTipCards tips={feature.tips} />
+      </div> : null}
+      {feature?.kind === "final_et_story" ? <div className="weak-vowel-secret-story-layout">
+        <section className="weak-vowel-secret-story-card" aria-label="The quiet et spelling">
+          {feature.intro.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
+          <table className="weak-vowel-secret-comparison"><thead><tr><th scope="col">Word</th><th scope="col">Say it like this</th><th scope="col">Remember the spelling</th></tr></thead>
+            <tbody>{feature.examples.map(example => <tr key={example.word}><td>{example.word}</td><td>{example.sound}</td><td>{example.spelling}</td></tr>)}</tbody></table>
+          <h2>What's the secret?</h2>
+          {feature.conclusion.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
+        </section>
+        <SecretTipCards tips={feature.tips} />
+      </div> : null}
+      {feature?.kind === "final_et_rule" ? <div className="weak-vowel-secret-story-layout">
+        <section className="weak-vowel-secret-story-card" aria-label="The disguised E">
+          {feature.intro.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
+          <h2>Remember the -ET team!</h2>
+          <table className="weak-vowel-secret-comparison"><thead><tr><th scope="col">Word</th><th scope="col">Sounds like</th><th scope="col">Spelt with</th></tr></thead>
+            <tbody>{feature.examples.map(example => <tr key={example.word}><td>{example.word}</td><td>{example.sound}</td><td>ET</td></tr>)}</tbody></table>
+          <h2>Today's Secret Rule</h2>
+          {feature.rule.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
+          <h2>Memory Motto</h2><p className="weak-vowel-secret-conclusion"><RichCopy text={feature.motto} /></p>
+        </section>
       </div> : null}
       {feature?.kind === "ending_secret_rule" ? <div className="weak-vowel-secret-rule-layout">
         <section className="weak-vowel-secret-rule-card" aria-label="Today's secret rule"><span aria-hidden="true">✦</span><p><RichCopy text={feature.rule} /></p>

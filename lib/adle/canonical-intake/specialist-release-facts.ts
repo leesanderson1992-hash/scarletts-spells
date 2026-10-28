@@ -7,7 +7,7 @@ import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-regi
 import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
 import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
 import { loadPublishedWeakVowelWords } from "../weak-vowel/governed-content-loader";
-import { weakVowelRouteBlockers } from "../../teaching-dictionary-manager/weak-vowel-authoring";
+import { publishedWeakVowelWordBlockers } from "../weak-vowel/governed-content";
 import { ingWordBlockers } from "../ing/contracts";
 import { adjectiveFamilyBlockers } from "../inflection/contracts";
 import { semanticJson } from "../inflection/semantic-json";
@@ -229,15 +229,11 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
     let contentReady = false;
     let memberReady = false;
     let contentReason = "reviewed_route_content_missing";
+    let contentBlockers: string[] = [];
     if (routeId === "weak_vowel_word_lab") {
       const row = weakPublished.get(pair);
-      const facts = row?.routeContent?.content?.weakVowel;
-      contentReady = Boolean(row && facts && row.dictionaryFingerprintAtReview === row.currentDictionaryFingerprint &&
-        row.sourceFingerprint === facts.sourceFingerprint && row.routeContent.routeId === routeId && row.routeContent.routeVersion === "v1" &&
-        row.routeContent.microSkillKey === target.microSkillKey && row.wordAudioSha256AtPublication === facts.wordRecording?.sha256 &&
-        row.sentenceAudioSha256AtPublication === facts.sentenceRecording?.sha256 && row.routeContent.wordMeaning === row.definition &&
-        weakVowelRouteBlockers(facts, { displayWord: row.spelling, dictationSentence: row.sentence, definition: row.definition,
-          microSkillKey: target.microSkillKey }).length === 0);
+      contentBlockers = row ? publishedWeakVowelWordBlockers(row, target.microSkillKey as Parameters<typeof publishedWeakVowelWordBlockers>[1]) : ["required_route_content_unpublished"];
+      contentReady = Boolean(row && contentBlockers.length === 0);
       contentReason = row ? "published_content_or_dictionary_source_changed" : "required_route_content_unpublished";
       memberReady = decision !== "deassign" && Boolean(weakRelationships?.relationships.some((entry) =>
         entry.canonicalWordId === target.canonicalWordId && entry.microSkillKey === target.microSkillKey));
@@ -256,8 +252,10 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
     if (ready) readyPairs.add(pair);
     routeReadiness.push({ canonicalWordId: target.canonicalWordId, microSkillKey: target.microSkillKey, ready,
       contentReady, memberReady, activationReady, routeActive, childEligible, blockers,
-      evidence: [{ source: routeId === "weak_vowel_word_lab" ? "adle_weak_vowel_content_publications" : "adle_curriculum_dependency_authorities",
-        sourceId: release?.id, status: !contentReady ? contentReason : !memberReady ? decision === "deassign" ? "deassigned" : "not_in_release" : "reviewed" }],
+      evidence: (!contentReady && routeId === "weak_vowel_word_lab" ? [...new Set([...contentBlockers, contentReason])]
+        : [!contentReady ? contentReason : !memberReady ? decision === "deassign" ? "deassigned" : "not_in_release" : "reviewed"])
+        .map((status) => ({ source: routeId === "weak_vowel_word_lab" ? "adle_weak_vowel_content_publications" : "adle_curriculum_dependency_authorities",
+          sourceId: release?.id, status })),
       ...(releaseMatches ? { routeActivationId: revision.id,
         curriculumRelease: { activationRevisionId: revision.id, releaseManifestId: release.id, releaseKey: release.release_key,
           releaseManifestSha256: release.release_manifest_sha256, dependencyFingerprint: release.dependency_fingerprint } } : {}),

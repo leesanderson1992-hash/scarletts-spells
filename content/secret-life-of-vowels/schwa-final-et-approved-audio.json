@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "weak_vowel_audio_approval_v1",
+  "reviewStatus": "owner_approved_audio_only",
+  "approvalDate": "2026-10-28",
+  "approvalEvidence": "Owner confirmed all 15 other clips, then separately approved the Gemini 2.5 Pro basket sentence after listening in this task. Historical rejected clips remain in outputs manifest. Pronunciation target alignment and route facts still need separate review.",
+  "rows": [
+    {
+      "canonicalWordId": "61b28348-95c7-544e-847d-47d823d29a85",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "basket",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/61b28348-95c7-544e-847d-47d823d29a85-88b0b26f4750bfed.wav",
+        "sha256": "88b0b26f4750bfed3172bc20bd70a27c9cb4d0cf1764d9042b7079f28fbcce5d",
+        "inputText": "basket",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/61b28348-95c7-544e-847d-47d823d29a85-83646b73e1215699.wav",
+        "sha256": "83646b73e1215699d3746dfd73580ffa20556ae99069549885169aa142f2cd22",
+        "inputText": "Mia put the basket carefully on the table.",
+        "model": "Gemini 2.5 Pro TTS",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "d55f84e4-809e-52bf-bd3a-1a5983c79663",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "diet",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/d55f84e4-809e-52bf-bd3a-1a5983c79663-c38f97e3aa0f175d.wav",
+        "sha256": "c38f97e3aa0f175d478818976b664f3db947b20de1ab3bfbc7bfcbf67cdf9c48",
+        "inputText": "diet",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/d55f84e4-809e-52bf-bd3a-1a5983c79663-d196c9a025d483bd.wav",
+        "sha256": "d196c9a025d483bdf8774839476956a5a2ece830f60396eac4ff40e03d69b845",
+        "inputText": "Fruit belongs in a healthy diet.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "6fa2a758-59d2-5875-835f-aa05ca232fe9",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "jacket",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/6fa2a758-59d2-5875-835f-aa05ca232fe9-8b90157718a66fa9.wav",
+        "sha256": "8b90157718a66fa95690b016ebd382d0af45d022f2e2aa203a0148e7ef7411a9",
+        "inputText": "jacket",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/6fa2a758-59d2-5875-835f-aa05ca232fe9-7eadd59e842be7a7.wav",
+        "sha256": "7eadd59e842be7a719da9a0ea6651f371137848404e911a2ca12ec412aa1ca37",
+        "inputText": "Wear your jacket outside.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "829ec800-6b4e-5984-a54b-4eecf7f2ac07",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "market",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/829ec800-6b4e-5984-a54b-4eecf7f2ac07-ac2fa489cd379dc7.wav",
+        "sha256": "ac2fa489cd379dc7b5401933a7525263c799230ebd37fef62357183f85317c3d",
+        "inputText": "market",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/829ec800-6b4e-5984-a54b-4eecf7f2ac07-1e6d66618c1e7c39.wav",
+        "sha256": "1e6d66618c1e7c391c0ff49e5561b45c3251350847d89d2cf11fedf7ebcde0fb",
+        "inputText": "We visited the market on Saturday.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "a592b41a-1f9d-5f47-9096-a51543e2beda",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "prophet",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/a592b41a-1f9d-5f47-9096-a51543e2beda-27a3ba34c14a49d9.wav",
+        "sha256": "27a3ba34c14a49d9a731b426028b658fcd95de84ca58e9ddedb9f8e0f5171f6d",
+        "inputText": "prophet",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/a592b41a-1f9d-5f47-9096-a51543e2beda-c8b3dc3e658b7317.wav",
+        "sha256": "c8b3dc3e658b73174426909bd5a424d2130ebd540e666ec7e7ccf33388d124c4",
+        "inputText": "The prophet warned the people.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "c32f6115-5343-52a4-a1ee-fa225ab85495",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "quiet",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/c32f6115-5343-52a4-a1ee-fa225ab85495-08f91998d8af14a5.wav",
+        "sha256": "08f91998d8af14a5cb6efdab5cea2f351eb71b5a287dab28fdac1672d3a4e4e9",
+        "inputText": "quiet",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/c32f6115-5343-52a4-a1ee-fa225ab85495-3a8fb5167b53027b.wav",
+        "sha256": "3a8fb5167b53027b8ed52645048e37a67f08f074ea41a8614920ad52369963d8",
+        "inputText": "The library stayed quiet.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "8dfc0441-cd26-55e9-97c9-2fd9cd0e272f",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "supermarket",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f-47214b432d3e59de.wav",
+        "sha256": "47214b432d3e59dee789ef9a1929508a74aa2d8c7c4c0009a14b89246f6b4871",
+        "inputText": "supermarket",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f-3fdeb40effbbe577.wav",
+        "sha256": "3fdeb40effbbe57751dd36bfd77e19c459c8e4724242d12fcd89d19f8265c80f",
+        "inputText": "We met near the supermarket after lunch.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    },
+    {
+      "canonicalWordId": "a85f6002-777b-53a9-9d4c-4852e59cd947",
+      "microSkillKey": "D4_SCHWA_FINAL_ET",
+      "spelling": "target",
+      "wordAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/word/a85f6002-777b-53a9-9d4c-4852e59cd947-6bca8c7821182cfe.wav",
+        "sha256": "6bca8c7821182cfe0146ed59393132b9d9c004d342314810ca1c618695daf3d6",
+        "inputText": "Target.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      },
+      "sentenceAudio": {
+        "src": "/audio/secret-life-of-vowels/reviewed/sentence/a85f6002-777b-53a9-9d4c-4852e59cd947-3b1eeb8c9d8c31a7.wav",
+        "sha256": "3b1eeb8c9d8c31a774f94d8286ca942590cb7eaa753ff7114d75c7a9475ee0c9",
+        "inputText": "The arrow hit the target.",
+        "model": "Gemini 3.1 Flash TTS (Preview)",
+        "language": "English (United Kingdom)",
+        "voice": "Achernar (Female)"
+      }
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import { activationAllowsChild } from "../route-activation-scope";
 import { loadCanonicalWordSkillRelationshipAuthority } from "../word-skill-relationships/repository";
 import { loadPublishedWritingAssociations } from "../../writing-engine/whole-writing/knowledge-repository";
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
-import { prepareLessonFromPublishedWeakVowelWords } from "./governed-content";
+import { prepareLessonFromPublishedWeakVowelWords, publishedWeakVowelWordBlockers } from "./governed-content";
 import { loadPublishedWeakVowelWords } from "./governed-content-loader";
 import { loadWeakVowelFamilies } from "./family-loader";
 import type { WeakVowelLessonV1, WeakVowelMicroSkill } from "./lesson";
@@ -60,26 +60,46 @@ export async function loadWeakVowelLessonReadiness(input: {
   if (!WEAK_VOWEL_MICRO_SKILLS.some((key) => key === input.microSkillKey))
     return blocked("unsupported_weak_vowel_micro_skill");
   const skill = input.microSkillKey as WeakVowelMicroSkill;
+  const authority = await loadPublishedWritingAssociations(input.client, input.environmentKey).then((explicitReviewedAssociations) =>
+    loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey,
+      explicitReviewedAssociations }));
+  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill)
+    .map((pair) => pair.canonicalWordId));
+  const queuedWordIds = [...new Set(input.facts.learningItems.filter((item) =>
+    item.childId === input.childId && item.microSkillKey === skill && item.rowStatus === "active")
+    .map((item) => item.canonicalWordId))];
+  const unapprovedDemand = queuedWordIds.filter((id) => !approvedIds.has(id));
+  if (unapprovedDemand.length) return blocked("queued_word_relationship_not_approved", queuedWordIds,
+    unapprovedDemand.map((id) => ({ canonicalWordId: id, reason: "approved_word_skill_relationship_missing" })));
+  const pool = new Set<string>();
+  const candidates = [...approvedIds];
+  for (let start = 0; start < candidates.length; start += 6) {
+    const rows = await loadPublishedWeakVowelWords({ client: input.client, microSkillKey: skill,
+      canonicalWordIds: candidates.slice(start, start + 6) });
+    for (const row of rows) {
+      if (publishedWeakVowelWordBlockers(row, skill).length === 0) pool.add(row.canonicalWordId);
+    }
+  }
   const selection = selectWeakVowelLessonWords(skill, input.childId, {
     learningItems: input.facts.learningItems,
     dictionary: input.facts.dictionary,
     taughtHistory: input.facts.taughtHistory,
     probeRuns: input.facts.probeRuns,
     probeMissWordIdsToday: input.facts.probeMissWordIdsToday,
-  }, input.facts.childBand, input.facts.composerPolicy, input.date);
+  }, input.facts.childBand, input.facts.composerPolicy, input.date,
+  { demandRelationshipWordIds: approvedIds, lessonPoolWordIds: pool });
   const selectedWordIds = selection.slots.map((slot) => slot.canonicalWordId);
   if (selection.skipReasons.includes("canonical_target_content_incomplete"))
     return blocked("demand_word_dictionary_content_incomplete", selectedWordIds,
       selection.deferredOutlierWordIds.map((id) => ({ canonicalWordId: id, reason: "canonical_target_content_incomplete" })));
+  const deferredDemand = selection.deferredOutlierWordIds.filter((id) => queuedWordIds.includes(id));
+  if (deferredDemand.length) return blocked("queued_word_outside_lesson_complexity_window", selectedWordIds,
+    deferredDemand.map((id) => ({ canonicalWordId: id, reason: "queued_word_outside_lesson_complexity_window" })));
   if (selection.slots.length < 4 || selection.slots.length > 6)
     return blocked("four_to_six_words_unavailable", selectedWordIds);
 
-  const [authority, published] = await Promise.all([
-    loadPublishedWritingAssociations(input.client, input.environmentKey).then((explicitReviewedAssociations) =>
-      loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey,
-        explicitReviewedAssociations })),
-    loadPublishedWeakVowelWords({ client: input.client, microSkillKey: skill, canonicalWordIds: selectedWordIds }),
-  ]);
+  const published = await loadPublishedWeakVowelWords({ client: input.client, microSkillKey: skill,
+    canonicalWordIds: selectedWordIds });
   const currentAssignedPairs = selectedWordIds.map((id) => ({ canonicalWordId: id, microSkillKey: skill,
     assignmentStatus: authority.relationships.some((pair) => pair.canonicalWordId === id && pair.microSkillKey === skill)
       ? "assigned" as const : "deassigned" as const }));

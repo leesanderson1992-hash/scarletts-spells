@@ -15,6 +15,10 @@
       "schedule": "40 6 * * *"
     },
     {
+      "path": "/api/internal/weak-vowel/reconcile",
+      "schedule": "50 6 * * *"
+    },
+    {
       "path": "/api/internal/parent-insights/snapshot",
       "schedule": "10 7 * * *"
     }

@@ -50,7 +50,8 @@ export default async function BulkAssignPage() {
     readAll<Morphology>("canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,row_status,morphology_parts"),
     db.from("micro_skill_families").select("skill_family_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_family_key,skill_cluster_key")
-      .eq("is_active", true).eq("is_assignable", true).order("display_name"),
+      .eq("is_active", true).eq("is_assignable", true)
+      .neq("micro_skill_key", "D4_SCHWA_MEDIAL_NATURAL_ACTUAL").order("display_name"),
     environment ? loadWordSkillReviewControls(db, environment) : null,
     environment ? loadTeachingDictionaryEvidenceAuthority(db, environment) : null,
     environment ? readExclusions(environment) : [],

@@ -20,12 +20,13 @@ export function selectWeakVowelLessonWords(
   childBand: ChildBandProfile,
   policy: ComposerPolicy,
   today: IsoDate,
+  scope?: { demandRelationshipWordIds: ReadonlySet<string>; lessonPoolWordIds: ReadonlySet<string> },
 ): WordSelectionResult {
   if (!WEAK_VOWEL_MICRO_SKILLS.some((key) => key === microSkillKey)) {
     throw new Error("Unsupported weak-vowel micro-skill");
   }
   const selected = selectLessonWords(
-    microSkillKey, childId, facts, childBand,
+    microSkillKey, childId, { ...facts, ...scope }, childBand,
     { ...policy, lessonWordCount: WEAK_VOWEL_MAX_WORDS }, today,
   );
   return selected.slots.length >= WEAK_VOWEL_MIN_WORDS

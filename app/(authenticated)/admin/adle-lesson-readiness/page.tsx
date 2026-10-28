@@ -43,7 +43,8 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
       <details className="mt-3"><summary className="cursor-pointer font-semibold">Inspect word gates and blockers</summary>
         <ul className="mt-3 grid gap-2 text-sm">{routeWords.words.slice(0, 50).map((word) => <li key={word.wordId} className="rounded-lg border border-[var(--border)] p-2">
           <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.wordId}`}>{word.displayWord}</Link>
-          <span> · {word.status.contentRole === "reviewed family base (teaching support)" ? "reviewed family base; teaching support only"
+          <span> · {word.status.schwaRole ? word.status.schwaRole.replaceAll("_", " ")
+            : word.status.contentRole === "reviewed family base (teaching support)" ? "reviewed family base; teaching support only"
             : word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate
             ? word.status.technicalFacts === "not_evaluated" ? "administrative gates passed; native word validation pending" : "administrative gates passed; child scope checked separately"
             : "blocked"}</span>

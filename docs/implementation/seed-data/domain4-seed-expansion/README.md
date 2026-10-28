@@ -1,5 +1,17 @@
 # Domain 4 Seed Expansion Artifacts
 
+## Current schwa extension
+
+The checked-in micro-skill catalog now contains 242 rows: final `-et` and
+final `-al` were added, and the natural/actual medial key was removed from
+the desired catalog. The original workbook is absent from this checkout, so
+these current additions are maintained in
+`scripts/domain4_seed_expansion_artifacts.py` and the checked-in
+`micro-skills.json`. The validation report and import closeout below describe
+the earlier 241-row import; they are historical evidence, not a validation
+of this extension. New word content and resolver decisions need separate
+governed review before activation.
+
 These files are deterministic dry-run artifacts generated from
 `docs/D4 Seeding Map Finale Final.xlsx`.
 

@@ -92,6 +92,10 @@ export interface WordSelectionFacts {
   /** Word ids missed on a cold probe already completed today for this skill
    * (their probe-miss learning items land via the 3D completion path). */
   probeMissWordIdsToday: readonly string[];
+  /** Specialist routes may supply exact reviewed relationships for demand words. */
+  demandRelationshipWordIds?: ReadonlySet<string>;
+  /** Specialist routes may restrict new probe/stretch words to content-ready members. */
+  lessonPoolWordIds?: ReadonlySet<string>;
 }
 
 export interface WordSelectionResult {
@@ -202,8 +206,9 @@ export function selectLessonWords(
         support.rowStatus === "active" &&
         APPROVED_SUPPORT_REVIEW_STATUSES.includes(support.reviewStatus),
     );
-    return (profileMode && !profile) || (!profileMode && !hasExactSupport) ||
-      (profileMode
+    return (profileMode && !profile) || (!profileMode && !hasExactSupport &&
+      !facts.demandRelationshipWordIds?.has(item.canonicalWordId)) ||
+      (profileMode || facts.demandRelationshipWordIds?.has(item.canonicalWordId)
         ? !isCanonicalWordReadyForAssignment(word, childBand, dictionary.activeTeachingSkillKeys, microSkillKey)
         : !isAssignmentDiagnosticEligible({ word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys }, childBand));
   });
@@ -301,6 +306,7 @@ export function selectLessonWords(
     if (usedWordIds.has(word.canonicalWordId) || hasActiveItem.has(word.canonicalWordId)) {
       continue;
     }
+    if (facts.lessonPoolWordIds && !facts.lessonPoolWordIds.has(word.canonicalWordId)) continue;
     const supports = supportsByWord.get(word.canonicalWordId) ?? [];
     const mappedToSkill = supports.some(
       (support) =>

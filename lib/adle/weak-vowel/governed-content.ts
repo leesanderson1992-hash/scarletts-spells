@@ -31,6 +31,23 @@ export interface PublishedWeakVowelWord {
   };
 }
 
+/** The content-pool gate, shared by intake, selection and admin projections.
+ * Trigger membership and approved word–skill membership are separate gates. */
+export function publishedWeakVowelWordBlockers(row: PublishedWeakVowelWord, skill: WeakVowelMicroSkill): string[] {
+  const facts = row.routeContent.content.weakVowel;
+  const blockers = weakVowelRouteBlockers(facts, { displayWord: row.spelling,
+    dictationSentence: row.sentence, definition: row.definition, microSkillKey: skill });
+  if (!row.contentVersionId || row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint ||
+    row.sourceFingerprint !== facts.sourceFingerprint || row.routeContent.routeId !== "weak_vowel_word_lab" ||
+    !/^[a-f0-9]{64}$/.test(row.contentSha256AtPublication) ||
+    row.routeContent.routeVersion !== "v1" || row.routeContent.microSkillKey !== skill ||
+    row.wordAudioSha256AtPublication !== facts.wordRecording?.sha256 ||
+    row.sentenceAudioSha256AtPublication !== facts.sentenceRecording?.sha256 ||
+    row.routeContent.wordMeaning !== row.definition)
+    blockers.push("published_content_or_dictionary_source_changed");
+  return [...new Set(blockers)];
+}
+
 /** No fallback to a different word or an older content version is allowed. */
 export function prepareLessonFromPublishedWeakVowelWords(input: {
   assignmentKey: string;
@@ -56,17 +73,10 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
       continue;
     }
     const row = versions[0];
-    const facts = row.routeContent.content.weakVowel;
-    if (!row.contentVersionId || row.dictionaryFingerprintAtReview !== row.currentDictionaryFingerprint ||
-      row.sourceFingerprint !== facts.sourceFingerprint || row.routeContent.routeId !== "weak_vowel_word_lab" ||
-      !/^[a-f0-9]{64}$/.test(row.contentSha256AtPublication) ||
-      row.routeContent.routeVersion !== "v1" || row.routeContent.microSkillKey !== input.microSkillKey ||
-      row.wordAudioSha256AtPublication !== facts.wordRecording.sha256 ||
-      row.sentenceAudioSha256AtPublication !== facts.sentenceRecording.sha256 ||
-      row.routeContent.wordMeaning !== row.definition ||
-      weakVowelRouteBlockers(facts, { displayWord: row.spelling, dictationSentence: row.sentence,
-        definition: row.definition, microSkillKey: input.microSkillKey }).length) {
-      blockers.push({ canonicalWordId: id, reason: "published_content_or_dictionary_source_changed" });
+    const factBlockers = publishedWeakVowelWordBlockers(row, input.microSkillKey);
+    if (factBlockers.length) {
+      blockers.push(...factBlockers
+        .map((reason) => ({ canonicalWordId: id, reason })));
       continue;
     }
     selected.push(row);
@@ -95,7 +105,7 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
       sourceFingerprint: row.sourceFingerprint, recording: { ...facts.wordRecording, reviewStatus: "approved" as const },
       spokenSyllableCount: facts.spokenSyllableCount, acceptedCutSets: facts.acceptedCutSets,
       target: facts.target,
-      ...(["D4_SCHWA_FINAL_AR_FINAL", "D4_SCHWA_FINAL_ER_FINAL", "D4_SCHWA_FINAL_OR_FINAL"]
+      ...(["D4_SCHWA_FINAL_AR_FINAL", "D4_SCHWA_FINAL_ER_FINAL", "D4_SCHWA_FINAL_ET", "D4_SCHWA_FINAL_OR_FINAL"]
         .includes(row.microSkillKey) ? { selectionTarget: facts.selectionTarget } : {}),
     };
   });

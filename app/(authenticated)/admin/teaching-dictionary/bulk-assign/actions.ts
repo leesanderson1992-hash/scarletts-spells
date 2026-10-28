@@ -49,6 +49,8 @@ export async function saveBulkSkillApprovals(input: {
     return failed("Select between 1 and 100 distinct words.");
   }
   const { applyWordIds, excludeWordIds, clearWordIds, deassignWordIds } = input;
+  if (input.microSkillKey === "D4_SCHWA_MEDIAL_NATURAL_ACTUAL")
+    return failed("This micro-skill has been replaced by final -al.");
   const allIds = [...applyWordIds, ...excludeWordIds, ...clearWordIds, ...deassignWordIds];
   if (allIds.length < 1 || allIds.length > 100 || allIds.some((id) => typeof id !== "string" || !isUuid(id))
     || new Set(allIds).size !== allIds.length) return failed("Select between 1 and 100 distinct words.");

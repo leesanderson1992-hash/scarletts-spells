@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DraggableTile } from "@/components/adle/activities/shared/draggable-tile";
+import { deviceSpeechAvailable, speakWeakVowelDeviceSource } from "@/components/adle/activities/shared/weak-vowel-device-speech";
+import { isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import {
   correctVowelTile, maskedDetectiveWord, missingVowelIndex, toggleDetectiveClue,
   type DetectiveActivityConfigV1, type DetectiveClue, type DetectiveFamilyMemberV1,
@@ -138,6 +140,10 @@ export function FamilyTreeDetectiveActivity(props: {
   const correct = correctVowelTile(round)!;
   const masked = maskedDetectiveWord(round)!;
 
+  useEffect(() => {
+    setAudioError(isDeviceSpeechSource(round.recording.src) && !deviceSpeechAvailable());
+  }, [round.recording.src]);
+
   function change(nextWord: DetectiveWordState, nextIndex = state.index) {
     const next = { index: nextIndex, words: { ...state.words, [round.canonicalWordId]: nextWord } };
     setState(next);
@@ -145,8 +151,14 @@ export function FamilyTreeDetectiveActivity(props: {
   }
 
   async function playAudio(src: string): Promise<boolean> {
-    if (props.muted || !audio.current) return false;
+    if (props.muted) return false;
     setAudioError(false);
+    if (isDeviceSpeechSource(src)) {
+      const spoken = speakWeakVowelDeviceSource(src);
+      if (!spoken) setAudioError(true);
+      return spoken;
+    }
+    if (!audio.current) return false;
     try {
       audio.current.pause();
       audio.current.src = src;
@@ -249,7 +261,7 @@ export function FamilyTreeDetectiveActivity(props: {
           }} />)}</div>
         <p className="detective-option-three-hint">Tap a vowel tile, or drag it into the gap.</p>
         </div>
-        <button type="button" className="detective-option-three-submit" disabled={!current.selectedTile} onClick={submitChoice}>Submit vowel</button>
+        <button type="button" className="detective-option-three-submit" disabled={!current.selectedTile || audioError} onClick={submitChoice}>Submit vowel</button>
       </div>
       <aside className="detective-option-three-side" aria-label={current.phase === "initial" ? "Upcoming family investigation" : "Memory reminder"}>
         {current.phase === "initial" ? round.family ? <><p className="detective-option-three-eyebrow">Next: family investigation</p><h3>Unlock after your first answer</h3><p>Listen to related words and collect clues that help you remember the spelling.</p><hr /><p>Then close the tree and try the missing vowel again.</p></>
@@ -323,7 +335,7 @@ export function FamilyTreeDetectiveActivity(props: {
           const rect = gap.current?.getBoundingClientRect();
           if (rect && point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom) choose(letter);
         }} />)}</div>
-      <button type="button" className="brand-primary-btn mx-auto" disabled={!current.selectedTile} onClick={submitChoice}>Submit vowel</button>
+      <button type="button" className="brand-primary-btn mx-auto" disabled={!current.selectedTile || audioError} onClick={submitChoice}>Submit vowel</button>
     </div>}
 
     {current.phase === "explore" && round.family && <div className="grid gap-5">

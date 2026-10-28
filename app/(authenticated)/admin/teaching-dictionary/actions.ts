@@ -22,6 +22,7 @@ import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionar
 import { PART_OF_SPEECH_OPTIONS } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
+import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -173,6 +174,11 @@ export async function publishWeakVowelRouteContent(form: FormData) {
       sentenceRecording: { src: string; sha256: string };
     };
     for (const recording of [facts.wordRecording, facts.sentenceRecording]) {
+      if (isDeviceSpeechSource(recording.src)) {
+        if (createHash("sha256").update(recording.src).digest("hex") !== recording.sha256)
+          throw new Error("WEAK_VOWEL_DEVICE_SPEECH_HASH_CHANGED");
+        continue;
+      }
       if (!/^\/audio\/[a-z0-9/_-]+\.mp3$/i.test(recording.src) || !/^[a-f0-9]{64}$/.test(recording.sha256))
         throw new Error("WEAK_VOWEL_AUDIO_IDENTITY_INVALID");
       const bytes = process.env.VERCEL_URL
@@ -286,6 +292,20 @@ async function performWorkspaceSave(form: FormData) {
     if (wordId && !isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
     const normalisedWord = normaliseWord(value(form, "normalised_word"));
     const payload = payloadFromForm(form);
+    for (const route of payload.routeContents) {
+      if (route.routeId !== "weak_vowel_word_lab") continue;
+      const facts = route.content.weakVowel as Record<string, unknown> | undefined;
+      if (!facts || typeof facts !== "object") continue;
+      for (const [key, text] of [["wordRecording", payload.displayWord],
+        ["sentenceRecording", payload.dictationSentence]] as const) {
+        const current = facts[key] as { src?: string } | undefined;
+        if (current?.src?.trim() || !text.trim()) continue;
+        const src = deviceSpeechSource(text);
+        facts[key] = { src, sha256: createHash("sha256").update(src).digest("hex") };
+        if (key === "wordRecording" && !String(facts.pronunciationId ?? "").trim())
+          facts.pronunciationId = `device-voice:${payload.displayWord.toLocaleLowerCase("en-GB")}`;
+      }
+    }
     const blockers = validateDraft(payload, normalisedWord);
     if (blockers.length) throw new Error("TEACHING_DRAFT_INVALID");
     const sourceReference = value(form, "source_reference");
