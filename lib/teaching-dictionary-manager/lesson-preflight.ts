@@ -210,7 +210,33 @@ export function profileCompilerReady(input: {
 export async function loadLessonReadiness(
   scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
 ): Promise<LessonReadinessRow[]> {
-  return withAdleReadMetrics("lesson_preflight", () => loadLessonReadinessUnmeasured(scope));
+  return withAdleReadMetrics("lesson_preflight", async () => {
+    if (!scope.wordId || scope.routeId || scope.microSkillKey) return loadLessonReadinessUnmeasured(scope);
+
+    const environment = resolveAdleRouteActivationEnvironment();
+    const db = createServiceRoleClient();
+    const { data, error } = await db.rpc("teaching_dictionary_word_preflight_scopes" as never, {
+      p_word_id: scope.wordId, p_environment: environment,
+    } as never);
+    if (error) throw new Error(`ADLE_WORD_ROUTE_SCOPE_READ: ${error.message}`);
+    const evidencePairs = (data ?? []) as Array<{ route_id: string; micro_skill_key: string }>;
+    const candidates = new Set(evidencePairs.map(row => `${row.route_id}\u0000${row.micro_skill_key}`));
+    for (const route of ADLE_CURRICULUM_ROUTE_REGISTRY) {
+      const skills = route.compatibilityScope.kind === "generic_composer_fallback"
+        ? ["generic_composer_fallback"] : route.supportedMicroSkillKeys;
+      for (const skill of skills) {
+        if (scope.approvedSkillKeys?.includes(skill)) candidates.add(`${route.routeId}\u0000${skill}`);
+      }
+    }
+    const relevantPairs = ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap(route =>
+      (route.compatibilityScope.kind === "generic_composer_fallback"
+        ? ["generic_composer_fallback"] : route.supportedMicroSkillKeys)
+        .filter(skill => candidates.has(`${route.routeId}\u0000${skill}`))
+        .map(microSkillKey => ({ routeId: route.routeId, microSkillKey })));
+    if (!relevantPairs.length) return [];
+    const groups = await Promise.all(relevantPairs.map(pair => loadLessonReadinessUnmeasured({ ...scope, ...pair })));
+    return groups.flat();
+  });
 }
 
 async function loadLessonReadinessUnmeasured(

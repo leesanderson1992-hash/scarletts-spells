@@ -197,8 +197,13 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
       for (const row of rows) weakPublished.set(canonicalWordSkillPair(row.canonicalWordId, skill), row);
     }
   }
-  const weakRelationships = weakTargets.length ? await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
-    explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey) }) : null;
+  // Only the requested weak-vowel words can affect these pair decisions.
+  // Loading every historical reviewed release here made each child on the
+  // admin readiness page rebuild the whole dictionary authority.
+  const weakWordIds = [...new Set(weakTargets.map((target) => target.canonicalWordId))];
+  const weakRelationships = weakWordIds.length ? await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
+    canonicalWordIds: weakWordIds,
+    explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey, weakWordIds) }) : null;
 
   for (const target of targets) {
     const pair = canonicalWordSkillPair(target.canonicalWordId, target.microSkillKey);
