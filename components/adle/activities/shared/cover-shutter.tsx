@@ -9,6 +9,12 @@ import { splitHandleDisplayParts } from "./split-handle";
 export type ShutterState = "look" | "cover" | "write" | "check";
 export type CoverClosePolicy = { kind: "track_ratio"; threshold: number };
 
+/** A durable cover checkpoint means the word has already been hidden. The
+ * transient animation state must resume at the answer field after reload. */
+export function resumedShutterState(state: ShutterState | undefined): ShutterState {
+  return state === "cover" ? "write" : state ?? "look";
+}
+
 export interface CoverShutterProps {
   word: string;
   splitPoints: number[];
@@ -38,7 +44,7 @@ export function shouldSnapCoverClosed(distance: number, shutterWidth: number, po
 }
 
 export function CoverShutter(props: CoverShutterProps) {
-  const [state, setState] = useState<ShutterState>(props.initialState ?? "look");
+  const [state, setState] = useState<ShutterState>(resumedShutterState(props.initialState));
   const [attempt, setAttempt] = useState(props.initialAttempt ?? "");
   const [slideDistance, setSlideDistance] = useState(0);
   const [showCoverFallback, setShowCoverFallback] = useState(false);
