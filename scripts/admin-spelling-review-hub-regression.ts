@@ -24,12 +24,14 @@ const pageFunction = hubPage.slice(
   hubPage.indexOf("export default async function AdminSpellingReviewPage"),
 );
 const requireAdminIndex = pageFunction.indexOf("await requireAdminUser()");
-const summaryReadIndex = pageFunction.indexOf("getCatalogGapSummary()");
+const summaryReadIndex = pageFunction.indexOf("loadQueueSummaries()");
 
 assert.ok(
   requireAdminIndex >= 0 && summaryReadIndex > requireAdminIndex,
   "Hub page must authorize admin access before reading service-role summaries.",
 );
+assert.match(hubPage, /\.from\("admin_spelling_queue_summary"/,
+  "Hub page must read complete SQL aggregates rather than capped queue samples.");
 assert.match(
   hubPage,
   /spelling_catalog_review_cases/,

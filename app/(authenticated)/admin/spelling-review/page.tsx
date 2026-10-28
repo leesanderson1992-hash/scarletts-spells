@@ -8,6 +8,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 export const dynamic = "force-dynamic";
 
 const OPEN_CATALOG_CASE_STATUSES = new Set(["open"]);
+const OPEN_NO_MATCHING_SKILL_STATUSES = new Set(["open", "needs_new_micro_skill", "word_level_only"]);
 const OPEN_RECOMMENDATION_STATUSES = new Set([
   "recommended",
   "pending_admin_review",
@@ -29,9 +30,11 @@ type QueueSummary = {
   }>;
 };
 
-type QueueRow = {
+type QueueAggregate = {
+  source: string;
   status: string;
-  updated_at: string | null;
+  row_count: number | string;
+  latest_updated_at: string | null;
 };
 
 function formatLabel(value: string) {
@@ -59,31 +62,34 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-function buildSummary(rows: QueueRow[], openStatuses: Set<string>): QueueSummary {
+function buildSummary(rows: QueueAggregate[], openStatuses: Set<string>): QueueSummary {
   const statusCounts = new Map<string, number>();
   let latestUpdatedAt: string | null = null;
   let openCount = 0;
+  let total = 0;
 
   for (const row of rows) {
-    statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1);
+    const count = Number(row.row_count);
+    total += count;
+    statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + count);
 
     if (openStatuses.has(row.status)) {
-      openCount += 1;
+      openCount += count;
     }
 
     if (
-      row.updated_at &&
+      row.latest_updated_at &&
       (!latestUpdatedAt ||
-        new Date(row.updated_at).getTime() > new Date(latestUpdatedAt).getTime())
+        new Date(row.latest_updated_at).getTime() > new Date(latestUpdatedAt).getTime())
     ) {
-      latestUpdatedAt = row.updated_at;
+      latestUpdatedAt = row.latest_updated_at;
     }
   }
 
   return {
     latestUpdatedAt,
     openCount,
-    reviewedCount: rows.length - openCount,
+    reviewedCount: total - openCount,
     statusCounts: Array.from(statusCounts.entries())
       .map(([status, count]) => ({
         count,
@@ -93,87 +99,21 @@ function buildSummary(rows: QueueRow[], openStatuses: Set<string>): QueueSummary
   };
 }
 
-async function getCatalogGapSummary() {
+async function loadQueueSummaries() {
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
-    .from("spelling_catalog_review_cases")
-    .select("case_status, updated_at")
-    .order("updated_at", { ascending: false })
-    .limit(250);
-
-  if (error) {
-    throw error;
-  }
-
-  return buildSummary(
-    ((data ?? []) as Array<{ case_status: string; updated_at: string | null }>)
-      .map((row) => ({
-        status: row.case_status,
-        updated_at: row.updated_at,
-      })),
-    OPEN_CATALOG_CASE_STATUSES,
-  );
-}
-
-async function getNoMatchingSkillSummary() {
-  const supabase = createServiceRoleClient();
-  const { data, error } = await supabase
-    .from("spelling_no_matching_skill_queue")
-    .select("case_status, updated_at")
-    .order("updated_at", { ascending: false })
-    .limit(250);
+    .from("admin_spelling_queue_summary" as never)
+    .select("source,status,row_count,latest_updated_at");
   if (error) throw error;
-  return buildSummary((data ?? []).map((row) => ({
-    status: row.case_status,
-    updated_at: row.updated_at,
-  })), new Set(["open", "needs_new_micro_skill", "word_level_only"]));
-}
-
-async function getCanonicalRecommendationSummary() {
-  const supabase = createServiceRoleClient();
-  const { data, error } = await supabase
-    .from("spelling_canonical_mapping_recommendations")
-    .select("recommendation_status, updated_at")
-    .order("updated_at", { ascending: false })
-    .limit(250);
-
-  if (error) {
-    throw error;
-  }
-
-  return buildSummary(
-    ((data ?? []) as Array<{
-      recommendation_status: string;
-      updated_at: string | null;
-    }>).map((row) => ({
-      status: row.recommendation_status,
-      updated_at: row.updated_at,
-    })),
-    OPEN_RECOMMENDATION_STATUSES,
-  );
-}
-
-async function getSeedImportRowSummary() {
-  const supabase = createServiceRoleClient();
-  const { data, error } = await supabase
-    .from("spelling_seed_import_rows")
-    .select("row_status, updated_at")
-    .order("updated_at", { ascending: false })
-    .limit(250);
-
-  if (error) {
-    throw error;
-  }
-
-  return buildSummary(
-    ((data ?? []) as Array<{ row_status: string; updated_at: string | null }>).map(
-      (row) => ({
-        status: row.row_status,
-        updated_at: row.updated_at,
-      }),
-    ),
-    OPEN_SEED_IMPORT_ROW_STATUSES,
-  );
+  const rows = (data ?? []) as QueueAggregate[];
+  const forSource = (source: string, openStatuses: Set<string>) =>
+    buildSummary(rows.filter((row) => row.source === source), openStatuses);
+  return {
+    catalogGap: forSource("catalog_review", OPEN_CATALOG_CASE_STATUSES),
+    noMatchingSkill: forSource("no_matching_skill", OPEN_NO_MATCHING_SKILL_STATUSES),
+    recommendation: forSource("canonical_recommendation", OPEN_RECOMMENDATION_STATUSES),
+    seedImportRow: forSource("seed_import", OPEN_SEED_IMPORT_ROW_STATUSES),
+  };
 }
 
 async function getUnresolvedIntakeDemandCount(): Promise<number | null> {
@@ -313,20 +253,14 @@ export default async function AdminSpellingReviewPage() {
   let hasError = false;
 
   try {
-    [
-      catalogGapSummary,
-      noMatchingSkillSummary,
-      recommendationSummary,
-      seedImportRowSummary,
-      unresolvedIntakeDemandCount,
-    ] =
-      await Promise.all([
-        getCatalogGapSummary(),
-        getNoMatchingSkillSummary(),
-        getCanonicalRecommendationSummary(),
-        getSeedImportRowSummary(),
-        getUnresolvedIntakeDemandCount(),
-      ]);
+    const [summaries, demandCount] = await Promise.all([
+      loadQueueSummaries(), getUnresolvedIntakeDemandCount(),
+    ]);
+    catalogGapSummary = summaries.catalogGap;
+    noMatchingSkillSummary = summaries.noMatchingSkill;
+    recommendationSummary = summaries.recommendation;
+    seedImportRowSummary = summaries.seedImportRow;
+    unresolvedIntakeDemandCount = demandCount;
   } catch {
     hasError = true;
   }

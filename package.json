@@ -13,7 +13,7 @@
     "lesson:autosave-regression": "tsx scripts/lesson-draft-autosave-regression.ts",
     "start": "next start",
     "no-matching-skill:regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/no-matching-skill-regression.mjs'",
-    "admin:word-handoff-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/no-matching-skill-case-handoff-regression.ts && npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/recommend-dictionary-handoff-sql-regression.mjs' && npm run no-matching-skill:regression && tsx scripts/word-route-status-regression.ts",
+    "admin:word-handoff-regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/no-matching-skill-case-handoff-regression.ts && npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/recommend-dictionary-handoff-sql-regression.mjs && node scripts/admin-menu-read-models-sql-regression.mjs' && npm run no-matching-skill:regression && tsx scripts/word-route-status-regression.ts",
     "authentic-use:regression": "NODE_OPTIONS=--conditions=react-server tsx scripts/authentic-use-regression.ts",
     "authentic-use:sql-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/authentic-use-repair-sql-regression.mjs'",
     "authentic-use:all-children-regression": "npx --yes --package=@electric-sql/pglite@0.5.8 -c 'node scripts/authentic-use-all-children-regression.mjs'",
