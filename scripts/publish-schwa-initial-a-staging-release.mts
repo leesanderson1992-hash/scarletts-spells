@@ -12,11 +12,12 @@ if (!url || !ref || !new URL(url).username.endsWith(ref) || !new URL(url).hostna
   throw Error("SCHWA_STAGING_TARGET_MISMATCH");
 const apply = process.argv.includes("--apply");
 const pkg = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-initial-a-medial-natural-release-package.json", "utf8"));
-const state = JSON.parse(readFileSync(".tmp/schwa-final-et-al-staging/state.json", "utf8"));
+const state = JSON.parse(readFileSync(".tmp/schwa-initial-a-medial-natural-staging/children.json", "utf8"));
 const skills = ["D4_SCHWA_INITIAL_A_INITIAL", "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS"];
 if (pkg.manifest?.microSkills?.length !== 10 || skills.some(skill =>
   !pkg.manifest.microSkills.some((row: { microSkillKey: string }) => row.microSkillKey === skill)) ||
-  !/^[a-f0-9-]{36}$/i.test(state.childId ?? "")) throw Error("SCHWA_RELEASE_REVIEW_SET_CHANGED");
+  !/^[a-f0-9-]{36}$/i.test(state.initialA ?? "") || !/^[a-f0-9-]{36}$/i.test(state.medial ?? ""))
+  throw Error("SCHWA_RELEASE_REVIEW_SET_CHANGED");
 const fileSha = createHash("sha256").update(JSON.stringify(pkg)).digest("hex");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();
@@ -45,7 +46,7 @@ try {
         and micro_skill_key=$1`, [skill]);
     const revision = await db.query<{ id: string }>(`select public.set_adle_route_activation_revision_v2(
       $1,$2,'staging','enabled','allow_existing',$3::jsonb,$4::uuid,$5,$6) id`,
-      [row.rows[0].release_manifest_sha256,skill,JSON.stringify(childAllowlistActivationReport([state.childId])),
+      [row.rows[0].release_manifest_sha256,skill,JSON.stringify(childAllowlistActivationReport([state.initialA,state.medial])),
         prior.rows[0]?.current_revision_id ?? null,"schwa-initial-a-staging-release",
         "Owner-reviewed Initial A and medial natural disposable staging proof"]);
     revisions[skill] = revision.rows[0].id;
@@ -54,6 +55,6 @@ try {
   console.log(JSON.stringify({ environment: "staging", mode: apply ? "released_to_disposable_child" : "rollback_proof",
     releaseId: release.rows[0].id, releaseKey: row.rows[0].release_key,
     releaseSha: row.rows[0].release_manifest_sha256, dependencyFingerprint: row.rows[0].dependency_fingerprint,
-    childId: state.childId, revisions }));
+    childIds: [state.initialA,state.medial], revisions }));
 } catch (error) { await db.query("rollback").catch(() => undefined); throw error; }
 finally { await db.end(); }

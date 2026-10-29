@@ -11,13 +11,13 @@ process.loadEnvFile(".env.staging.local");
 const url = process.env.SUPABASE_STAGING_DB_URL;
 if (!url || !new URL(url).username.endsWith(process.env.SUPABASE_STAGING_PROJECT_REF ?? "absent")) throw Error("NON_STAGING_TARGET");
 const statePath = ".tmp/schwa-initial-a-medial-natural-staging/state.json";
-const sourceStatePath = ".tmp/schwa-final-et-al-staging/state.json";
+const sourceStatePath = ".tmp/schwa-initial-a-medial-natural-staging/children.json";
 const state = JSON.parse(readFileSync(sourceStatePath, "utf8")) as {
-  childId: string; parentUserId: string; releaseSha: string; revisions: Record<string, string>;
+  initialA: string; medial: string; parentUserId: string;
 };
-const plans: Array<{ skill: WeakVowelMicroSkill; date: string; words: string[] }> = [
-  { skill: "D4_SCHWA_INITIAL_A_INITIAL", date: "2026-11-04", words: ["about", "again", "around", "away"] },
-  { skill: "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS", date: "2026-11-05", words: ["natural", "camera", "different", "family"] },
+const plans: Array<{ skill: WeakVowelMicroSkill; date: string; words: string[]; childId: string }> = [
+  { skill: "D4_SCHWA_INITIAL_A_INITIAL", date: "2026-11-04", childId: state.initialA, words: ["about", "again", "around", "away"] },
+  { skill: "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS", date: "2026-11-05", childId: state.medial, words: ["natural", "camera", "different", "family"] },
 ];
 const apply = process.argv.includes("--apply");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
@@ -29,7 +29,7 @@ try {
   const release = await db.query<{ id: string; release_key: string; release_manifest_sha256: string; dependency_fingerprint: string }>(
     "select id,release_key,release_manifest_sha256,dependency_fingerprint from public.adle_curriculum_release_manifests where release_key=$1", ["weak-vowel-initial-a-medial-natural-owner-reviewed-2026-10-29"]);
   if (release.rowCount !== 1) throw Error("STAGING_RELEASE_CHANGED");
-  const outputs: Array<{ skill: string; date: string; assignmentId: string; wordCount: number }> = [];
+  const outputs: Array<{ skill: string; date: string; childId: string; assignmentId: string; wordCount: number }> = [];
   for (const plan of plans) {
     const published = await db.query<{
       content_version_id: string; canonical_word_id: string; micro_skill_key: string; source_fingerprint: string;
@@ -57,12 +57,12 @@ try {
     const existingLearning = await db.query<{ id: string }>(`select id from public.adle_learning_items
       where child_id=$1 and canonical_word_id=$2 and micro_skill_key=$3 and row_status='active'
         and item_status in ('pending','pending_reteach')`,
-      [state.childId,published.rows[0].canonical_word_id,plan.skill]);
+      [plan.childId,published.rows[0].canonical_word_id,plan.skill]);
     if (existingLearning.rows.length > 1) throw Error(`STAGING_LEARNING_ITEM_AMBIGUOUS:${plan.skill}`);
     const learning = existingLearning.rowCount ? existingLearning : await db.query<{ id: string }>(`insert into public.adle_learning_items
       (child_id,canonical_word_id,micro_skill_key,source_kind,source_ref,intake_on,item_status,row_status)
       values($1,$2,$3,'verified_misspelling',$4,$5,'pending','active') returning id`,
-      [state.childId,published.rows[0].canonical_word_id,plan.skill,`staging-proof:${plan.skill}:${plan.date}`,plan.date]);
+      [plan.childId,published.rows[0].canonical_word_id,plan.skill,`staging-proof:${plan.skill}:${plan.date}`,plan.date]);
     const slots = published.rows.map((row,index) => ({ canonicalWordId: row.canonical_word_id,
       provenance: index === 0 ? "learning_item" as const : "stretch" as const,
       learningItemId: index === 0 ? learning.rows[0].id : null, complexityLevel: null }));
@@ -74,7 +74,7 @@ try {
       sentenceAudioSha256AtPublication: row.sentence_audio_sha256, definition: row.definition,
       sentence: row.dictation_sentence, routeContent: row.content,
     }));
-    const prepared = prepareLessonFromPublishedWeakVowelWords({ assignmentKey: `${state.childId}:${plan.date}:${plan.skill}`,
+    const prepared = prepareLessonFromPublishedWeakVowelWords({ assignmentKey: `${plan.childId}:${plan.date}:${plan.skill}`,
       microSkillKey: plan.skill, slots, published: reviewed,
       currentAssignedPairs: reviewed.map(row => ({ canonicalWordId: row.canonicalWordId, microSkillKey: plan.skill, assignmentStatus: "assigned" as const })),
       currentFamilyAuthorities: [] });
@@ -88,7 +88,7 @@ try {
       release: { activationRevisionId: revisionHead.rows[0]?.current_revision_id, releaseManifestId: ref.id,
         releaseKey: ref.release_key, releaseManifestSha256: ref.release_manifest_sha256,
         dependencyFingerprint: ref.dependency_fingerprint },
-      childId: state.childId, parentUserId: state.parentUserId, date: plan.date,
+      childId: plan.childId, parentUserId: state.parentUserId, date: plan.date,
       contentAuthorities: [
         { authorityType: "release_manifest", authorityId: ref.id, version: "2", sourceHash: ref.release_manifest_sha256 },
         { authorityType: "activation_revision", authorityId: revisionHead.rows[0]?.current_revision_id, version: "2", sourceHash: fingerprintSnapshotValue(revision.rows[0].data) },
@@ -98,7 +98,7 @@ try {
       ] });
     const created = await db.query<{ id: string }>(
       "select public.persist_adle_weak_vowel_daily_plan_v3($1,$2,$3,$4::jsonb,$5::jsonb,'[]'::jsonb,$6::jsonb) id",
-      [state.parentUserId,state.childId,plan.date,JSON.stringify(compiled.header),JSON.stringify(compiled.items),JSON.stringify(compiled.snapshot)]);
+      [state.parentUserId,plan.childId,plan.date,JSON.stringify(compiled.header),JSON.stringify(compiled.items),JSON.stringify(compiled.snapshot)]);
     if (created.rowCount !== 1) throw Error(`STAGING_ASSIGNMENT_CREATE_FAILED:${plan.skill}`);
     {
       const orchestration = await db.query<{ daily_assignment_id: string }>(`
@@ -108,12 +108,12 @@ try {
         select id,child_id,parent_user_id,assignment_date,'specialist_lesson','not_required','ready',clock_timestamp()
         from public.daily_assignments where id=$1 and child_id=$2 and status='pending'
         on conflict(daily_assignment_id) do nothing returning daily_assignment_id`,
-        [created.rows[0].id,state.childId]);
+        [created.rows[0].id,plan.childId]);
       if (orchestration.rowCount !== 1) throw Error("STAGING_DEVICE_VOICE_ORCHESTRATION_MISSING");
     }
     const itemCount = await db.query<{ n: number }>("select count(*)::int n from public.assignment_items where daily_assignment_id=$1", [created.rows[0].id]);
     if (itemCount.rows[0].n !== 17) throw Error(`STAGING_ASSIGNMENT_ITEMS_INCOMPLETE:${plan.skill}`);
-    outputs.push({ skill: plan.skill, date: plan.date, assignmentId: created.rows[0].id, wordCount: 4 });
+    outputs.push({ skill: plan.skill, date: plan.date, childId: plan.childId, assignmentId: created.rows[0].id, wordCount: 4 });
   }
   if (apply) await db.query("commit"); else await db.query("rollback");
   if (apply) { mkdirSync(".tmp/schwa-initial-a-medial-natural-staging", { recursive: true });
