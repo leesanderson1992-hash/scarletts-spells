@@ -288,6 +288,18 @@ const migration = readFileSync(resolve(
   import.meta.dirname,
   "../supabase/migrations/20260825140000_add_adle_review_r6_unified_session.sql",
 ), "utf8");
+const schwaLessonAdoption = readFileSync(resolve(
+  import.meta.dirname,
+  "../supabase/migrations/20261029180000_allow_weak_vowel_lesson_only_r6_adoption.sql",
+), "utf8");
+assert.match(schwaLessonAdoption, /compiled_lesson_snapshot#>>'\{route,routeId\}'\s*= 'weak_vowel_word_lab'/);
+assert.match(schwaLessonAdoption, /compiled_lesson_snapshot#>>'\{route,routeVersion\}' = 'v1'/);
+assert.match(schwaLessonAdoption, /v_rollout_state is distinct from 'active' and v_weak_vowel_lesson is not true/,
+  "non-Schwa and missing snapshots must remain outside the inactive R6 scope");
+assert.match(schwaLessonAdoption, /adle_specialist_only_review_conflict/);
+assert.match(schwaLessonAdoption, /adle_specialist_only_header_unrecognized/);
+assert.doesNotMatch(schwaLessonAdoption, /(?:insert|update)\s+public\.adle_review_r6_child_rollouts/i,
+  "lesson-only adoption must not activate R6 Review");
 for (const table of [
   "adle_today_session_orchestrations",
   "adle_specialist_stage_checkpoints",

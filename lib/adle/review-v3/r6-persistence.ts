@@ -252,8 +252,8 @@ export async function finalizeReviewStageR6(input: {
   return (result.data ?? {}) as Record<string, unknown>;
 }
 
-/** Adds the server-owned major-stage record to a lesson-only assignment for
- * active R6 scope. Inactive and pre-migration environments remain no-ops. */
+/** Adds the server-owned major-stage record to a lesson-only assignment.
+ * Schwa Word Lab may adopt without activating R6 Review for that child. */
 export async function adoptSpecialistOnlySessionR6(input: {
   client: Client;
   assignmentId: string;
