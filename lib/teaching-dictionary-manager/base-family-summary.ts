@@ -12,6 +12,50 @@ export async function loadWordBaseFamilies(
     if (result.error) throw new Error("TEACHING_FAMILY_SUMMARY_READ_FAILED");
     return result.data ?? [];
   };
+  const canonicalLinks = await read(
+    db.from("canonical_teaching_dictionary_base_family_registry_members")
+      .select("canonical_family_id").eq("canonical_word_id", wordId),
+  );
+  if (canonicalLinks.length) {
+    const familyIds = [...new Set(canonicalLinks.map((row) => String(row.canonical_family_id)))];
+    const [families, members, rootAliases] = await Promise.all([
+      read(db.from("canonical_teaching_dictionary_base_family_registry")
+        .select("id,family_key,base_kind,meaning_variants").in("id", familyIds)),
+      read(db.from("canonical_teaching_dictionary_base_family_registry_members")
+        .select("canonical_family_id,canonical_word_id").in("canonical_family_id", familyIds)),
+      read(db.from("canonical_teaching_dictionary_base_family_registry_aliases")
+        .select("canonical_family_id,source_key,source_revision")
+        .in("canonical_family_id", familyIds).eq("source_type", "lexical_root")),
+    ]);
+    const rootKeys = rootAliases.map((row) => String(row.source_key));
+    const rootDetails = rootKeys.length ? await read(
+      db.from("canonical_teaching_dictionary_lexical_root_metadata")
+        .select("family_key,revision,pronunciation_ipa").in("family_key", rootKeys),
+    ) : [];
+    const pronunciation = new Map(rootAliases.flatMap((alias) => {
+      const detail = rootDetails.find((row) => row.family_key === alias.source_key &&
+        row.revision === alias.source_revision);
+      return detail?.pronunciation_ipa
+        ? [[String(alias.canonical_family_id), String(detail.pronunciation_ipa)] as const] : [];
+    }));
+    const wordIds = [...new Set(members.map((row) => String(row.canonical_word_id)))];
+    const words = wordIds.length ? await read(
+      db.from("canonical_teaching_dictionary_words").select("id,display_word")
+        .in("id", wordIds).eq("row_status", "active"),
+    ) : [];
+    const display = new Map(words.map((row) => [String(row.id), String(row.display_word)]));
+    return families.map((family) => ({
+      name: String(family.family_key),
+      meaning: Array.isArray(family.meaning_variants)
+        ? family.meaning_variants.map(String).join("; ") : "",
+      pronunciation: pronunciation.get(String(family.id)),
+      words: members.filter((member) => member.canonical_family_id === family.id)
+        .flatMap((member) => display.has(String(member.canonical_word_id))
+          ? [{ id: String(member.canonical_word_id), word: display.get(String(member.canonical_word_id))! }]
+          : [])
+        .sort((a, b) => a.word.localeCompare(b.word, "en-GB")),
+    })).sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
+  }
   // Lexical families are canonical dictionary facts. Read only the families
   // touching this word, then resolve their latest approved revision so older
   // immutable revisions do not appear as duplicate memberships.
