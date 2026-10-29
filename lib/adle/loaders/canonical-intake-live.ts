@@ -678,6 +678,26 @@ async function intakeApprovedParentVerifiedCorrections(params: {
   }
   if (handoffEligibleCandidateRows.length === 0) return result;
 
+  // Parent verification keeps the skill originally approved by the parent.
+  // A separate governed receipt may move an unactivated pending intake to a
+  // reviewed replacement skill.  Never rewrite the parent source row.
+  const sourceIds = handoffEligibleCandidateRows.map((row: any) => row.id as string);
+  const { data: reclassifications, error: reclassificationError } = await client
+    .from("adle_pending_intake_skill_reclassifications")
+    .select("source_candidate_mapping_id,old_micro_skill_key,new_micro_skill_key,resolver_mapping_id")
+    .in("source_candidate_mapping_id", sourceIds);
+  if (reclassificationError) throwQuery("canonical intake reclassifications", reclassificationError);
+  const receiptBySource = new Map((reclassifications ?? []).map((row: any) => [
+    row.source_candidate_mapping_id as string, row,
+  ]));
+  for (const candidate of handoffEligibleCandidateRows as any[]) {
+    const receipt = receiptBySource.get(candidate.id) as any;
+    if (!receipt) continue;
+    if (receipt.old_micro_skill_key !== candidate.micro_skill_key)
+      throw new Error("Canonical intake reclassification does not match its parent source");
+    candidate.micro_skill_key = receipt.new_micro_skill_key;
+  }
+
   const corrections = [
     ...new Set(
       handoffEligibleCandidateRows.map(

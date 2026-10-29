@@ -151,16 +151,25 @@ export async function loadReadinessRows(params: {
   const targets = [...new Set(pageGroups.map((group) => group.word))];
   const skillKeys = [...new Set(pageGroups.map((group) => group.skill))];
   const sourceIds = [...new Set(pageGroups.flatMap((group) => group.candidates.map((candidate) => candidate.source_candidate_mapping_id)))];
-  const [wordResult, skillResult, sourceResult, contentResult, supportResult] = await Promise.all([
+  const [wordResult, skillResult, sourceResult, contentResult, supportResult, reclassificationResult] = await Promise.all([
     db.from("canonical_teaching_dictionary_words").select("id,normalised_word,row_status,review_status,dialect_code,age_band,frequency_band").in("normalised_word", targets),
     db.from("micro_skill_catalog").select("micro_skill_key,mastery_domain_key,skill_cluster_key,is_active,is_assignable").in("micro_skill_key", skillKeys),
     sourceIds.length ? db.from("parent_verified_spelling_candidate_mappings").select("id,child_id,misspelling_normalized,correct_spelling_normalized,micro_skill_key").in("id", sourceIds) : Promise.resolve({ data: [], error: null }),
     db.from("canonical_teaching_dictionary_content_versions").select("micro_skill_key,version_status,is_active,final_readiness_review_status,child_friendly_explanation,rule_explanation").in("micro_skill_key", skillKeys),
     db.from("canonical_teaching_dictionary_word_support").select("canonical_word_id,micro_skill_key,support_role,row_status,review_status").in("micro_skill_key", skillKeys),
+    sourceIds.length ? db.from("adle_pending_intake_skill_reclassifications")
+      .select("source_candidate_mapping_id,old_micro_skill_key,new_micro_skill_key")
+      .in("source_candidate_mapping_id", sourceIds) : Promise.resolve({ data: [], error: null }),
   ]);
-  for (const result of [wordResult, skillResult, sourceResult, contentResult, supportResult])
+  for (const result of [wordResult, skillResult, sourceResult, contentResult, supportResult, reclassificationResult])
     if (result.error) throw new Error(`Readiness facts: ${result.error.message}`);
-  const sources = sourceResult.data ?? [];
+  const effectiveSkillBySource = new Map((reclassificationResult.data ?? []).map((row: any) =>
+    [row.source_candidate_mapping_id, row]));
+  const sources = (sourceResult.data ?? []).map((source: any) => {
+    const receipt = effectiveSkillBySource.get(source.id) as any;
+    return receipt?.old_micro_skill_key === source.micro_skill_key
+      ? { ...source, micro_skill_key: receipt.new_micro_skill_key } : source;
+  });
   const misspellings = [...new Set(sources.map((source: any) => source.misspelling_normalized))];
   const mappingResult = misspellings.length
     ? await db.from("spelling_canonical_mappings")
