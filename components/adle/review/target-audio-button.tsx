@@ -1,6 +1,6 @@
 "use client";
 
-import { speakAuthoredNarration } from "@/components/adle/activities/shared/narration";
+import { usePreferredBritishAudio } from "@/components/adle/activities/shared/authored-audio";
 import type { ReviewTargetSnapshotV3 } from "@/lib/adle/review-v3/contracts";
 
 export function TargetAudioButton(props: {
@@ -8,6 +8,9 @@ export function TargetAudioButton(props: {
   target: ReviewTargetSnapshotV3;
   onPlay?: (target: ReviewTargetSnapshotV3, index: number) => void;
 }) {
+  const speechText = props.target.audioAuthority.kind === "speech_text"
+    ? props.target.audioAuthority.speechText ?? "" : "";
+  const { play, lookingUp } = usePreferredBritishAudio(speechText);
   return (
     <button
       type="button"
@@ -16,10 +19,9 @@ export function TargetAudioButton(props: {
           props.onPlay(props.target, props.index);
           return;
         }
-        if (props.target.audioAuthority.kind === "speech_text") {
-          speakAuthoredNarration(props.target.audioAuthority.speechText ?? "", "word");
-        }
+        if (speechText) void play();
       }}
+      disabled={!props.onPlay && lookingUp}
       className="review-audio"
       aria-label={`Play target word ${props.index + 1}`}
       title={`Play target word ${props.index + 1}`}

@@ -20,6 +20,8 @@ import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/d
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
+import { BritishRecordingPanel } from "./british-recording-panel";
+import { approvedBritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
 import { SpellingCasesForWord } from "./spelling-cases";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
 
@@ -216,6 +218,13 @@ export async function TeachingDictionaryDetail({
   const metadata = metadataResult?.data?.[0];
   const morphology = morphologyResult?.data?.[0];
   const dictation = dictationResult?.data?.[0];
+  const approvedSentence = dictation?.review_status === "approved_for_first_exposure"
+    ? dictation.dictation_sentence as string : null;
+  const [wordClip, sentenceClip] = wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure"
+    ? await Promise.all([
+      approvedBritishRecording({ client: db, wordId, kind: "word", text: word.display_word }),
+      approvedSentence ? approvedBritishRecording({ client: db, wordId, kind: "sentence", text: approvedSentence }) : null,
+    ]) : [null, null];
   const dictationSet = dictationHead?.data?.teaching_dictionary_dictation_sets;
   const set = Array.isArray(dictationSet) ? dictationSet[0] : dictationSet;
   const rolledBack = wordId
@@ -422,6 +431,8 @@ export async function TeachingDictionaryDetail({
           {word?.display_word ?? "New word"}
         </h1>
       </header>
+      {wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure" && <BritishRecordingPanel wordId={wordId}
+        word={word.display_word} sentence={approvedSentence} wordClip={wordClip} sentenceClip={sentenceClip} />}
       {wordId && latestSavedDraft && <div role="status" className="rounded-xl border border-sky-300 bg-sky-50 p-4 text-sm">
         A newer saved draft exists, but its changes are not yet in the live dictionary.{" "}
         <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${latestSavedDraft.id}`}>
