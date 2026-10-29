@@ -25,7 +25,7 @@ import { WordWorkspace } from "./word-workspace";
 import { BritishRecordingPanel } from "./british-recording-panel";
 import { approvedBritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
 import { deviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
-import type { ReviewedWeakVowelSource } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
+import type { ReviewedWeakVowelSource, ReviewedWeakVowelWrittenFact } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
 import type { WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import { SpellingCasesForWord } from "./spelling-cases";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
@@ -269,6 +269,20 @@ export async function TeachingDictionaryDetail({
     ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId })
     : null;
   if (dictionaryFingerprint?.error) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
+  const writtenReviews = wordId && typeof dictionaryFingerprint?.data === "string"
+    ? await db.from("teaching_dictionary_weak_vowel_written_reviews")
+      .select("micro_skill_key,lesson_target,selected_vowel,family_decision,decision_reference,dictionary_fingerprint,reviewed_at")
+      .eq("canonical_word_id", wordId).eq("decision_status", "approved_written")
+      .eq("dictionary_fingerprint", dictionaryFingerprint.data).order("reviewed_at", { ascending: false })
+    : null;
+  if (writtenReviews?.error) throw new Error("WEAK_VOWEL_WRITTEN_REVIEW_READ_FAILED");
+  const approvedWrittenFacts: ReviewedWeakVowelWrittenFact[] = (writtenReviews?.data ?? [])
+    .filter((row, index, rows) => rows.findIndex(candidate => candidate.micro_skill_key === row.micro_skill_key) === index)
+    .map(row => ({ microSkillKey: row.micro_skill_key,
+      target: row.lesson_target as ReviewedWeakVowelWrittenFact["target"],
+      selectedVowel: row.selected_vowel as ReviewedWeakVowelWrittenFact["selectedVowel"],
+      familyDecision: row.family_decision as ReviewedWeakVowelWrittenFact["familyDecision"],
+      decisionReference: row.decision_reference }));
   const weakPublicationState = [...(weakPublications.data ?? [])]
     .sort((a, b) => b.published_at.localeCompare(a.published_at))
     .filter((row, index, rows) => rows.findIndex(candidate => candidate.micro_skill_key === row.micro_skill_key) === index)
@@ -486,6 +500,7 @@ export async function TeachingDictionaryDetail({
         deviceWordClip={deviceWordClip}
         deviceSentenceClip={deviceSentenceClip}
         approvedWeakSources={approvedWeakSources}
+        approvedWrittenFacts={approvedWrittenFacts}
         weakFamilyPrefill={weakFamilyPrefill}
         approvedSourceReference={wordId && approvedSentence ? `Approved Teaching Dictionary word ${wordId}; dictation ${dictation?.id}` : ""}
         initialAssignedSkillKeys={assignmentAuthority ? initialAssignedSkillKeys : null}

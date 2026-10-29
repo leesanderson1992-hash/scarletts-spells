@@ -57,7 +57,7 @@ import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import type { BritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
-import { prefillWeakVowelDrafts, type ReviewedWeakVowelSource } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
+import { prefillWeakVowelDrafts, type ReviewedWeakVowelSource, type ReviewedWeakVowelWrittenFact } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
 import type { WeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 
 const button =
@@ -215,6 +215,7 @@ export function WordWorkspace(props: {
   deviceWordClip: { src: string; sha256: string } | null;
   deviceSentenceClip: { src: string; sha256: string } | null;
   approvedWeakSources: ReviewedWeakVowelSource[];
+  approvedWrittenFacts: ReviewedWeakVowelWrittenFact[];
   weakFamilyPrefill: WeakVowelFamilyPrefill;
   approvedSourceReference: string;
   initialAssignedSkillKeys: string[] | null;
@@ -254,6 +255,7 @@ export function WordWorkspace(props: {
     wordClip: props.wordClip ?? props.deviceWordClip,
     sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
     sources: props.approvedWeakSources,
+    writtenFacts: props.approvedWrittenFacts,
     family: props.weakFamilyPrefill,
     sourceReference: props.approvedSourceReference,
   }));
@@ -345,6 +347,7 @@ export function WordWorkspace(props: {
           wordClip: props.wordClip ?? props.deviceWordClip,
           sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
           sources: props.approvedWeakSources,
+          writtenFacts: props.approvedWrittenFacts,
           family: props.weakFamilyPrefill,
           sourceReference: props.approvedSourceReference,
         }));
@@ -359,7 +362,7 @@ export function WordWorkspace(props: {
   }, [props.wordId, props.draftId, props.initial, props.dictionaryFingerprint,
     props.approvedWord, props.approvedDefinition, props.approvedSentence, props.wordClip, props.sentenceClip,
     props.deviceWordClip, props.deviceSentenceClip,
-    props.approvedWeakSources, props.weakFamilyPrefill, props.approvedSourceReference, checkVersion]);
+    props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference, checkVersion]);
   const [joined, setJoined] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
   const splitDialog = useRef<HTMLDialogElement>(null);
@@ -430,6 +433,7 @@ export function WordWorkspace(props: {
       wordClip: props.wordClip ?? props.deviceWordClip,
       sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
       sources: props.approvedWeakSources,
+      writtenFacts: props.approvedWrittenFacts,
       family: props.weakFamilyPrefill,
       sourceReference: props.approvedSourceReference,
     })));

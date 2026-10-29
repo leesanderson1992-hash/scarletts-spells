@@ -10,6 +10,13 @@ export type ReviewedWeakVowelSource = {
   contentVersionId?: string;
   facts: Partial<WeakVowelRouteFactsV1>;
 };
+export type ReviewedWeakVowelWrittenFact = {
+  microSkillKey: string;
+  target: WeakVowelRouteFactsV1["target"];
+  selectedVowel: WeakVowelRouteFactsV1["selectionTarget"];
+  familyDecision: "approve" | "skip";
+  decisionReference: string;
+};
 
 /** Prefill reusable evidence only. A new skill still needs its own target,
  * activity decisions, editorial source and reviewed publication. */
@@ -22,6 +29,7 @@ export function prefillWeakVowelDrafts(input: {
   wordClip: Clip | null;
   sentenceClip: Clip | null;
   sources: readonly ReviewedWeakVowelSource[];
+  writtenFacts?: readonly ReviewedWeakVowelWrittenFact[];
   family?: WeakVowelFamilyPrefill;
   sourceReference?: string;
 }): WordDraftPayload {
@@ -42,6 +50,7 @@ export function prefillWeakVowelDrafts(input: {
     };
     const original = route.content.weakVowel && typeof route.content.weakVowel === "object" && !Array.isArray(route.content.weakVowel)
       ? route.content.weakVowel as Partial<WeakVowelRouteFactsV1> : {};
+    const written = input.writtenFacts?.find((fact) => fact.microSkillKey === key);
     const candidates = input.sources.filter(row => row.microSkillKey !== key && row.facts.wordRecording?.src &&
       row.facts.wordRecording.sha256 && row.facts.pronunciationId);
     const sharedIdentity = (row: ReviewedWeakVowelSource) => JSON.stringify({
@@ -82,17 +91,21 @@ export function prefillWeakVowelDrafts(input: {
       spokenSyllableCount: original.spokenSyllableCount || (sameRecording ? source?.facts.spokenSyllableCount : undefined),
       acceptedCutSets: original.acceptedCutSets?.length ? original.acceptedCutSets
         : sameRecording ? source?.facts.acceptedCutSets : undefined,
+      target: original.target ?? written?.target,
+      selectionTarget: original.selectionTarget ?? written?.selectedVowel,
+      detectiveVowelIndex: original.detectiveVowelIndex ?? written?.selectedVowel.start,
       sentenceRecording,
       sentenceTarget: original.sentenceTarget ?? (exactSentence ? source?.facts.sentenceTarget ?? uniqueSentenceTarget : undefined),
-      familyDecision: original.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip"),
+      familyDecision: original.familyDecision ?? written?.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip"),
       familyAuthorityId: original.familyAuthorityId === undefined
-        ? input.family?.status === "ready" ? input.family.authorityId : null : original.familyAuthorityId,
+        ? (original.familyDecision ?? written?.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip")) === "approve" &&
+          input.family?.status === "ready" ? input.family.authorityId : null : original.familyAuthorityId,
       canonicalFamilyId: original.canonicalFamilyId === undefined
-        ? (original.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip")) === "approve" &&
+        ? (original.familyDecision ?? written?.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip")) === "approve" &&
           input.family?.status === "ready" &&
           (!original.familyAuthorityId || original.familyAuthorityId === input.family.authorityId)
           ? input.family.canonicalFamilyId ?? null : null : original.canonicalFamilyId,
-      reviewSourceReference: original.reviewSourceReference || [input.sourceReference,
+      reviewSourceReference: original.reviewSourceReference || [input.sourceReference, written?.decisionReference,
         source?.contentVersionId ? `Reviewed ${source.microSkillKey} content ${source.contentVersionId}` : "",
       ].filter(Boolean).join("; "),
     };

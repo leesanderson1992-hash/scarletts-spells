@@ -97,4 +97,21 @@ assert.deepEqual(initialFacts.wordRecording, deviceClip(initialWord));
 assert.deepEqual(initialFacts.sentenceRecording, deviceClip(initialSentence));
 assert.equal(initialFacts.activityEligibility?.dictation.status, "ready");
 assert.equal(initialFacts.target, undefined, "device voice cannot approve a skill-specific target");
+const reviewedWritten = {
+  microSkillKey: "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+  target: { text: "a", start: 5, end: 6, syllableIndex: 3, soundType: "schwa" as const },
+  selectedVowel: { text: "a", start: 5, end: 6 }, familyDecision: "skip" as const,
+  decisionReference: "Owner-reviewed written workbook row 1",
+};
+const writtenOnly = prefillWeakVowelDrafts({ ...input, payload: { ...payload, routeContents: [] },
+  wordClip: null, sentenceClip: null, sources: [], writtenFacts: [reviewedWritten] });
+const writtenFacts = writtenOnly.routeContents.find(row => row.microSkillKey === reviewedWritten.microSkillKey)?.content.weakVowel as Partial<WeakVowelRouteFactsV1>;
+assert.deepEqual(writtenFacts.target, reviewedWritten.target);
+assert.deepEqual(writtenFacts.selectionTarget, reviewedWritten.selectedVowel);
+assert.equal(writtenFacts.activityEligibility?.dinner.status, "blocked", "written approval cannot approve missing audio and cuts");
+assert.equal(writtenFacts.activityEligibility?.dictation.status, "blocked", "written approval cannot publish dictation without audio");
+const preserved = prefillWeakVowelDrafts({ ...input, writtenFacts: [{ ...reviewedWritten,
+  microSkillKey: "D4_SCHWA_FINAL_AL", target: { ...reviewedWritten.target, start: 0, end: 1, text: "n" } }] });
+const preservedFacts = preserved.routeContents.find(row => row.microSkillKey === "D4_SCHWA_FINAL_AL")?.content.weakVowel as Partial<WeakVowelRouteFactsV1>;
+assert.deepEqual(preservedFacts.target, sourceFacts.target, "existing published target wins over written prefill");
 console.log("Weak-vowel shared-fact prefill regression passed.");
