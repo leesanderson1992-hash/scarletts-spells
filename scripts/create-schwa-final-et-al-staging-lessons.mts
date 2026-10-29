@@ -28,6 +28,10 @@ if (process.argv.includes("--device-voice-retry")) {
   plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-11-01",
     words: ["market", "basket", "jacket", "diet", "quiet", "target"] });
 }
+if (process.argv.includes("--device-voice-final")) {
+  plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-11-02",
+    words: ["quiet", "basket", "jacket", "market", "diet", "target"] });
+}
 const apply = process.argv.includes("--apply");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();
@@ -107,6 +111,17 @@ try {
       "select public.persist_adle_weak_vowel_daily_plan_v3($1,$2,$3,$4::jsonb,$5::jsonb,'[]'::jsonb,$6::jsonb) id",
       [state.parentUserId,state.childId,plan.date,JSON.stringify(compiled.header),JSON.stringify(compiled.items),JSON.stringify(compiled.snapshot)]);
     if (created.rowCount !== 1) throw Error(`STAGING_ASSIGNMENT_CREATE_FAILED:${plan.skill}`);
+    if (process.argv.includes("--device-voice-final")) {
+      const orchestration = await db.query<{ daily_assignment_id: string }>(`
+        insert into public.adle_today_session_orchestrations
+          (daily_assignment_id,child_id,parent_user_id,assignment_date,major_stage,
+           review_generation_status,specialist_generation_status,specialist_started_at)
+        select id,child_id,parent_user_id,assignment_date,'specialist_lesson','not_required','ready',clock_timestamp()
+        from public.daily_assignments where id=$1 and child_id=$2 and status='pending'
+        on conflict(daily_assignment_id) do nothing returning daily_assignment_id`,
+        [created.rows[0].id,state.childId]);
+      if (orchestration.rowCount !== 1) throw Error("STAGING_DEVICE_VOICE_ORCHESTRATION_MISSING");
+    }
     const itemCount = await db.query<{ n: number }>("select count(*)::int n from public.assignment_items where daily_assignment_id=$1", [created.rows[0].id]);
     if (itemCount.rows[0].n !== 25) throw Error(`STAGING_ASSIGNMENT_ITEMS_INCOMPLETE:${plan.skill}`);
     outputs.push({ skill: plan.skill, date: plan.date, assignmentId: created.rows[0].id, wordCount: 6 });
