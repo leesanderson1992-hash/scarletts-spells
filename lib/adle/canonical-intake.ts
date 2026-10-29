@@ -582,20 +582,6 @@ export function evaluateCanonicalIntakeReadiness(
     });
   }
 
-  if (
-    !baseWordCandidate && !compoundWordCandidate &&
-    (word.frequencyBand === null || word.ageBand === null)
-  ) {
-    return blockedOutcome({
-      facts,
-      codes: ["metadata_missing"],
-      targetIdentityStatus: "established",
-      targetToken,
-      canonicalWordId: word.canonicalWordId,
-      canonicalMappingId: mapping.mappingId,
-    });
-  }
-
   const pair = canonicalWordSkillPair(
     word.canonicalWordId,
     candidate.microSkillKey,
@@ -605,42 +591,9 @@ export function evaluateCanonicalIntakeReadiness(
       entry.canonicalWordId === word.canonicalWordId &&
       entry.microSkillKey === candidate.microSkillKey,
   );
-  const routeCertifiedAffixMember =
-    (isDynamicPrefixIntakeSkill(candidate.microSkillKey) ||
-      isDynamicAffixIntakeSkill(candidate.microSkillKey)) &&
-    explicitRouteReadiness?.ready === true &&
-    facts.routeSpecificReadyWordSkillPairs.has(pair);
-  const routeCertifiedBaseWordMember =
-    baseWordCandidate &&
-    explicitRouteReadiness?.ready === true &&
-    Boolean(explicitRouteReadiness.routeActivationId) &&
-    Boolean(explicitRouteReadiness.curriculumRelease) &&
-    facts.routeSpecificReadyWordSkillPairs.has(pair);
-  const routeCertifiedCompoundWordMember =
-    compoundWordCandidate &&
-    explicitRouteReadiness?.ready === true &&
-    Boolean(explicitRouteReadiness.curriculumRelease) &&
-    !explicitRouteReadiness.routeActivationId &&
-    facts.routeSpecificReadyWordSkillPairs.has(pair);
-
-  if (
-    (word.frequencyBand === null ||
-      word.ageBand === null ||
-      !facts.allowedFrequencyBands.has(word.frequencyBand) ||
-      !facts.allowedAgeBands.has(word.ageBand)) &&
-    !routeCertifiedAffixMember &&
-    !routeCertifiedBaseWordMember &&
-    !routeCertifiedCompoundWordMember
-  ) {
-    return blockedOutcome({
-      facts,
-      codes: ["canonical_word_out_of_child_band"],
-      targetIdentityStatus: "established",
-      targetToken,
-      canonicalWordId: word.canonicalWordId,
-      canonicalMappingId: mapping.mappingId,
-    });
-  }
+  // The candidate came from the child's verified spelling. V2 may credit
+  // advanced knowledge without adding it to the mandatory age/frequency pool.
+  // Keep bands for independently selected examples and probes, not intake.
 
   if (explicitRouteReadiness && !explicitRouteReadiness.ready) {
     return blockedOutcome({
@@ -736,9 +689,7 @@ export function evaluateCanonicalIntakeReadiness(
       (profile) =>
         profile.microSkillKey === candidate.microSkillKey &&
         profile.rowStatus === "active" &&
-        APPROVED_REVIEW_STATUSES.has(profile.reviewStatus) &&
-        (word.ageBand === null ||
-          profile.allowedAgeBands.includes(word.ageBand)),
+        APPROVED_REVIEW_STATUSES.has(profile.reviewStatus),
     );
     if (!selectorProfile && !hasExactSupport) {
       return blockedOutcome({

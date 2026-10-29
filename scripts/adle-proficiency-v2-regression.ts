@@ -35,6 +35,13 @@ assert.equal(calculateProficiencyV2(base({ learnerId: "learner-b", evidence: tra
   "fingerprints are learner-scoped");
 assert.equal(calculateProficiencyV2(base({ requiredGroupKeys: [] })).status, "unresolved");
 assert.equal(calculateProficiencyV2(base({ evidence: transfer, unscoredCount: 2 })).confidence, "limited");
+const advancedOptional = calculateProficiencyV2(base({ requiredGroupKeys: ["a"], evidence: [
+  evidence("required", "a", "2026-10-01"), evidence("advanced", "advanced", "2026-10-02"),
+] }));
+assert.equal(advancedOptional.levels[1].gates[1].required, 1,
+  "advanced knowledge does not enlarge the learner's mandatory V2 group pool");
+assert.equal(advancedOptional.levels[1].gates[1].observed, 2,
+  "a governed advanced word can add optional V2 breadth evidence");
 assert.throws(() => calculateProficiencyV2(base({ asOf: "2026-99-99" })), /invalid_calculation_date/);
 const longHistory = [
   ...["a", "b", "c"].map((group, index) => evidence(`old-${index}`, group, "2026-07-01", "positive", "CONTEXTUAL_TRANSFER", `task-${index}`)),

@@ -170,9 +170,7 @@ export function isRecognisable(word: DictionaryWordFact): boolean {
   return isActive(word.rowStatus) && word.normalisedWord.trim() !== "";
 }
 
-/** Canonical readiness for an authentic word whose route was established by a
- * real approved correction. Unlike legacy transfer examples it deliberately
- * does not require a pre-imported word-to-skill support mapping. */
+/** Legacy band-limited readiness for optional profile-selected examples. */
 export function isCanonicalWordReadyForAssignment(
   word: DictionaryWordFact,
   childBand: ChildBandProfile,
@@ -181,6 +179,17 @@ export function isCanonicalWordReadyForAssignment(
 ): boolean {
   return isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
     childBand.allowedFrequencyBands.includes(word.frequencyBand ?? "") && childBand.allowedAgeBands.includes(word.ageBand ?? "") &&
+    activeTeachingSkillKeys.has(microSkillKey);
+}
+
+/** A verified child target is optional knowledge in Proficiency V2. Its
+ * age/frequency bands limit mandatory examples, not the child's own word. */
+export function isAuthenticTargetReadyForAssignment(
+  word: DictionaryWordFact,
+  activeTeachingSkillKeys: ReadonlySet<string>,
+  microSkillKey: string,
+): boolean {
+  return isRecognisable(word) && ASSIGNMENT_APPROVED_WORD_REVIEW_STATUSES.includes(word.reviewStatus) &&
     activeTeachingSkillKeys.has(microSkillKey);
 }
 

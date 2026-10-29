@@ -545,7 +545,20 @@ function fillFacts(
 }
 
 {
-  // Adjacent-band constraint: a much-harder outlier waits.
+  // V2 separates optional child-authored knowledge from in-band examples.
+  const items = [item({ canonicalWordId: "outlier", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-01" }),
+    item({ canonicalWordId: "wi-1", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-02" })];
+  const dictionary = { ...FILL_DICTIONARY, words: FILL_DICTIONARY.words.map(word =>
+    word.canonicalWordId === "outlier" ? { ...word, ageBand: "mid_secondary", frequencyBand: "low" } : word) };
+  const result = selectLessonWords("SKILL_PG_A", CHILD, fillFacts(items, { dictionary }), CHILD_BAND, composerPolicy, TODAY);
+  assert(result.slots.some(slot => slot.canonicalWordId === "outlier" && slot.provenance === "learning_item"),
+    "an advanced child-authored word stays in its lesson");
+  assert(result.slots.filter(slot => slot.provenance === "stretch").every(slot => slot.canonicalWordId !== "outlier"),
+    "an advanced word is not introduced as an unsolicited example");
+}
+
+{
+  // Child demand is retained even when its complexity differs from examples.
   const items = [
     item({ canonicalWordId: "wi-1", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-01" }),
     item({ canonicalWordId: "wi-2", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-02" }),
@@ -553,9 +566,9 @@ function fillFacts(
     item({ canonicalWordId: "wi-3", microSkillKey: "SKILL_PG_A", intakeOn: "2026-06-04" }),
   ];
   const result = selectLessonWords("SKILL_PG_A", CHILD, fillFacts(items), CHILD_BAND, composerPolicy, TODAY);
-  assert(result.deferredOutlierWordIds.includes("outlier"), "level-3 outlier deferred from a level-1/2 window");
-  assert(!result.slots.some((slot) => slot.canonicalWordId === "outlier"), "outlier not selected");
-  assert(result.complexityWindow !== null && result.complexityWindow.max <= 2, "window stays adjacent");
+  assert(!result.deferredOutlierWordIds.includes("outlier"), "advanced authentic word is not deferred");
+  assert(result.slots.some((slot) => slot.canonicalWordId === "outlier"), "advanced authentic word is selected");
+  assert(result.slots.length === 5, "advanced child demand still fills the unchanged five-word lesson");
 }
 
 {

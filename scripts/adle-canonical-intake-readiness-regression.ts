@@ -191,13 +191,14 @@ uncertifiedOutOfBand.routeSpecificReadyWordSkillPairs = new Set([
 const uncertifiedOutcome = evaluateCanonicalIntakeReadiness(
   uncertifiedOutOfBand,
 );
-assert.equal(uncertifiedOutcome.status, "blocked");
-if (uncertifiedOutcome.status === "blocked") {
-  assert.equal(
-    uncertifiedOutcome.blockers[0].code,
-    "canonical_word_out_of_child_band",
-  );
-}
+assert.equal(uncertifiedOutcome.status, "ready",
+  "an advanced verified child word remains eligible when its exact route facts are ready");
+
+const missingBand = facts();
+missingBand.words = [{ ...routeCertifiedPrefixMember.words[0], ageBand: null, frequencyBand: null }];
+missingBand.routeSpecificReadyWordSkillPairs = new Set([canonicalWordSkillPair(WORD_ID, SKILL)]);
+assert.equal(evaluateCanonicalIntakeReadiness(missingBand).status, "ready",
+  "missing band metadata does not veto a verified child word with an approved route pair");
 
 const keyBeforeWord = canonicalIntakeDemandStableKey({
   demandType: "teaching_content",

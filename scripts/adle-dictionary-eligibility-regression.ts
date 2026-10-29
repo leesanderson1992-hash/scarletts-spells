@@ -4,6 +4,7 @@ import {
   effectiveComplexityLevel,
   failClosedTaughtWordHistoryProvider,
   isAssignmentDiagnosticEligible,
+  isAuthenticTargetReadyForAssignment,
   isEvidenceEligible,
   isMasteryBreadthEligible,
   isRecognisable,
@@ -140,6 +141,10 @@ assert(
 
 const obscure = word({ frequencyBand: "low", ageBand: "mid_secondary" });
 assert(!isWithinChildBand(obscure, childBand), "obscure word is outside the child band");
+assert(isAuthenticTargetReadyForAssignment(obscure, teachingReady, "skill_a"),
+  "a reviewed child-authored word is teachable outside the mandatory V2 pool");
+assert(!isAssignmentDiagnosticEligible({ word: obscure, supports: [support()], activeTeachingSkillKeys: teachingReady }, childBand),
+  "the same advanced word is not chosen as an unsolicited example or probe");
 assert(
   isEvidenceEligible(obscure, [support()]),
   "obscure word still earns evidence eligibility (evidence is band-free)",
@@ -150,7 +155,7 @@ assert(
 );
 assert(
   !isAssignmentDiagnosticEligible({ word: obscure, supports: [support()], activeTeachingSkillKeys: teachingReady }, childBand),
-  "obscure word must not be assigned",
+  "advanced words are not automatically assigned as lesson examples",
 );
 assert(
   !isWithinChildBand(word({ frequencyBand: null }), childBand),

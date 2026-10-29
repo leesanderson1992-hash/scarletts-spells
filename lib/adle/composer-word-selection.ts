@@ -8,9 +8,8 @@
  *
  * Every dictionary-sourced word (probe and stretch) passes the status-3 gate
  * isAssignmentDiagnosticEligible(childBand); levels come from
- * effectiveComplexityLevel. The 5 words sit within adjacent complexity bands
- * (the selected set spans at most two consecutive banding v1.1 levels); a
- * much-harder outlier waits for a later lesson.
+ * effectiveComplexityLevel. Optional probe and stretch words use an adjacent
+ * complexity window. A child-authored target remains selectable outside it.
  *
  * Probe rules: diagnostic-eligible, same skill, at or near the cluster's
  * level, not previously taught to this child (Slice 2 taught-history
@@ -23,7 +22,9 @@
 import {
   effectiveComplexityLevel,
   isCanonicalWordReadyForAssignment,
+  isAuthenticTargetReadyForAssignment,
   isAssignmentDiagnosticEligible,
+  isWithinChildBand,
   APPROVED_SUPPORT_REVIEW_STATUSES,
   type BandingOverrideFact,
   type BandingVersionFact,
@@ -208,9 +209,7 @@ export function selectLessonWords(
     );
     return (profileMode && !profile) || (!profileMode && !hasExactSupport &&
       !facts.demandRelationshipWordIds?.has(item.canonicalWordId)) ||
-      (profileMode || facts.demandRelationshipWordIds?.has(item.canonicalWordId)
-        ? !isCanonicalWordReadyForAssignment(word, childBand, dictionary.activeTeachingSkillKeys, microSkillKey)
-        : !isAssignmentDiagnosticEligible({ word, supports, activeTeachingSkillKeys: dictionary.activeTeachingSkillKeys }, childBand));
+      !isAuthenticTargetReadyForAssignment(word, dictionary.activeTeachingSkillKeys, microSkillKey);
   });
   if (incompleteExactTarget) {
     return {
@@ -228,11 +227,12 @@ export function selectLessonWords(
       continue;
     }
     const level = levelOf(item.canonicalWordId);
-    if (!fitsWindow(window, level)) {
-      deferredOutlierWordIds.push(item.canonicalWordId);
-      continue;
-    }
-    window = widen(window, level);
+    // Authentic child words are never rejected for age, frequency or distance
+    // from another target. An in-band target may anchor example difficulty,
+    // but a later outlier cannot widen that example window.
+    const word = wordById.get(item.canonicalWordId);
+    if (word && isWithinChildBand(word, childBand) && fitsWindow(window, level))
+      window = widen(window, level);
     usedWordIds.add(item.canonicalWordId);
     slots.push({
       canonicalWordId: item.canonicalWordId,
@@ -248,11 +248,10 @@ export function selectLessonWords(
       continue;
     }
     const level = levelOf(canonicalWordId);
-    if (!fitsWindow(window, level)) {
-      deferredOutlierWordIds.push(canonicalWordId);
-      continue;
-    }
-    window = widen(window, level);
+    // A completed probe miss is now child demand, not an optional probe word.
+    const word = wordById.get(canonicalWordId);
+    if (word && isWithinChildBand(word, childBand) && fitsWindow(window, level))
+      window = widen(window, level);
     usedWordIds.add(canonicalWordId);
     slots.push({
       canonicalWordId,

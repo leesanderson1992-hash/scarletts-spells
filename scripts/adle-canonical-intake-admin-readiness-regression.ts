@@ -31,11 +31,13 @@ assert.equal(projectReadiness(missingDictionary).metadata.state, "unknown");
 
 const missingMetadata = ready();
 missingMetadata.words[0].ageBand = null;
-assert.match(projectReadiness(missingMetadata).metadata.details.join(" "), /age_band/);
+assert.equal(projectReadiness(missingMetadata).metadata.state, "complete",
+  "missing age band does not block an authentic child target");
 
 const outOfBand = ready();
 outOfBand.words[0].ageBand = "upper_primary";
-assert.match(projectReadiness(outOfBand).metadata.details.join(" "), /outside the current child band/);
+assert.equal(projectReadiness(outOfBand).metadata.state, "complete",
+  "V2 treats advanced child knowledge as optional evidence, not mandatory pool membership");
 
 const incompleteContent = ready();
 incompleteContent.teaching!.ruleExplanation = null;

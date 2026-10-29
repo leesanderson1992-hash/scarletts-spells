@@ -208,8 +208,7 @@ export async function loadReadinessRows(params: {
         blockerCodes: exact?.blockers ? [...exact.blockers] : [],
         contentEvidence: exact?.evidence?.map((item) => item.status ?? "") ?? [],
         hasSelector: (facts?.selectorProfiles ?? []).some((profile: any) => profile.micro_skill_key === group.skill &&
-          profile.row_status === "active" && profile.review_status === "approved_for_first_exposure" &&
-          (!wordRows[0]?.age_band || profile.allowed_age_bands?.includes(wordRows[0].age_band))),
+          profile.row_status === "active" && profile.review_status === "approved_for_first_exposure"),
       };
     });
     const teachingRow = (contentResult.data ?? []).find((content: any) => content.micro_skill_key === group.skill && content.is_active);

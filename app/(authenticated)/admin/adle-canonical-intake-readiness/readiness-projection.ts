@@ -111,22 +111,15 @@ export function projectReadiness(input: ProjectionInput): Facets {
   const relevantRoutes = [...new Set(candidates.map((candidate) => candidate.childId))]
     .map((childId) => routeByChild.get(childId)).filter((fact): fact is RouteFact => Boolean(fact));
   const routeCertified = relevantRoutes.length > 0 && relevantRoutes.every((fact) => fact.exactReady === true && fact.readyPair);
-  const routeCanOverrideBand = routeCertified && ["base_word_lab", "compound_word_lab",
-    "dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(input.routeId);
   const routeCanSupplyWord = routeCertified && (input.routeId === "base_word_lab" || input.routeId === "compound_word_lab");
   const dictionaryResult = routeCanSupplyWord && !rows.length ? { ...complete(), applicable: false } : dictionary;
 
   let metadata: Facet;
   if (!word) metadata = routeCanSupplyWord ? { ...complete(), applicable: false } : unknown("Metadata cannot be checked until an approved dictionary word is linked.");
   else {
-    const problems: string[] = [];
-    if (!word.ageBand && !routeCanSupplyWord) problems.push("Missing age_band on the canonical word.");
-    if (!word.frequencyBand && !routeCanSupplyWord) problems.push("Missing frequency_band on the canonical word.");
-    if (word.ageBand && !input.allowedAgeBands.includes(word.ageBand) && !routeCanOverrideBand)
-      problems.push(`age_band is “${word.ageBand}”; it is outside the current child band.`);
-    if (word.frequencyBand && !input.allowedFrequencyBands.includes(word.frequencyBand) && !routeCanOverrideBand)
-      problems.push(`frequency_band is “${word.frequencyBand}”; it is outside the current child band.`);
-    metadata = problems.length ? missing(...problems) : complete();
+    // Band metadata governs the required V2 group pool and optional examples.
+    // It cannot veto a verified word the child actually wrote.
+    metadata = complete();
   }
 
   let teaching: Facet;
