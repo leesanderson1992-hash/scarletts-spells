@@ -44,12 +44,24 @@ const descriptions: Record<WeakVowelMicroSkill, { name: string; focus: string; s
   D4_SCHWA_FINAL_AR_FINAL: { name: "Quiet final ar", focus: "A final ar can sound much less clear than its spelling looks.", strategy: "Remember both letters at the end. Compare the written ending with the sound in the reviewed word." },
   D4_SCHWA_FINAL_ER_FINAL: { name: "Quiet final er", focus: "A final er may be an ending or part of a base word. The spelling needs its own check.", strategy: "Look for a verified base and ending when one exists. Do not assume every word ending in er was made by adding a suffix." },
   D4_SCHWA_FINAL_OR_FINAL: { name: "Quiet final or", focus: "Some words end in written or even when the final vowel sounds weak.", strategy: "Notice the whole or ending and use the written word to remember it." },
+  D4_SCHWA_INITIAL_A_INITIAL: { name: "Quiet first a", focus: "Some words begin with a written a that is weak when we speak.", strategy: "Find the strong beat, then remember the written a at the start." },
   D4_SCHWA_INITIAL_E_INITIAL: { name: "Quiet first e", focus: "An initial written e can be unstressed and easy to miss by ear.", strategy: "Listen to the complete word, then inspect its first letters before recalling the spelling." },
   D4_SCHWA_INITIAL_O_INITIAL: { name: "Quiet first o", focus: "An initial written o can be unstressed and easy to miss by ear.", strategy: "Listen to the complete word, then inspect its first letters before recalling the spelling." },
   D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS: { name: "Quiet middle vowels", focus: "A vowel in the middle of a word may be weak without disappearing from its spelling.", strategy: "Chop the spoken word into syllables, locate the quiet part, and inspect the letters that spell it." },
   D4_SCHWA_FINAL_AL: { name: "Quiet final al", focus: "The written a in -al can sound weak, including when -ly follows it.", strategy: "Look for the -al spelling in the word and its verified relatives." },
   D4_SCHWA_FINAL_ET: { name: "Quiet final et", focus: "The weak vowel in lexical final -et is written e.", strategy: "Listen to the reviewed recording, then picture the complete -et ending before spelling it." },
 };
+
+const INITIAL_A_TIPS: readonly WeakVowelSecretTip[] = [
+  { heading: "Detective Tip 1: Find the strong beat", blocks: [
+    { kind: "paragraph", text: "Say **about**, **around**, **away** and **again**. The first syllable is quieter than the syllable that follows." },
+    { kind: "paragraph", text: "Look at the beginning of each written word. Keep its **a** even when the vowel is hard to hear." },
+  ] },
+  { heading: "Detective Tip 2: Check the spelling", blocks: [
+    { kind: "paragraph", text: "A quiet first vowel does not tell you its letter. Other words begin with quiet **e** or **o**." },
+    { kind: "paragraph", text: "Listen to the chosen word audio and remember the written beginning of the whole word." },
+  ] },
+];
 
 const INITIAL_E_TIPS: readonly WeakVowelSecretTip[] = [
   { heading: "Detective Tip 1: Find the strong beat!", blocks: [
@@ -354,6 +366,7 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
   const finalAR = microSkillKey === "D4_SCHWA_FINAL_AR_FINAL";
   const finalER = microSkillKey === "D4_SCHWA_FINAL_ER_FINAL";
   const finalOR = microSkillKey === "D4_SCHWA_FINAL_OR_FINAL";
+  const initialA = microSkillKey === "D4_SCHWA_INITIAL_A_INITIAL";
   const initialE = microSkillKey === "D4_SCHWA_INITIAL_E_INITIAL";
   const initialO = microSkillKey === "D4_SCHWA_INITIAL_O_INITIAL";
   const medialWeak = microSkillKey === "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS";
@@ -416,6 +429,14 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
             { stem: "visit", ending: "or", sound: "VIZ-i-tuh" }, { stem: "invent", ending: "or", sound: "in-VEN-tuh" },
             { stem: "mirr", ending: "or", sound: "MIR-uh" }, { stem: "horr", ending: "or", sound: "HOR-uh" },
           ], conclusion: "Notice something? Even though we write **or**, we hear **“uh”** at the end!", tips: FINAL_OR_TIPS } }
+        : initialA ? { id: "secret-life-initial-a-story-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Quiet First A", subtitle: "The a is written even when it sounds weak", paragraphs: [],
+          weakVowelFeature: { kind: "ending_secret_story", targetPosition: "initial", intro: [
+            "Some familiar words begin with a quiet **a**. Another syllable gets the strong beat.",
+            "Listen to the complete word, then compare its sound with the first written letter.",
+          ], examples: [
+            { stem: "bout", ending: "a", sound: "uh-BOUT" }, { stem: "round", ending: "a", sound: "uh-ROUND" },
+            { stem: "way", ending: "a", sound: "uh-WAY" }, { stem: "gain", ending: "a", sound: "uh-GEN" },
+          ], conclusion: "The quiet first vowel is written **a** in these words. Follow the chosen pronunciation for each word; pronunciation can vary.", tips: INITIAL_A_TIPS } }
         : initialE ? { id: "secret-life-initial-e-story-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "The Secret of the Lazy e-", subtitle: "When initial E sounds quiet!", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_story", targetPosition: "initial", intro: [
             "You already know that **e** can make different sounds, as in **egg**, **me** and **even**.",
@@ -495,6 +516,11 @@ export function weakVowelTeaching(microSkillKey: WeakVowelMicroSkill, words: rea
             clues: ["**Someone doing something?** The ending might be **-or**.", "**Spot an -ator word?** Remember that it finishes with **-or**.", "**Know a word's relatives?** Look for the spelling that stays the same."],
             conclusion: "Look for the written pattern as well as the sound.",
             motto: "Hear the “uh”, investigate the word, remember the OR!", tips: FINAL_OR_TIPS } }
+        : initialA ? { id: "secret-life-initial-a-rule-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "Today's Secret Rule", paragraphs: [],
+          weakVowelFeature: { kind: "ending_secret_rule", rule: "In some words, the first written **a** is unstressed and sounds weak. Keep the **a** when you spell the whole word.",
+            clues: ["**Find the strong beat!** The first syllable may be quiet.", "**Look at the first letter!** Sound alone may not tell you which vowel to write.", "**Remember the whole word!** Say it, look, cover and spell."],
+            conclusion: "The weak sound can vary by word and speaker. Use the reviewed recording and remember its written **a**.",
+            motto: "Hear the quiet start, remember the A!", tips: INITIAL_A_TIPS } }
         : initialE ? { id: "secret-life-initial-e-rule-v1", type: "teaching", eyebrow: "The Secret Life of Vowels", title: "Today's Secret Rule", paragraphs: [],
           weakVowelFeature: { kind: "ending_secret_rule", rule: "At the beginning of many British English words, an unstressed **e** is weak. In today's examples it commonly sounds like short **“ih”** **/ɪ/**, not schwa **/ə/**.",
             clues: ["**Find the strong beat!** The first syllable may be quiet.", "**Look for word families!** Related words can help you remember the spelling.", "**Watch out for short /ɪ/!** Not every weak initial **e** is a schwa."],

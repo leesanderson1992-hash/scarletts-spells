@@ -16,10 +16,15 @@ export interface WeakVowelReleasePackageV1 {
 
 /** The release freezes the supported teaching templates. Published word facts stay
  * independent, so a later approved word can join without another code release. */
-export function buildWeakVowelReleasePackage(input: { releaseKey: string; approvalRefs: readonly string[] }): WeakVowelReleasePackageV1 {
+export function buildWeakVowelReleasePackage(input: { releaseKey: string; approvalRefs: readonly string[];
+  microSkillKeys?: readonly WeakVowelMicroSkill[] }): WeakVowelReleasePackageV1 {
   if (!input.releaseKey.trim() || !input.approvalRefs.length || input.approvalRefs.some((ref) => !ref.trim()))
     throw new Error("weak_vowel_release_approval_missing");
-  const authorities = [...WEAK_VOWEL_MICRO_SKILLS].sort().map((microSkillKey) => {
+  const selectedKeys = input.microSkillKeys ?? WEAK_VOWEL_MICRO_SKILLS;
+  if (!selectedKeys.length || new Set(selectedKeys).size !== selectedKeys.length ||
+    selectedKeys.some((key) => !WEAK_VOWEL_MICRO_SKILLS.includes(key)))
+    throw new Error("weak_vowel_release_skill_set_invalid");
+  const authorities = [...selectedKeys].sort().map((microSkillKey) => {
     const teachingTemplate = weakVowelTeaching(microSkillKey, []);
     const semanticProjection = { schemaVersion: 1 as const, microSkillKey,
       teachingTemplate, teachingTemplateSha256: fingerprintSnapshotValue(teachingTemplate) };

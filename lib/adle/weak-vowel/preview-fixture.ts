@@ -15,4 +15,7 @@ export function weakVowelPreviewLesson(microSkillKey: WeakVowelMicroSkill, revis
   return lesson;
 }
 
-export const WEAK_VOWEL_PREVIEW_SKILLS: readonly WeakVowelMicroSkill[] = WEAK_VOWEL_MICRO_SKILLS;
+// Preview only keys with reviewed example fixtures. A newly registered key
+// remains absent here until its words and pronunciation examples are reviewed.
+export const WEAK_VOWEL_PREVIEW_SKILLS: readonly WeakVowelMicroSkill[] = WEAK_VOWEL_MICRO_SKILLS
+  .filter(key => Object.hasOwn(fixtures.lessons, key));

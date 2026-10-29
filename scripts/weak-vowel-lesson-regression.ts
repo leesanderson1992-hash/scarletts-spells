@@ -6,13 +6,24 @@ import { validateWeakVowelLesson, weakVowelTeaching } from "../lib/adle/weak-vow
 import { initialWeakVowelProgress, weakVowelReadyToFinish } from "../lib/adle/weak-vowel/progress";
 import { weakVowelReflectionReview } from "../lib/adle/weak-vowel/reflection-review";
 import { getCurriculumRouteDefinition } from "../lib/adle/curriculum-readiness/route-registry";
-import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 const registeredRoute = getCurriculumRouteDefinition("weak_vowel_word_lab", "v1");
 assert.ok(registeredRoute);
 assert.equal(registeredRoute.newAssignmentCapable, true, "new assignments require the enabled database release gate");
 assert.ok(WEAK_VOWEL_PREVIEW_SKILLS.every((key) => registeredRoute.supportedMicroSkillKeys.includes(key)));
 assert.ok(registeredRoute.supportedMicroSkillKeys.includes("D4_SCHWA_FINAL_ET"));
+assert.ok(registeredRoute.supportedMicroSkillKeys.includes("D4_SCHWA_INITIAL_A_INITIAL"));
+assert.equal(weakVowelBlockerTarget("Review the target spoken syllable number.", "D4_SCHWA_INITIAL_A_INITIAL"),
+  "td-route-D4_SCHWA_INITIAL_A_INITIAL-weak-targetSyllable");
+assert.equal(weakVowelBlockerCode("Review the target weak-vowel sound type.", "D4_SCHWA_INITIAL_A_INITIAL"),
+  "weak_vowel_sound_type_unreviewed");
+const initialATeaching = weakVowelTeaching("D4_SCHWA_INITIAL_A_INITIAL", []);
+assert.equal(initialATeaching.pages.length, 3);
+assert.equal(initialATeaching.pages[1].weakVowelFeature?.kind, "ending_secret_story");
+assert.equal(initialATeaching.pages[2].weakVowelFeature?.kind, "ending_secret_rule");
+assert.equal(initialATeaching.pages[1].weakVowelFeature?.kind === "ending_secret_story" &&
+  initialATeaching.pages[1].weakVowelFeature.examples.every(example => example.ending === "a"), true);
 const finalETTeaching = weakVowelTeaching("D4_SCHWA_FINAL_ET", []);
 assert.equal(finalETTeaching.pages.length, 3);
 assert.equal(finalETTeaching.pages[0].title, "The disappearing vowel");
@@ -183,6 +194,19 @@ const sampleFacts = {
 const sampleInput = { displayWord: sample.spelling, dictationSentence: sample.dictation.sentence,
   definition: sample.definition.text, microSkillKey: candidate.microSkillKey };
 assert.deepEqual(weakVowelRouteBlockers(sampleFacts, sampleInput), []);
+const initialAFacts = { ...sampleFacts,
+  spokenSyllableCount: 2, acceptedCutSets: [[1]],
+  target: { text: "a", start: 0, end: 1, syllableIndex: 1, soundType: "schwa" },
+  selectionTarget: { text: "a", start: 0, end: 1 }, detectiveVowelIndex: 0,
+  sentenceTarget: { start: 10, end: 15 },
+};
+const initialAInput = { displayWord: "about", dictationSentence: "We talked about the lesson.",
+  definition: "Concerning something.", microSkillKey: "D4_SCHWA_INITIAL_A_INITIAL" };
+assert.deepEqual(weakVowelRouteBlockers(initialAFacts, initialAInput), []);
+assert.ok(weakVowelRouteBlockers({ ...initialAFacts,
+  target: { ...initialAFacts.target, text: "o", start: 2, end: 3 },
+  selectionTarget: { text: "o", start: 2, end: 3 }, detectiveVowelIndex: 2,
+}, initialAInput).some(reason => reason.includes("initial a-")));
 const naturalSample = naturalActual.words[0];
 const naturalTargetStart = naturalSample.dinner.target.start;
 const naturalFacts = { ...sampleFacts,

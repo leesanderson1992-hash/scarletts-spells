@@ -72,7 +72,7 @@ const dinnerSelection = { ...selected, canonicalWordId: byWord.dinner.canonicalW
   pronunciationId: "registered-dinner-uk-v1", wordSense: byWord.dinner.wordSense, recordingSha256: byWord.dinner.recording.sha256 };
 assert.equal(resolveDinnerForSelectedWords([dinnerSelection], [{ ...byWord.dinner, reviewStatus: "approved", pronunciationId: "registered-dinner-uk-v1", selectionTarget: undefined }]).blockers[0].reason,
   "dinner_vowel_selection_not_published", "Old release content cannot silently power new vowel-only assignments");
-assert.equal(WEAK_VOWEL_MICRO_SKILLS.length, 8);
+assert.equal(WEAK_VOWEL_MICRO_SKILLS.length, 10);
 const composerSlots = [
   { canonicalWordId: byWord.dinner.canonicalWordId, provenance: "learning_item" as const, learningItemId: "demand-dinner", complexityLevel: 1 },
   { canonicalWordId: byWord.sofa.canonicalWordId, provenance: "stretch" as const, learningItemId: null, complexityLevel: 1 },
