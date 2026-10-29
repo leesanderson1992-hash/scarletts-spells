@@ -60,6 +60,10 @@ export async function loadWeakVowelLessonReadiness(input: {
   if (!WEAK_VOWEL_MICRO_SKILLS.some((key) => key === input.microSkillKey))
     return blocked("unsupported_weak_vowel_micro_skill");
   const skill = input.microSkillKey as WeakVowelMicroSkill;
+  if (!await weakVowelRouteSelectedForChild({
+    client: input.client, childId: input.childId, microSkillKey: skill,
+    environmentKey: input.environmentKey,
+  })) return blocked("weak_vowel_route_inactive_or_out_of_scope");
   const authority = await loadPublishedWritingAssociations(input.client, input.environmentKey).then((explicitReviewedAssociations) =>
     loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey,
       explicitReviewedAssociations }));
@@ -82,7 +86,12 @@ export async function loadWeakVowelLessonReadiness(input: {
   }
   const selection = selectWeakVowelLessonWords(skill, input.childId, {
     learningItems: input.facts.learningItems,
-    dictionary: input.facts.dictionary,
+    // The governed route release is this specialist lesson's teaching
+    // authority. It need not have a legacy generic Teaching Dictionary
+    // content row, but only a child with an enabled route may use it.
+    dictionary: { ...input.facts.dictionary, activeTeachingSkillKeys: new Set([
+      ...input.facts.dictionary.activeTeachingSkillKeys, skill,
+    ]) },
     taughtHistory: input.facts.taughtHistory,
     probeRuns: input.facts.probeRuns,
     probeMissWordIdsToday: input.facts.probeMissWordIdsToday,
