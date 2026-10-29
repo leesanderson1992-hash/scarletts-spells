@@ -42,13 +42,13 @@ export function BritishRecordingPanel(props: {
   wordId: string; word: string; sentence: string | null;
   wordClip: BritishRecording | null; sentenceClip: BritishRecording | null;
 }) {
-  return <section className="rounded-2xl border border-[var(--border)] bg-white p-5" aria-labelledby="dictionary-audio-heading">
-    <h2 id="dictionary-audio-heading" className="text-lg font-semibold">British recordings</h2>
-    <p className="mt-1 text-sm">Reviewed British clips take priority. Device voice is the backup while a clip is awaiting review. Approvals are bound to this exact word or approved sentence; older recordings remain in the audit history.</p>
+  return <details className="rounded-2xl border border-[var(--border)] bg-white p-4" aria-labelledby="dictionary-audio-heading">
+    <summary id="dictionary-audio-heading" className="cursor-pointer font-semibold">British recordings · {props.wordClip && props.sentenceClip ? "complete" : "improvement needed"}</summary>
+    <p className="mt-3 text-sm">Reviewed British clips take priority. Device voice is the backup while a clip is awaiting review. Approvals are bound to this exact word or approved sentence; older recordings remain in the audit history.</p>
     <div className="mt-4 grid gap-4 lg:grid-cols-2">
       <RecordingRow wordId={props.wordId} kind="word" text={props.word} clip={props.wordClip} />
       {props.sentence ? <RecordingRow wordId={props.wordId} kind="sentence" text={props.sentence} clip={props.sentenceClip} />
         : <p className="rounded-xl border border-[var(--border)] p-4 text-sm">Approve a dictation sentence before adding its British recording.</p>}
     </div>
-  </section>;
+  </details>;
 }

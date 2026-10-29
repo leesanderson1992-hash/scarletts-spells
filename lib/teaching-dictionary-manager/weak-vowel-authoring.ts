@@ -73,12 +73,13 @@ export function weakVowelRouteBlockers(
     blockers.push("Review the spoken syllable count.");
   const target = object(value.target) ? value.target : null;
   if (!target || typeof target.text !== "string" || !integer(target.start) || !integer(target.end) ||
-    target.start < 0 || target.end <= target.start || word.slice(target.start, target.end) !== target.text ||
-    !integer(target.syllableIndex) || target.syllableIndex < 1 ||
-    target.syllableIndex > (integer(value.spokenSyllableCount) ? value.spokenSyllableCount : 0) ||
-    !["schwa", "other_unstressed"].includes(String(target.soundType))) {
-    blockers.push("Review the exact target span, syllable and sound type.");
-  }
+    target.start < 0 || target.end <= target.start || word.slice(target.start, target.end) !== target.text)
+    blockers.push("Review the exact written target span.");
+  if (!target || !integer(target.syllableIndex) || target.syllableIndex < 1 ||
+    target.syllableIndex > (integer(value.spokenSyllableCount) ? value.spokenSyllableCount : 0))
+    blockers.push("Review the target spoken syllable number.");
+  if (!target || !["schwa", "other_unstressed"].includes(String(target.soundType)))
+    blockers.push("Review the target weak-vowel sound type.");
   const selected = object(value.selectionTarget) ? value.selectionTarget : null;
   if (!selected || typeof selected.text !== "string" || !integer(selected.start) || !integer(selected.end) ||
     selected.end !== selected.start + 1 || word.slice(selected.start, selected.end) !== selected.text ||
@@ -108,6 +109,10 @@ export function weakVowelRouteBlockers(
     target.text.toLowerCase() !== "e" ||
     target.start !== 0 || !selected || selected.start !== 0))
     blockers.push("The initial e- lesson targets the written first e.");
+  if (input.microSkillKey === "D4_SCHWA_INITIAL_A_INITIAL" && (!target || typeof target.text !== "string" ||
+    target.text.toLowerCase() !== "a" ||
+    target.start !== 0 || target.end !== 1 || !selected || selected.start !== 0 || selected.text !== "a"))
+    blockers.push("The initial a- lesson targets the written first a.");
   if (input.microSkillKey === "D4_SCHWA_INITIAL_O_INITIAL" && (!target || typeof target.text !== "string" ||
     target.text.toLowerCase() !== "o" ||
     target.start !== 0 || !selected || selected.start !== 0))
@@ -175,4 +180,57 @@ export function weakVowelRouteBlockers(
   if (typeof value.reviewSourceReference !== "string" || !value.reviewSourceReference.trim())
     blockers.push("Record the editorial source for these lesson annotations.");
   return [...new Set(blockers)];
+}
+
+/** Exact editor control for each learner-content blocker. */
+export function weakVowelBlockerTarget(message: string, skillKey: string): string {
+  const prefix = `td-route-${skillKey}-weak-`;
+  if (message.includes("source fingerprint")) return `${prefix}sourceFingerprint`;
+  if (message.includes("editorial source")) return `${prefix}reviewSourceReference`;
+  if (message.includes("word sense")) return `${prefix}wordSense`;
+  if (message.includes("pronunciation facts")) return `${prefix}pronunciationId`;
+  if (message.includes("word audio") || message.includes("word voice")) return `${prefix}wordAudio`;
+  if (message.includes("spoken syllable count")) return `${prefix}syllableCount`;
+  if (message.includes("syllable cut") || message.includes("Dinner cut") || message.includes("target span crosses")) return `${prefix}cuts`;
+  if (message.includes("target spoken syllable")) return `${prefix}targetSyllable`;
+  if (message.includes("weak-vowel sound type")) return `${prefix}soundType`;
+  if (message.includes("target span") || message.includes("full ending") || message.includes("final -") || message.includes("initial ") || message.includes("medial weak")) return `${prefix}targetStart`;
+  if (message.includes("written vowel letter")) return `${prefix}selectedVowel`;
+  if (message.includes("Vowel Detective")) return `${prefix}selectedVowel`;
+  if (message.includes("authority ID")) return `${prefix}familyAuthorityId`;
+  if (message.includes("Family") || message.includes("family")) return `${prefix}familyDecision`;
+  if (message.includes("sentence audio") || message.includes("sentence voice")) return `${prefix}sentenceAudio`;
+  if (message.includes("target word to its exact span")) return `${prefix}sentenceStart`;
+  if (message.includes("complete dictation sentence")) return "td-dictation";
+  if (message.includes("definition")) return "td-definition";
+  const activity = /Review (dinner|detective|memoryLock|dictation|family) activity|^(dinner|detective|memoryLock|dictation|family) is blocked/.exec(message);
+  if (activity) return `td-route-${skillKey}-weak-activity-${activity[1] ?? activity[2]}`;
+  return `td-route-${skillKey}-weak`;
+}
+
+/** Stable admin identifier paired with the exact editor control above. */
+export function weakVowelBlockerCode(message: string, skillKey: string): string {
+  const target = weakVowelBlockerTarget(message, skillKey);
+  const field = target.replace(`td-route-${skillKey}-weak-`, "");
+  if (field.startsWith("activity-")) return `weak_vowel_${field.replaceAll("-", "_")}`;
+  const code: Record<string, string> = {
+    sourceFingerprint: "weak_vowel_source_stale",
+    reviewSourceReference: "weak_vowel_source_review_missing",
+    wordSense: "weak_vowel_word_sense_unreviewed",
+    pronunciationId: "weak_vowel_pronunciation_unreviewed",
+    wordAudio: "weak_vowel_word_audio_missing",
+    syllableCount: "weak_vowel_syllable_count_unreviewed",
+    cuts: "weak_vowel_spoken_cuts_unreviewed",
+    targetStart: "weak_vowel_target_unreviewed",
+    targetSyllable: "weak_vowel_target_syllable_unreviewed",
+    soundType: "weak_vowel_sound_type_unreviewed",
+    selectedVowel: "weak_vowel_selected_vowel_unreviewed",
+    familyAuthorityId: "weak_vowel_family_authority_missing",
+    familyDecision: "weak_vowel_family_choice_unreviewed",
+    sentenceAudio: "weak_vowel_sentence_audio_missing",
+    sentenceStart: "weak_vowel_sentence_target_unreviewed",
+  };
+  if (target === "td-definition") return "weak_vowel_definition_missing";
+  if (target === "td-dictation") return "weak_vowel_sentence_missing";
+  return code[field] ?? "weak_vowel_route_facts_incomplete";
 }

@@ -1,4 +1,5 @@
 import "./word-workspace.css";
+import { createHash } from "node:crypto";
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -15,6 +16,7 @@ import {
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-family-summary";
+import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/draft-freshness";
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
@@ -22,6 +24,9 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { WordWorkspace } from "./word-workspace";
 import { BritishRecordingPanel } from "./british-recording-panel";
 import { approvedBritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
+import { deviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
+import type { ReviewedWeakVowelSource } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
+import type { WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import { SpellingCasesForWord } from "./spelling-cases";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
 
@@ -62,6 +67,7 @@ export async function TeachingDictionaryDetail({
     overviewReview,
     submissions,
     baseFamilies,
+    weakFamilyPrefill,
   ] = await Promise.all([
     wordId
       ? db
@@ -175,6 +181,7 @@ export async function TeachingDictionaryDetail({
           .limit(50)
       : null,
     wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
+    wordId ? loadWeakVowelFamilyPrefill(db, wordId) : Promise.resolve({ status: "none" as const, authorityId: null, members: [] }),
   ]);
   for (const result of [
     wordResult,
@@ -225,6 +232,12 @@ export async function TeachingDictionaryDetail({
       approvedBritishRecording({ client: db, wordId, kind: "word", text: word.display_word }),
       approvedSentence ? approvedBritishRecording({ client: db, wordId, kind: "sentence", text: approvedSentence }) : null,
     ]) : [null, null];
+  const deviceClip = (text: string) => {
+    const src = deviceSpeechSource(text);
+    return { src, sha256: createHash("sha256").update(src).digest("hex") };
+  };
+  const deviceWordClip = word?.review_status === "approved_for_first_exposure" ? deviceClip(word.display_word) : null;
+  const deviceSentenceClip = approvedSentence ? deviceClip(approvedSentence) : null;
   const dictationSet = dictationHead?.data?.teaching_dictionary_dictation_sets;
   const set = Array.isArray(dictationSet) ? dictationSet[0] : dictationSet;
   const rolledBack = wordId
@@ -252,7 +265,7 @@ export async function TeachingDictionaryDetail({
   if (weakReviews.error || weakPublications.error) throw new Error("WEAK_VOWEL_PUBLICATION_STATE_READ_FAILED");
   const reviewedWeakIds = new Set((weakReviews.data ?? []).map((row) => row.content_version_id));
   const publishedWeakIds = new Set((weakPublications.data ?? []).map((row) => row.content_version_id));
-  const dictionaryFingerprint = wordId && (weakPublications.data?.length ?? 0) > 0
+  const dictionaryFingerprint = wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure"
     ? await db.rpc("teaching_dictionary_route_dictionary_fingerprint", { p_word: wordId })
     : null;
   if (dictionaryFingerprint?.error) throw new Error("WEAK_VOWEL_DICTIONARY_FINGERPRINT_READ_FAILED");
@@ -264,6 +277,16 @@ export async function TeachingDictionaryDetail({
     contentVersionId: row.content_version_id,
     sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data,
   }));
+  const activeSkillKeys = new Set((skillResult.data ?? []).map(row => row.micro_skill_key));
+  const approvedWeakSources: ReviewedWeakVowelSource[] = weakPublicationState
+    .filter(row => row.sourceCurrent && activeSkillKeys.has(row.microSkillKey))
+    .flatMap(row => {
+      const version = weakVersions.find(candidate => candidate.id === row.contentVersionId);
+      const facts = version ? routeContentFromStoredRow(version).content.weakVowel : null;
+      return facts && typeof facts === "object" && !Array.isArray(facts)
+        ? [{ microSkillKey: row.microSkillKey, contentVersionId: row.contentVersionId,
+          facts: facts as Partial<WeakVowelRouteFactsV1> }] : [];
+    });
   const environment = resolveAdleRouteActivationEnvironment();
   const assignmentAuthority = wordId && environment
     ? await loadCachedTeachingDictionaryEvidenceAuthorityForWord(environment, wordId)
@@ -455,6 +478,16 @@ export async function TeachingDictionaryDetail({
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         weakPublicationState={weakPublicationState}
+        approvedWord={word?.review_status === "approved_for_first_exposure" ? word.display_word : null}
+        approvedDefinition={definitions?.data?.[0]?.definition ?? null}
+        approvedSentence={approvedSentence}
+        wordClip={wordClip}
+        sentenceClip={sentenceClip}
+        deviceWordClip={deviceWordClip}
+        deviceSentenceClip={deviceSentenceClip}
+        approvedWeakSources={approvedWeakSources}
+        weakFamilyPrefill={weakFamilyPrefill}
+        approvedSourceReference={wordId && approvedSentence ? `Approved Teaching Dictionary word ${wordId}; dictation ${dictation?.id}` : ""}
         initialAssignedSkillKeys={assignmentAuthority ? initialAssignedSkillKeys : null}
         dictionaryFingerprint={typeof dictionaryFingerprint?.data === "string" ? dictionaryFingerprint.data : null}
         sourceReference={

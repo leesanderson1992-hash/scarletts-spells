@@ -19,6 +19,7 @@ export async function loadWordBaseFamilies(
     db.from("canonical_teaching_dictionary_lexical_base_family_members")
       .select("family_key,revision").eq("canonical_word_id", wordId),
   );
+  let lexicalFamilies: { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[] = [];
   if (lexicalMatches.length) {
     const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
     const revisions = await read(
@@ -53,7 +54,7 @@ export async function loadWordBaseFamilies(
             .in("id", ids).eq("row_status", "active"),
         );
         const display = new Map(lexicalWords.map((row) => [row.id, String(row.display_word)]));
-        return activeKeys.map((key) => ({
+        lexicalFamilies = activeKeys.map((key) => ({
           name: key,
           meaning: String(latest.get(key)?.base_meaning ?? ""),
           pronunciation: rootPronunciation.get(key),
@@ -82,7 +83,7 @@ export async function loadWordBaseFamilies(
     ...wordReviews.flatMap((row) => row.legacy_family_id || row.definition_id
       ? [String(row.legacy_family_id ?? row.definition_id)] : []),
   ])];
-  if (!candidateIds.length) return [];
+  if (!candidateIds.length) return lexicalFamilies;
   const reviewIds = wordReviews.map((row) => String(row.id));
   const releaseIds = [...new Set(wordReviews.map((row) => String(row.word_skill_release_id)))];
   const [wordWithdrawals, wordSkillWithdrawals] = await Promise.all([
@@ -101,7 +102,7 @@ export async function loadWordBaseFamilies(
     else activeForWord.add(id);
   }
   const familyIds = [...activeForWord];
-  if (!familyIds.length) return [];
+  if (!familyIds.length) return lexicalFamilies;
   const legacyIds = familyIds.filter((id) => wordLegacy.some((row) => row.base_word_family_id === id) ||
     wordReviews.some((row) => row.legacy_family_id === id));
   const definitionIds = familyIds.filter((id) => !legacyIds.includes(id));
@@ -171,7 +172,7 @@ export async function loadWordBaseFamilies(
     ),
   ]);
   const wordById = new Map(words.map((word) => [word.id, word.display_word]));
-  return [...new Map([...legacy, ...definitions].map(family => [family.base_family_key ?? family.family_key, family])).values()].map((family) => ({
+  const adleFamilies = [...new Map([...legacy, ...definitions].map(family => [family.base_family_key ?? family.family_key, family])).values()].map((family) => ({
     name: family.base_family_key ?? family.family_key,
     words: [...members.get(family.id)!]
       .flatMap((id) =>
@@ -179,4 +180,5 @@ export async function loadWordBaseFamilies(
       )
       .sort((a, b) => a.word.localeCompare(b.word, "en-GB")),
   }));
+  return [...lexicalFamilies, ...adleFamilies];
 }

@@ -65,7 +65,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
     <div className="rounded-xl border border-[var(--border)] bg-[var(--paper)] p-3 text-sm">
       <p className="font-semibold">Shared facts already in the dictionary</p>
       <p>Word: <strong>{word}</strong> · Syllables: {dictionarySyllables || "not recorded"}</p>
-      <p className="mt-1 text-xs text-[var(--mid)]">Use these as review evidence. A schwa flag or written division cannot determine the target letter or spoken cuts on its own.</p>
+      <p className="mt-1 text-xs text-[var(--mid)]">Previously approved pronunciation and sentence facts are filled when they match this word. Review the target letter, spoken cuts and activity decisions for this micro-skill before publication.</p>
     </div>
     {!facts && <button type="button" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold"
       onClick={() => onChange({ schemaVersion: "weak_vowel_route_facts_v1", sourceFingerprint: dictionaryFingerprint ?? "",
@@ -89,7 +89,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
       </label>
       {typeof current.wordSense === "string" && label("Chosen sense", id("senseText"), current.wordSense, v => change({ wordSense: v }))}
       {label("Reviewed pronunciation ID", id("pronunciationId"), current.pronunciationId ?? "", v => change({ pronunciationId: v }))}
-      {label("British word recording path", id("wordAudio"), wordRecording?.src ?? "", v => change({ wordRecording: { src: v, sha256: wordRecording?.sha256 ?? "" } }))}
+      {label("Word audio source (British recording or device voice)", id("wordAudio"), wordRecording?.src ?? "", v => change({ wordRecording: { src: v, sha256: wordRecording?.sha256 ?? "" } }))}
       {label("Word recording SHA-256", id("wordHash"), wordRecording?.sha256 ?? "", v => change({ wordRecording: { src: wordRecording?.src ?? "", sha256: v } }))}
       {wordRecording?.src?.startsWith("/audio/") && <audio className="w-full sm:col-span-2" controls preload="none" src={wordRecording.src} aria-label={`Play reviewed ${word} recording`} />}
     </fieldset>
@@ -116,7 +116,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
     <fieldset className="grid gap-3 sm:grid-cols-2">
       <legend className="mb-2 font-semibold">Sentence and optional family</legend>
       <p className="text-sm sm:col-span-2">Dictionary sentence: {sentence || "not recorded"} Confirm the target binding and recording below.</p>
-      {label("British sentence recording path", id("sentenceAudio"), sentenceRecording?.src ?? "", v => change({ sentenceRecording: { src: v, sha256: sentenceRecording?.sha256 ?? "" } }))}
+      {label("Sentence audio source (British recording or device voice)", id("sentenceAudio"), sentenceRecording?.src ?? "", v => change({ sentenceRecording: { src: v, sha256: sentenceRecording?.sha256 ?? "" } }))}
       {label("Sentence recording SHA-256", id("sentenceHash"), sentenceRecording?.sha256 ?? "", v => change({ sentenceRecording: { src: sentenceRecording?.src ?? "", sha256: v } }))}
       {sentenceRecording?.src?.startsWith("/audio/") && <audio className="w-full sm:col-span-2" controls preload="none" src={sentenceRecording.src} aria-label="Play reviewed dictation sentence" />}
       {label("Target start in full sentence", id("sentenceStart"), current.sentenceTarget ? String(current.sentenceTarget.start) : "", v => change({ sentenceTarget: { start: integer(v), end: current.sentenceTarget?.end ?? 0 } }))}
@@ -129,7 +129,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
       {current.familyDecision === "approve" && label("Approved family authority ID", id("familyAuthorityId"), current.familyAuthorityId ?? "", v => change({ familyAuthorityId: v }))}
     </fieldset>
     <fieldset className="space-y-2"><legend className="mb-2 font-semibold">Activity eligibility</legend>
-      {activities.map(({ key, label: activity }) => <div key={key} className="grid gap-2 rounded-lg border border-[var(--border)] p-2 sm:grid-cols-[minmax(9rem,1fr)_minmax(9rem,1fr)_2fr] sm:items-center">
+      {activities.map(({ key, label: activity }) => <div id={id(`activity-${key}`)} key={key} className="grid gap-2 rounded-lg border border-[var(--border)] p-2 sm:grid-cols-[minmax(9rem,1fr)_minmax(9rem,1fr)_2fr] sm:items-center">
         <span className="text-sm font-medium">{activity}</span>
         <select aria-label={`${activity} eligibility`} className={field} value={current.activityEligibility?.[key]?.status ?? ""}
           onChange={e => setEligibility(key, { status: e.target.value as "ready" | "blocked" | "not_applicable", reason: e.target.value === "ready" ? null : current.activityEligibility?.[key]?.reason ?? "Awaiting review" })}>

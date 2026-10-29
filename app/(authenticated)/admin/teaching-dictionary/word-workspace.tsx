@@ -55,7 +55,10 @@ import {
 import { PartSequenceEditor } from "./word-editor";
 import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
-import { weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
+import type { BritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
+import { prefillWeakVowelDrafts, type ReviewedWeakVowelSource } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
+import type { WeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 
 const button =
   "rounded-lg bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50";
@@ -122,6 +125,16 @@ function CompiledLessonPreview({ value }: { value: unknown }) {
     <summary className="cursor-pointer">Compiled lesson preview</summary>
     {open && <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded bg-[var(--paper)] p-3 text-xs">{JSON.stringify(value, null, 2)}</pre>}
   </details>;
+}
+
+function InlineBritishRecording({ clip, label }: { clip: BritishRecording; label: string }) {
+  const player = useRef<HTMLAudioElement>(null);
+  return <span className="inline-flex shrink-0 items-center">
+    <button type="button" className="inline-flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-white text-[color:var(--scarlett)] hover:border-[color:var(--scarlett)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--scarlett)]"
+      aria-label={`Play reviewed British ${label} recording`} title={`Play British ${label} recording`}
+      onClick={() => { void player.current?.play(); }}>▶</button>
+    <audio ref={player} preload="none" src={clip.src} />
+  </span>;
 }
 
 function Editable({
@@ -194,6 +207,16 @@ export function WordWorkspace(props: {
   normalisedWord: string;
   initial: WordDraftPayload;
   weakPublicationState: { microSkillKey: string; contentVersionId: string; sourceCurrent: boolean }[];
+  approvedWord: string | null;
+  approvedDefinition: string | null;
+  approvedSentence: string | null;
+  wordClip: BritishRecording | null;
+  sentenceClip: BritishRecording | null;
+  deviceWordClip: { src: string; sha256: string } | null;
+  deviceSentenceClip: { src: string; sha256: string } | null;
+  approvedWeakSources: ReviewedWeakVowelSource[];
+  weakFamilyPrefill: WeakVowelFamilyPrefill;
+  approvedSourceReference: string;
   initialAssignedSkillKeys: string[] | null;
   dictionaryFingerprint: string | null;
   sourceReference: string;
@@ -218,10 +241,21 @@ export function WordWorkspace(props: {
   overviewReviewed: boolean;
 }) {
   const router = useRouter();
-  const [payload, setPayload] = useState<WordDraftPayload>(() => ({
-    ...props.initial,
-    dictationVariants: dictationVariants(props.initial),
-    writtenSyllableBreakdown: props.initial.writtenSyllableBreakdown ?? "",
+  const [payload, setPayload] = useState<WordDraftPayload>(() => prefillWeakVowelDrafts({
+    payload: {
+      ...props.initial,
+      dictationVariants: dictationVariants(props.initial),
+      writtenSyllableBreakdown: props.initial.writtenSyllableBreakdown ?? "",
+    },
+    dictionaryFingerprint: props.dictionaryFingerprint,
+    approvedWord: props.approvedWord,
+    approvedDefinition: props.approvedDefinition,
+    approvedSentence: props.approvedSentence,
+    wordClip: props.wordClip ?? props.deviceWordClip,
+    sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
+    sources: props.approvedWeakSources,
+    family: props.weakFamilyPrefill,
+    sourceReference: props.approvedSourceReference,
   }));
   const [dirty, setDirty] = useState(false);
   const workspace = useRef<HTMLDivElement>(null);
@@ -301,8 +335,19 @@ export function WordWorkspace(props: {
       setAssignedSkillKeys(result.assignedSkillKeys);
       if (!initialChecksApplied.current) {
         // Late native facts fill gaps only; edits and an explicitly selected draft win.
-        setPayload(current => hydrateWorkspaceFacts({ current, initial: props.initial, draftId: props.draftId,
-          edited: editRevision.current > 0, skillKeys: result.skillKeys, routeContents: result.routeContents }));
+        setPayload(current => prefillWeakVowelDrafts({
+          payload: hydrateWorkspaceFacts({ current, initial: props.initial, draftId: props.draftId,
+            edited: editRevision.current > 0, skillKeys: result.skillKeys, routeContents: result.routeContents }),
+          dictionaryFingerprint: props.dictionaryFingerprint,
+          approvedWord: props.approvedWord,
+          approvedDefinition: props.approvedDefinition,
+          approvedSentence: props.approvedSentence,
+          wordClip: props.wordClip ?? props.deviceWordClip,
+          sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
+          sources: props.approvedWeakSources,
+          family: props.weakFamilyPrefill,
+          sourceReference: props.approvedSourceReference,
+        }));
         initialChecksApplied.current = true;
       }
       setChecksState("ready");
@@ -311,7 +356,10 @@ export function WordWorkspace(props: {
       if (!controller.signal.aborted && generation === checksGeneration.current) setChecksState("error");
     });
     return () => controller.abort();
-  }, [props.wordId, props.draftId, props.initial, checkVersion]);
+  }, [props.wordId, props.draftId, props.initial, props.dictionaryFingerprint,
+    props.approvedWord, props.approvedDefinition, props.approvedSentence, props.wordClip, props.sentenceClip,
+    props.deviceWordClip, props.deviceSentenceClip,
+    props.approvedWeakSources, props.weakFamilyPrefill, props.approvedSourceReference, checkVersion]);
   const [joined, setJoined] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
   const splitDialog = useRef<HTMLDialogElement>(null);
@@ -373,7 +421,18 @@ export function WordWorkspace(props: {
   const formId = "word-workspace-save";
   function change(update: Partial<WordDraftPayload>) {
     setEditVersion(version => version + 1);
-    setPayload((old) => withDerivedMorphologyMetadata({ ...old, ...update }));
+    setPayload((old) => withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
+      payload: { ...old, ...update },
+      dictionaryFingerprint: props.dictionaryFingerprint,
+      approvedWord: props.approvedWord,
+      approvedDefinition: props.approvedDefinition,
+      approvedSentence: props.approvedSentence,
+      wordClip: props.wordClip ?? props.deviceWordClip,
+      sentenceClip: props.sentenceClip ?? props.deviceSentenceClip,
+      sources: props.approvedWeakSources,
+      family: props.weakFamilyPrefill,
+      sourceReference: props.approvedSourceReference,
+    })));
     setDirty(true);
   }
   function metadata(
@@ -434,6 +493,8 @@ export function WordWorkspace(props: {
         parent = parent.parentElement;
       }
       target?.scrollIntoView({ block: "center" });
+      if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement ||
+        target instanceof HTMLTextAreaElement) target.focus({ preventScroll: true });
     }
     reveal();
     window.addEventListener("hashchange", reveal);
@@ -739,14 +800,18 @@ export function WordWorkspace(props: {
                       {field.readOnly ? (
                         <span className="block py-1">{field.value}</span>
                       ) : (
-                        <Editable
-                          hideLabel
-                          id={`td-${field.key}`}
-                          label={field.label}
-                          value={field.value}
-                          onChange={field.change}
-                          options={field.options}
-                        />
+                        <div className="flex min-w-0 items-center gap-2">
+                          <div className="min-w-0 flex-1"><Editable
+                            hideLabel
+                            id={`td-${field.key}`}
+                            label={field.label}
+                            value={field.value}
+                            onChange={field.change}
+                            options={field.options}
+                          /></div>
+                          {field.key === "display" && props.wordClip && payload.displayWord === props.approvedWord &&
+                            <InlineBritishRecording clip={props.wordClip} label="word" />}
+                        </div>
                       )}
                     </td>
                   ))}
@@ -850,7 +915,7 @@ export function WordWorkspace(props: {
                       {index === 0 ? "Primary" : "Alternate"}
                     </td>
                     <td data-label="Sentence" className="p-2">
-                      <input
+                      <div className="flex min-w-0 items-center gap-2"><input
                         aria-label={`Dictation sentence ${index + 1}`}
                         className={input}
                         value={variant.sentence}
@@ -873,6 +938,9 @@ export function WordWorkspace(props: {
                           });
                         }}
                       />
+                      {props.sentenceClip && variant.sentence === props.approvedSentence &&
+                        <InlineBritishRecording clip={props.sentenceClip} label="sentence" />}
+                      </div>
                     </td>
                     <td data-label="Target occurrence" className="p-2">
                       <select
@@ -952,10 +1020,10 @@ export function WordWorkspace(props: {
               Add sentence
             </button>
           </div>
-          <div className="mt-4 border-t border-[var(--border)] pt-3">
-            <h3 id="td-base-family" className="font-semibold">
-              Base word family
-            </h3>
+          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!props.baseFamilies.length}>
+            <summary className="cursor-pointer font-semibold">Base word family · {props.baseFamilies.length ? "complete" : "none joined"}</summary>
+            <div className="mt-2">
+            {props.baseFamilies.length > 0 && <p className="text-xs text-[color:var(--mid)]">Family details and members are filled from their approved dictionary and lesson relationships.</p>}
             {props.baseFamilies.length ? (
               props.baseFamilies.map((item) => (
                 <div
@@ -991,31 +1059,24 @@ export function WordWorkspace(props: {
                 className={button}
                 onClick={openFamily}
               >
-                Join or change family
+                {props.baseFamilies.length ? "Review or change family" : "Review family suggestions"}
               </button>
-              {saveButton("draft", "Save draft")}
-              {saveButton("overview")}
+              {dirty && saveButton("draft", "Save draft")}
+              {(dirty || !overviewReviewed) && saveButton("overview")}
             </div>
-          </div>
+            </div>
+          </details>
         </div>
       </details>
-      <details id="td-skills" className={`${section} scroll-mt-6`}>
-        <summary className="cursor-pointer p-4 font-semibold">
+      <section id="td-skills" className={`${section} scroll-mt-6`}>
+        <h2 className="p-4 font-semibold">
           2 · Micro-skills{" "}
           <span className="ml-2 text-xs font-normal">
             {payload.skillKeys.length} joined
           </span>
-        </summary>
+        </h2>
         <div className="px-4 pb-4">
-          <table className="td-reflow-table w-full text-left text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="w-[24%] p-2">Micro-skill</th>
-                <th className="p-2">Route</th>
-                <th className="p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <div className="grid gap-2">
               {payload.skillKeys.map((key) => {
                 const route = routeForSkill(key);
                 const preflight = preflights.find(
@@ -1024,10 +1085,14 @@ export function WordWorkspace(props: {
                 const statuses = checksState === "ready"
                   ? wordRouteStatuses.filter((row) => row.microSkillKey === key)
                   : [];
+                const published = props.weakPublicationState.find(row => row.microSkillKey === key);
+                const complete = !dirty && assignedSkillKeys?.includes(key) &&
+                  (route?.routeId === "weak_vowel_word_lab" ? published?.sourceCurrent :
+                    checks.find(row => row.key === key)?.ready);
                 return (
-                  <tr key={key} className="border-b last:border-0">
-                    <td data-label="Micro-skill" className="p-2">{name(key)}</td>
-                    <td data-label="Route" className="p-2">
+                  <details key={key} className="rounded-lg border border-[var(--border)] p-3">
+                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : checksState === "loading" ? "Checking…" : "Needs attention"}</span></summary>
+                    <div className="mt-2 text-sm">
                       {checksState !== "ready"
                         ? checksState === "loading" ? "Checking route status…" : "Route status unavailable · retry checks below"
                         : !route?.newAssignmentCapable
@@ -1040,8 +1105,11 @@ export function WordWorkspace(props: {
                         <div>Route facts: {status.technicalFacts === "complete" ? "complete" : status.technicalFacts === "not_proven" ? "not yet proven complete" : "not evaluated"} · Editorial review: {status.editorialApproved ? "approved" : "pending"}</div>
                         {status.blockers.length > 1 && <details><summary>All {status.blockers.length} blockers</summary><ul className="list-disc pl-4">{status.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}</ul></details>}
                       </div>)}
-                    </td>
-                    <td data-label="Action" className="p-2">
+                      {published && !published.sourceCurrent && <p className="mt-1 text-amber-900">Approved dictionary facts changed; re-review this lesson content.</p>}
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+                      {route?.newAssignmentCapable && <a href={`#td-route-${key}`} className="text-[color:var(--scarlett)] underline"
+                        onClick={() => { const panel = document.getElementById(`td-route-${key}`); if (panel instanceof HTMLDetailsElement) panel.open = true; }}>Open pre-populated lesson fields</a>}
                       <button
                         type="button"
                         className="text-[color:var(--scarlett)] underline"
@@ -1055,12 +1123,11 @@ export function WordWorkspace(props: {
                       >
                         Remove
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </details>
                 );
               })}
-            </tbody>
-          </table>
+          </div>
           <div className="mt-3 flex flex-wrap justify-end gap-2">
             <select
               aria-label="Micro-skill to join"
@@ -1093,10 +1160,12 @@ export function WordWorkspace(props: {
             >
               Add micro-skill
             </button>
-            {saveButton("skills", "Save micro-skills")}
+            {(assignedSkillKeys === null ? payload.skillKeys.length > 0 :
+              payload.skillKeys.length !== assignedSkillKeys.length ||
+              payload.skillKeys.some(key => !assignedSkillKeys.includes(key))) && saveButton("skills", "Save micro-skills")}
           </div>
         </div>
-      </details>
+      </section>
       {weakRows.map(({ key, content }) => {
         const facts = content.content.weakVowel as Partial<WeakVowelRouteFactsV1> | undefined;
         const blockers = weakVowelRouteBlockers(facts ?? { schemaVersion: "weak_vowel_route_facts_v1" }, {
@@ -1106,16 +1175,31 @@ export function WordWorkspace(props: {
           microSkillKey: key,
         });
         const published = props.weakPublicationState.find(row => row.microSkillKey === key);
-        return <section id={`td-route-${key}`} key={key} className={`${section} p-4 scroll-mt-6`} aria-label={`${name(key)} weak-vowel route`}>
-          <h2 className="text-lg font-semibold">{name(key)} · weak-vowel lesson</h2>
-          <p className="mt-1 text-sm">This word can join a new lesson when its micro-skill assignment is current and its lesson content has been reviewed and published.</p>
-          <div className="mt-3 grid gap-2 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-3 text-sm sm:grid-cols-2">
+        const complete = !dirty && assignedSkillKeys?.includes(key) && published?.sourceCurrent;
+        return <details id={`td-route-${key}`} key={key} className={`${section} scroll-mt-6`}>
+          <summary className="cursor-pointer p-4 font-semibold">{name(key)} · weak-vowel lesson <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : "Needs attention"}</span></summary>
+          <div className="px-4 pb-4">
+          <details className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-3 text-sm">
+            <summary className="cursor-pointer font-medium">Publication details</summary>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <p className="sm:col-span-2"><strong>Route validation:</strong> {assignedSkillKeys === null ? "Checking assignment authority…" : assignedSkillKeys.includes(key) && published?.sourceCurrent ? "Ready to be selected when a child needs this word" : "Not yet eligible for a new lesson"}</p>
             <p><strong>Word–skill assignment:</strong> {assignedSkillKeys === null ? "Checking authority…" : assignedSkillKeys.includes(key) ? "Assigned" : "Not assigned (cannot enter new lessons)"}</p>
             <p><strong>Published lesson content:</strong> {published ? published.sourceCurrent ? "Current for future assignments" : "Shared dictionary facts changed; re-review needed" : "Not published"}</p>
             <p><strong>Editor content:</strong> {blockers.length ? `${blockers.length} requirement(s) outstanding` : "Fields valid; editorial review and publication still required for changes"}</p>
             {published && <p className="break-all text-xs sm:col-span-2">Published version: {published.contentVersionId}</p>}
-          </div>
+            </div>
+          </details>
+          {props.weakFamilyPrefill.status === "ambiguous" && <p role="status" className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+            Approved family records disagree about their meaning or eligible members. Review the family choice below; the other lesson activities can still be completed.
+          </p>}
+          {blockers.length > 0 && <details className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm" open>
+            <summary className="cursor-pointer font-medium">{blockers.length} items to finish</summary>
+            <ul className="mt-2 list-disc space-y-1 pl-5">{blockers.map(blocker => <li key={blocker}>
+              <a className="underline" href={`#${weakVowelBlockerTarget(blocker, key)}`}>
+                <code className="mr-1 text-xs">{weakVowelBlockerCode(blocker, key)}</code>{blocker}
+              </a>
+            </li>)}</ul>
+          </details>}
           <details className="mt-3" open={!published || !published.sourceCurrent}>
             <summary className="cursor-pointer font-semibold">Required fields and activity decisions</summary>
             <div className="mt-3">
@@ -1126,13 +1210,14 @@ export function WordWorkspace(props: {
             </div>
           </details>
           <div className={actions}>
-            <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>
-            <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>
+            {dirty && <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>}
+            {!complete && <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>}
           </div>
-        </section>;
+          </div>
+        </details>;
       })}
-      {(selectedRoutes.length > 0 || payload.skillKeys.some(key => !routeForSkill(key)?.newAssignmentCapable)) && <section id="td-lesson-checks" className={`${section} p-4`}>
-        <h2 className="font-semibold">3 · Lesson checks</h2>
+      {(selectedRoutes.length > 0 || payload.skillKeys.some(key => !routeForSkill(key)?.newAssignmentCapable)) && <details id="td-lesson-checks" className={`${section} p-4`}>
+        <summary className="cursor-pointer font-semibold">Lesson checks</summary>
         {weakRows.length > 0 && <p className="mt-1 text-sm">Weak-vowel publication status and its required fields are shown above. This table covers the other lesson routes.</p>}
         {checksState !== "ready" && <p role="status" className="mt-2 text-sm text-[color:var(--mid)]">
           {checksState === "loading" ? "Checking complete lesson groups… You can edit Overview while checks run." : "Lesson checks could not load. Approval and Launch are unavailable."}
@@ -1227,7 +1312,7 @@ export function WordWorkspace(props: {
             {[...new Map(row.requirements.filter(requirement => requirement.status !== "present").map(requirement => [requirement.editTarget, requirement])).values()].map(requirement => <li key={requirement.editTarget}><a className="text-amber-900 underline" href={`#${requirement.editTarget}`}>{requirement.label}</a></li>)}
           </ul></div>)}
         </details>}
-      </section>}
+      </details>}
       {checks.map((row, index) => {
         const route = routeWithSharedFacts(row.content, payload);
         const profile = props.profileOptions.find(
@@ -1598,12 +1683,12 @@ export function WordWorkspace(props: {
                 </div>
               )}
               <CompiledLessonPreview value={row.preflight?.compiledPreview ?? row.preflight?.releaseContentPreview ?? {}} />
-              <div className={actions}>
+              {(!row.ready || dirty) && <div className={actions}>
                 {saveButton(
                   `lesson:${row.key}`,
                   "Save and approve lesson details",
                 )}
-              </div>
+              </div>}
               <form action={launchReviewedAdleLesson} className={actions}>
                 <input
                   type="hidden"
