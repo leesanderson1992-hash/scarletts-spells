@@ -9,6 +9,7 @@ export const WEAK_VOWEL_SKILLS = {
   D4_SCHWA_FINAL_AR_FINAL: "Spell final unstressed -ar",
   D4_SCHWA_FINAL_ER_FINAL: "Spell final unstressed -er",
   D4_SCHWA_FINAL_OR_FINAL: "Spell final unstressed -or",
+  D4_SCHWA_INITIAL_A_INITIAL: "Spell initial unstressed a-",
   D4_SCHWA_INITIAL_E_INITIAL: "Spell initial unstressed e-",
   D4_SCHWA_INITIAL_O_INITIAL: "Spell initial unstressed o-",
 } as const;

@@ -15,6 +15,8 @@ const files = [
   "20261029210000_reclassify_retired_pending_intake.sql",
   "20261029211000_supersede_equivalent_base_families.sql",
   "20261029212000_initial_a_staging_catalog_alignment.sql",
+  "20261029213000_initial_a_weak_vowel_publication.sql",
+  "20261029214000_initial_a_weak_vowel_release.sql",
 ];
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();
