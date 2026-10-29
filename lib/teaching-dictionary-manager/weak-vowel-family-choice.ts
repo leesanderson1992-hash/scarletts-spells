@@ -13,6 +13,7 @@ export type WeakVowelFamilyChoice = {
   status: "ready" | "none" | "ambiguous";
   authorityId: string | null;
   members: string[];
+  canonicalFamilyId?: string | null;
 };
 
 /** The newest authority wins only when the reviewed family semantics agree. */

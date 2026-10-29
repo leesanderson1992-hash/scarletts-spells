@@ -23,6 +23,7 @@ import { PART_OF_SPEECH_OPTIONS } from "@/lib/teaching-dictionary-manager/part-o
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
+import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -315,6 +316,19 @@ async function performWorkspaceSave(form: FormData) {
     // Rebase a newly approved lesson draft to that exact revision rather than
     // creating a second, conflicting manager family for the same base.
     const reviewSection = value(form, "review_section");
+    if (wordId && reviewSection.startsWith("lesson:")) {
+      const weakRoute = payload.routeContents.find((entry) => entry.routeId === "weak_vowel_word_lab" &&
+        entry.microSkillKey === reviewSection.slice(7));
+      const facts = weakRoute?.content.weakVowel as { familyDecision?: string;
+        familyAuthorityId?: string | null; canonicalFamilyId?: string | null } | undefined;
+      if (facts?.canonicalFamilyId) {
+        const current = await loadWeakVowelFamilyPrefill(db, wordId);
+        if (facts.familyDecision !== "approve" || current.status !== "ready" ||
+          facts.familyAuthorityId !== current.authorityId ||
+          facts.canonicalFamilyId !== current.canonicalFamilyId)
+          throw new Error("WEAK_VOWEL_CANONICAL_FAMILY_BINDING_STALE");
+      }
+    }
     if (wordId && reviewSection.startsWith("lesson:")) {
       const skill = reviewSection.slice(7);
       const route = payload.routeContents.find((entry) => entry.routeId === "base_word_lab" && entry.microSkillKey === skill);

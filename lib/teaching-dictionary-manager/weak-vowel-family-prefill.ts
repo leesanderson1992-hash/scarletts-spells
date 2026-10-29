@@ -1,7 +1,7 @@
 import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- reviewed family tables precede generated client types */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { chooseWeakVowelFamily, type WeakVowelFamilyChoice } from "./weak-vowel-family-choice";
+import { chooseWeakVowelFamily, type WeakVowelFamilyCandidate, type WeakVowelFamilyChoice } from "./weak-vowel-family-choice";
 
 export type WeakVowelFamilyPrefill = WeakVowelFamilyChoice;
 
@@ -34,7 +34,7 @@ export async function loadWeakVowelFamilyPrefill(db: SupabaseClient, wordId: str
     .eq("review_status", "approved_for_first_exposure").eq("dialect_code", "en-GB");
   if (words.error) throw new Error("WEAK_VOWEL_FAMILY_PREFILL_WORD_READ_FAILED");
   const spelling = new Map<string, string>((words.data ?? []).map((row: any) => [String(row.id), String(row.display_word)]));
-  const valid = (families.data ?? []).flatMap((family: any) => {
+  const valid: WeakVowelFamilyCandidate[] = (families.data ?? []).flatMap((family: any) => {
     const memberRows = (members.data ?? []).filter((row: any) => row.base_word_family_id === family.id);
     const allMemberIds = [...new Set<string>(memberRows.map((row: any) => String(row.canonical_word_id)))].sort();
     const eligibleMemberIds = [...new Set<string>(memberRows.filter((row: any) => row.assignment_eligible &&
@@ -47,5 +47,20 @@ export async function loadWeakVowelFamilyPrefill(db: SupabaseClient, wordId: str
       baseMeaning: String(family.base_meaning), memberIds: allMemberIds, eligibleMemberIds,
       memberWords: eligibleMemberIds.map(id => spelling.get(id)!) }];
   });
-  return chooseWeakVowelFamily(valid);
+  const choice = chooseWeakVowelFamily(valid);
+  if (choice.status !== "ready" || !choice.authorityId) return choice;
+  const source = valid.find((family) => family.id === choice.authorityId)!;
+  const alias = await client.from("canonical_teaching_dictionary_base_family_registry_aliases")
+    .select("canonical_family_id,source_record_ids")
+    .eq("source_type", "legacy_base").eq("source_key", source.baseFamilyKey).maybeSingle();
+  if (alias.error) throw new Error("WEAK_VOWEL_CANONICAL_FAMILY_ALIAS_READ_FAILED");
+  if (!alias.data || !alias.data.source_record_ids.includes(source.id)) return choice;
+  const canonicalMembers = await client.from("canonical_teaching_dictionary_base_family_registry_members")
+    .select("canonical_word_id")
+    .eq("canonical_family_id", alias.data.canonical_family_id)
+    .in("canonical_word_id", [wordId, source.baseWordId]);
+  if (canonicalMembers.error) throw new Error("WEAK_VOWEL_CANONICAL_FAMILY_MEMBER_READ_FAILED");
+  const canonicalWordIds = new Set((canonicalMembers.data ?? []).map((member: any) => member.canonical_word_id));
+  return canonicalWordIds.has(wordId) && canonicalWordIds.has(source.baseWordId)
+    ? { ...choice, canonicalFamilyId: String(alias.data.canonical_family_id) } : choice;
 }

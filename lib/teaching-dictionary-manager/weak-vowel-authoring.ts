@@ -21,12 +21,14 @@ export interface WeakVowelRouteFactsV1 {
   detectiveVowelIndex: number;
   familyDecision: "approve" | "skip";
   familyAuthorityId: string | null;
+  canonicalFamilyId?: string | null;
   sentenceRecording: { src: string; sha256: string };
   sentenceTarget: { start: number; end: number };
   reviewSourceReference: string;
 }
 
 const SHA = /^[a-f0-9]{64}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const VOWEL = /^[aeiouy]$/i;
 const object = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -160,6 +162,10 @@ export function weakVowelRouteBlockers(
   const familyAuthorityReady = typeof value.familyAuthorityId === "string" && Boolean(value.familyAuthorityId.trim());
   if (value.familyDecision === "approve" && familyEligibility?.status === "ready" && !familyAuthorityReady)
     blockers.push("Family cannot be marked ready without its approved authority ID.");
+  if (value.canonicalFamilyId != null &&
+    (value.familyDecision !== "approve" || !familyAuthorityReady ||
+      typeof value.canonicalFamilyId !== "string" || !UUID.test(value.canonicalFamilyId)))
+    blockers.push("Merged family ID must accompany an approved source family.");
   if (value.familyDecision === "approve" && familyEligibility?.status === "not_applicable" ||
     value.familyDecision === "skip" && familyEligibility?.status !== "not_applicable")
     blockers.push("Family eligibility must match the approved exploration decision.");

@@ -87,6 +87,11 @@ export function prefillWeakVowelDrafts(input: {
       familyDecision: original.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip"),
       familyAuthorityId: original.familyAuthorityId === undefined
         ? input.family?.status === "ready" ? input.family.authorityId : null : original.familyAuthorityId,
+      canonicalFamilyId: original.canonicalFamilyId === undefined
+        ? (original.familyDecision ?? (input.family?.status === "ready" ? "approve" : "skip")) === "approve" &&
+          input.family?.status === "ready" &&
+          (!original.familyAuthorityId || original.familyAuthorityId === input.family.authorityId)
+          ? input.family.canonicalFamilyId ?? null : null : original.canonicalFamilyId,
       reviewSourceReference: original.reviewSourceReference || [input.sourceReference,
         source?.contentVersionId ? `Reviewed ${source.microSkillKey} content ${source.contentVersionId}` : "",
       ].filter(Boolean).join("; "),

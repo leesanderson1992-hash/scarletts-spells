@@ -33,7 +33,8 @@ const input = { payload, dictionaryFingerprint: "c".repeat(64), approvedWord: wo
   approvedDefinition: payload.definition,
   approvedSentence: sentence, wordClip: clip, sentenceClip,
   sourceReference: "Approved dictionary natural and its sentence",
-  family: { status: "ready" as const, authorityId: "newest-approved-nature-family", members: ["nature", "natural"] },
+  family: { status: "ready" as const, authorityId: "newest-approved-nature-family",
+    canonicalFamilyId: "22222222-2222-4222-8222-222222222222", members: ["nature", "natural"] },
   sources: [{ microSkillKey: "D4_SCHWA_FINAL_AL", contentVersionId: "reviewed-final-al-version", facts: sourceFacts }] };
 const seeded = prefillWeakVowelDrafts(input);
 const medial = seeded.routeContents.find(row => row.microSkillKey === "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS")?.content.weakVowel as Partial<WeakVowelRouteFactsV1>;
@@ -51,6 +52,7 @@ assert.equal(medial.activityEligibility?.dictation.status, "ready");
 assert.equal(medial.reviewSourceReference, `${input.sourceReference}; Reviewed D4_SCHWA_FINAL_AL content reviewed-final-al-version`);
 assert.equal(medial.familyDecision, "approve");
 assert.equal(medial.familyAuthorityId, input.family.authorityId);
+assert.equal(medial.canonicalFamilyId, input.family.canonicalFamilyId);
 assert.equal(prefillWeakVowelDrafts({ ...input, payload: seeded }), seeded, "prefill should be idempotent");
 
 const changedSentence = prefillWeakVowelDrafts({ ...input,

@@ -100,11 +100,14 @@ export function WeakVowelFactsEditor(props: {
         {cutsError ? <span role="alert" className="text-rose-700">{cutsError}</span> : null}
       </label>
       <label className="grid gap-1 text-sm"><span className="font-semibold">Family exploration</span><select className={field}
-        value={string(facts.familyDecision)} onChange={(event) => patch({ familyDecision: event.target.value, familyAuthorityId: event.target.value === "skip" ? null : facts.familyAuthorityId ?? null })}>
+        value={string(facts.familyDecision)} onChange={(event) => patch({ familyDecision: event.target.value,
+          familyAuthorityId: event.target.value === "skip" ? null : facts.familyAuthorityId ?? null,
+          canonicalFamilyId: event.target.value === "skip" ? null : facts.canonicalFamilyId ?? null })}>
         <option value="">Choose</option><option value="skip">Skip: no approved useful family</option>
         <option value="approve">Approved family available</option>
       </select></label>
-      {facts.familyDecision === "approve" ? input("Governed family authority ID", facts.familyAuthorityId, (value) => patch({ familyAuthorityId: value })) : null}
+      {facts.familyDecision === "approve" ? input("Governed family authority ID", facts.familyAuthorityId, (value) => patch({ familyAuthorityId: value, canonicalFamilyId: null })) : null}
+      {facts.familyDecision === "approve" && facts.canonicalFamilyId ? <p className="self-end text-xs text-[color:var(--mid)]">Merged family ID: <code>{string(facts.canonicalFamilyId)}</code></p> : null}
       {input("British sentence recording path", sentenceRecording.src, (value) => nested("sentenceRecording", { src: value }))}
       {input("Sentence recording SHA-256", sentenceRecording.sha256, (value) => nested("sentenceRecording", { sha256: value }))}
       <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void useDeviceVoice("sentenceRecording", props.sentence)}>Use device voice for this sentence</button>

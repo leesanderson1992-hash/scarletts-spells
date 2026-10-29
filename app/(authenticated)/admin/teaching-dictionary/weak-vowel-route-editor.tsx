@@ -74,7 +74,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
           dinner: { status: "blocked", reason: "Awaiting review" }, detective: { status: "blocked", reason: "Awaiting review" },
           memoryLock: { status: "blocked", reason: "Awaiting review" }, dictation: { status: "blocked", reason: "Awaiting review" },
           family: { status: "not_applicable", reason: null },
-        }, familyAuthorityId: null })}>
+        }, familyAuthorityId: null, canonicalFamilyId: null })}>
       Start weak-vowel review record
     </button>}
     <fieldset className="grid gap-3 sm:grid-cols-2">
@@ -122,11 +122,14 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
       {label("Target start in full sentence", id("sentenceStart"), current.sentenceTarget ? String(current.sentenceTarget.start) : "", v => change({ sentenceTarget: { start: integer(v), end: current.sentenceTarget?.end ?? 0 } }))}
       {label("Target end in full sentence (exclusive)", id("sentenceEnd"), current.sentenceTarget ? String(current.sentenceTarget.end) : "", v => change({ sentenceTarget: { start: current.sentenceTarget?.start ?? 0, end: integer(v) } }))}
       <label className="text-sm" htmlFor={id("familyDecision")}>Family exploration
-        <select id={id("familyDecision")} className={`${field} mt-1`} value={current.familyDecision ?? ""} onChange={e => change({ familyDecision: e.target.value as "approve" | "skip", familyAuthorityId: e.target.value === "skip" ? null : current.familyAuthorityId ?? null })}>
+        <select id={id("familyDecision")} className={`${field} mt-1`} value={current.familyDecision ?? ""} onChange={e => change({ familyDecision: e.target.value as "approve" | "skip",
+          familyAuthorityId: e.target.value === "skip" ? null : current.familyAuthorityId ?? null,
+          canonicalFamilyId: e.target.value === "skip" ? null : current.canonicalFamilyId ?? null })}>
           <option value="">Review decision</option><option value="approve">Use approved family</option><option value="skip">Skip family exploration</option>
         </select>
       </label>
-      {current.familyDecision === "approve" && label("Approved family authority ID", id("familyAuthorityId"), current.familyAuthorityId ?? "", v => change({ familyAuthorityId: v }))}
+      {current.familyDecision === "approve" && label("Approved family authority ID", id("familyAuthorityId"), current.familyAuthorityId ?? "", v => change({ familyAuthorityId: v, canonicalFamilyId: null }))}
+      {current.familyDecision === "approve" && current.canonicalFamilyId && <p className="text-xs text-[var(--mid)]">Merged family ID: <code>{current.canonicalFamilyId}</code></p>}
     </fieldset>
     <fieldset className="space-y-2"><legend className="mb-2 font-semibold">Activity eligibility</legend>
       {activities.map(({ key, label: activity }) => <div id={id(`activity-${key}`)} key={key} className="grid gap-2 rounded-lg border border-[var(--border)] p-2 sm:grid-cols-[minmax(9rem,1fr)_minmax(9rem,1fr)_2fr] sm:items-center">

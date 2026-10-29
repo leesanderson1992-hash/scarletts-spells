@@ -112,7 +112,8 @@ export function prepareLessonFromPublishedWeakVowelWords(input: {
   const detective = selected.map((row) => {
     const facts = row.routeContent.content.weakVowel;
     const matchingFamilies = input.publishedFamilies?.filter((entry) =>
-      entry.canonicalWordId === row.canonicalWordId && entry.family.authorityId === facts.familyAuthorityId) ?? [];
+      entry.canonicalWordId === row.canonicalWordId &&
+      entry.family.authorityId === (facts.canonicalFamilyId || facts.familyAuthorityId)) ?? [];
     if (matchingFamilies.length > 1) blockers.push({ canonicalWordId: row.canonicalWordId, reason: "ambiguous_approved_family" });
     return {
       schemaVersion: DETECTIVE_ROUND_VERSION, contentVersion: row.contentVersionId, reviewStatus: "approved" as const,
