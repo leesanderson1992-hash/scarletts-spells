@@ -17,6 +17,7 @@ const files = [
   "20261029212000_initial_a_staging_catalog_alignment.sql",
   "20261029213000_initial_a_weak_vowel_publication.sql",
   "20261029214000_initial_a_weak_vowel_release.sql",
+  "20261029215000_scope_retired_intake_demand_supersession.sql",
 ];
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();

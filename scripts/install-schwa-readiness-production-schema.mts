@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+/** Dry-run or install the bounded Schwa authoring/intake migrations on production. */
+import { readFileSync } from "node:fs";
+import pg from "pg";
+
+process.loadEnvFile(".env.local");
+const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
+const ref = "wwohrqtunajrbwxyssjf";
+if (!url || !ref || !new URL(url).username.includes(ref) ||
+  !new URL(url).hostname.endsWith("pooler.supabase.com"))
+  throw Error("SCHWA_PRODUCTION_TARGET_MISMATCH");
+const apply = process.argv.includes("--apply");
+const files = [
+  "20261029180000_allow_weak_vowel_lesson_only_r6_adoption.sql",
+  "20261029210000_reclassify_retired_pending_intake.sql",
+  "20261029211000_supersede_equivalent_base_families.sql",
+  "20261029212000_initial_a_staging_catalog_alignment.sql",
+  "20261029213000_initial_a_weak_vowel_publication.sql",
+  "20261029214000_initial_a_weak_vowel_release.sql",
+  "20261029215000_scope_retired_intake_demand_supersession.sql",
+];
+const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
+await db.connect();
+try {
+  await db.query("begin");
+  await db.query("set local lock_timeout='5s'");
+  await db.query("set local statement_timeout='120s'");
+  const protectedState = async () => (await db.query(`select jsonb_build_object(
+    'children',(select count(*) from public.children),
+    'learningItems',(select count(*) from public.adle_learning_items),
+    'completedAssignments',(select count(*) from public.daily_assignments where status='completed'),
+    'reviewSessions',(select count(*) from public.adle_review_sessions)) state`)).rows[0].state;
+  const before = await protectedState();
+  const receipts = [];
+  for (const file of files) {
+    const version = file.slice(0, 14);
+    const prior = await db.query("select 1 from supabase_migrations.schema_migrations where version=$1", [version]);
+    if (prior.rowCount) { receipts.push({ version, status: "already_applied" }); continue; }
+    const sql = readFileSync(`supabase/migrations/${file}`, "utf8");
+    await db.query(sql.replace(/^\s*begin;\s*/i, "").replace(/\s*commit;\s*$/i, ""));
+    await db.query("insert into supabase_migrations.schema_migrations(version,name,statements) values($1,$2,$3::text[])",
+      [version, file.slice(15, -4), [sql]]);
+    receipts.push({ version, status: apply ? "installed" : "rollback_proof" });
+  }
+  const after = await protectedState();
+  if (JSON.stringify(before) !== JSON.stringify(after)) throw Error("SCHWA_PRODUCTION_PROTECTED_STATE_CHANGED");
+  const readback = await db.query(`select
+    to_regclass('public.adle_pending_intake_skill_reclassifications') is not null receipt_table,
+    to_regprocedure('public.adle_reclassify_retired_pending_intake_v1(uuid,text,uuid,uuid,text)') is not null reclassify_rpc,
+    to_regclass('public.teaching_dictionary_base_family_supersessions') is not null family_audit`);
+  if (!Object.values(readback.rows[0]).every(Boolean)) throw Error("SCHWA_PRODUCTION_SCHEMA_READBACK_FAILED");
+  if (!apply) {
+    const actor = (process.env.ADMIN_USER_IDS ?? "").split(",")[0];
+    if (!/^[a-f0-9-]{36}$/i.test(actor)) throw Error("PRODUCTION_ADMIN_ACTOR_MISSING");
+    await db.query("select public.adle_reclassify_retired_pending_intake_v1($1::uuid,$2,$3::uuid,$4::uuid,$5)",[
+      "e8f600d0-55c5-4659-b824-f9143f34e8a6","D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS",
+      "da117ecd-6721-47b8-bb5e-a5227dae9c71",actor,
+      "Owner-approved pending natural demand reclassified under the exact medial resolver mapping 2026-10-29"]);
+    const candidate = await db.query(`select micro_skill_key,candidate_state,learning_item_id from public.adle_canonical_intake_candidates
+      where id='bf889bbb-d4c2-4b25-88ad-8c2d3f8cf09e'`);
+    const oldDemands = await db.query(`select count(*)::int n from public.adle_canonical_intake_demands
+      where micro_skill_key='D4_SCHWA_MEDIAL_NATURAL_ACTUAL' and normalized_target_token='natural'
+        and lifecycle_status='superseded'`);
+    if (candidate.rows[0]?.micro_skill_key !== "D4_SCHWA_MEDIAL_COMMON_WEAK_VOWELS" ||
+      candidate.rows[0]?.candidate_state !== "queued" || candidate.rows[0]?.learning_item_id !== null ||
+      oldDemands.rows[0]?.n !== 4) throw Error("PRODUCTION_NATURAL_RECLASS_ROLLBACK_PROOF_FAILED");
+  }
+  const familySupersessions = Number((await db.query(
+    "select count(*)::int count from public.teaching_dictionary_base_family_supersessions")).rows[0].count);
+  if (apply) await db.query("commit"); else await db.query("rollback");
+  console.log(JSON.stringify({ environment: "production", mode: apply ? "installed" : "rollback_proof",
+    receipts, protectedState: before, schema: readback.rows[0], familySupersessions }));
+} catch (error) {
+  await db.query("rollback").catch(() => undefined);
+  throw error;
+} finally { await db.end(); }
