@@ -32,6 +32,10 @@ if (process.argv.includes("--device-voice-final")) {
   plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-11-02",
     words: ["quiet", "basket", "jacket", "market", "diet", "target"] });
 }
+if (process.argv.includes("--device-voice-demo")) {
+  plans.splice(0, plans.length, { ...initialPlans[0], date: "2026-11-03",
+    words: ["jacket", "basket", "market", "diet", "quiet", "target"] });
+}
 const apply = process.argv.includes("--apply");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();
@@ -111,7 +115,7 @@ try {
       "select public.persist_adle_weak_vowel_daily_plan_v3($1,$2,$3,$4::jsonb,$5::jsonb,'[]'::jsonb,$6::jsonb) id",
       [state.parentUserId,state.childId,plan.date,JSON.stringify(compiled.header),JSON.stringify(compiled.items),JSON.stringify(compiled.snapshot)]);
     if (created.rowCount !== 1) throw Error(`STAGING_ASSIGNMENT_CREATE_FAILED:${plan.skill}`);
-    if (process.argv.includes("--device-voice-final")) {
+    if (process.argv.includes("--device-voice-final") || process.argv.includes("--device-voice-demo")) {
       const orchestration = await db.query<{ daily_assignment_id: string }>(`
         insert into public.adle_today_session_orchestrations
           (daily_assignment_id,child_id,parent_user_id,assignment_date,major_stage,
