@@ -8,6 +8,7 @@ import { loadLearnerEvidenceProjection } from "@/lib/adle/proficiency/evidence/r
 import { deriveV2WordGroups } from "@/lib/adle/proficiency/v2-groups";
 import { loadHomophoneContextEvidence } from "@/lib/parent-insights/homophone-evidence";
 import { calculateProficiencyV2, type V2Evidence, type V2SkillResult } from "@/lib/adle/proficiency/v2";
+import { isAdleCoverCheckSource } from "@/lib/adle/proficiency/v2-source-policy";
 import { requiredAgeBands } from "@/lib/adle/proficiency/shadow-v1";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
@@ -99,6 +100,9 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const groupAuthority = deriveV2WordGroups({ words: activeWords.map((word) => ({ id: word.id, normalisedWord: word.normalised_word })), members, morphology });
   const wordById = new Map(activeWords.map((word) => [word.id as string, word]));
   const eventById = new Map(projection.events.map((event) => [event.eventId, event]));
+  const coverAttemptIds = new Set(attemptRows.filter((row) =>
+    row.section_key === "lesson_production" && row.attempt_kind === "lesson_production")
+    .map((row) => row.id as string));
   const roles = new Set((contextualResult.data ?? []).map((row) => `${row.micro_skill_key}\u0000${row.member_normalized}`));
   const homophoneEnabled = process.env.PROFICIENCY_HOMOPHONE_CONTEXT_ENABLED === "true";
   const homophoneContext = homophoneEnabled
@@ -147,6 +151,9 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     const firstByGroup = new Map<string, string>();
     for (const item of entries.sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))) {
       const source = eventById.get(item.eventId);
+      // A covered word is useful for word mastery, but does not demonstrate
+      // pattern use in V2. Only the target of answer-hidden dictation does.
+      if (source && isAdleCoverCheckSource(source.provenance.sourceRepresentations, coverAttemptIds)) continue;
       const group = groupFor(item.canonicalWordId);
       const occurredOn = item.occurredAt.slice(0, 10);
       if (!source || !positiveEnvironment(item.environment) || !/^\d{4}-\d{2}-\d{2}$/.test(occurredOn)) { unscored += 1; continue; }

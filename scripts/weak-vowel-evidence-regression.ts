@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { weakVowelPreviewLesson } from "../lib/adle/weak-vowel/preview-fixture";
 import { initialWeakVowelProgress } from "../lib/adle/weak-vowel/progress";
 import { weakVowelAttemptEvents, weakVowelCompletionFacts } from "../lib/adle/weak-vowel/completion";
+import { weakVowelDictationTarget } from "../lib/adle/proficiency/weak-vowel-target";
+import { causalSkillsForAttempt } from "../lib/adle/proficiency/evidence/adapters";
 import type { CompiledWeakVowelSpecialistSnapshotV3 } from "../lib/adle/composable-lesson/specialist-snapshot-v3-contracts";
 import type { AdleSessionItem } from "../lib/adle/loaders/daily-plan-surface";
 
@@ -39,5 +41,21 @@ assert(events.filter((event) => event.sectionKey === "guided_practice").every((e
 assert.equal(events.find((event) => event.assignmentItemId === `dictation:${second.canonicalWordId}`)?.attemptText,
   progress.dictationAttempts[second.canonicalWordId], "the original whole sentence remains auditable");
 assert.equal(events.find((event) => event.assignmentItemId === `dictation:${second.canonicalWordId}`)?.isCorrect, false);
+const dictated = events.find((event) => event.assignmentItemId === `dictation:${second.canonicalWordId}`)!;
+const frozen = { status: "completed", compiled_lesson_snapshot: {
+  route: { routeId: "weak_vowel_word_lab" }, payload: { resolvedLesson: lesson },
+} };
+const target = weakVowelDictationTarget({ canonical_word_id: dictated.canonicalWordId,
+  section_key: dictated.sectionKey, attempt_kind: dictated.attemptKind,
+  attempt_text: dictated.attemptText, is_correct: dictated.isCorrect, source_ref: dictated.sourceRef }, frozen);
+assert.equal(target, `${second.spelling}x`, "V2 diagnoses only the dictated target word");
+assert.deepEqual(causalSkillsForAttempt({ canonicalWordId: second.canonicalWordId,
+  attemptText: target, mappings: [{ mappingId: "reviewed-misspelling", canonicalWordId: second.canonicalWordId!,
+    misspellingNormalised: `${second.spelling}x`, microSkillKey: lesson.microSkillKey, authorityVersion: "v1" }] }),
+  [lesson.microSkillKey]);
+assert.equal(weakVowelDictationTarget({ canonical_word_id: dictated.canonicalWordId,
+  section_key: dictated.sectionKey, attempt_kind: dictated.attemptKind,
+  attempt_text: dictated.attemptText, is_correct: dictated.isCorrect, source_ref: dictated.sourceRef },
+{ ...frozen, status: "ready" }), null, "unfinished lessons cannot diagnose a setback");
 assert.equal(events.find((event) => event.assignmentItemId === `memory:${first.canonicalWordId}`)?.isCorrect, false);
 console.log("PASS: guided work never becomes spelling success; first hidden word and original sentence remain distinct");

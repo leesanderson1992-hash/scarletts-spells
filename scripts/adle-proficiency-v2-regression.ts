@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { calculateProficiencyV2, type V2Evidence, type V2SkillInput } from "../lib/adle/proficiency/v2";
 import { deriveV2WordGroups } from "../lib/adle/proficiency/v2-groups";
+import { isAdleCoverCheckSource } from "../lib/adle/proficiency/v2-source-policy";
 
 const asOf = "2026-10-23";
 const base = (override: Partial<V2SkillInput> = {}): V2SkillInput => ({
@@ -16,6 +17,11 @@ const evidence = (id: string, groupKey: string, occurredOn: string,
 });
 
 assert.equal(calculateProficiencyV2(base()).status, "ready_to_discover");
+const coverIds = new Set(["covered-word"]);
+assert.equal(isAdleCoverCheckSource([{ sourceKind: "adle_assignment_attempt_event",
+  sourceEntityId: "covered-word" }], coverIds), true);
+assert.equal(isAdleCoverCheckSource([{ sourceKind: "adle_assignment_attempt_event",
+  sourceEntityId: "dictated-target" }], coverIds), false);
 assert.equal(calculateProficiencyV2(base({ evidence: [evidence("1", "a", "2026-10-01", "positive", "CONTROLLED_LESSON")] })).level, 1);
 const sameDay = [evidence("1", "a", "2026-10-01"), evidence("2", "a", "2026-10-01"), evidence("3", "b", "2026-10-01")];
 assert.equal(calculateProficiencyV2(base({ evidence: sameDay })).level, 1, "same-day repetitions do not satisfy retention");
