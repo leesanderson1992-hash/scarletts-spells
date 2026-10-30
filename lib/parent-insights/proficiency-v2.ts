@@ -8,6 +8,7 @@ import { loadLearnerEvidenceProjection } from "@/lib/adle/proficiency/evidence/r
 import { deriveV2WordGroups } from "@/lib/adle/proficiency/v2-groups";
 import { loadHomophoneContextEvidence } from "@/lib/parent-insights/homophone-evidence";
 import { calculateProficiencyV2, type V2Evidence, type V2SkillResult } from "@/lib/adle/proficiency/v2";
+import { contributingV2Words, type ParentV2EvidenceWord } from "@/lib/parent-insights/v2-evidence-words";
 import { isAdleCoverCheckSource } from "@/lib/adle/proficiency/v2-source-policy";
 import { requiredAgeBands } from "@/lib/adle/proficiency/shadow-v1";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -38,6 +39,9 @@ export interface ParentV2Skill {
   label: string;
   familyKey: string;
   familyLabel: string;
+  clusterKey: string;
+  clusterLabel: string;
+  evidenceWords: ParentV2EvidenceWord[];
   result: V2SkillResult;
 }
 
@@ -80,13 +84,14 @@ const REVIEW_LABELS: Record<string, string> = {
 export async function loadParentV2Dashboard(childId: string, asOf: string): Promise<ParentV2Dashboard> {
   const client = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment() ?? "production";
-  const [daily, published, childResult, words, catalog, families, members, morphology, contextualResult, attemptRows] = await Promise.all([
+  const [daily, published, childResult, words, catalog, families, clusters, members, morphology, contextualResult, attemptRows] = await Promise.all([
     loadDailyPlanFacts(client, { childId, today: asOf, relationshipEnvironment: environment, wordReadMode: "scoped" }),
     loadPublishedWritingAssociations(client, environment),
     client.from("children").select("id,date_of_birth").eq("id", childId).maybeSingle(),
     all<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status,age_band,frequency_band"),
-    all<any>(client, "micro_skill_catalog", "micro_skill_key,display_name,skill_family_key,is_active", "micro_skill_key"),
+    all<any>(client, "micro_skill_catalog", "micro_skill_key,display_name,skill_family_key,skill_cluster_key,is_active", "micro_skill_key"),
     all<any>(client, "micro_skill_families", "skill_family_key,display_name", "skill_family_key"),
+    all<any>(client, "micro_skill_clusters", "skill_cluster_key,display_name", "skill_cluster_key"),
     all<any>(client, "canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,base_word_family_id,row_status,review_status"),
     all<any>(client, "canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,morphology_parts,analysis_status,row_status,review_status"),
     client.from("contextual_micro_skill_members").select("micro_skill_key,member_normalized"),
@@ -114,6 +119,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     .map((row) => [row.id as string, String(row.source_ref ?? row.template_key ?? row.id)]));
   const ageBands = requiredAgeBands(childResult.data.date_of_birth, asOf);
   const familyLabel = new Map(families.map((row) => [row.skill_family_key, row.display_name]));
+  const clusterLabel = new Map(clusters.map((row) => [row.skill_cluster_key, row.display_name]));
   const relationshipsBySkill = new Map<string, string[]>();
   for (const relation of authority.relationships) {
     relationshipsBySkill.set(relation.microSkillKey, [...(relationshipsBySkill.get(relation.microSkillKey) ?? []), relation.canonicalWordId]);
@@ -192,8 +198,12 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       result.confidence = "unresolved";
       result.reasonCodes.push("date_of_birth_unavailable_for_target_pool");
     }
+    const evidenceWords = contributingV2Words(evidence, familyKey, asOf, (id) =>
+      String(wordById.get(id)?.display_word ?? wordById.get(id)?.normalised_word ?? "Word"));
+    const clusterKey = String(row.skill_cluster_key ?? "unclustered");
     return { key, label: String(row.display_name ?? key), familyKey,
-      familyLabel: String(familyLabel.get(familyKey) ?? familyKey), result };
+      familyLabel: String(familyLabel.get(familyKey) ?? familyKey), clusterKey,
+      clusterLabel: String(clusterLabel.get(clusterKey) ?? "Other skills"), evidenceWords, result };
   }).sort((a, b) => a.familyLabel.localeCompare(b.familyLabel) || a.label.localeCompare(b.label));
   const scheduleByWord = new Map(daily.facts.scheduleWords.filter((word) => word.rowStatus === "active")
     .map((word) => [word.canonicalWordId, word]));

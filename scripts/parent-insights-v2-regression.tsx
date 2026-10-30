@@ -8,10 +8,14 @@ const result = calculateProficiencyV2({ learnerId: "child-a", skillKey: "D4_PAT_
   asOf: "2026-10-23", requiredGroupKeys: ["family-a"], evidence: [], unscoredCount: 0,
   unresolvedGroupCount: 0, relationshipFingerprint: "relationship", evidenceFingerprint: "evidence", groupFingerprint: "groups" });
 const html = renderToStaticMarkup(<V2InsightsWorkspace skills={[{ key: "D4_PAT_EXAMPLE", label: "Example pattern",
-  familyLabel: "Patterns", result }]} words={[{ id: "word-a", word: "example", state: "review_retired",
+  familyKey: "D4_PAT", familyLabel: "Patterns", clusterKey: "cluster-a", clusterLabel: "Example cluster",
+  evidenceWords: [], result }]} words={[{ id: "word-a", word: "example", state: "review_retired",
   slipped: false, productions: 4, distinctDays: 3, verifiedAuthenticUses: 0,
   reviewStatus: "Exited Review", nextReview: "No Review action due" }]} reviewSlot={null} />);
 assert.match(html, /Micro-skill proficiency/);
+assert.match(html, /Example cluster/);
+assert.match(html, /Select L1–L5/);
+assert.match(html, /Example pattern, Level 5: not yet achieved/);
 assert.match(html, /Word mastery/);
 assert.match(html, /Ready to discover/);
 assert.match(html, /Exited Review/);

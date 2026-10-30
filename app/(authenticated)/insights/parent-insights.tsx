@@ -67,7 +67,8 @@ async function V2ProficiencySection({ childId, today, reviewPromise }: {
     <p className="brand-copy mt-2">Please try this page again. Your learning records have not changed.</p>
   </section>;
   return <V2InsightsWorkspace key={childId} skills={dashboard.skills.map((skill) => ({
-    key: skill.key, label: skill.label, familyLabel: skill.familyLabel,
+    key: skill.key, label: skill.label, familyKey: skill.familyKey, familyLabel: skill.familyLabel,
+    clusterKey: skill.clusterKey, clusterLabel: skill.clusterLabel, evidenceWords: skill.evidenceWords,
     result: { level: skill.result.level, status: skill.result.status, trend: skill.result.trend,
       confidence: skill.result.confidence, nextRequirement: skill.result.nextRequirement,
       levels: skill.result.levels, observed: skill.result.observed,
