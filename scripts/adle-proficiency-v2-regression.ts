@@ -79,4 +79,64 @@ const groups = deriveV2WordGroups({
 assert.equal(groups.byWordId.get("play")?.key, groups.byWordId.get("played")?.key,
   "released derivatives share one breadth group");
 assert.notEqual(groups.byWordId.get("jump")?.key, groups.byWordId.get("play")?.key);
+const canonicalGroups = deriveV2WordGroups({
+  words: [{ id: "play", normalisedWord: "play" }, { id: "played", normalisedWord: "played" },
+    { id: "football", normalisedWord: "football" }, { id: "footballer", normalisedWord: "footballer" },
+    { id: "draft", normalisedWord: "draft" }],
+  canonicalFamilies: [
+    { id: "play-family", decision_status: "owner_reviewed" },
+    { id: "foot-family", decision_status: "owner_reviewed", canonical_base_word_id: "foot" },
+    { id: "ball-family", decision_status: "owner_reviewed", canonical_base_word_id: "ball" },
+    { id: "draft-family", decision_status: "owner_decision_interpreted" },
+  ],
+  canonicalMembers: [
+    { canonical_word_id: "play", canonical_family_id: "play-family", source_family_keys: ["play_old", "play_current"] },
+    { canonical_word_id: "played", canonical_family_id: "play-family", source_family_keys: ["play_old", "play_current"] },
+    { canonical_word_id: "football", canonical_family_id: "foot-family", source_family_keys: ["foot_current"] },
+    { canonical_word_id: "football", canonical_family_id: "ball-family", source_family_keys: ["ball_current"] },
+    { canonical_word_id: "draft", canonical_family_id: "draft-family", source_family_keys: ["draft_current"] },
+  ],
+  legacyFamilies: [
+    { base_family_key: "play_old", micro_skill_key: "BASE", row_status: "superseded", review_status: "superseded" },
+    { base_family_key: "play_current", micro_skill_key: "BASE", row_status: "active", review_status: "approved_for_first_exposure" },
+    { base_family_key: "foot_current", micro_skill_key: "FOOT", row_status: "active", review_status: "approved_for_first_exposure" },
+    { base_family_key: "ball_current", micro_skill_key: "BALL", row_status: "active", review_status: "approved_for_first_exposure" },
+    { base_family_key: "draft_current", micro_skill_key: "BASE", row_status: "active", review_status: "approved_for_first_exposure" },
+  ],
+  compoundFacts: [{ canonical_word_id: "football", micro_skill_key: "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+    first_word: "foot", second_word: "ball", assignment_eligible: true,
+    row_status: "active", review_status: "approved_for_first_exposure" },
+  { canonical_word_id: "footballer", micro_skill_key: "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS",
+    first_word: "foot", second_word: "ball", assignment_eligible: true,
+    row_status: "active", review_status: "approved_for_first_exposure" }],
+  morphology: [],
+});
+assert.equal(canonicalGroups.forSkill("play", "BASE")?.key, canonicalGroups.forSkill("played", "BASE")?.key,
+  "superseded aliases do not make one reviewed root ambiguous");
+assert.equal(canonicalGroups.forSkill("football", "FOOT")?.key, "family:foot-family",
+  "a compound can use its reviewed skill-specific root");
+assert.equal(canonicalGroups.forSkill("football", "BALL")?.key, "family:ball-family");
+assert.equal(canonicalGroups.forSkill("football", "SOUND", new Set(["foot"]))?.key, "family:foot-family",
+  "a reviewed base that shares the assessed skill selects the relevant compound root");
+assert.equal(canonicalGroups.forSkill("football", "BASE")?.key, "word:football",
+  "a compound can still provide one exact-word group for an unrelated skill");
+assert.equal(canonicalGroups.forSkill("football", "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS")?.key,
+  "compound:foot|ball", "a reviewed compound counts as one component-pair breadth group");
+assert.equal(canonicalGroups.forSkill("footballer", "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS")?.key,
+  canonicalGroups.forSkill("football", "D4_MOR_COMPOUND_WORDS_CLOSED_COMPOUNDS")?.key,
+  "a derivative cannot add another compound breadth group");
+assert.equal(canonicalGroups.forSkill("draft", "BASE")?.resolved, false,
+  "interpreted decisions cannot silently certify breadth");
+assert.equal(canonicalGroups.forSkill("draft", "UNRELATED")?.key, "word:draft",
+  "a pending family decision does not erase exact-word evidence for an unrelated skill");
+const compoundMorphology = deriveV2WordGroups({
+  words: [{ id: "home", normalisedWord: "home" }, { id: "work", normalisedWord: "work" },
+    { id: "homework", normalisedWord: "homework" }],
+  morphology: [{ canonical_word_id: "homework", morphology_parts: [
+    { type: "base", text: "home" }, { type: "base", text: "work" }],
+    analysis_status: "approved", row_status: "active", review_status: "approved_for_first_exposure" }],
+});
+assert.equal(compoundMorphology.forSkill("homework", "O_E", new Set(["home", "homework"]))?.key,
+  compoundMorphology.forSkill("home", "O_E", new Set(["home", "homework"]))?.key,
+  "a multi-base word shares breadth with its uniquely relevant reviewed base");
 console.log("ADLE proficiency V2 regression passed");

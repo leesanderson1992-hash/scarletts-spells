@@ -34,6 +34,19 @@ async function all<T>(client: SupabaseClient, table: string, columns: string, ke
   }
 }
 
+async function allCanonicalMembers(client: SupabaseClient): Promise<any[]> {
+  const rows: any[] = [];
+  for (let offset = 0;; offset += PAGE) {
+    const result = await client.from("canonical_teaching_dictionary_base_family_registry_members")
+      .select("canonical_family_id,canonical_word_id,source_family_keys")
+      .order("canonical_family_id").order("canonical_word_id").range(offset, offset + PAGE - 1);
+    if (result.error) throw new Error(`parent proficiency canonical family members: ${result.error.message}`);
+    const page = result.data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE) return rows;
+  }
+}
+
 export interface ParentV2Skill {
   key: string;
   label: string;
@@ -84,7 +97,7 @@ const REVIEW_LABELS: Record<string, string> = {
 export async function loadParentV2Dashboard(childId: string, asOf: string): Promise<ParentV2Dashboard> {
   const client = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment() ?? "production";
-  const [daily, published, childResult, words, catalog, families, clusters, members, morphology, contextualResult, attemptRows] = await Promise.all([
+  const [daily, published, childResult, words, catalog, families, clusters, canonicalFamilies, canonicalMembers, legacyFamilies, compoundFacts, morphology, contextualResult, attemptRows] = await Promise.all([
     loadDailyPlanFacts(client, { childId, today: asOf, relationshipEnvironment: environment, wordReadMode: "scoped" }),
     loadPublishedWritingAssociations(client, environment),
     client.from("children").select("id,date_of_birth").eq("id", childId).maybeSingle(),
@@ -92,7 +105,10 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     all<any>(client, "micro_skill_catalog", "micro_skill_key,display_name,skill_family_key,skill_cluster_key,is_active", "micro_skill_key"),
     all<any>(client, "micro_skill_families", "skill_family_key,display_name", "skill_family_key"),
     all<any>(client, "micro_skill_clusters", "skill_cluster_key,display_name", "skill_cluster_key"),
-    all<any>(client, "canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,base_word_family_id,row_status,review_status"),
+    all<any>(client, "canonical_teaching_dictionary_base_family_registry", "id,decision_status,canonical_base_word_id"),
+    allCanonicalMembers(client),
+    all<any>(client, "canonical_teaching_dictionary_base_word_families", "id,base_family_key,micro_skill_key,row_status,review_status"),
+    all<any>(client, "canonical_teaching_dictionary_compound_facts", "id,canonical_word_id,micro_skill_key,first_word,second_word,assignment_eligible,row_status,review_status"),
     all<any>(client, "canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,morphology_parts,analysis_status,row_status,review_status"),
     client.from("contextual_micro_skill_members").select("micro_skill_key,member_normalized"),
     all<any>(client, "adle_assignment_attempt_events", "id,daily_assignment_id,assignment_item_id,canonical_word_id,attempt_text,is_correct,attempt_kind,micro_skill_key,created_at,source_ref,section_key,template_key", "id", (query) => query.eq("child_id", childId)),
@@ -102,7 +118,8 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment, explicitReviewedAssociations: published });
   const projection = await loadLearnerEvidenceProjection({ client, relationshipAuthority: authority, learnerId: childId });
   const activeWords = words.filter((word) => word.row_status === "active");
-  const groupAuthority = deriveV2WordGroups({ words: activeWords.map((word) => ({ id: word.id, normalisedWord: word.normalised_word })), members, morphology });
+  const groupAuthority = deriveV2WordGroups({ words: activeWords.map((word) => ({ id: word.id, normalisedWord: word.normalised_word })),
+    canonicalFamilies, canonicalMembers, legacyFamilies, compoundFacts, morphology });
   const wordById = new Map(activeWords.map((word) => [word.id as string, word]));
   const eventById = new Map(projection.events.map((event) => [event.eventId, event]));
   const coverAttemptIds = new Set(attemptRows.filter((row) =>
@@ -133,6 +150,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     const familyKey = String(row.skill_family_key ?? "other");
     const closed = familyKey === "D4_HOM";
     const relatedIds = relationshipsBySkill.get(key) ?? [];
+    const relatedSet = new Set(relatedIds);
     const eligible = relatedIds.filter((id) => {
       const word = wordById.get(id);
       if (!word || !["approved_for_guided_review", "approved_for_first_exposure"].includes(word.review_status)) return false;
@@ -145,14 +163,14 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       if (closed) return roles.has(`${key}\u0000${word.normalised_word}`)
         ? { key: `role:${word.normalised_word}`, resolved: true }
         : { key: "unresolved:role", resolved: false };
-      const derived = groupAuthority.byWordId.get(wordId);
+      const derived = groupAuthority.forSkill(wordId, key, relatedSet);
       return derived?.resolved ? derived : { key: `unresolved:${key}`, resolved: false };
     };
     const requiredGroupKeys = [...new Set(eligible.map((id) => groupFor(id)).filter((group) => group.resolved).map((group) => group.key))];
     const entries = closed && homophoneEnabled ? [] : projectionsBySkill.get(key) ?? [];
     let unscored = projection.events.filter((event) => relatedIds.includes(event.canonicalWordId) &&
       (event.outcome === "unknown" || event.verificationState !== "verified" || event.independence !== "independent")).length;
-    let unresolvedGroups = 0;
+    let unresolvedGroups = eligible.filter((id) => !groupFor(id).resolved).length;
     const evidence: V2Evidence[] = [];
     const firstByGroup = new Map<string, string>();
     for (const item of entries.sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))) {
@@ -163,8 +181,8 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       const group = groupFor(item.canonicalWordId);
       const occurredOn = item.occurredAt.slice(0, 10);
       if (!source || !positiveEnvironment(item.environment) || !/^\d{4}-\d{2}-\d{2}$/.test(occurredOn)) { unscored += 1; continue; }
-      if (!group.resolved) unresolvedGroups += 1;
-      if (closed && (!group.resolved || !["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(item.environment))) {
+      if (!group.resolved) { unresolvedGroups += 1; unscored += 1; continue; }
+      if (closed && !["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(item.environment)) {
         unscored += 1; continue;
       }
       // Contextual lesson passages are governed. Generic word correctness and
@@ -178,7 +196,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       const transferable = item.polarity === "positive" && item.environment !== "CONTROLLED_LESSON";
       const relevantChallenge = transferable && (closed || familyKey === "D4_IRRE" ? (closed || delayed) :
         ["D4_MOR", "D4_INF"].includes(familyKey) ? group.resolved &&
-          ["released_base_family", "reviewed_morphology"].includes(groupAuthority.byWordId.get(item.canonicalWordId)?.source ?? "") &&
+          ["released_base_family", "reviewed_morphology"].includes(groupAuthority.forSkill(item.canonicalWordId, key, relatedSet)?.source ?? "") &&
           ["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(item.environment) :
           ["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(item.environment));
       evidence.push({ eventId: item.eventId, wordId: item.canonicalWordId, groupKey: group.key,
@@ -194,6 +212,9 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       evidenceFingerprint: closed && homophoneEnabled ? homophoneContext.fingerprint : projection.reconciliation.projectionFingerprint,
       groupFingerprint: groupAuthority.fingerprint,
       homophoneTwoDateSetback: closed && homophoneEnabled });
+    if (!closed && eligible.some((id) => groupAuthority.forSkill(id, key, relatedSet)?.key === "unresolved:family_review")) {
+      result.reasonCodes.push("family_decision_review_required");
+    }
     if (!ageBands) {
       result.confidence = "unresolved";
       result.reasonCodes.push("date_of_birth_unavailable_for_target_pool");
