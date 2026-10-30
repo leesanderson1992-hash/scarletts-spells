@@ -16,8 +16,12 @@ const definitions = read(dir + "definition-publication-candidates.csv");
 const decisions = read(reviewDir + "word-and-family-approval-decisions.csv");
 const compounds = read(dir + "compound-structures-draft.csv");
 const existing = read(reviewDir + "existing-spelling-lexical-membership-review.csv");
+const existingSenses = read(dir + "existing-spelling-sense-decisions.csv");
+const writtenSyllables = read(dir + "remaining-written-syllable-updates.csv");
 assert.equal(words.length, 304);
 assert.equal(existing.length, 102);
+assert.equal(existingSenses.length, 102);
+assert.equal(writtenSyllables.length, 10);
 const maps = [metadata, morphology, dictations, definitions, decisions].map((rows) =>
   new Map(rows.map((row) => [row.word_key || `${row.normalised_word}_en_gb`, row])));
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_TRANSACTION;
@@ -89,19 +93,42 @@ try {
       select distinct on (family_key) family_key,revision
       from public.canonical_teaching_dictionary_lexical_base_families
       where review_status='approved' order by family_key,revision desc)
-    select w.normalised_word,count(lf.family_key)::int families
+    select w.normalised_word,count(lf.family_key)::int families,
+      max(md.written_syllable_breakdown) written_syllable_breakdown,
+      (select d.definition from public.teaching_dictionary_definition_versions d
+       where d.canonical_word_id=w.id and d.route_id is null
+       order by d.published_at desc,d.id desc limit 1) definition
     from public.canonical_teaching_dictionary_words w
+    left join public.canonical_teaching_dictionary_word_metadata md
+      on md.canonical_word_id=w.id and md.row_status='active'
     left join public.canonical_teaching_dictionary_lexical_base_family_members fm on fm.canonical_word_id=w.id
     left join latest_family lf on lf.family_key=fm.family_key and lf.revision=fm.revision
     where w.normalised_word=any($1::text[]) and w.row_status='active'
-    group by w.normalised_word`, [existing.map((row) => row.word)]);
+    group by w.id,w.normalised_word`, [existing.map((row) => row.word)]);
   assert.equal(existingResult.rowCount, 102);
-  const existingByWord = new Map(existingResult.rows.map((row) => [row.normalised_word, row.families]));
-  for (const row of existing) assert((existingByWord.get(row.word) ?? 0) > 0, `EXISTING_WORD_FAMILY_MISSING:${row.word}`);
+  const existingByWord = new Map(existingResult.rows.map((row) => [row.normalised_word, row]));
+  for (const row of existing) {
+    const actual = existingByWord.get(row.word);
+    assert(actual?.families > 0, `EXISTING_WORD_FAMILY_MISSING:${row.word}`);
+    assert(actual.written_syllable_breakdown, `EXISTING_WRITTEN_SYLLABLES_MISSING:${row.word}`);
+  }
+  for (const row of existingSenses) {
+    const actual = existingByWord.get(row.word);
+    assert(actual);
+    const expected = row.sense_decision === "distinct part of speech or sense"
+      ? row.proposed_combined_definition : row.current_published_definition;
+    assert.equal(actual.definition, expected, `EXISTING_DEFINITION_MISMATCH:${row.word}`);
+  }
+  for (const row of writtenSyllables) {
+    assert.equal(existingByWord.get(row.word)?.written_syllable_breakdown,
+      row.proposed_written_syllables, `WRITTEN_SYLLABLE_MISMATCH:${row.word}`);
+  }
   await db.query("rollback");
   const report = { status: "verified", newWords: 304, definitions: 304, metadata: 304,
     morphology: 304, dictations: 304, transformations, compoundWordsWithAllFamilies: compounds.length,
-    existingSpellingsWithFamily: 102, excludedImport: "ice-cream" };
+    existingSpellingsWithFamily: 102, existingSpellingsWithWrittenSyllables: 102,
+    approvedCombinedDefinitions: 11, ownerSuppliedWrittenSyllableUpdates: 10,
+    excludedImport: "ice-cream" };
   writeFileSync(dir + "production-final-audit.json", JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify(report));
 } catch (error) {
