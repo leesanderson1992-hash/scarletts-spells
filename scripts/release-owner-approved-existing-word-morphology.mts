@@ -10,16 +10,22 @@ const mode = process.argv[2];
 if (!["plan", "prove", "release", "verify"].includes(mode)) {
   throw new Error("Usage: release-owner-approved-existing-word-morphology.mts plan|prove|release|verify [--confirm <sha-prefix>]");
 }
-const path = "outputs/teaching-dictionary-import-plan-2026-10-30/existing-word-morphology-updates.csv";
+const remainingScope = process.argv.includes("--remaining");
+const path = remainingScope
+  ? "outputs/teaching-dictionary-import-plan-2026-10-30/remaining-existing-base-normalizations.csv"
+  : "outputs/teaching-dictionary-import-plan-2026-10-30/existing-word-morphology-updates.csv";
 const source = readFileSync(path, "utf8");
 const sourceSha = createHash("sha256").update(source).digest("hex");
-const releaseId = "owner-approved-existing-word-morphology-2026-10-30-v1";
+const releaseId = remainingScope
+  ? "owner-approved-remaining-existing-base-normalizations-2026-10-30-v1"
+  : "owner-approved-existing-word-morphology-2026-10-30-v1";
 const rows = parseCsv(source);
-assert.equal(rows.length, 23);
-assert.equal(new Set(rows.map((row) => row.base_word)).size, 23);
-assert.equal(rows.filter((row) => row.change_kind === "legacy_format_normalization").length, 20);
+const expectedCount = remainingScope ? 6 : 23;
+assert.equal(rows.length, expectedCount);
+assert.equal(new Set(rows.map((row) => row.base_word)).size, expectedCount);
+assert.equal(rows.filter((row) => row.change_kind === "legacy_format_normalization").length, remainingScope ? 6 : 20);
 assert.deepEqual(rows.filter((row) => row.change_kind === "preserve_word_sum_and_correct_base_part")
-  .map((row) => row.base_word).sort(), ["brownie", "replace", "review"]);
+  .map((row) => row.base_word).sort(), remainingScope ? [] : ["brownie", "replace", "review"]);
 for (const row of rows) {
   assert.equal(row.current_word_sum, row.proposed_word_sum, row.base_word);
   const parts = JSON.parse(row.proposed_parts);
@@ -27,7 +33,8 @@ for (const row of rows) {
   assert.equal(JSON.parse(row.proposed_joins).length, parts.length - 1);
   assert(Array.isArray(JSON.parse(row.proposed_transformations)));
 }
-if (mode === "release" && (process.argv[3] !== "--confirm" || process.argv[4] !== sourceSha.slice(0, 12))) {
+const confirmIndex = process.argv.indexOf("--confirm");
+if (mode === "release" && (confirmIndex < 0 || process.argv[confirmIndex + 1] !== sourceSha.slice(0, 12))) {
   throw new Error(`Exact source confirmation required: --confirm ${sourceSha.slice(0, 12)}`);
 }
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_TRANSACTION;
@@ -73,7 +80,7 @@ try {
       from public.canonical_teaching_dictionary_word_morphology m
       join public.canonical_teaching_dictionary_words w on w.id=m.canonical_word_id
       where m.row_status='active' and m.source_metadata->>'releaseId'=$1`, [releaseId]);
-    assert.equal(result.rowCount, 23, "RELEASED_MORPHOLOGY_COUNT_MISMATCH");
+    assert.equal(result.rowCount, expectedCount, "RELEASED_MORPHOLOGY_COUNT_MISMATCH");
     const facts = new Map(result.rows.map((row) => [row.normalised_word, row]));
     for (const row of rows) {
       const fact = facts.get(row.base_word);
@@ -85,7 +92,7 @@ try {
       assert.equal(fact.source_metadata.sourceSha256, sourceSha);
     }
     await db.query("rollback");
-    console.log(JSON.stringify({ mode, verified: 23, sourceSha256: sourceSha }));
+    console.log(JSON.stringify({ mode, scope: remainingScope ? "remaining" : "original", verified: expectedCount, sourceSha256: sourceSha }));
   } else {
     const before = await counts();
     const existing = await db.query(`select id,batch_status from public.canonical_teaching_dictionary_import_batches
@@ -95,15 +102,16 @@ try {
     for (const row of rows) facts.push(await current(row, mode !== "plan"));
     if (mode === "plan") {
       await db.query("rollback");
-      console.log(JSON.stringify({ mode, ready: 23, formatNormalizations: 20,
-        baseCorrections: 3, sourceSha256: sourceSha, protectedCounts: before }));
+      console.log(JSON.stringify({ mode, scope: remainingScope ? "remaining" : "original", ready: expectedCount,
+        formatNormalizations: remainingScope ? 6 : 20,
+        baseCorrections: remainingScope ? 0 : 3, sourceSha256: sourceSha, protectedCounts: before }));
     } else {
       const batch = await db.query(`insert into public.canonical_teaching_dictionary_import_batches
         (source_folder_path,source_folder_sha256,source_commit,validator_version,validation_summary,
          row_counts,readiness_summary,import_mode,batch_status,source_metadata,imported_by,imported_at)
         values ($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7::jsonb,'admin_import','validated',$8::jsonb,$9,now()) returning id`,
         [path, sourceSha, null, "owner_approved_existing_morphology_v1",
-          JSON.stringify({ errors: 0, reviewed: 23 }), JSON.stringify({ morphology: 23 }),
+          JSON.stringify({ errors: 0, reviewed: expectedCount }), JSON.stringify({ morphology: expectedCount }),
           JSON.stringify({ wordSumsUnchanged: true, protectedWrites: 0 }),
           JSON.stringify({ releaseId, sourceSha256: sourceSha, ownerApproval: "Owner instruction, 30 October 2026" }),
           "owner-approved-teaching-dictionary-morphology-release"]);
@@ -127,7 +135,7 @@ try {
             source_url,source_licence,source_use_note,confidence,'approved_for_first_exposure',
             'Katie Sanderson',now(),$9
           from public.canonical_teaching_dictionary_word_morphology where id=$10 returning id`,
-          [batchId, "existing-word-morphology-updates.csv", index + 2, rowHash,
+          [batchId, path.split("/").at(-1), index + 2, rowHash,
             JSON.stringify({ releaseId, sourceSha256: sourceSha, previousMorphologyId: fact.id,
               ownerApproval: "Owner instruction, 30 October 2026" }),
             row.proposed_parts, row.proposed_joins, row.proposed_transformations,
@@ -143,13 +151,13 @@ try {
       assert.deepEqual(await counts(), before, "PROTECTED_TABLE_COUNT_CHANGED");
       await db.query(`update public.canonical_teaching_dictionary_import_batches
         set batch_status='applied',verification_summary=$2::jsonb,verified_at=now()
-        where id=$1`, [batchId, JSON.stringify({ status: "verified", sourceSha256: sourceSha, morphology: 23 })]);
+        where id=$1`, [batchId, JSON.stringify({ status: "verified", sourceSha256: sourceSha, morphology: expectedCount })]);
       if (mode === "prove") {
         await db.query("rollback");
-        console.log(JSON.stringify({ mode, proved: 23, rolledBack: true, sourceSha256: sourceSha }));
+        console.log(JSON.stringify({ mode, scope: remainingScope ? "remaining" : "original", proved: expectedCount, rolledBack: true, sourceSha256: sourceSha }));
       } else {
         await db.query("commit");
-        console.log(JSON.stringify({ mode, updated: 23, batchId, sourceSha256: sourceSha }));
+        console.log(JSON.stringify({ mode, scope: remainingScope ? "remaining" : "original", updated: expectedCount, batchId, sourceSha256: sourceSha }));
       }
     }
   }
