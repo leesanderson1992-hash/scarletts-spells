@@ -1,6 +1,6 @@
 import type { V2Evidence } from "./v2";
 
-export const HOMOPHONE_CONTEXT_EVIDENCE_VERSION = "HOMOPHONE_CONTEXT_EVIDENCE_V1_2026_10_30";
+export const HOMOPHONE_CONTEXT_EVIDENCE_VERSION = "HOMOPHONE_CONTEXT_EVIDENCE_V2_2026_10_30";
 export const normalizeContextWord = (value: string) => value.trim().toLocaleLowerCase("en-GB").replaceAll("’", "'");
 type Word = { id: string; normalised_word: string };
 type Member = { micro_skill_key: string; member_normalized: string };

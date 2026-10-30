@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_2026_10_23";
-export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_2026_10_30";
+export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_R2_2026_10_30";
 
 export type ProficiencyEnvironment = "CONTROLLED_LESSON" | "ISOLATED_RETRIEVAL" | "CONTEXTUAL_TRANSFER" | "AUTHENTIC_WRITING";
 export type ProficiencyTrend = "improving" | "steady" | "needs_practice" | "insufficient_history";

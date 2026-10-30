@@ -46,6 +46,8 @@ console.log(JSON.stringify({ mode: "read_only_production", asOf, homophoneSkills
     skill: row.key, kinds: [...new Set(row.result.sourceEventIds.map(id => id.split(":")[0]))] })),
   savedGapEvidence: homophones.reduce((sum, row) => sum + row.result.sourceEventIds.filter(id =>
     id.startsWith("homophone-dictation:") || id.startsWith("homophone-checkpoint:")).length, 0),
+  reviewedAdleWritingEvidence: homophones.reduce((sum, row) => sum + row.result.sourceEventIds.filter(id =>
+    id.startsWith("homophone-adle-credit:")).length, 0),
   version: homophones[0]?.result.versions.model ?? null,
   oldRestored,
   learnerWrites: 0 }, null, 2));

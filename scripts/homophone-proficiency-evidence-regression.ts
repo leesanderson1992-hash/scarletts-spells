@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { homophoneLessonEvidence } from "../lib/adle/proficiency/homophone-context";
 import { homophoneWritingEvidence } from "../lib/adle/proficiency/homophone-writing";
+import { homophoneAdleReviewEvidence } from "../lib/adle/proficiency/homophone-adle-review";
+import { extractAdleAuthenticWriting } from "../lib/writing-engine/whole-writing/authentic-use-credit";
+import { createHash } from "node:crypto";
 import { calculateProficiencyV2, type V2Evidence } from "../lib/adle/proficiency/v2";
 import { fingerprint } from "../lib/writing-engine/baseline/source";
 
@@ -80,6 +83,26 @@ const reviewedAddedCase = homophoneWritingEvidence({ words, members, pairs,
   caseReviews: [{ id: "catalog", parent_added_case_id: "added", case_status: "reviewed" }],
   caseLinks: [{ catalog_case_id: "catalog", micro_skill_key: skill }] });
 assert.equal(reviewedAddedCase.get(skill)?.[0].polarity, "negative");
+const reviewText = "I know where to wear it.";
+const reviewHash = createHash("sha256").update(reviewText).digest("hex");
+const reviewOccurrence = extractAdleAuthenticWriting({ sourceId: "source", sourceHash: reviewHash,
+  text: reviewText }).occurrences.find(row => row.observedText === "where")!;
+const adleInputs = { words, members, pairs,
+  credits: [{ id: "credit", adle_review_id: "review", adle_source_id: "source", canonical_word_id: "where",
+    occurrence_ids: [reviewOccurrence.id], observed_word: "where", supplied_spelling: false }],
+  reviews: [{ id: "review", review_session_id: "session", source_id: "source", source_hash: reviewHash }],
+  sources: [{ id: "source", review_session_id: "session", submitted_text: reviewText,
+    source_hash: reviewHash, submitted_at: "2026-10-10T12:00:00Z" }],
+  receipts: [{ review_session_id: "session" }], choices: [], findings: [], decisions: [] };
+assert.equal(homophoneAdleReviewEvidence(adleInputs).get(skill)?.[0].polarity, "positive");
+assert.equal(homophoneAdleReviewEvidence({ ...adleInputs, receipts: [] }).get(skill)?.length ?? 0, 0);
+assert.equal(homophoneAdleReviewEvidence({ ...adleInputs, choices: [{ id: "choice", review_session_id: "session",
+  source_hash: reviewHash, start_utf16: 7, end_utf16: 12, observed_text: "where", intended_word: "wear",
+  decision: "pending" }] }).get(skill)?.length, 1);
+const reviewNegative = homophoneAdleReviewEvidence({ ...adleInputs,
+  credits: [], choices: [{ id: "choice", review_session_id: "session", source_hash: reviewHash,
+    start_utf16: 7, end_utf16: 12, observed_text: "where", intended_word: "wear", decision: "confirmed" }] });
+assert.equal(reviewNegative.get(skill)?.[0].polarity, "negative");
 
 const base: V2Evidence = { eventId: "success", wordId: "where", groupKey: "role:where", occurredOn: "2026-10-01",
   polarity: "positive", environment: "CONTROLLED_LESSON", challengeKey: null, sourceKind: "test" };
