@@ -178,6 +178,7 @@ const TABLE_SPECS: Record<string, TableSpec> = {
       "source_row_hash",
       "source_metadata",
       "syllables",
+      "written_syllable_breakdown",
       "phoneme_hint",
       "grapheme_notes",
       "stress_pattern",
@@ -212,6 +213,7 @@ const TABLE_SPECS: Record<string, TableSpec> = {
       "morphology_parts",
       "feature_keys",
       "morphology_joins",
+      "morphology_transformations",
       "transformation_notes",
       "word_sum",
       "analysis_status",
@@ -1282,6 +1284,7 @@ export async function buildTableRows(
     row_status: "active",
     ...auditBase(pkg, "canonical_word_metadata.csv", row, index),
     syllables: nullable(row.syllables),
+    written_syllable_breakdown: nullable(row.written_syllable_breakdown),
     phoneme_hint: nullable(row.phoneme_hint),
     grapheme_notes: nullable(row.grapheme_notes),
     stress_pattern: nullable(row.stress_pattern),
@@ -1308,6 +1311,7 @@ export async function buildTableRows(
       row_status: "active",
       ...auditBase(pkg, "canonical_word_repairs.csv", row, index),
       syllables: nullable(row.syllables),
+      written_syllable_breakdown: nullable(row.written_syllable_breakdown),
       phoneme_hint: nullable(row.phoneme_hint),
       grapheme_notes: nullable(row.grapheme_notes),
       stress_pattern: nullable(row.stress_pattern),
@@ -1338,6 +1342,7 @@ export async function buildTableRows(
     morphology_parts: JSON.parse(row.morphology_parts),
     feature_keys: JSON.parse(row.feature_keys),
     morphology_joins: JSON.parse(row.morphology_joins),
+    morphology_transformations: JSON.parse(row.morphology_transformations || "[]"),
     transformation_notes: nullable(row.transformation_notes),
     word_sum: nullable(row.word_sum),
     analysis_status: row.analysis_status,
@@ -1531,6 +1536,7 @@ async function insertRows(
     "morphology_parts",
     "feature_keys",
     "morphology_joins",
+    "morphology_transformations",
   ]);
   for (let offset = 0; offset < rows.length; offset += CHUNK_SIZE) {
     const chunk = rows.slice(offset, offset + CHUNK_SIZE);

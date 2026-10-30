@@ -16,6 +16,8 @@ export const REQUIRED_MIGRATION_VERSIONS = [
   "20260726173000",
   "20260726174000",
   "20260929122000",
+  "20261014170000",
+  "20261015150000",
 ] as const;
 export const MAX_CANONICAL_WORDS = 1000;
 
@@ -389,6 +391,10 @@ export function validateCanonicalCsv(csv: Record<string, CsvRow[]>): ReleaseCoun
       !/^[1-9][0-9]*$/.test(normaliseCell(row.syllables)) ||
       ["", "in_review", "unknown"].includes(normaliseCell(row.stress_pattern)) ||
       !/^(TRUE|FALSE)$/i.test(normaliseCell(row.has_schwa))
+      || (row.written_syllable_breakdown !== undefined && (
+        !normaliseCell(row.written_syllable_breakdown) ||
+        row.written_syllable_breakdown.split("-").length !== Number.parseInt(row.syllables, 10)
+      ))
     ) {
       throw new Error(`canonical_word_metadata.csv row ${index + 2} lacks approved pronunciation metadata.`);
     }
@@ -398,7 +404,7 @@ export function validateCanonicalCsv(csv: Record<string, CsvRow[]>): ReleaseCoun
     if (!["approved", "not_applicable", "rejected"].includes(row.analysis_status)) {
       throw new Error(`canonical_word_morphology.csv row ${rowNumber} has unresolved analysis_status.`);
     }
-    for (const field of ["morphology_parts", "feature_keys", "morphology_joins"]) {
+    for (const field of ["morphology_parts", "feature_keys", "morphology_joins", ...(row.morphology_transformations !== undefined ? ["morphology_transformations"] : [])]) {
       try {
         const parsed = JSON.parse(row[field]);
         if (!Array.isArray(parsed)) throw new Error();
