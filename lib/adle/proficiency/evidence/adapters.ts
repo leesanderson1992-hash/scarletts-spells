@@ -121,7 +121,6 @@ export type AssignmentAttemptAdapterRow = {
   sectionKey: string;
   templateKey: string | null;
   sourceRef: string;
-  causalAttemptText?: string | null;
 };
 
 export function classifyAssignmentAttempt(row: AssignmentAttemptAdapterRow): {
@@ -180,8 +179,7 @@ export function adaptAssignmentAttempt(
     verificationState: "verified",
     independence: classification.independence,
     causalMicroSkillKeys: row.isCorrect === false
-      ? causalSkillsForAttempt({ canonicalWordId: row.canonicalWordId,
-        attemptText: row.causalAttemptText ?? row.attemptText, mappings: causalMappings })
+      ? causalSkillsForAttempt({ canonicalWordId: row.canonicalWordId, attemptText: row.attemptText, mappings: causalMappings })
       : [],
     performanceLineageKey: row.id ? `adle_assignment_attempt_event:${row.id}` : null,
     representationRole: "source_event",

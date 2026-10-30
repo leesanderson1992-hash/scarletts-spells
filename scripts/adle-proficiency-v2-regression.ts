@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calculateProficiencyV2, type V2Evidence, type V2SkillInput } from "../lib/adle/proficiency/v2";
+import { calculateProficiencyV2, isV2ScoredEvent, type V2Evidence, type V2SkillInput } from "../lib/adle/proficiency/v2";
 import { deriveV2WordGroups } from "../lib/adle/proficiency/v2-groups";
 import { isAdleCoverCheckSource } from "../lib/adle/proficiency/v2-source-policy";
 
@@ -26,8 +26,13 @@ assert.equal(calculateProficiencyV2(base({ evidence: [evidence("1", "a", "2026-1
 const sameDay = [evidence("1", "a", "2026-10-01"), evidence("2", "a", "2026-10-01"), evidence("3", "b", "2026-10-01")];
 assert.equal(calculateProficiencyV2(base({ evidence: sameDay })).level, 1, "same-day repetitions do not satisfy retention");
 const causalMiss = [...sameDay, evidence("4", "a", "2026-10-01", "negative")];
-assert.equal(calculateProficiencyV2(base({ evidence: causalMiss })).observed.groups, 1,
-  "causal miss takes precedence over a same-family success on that date");
+assert.equal(calculateProficiencyV2(base({ evidence: causalMiss })).observed.groups, 2,
+  "a misspelt word is unscored even when its cause is known");
+assert.equal(isV2ScoredEvent(evidence("miss", "a", "2026-10-01", "negative"), "D4_HOM"), false,
+  "a misspelt homophone is not a contextual-choice setback");
+assert.equal(isV2ScoredEvent({ ...evidence("choice", "role:where", "2026-10-01", "negative"),
+  sourceKind: "homophone_lesson_dictation" }, "D4_HOM"), true,
+  "a correctly spelled alternative in the wrong context remains a choice setback");
 const twoDates = [evidence("1", "a", "2026-10-01"), evidence("2", "b", "2026-10-01"),
   evidence("3", "a", "2026-10-05"), evidence("4", "b", "2026-10-05")];
 assert.equal(calculateProficiencyV2(base({ evidence: twoDates })).level, 2);

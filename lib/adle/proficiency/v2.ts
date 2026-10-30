@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
-export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_TARGET_DICTATION_R2_2026_10_30";
-export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_R2_2026_10_30";
+export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_NO_MISSPELLING_SETBACKS_R3_2026_10_30";
+export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_R3_2026_10_30";
 
 export type ProficiencyEnvironment = "CONTROLLED_LESSON" | "ISOLATED_RETRIEVAL" | "CONTEXTUAL_TRANSFER" | "AUTHENTIC_WRITING";
 export type ProficiencyTrend = "improving" | "steady" | "needs_practice" | "insufficient_history";
@@ -17,6 +17,18 @@ export interface V2Evidence {
   /** A governed task/word property, never generic word length. */
   challengeKey: string | null;
   sourceKind: string;
+}
+
+const CONTEXT_CHOICE_MISS_SOURCES = new Set([
+  "homophone_lesson_dictation",
+  "parent_confirmed_contextual_correction",
+  "parent_confirmed_adle_review_context",
+]);
+
+/** A misspelt word gives no V2 evidence; a valid but wrong meaning choice does. */
+export function isV2ScoredEvent(event: V2Evidence, familyKey: string): boolean {
+  return event.polarity === "positive" ||
+    (familyKey === "D4_HOM" && CONTEXT_CHOICE_MISS_SOURCES.has(event.sourceKind));
 }
 
 export interface V2SkillInput {
@@ -159,7 +171,8 @@ function evaluated(input: V2SkillInput, events: readonly V2Evidence[]): { levels
 
 export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
   if (!validDate(input.asOf)) throw new Error("v2_invalid_calculation_date");
-  const events = input.evidence.filter((event) => event.occurredOn <= input.asOf && validDate(event.occurredOn))
+  const events = input.evidence.filter((event) => event.occurredOn <= input.asOf && validDate(event.occurredOn)
+    && isV2ScoredEvent(event, input.familyKey))
     .sort((a, b) => a.occurredOn.localeCompare(b.occurredOn) || a.eventId.localeCompare(b.eventId));
   const evaluatedNow = evaluated(input, events);
   const rawLevel = evaluatedNow.level;

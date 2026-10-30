@@ -110,9 +110,10 @@ const input = (evidence: V2Evidence[]) => calculateProficiencyV2({ learnerId: "c
   familyKey: "D4_HOM", asOf: "2026-10-30", requiredGroupKeys: ["role:where", "role:wear"], evidence,
   unscoredCount: 0, unresolvedGroupCount: 0, relationshipFingerprint: "r", evidenceFingerprint: "e",
   groupFingerprint: "g", homophoneTwoDateSetback: true });
-const miss = (id: string, occurredOn: string): V2Evidence => ({ ...base, eventId: id, occurredOn, polarity: "negative" });
+const miss = (id: string, occurredOn: string): V2Evidence => ({ ...base, eventId: id, occurredOn,
+  polarity: "negative", sourceKind: "homophone_lesson_dictation" });
 assert.equal(input([base]).level, 1);
-assert.equal(input([base, { ...base, eventId: "same-day", polarity: "negative" }]).level, null);
+assert.equal(input([base, miss("same-day", base.occurredOn)]).level, null);
 assert.equal(input([base, miss("m1", "2026-10-05")]).level, 1);
 assert.equal(input([base, miss("m1", "2026-10-05")]).recentSetback, true);
 assert.equal(input([base, miss("m1", "2026-10-05"), miss("m2", "2026-10-10")]).level, null);

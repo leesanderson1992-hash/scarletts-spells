@@ -4,7 +4,6 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { CanonicalWordSkillRelationshipReadResult } from "../../word-skill-relationships/contracts";
-import { weakVowelDictationTarget } from "../weak-vowel-target";
 import {
   adaptAssignmentAttempt,
   adaptAuthenticUse,
@@ -94,7 +93,7 @@ export async function loadLearnerEvidenceProjection(params: {
     readAll<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status"),
     readAll<any>(client, "micro_skill_catalog", "micro_skill_key,is_active", undefined, "micro_skill_key"),
     readAll<any>(client, "spelling_canonical_mappings", "id,correct_spelling_normalized,misspelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version"),
-    readAll<any>(client, "adle_assignment_attempt_events", "id,child_id,daily_assignment_id,canonical_word_id,micro_skill_key,created_at,attempt_text,is_correct,attempt_kind,evidence_class,section_key,template_key,source_ref", childOnly),
+    readAll<any>(client, "adle_assignment_attempt_events", "id,child_id,canonical_word_id,created_at,attempt_text,is_correct,attempt_kind,evidence_class,section_key,template_key,source_ref", childOnly),
     readAll<any>(client, "adle_review_outcome_events", "id,child_id,canonical_word_id,event_type,occurred_on,created_at,review_encounter_id,original_result,result_source,original_attempted_at,attempt_text,source_provenance", childOnly),
     readAll<any>(client, "adle_authentic_use_events", "id,child_id,canonical_word_id,occurred_on,verified_at,use_kind,parent_verified,piece_ref,source_ref,row_status,provenance_kind,review_encounter_id", childOnly),
     readAll<any>(client, "adle_slippage_events", "id,child_id,canonical_word_id,occurred_on,context_kind,self_corrected,attempt_text,source_ref,row_status", childOnly),
@@ -119,7 +118,7 @@ export async function loadLearnerEvidenceProjection(params: {
     }
     return result;
   };
-  const [reviewEncounterRows, repairRows, verificationRows, reviewSessionRows, reviewIssueLinkRows, treasureRows, weakVowelAssignments] = await Promise.all([
+  const [reviewEncounterRows, repairRows, verificationRows, reviewSessionRows, reviewIssueLinkRows, treasureRows] = await Promise.all([
     params.learnerId ? scopedRead("adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id", ids([
       ...reviewOutcomeRows.map((row) => row.review_encounter_id), ...authenticRows.map((row) => row.review_encounter_id),
     ])) : readAll<any>(client, "adle_review_word_encounters", "id,original_attempt_event_id,original_outcome,original_outcome_source,review_outcome_event_id"),
@@ -128,11 +127,7 @@ export async function loadLearnerEvidenceProjection(params: {
     params.learnerId ? scopedRead("adle_review_sessions", "id,writing_submitted_at", ids(candidateMappingRows.map((row) => row.source_adle_review_session_id))) : readAll<any>(client, "adle_review_sessions", "id,writing_submitted_at"),
     params.learnerId ? scopedRead("adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id", ids(candidateMappingRows.map((row) => row.id)), "candidate_mapping_id") : readAll<any>(client, "adle_review_parent_issue_links", "id,candidate_mapping_id,related_review_encounter_id"),
     params.learnerId ? scopedRead("child_word_treasures", "id,corrected_word", ids(treasureCandidateRows.map((row) => row.treasure_id))) : readAll<any>(client, "child_word_treasures", "id,corrected_word"),
-    scopedRead("daily_assignments", "id,status,compiled_lesson_snapshot", ids(assignmentRows.filter((row) =>
-      row.section_key === "lesson_dictation" && row.micro_skill_key?.startsWith("D4_SCHWA_")
-        && row.source_ref?.includes(":dictation:")).map((row) => row.daily_assignment_id))),
   ]);
-  const weakVowelAssignmentById = new Map(weakVowelAssignments.map((row) => [row.id as string, row]));
 
   const activeWords = wordRows.filter((row) => row.row_status === "active");
   const byNormalisedWord = new Map<string, string[]>();
@@ -161,7 +156,6 @@ export async function loadLearnerEvidenceProjection(params: {
   const candidates: RawLearnerEvidenceCandidate[] = [];
   const assignmentById = new Map<string, LinkedAttemptTruth>();
   for (const row of assignmentRows) {
-    const causalAttemptText = weakVowelDictationTarget(row, weakVowelAssignmentById.get(row.daily_assignment_id));
     const adapted = adaptAssignmentAttempt({
       id: row.id,
       childId: row.child_id,
@@ -174,7 +168,6 @@ export async function loadLearnerEvidenceProjection(params: {
       sectionKey: row.section_key,
       templateKey: row.template_key,
       sourceRef: row.source_ref,
-      causalAttemptText,
     }, causalMappings);
     candidates.push(adapted);
     if (!row.canonical_word_id) continue;
@@ -190,7 +183,6 @@ export async function loadLearnerEvidenceProjection(params: {
       sectionKey: row.section_key,
       templateKey: row.template_key,
       sourceRef: row.source_ref,
-      causalAttemptText,
     });
     assignmentById.set(row.id, {
       attemptEventId: row.id,
@@ -201,8 +193,7 @@ export async function loadLearnerEvidenceProjection(params: {
       environment: classification.environment,
       independence: classification.independence,
       causalMicroSkillKeys: row.is_correct === false
-        ? causalSkillsForAttempt({ canonicalWordId: row.canonical_word_id,
-          attemptText: causalAttemptText ?? row.attempt_text, mappings: causalMappings })
+        ? causalSkillsForAttempt({ canonicalWordId: row.canonical_word_id, attemptText: row.attempt_text, mappings: causalMappings })
         : [],
     });
   }
