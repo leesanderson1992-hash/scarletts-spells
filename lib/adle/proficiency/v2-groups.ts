@@ -108,8 +108,8 @@ export function deriveV2WordGroups(input: {
     for (const part of Array.isArray(row.morphology_parts) ? row.morphology_parts : []) {
       if (!part || typeof part !== "object") continue;
       const value = part as Record<string, unknown>;
-      const type = String(value.type ?? "").toLowerCase();
-      const root = String(value.text ?? "").trim().toLowerCase();
+      const type = String(value.type ?? value.kind ?? "").toLowerCase();
+      const root = String(value.text ?? value.sourceText ?? value.surfaceText ?? "").trim().toLowerCase();
       if ((type === "base" || type === "root") && root) roots.add(root);
     }
     if (roots.size) morphologyRoots.set(row.canonical_word_id, roots);

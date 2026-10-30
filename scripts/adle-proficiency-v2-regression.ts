@@ -36,9 +36,10 @@ assert.equal(isV2ScoredEvent({ ...evidence("choice", "role:where", "2026-10-01",
 const twoDates = [evidence("1", "a", "2026-10-01"), evidence("2", "b", "2026-10-01"),
   evidence("3", "a", "2026-10-05"), evidence("4", "b", "2026-10-05")];
 assert.equal(calculateProficiencyV2(base({ evidence: twoDates })).level, 2);
-const transfer = [...twoDates, evidence("5", "c", "2026-10-12", "positive", "CONTEXTUAL_TRANSFER", "new-context") ,
-  evidence("6", "d", "2026-10-12")];
+const transfer = [...twoDates, ...["c", "d", "e"].map((group, index) =>
+  evidence(`transfer-${index}`, group, "2026-10-12", "positive", "CONTEXTUAL_TRANSFER", `new-context-${index}`))];
 assert.equal(calculateProficiencyV2(base({ evidence: transfer })).level, 3);
+assert.equal(calculateProficiencyV2(base({ evidence: transfer })).observed.transferGroups, 3);
 assert.equal(calculateProficiencyV2(base({ evidence: transfer.map((entry) => ({ ...entry, challengeKey: null })) })).level, 2,
   "Level 3 requires relevant transfer");
 assert.equal(calculateProficiencyV2(base({ learnerId: "learner-b", evidence: transfer })).versions.inputFingerprint ===
@@ -46,13 +47,12 @@ assert.equal(calculateProficiencyV2(base({ learnerId: "learner-b", evidence: tra
   "fingerprints are learner-scoped");
 assert.equal(calculateProficiencyV2(base({ requiredGroupKeys: [] })).status, "unresolved");
 assert.equal(calculateProficiencyV2(base({ evidence: transfer, unscoredCount: 2 })).confidence, "limited");
-const advancedOptional = calculateProficiencyV2(base({ requiredGroupKeys: ["a"], evidence: [
+const fullPool = calculateProficiencyV2(base({ requiredGroupKeys: ["a", "advanced"], evidence: [
   evidence("required", "a", "2026-10-01"), evidence("advanced", "advanced", "2026-10-02"),
 ] }));
-assert.equal(advancedOptional.levels[1].gates[1].required, 1,
-  "advanced knowledge does not enlarge the learner's mandatory V2 group pool");
-assert.equal(advancedOptional.levels[1].gates[1].observed, 2,
-  "a governed advanced word can add optional V2 breadth evidence");
+assert.equal(fullPool.levels[1].gates[1].required, 2,
+  "the governed proficiency pool includes advanced words rather than an age-limited subset");
+assert.equal(fullPool.levels[1].gates[1].observed, 2);
 assert.throws(() => calculateProficiencyV2(base({ asOf: "2026-99-99" })), /invalid_calculation_date/);
 const longHistory = [
   ...["a", "b", "c"].map((group, index) => evidence(`old-${index}`, group, "2026-07-01", "positive", "CONTEXTUAL_TRANSFER", `task-${index}`)),
@@ -61,8 +61,29 @@ const longHistory = [
   ...["d", "e", "f"].map((group, index) => evidence(`now-${index}`, group, "2026-10-20", "positive", "CONTEXTUAL_TRANSFER", `task-${index + 9}`)),
 ];
 assert.equal(calculateProficiencyV2(base({ evidence: longHistory })).level, 5);
-assert.equal(calculateProficiencyV2(base({ evidence: longHistory.map((event) => ({ ...event, challengeKey: event.occurredOn === "2026-10-20" ? event.challengeKey : null })) })).level, 4,
-  "upper levels need varied transfer on different dates");
+const repeatedThreeGroups = [
+  ...["a", "b", "c", "d", "e", "f"].map((group, index) =>
+    evidence(`taught-${index}`, group, "2026-07-01", "positive", "CONTROLLED_LESSON")),
+  ...["a", "b", "c", "d", "e", "f"].map((group, index) =>
+    evidence(`retrieved-${index}`, group, "2026-07-10")),
+  ...["2026-08-01", "2026-09-01", "2026-10-20"].flatMap((date, dateIndex) =>
+    ["a", "b", "c"].map((group, groupIndex) => evidence(`review-${dateIndex}-${groupIndex}`,
+      group, date, "positive", "CONTEXTUAL_TRANSFER", `review-${dateIndex}-${groupIndex}`))),
+];
+for (const familyKey of ["D4_PAT", "D4_PG", "D4_SYL", "D4_SCHWA", "D4_MOR", "D4_INF", "D4_IRRE"]) {
+  const result = calculateProficiencyV2(base({ familyKey, evidence: repeatedThreeGroups }));
+  assert.equal(result.level, 3, `${familyKey}: three transferred groups cannot certify Level 4 or 5`);
+  assert.equal(result.observed.groups, 6);
+  assert.equal(result.observed.transferGroups, 3);
+  assert.equal(result.levels[3].gates[1].observed, 3);
+}
+const controlledStart = longHistory.map((entry) => entry.occurredOn === "2026-07-01" ||
+  entry.occurredOn === "2026-08-01" ? { ...entry, environment: "CONTROLLED_LESSON" as const,
+    challengeKey: null } : entry);
+assert.equal(calculateProficiencyV2(base({ evidence: controlledStart })).level, 4,
+  "Level 5 retention needs 56 days between independent successes, not just since teaching");
+assert.equal(calculateProficiencyV2(base({ evidence: longHistory.map((event) => ({ ...event, challengeKey: event.occurredOn === "2026-10-20" ? event.challengeKey : null })) })).level, 3,
+  "upper levels need transfer across the required number of distinct groups");
 const closed = ["2026-07-01", "2026-07-15", "2026-08-01", "2026-08-20", "2026-09-15", "2026-10-20"]
   .flatMap((date, index) => ["role:peace", "role:piece"].map((role, offset) =>
     evidence(`closed-${index}-${offset}`, role, date, "positive", "CONTEXTUAL_TRANSFER", `context-${index}-${offset}`)));
@@ -139,4 +160,18 @@ const compoundMorphology = deriveV2WordGroups({
 assert.equal(compoundMorphology.forSkill("homework", "O_E", new Set(["home", "homework"]))?.key,
   compoundMorphology.forSkill("home", "O_E", new Set(["home", "homework"]))?.key,
   "a multi-base word shares breadth with its uniquely relevant reviewed base");
+const modernMorphology = deriveV2WordGroups({
+  words: [{ id: "ice", normalisedWord: "ice" }, { id: "misplace", normalisedWord: "misplace" }],
+  morphology: [
+    { canonical_word_id: "ice", morphology_parts: [{ kind: "base", sourceText: "ice" }],
+      analysis_status: "approved", row_status: "active", review_status: "approved_for_first_exposure" },
+    { canonical_word_id: "misplace", morphology_parts: [{ kind: "prefix", sourceText: "mis" },
+      { kind: "suffix", sourceText: "place" }], analysis_status: "approved", row_status: "active",
+      review_status: "approved_for_first_exposure" },
+  ],
+});
+assert.equal(modernMorphology.byWordId.get("ice")?.key, "root:ice",
+  "reviewed modern morphology identifies a base without an exact-word fallback");
+assert.equal(modernMorphology.byWordId.get("misplace")?.source, "exact_word",
+  "an affix-labelled part must not be guessed into a base family");
 console.log("ADLE proficiency V2 regression passed");

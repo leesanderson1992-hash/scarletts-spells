@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
-export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_CANONICAL_FAMILIES_R4_2026_10_30";
-export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_R3_2026_10_30";
+export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_TRANSFER_BREADTH_R5_2026_10_30";
+export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_TRANSFER_BREADTH_R4_2026_10_30";
 
 export type ProficiencyEnvironment = "CONTROLLED_LESSON" | "ISOLATED_RETRIEVAL" | "CONTEXTUAL_TRANSFER" | "AUTHENTIC_WRITING";
 export type ProficiencyTrend = "improving" | "steady" | "needs_practice" | "insufficient_history";
@@ -36,7 +36,7 @@ export interface V2SkillInput {
   skillKey: string;
   familyKey: string;
   asOf: string;
-  /** Governed child-appropriate group pool. Observed advanced groups may still contribute. */
+  /** All governed groups for this skill; teaching age/frequency bands do not restrict proficiency. */
   requiredGroupKeys: readonly string[];
   evidence: readonly V2Evidence[];
   unscoredCount: number;
@@ -73,7 +73,8 @@ export interface V2SkillResult {
   setbackHeld?: boolean;
   nextRequirement: string;
   levels: V2Level[];
-  observed: { accuracyCorrect: number; accuracyTotal: number; groups: number; dates: number; challenges: number; unscored: number };
+  observed: { accuracyCorrect: number; accuracyTotal: number; groups: number; transferGroups: number;
+    dates: number; challenges: number; unscored: number };
   sourceEventIds: string[];
   reasonCodes: string[];
   versions: { model: string; inputFingerprint: string };
@@ -130,11 +131,15 @@ function evaluated(input: V2SkillInput, events: readonly V2Evidence[]): { levels
     successfulUnits.has(`${event.groupKey}\u0000${event.occurredOn}`));
   const groups = new Set(positives.map((event) => event.groupKey));
   const dates = [...new Set(positives.map((event) => event.occurredOn))].sort();
-  const span = dates.length < 2 ? 0 : Math.round((dateMs(dates.at(-1)!) - dateMs(dates[0])) / DAY);
-  const challengeUnits = new Set(positives.filter((event) => event.challengeKey)
+  const transfers = positives.filter((event) => event.challengeKey &&
+    ["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(event.environment));
+  const transferGroups = new Set(transfers.map((event) => event.groupKey));
+  const independentDates = [...new Set(positives.filter((event) => event.environment !== "CONTROLLED_LESSON")
+    .map((event) => event.occurredOn))].sort();
+  const challengeUnits = new Set(transfers
     .map((event) => `${event.groupKey}\u0000${event.occurredOn}`));
-  const challengeKinds = new Set(positives.map((event) => event.challengeKey).filter(Boolean));
-  const challengeDates = new Set(positives.filter((event) => event.challengeKey).map((event) => event.occurredOn));
+  const challengeKinds = new Set(transfers.map((event) => event.challengeKey));
+  const challengeDates = new Set(transfers.map((event) => event.occurredOn));
   const levels: V2Level[] = [];
   let priorPassed = true;
   for (let index = 0; index < 5; index += 1) {
@@ -145,17 +150,22 @@ function evaluated(input: V2SkillInput, events: readonly V2Evidence[]): { levels
     const breadth = groupTarget(level, poolSize, closed);
     const retention = RETENTION[index];
     const independent = positives.some((event) => event.environment !== "CONTROLLED_LESSON");
+    const breadthGroups = level >= 3 ? transferGroups : groups;
+    const retentionDates = level === 5 ? independentDates : dates;
+    const retentionSpan = retentionDates.length < 2 ? 0 :
+      Math.round((dateMs(retentionDates.at(-1)!) - dateMs(retentionDates[0])) / DAY);
     const distinctChallengeKinds = level >= 4 ? CHALLENGES[index] : 0;
     const gates: V2Gate[] = [
       { dimension: "accuracy", observed: correct, required: accuracy.correct,
         passed: recent.length >= accuracy.total && correct >= accuracy.correct,
         detail: `${correct} correct from ${recent.length} of ${accuracy.total} required distinct group/day assessments` },
-      { dimension: "breadth", observed: groups.size, required: breadth.target,
-        passed: breadth.target > 0 && groups.size >= breadth.target,
-        detail: `${groups.size} distinct governed families or roles` },
-      { dimension: "retention", observed: dates.length, required: retention.dates,
-        passed: dates.length >= retention.dates && span >= retention.span,
-        detail: `${dates.length} positive dates spanning ${span} of ${retention.span} required days` },
+      { dimension: "breadth", observed: breadthGroups.size, required: breadth.target,
+        passed: breadth.target > 0 && breadthGroups.size >= breadth.target,
+        detail: level >= 3 ? `${breadthGroups.size} distinct groups shown in independent transfer` :
+          `${breadthGroups.size} distinct governed groups` },
+      { dimension: "retention", observed: retentionDates.length, required: retention.dates,
+        passed: retentionDates.length >= retention.dates && retentionSpan >= retention.span,
+        detail: `${retentionDates.length} ${level === 5 ? "independent" : "positive"} dates spanning ${retentionSpan} of ${retention.span} required days` },
       { dimension: "challenge", observed: challengeUnits.size, required: CHALLENGES[index],
         passed: (level === 1 || independent) && challengeUnits.size >= CHALLENGES[index] &&
           challengeKinds.size >= distinctChallengeKinds && (level < 5 || challengeDates.size >= 3),
@@ -233,13 +243,18 @@ export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
       : heldForOneMiss ? "Show the right choice in a fresh independent context on another day"
       : !next ? "Keep applying this skill in new contexts"
       : firstMissing?.dimension === "accuracy" ? "Practise independently on another day to build reliable accuracy"
-        : firstMissing?.dimension === "breadth" ? "Apply this skill in another word family or meaning role"
+        : firstMissing?.dimension === "breadth" ? next.level >= 3
+          ? "Show this skill independently in another word family or meaning role"
+          : "Apply this skill in another word family or meaning role"
           : firstMissing?.dimension === "retention" ? "Show the skill again after more time has passed"
             : "Use the skill in a new independent context",
     levels: evaluatedNow.levels,
     observed: { accuracyCorrect: latestAccuracy.filter((unit) => unit.correct).length,
       accuracyTotal: latestAccuracy.length, groups: new Set(positive.map((event) => event.groupKey)).size,
-      dates: dates.size, challenges: new Set(positive.filter((event) => event.challengeKey)
+      transferGroups: new Set(positive.filter((event) => event.challengeKey &&
+        ["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(event.environment)).map((event) => event.groupKey)).size,
+      dates: dates.size, challenges: new Set(positive.filter((event) => event.challengeKey &&
+        ["CONTEXTUAL_TRANSFER", "AUTHENTIC_WRITING"].includes(event.environment))
         .map((event) => `${event.groupKey}\u0000${event.occurredOn}`)).size, unscored: input.unscoredCount },
     sourceEventIds: [...new Set(events.map((event) => event.eventId))].sort(), reasonCodes,
     versions: { model: modelVersion, inputFingerprint },

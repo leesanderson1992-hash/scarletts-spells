@@ -121,14 +121,15 @@ export function V2InsightsWorkspace({ skills, words, reviewSlot }: {
           {!selectedLevel.passed && selectedLevel.gates.every((gate) => gate.passed) ? <p className="insights-panel-note">A lower level must be achieved first.</p> : null}
           {selectedLevel.contentLimited || selectedSkill.result.status === "unresolved" ? <p className="insights-v2-alert">Available content or evidence authority limits this result. This is not a learner failure.</p> : null}
           <p className="insights-panel-note"><strong>Next step:</strong> {selectedSkill.result.nextRequirement}</p>
+          <p className="insights-panel-note">{selectedSkill.result.observed.groups} groups shown overall · {selectedSkill.result.observed.transferGroups} shown in independent transfer. Levels 3–5 use transfer groups for breadth.</p>
           <h3>Words with qualifying V2 evidence · {selectedSkill.evidenceWords.length}</h3>
-          <p className="insights-panel-note">The same evidence can support several levels. Words are not assigned to one level; related words share one breadth group.</p>
+          <p className="insights-panel-note">The same evidence can support several levels. Words are not assigned to one level; related words share one breadth group when its link is verified.</p>
           <div className="insights-evidence-words">{selectedSkill.evidenceWords.map((word) => <div key={word.id}>
             <strong>{word.word}</strong><span>{selectedGroupNames.get(word.groupKey)}</span>
             <small>{word.attempts} qualifying {word.attempts === 1 ? "attempt" : "attempts"} on {word.dates} {word.dates === 1 ? "date" : "dates"}</small>
             <small>{word.transfer ? "Relevant transfer shown" : word.independent ? "Independent retrieval shown" : "Controlled application shown"}</small>
           </div>)}{selectedSkill.evidenceWords.length === 0 ? <p>No qualifying word evidence yet.</p> : null}</div>
-          <div className="insights-credit-key"><h3>How V2 counts words</h3><p>Qualified correct spelling can support every approved applicable skill. A misspelt word is unscored. Cover-check is word mastery only. Breadth counts each base family or contextual role once.</p></div>
+          <div className="insights-credit-key"><h3>How V2 counts words</h3><p>Qualified correct spelling can support every approved applicable skill. A misspelt word is unscored. Cover-check is word mastery only. Higher-level breadth needs distinct groups shown in independent transfer.</p></div>
         </aside> : <section className="insights-v2-prompt brand-card"><h2>Select a level</h2><p>Choose L1–L5 beside a micro-skill to see its gates and the words behind its evidence.</p></section>}
         {reviewSlot}
       </div>

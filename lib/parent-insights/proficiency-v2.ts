@@ -10,7 +10,6 @@ import { loadHomophoneContextEvidence } from "@/lib/parent-insights/homophone-ev
 import { calculateProficiencyV2, type V2Evidence, type V2SkillResult } from "@/lib/adle/proficiency/v2";
 import { contributingV2Words, type ParentV2EvidenceWord } from "@/lib/parent-insights/v2-evidence-words";
 import { isAdleCoverCheckSource } from "@/lib/adle/proficiency/v2-source-policy";
-import { requiredAgeBands } from "@/lib/adle/proficiency/shadow-v1";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -100,8 +99,8 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const [daily, published, childResult, words, catalog, families, clusters, canonicalFamilies, canonicalMembers, legacyFamilies, compoundFacts, morphology, contextualResult, attemptRows] = await Promise.all([
     loadDailyPlanFacts(client, { childId, today: asOf, relationshipEnvironment: environment, wordReadMode: "scoped" }),
     loadPublishedWritingAssociations(client, environment),
-    client.from("children").select("id,date_of_birth").eq("id", childId).maybeSingle(),
-    all<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status,age_band,frequency_band"),
+    client.from("children").select("id").eq("id", childId).maybeSingle(),
+    all<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status"),
     all<any>(client, "micro_skill_catalog", "micro_skill_key,display_name,skill_family_key,skill_cluster_key,is_active", "micro_skill_key"),
     all<any>(client, "micro_skill_families", "skill_family_key,display_name", "skill_family_key"),
     all<any>(client, "micro_skill_clusters", "skill_cluster_key,display_name", "skill_cluster_key"),
@@ -134,7 +133,6 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     (typeof row.source_ref === "string" && (row.source_ref.includes(":passage:") || row.source_ref.startsWith("review-r3:"))) ||
     row.section_key === "review_audio_check" || row.template_key === "homophone_passage_dictation")
     .map((row) => [row.id as string, String(row.source_ref ?? row.template_key ?? row.id)]));
-  const ageBands = requiredAgeBands(childResult.data.date_of_birth, asOf);
   const familyLabel = new Map(families.map((row) => [row.skill_family_key, row.display_name]));
   const clusterLabel = new Map(clusters.map((row) => [row.skill_cluster_key, row.display_name]));
   const relationshipsBySkill = new Map<string, string[]>();
@@ -153,9 +151,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     const relatedSet = new Set(relatedIds);
     const eligible = relatedIds.filter((id) => {
       const word = wordById.get(id);
-      if (!word || !["approved_for_guided_review", "approved_for_first_exposure"].includes(word.review_status)) return false;
-      if (!word.frequency_band || !["high", "medium"].includes(word.frequency_band)) return false;
-      return !!ageBands && !!word.age_band && ageBands.includes(word.age_band);
+      return !!word && ["approved_for_guided_review", "approved_for_first_exposure"].includes(word.review_status);
     });
     const groupFor = (wordId: string) => {
       const word = wordById.get(wordId);
@@ -214,10 +210,6 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       homophoneTwoDateSetback: closed && homophoneEnabled });
     if (!closed && eligible.some((id) => groupAuthority.forSkill(id, key, relatedSet)?.key === "unresolved:family_review")) {
       result.reasonCodes.push("family_decision_review_required");
-    }
-    if (!ageBands) {
-      result.confidence = "unresolved";
-      result.reasonCodes.push("date_of_birth_unavailable_for_target_pool");
     }
     const evidenceWords = contributingV2Words(evidence, familyKey, asOf, (id) =>
       String(wordById.get(id)?.display_word ?? wordById.get(id)?.normalised_word ?? "Word"));
