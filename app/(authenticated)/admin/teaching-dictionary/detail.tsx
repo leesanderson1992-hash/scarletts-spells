@@ -19,6 +19,7 @@ import { loadWordBaseFamilies } from "@/lib/teaching-dictionary-manager/base-fam
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/draft-freshness";
+import { assignedWorkspaceSkills, currentWorkspaceSkills } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
@@ -306,11 +307,11 @@ export async function TeachingDictionaryDetail({
     ? await loadCachedTeachingDictionaryEvidenceAuthorityForWord(environment, wordId)
     : null;
   const initialAssignedSkillKeys = (assignmentAuthority?.relationships ?? [])
-    .filter(row => row.canonicalWordId === wordId)
+    .filter(row => row.canonicalWordId === wordId && activeSkillKeys.has(row.microSkillKey))
     .map(row => row.microSkillKey);
   const routeContents: RouteContentDraft[] = [];
   for (const row of (routeVersions?.data ?? []).filter(
-    (row) => !rolledBackIds.has(row.id),
+    (row) => !rolledBackIds.has(row.id) && activeSkillKeys.has(row.micro_skill_key),
   ))
     if (
       !routeContents.some(
@@ -383,7 +384,11 @@ export async function TeachingDictionaryDetail({
   const latestSavedDraft = !params.draft && (history?.data ?? []).find((version) =>
     Date.parse(version.created_at) > Math.max(0, ...approvedFactDates));
   const activeDraft = staleDraft ? null : draft;
-  const initial: WordDraftPayload = activeDraft ? activeDraft.payload as WordDraftPayload : currentInitial;
+  const initial = activeDraft
+    ? currentWorkspaceSkills(activeDraft.payload as WordDraftPayload, activeSkillKeys)
+    : assignmentAuthority
+      ? assignedWorkspaceSkills(currentInitial, initialAssignedSkillKeys, activeSkillKeys)
+      : currentWorkspaceSkills(currentInitial, activeSkillKeys);
   const suggestions = [
     ...routeContents.map((route) => ({
       label: `Existing ${route.microSkillKey.replaceAll("_", " ")} analysis`,

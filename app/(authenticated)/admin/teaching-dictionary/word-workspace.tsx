@@ -339,7 +339,10 @@ export function WordWorkspace(props: {
         // Late native facts fill gaps only; edits and an explicitly selected draft win.
         setPayload(current => prefillWeakVowelDrafts({
           payload: hydrateWorkspaceFacts({ current, initial: props.initial, draftId: props.draftId,
-            edited: editRevision.current > 0, skillKeys: result.skillKeys, routeContents: result.routeContents }),
+            edited: editRevision.current > 0, skillKeys: result.assignedSkillKeys,
+            routeContents: result.routeContents.filter(route => current.skillKeys.includes(route.microSkillKey) ||
+              result.assignedSkillKeys.includes(route.microSkillKey)),
+            activeSkillKeys: new Set(props.skills.map(skill => skill.micro_skill_key)) }),
           dictionaryFingerprint: props.dictionaryFingerprint,
           approvedWord: props.approvedWord,
           approvedDefinition: props.approvedDefinition,

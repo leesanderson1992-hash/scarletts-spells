@@ -12,7 +12,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/29bac9fa-2d8f-5d1d-bf33-e4311304cae6.mp3"
     },
     {
       "kind": "sentence",
@@ -24,7 +25,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/29bac9fa-2d8f-5d1d-bf33-e4311304cae6.mp3"
     },
     {
       "kind": "word",
@@ -36,7 +38,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/25335f3d-32de-5b22-ac22-c8cc6b6e39f9.mp3"
     },
     {
       "kind": "sentence",
@@ -48,7 +51,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/25335f3d-32de-5b22-ac22-c8cc6b6e39f9.mp3"
     },
     {
       "kind": "word",
@@ -60,7 +64,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0d1dee80-55cb-5478-9945-4312b092f945.mp3"
     },
     {
       "kind": "sentence",
@@ -72,7 +77,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0d1dee80-55cb-5478-9945-4312b092f945.mp3"
     },
     {
       "kind": "word",
@@ -84,7 +90,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d3a7d164-0f97-57e5-8fed-3710f64a06d1.mp3"
     },
     {
       "kind": "sentence",
@@ -96,7 +103,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d3a7d164-0f97-57e5-8fed-3710f64a06d1.mp3"
     },
     {
       "kind": "word",
@@ -108,7 +116,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/66a048d9-480b-5972-abfa-12ae9a48c90b.mp3"
     },
     {
       "kind": "sentence",
@@ -120,7 +129,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/66a048d9-480b-5972-abfa-12ae9a48c90b.mp3"
     },
     {
       "kind": "word",
@@ -132,7 +142,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f51a8eb0-a5e6-5bb8-9fbc-b388f4590784.mp3"
     },
     {
       "kind": "sentence",
@@ -144,7 +155,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f51a8eb0-a5e6-5bb8-9fbc-b388f4590784.mp3"
     },
     {
       "kind": "word",
@@ -156,7 +168,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7b921344-19e5-534f-95a4-1b6b525bdc77.mp3"
     },
     {
       "kind": "sentence",
@@ -168,7 +181,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7b921344-19e5-534f-95a4-1b6b525bdc77.mp3"
     },
     {
       "kind": "word",
@@ -180,7 +194,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5a300306-21ff-5ddc-b444-c96d5c5f8bec.mp3"
     },
     {
       "kind": "sentence",
@@ -192,7 +207,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5a300306-21ff-5ddc-b444-c96d5c5f8bec.mp3"
     },
     {
       "kind": "word",
@@ -204,7 +220,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d1c76f96-74d8-5b6c-a4a4-75687b4859a1.mp3"
     },
     {
       "kind": "sentence",
@@ -216,7 +233,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d1c76f96-74d8-5b6c-a4a4-75687b4859a1.mp3"
     },
     {
       "kind": "word",
@@ -228,7 +246,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/154de85b-fcfb-52c6-a99e-9a350d03004a.mp3"
     },
     {
       "kind": "sentence",
@@ -240,7 +259,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/154de85b-fcfb-52c6-a99e-9a350d03004a.mp3"
     },
     {
       "kind": "word",
@@ -252,7 +272,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/4c6b684d-e155-5725-b664-d412c5b7443e.mp3"
     },
     {
       "kind": "sentence",
@@ -264,7 +285,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/4c6b684d-e155-5725-b664-d412c5b7443e.mp3"
     },
     {
       "kind": "word",
@@ -276,7 +298,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/125cc9ef-973a-502c-839d-a21ce7f41a01.mp3"
     },
     {
       "kind": "sentence",
@@ -288,7 +311,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/125cc9ef-973a-502c-839d-a21ce7f41a01.mp3"
     },
     {
       "kind": "word",
@@ -300,7 +324,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fde34851-3c91-5088-8e59-5ceff3102b52.mp3"
     },
     {
       "kind": "sentence",
@@ -312,7 +337,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fde34851-3c91-5088-8e59-5ceff3102b52.mp3"
     },
     {
       "kind": "word",
@@ -324,7 +350,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ece41f49-58d6-57ed-be83-7780a97f1726.mp3"
     },
     {
       "kind": "sentence",
@@ -336,7 +363,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ece41f49-58d6-57ed-be83-7780a97f1726.mp3"
     },
     {
       "kind": "word",
@@ -348,7 +376,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/65785839-aa65-5bdc-acf8-125bd23c7e24.mp3"
     },
     {
       "kind": "sentence",
@@ -360,7 +389,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/65785839-aa65-5bdc-acf8-125bd23c7e24.mp3"
     },
     {
       "kind": "word",
@@ -372,7 +402,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8e6ffc7d-6166-5816-88d7-773e4017a417.mp3"
     },
     {
       "kind": "sentence",
@@ -384,7 +415,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8e6ffc7d-6166-5816-88d7-773e4017a417.mp3"
     },
     {
       "kind": "word",
@@ -396,7 +428,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/869004be-be43-5c07-b4ed-661e3fedc106.mp3"
     },
     {
       "kind": "sentence",
@@ -408,7 +441,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/869004be-be43-5c07-b4ed-661e3fedc106.mp3"
     },
     {
       "kind": "word",
@@ -420,7 +454,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/00d738d7-5c8f-5813-b5fc-cc4f59774cc1.mp3"
     },
     {
       "kind": "sentence",
@@ -432,7 +467,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/00d738d7-5c8f-5813-b5fc-cc4f59774cc1.mp3"
     },
     {
       "kind": "word",
@@ -444,7 +480,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/483f637f-2c6a-59df-b8b6-2636d22390bf.mp3"
     },
     {
       "kind": "sentence",
@@ -456,7 +493,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/483f637f-2c6a-59df-b8b6-2636d22390bf.mp3"
     },
     {
       "kind": "word",
@@ -468,7 +506,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/73df566b-e201-50d2-bf71-15f54a017396.mp3"
     },
     {
       "kind": "sentence",
@@ -480,7 +519,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/73df566b-e201-50d2-bf71-15f54a017396.mp3"
     },
     {
       "kind": "word",
@@ -492,7 +532,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1f5e8f97-b5f2-57d7-847a-7e109f20d651.mp3"
     },
     {
       "kind": "sentence",
@@ -504,7 +545,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1f5e8f97-b5f2-57d7-847a-7e109f20d651.mp3"
     },
     {
       "kind": "word",
@@ -516,7 +558,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8f39b892-ed66-5e65-bfb5-75add66ac7b9.mp3"
     },
     {
       "kind": "sentence",
@@ -528,7 +571,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8f39b892-ed66-5e65-bfb5-75add66ac7b9.mp3"
     },
     {
       "kind": "word",
@@ -540,7 +584,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0ff7b8d7-a61b-5c37-b319-71b5c2929dde.mp3"
     },
     {
       "kind": "sentence",
@@ -552,7 +597,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0ff7b8d7-a61b-5c37-b319-71b5c2929dde.mp3"
     },
     {
       "kind": "word",
@@ -564,7 +610,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/39456b8b-e19d-52f6-a7bc-903eebcb6c5b.mp3"
     },
     {
       "kind": "sentence",
@@ -576,7 +623,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/39456b8b-e19d-52f6-a7bc-903eebcb6c5b.mp3"
     },
     {
       "kind": "word",
@@ -588,7 +636,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/4f84246b-136b-580b-93bf-0ead1f9c4e53.mp3"
     },
     {
       "kind": "sentence",
@@ -600,7 +649,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/4f84246b-136b-580b-93bf-0ead1f9c4e53.mp3"
     },
     {
       "kind": "word",
@@ -612,7 +662,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/51762d44-385b-57fa-9e65-840de83afa09.mp3"
     },
     {
       "kind": "sentence",
@@ -624,7 +675,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/51762d44-385b-57fa-9e65-840de83afa09.mp3"
     },
     {
       "kind": "word",
@@ -636,7 +688,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/9c2c7e5b-c9b2-5d83-bb15-9b35532489ac.mp3"
     },
     {
       "kind": "sentence",
@@ -648,7 +701,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/9c2c7e5b-c9b2-5d83-bb15-9b35532489ac.mp3"
     },
     {
       "kind": "word",
@@ -660,7 +714,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a713df54-78ae-58bb-af47-8b5550b51c95.mp3"
     },
     {
       "kind": "sentence",
@@ -672,7 +727,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a713df54-78ae-58bb-af47-8b5550b51c95.mp3"
     },
     {
       "kind": "word",
@@ -684,7 +740,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a32cdc9f-88c0-5dd5-b844-9e2f2fa52713.mp3"
     },
     {
       "kind": "sentence",
@@ -696,7 +753,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a32cdc9f-88c0-5dd5-b844-9e2f2fa52713.mp3"
     },
     {
       "kind": "word",
@@ -708,7 +766,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fbe3e2e3-1626-5974-ae12-c8afb7d8c074.mp3"
     },
     {
       "kind": "sentence",
@@ -720,7 +779,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fbe3e2e3-1626-5974-ae12-c8afb7d8c074.mp3"
     },
     {
       "kind": "word",
@@ -732,7 +792,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5bade72e-df14-5f94-833c-630b3df7cda9.mp3"
     },
     {
       "kind": "sentence",
@@ -744,7 +805,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5bade72e-df14-5f94-833c-630b3df7cda9.mp3"
     },
     {
       "kind": "word",
@@ -756,7 +818,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/2edfc34b-76c2-5c28-aa43-55c0a6296b08.mp3"
     },
     {
       "kind": "sentence",
@@ -768,7 +831,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/2edfc34b-76c2-5c28-aa43-55c0a6296b08.mp3"
     },
     {
       "kind": "word",
@@ -780,7 +844,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/3eb5f1b6-82a4-5a7a-b581-37bcdb7bb14f.mp3"
     },
     {
       "kind": "sentence",
@@ -792,7 +857,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/3eb5f1b6-82a4-5a7a-b581-37bcdb7bb14f.mp3"
     },
     {
       "kind": "word",
@@ -804,7 +870,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/2ba41ad3-4b28-5b26-a989-ab2e3b5777b9.mp3"
     },
     {
       "kind": "sentence",
@@ -816,7 +883,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/2ba41ad3-4b28-5b26-a989-ab2e3b5777b9.mp3"
     },
     {
       "kind": "word",
@@ -828,7 +896,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/86105545-06cb-5da4-8073-f47364542e96.mp3"
     },
     {
       "kind": "sentence",
@@ -840,7 +909,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/86105545-06cb-5da4-8073-f47364542e96.mp3"
     },
     {
       "kind": "word",
@@ -852,7 +922,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c0826630-1834-5eb5-b5d6-03c51d18a656.mp3"
     },
     {
       "kind": "sentence",
@@ -864,7 +935,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c0826630-1834-5eb5-b5d6-03c51d18a656.mp3"
     },
     {
       "kind": "word",
@@ -876,7 +948,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1169d7b2-274b-5f1b-9a79-25dc666b1626.mp3"
     },
     {
       "kind": "sentence",
@@ -888,7 +961,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1169d7b2-274b-5f1b-9a79-25dc666b1626.mp3"
     },
     {
       "kind": "word",
@@ -900,7 +974,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8d30f70b-bf9c-51c8-9571-00f42b64579b.mp3"
     },
     {
       "kind": "sentence",
@@ -912,7 +987,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8d30f70b-bf9c-51c8-9571-00f42b64579b.mp3"
     },
     {
       "kind": "word",
@@ -924,7 +1000,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/76111e34-9ed6-5db4-a164-f8e902bebaa2.mp3"
     },
     {
       "kind": "sentence",
@@ -936,7 +1013,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/76111e34-9ed6-5db4-a164-f8e902bebaa2.mp3"
     },
     {
       "kind": "word",
@@ -948,7 +1026,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/04f203b5-2f27-5f8c-ad78-9ab40af03150.mp3"
     },
     {
       "kind": "sentence",
@@ -960,7 +1039,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/04f203b5-2f27-5f8c-ad78-9ab40af03150.mp3"
     },
     {
       "kind": "word",
@@ -972,7 +1052,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/2da4c9f6-fed7-5f39-9e2e-02f9c6118f44.mp3"
     },
     {
       "kind": "sentence",
@@ -984,7 +1065,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/2da4c9f6-fed7-5f39-9e2e-02f9c6118f44.mp3"
     },
     {
       "kind": "word",
@@ -996,7 +1078,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/9edd71ef-534d-57d6-b997-0f518d69bce8.mp3"
     },
     {
       "kind": "sentence",
@@ -1008,7 +1091,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/9edd71ef-534d-57d6-b997-0f518d69bce8.mp3"
     },
     {
       "kind": "word",
@@ -1020,7 +1104,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1237f583-9b89-5cfe-82bf-8d8f5553db14.mp3"
     },
     {
       "kind": "sentence",
@@ -1032,7 +1117,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1237f583-9b89-5cfe-82bf-8d8f5553db14.mp3"
     },
     {
       "kind": "word",
@@ -1044,7 +1130,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5f087429-f789-57a4-a817-449d0678aba4.mp3"
     },
     {
       "kind": "sentence",
@@ -1056,7 +1143,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5f087429-f789-57a4-a817-449d0678aba4.mp3"
     },
     {
       "kind": "word",
@@ -1068,7 +1156,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/9524ad3a-7edc-5456-83e6-e2493b15ba69.mp3"
     },
     {
       "kind": "sentence",
@@ -1080,7 +1169,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/9524ad3a-7edc-5456-83e6-e2493b15ba69.mp3"
     },
     {
       "kind": "word",
@@ -1092,7 +1182,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0bcef9da-429b-5ebb-b865-e2ea817d593a.mp3"
     },
     {
       "kind": "sentence",
@@ -1104,7 +1195,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0bcef9da-429b-5ebb-b865-e2ea817d593a.mp3"
     },
     {
       "kind": "word",
@@ -1116,7 +1208,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/9e6535c4-1f77-5be5-83b4-9efc2a6593e4.mp3"
     },
     {
       "kind": "sentence",
@@ -1128,7 +1221,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/9e6535c4-1f77-5be5-83b4-9efc2a6593e4.mp3"
     },
     {
       "kind": "word",
@@ -1140,7 +1234,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/af51e77e-8541-40bb-b6c1-d1ecda9ca89f.mp3"
     },
     {
       "kind": "sentence",
@@ -1152,7 +1247,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/af51e77e-8541-40bb-b6c1-d1ecda9ca89f.mp3"
     },
     {
       "kind": "word",
@@ -1164,7 +1260,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8932d3c2-4d23-5a2e-ac4a-e831d6ad8af2.mp3"
     },
     {
       "kind": "sentence",
@@ -1176,7 +1273,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8932d3c2-4d23-5a2e-ac4a-e831d6ad8af2.mp3"
     },
     {
       "kind": "word",
@@ -1188,7 +1286,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ab9eebf8-3041-5f02-af35-2ad9d42ddc9f.mp3"
     },
     {
       "kind": "sentence",
@@ -1200,7 +1299,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ab9eebf8-3041-5f02-af35-2ad9d42ddc9f.mp3"
     },
     {
       "kind": "word",
@@ -1212,7 +1312,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f7a29858-5a78-5f75-9ab9-fe6fca5b8dcb.mp3"
     },
     {
       "kind": "sentence",
@@ -1224,7 +1325,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f7a29858-5a78-5f75-9ab9-fe6fca5b8dcb.mp3"
     },
     {
       "kind": "word",
@@ -1236,7 +1338,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/eac7da47-0b04-5f74-8c67-88530bbae5b4.mp3"
     },
     {
       "kind": "sentence",
@@ -1248,7 +1351,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/eac7da47-0b04-5f74-8c67-88530bbae5b4.mp3"
     },
     {
       "kind": "word",
@@ -1260,7 +1364,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/66c4933b-e0b0-5236-bd89-829d1ec70df4.mp3"
     },
     {
       "kind": "sentence",
@@ -1272,7 +1377,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/66c4933b-e0b0-5236-bd89-829d1ec70df4.mp3"
     },
     {
       "kind": "word",
@@ -1284,7 +1390,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f7752a9b-3dfd-5ac3-b9a6-9a15abe7943a.mp3"
     },
     {
       "kind": "sentence",
@@ -1296,7 +1403,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f7752a9b-3dfd-5ac3-b9a6-9a15abe7943a.mp3"
     },
     {
       "kind": "word",
@@ -1308,7 +1416,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e0524dc8-9d0c-52e7-bf99-c83b030fa16c.mp3"
     },
     {
       "kind": "sentence",
@@ -1320,7 +1429,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e0524dc8-9d0c-52e7-bf99-c83b030fa16c.mp3"
     },
     {
       "kind": "word",
@@ -1332,7 +1442,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8e345559-2b7d-541b-85be-afaea40d8e50.mp3"
     },
     {
       "kind": "sentence",
@@ -1344,7 +1455,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8e345559-2b7d-541b-85be-afaea40d8e50.mp3"
     },
     {
       "kind": "word",
@@ -1356,7 +1468,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6476ffdc-3fbb-540e-9f59-587ed3adc83c.mp3"
     },
     {
       "kind": "sentence",
@@ -1368,7 +1481,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6476ffdc-3fbb-540e-9f59-587ed3adc83c.mp3"
     },
     {
       "kind": "word",
@@ -1380,7 +1494,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8fe80b99-b9e1-4aaf-9646-88d30ba9a860.mp3"
     },
     {
       "kind": "sentence",
@@ -1392,7 +1507,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8fe80b99-b9e1-4aaf-9646-88d30ba9a860.mp3"
     },
     {
       "kind": "word",
@@ -1404,7 +1520,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/91bbbda5-9fa4-56ca-8cab-1a980c19ea31.mp3"
     },
     {
       "kind": "sentence",
@@ -1416,7 +1533,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/91bbbda5-9fa4-56ca-8cab-1a980c19ea31.mp3"
     },
     {
       "kind": "word",
@@ -1428,7 +1546,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c72fe2a0-160c-5d48-9074-2ff610a3da74.mp3"
     },
     {
       "kind": "sentence",
@@ -1440,7 +1559,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c72fe2a0-160c-5d48-9074-2ff610a3da74.mp3"
     },
     {
       "kind": "word",
@@ -1452,7 +1572,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/08f81040-5cd5-5ad6-b24c-70625aa3c1d6.mp3"
     },
     {
       "kind": "sentence",
@@ -1464,7 +1585,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/08f81040-5cd5-5ad6-b24c-70625aa3c1d6.mp3"
     },
     {
       "kind": "word",
@@ -1476,7 +1598,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1e7bd33a-68bd-545f-b05f-57b4b6047bbb.mp3"
     },
     {
       "kind": "sentence",
@@ -1488,7 +1611,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1e7bd33a-68bd-545f-b05f-57b4b6047bbb.mp3"
     },
     {
       "kind": "word",
@@ -1500,7 +1624,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/00caa1c8-fb67-5a12-8641-0e322980e039.mp3"
     },
     {
       "kind": "sentence",
@@ -1512,7 +1637,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/00caa1c8-fb67-5a12-8641-0e322980e039.mp3"
     },
     {
       "kind": "word",
@@ -1524,7 +1650,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8d073816-25a5-58fc-9988-ab799db4716f.mp3"
     },
     {
       "kind": "sentence",
@@ -1536,7 +1663,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8d073816-25a5-58fc-9988-ab799db4716f.mp3"
     },
     {
       "kind": "word",
@@ -1548,7 +1676,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cd4c8b88-4c0d-5b5b-93d5-cfd27863e36f.mp3"
     },
     {
       "kind": "sentence",
@@ -1560,7 +1689,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cd4c8b88-4c0d-5b5b-93d5-cfd27863e36f.mp3"
     },
     {
       "kind": "word",
@@ -1572,7 +1702,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/52aefea8-9fc0-5079-bef7-dc05eba58ce2.mp3"
     },
     {
       "kind": "sentence",
@@ -1584,7 +1715,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/52aefea8-9fc0-5079-bef7-dc05eba58ce2.mp3"
     },
     {
       "kind": "word",
@@ -1596,7 +1728,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/2dfb74c5-c008-50b6-b8ee-3aeb475f762d.mp3"
     },
     {
       "kind": "sentence",
@@ -1608,7 +1741,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/2dfb74c5-c008-50b6-b8ee-3aeb475f762d.mp3"
     },
     {
       "kind": "word",
@@ -1620,7 +1754,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7d479f3b-7eeb-5471-9582-f772e6865ddd.mp3"
     },
     {
       "kind": "sentence",
@@ -1632,7 +1767,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7d479f3b-7eeb-5471-9582-f772e6865ddd.mp3"
     },
     {
       "kind": "word",
@@ -1644,7 +1780,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/81eede64-2d0a-5a8d-a21c-a830a138b607.mp3"
     },
     {
       "kind": "sentence",
@@ -1656,7 +1793,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/81eede64-2d0a-5a8d-a21c-a830a138b607.mp3"
     },
     {
       "kind": "word",
@@ -1668,7 +1806,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b9f3d2ad-4e58-5a4d-a5bf-8d6bd63c754d.mp3"
     },
     {
       "kind": "sentence",
@@ -1680,7 +1819,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b9f3d2ad-4e58-5a4d-a5bf-8d6bd63c754d.mp3"
     },
     {
       "kind": "word",
@@ -1692,7 +1832,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a5954ece-81e1-5f11-8690-0c395450d984.mp3"
     },
     {
       "kind": "sentence",
@@ -1704,7 +1845,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a5954ece-81e1-5f11-8690-0c395450d984.mp3"
     },
     {
       "kind": "word",
@@ -1716,7 +1858,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/31c560e5-a25e-553a-9d3a-84a76c9c0f2b.mp3"
     },
     {
       "kind": "sentence",
@@ -1728,7 +1871,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/31c560e5-a25e-553a-9d3a-84a76c9c0f2b.mp3"
     },
     {
       "kind": "word",
@@ -1740,7 +1884,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5a3dade1-8c9a-508e-828f-b57021f5fa61.mp3"
     },
     {
       "kind": "sentence",
@@ -1752,7 +1897,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5a3dade1-8c9a-508e-828f-b57021f5fa61.mp3"
     },
     {
       "kind": "word",
@@ -1764,7 +1910,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a97890e4-dfad-560d-b244-6d06e0c1c8ac.mp3"
     },
     {
       "kind": "sentence",
@@ -1776,7 +1923,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a97890e4-dfad-560d-b244-6d06e0c1c8ac.mp3"
     },
     {
       "kind": "word",
@@ -1788,7 +1936,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/99ab3a95-9362-5713-bfcb-12cc12a13b77.mp3"
     },
     {
       "kind": "sentence",
@@ -1800,7 +1949,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/99ab3a95-9362-5713-bfcb-12cc12a13b77.mp3"
     },
     {
       "kind": "word",
@@ -1812,7 +1962,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cb15be8a-c5d4-5572-b7b1-73d588268bea.mp3"
     },
     {
       "kind": "sentence",
@@ -1824,7 +1975,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cb15be8a-c5d4-5572-b7b1-73d588268bea.mp3"
     },
     {
       "kind": "word",
@@ -1836,7 +1988,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/111ad28a-9989-592a-a801-83a6a7cce1e2.mp3"
     },
     {
       "kind": "sentence",
@@ -1848,7 +2001,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/111ad28a-9989-592a-a801-83a6a7cce1e2.mp3"
     },
     {
       "kind": "word",
@@ -1860,7 +2014,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b43638dd-5a16-5b8c-9d11-e991c2611b46.mp3"
     },
     {
       "kind": "sentence",
@@ -1872,7 +2027,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b43638dd-5a16-5b8c-9d11-e991c2611b46.mp3"
     },
     {
       "kind": "word",
@@ -1884,7 +2040,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5d49ccad-c4c0-52c8-9762-d923c00ff95b.mp3"
     },
     {
       "kind": "sentence",
@@ -1896,7 +2053,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5d49ccad-c4c0-52c8-9762-d923c00ff95b.mp3"
     },
     {
       "kind": "word",
@@ -1908,7 +2066,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8b05167a-387b-5673-ab96-ad999d664bda.mp3"
     },
     {
       "kind": "sentence",
@@ -1920,7 +2079,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8b05167a-387b-5673-ab96-ad999d664bda.mp3"
     },
     {
       "kind": "word",
@@ -1932,7 +2092,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b2f99cfa-e894-5a2e-8056-1921bb370847.mp3"
     },
     {
       "kind": "sentence",
@@ -1944,7 +2105,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b2f99cfa-e894-5a2e-8056-1921bb370847.mp3"
     },
     {
       "kind": "word",
@@ -1956,7 +2118,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6917c2a3-b350-5965-a077-108b8ce4e023.mp3"
     },
     {
       "kind": "sentence",
@@ -1968,7 +2131,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6917c2a3-b350-5965-a077-108b8ce4e023.mp3"
     },
     {
       "kind": "word",
@@ -1980,7 +2144,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8805f1ad-4de3-519d-be85-99ff61b2d31d.mp3"
     },
     {
       "kind": "sentence",
@@ -1992,7 +2157,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8805f1ad-4de3-519d-be85-99ff61b2d31d.mp3"
     },
     {
       "kind": "word",
@@ -2004,7 +2170,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a300e2b8-cbaa-55b5-86cb-42cfd097136a.mp3"
     },
     {
       "kind": "sentence",
@@ -2016,7 +2183,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a300e2b8-cbaa-55b5-86cb-42cfd097136a.mp3"
     },
     {
       "kind": "word",
@@ -2028,7 +2196,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e6ad2a0b-d418-5067-a1c1-39daf0f9d788.mp3"
     },
     {
       "kind": "sentence",
@@ -2040,7 +2209,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e6ad2a0b-d418-5067-a1c1-39daf0f9d788.mp3"
     },
     {
       "kind": "word",
@@ -2052,7 +2222,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/832dd1a7-71ae-5308-8dab-4f90c8810981.mp3"
     },
     {
       "kind": "sentence",
@@ -2064,7 +2235,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/832dd1a7-71ae-5308-8dab-4f90c8810981.mp3"
     },
     {
       "kind": "word",
@@ -2076,7 +2248,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5f1d0e5b-dea8-59e5-babc-05c0f7926edd.mp3"
     },
     {
       "kind": "sentence",
@@ -2088,7 +2261,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5f1d0e5b-dea8-59e5-babc-05c0f7926edd.mp3"
     },
     {
       "kind": "word",
@@ -2100,7 +2274,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fb04fba8-3455-5745-aa6a-197188c388f1.mp3"
     },
     {
       "kind": "sentence",
@@ -2112,7 +2287,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fb04fba8-3455-5745-aa6a-197188c388f1.mp3"
     },
     {
       "kind": "word",
@@ -2124,7 +2300,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/351d490c-d17a-5c6c-b5b0-574e2687bcc8.mp3"
     },
     {
       "kind": "sentence",
@@ -2136,7 +2313,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/351d490c-d17a-5c6c-b5b0-574e2687bcc8.mp3"
     },
     {
       "kind": "word",
@@ -2148,7 +2326,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f095e29c-acf2-5a4c-b4fa-02cf74d86490.mp3"
     },
     {
       "kind": "sentence",
@@ -2160,7 +2339,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f095e29c-acf2-5a4c-b4fa-02cf74d86490.mp3"
     },
     {
       "kind": "word",
@@ -2172,7 +2352,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0b5fb49d-d0b1-58bb-a25c-0d876b993cc0.mp3"
     },
     {
       "kind": "sentence",
@@ -2184,7 +2365,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0b5fb49d-d0b1-58bb-a25c-0d876b993cc0.mp3"
     },
     {
       "kind": "word",
@@ -2196,7 +2378,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0cb07e79-94d8-5d42-84d7-6c3cb1b3bc7c.mp3"
     },
     {
       "kind": "sentence",
@@ -2208,7 +2391,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0cb07e79-94d8-5d42-84d7-6c3cb1b3bc7c.mp3"
     },
     {
       "kind": "word",
@@ -2220,7 +2404,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6d56da4d-ebfe-570c-8fe6-fbc47e518c1d.mp3"
     },
     {
       "kind": "sentence",
@@ -2232,7 +2417,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6d56da4d-ebfe-570c-8fe6-fbc47e518c1d.mp3"
     },
     {
       "kind": "word",
@@ -2244,7 +2430,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/eac96579-0aef-583b-b4b4-f9e5f9b241c8.mp3"
     },
     {
       "kind": "sentence",
@@ -2256,7 +2443,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/eac96579-0aef-583b-b4b4-f9e5f9b241c8.mp3"
     },
     {
       "kind": "word",
@@ -2268,7 +2456,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/682b06db-db85-52d2-bb21-8c785cff495c.mp3"
     },
     {
       "kind": "sentence",
@@ -2280,7 +2469,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/682b06db-db85-52d2-bb21-8c785cff495c.mp3"
     },
     {
       "kind": "word",
@@ -2292,7 +2482,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/581bf85d-f96b-5c34-9d5f-3dccd261bb08.mp3"
     },
     {
       "kind": "sentence",
@@ -2304,7 +2495,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/581bf85d-f96b-5c34-9d5f-3dccd261bb08.mp3"
     },
     {
       "kind": "word",
@@ -2316,7 +2508,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5affd874-5b06-5c97-9200-d6a00a3cc86f.mp3"
     },
     {
       "kind": "sentence",
@@ -2328,7 +2521,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5affd874-5b06-5c97-9200-d6a00a3cc86f.mp3"
     },
     {
       "kind": "word",
@@ -2340,7 +2534,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e66e8833-a232-53d8-b1a0-2fa170d2c40e.mp3"
     },
     {
       "kind": "sentence",
@@ -2352,7 +2547,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e66e8833-a232-53d8-b1a0-2fa170d2c40e.mp3"
     },
     {
       "kind": "word",
@@ -2364,7 +2560,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/08de9f8e-d94b-5793-acf5-882633742d0b.mp3"
     },
     {
       "kind": "sentence",
@@ -2376,7 +2573,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/08de9f8e-d94b-5793-acf5-882633742d0b.mp3"
     },
     {
       "kind": "word",
@@ -2388,7 +2586,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/555f4d8c-d57b-5447-b326-988ae71f0475.mp3"
     },
     {
       "kind": "sentence",
@@ -2400,7 +2599,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/555f4d8c-d57b-5447-b326-988ae71f0475.mp3"
     },
     {
       "kind": "word",
@@ -2412,7 +2612,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/560a9896-68b8-5dfd-99b0-07739ae82ca0.mp3"
     },
     {
       "kind": "sentence",
@@ -2424,7 +2625,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/560a9896-68b8-5dfd-99b0-07739ae82ca0.mp3"
     },
     {
       "kind": "word",
@@ -2436,7 +2638,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5cc1d148-e83d-5f07-b472-a551312b000b.mp3"
     },
     {
       "kind": "sentence",
@@ -2448,7 +2651,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5cc1d148-e83d-5f07-b472-a551312b000b.mp3"
     },
     {
       "kind": "word",
@@ -2460,7 +2664,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/642a0f0e-84ff-5226-9eb0-48347183bac0.mp3"
     },
     {
       "kind": "sentence",
@@ -2472,7 +2677,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/642a0f0e-84ff-5226-9eb0-48347183bac0.mp3"
     },
     {
       "kind": "word",
@@ -2484,7 +2690,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/763508ed-d2e6-59a4-847d-20aafb3f4877.mp3"
     },
     {
       "kind": "sentence",
@@ -2496,7 +2703,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/763508ed-d2e6-59a4-847d-20aafb3f4877.mp3"
     },
     {
       "kind": "word",
@@ -2508,7 +2716,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/3a85767f-dc6f-5fbf-8ce3-7ff243328ae1.mp3"
     },
     {
       "kind": "sentence",
@@ -2520,7 +2729,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/3a85767f-dc6f-5fbf-8ce3-7ff243328ae1.mp3"
     },
     {
       "kind": "word",
@@ -2532,7 +2742,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/35b505e1-7767-5acf-9e54-5934a761f4b4.mp3"
     },
     {
       "kind": "sentence",
@@ -2544,7 +2755,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/35b505e1-7767-5acf-9e54-5934a761f4b4.mp3"
     },
     {
       "kind": "word",
@@ -2556,7 +2768,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e2686e49-a6a7-5705-a491-ac28ff85a790.mp3"
     },
     {
       "kind": "sentence",
@@ -2568,7 +2781,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e2686e49-a6a7-5705-a491-ac28ff85a790.mp3"
     },
     {
       "kind": "word",
@@ -2580,7 +2794,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/601517c1-37f7-5445-824b-a39e6fcdb12f.mp3"
     },
     {
       "kind": "sentence",
@@ -2592,7 +2807,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/601517c1-37f7-5445-824b-a39e6fcdb12f.mp3"
     },
     {
       "kind": "word",
@@ -2604,7 +2820,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/3916e2ad-f52e-5e81-889e-ef19e6925246.mp3"
     },
     {
       "kind": "sentence",
@@ -2616,7 +2833,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/3916e2ad-f52e-5e81-889e-ef19e6925246.mp3"
     },
     {
       "kind": "word",
@@ -2628,7 +2846,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5a80f1d0-a8e2-5be9-86a6-107f107c3047.mp3"
     },
     {
       "kind": "sentence",
@@ -2640,7 +2859,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5a80f1d0-a8e2-5be9-86a6-107f107c3047.mp3"
     },
     {
       "kind": "word",
@@ -2652,7 +2872,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c25fc4a1-1aa1-54ba-abb5-4e7e39ee9006.mp3"
     },
     {
       "kind": "sentence",
@@ -2664,7 +2885,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c25fc4a1-1aa1-54ba-abb5-4e7e39ee9006.mp3"
     },
     {
       "kind": "word",
@@ -2676,7 +2898,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cb0efbc6-8ddc-5fa5-92a0-c94e4cfb37b7.mp3"
     },
     {
       "kind": "sentence",
@@ -2688,7 +2911,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cb0efbc6-8ddc-5fa5-92a0-c94e4cfb37b7.mp3"
     },
     {
       "kind": "word",
@@ -2700,7 +2924,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ea70dacf-01b3-55b8-a894-093256354122.mp3"
     },
     {
       "kind": "sentence",
@@ -2712,7 +2937,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ea70dacf-01b3-55b8-a894-093256354122.mp3"
     },
     {
       "kind": "word",
@@ -2724,7 +2950,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1aa39cae-dd31-525c-af9e-bc0e949ff812.mp3"
     },
     {
       "kind": "sentence",
@@ -2736,7 +2963,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1aa39cae-dd31-525c-af9e-bc0e949ff812.mp3"
     },
     {
       "kind": "word",
@@ -2748,7 +2976,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5671d149-4424-59f4-961d-f357d2cdc269.mp3"
     },
     {
       "kind": "sentence",
@@ -2760,7 +2989,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5671d149-4424-59f4-961d-f357d2cdc269.mp3"
     },
     {
       "kind": "word",
@@ -2772,7 +3002,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e349f53f-0db9-5812-801e-b808414402fa.mp3"
     },
     {
       "kind": "sentence",
@@ -2784,7 +3015,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e349f53f-0db9-5812-801e-b808414402fa.mp3"
     },
     {
       "kind": "word",
@@ -2796,7 +3028,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b948e74b-e5ed-5e62-a90f-4c919595789f.mp3"
     },
     {
       "kind": "sentence",
@@ -2808,7 +3041,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b948e74b-e5ed-5e62-a90f-4c919595789f.mp3"
     },
     {
       "kind": "word",
@@ -2820,7 +3054,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f600190d-ceea-509e-9a4e-515e83873a7c.mp3"
     },
     {
       "kind": "sentence",
@@ -2832,7 +3067,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f600190d-ceea-509e-9a4e-515e83873a7c.mp3"
     },
     {
       "kind": "word",
@@ -2844,7 +3080,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d9c497f8-edc8-518f-83c0-13fc8e2784f8.mp3"
     },
     {
       "kind": "sentence",
@@ -2856,7 +3093,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d9c497f8-edc8-518f-83c0-13fc8e2784f8.mp3"
     },
     {
       "kind": "word",
@@ -2868,7 +3106,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fb53387f-1ba3-5411-a2dc-642faf155b09.mp3"
     },
     {
       "kind": "sentence",
@@ -2880,7 +3119,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fb53387f-1ba3-5411-a2dc-642faf155b09.mp3"
     },
     {
       "kind": "word",
@@ -2892,7 +3132,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/40b748db-bec6-5642-86de-12062bbb14a8.mp3"
     },
     {
       "kind": "sentence",
@@ -2904,7 +3145,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/40b748db-bec6-5642-86de-12062bbb14a8.mp3"
     },
     {
       "kind": "word",
@@ -2916,7 +3158,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f4328153-a9c1-52c3-96eb-da7d21d94e4e.mp3"
     },
     {
       "kind": "sentence",
@@ -2928,7 +3171,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f4328153-a9c1-52c3-96eb-da7d21d94e4e.mp3"
     },
     {
       "kind": "word",
@@ -2940,7 +3184,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cabdb860-e373-5eee-a5bc-7f0c7fa7759f.mp3"
     },
     {
       "kind": "sentence",
@@ -2952,7 +3197,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cabdb860-e373-5eee-a5bc-7f0c7fa7759f.mp3"
     },
     {
       "kind": "word",
@@ -2964,7 +3210,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/db2494f7-3174-5f10-a721-e10f1a4b6c6c.mp3"
     },
     {
       "kind": "sentence",
@@ -2976,7 +3223,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/db2494f7-3174-5f10-a721-e10f1a4b6c6c.mp3"
     },
     {
       "kind": "word",
@@ -2988,7 +3236,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1a57a203-622d-51bb-ba30-586e1a078530.mp3"
     },
     {
       "kind": "sentence",
@@ -3000,7 +3249,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1a57a203-622d-51bb-ba30-586e1a078530.mp3"
     },
     {
       "kind": "word",
@@ -3012,7 +3262,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fcad8142-96ca-5914-88f8-c2618f9cdf3e.mp3"
     },
     {
       "kind": "sentence",
@@ -3024,7 +3275,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fcad8142-96ca-5914-88f8-c2618f9cdf3e.mp3"
     },
     {
       "kind": "word",
@@ -3036,7 +3288,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a5a82c2e-7778-5d31-be15-f09eff8e57ad.mp3"
     },
     {
       "kind": "sentence",
@@ -3048,7 +3301,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a5a82c2e-7778-5d31-be15-f09eff8e57ad.mp3"
     },
     {
       "kind": "word",
@@ -3060,7 +3314,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d3b5cfaf-13d0-54ac-8257-3864a87f5e17.mp3"
     },
     {
       "kind": "sentence",
@@ -3072,7 +3327,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d3b5cfaf-13d0-54ac-8257-3864a87f5e17.mp3"
     },
     {
       "kind": "word",
@@ -3084,7 +3340,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cb145093-5c8d-58f0-9c87-d2f90d5ccd47.mp3"
     },
     {
       "kind": "sentence",
@@ -3096,7 +3353,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cb145093-5c8d-58f0-9c87-d2f90d5ccd47.mp3"
     },
     {
       "kind": "word",
@@ -3108,7 +3366,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/10967d17-3dfb-5f27-92d1-d2d1ffdab035.mp3"
     },
     {
       "kind": "sentence",
@@ -3120,7 +3379,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/10967d17-3dfb-5f27-92d1-d2d1ffdab035.mp3"
     },
     {
       "kind": "word",
@@ -3132,7 +3392,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/40a3fead-58a8-5a49-a411-ba793b1bdf43.mp3"
     },
     {
       "kind": "sentence",
@@ -3144,7 +3405,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/40a3fead-58a8-5a49-a411-ba793b1bdf43.mp3"
     },
     {
       "kind": "word",
@@ -3156,7 +3418,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b92b2a35-c3bf-5853-9880-2f9f6a3711a3.mp3"
     },
     {
       "kind": "sentence",
@@ -3168,7 +3431,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b92b2a35-c3bf-5853-9880-2f9f6a3711a3.mp3"
     },
     {
       "kind": "word",
@@ -3180,7 +3444,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/57c24f27-d53a-5801-8440-fd12d9fbf71a.mp3"
     },
     {
       "kind": "sentence",
@@ -3192,7 +3457,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/57c24f27-d53a-5801-8440-fd12d9fbf71a.mp3"
     },
     {
       "kind": "word",
@@ -3204,7 +3470,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6586e4da-57c3-5d76-b71a-7fec77f15180.mp3"
     },
     {
       "kind": "sentence",
@@ -3216,7 +3483,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6586e4da-57c3-5d76-b71a-7fec77f15180.mp3"
     },
     {
       "kind": "word",
@@ -3228,7 +3496,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/bfccc99d-8b54-56bc-9460-4b18b998f3d5.mp3"
     },
     {
       "kind": "sentence",
@@ -3240,7 +3509,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/bfccc99d-8b54-56bc-9460-4b18b998f3d5.mp3"
     },
     {
       "kind": "word",
@@ -3252,7 +3522,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0d5fba0f-538c-5c0c-9a6e-4be04dc1e440.mp3"
     },
     {
       "kind": "sentence",
@@ -3264,7 +3535,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0d5fba0f-538c-5c0c-9a6e-4be04dc1e440.mp3"
     },
     {
       "kind": "word",
@@ -3276,7 +3548,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/bcc9e63b-7469-5300-8f93-a0a9c19123a7.mp3"
     },
     {
       "kind": "sentence",
@@ -3288,7 +3561,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/bcc9e63b-7469-5300-8f93-a0a9c19123a7.mp3"
     },
     {
       "kind": "word",
@@ -3300,7 +3574,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f635bac1-5fbe-5ac6-9836-772292877869.mp3"
     },
     {
       "kind": "sentence",
@@ -3312,7 +3587,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f635bac1-5fbe-5ac6-9836-772292877869.mp3"
     },
     {
       "kind": "word",
@@ -3324,7 +3600,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0a50a12c-4fc6-5fae-bdb3-17a73950b4f0.mp3"
     },
     {
       "kind": "sentence",
@@ -3336,7 +3613,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0a50a12c-4fc6-5fae-bdb3-17a73950b4f0.mp3"
     },
     {
       "kind": "word",
@@ -3348,7 +3626,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b8a397d0-2f7c-51b1-b2f5-9a354306927b.mp3"
     },
     {
       "kind": "sentence",
@@ -3360,7 +3639,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b8a397d0-2f7c-51b1-b2f5-9a354306927b.mp3"
     },
     {
       "kind": "word",
@@ -3372,7 +3652,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/47daaa27-f9f4-539b-b083-960457264f9a.mp3"
     },
     {
       "kind": "sentence",
@@ -3384,7 +3665,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/47daaa27-f9f4-539b-b083-960457264f9a.mp3"
     },
     {
       "kind": "word",
@@ -3396,7 +3678,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/427ec414-4577-5246-9603-f4a5731fc939.mp3"
     },
     {
       "kind": "sentence",
@@ -3408,7 +3691,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/427ec414-4577-5246-9603-f4a5731fc939.mp3"
     },
     {
       "kind": "word",
@@ -3420,7 +3704,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6cd63c9e-e1f2-5143-b849-9d494da82bea.mp3"
     },
     {
       "kind": "sentence",
@@ -3432,7 +3717,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6cd63c9e-e1f2-5143-b849-9d494da82bea.mp3"
     },
     {
       "kind": "word",
@@ -3444,7 +3730,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/38efe49a-bc57-5cb6-89a2-bcd3ce099f11.mp3"
     },
     {
       "kind": "sentence",
@@ -3456,7 +3743,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/38efe49a-bc57-5cb6-89a2-bcd3ce099f11.mp3"
     },
     {
       "kind": "word",
@@ -3468,7 +3756,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fb6609b1-1016-5eae-ae1d-195ce5a85807.mp3"
     },
     {
       "kind": "sentence",
@@ -3480,7 +3769,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fb6609b1-1016-5eae-ae1d-195ce5a85807.mp3"
     },
     {
       "kind": "word",
@@ -3492,7 +3782,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e2d29767-f881-540e-ac9c-007f2b17bce6.mp3"
     },
     {
       "kind": "sentence",
@@ -3504,7 +3795,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e2d29767-f881-540e-ac9c-007f2b17bce6.mp3"
     },
     {
       "kind": "word",
@@ -3516,7 +3808,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d2128af2-2358-5a8d-b036-4cb2d82e1b28.mp3"
     },
     {
       "kind": "sentence",
@@ -3528,7 +3821,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d2128af2-2358-5a8d-b036-4cb2d82e1b28.mp3"
     },
     {
       "kind": "word",
@@ -3540,7 +3834,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0767c800-6326-5e99-96a7-30544bb9739d.mp3"
     },
     {
       "kind": "sentence",
@@ -3552,7 +3847,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0767c800-6326-5e99-96a7-30544bb9739d.mp3"
     },
     {
       "kind": "word",
@@ -3564,7 +3860,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c6444d13-55d8-53c7-ac63-15d7b61765c5.mp3"
     },
     {
       "kind": "sentence",
@@ -3576,7 +3873,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c6444d13-55d8-53c7-ac63-15d7b61765c5.mp3"
     },
     {
       "kind": "word",
@@ -3588,7 +3886,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7804b931-499e-586b-b74c-a3bd81e80020.mp3"
     },
     {
       "kind": "sentence",
@@ -3600,7 +3899,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7804b931-499e-586b-b74c-a3bd81e80020.mp3"
     },
     {
       "kind": "word",
@@ -3612,7 +3912,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7052fee0-35ef-4c1a-97a3-bef6aa156bde.mp3"
     },
     {
       "kind": "sentence",
@@ -3624,7 +3925,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7052fee0-35ef-4c1a-97a3-bef6aa156bde.mp3"
     },
     {
       "kind": "word",
@@ -3636,7 +3938,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1630ba71-00a9-579c-8fe5-25a17122dccb.mp3"
     },
     {
       "kind": "sentence",
@@ -3648,7 +3951,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1630ba71-00a9-579c-8fe5-25a17122dccb.mp3"
     },
     {
       "kind": "word",
@@ -3660,7 +3964,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/20508b4e-5e04-566e-b449-5c4d15f49843.mp3"
     },
     {
       "kind": "sentence",
@@ -3672,7 +3977,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/20508b4e-5e04-566e-b449-5c4d15f49843.mp3"
     },
     {
       "kind": "word",
@@ -3684,7 +3990,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/557ef737-ea0d-594e-b5a4-84cbd6d8d915.mp3"
     },
     {
       "kind": "sentence",
@@ -3696,7 +4003,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/557ef737-ea0d-594e-b5a4-84cbd6d8d915.mp3"
     },
     {
       "kind": "word",
@@ -3708,7 +4016,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c0c801b1-d2df-58bd-9740-6aa5c4305e81.mp3"
     },
     {
       "kind": "sentence",
@@ -3720,7 +4029,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c0c801b1-d2df-58bd-9740-6aa5c4305e81.mp3"
     },
     {
       "kind": "word",
@@ -3732,7 +4042,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8c529c96-ef9b-5197-828e-0938c8cfd292.mp3"
     },
     {
       "kind": "sentence",
@@ -3744,7 +4055,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8c529c96-ef9b-5197-828e-0938c8cfd292.mp3"
     },
     {
       "kind": "word",
@@ -3756,7 +4068,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/29e28ce7-f2e3-5543-87dc-78bb8e071b56.mp3"
     },
     {
       "kind": "sentence",
@@ -3768,7 +4081,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/29e28ce7-f2e3-5543-87dc-78bb8e071b56.mp3"
     },
     {
       "kind": "word",
@@ -3780,7 +4094,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6fa700d8-4790-5791-b34a-86b4b3ac6371.mp3"
     },
     {
       "kind": "sentence",
@@ -3792,7 +4107,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6fa700d8-4790-5791-b34a-86b4b3ac6371.mp3"
     },
     {
       "kind": "word",
@@ -3804,7 +4120,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/84dac1fe-7f74-5559-8e5a-70aebe6843d5.mp3"
     },
     {
       "kind": "sentence",
@@ -3816,7 +4133,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/84dac1fe-7f74-5559-8e5a-70aebe6843d5.mp3"
     },
     {
       "kind": "word",
@@ -3828,7 +4146,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/dedeb7e8-cf11-5fdf-ac3a-59ab691377ea.mp3"
     },
     {
       "kind": "sentence",
@@ -3840,7 +4159,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/dedeb7e8-cf11-5fdf-ac3a-59ab691377ea.mp3"
     },
     {
       "kind": "word",
@@ -3852,7 +4172,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7a075bc3-76cf-5138-bb65-b4df5910db8e.mp3"
     },
     {
       "kind": "sentence",
@@ -3864,7 +4185,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7a075bc3-76cf-5138-bb65-b4df5910db8e.mp3"
     },
     {
       "kind": "word",
@@ -3876,7 +4198,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fe64afca-193d-5b1a-84d3-8211d2cc276d.mp3"
     },
     {
       "kind": "sentence",
@@ -3888,7 +4211,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fe64afca-193d-5b1a-84d3-8211d2cc276d.mp3"
     },
     {
       "kind": "word",
@@ -3900,7 +4224,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/cc8dbf27-47d4-53e8-b2aa-a679b432b27a.mp3"
     },
     {
       "kind": "sentence",
@@ -3912,7 +4237,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/cc8dbf27-47d4-53e8-b2aa-a679b432b27a.mp3"
     },
     {
       "kind": "word",
@@ -3924,7 +4250,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/54347f62-38df-572a-9231-0043583d28dc.mp3"
     },
     {
       "kind": "sentence",
@@ -3936,7 +4263,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/54347f62-38df-572a-9231-0043583d28dc.mp3"
     },
     {
       "kind": "word",
@@ -3948,7 +4276,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/dab17452-f475-5ffc-96f8-cc9358e36abe.mp3"
     },
     {
       "kind": "sentence",
@@ -3960,7 +4289,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/dab17452-f475-5ffc-96f8-cc9358e36abe.mp3"
     },
     {
       "kind": "word",
@@ -3972,7 +4302,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/51a777c0-327a-504f-8150-fd4f4cb7ff1b.mp3"
     },
     {
       "kind": "sentence",
@@ -3984,7 +4315,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/51a777c0-327a-504f-8150-fd4f4cb7ff1b.mp3"
     },
     {
       "kind": "word",
@@ -3996,7 +4328,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/213d811a-20f3-5f28-b0f6-ca040226a51a.mp3"
     },
     {
       "kind": "sentence",
@@ -4008,7 +4341,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/213d811a-20f3-5f28-b0f6-ca040226a51a.mp3"
     },
     {
       "kind": "word",
@@ -4020,7 +4354,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e36f28b7-519b-5f86-99ee-4e3521db21e7.mp3"
     },
     {
       "kind": "sentence",
@@ -4032,7 +4367,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e36f28b7-519b-5f86-99ee-4e3521db21e7.mp3"
     },
     {
       "kind": "word",
@@ -4044,7 +4380,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/59363323-2267-5f81-87f9-aa027c282343.mp3"
     },
     {
       "kind": "sentence",
@@ -4056,7 +4393,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/59363323-2267-5f81-87f9-aa027c282343.mp3"
     },
     {
       "kind": "word",
@@ -4068,7 +4406,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/bd80fcac-79ff-573b-a0eb-a16530b15d4b.mp3"
     },
     {
       "kind": "sentence",
@@ -4080,7 +4419,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/bd80fcac-79ff-573b-a0eb-a16530b15d4b.mp3"
     },
     {
       "kind": "word",
@@ -4092,7 +4432,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/08a420de-9727-5f2e-baf4-0a6630ed68b6.mp3"
     },
     {
       "kind": "sentence",
@@ -4104,7 +4445,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/08a420de-9727-5f2e-baf4-0a6630ed68b6.mp3"
     },
     {
       "kind": "word",
@@ -4116,7 +4458,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/96d0ac0e-23c0-5079-ac0d-2f268abd59f9.mp3"
     },
     {
       "kind": "sentence",
@@ -4128,7 +4471,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/96d0ac0e-23c0-5079-ac0d-2f268abd59f9.mp3"
     },
     {
       "kind": "word",
@@ -4140,7 +4484,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/54e211b9-2553-533c-9f25-685ba0bfe790.mp3"
     },
     {
       "kind": "sentence",
@@ -4152,7 +4497,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/54e211b9-2553-533c-9f25-685ba0bfe790.mp3"
     },
     {
       "kind": "word",
@@ -4164,7 +4510,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/987874bb-d664-547c-bd1a-71a923be6a15.mp3"
     },
     {
       "kind": "sentence",
@@ -4176,7 +4523,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/987874bb-d664-547c-bd1a-71a923be6a15.mp3"
     },
     {
       "kind": "word",
@@ -4188,7 +4536,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/448f6aa5-1ede-55ec-af16-43742a6486b3.mp3"
     },
     {
       "kind": "sentence",
@@ -4200,7 +4549,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/448f6aa5-1ede-55ec-af16-43742a6486b3.mp3"
     },
     {
       "kind": "word",
@@ -4212,7 +4562,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ca506c2f-f9ba-5e9c-beab-5356e8a05331.mp3"
     },
     {
       "kind": "sentence",
@@ -4224,7 +4575,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ca506c2f-f9ba-5e9c-beab-5356e8a05331.mp3"
     },
     {
       "kind": "word",
@@ -4236,7 +4588,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/09d0f6ca-d74f-5738-aa00-bc63418b140a.mp3"
     },
     {
       "kind": "sentence",
@@ -4248,7 +4601,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/09d0f6ca-d74f-5738-aa00-bc63418b140a.mp3"
     },
     {
       "kind": "word",
@@ -4260,7 +4614,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6af8183c-6683-5427-8ca3-7107406e1188.mp3"
     },
     {
       "kind": "sentence",
@@ -4272,7 +4627,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6af8183c-6683-5427-8ca3-7107406e1188.mp3"
     },
     {
       "kind": "word",
@@ -4284,7 +4640,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d29c93b3-26ca-542c-99fb-987c9a7dd55b.mp3"
     },
     {
       "kind": "sentence",
@@ -4296,7 +4653,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d29c93b3-26ca-542c-99fb-987c9a7dd55b.mp3"
     },
     {
       "kind": "word",
@@ -4308,7 +4666,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/4b69bd5a-b468-5d87-bfd9-46a3f1b6015a.mp3"
     },
     {
       "kind": "sentence",
@@ -4320,7 +4679,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/4b69bd5a-b468-5d87-bfd9-46a3f1b6015a.mp3"
     },
     {
       "kind": "word",
@@ -4332,7 +4692,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/d4d7a8f3-68ff-58ce-b371-5fcbdbf31620.mp3"
     },
     {
       "kind": "sentence",
@@ -4344,7 +4705,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/d4d7a8f3-68ff-58ce-b371-5fcbdbf31620.mp3"
     },
     {
       "kind": "word",
@@ -4356,7 +4718,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0f7c47db-9529-519d-99d9-ca0c045a3f08.mp3"
     },
     {
       "kind": "sentence",
@@ -4368,7 +4731,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0f7c47db-9529-519d-99d9-ca0c045a3f08.mp3"
     },
     {
       "kind": "word",
@@ -4380,7 +4744,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/4929ac04-6ece-5f29-bdc8-5a76fe834162.mp3"
     },
     {
       "kind": "sentence",
@@ -4392,7 +4757,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/4929ac04-6ece-5f29-bdc8-5a76fe834162.mp3"
     },
     {
       "kind": "word",
@@ -4404,7 +4770,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/becb2298-1e57-5da2-8a44-e8982acbe4b0.mp3"
     },
     {
       "kind": "sentence",
@@ -4416,7 +4783,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/becb2298-1e57-5da2-8a44-e8982acbe4b0.mp3"
     },
     {
       "kind": "word",
@@ -4428,7 +4796,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0fa791a6-4345-5fbf-9555-78178992b7c6.mp3"
     },
     {
       "kind": "sentence",
@@ -4440,7 +4809,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0fa791a6-4345-5fbf-9555-78178992b7c6.mp3"
     },
     {
       "kind": "word",
@@ -4452,7 +4822,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/beb77994-952a-50c0-9926-6b3f5515edbb.mp3"
     },
     {
       "kind": "sentence",
@@ -4464,7 +4835,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/beb77994-952a-50c0-9926-6b3f5515edbb.mp3"
     },
     {
       "kind": "word",
@@ -4476,7 +4848,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e833e229-bf20-5f0f-9a23-72ff692a6f09.mp3"
     },
     {
       "kind": "sentence",
@@ -4488,7 +4861,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e833e229-bf20-5f0f-9a23-72ff692a6f09.mp3"
     },
     {
       "kind": "word",
@@ -4500,7 +4874,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0ea41f17-bd7c-5f7d-b264-ea94567388f8.mp3"
     },
     {
       "kind": "sentence",
@@ -4512,7 +4887,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0ea41f17-bd7c-5f7d-b264-ea94567388f8.mp3"
     },
     {
       "kind": "word",
@@ -4524,7 +4900,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e1208a26-fb47-5c50-8fee-30e78313b0d5.mp3"
     },
     {
       "kind": "sentence",
@@ -4536,7 +4913,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e1208a26-fb47-5c50-8fee-30e78313b0d5.mp3"
     },
     {
       "kind": "word",
@@ -4548,7 +4926,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f671ffd3-90f1-5d96-aabc-90b066b79c42.mp3"
     },
     {
       "kind": "sentence",
@@ -4560,7 +4939,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f671ffd3-90f1-5d96-aabc-90b066b79c42.mp3"
     },
     {
       "kind": "word",
@@ -4572,7 +4952,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/bc8def57-e489-5896-8acb-2586c8b0af12.mp3"
     },
     {
       "kind": "sentence",
@@ -4584,7 +4965,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/bc8def57-e489-5896-8acb-2586c8b0af12.mp3"
     },
     {
       "kind": "word",
@@ -4596,7 +4978,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/3ef58435-e1c7-5b21-9026-4bd1109470fd.mp3"
     },
     {
       "kind": "sentence",
@@ -4608,7 +4991,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/3ef58435-e1c7-5b21-9026-4bd1109470fd.mp3"
     },
     {
       "kind": "word",
@@ -4620,7 +5004,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/7a4657df-ff40-5d36-9207-53d7cfc3bf0e.mp3"
     },
     {
       "kind": "sentence",
@@ -4632,7 +5017,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/7a4657df-ff40-5d36-9207-53d7cfc3bf0e.mp3"
     },
     {
       "kind": "word",
@@ -4644,7 +5030,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/c6f95f36-2f62-579f-8f79-0e1b4d6dfc8d.mp3"
     },
     {
       "kind": "sentence",
@@ -4656,7 +5043,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/c6f95f36-2f62-579f-8f79-0e1b4d6dfc8d.mp3"
     },
     {
       "kind": "word",
@@ -4668,7 +5056,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/75d15fbb-0104-5cc1-9fa3-5779f8241ee4.mp3"
     },
     {
       "kind": "sentence",
@@ -4680,7 +5069,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/75d15fbb-0104-5cc1-9fa3-5779f8241ee4.mp3"
     },
     {
       "kind": "word",
@@ -4692,7 +5082,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/5c52d12d-b778-5a70-bda2-35818e1d9eed.mp3"
     },
     {
       "kind": "sentence",
@@ -4704,7 +5095,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/5c52d12d-b778-5a70-bda2-35818e1d9eed.mp3"
     },
     {
       "kind": "word",
@@ -4716,7 +5108,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e6509432-5fdf-5b62-aab4-c936a2f8f1a0.mp3"
     },
     {
       "kind": "sentence",
@@ -4728,7 +5121,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e6509432-5fdf-5b62-aab4-c936a2f8f1a0.mp3"
     },
     {
       "kind": "word",
@@ -4740,7 +5134,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/85d97e7a-036c-50e3-a0b9-8fc9471ad317.mp3"
     },
     {
       "kind": "sentence",
@@ -4752,7 +5147,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/85d97e7a-036c-50e3-a0b9-8fc9471ad317.mp3"
     },
     {
       "kind": "word",
@@ -4764,7 +5160,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fcc5767d-5909-5788-8918-ee6a496d8091.mp3"
     },
     {
       "kind": "sentence",
@@ -4776,7 +5173,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fcc5767d-5909-5788-8918-ee6a496d8091.mp3"
     },
     {
       "kind": "word",
@@ -4788,7 +5186,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/883685c3-9d0d-5071-871c-fca55770d90a.mp3"
     },
     {
       "kind": "sentence",
@@ -4800,7 +5199,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/883685c3-9d0d-5071-871c-fca55770d90a.mp3"
     },
     {
       "kind": "word",
@@ -4812,7 +5212,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6d4caadc-c444-5c02-9110-52341761d085.mp3"
     },
     {
       "kind": "sentence",
@@ -4824,7 +5225,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6d4caadc-c444-5c02-9110-52341761d085.mp3"
     },
     {
       "kind": "word",
@@ -4836,7 +5238,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e45a0e5b-9986-5768-b062-83c7e0bb4265.mp3"
     },
     {
       "kind": "sentence",
@@ -4848,7 +5251,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e45a0e5b-9986-5768-b062-83c7e0bb4265.mp3"
     },
     {
       "kind": "word",
@@ -4860,7 +5264,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8853d1a3-217c-575c-9620-f5a9eb84ccee.mp3"
     },
     {
       "kind": "sentence",
@@ -4872,7 +5277,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8853d1a3-217c-575c-9620-f5a9eb84ccee.mp3"
     },
     {
       "kind": "word",
@@ -4884,7 +5290,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/545de2ab-57b7-58fc-80c3-67467d2a7da5.mp3"
     },
     {
       "kind": "sentence",
@@ -4896,7 +5303,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/545de2ab-57b7-58fc-80c3-67467d2a7da5.mp3"
     },
     {
       "kind": "word",
@@ -4908,7 +5316,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/db3fe5fd-0469-57e4-b9c1-f7d374aac499.mp3"
     },
     {
       "kind": "sentence",
@@ -4920,7 +5329,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/db3fe5fd-0469-57e4-b9c1-f7d374aac499.mp3"
     },
     {
       "kind": "word",
@@ -4932,7 +5342,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/856d90b2-a871-41db-8597-7707fa30acfd.mp3"
     },
     {
       "kind": "sentence",
@@ -4944,7 +5355,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/856d90b2-a871-41db-8597-7707fa30acfd.mp3"
     },
     {
       "kind": "word",
@@ -4956,7 +5368,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b4ee7c5a-3422-558d-a190-df9d688d994d.mp3"
     },
     {
       "kind": "sentence",
@@ -4968,7 +5381,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b4ee7c5a-3422-558d-a190-df9d688d994d.mp3"
     },
     {
       "kind": "word",
@@ -4980,7 +5394,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/767a813d-b491-5f2c-80a8-f89406f12da1.mp3"
     },
     {
       "kind": "sentence",
@@ -4992,7 +5407,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/767a813d-b491-5f2c-80a8-f89406f12da1.mp3"
     },
     {
       "kind": "word",
@@ -5004,7 +5420,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/23352f00-262e-586c-ad12-33c19f2d2ca3.mp3"
     },
     {
       "kind": "sentence",
@@ -5016,7 +5433,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/23352f00-262e-586c-ad12-33c19f2d2ca3.mp3"
     },
     {
       "kind": "word",
@@ -5028,7 +5446,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/683e7f8c-f20f-5ffe-b2c6-7bc1c045e05c.mp3"
     },
     {
       "kind": "sentence",
@@ -5040,7 +5459,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/683e7f8c-f20f-5ffe-b2c6-7bc1c045e05c.mp3"
     },
     {
       "kind": "word",
@@ -5052,7 +5472,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/008c52a8-a9f7-5182-9dba-52102d1e9053.mp3"
     },
     {
       "kind": "sentence",
@@ -5064,7 +5485,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/008c52a8-a9f7-5182-9dba-52102d1e9053.mp3"
     },
     {
       "kind": "word",
@@ -5076,7 +5498,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/0356a398-b28f-5dfe-89ee-9eed73b15db2.mp3"
     },
     {
       "kind": "sentence",
@@ -5088,7 +5511,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/0356a398-b28f-5dfe-89ee-9eed73b15db2.mp3"
     },
     {
       "kind": "word",
@@ -5100,7 +5524,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b37242f6-38dd-5085-8953-d751840c1ca1.mp3"
     },
     {
       "kind": "sentence",
@@ -5112,7 +5537,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b37242f6-38dd-5085-8953-d751840c1ca1.mp3"
     },
     {
       "kind": "word",
@@ -5124,7 +5550,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/05e3f720-27cb-59af-a342-156ed61d42fe.mp3"
     },
     {
       "kind": "sentence",
@@ -5136,7 +5563,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/05e3f720-27cb-59af-a342-156ed61d42fe.mp3"
     },
     {
       "kind": "word",
@@ -5148,7 +5576,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ee0dfa1f-864b-5d39-a3fd-fc5ee07877d2.mp3"
     },
     {
       "kind": "sentence",
@@ -5160,7 +5589,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ee0dfa1f-864b-5d39-a3fd-fc5ee07877d2.mp3"
     },
     {
       "kind": "word",
@@ -5172,7 +5602,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/1f459c84-8f54-4dab-bed3-1f0d4c954536.mp3"
     },
     {
       "kind": "sentence",
@@ -5184,7 +5615,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/1f459c84-8f54-4dab-bed3-1f0d4c954536.mp3"
     },
     {
       "kind": "word",
@@ -5196,7 +5628,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/84f2d271-5251-5872-ab86-e1c414215c8d.mp3"
     },
     {
       "kind": "sentence",
@@ -5208,7 +5641,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/84f2d271-5251-5872-ab86-e1c414215c8d.mp3"
     },
     {
       "kind": "word",
@@ -5220,7 +5654,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f.mp3"
     },
     {
       "kind": "sentence",
@@ -5232,7 +5667,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8dfc0441-cd26-55e9-97c9-2fd9cd0e272f.mp3"
     },
     {
       "kind": "word",
@@ -5244,7 +5680,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f1457010-01e7-51bb-a9e8-fbce356ff5b9.mp3"
     },
     {
       "kind": "sentence",
@@ -5256,7 +5693,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f1457010-01e7-51bb-a9e8-fbce356ff5b9.mp3"
     },
     {
       "kind": "word",
@@ -5268,7 +5706,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e98fa084-2a8e-5919-911b-6fc7a45d3f27.mp3"
     },
     {
       "kind": "sentence",
@@ -5280,7 +5719,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e98fa084-2a8e-5919-911b-6fc7a45d3f27.mp3"
     },
     {
       "kind": "word",
@@ -5292,7 +5732,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ee737f1f-d8a0-57f3-bfb9-97ad7140fd4c.mp3"
     },
     {
       "kind": "sentence",
@@ -5304,7 +5745,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ee737f1f-d8a0-57f3-bfb9-97ad7140fd4c.mp3"
     },
     {
       "kind": "word",
@@ -5316,7 +5758,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/8619107c-d1dc-5b08-a61e-2e6393a61e76.mp3"
     },
     {
       "kind": "sentence",
@@ -5328,7 +5771,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/8619107c-d1dc-5b08-a61e-2e6393a61e76.mp3"
     },
     {
       "kind": "word",
@@ -5340,7 +5784,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/dfa42bd7-2ae6-5775-88e3-5c38388d4686.mp3"
     },
     {
       "kind": "sentence",
@@ -5352,7 +5797,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/dfa42bd7-2ae6-5775-88e3-5c38388d4686.mp3"
     },
     {
       "kind": "word",
@@ -5364,7 +5810,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/677d73cc-1650-5c3e-88f7-2a865646e6cf.mp3"
     },
     {
       "kind": "sentence",
@@ -5376,7 +5823,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/677d73cc-1650-5c3e-88f7-2a865646e6cf.mp3"
     },
     {
       "kind": "word",
@@ -5388,7 +5836,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/fc9b5950-9c8b-5194-8c1c-e7ff9a3e7a4b.mp3"
     },
     {
       "kind": "sentence",
@@ -5400,7 +5849,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/fc9b5950-9c8b-5194-8c1c-e7ff9a3e7a4b.mp3"
     },
     {
       "kind": "word",
@@ -5412,7 +5862,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e3aad73f-466f-53a6-b163-c2570ff6f854.mp3"
     },
     {
       "kind": "sentence",
@@ -5424,7 +5875,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e3aad73f-466f-53a6-b163-c2570ff6f854.mp3"
     },
     {
       "kind": "word",
@@ -5436,7 +5888,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/ca3a93e5-fea8-55a4-a6cf-4809597f8bb3.mp3"
     },
     {
       "kind": "sentence",
@@ -5448,7 +5901,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/ca3a93e5-fea8-55a4-a6cf-4809597f8bb3.mp3"
     },
     {
       "kind": "word",
@@ -5460,7 +5914,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/96187508-ce06-5da1-bc88-53c73b0ee7ce.mp3"
     },
     {
       "kind": "sentence",
@@ -5472,7 +5927,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/96187508-ce06-5da1-bc88-53c73b0ee7ce.mp3"
     },
     {
       "kind": "word",
@@ -5484,7 +5940,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/a235283c-2813-5710-be6e-f82aedb99ec9.mp3"
     },
     {
       "kind": "sentence",
@@ -5496,7 +5953,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/a235283c-2813-5710-be6e-f82aedb99ec9.mp3"
     },
     {
       "kind": "word",
@@ -5508,7 +5966,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/e2ee418e-9fbe-55a4-9dd4-778240aae4ba.mp3"
     },
     {
       "kind": "sentence",
@@ -5520,7 +5979,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/e2ee418e-9fbe-55a4-9dd4-778240aae4ba.mp3"
     },
     {
       "kind": "word",
@@ -5532,7 +5992,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/b7f51dc5-ad28-5fbe-9871-ca03d63b3bc1.mp3"
     },
     {
       "kind": "sentence",
@@ -5544,7 +6005,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/b7f51dc5-ad28-5fbe-9871-ca03d63b3bc1.mp3"
     },
     {
       "kind": "word",
@@ -5556,7 +6018,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/581191c3-9cbe-5044-b0b0-b7443c9ce23e.mp3"
     },
     {
       "kind": "sentence",
@@ -5568,7 +6031,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/581191c3-9cbe-5044-b0b0-b7443c9ce23e.mp3"
     },
     {
       "kind": "word",
@@ -5580,7 +6044,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/6fafaa97-af23-54e5-978d-771f5aa22bd7.mp3"
     },
     {
       "kind": "sentence",
@@ -5592,7 +6057,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/6fafaa97-af23-54e5-978d-771f5aa22bd7.mp3"
     },
     {
       "kind": "word",
@@ -5604,7 +6070,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/f4597517-a624-5c63-b0b6-e4efe33c18b2.mp3"
     },
     {
       "kind": "sentence",
@@ -5616,7 +6083,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/f4597517-a624-5c63-b0b6-e4efe33c18b2.mp3"
     },
     {
       "kind": "word",
@@ -5628,7 +6096,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/word/45f48d37-3fc0-533d-b2e2-5b9d0c9b94bb.mp3"
     },
     {
       "kind": "sentence",
@@ -5640,7 +6109,8 @@
       "model": "Chirp 3: HD Voices",
       "language": "en-GB",
       "voice": "Achernar",
-      "reviewStatus": "pending_pronunciation_review"
+      "reviewStatus": "owner_approved_pronunciation",
+      "src": "/audio/schwa-google-chirp3-en-gb-20261029/sentence/45f48d37-3fc0-533d-b2e2-5b9d0c9b94bb.mp3"
     }
   ],
   "googleCloudProject": "project-c4d95cbc-0b4a-4aa3-938",
@@ -5649,12 +6119,15 @@
   "voice": "Achernar",
   "encoding": "MP3",
   "source": "Google Cloud Agent Platform Studio speech window",
-  "reviewStatus": "pending_pronunciation_review",
+  "reviewStatus": "owner_approved_pronunciation",
   "billingGuard": {
     "creditBeforeGBP": 225.58,
     "totalCharacters": 10314,
     "maximumUSDAtPublishedCharacterRate": 0.30942,
     "publishedRateUSDPerMillionCharacters": 30,
     "freeAllowanceExcludedFromEstimate": true
-  }
+  },
+  "ownerApprovalDate": "2026-10-30",
+  "approvalReference": "Owner message 2026-10-30: all dictation words and sentences are approved and checked for pronunciation.",
+  "publicAssetRoot": "/audio/schwa-google-chirp3-en-gb-20261029"
 }

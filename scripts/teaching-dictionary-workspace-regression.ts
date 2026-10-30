@@ -1,4 +1,4 @@
-import { hydrateWorkspaceFacts } from "../lib/teaching-dictionary-manager/workspace-hydration";
+import { assignedWorkspaceSkills, currentWorkspaceSkills, hydrateWorkspaceFacts } from "../lib/teaching-dictionary-manager/workspace-hydration";
 import { emptyMetadata, emptyMorphology, publicationBlockers, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 import { lessonActivityQuestion } from "../lib/teaching-dictionary-manager/activity-question";
 import assert from "node:assert/strict";
@@ -68,4 +68,17 @@ const editedWorkspace = { ...initialWorkspace, definition: "Admin edit", routeCo
 assert.equal(hydrate(editedWorkspace).routeContents[0].wordMeaning, "Admin route edit");
 assert.equal(hydrate(editedWorkspace).definition, "Admin edit");
 assert.deepEqual(hydrate(initialWorkspace, "selected-draft"), initialWorkspace);
+const retired = "D4_SCHWA_MEDIAL_NATURAL_ACTUAL";
+const historicalRoute = { ...oldRoute, microSkillKey: retired };
+const historical = { ...initialWorkspace, skillKeys: ["base", retired], routeContents: [oldRoute, historicalRoute] };
+assert.deepEqual(currentWorkspaceSkills(historical, new Set(["base"])).skillKeys, ["base"]);
+assert.deepEqual(currentWorkspaceSkills(historical, new Set(["base"])).routeContents, [oldRoute]);
+assert.deepEqual(assignedWorkspaceSkills(historical, ["suffix"], new Set(["base", "suffix"])).skillKeys, ["suffix"]);
+assert.deepEqual(assignedWorkspaceSkills(historical, ["suffix"], new Set(["base", "suffix"])).routeContents, [],
+  "historical route content does not create a current assignment");
+const currentOnly = hydrateWorkspaceFacts({ current: historical, initial: historical, draftId: null,
+  edited: false, skillKeys: [retired, "base"], routeContents: [historicalRoute, incomingRoute],
+  activeSkillKeys: new Set(["base"]) });
+assert.deepEqual(currentOnly.skillKeys, ["base"], "retired keys cannot reappear during late hydration");
+assert.deepEqual(currentOnly.routeContents, [incomingRoute]);
 console.log("PASS: deferred route authority preserves current releases, in-progress edits and selected drafts");
