@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { ParentV2Dashboard } from "@/lib/parent-insights/proficiency-v2";
 
 type Skill = Pick<ParentV2Dashboard["skills"][number], "key" | "label" | "familyLabel"> & {
-  result: Pick<ParentV2Dashboard["skills"][number]["result"], "level" | "status" | "trend" | "confidence" | "nextRequirement" | "levels" | "observed">;
+  result: Pick<ParentV2Dashboard["skills"][number]["result"], "level" | "status" | "trend" | "confidence" | "nextRequirement" | "levels" | "observed" | "recentSetback" | "setbackHeld">;
 };
 type Word = ParentV2Dashboard["words"][number];
 
@@ -45,10 +45,13 @@ export function V2InsightsWorkspace({ skills, words, reviewSlot }: {
               skill.result.status === "ready_to_discover" ? "Ready to discover" : "Insufficient evidence"}</span></summary>
           <div className="mt-3 text-sm">
             <p><strong>Trend:</strong> {trendLabel[skill.result.trend]} · <strong>Evidence confidence:</strong> {skill.result.confidence}</p>
+            {skill.result.recentSetback ? <p className="mt-2 text-amber-800">Recent contextual slip: {skill.result.setbackHeld
+              ? "the displayed level is held while accuracy is rebuilt." : "the slip is reflected in the current accuracy."}</p> : null}
             <p className="mt-2"><strong>Next step:</strong> {skill.result.nextRequirement}</p>
-            {next ? <ul className="mt-2 list-disc pl-5">{next.gates.map((gate) => <li key={gate.dimension}>
+            {next ? <><p className="mt-2">{skill.result.setbackHeld ? "Current gate observations" : `Level ${next.level} requirements`}</p>
+              <ul className="mt-2 list-disc pl-5">{next.gates.map((gate) => <li key={gate.dimension}>
               {gate.dimension}: {gate.observed}/{gate.required}{gate.passed ? " met" : " needed"}
-            </li>)}</ul> : <p className="mt-2">All five level gates are met.</p>}
+            </li>)}</ul></> : <p className="mt-2">All five level gates are met.</p>}
             {skill.result.status === "content_limited" || skill.result.status === "unresolved" ?
               <p className="mt-2 text-amber-800">Available content or evidence authority limits this result; it does not indicate a failed learner.</p> : null}
           </div>

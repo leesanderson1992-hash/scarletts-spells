@@ -70,7 +70,8 @@ async function V2ProficiencySection({ childId, today, reviewPromise }: {
     key: skill.key, label: skill.label, familyLabel: skill.familyLabel,
     result: { level: skill.result.level, status: skill.result.status, trend: skill.result.trend,
       confidence: skill.result.confidence, nextRequirement: skill.result.nextRequirement,
-      levels: skill.result.levels, observed: skill.result.observed },
+      levels: skill.result.levels, observed: skill.result.observed,
+      recentSetback: skill.result.recentSetback, setbackHeld: skill.result.setbackHeld },
   }))} words={dashboard.words}
     reviewSlot={<Suspense fallback={<div className="insights-skeleton" aria-busy="true" aria-label="Loading review cycle" />}>
       <ReviewCycleSection promise={reviewPromise} />

@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { loadDailyPlanFacts } from "@/lib/adle/loaders/composer-facts-loader";
 import { loadLearnerEvidenceProjection } from "@/lib/adle/proficiency/evidence/repository";
 import { deriveV2WordGroups } from "@/lib/adle/proficiency/v2-groups";
+import { loadHomophoneContextEvidence } from "@/lib/parent-insights/homophone-evidence";
 import { calculateProficiencyV2, type V2Evidence, type V2SkillResult } from "@/lib/adle/proficiency/v2";
 import { requiredAgeBands } from "@/lib/adle/proficiency/shadow-v1";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
@@ -88,7 +89,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
     all<any>(client, "canonical_teaching_dictionary_base_word_family_members", "id,canonical_word_id,base_word_family_id,row_status,review_status"),
     all<any>(client, "canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,morphology_parts,analysis_status,row_status,review_status"),
     client.from("contextual_micro_skill_members").select("micro_skill_key,member_normalized"),
-    all<any>(client, "adle_assignment_attempt_events", "id,source_ref,section_key,template_key", "id", (query) => query.eq("child_id", childId)),
+    all<any>(client, "adle_assignment_attempt_events", "id,daily_assignment_id,assignment_item_id,canonical_word_id,attempt_text,is_correct,attempt_kind,micro_skill_key,created_at,source_ref,section_key,template_key", "id", (query) => query.eq("child_id", childId)),
   ]);
   if (childResult.error || !childResult.data) throw new Error("parent proficiency learner unavailable");
   if (contextualResult.error) throw new Error("parent proficiency contextual roles unavailable");
@@ -99,6 +100,10 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const wordById = new Map(activeWords.map((word) => [word.id as string, word]));
   const eventById = new Map(projection.events.map((event) => [event.eventId, event]));
   const roles = new Set((contextualResult.data ?? []).map((row) => `${row.micro_skill_key}\u0000${row.member_normalized}`));
+  const homophoneEnabled = process.env.PROFICIENCY_HOMOPHONE_CONTEXT_ENABLED === "true";
+  const homophoneContext = homophoneEnabled
+    ? await loadHomophoneContextEvidence(client, childId, activeWords, contextualResult.data ?? [], attemptRows)
+    : { bySkill: new Map<string, V2Evidence[]>(), fingerprint: "disabled" };
   const contextAttempts = new Map(attemptRows.filter((row) =>
     (typeof row.source_ref === "string" && (row.source_ref.includes(":passage:") || row.source_ref.startsWith("review-r3:"))) ||
     row.section_key === "review_audio_check" || row.template_key === "homophone_passage_dictation")
@@ -134,7 +139,7 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       return derived?.resolved ? derived : { key: `unresolved:${key}`, resolved: false };
     };
     const requiredGroupKeys = [...new Set(eligible.map((id) => groupFor(id)).filter((group) => group.resolved).map((group) => group.key))];
-    const entries = projectionsBySkill.get(key) ?? [];
+    const entries = closed && homophoneEnabled ? [] : projectionsBySkill.get(key) ?? [];
     let unscored = projection.events.filter((event) => relatedIds.includes(event.canonicalWordId) &&
       (event.outcome === "unknown" || event.verificationState !== "verified" || event.independence !== "independent")).length;
     let unresolvedGroups = 0;
@@ -169,11 +174,13 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
           `${group.key}:${item.environment}:${source.sourceKind}:${source.sourceEntityId}` : null,
         sourceKind: source.sourceKind });
     }
+    if (closed && homophoneEnabled) evidence.push(...(homophoneContext.bySkill.get(key) ?? []));
     const result = calculateProficiencyV2({ learnerId: childId, skillKey: key, familyKey, asOf,
       requiredGroupKeys, evidence, unscoredCount: unscored, unresolvedGroupCount: unresolvedGroups,
       relationshipFingerprint: authority.reconciliation.sourceFingerprint,
-      evidenceFingerprint: projection.reconciliation.projectionFingerprint,
-      groupFingerprint: groupAuthority.fingerprint });
+      evidenceFingerprint: closed && homophoneEnabled ? homophoneContext.fingerprint : projection.reconciliation.projectionFingerprint,
+      groupFingerprint: groupAuthority.fingerprint,
+      homophoneTwoDateSetback: closed && homophoneEnabled });
     if (!ageBands) {
       result.confidence = "unresolved";
       result.reasonCodes.push("date_of_birth_unavailable_for_target_pool");

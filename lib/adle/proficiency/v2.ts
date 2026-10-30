@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_2026_10_23";
+export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_CONTEXT_2026_10_30";
 
 export type ProficiencyEnvironment = "CONTROLLED_LESSON" | "ISOLATED_RETRIEVAL" | "CONTEXTUAL_TRANSFER" | "AUTHENTIC_WRITING";
 export type ProficiencyTrend = "improving" | "steady" | "needs_practice" | "insufficient_history";
@@ -31,6 +32,7 @@ export interface V2SkillInput {
   relationshipFingerprint: string;
   evidenceFingerprint: string;
   groupFingerprint: string;
+  homophoneTwoDateSetback?: boolean;
 }
 
 export interface V2Gate {
@@ -55,6 +57,8 @@ export interface V2SkillResult {
   status: "calculated" | "ready_to_discover" | "insufficient_evidence" | "content_limited" | "unresolved";
   trend: ProficiencyTrend;
   confidence: ProficiencyConfidence;
+  recentSetback?: boolean;
+  setbackHeld?: boolean;
   nextRequirement: string;
   levels: V2Level[];
   observed: { accuracyCorrect: number; accuracyTotal: number; groups: number; dates: number; challenges: number; unscored: number };
@@ -158,7 +162,15 @@ export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
   const events = input.evidence.filter((event) => event.occurredOn <= input.asOf && validDate(event.occurredOn))
     .sort((a, b) => a.occurredOn.localeCompare(b.occurredOn) || a.eventId.localeCompare(b.eventId));
   const evaluatedNow = evaluated(input, events);
-  const current = evaluatedNow.level;
+  const rawLevel = evaluatedNow.level;
+  const setbackStart = new Date(dateMs(input.asOf) - 28 * DAY).toISOString().slice(0, 10);
+  const recentMissDates = [...new Set(evaluatedNow.units.filter(unit => !unit.correct && unit.date > setbackStart)
+    .map(unit => unit.date))].sort();
+  const priorToMiss = recentMissDates.length === 1
+    ? evaluated(input, events.filter(event => event.occurredOn < recentMissDates[0])).level : null;
+  const heldForOneMiss = input.familyKey === "D4_HOM" && input.homophoneTwoDateSetback === true
+    && recentMissDates.length === 1 && (priorToMiss ?? 0) > (rawLevel ?? 0);
+  const current = heldForOneMiss ? priorToMiss : rawLevel;
   const previousDate = new Date(dateMs(input.asOf) - 28 * DAY).toISOString().slice(0, 10);
   const prior = evaluated(input, events.filter((event) => event.occurredOn <= previousDate));
   const nowWindow = evaluatedNow.units.filter((unit) => unit.date > previousDate);
@@ -191,14 +203,22 @@ export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
     ...(input.unscoredCount ? ["unscored_or_uncertain_evidence"] : []),
     ...(input.unresolvedGroupCount ? ["group_derivation_incomplete"] : []),
     ...(next?.contentLimited ? ["pool_below_nominal_breadth"] : []),
+    ...(heldForOneMiss ? ["single_date_setback_level_held"] : []),
   ];
-  const inputFingerprint = hash({ model: PROFICIENCY_V2_VERSION, learnerId: input.learnerId, skillKey: input.skillKey,
+  const modelVersion = input.familyKey === "D4_HOM" && input.homophoneTwoDateSetback
+    ? HOMOPHONE_PROFICIENCY_VERSION : PROFICIENCY_V2_VERSION;
+  const inputFingerprint = hash({ model: modelVersion, learnerId: input.learnerId, skillKey: input.skillKey,
     asOf: input.asOf, requiredGroupKeys: [...input.requiredGroupKeys].sort(), events,
+    homophoneTwoDateSetback: input.homophoneTwoDateSetback ?? false,
     relationship: input.relationshipFingerprint, evidence: input.evidenceFingerprint, groups: input.groupFingerprint });
   const latestAccuracy = evaluatedNow.units.slice(-12);
   return {
     skillKey: input.skillKey, familyKey: input.familyKey, level: current, status, trend, confidence,
-    nextRequirement: noPool ? "A reviewed word and skill relationship is needed" : !next ? "Keep applying this skill in new contexts"
+    recentSetback: input.familyKey === "D4_HOM" && input.homophoneTwoDateSetback === true && recentMissDates.length > 0,
+    setbackHeld: heldForOneMiss,
+    nextRequirement: noPool ? "A reviewed word and skill relationship is needed"
+      : heldForOneMiss ? "Show the right choice in a fresh independent context on another day"
+      : !next ? "Keep applying this skill in new contexts"
       : firstMissing?.dimension === "accuracy" ? "Practise independently on another day to build reliable accuracy"
         : firstMissing?.dimension === "breadth" ? "Apply this skill in another word family or meaning role"
           : firstMissing?.dimension === "retention" ? "Show the skill again after more time has passed"
@@ -209,6 +229,6 @@ export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
       dates: dates.size, challenges: new Set(positive.filter((event) => event.challengeKey)
         .map((event) => `${event.groupKey}\u0000${event.occurredOn}`)).size, unscored: input.unscoredCount },
     sourceEventIds: [...new Set(events.map((event) => event.eventId))].sort(), reasonCodes,
-    versions: { model: PROFICIENCY_V2_VERSION, inputFingerprint },
+    versions: { model: modelVersion, inputFingerprint },
   };
 }
