@@ -254,8 +254,10 @@ export async function TeachingDictionaryDetail({
   const rolledBackIds = new Set(
     (rolledBack?.data ?? []).map((row) => row.content_version_id),
   );
+  const activeSkillKeys = new Set((skillResult.data ?? []).map(row => row.micro_skill_key));
   const weakVersions = (routeVersions?.data ?? []).filter((row) =>
-    row.route_id === "weak_vowel_word_lab" && !rolledBackIds.has(row.id));
+    row.route_id === "weak_vowel_word_lab" && !rolledBackIds.has(row.id) &&
+    activeSkillKeys.has(row.micro_skill_key));
   const weakVersionIds = weakVersions.map((row) => row.id);
   const [weakReviews, weakPublications] = weakVersionIds.length ? await Promise.all([
     db.from("teaching_dictionary_route_content_reviews").select("content_version_id")
@@ -292,7 +294,6 @@ export async function TeachingDictionaryDetail({
     contentVersionId: row.content_version_id,
     sourceCurrent: row.dictionary_fingerprint === dictionaryFingerprint?.data,
   }));
-  const activeSkillKeys = new Set((skillResult.data ?? []).map(row => row.micro_skill_key));
   const approvedWeakSources: ReviewedWeakVowelSource[] = weakPublicationState
     .filter(row => row.sourceCurrent && activeSkillKeys.has(row.microSkillKey))
     .flatMap(row => {
