@@ -72,6 +72,8 @@ const parent: BaseWordFamilyAuthorityProjectionV2 = {
 const closure = new Set(ids.slice(0, 6));
 const counts = eligibleBaseFamilyCounts(parent, skill, closure);
 assert.deepEqual(counts.map((entry) => entry.eligibleCount), [2, 4]);
+assert.deepEqual(eligibleBaseFamilyCounts(parent, skill, closure, new Set([ids[0]])).map((entry) => entry.eligibleCount), [2, 4],
+  "a base-only pair de-assignment retains the structural base for family counts");
 const vetoedCounts = eligibleBaseFamilyCounts(parent, skill, closure, new Set([ids[4], ids[5]]));
 assert.deepEqual(vetoedCounts.map((entry) => entry.eligibleCount), [2, 2]);
 assert.deepEqual(shortlistBaseFamilyPairs(vetoedCounts), [],

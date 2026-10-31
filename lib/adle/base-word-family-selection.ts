@@ -148,7 +148,7 @@ export function selectBaseWordFamilyLesson(
   const familiesByWord = new Map<string, string[]>();
   for (const member of facts.members.filter((member) =>
     approved(member.rowStatus, member.reviewStatus) &&
-    !facts.excludedCanonicalWordIds?.has(member.canonicalWordId) &&
+    (member.memberRole === "base" || !facts.excludedCanonicalWordIds?.has(member.canonicalWordId)) &&
     approvedFamilies.has(member.baseFamilyKey) &&
     (!member.applicableMicroSkillKeys || member.applicableMicroSkillKeys.includes(microSkillKey)) &&
     (facts.selectionPolicyVersion !== "base_word_regularity_v1" || member.lessonRegularity?.status === "regular") &&

@@ -165,11 +165,12 @@ export async function persistBaseWordFamilyPilotAssignment(params: {
   if (!payload) throw new Error("Refusing base-word pilot persistence: malformed reviewed snapshot.");
   const environmentKey = resolveAdleRouteActivationEnvironment();
   if (!environmentKey) throw new Error("Refusing base-word pilot persistence: route activation environment unavailable.");
+  const baseWordIds = new Set(payload.familySections.map((section) => section.baseWord.canonicalWordId));
   const lessonWordIds = [...new Set([
     ...payload.familySections.flatMap((section) =>
       [section.baseWord.canonicalWordId, ...section.guidedWords.map((word) => word.canonicalWordId)]),
     ...payload.independentWords.map((word) => word.canonicalWordId),
-  ])];
+  ])].filter((canonicalWordId) => !baseWordIds.has(canonicalWordId));
   const vetoes = await loadCurrentPairDeassignments({
     client: params.client, environmentKey,
     pairs: lessonWordIds.flatMap((canonicalWordId) => BASE_WORD_PAIR_DECISION_KEYS.map((microSkillKey) =>

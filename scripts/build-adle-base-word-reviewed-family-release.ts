@@ -37,7 +37,11 @@ function args() {
   const approvalRef = get("--approval-ref");
   const environment = get("--environment");
   const output = get("--out");
-  const lexicalFamilyKey = values.includes("--lexical-family-key") ? get("--lexical-family-key") : null;
+  const lexicalFamilyKeys = values.includes("--lexical-family-keys")
+    ? get("--lexical-family-keys").split(",").filter(Boolean)
+    : values.includes("--lexical-family-key") ? [get("--lexical-family-key")] : [];
+  if (new Set(lexicalFamilyKeys).size !== lexicalFamilyKeys.length)
+    throw new Error("Duplicate lexical family key");
   const parentFamilyAuthority = values.includes("--parent-family-authority") ? get("--parent-family-authority") : null;
   const reuseParentClosure = values.includes("--reuse-parent-closure");
   const regularityReview = values.includes("--regularity-review") ? get("--regularity-review") : null;
@@ -46,14 +50,19 @@ function args() {
     !HISTORICAL_BASE_WORD_SKILLS.some((skill) => skill === microSkillKey))
     throw new Error("Usage: --parent-release UUID --environment local|staging|production --micro-skill BASE_WORD_KEY --release-key KEY --approval-ref REVIEW_REF --out DIR [--publish]");
   return { parentRelease, parentFamilyAuthority, reuseParentClosure, regularityReview,
-    environment, microSkillKey, releaseKey, approvalRef, output, lexicalFamilyKey,
+    environment, microSkillKey, releaseKey, approvalRef, output, lexicalFamilyKeys,
     publish: values.includes("--publish"), verifyPublish: values.includes("--verify-publish") };
 }
 
 async function main() {
   const config = args();
-  const url = process.env.TEACHING_DICTIONARY_RELEASE_DB_URL;
+  const url = process.env.TEACHING_DICTIONARY_RELEASE_DB_URL ??
+    (config.environment === "production" ? process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED : undefined);
   if (!url) throw new Error("Set TEACHING_DICTIONARY_RELEASE_DB_URL for the intended environment");
+  if (config.environment === "production" &&
+    (!new URL(url).username.includes("wwohrqtunajrbwxyssjf") ||
+      !new URL(url).hostname.endsWith("pooler.supabase.com")))
+    throw new Error("PRODUCTION_TARGET_MISMATCH");
   const db = new pg.Client({ connectionString: url });
   await db.connect();
   try {
@@ -122,16 +131,16 @@ async function main() {
     }));
     let projection = buildReviewedBaseFamilyProjection({ parent, microSkillKey: config.microSkillKey,
       definitions, legacyFamilies, reviews: reviewedMembers });
-    let lexicalApprovalRef: string | null = null;
-    if (config.lexicalFamilyKey) {
+    const lexicalApprovalRefs: string[] = [];
+    for (const lexicalFamilyKey of config.lexicalFamilyKeys) {
       const lexical = (await db.query<Row>(`select * from public.canonical_teaching_dictionary_lexical_base_families
         where family_key=$1 and review_status='approved' order by revision desc limit 1`,
-        [config.lexicalFamilyKey])).rows[0];
+        [lexicalFamilyKey])).rows[0];
       if (!lexical || lexical.base_kind !== "free_base" || !lexical.canonical_base_word_id)
         throw new Error("An approved free-base lexical family is required");
       const authorized = (await db.query<Row>(`select 1 from public.adle_base_word_lexical_family_authorizations
         where family_key=$1 and revision=$2 and semantic_fingerprint=$3 and withdrawn_at is null`,
-        [config.lexicalFamilyKey, lexical.revision, lexical.semantic_fingerprint])).rows.length === 1;
+        [lexicalFamilyKey, lexical.revision, lexical.semantic_fingerprint])).rows.length === 1;
       if (!authorized) throw new Error("This lexical family is not authorized as a Base Word lesson candidate source");
       const lexicalMembers = (await db.query<Row>(`select member.* from public.canonical_teaching_dictionary_lexical_base_family_members member
         join public.canonical_teaching_dictionary_word_morphology morphology
@@ -150,9 +159,9 @@ async function main() {
               and current_morphology.morphology_parts=member.morphology_parts
               and current_morphology.morphology_joins=member.morphology_joins
               and current_morphology.morphology_transformations=member.morphology_transformations)`,
-        [config.lexicalFamilyKey, lexical.revision])).rows;
+        [lexicalFamilyKey, lexical.revision])).rows;
       const total = (await db.query<{ count: string }>(`select count(*) from public.canonical_teaching_dictionary_lexical_base_family_members
-        where family_key=$1 and revision=$2`, [config.lexicalFamilyKey, lexical.revision])).rows[0];
+        where family_key=$1 and revision=$2`, [lexicalFamilyKey, lexical.revision])).rows[0];
       if (lexicalMembers.length !== Number(total.count)) throw new Error("Approved lexical morphology changed");
       const targetIds = lexicalMembers.filter((row) => String(row.canonical_word_id) !== String(lexical.canonical_base_word_id))
         .map((row) => String(row.canonical_word_id));
@@ -175,7 +184,7 @@ async function main() {
             where newer.canonical_word_id=content.canonical_word_id and newer.route_id=content.route_id
               and newer.route_version=content.route_version and newer.micro_skill_key=content.micro_skill_key
               and (newer.published_at,newer.id)>(content.published_at,content.id))`,
-        [targetIds, config.microSkillKey, config.lexicalFamilyKey])).rows : [];
+        [targetIds, config.microSkillKey, lexicalFamilyKey])).rows : [];
       const pairIds = new Set(pairs.map((row) => String(row.canonical_word_id)));
       const reviewedIds = new Set(reviewed.map((row) => String(row.canonical_word_id)));
       const family: ApprovedLexicalFamily = {
@@ -195,10 +204,10 @@ async function main() {
           routeContentReviewed: reviewedIds.has(String(row.canonical_word_id)),
         })),
       };
-      lexicalApprovalRef = String(lexical.approval_reference);
+      lexicalApprovalRefs.push(String(lexical.approval_reference));
       projection = appendReviewedLexicalFamilies({ parent: projection, microSkillKey: config.microSkillKey,
         environment: config.environment as "local" | "staging" | "production", families: [family] });
-      if (!projection.families.some((entry) => entry.baseFamilyKey === config.lexicalFamilyKey))
+      if (!projection.families.some((entry) => entry.baseFamilyKey === lexicalFamilyKey))
         throw new Error("Lexical family is not yet a reviewed lesson candidate");
     }
     const parentReviewIds = new Set(parent.families.flatMap((family) => family.members
@@ -207,7 +216,7 @@ async function main() {
     const effectiveReviewIds = new Set(projection.families.flatMap((family) => family.members
       .filter((member) => "morphologySource" in member && member.morphologySource.sourceKind === "approved_manager_review")
       .map((member) => member.memberId)).filter((id) => !parentReviewIds.has(id)));
-    if (effectiveReviewIds.size === 0 && !config.lexicalFamilyKey && parent.selectionPolicyVersion === "base_word_regularity_v1")
+    if (effectiveReviewIds.size === 0 && config.lexicalFamilyKeys.length === 0 && parent.selectionPolicyVersion === "base_word_regularity_v1")
       throw new Error("No new reviewed relationships or regularity policy to release");
     projection = regularityReviewedRelease(projection);
     let regularityReviewHash: string | null = null;
@@ -242,7 +251,7 @@ async function main() {
     }
     const approvalRefs = [...new Set([
       ...(Array.isArray(family.approval_refs) ? family.approval_refs as string[] : []),
-      config.approvalRef, ...(lexicalApprovalRef ? [lexicalApprovalRef] : []),
+      config.approvalRef, ...lexicalApprovalRefs,
       ...(regularityReviewHash ? [`regularity-owner-review-sha256:${regularityReviewHash}`] : []),
       ...[...effectiveReviewIds].map((id) => `manager-family-review:${id}`),
     ])].sort();

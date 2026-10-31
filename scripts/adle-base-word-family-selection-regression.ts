@@ -65,6 +65,13 @@ const vetoedAuthenticTarget = selectBaseWordFamilyLesson(CHILD, SKILL, facts(que
 }));
 assert(vetoedAuthenticTarget.slots.length === 0,
   "a de-assigned authentic word cannot select its family");
+const baseOnlyPairVeto = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue, {
+  excludedCanonicalWordIds: new Set(["care"]),
+}));
+assert(baseOnlyPairVeto.skipReasons.length === 0 &&
+  baseOnlyPairVeto.guidedFamilySections.some((section) => section.baseFamilyKey === "CARE" &&
+    section.guidedWordIds.includes("care")),
+"a base-only pair de-assignment must not remove a valid family's structural base from teaching");
 
 const twoPlusFour = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
   item("careful-two", "careful", "2026-07-01"),

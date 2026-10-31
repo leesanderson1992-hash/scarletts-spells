@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "Katie Sanderson",
+  "reviewReference": "owner-approved-identify-family-review-2026-10-31:sha256:e66a5e8af1d6c6732e5a8dea7eed73fab3ae9c96a363c1601a40ff3663f77718; governed-affix-spelling-change-policy",
+  "decisions": [
+    {
+      "familyKey": "fun_adjective_base_family",
+      "canonicalWordId": "d7a672bc-6a5b-5a63-b644-1e8724411850",
+      "displayWord": "funny",
+      "status": "regular",
+      "reason": "The reviewed sum fun + y → funny doubles final n before the suffix; this is a governed spelling change, not an irregular form."
+    },
+    {
+      "familyKey": "fun_adjective_base_family",
+      "canonicalWordId": "6b4a256b-c33b-5702-b6d7-050bff83a40e",
+      "displayWord": "funnier",
+      "status": "regular",
+      "reason": "The reviewed sum fun + y + er → funnier doubles final n and changes y to i before er; both are governed spelling changes."
+    },
+    {
+      "familyKey": "fun_adjective_base_family",
+      "canonicalWordId": "ba3fccf9-7fa8-5c8b-8a89-35deda9ad1e7",
+      "displayWord": "funniest",
+      "status": "regular",
+      "reason": "The reviewed sum fun + y + est → funniest doubles final n and changes y to i before est; both are governed spelling changes."
+    }
+  ]
+}

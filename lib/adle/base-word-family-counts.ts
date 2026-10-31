@@ -1,5 +1,5 @@
 import type { ActivatedBaseWordReleaseAuthority, BaseWordFamilyAuthorityProjection } from "./curriculum-release-activation";
-import { baseWordFamilyMemberAppliesToMicroSkill } from "./curriculum-release-activation";
+import { baseWordFamilyMemberAppliesToMicroSkill, baseWordFamilyMemberStructuralRole } from "./curriculum-release-activation";
 import { baseWordMemberSelectable } from "./base-word-regularity";
 
 export interface EligibleFamilyCount {
@@ -45,7 +45,7 @@ export function eligibleBaseFamilyCounts(
         : []) : [];
     const eligibleWordIds = new Set(family.members.filter((member) =>
       baseWordMemberSelectable(authority, member) && closureWordIds.has(member.canonicalWordId) &&
-      !excludedWordIds.has(member.canonicalWordId) &&
+      (baseWordFamilyMemberStructuralRole(member) === "base" || !excludedWordIds.has(member.canonicalWordId)) &&
       baseWordFamilyMemberAppliesToMicroSkill(authority, member, microSkillKey),
     ).map((member) => member.canonicalWordId));
     return { baseFamilyKey: family.baseFamilyKey, eligibleWordIds, eligibleCount: eligibleWordIds.size, regularityExclusions };
