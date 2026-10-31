@@ -43,6 +43,51 @@ type DictationSentenceRow = {
   canonical_word_id: string; dictation_sentence: string; dictation_target_token_index: number; audio_text: string;
 };
 
+/** The lexical authority preserves its reviewed source notation. Snapshot v1
+ * needs stable part IDs and explicit joins for the cleaver. Keep the source
+ * authority immutable and translate only its presentation shape here. */
+export function projectReleasedBaseWordMorphology(
+  displayWord: string,
+  rawParts: unknown[],
+  rawJoins: unknown[],
+  rawTransformations: unknown[],
+  regularity: "regular" | "irregular" | "needs_review" | undefined,
+): Pick<BaseWordFamilySnapshotWord, "parts" | "joins" | "transformations"> | null {
+  if (regularity === undefined) return {
+    parts: rawParts, joins: rawJoins,
+    transformations: rawTransformations as BaseWordFamilySnapshotWord["transformations"],
+  };
+  if (regularity !== "regular" || rawParts.length === 0 ||
+      rawParts.some((part) => !part || typeof part !== "object" || Array.isArray(part))) return null;
+  const parts: Record<string, unknown>[] = rawParts.map((raw, index) => {
+    const part = raw as Record<string, unknown>;
+    return { ...part, id: typeof part.id === "string" && part.id.trim() ? part.id : `part_${index + 1}` };
+  });
+  if (new Set(parts.map((part) => part.id)).size !== parts.length ||
+      parts.some((part) => typeof part.kind !== "string" || typeof part.sourceText !== "string" || typeof part.surfaceText !== "string") ||
+      parts.map((part) => part.surfaceText).join("").toLocaleLowerCase("en-GB") !== displayWord.toLocaleLowerCase("en-GB")) return null;
+  const explicitJoins = rawJoins.every((join) => join && typeof join === "object" && !Array.isArray(join) &&
+    typeof (join as Record<string, unknown>).afterPartId === "string" &&
+    typeof (join as Record<string, unknown>).beforePartId === "string" &&
+    ["none", "space", "hyphen"].includes(String((join as Record<string, unknown>).joinType)));
+  if (!explicitJoins && (rawJoins.length !== parts.length - 1 || rawJoins.some((join) => join !== "plus"))) return null;
+  const joins = explicitJoins ? rawJoins : parts.slice(1).map((part, index) => ({
+    afterPartId: parts[index].id, beforePartId: part.id, joinType: "none",
+  }));
+  const transformations: BaseWordFamilySnapshotWord["transformations"] = [];
+  for (const raw of rawTransformations) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const transformation = raw as Record<string, unknown>;
+    if (transformation.type === "change_final_y_to_i" && transformation.transformationKey === "change_final_y_to_i") {
+      transformations.push(transformation as unknown as BaseWordFamilySnapshotWord["transformations"][number]);
+    } else if (!(["drop_final_e", "double_final_consonant", "editorial_alignment_candidate"].includes(String(transformation.kind)) &&
+        typeof transformation.kind === "string")) return null;
+  }
+  // Other reviewed spelling changes are already represented by each part's
+  // sourceText/surfaceText. Their full decision remains in the frozen release.
+  return { parts, joins, transformations };
+}
+
 async function readRows<T>(
   query: PromiseLike<{ data: unknown; error: { message: string } | null }>,
   context: string,
@@ -101,14 +146,15 @@ export async function loadBaseWordFamilyLessonReadModel(
             member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
         const variant=closure.dictationVariants ? selectDictationVariant(closure.dictationVariants, `${request.dictationSeed ?? "preflight"}:${canonicalWordId}:${closure.dictationSetFingerprint}`) : null;
         if(closure.dictationVariants && dictationVariantBlockers(closure.displayWord,closure.dictationVariants).length)return null;
+        const morphology = projectReleasedBaseWordMorphology(closure.displayWord, member.morphologyParts,
+          member.morphologyJoins, member.morphologyTransformations, member.lessonRegularity?.status);
+        if (!morphology) return null;
         return {
           ...(variant ? {dictationVariant:{id:variant.id,authorityFingerprint:closure.dictationSetFingerprint!}} : {}),
           canonicalWordId,
           displayWord: closure.displayWord,
           wordSum: member.wordSum,
-          parts: member.morphologyParts,
-          joins: member.morphologyJoins,
-          transformations: member.morphologyTransformations as BaseWordFamilySnapshotWord["transformations"],
+          ...morphology,
           transformationNotes: member.transformationNotes,
           childFriendlyMeaning: member.childFriendlyMeaning,
           dictationSentence: variant?.sentence ?? closure.dictationSentence,

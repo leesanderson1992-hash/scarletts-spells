@@ -6,7 +6,10 @@ import { readFileSync } from "node:fs";
 import pg from "pg";
 import { selectBaseWordFamilyLesson } from "../lib/adle/base-word-family-selection";
 import { eligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../lib/adle/base-word-family-counts";
-import type { BaseWordFamilyAuthorityProjectionV2 } from "../lib/adle/curriculum-release-activation";
+import { loadBaseWordFamilyLessonReadModel, projectReleasedBaseWordMorphology } from "../lib/adle/loaders/base-word-family-lesson-read-model";
+import { compileBaseWordFamilyLessonSnapshot } from "../lib/adle/morphology/base-word-family-payload";
+import type { ActivatedBaseWordReleaseAuthority, BaseWordFamilyAuthorityProjectionV2 } from "../lib/adle/curriculum-release-activation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const SKILL = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 const CLUSTER = [SKILL, "D4_MOR_BASE_WORDS_PRESERVE_BASE",
@@ -26,6 +29,18 @@ assert.equal(targets.length, 61);
 const bindingByKey = new Map(bindings.map((row) => [row.wordKey, row.canonicalWordId]));
 const closureIds = new Set(closure.words.map((row) => bindingByKey.get(row.wordKey)).filter((id): id is string => Boolean(id)));
 assert.equal(closureIds.size, closure.words.length);
+const authority = { family, microSkillKey: SKILL,
+  teachingContent: { microSkillKey: SKILL, contentVersion: "human_reviewed_v1" },
+  dictionaryWords: closure.words.map((row) => ({ ...row, canonicalWordId: bindingByKey.get(row.wordKey)! })),
+} as unknown as ActivatedBaseWordReleaseAuthority;
+const closureById = new Map(authority.dictionaryWords.map((word) => [word.canonicalWordId, word]));
+const unprojectable = family.families.flatMap((entry) => entry.members).filter((member) => {
+  if (member.lessonRegularity?.status !== "regular") return false;
+  const word = closureById.get(member.canonicalWordId);
+  return !word || !projectReleasedBaseWordMorphology(word.displayWord, member.morphologyParts,
+    member.morphologyJoins, member.morphologyTransformations, member.lessonRegularity.status);
+});
+assert.deepEqual(unprojectable.map((member) => member.wordSum), [], "all regular released members project to snapshot morphology");
 const db = new pg.Client({ connectionString: process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED,
   ssl: { rejectUnauthorized: false } });
 await db.connect();
@@ -83,6 +98,23 @@ try {
           slot.canonicalWordId === baseByFamily.get(slot.baseFamilyKey)));
         assert(selection.guidedFamilySections.every((section) => section.guidedWordIds.every((wordId) =>
           !excluded.has(wordId) || wordId === baseByFamily.get(section.baseFamilyKey))));
+        const authenticTargets = selection.slots.filter((slot) => slot.assignmentRole === "primary_authentic_target")
+          .map((slot) => ({ canonicalWordId: slot.canonicalWordId, learningItemId: slot.learningItemId!, sourceRef: `synthetic:${slot.canonicalWordId}` }));
+        const readModel = await loadBaseWordFamilyLessonReadModel({} as SupabaseClient, {
+          microSkillKey: SKILL, contentVersion: "human_reviewed_v1", releaseAuthority: authority,
+          authenticTargets, sections: selection.guidedFamilySections.map((section) => ({
+            baseFamilyKey: section.baseFamilyKey,
+            authenticTargetWordIds: [...section.authenticTargetWordIds],
+            guidedWordIds: [...section.guidedWordIds],
+          })), independentSlots: selection.slots.map((slot) => ({
+            canonicalWordId: slot.canonicalWordId, provenance: slot.provenance,
+            assignmentRole: slot.assignmentRole, learnerProvenance: slot.learnerProvenance,
+            baseFamilyKey: slot.baseFamilyKey, learningItemId: slot.learningItemId,
+          })), pilotLessonNumber: 1,
+        });
+        if (!readModel) { reasons.add("released_family_read_model_unavailable"); continue; }
+        try { compileBaseWordFamilyLessonSnapshot(readModel); }
+        catch (error) { reasons.add(`released_family_snapshot_compile_failed:${error instanceof Error ? error.message : String(error)}`); continue; }
         witness = true; break;
       }
       for (const reason of selection.skipReasons) reasons.add(reason);
@@ -90,7 +122,7 @@ try {
     if (witness) passed += 1;
     else blocked.push({ word, reasons: [...reasons] });
   }
-  console.log(JSON.stringify({ checked: targets.length, passed, blocked,
+  console.log(JSON.stringify({ checked: targets.length, passed, compiledSnapshots: passed, blocked,
     families: family.families.length, candidateFamilyPairs: pairs.length,
     excludedGovernedWordIds: excluded.size }));
   await db.query("rollback");
