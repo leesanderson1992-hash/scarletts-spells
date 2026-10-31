@@ -1,0 +1,932 @@
+{
+  "schemaVersion": 1,
+  "reviewReference": "Katie Sanderson approval in Codex chat, 2026-10-31",
+  "reviewedAgainstReleaseKey": "adle_base_word_regularity_staging_2026_10_31_v2",
+  "reviewedBy": "Katie Sanderson",
+  "decisions": [
+    {
+      "familyKey": "act_base_family",
+      "canonicalWordId": "1431a601-d2c7-5553-95a3-1e28c260c318",
+      "displayWord": "actor",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "act_base_family",
+      "canonicalWordId": "2b11de62-dad4-5b67-aba4-585ddfd7253d",
+      "displayWord": "action",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "act_base_family",
+      "canonicalWordId": "5e741800-a19e-5b8b-9bd7-ee79cf5a4bb0",
+      "displayWord": "activity",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "act_base_family",
+      "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
+      "displayWord": "actual",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "act_base_family",
+      "canonicalWordId": "fe64afca-193d-5b1a-84d3-8211d2cc276d",
+      "displayWord": "interact",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "angle_base_family",
+      "canonicalWordId": "7c9b915d-1ed6-587a-9872-30f28d26f6ea",
+      "displayWord": "triangle",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "baby_base_family",
+      "canonicalWordId": "93fdd4dd-e9ff-5ff6-8266-c485aa30367e",
+      "displayWord": "babies",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "bake_base_family",
+      "canonicalWordId": "31f588cb-00e4-5f87-97f0-d99ad2507f31",
+      "displayWord": "baked",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "big_base_family",
+      "canonicalWordId": "a1dd2f58-fb85-571f-84c8-b54f96c96de4",
+      "displayWord": "biggest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "big_base_family",
+      "canonicalWordId": "b7792563-f3c9-5a28-91d1-3b41ae41cdee",
+      "displayWord": "bigger",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "book_base_family",
+      "canonicalWordId": "4abd97f3-a6cc-5d81-9ec0-b2b0061ba681",
+      "displayWord": "books",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "brave_base_family",
+      "canonicalWordId": "61ace985-6a04-5f85-86e4-52a781f98151",
+      "displayWord": "bravest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "brave_base_family",
+      "canonicalWordId": "a94d8598-89c8-5091-b6d6-93296256f969",
+      "displayWord": "braver",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "busy_base_family",
+      "canonicalWordId": "1a9fb5e8-b73d-50bd-a6a7-69cd7ad96714",
+      "displayWord": "busiest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "busy_base_family",
+      "canonicalWordId": "50d1e26b-5f8b-5b8a-901e-895ccb5ae8ff",
+      "displayWord": "busier",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "car_base_family",
+      "canonicalWordId": "e1c9d131-ea7a-5fd6-a4d0-5db916f13685",
+      "displayWord": "cars",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "care_base_family",
+      "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+      "displayWord": "careful",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "care_base_family",
+      "canonicalWordId": "b98a9d29-e6c3-5093-9060-9976488c2396",
+      "displayWord": "careless",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "carry_base_family",
+      "canonicalWordId": "4c0508d5-811c-58cb-8ff7-b13dc8b4ac36",
+      "displayWord": "carries",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "carry_base_family",
+      "canonicalWordId": "8fc6eae9-40b3-5da5-9c36-56bfc3676fd9",
+      "displayWord": "carried",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "cat_base_family",
+      "canonicalWordId": "5332a8a1-552a-5a5d-b8a8-eee11e669c8d",
+      "displayWord": "cats",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "child_base_family",
+      "canonicalWordId": "3ba80e04-cdfd-57fc-9a98-a8c7bac97897",
+      "displayWord": "children",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "city_base_family",
+      "canonicalWordId": "a40df8c7-f19b-5fa2-b4f5-d8edb0ac722d",
+      "displayWord": "cities",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "clean_base_family",
+      "canonicalWordId": "1be7705c-b991-5378-afbd-1873db038d48",
+      "displayWord": "cleaned",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "copy_base_family",
+      "canonicalWordId": "f08e9494-dd92-5221-b593-398802d18203",
+      "displayWord": "copied",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "cry_base_family",
+      "canonicalWordId": "a757bb93-7f42-5790-b00e-cd5698ffc157",
+      "displayWord": "cried",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "cry_base_family",
+      "canonicalWordId": "e0bf7eb5-33ae-5d40-9614-e5abf6817f8d",
+      "displayWord": "cries",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "danger_base_family",
+      "canonicalWordId": "a5a82c2e-7778-5d31-be15-f09eff8e57ad",
+      "displayWord": "dangerous",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "define_base_family",
+      "canonicalWordId": "38e64300-7967-5f97-a772-853851614c94",
+      "displayWord": "definition",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "die_base_family",
+      "canonicalWordId": "39091345-b253-56c9-bcea-5e21a8ebdaf8",
+      "displayWord": "dying",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "dog_base_family",
+      "canonicalWordId": "a96f0a5d-2e10-5771-9d03-27e644d26e74",
+      "displayWord": "dogs",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "face_base_family",
+      "canonicalWordId": "483f637f-2c6a-59df-b8b6-2636d22390bf",
+      "displayWord": "facial",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "fair_base_family",
+      "canonicalWordId": "3866abb1-1db5-54a7-a4f8-b86acac0baf3",
+      "displayWord": "unfair",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "fast_base_family",
+      "canonicalWordId": "0b32272c-91b9-5c8e-96d3-cb0133015ac0",
+      "displayWord": "fastest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "fast_base_family",
+      "canonicalWordId": "576ff3ec-5303-5ed3-be3e-4a7fa85dc141",
+      "displayWord": "faster",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "go_base_family",
+      "canonicalWordId": "44458ee3-6b12-5699-8cdc-6724208dcd03",
+      "displayWord": "goes",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "grab_base_family",
+      "canonicalWordId": "423ec4d3-67e2-5097-9268-72f8615292f6",
+      "displayWord": "grabbed",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "graph_base_family",
+      "canonicalWordId": "7350002d-1256-5a78-8cfb-dbe93243acae",
+      "displayWord": "graphic",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "graph_base_family",
+      "canonicalWordId": "beb77994-952a-50c0-9926-6b3f5515edbb",
+      "displayWord": "photography",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "graph_base_family",
+      "canonicalWordId": "becb2298-1e57-5da2-8a44-e8982acbe4b0",
+      "displayWord": "photograph",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "graph_base_family",
+      "canonicalWordId": "c6444d13-55d8-53c7-ac63-15d7b61765c5",
+      "displayWord": "geography",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "grow_base_family",
+      "canonicalWordId": "11ed3dd1-772f-5da0-9c09-818e94bb1615",
+      "displayWord": "grown",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "happy_base_family",
+      "canonicalWordId": "3ded994b-7b05-5273-8d4a-6df44580a812",
+      "displayWord": "happier",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "happy_base_family",
+      "canonicalWordId": "41abda02-14c1-528d-a7e9-bb6880bf7be1",
+      "displayWord": "happiness",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "happy_base_family",
+      "canonicalWordId": "6949d36e-3bad-59e1-9dc2-3ac6f8a2e4f9",
+      "displayWord": "unhappy",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "help_base_family",
+      "canonicalWordId": "14693b63-2ed6-52d7-8bae-df28f80945cb",
+      "displayWord": "helpful",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hop_base_family",
+      "canonicalWordId": "73e427f0-def2-5b25-8592-61cb6b0d4c10",
+      "displayWord": "hopped",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hope_base_family",
+      "canonicalWordId": "60e6aa42-74bf-5a47-b202-125fad624505",
+      "displayWord": "hopeful",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hope_base_family",
+      "canonicalWordId": "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "displayWord": "hoping",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hope_base_family",
+      "canonicalWordId": "a98cd0a7-1a24-56f1-8c9e-92b0faf7dcb2",
+      "displayWord": "hoped",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hope_base_family",
+      "canonicalWordId": "eb1582db-7a6e-542f-b886-aff24d0b5860",
+      "displayWord": "hopeless",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hot_base_family",
+      "canonicalWordId": "1061d6a6-962e-5353-bf67-363a4717a267",
+      "displayWord": "hotter",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "hot_base_family",
+      "canonicalWordId": "50926256-5c4c-5ec1-956d-2fa0bc377c04",
+      "displayWord": "hottest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "inform_base_family",
+      "canonicalWordId": "84dac1fe-7f74-5559-8e5a-70aebe6843d5",
+      "displayWord": "information",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "joy_base_family",
+      "canonicalWordId": "0c8d9805-097d-5505-91b6-7f90145f72a9",
+      "displayWord": "enjoyment",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "joy_base_family",
+      "canonicalWordId": "88e7b63e-bbca-594f-90b2-08b62ce3651a",
+      "displayWord": "enjoy",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "joy_base_family",
+      "canonicalWordId": "b8a397d0-2f7c-51b1-b2f5-9a354306927b",
+      "displayWord": "enjoyable",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "jump_base_family",
+      "canonicalWordId": "1c59da8b-a00e-551b-978a-b36d8e3538f0",
+      "displayWord": "jumps",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "jump_base_family",
+      "canonicalWordId": "5d8f9bc2-70bb-52f5-b4e4-d88adfce4ff4",
+      "displayWord": "jumping",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "jump_base_family",
+      "canonicalWordId": "715f723e-fc3a-5178-b606-5013fa24899b",
+      "displayWord": "jumped",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "kind_base_family",
+      "canonicalWordId": "39e58033-c336-5f27-a3a3-74d622990752",
+      "displayWord": "kindness",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "kind_base_family",
+      "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "displayWord": "unkind",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "knife_base_family",
+      "canonicalWordId": "77e76ac1-3785-551f-b518-106ba0dd01c2",
+      "displayWord": "knives",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "large_base_family",
+      "canonicalWordId": "c8d818e3-700b-581a-9e19-e7ce48f10b8b",
+      "displayWord": "largest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "large_base_family",
+      "canonicalWordId": "dfc2fc84-69b4-5169-8e40-4349a69fd5a5",
+      "displayWord": "larger",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "late_base_family",
+      "canonicalWordId": "240d2962-b0cb-5428-9955-399a0f913b2e",
+      "displayWord": "latest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "late_base_family",
+      "canonicalWordId": "adb468ff-dd99-5e1e-9a0b-b727c1b0142a",
+      "displayWord": "later",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "laugh_base_family",
+      "canonicalWordId": "7f8f0508-93d3-5487-b759-db5a6246730e",
+      "displayWord": "laughed",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "lie_base_family",
+      "canonicalWordId": "b6320e4b-c485-5363-a811-6a1d91f24bb7",
+      "displayWord": "lying",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "like_base_family",
+      "canonicalWordId": "0a40d520-9111-5f6e-b41c-463c48dc92e9",
+      "displayWord": "liked",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "like_base_family",
+      "canonicalWordId": "66577bba-d406-51f0-b826-75b19d234d5c",
+      "displayWord": "dislike",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "look_base_family",
+      "canonicalWordId": "0a570e84-f924-526e-baf8-8aa70b720749",
+      "displayWord": "looked",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "look_base_family",
+      "canonicalWordId": "cf3ce348-0c18-5a29-bfd4-4e290d569e48",
+      "displayWord": "looking",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "magic_base_family",
+      "canonicalWordId": "a540733c-3568-5d5b-8e6f-2404b4c639cd",
+      "displayWord": "magician",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "make_base_family",
+      "canonicalWordId": "b51835ff-37ec-5446-a4f3-f6eab2d34895",
+      "displayWord": "made",
+      "status": "irregular",
+      "reason": "owner_reviewed_irregular_inflection_make_made"
+    },
+    {
+      "familyKey": "make_base_family",
+      "canonicalWordId": "c11f987a-8631-51db-8c0f-cbd739f39274",
+      "displayWord": "making",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "map_base_family",
+      "canonicalWordId": "ac427d43-37c9-5c22-b349-06883dc350ea",
+      "displayWord": "mapped",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "nature_base_family",
+      "canonicalWordId": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+      "displayWord": "natural",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "nice_base_family",
+      "canonicalWordId": "858dc7ad-6d8e-5a62-9d7c-3a349c5e2a2d",
+      "displayWord": "nicer",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "nice_base_family",
+      "canonicalWordId": "d29602fc-e499-568b-be48-9aa9e0b16c5b",
+      "displayWord": "nicest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "one_base_family",
+      "canonicalWordId": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "displayWord": "twenty-one",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "person_base_family",
+      "canonicalWordId": "9edd71ef-534d-57d6-b997-0f518d69bce8",
+      "displayWord": "personal",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "photo_base_family",
+      "canonicalWordId": "beb77994-952a-50c0-9926-6b3f5515edbb",
+      "displayWord": "photography",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "photo_base_family",
+      "canonicalWordId": "becb2298-1e57-5da2-8a44-e8982acbe4b0",
+      "displayWord": "photograph",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "plan_base_family",
+      "canonicalWordId": "5f48a4f7-2202-5491-9e20-e7c3792ba808",
+      "displayWord": "planned",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "port_base_family",
+      "canonicalWordId": "222a9962-ec36-5644-9e0d-8e1ba5661bcb",
+      "displayWord": "transport",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "possible_base_family",
+      "canonicalWordId": "0ea41f17-bd7c-5f7d-b264-ea94567388f8",
+      "displayWord": "possibility",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "possible_base_family",
+      "canonicalWordId": "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "displayWord": "impossible",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "quick_base_family",
+      "canonicalWordId": "2f7420ec-d667-515c-b307-9dc25a4de5c4",
+      "displayWord": "quickest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "quick_base_family",
+      "canonicalWordId": "fae8330e-66a3-5d64-8b32-cbaf6c7cf2d8",
+      "displayWord": "quickly",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "read_base_family",
+      "canonicalWordId": "6a22c574-e5aa-5170-b7fc-48ecdf51285e",
+      "displayWord": "misread",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "read_base_family",
+      "canonicalWordId": "6f38440c-f179-551e-ba63-e068a929907a",
+      "displayWord": "reading",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "read_base_family",
+      "canonicalWordId": "883685c3-9d0d-5071-871c-fca55770d90a",
+      "displayWord": "readable",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "read_base_family",
+      "canonicalWordId": "e746305b-af7d-57bb-89cc-63addf45c747",
+      "displayWord": "reads",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "run_base_family",
+      "canonicalWordId": "02e7b5c0-3594-5c36-aa3b-81976c8cea2d",
+      "displayWord": "running",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "run_base_family",
+      "canonicalWordId": "bd8f5ff6-b952-5b01-907b-6f406d9040f2",
+      "displayWord": "runner",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "run_base_family",
+      "canonicalWordId": "e0941bb2-3db7-525c-9ccf-98a992fab58b",
+      "displayWord": "runs",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sad_base_family",
+      "canonicalWordId": "6fdf047e-2faa-5875-a13c-3bf277db71e8",
+      "displayWord": "saddest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sad_base_family",
+      "canonicalWordId": "86fdbd98-2c46-5183-9966-707de591d5c2",
+      "displayWord": "sadly",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sad_base_family",
+      "canonicalWordId": "ecc3004d-ffbc-550e-ba72-8c04e1a5b72b",
+      "displayWord": "sadness",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sad_base_family",
+      "canonicalWordId": "efce43e6-6c85-5f8a-b64e-46880ccd3be0",
+      "displayWord": "sadder",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sign_base_family",
+      "canonicalWordId": "593d01fa-fab8-565d-83c7-f41fe867e27e",
+      "displayWord": "signature",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sign_base_family",
+      "canonicalWordId": "ab9eebf8-3041-5f02-af35-2ad9d42ddc9f",
+      "displayWord": "signal",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "sit_base_family",
+      "canonicalWordId": "715cf971-e80d-5ac6-9c18-bd2a70ec2fed",
+      "displayWord": "sitting",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "small_base_family",
+      "canonicalWordId": "4f9c8684-7524-54c9-9c19-96f852052084",
+      "displayWord": "smallest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "small_base_family",
+      "canonicalWordId": "a31c7ecc-5e62-538c-a77e-9ad76064efe8",
+      "displayWord": "smaller",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "smile_base_family",
+      "canonicalWordId": "197c7306-bf55-5c68-bb8a-79d818eaa1cf",
+      "displayWord": "smiling",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "smile_base_family",
+      "canonicalWordId": "2bb5f3ff-e760-5d66-9a58-bf51f271a110",
+      "displayWord": "smiled",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "stop_base_family",
+      "canonicalWordId": "92f5cd06-f177-54f4-8dd6-3c337a2fe985",
+      "displayWord": "stopped",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "stop_base_family",
+      "canonicalWordId": "ff1a49fb-3a9f-5f5e-b34e-92263e044a43",
+      "displayWord": "stopping",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "story_base_family",
+      "canonicalWordId": "b1237d34-1a20-5a89-b16c-dab0136fee61",
+      "displayWord": "stories",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "swim_base_family",
+      "canonicalWordId": "1161041b-a15e-55f9-a42e-22500c239eb7",
+      "displayWord": "swimming",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "take_base_family",
+      "canonicalWordId": "f3c23cf1-500c-572c-b519-a5df7c63bc0f",
+      "displayWord": "mistake",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "tall_base_family",
+      "canonicalWordId": "6a13a3e9-f328-57c2-b774-36b663f33ee0",
+      "displayWord": "taller",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "tall_base_family",
+      "canonicalWordId": "b6271d74-7ade-5a36-9369-048d7dcd1e74",
+      "displayWord": "tallest",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "thank_base_family",
+      "canonicalWordId": "b4881ca1-5e3a-5906-b92e-1982e356690b",
+      "displayWord": "thankful",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "tie_base_family",
+      "canonicalWordId": "805e29b0-2117-5e5d-885a-c44d8e5fbe64",
+      "displayWord": "tying",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "try_base_family",
+      "canonicalWordId": "0fb2423b-945c-5d10-afd5-cbf7723d5dde",
+      "displayWord": "tried",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "try_base_family",
+      "canonicalWordId": "c8ac061a-0189-5606-b3ec-fd805ad714c9",
+      "displayWord": "tries",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "use_base_family",
+      "canonicalWordId": "a86b9e33-d535-5e1f-9ad2-3725c43223fc",
+      "displayWord": "useful",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "vie_base_family",
+      "canonicalWordId": "d21fa069-8c86-50d0-866a-58c66f3d8507",
+      "displayWord": "vying",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "walk_base_family",
+      "canonicalWordId": "e7e1981a-7824-5ff2-8e1a-2b15b8ffa428",
+      "displayWord": "walked",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "want_base_family",
+      "canonicalWordId": "fad7861b-ea08-52dd-b504-f1eaeb6a9f68",
+      "displayWord": "wanted",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "watch_base_family",
+      "canonicalWordId": "db222526-eac6-55ca-bc8b-46c5fa6de168",
+      "displayWord": "watches",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "weigh_base_family",
+      "canonicalWordId": "e5ad7114-e44b-5aab-9f5c-2747fe5d7d94",
+      "displayWord": "weight",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "wish_base_family",
+      "canonicalWordId": "1423313c-8d90-5c8d-a7dc-826ad7a72b50",
+      "displayWord": "wishes",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "wolf_base_family",
+      "canonicalWordId": "29c2369f-14de-5e45-b105-02db3c5edb51",
+      "displayWord": "wolves",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "word_base_family",
+      "canonicalWordId": "fdd275f1-04db-5c59-bf90-9d4579ade184",
+      "displayWord": "words",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "work_base_family",
+      "canonicalWordId": "8abadf6f-55bf-5352-a2c0-18d4077092d8",
+      "displayWord": "worker",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "write_base_family",
+      "canonicalWordId": "0486de76-672b-5b32-b39a-06592f26efc8",
+      "displayWord": "writer",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "write_base_family",
+      "canonicalWordId": "27512c18-9e73-5aac-8fd7-a37211748fe5",
+      "displayWord": "rewrite",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    },
+    {
+      "familyKey": "write_base_family",
+      "canonicalWordId": "e2c0f099-ac92-5ded-ac80-05f40f1135f0",
+      "displayWord": "writing",
+      "status": "regular",
+      "reason": "owner_approved_regular_family_member"
+    }
+  ]
+}

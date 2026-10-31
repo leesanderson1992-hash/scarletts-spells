@@ -29,6 +29,7 @@ function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | n
   if (!record(value) || ![1, 2].includes(value.schemaVersion) || !Array.isArray(value.families)) return null;
   if (value.schemaVersion === 1 && (!string(value.microSkillKey) || !string(value.importBatchId))) return null;
   if (value.schemaVersion === 2 && (value.skillClusterKey !== "D4_MOR_BASE_WORDS" ||
+      (value.selectionPolicyVersion !== undefined && value.selectionPolicyVersion !== "base_word_regularity_v1") ||
       !Array.isArray(value.sourceAuthorities) || value.sourceAuthorities.length === 0 ||
       !value.sourceAuthorities.every((source: unknown) => record(source) && string(source.authorityKey) &&
         ["teaching_dictionary_import_batch", "approved_repository_artifact"].includes(source.sourceKind) &&
@@ -51,6 +52,10 @@ function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | n
       if (value.schemaVersion === 1 &&
           !["base", "authentic_target", "transfer", "optional_transfer_check"].includes(rawMember.memberRole)) return null;
       if (value.schemaVersion === 2 && (
+          (value.selectionPolicyVersion === "base_word_regularity_v1" &&
+            (!record(rawMember.lessonRegularity) ||
+              !["regular", "irregular", "needs_review"].includes(rawMember.lessonRegularity.status) ||
+              !string(rawMember.lessonRegularity.source) || !string(rawMember.lessonRegularity.reason))) ||
           !["base", "family_member"].includes(rawMember.structuralRole) ||
           (rawMember.authenticTargetEligible !== undefined && typeof rawMember.authenticTargetEligible !== "boolean") ||
           !Array.isArray(rawMember.applicableMicroSkillKeys) || rawMember.applicableMicroSkillKeys.length === 0 ||
@@ -68,7 +73,7 @@ function familyProjection(value: unknown): BaseWordFamilyAuthorityProjection | n
   }
   return value.schemaVersion === 1
     ? { schemaVersion: 1, microSkillKey: value.microSkillKey, importBatchId: value.importBatchId, families }
-    : { schemaVersion: 2, skillClusterKey: "D4_MOR_BASE_WORDS", sourceAuthorities: value.sourceAuthorities, families };
+    : { schemaVersion: 2, skillClusterKey: "D4_MOR_BASE_WORDS", ...(value.selectionPolicyVersion ? { selectionPolicyVersion: value.selectionPolicyVersion } : {}), sourceAuthorities: value.sourceAuthorities, families };
 }
 
 function teachingProjection(value: unknown): BaseWordTeachingContentAuthorityProjection | null {

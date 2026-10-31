@@ -19,6 +19,8 @@ interface BaseWordFamilyAuthorityMemberCommon {
   morphologyTransformations: unknown[];
   transformationNotes: string;
   childFriendlyMeaning: string;
+  /** Present on releases using the reviewed regularity selection policy. */
+  lessonRegularity?: { status: "regular" | "irregular" | "needs_review"; source: string; reason: string };
 }
 
 export interface BaseWordFamilyAuthorityMemberV1 extends BaseWordFamilyAuthorityMemberCommon {
@@ -67,6 +69,7 @@ export interface BaseWordFamilyAuthorityProjectionV1 {
  * immutable per member. */
 export interface BaseWordFamilyAuthorityProjectionV2 {
   schemaVersion: 2;
+  selectionPolicyVersion?: "base_word_regularity_v1";
   skillClusterKey: "D4_MOR_BASE_WORDS";
   sourceAuthorities: Array<{
     authorityKey: string;

@@ -13,6 +13,7 @@ import {
   baseWordFamilyAuthorityAppliesToMicroSkill,
   baseWordFamilyMemberAppliesToMicroSkill,
 } from "../curriculum-release-activation";
+import { baseWordMemberSelectable } from "../base-word-regularity";
 
 type Client = SupabaseClient;
 
@@ -95,7 +96,7 @@ export async function loadBaseWordFamilyLessonReadModel(
       const word = (canonicalWordId: string): BaseWordFamilySnapshotWord | null => {
         const member = family.members.find((candidate) => candidate.canonicalWordId === canonicalWordId);
         const closure = closureById.get(canonicalWordId);
-        if (!member || !closure || !member.assignmentEligible ||
+        if (!member || !closure || !baseWordMemberSelectable(authority.family, member) ||
             !baseWordFamilyMemberAppliesToMicroSkill(authority.family, member, request.microSkillKey) || !member.wordSum.trim() ||
             member.morphologyParts.length === 0 || !member.childFriendlyMeaning.trim()) return null;
         const variant=closure.dictationVariants ? selectDictationVariant(closure.dictationVariants, `${request.dictationSeed ?? "preflight"}:${canonicalWordId}:${closure.dictationSetFingerprint}`) : null;

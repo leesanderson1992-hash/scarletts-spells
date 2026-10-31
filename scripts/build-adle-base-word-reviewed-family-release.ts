@@ -2,12 +2,13 @@
 /* Build an exact, inactive Base Word release from immutable parent authority
  * and reviewed Teaching Dictionary family decisions. No route is activated. */
 import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import pg from "pg";
 import { buildReviewedBaseFamilyProjection, type ReviewedFamilyDefinition, type ReviewedFamilyMember, type ReviewedLegacyFamily } from
   "../lib/adle/base-word-reviewed-family-release";
 import { appendReviewedLexicalFamilies, type ApprovedLexicalFamily } from "../lib/adle/lexical-base-family-release";
+import { regularityReviewedRelease } from "../lib/adle/base-word-regularity";
 import type { BaseWordFamilyAuthorityProjectionV2 } from "../lib/adle/curriculum-release-activation";
 import { fingerprintSnapshotValue } from "../lib/adle/composable-lesson/canonical-fingerprint";
 import {
@@ -15,7 +16,13 @@ import {
   validateAdleTeachingDictionaryClosureManifestV1, type AdleCurriculumReleaseManifestV2,
   type AdleTeachingDictionaryClosureManifestV1,
 } from "../lib/adle/curriculum-release-authority";
-import { BASE_WORD_SKILLS } from "../lib/teaching-dictionary-manager/base-family-candidates";
+
+const HISTORICAL_BASE_WORD_SKILLS = [
+  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+] as const;
 
 type Row = Record<string, unknown>;
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -31,12 +38,16 @@ function args() {
   const environment = get("--environment");
   const output = get("--out");
   const lexicalFamilyKey = values.includes("--lexical-family-key") ? get("--lexical-family-key") : null;
+  const parentFamilyAuthority = values.includes("--parent-family-authority") ? get("--parent-family-authority") : null;
+  const reuseParentClosure = values.includes("--reuse-parent-closure");
+  const regularityReview = values.includes("--regularity-review") ? get("--regularity-review") : null;
   if (!parentRelease || !microSkillKey || !releaseKey || !approvalRef || !output ||
     !["local", "staging", "production"].includes(environment) ||
-    !BASE_WORD_SKILLS.some((skill) => skill === microSkillKey))
+    !HISTORICAL_BASE_WORD_SKILLS.some((skill) => skill === microSkillKey))
     throw new Error("Usage: --parent-release UUID --environment local|staging|production --micro-skill BASE_WORD_KEY --release-key KEY --approval-ref REVIEW_REF --out DIR [--publish]");
-  return { parentRelease, environment, microSkillKey, releaseKey, approvalRef, output, lexicalFamilyKey,
-    publish: values.includes("--publish") };
+  return { parentRelease, parentFamilyAuthority, reuseParentClosure, regularityReview,
+    environment, microSkillKey, releaseKey, approvalRef, output, lexicalFamilyKey,
+    publish: values.includes("--publish"), verifyPublish: values.includes("--verify-publish") };
 }
 
 async function main() {
@@ -53,8 +64,14 @@ async function main() {
       join public.adle_curriculum_dependency_authorities a on a.id=d.authority_id
       where d.release_manifest_id=$1 and d.micro_skill_key=$2`,
       [config.parentRelease, config.microSkillKey])).rows;
-    const family = deps.find((row) => row.authority_type === "family_membership");
+    const family = config.parentFamilyAuthority
+      ? (await db.query<Row>(`select id authority_id,authority_key,schema_version authority_schema_version,
+          semantic_fingerprint,semantic_projection,approval_refs
+        from public.adle_curriculum_dependency_authorities
+        where id=$1 and authority_type='family_membership'`, [config.parentFamilyAuthority])).rows[0]
+      : deps.find((row) => row.authority_type === "family_membership");
     const teaching = deps.find((row) => row.authority_type === "teaching_content");
+    const parentClosure = deps.find((row) => row.authority_type === "teaching_dictionary_closure");
     if (!family || !teaching || family.authority_schema_version !== 2 ||
       (family.semantic_projection as Row)?.schemaVersion !== 2)
       throw new Error("Parent release needs exact Base Word family-v2 and teaching-content authorities");
@@ -190,10 +207,43 @@ async function main() {
     const effectiveReviewIds = new Set(projection.families.flatMap((family) => family.members
       .filter((member) => "morphologySource" in member && member.morphologySource.sourceKind === "approved_manager_review")
       .map((member) => member.memberId)).filter((id) => !parentReviewIds.has(id)));
-    if (effectiveReviewIds.size === 0 && !config.lexicalFamilyKey) throw new Error("No new reviewed relationships to release");
+    if (effectiveReviewIds.size === 0 && !config.lexicalFamilyKey && parent.selectionPolicyVersion === "base_word_regularity_v1")
+      throw new Error("No new reviewed relationships or regularity policy to release");
+    projection = regularityReviewedRelease(projection);
+    let regularityReviewHash: string | null = null;
+    const ownerDecisionCounts = { regular: 0, irregular: 0 };
+    const reviewDisplayByKey = new Map<string, string>();
+    if (config.regularityReview) {
+      const sourceText = readFileSync(resolve(config.regularityReview), "utf8");
+      const review = JSON.parse(sourceText) as Row;
+      if (review.schemaVersion !== 1 || !review.reviewedBy || !review.reviewReference ||
+        !Array.isArray(review.decisions)) throw new Error("Regularity owner review artifact is invalid");
+      regularityReviewHash = sha256(sourceText);
+      const pending = new Set(projection.families.flatMap((family) => family.members
+        .filter((member) => member.lessonRegularity?.status === "needs_review")
+        .map((member) => `${family.baseFamilyKey}:${member.canonicalWordId}`)));
+      const decisions = new Map<string, { status: "regular" | "irregular"; reason: string }>();
+      for (const raw of review.decisions as Row[]) {
+        const key = `${String(raw.familyKey)}:${String(raw.canonicalWordId)}`;
+        if (!pending.has(key) || decisions.has(key) || !["regular", "irregular"].includes(String(raw.status)) ||
+          !raw.reason || !raw.displayWord) throw new Error(`Invalid or duplicate owner regularity decision: ${key}`);
+        decisions.set(key, { status: raw.status as "regular" | "irregular", reason: String(raw.reason) });
+        reviewDisplayByKey.set(key, String(raw.displayWord));
+        ownerDecisionCounts[raw.status as "regular" | "irregular"] += 1;
+      }
+      if (decisions.size !== pending.size) throw new Error(`Owner regularity review covers ${decisions.size} of ${pending.size} pending members`);
+      projection = { ...projection, families: projection.families.map((family) => ({ ...family,
+        members: family.members.map((member) => {
+          const decision = decisions.get(`${family.baseFamilyKey}:${member.canonicalWordId}`);
+          return decision ? { ...member, lessonRegularity: { ...decision,
+            source: `owner_review:${String(review.reviewedBy)}:${regularityReviewHash}` } } : member;
+        }),
+      })) };
+    }
     const approvalRefs = [...new Set([
       ...(Array.isArray(family.approval_refs) ? family.approval_refs as string[] : []),
       config.approvalRef, ...(lexicalApprovalRef ? [lexicalApprovalRef] : []),
+      ...(regularityReviewHash ? [`regularity-owner-review-sha256:${regularityReviewHash}`] : []),
       ...[...effectiveReviewIds].map((id) => `manager-family-review:${id}`),
     ])].sort();
     const familyManifest = { ...projection,
@@ -210,6 +260,12 @@ async function main() {
       order by w.word_key`, [wordIds])).rows;
     if (dictionary.length !== wordIds.length || new Set(dictionary.map((row) => row.id)).size !== wordIds.length)
       throw new Error("Each released family word needs one exact active dictionary and dictation row");
+    if (reviewDisplayByKey.size) {
+      const wordDisplay = new Map(dictionary.map((row) => [String(row.id), String(row.display_word)]));
+      for (const [key, displayWord] of reviewDisplayByKey)
+        if (wordDisplay.get(key.slice(key.indexOf(":") + 1)) !== displayWord)
+          throw new Error(`Owner regularity review word identity drifted: ${key}`);
+    }
     const closure: AdleTeachingDictionaryClosureManifestV1 = {
       schemaVersion: 1, authorityKey: `base_word_dictionary_closure:manager:${config.releaseKey}`,
       approvalRefs, capabilities: ["canonical_word_identity_display", "canonical_dictation"],
@@ -222,6 +278,12 @@ async function main() {
     if (!closureValidation.valid) throw new Error(`Closure invalid: ${closureValidation.errors.join(",")}`);
     const bindings = dictionary.map((row) => ({ wordKey: String(row.word_key),
       canonicalWordId: String(row.id), dictationSentenceId: String(row.dictation_id) }));
+    if (config.reuseParentClosure) {
+      if (!parentClosure) throw new Error("Parent release has no Teaching Dictionary closure");
+      const covered = (await db.query<Row>(`select distinct canonical_word_id from public.adle_teaching_dictionary_closure_words
+        where authority_id=$1 and canonical_word_id=any($2::uuid[])`, [parentClosure.authority_id, wordIds])).rows;
+      if (covered.length !== wordIds.length) throw new Error("Parent closure does not cover every family word");
+    }
     const release: AdleCurriculumReleaseManifestV2 = {
       schemaVersion: 2, releaseKey: config.releaseKey,
       route: { routeId: "base_word_lab", routeVersion: "v2",
@@ -232,32 +294,46 @@ async function main() {
         { authorityType: "teaching_content", authorityKey: String(teaching.authority_key),
           authoritySchemaVersion: Number(teaching.authority_schema_version) as 1,
           semanticFingerprint: String(teaching.semantic_fingerprint) },
-        { authorityType: "teaching_dictionary_closure", authorityKey: closure.authorityKey,
+        { authorityType: "teaching_dictionary_closure",
+          authorityKey: config.reuseParentClosure ? String(parentClosure!.authority_key) : closure.authorityKey,
           authoritySchemaVersion: 1,
-          semanticFingerprint: fingerprintSnapshotValue(teachingDictionaryClosureSemanticProjection(closure)) },
+          semanticFingerprint: config.reuseParentClosure ? String(parentClosure!.semantic_fingerprint)
+            : fingerprintSnapshotValue(teachingDictionaryClosureSemanticProjection(closure)) },
       ] }],
     };
     const fingerprints = fingerprintAdleCurriculumReleaseManifest(release);
+    const displayById = new Map(dictionary.map((row) => [String(row.id), String(row.display_word)]));
+    const regularityAudit = projection.families.flatMap((entry) => entry.members.map((member) => ({
+      familyKey: entry.baseFamilyKey, canonicalWordId: member.canonicalWordId,
+      displayWord: displayById.get(member.canonicalWordId) ?? null,
+      assignmentEligible: member.assignmentEligible, ...member.lessonRegularity!,
+    })));
     await db.query("rollback");
     const output = resolve(config.output);
     mkdirSync(output, { recursive: true });
     const files = [
-      ["family-authority.json", familyManifest], ["dictionary-closure.json", closure],
-      ["dictionary-source-bindings.json", bindings], ["route-release.json", release],
+      ["family-authority.json", familyManifest],
+      ...(!config.reuseParentClosure ? [["dictionary-closure.json", closure], ["dictionary-source-bindings.json", bindings]] as const : []),
+      ["route-release.json", release],
+      ["regularity-audit.json", regularityAudit],
     ] as const;
     for (const [name, value] of files) writeFileSync(resolve(output, name), json(value));
-    if (config.publish) {
+    if (config.publish || config.verifyPublish) {
       await db.query("begin");
       await db.query(`select public.publish_teaching_dictionary_base_family_authority_v2($1,$2::jsonb,$3,$4)`,
         [family.authority_id, json(familyManifest), sha256(json(familyManifest)), config.approvalRef]);
-      await db.query(`select public.publish_adle_teaching_dictionary_closure_v1($1::jsonb,$2,$3::jsonb,$4,$5)`,
+      if (!config.reuseParentClosure) await db.query(`select public.publish_adle_teaching_dictionary_closure_v1($1::jsonb,$2,$3::jsonb,$4,$5)`,
         [json(closure), sha256(json(closure)), json(bindings), "composite_release_and_legacy_projection", config.approvalRef]);
       await db.query(`select public.publish_adle_curriculum_release_v2($1::jsonb,$2,$3)`,
         [json(release), sha256(json(release)), config.approvalRef]);
-      await db.query("commit");
+      await db.query(config.publish ? "commit" : "rollback");
     }
-    process.stdout.write(`${json({ output, published: config.publish, familyCount: projection.families.length,
-      reviewedMembers: effectiveReviewIds.size, ...fingerprints })}`);
+    const regularityCounts = { regular: 0, irregular: 0, needs_review: 0 };
+    for (const member of projection.families.flatMap((entry) => entry.members))
+      regularityCounts[member.lessonRegularity!.status] += 1;
+    process.stdout.write(`${json({ output, published: config.publish, verifiedPublication: config.verifyPublish,
+      familyCount: projection.families.length,
+      reviewedMembers: effectiveReviewIds.size, ownerDecisionCounts, regularityCounts, ...fingerprints })}`);
   } catch (error) {
     await db.query("rollback").catch(() => undefined);
     throw error;

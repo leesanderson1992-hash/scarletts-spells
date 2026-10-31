@@ -1,10 +1,12 @@
 import type { ActivatedBaseWordReleaseAuthority, BaseWordFamilyAuthorityProjection } from "./curriculum-release-activation";
 import { baseWordFamilyMemberAppliesToMicroSkill } from "./curriculum-release-activation";
+import { baseWordMemberSelectable } from "./base-word-regularity";
 
 export interface EligibleFamilyCount {
   baseFamilyKey: string;
   eligibleWordIds: ReadonlySet<string>;
   eligibleCount: number;
+  regularityExclusions: readonly { canonicalWordId: string; status: "irregular" | "needs_review"; source: string; reason: string }[];
 }
 
 const releaseCountIndex = new Map<string, readonly EligibleFamilyCount[]>();
@@ -35,11 +37,16 @@ export function eligibleBaseFamilyCounts(
   closureWordIds: ReadonlySet<string>,
 ): EligibleFamilyCount[] {
   return authority.families.map((family) => {
+    const regularityExclusions = authority.schemaVersion === 2 && authority.selectionPolicyVersion === "base_word_regularity_v1"
+      ? family.members.flatMap((member) => member.lessonRegularity?.status === "irregular" || member.lessonRegularity?.status === "needs_review"
+        ? [{ canonicalWordId: member.canonicalWordId, status: member.lessonRegularity.status,
+          source: member.lessonRegularity.source, reason: member.lessonRegularity.reason }]
+        : []) : [];
     const eligibleWordIds = new Set(family.members.filter((member) =>
-      member.assignmentEligible && closureWordIds.has(member.canonicalWordId) &&
+      baseWordMemberSelectable(authority, member) && closureWordIds.has(member.canonicalWordId) &&
       baseWordFamilyMemberAppliesToMicroSkill(authority, member, microSkillKey),
     ).map((member) => member.canonicalWordId));
-    return { baseFamilyKey: family.baseFamilyKey, eligibleWordIds, eligibleCount: eligibleWordIds.size };
+    return { baseFamilyKey: family.baseFamilyKey, eligibleWordIds, eligibleCount: eligibleWordIds.size, regularityExclusions };
   }).sort((a, b) => a.baseFamilyKey.localeCompare(b.baseFamilyKey));
 }
 

@@ -34,6 +34,7 @@ export interface BaseWordFamilyMemberFact {
    * from the exact immutable Teaching Dictionary closure; omitted pure facts
    * retain their historical test/domain behaviour. */
   lessonContentEligible?: boolean;
+  lessonRegularity?: { status: "regular" | "irregular" | "needs_review"; source: string; reason: string };
   assignmentEligible: boolean;
   complexityLevel: number | null;
   rowStatus: DictionaryRowStatus;
@@ -78,6 +79,7 @@ export interface BaseWordFamilySelectionFacts {
   /** Immutable family authority semantics. Omitted test/domain facts exercise
    * the current base-led v2 model; release-loader callers always provide it. */
   familyAuthoritySchemaVersion?: 1 | 2;
+  selectionPolicyVersion?: "base_word_regularity_v1";
   learningItems: readonly LearningItemFact[];
   families: readonly BaseWordFamilyFact[];
   members: readonly BaseWordFamilyMemberFact[];
@@ -146,6 +148,7 @@ export function selectBaseWordFamilyLesson(
     approved(member.rowStatus, member.reviewStatus) &&
     approvedFamilies.has(member.baseFamilyKey) &&
     (!member.applicableMicroSkillKeys || member.applicableMicroSkillKeys.includes(microSkillKey)) &&
+    (facts.selectionPolicyVersion !== "base_word_regularity_v1" || member.lessonRegularity?.status === "regular") &&
     member.lessonContentEligible !== false
   )) {
     const members = membersByFamily.get(member.baseFamilyKey) ?? [];

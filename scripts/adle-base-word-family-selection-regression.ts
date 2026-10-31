@@ -6,6 +6,7 @@ import {
   type BaseWordFamilySelectionFacts,
 } from "../lib/adle/base-word-family-selection";
 import type { LearningItemFact } from "../lib/adle/learning-items";
+import { reviewedBaseWordRegularity } from "../lib/adle/base-word-regularity";
 
 function assert(value: unknown, message: string): asserts value { if (!value) throw new Error(message); }
 const CHILD = "child";
@@ -117,5 +118,45 @@ assert(legacy.slots.filter((slot) => slot.learnerProvenance === "verified_misspe
 
 const probeOnly = selectBaseWordFamilyLesson(CHILD, SKILL, facts([item("careful", "careful", "2026-07-01"), item("government", "government", "2026-07-02", "probe_miss")]));
 assert(probeOnly.skipReasons.includes("insufficient_verified_authentic_targets"), "non-authentic source kinds cannot trigger Base Word family selection");
+
+const irregular = reviewedBaseWordRegularity({ relationshipKind: "irregular_inflection", transformations: [{ kind: "irregular_form" }], reviewed: true });
+const suffixChange = reviewedBaseWordRegularity({ relationshipKind: "regular_inflection", transformations: [{ kind: "drop_final_e" }], reviewed: true });
+const finalYChange = reviewedBaseWordRegularity({ relationshipKind: "regular_inflection", transformations: [{ type: "change_final_y_to_i" }], reviewed: true });
+const conflict = reviewedBaseWordRegularity({ relationshipKind: "regular_inflection", transformations: [{ kind: "irregular_form" }], reviewed: true });
+const missing = reviewedBaseWordRegularity({ transformations: [], reviewed: true });
+const unknown = reviewedBaseWordRegularity({ relationshipKind: "regular_inflection", transformations: [{ kind: "review_unresolved_change" }], reviewed: true });
+assert(irregular.status === "irregular" && suffixChange.status === "regular" && finalYChange.status === "regular" && conflict.status === "needs_review" &&
+  missing.status === "needs_review" && unknown.status === "needs_review", "reviewed relationship and morphology classify irregular, regular spelling change, conflict, and missing review");
+const goMembers = [member("GO", "go", "base"), member("GO", "goes", "transfer"), member("GO", "going", "transfer"),
+  member("GO", "went", "transfer"), member("CARE", "care", "base"), member("CARE", "careful", "transfer"), member("CARE", "caring", "transfer")]
+  .map((entry) => ({ ...entry, lessonRegularity: entry.canonicalWordId === "went" ? irregular : suffixChange }));
+const goSelection = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
+  item("going", "going", "2026-07-01"), item("careful", "careful", "2026-07-02"),
+], { selectionPolicyVersion: "base_word_regularity_v1", members: goMembers,
+  families: facts([]).families.filter((family) => family.baseFamilyKey === "CARE").concat({ baseFamilyKey: "GO", microSkillKey: SKILL, rowStatus: "active", reviewStatus: "approved_for_first_exposure" }) }));
+assert(goSelection.skipReasons.length === 0 && goSelection.slots.length === 6 &&
+  !goSelection.slots.some((slot) => slot.canonicalWordId === "went") &&
+  !goSelection.guidedFamilySections.some((section) => section.guidedWordIds.includes("went")) &&
+  goSelection.slots.some((slot) => slot.canonicalWordId === "goes"), "go to went is excluded everywhere while regular go relatives remain available");
+const pinnedGoSelection = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
+  item("going", "going", "2026-07-01"), item("careful", "careful", "2026-07-02"),
+], { members: goMembers, families: facts([]).families.filter((family) => family.baseFamilyKey === "CARE")
+  .concat({ baseFamilyKey: "GO", microSkillKey: SKILL, rowStatus: "active", reviewStatus: "approved_for_first_exposure" }) }));
+assert(pinnedGoSelection.guidedFamilySections.some((section) => section.guidedWordIds.includes("went")),
+  "an existing release without the new policy marker keeps its pinned lesson selection");
+const regularityMembers = [...members, member("GOVERN", "went", "transfer")].map((entry) => ({
+  ...entry, lessonRegularity: entry.canonicalWordId === "went" ? irregular : suffixChange,
+}));
+const regularitySelection = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue, {
+  selectionPolicyVersion: "base_word_regularity_v1", members: regularityMembers,
+}));
+assert(regularitySelection.skipReasons.length === 0 && !regularitySelection.slots.some((slot) => slot.canonicalWordId === "went") &&
+  !regularitySelection.guidedFamilySections.some((section) => section.guidedWordIds.includes("went")), "irregular member is absent from independent and guided lesson while regular relatives remain");
+const tooSmallAfterExclusion = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue.slice(0, 3), {
+  selectionPolicyVersion: "base_word_regularity_v1",
+  members: regularityMembers.map((entry) => ["care", "careful", "government", "govern"].includes(entry.canonicalWordId)
+    ? entry : { ...entry, lessonRegularity: missing }),
+}));
+assert(tooSmallAfterExclusion.slots.length === 0, "a family pair that becomes too small after regularity filtering fails closed");
 
 console.log("adle-base-word-family-selection-regression: ok");

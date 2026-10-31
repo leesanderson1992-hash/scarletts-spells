@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { BaseWordFamilyAuthorityFamily, BaseWordFamilyAuthorityMemberV2, BaseWordFamilyAuthorityProjectionV2 } from "./curriculum-release-activation";
+import { regularityReviewedRelease, reviewedBaseWordRegularity } from "./base-word-regularity";
 
 export interface ApprovedLexicalFamily {
   familyKey: string;
@@ -65,6 +66,8 @@ export function appendReviewedLexicalFamilies(input: {
     const sourceKey = `lexical-family:${input.environment}:${family.familyKey}:${family.revision}`;
     const members: BaseWordFamilyAuthorityMemberV2[] = eligible.map((member) => {
       const base = member.canonicalWordId === family.baseWordId;
+      const lessonRegularity = reviewedBaseWordRegularity({ relationshipKind: member.relationshipKind,
+        transformations: member.morphologyTransformations, reviewed: true });
       return {
         memberId: stableId(`${sourceKey}:${member.canonicalWordId}:${member.wordPartOfSpeech}`),
         canonicalWordId: member.canonicalWordId,
@@ -72,6 +75,7 @@ export function appendReviewedLexicalFamilies(input: {
         authenticTargetEligible: !base,
         applicableMicroSkillKeys: [input.microSkillKey],
         assignmentEligible: true,
+        lessonRegularity,
         complexityLevel: member.complexityLevel,
         wordSum: member.wordSum,
         morphologyParts: member.morphologyParts,
@@ -103,6 +107,6 @@ export function appendReviewedLexicalFamilies(input: {
     sources.push({ authorityKey: sourceKey, sourceKind: "approved_repository_artifact",
       sourceId: sourceKey, sourceFingerprint: family.semanticFingerprint });
   }
-  return { ...input.parent, sourceAuthorities: sources.sort((a, b) => a.authorityKey.localeCompare(b.authorityKey)),
-    families: families.sort((a, b) => a.baseFamilyKey.localeCompare(b.baseFamilyKey) || a.familyId.localeCompare(b.familyId)) };
+  return regularityReviewedRelease({ ...input.parent, sourceAuthorities: sources.sort((a, b) => a.authorityKey.localeCompare(b.authorityKey)),
+    families: families.sort((a, b) => a.baseFamilyKey.localeCompare(b.baseFamilyKey) || a.familyId.localeCompare(b.familyId)) });
 }

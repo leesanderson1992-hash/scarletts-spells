@@ -96,13 +96,14 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
           ? baseWordFamilyMemberAuthenticTargetEligible(activation.family, member, activation.microSkillKey)
           : "memberRole" in member && member.memberRole === "authentic_target",
         lessonContentEligible: closureWordIds.has(member.canonicalWordId),
+        lessonRegularity: member.lessonRegularity,
         assignmentEligible: member.assignmentEligible,
         complexityLevel: member.complexityLevel,
         rowStatus: "active" as const,
         reviewStatus: "approved_for_first_exposure" as const,
       })),
     );
-    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, learningItems, families, members, eligibleFamilyPairs });
+    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, selectionPolicyVersion: activation.family.schemaVersion === 2 ? activation.family.selectionPolicyVersion : undefined, learningItems, families, members, eligibleFamilyPairs });
     if (selection.skipReasons.length === 0 && selection.baseFamilyKeys.length === 2)
       candidates.push({ activation, microSkillKey: activation.microSkillKey, selection });
     else reasons.push(selection.skipReasons.join(","));

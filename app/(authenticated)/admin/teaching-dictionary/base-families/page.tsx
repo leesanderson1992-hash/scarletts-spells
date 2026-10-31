@@ -30,7 +30,7 @@ export default async function BaseFamiliesPage({ searchParams }: {
     release.family.families.map((family) => family.baseFamilyKey)));
   const views = releases.map((release) => {
     const counts = indexedEligibleBaseFamilyCounts(release);
-    return { release, counts: counts.filter((family) => family.eligibleCount > greaterThan),
+    return { release, counts: counts.filter((family) => family.eligibleCount > greaterThan), exclusions: counts.flatMap((family) => family.regularityExclusions.map((excluded) => ({ familyKey: family.baseFamilyKey, ...excluded }))),
       pairs: shortlistBaseFamilyPairs(counts, greaterThan) };
   });
   return <main className="mx-auto grid max-w-6xl gap-5 p-6 text-[color:var(--ink)]">
@@ -42,7 +42,7 @@ export default async function BaseFamiliesPage({ searchParams }: {
       <button className="rounded border border-[var(--border)] px-3 py-1 text-sm font-semibold">Filter</button></form>
     {!environment && <p role="status">ADLE route activation environment is not configured.</p>}
     {environment && views.length === 0 && <p role="status">No Base Word family release is enabled in {environment}.</p>}
-    {views.map(({ release, counts, pairs }) => <section key={`${release.releaseManifestId}:${release.microSkillKey}`} className="grid gap-2 rounded border border-[var(--border)] bg-white p-4">
+    {views.map(({ release, counts, pairs, exclusions }) => <section key={`${release.releaseManifestId}:${release.microSkillKey}`} className="grid gap-2 rounded border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">{release.microSkillKey}</h2>
       <p className="text-xs">Release {release.releaseKey} · {counts.length} families above x · {pairs.length} pairs with at least six distinct words</p>
       <table className="w-full text-left text-sm"><thead><tr><th className="py-1">Family</th><th>Eligible words</th><th>Six-word pair</th></tr></thead>
@@ -50,6 +50,9 @@ export default async function BaseFamiliesPage({ searchParams }: {
           <td className="py-1">{family.baseFamilyKey}</td><td>{family.eligibleCount}</td>
           <td>{pairs.some((pair) => pair.includes(family.baseFamilyKey)) ? "Possible" : "No"}</td>
         </tr>)}</tbody></table>
+      {exclusions.length > 0 && <details className="text-sm"><summary className="cursor-pointer font-semibold">{exclusions.length} regularity exclusions</summary>
+        <ul className="mt-2 grid gap-1">{exclusions.map((entry) => <li key={`${entry.familyKey}:${entry.canonicalWordId}`}>{entry.familyKey} · {entry.canonicalWordId} · {entry.status} · {entry.source} · {entry.reason}</li>)}</ul>
+      </details>}
     </section>)}
     <section className="grid gap-2 rounded border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Authorised dictionary family sources</h2>
