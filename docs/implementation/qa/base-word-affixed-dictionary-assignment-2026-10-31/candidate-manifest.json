@@ -1,0 +1,2299 @@
+{
+  "schemaVersion": 1,
+  "policy": "approved_english_free_base_plus_affix_family_min_two_no_irregular_family_v1",
+  "activeFamilyReleaseSha256": "925faeb99a67b313985ef6b02b680e9f5e37b5c3a64a4234fbf738e786dab66b",
+  "irregularVerbReference": {
+    "sourceUrl": "https://dictionary.cambridge.org/grammar/british-grammar/table-of-irregular-verbs",
+    "sourceTableSha256": "7f7b97f6c173979548f331eddb6f3a76881024c08362e3c6776c0f49e2ac25a8"
+  },
+  "approvedPairs": [
+    {
+      "canonicalWordId": "015dbc91-a277-50c8-95e2-7eed5eb09507",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:practise_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "01a8b531-1a64-554d-8c40-00ee0b436abd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:view_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "021408d5-ab2f-5bb8-886d-f565e5a313f0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:log_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "028906c2-b81b-44e2-b354-2c5250ab8301",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:tidy_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "03b57c20-337f-533f-80c2-1bede48fbb87",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:surprise_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "049dde6e-6c90-5121-92c0-ff4667d5ab25",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:shape_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "05c95129-f98f-5edf-a6be-155ae30ca180",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:advert_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "067da5fd-e7ee-557d-a154-3a3c4301de9f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:head_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0a40d520-9111-5f6e-b41c-463c48dc92e9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:like_function_word_base_family | released:like_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0a570e84-f924-526e-baf8-8aa70b720749",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:look_verb_base_family | released:look_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0b22e6eb-a5b9-52d8-a36c-18a494ca5787",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:brown_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0b32272c-91b9-5c8e-96d3-cb0133015ac0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fast_adverb_base_family | released:fast_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0c37e22c-f482-5a93-af1a-49b05947c626",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:side_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0c8d9805-097d-5505-91b6-7f90145f72a9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:joy_noun_base_family | released:joy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0d26f923-ac3e-52ba-bb4e-1ad739ad3035",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0eb2779b-bedb-4e6c-8f5d-63fccd125b06",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:school_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "0fb2423b-945c-5d10-afd5-cbf7723d5dde",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:try_verb_base_family | released:try_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1061d6a6-962e-5353-bf67-363a4717a267",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hot_adjective_base_family | released:hot_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1169d7b2-274b-5f1b-9a79-25dc666b1626",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:music_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "130acdb7-8f80-59bd-b4b3-4cb16c0e6d77",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:standard_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1423313c-8d90-5c8d-a7dc-826ad7a72b50",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:wish_verb_base_family | released:wish_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1431a601-d2c7-5553-95a3-1e28c260c318",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:act_noun_base_family | released:act_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "14693b63-2ed6-52d7-8bae-df28f80945cb",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:help_verb_base_family | released:help_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1644e19c-8dce-57fa-af31-838deba9b01c",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:ring_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "17b0e224-633d-5d3f-8c5e-e6963c0b5978",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:mouth_noun_base_family | lexical:water_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "185dbc1a-477a-53e7-87fc-909ae0033ffc",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:love_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "196c3449-6a34-5764-a28f-8fc3943a877b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:look_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "197c7306-bf55-5c68-bb8a-79d818eaa1cf",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:smile_noun_base_family | released:smile_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1a9fb5e8-b73d-50bd-a6a7-69cd7ad96714",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:busy_adjective_base_family | released:busy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1be7705c-b991-5378-afbd-1873db038d48",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:clean_adjective_base_family | released:clean_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1c008d1f-52af-5c99-85f4-ee83bf7e4dfe",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:lolly_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1c59da8b-a00e-551b-978a-b36d8e3538f0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:jump_noun_base_family | released:jump_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1cd7e2a4-581f-4cf8-9ed9-c599a4ddf281",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:satisfy_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1d8a8e7b-3870-539e-9359-4072ea914b18",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:lease_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1e810264-ab2a-5819-ba5d-ae4fb73acbbd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:colour_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hero_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "1f4c7e14-dbb9-5348-a2c0-c2a6f8bc48ff",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:lace_noun_base_family | lexical:shoe_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2056530c-4b58-5f51-8833-f931f0646a73",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:year_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "222a9962-ec36-5644-9e0d-8e1ba5661bcb",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:port_noun_base_family | released:port_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2359552f-fa6a-5ac3-b82c-c54ea90b1d8b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:code_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "23d728d6-f939-5141-880a-44f91d44279d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:brown_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "240d2962-b0cb-5428-9955-399a0f913b2e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:late_adjective_base_family | released:late_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "266e93f3-3d4c-59b9-84da-c7fed14fa787",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:health_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2b11de62-dad4-5b67-aba4-585ddfd7253d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:act_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2bb5f3ff-e760-5d66-9a58-bf51f271a110",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:smile_noun_base_family | released:smile_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2bb85b07-f0d3-5aff-bd8e-786b8a4d4efa",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:suit_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2cdd4978-fd29-560a-b47b-a579b961c448",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:crisp_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2cfa2d7d-7754-5ff4-a407-72dcda8661f1",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fight_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2ece1442-7a63-5c82-af70-7c40acd41675",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:people_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "2f7420ec-d667-515c-b307-9dc25a4de5c4",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:quick_adjective_base_family | released:quick_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "3089bce8-e85b-524d-8051-3a939a872705",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:arrive_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "31f588cb-00e4-5f87-97f0-d99ad2507f31",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:bake_verb_base_family | released:bake_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "320933fc-97ff-5147-9ad6-e58aa25b052d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:attract_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "32d651ac-1953-5e61-a5fe-26a09bcfe169",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:path_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "33c95cae-e281-5a9d-9891-fb4bb77a2464",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:view_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "36e7d7ff-66c2-5521-b121-594bdecc06bd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:place_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "384851ba-faa3-5cbf-b972-ce5e1f8cee65",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:end_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "3866abb1-1db5-54a7-a4f8-b86acac0baf3",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fair_adjective_base_family | released:fair_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "38e64300-7967-5f97-a772-853851614c94",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:define_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "39091345-b253-56c9-bcea-5e21a8ebdaf8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:die_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "39e29ae9-a39f-593f-9e51-e5ce960e7514",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:plate_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "39e58033-c336-5f27-a3a3-74d622990752",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:kind_noun_base_family | released:kind_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "3b2c0820-74bd-55e3-9ea6-0ad12e2c8a4a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:check_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "3ded994b-7b05-5273-8d4a-6df44580a812",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:happy_adjective_base_family | released:happy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "3e0a755e-2f3c-513d-943e-8a12f16e83aa",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:question_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "40fa0b7e-1c88-5253-9c82-d119b259a67d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pull_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "41abda02-14c1-528d-a7e9-bb6880bf7be1",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:happy_adjective_base_family | released:happy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "423ec4d3-67e2-5097-9268-72f8615292f6",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:grab_verb_base_family | released:grab_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "42d503c7-9d39-56f7-a31e-c2b21c7c62a0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:flavour_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4636e1e4-05a5-537d-89a7-165e78000b24",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:push_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "46498253-4a05-5cc1-b50a-ff88b24291ed",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:guess_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "475d9cfe-f4a6-5874-9f5d-963826d4c977",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:port_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "479be027-2e58-4d64-b5a2-e15b52c242cb",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:head_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "483f637f-2c6a-59df-b8b6-2636d22390bf",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:face_noun_base_family | released:face_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "484dca39-cc96-544d-b8a1-9f74400d666e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sun_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "49d9ed48-ce4a-5d5e-9e84-0edf522d679c",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:race_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4abd97f3-a6cc-5d81-9ec0-b2b0061ba681",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:book_noun_base_family | released:book_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4b7bfabb-45c6-5883-9777-6897f4c040e0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4baa8662-8a47-536a-bcb0-be0afb66d97e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:music_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4c0508d5-811c-58cb-8ff7-b13dc8b4ac36",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:carry_verb_base_family | released:carry_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4db48d9c-addc-595d-a6fb-8a784a44cc9e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:nerve_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4f9c8684-7524-54c9-9c19-96f852052084",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:small_adjective_base_family | released:small_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "4f9ebbf3-674f-5920-be5f-26635dbafbb9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:ingredient_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "50926256-5c4c-5ec1-956d-2fa0bc377c04",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hot_adjective_base_family | released:hot_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "50d1e26b-5f8b-5b8a-901e-895ccb5ae8ff",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:busy_adjective_base_family | released:busy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "50e25bf9-1dc6-5811-b489-62869de0fdec",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:finish_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5127b94d-4ac1-5fdd-9ed9-bbb91cc1ceff",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:prison_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "52bbbc53-94c5-57da-af0e-a76ecab0202b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pull_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5332a8a1-552a-5a5d-b8a8-eee11e669c8d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:cat_noun_base_family | released:cat_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "540d4e66-b268-5ac5-9cad-f82340336471",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:health_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "542fb751-bc70-5cdb-8693-deae4e32ea5a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:juice_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "54cfcaad-2a02-5ee9-abe4-05f13941ef3d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:church_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "56d9fe27-bcb5-56a8-be2c-b26c7d5978cf",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:thing_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "576ff3ec-5303-5ed3-be3e-4a7fa85dc141",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fast_adverb_base_family | released:fast_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5791a5dd-6576-5fed-9e25-427e9efe7673",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "593d01fa-fab8-565d-83c7-f41fe867e27e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sign_noun_base_family | released:sign_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5a84588d-d15f-591b-a73c-d2e843dbf698",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:detect_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5ada7d53-4586-5757-928c-e27d261c147e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:care_noun_base_family | released:care_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5b81ec91-1f19-5571-8b48-39417b0a8481",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5d3cd7bf-eb99-505b-8b3b-5328f66aaa9a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:climb_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5d8f9bc2-70bb-52f5-b4e4-d88adfce4ff4",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:jump_noun_base_family | released:jump_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5e4edded-0295-5672-ac39-71c31ba3af8e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sweat_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5e741800-a19e-5b8b-9bd7-ee79cf5a4bb0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:act_noun_base_family | released:act_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "5f48a4f7-2202-5491-9e20-e7c3792ba808",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:plan_noun_base_family | released:plan_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "60e6aa42-74bf-5a47-b202-125fad624505",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hope_noun_base_family | released:hope_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "61ace985-6a04-5f85-86e4-52a781f98151",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:brave_adjective_base_family | released:brave_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "62829247-6270-5861-8921-e5d7ed128ec2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fortune_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "63e93278-738f-57b7-9b7c-3c3fb5073104",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:crunch_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "66577bba-d406-51f0-b826-75b19d234d5c",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:like_function_word_base_family | released:like_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:possible_adjective_base_family | released:possible_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "68a8fa82-adba-5fe1-8269-5e58486363b2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:cleave_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "68c400be-ff78-5a99-9149-714cdfb7f190",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dinner_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6949d36e-3bad-59e1-9dc2-3ac6f8a2e4f9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:happy_adjective_base_family | released:happy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6a13a3e9-f328-57c2-b774-36b663f33ee0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:tall_adjective_base_family | released:tall_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6a22c574-e5aa-5170-b7fc-48ecdf51285e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:read_verb_base_family | released:read_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6b4a256b-c33b-5702-b6d7-050bff83a40e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fun_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6bbc9408-5006-5992-9c2a-ef7b945e1bcd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:love_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6c1e84ec-b127-5a70-bd3a-047c91198931",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:name_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6dda6761-6705-53eb-877c-cc2d68d51fa3",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:spell_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6ef5ada4-d691-5dd2-a177-7641ee91a7b7",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:other_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6ef5d401-f50b-546c-a4c7-10ffa12f0f2e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:perfect_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6f38440c-f179-551e-ba63-e068a929907a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:read_verb_base_family | released:read_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "6fdf047e-2faa-5875-a13c-3bf277db71e8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sad_adjective_base_family | released:sad_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7052fee0-35ef-4c1a-97a3-bef6aa156bde",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:govern_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "714402bc-f9f9-5ef9-bb97-d7e0d466457f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:problem_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "715f723e-fc3a-5178-b606-5013fa24899b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:jump_noun_base_family | released:jump_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7350002d-1256-5a78-8cfb-dbe93243acae",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:graph_noun_base_family | released:graph_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fact_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "73e427f0-def2-5b25-8592-61cb6b0d4c10",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hop_noun_base_family | released:hop_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "748ca996-2913-5b65-b202-f10c5cc8d81b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:spell_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "74daeaec-e58d-5b0d-a7c7-548559dc4944",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:port_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:act_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "758055ca-c31b-5a18-a5f6-7d98dedf25ac",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:treat_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "778f6c66-8e06-5f42-942a-3a21a680e571",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:taste_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7804b931-499e-586b-b74c-a3bd81e80020",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:govern_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7860b5f5-02c4-5a33-8d28-c9db4095520b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:miss_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7c9b915d-1ed6-587a-9872-30f28d26f6ea",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:angle_noun_base_family | released:angle_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7e607ed4-1624-5100-9f61-b4477c060dd4",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:expect_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7ee7a331-2a8f-5e75-8a8e-f57f9dc20174",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pack_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "7f8f0508-93d3-5487-b759-db5a6246730e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:laugh_noun_base_family | released:laugh_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "805e29b0-2117-5e5d-885a-c44d8e5fbe64",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:tie_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "81556157-d4c7-5593-baaf-e5a769f7b5b7",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:taste_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:honest_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "82d7ff17-b869-5043-89e4-a01ee0057ecc",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:love_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8393ad7f-5987-5731-8ac1-b7c306f58838",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hope_noun_base_family | released:hope_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "84dac1fe-7f74-5559-8e5a-70aebe6843d5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:inform_verb_base_family | released:inform_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "84f2d271-5251-5872-ab86-e1c414215c8d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:man_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "85410932-0a98-508a-a34e-376b489cfd3c",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pack_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "858dc7ad-6d8e-5a62-9d7c-3a349c5e2a2d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:nice_adjective_base_family | released:nice_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "86fdbd98-2c46-5183-9966-707de591d5c2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sad_adjective_base_family | released:sad_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "883685c3-9d0d-5071-871c-fca55770d90a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:read_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "88e7b63e-bbca-594f-90b2-08b62ce3651a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:joy_noun_base_family | released:joy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "891d9892-9652-5708-bb7f-df5c7d103c8f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:start_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "893df4fe-bf15-512b-8867-9947617b9bff",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:friend_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8abadf6f-55bf-5352-a2c0-18d4077092d8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:work_noun_base_family | released:work_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8b61914e-d6cd-5f58-bb01-ddba6c1d701d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:open_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8dfc0441-cd26-55e9-97c9-2fd9cd0e272f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:market_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8e02a2f1-bd84-5cf6-b3b8-edd51d6bc667",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dry_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8e6ffc7d-6166-5816-88d7-773e4017a417",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:especial_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "8fc6eae9-40b3-5da5-9c36-56bfc3676fd9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:carry_verb_base_family | released:carry_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "900b31c0-c1c4-5099-8edb-40367679a717",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:kid_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9156010b-b60c-51cc-930f-c2fd762feac0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sweet_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "91643503-4c99-453f-970b-f6c28f0142c1",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:equal_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "91f9a2b5-1e88-58a4-94ce-26d640644031",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:view_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "92f5cd06-f177-54f4-8dd6-3c337a2fe985",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:stop_verb_base_family | released:stop_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "93fdd4dd-e9ff-5ff6-8266-c485aa30367e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:baby_noun_base_family | released:baby_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "95422a52-6f86-5029-ac24-0435f3754e4f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:type_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "95e72015-1e1d-52bb-a081-04cfc54b8687",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:rate_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "96015b42-da25-5c39-902b-c9d54c0f82f9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:starve_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "964a6e4a-4abe-4fb5-80bc-28b4c318e8c5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:respond_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "97453ad1-61a6-5fc0-ab3e-858109a8e177",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:rain_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "97c0917e-c7b4-50f7-b02b-991794366bbc",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:snack_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9a6f6b79-3bc4-5b92-9758-071be7701a96",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:answer_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9c7ad1d4-ec72-54ea-bc2f-279b6b872e03",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dream_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9d53d9b5-b827-5a4f-aa4a-440a62923377",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:detect_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9d78c2f8-e3b2-59ce-8393-7d06b81c854b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:usual_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9e3c7ee7-438e-585f-bc08-a48c05e80c9f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:quick_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9edd71ef-534d-57d6-b997-0f518d69bce8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:person_noun_base_family | released:person_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "9fc61b12-62b7-5c37-97e2-f05e9e46d47e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fruit_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a19bdc7d-58f0-5132-adec-a0fe43151567",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pop_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a1dd2f58-fb85-571f-84c8-b54f96c96de4",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:big_adjective_base_family | released:big_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a1ee523b-2a28-5774-8b26-dfa881f1a204",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:solve_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a2506641-c0f4-5e53-8801-2a4ccbb485d6",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:code_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a31c7ecc-5e62-538c-a77e-9ad76064efe8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:small_adjective_base_family | released:small_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a40df8c7-f19b-5fa2-b4f5-d8edb0ac722d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:city_noun_base_family | released:city_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a540733c-3568-5d5b-8e6f-2404b4c639cd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:magic_noun_base_family | released:magic_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a554b6dd-b1b4-5528-84bf-f161c5726399",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:surprise_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a5a82c2e-7778-5d31-be15-f09eff8e57ad",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:danger_noun_base_family | released:danger_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a5cc2f29-18e9-573c-84f0-9977fee98149",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:protect_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a650e64d-c362-5f3b-8e77-3e5ba0ad5ca2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sign_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a757bb93-7f42-5790-b00e-cd5698ffc157",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:cry_noun_base_family | released:cry_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a86b9e33-d535-5e1f-9ad2-3725c43223fc",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:use_verb_base_family | released:use_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a94d8598-89c8-5091-b6d6-93296256f969",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:brave_adjective_base_family | released:brave_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a96f0a5d-2e10-5771-9d03-27e644d26e74",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dog_noun_base_family | released:dog_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "a98cd0a7-1a24-56f1-8c9e-92b0faf7dcb2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hope_noun_base_family | released:hope_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ab9eebf8-3041-5f02-af35-2ad9d42ddc9f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sign_noun_base_family | released:sign_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ac427d43-37c9-5c22-b349-06883dc350ea",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:map_noun_base_family | released:map_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "acf201fc-aaff-5a84-8a02-33e0883c6c98",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:bus_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "adb468ff-dd99-5e1e-9a0b-b727c1b0142a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:late_adjective_base_family | released:late_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ae3029bc-e404-5158-92db-faf437fcec43",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:animal_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ae806036-5c4f-5c39-9e99-8ced56c35172",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:mourn_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "af51e77e-8541-40bb-b6c1-d1ecda9ca89f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:season_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b1237d34-1a20-5a89-b16c-dab0136fee61",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:story_noun_base_family | released:story_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b2c16dc0-0983-52f6-b5e3-611fb4c39802",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:adult_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b4420679-f1dd-52cb-b1bc-e2c7f7427e80",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b4881ca1-5e3a-5906-b92e-1982e356690b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:thank_verb_base_family | released:thank_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b6271d74-7ade-5a36-9369-048d7dcd1e74",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:tall_adjective_base_family | released:tall_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b6320e4b-c485-5363-a811-6a1d91f24bb7",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:lie_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b6de061b-38a6-573e-a689-2b9e28eeb0d5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:love_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b736d3bf-30f9-5e9c-9048-3c526d991186",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:annoy_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b7792563-f3c9-5a28-91d1-3b41ae41cdee",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:big_adjective_base_family | released:big_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b8787179-a511-53d4-aa19-eb277bcffc78",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:prison_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b8a397d0-2f7c-51b1-b2f5-9a354306927b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:joy_noun_base_family | released:joy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "b98a9d29-e6c3-5093-9060-9976488c2396",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:care_noun_base_family | released:care_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ba3fccf9-7fa8-5c8b-8a89-35deda9ad1e7",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fun_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "baa692d9-5543-55f4-8dec-6adda5d94609",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:deserve_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "bc66799b-6dec-586b-a685-511ef5e6c371",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pack_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:nature_noun_base_family | released:nature_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "beb77994-952a-50c0-9926-6b3f5515edbb",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:graph_noun_base_family | lexical:photo_noun_base_family | released:graph_base_family | released:photo_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "becb2298-1e57-5da2-8a44-e8982acbe4b0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:graph_base_family | released:photo_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "bf239c62-fdcb-5982-87b3-7dfe295304ce",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:kind_noun_base_family | released:kind_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c1cc8238-9ce9-53bc-8516-0a41d106677a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:play_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c2138284-ad5f-54f0-a431-f68d28712338",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:act_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c6444d13-55d8-53c7-ac63-15d7b61765c5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:graph_noun_base_family | released:graph_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c74db41e-7909-5575-8913-20d6d175e2af",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fight_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c8ac061a-0189-5606-b3ec-fd805ad714c9",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:try_verb_base_family | released:try_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c8ce65c1-2b5c-5c85-99a1-a2a72c16ccd6",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:lunch_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c8d818e3-700b-581a-9e19-e7ce48f10b8b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:large_adjective_base_family | released:large_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c933b336-32d1-5dca-835f-470bdebd59cd",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:meal_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "c9e4fea8-f46b-5b38-b643-4b5ea6c9c5f0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:school_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "caab59e2-c966-53b2-8375-9179fa65d94e",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fortune_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "cba5d5f6-4945-5949-8572-fa7c9ee3d570",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:stock_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "cf3ce348-0c18-5a29-bfd4-4e290d569e48",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:look_verb_base_family | released:look_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d04f3793-ddb0-5d49-85d7-4fc89820c1f5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:try_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d0663a21-491c-56c2-be2f-510b39d4493f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:toy_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d19d5956-df28-56b9-ac72-a2ce429d7112",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:amaze_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d21fa069-8c86-50d0-866a-58c66f3d8507",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:vie_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d29602fc-e499-568b-be48-9aa9e0b16c5b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:nice_adjective_base_family | released:nice_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d402f819-fcf3-55ab-b663-d36ad3000497",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:force_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d44af154-12f4-52f2-b9e4-2085c36d5c93",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:turn_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d5004bf8-759b-5f61-8a37-42c5fd3b3d2d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dark_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:one_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "d7a672bc-6a5b-5a63-b644-1e8724411850",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:fun_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "db222526-eac6-55ca-bc8b-46c5fa6de168",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:watch_verb_base_family | released:watch_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "db9d6c1c-3ce7-5a09-9910-f96da6252967",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:box_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "dc7363a1-41fa-5931-a23f-123db19d9ae6",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:prepare_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "dd26ad9b-b9e5-5565-b159-0656b5a01d7b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:toward_preposition_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "de0af353-a6f6-580e-92e4-16115c001291",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:seem_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "de3e49f6-880f-593a-948b-c661b1af54a2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:clever_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "dec0f92a-ef27-52b4-b81f-9c7c2794fbbf",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:help_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "dfc2fc84-69b4-5169-8e40-4349a69fd5a5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:large_adjective_base_family | released:large_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e0bf7eb5-33ae-5d40-9614-e5abf6817f8d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:cry_noun_base_family | released:cry_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e0c1f23e-4099-54f3-937a-7459612567ac",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:place_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e1171195-0a89-5994-8e54-26adeebcd099",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:magic_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e1bd3f11-b208-5812-a53a-57f76dec134f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:notice_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e1c9d131-ea7a-5fd6-a4d0-5db916f13685",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:car_noun_base_family | released:car_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e56f9feb-88d8-5a45-bdb9-7b6c48314a73",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:code_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e5ad7114-e44b-5aab-9f5c-2747fe5d7d94",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: released:weigh_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e746305b-af7d-57bb-89cc-63addf45c747",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:read_verb_base_family | released:read_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e7e1981a-7824-5ff2-8e1a-2b15b8ffa428",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:walk_noun_base_family | released:walk_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e833e229-bf20-5f0f-9a23-72ff692a6f09",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:poison_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "e9022730-3312-5adc-b72b-b2f9c4405b3f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:low_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "eb1582db-7a6e-542f-b886-aff24d0b5860",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:hope_noun_base_family | released:hope_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ec46cc5f-dc63-586e-bf5d-689c110b1b9d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:heat_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ec8e4adb-f26d-5b05-b33b-b89bbe958290",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:game_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ecc3004d-ffbc-550e-ba72-8c04e1a5b72b",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sad_adjective_base_family | released:sad_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ecf22209-8cbf-5d86-be95-b0e8af102834",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:explode_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ed4abb66-90f1-5f4b-8e14-beed92166c92",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:wonder_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ee0dfa1f-864b-5d39-a3fd-fc5ee07877d2",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:marine_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "efb0c993-02d4-5b86-8ade-87163bbe1bb8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:like_function_word_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "efce43e6-6c85-5f8a-b64e-46880ccd3be0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:sad_adjective_base_family | released:sad_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f08e9494-dd92-5221-b593-398802d18203",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:copy_noun_base_family | released:copy_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f1c5ffc8-1111-5fab-9200-300f06f92e85",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:impress_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f2aad4d1-f2d9-560d-8549-b4ebbe30300f",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:watch_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f514ec7e-532c-5f9c-945e-87eb1471d5e5",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:agree_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f7752a9b-3dfd-5ac3-b9a6-9a15abe7943a",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:special_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f87e53ab-280f-5315-b4db-d902c9effb8d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:kick_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "f8cb4b35-61b4-5c7c-bf6c-6cc621b68ba0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:equal_adjective_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fad7861b-ea08-52dd-b504-f1eaeb6a9f68",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:want_verb_base_family | released:want_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fae8330e-66a3-5d64-8b32-cbaf6c7cf2d8",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:quick_adjective_base_family | released:quick_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fb9ddd6b-eeeb-50f0-98ec-d51578734950",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:pack_verb_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fc0e10c8-397b-5fc9-9907-92774a59aea0",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:class_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fdd275f1-04db-5c59-bf90-9d4579ade184",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:word_noun_base_family | released:word_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fe478f73-ce5e-5c03-8692-c9fe8c08286c",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:dad_noun_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "fe64afca-193d-5b1a-84d3-8211d2cc276d",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:act_noun_base_family | released:act_base_family",
+      "licenceReference": "internal_authored"
+    },
+    {
+      "canonicalWordId": "ff1a49fb-3a9f-5f5e-b34e-92263e044a43",
+      "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+      "relationshipRole": "demonstrates",
+      "decision": "approved",
+      "sourceReference": "Reviewed Base Word family + affix: lexical:stop_verb_base_family | released:stop_base_family",
+      "licenceReference": "internal_authored"
+    }
+  ]
+}
