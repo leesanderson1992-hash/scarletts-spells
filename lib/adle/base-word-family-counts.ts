@@ -35,6 +35,7 @@ export function eligibleBaseFamilyCounts(
   authority: BaseWordFamilyAuthorityProjection,
   microSkillKey: string,
   closureWordIds: ReadonlySet<string>,
+  excludedWordIds: ReadonlySet<string> = new Set(),
 ): EligibleFamilyCount[] {
   return authority.families.map((family) => {
     const regularityExclusions = authority.schemaVersion === 2 && authority.selectionPolicyVersion === "base_word_regularity_v1"
@@ -44,6 +45,7 @@ export function eligibleBaseFamilyCounts(
         : []) : [];
     const eligibleWordIds = new Set(family.members.filter((member) =>
       baseWordMemberSelectable(authority, member) && closureWordIds.has(member.canonicalWordId) &&
+      !excludedWordIds.has(member.canonicalWordId) &&
       baseWordFamilyMemberAppliesToMicroSkill(authority, member, microSkillKey),
     ).map((member) => member.canonicalWordId));
     return { baseFamilyKey: family.baseFamilyKey, eligibleWordIds, eligibleCount: eligibleWordIds.size, regularityExclusions };

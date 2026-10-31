@@ -72,6 +72,10 @@ const parent: BaseWordFamilyAuthorityProjectionV2 = {
 const closure = new Set(ids.slice(0, 6));
 const counts = eligibleBaseFamilyCounts(parent, skill, closure);
 assert.deepEqual(counts.map((entry) => entry.eligibleCount), [2, 4]);
+const vetoedCounts = eligibleBaseFamilyCounts(parent, skill, closure, new Set([ids[4], ids[5]]));
+assert.deepEqual(vetoedCounts.map((entry) => entry.eligibleCount), [2, 2]);
+assert.deepEqual(shortlistBaseFamilyPairs(vetoedCounts), [],
+  "de-assigned members cannot make an otherwise undersized family pair selectable");
 const activation = { releaseManifestId: randomUUID(), microSkillKey: skill,
   familyAuthorityId: randomUUID(), dictionaryClosureAuthorityId: randomUUID(), family: parent,
   dictionaryWords: [...closure].map((canonicalWordId) => ({ canonicalWordId })) } as ActivatedBaseWordReleaseAuthority;

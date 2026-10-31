@@ -5,7 +5,7 @@ import { BASE_WORD_FAMILY_ASSIGNMENT_ITEM_COUNT } from "../morphology/base-word-
 import { buildBaseWordFamilyPilotItems } from "../morphology/base-word-family-pilot-plan";
 import { compileBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
 import { selectBaseWordFamilyLesson, type BaseWordFamilyFact, type BaseWordFamilyMemberFact } from "../base-word-family-selection";
-import { indexedEligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../base-word-family-counts";
+import { eligibleBaseFamilyCounts, shortlistBaseFamilyPairs } from "../base-word-family-counts";
 import { loadBaseWordFamilyLessonReadModel } from "./base-word-family-lesson-read-model";
 import { loadSelectableChildLearningItems } from "./selectable-child-learning-items";
 import { assertBaseWordFamilyPilotEnabledForChild } from "../morphology/base-word-family-pilot-access";
@@ -27,12 +27,22 @@ import { getCurriculumRouteDefinition } from "../curriculum-readiness/route-regi
 import { compileBaseWordSpecialistSnapshotV3 } from "../composable-lesson/specialist-snapshot-v3-prefix-base-compiler";
 import { persistSpecialistSnapshotV3, supabaseSpecialistSnapshotV3PersistencePort } from "../composable-lesson/specialist-snapshot-v3-persistence";
 import { resolveBaseWordFamilyLessonAuthorityV2 } from "../morphology/resolved-base-word-family-lesson-v2";
+import { loadCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
+import { canonicalPairKey } from "../word-skill-relationships/pair-key";
 import type { AssignmentHeaderDraft, AssignmentItemDraft } from "../assignment-persistence";
 
 /** Current fixed 2-authentic/4-transfer/18-binding recipe support. Route
  * ownership is broader and derives from the canonical Base Word cluster. */
 export const BASE_WORD_PILOT_MICRO_SKILLS = getCurriculumRouteDefinition("base_word_lab", "v2")
   ?.supportedMicroSkillKeys ?? [];
+const BASE_WORD_PAIR_DECISION_KEYS = [
+  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
+  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
+] as const;
+const baseWordPairVetoed = (vetoes: ReadonlySet<string>, canonicalWordId: string): boolean =>
+  BASE_WORD_PAIR_DECISION_KEYS.some((key) => vetoes.has(canonicalPairKey(canonicalWordId, key)));
 /**
  * Loads only existing verified learning items and reviewed curriculum data.
  * It never creates a substitute target or turns a raw attempt into a lesson.
@@ -72,7 +82,16 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   const reasons: string[] = [];
   for (const activation of enabledActivations) {
     const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
-    const familyCounts = indexedEligibleBaseFamilyCounts(activation);
+    const familyWordIds = [...new Set(activation.family.families.flatMap((family) =>
+      family.members.map((member) => member.canonicalWordId)))];
+    const vetoes = await loadCurrentPairDeassignments({
+      client: params.client, environmentKey: activationEnvironment,
+      pairs: familyWordIds.flatMap((canonicalWordId) => BASE_WORD_PAIR_DECISION_KEYS.map((microSkillKey) =>
+        ({ canonicalWordId, microSkillKey }))),
+    });
+    const excludedWordIds = new Set(familyWordIds.filter((canonicalWordId) =>
+      baseWordPairVetoed(vetoes, canonicalWordId)));
+    const familyCounts = eligibleBaseFamilyCounts(activation.family, activation.microSkillKey, closureWordIds, excludedWordIds);
     const eligibleFamilyPairs = shortlistBaseFamilyPairs(familyCounts);
     if (eligibleFamilyPairs.length === 0) {
       reasons.push("insufficient_eligible_family_transfer_words");
@@ -103,7 +122,7 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
         reviewStatus: "approved_for_first_exposure" as const,
       })),
     );
-    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, selectionPolicyVersion: activation.family.schemaVersion === 2 ? activation.family.selectionPolicyVersion : undefined, learningItems, families, members, eligibleFamilyPairs });
+    const selection = selectBaseWordFamilyLesson(params.childId, activation.microSkillKey, { familyAuthoritySchemaVersion: activation.family.schemaVersion, selectionPolicyVersion: activation.family.schemaVersion === 2 ? activation.family.selectionPolicyVersion : undefined, learningItems, families, members, eligibleFamilyPairs, excludedCanonicalWordIds: excludedWordIds });
     if (selection.skipReasons.length === 0 && selection.baseFamilyKeys.length === 2)
       candidates.push({ activation, microSkillKey: activation.microSkillKey, selection });
     else reasons.push(selection.skipReasons.join(","));
@@ -144,6 +163,19 @@ export async function persistBaseWordFamilyPilotAssignment(params: {
 }): Promise<string> {
   const payload = validateBaseWordFamilyLessonSnapshot(params.payload);
   if (!payload) throw new Error("Refusing base-word pilot persistence: malformed reviewed snapshot.");
+  const environmentKey = resolveAdleRouteActivationEnvironment();
+  if (!environmentKey) throw new Error("Refusing base-word pilot persistence: route activation environment unavailable.");
+  const lessonWordIds = [...new Set([
+    ...payload.familySections.flatMap((section) =>
+      [section.baseWord.canonicalWordId, ...section.guidedWords.map((word) => word.canonicalWordId)]),
+    ...payload.independentWords.map((word) => word.canonicalWordId),
+  ])];
+  const vetoes = await loadCurrentPairDeassignments({
+    client: params.client, environmentKey,
+    pairs: lessonWordIds.flatMap((canonicalWordId) => BASE_WORD_PAIR_DECISION_KEYS.map((microSkillKey) =>
+      ({ canonicalWordId, microSkillKey }))),
+  });
+  if (vetoes.size > 0) throw new Error("Refusing base-word pilot persistence: a lesson word was deassigned.");
   const items = buildBaseWordFamilyPilotItems({
     payload,
     parentUserId: params.parentUserId,

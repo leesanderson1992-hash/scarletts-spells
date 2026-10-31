@@ -83,6 +83,8 @@ export interface BaseWordFamilySelectionFacts {
   learningItems: readonly LearningItemFact[];
   families: readonly BaseWordFamilyFact[];
   members: readonly BaseWordFamilyMemberFact[];
+  /** Current governed pair vetoes. Historical pinned lessons do not call this selector. */
+  excludedCanonicalWordIds?: ReadonlySet<string>;
   /** Release-count shortlist. When present, only pairs with enough distinct
    * frozen words may enter the detailed learner/complexity selection. */
   eligibleFamilyPairs?: readonly (readonly [string, string])[];
@@ -146,6 +148,7 @@ export function selectBaseWordFamilyLesson(
   const familiesByWord = new Map<string, string[]>();
   for (const member of facts.members.filter((member) =>
     approved(member.rowStatus, member.reviewStatus) &&
+    !facts.excludedCanonicalWordIds?.has(member.canonicalWordId) &&
     approvedFamilies.has(member.baseFamilyKey) &&
     (!member.applicableMicroSkillKeys || member.applicableMicroSkillKeys.includes(microSkillKey)) &&
     (facts.selectionPolicyVersion !== "base_word_regularity_v1" || member.lessonRegularity?.status === "regular") &&

@@ -53,6 +53,18 @@ const generated = selected.slots.filter((slot) => slot.assignmentRole === "gener
 assert(generated.length === 2 && generated.every((slot) => slot.learningItemId === null && slot.learnerProvenance === "generated_family_practice"), "only unfilled slots become generated family practice");
 assert(selected.slots.length === 6 && new Set(selected.slots.map((slot) => slot.canonicalWordId)).size === 6, "the independent contract remains six distinct words");
 assert(selected.guidedFamilySections.flatMap((section) => section.guidedWordIds).length <= BASE_WORD_GUIDED_DISPLAY_LIMIT, "the guided family display remains capped at eight words");
+const vetoedFamilyWord = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue, {
+  excludedCanonicalWordIds: new Set(["governor"]),
+}));
+assert(vetoedFamilyWord.skipReasons.length === 0 &&
+  !vetoedFamilyWord.slots.some((slot) => slot.canonicalWordId === "governor") &&
+  !vetoedFamilyWord.guidedFamilySections.some((section) => section.guidedWordIds.includes("governor")),
+"a governed de-assignment excludes queued, generated, and guided family use");
+const vetoedAuthenticTarget = selectBaseWordFamilyLesson(CHILD, SKILL, facts(queue.slice(0, 3), {
+  excludedCanonicalWordIds: new Set(["government"]),
+}));
+assert(vetoedAuthenticTarget.slots.length === 0,
+  "a de-assigned authentic word cannot select its family");
 
 const twoPlusFour = selectBaseWordFamilyLesson(CHILD, SKILL, facts([
   item("careful-two", "careful", "2026-07-01"),
