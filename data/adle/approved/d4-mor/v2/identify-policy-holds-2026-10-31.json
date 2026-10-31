@@ -1,0 +1,1000 @@
+{
+  "schemaVersion": 1,
+  "environment": "production",
+  "microSkillKey": "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
+  "decision": "temporary_deassign_and_exclude",
+  "approvalReference": "Owner agreed on 2026-10-31 to the Identify readiness recommendation: deassign below-threshold, unsupported-morphology, and irregular-family pairs until corrected and reviewed.",
+  "sourceReportSha256": "8b7e262d2d47ac24e8502d355d69fa5b97728a5668d13ea17715855a9ca4df4b",
+  "targets": [
+    {
+      "word": "ability",
+      "canonicalWordId": "c72fe2a0-160c-5d48-9074-2ff610a3da74",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "accept",
+      "canonicalWordId": "08f81040-5cd5-5ad6-b24c-70625aa3c1d6",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "accessible",
+      "canonicalWordId": "1e7bd33a-68bd-545f-b05f-57b4b6047bbb",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "accident",
+      "canonicalWordId": "895b50ae-de74-5c86-b437-76fe8dcfd1e3",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "accidentally",
+      "canonicalWordId": "25335f3d-32de-5b22-ac22-c8cc6b6e39f9",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "accommodate",
+      "canonicalWordId": "00caa1c8-fb67-5a12-8641-0e322980e039",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "accompany",
+      "canonicalWordId": "8d073816-25a5-58fc-9988-ab799db4716f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "according",
+      "canonicalWordId": "cd4c8b88-4c0d-5b5b-93d5-cfd27863e36f",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "ace",
+      "canonicalWordId": "505b85f4-c253-5daa-ac5c-bef8f4417036",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "achieve",
+      "canonicalWordId": "52aefea8-9fc0-5079-bef7-dc05eba58ce2",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "actual",
+      "canonicalWordId": "7505fdd4-93d2-5ae2-9bed-db2a126ee0e4",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "addition",
+      "canonicalWordId": "2dfb74c5-c008-50b6-b8ee-3aeb475f762d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "address",
+      "canonicalWordId": "7d479f3b-7eeb-5471-9582-f772e6865ddd",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "admission",
+      "canonicalWordId": "81eede64-2d0a-5a8d-a21c-a830a138b607",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "admit",
+      "canonicalWordId": "b9f3d2ad-4e58-5a4d-a5bf-8d6bd63c754d",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "adorable",
+      "canonicalWordId": "5a3dade1-8c9a-508e-828f-b57021f5fa61",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "adore",
+      "canonicalWordId": "a97890e4-dfad-560d-b244-6d06e0c1c8ac",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "adults",
+      "canonicalWordId": "b2c16dc0-0983-52f6-b5e3-611fb4c39802",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "adventure",
+      "canonicalWordId": "99ab3a95-9362-5713-bfcb-12cc12a13b77",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "adverts",
+      "canonicalWordId": "05c95129-f98f-5edf-a6be-155ae30ca180",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "advice",
+      "canonicalWordId": "cb15be8a-c5d4-5572-b7b1-73d588268bea",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "advise",
+      "canonicalWordId": "111ad28a-9989-592a-a801-83a6a7cce1e2",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "age",
+      "canonicalWordId": "809a3297-908d-5658-a86b-71511f6ae0d0",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "aggressive",
+      "canonicalWordId": "b2f99cfa-e894-5a2e-8056-1921bb370847",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "agree",
+      "canonicalWordId": "6917c2a3-b350-5965-a077-108b8ce4e023",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "air",
+      "canonicalWordId": "f9875e24-7b84-5395-b4ef-eb46d5a009c7",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "align",
+      "canonicalWordId": "a300e2b8-cbaa-55b5-86cb-42cfd097136a",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "allowed",
+      "canonicalWordId": "832dd1a7-71ae-5308-8dab-4f90c8810981",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "amazing",
+      "canonicalWordId": "d19d5956-df28-56b9-ac72-a2ce429d7112",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "ambitious",
+      "canonicalWordId": "a59e0581-3f26-5b3d-b05f-8f197ef39e6f",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "anchor",
+      "canonicalWordId": "ca221d7d-7f73-5779-843e-2107b3c5fa8a",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "angel",
+      "canonicalWordId": "40f1d0a3-192a-5db3-98b8-35d88e36d46a",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "angry",
+      "canonicalWordId": "fd2c6417-b318-59c9-a97b-2d28ff2d9fab",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "animal",
+      "canonicalWordId": "0d1dee80-55cb-5478-9945-4312b092f945",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "animals",
+      "canonicalWordId": "ae3029bc-e404-5158-92db-faf437fcec43",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "annoyed",
+      "canonicalWordId": "b736d3bf-30f9-5e9c-9048-3c526d991186",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "answer",
+      "canonicalWordId": "51016f88-a5d5-5277-b66c-c2c93ec02fb8",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "answering",
+      "canonicalWordId": "9a6f6b79-3bc4-5b92-9758-071be7701a96",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "antique",
+      "canonicalWordId": "f06ae9d2-8449-582f-99c4-a26d6000fa8f",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "applicable",
+      "canonicalWordId": "f095e29c-acf2-5a4c-b4fa-02cf74d86490",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "application",
+      "canonicalWordId": "feae50d2-29bd-5ed2-a7de-408e4769b93b",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "apply",
+      "canonicalWordId": "0b5fb49d-d0b1-58bb-a25c-0d876b993cc0",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "appoint",
+      "canonicalWordId": "0cb07e79-94d8-5d42-84d7-6c3cb1b3bc7c",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "appreciate",
+      "canonicalWordId": "6d56da4d-ebfe-570c-8fe6-fbc47e518c1d",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "archer",
+      "canonicalWordId": "531ca1d2-e97d-5151-ab28-798334e1a80e",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "argue",
+      "canonicalWordId": "44110487-2878-5b99-9adc-fc62ea480d73",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "argument",
+      "canonicalWordId": "27031e9f-75de-5c53-9cd6-ac5a83f0f45b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "arrive",
+      "canonicalWordId": "eac96579-0aef-583b-b4b4-f9e5f9b241c8",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "arrived",
+      "canonicalWordId": "3089bce8-e85b-524d-8051-3a939a872705",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "art",
+      "canonicalWordId": "0bfd5df4-65a8-56bf-8161-4092a7cd7954",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "artificial",
+      "canonicalWordId": "d3a7d164-0f97-57e5-8fed-3710f64a06d1",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "ask",
+      "canonicalWordId": "38556b42-ab60-5352-94a0-8e077448f46e",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "asking",
+      "canonicalWordId": "d425dd6e-2f10-5ba7-bc6b-0a33556e45ca",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "attached",
+      "canonicalWordId": "560a9896-68b8-5dfd-99b0-07739ae82ca0",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "attention",
+      "canonicalWordId": "642a0f0e-84ff-5226-9eb0-48347183bac0",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "attraction",
+      "canonicalWordId": "763508ed-d2e6-59a4-847d-20aafb3f4877",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "attractive",
+      "canonicalWordId": "320933fc-97ff-5147-9ad6-e58aa25b052d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "author",
+      "canonicalWordId": "86a599f2-719c-54e2-9aca-d3f0d83560bf",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "auto",
+      "canonicalWordId": "b97d3b81-7464-5691-83de-ac4fe2f423e2",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "automatic",
+      "canonicalWordId": "eb990e23-79ef-59c0-9aa8-d4483ef723b2",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "automatically",
+      "canonicalWordId": "882a5599-414a-554c-bfb5-9df139c898ed",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "automobile",
+      "canonicalWordId": "480db80c-7102-552d-bd3b-95a025ca880f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "available",
+      "canonicalWordId": "35b505e1-7767-5acf-9e54-5934a761f4b4",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "average",
+      "canonicalWordId": "2520a8a5-e5ca-5376-9b6e-79c28ff8d4c7",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "babies",
+      "canonicalWordId": "93fdd4dd-e9ff-5ff6-8266-c485aa30367e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "baked",
+      "canonicalWordId": "31f588cb-00e4-5f87-97f0-d99ad2507f31",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "beside",
+      "canonicalWordId": "0c37e22c-f482-5a93-af1a-49b05947c626",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "books",
+      "canonicalWordId": "4abd97f3-a6cc-5d81-9ec0-b2b0061ba681",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "boxes",
+      "canonicalWordId": "db9d6c1c-3ce7-5a09-9910-f96da6252967",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "buses",
+      "canonicalWordId": "acf201fc-aaff-5a84-8a02-33e0883c6c98",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cars",
+      "canonicalWordId": "e1c9d131-ea7a-5fd6-a4d0-5db916f13685",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cats",
+      "canonicalWordId": "5332a8a1-552a-5a5d-b8a8-eee11e669c8d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "checked",
+      "canonicalWordId": "3b2c0820-74bd-55e3-9ea6-0ad12e2c8a4a",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "churches",
+      "canonicalWordId": "54cfcaad-2a02-5ee9-abe4-05f13941ef3d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cities",
+      "canonicalWordId": "a40df8c7-f19b-5fa2-b4f5-d8edb0ac722d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "classes",
+      "canonicalWordId": "fc0e10c8-397b-5fc9-9907-92774a59aea0",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cleaned",
+      "canonicalWordId": "1be7705c-b991-5378-afbd-1873db038d48",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cleaver",
+      "canonicalWordId": "68a8fa82-adba-5fe1-8269-5e58486363b2",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "cleverest",
+      "canonicalWordId": "de3e49f6-880f-593a-948b-c661b1af54a2",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "climbed",
+      "canonicalWordId": "5d3cd7bf-eb99-505b-8b3b-5328f66aaa9a",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "colours",
+      "canonicalWordId": "1e810264-ab2a-5819-ba5d-ae4fb73acbbd",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "copied",
+      "canonicalWordId": "f08e9494-dd92-5221-b593-398802d18203",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "crispy",
+      "canonicalWordId": "2cdd4978-fd29-560a-b47b-a579b961c448",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "crunchy",
+      "canonicalWordId": "63e93278-738f-57b7-9b7c-3c3fb5073104",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "daddy",
+      "canonicalWordId": "fe478f73-ce5e-5c03-8692-c9fe8c08286c",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dangerous",
+      "canonicalWordId": "a5a82c2e-7778-5d31-be15-f09eff8e57ad",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "darkness",
+      "canonicalWordId": "d5004bf8-759b-5f61-8a37-42c5fd3b3d2d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "definition",
+      "canonicalWordId": "38e64300-7967-5f97-a772-853851614c94",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "deserves",
+      "canonicalWordId": "baa692d9-5543-55f4-8dec-6adda5d94609",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dinners",
+      "canonicalWordId": "68c400be-ff78-5a99-9149-714cdfb7f190",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dishonest",
+      "canonicalWordId": "821f2a3f-1cbe-4068-b7c3-483efb839ada",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dissatisfied",
+      "canonicalWordId": "1cd7e2a4-581f-4cf8-9ed9-c599a4ddf281",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dogs",
+      "canonicalWordId": "a96f0a5d-2e10-5771-9d03-27e644d26e74",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dreams",
+      "canonicalWordId": "9c7ad1d4-ec72-54ea-bc2f-279b6b872e03",
+      "reason": "exclude_irregular_family"
+    },
+    {
+      "word": "dried",
+      "canonicalWordId": "8e02a2f1-bd84-5cf6-b3b8-edd51d6bc667",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "dying",
+      "canonicalWordId": "39091345-b253-56c9-bcea-5e21a8ebdaf8",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "ended",
+      "canonicalWordId": "384851ba-faa3-5cbf-b972-ce5e1f8cee65",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "especially",
+      "canonicalWordId": "8e6ffc7d-6166-5816-88d7-773e4017a417",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "expected",
+      "canonicalWordId": "7e607ed4-1624-5100-9f61-b4477c060dd4",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "exploded",
+      "canonicalWordId": "ecf22209-8cbf-5d86-be95-b0e8af102834",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "facial",
+      "canonicalWordId": "483f637f-2c6a-59df-b8b6-2636d22390bf",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "factual",
+      "canonicalWordId": "73501415-cf58-5442-9435-7406d8cb95d8",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "fighter",
+      "canonicalWordId": "c74db41e-7909-5575-8913-20d6d175e2af",
+      "reason": "exclude_irregular_family"
+    },
+    {
+      "word": "fighters",
+      "canonicalWordId": "2cfa2d7d-7754-5ff4-a407-72dcda8661f1",
+      "reason": "exclude_irregular_family"
+    },
+    {
+      "word": "finished",
+      "canonicalWordId": "50e25bf9-1dc6-5811-b489-62869de0fdec",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "flavourful",
+      "canonicalWordId": "42d503c7-9d39-56f7-a31e-c2b21c7c62a0",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "forcing",
+      "canonicalWordId": "d402f819-fcf3-55ab-b663-d36ad3000497",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "friends",
+      "canonicalWordId": "893df4fe-bf15-512b-8867-9947617b9bff",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "fruits",
+      "canonicalWordId": "9fc61b12-62b7-5c37-97e2-f05e9e46d47e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "games",
+      "canonicalWordId": "ec8e4adb-f26d-5b05-b33b-b89bbe958290",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "grabbed",
+      "canonicalWordId": "423ec4d3-67e2-5097-9268-72f8615292f6",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "guessed",
+      "canonicalWordId": "46498253-4a05-5cc1-b50a-ff88b24291ed",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "hopped",
+      "canonicalWordId": "73e427f0-def2-5b25-8592-61cb6b0d4c10",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "impossible",
+      "canonicalWordId": "67791ae4-53bd-555f-902c-2f5cd1467c4d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "impresses",
+      "canonicalWordId": "f1c5ffc8-1111-5fab-9200-300f06f92e85",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "information",
+      "canonicalWordId": "84dac1fe-7f74-5559-8e5a-70aebe6843d5",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "ingredients",
+      "canonicalWordId": "4f9ebbf3-674f-5920-be5f-26635dbafbb9",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "juicy",
+      "canonicalWordId": "542fb751-bc70-5cdb-8693-deae4e32ea5a",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "kicked",
+      "canonicalWordId": "f87e53ab-280f-5315-b4db-d902c9effb8d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "kids",
+      "canonicalWordId": "900b31c0-c1c4-5099-8edb-40367679a717",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "laughed",
+      "canonicalWordId": "7f8f0508-93d3-5487-b759-db5a6246730e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "leased",
+      "canonicalWordId": "1d8a8e7b-3870-539e-9359-4072ea914b18",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "lollies",
+      "canonicalWordId": "1c008d1f-52af-5c99-85f4-ee83bf7e4dfe",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "lower",
+      "canonicalWordId": "e9022730-3312-5adc-b72b-b2f9c4405b3f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "lunches",
+      "canonicalWordId": "c8ce65c1-2b5c-5c85-99a1-a2a72c16ccd6",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "lying",
+      "canonicalWordId": "b6320e4b-c485-5363-a811-6a1d91f24bb7",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "mapped",
+      "canonicalWordId": "ac427d43-37c9-5c22-b349-06883dc350ea",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "meals",
+      "canonicalWordId": "c933b336-32d1-5dca-835f-470bdebd59cd",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "missed",
+      "canonicalWordId": "7860b5f5-02c4-5a33-8d28-c9db4095520b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "mourning",
+      "canonicalWordId": "ae806036-5c4f-5c39-9e99-8ced56c35172",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "named",
+      "canonicalWordId": "6c1e84ec-b127-5a70-bd3a-047c91198931",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "natural",
+      "canonicalWordId": "bd80fcac-79ff-573b-a0eb-a16530b15d4b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "nervous",
+      "canonicalWordId": "4db48d9c-addc-595d-a6fb-8a784a44cc9e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "noticed",
+      "canonicalWordId": "e1bd3f11-b208-5812-a53a-57f76dec134f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "opened",
+      "canonicalWordId": "8b61914e-d6cd-5f58-bb01-ddba6c1d701d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "otherwise",
+      "canonicalWordId": "6ef5ada4-d691-5dd2-a177-7641ee91a7b7",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "paths",
+      "canonicalWordId": "32d651ac-1953-5e61-a5fe-26a09bcfe169",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "peoples",
+      "canonicalWordId": "2ece1442-7a63-5c82-af70-7c40acd41675",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "perfectly",
+      "canonicalWordId": "6ef5d401-f50b-546c-a4c7-10ffa12f0f2e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "personal",
+      "canonicalWordId": "9edd71ef-534d-57d6-b997-0f518d69bce8",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "planned",
+      "canonicalWordId": "5f48a4f7-2202-5491-9e20-e7c3792ba808",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "plates",
+      "canonicalWordId": "39e29ae9-a39f-593f-9e51-e5ce960e7514",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "poisonous",
+      "canonicalWordId": "e833e229-bf20-5f0f-9a23-72ff692a6f09",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "pops",
+      "canonicalWordId": "a19bdc7d-58f0-5132-adec-a0fe43151567",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "practising",
+      "canonicalWordId": "015dbc91-a277-50c8-95e2-7eed5eb09507",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "preheat",
+      "canonicalWordId": "ec46cc5f-dc63-586e-bf5d-689c110b1b9d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "prepared",
+      "canonicalWordId": "dc7363a1-41fa-5931-a23f-123db19d9ae6",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "problems",
+      "canonicalWordId": "714402bc-f9f9-5ef9-bb97-d7e0d466457f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "protecting",
+      "canonicalWordId": "a5cc2f29-18e9-573c-84f0-9977fee98149",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "pushed",
+      "canonicalWordId": "4636e1e4-05a5-537d-89a7-165e78000b24",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "questioned",
+      "canonicalWordId": "3e0a755e-2f3c-513d-943e-8a12f16e83aa",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "raced",
+      "canonicalWordId": "49d9ed48-ce4a-5d5e-9e84-0edf522d679c",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "rainy",
+      "canonicalWordId": "97453ad1-61a6-5fc0-ab3e-858109a8e177",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "rated",
+      "canonicalWordId": "95e72015-1e1d-52bb-a081-04cfc54b8687",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "ringing",
+      "canonicalWordId": "1644e19c-8dce-57fa-af31-838deba9b01c",
+      "reason": "exclude_irregular_family"
+    },
+    {
+      "word": "seasonal",
+      "canonicalWordId": "af51e77e-8541-40bb-b6c1-d1ecda9ca89f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "seems",
+      "canonicalWordId": "de0af353-a6f6-580e-92e4-16115c001291",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "shaped",
+      "canonicalWordId": "049dde6e-6c90-5121-92c0-ff4667d5ab25",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "shoelaces",
+      "canonicalWordId": "1f4c7e14-dbb9-5348-a2c0-c2a6f8bc48ff",
+      "reason": "exclude_irregular_family"
+    },
+    {
+      "word": "snacks",
+      "canonicalWordId": "97c0917e-c7b4-50f7-b02b-991794366bbc",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "solved",
+      "canonicalWordId": "a1ee523b-2a28-5774-8b26-dfa881f1a204",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "specially",
+      "canonicalWordId": "f7752a9b-3dfd-5ac3-b9a6-9a15abe7943a",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "standards",
+      "canonicalWordId": "130acdb7-8f80-59bd-b4b3-4cb16c0e6d77",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "started",
+      "canonicalWordId": "891d9892-9652-5708-bb7f-df5c7d103c8f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "starving",
+      "canonicalWordId": "96015b42-da25-5c39-902b-c9d54c0f82f9",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "stocks",
+      "canonicalWordId": "cba5d5f6-4945-5949-8572-fa7c9ee3d570",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "stories",
+      "canonicalWordId": "b1237d34-1a20-5a89-b16c-dab0136fee61",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "submarine",
+      "canonicalWordId": "ee0dfa1f-864b-5d39-a3fd-fc5ee07877d2",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "suits",
+      "canonicalWordId": "2bb85b07-f0d3-5aff-bd8e-786b8a4d4efa",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "sunny",
+      "canonicalWordId": "484dca39-cc96-544d-b8a1-9f74400d666e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "superhero",
+      "canonicalWordId": "1f459c84-8f54-4dab-bed3-1f0d4c954536",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "superman",
+      "canonicalWordId": "84f2d271-5251-5872-ab86-e1c414215c8d",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "supermarket",
+      "canonicalWordId": "8dfc0441-cd26-55e9-97c9-2fd9cd0e272f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "sweating",
+      "canonicalWordId": "5e4edded-0295-5672-ac39-71c31ba3af8e",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "sweets",
+      "canonicalWordId": "9156010b-b60c-51cc-930f-c2fd762feac0",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "thankful",
+      "canonicalWordId": "b4881ca1-5e3a-5906-b92e-1982e356690b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "things",
+      "canonicalWordId": "56d9fe27-bcb5-56a8-be2c-b26c7d5978cf",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "towards",
+      "canonicalWordId": "dd26ad9b-b9e5-5565-b159-0656b5a01d7b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "toys",
+      "canonicalWordId": "d0663a21-491c-56c2-be2f-510b39d4493f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "treated",
+      "canonicalWordId": "758055ca-c31b-5a18-a5f6-7d98dedf25ac",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "triangle",
+      "canonicalWordId": "7c9b915d-1ed6-587a-9872-30f28d26f6ea",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "turned",
+      "canonicalWordId": "d44af154-12f4-52f2-b9e4-2085c36d5c93",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "twenty-one",
+      "canonicalWordId": "d652ffba-1ab7-5027-81e1-77275214ceaf",
+      "reason": "outside_approved_base_plus_affix_pool"
+    },
+    {
+      "word": "tying",
+      "canonicalWordId": "805e29b0-2117-5e5d-885a-c44d8e5fbe64",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "types",
+      "canonicalWordId": "95422a52-6f86-5029-ac24-0435f3754e4f",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "unfair",
+      "canonicalWordId": "3866abb1-1db5-54a7-a4f8-b86acac0baf3",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "untidy",
+      "canonicalWordId": "028906c2-b81b-44e2-b354-2c5250ab8301",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "unusual",
+      "canonicalWordId": "9d78c2f8-e3b2-59ce-8393-7d06b81c854b",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "useful",
+      "canonicalWordId": "a86b9e33-d535-5e1f-9ad2-3725c43223fc",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "vying",
+      "canonicalWordId": "d21fa069-8c86-50d0-866a-58c66f3d8507",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "walked",
+      "canonicalWordId": "e7e1981a-7824-5ff2-8e1a-2b15b8ffa428",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "wanted",
+      "canonicalWordId": "fad7861b-ea08-52dd-b504-f1eaeb6a9f68",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "weight",
+      "canonicalWordId": "e5ad7114-e44b-5aab-9f5c-2747fe5d7d94",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "wishes",
+      "canonicalWordId": "1423313c-8d90-5c8d-a7dc-826ad7a72b50",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "wondering",
+      "canonicalWordId": "ed4abb66-90f1-5f4b-8e14-beed92166c92",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "words",
+      "canonicalWordId": "fdd275f1-04db-5c59-bf90-9d4579ade184",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "worker",
+      "canonicalWordId": "8abadf6f-55bf-5352-a2c0-18d4077092d8",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    },
+    {
+      "word": "years",
+      "canonicalWordId": "2056530c-4b58-5f51-8833-f931f0646a73",
+      "reason": "hold_fewer_than_two_affixed_relatives"
+    }
+  ]
+}
