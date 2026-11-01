@@ -9,6 +9,9 @@ export function ContextRenewalPrompt({ renewals, error }: {
   error: boolean;
 }) {
   const [open, setOpen] = useState(true);
+  const [page, setPage] = useState(0);
+  const pageCount = Math.ceil(renewals.length / 3);
+  const visibleRenewals = renewals.slice(page * 3, page * 3 + 3);
   const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -40,8 +43,8 @@ export function ContextRenewalPrompt({ renewals, error }: {
       {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800">
         We could not record your choice. Please try again or contact support.
       </p>}
-      <div className="mt-4 rounded-2xl border border-[#d8c8f4] bg-white">
-        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+      <div className="mt-4 w-full min-w-0 overflow-hidden rounded-2xl border border-[#d8c8f4] bg-white">
+        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm" style={{ tableLayout: "fixed", width: "100%" }}>
           <thead className="bg-[#f3eaff] text-[#3a285e]">
             <tr>
               <th scope="col" className="w-[32%] px-2 py-2 font-semibold sm:px-3">Profile</th>
@@ -50,9 +53,9 @@ export function ContextRenewalPrompt({ renewals, error }: {
             </tr>
           </thead>
           <tbody>
-            {renewals.map(({ childId, childName, status }) => <tr key={childId} className="border-t border-[#e7dcf7]">
-              <th scope="row" className="break-words px-2 py-2 font-semibold text-[#3a285e] sm:px-3">{childName}</th>
-              <td className="break-words px-2 py-2 text-[#5a4a76] sm:px-3">
+            {visibleRenewals.map(({ childId, childName, status }) => <tr key={childId} className="border-t border-[#e7dcf7]">
+              <th scope="row" className="px-2 py-2 font-semibold text-[#3a285e] sm:px-3" style={{ overflowWrap: "anywhere" }}>{childName}</th>
+              <td className="px-2 py-2 text-[#5a4a76] sm:px-3" style={{ overflowWrap: "anywhere" }}>
                 {status === "not_authorised" ? "Not authorised" : status === "expired" ? "Expired" : "Expiring soon"}
               </td>
               <td className="px-2 py-2 sm:px-3">
@@ -67,6 +70,13 @@ export function ContextRenewalPrompt({ renewals, error }: {
           </tbody>
         </table>
       </div>
+      {pageCount > 1 && <div className="mt-3 flex items-center justify-between gap-3 text-sm text-[#5a4a76]">
+        <button type="button" className="font-semibold text-[#3a285e] disabled:opacity-40" disabled={page === 0}
+          onClick={() => setPage((current) => current - 1)}>Previous</button>
+        <span>Page {page + 1} of {pageCount}</span>
+        <button type="button" className="font-semibold text-[#3a285e] disabled:opacity-40" disabled={page === pageCount - 1}
+          onClick={() => setPage((current) => current + 1)}>Next</button>
+      </div>}
       <div className="mt-6 flex flex-wrap gap-3">
         <button type="button" onClick={close} className="brand-secondary-btn">Not now</button>
       </div>
