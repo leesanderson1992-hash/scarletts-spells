@@ -34,7 +34,7 @@ import { TodaysAdleSection, type TodayAdleChildRow } from "./todays-adle-section
 import { loadParentAdleTodayStatuses } from "@/lib/adle/today-assignment-service";
 import { ParentDashboard } from "./parent-dashboard";
 import { ContextRenewalPrompt } from "./context-renewal-prompt";
-import { loadParentContextRenewal } from "@/lib/writing-engine/whole-writing/parent-context-renewal";
+import { loadParentContextRenewal, type ParentContextChoiceStatus } from "@/lib/writing-engine/whole-writing/parent-context-renewal";
 import type { DedicationPeriod } from "@/lib/dashboard/dedication";
 
 type DashboardPageProps = {
@@ -45,6 +45,8 @@ type DashboardPageProps = {
     period?: string;
     context_error?: string;
     context_renewed?: string;
+    context_saved?: string;
+    context_choices?: string;
   }>;
 };
 
@@ -339,7 +341,10 @@ export default async function DashboardPage({
       const renewal = await loadParentContextRenewal({ childId: child.id, parentUserId: user.id })
         .catch((error) => { console.error("[parent-context-renewal] status unavailable", error); return null; });
       return renewal ? { childId: child.id, childName: child.first_name, status: renewal.status } : null;
-    }))).filter((renewal): renewal is { childId: string; childName: string; status: "not_authorised" | "expired" | "due_soon" } => renewal !== null);
+    }))).filter((renewal): renewal is { childId: string; childName: string; status: ParentContextChoiceStatus } => renewal !== null);
+    const showContextChoices = resolvedSearchParams?.context_choices === "1" ||
+      contextRenewals.some((renewal) => renewal.status === "not_authorised" ||
+        renewal.status === "expired" || renewal.status === "due_soon");
     const rawName = user.user_metadata?.full_name ?? user.user_metadata?.first_name;
     const parentName = typeof rawName === "string" && rawName.trim()
       ? rawName.trim().split(/\s+/)[0] : "Parent";
@@ -348,11 +353,16 @@ export default async function DashboardPage({
       resolvedSearchParams?.period === "six-months" ? resolvedSearchParams.period : "week";
     return <AppShell currentPath="/dashboard" mode="parent" activeChildId={activeScopedChild?.id ?? null}
       availableChildren={activeChildren} userEmail={user.email} showAdminNav={showAdminNav}>
-      {contextRenewals.length > 0 && <ContextRenewalPrompt
+      {showContextChoices && contextRenewals.length > 0 && <ContextRenewalPrompt
         renewals={contextRenewals}
         error={resolvedSearchParams?.context_error === "renewal_unavailable"} />}
-      {resolvedSearchParams?.context_renewed === "1" && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
-        Your writing context choice was recorded for 30 days.
+      <div className="mx-auto mt-3 flex max-w-5xl justify-end px-4">
+        <Link href="/dashboard?context_choices=1" className="text-sm font-semibold text-[#5a327e] underline">
+          Manage writing context choices
+        </Link>
+      </div>
+      {resolvedSearchParams?.context_saved === "1" && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
+        Your writing context choices were recorded.
       </p>}
       <ParentDashboard parentId={user.id} parentName={parentName} childOptions={activeChildren}
         selectedChildId={activeScopedChild?.id ?? null} allChildren={resolvedSearchParams?.scope === "all"} period={period} />
