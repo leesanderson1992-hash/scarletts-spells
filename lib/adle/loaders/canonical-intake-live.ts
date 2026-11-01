@@ -690,10 +690,45 @@ async function intakeApprovedParentVerifiedCorrections(params: {
   const receiptBySource = new Map((reclassifications ?? []).map((row: any) => [
     row.source_candidate_mapping_id as string, row,
   ]));
+  if (process.env.ADLE_RESOLVER_RECONCILIATION_ENABLED === "true") {
+    const { data: outcomes, error: outcomeError } = await client
+      .from("adle_resolver_change_source_outcomes")
+      .select("source_candidate_mapping_id,change_id,outcome,created_at")
+      .in("source_candidate_mapping_id", sourceIds)
+      .in("outcome", ["moved", "requeued"])
+      .order("created_at", { ascending: false });
+    if (outcomeError) throwQuery("resolver change source outcomes", outcomeError);
+    const changeIds = [...new Set((outcomes ?? []).map((row: any) => row.change_id as string))];
+    const { data: changes, error: changesError } = changeIds.length
+      ? await client.from("adle_resolver_change_reconciliations")
+          .select("id,sequence_number,new_micro_skill_key,new_mapping_id")
+          .in("id", changeIds)
+      : { data: [], error: null };
+    if (changesError) throwQuery("resolver change authority", changesError);
+    const changeById = new Map((changes ?? []).map((row: any) => [row.id as string, row]));
+    const latestOutcomeBySource = new Map<string, { sequence: number; change: any }>();
+    for (const outcome of outcomes ?? []) {
+      const sourceId = (outcome as any).source_candidate_mapping_id as string;
+      const change = changeById.get((outcome as any).change_id) as any;
+      if (!change) continue;
+      const sequence = Number(change.sequence_number);
+      if (sequence > (latestOutcomeBySource.get(sourceId)?.sequence ?? -1))
+        latestOutcomeBySource.set(sourceId, { sequence, change });
+    }
+    for (const [sourceId, { change }] of latestOutcomeBySource) {
+      receiptBySource.set(sourceId, {
+        old_micro_skill_key: null,
+        new_micro_skill_key: change.new_micro_skill_key,
+        resolver_mapping_id: change.new_mapping_id,
+        source_candidate_mapping_id: sourceId,
+        resolver_change: true,
+      });
+    }
+  }
   for (const candidate of handoffEligibleCandidateRows as any[]) {
     const receipt = receiptBySource.get(candidate.id) as any;
     if (!receipt) continue;
-    if (receipt.old_micro_skill_key !== candidate.micro_skill_key)
+    if (!receipt.resolver_change && receipt.old_micro_skill_key !== candidate.micro_skill_key)
       throw new Error("Canonical intake reclassification does not match its parent source");
     candidate.micro_skill_key = receipt.new_micro_skill_key;
   }
@@ -942,6 +977,7 @@ async function intakeApprovedParentVerifiedCorrections(params: {
 
 export interface CanonicalIntakeSweepResult {
   enabled: boolean;
+  resolverChanges: { complete: number; needsReview: number };
   safetySweepQueued: number;
   claimed: number;
   completed: number;
@@ -976,6 +1012,7 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
 }): Promise<CanonicalIntakeSweepResult> {
   const summary: CanonicalIntakeSweepResult = {
     enabled: isCanonicalIntakeEnabled(),
+    resolverChanges: { complete: 0, needsReview: 0 },
     safetySweepQueued: 0,
     claimed: 0,
     completed: 0,
@@ -990,6 +1027,16 @@ export async function runCanonicalIntakeReconciliationSweep(params: {
 
   const client = params.serviceClient;
   const limit = Math.max(1, Math.min(params.limit ?? 25, 100));
+  if (process.env.ADLE_RESOLVER_RECONCILIATION_ENABLED === "true") {
+    const { data: changes, error: changeError } = await client.rpc(
+      "adle_process_resolver_changes_v1" as never, { p_limit: limit } as never,
+    );
+    if (changeError) throwQuery("resolver change reconciliation", changeError);
+    for (const change of (changes ?? []) as Array<{ outcome: string }>) {
+      if (change.outcome === "complete") summary.resolverChanges.complete += 1;
+      else summary.resolverChanges.needsReview += 1;
+    }
+  }
   const dueFilter = canonicalIntakeSafetySweepDueFilter(new Date());
   const { data: unresolved, error: unresolvedError } = await client
     .from("adle_canonical_intake_candidates")

@@ -4,6 +4,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { isCanonicalIntakeEnabled } from "@/lib/adle/canonical-intake";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 
 import { loadReadinessRows, type ReadinessView } from "./read-model";
@@ -25,6 +26,13 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
     sort?: string; direction?: string; saved?: string; error?: string }>;
 }) {
   await requireAdminUser();
+  const resolverReconciliationEnabled = process.env.ADLE_RESOLVER_RECONCILIATION_ENABLED === "true";
+  const resolverChanges = resolverReconciliationEnabled
+    ? await createServiceRoleClient().from("adle_resolver_change_reconciliations")
+      .select("id,misspelling_normalized,correct_spelling_normalized,old_micro_skill_key,new_micro_skill_key,reconciliation_status,last_error_code")
+      .in("reconciliation_status", ["pending", "needs_review"])
+      .order("created_at", { ascending: true }).limit(20)
+    : null;
   const params = (await searchParams) ?? {};
   const view = VIEWS.some((option) => option.key === params.view) ? params.view as ReadinessView : "current";
   const search = (params.q ?? "").trim().slice(0, 100);
@@ -73,6 +81,16 @@ export default async function AdleCanonicalIntakeReadinessPage({ searchParams }:
       {params.saved ? <p role="status" className="adle-admin-success">{params.saved}</p> : null}
       {params.error ? <p role="alert" className="adle-admin-alert">{params.error}</p> : null}
       {error ? <p role="alert" className="adle-admin-alert">{error}</p> : null}
+      {resolverChanges?.error ? <p role="alert" className="adle-admin-alert">Resolver changes could not be loaded.</p> : null}
+      {resolverChanges?.data?.length ? <section className="adle-admin-alert" aria-label="Resolver changes needing reconciliation">
+        <h2 className="font-bold">Resolver changes needing reconciliation</h2>
+        <ul className="mt-2 list-disc pl-5">
+          {resolverChanges.data.map((change) => <li key={change.id}>
+            {change.misspelling_normalized} → {change.correct_spelling_normalized}: {change.old_micro_skill_key} → {change.new_micro_skill_key}
+            {change.reconciliation_status === "needs_review" ? ` · Needs review (${change.last_error_code ?? "unknown"})` : " · Waiting for automatic update"}
+          </li>)}
+        </ul>
+      </section> : null}
       {result ? <>
         <nav aria-label="Readiness views" className="adle-admin-tabs">
           {VIEWS.map((option) => <Link key={option.key} href={readinessHref({ ...controls, view: option.key, search })}

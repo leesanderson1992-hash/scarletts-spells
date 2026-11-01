@@ -126,6 +126,17 @@ export async function loadReadinessRows(params: {
     const group = groups.get(key(candidate.normalized_target_token, candidate.micro_skill_key));
     if (group) group.candidates.push(candidate);
   }
+  // A reclassified activated candidate keeps its original resolved demand as
+  // history. Keep the exact resolved link in that old group so it does not
+  // reappear as an unresolved old-skill intake case after the current route moves.
+  for (const link of links) {
+    if (link.link_status !== "resolved") continue;
+    const demand = demandById.get(link.demand_id);
+    const candidate = candidateById.get(link.candidate_id);
+    if (!demand || !candidate || demand.micro_skill_key === candidate.micro_skill_key) continue;
+    const group = groups.get(key(demand.normalized_target_token, demand.micro_skill_key));
+    if (group && !group.candidates.some((row) => row.id === candidate.id)) group.candidates.push(candidate);
+  }
   for (const link of links) {
     if (link.link_status !== "waiting") continue;
     const demand = demandById.get(link.demand_id);
@@ -165,9 +176,33 @@ export async function loadReadinessRows(params: {
     if (result.error) throw new Error(`Readiness facts: ${result.error.message}`);
   const effectiveSkillBySource = new Map((reclassificationResult.data ?? []).map((row: any) =>
     [row.source_candidate_mapping_id, row]));
+  if (process.env.ADLE_RESOLVER_RECONCILIATION_ENABLED === "true" && sourceIds.length) {
+    const outcomes = await db.from("adle_resolver_change_source_outcomes")
+      .select("source_candidate_mapping_id,change_id,outcome")
+      .in("source_candidate_mapping_id", sourceIds).in("outcome", ["moved", "requeued"]);
+    if (outcomes.error) throw new Error(`Resolver change outcomes: ${outcomes.error.message}`);
+    const changeIds = [...new Set((outcomes.data ?? []).map((row: any) => row.change_id))];
+    if (changeIds.length) {
+      const changes = await db.from("adle_resolver_change_reconciliations")
+        .select("id,sequence_number,new_micro_skill_key").in("id", changeIds);
+      if (changes.error) throw new Error(`Resolver change authority: ${changes.error.message}`);
+      const changeById = new Map((changes.data ?? []).map((row: any) => [row.id, row]));
+      const latestBySource = new Map<string, { sequence: number; skill: string }>();
+      for (const outcome of outcomes.data ?? []) {
+        const change = changeById.get(outcome.change_id) as any;
+        if (!change) continue;
+        const sequence = Number(change.sequence_number);
+        if (sequence > (latestBySource.get(outcome.source_candidate_mapping_id)?.sequence ?? -1))
+          latestBySource.set(outcome.source_candidate_mapping_id,
+            { sequence, skill: change.new_micro_skill_key });
+      }
+      for (const [sourceId, route] of latestBySource)
+        effectiveSkillBySource.set(sourceId, { new_micro_skill_key: route.skill, resolver_change: true });
+    }
+  }
   const sources = (sourceResult.data ?? []).map((source: any) => {
     const receipt = effectiveSkillBySource.get(source.id) as any;
-    return receipt?.old_micro_skill_key === source.micro_skill_key
+    return receipt?.resolver_change || receipt?.old_micro_skill_key === source.micro_skill_key
       ? { ...source, micro_skill_key: receipt.new_micro_skill_key } : source;
   });
   const misspellings = [...new Set(sources.map((source: any) => source.misspelling_normalized))];

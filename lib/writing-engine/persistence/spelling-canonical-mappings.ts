@@ -339,11 +339,18 @@ export async function enableResolverVisibilityForCanonicalMappingAdmin(input: {
   supabase?: ServiceRoleClient;
   mapping: SetResolverVisibilityForCanonicalMappingInput;
 }) {
-  return setResolverVisibilityForCanonicalMappingAdmin({
+  const mappingId = await setResolverVisibilityForCanonicalMappingAdmin({
     supabase: input.supabase,
     targetStatus: "visible",
     mapping: input.mapping,
   });
+  if (process.env.ADLE_RESOLVER_RECONCILIATION_ENABLED === "true") {
+    const db = input.supabase ?? createServiceRoleClient();
+    const { error } = await db.rpc("adle_process_resolver_changes_v1" as never,
+      { p_limit: 20 } as never);
+    if (error) console.error("[resolver-reconciliation] queued change requires sweep", error);
+  }
+  return mappingId;
 }
 
 export async function disableResolverVisibilityForCanonicalMappingAdmin(input: {
