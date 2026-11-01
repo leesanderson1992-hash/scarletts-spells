@@ -156,26 +156,36 @@ function Editable({
   options?: Field["options"];
 }) {
   const [editing, setEditing] = useState(false);
-  const help: Record<string, string> = {
-    "Display word": "Enter the spelling exactly as it should appear to learners, for example scrolling.",
-    "Shared definition": "Enter one reviewed dictionary meaning that can be reused by lessons.",
-    "Stress pattern": "Describe the stressed spoken syllable, for example stress on the first syllable.",
-    "Legacy morphemes": "Compatibility text only. Review word parts in the visual editor for canonical morphology.",
-    "Morphology notes": "Describe an exceptional spelling change in plain language.",
-    "Age band": "Choose or enter the learner age band used by the dictionary.",
-    "Frequency band": "Choose or enter the reviewed word-frequency band.",
-    "Complexity band": "Choose or enter the reviewed teaching-complexity band.",
+  const help: Record<string, { format: string; example: string }> = {
+    "Display word": { format: "Enter the spelling exactly as learners should see it.", example: "scrolling" },
+    Definition: { format: "Enter one reviewed dictionary meaning reusable across lessons.", example: "Moving content up or down a screen." },
+    "Spoken syllables": { format: "Separate spoken syllables with a hyphen.", example: "scroll-ing" },
+    Phonemes: { format: "Enter the reviewed British pronunciation or phoneme hint.", example: "/ˈskrəʊ.lɪŋ/" },
+    "Part of speech": { format: "Choose the grammatical role of this word.", example: "verb" },
+    Schwa: { format: "Choose whether this pronunciation contains a schwa.", example: "No" },
+    "Stress pattern": { format: "Name the stressed spoken syllable.", example: "first syllable" },
+    "Legacy morphemes": { format: "Compatibility text; build approved parts in the visual word-parts editor.", example: "scroll + ing" },
+    "Morphology notes": { format: "Explain any exceptional spelling change in plain language.", example: "The final consonant doubles before -ing." },
+    "Age band": { format: "Choose the dictionary learner age band.", example: "middle_primary" },
+    "Frequency band": { format: "Choose the reviewed frequency band.", example: "medium" },
+    "Complexity band": { format: "Choose the reviewed teaching complexity band.", example: "moderate" },
+    "Source category": { format: "Choose the provenance category for this fact.", example: "internal_authored" },
+    "Source name": { format: "Name the source used for review.", example: "Teaching Dictionary editorial review" },
+    "Source URL": { format: "Enter a full source URL when one applies.", example: "https://example.org/entry" },
+    "Source licence": { format: "Name the licence when the source is licensed.", example: "CC BY 4.0" },
+    "Source use note": { format: "Explain how the source was used for this entry.", example: "Internally authored and reviewed" },
+    Confidence: { format: "Choose the evidence confidence level.", example: "high" },
   };
-  const guidance = help[label] ?? `Enter the reviewed ${label.toLocaleLowerCase("en-GB")} in plain language. Use the same wording wherever this dictionary fact appears.`;
+  const guidance = help[label] ?? { format: `Enter the reviewed ${label.toLocaleLowerCase("en-GB")} in plain language.`, example: "A short reviewed phrase" };
   return (
     <div id={id} className="min-w-0 scroll-mt-6">
       <label
         htmlFor={`${id}-input`}
-        className={hideLabel ? "sr-only" : "text-xs text-[color:var(--mid)]"}
+        className="inline-flex items-center gap-1 text-xs text-[color:var(--mid)]"
       >
-        {label} <span className="group relative inline-flex" tabIndex={0} aria-label={`How to fill ${label}: ${guidance}`}>
+        <span className={hideLabel ? "sr-only" : undefined}>{label}</span> <span className="group relative inline-flex" tabIndex={0} aria-label={`How to fill ${label}. Format: ${guidance.format} Example: ${guidance.example}`}>
           <span aria-hidden="true" className="inline-flex size-4 items-center justify-center rounded-full border text-xs">i</span>
-          <span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-20 hidden w-64 rounded bg-white p-2 text-xs text-[color:var(--ink)] shadow group-hover:block group-focus:block">{guidance}</span>
+          <span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-20 hidden w-64 rounded bg-white p-2 text-xs text-[color:var(--ink)] shadow group-hover:block group-focus:block"><strong>Format:</strong> {guidance.format}<br /><strong>Example:</strong> {guidance.example}</span>
         </span>
       </label>
       <div className="flex min-h-9 items-start justify-between gap-1">
@@ -1809,12 +1819,19 @@ export function WordWorkspace(props: {
               onChange={(value) => metadata("morphology_notes", value)}
             />
           </div>
-          {payload.routeContents.map((route) => <div key={route.microSkillKey}
-            id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
-            <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, payload).content}
-              sharedKeys={sharedRouteContentKeys(route.routeId, payload)}
-              onChange={(content) => replaceRouteContent(route.microSkillKey, content)} />
-          </div>)}
+          {payload.routeContents.map((route) => {
+            const profile = props.profileOptions.find((item) => item.microSkillKey === route.microSkillKey);
+            return <div key={route.microSkillKey}
+              id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
+              <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, payload).content}
+                sharedKeys={sharedRouteContentKeys(route.routeId, payload)}
+                choices={{ prefixVariant: profile?.choices ?? [], suffixVariant: profile?.choices ?? [],
+                  meaningBinKey: profile?.meaningBins.map((bin) => bin.id) ?? [],
+                  semanticBaseKind: ["base", "root"],
+                  doublingPattern: ["short_cvc", "stressed_final_syllable"] }}
+                onChange={(content) => replaceRouteContent(route.microSkillKey, content)} />
+            </div>;
+          })}
           <div id="td-source" className="grid gap-3 sm:grid-cols-3">
             {(
               [
