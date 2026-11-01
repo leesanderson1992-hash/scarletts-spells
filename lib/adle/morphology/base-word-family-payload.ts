@@ -4,6 +4,7 @@
  */
 
 export const BASE_WORD_FAMILY_SNAPSHOT_SCHEMA_VERSION = 1 as const;
+export const BASE_WORD_TEACHING_PRESENTATION_VERSION = "identify-base-word-teaching-v1" as const;
 export const BASE_WORD_FAMILY_GUIDED_LIMIT = 8;
 export const BASE_WORD_FAMILY_INDEPENDENT_LIMIT = 6;
 
@@ -111,6 +112,8 @@ export interface BaseWordFamilyLessonSnapshotV1 {
   experience: "D4_MOR_BASE_WORD_FAMILY";
   microSkillKey: string;
   contentVersion: string;
+  /** Absent on already issued lessons, which retain their original teaching pages. */
+  teachingPresentationVersion?: typeof BASE_WORD_TEACHING_PRESENTATION_VERSION;
   authenticTargets: BaseWordFamilyAuthenticTarget[];
   familySections: BaseWordFamilySnapshotSection[];
   independentWords: BaseWordFamilySnapshotWord[];
@@ -161,6 +164,7 @@ function isWord(value: unknown): value is BaseWordFamilySnapshotWord {
 /** Strict, safe fallback validator. Invalid snapshots are not renderable. */
 export function validateBaseWordFamilyLessonSnapshot(value: unknown): BaseWordFamilyLessonSnapshotV1 | null {
   if (!isRecord(value) || value.schemaVersion !== BASE_WORD_FAMILY_SNAPSHOT_SCHEMA_VERSION || value.experience !== "D4_MOR_BASE_WORD_FAMILY" || typeof value.microSkillKey !== "string" || typeof value.contentVersion !== "string" || !Array.isArray(value.authenticTargets) || !Array.isArray(value.familySections) || !Array.isArray(value.independentWords) || !Array.isArray(value.independentSlots) || !Array.isArray(value.activities) || typeof value.reflectionPrompt !== "string" || !isRecord(value.measurement)) return null;
+  if (value.teachingPresentationVersion !== undefined && value.teachingPresentationVersion !== BASE_WORD_TEACHING_PRESENTATION_VERSION) return null;
   const targets = value.authenticTargets;
   const sections = value.familySections;
   const independent = value.independentWords;
@@ -217,6 +221,7 @@ export function compileBaseWordFamilyLessonSnapshot(
     experience: "D4_MOR_BASE_WORD_FAMILY",
     microSkillKey: readModel.microSkillKey,
     contentVersion: readModel.contentVersion,
+    teachingPresentationVersion: BASE_WORD_TEACHING_PRESENTATION_VERSION,
     authenticTargets: readModel.authenticTargets,
     familySections: readModel.familySections,
     independentWords,

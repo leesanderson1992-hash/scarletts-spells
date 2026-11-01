@@ -39,6 +39,9 @@ export interface TeachingPageConfig {
   callout?: string;
   model?: { first: string; second: string; result: string };
   examples?: readonly TeachingPageExample[];
+  baseWordFeature?:
+    | { kind: "maths_table"; columns: readonly string[]; rows: readonly (readonly string[])[] }
+    | { kind: "long_word_tiles"; word: string; parts: readonly { text: string; role: string }[] };
   sections?: readonly TeachingPageSection[];
   homophoneStandardIntro?: boolean;
   homophoneFocus?: string;
@@ -175,7 +178,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
   if (page.homophoneConcept) return <HomophoneConceptPage concept={page.homophoneConcept} pageNumber={props.pageNumber} pageCount={props.pageCount} />;
   const feature = page.weakVowelFeature;
   return (
-    <article className={`grid gap-5 text-left ${feature ? "weak-vowel-teaching-page" : ""}`} data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
+    <article className={`grid gap-5 text-left ${feature ? "weak-vowel-teaching-page" : ""} ${page.id === "base-word-intro-v1" ? "base-word-intro-page" : ""}`} data-teaching-page-type="reading" aria-labelledby={`teaching-page-${page.id}`}>
       <header className="text-center">
         <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-200">
           {page.eyebrow ?? "Learn"} · Page {props.pageNumber} of {props.pageCount}
@@ -184,7 +187,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
         {page.subtitle ? <p className="weak-vowel-secret-subtitle mt-1 text-lg font-bold">{page.subtitle}</p> : null}
       </header>
       {page.paragraphs.length > 0 ? (
-        <div className="mx-auto grid max-w-3xl gap-3 text-center text-lg leading-8 text-cyan-50">
+        <div className={`mx-auto grid max-w-3xl gap-3 text-center text-lg leading-8 text-cyan-50 ${page.id === "base-word-intro-v1" ? "base-word-intro-copy rounded-3xl border-2 border-pink-200 bg-fuchsia-950/70 p-5 sm:p-7" : ""}`}>
           {page.paragraphs.map((paragraph, index) => <p key={paragraph}>{page.highlightFocusWords?.length && index === page.paragraphs.length - 1 ? <HighlightedFocusWords text={paragraph} words={page.highlightFocusWords} /> : paragraph}</p>)}
         </div>
       ) : null}
@@ -224,7 +227,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
           {feature.intro.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
           <table className="weak-vowel-secret-comparison"><thead><tr><th scope="col">Word</th><th scope="col">Say it like this</th><th scope="col">Remember the spelling</th></tr></thead>
             <tbody>{feature.examples.map(example => <tr key={example.word}><td>{example.word}</td><td>{example.sound}</td><td>{example.spelling}</td></tr>)}</tbody></table>
-          <h2>What's the secret?</h2>
+          <h2>What&apos;s the secret?</h2>
           {feature.conclusion.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
         </section>
         <SecretTipCards tips={feature.tips} />
@@ -235,7 +238,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
           <h2>Remember the -ET team!</h2>
           <table className="weak-vowel-secret-comparison"><thead><tr><th scope="col">Word</th><th scope="col">Sounds like</th><th scope="col">Spelt with</th></tr></thead>
             <tbody>{feature.examples.map(example => <tr key={example.word}><td>{example.word}</td><td>{example.sound}</td><td>ET</td></tr>)}</tbody></table>
-          <h2>Today's Secret Rule</h2>
+          <h2>Today&apos;s Secret Rule</h2>
           {feature.rule.map(paragraph => <p key={paragraph}><RichCopy text={paragraph} /></p>)}
           <h2>Memory Motto</h2><p className="weak-vowel-secret-conclusion"><RichCopy text={feature.motto} /></p>
         </section>
@@ -250,7 +253,7 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       </div> : null}
       {page.callout ? <p className="teaching-key-idea rounded-2xl border-2 border-cyan-200 bg-cyan-100 px-5 py-4 text-center text-xl font-black text-cyan-950">{page.callout}</p> : null}
       {page.model ? (
-        <div className="mx-auto flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-cyan-300/20 bg-slate-950/45 p-5" aria-label={`${page.model.first} plus ${page.model.second} makes ${page.model.result}`}>
+        <div className={`mx-auto flex flex-wrap items-center justify-center gap-3 rounded-3xl border border-cyan-300/20 bg-slate-950/45 p-5 ${page.id === "base-word-intro-v1" ? "base-word-intro-model" : ""}`} aria-label={`${page.model.first} plus ${page.model.second} makes ${page.model.result}`}>
           <span className="rounded-2xl bg-cyan-100 px-4 py-3 text-xl font-black text-cyan-950">{page.model.first}</span>
           <span aria-hidden="true" className="text-2xl text-cyan-200">+</span>
           <span className="rounded-2xl bg-amber-100 px-4 py-3 text-xl font-black text-amber-950">{page.model.second}</span>
@@ -259,6 +262,8 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
         </div>
       ) : null}
       {page.examples?.length ? <ExampleGrid examples={page.examples} /> : null}
+      {page.baseWordFeature?.kind === "maths_table" ? <BaseWordMathsTable columns={page.baseWordFeature.columns} rows={page.baseWordFeature.rows} /> : null}
+      {page.baseWordFeature?.kind === "long_word_tiles" ? <BaseWordLongWordTiles word={page.baseWordFeature.word} parts={page.baseWordFeature.parts} /> : null}
       {page.sections?.map((section, index) => (
         <section key={section.heading ?? index} className={section.tone === "gold" ? "teaching-gold-clue grid gap-3 rounded-3xl border-2 border-amber-300 bg-gradient-to-br from-amber-100 via-yellow-50 to-amber-200 p-5 text-amber-950 shadow-[0_8px_0_rgba(180,83,9,.42)]" : "grid gap-3 rounded-3xl border border-cyan-300/30 bg-slate-950/35 p-5"}>
           {section.heading ? <h2 className={section.tone === "gold" ? "text-xl font-black text-amber-950" : "text-xl font-black text-white"}>{section.heading}</h2> : null}
@@ -268,6 +273,29 @@ function TeachingPage(props: { page: TeachingPageConfig; pageNumber: number; pag
       ))}
     </article>
   );
+}
+
+function BaseWordMathsTable(props: { columns: readonly string[]; rows: readonly (readonly string[])[] }) {
+  return <div className="base-word-maths-panel overflow-x-auto rounded-3xl border border-cyan-200/50 bg-cyan-950/40 p-2 sm:p-4">
+    <table className="w-full table-fixed border-separate border-spacing-1 text-left text-slate-950 sm:border-spacing-2" aria-label="Base-word spelling maths">
+      <thead><tr>{props.columns.map((heading) => <th key={heading} scope="col" className="break-words rounded-xl bg-cyan-200 p-1 text-xs font-black sm:p-3 sm:text-sm">{heading}</th>)}</tr></thead>
+      <tbody>{props.rows.map((row) => <tr key={row[0]}>{row.map((word, index) => <td key={word} className={`break-words rounded-xl p-1 text-xs font-black sm:p-3 sm:text-lg ${index === 0 ? "bg-amber-100 text-amber-950" : "bg-white text-slate-950"}`}>{word}</td>)}</tr>)}</tbody>
+    </table>
+  </div>;
+}
+
+function BaseWordLongWordTiles(props: { word: string; parts: readonly { text: string; role: string }[] }) {
+  const colours = ["bg-pink-100 text-pink-950", "bg-violet-100 text-violet-950", "bg-amber-100 text-amber-950", "bg-cyan-100 text-cyan-950", "bg-lime-100 text-lime-950", "bg-orange-100 text-orange-950"];
+  return <section className="base-word-long-panel grid gap-5 rounded-3xl border-2 border-cyan-300 bg-cyan-950/50 p-4 text-center sm:p-6" aria-label="Build a long word from one base and five affixes">
+    <p className="break-words rounded-2xl border-2 border-amber-300 bg-amber-100 px-4 py-5 text-2xl font-black text-amber-950 shadow-lg sm:text-3xl">{props.word}</p>
+    <div className="flex flex-wrap items-center justify-center gap-2">{props.parts.map((part, index) => <div key={part.text} className="flex items-center gap-2">
+      {index > 0 ? <span aria-hidden="true" className="text-xl font-black text-cyan-50">+</span> : null}
+      <div className={`rounded-2xl border-2 border-white px-3 py-3 shadow-lg ${colours[index % colours.length]}`}>
+        <span className="block text-[10px] font-black uppercase tracking-wider">{part.role}</span><strong className="block text-lg sm:text-xl">{part.text}</strong>
+      </div>
+    </div>)}</div>
+    <p className="text-sm font-bold text-cyan-100">anti- + dis- + establish + -ment + -arian + -ism</p>
+  </section>;
 }
 
 function RichCopy(props: { text: string }) {
@@ -313,7 +341,7 @@ function ExampleGrid(props: { examples: readonly TeachingPageExample[] }) {
   ))}</ul>;
 }
 
-function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber: number; pageCount: number; wordIndex?: number }) {
+export function MeetWords(props: { config: TeachingPagesConfig["meetWords"]; pageNumber: number; pageCount: number; wordIndex?: number }) {
   const words = props.wordIndex === undefined ? props.config.words : [props.config.words[props.wordIndex]];
   const familyColumns = words.length === 6 && [0, 3].every(start =>
     ["base", "comparative", "superlative"].every((degree, offset) => words[start + offset].label?.startsWith(`${degree} · `)));

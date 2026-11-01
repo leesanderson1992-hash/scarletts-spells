@@ -289,6 +289,18 @@
 .word-lab-workspace [data-teaching-page-type="reading"] { padding: clamp(1rem, 2vw, 1.75rem); border: 2px solid var(--adie-line); border-left: 7px solid var(--adie-pink); border-radius: 1.5rem; background: var(--adie-surface); box-shadow: 0 12px 32px rgb(128 54 113 / 13%); }
 .word-lab-workspace .teaching-pages { width: min(100%, 64rem); margin-inline: auto; }
 @media (min-width: 768px) {
+  .word-lab-workspace .base-word-intro-page { min-height: 100%; align-content: center; }
+}
+:root[data-theme="light"] .word-lab-workspace .base-word-intro-page { background: #fff8fd; }
+:root[data-theme="light"] .word-lab-workspace .base-word-intro-copy { background: #ffeaf5; border-color: #edabd0; color: #5a244a; }
+:root[data-theme="dark"] .word-lab-workspace .base-word-intro-copy { background: #4b2e54; border-color: #b977cd; color: #fff3fc; }
+:root[data-theme="light"] .word-lab-workspace .base-word-intro-model { background: #ffe6f3 !important; border-color: #edabd0; }
+:root[data-theme="light"] .word-lab-workspace .base-word-maths-panel { background: #dff5fb !important; border-color: #85d1e4; }
+:root[data-theme="light"] .word-lab-workspace .base-word-long-panel { background: #f1e3ff !important; border-color: #bf91e4; }
+:root[data-theme="dark"] .word-lab-workspace .base-word-intro-model { background: #4b2e54 !important; border-color: #b977cd; }
+:root[data-theme="dark"] .word-lab-workspace .base-word-maths-panel { background: #173b4b !important; border-color: #67d5e8; }
+:root[data-theme="dark"] .word-lab-workspace .base-word-long-panel { background: #39254d !important; border-color: #bd8ed2; }
+@media (min-width: 768px) {
   .word-lab-workspace:has(.teaching-pages) { overflow: hidden; }
   .word-lab-workspace:has(.teaching-pages) .word-lab-task { display: flex; flex: 1; min-height: 0; margin-block: 0; }
   .word-lab-workspace:has(.teaching-pages) .teaching-pages { display: flex; flex: 1; flex-direction: column; min-height: 0; }

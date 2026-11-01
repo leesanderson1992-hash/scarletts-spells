@@ -240,9 +240,10 @@ function BoundarySplitHandle(props: SplitHandleProps) {
     : props.misses > 0
       ? props.missMessage ?? props.missPrompt ?? "Not there yet. Look again for the word parts."
       : "";
+  const baseCleaverInstruction = props.prompt === LESSON_ACTIVITY_COPY.baseCleaver;
   return (
     <div className="text-center" data-split-state={foundBoundaries.length > 0 ? "active" : "initial"}>
-      <p className="mb-2 text-sm font-bold text-cyan-100">Move the cleaver to each word-part boundary, then strike.</p>
+      <p className="mb-2 text-sm font-bold text-cyan-100">{baseCleaverInstruction ? props.prompt : "Move the cleaver to each word-part boundary, then strike."}</p>
       <div role="group" aria-label={`Choose where to split ${props.word}`} className="relative mx-auto mt-2 h-32 w-full max-w-xl select-none pt-20">
         <div className="cleaver-letters grid h-12 items-center" style={{ gridTemplateColumns: `repeat(${props.word.length}, minmax(0, 1fr))` }}>
           {props.word.split("").map((letter, index) => {
@@ -289,7 +290,7 @@ function BoundarySplitHandle(props: SplitHandleProps) {
           );
         })}
       </div>
-      <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl whitespace-pre-line rounded-2xl p-3 text-sm font-bold ${feedback ? repeatedMiss ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || LESSON_ACTIVITY_COPY.boundaryCleaver}</div>
+      {feedback || !baseCleaverInstruction ? <div role="status" aria-live="polite" className={`mx-auto mt-4 min-h-16 max-w-xl whitespace-pre-line rounded-2xl p-3 text-sm font-bold ${feedback ? repeatedMiss ? "bg-cyan-100 text-cyan-950" : "bg-red-100 text-red-950" : "bg-transparent text-cyan-100"}`}>{feedback || props.prompt || LESSON_ACTIVITY_COPY.boundaryCleaver}</div> : null}
     </div>
   );
 }

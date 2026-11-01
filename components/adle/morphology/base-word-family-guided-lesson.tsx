@@ -24,6 +24,7 @@ import {
   type NormalizedLessonReflectionSentenceComparison,
 } from "@/lib/adle/lesson-reflection";
 import { resolveBaseWordFamilyLessonAuthorityV2 } from "@/lib/adle/morphology/resolved-base-word-family-lesson-v2";
+import type { TeachingPagesConfig } from "@/components/adle/first-impression/teaching-pages";
 
 const INITIAL: BaseWordFamilyResumeState = {
   stage: "intro", teachingPageIndex: 0, familyIndex: 0, cleaveIndex: 0, cleaveStep: 0, cleaveCuts: {}, cleaveMisses: {}, buildIndex: 0,
@@ -52,6 +53,7 @@ function clueFor(stage: BaseWordFamilyResumeState["stage"]): string {
 
 export function BaseWordFamilyGuidedLesson(props: {
   previewId?: string; assignmentId?: string; payload: BaseWordFamilyLessonSnapshotV1;
+  teachingOverride?: TeachingPagesConfig;
   submitting?: boolean;
   durableResumeState?: unknown;
   onDurableResumeStateChange?: (state: unknown) => void;
@@ -136,7 +138,7 @@ export function BaseWordFamilyGuidedLesson(props: {
     }),
   });
   return <FirstImpressionLesson
-    teaching={resolvedLesson.teaching}
+    teaching={props.teachingOverride ?? resolvedLesson.teaching}
     activities={activities}
     initialStageId={baseWordShellStage(state)}
     initialTeachingPageIndex={state.teachingPageIndex}

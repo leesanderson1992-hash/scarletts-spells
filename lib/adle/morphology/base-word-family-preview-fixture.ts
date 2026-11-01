@@ -34,7 +34,7 @@ function word(
 
 /** Reviewed-content-shaped fixture only. It is never imported or assigned. */
 export const BASE_WORD_FAMILY_PREVIEW_READ_MODEL: BaseWordFamilyLessonReadModel = {
-  microSkillKey: "D4_MOR_BASE_WORDS_PRESERVE_BASE",
+  microSkillKey: "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
   contentVersion: "base-word-two-family-interactive-preview-v2",
   authenticTargets: [
     { canonicalWordId: "replayed_en_gb", learningItemId: "preview-authentic-replayed", sourceRef: "preview:authentic-writing:replayed" },
