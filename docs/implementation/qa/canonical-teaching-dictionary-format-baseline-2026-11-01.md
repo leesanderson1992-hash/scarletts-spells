@@ -94,3 +94,9 @@ The later Preview at commit `58bc6ce` passed the protected browser proof with
 the expanded queue. It displayed a missing-definition link to the Overview
 definition control and retained the earlier morphology, family-search, word
 page, and Lesson checks smoke checks. It made no dictionary mutations.
+
+The Preview at commit `373f3ff` passed the same protected browser smoke after
+the canonical word-sum approval guard was added. The focused workspace
+regression rejects an approved sum that differs from the reviewed parts while
+accepting the generated sum. The browser smoke does not itself submit an
+invalid approval.
