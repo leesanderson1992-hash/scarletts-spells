@@ -1,5 +1,4 @@
 import type { WordDraftPayload } from "./contracts";
-import { canonicalPartsStatus, isCanonicalPart } from "./canonical-morphology";
 const normaliseWord = (value: string) =>
   value.trim().toLocaleLowerCase("en-GB").replace(/[’ʼ]/g, "'");
 
@@ -141,10 +140,6 @@ export function canonicalStructureBlockers(
   if (morphology.analysisStatus !== "approved") return [];
   const blockers: string[] = [];
   const parts = morphology.parts as Record<string, unknown>[];
-  if (canonicalPartsStatus(parts) !== "canonical")
-    return ["Review word parts in the canonical editor before approval."];
-  if (parts.some((part) => !isCanonicalPart(part)))
-    return ["Canonical morphology parts are invalid."];
   if (
     !parts.every(
       (part) =>

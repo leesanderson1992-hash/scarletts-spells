@@ -405,7 +405,8 @@ async function performWorkspaceSave(form: FormData) {
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
-      if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
+      if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
+        throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
       if(reviewSection.startsWith("lesson:")) {
         const fingerprint=await db.rpc("teaching_dictionary_overview_fingerprint",{p_payload:payload});
         if(fingerprint.error)throw new Error("TEACHING_OVERVIEW_FINGERPRINT_FAILED");

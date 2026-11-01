@@ -1,6 +1,7 @@
 import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { weakVowelRouteBlockers } from "./weak-vowel-authoring";
+import { canonicalPartsStatus } from "./canonical-morphology";
 
 export const WORD_METADATA_FIELDS = [
   "syllables", "phoneme_hint", "grapheme_notes", "stress_pattern", "morphemes",
@@ -132,7 +133,8 @@ export function validateDraft(payload: WordDraftPayload, normalisedWord: string)
   return errors;
 }
 
-export function publicationBlockers(payload: WordDraftPayload, normalisedWord: string) {
+export function publicationBlockers(payload: WordDraftPayload, normalisedWord: string,
+  options: { requireCanonicalParts?: boolean } = {}) {
   const blockers = validateDraft(payload, normalisedWord);
   if (!payload.definition.trim()) blockers.push("Add a dictionary definition.");
   if (!payload.ageBand.trim()) blockers.push("Set the age band.");
@@ -150,6 +152,9 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   }
   blockers.push(...dictationVariantBlockers(normalisedWord, dictationVariants(payload)));
   blockers.push(...canonicalStructureBlockers(payload.canonicalMorphology,payload.displayWord));
+  if (options.requireCanonicalParts && payload.canonicalMorphology.analysisStatus === "approved" &&
+    canonicalPartsStatus(payload.canonicalMorphology.parts) !== "canonical")
+    blockers.push("Review word parts in the canonical editor before approval.");
   if (payload.writtenSyllableBreakdown !== undefined) {
     if (payload.canonicalMorphology.analysisStatus !== "approved" || payload.canonicalMorphology.parts.length === 0) blockers.push("Review the canonical morphology parts.");
     if (!payload.canonicalMorphology.rawPartOfSpeech.trim()) blockers.push("Add the word's part of speech.");
