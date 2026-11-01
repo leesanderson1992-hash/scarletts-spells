@@ -15,14 +15,14 @@ const candidateId = "db846eae-9537-40c6-a56c-9652fc00574c";
 const identify = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 const q = (sql, args = []) => db.query(sql, args);
 
-async function scenario(name, prepare, check) {
+async function scenario(name, prepare, check, beforeProcess) {
   await q("savepoint scenario");
   try {
     const original = (await q("select * from public.spelling_canonical_mappings where id=$1", [oldMapping])).rows[0];
     assert(original?.mapping_status === "active" && original?.resolver_visibility_status === "visible");
     const candidate = (await q("select * from public.adle_canonical_intake_candidates where id=$1", [candidateId])).rows[0];
     assert(candidate?.micro_skill_key === original.micro_skill_key);
-    await prepare(candidate, original);
+    const fixture = await prepare(candidate, original);
     const supersession = await q(`select public.supersede_spelling_canonical_mapping_admin(
       $1::uuid,$2::text,$3::text,$4::uuid,null,$5::text,'{}'::jsonb) id`,
       [oldMapping, original.micro_skill_key, identify, original.created_by_admin_user_id,
@@ -34,6 +34,7 @@ async function scenario(name, prepare, check) {
       where old_mapping_id=$1`, [oldMapping])).rows[0];
     assert.equal(event.new_mapping_id, newMapping);
     assert.equal(event.reconciliation_status, "pending");
+    if (beforeProcess) await beforeProcess({ candidate, original, event, newMapping, fixture });
     const processed = (await q("select * from public.adle_process_resolver_changes_v1(20)")).rows;
     assert.deepEqual(processed, [{ change_id: event.id, outcome: "complete" }]);
     await check({ candidate, original, event, newMapping });
@@ -106,7 +107,8 @@ try {
         oldItem.source_ref,oldItem.source_attempt_text,oldItem.reteach_priority,oldItem.ejected_on,
         oldItem.intake_on]);
     assert(destination.rows[0].id);
-  }, async ({ event }) => {
+    return { cloned };
+  }, async ({ event, original, newMapping }) => {
     const current = (await q("select * from public.adle_canonical_intake_candidates where id=$1", [candidateId])).rows[0];
     assert.equal(current.micro_skill_key, identify);
     const outcome = (await q("select * from public.adle_resolver_change_source_outcomes where change_id=$1", [event.id])).rows[0];
@@ -121,6 +123,38 @@ try {
       assert.equal(String(newRoute.attached_on), String(oldRoute.attached_on));
       assert.equal(oldRoute.row_status, "superseded");
     }
+    const second = (await q(`select public.supersede_spelling_canonical_mapping_admin(
+      $1::uuid,$2::text,$3::text,$4::uuid,null,$5::text,'{}'::jsonb) id`,
+      [newMapping,identify,original.micro_skill_key,original.created_by_admin_user_id,
+        "Second staged resolver change tests latest effective learner route"])).rows[0].id;
+    await q("update public.spelling_canonical_mappings set resolver_visibility_status='visible' where id=$1", [second]);
+    const secondChange = (await q("select * from public.adle_resolver_change_reconciliations where old_mapping_id=$1", [newMapping])).rows[0];
+    assert(secondChange.sequence_number > event.sequence_number);
+    const rerouted = (await q("select * from public.adle_process_resolver_changes_v1(20)")).rows;
+    assert.deepEqual(rerouted, [{ change_id: secondChange.id, outcome: "complete" }]);
+    const latest = (await q("select micro_skill_key from public.adle_canonical_intake_candidates where id=$1", [candidateId])).rows[0];
+    assert.equal(latest.micro_skill_key, original.micro_skill_key);
+    const effective = (await q("select public.adle_effective_pending_intake_skill_v1($1,$2) valid",
+      [current.source_candidate_mapping_id,original.micro_skill_key])).rows[0];
+    assert.equal(effective.valid, true);
+  }, async ({ candidate, original, fixture }) => {
+    const parent = (await q("select parent_user_id from public.parent_verified_spelling_candidate_mappings where id=$1",
+      [candidate.source_candidate_mapping_id])).rows[0].parent_user_id;
+    let blocked = false;
+    await q("savepoint blocked_assignment");
+    try {
+      await q(`insert into public.assignment_items
+        (child_id,parent_user_id,domain_module,item_type,source_type,source_entity_id,metadata)
+        values($1,$2,'spelling','adle_test','adle_composer_v1',$3,$4::jsonb)`,
+        [candidate.child_id,parent,`proof:${fixture.cloned}`,
+          JSON.stringify({ microSkillKey: original.micro_skill_key, adleLearningItemRef: fixture.cloned })]);
+    } catch (error) {
+      blocked = String(error.message).includes("ADLE_RESOLVER_RECONCILIATION_REQUIRED");
+    } finally {
+      await q("rollback to savepoint blocked_assignment");
+      await q("release savepoint blocked_assignment");
+    }
+    assert.equal(blocked,true,"stale assignment must fail before reconciliation completes");
   });
   await scenario("active source without intake candidate moves", async (candidate) => {
     const oldItem = (await q("select * from public.adle_learning_items where id=$1", [candidate.learning_item_id])).rows[0];
