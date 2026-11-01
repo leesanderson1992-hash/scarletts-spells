@@ -18,7 +18,7 @@ export function ContextRenewalPrompt({ renewals, error }: {
   if (!open) return null;
   const close = () => dialogRef.current?.close();
   return <dialog ref={dialogRef} onClose={() => setOpen(false)} aria-labelledby="context-renewal-title"
-      className="brand-card m-auto w-[min(32rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-6 shadow-2xl backdrop:bg-[#1d1640]/55">
+      className="brand-card m-auto w-[min(36rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-6 shadow-2xl backdrop:bg-[#1d1640]/55">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="brand-eyebrow">Parent choice</p>
@@ -40,18 +40,32 @@ export function ContextRenewalPrompt({ renewals, error }: {
       {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800">
         We could not record your choice. Please try again or contact support.
       </p>}
-      <div className="mt-5 max-h-64 space-y-3 overflow-y-auto">
-        {renewals.map(({ childId, childName, status }) => <div key={childId}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d8c8f4] bg-white p-3">
-          <div>
-            <p className="font-semibold text-[#3a285e]">{childName}</p>
-            <p className="text-xs text-[#5a4a76]">{status === "not_authorised" ? "Not yet authorised" : status === "expired" ? "Expired" : "Due to expire soon"}</p>
-          </div>
-          <form action={renewParentWritingContextAuthorisation}>
-            <input type="hidden" name="child_id" value={childId} />
-            <button type="submit" className="brand-primary-btn">{status === "not_authorised" ? "Authorise" : "Renew"} for {childName}</button>
-          </form>
-        </div>)}
+      <div className="mt-5 max-h-64 overflow-auto rounded-2xl border border-[#d8c8f4] bg-white">
+        <table className="w-full min-w-[27rem] border-collapse text-left text-sm">
+          <thead className="sticky top-0 bg-[#f3eaff] text-[#3a285e]">
+            <tr>
+              <th scope="col" className="px-4 py-3 font-semibold">Profile</th>
+              <th scope="col" className="px-4 py-3 font-semibold">Status</th>
+              <th scope="col" className="px-4 py-3 font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {renewals.map(({ childId, childName, status }) => <tr key={childId} className="border-t border-[#e7dcf7]">
+              <th scope="row" className="px-4 py-3 font-semibold text-[#3a285e]">{childName}</th>
+              <td className="px-4 py-3 text-[#5a4a76]">
+                {status === "not_authorised" ? "Not authorised" : status === "expired" ? "Expired" : "Expiring soon"}
+              </td>
+              <td className="px-4 py-3">
+                <form action={renewParentWritingContextAuthorisation}>
+                  <input type="hidden" name="child_id" value={childId} />
+                  <button type="submit" className="brand-primary-btn" aria-label={`${status === "not_authorised" ? "Authorise" : "Renew"} writing context checking for ${childName}`}>
+                    {status === "not_authorised" ? "Authorise" : "Renew"}
+                  </button>
+                </form>
+              </td>
+            </tr>)}
+          </tbody>
+        </table>
       </div>
       <div className="mt-6 flex flex-wrap gap-3">
         <button type="button" onClick={close} className="brand-secondary-btn">Not now</button>
