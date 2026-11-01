@@ -179,13 +179,42 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
 
 /** Route compilers retain their established payload shape while shared facts
  * always come from the canonical Overview. Teaching-only splits stay in the route. */
+export function canonicalBaseFact(parts: readonly unknown[]): { text: string; meaning: string; kind: "base" | "root" } | null {
+  const records = parts.filter((part): part is Record<string, unknown> =>
+    Boolean(part) && typeof part === "object" && !Array.isArray(part));
+  const bases = records.filter((part) => {
+    const kind = String(part.kind ?? part.role ?? part.type ?? part.partType ?? "");
+    return ["base", "root", "free_base", "bound_base", "bound_root"].includes(kind);
+  });
+  const base = bases.length === 1 ? bases[0] : null;
+  if (!base) return null;
+  const baseKind = String(base?.kind ?? base?.role ?? base?.type ?? base?.partType ?? "");
+  return { kind: ["root", "bound_base", "bound_root"].includes(baseKind) ? "root" : "base",
+    text: String(base.sourceText ?? base.surfaceText ?? base.text ?? ""),
+    meaning: String(base.gloss ?? base.meaning ?? "") };
+}
+
+export function sharedRouteContentKeys(routeId: string, payload: WordDraftPayload): string[] {
+  const base = canonicalBaseFact(payload.canonicalMorphology.parts);
+  if (!base) return [];
+  if (routeId === "dynamic_affix_word_lab")
+    return [...(base.text ? ["semanticBaseText", "semanticBaseKind"] : []),
+      ...(base.meaning ? ["baseMeaning"] : [])];
+  if (["dynamic_prefix_word_lab", "base_word_lab"].includes(routeId))
+    return [...(base.text ? ["baseWord"] : []), ...(base.meaning ? ["baseMeaning"] : [])];
+  return [];
+}
+
 export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraftPayload): RouteContentDraft {
   const parts = payload.canonicalMorphology.parts;
   const joins = payload.canonicalMorphology.joins;
   const content = { ...route.content };
+  const base = canonicalBaseFact(parts);
   if (route.routeId === "dynamic_prefix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
+    if (base?.text) content.baseWord = base.text;
+    if (base?.meaning) content.baseMeaning = base.meaning;
   }
   if (route.routeId === "dynamic_affix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
@@ -193,19 +222,16 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     content.trueMorphologyParts = parts;
     content.trueMorphologyJoins = joins;
     content.trueMorphologyTransformations = payload.canonicalMorphology.transformations ?? [];
-    const records = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part));
-    const suffixes = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
+    const suffixes = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part))
+      .filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
     if (!content.suffixVariant && suffixes.length === 1) {
       content.suffixVariant = String(suffixes[0].surfaceText ?? suffixes[0].text ?? "");
     }
-    const bases = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") !== "suffix");
-    if (bases.length === 1) {
-      const base = bases[0];
-      if (!content.semanticBaseText) content.semanticBaseText = String(base.sourceText ?? base.surfaceText ?? base.text ?? "");
-      const kind = String(base.kind ?? base.role ?? base.type ?? base.partType ?? "");
-      if (!content.semanticBaseKind && (kind === "base" || kind === "root")) content.semanticBaseKind = kind;
-      if (!content.baseMeaning) content.baseMeaning = String(base.gloss ?? base.meaning ?? "");
+    if (base?.text) {
+      content.semanticBaseText = base.text;
+      content.semanticBaseKind = base.kind;
     }
+    if (base?.meaning) content.baseMeaning = base.meaning;
     if ((!content.trueMorphologyProvenance || typeof content.trueMorphologyProvenance !== "object")
       && payload.canonicalMorphology.analysisStatus === "approved" && payload.canonicalMorphology.reviewNotes.trim()) {
       content.trueMorphologyProvenance = {
@@ -216,6 +242,8 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
   }
   if (route.routeId === "base_word_lab") {
     content.morphologyParts = parts;
+    if (base?.text) content.baseWord = base.text;
+    if (base?.meaning) content.baseMeaning = base.meaning;
   }
   return {
     ...route,

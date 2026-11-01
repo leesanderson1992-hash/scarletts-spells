@@ -23,6 +23,7 @@ import {
   routeContentsForSelectedSkills,
   routeForSkill,
   routeWithSharedFacts,
+  sharedRouteContentKeys,
   type WordDraftPayload,
   type RouteContentDraft,
 } from "@/lib/teaching-dictionary-manager/contracts";
@@ -1810,7 +1811,8 @@ export function WordWorkspace(props: {
           </div>
           {payload.routeContents.map((route) => <div key={route.microSkillKey}
             id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
-            <RouteFactsEditor name={name(route.microSkillKey)} content={route.content}
+            <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, payload).content}
+              sharedKeys={sharedRouteContentKeys(route.routeId, payload)}
               onChange={(content) => replaceRouteContent(route.microSkillKey, content)} />
           </div>)}
           <div id="td-source" className="grid gap-3 sm:grid-cols-3">

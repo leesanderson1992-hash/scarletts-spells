@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
-import { emptyMorphology, isStructurallyUsableWordDraftPayload, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults } from "../lib/teaching-dictionary-manager/contracts";
+import { emptyMorphology, isStructurallyUsableWordDraftPayload, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults, sharedRouteContentKeys } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { routeEditorPayload } from "../lib/teaching-dictionary-manager/route-editor-payload";
 import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
@@ -132,6 +132,18 @@ assert.equal(completedAbilityRoute.content.suffixVariant, "ity");
 assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
 assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");
 assert.equal(completedAbilityRoute.content.baseMeaning, "capable of doing something");
+const staleAbilityRoute = routeWithSharedFacts({ ...abilityRoute, content: { ...abilityRoute.content,
+  semanticBaseText: "old", semanticBaseKind: "root", baseMeaning: "old" } }, abilityPayload);
+assert.equal(staleAbilityRoute.content.semanticBaseText, "able");
+assert.equal(staleAbilityRoute.content.semanticBaseKind, "base");
+assert.equal(staleAbilityRoute.content.baseMeaning, "capable of doing something");
+assert.deepEqual(sharedRouteContentKeys("dynamic_affix_word_lab", abilityPayload),
+  ["semanticBaseText", "semanticBaseKind", "baseMeaning"]);
+const staleBaseRoute = routeWithSharedFacts({ ...baseRoute, content: { ...baseRoute.content,
+  baseWord: "old", baseMeaning: "old" } }, abilityPayload);
+assert.equal(staleBaseRoute.content.baseWord, "able");
+assert.equal(staleBaseRoute.content.baseMeaning, "capable of doing something");
+assert.deepEqual(sharedRouteContentKeys("base_word_lab", abilityPayload), ["baseWord", "baseMeaning"]);
 assert.equal(completedAbilityRoute.content.meaningBinKey, "state_or_quality");
 assert.deepEqual(completedAbilityRoute.content.trueMorphologyProvenance, {
   source: "approved canonical morphology", reviewNote: "Able changes to abil- before -ity.",

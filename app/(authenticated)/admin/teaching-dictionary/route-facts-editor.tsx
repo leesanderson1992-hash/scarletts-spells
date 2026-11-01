@@ -60,10 +60,11 @@ function ValueField({ name, value, onChange, depth = 0 }: {
     <input className={fieldClass} value={value ?? ""} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
-export function RouteFactsEditor({ name, content, onChange }: {
-  name: string; content: Record<string, unknown>; onChange: (content: Record<string, unknown>) => void;
+export function RouteFactsEditor({ name, content, sharedKeys = [], onChange }: {
+  name: string; content: Record<string, unknown>; sharedKeys?: readonly string[];
+  onChange: (content: Record<string, unknown>) => void;
 }) {
-  const shared = new Set(["trueMorphologyParts", "trueMorphologyJoins", "trueMorphologyTransformations", "morphologyParts"]);
+  const shared = new Set(["trueMorphologyParts", "trueMorphologyJoins", "trueMorphologyTransformations", "morphologyParts", ...sharedKeys]);
   const sharedFacts = Object.fromEntries(Object.entries(content).filter(([key]) => shared.has(key)));
   const facts = Object.fromEntries(Object.entries(content).filter(([key]) => !shared.has(key))) as { [key: string]: JsonValue };
   return <div className="grid gap-2"><p className="text-sm font-semibold">{name} · additional lesson facts</p>
