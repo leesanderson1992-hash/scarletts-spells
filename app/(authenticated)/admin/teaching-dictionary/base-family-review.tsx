@@ -194,7 +194,8 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
       <h3 className="font-semibold">Dictionary lexical family</h3>
       {lexicalFamilies.map((family) => {
         const member = lexicalMemberKeys.has(family.family_key);
-        const morphologyReady = lexicalMorphologyReady(familyMorphology, word.displayWord, family.base_lemma);
+        const morphologyReady = lexicalMorphologyReady(familyMorphology, word.displayWord, family.base_lemma,
+          family.base_kind === "bound_root" ? "bound_root" : "free_base");
         const legacyParts = Array.isArray(familyMorphology?.parts) && familyMorphology.parts.some((part) =>
           part && typeof part === "object" && !Array.isArray(part) && "type" in part && "text" in part);
         return <div key={family.family_key} className="grid gap-2 border-t border-[var(--border)] pt-2">
@@ -207,9 +208,7 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
               : <>The approved morphology does not yet provide an exact base and reconstructed spelling for this family.</>}
             {" "}Close this window, review the word parts in Overview, then return to approve the family membership.
           </p>}
-          {!member && family.review_status === "approved" && morphologyReady && family.base_kind === "bound_root" &&
-            <p>Root membership needs the reviewed root revision write path before it can be approved here.</p>}
-          {!member && family.review_status === "approved" && morphologyReady && family.base_kind === "free_base" && <form action={reviewLexicalFamilyMember} className="grid gap-2">
+          {!member && family.review_status === "approved" && morphologyReady && <form action={reviewLexicalFamilyMember} className="grid gap-2">
             <input type="hidden" name="word_id" value={word.id} />
             <input type="hidden" name="family_key" value={family.family_key} />
             <input type="hidden" name="expected_revision" value={family.revision} />

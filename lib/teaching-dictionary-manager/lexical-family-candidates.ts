@@ -25,6 +25,7 @@ export function lexicalMorphologyReady(
   morphology: Morphology | null,
   displayWord: string,
   baseLemma: string,
+  baseKind: "free_base" | "bound_root" = "free_base",
 ): boolean {
   if (morphology?.analysisStatus !== "approved" ||
       morphology.reviewStatus !== "approved_for_first_exposure" ||
@@ -36,6 +37,6 @@ export function lexicalMorphologyReady(
       typeof part.surfaceText === "string" && typeof part.sourceText === "string" &&
       typeof part.kind === "string") &&
     parts.map((part) => part.surfaceText).join("") === displayWord &&
-    parts.some((part) => ["base", "root"].includes(String(part.kind)) &&
+    parts.some((part) => part.kind === (baseKind === "bound_root" ? "root" : "base") &&
       normaliseWord(String(part.sourceText)) === baseLemma);
 }
