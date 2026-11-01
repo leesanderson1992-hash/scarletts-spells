@@ -117,3 +117,7 @@ families whose reviewed lemma contains those letters. The focused regression
 covers bound-root ranking, latest approved revisions, and the old family-key
 suffix false match. Staging still has no persistent approved bound-root family
 for a live browser search.
+The read-only Production database proof
+`prove-canonical-family-search-production-readonly.ts` confirms that an actual
+approved bound root is returned by the new lemma query and result projection.
+It neither changes Production nor proves the endpoint is live there.
