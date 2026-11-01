@@ -13,6 +13,7 @@ assert.equal(safe.convertedParts?.[1]?.displayRange.start, 6);
 assert.equal(canonicalPartsStatus(safe.convertedParts), "canonical");
 assert.equal(auditCanonicalMorphology({ ...input, linkedToFamily: true }).reason, "immutable_family_evidence");
 assert.equal(auditCanonicalMorphology({ ...input, parts: parts.map((part) => ({ ...part, text: part.surfaceText })) }).reason, "legacy_aliases");
+assert.equal(auditCanonicalMorphology({ ...input, parts: [{ ...parts[0], meaning: parts[0].gloss }, parts[1]] }).reason, "legacy_aliases");
 assert.equal(auditCanonicalMorphology({ ...input, parts: [{ ...parts[0], gloss: "" }, parts[1]] }).reason, "unreviewed_part_fact");
 assert.equal(auditCanonicalMorphology({ ...input, joins: [] }).reason, "join_count");
 assert.equal(auditCanonicalMorphology({ ...input, displayWord: "scrolls" }).reason, "surface_spelling");

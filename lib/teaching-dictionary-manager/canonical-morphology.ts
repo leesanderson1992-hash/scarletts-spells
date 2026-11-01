@@ -24,7 +24,7 @@ export function isCanonicalPart(value: unknown): value is CanonicalPart {
     typeof part.sourceText === "string" && Boolean(part.sourceText) &&
     typeof part.surfaceText === "string" && Boolean(part.surfaceText) &&
     typeof part.gloss === "string" && Boolean(part.gloss.trim()) &&
-    !["text", "type", "role", "partType", "start", "end"].some((key) => key in part) &&
+    !["text", "type", "role", "partType", "meaning", "start", "end"].some((key) => key in part) &&
     Number.isInteger(range?.start) && Number.isInteger(range?.end) &&
     Number(range?.start) >= 0 && Number(range?.end) >= Number(range?.start);
 }
@@ -48,7 +48,7 @@ export function auditCanonicalMorphology(input: {
   const records = parts as Record<string, unknown>[];
   if (records.some((part) => !part || typeof part !== "object" || Array.isArray(part)))
     return { status: "needs_review", reason: "part_shape" };
-  if (records.some((part) => ["text", "type", "role", "partType", "start", "end"].some((key) => key in part)))
+  if (records.some((part) => ["text", "type", "role", "partType", "meaning", "start", "end"].some((key) => key in part)))
     return { status: "needs_review", reason: "legacy_aliases" };
   if (records.some((part) => typeof part.id !== "string" || !part.id ||
     !["prefix", "base", "root", "suffix", "connector"].includes(String(part.kind)) ||
