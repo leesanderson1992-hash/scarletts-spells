@@ -32,7 +32,7 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   const page = Number.isSafeInteger(requested) ? Math.max(1, requested) : 1;
   const db = createServiceRoleClient();
   const words = await db.from("canonical_teaching_dictionary_words")
-    .select("id,display_word,row_status,review_status", { count: "exact" })
+    .select("id,display_word,row_status,review_status,age_band,frequency_band,complexity_band,source_name,source_use_note,source_category,source_licence,confidence", { count: "exact" })
     .eq("row_status", "active").order("id")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (words.error) throw new Error("DICTIONARY_FORMAT_REVIEW_WORD_READ_FAILED");
@@ -44,7 +44,7 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   if (morphology.error) throw new Error("DICTIONARY_FORMAT_REVIEW_READ_FAILED");
   const rows = morphology.data ?? [];
   const morphologyIds = rows.map((row) => row.id);
-  const [memberships, definitions, routes] = await Promise.all([
+  const [memberships, definitions, metadata, dictations, routes] = await Promise.all([
     morphologyIds.length ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
       .select("canonical_morphology_id").in("canonical_morphology_id", morphologyIds)
       : Promise.resolve({ data: [], error: null }),
@@ -52,12 +52,19 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       .select("canonical_word_id,definition").in("canonical_word_id", wordIds)
       .is("route_id", null).order("published_at", { ascending: false }).order("id", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
+    wordIds.length ? db.from("canonical_teaching_dictionary_word_metadata")
+      .select("canonical_word_id,syllables,phoneme_hint").in("canonical_word_id", wordIds)
+      .eq("row_status", "active") : Promise.resolve({ data: [], error: null }),
+    wordIds.length ? db.from("canonical_teaching_dictionary_dictation_sentences")
+      .select("canonical_word_id,dictation_sentence,dictation_target_token_index")
+      .in("canonical_word_id", wordIds).eq("row_status", "active")
+      : Promise.resolve({ data: [], error: null }),
     wordIds.length ? db.from("teaching_dictionary_route_content_versions")
       .select("id,canonical_word_id,route_id,route_version,micro_skill_key,content")
       .in("canonical_word_id", wordIds).order("published_at", { ascending: false }).order("id", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
   ]);
-  if (memberships.error || definitions.error || routes.error)
+  if (memberships.error || definitions.error || metadata.error || dictations.error || routes.error)
     throw new Error("DICTIONARY_FORMAT_REVIEW_LINK_READ_FAILED");
   const morphologyByWord = new Map(rows.map((row) => [row.canonical_word_id, row]));
   const linked = new Set((memberships.data ?? []).map((member) => member.canonical_morphology_id));
@@ -65,6 +72,30 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   for (const definition of definitions.data ?? [])
     if (!definitionByWord.has(definition.canonical_word_id))
       definitionByWord.set(definition.canonical_word_id, definition.definition);
+  const metadataByWord = new Map((metadata.data ?? []).map((row) => [row.canonical_word_id, row]));
+  const dictationByWord = new Map((dictations.data ?? []).map((row) => [row.canonical_word_id, row]));
+  const sharedIssues = new Map<string, { label: string; target: string }[]>();
+  for (const word of words.data ?? []) {
+    if (word.review_status !== "approved_for_first_exposure") continue;
+    const issues: { label: string; target: string }[] = [];
+    if (!definitionByWord.get(word.id)?.trim())
+      issues.push({ label: "Shared definition missing", target: "td-definition" });
+    const detail = metadataByWord.get(word.id);
+    if (!detail?.syllables?.trim() || !detail.phoneme_hint?.trim())
+      issues.push({ label: "Pronunciation or syllables missing", target: "td-syllables" });
+    const dictation = dictationByWord.get(word.id);
+    if (!dictation?.dictation_sentence?.trim() || dictation.dictation_target_token_index == null)
+      issues.push({ label: "Dictation sentence or target missing", target: "td-dictation" });
+    if (![word.age_band, word.frequency_band, word.complexity_band].every((item) =>
+      typeof item === "string" && item.trim()))
+      issues.push({ label: "Age, frequency or complexity band missing", target: "td-age-band" });
+    if (![word.source_name, word.source_use_note, word.source_category, word.confidence].every((item) =>
+      typeof item === "string" && item.trim()) ||
+      (["open_licensed", "licensed_vendor"].includes(word.source_category) &&
+        !word.source_licence?.trim()))
+      issues.push({ label: "Source or confidence missing", target: "td-source" });
+    if (issues.length) sharedIssues.set(word.id, issues);
+  }
   const latestRoute = new Set<string>();
   const routeConflicts = new Map<string, Set<string>>();
   for (const row of routes.data ?? []) {
@@ -91,7 +122,8 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   });
   const needsReview = reviewed.filter(({ audit, word }) =>
     (word.review_status === "approved_for_first_exposure" && !audit) ||
-    (audit !== null && audit.status !== "canonical") || routeConflicts.has(word.id));
+    (audit !== null && audit.status !== "canonical") || routeConflicts.has(word.id) ||
+    sharedIssues.has(word.id));
   const total = words.count ?? 0;
   const href = (next: number) => `/admin/teaching-dictionary/format-review?page=${next}`;
   return <main className="mx-auto grid max-w-5xl gap-6 p-6 text-[color:var(--ink)]">
@@ -104,6 +136,8 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       <ul className="grid gap-2">{needsReview.map(({ word, audit }) =>
         <li key={word.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border)] p-3 text-sm">
           <span><strong>{word.display_word}</strong><span className="ml-2 text-[color:var(--mid)]">{!audit ? explanation.missing_morphology : audit.status === "canonical" ? "" : explanation[audit.reason] ?? audit.reason}
+            {sharedIssues.has(word.id) && <span className="block text-amber-800">{sharedIssues.get(word.id)!.map((issue, index) =>
+              <span key={issue.target}>{index > 0 && " · "}<Link className="underline" href={`/admin/teaching-dictionary/${word.id}#${issue.target}`}>{issue.label}</Link></span>)}</span>}
             {routeConflicts.has(word.id) && <span className="block text-amber-800">Saved route {Array.from(routeConflicts.get(word.id)!).join(" and ")} differs from Overview</span>}</span></span>
           <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-canonical-parts`}>Review in Overview</Link>
         </li>)}</ul>

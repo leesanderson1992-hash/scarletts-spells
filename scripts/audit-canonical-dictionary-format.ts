@@ -15,8 +15,13 @@ const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: fal
 async function main() { try {
   await db.connect();
   const [result, routes] = await Promise.all([
-    db.query(`select w.id word_id,w.display_word,m.id morphology_id,m.morphology_parts parts,
-        m.morphology_joins joins,m.word_sum,
+    db.query(`select w.id word_id,w.display_word,w.normalised_word,w.review_status word_review_status,
+        w.age_band,w.frequency_band,w.complexity_band,w.source_name,w.source_use_note,
+        w.source_category,w.source_licence,w.confidence,
+        m.id morphology_id,m.analysis_status,m.review_status morphology_review_status,
+        m.morphology_parts parts,m.morphology_joins joins,m.word_sum,
+        md.id metadata_id,md.syllables,md.phoneme_hint,md.written_syllable_breakdown,
+        ds.id dictation_id,ds.dictation_sentence,ds.dictation_target_token_index,
         (select d.definition from public.teaching_dictionary_definition_versions d
           where d.canonical_word_id=w.id and d.route_id is null
           order by d.published_at desc,d.id desc limit 1) definition,
@@ -37,6 +42,14 @@ async function main() { try {
       from public.canonical_teaching_dictionary_words w
       left join public.canonical_teaching_dictionary_word_morphology m
         on m.canonical_word_id=w.id and m.row_status='active'
+      left join lateral (select id,syllables,phoneme_hint,written_syllable_breakdown
+        from public.canonical_teaching_dictionary_word_metadata
+        where canonical_word_id=w.id and row_status='active'
+        order by created_at desc,id desc limit 1) md on true
+      left join lateral (select id,dictation_sentence,dictation_target_token_index
+        from public.canonical_teaching_dictionary_dictation_sentences
+        where canonical_word_id=w.id and row_status='active'
+        order by created_at desc,id desc limit 1) ds on true
       where w.row_status='active'`),
     db.query(`select distinct on (r.canonical_word_id,r.route_id,r.micro_skill_key)
         r.canonical_word_id,r.route_id,r.route_version,r.micro_skill_key,r.content
@@ -48,8 +61,32 @@ async function main() { try {
   const byWord = new Map<string, { definition: string | null; wordSum: string | null }>();
   let missingMorphology = 0;
   let safeButGoverned = 0;
+  const sharedFacts = { approvedWords: 0, missingDefinition: 0, missingMetadata: 0,
+    missingSyllables: 0, missingPronunciationHint: 0, missingWrittenSyllableBreakdown: 0,
+    missingDictation: 0, missingDictationTarget: 0, missingBands: 0,
+    missingProvenance: 0, morphologyNotApproved: 0, linkedToLexicalFamily: 0 };
   for (const row of result.rows) {
     byWord.set(row.word_id, { definition: row.definition, wordSum: row.word_sum });
+    if (row.word_review_status === "approved_for_first_exposure") {
+      sharedFacts.approvedWords++;
+      if (!row.definition?.trim()) sharedFacts.missingDefinition++;
+      if (!row.metadata_id) sharedFacts.missingMetadata++;
+      if (!row.syllables?.trim()) sharedFacts.missingSyllables++;
+      if (!row.phoneme_hint?.trim()) sharedFacts.missingPronunciationHint++;
+      if (!row.written_syllable_breakdown?.trim()) sharedFacts.missingWrittenSyllableBreakdown++;
+      if (!row.dictation_id || !row.dictation_sentence?.trim()) sharedFacts.missingDictation++;
+      if (row.dictation_target_token_index == null) sharedFacts.missingDictationTarget++;
+      if (![row.age_band, row.frequency_band, row.complexity_band].every((item) =>
+        typeof item === "string" && item.trim())) sharedFacts.missingBands++;
+      if (![row.source_name, row.source_use_note, row.source_category, row.confidence].every((item) =>
+        typeof item === "string" && item.trim()) ||
+        (["open_licensed", "licensed_vendor"].includes(row.source_category) &&
+          !row.source_licence?.trim())) sharedFacts.missingProvenance++;
+      if (!row.morphology_id || row.analysis_status !== "approved" ||
+        row.morphology_review_status !== "approved_for_first_exposure")
+        sharedFacts.morphologyNotApproved++;
+      if (row.linked_to_family) sharedFacts.linkedToLexicalFamily++;
+    }
     if (!row.morphology_id) { missingMorphology++; continue; }
     const audit = auditCanonicalMorphology({ parts: row.parts, joins: row.joins,
       displayWord: row.display_word, linkedToFamily: row.linked_to_family });
@@ -72,6 +109,7 @@ async function main() { try {
   }
   console.log(JSON.stringify({ environment, activeWords: result.rows.length,
     activeMorphologyRows: result.rows.length - missingMorphology, missingMorphology,
+    sharedFacts,
     safeConversionBlockedByGovernedRoute: safeButGoverned,
     latestRouteVersions: routes.rows.length, routeMeaningConflicts, routeWordSumConflicts,
     routesWithoutSharedDefinition, routesWithoutSharedWordSum,

@@ -48,6 +48,8 @@ try {
   assert.match(await page.locator("main").last().innerText(), /entries to review on this page/);
   assert.match(await page.locator("main").last().innerText(), /Approved word has no morphology record/,
     "approved staging words without morphology appear in the review queue");
+  assert.ok(await page.locator('a[href*="#td-definition"]').count() > 0,
+    "approved staging words without a shared definition link to the Overview control");
 
   const dictionary = await page.goto(`${base}/admin/teaching-dictionary`, { waitUntil: "domcontentloaded" });
   assert.equal(dictionary?.status(), 200, "dictionary index loads for admin");
