@@ -61,6 +61,11 @@ try {
   assert.ok(Array.isArray(response.results), "family search returns structured results");
   assert.ok(response.results.some((item) => item.kind === "lexical" && item.baseKind === "free_base"),
     "approved free-base family is searchable");
+  const shortSearch = await context.request.get(`${base}/api/admin/teaching-dictionary/family-search?q=ba`);
+  assert.equal(shortSearch.status(), 200);
+  const shortResults = await shortSearch.json();
+  assert.ok(shortResults.results.every((item) => item.baseLemma.toLowerCase().includes("ba")),
+    "a short query cannot match only the common family-key suffix");
   if (rootQuery) {
     const root = await context.request.get(`${base}/api/admin/teaching-dictionary/family-search?q=${encodeURIComponent(rootQuery)}`);
     assert.equal(root.status(), 200, "bound-root family search loads for admin");

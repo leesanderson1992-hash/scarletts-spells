@@ -14,3 +14,7 @@
 | Lesson-only choices | Reviewed route content version | Route controls | Route-specific preflight | Compiled lesson JSON |
 
 Shared definition, word sum and true morphology are projected from Overview. Historical route copies are compatibility input only; conflicts require review rather than silent approval. Existing legacy morphology is readable but cannot be newly approved until the visual editor saves the canonical shape.
+
+Family search matches the reviewed base or root lemma. It ignores the common
+`_base_family` key suffix, shows only approved revisions, and ranks exact and
+prefix matches before other matches. Historical family links remain readable.
