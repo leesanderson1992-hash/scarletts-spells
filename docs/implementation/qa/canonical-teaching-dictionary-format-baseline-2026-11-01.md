@@ -89,3 +89,8 @@ for the staging-only `fixtureword001` without saving it. The Lesson checks
 table rendered an activity row and its readiness request completed. The word's
 facts are incomplete, so this proves the missing-requirement display path,
 not a passing ✓ or a generated lesson.
+
+The later Preview at commit `58bc6ce` passed the protected browser proof with
+the expanded queue. It displayed a missing-definition link to the Overview
+definition control and retained the earlier morphology, family-search, word
+page, and Lesson checks smoke checks. It made no dictionary mutations.
