@@ -32,3 +32,13 @@ classification and latest route-copy conflicts for each page of active morpholog
 The word link opens the visual Overview editor. The audit must be repeated after
 staging conversion and after Production release; a lower count alone is not proof
 that a word or lesson is correct.
+
+## Staging baseline
+
+The same read-only script with `.env.staging.local` and the `staging` argument
+found 747 active words, 307 active morphology rows, and 440 words without a
+morphology row. Of the existing morphology rows, 306 need reviewed part facts
+and one needs its joins reviewed. There are 23 latest saved route versions;
+none have a meaning or word-sum conflict with an available shared fact. One
+route lacks a shared definition, and 22 lack a shared word sum. Staging is not
+a copy of Production, so these counts are a separate comparison baseline.
