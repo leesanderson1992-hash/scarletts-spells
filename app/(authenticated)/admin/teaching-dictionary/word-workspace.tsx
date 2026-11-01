@@ -1975,7 +1975,9 @@ export function WordWorkspace(props: {
         {!props.draftId && props.currentMorphologyId && morphologyFormatAudit.status === "safe_range_conversion" &&
           <button type="button" className="mt-2 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
             onClick={() => change({ canonicalMorphology: { ...payload.canonicalMorphology,
-              parts: morphologyFormatAudit.convertedParts ?? payload.canonicalMorphology.parts } })}>
+              parts: morphologyFormatAudit.convertedParts ?? payload.canonicalMorphology.parts,
+              wordSum: generatedWordSum(morphologyFormatAudit.convertedParts ?? payload.canonicalMorphology.parts,
+                payload.displayWord) } })}>
             Fill exact display positions for review
           </button>}
         <div id="td-canonical-word-sum" className="mt-2 text-sm">

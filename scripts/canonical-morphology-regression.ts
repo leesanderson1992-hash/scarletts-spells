@@ -21,6 +21,9 @@ assert.equal(auditCanonicalMorphology({ ...input, joins: [] }).reason, "join_cou
 assert.equal(auditCanonicalMorphology({ ...input, displayWord: "scrolls" }).reason, "surface_spelling");
 assert.equal(auditCanonicalMorphology({ ...input, joins: [{ ...joins[0], beforePartId: "other" }] }).reason, "join_identity");
 assert.equal(auditCanonicalMorphology({ ...input, parts: safe.convertedParts }).status, "canonical");
+assert.equal(auditCanonicalMorphology({ ...input, parts: safe.convertedParts?.map((part) => ({
+  ...part, displayRange: { end: part.displayRange.end, start: part.displayRange.start },
+})) }).status, "canonical", "stored JSON key order does not invalidate display positions");
 assert.equal(auditCanonicalMorphology({ ...input, parts: [
   { ...safe.convertedParts![0], displayRange: { start: 1, end: 7 } }, safe.convertedParts![1],
 ] }).reason, "display_range");

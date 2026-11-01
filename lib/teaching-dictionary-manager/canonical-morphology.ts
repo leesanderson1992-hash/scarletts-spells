@@ -81,7 +81,11 @@ export function auditCanonicalMorphology(input: {
   if (surface !== displayWord) return { status: "conflict", reason: "surface_spelling" };
   const ranges = records.map((part) => part.displayRange);
   if (ranges.every((range) => range && typeof range === "object"))
-    return records.every((part, index) => JSON.stringify(part.displayRange) === JSON.stringify(converted[index]?.displayRange))
+    return records.every((part, index) => {
+      const range = part.displayRange as Record<string, unknown>;
+      const expected = converted[index]?.displayRange;
+      return expected && range.start === expected.start && range.end === expected.end;
+    })
       ? { status: "canonical", reason: "exact" }
       : { status: "conflict", reason: "display_range" };
   if (ranges.some((range) => range !== undefined))
