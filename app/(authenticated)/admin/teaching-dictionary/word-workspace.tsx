@@ -236,7 +236,7 @@ export function WordWorkspace(props: {
     choices: string[];
   }[];
   baseFamilies: Family[];
-  familyReviewContext: { error?: string; manualFamilyId?: string };
+  familyReviewContext: { error?: string };
   advanced: ReactNode;
   saved?: boolean;
   error?: string;
@@ -406,12 +406,12 @@ export function WordWorkspace(props: {
     }, 250);
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [familyOpen, familyQuery]);
-  async function showFamilyReview(manualFamilyId?: string, lexicalFamilyKey?: string, error?: string) {
+  async function showFamilyReview(lexicalFamilyKey?: string, error?: string) {
     if (!props.wordId) return;
     const version = ++familyLoadVersion.current;
     setFamilyLoading(true);
     try {
-      const review = await loadWordFamilyReview(props.wordId, manualFamilyId, error, lexicalFamilyKey);
+      const review = await loadWordFamilyReview(props.wordId, error, lexicalFamilyKey);
       if (version === familyLoadVersion.current) setFamilyReview(review);
     } catch {
       if (version === familyLoadVersion.current) setFamilyReview(<p role="alert">Family suggestions could not load. Close this window and reopen the page to try again.</p>);
@@ -422,8 +422,7 @@ export function WordWorkspace(props: {
   async function openFamily() {
     family.current?.showModal();
     setFamilyOpen(true);
-    if (!familyReview && !familyLoading) await showFamilyReview(props.familyReviewContext.manualFamilyId,
-      undefined, props.familyReviewContext.error);
+    if (!familyReview && !familyLoading) await showFamilyReview(undefined, props.familyReviewContext.error);
   }
   const formId = "word-workspace-save";
   function change(update: Partial<WordDraftPayload>) {
@@ -2244,7 +2243,7 @@ export function WordWorkspace(props: {
                     setFamilyMatches([]);
                     setFamilySearchBusy(false);
                     setFamilySearchLimited(false);
-                    void showFamilyReview(undefined, match.id);
+                    void showFamilyReview(match.id);
                   }}>
                   <strong>{match.name}</strong> · {match.baseKind === "bound_root" ? "root family" : "base family"}
                   {match.meaning ? ` · ${match.meaning}` : ""}

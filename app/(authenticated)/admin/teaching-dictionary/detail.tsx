@@ -520,7 +520,7 @@ export async function TeachingDictionaryDetail({
         affixMeanings={affixMeanings}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
-        familyReviewContext={{ error: params.family_error, manualFamilyId: params.manual_family }}
+        familyReviewContext={{ error: params.family_error }}
         overviewReviewed={
           publicationBlockers(initial, word?.normalised_word ?? draft?.normalised_word ?? "").length === 0 &&
           (activeDraft
