@@ -182,3 +182,6 @@ seven route meaning conflicts, and 22 route word-sum conflicts. The focused
 over stale route copies, derives a direct suffix candidate from those typed
 facts, and verifies the resulting compiled lesson JSON with the route's
 existing validator.
+The visual parts editor also normalises historical `partType: bound_root` to
+the selectable `root` role, so those queued entries can be reviewed without
+an empty role control; `canonical-morphology-regression.ts` covers this read.

@@ -29,15 +29,17 @@ function FieldTitle({ label, helpKey = label }: { label: string; helpKey?: strin
   </span>;
 }
 
-function asParts(value: unknown): EditablePart[] {
-  return Array.isArray(value) ? value.filter((item): item is EditablePart => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map((part) => ({
-    ...part,
-    surfaceText: String(part.surfaceText ?? part.text ?? ""),
-    sourceText: String(part.sourceText ?? part.surfaceText ?? part.text ?? ""),
-    kind: ["free_base", "bound_base"].includes(String(part.kind ?? part.role ?? part.type))
-      ? String(part.kind ?? part.role ?? part.type) === "bound_base" ? "root" : "base" : String(part.kind ?? part.role ?? part.type ?? "base"),
-    gloss: String(part.gloss ?? part.meaning ?? ""),
-  })) : [];
+export function asParts(value: unknown): EditablePart[] {
+  return Array.isArray(value) ? value.filter((item): item is EditablePart => Boolean(item) && typeof item === "object" && !Array.isArray(item)).map((part) => {
+    const legacyKind = String(part.kind ?? part.role ?? part.type ?? part.partType ?? "base");
+    return {
+      ...part,
+      surfaceText: String(part.surfaceText ?? part.text ?? ""),
+      sourceText: String(part.sourceText ?? part.surfaceText ?? part.text ?? ""),
+      kind: legacyKind === "free_base" ? "base" : ["bound_base", "bound_root"].includes(legacyKind) ? "root" : legacyKind,
+      gloss: String(part.gloss ?? part.meaning ?? ""),
+    };
+  }) : [];
 }
 
 function asJoins(value: unknown): EditableJoin[] {

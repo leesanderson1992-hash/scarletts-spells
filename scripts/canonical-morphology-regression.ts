@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { auditCanonicalMorphology, canonicalPartsStatus } from "../lib/teaching-dictionary-manager/canonical-morphology";
 import { emptyMorphology } from "../lib/teaching-dictionary-manager/contracts";
 import { changesMorphologyForPublication } from "../lib/teaching-dictionary-manager/morphology-publication";
+import { asParts } from "../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor";
 
 const parts = [
   { id: "base", kind: "base", sourceText: "scroll", surfaceText: "scroll", gloss: "move across a screen" },
@@ -39,4 +40,11 @@ assert.equal(changesMorphologyForPublication(historical, null), true);
 assert.equal(changesMorphologyForPublication({ ...historical, parts: [{ ...historical.parts[0], gloss: "move" }] }, active), true);
 assert.equal(changesMorphologyForPublication({ ...historical, wordSum: "changed" }, active), true);
 assert.equal(changesMorphologyForPublication({ ...historical, analysisStatus: "in_review" }, active), true);
+assert.deepEqual(asParts([
+  { id: "root", text: "act", partType: "bound_root", meaning: "to do" },
+  { id: "suffix", text: "ion", role: "suffix", meaning: "an action" },
+]).map(({ kind, surfaceText, sourceText, gloss }) => ({ kind, surfaceText, sourceText, gloss })), [
+  { kind: "root", surfaceText: "act", sourceText: "act", gloss: "to do" },
+  { kind: "suffix", surfaceText: "ion", sourceText: "ion", gloss: "an action" },
+], "historical partType and bound-root values remain editable in the visual control");
 console.log("Canonical morphology audit regression passed.");
