@@ -65,3 +65,10 @@ The installed staging family functions also passed the transaction-rolled-back
 `prove-lexical-free-base-creation-staging.mjs` proof: creating a standalone
 `plate` family and a `kid`/`kids` family produced the expected reviewed
 memberships, and duplicate creation was rejected. No fixture was committed.
+
+`prove-lexical-bound-root-join-staging.mjs` also passed using transaction-only
+`act` and `action` morphology fixtures. A reviewed bound-root family gained a
+second approved revision with both members and copied root metadata. A mismatched
+root source was rejected before approval. The entire fixture was rolled back;
+the staging catalog still has no persisted approved bound-root family for a
+browser search proof.
