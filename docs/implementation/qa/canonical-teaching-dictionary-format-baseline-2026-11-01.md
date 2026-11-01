@@ -42,3 +42,15 @@ and one needs its joins reviewed. There are 23 latest saved route versions;
 none have a meaning or word-sum conflict with an available shared fact. One
 route lacks a shared definition, and 22 lack a shared word sum. Staging is not
 a copy of Production, so these counts are a separate comparison baseline.
+
+## Staging Preview smoke proof
+
+The protected staging Preview at commit `16808c8` passed
+`scripts/prove-canonical-dictionary-preview.mjs` after the staging-only
+family registry and written-vowel review prerequisites were installed. The
+read-only browser proof signed in as the staging admin and loaded the format
+review queue, dictionary index, `plate` Overview, and the approved free-base
+family search API. It made no dictionary mutations. This staging dataset has
+no approved bound-root family, so bound-root search remains unproved by this
+browser check. The Preview does not include later source commits and is not a
+Production release candidate.
