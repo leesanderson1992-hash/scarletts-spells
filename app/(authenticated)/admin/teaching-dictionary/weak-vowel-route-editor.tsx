@@ -47,8 +47,9 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
   const change = (patch: Partial<WeakVowelRouteFactsV1>) => onChange({ ...current, ...patch });
   const label = (title: string, id: string, value: string, update: (value: string) => void, hint?: string) =>
     <label className="block min-w-0 text-sm" htmlFor={id}>
-      <span className="font-medium">{title}</span>
-      <FormatHint label={title} format={textGuidance[title]?.format ?? "Enter the reviewed route fact."} example={textGuidance[title]?.example ?? "A reviewed value"} />
+      <span className="inline-flex max-w-full items-center gap-1"><span className="font-medium">{title}</span>
+        <FormatHint label={title} format={textGuidance[title]?.format ?? "Enter the reviewed route fact."} example={textGuidance[title]?.example ?? "A reviewed value"} />
+      </span>
       {hint && <span className="ml-1 text-xs text-[var(--mid)]">{hint}</span>}
       <input id={id} className={`${field} mt-1`} value={value} onChange={event => update(event.target.value)} />
     </label>;

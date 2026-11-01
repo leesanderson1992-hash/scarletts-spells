@@ -93,6 +93,29 @@ try {
       elements.map((element) => element.value));
     for (const choice of choices) assert.ok(values.includes(choice), `${label} offers ${choice}`);
   }
+  const helpInHeading = async (label) => {
+    const help = page.locator(`[aria-label^="How to fill ${label}."]`);
+    assert.equal(await help.count(), 1, `${label} has one accessible help control`);
+    assert.equal(await help.locator('[role="tooltip"]').count(), 1);
+    const aligned = await help.evaluate((element) => {
+      const heading = element.parentElement;
+      const text = [...(heading?.childNodes ?? [])].find((node) =>
+        node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+      if (!text) return false;
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const textBox = range.getBoundingClientRect();
+      const iconBox = element.getBoundingClientRect();
+      return Math.abs(textBox.top - iconBox.top) < 12 && iconBox.left >= textBox.left;
+    });
+    assert.equal(aligned, true, `${label} help sits beside its heading`);
+  };
+  await page.getByRole("button", { name: "Edit word parts" }).click();
+  await helpInHeading("written syllable breakdown");
+  await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+  await page.getByRole("button", { name: "Review family suggestions" }).click();
+  await helpInHeading("family search");
+  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
   const routeWord = await page.goto(`${base}/admin/teaching-dictionary/17a844e3-133b-408b-a90f-8235fcd8c7eb`,
     { waitUntil: "domcontentloaded" });
   assert.equal(routeWord?.status(), 200, "word with a saved route loads");

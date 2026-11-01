@@ -40,6 +40,12 @@ function Help({ name, value }: { name: string; value?: JsonValue }) {
   </span>;
 }
 
+function FieldHeading({ title, name, value }: { title: string; name: string; value?: JsonValue }) {
+  return <span className="inline-flex max-w-full items-center gap-1">
+    <span>{title}</span><Help name={name} value={value} />
+  </span>;
+}
+
 function ValueField({ name, value, onChange, choices, depth = 0 }: {
   name: string; value: JsonValue; onChange: (value: JsonValue) => void;
   choices: FieldChoices; depth?: number;
@@ -49,7 +55,7 @@ function ValueField({ name, value, onChange, choices, depth = 0 }: {
   const title = name.replace(/([a-z])([A-Z])/g, "$1 $2").replaceAll("_", " ");
   if (depth > 8) return <p className="text-xs text-amber-900">This fact is too deeply nested to edit here.</p>;
   if (Array.isArray(value)) return <fieldset className="grid gap-2 rounded border p-2">
-    <legend className="text-sm font-semibold">{title} <Help name={name} value={value} /></legend>
+    <legend className="text-sm font-semibold"><FieldHeading title={title} name={name} value={value} /></legend>
     {value.map((item, index) => <div key={index} className="grid gap-1 border-b pb-2">
       <ValueField name={`${title} ${index + 1}`} value={item} choices={choices} depth={depth + 1}
         onChange={(next) => onChange(value.map((old, at) => at === index ? next : old))} />
@@ -62,14 +68,14 @@ function ValueField({ name, value, onChange, choices, depth = 0 }: {
     </div>
   </fieldset>;
   if (value && typeof value === "object") return <fieldset className="grid gap-2 rounded border p-2">
-    <legend className="text-sm font-semibold">{title} <Help name={name} value={value} /></legend>
+    <legend className="text-sm font-semibold"><FieldHeading title={title} name={name} value={value} /></legend>
     {Object.entries(value).map(([key, item]) => <div key={key} className="grid gap-1">
       <ValueField name={key} value={item} choices={choices} depth={depth + 1} onChange={(next) => onChange({ ...value, [key]: next })} />
       <button type="button" className="w-fit text-xs underline" onClick={() => { const next = { ...value }; delete next[key]; onChange(next); }}>Remove {key}</button>
     </div>)}
     <div className="flex flex-wrap items-end gap-2">
-      <label className={labelClass}>New fact name <Help name="new fact name" value="" /><input className={fieldClass} value={newKey} onChange={(event) => setNewKey(event.target.value)} /></label>
-      <label className={labelClass}>Format <Help name="fact format" value="" /><select className={fieldClass} value={newType}
+      <label className={labelClass}><FieldHeading title="New fact name" name="new fact name" value="" /><input className={fieldClass} value={newKey} onChange={(event) => setNewKey(event.target.value)} /></label>
+      <label className={labelClass}><FieldHeading title="Format" name="fact format" value="" /><select className={fieldClass} value={newType}
         onChange={(event) => setNewType(event.target.value as typeof newType)}>
         <option value="text">Text</option><option value="number">Number</option><option value="yes_no">Yes or no</option>
         <option value="list">List</option><option value="group">Group of fields</option></select></label>
@@ -78,19 +84,19 @@ function ValueField({ name, value, onChange, choices, depth = 0 }: {
           newType === "list" ? [] : newType === "group" ? {} : "" }); setNewKey(""); }}>Add fact</button>
     </div>
   </fieldset>;
-  if (typeof value === "boolean") return <label className={labelClass}>{title} <Help name={name} value={value} />
+  if (typeof value === "boolean") return <label className={labelClass}><FieldHeading title={title} name={name} value={value} />
     <select className={fieldClass} value={value ? "yes" : "no"} onChange={(event) => onChange(event.target.value === "yes")}
       ><option value="yes">Yes</option><option value="no">No</option></select></label>;
-  if (typeof value === "number") return <label className={labelClass}>{title} <Help name={name} value={value} />
+  if (typeof value === "number") return <label className={labelClass}><FieldHeading title={title} name={name} value={value} />
     <input className={fieldClass} type="number" value={value} onChange={(event) => onChange(Number(event.target.value))} /></label>;
   const options = choices[name];
-  if (options?.length) return <label className={labelClass}>{title} <Help name={name} value={value} />
+  if (options?.length) return <label className={labelClass}><FieldHeading title={title} name={name} value={value} />
     <select className={fieldClass} value={String(value ?? "")} onChange={(event) => onChange(event.target.value)}>
       <option value="">Select reviewed choice</option>
       {[...new Set([String(value ?? ""), ...options])].filter(Boolean).map((option) =>
         <option key={option} value={option}>{option}</option>)}
     </select></label>;
-  return <label className={labelClass}>{title} <Help name={name} value={value} />
+  return <label className={labelClass}><FieldHeading title={title} name={name} value={value} />
     <input className={fieldClass} value={value ?? ""} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 

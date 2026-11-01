@@ -2292,8 +2292,10 @@ export function WordWorkspace(props: {
         className="w-[min(850px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
       >
         <div className="mb-4 grid gap-2 rounded border border-[var(--border)] p-3">
-          <label className="grid gap-1 text-sm font-semibold" htmlFor="family-search">Find an existing word family
-            <FormatHint label="family search" format="Search by the approved free base or bound root spelling." example="scroll" />
+          <label className="grid gap-1 text-sm font-semibold" htmlFor="family-search">
+            <span className="inline-flex items-center gap-1">Find an existing word family
+              <FormatHint label="family search" format="Search by the approved free base or bound root spelling." example="scroll" />
+            </span>
             <input id="family-search" type="search" autoComplete="off" value={familyQuery}
               onChange={event => {
                 const value = event.target.value;

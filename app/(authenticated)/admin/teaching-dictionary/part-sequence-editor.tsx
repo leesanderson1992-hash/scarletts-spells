@@ -18,7 +18,7 @@ function FieldTitle({ label, helpKey = label }: { label: string; helpKey?: strin
     format: "Enter the reviewed teaching fact in plain language.",
     example: "Use the wording or option that should be shown in the lesson.",
   };
-  return <span className="flex flex-wrap items-center gap-2">
+  return <span className="inline-flex max-w-full items-center gap-2">
     <span>{label}</span>
     <span className="group relative inline-block font-normal" tabIndex={0} aria-label={`How to fill ${label}: ${guidance.format} Example: ${guidance.example}`}>
       <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--border)] text-xs font-bold text-[color:var(--scarlett)]">i</span>
