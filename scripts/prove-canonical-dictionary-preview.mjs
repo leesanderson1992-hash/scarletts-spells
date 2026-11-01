@@ -72,9 +72,26 @@ try {
   assert.equal(await page.locator("h1").filter({ hasText: /^plate$/i }).count(), 1,
     `word heading: ${JSON.stringify(await page.locator("h1").allTextContents())}`);
   assert.equal(await page.getByText("1 · Overview", { exact: false }).count() > 0, true);
+  const routeWord = await page.goto(`${base}/admin/teaching-dictionary/17a844e3-133b-408b-a90f-8235fcd8c7eb`,
+    { waitUntil: "domcontentloaded" });
+  assert.equal(routeWord?.status(), 200, "word with a saved route loads");
+  assert.equal(await page.locator("h1").filter({ hasText: /^fixtureword001$/i }).count(), 1);
+  await page.locator("#td-skills select").selectOption("D4_MOR_PREFIXES_UN");
+  await page.getByRole("button", { name: "Add micro-skill" }).click();
+  const checks = page.locator("#td-lesson-checks");
+  assert.equal(await checks.count(), 1,
+    `Lesson checks remains in the word workspace; summaries=${JSON.stringify(await page.locator("summary").allTextContents())}`);
+  await page.waitForFunction(() => {
+    const text = document.querySelector("#td-lesson-checks")?.textContent ?? "";
+    return !text.includes("Checking complete lesson groups") ||
+      text.includes("Lesson checks could not load");
+  }, undefined, { timeout: 20_000 });
+  assert.doesNotMatch(await checks.innerText(), /Lesson checks could not load/);
+  assert.ok(await checks.locator("table tbody tr").count() > 0,
+    "Lesson checks has an activity row for the selected micro-skill");
   console.log(JSON.stringify({ result: "passed", preview: base, formatQueue: true,
     dictionaryIndex: true, freeBaseSearch: true, boundRootSearch: Boolean(rootQuery),
-    wordOverview: true, mutations: 0 }));
+    wordOverview: true, lessonChecks: true, mutations: 0 }));
 } finally {
   await browser.close();
 }

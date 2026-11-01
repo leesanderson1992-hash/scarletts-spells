@@ -72,3 +72,9 @@ second approved revision with both members and copied root metadata. A mismatche
 root source was rejected before approval. The entire fixture was rolled back;
 the staging catalog still has no persisted approved bound-root family for a
 browser search proof.
+
+The protected Preview browser proof also selected the active prefix micro-skill
+for the staging-only `fixtureword001` without saving it. The Lesson checks
+table rendered an activity row and its readiness request completed. The word's
+facts are incomplete, so this proves the missing-requirement display path,
+not a passing ✓ or a generated lesson.
