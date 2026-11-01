@@ -33,6 +33,8 @@ import { CreateChildForm } from "./create-child-form";
 import { TodaysAdleSection, type TodayAdleChildRow } from "./todays-adle-section";
 import { loadParentAdleTodayStatuses } from "@/lib/adle/today-assignment-service";
 import { ParentDashboard } from "./parent-dashboard";
+import { ContextRenewalPrompt } from "./context-renewal-prompt";
+import { loadParentContextRenewal } from "@/lib/writing-engine/whole-writing/parent-context-renewal";
 import type { DedicationPeriod } from "@/lib/dashboard/dedication";
 
 type DashboardPageProps = {
@@ -41,6 +43,8 @@ type DashboardPageProps = {
     mode?: string;
     scope?: string;
     period?: string;
+    context_error?: string;
+    context_renewed?: string;
   }>;
 };
 
@@ -331,6 +335,10 @@ export default async function DashboardPage({
     activeChildren.length > 0 ? selectedChild ?? activeChildren[0] : null;
 
   if (resolvedSearchParams?.mode !== "child") {
+    const contextRenewal = activeScopedChild
+      ? await loadParentContextRenewal({ childId: activeScopedChild.id, parentUserId: user.id })
+        .catch((error) => { console.error("[parent-context-renewal] status unavailable", error); return null; })
+      : null;
     const rawName = user.user_metadata?.full_name ?? user.user_metadata?.first_name;
     const parentName = typeof rawName === "string" && rawName.trim()
       ? rawName.trim().split(/\s+/)[0] : "Parent";
@@ -339,6 +347,14 @@ export default async function DashboardPage({
       resolvedSearchParams?.period === "six-months" ? resolvedSearchParams.period : "week";
     return <AppShell currentPath="/dashboard" mode="parent" activeChildId={activeScopedChild?.id ?? null}
       availableChildren={activeChildren} userEmail={user.email} showAdminNav={showAdminNav}>
+      {contextRenewal && activeScopedChild && <ContextRenewalPrompt
+        childId={activeScopedChild.id}
+        childName={activeScopedChild.first_name}
+        expired={contextRenewal.expired}
+        error={resolvedSearchParams?.context_error === "renewal_unavailable"} />}
+      {resolvedSearchParams?.context_renewed === "1" && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
+        Your writing context choice was recorded for 30 days.
+      </p>}
       <ParentDashboard parentId={user.id} parentName={parentName} childOptions={activeChildren}
         selectedChildId={activeScopedChild?.id ?? null} allChildren={resolvedSearchParams?.scope === "all"} period={period} />
     </AppShell>;
