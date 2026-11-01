@@ -121,3 +121,13 @@ The read-only Production database proof
 `prove-canonical-family-search-production-readonly.ts` confirms that an actual
 approved bound root is returned by the new lemma query and result projection.
 It neither changes Production nor proves the endpoint is live there.
+
+## Migration version collision resolved
+
+The first staging family install used version `20261101170000`, which Production
+already records for `parent_context_bulk_decisions`. Before any Production
+family migration, the two candidate files were renumbered to `20261101210000`
+and `20261101211000`. The staging ledger was corrected only after checking its
+stored SQL against the exact renamed files, first in a rollback proof and then
+in an applied transaction. The free-base and bound-root transaction proofs
+passed again after the correction. Production family schema remains unchanged.

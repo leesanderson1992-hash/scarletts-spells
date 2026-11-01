@@ -11,8 +11,8 @@ if (!url || !ref || !new URL(url).username.endsWith(ref) ||
   throw new Error("CANONICAL_FAMILY_STAGING_TARGET_MISMATCH");
 const apply = process.argv.includes("--apply");
 const files = [
-  ["20261101170000", "review_lexical_root_family_member_revision"],
-  ["20261101180000", "create_reviewed_lexical_free_base_family"],
+  ["20261101210000", "review_lexical_root_family_member_revision"],
+  ["20261101211000", "create_reviewed_lexical_free_base_family"],
 ];
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10_000 });
 await db.connect();

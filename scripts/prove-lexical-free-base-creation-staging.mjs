@@ -9,8 +9,8 @@ if (!url || new URL(url).username.split(".").at(-1) !== "qkpjbajicacbrphthibk")
   throw new Error("STAGING_DATABASE_REQUIRED");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10000 });
 const migrationNames = [
-  "20261101170000_review_lexical_root_family_member_revision.sql",
-  "20261101180000_create_reviewed_lexical_free_base_family.sql",
+  "20261101210000_review_lexical_root_family_member_revision.sql",
+  "20261101211000_create_reviewed_lexical_free_base_family.sql",
 ];
 const proof = async (name, args, expectedMembers) => {
   await db.query("savepoint scenario");
