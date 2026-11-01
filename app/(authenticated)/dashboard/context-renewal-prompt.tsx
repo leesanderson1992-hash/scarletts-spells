@@ -18,7 +18,7 @@ export function ContextRenewalPrompt({ renewals, error }: {
   if (!open) return null;
   const close = () => dialogRef.current?.close();
   return <dialog ref={dialogRef} onClose={() => setOpen(false)} aria-labelledby="context-renewal-title"
-      className="brand-card m-auto w-[min(36rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-6 shadow-2xl backdrop:bg-[#1d1640]/55">
+      className="brand-card m-auto w-[min(36rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-4 shadow-2xl backdrop:bg-[#1d1640]/55 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="brand-eyebrow">Parent choice</p>
@@ -40,25 +40,25 @@ export function ContextRenewalPrompt({ renewals, error }: {
       {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-800">
         We could not record your choice. Please try again or contact support.
       </p>}
-      <div className="mt-5 max-h-64 overflow-auto rounded-2xl border border-[#d8c8f4] bg-white">
-        <table className="w-full min-w-[27rem] border-collapse text-left text-sm">
-          <thead className="sticky top-0 bg-[#f3eaff] text-[#3a285e]">
+      <div className="mt-4 rounded-2xl border border-[#d8c8f4] bg-white">
+        <table className="w-full table-fixed border-collapse text-left text-xs sm:text-sm">
+          <thead className="bg-[#f3eaff] text-[#3a285e]">
             <tr>
-              <th scope="col" className="px-4 py-3 font-semibold">Profile</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Action</th>
+              <th scope="col" className="w-[32%] px-2 py-2 font-semibold sm:px-3">Profile</th>
+              <th scope="col" className="w-[36%] px-2 py-2 font-semibold sm:px-3">Status</th>
+              <th scope="col" className="w-[32%] px-2 py-2 font-semibold sm:px-3">Action</th>
             </tr>
           </thead>
           <tbody>
             {renewals.map(({ childId, childName, status }) => <tr key={childId} className="border-t border-[#e7dcf7]">
-              <th scope="row" className="px-4 py-3 font-semibold text-[#3a285e]">{childName}</th>
-              <td className="px-4 py-3 text-[#5a4a76]">
+              <th scope="row" className="break-words px-2 py-2 font-semibold text-[#3a285e] sm:px-3">{childName}</th>
+              <td className="break-words px-2 py-2 text-[#5a4a76] sm:px-3">
                 {status === "not_authorised" ? "Not authorised" : status === "expired" ? "Expired" : "Expiring soon"}
               </td>
-              <td className="px-4 py-3">
+              <td className="px-2 py-2 sm:px-3">
                 <form action={renewParentWritingContextAuthorisation}>
                   <input type="hidden" name="child_id" value={childId} />
-                  <button type="submit" className="brand-primary-btn" aria-label={`${status === "not_authorised" ? "Authorise" : "Renew"} writing context checking for ${childName}`}>
+                  <button type="submit" className="brand-primary-btn min-h-9 px-2 text-xs sm:px-3 sm:text-sm" aria-label={`${status === "not_authorised" ? "Authorise" : "Renew"} writing context checking for ${childName}`}>
                     {status === "not_authorised" ? "Authorise" : "Renew"}
                   </button>
                 </form>
