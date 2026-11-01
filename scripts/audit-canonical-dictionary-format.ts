@@ -1,7 +1,7 @@
 /** Read-only active-word format audit. Never prints child evidence or DB credentials. */
 import pg from "pg";
 import { auditCanonicalMorphology } from "../lib/teaching-dictionary-manager/canonical-morphology";
-import { routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
+import { DICTIONARY_BANDS, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
 
 const environment = process.argv[2];
 if (environment !== "production" && environment !== "staging")
@@ -64,6 +64,7 @@ async function main() { try {
   const sharedFacts = { approvedWords: 0, missingDefinition: 0, missingMetadata: 0,
     missingSyllables: 0, missingPronunciationHint: 0, missingWrittenSyllableBreakdown: 0,
     missingDictation: 0, missingDictationTarget: 0, missingBands: 0,
+    nonCanonicalBands: 0,
     missingProvenance: 0, morphologyNotApproved: 0, linkedToLexicalFamily: 0 };
   for (const row of result.rows) {
     byWord.set(row.word_id, { definition: row.definition, wordSum: row.word_sum });
@@ -78,6 +79,10 @@ async function main() { try {
       if (row.dictation_target_token_index == null) sharedFacts.missingDictationTarget++;
       if (![row.age_band, row.frequency_band, row.complexity_band].every((item) =>
         typeof item === "string" && item.trim())) sharedFacts.missingBands++;
+      else if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(row.age_band) ||
+        !(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(row.frequency_band) ||
+        !(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(row.complexity_band))
+        sharedFacts.nonCanonicalBands++;
       if (![row.source_name, row.source_use_note, row.source_category, row.confidence].every((item) =>
         typeof item === "string" && item.trim()) ||
         (["open_licensed", "licensed_vendor"].includes(row.source_category) &&

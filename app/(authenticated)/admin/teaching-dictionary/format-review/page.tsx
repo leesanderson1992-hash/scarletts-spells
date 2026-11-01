@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { auditCanonicalMorphology } from "@/lib/teaching-dictionary-manager/canonical-morphology";
-import { routeContentFromStoredRow } from "@/lib/teaching-dictionary-manager/contracts";
+import { DICTIONARY_BANDS, routeContentFromStoredRow } from "@/lib/teaching-dictionary-manager/contracts";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 100;
@@ -86,9 +86,13 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
     const dictation = dictationByWord.get(word.id);
     if (!dictation?.dictation_sentence?.trim() || dictation.dictation_target_token_index == null)
       issues.push({ label: "Dictation sentence or target missing", target: "td-dictation" });
-    if (![word.age_band, word.frequency_band, word.complexity_band].every((item) =>
-      typeof item === "string" && item.trim()))
+    const bands = [word.age_band, word.frequency_band, word.complexity_band];
+    if (!bands.every((item) => typeof item === "string" && item.trim()))
       issues.push({ label: "Age, frequency or complexity band missing", target: "td-age-band" });
+    else if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(word.age_band) ||
+      !(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(word.frequency_band) ||
+      !(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(word.complexity_band))
+      issues.push({ label: "Age, frequency or complexity band needs review", target: "td-age-band" });
     if (![word.source_name, word.source_use_note, word.source_category, word.confidence].every((item) =>
       typeof item === "string" && item.trim()) ||
       (["open_licensed", "licensed_vendor"].includes(word.source_category) &&

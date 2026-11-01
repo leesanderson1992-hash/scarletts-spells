@@ -19,6 +19,7 @@ import { loadWordFamilyReview } from "./family-review-loader";
 import { activityVariantsForRoute } from "@/lib/adle/composable-lesson/activity-variants";
 import { ACTIVITY_LABELS } from "@/lib/teaching-dictionary-manager/activity-matrix";
 import {
+  DICTIONARY_BANDS,
   publicationBlockers,
   routeContentsForSelectedSkills,
   routeForSkill,
@@ -1797,6 +1798,12 @@ export function WordWorkspace(props: {
                 id={`td-${key.replace("Band", "-band")}`}
                 label={label}
                 value={payload[key]}
+                options={[
+                  ...(!(DICTIONARY_BANDS[key] as readonly string[]).includes(payload[key]) && payload[key]
+                    ? [{ value: payload[key], label: `${payload[key]} · needs review` }] : []),
+                  ...DICTIONARY_BANDS[key].map((band) => ({ value: band,
+                    label: band.replaceAll("_", " ") })),
+                ]}
                 onChange={(value) => change({ [key]: value })}
               />
             ))}

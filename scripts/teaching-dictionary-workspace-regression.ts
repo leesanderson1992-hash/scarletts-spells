@@ -49,7 +49,7 @@ for (const activities of [{ introduction: { prompt: "Welcome" }, reflection: { p
 assert.equal(lessonActivityQuestion({kind:"reflection",route:{} as Parameters<typeof lessonActivityQuestion>[0]["route"],word:"word",wordId:null,compiled:{activities:[{canonical:{concept:"LESSON_REFLECTION"},payload:{prompt:"What changed?"}}]},sources:[]}),"What changed?");
 console.log("PASS: activity questions support native object and flat activity array snapshots");
 
-const incompleteOverview:WordDraftPayload={displayWord:"word",definition:"a unit of language",dictationSentence:"Say a word.",dictationTargetTokenIndex:2,writtenSyllableBreakdown:"word",ageBand:"middle_primary",frequencyBand:"common",complexityBand:"simple",metadata:emptyMetadata(),canonicalMorphology:emptyMorphology(),provenance:{sourceCategory:"internal_authored",sourceName:"test",sourceUrl:"",sourceLicence:"",sourceUseNote:"test",confidence:"high"},skillKeys:[],routeContents:[]};
+const incompleteOverview:WordDraftPayload={displayWord:"word",definition:"a unit of language",dictationSentence:"Say a word.",dictationTargetTokenIndex:2,writtenSyllableBreakdown:"word",ageBand:"middle_primary",frequencyBand:"medium",complexityBand:"low",metadata:emptyMetadata(),canonicalMorphology:emptyMorphology(),provenance:{sourceCategory:"internal_authored",sourceName:"test",sourceUrl:"",sourceLicence:"",sourceUseNote:"test",confidence:"high"},skillKeys:[],routeContents:[]};
 assert(publicationBlockers(incompleteOverview,"word").includes("Review the canonical morphology parts."));
 assert(publicationBlockers(incompleteOverview,"word").includes("Add the word's part of speech."));
 assert(publicationBlockers(incompleteOverview,"word",{requireCanonicalParts:true})
@@ -60,6 +60,10 @@ assert(publicationBlockers(completeOverview,"word",{requireCanonicalParts:true})
 const canonicalOverview={...completeOverview,canonicalMorphology:{...completeOverview.canonicalMorphology,
   parts:[{...completeOverview.canonicalMorphology.parts[0],displayRange:{start:0,end:4}}]}};
 assert.deepEqual(publicationBlockers(canonicalOverview,"word",{requireCanonicalParts:true}),[]);
+assert(publicationBlockers({...canonicalOverview,frequencyBand:"common"},"word",{requireCanonicalParts:true})
+  .some(message=>message.includes("reviewed frequency band")));
+assert(publicationBlockers({...canonicalOverview,complexityBand:"in_review"},"word",{requireCanonicalParts:true})
+  .some(message=>message.includes("reviewed complexity band")));
 assert(publicationBlockers({...canonicalOverview,canonicalMorphology:{...canonicalOverview.canonicalMorphology,
   wordSum:"word + s → words"}},"word",{requireCanonicalParts:true})
   .some(message=>message.includes("word sum must match")));

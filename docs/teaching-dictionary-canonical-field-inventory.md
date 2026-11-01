@@ -2,7 +2,7 @@
 
 | Fact | Authoritative source | Editor | Validation | Output |
 | --- | --- | --- | --- | --- |
-| Word spelling, display, dialect and bands | Active canonical word row | Overview text and select fields | Normalised spelling, required display, approved row | Dictionary lookup, lesson eligibility |
+| Word spelling, display, dialect and bands | Active canonical word row | Overview text and reviewed band selectors | Normalised spelling, required display, approved age/frequency/complexity values | Dictionary lookup, lesson eligibility |
 | Shared definition | Latest approved non-route definition | Overview text | Nonempty before publication | Dictionary and shared lesson meaning |
 | Dictation sentence and target | Approved dictation version | Overview sentence and target selector | Exact target occurrence | Dictation activities |
 | Pronunciation, syllables and word metadata | Active word metadata and reviewed written facts | Overview controls | Route readiness and written spelling checks | Audio, phonology and route adapters |

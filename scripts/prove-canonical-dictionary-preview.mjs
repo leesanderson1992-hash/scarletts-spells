@@ -74,6 +74,20 @@ try {
   assert.equal(await page.locator("h1").filter({ hasText: /^plate$/i }).count(), 1,
     `word heading: ${JSON.stringify(await page.locator("h1").allTextContents())}`);
   assert.equal(await page.getByText("1 · Overview", { exact: false }).count() > 0, true);
+  await page.locator("summary").filter({ hasText: /^Advanced$/ }).click();
+  for (const [label, id, choices] of [
+    ["Age band", "td-age-band-input", ["early_primary", "middle_primary", "upper_primary"]],
+    ["Frequency band", "td-frequency-band-input", ["high", "medium", "low"]],
+    ["Complexity band", "td-complexity-band-input", ["low", "medium", "high"]],
+  ]) {
+    await page.getByRole("button", { name: `Edit ${label}` }).click();
+    const select = page.locator(`#${id}`);
+    assert.equal(await select.evaluate((element) => element.tagName), "SELECT",
+      `${label} uses a selector`);
+    const values = await select.locator("option").evaluateAll((elements) =>
+      elements.map((element) => element.value));
+    for (const choice of choices) assert.ok(values.includes(choice), `${label} offers ${choice}`);
+  }
   const routeWord = await page.goto(`${base}/admin/teaching-dictionary/17a844e3-133b-408b-a90f-8235fcd8c7eb`,
     { waitUntil: "domcontentloaded" });
   assert.equal(routeWord?.status(), 200, "word with a saved route loads");
@@ -93,7 +107,7 @@ try {
     "Lesson checks has an activity row for the selected micro-skill");
   console.log(JSON.stringify({ result: "passed", preview: base, formatQueue: true,
     dictionaryIndex: true, freeBaseSearch: true, boundRootSearch: Boolean(rootQuery),
-    wordOverview: true, lessonChecks: true, mutations: 0 }));
+    wordOverview: true, reviewedBandSelectors: true, lessonChecks: true, mutations: 0 }));
 } finally {
   await browser.close();
 }

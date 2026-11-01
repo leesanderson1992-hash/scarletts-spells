@@ -26,6 +26,11 @@ missing a shared definition, metadata row, spoken syllables, pronunciation hint,
 dictation, age/frequency/complexity band, or provenance. It found 151 approved
 words without a written-syllable breakdown; that field remains optional for
 historical entries and is reported separately rather than automatically filled.
+Eighteen approved words use a historical `in_review` age or complexity band;
+the new Overview selectors show those values as needing review and require a
+reviewed choice before a new canonical Overview approval.
+The reviewed choices are the six learner age bands and the high/medium/low
+frequency and low/medium/high complexity bands already used by active records.
 
 The morphology categories are mutually exclusive and sum to 2,495. Route conflict
 counts can overlap a morphology category and each other. The two exact conversions
@@ -52,6 +57,7 @@ a copy of Production, so these counts are a separate comparison baseline.
 The expanded shared-fact audit found 422 approved staging words without a
 shared definition; 61 lack metadata, spoken syllables, a pronunciation hint,
 dictation, bands, or provenance, and 62 lack a written-syllable breakdown.
+Seventeen more approved staging words use a historical `in_review` band.
 The format-review queue now links each required shared-fact gap to its Overview
 control as well as listing morphology and route-copy issues.
 

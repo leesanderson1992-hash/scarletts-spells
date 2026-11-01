@@ -8,6 +8,13 @@ export const WORD_METADATA_FIELDS = [
   "morphology_notes", "irregularity_notes",
 ] as const;
 
+/** Approved dictionary bands. Historical values remain readable until review. */
+export const DICTIONARY_BANDS = {
+  ageBand: ["early_primary", "middle_primary", "upper_primary", "lower_secondary", "mid_secondary", "later_review"],
+  frequencyBand: ["high", "medium", "low"],
+  complexityBand: ["low", "medium", "high"],
+} as const;
+
 export type WordMetadataField = (typeof WORD_METADATA_FIELDS)[number];
 export type WordMetadata = Record<WordMetadataField, string> & { has_schwa: boolean | null };
 
@@ -153,6 +160,11 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   blockers.push(...dictationVariantBlockers(normalisedWord, dictationVariants(payload)));
   blockers.push(...canonicalStructureBlockers(payload.canonicalMorphology,payload.displayWord));
   if (options.requireCanonicalParts) {
+    for (const [key, label] of [["ageBand", "age"], ["frequencyBand", "frequency"],
+      ["complexityBand", "complexity"]] as const) {
+      if (!(DICTIONARY_BANDS[key] as readonly string[]).includes(payload[key]))
+        blockers.push(`Choose a reviewed ${label} band.`);
+    }
     if (payload.canonicalMorphology.analysisStatus === "approved") {
       if (auditCanonicalMorphology({ parts: payload.canonicalMorphology.parts,
         joins: payload.canonicalMorphology.joins, displayWord: payload.displayWord,
