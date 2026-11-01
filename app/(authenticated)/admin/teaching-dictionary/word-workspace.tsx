@@ -381,6 +381,7 @@ export function WordWorkspace(props: {
   const [familySearchError, setFamilySearchError] = useState(false);
   const [familySearchLimited, setFamilySearchLimited] = useState(false);
   const [selectedFamilyLabel, setSelectedFamilyLabel] = useState("");
+  const [selectedFamily, setSelectedFamily] = useState<FamilySearchResult | null>(null);
   const familyLoadVersion = useRef(0);
   useEffect(() => {
     const query = familyQuery.trim();
@@ -423,6 +424,31 @@ export function WordWorkspace(props: {
     family.current?.showModal();
     setFamilyOpen(true);
     if (!familyReview && !familyLoading) await showFamilyReview(undefined, props.familyReviewContext.error);
+  }
+  function useSelectedFamilyInOverview() {
+    if (!selectedFamily) return;
+    const selected = selectedFamily;
+    const kind = selected.baseKind === "bound_root" ? "root" : "base";
+    const current = Array.isArray(payload.canonicalMorphology.parts)
+      ? payload.canonicalMorphology.parts.filter((part): part is Record<string, unknown> =>
+        Boolean(part) && typeof part === "object" && !Array.isArray(part)) : [];
+    const exactIndex = current.findIndex((part) =>
+      String(part.sourceText ?? part.text ?? "").toLocaleLowerCase("en-GB") === selected.baseLemma);
+    const replaceIndex = exactIndex >= 0 ? exactIndex : current.findIndex((part) =>
+      ["base", "root", "free_base", "bound_base"].includes(String(part.kind ?? part.type ?? part.partType)));
+    const familyPart = { id: replaceIndex >= 0 ? String(current[replaceIndex]?.id ?? crypto.randomUUID()) : crypto.randomUUID(),
+      kind, sourceText: selected.baseLemma,
+      surfaceText: exactIndex >= 0 ? String(current[exactIndex]?.surfaceText ?? current[exactIndex]?.text ?? "")
+        : payload.displayWord.toLocaleLowerCase("en-GB").startsWith(selected.baseLemma) ?
+          payload.displayWord.slice(0, selected.baseLemma.length) : "",
+      gloss: selected.meaning };
+    const parts = replaceIndex >= 0 ? current.map((part, index) => index === replaceIndex ? { ...part, ...familyPart } : part)
+      : [familyPart, ...current];
+    change({ canonicalMorphology: { ...payload.canonicalMorphology, parts, analysisStatus: "in_review",
+      wordSum: generatedWordSum(parts, payload.displayWord) } });
+    family.current?.close();
+    setFamilyOpen(false);
+    builder.current?.showModal();
   }
   const formId = "word-workspace-save";
   function change(update: Partial<WordDraftPayload>) {
@@ -1878,7 +1904,7 @@ export function WordWorkspace(props: {
                           suggestion.parts,
                           payload.displayWord,
                         ),
-                        analysisStatus: "approved",
+                        analysisStatus: "in_review",
                         reviewNotes: `Selected and reviewed: ${suggestion.label}`,
                       },
                     })
@@ -1897,6 +1923,8 @@ export function WordWorkspace(props: {
           parts={payload.canonicalMorphology.parts}
           joins={payload.canonicalMorphology.joins}
           affixMeanings={props.affixMeanings}
+          familyBase={selectedFamily ? { lemma: selectedFamily.baseLemma,
+            kind: selectedFamily.baseKind === "bound_root" ? "root" : "base", meaning: selectedFamily.meaning } : undefined}
           onChange={(parts, joins) =>
             change({
               canonicalMorphology: {
@@ -2239,6 +2267,7 @@ export function WordWorkspace(props: {
                 <button type="button" className="w-full border-b border-[var(--border)] px-3 py-2 text-left text-sm hover:bg-rose-50"
                   onClick={() => {
                     setSelectedFamilyLabel(`${match.name} · ${match.baseKind === "bound_root" ? "root" : "base"} family`);
+                    setSelectedFamily(match);
                     setFamilyQuery("");
                     setFamilyMatches([]);
                     setFamilySearchBusy(false);
@@ -2251,6 +2280,8 @@ export function WordWorkspace(props: {
               </li>)}
             </ul>}
           {familyQuery.trim().length >= 2 && familySearchLimited && <p className="text-xs">Refine the search to see further families.</p>}
+          {selectedFamily && <button type="button" className="w-fit rounded border border-[var(--border)] px-3 py-2 text-sm font-semibold"
+            onClick={useSelectedFamilyInOverview}>Use this {selectedFamily.baseKind === "bound_root" ? "root" : "base"} in Overview word parts</button>}
         </div>
         {familyLoading ? <p role="status">Loading family suggestions…</p> : familyReview}
         <div className={actions}>

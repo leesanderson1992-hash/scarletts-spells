@@ -86,12 +86,12 @@ function FieldTitle({ label, helpKey = label }: { label: string; helpKey?: strin
   };
   return <span className="flex flex-wrap items-center gap-2">
     <span>{label}</span>
-    <details className="group relative inline-block font-normal">
-      <summary className="flex h-5 w-5 cursor-pointer list-none items-center justify-center rounded-full border border-[var(--border)] text-xs font-bold text-[color:var(--scarlett)]" aria-label={`How to fill ${label}`}>i</summary>
-      <span className="mt-1 block rounded-lg bg-[var(--paper)] p-2 text-xs font-normal text-[color:var(--ink)]">
+    <span className="group relative inline-block font-normal" tabIndex={0} aria-label={`How to fill ${label}: ${guidance.format} Example: ${guidance.example}`}>
+      <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--border)] text-xs font-bold text-[color:var(--scarlett)]">i</span>
+      <span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-20 hidden w-64 rounded-lg bg-[var(--paper)] p-2 text-xs font-normal text-[color:var(--ink)] shadow group-hover:block group-focus:block">
         <strong>Format:</strong> {guidance.format}<br /><strong>Example:</strong> {guidance.example}
       </span>
-    </details>
+    </span>
   </span>;
 }
 
@@ -161,6 +161,7 @@ export function PartSequenceEditor(props: {
   joins: unknown;
   onChange: (parts: EditablePart[], joins: EditableJoin[]) => void;
   affixMeanings?: Record<string, string[]>;
+  familyBase?: { lemma: string; kind: "base" | "root"; meaning: string };
 }) {
   const parts = asParts(props.parts);
   const joins = asJoins(props.joins);
@@ -172,12 +173,12 @@ export function PartSequenceEditor(props: {
     <div><strong className="text-sm">{props.label}</strong><p className="text-xs">Enter the parts the learner should see. Their visible spelling must join to make <strong>{props.word || "the word"}</strong>.</p></div>
     {parts.map((part, index) => <div key={index} className="grid gap-2 rounded-lg bg-[var(--paper)] p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
       <label className={labelClass}><FieldTitle label="Visible letters" /><input className={fieldClass} value={String(part.surfaceText ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, surfaceText: event.target.value } : item))} /></label>
-      <label className={labelClass}><FieldTitle label="Underlying form" /><input className={fieldClass} value={String(part.sourceText ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, sourceText: event.target.value } : item))} /></label>
-      <label className={labelClass}><FieldTitle label="Role" /><select className={fieldClass} value={String(part.kind ?? "base")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, kind: event.target.value } : item))}>
+      <label className={labelClass}><FieldTitle label="Underlying form" /><input className={fieldClass} value={String(part.sourceText ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, sourceText: event.target.value } : item))} /></label>
+      <label className={labelClass}><FieldTitle label="Role" /><select className={fieldClass} value={String(part.kind ?? "base")} disabled={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, kind: event.target.value } : item))}>
         {["prefix", "base", "root", "suffix", "connector"].map((role) => <option key={role} value={role}>{role}</option>)}
       </select></label>
       <button type="button" className="self-end rounded-lg border border-[var(--border)] px-3 py-2 text-sm" aria-label={`Remove part ${index + 1}`} onClick={() => save(parts.filter((_, at) => at !== index))}>Remove</button>
-      <label className={`${labelClass} md:col-span-3`}><FieldTitle label="Meaning of this part" />{["prefix", "suffix"].includes(String(part.kind)) && props.affixMeanings?.[String(part.sourceText || part.surfaceText)]?.length ? <select className={fieldClass} value={String(part.gloss ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))}><option value="">Select reviewed meaning</option>{[...new Set([String(part.gloss || ""), ...props.affixMeanings[String(part.sourceText || part.surfaceText)]])].filter(Boolean).map(meaning => <option key={meaning}>{meaning}</option>)}</select> : <input className={fieldClass} value={String(part.gloss ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))} />}</label>
+      <label className={`${labelClass} md:col-span-3`}><FieldTitle label="Meaning of this part" />{["prefix", "suffix"].includes(String(part.kind)) && props.affixMeanings?.[String(part.sourceText || part.surfaceText)]?.length ? <select className={fieldClass} value={String(part.gloss ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))}><option value="">Select reviewed meaning</option>{[...new Set([String(part.gloss || ""), ...props.affixMeanings[String(part.sourceText || part.surfaceText)]])].filter(Boolean).map(meaning => <option key={meaning}>{meaning}</option>)}</select> : <input className={fieldClass} value={String(part.gloss ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))} />}</label>
       {index > 0 && <label className={labelClass}><FieldTitle label="Join before this part" /><select className={fieldClass} value={String(joins[index - 1]?.joinType ?? "none")} onChange={(event) => save(parts, Array.from({ length: parts.length - 1 }, (_, at) => at === index - 1 ? { ...(joins[at] ?? {}), joinType: event.target.value } : joins[at] ?? {}))}><option value="none">No space</option><option value="space">Space</option><option value="hyphen">Hyphen</option></select></label>}
     </div>)}
     <div className="flex flex-wrap items-center gap-3"><button type="button" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm" onClick={() => save([...parts, { surfaceText: "", sourceText: "", kind: "base", gloss: "" }])}>Add part</button><span className="text-xs">Preview: {parts.map((part) => String(part.surfaceText ?? "")).join(" | ") || "No parts yet"}</span></div>
