@@ -172,3 +172,13 @@ Lesson checks. The new staging Preview at commit `0a1fa8e` passed the
 read-only browser smoke for the queue, index, free-base search, Overview,
 reviewed selectors, and Lesson checks. Its staging dataset has no persistent
 approved bound root, so bound-root search on that Preview remains untested.
+
+The subsequent read-only Production audit at `739d9ea` reported the same
+2,495 active words and four canonical morphology entries, with no further
+exact-range-only conversions. It still reported 169 immutable family evidence
+reviews, 264 join reviews, 972 legacy alias reviews, 1,086 part-fact reviews,
+seven route meaning conflicts, and 22 route word-sum conflicts. The focused
+`adle-dynamic-suffix-ity-regression.ts` now projects reviewed Overview facts
+over stale route copies, derives a direct suffix candidate from those typed
+facts, and verifies the resulting compiled lesson JSON with the route's
+existing validator.

@@ -13,6 +13,8 @@ import { buildDynamicAffixAssignmentPlan } from "../lib/adle/morphology/dynamic-
 import { dynamicAffixRuntime } from "../lib/adle/morphology/dynamic-affix-runtime";
 import { normaliseSessionWord } from "../lib/adle/session-correctness";
 import { assertDynamicAffixSharedParity } from "./lib/adle-shared-affix-parity-fixtures";
+import { deriveReviewedSuffixCandidate } from "../lib/adle/morphology/derived-suffix-candidate";
+import { emptyMetadata, emptyMorphology, routeWithSharedFacts, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 
 const reviewed = JSON.parse(readFileSync("docs/implementation/seed-data/teaching-dictionary/candidates/2026-07-28-dynamic-suffix-ity/reviewed-staging-package.json", "utf8"));
 const statement = "-ity turns a describing word into the name of a quality or state.";
@@ -47,6 +49,67 @@ assert(selection);
 const payload = compileDynamicAffixWordLabPayload(selection);
 assert(payload && validateDynamicAffixWordLabPayload(payload));
 assertDynamicAffixSharedParity(selection, payload, "ITY reviewed fixture");
+// A reviewed Overview must carry its shared meaning and typed word parts all
+// the way into generated lesson JSON, even when an old route saved other copies.
+const equality = reviewed.words[0];
+const overview: WordDraftPayload = {
+  displayWord: equality.word,
+  definition: equality.newWordMeaning,
+  dictationSentence: equality.dictation.sentence,
+  dictationTargetTokenIndex: equality.dictation.targetTokenIndex,
+  writtenSyllableBreakdown: "e·qual·i·ty",
+  ageBand: equality.reviewedFacts.ageBand,
+  frequencyBand: equality.reviewedFacts.frequencyBand,
+  complexityBand: equality.reviewedFacts.complexityBand,
+  metadata: emptyMetadata(),
+  canonicalMorphology: {
+    ...emptyMorphology(), analysisStatus: "approved", rawPartOfSpeech: "noun",
+    reviewNotes: "Reviewed equal and -ity.",
+    parts: [
+      { ...equality.trueMorphology.parts[0], gloss: equality.baseMeaning },
+      { ...equality.trueMorphology.parts[1], gloss: equality.trueMorphology.parts[1].gloss },
+    ],
+    joins: equality.trueMorphology.joins,
+    wordSum: "equal + ity → equality",
+  },
+  provenance: { sourceCategory: "internal_authored", sourceName: "reviewed fixture", sourceUrl: "",
+    sourceLicence: "", sourceUseNote: "Canonical lesson projection regression", confidence: "high" },
+  skillKeys: [profile.microSkillKey], routeContents: [],
+};
+const projected = routeWithSharedFacts({ routeId: "dynamic_affix_word_lab", routeVersion: "v3",
+  microSkillKey: profile.microSkillKey, wordMeaning: "outdated route meaning", wordSum: "outdated route sum",
+  content: { semanticBaseText: "wrong", baseMeaning: "wrong", trueMorphologyParts: [] } }, overview);
+assert.equal(projected.wordMeaning, equality.newWordMeaning);
+assert.equal(projected.wordSum, "equal + ity → equality");
+assert.deepEqual(projected.content.trueMorphologyParts, overview.canonicalMorphology.parts);
+assert.equal(projected.content.baseMeaning, equality.baseMeaning);
+const derived = deriveReviewedSuffixCandidate(profile, {
+  word: { id: equality.word, displayWord: equality.word, sourceRowHash: "a".repeat(64),
+    ageBand: overview.ageBand, frequencyBand: overview.frequencyBand, complexityBand: overview.complexityBand,
+    rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  morphology: { id: "reviewed-equality-morphology", parts: projected.content.trueMorphologyParts,
+    joins: projected.content.trueMorphologyJoins, wordSum: projected.wordSum,
+    analysisStatus: "approved", reviewStatus: "approved_for_first_exposure",
+    sourceRowHash: "b".repeat(64), sourceName: "reviewed fixture" },
+  metadata: { syllables: equality.reviewedFacts.syllables, phonemeHint: equality.reviewedFacts.phonemeHint,
+    stressPattern: equality.reviewedFacts.stressPattern, hasSchwa: equality.reviewedFacts.hasSchwa,
+    rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  dictation: { id: "reviewed-equality-dictation", sourceRowHash: "c".repeat(64),
+    sentence: overview.dictationSentence, targetTokenIndex: overview.dictationTargetTokenIndex,
+    audioText: overview.dictationSentence, rowStatus: "active", reviewStatus: "approved_for_first_exposure" },
+  definition: projected.wordMeaning,
+});
+assert(derived.word, derived.blockers.join(", "));
+const projectedProfile = { ...profile,
+  wordsByCanonicalId: new Map(profile.wordsByCanonicalId).set(equality.word, derived.word) };
+const projectedSelection = selectDynamicAffixWordLab({ profiles: [projectedProfile], learningItems: [item] });
+assert(projectedSelection);
+const projectedLesson = compileDynamicAffixWordLabPayload(projectedSelection);
+assert(projectedLesson && validateDynamicAffixWordLabPayload(projectedLesson));
+assert.equal(projectedLesson.activities.discovery.find((card) => card.word === equality.word)?.derivedMeaning,
+  overview.definition);
+assert.equal(projectedLesson.words.lesson.find((word) => word.displayWord === equality.word)?.parts[0]?.gloss,
+  equality.baseMeaning);
 assert.deepEqual(payload.activities.guided.splitCanonicalWordIds, ["equality", "curiosity"], "direct and deterministically ranked spelling-change Cleavers are selected");
 assert.equal(payload.activities.guided.builds.length, 4);
 const positions = payload.activities.guided.builds.map((build) => { assert.deepEqual(new Set(build.choices.map((choice) => choice.text)), new Set(["ity", "ety", "ityy"])); return build.choices.findIndex((choice) => choice.status === "target"); });
