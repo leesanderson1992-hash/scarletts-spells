@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 100;
 
 const explanation: Record<string, string> = {
+  missing_morphology: "Approved word has no morphology record",
   parts_or_joins_missing: "Parts or joins are missing",
   join_count: "Parts and joins need review",
   part_shape: "A part has an invalid shape",
@@ -30,17 +31,20 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   const requested = Number.parseInt((await searchParams).page ?? "1", 10);
   const page = Number.isSafeInteger(requested) ? Math.max(1, requested) : 1;
   const db = createServiceRoleClient();
-  const morphology = await db.from("canonical_teaching_dictionary_word_morphology")
-    .select("id,canonical_word_id,morphology_parts,morphology_joins,word_sum", { count: "exact" })
-    .eq("row_status", "active").order("canonical_word_id").order("id")
+  const words = await db.from("canonical_teaching_dictionary_words")
+    .select("id,display_word,row_status,review_status", { count: "exact" })
+    .eq("row_status", "active").order("id")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  if (words.error) throw new Error("DICTIONARY_FORMAT_REVIEW_WORD_READ_FAILED");
+  const wordIds = (words.data ?? []).map((word) => word.id);
+  const morphology = wordIds.length ? await db.from("canonical_teaching_dictionary_word_morphology")
+    .select("id,canonical_word_id,morphology_parts,morphology_joins,word_sum")
+    .eq("row_status", "active").in("canonical_word_id", wordIds)
+    : { data: [], error: null };
   if (morphology.error) throw new Error("DICTIONARY_FORMAT_REVIEW_READ_FAILED");
   const rows = morphology.data ?? [];
-  const wordIds = [...new Set(rows.map((row) => row.canonical_word_id))];
   const morphologyIds = rows.map((row) => row.id);
-  const [words, memberships, definitions, routes] = await Promise.all([
-    wordIds.length ? db.from("canonical_teaching_dictionary_words")
-      .select("id,display_word,row_status").in("id", wordIds) : Promise.resolve({ data: [], error: null }),
+  const [memberships, definitions, routes] = await Promise.all([
     morphologyIds.length ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
       .select("canonical_morphology_id").in("canonical_morphology_id", morphologyIds)
       : Promise.resolve({ data: [], error: null }),
@@ -53,9 +57,8 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       .in("canonical_word_id", wordIds).order("published_at", { ascending: false }).order("id", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
   ]);
-  if (words.error || memberships.error || definitions.error || routes.error)
+  if (memberships.error || definitions.error || routes.error)
     throw new Error("DICTIONARY_FORMAT_REVIEW_LINK_READ_FAILED");
-  const wordById = new Map((words.data ?? []).map((word) => [word.id, word]));
   const morphologyByWord = new Map(rows.map((row) => [row.canonical_word_id, row]));
   const linked = new Set((memberships.data ?? []).map((member) => member.canonical_morphology_id));
   const definitionByWord = new Map<string, string>();
@@ -79,16 +82,17 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       conflicts.add("word sum");
     if (conflicts.size) routeConflicts.set(row.canonical_word_id, conflicts);
   }
-  const reviewed = rows.flatMap((row) => {
-    const word = wordById.get(row.canonical_word_id);
-    if (!word || word.row_status !== "active") return [];
-    return [{ row, word, audit: auditCanonicalMorphology({ parts: row.morphology_parts,
+  const reviewed = (words.data ?? []).map((word) => {
+    const row = morphologyByWord.get(word.id);
+    const audit = row ? auditCanonicalMorphology({ parts: row.morphology_parts,
       joins: row.morphology_joins, displayWord: word.display_word,
-      linkedToFamily: linked.has(row.id) }) }];
+      linkedToFamily: linked.has(row.id) }) : null;
+    return { row, word, audit };
   });
   const needsReview = reviewed.filter(({ audit, word }) =>
-    audit.status !== "canonical" || routeConflicts.has(word.id));
-  const total = morphology.count ?? 0;
+    (word.review_status === "approved_for_first_exposure" && !audit) ||
+    (audit !== null && audit.status !== "canonical") || routeConflicts.has(word.id));
+  const total = words.count ?? 0;
   const href = (next: number) => `/admin/teaching-dictionary/format-review?page=${next}`;
   return <main className="mx-auto grid max-w-5xl gap-6 p-6 text-[color:var(--ink)]">
     <header><Link className="text-sm underline" href="/admin/teaching-dictionary">Teaching Dictionary Manager</Link>
@@ -96,10 +100,10 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       <p className="mt-2 text-sm">Review historical word parts in Overview. Family evidence stays linked to its original record while a corrected version is approved.</p>
     </header>
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
-      <p className="mb-4 text-sm">{needsReview.length} entries to review on this page · {total} active morphology rows · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>
-      <ul className="grid gap-2">{needsReview.map(({ row, word, audit }) =>
-        <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border)] p-3 text-sm">
-          <span><strong>{word.display_word}</strong><span className="ml-2 text-[color:var(--mid)]">{audit.status === "canonical" ? "" : explanation[audit.reason] ?? audit.reason}
+      <p className="mb-4 text-sm">{needsReview.length} entries to review on this page · {total} active words · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>
+      <ul className="grid gap-2">{needsReview.map(({ word, audit }) =>
+        <li key={word.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border)] p-3 text-sm">
+          <span><strong>{word.display_word}</strong><span className="ml-2 text-[color:var(--mid)]">{!audit ? explanation.missing_morphology : audit.status === "canonical" ? "" : explanation[audit.reason] ?? audit.reason}
             {routeConflicts.has(word.id) && <span className="block text-amber-800">Saved route {Array.from(routeConflicts.get(word.id)!).join(" and ")} differs from Overview</span>}</span></span>
           <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-canonical-parts`}>Review in Overview</Link>
         </li>)}</ul>

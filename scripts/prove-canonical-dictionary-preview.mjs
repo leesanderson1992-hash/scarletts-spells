@@ -46,6 +46,8 @@ try {
   assert.equal(await page.locator("h1").filter({ hasText: "Dictionary format review" }).count(), 1,
     `format queue heading is present at ${new URL(page.url()).pathname}; headings=${JSON.stringify(await page.locator("h1").allTextContents())}`);
   assert.match(await page.locator("main").last().innerText(), /entries to review on this page/);
+  assert.match(await page.locator("main").last().innerText(), /Approved word has no morphology record/,
+    "approved staging words without morphology appear in the review queue");
 
   const dictionary = await page.goto(`${base}/admin/teaching-dictionary`, { waitUntil: "domcontentloaded" });
   assert.equal(dictionary?.status(), 200, "dictionary index loads for admin");

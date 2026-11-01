@@ -28,7 +28,8 @@ linguistic facts unchanged until an admin saves and approves a new version.
 Historical morphology and route versions remain readable and immutable.
 
 The review queue is `/admin/teaching-dictionary/format-review`. It shows the
-classification and latest route-copy conflicts for each page of active morphology.
+classification and latest route-copy conflicts for each page of active words,
+including approved words with no active morphology row.
 The word link opens the visual Overview editor. The audit must be repeated after
 staging conversion and after Production release; a lower count alone is not proof
 that a word or lesson is correct.
