@@ -172,10 +172,7 @@ export const ADLE_CURRICULUM_ROUTE_REGISTRY: readonly CurriculumRouteDefinition[
     routeId: "base_word_lab",
     routeVersion: "v2",
     supportedMicroSkillKeys: [
-      "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
-      "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
       "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
-      "D4_MOR_BASE_WORDS_PRESERVE_BASE",
     ],
     routeOwnership: {
       kind: "skill_clusters",

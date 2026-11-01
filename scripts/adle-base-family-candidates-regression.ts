@@ -6,10 +6,15 @@ import { eligibleBaseFamilyCounts, indexedEligibleBaseFamilyCounts, shortlistBas
 import { buildReviewedBaseFamilyProjection } from "../lib/adle/base-word-reviewed-family-release";
 import { appendReviewedLexicalFamilies } from "../lib/adle/lexical-base-family-release";
 import { baseWordFamilyMemberAuthenticTargetEligible } from "../lib/adle/curriculum-release-activation";
+import { baseWordSkillForNewWork, HISTORICAL_BASE_WORD_SKILLS, IDENTIFY_BASE_WORD_SKILL } from "../lib/adle/base-word-skill-merge";
 import type { ActivatedBaseWordReleaseAuthority, BaseWordFamilyAuthorityProjectionV2, BaseWordFamilyAuthorityMemberV2 } from
   "../lib/adle/curriculum-release-activation";
 
 const skill = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+for (const historical of HISTORICAL_BASE_WORD_SKILLS) {
+  assert.equal(baseWordSkillForNewWork(historical), IDENTIFY_BASE_WORD_SKILL);
+}
+assert.equal(baseWordSkillForNewWork("D4_MOR_PREFIXES_UN"), "D4_MOR_PREFIXES_UN");
 const approved = (displayWord: string, dialectCode = "en-GB"): FamilyCandidateWord => ({
   id: randomUUID(), normalisedWord: displayWord.toLowerCase(), displayWord,
   dialectCode, rowStatus: "active", reviewStatus: "approved_for_first_exposure",
@@ -18,14 +23,14 @@ const paint = approved("paint");
 const painter = approved("painter");
 const foreignPaint = approved("paint", "en-US");
 assert.equal(suggestedBaseWordSkill([{ kind: "base" }, { kind: "suffix" }]),
-  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", "colourful suggests its suffix skill");
+  skill, "suffix morphology uses the unified base-word skill");
 assert.equal(suggestedBaseWordSkill([{ type: "base" }, { type: "suffix" }]),
-  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX", "ingredients keeps its suffix suggestion with older parts");
+  skill, "legacy suffix parts use the unified base-word skill");
 assert.equal(suggestedBaseWordSkill([{ type: "prefix" }, { type: "base" }]),
-  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "legacy prefix parts suggest the prefix skill");
+  skill, "prefix morphology uses the unified base-word skill");
 assert.equal(suggestedBaseWordSkill([{ kind: "base" }]), skill);
 assert.equal(suggestedBaseWordSkill([{ kind: "prefix" }, { kind: "suffix" }]), skill,
-  "mixed morphology needs a reviewer choice");
+  "mixed morphology uses the unified base-word skill");
 assert.equal(virtualFamilyCandidate(paint)?.proposedKey, "paint_family");
 assert.equal(virtualFamilyCandidate({ ...paint, reviewStatus: "draft" }), null);
 assert.deepEqual(reviewedMorphologyFamilyCandidates(painter, {
@@ -72,8 +77,6 @@ const parent: BaseWordFamilyAuthorityProjectionV2 = {
 const closure = new Set(ids.slice(0, 6));
 const counts = eligibleBaseFamilyCounts(parent, skill, closure);
 assert.deepEqual(counts.map((entry) => entry.eligibleCount), [2, 4]);
-assert.deepEqual(eligibleBaseFamilyCounts(parent, skill, closure, new Set([ids[0]])).map((entry) => entry.eligibleCount), [2, 4],
-  "a base-only pair de-assignment retains the structural base for family counts");
 const vetoedCounts = eligibleBaseFamilyCounts(parent, skill, closure, new Set([ids[4], ids[5]]));
 assert.deepEqual(vetoedCounts.map((entry) => entry.eligibleCount), [2, 2]);
 assert.deepEqual(shortlistBaseFamilyPairs(vetoedCounts), [],

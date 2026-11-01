@@ -13,6 +13,7 @@ import {
 } from "./contracts";
 import { deduplicateLearnerEvidenceCandidates } from "./dedupe";
 import { projectLearnerEvidenceToSkills } from "./projector";
+import { mergedBaseWordCausalSkills } from "../../base-word-skill-merge";
 
 function emptySourceCounts(): Record<LearnerEvidenceSourceKind, EvidenceSourceCount> {
   return Object.fromEntries(LEARNER_EVIDENCE_SOURCE_KINDS.map((kind) => [kind, {
@@ -36,8 +37,11 @@ export function readLearnerEvidenceProjection(input: {
   blockedRelationshipCanonicalWordIds?: ReadonlySet<string>;
 }): LearnerEvidenceProjectionResult {
   const deduplicated = deduplicateLearnerEvidenceCandidates(input.candidates);
+  const projectionEvents = process.env.ADLE_BASE_WORD_MERGE_ENABLED === "true"
+    ? deduplicated.events.map((event) => ({ ...event, causalMicroSkillKeys: mergedBaseWordCausalSkills(event.causalMicroSkillKeys) }))
+    : deduplicated.events;
   const projections = projectLearnerEvidenceToSkills({
-    events: deduplicated.events,
+    events: projectionEvents,
     relationships: input.relationshipAuthority.relationships,
   });
   const sourceCounts = emptySourceCounts();

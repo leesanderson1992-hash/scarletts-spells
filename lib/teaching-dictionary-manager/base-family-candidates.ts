@@ -1,26 +1,15 @@
 import { normaliseWord } from "./contracts";
+import { HISTORICAL_BASE_WORD_SKILLS, IDENTIFY_BASE_WORD_SKILL } from "@/lib/adle/base-word-skill-merge";
 
-export const BASE_WORD_SKILLS = [
-  "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX",
-  "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX",
-  "D4_MOR_BASE_WORDS_IDENTIFY_BASE",
-  "D4_MOR_BASE_WORDS_PRESERVE_BASE",
-] as const;
+export const BASE_WORD_SKILLS: readonly string[] = process.env.ADLE_BASE_WORD_MERGE_ENABLED === "true"
+  ? [IDENTIFY_BASE_WORD_SKILL] : HISTORICAL_BASE_WORD_SKILLS;
 
-export type BaseWordSkill = (typeof BASE_WORD_SKILLS)[number];
+export type BaseWordSkill = (typeof HISTORICAL_BASE_WORD_SKILLS)[number];
 
 /** A form suggestion only. The reviewer still decides and approves the skill. */
 export function suggestedBaseWordSkill(parts: unknown): BaseWordSkill {
-  if (!Array.isArray(parts)) return "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
-  const kinds = new Set(parts.flatMap((raw) => {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
-    const part = raw as Record<string, unknown>;
-    const kind = part.kind ?? part.type ?? part.partType;
-    return typeof kind === "string" ? [kind] : [];
-  }));
-  if (kinds.has("prefix") && !kinds.has("suffix")) return "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX";
-  if (kinds.has("suffix") && !kinds.has("prefix")) return "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
-  return "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+  void parts;
+  return IDENTIFY_BASE_WORD_SKILL;
 }
 
 export interface FamilyCandidateWord {

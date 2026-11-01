@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calculateProficiencyV2, isV2ScoredEvent, type V2Evidence, type V2SkillInput } from "../lib/adle/proficiency/v2";
+import { BASE_WORD_MERGE_PROFICIENCY_VERSION, calculateProficiencyV2, isV2ScoredEvent, type V2Evidence, type V2SkillInput } from "../lib/adle/proficiency/v2";
 import { deriveV2WordGroups } from "../lib/adle/proficiency/v2-groups";
 import { isAdleCoverCheckSource } from "../lib/adle/proficiency/v2-source-policy";
 
@@ -17,6 +17,8 @@ const evidence = (id: string, groupKey: string, occurredOn: string,
 });
 
 assert.equal(calculateProficiencyV2(base()).status, "ready_to_discover");
+assert.equal(calculateProficiencyV2(base({ skillKey: "D4_MOR_BASE_WORDS_IDENTIFY_BASE", familyKey: "D4_MOR", baseWordMerge: true })).versions.model,
+  BASE_WORD_MERGE_PROFICIENCY_VERSION);
 const coverIds = new Set(["covered-word"]);
 assert.equal(isAdleCoverCheckSource([{ sourceKind: "adle_assignment_attempt_event",
   sourceEntityId: "covered-word" }], coverIds), true);

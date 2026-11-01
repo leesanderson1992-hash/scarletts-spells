@@ -14,6 +14,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
+import { baseWordSkillForNewWork, RETIRING_BASE_WORD_SKILLS } from "@/lib/adle/base-word-skill-merge";
 
 const PAGE = 500;
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -117,8 +118,11 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   const authority = await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment, explicitReviewedAssociations: published });
   const projection = await loadLearnerEvidenceProjection({ client, relationshipAuthority: authority, learnerId: childId });
   const activeWords = words.filter((word) => word.row_status === "active");
+  const baseWordMergeEnabled = process.env.ADLE_BASE_WORD_MERGE_ENABLED === "true";
   const groupAuthority = deriveV2WordGroups({ words: activeWords.map((word) => ({ id: word.id, normalisedWord: word.normalised_word })),
-    canonicalFamilies, canonicalMembers, legacyFamilies, compoundFacts, morphology });
+    canonicalFamilies, canonicalMembers,
+    legacyFamilies: baseWordMergeEnabled ? legacyFamilies.map((row) => ({ ...row, micro_skill_key: baseWordSkillForNewWork(row.micro_skill_key) })) : legacyFamilies,
+    compoundFacts, morphology });
   const wordById = new Map(activeWords.map((word) => [word.id as string, word]));
   const eventById = new Map(projection.events.map((event) => [event.eventId, event]));
   const coverAttemptIds = new Set(attemptRows.filter((row) =>
@@ -143,7 +147,8 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
   for (const item of projection.projections) {
     projectionsBySkill.set(item.microSkillKey, [...(projectionsBySkill.get(item.microSkillKey) ?? []), item]);
   }
-  const skills: ParentV2Skill[] = catalog.filter((row) => row.is_active).map((row) => {
+  const skills: ParentV2Skill[] = catalog.filter((row) => row.is_active &&
+    (!baseWordMergeEnabled || !RETIRING_BASE_WORD_SKILLS.some((key) => key === row.micro_skill_key))).map((row) => {
     const key = String(row.micro_skill_key);
     const familyKey = String(row.skill_family_key ?? "other");
     const closed = familyKey === "D4_HOM";
@@ -207,7 +212,8 @@ export async function loadParentV2Dashboard(childId: string, asOf: string): Prom
       relationshipFingerprint: authority.reconciliation.sourceFingerprint,
       evidenceFingerprint: closed && homophoneEnabled ? homophoneContext.fingerprint : projection.reconciliation.projectionFingerprint,
       groupFingerprint: groupAuthority.fingerprint,
-      homophoneTwoDateSetback: closed && homophoneEnabled });
+      homophoneTwoDateSetback: closed && homophoneEnabled,
+      baseWordMerge: baseWordMergeEnabled && key === "D4_MOR_BASE_WORDS_IDENTIFY_BASE" });
     if (!closed && eligible.some((id) => groupAuthority.forSkill(id, key, relatedSet)?.key === "unresolved:family_review")) {
       result.reasonCodes.push("family_decision_review_required");
     }

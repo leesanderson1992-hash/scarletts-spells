@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 export const PROFICIENCY_V2_VERSION = "ADLE_PROFICIENCY_MODEL_V2_TRANSFER_BREADTH_R5_2026_10_30";
 export const HOMOPHONE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_HOM_TRANSFER_BREADTH_R4_2026_10_30";
+export const BASE_WORD_MERGE_PROFICIENCY_VERSION = "ADLE_PROFICIENCY_MODEL_V2_BASE_WORD_MERGE_R1_2026_10_31";
 
 export type ProficiencyEnvironment = "CONTROLLED_LESSON" | "ISOLATED_RETRIEVAL" | "CONTEXTUAL_TRANSFER" | "AUTHENTIC_WRITING";
 export type ProficiencyTrend = "improving" | "steady" | "needs_practice" | "insufficient_history";
@@ -45,6 +46,7 @@ export interface V2SkillInput {
   evidenceFingerprint: string;
   groupFingerprint: string;
   homophoneTwoDateSetback?: boolean;
+  baseWordMerge?: boolean;
 }
 
 export interface V2Gate {
@@ -228,8 +230,9 @@ export function calculateProficiencyV2(input: V2SkillInput): V2SkillResult {
     ...(next?.contentLimited ? ["pool_below_nominal_breadth"] : []),
     ...(heldForOneMiss ? ["single_date_setback_level_held"] : []),
   ];
-  const modelVersion = input.familyKey === "D4_HOM" && input.homophoneTwoDateSetback
-    ? HOMOPHONE_PROFICIENCY_VERSION : PROFICIENCY_V2_VERSION;
+  const modelVersion = input.baseWordMerge ? BASE_WORD_MERGE_PROFICIENCY_VERSION
+    : input.familyKey === "D4_HOM" && input.homophoneTwoDateSetback
+      ? HOMOPHONE_PROFICIENCY_VERSION : PROFICIENCY_V2_VERSION;
   const inputFingerprint = hash({ model: modelVersion, learnerId: input.learnerId, skillKey: input.skillKey,
     asOf: input.asOf, requiredGroupKeys: [...input.requiredGroupKeys].sort(), events,
     homophoneTwoDateSetback: input.homophoneTwoDateSetback ?? false,

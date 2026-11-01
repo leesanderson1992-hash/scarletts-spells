@@ -19,6 +19,7 @@ import {
   type SpecialistMembershipAdapterRow,
 } from "./adapters";
 import { readCanonicalWordSkillRelationships } from "./authority";
+import { mergeBaseWordAuthorityInputs } from "./base-word-merge";
 import { loadReleasedInflectionMemberships } from "./released-inflection-memberships";
 import type {
   CanonicalWordIdentityFact,
@@ -317,7 +318,7 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   const baseActivations = await loadEnabledBaseWordReleaseAuthorities({
     client,
     environmentKey: params.environmentKey,
-    microSkillKeys: ["D4_MOR_BASE_WORDS_IDENTIFY_BASE", "D4_MOR_BASE_WORDS_PRESERVE_BASE"],
+    microSkillKeys: ["D4_MOR_BASE_WORDS_IDENTIFY_BASE", "D4_MOR_BASE_WORDS_PRESERVE_BASE", "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"],
   });
   const baseRows: SpecialistMembershipAdapterRow[] = [];
   for (const activation of baseActivations) {
@@ -345,13 +346,18 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   const specialistFacts = adaptSpecialistMemberships([...profileRows, ...baseRows, ...compoundRows, ...inflectionRows]);
   const explicitFacts = adaptExplicitReviewedAssociations(params.explicitReviewedAssociations ?? []);
   const ignored = new Set((params.ignorePairDecisionsFor ?? []).map((pair) => `${pair.canonicalWordId}\u0000${pair.microSkillKey}`));
+  const ordinaryFacts = [...resolverFacts, ...specialistFacts, ...genericFacts, ...explicitFacts];
+  const ordinaryDecisions = pairDecisions.filter((row) => !ignored.has(`${row.canonical_word_id}\u0000${row.micro_skill_key}`))
+    .map((row) => ({ id: row.id, canonicalWordId: row.canonical_word_id,
+      microSkillKey: row.micro_skill_key, action: row.action as "deassign" | "restore" }));
+  const inputs = process.env.ADLE_BASE_WORD_MERGE_ENABLED === "true"
+    ? mergeBaseWordAuthorityInputs(ordinaryFacts, ordinaryDecisions)
+    : { facts: ordinaryFacts, decisions: ordinaryDecisions };
   const result = readCanonicalWordSkillRelationships({
     words,
     microSkills,
-    facts: [...resolverFacts, ...specialistFacts, ...genericFacts, ...explicitFacts],
-    pairDecisions: pairDecisions.filter((row) => !ignored.has(`${row.canonical_word_id}\u0000${row.micro_skill_key}`))
-      .map((row) => ({ id: row.id, canonicalWordId: row.canonical_word_id,
-        microSkillKey: row.micro_skill_key, action: row.action })),
+    facts: inputs.facts,
+    pairDecisions: inputs.decisions,
     adapterAuthorityEstablished: true,
   });
   if (!scopedIds) return result;
