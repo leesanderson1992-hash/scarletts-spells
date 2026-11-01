@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { auditCanonicalMorphology } from "@/lib/teaching-dictionary-manager/canonical-morphology";
+import { routeContentFromStoredRow } from "@/lib/teaching-dictionary-manager/contracts";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 100;
@@ -30,23 +31,54 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
   const page = Number.isSafeInteger(requested) ? Math.max(1, requested) : 1;
   const db = createServiceRoleClient();
   const morphology = await db.from("canonical_teaching_dictionary_word_morphology")
-    .select("id,canonical_word_id,morphology_parts,morphology_joins", { count: "exact" })
+    .select("id,canonical_word_id,morphology_parts,morphology_joins,word_sum", { count: "exact" })
     .eq("row_status", "active").order("canonical_word_id").order("id")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (morphology.error) throw new Error("DICTIONARY_FORMAT_REVIEW_READ_FAILED");
   const rows = morphology.data ?? [];
   const wordIds = [...new Set(rows.map((row) => row.canonical_word_id))];
   const morphologyIds = rows.map((row) => row.id);
-  const [words, memberships] = await Promise.all([
+  const [words, memberships, definitions, routes] = await Promise.all([
     wordIds.length ? db.from("canonical_teaching_dictionary_words")
       .select("id,display_word,row_status").in("id", wordIds) : Promise.resolve({ data: [], error: null }),
     morphologyIds.length ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
       .select("canonical_morphology_id").in("canonical_morphology_id", morphologyIds)
       : Promise.resolve({ data: [], error: null }),
+    wordIds.length ? db.from("teaching_dictionary_definition_versions")
+      .select("canonical_word_id,definition").in("canonical_word_id", wordIds)
+      .is("route_id", null).order("published_at", { ascending: false }).order("id", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+    wordIds.length ? db.from("teaching_dictionary_route_content_versions")
+      .select("id,canonical_word_id,route_id,route_version,micro_skill_key,content")
+      .in("canonical_word_id", wordIds).order("published_at", { ascending: false }).order("id", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
   ]);
-  if (words.error || memberships.error) throw new Error("DICTIONARY_FORMAT_REVIEW_LINK_READ_FAILED");
+  if (words.error || memberships.error || definitions.error || routes.error)
+    throw new Error("DICTIONARY_FORMAT_REVIEW_LINK_READ_FAILED");
   const wordById = new Map((words.data ?? []).map((word) => [word.id, word]));
+  const morphologyByWord = new Map(rows.map((row) => [row.canonical_word_id, row]));
   const linked = new Set((memberships.data ?? []).map((member) => member.canonical_morphology_id));
+  const definitionByWord = new Map<string, string>();
+  for (const definition of definitions.data ?? [])
+    if (!definitionByWord.has(definition.canonical_word_id))
+      definitionByWord.set(definition.canonical_word_id, definition.definition);
+  const latestRoute = new Set<string>();
+  const routeConflicts = new Map<string, Set<string>>();
+  for (const row of routes.data ?? []) {
+    const key = `${row.canonical_word_id}:${row.route_id}:${row.micro_skill_key}`;
+    if (latestRoute.has(key)) continue;
+    latestRoute.add(key);
+    const route = routeContentFromStoredRow(row);
+    const morphologyRow = morphologyByWord.get(row.canonical_word_id);
+    const sharedMeaning = definitionByWord.get(row.canonical_word_id);
+    const sharedSum = morphologyRow?.word_sum;
+    const conflicts = routeConflicts.get(row.canonical_word_id) ?? new Set<string>();
+    if (sharedMeaning && route.wordMeaning.trim() && route.wordMeaning.trim() !== sharedMeaning.trim())
+      conflicts.add("meaning");
+    if (sharedSum && route.wordSum.trim() && route.wordSum.trim() !== sharedSum.trim())
+      conflicts.add("word sum");
+    if (conflicts.size) routeConflicts.set(row.canonical_word_id, conflicts);
+  }
   const reviewed = rows.flatMap((row) => {
     const word = wordById.get(row.canonical_word_id);
     if (!word || word.row_status !== "active") return [];
@@ -54,7 +86,8 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       joins: row.morphology_joins, displayWord: word.display_word,
       linkedToFamily: linked.has(row.id) }) }];
   });
-  const needsReview = reviewed.filter(({ audit }) => audit.status !== "canonical");
+  const needsReview = reviewed.filter(({ audit, word }) =>
+    audit.status !== "canonical" || routeConflicts.has(word.id));
   const total = morphology.count ?? 0;
   const href = (next: number) => `/admin/teaching-dictionary/format-review?page=${next}`;
   return <main className="mx-auto grid max-w-5xl gap-6 p-6 text-[color:var(--ink)]">
@@ -66,7 +99,8 @@ export default async function DictionaryFormatReviewPage({ searchParams }: {
       <p className="mb-4 text-sm">{needsReview.length} entries to review on this page · {total} active morphology rows · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>
       <ul className="grid gap-2">{needsReview.map(({ row, word, audit }) =>
         <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--border)] p-3 text-sm">
-          <span><strong>{word.display_word}</strong><span className="ml-2 text-[color:var(--mid)]">{explanation[audit.reason] ?? audit.reason}</span></span>
+          <span><strong>{word.display_word}</strong><span className="ml-2 text-[color:var(--mid)]">{audit.status === "canonical" ? "" : explanation[audit.reason] ?? audit.reason}
+            {routeConflicts.has(word.id) && <span className="block text-amber-800">Saved route {Array.from(routeConflicts.get(word.id)!).join(" and ")} differs from Overview</span>}</span></span>
           <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-canonical-parts`}>Review in Overview</Link>
         </li>)}</ul>
       {!needsReview.length && <p className="text-sm">No format reviews on this page.</p>}

@@ -54,7 +54,7 @@ import {
 } from "./paired-dictation-editor";
 import { PartSequenceEditor } from "./part-sequence-editor";
 import { RouteFactsEditor } from "./route-facts-editor";
-import { canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
+import { auditCanonicalMorphology, canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
@@ -218,6 +218,7 @@ function Editable({
 export function WordWorkspace(props: {
   wordId: string | null;
   currentMorphologyId: string | null;
+  currentMorphologyLinkedToFamily: boolean;
   currentApprovedPartOfSpeech: string;
   draftId: string | null;
   normalisedWord: string;
@@ -381,7 +382,8 @@ export function WordWorkspace(props: {
   }, [props.wordId, props.draftId, props.initial, props.dictionaryFingerprint,
     props.approvedWord, props.approvedDefinition, props.approvedSentence, props.wordClip, props.sentenceClip,
     props.deviceWordClip, props.deviceSentenceClip,
-    props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference, checkVersion]);
+    props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference,
+    props.skills, checkVersion]);
   const [joined, setJoined] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
   const splitDialog = useRef<HTMLDialogElement>(null);
@@ -799,6 +801,10 @@ export function WordWorkspace(props: {
       ];
     return [];
   }
+  const morphologyFormatAudit = auditCanonicalMorphology({
+    parts: payload.canonicalMorphology.parts, joins: payload.canonicalMorphology.joins,
+    displayWord: payload.displayWord, linkedToFamily: props.currentMorphologyLinkedToFamily,
+  });
   return (
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
@@ -1934,6 +1940,12 @@ export function WordWorkspace(props: {
         />
         {payload.canonicalMorphology.parts.length > 0 && canonicalPartsStatus(payload.canonicalMorphology.parts) !== "canonical" &&
           <p role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">This entry uses older or incomplete word parts. Review them in the visual editor before approving Overview or joining a family.</p>}
+        {!props.draftId && props.currentMorphologyId && morphologyFormatAudit.status === "safe_range_conversion" &&
+          <button type="button" className="mt-2 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+            onClick={() => change({ canonicalMorphology: { ...payload.canonicalMorphology,
+              parts: morphologyFormatAudit.convertedParts ?? payload.canonicalMorphology.parts } })}>
+            Fill exact display positions for review
+          </button>}
         <div id="td-canonical-word-sum" className="mt-2 text-sm">
           {payload.canonicalMorphology.wordSum}
         </div>

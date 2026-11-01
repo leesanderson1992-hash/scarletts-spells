@@ -69,6 +69,7 @@ export async function TeachingDictionaryDetail({
     submissions,
     baseFamilies,
     weakFamilyPrefill,
+    morphologyFamilyLinks,
   ] = await Promise.all([
     wordId
       ? db
@@ -183,6 +184,9 @@ export async function TeachingDictionaryDetail({
       : null,
     wordId ? loadWordBaseFamilies(db, wordId) : Promise.resolve([]),
     wordId ? loadWeakVowelFamilyPrefill(db, wordId) : Promise.resolve({ status: "none" as const, authorityId: null, members: [] }),
+    wordId ? db.from("canonical_teaching_dictionary_lexical_base_family_members")
+      .select("canonical_morphology_id").eq("canonical_word_id", wordId)
+      : Promise.resolve({ data: [], error: null }),
   ]);
   for (const result of [
     wordResult,
@@ -204,6 +208,7 @@ export async function TeachingDictionaryDetail({
     if (result?.error)
       throw new Error(`TEACHING_DICTIONARY_READ_FAILED: ${result.error.code}`);
   }
+  if (morphologyFamilyLinks.error) throw new Error("TEACHING_DICTIONARY_FAMILY_EVIDENCE_READ_FAILED");
   const word = wordResult?.data;
   const draft = draftResult?.data;
   const createdWordDraft =
@@ -493,6 +498,8 @@ export async function TeachingDictionaryDetail({
         key={`${activeDraft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
         wordId={wordId}
         currentMorphologyId={morphology?.id ?? null}
+        currentMorphologyLinkedToFamily={Boolean(morphology && morphologyFamilyLinks.data?.some(
+          (link) => link.canonical_morphology_id === morphology.id))}
         currentApprovedPartOfSpeech={morphology?.raw_morpholex_pos ?? ""}
         draftId={activeDraft?.id ?? null}
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
