@@ -16,8 +16,8 @@ export function routeEditorPayload(
     if (!content || typeof content !== "object" || Array.isArray(content)) throw new Error("ROUTE_JSON_INVALID");
     return {
       ...route,
-      wordMeaning: saved?.wordMeaning?.trim() || definition.trim(),
-      wordSum: saved?.wordSum?.trim() || canonicalWordSum.trim(),
+      wordMeaning: definition.trim(),
+      wordSum: canonicalWordSum.trim(),
       content: content as RouteContentDraft["content"],
     };
   });

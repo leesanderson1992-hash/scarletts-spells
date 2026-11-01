@@ -16,6 +16,7 @@ export async function loadWordBaseFamilies(
     db.from("canonical_teaching_dictionary_base_family_registry_members")
       .select("canonical_family_id").eq("canonical_word_id", wordId),
   );
+  let registryFamilies: { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[] = [];
   if (canonicalLinks.length) {
     const familyIds = [...new Set(canonicalLinks.map((row) => String(row.canonical_family_id)))];
     const [families, members, rootAliases] = await Promise.all([
@@ -44,7 +45,7 @@ export async function loadWordBaseFamilies(
         .in("id", wordIds).eq("row_status", "active"),
     ) : [];
     const display = new Map(words.map((row) => [String(row.id), String(row.display_word)]));
-    return families.map((family) => ({
+    registryFamilies = families.map((family) => ({
       name: String(family.family_key),
       meaning: Array.isArray(family.meaning_variants)
         ? family.meaning_variants.map(String).join("; ") : "",
@@ -127,7 +128,7 @@ export async function loadWordBaseFamilies(
     ...wordReviews.flatMap((row) => row.legacy_family_id || row.definition_id
       ? [String(row.legacy_family_id ?? row.definition_id)] : []),
   ])];
-  if (!candidateIds.length) return lexicalFamilies;
+  if (!candidateIds.length) return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
   const reviewIds = wordReviews.map((row) => String(row.id));
   const releaseIds = [...new Set(wordReviews.map((row) => String(row.word_skill_release_id)))];
   const [wordWithdrawals, wordSkillWithdrawals] = await Promise.all([
@@ -146,7 +147,7 @@ export async function loadWordBaseFamilies(
     else activeForWord.add(id);
   }
   const familyIds = [...activeForWord];
-  if (!familyIds.length) return lexicalFamilies;
+  if (!familyIds.length) return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
   const legacyIds = familyIds.filter((id) => wordLegacy.some((row) => row.base_word_family_id === id) ||
     wordReviews.some((row) => row.legacy_family_id === id));
   const definitionIds = familyIds.filter((id) => !legacyIds.includes(id));
@@ -224,5 +225,6 @@ export async function loadWordBaseFamilies(
       )
       .sort((a, b) => a.word.localeCompare(b.word, "en-GB")),
   }));
-  return [...lexicalFamilies, ...adleFamilies];
+  return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name)),
+    ...adleFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
 }

@@ -177,9 +177,9 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
   if (route.routeId === "dynamic_affix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
-    if (!Array.isArray(content.trueMorphologyParts) || content.trueMorphologyParts.length === 0) content.trueMorphologyParts = parts;
-    if (!Array.isArray(content.trueMorphologyJoins)) content.trueMorphologyJoins = joins;
-    if (!Array.isArray(content.trueMorphologyTransformations)) content.trueMorphologyTransformations = payload.canonicalMorphology.transformations ?? [];
+    content.trueMorphologyParts = parts;
+    content.trueMorphologyJoins = joins;
+    content.trueMorphologyTransformations = payload.canonicalMorphology.transformations ?? [];
     const records = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part));
     const suffixes = records.filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
     if (!content.suffixVariant && suffixes.length === 1) {
@@ -201,13 +201,13 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
       };
     }
   }
-  if (route.routeId === "base_word_lab" && (!Array.isArray(content.morphologyParts) || content.morphologyParts.length === 0)) {
+  if (route.routeId === "base_word_lab") {
     content.morphologyParts = parts;
   }
   return {
     ...route,
-    wordMeaning: route.wordMeaning.trim() || payload.definition.trim(),
-    wordSum: route.wordSum.trim() || payload.canonicalMorphology.wordSum.trim(),
+    wordMeaning: payload.definition.trim(),
+    wordSum: payload.canonicalMorphology.wordSum.trim(),
     content,
   };
 }

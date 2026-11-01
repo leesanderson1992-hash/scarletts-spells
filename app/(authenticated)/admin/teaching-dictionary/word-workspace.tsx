@@ -53,6 +53,7 @@ import {
   type PassageSet,
 } from "./paired-dictation-editor";
 import { PartSequenceEditor } from "./word-editor";
+import { canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
@@ -1372,23 +1373,7 @@ export function WordWorkspace(props: {
                         "meaning_sort",
                         "word_build",
                       ].includes(variant.kind) && (
-                        <div className="rounded-md bg-[var(--paper)] p-2">
-                          <Editable
-                            label="Word meaning in this lesson"
-                            id={`td-route-${row.key}-${variant.kind}-wordMeaning`}
-                            value={route.wordMeaning}
-                            onChange={(wordMeaning) =>
-                              change({
-                                routeContents: [
-                                  ...payload.routeContents.filter(
-                                    (old) => old.microSkillKey !== row.key,
-                                  ),
-                                  { ...route, wordMeaning },
-                                ],
-                              })
-                            }
-                          />
-                        </div>
+                        sharedField("Word meaning", payload.definition, "td-definition")
                       )}
                       {["cleaver", "word_build"].includes(variant.kind) && (
                         <>
@@ -1925,6 +1910,8 @@ export function WordWorkspace(props: {
             })
           }
         />
+        {payload.canonicalMorphology.parts.length > 0 && canonicalPartsStatus(payload.canonicalMorphology.parts) !== "canonical" &&
+          <p role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">This entry uses older or incomplete word parts. Review them in the visual editor before approving Overview or joining a family.</p>}
         <div id="td-canonical-word-sum" className="mt-2 text-sm">
           {payload.canonicalMorphology.wordSum}
         </div>
@@ -2196,8 +2183,8 @@ export function WordWorkspace(props: {
               }
             />
             <p className="mt-2 text-xs">
-              Reviewed true morphology stays in Overview unless this route has
-              an explicit reviewed override.
+              Reviewed true morphology comes from Overview. This lesson cut is
+              a separate teaching presentation.
             </p>
             <div className={actions}>
               <button

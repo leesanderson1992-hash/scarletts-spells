@@ -136,11 +136,9 @@ function normaliseParts(parts: EditablePart[], joins: EditableJoin[]): EditableP
   let start = 0;
   return parts.map((part, index) => {
     const surfaceText = String(part.surfaceText ?? "");
-    const next = { ...part, id: part.id || crypto.randomUUID(), text: surfaceText, surfaceText,
+    const next = { id: part.id || crypto.randomUUID(), surfaceText,
       sourceText: String(part.sourceText ?? surfaceText),
-      kind: part.kind ?? "base", role: part.kind ?? "base", type: part.kind ?? "base",
-      partType: part.kind ?? "base",
-      start, end: start + surfaceText.length,
+      kind: part.kind ?? "base", gloss: String(part.gloss ?? ""),
       displayRange: { start, end: start + surfaceText.length } };
     start += surfaceText.length + (["space", "hyphen"].includes(String(joins[index]?.joinType)) ? 1 : 0);
     return next;
