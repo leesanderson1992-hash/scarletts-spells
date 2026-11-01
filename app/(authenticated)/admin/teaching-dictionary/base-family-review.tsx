@@ -21,7 +21,7 @@ type Word = FamilyCandidateWord;
 type Morphology = FamilyCandidateMorphology & { id: string; joins: unknown[]; transformations: unknown[] };
 type LegacyFamily = { id: string; base_family_key: string; base_word_id: string; base_meaning: string; micro_skill_key: string };
 type Definition = { id: string; family_key: string; base_word_id: string; base_meaning: string };
-type LexicalFamily = { family_key: string; revision: number; base_lemma: string; review_status: string };
+type LexicalFamily = { family_key: string; revision: number; base_lemma: string; base_kind: string; review_status: string };
 
 const inputClass = "w-full rounded border border-[var(--border)] bg-white px-2 py-1 text-sm";
 const labelClass = "grid gap-1 text-sm";
@@ -104,12 +104,12 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
       .eq("review_status", "approved_for_first_exposure")
       .filter("morphology_parts", "cs", JSON.stringify([{ kind: "base", sourceText: word.normalisedWord }])).limit(100),
     lexicalBaseTexts.length ? db.from("canonical_teaching_dictionary_lexical_base_families")
-      .select("family_key,revision,base_lemma,review_status")
-      .in("base_lemma", lexicalBaseTexts).eq("base_kind", "free_base")
+      .select("family_key,revision,base_lemma,base_kind,review_status")
+      .in("base_lemma", lexicalBaseTexts)
       .order("revision", { ascending: false }) : Promise.resolve({ data: [] as LexicalFamily[], error: null }),
     lexicalFamilyKey ? db.from("canonical_teaching_dictionary_lexical_base_families")
-      .select("family_key,revision,base_lemma,review_status")
-      .eq("family_key", lexicalFamilyKey).eq("base_kind", "free_base")
+      .select("family_key,revision,base_lemma,base_kind,review_status")
+      .eq("family_key", lexicalFamilyKey)
       .order("revision", { ascending: false }).limit(1) : Promise.resolve({ data: [] as LexicalFamily[], error: null }),
   ]);
   for (const [table, failure] of [
@@ -198,7 +198,7 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
         const legacyParts = Array.isArray(familyMorphology?.parts) && familyMorphology.parts.some((part) =>
           part && typeof part === "object" && !Array.isArray(part) && "type" in part && "text" in part);
         return <div key={family.family_key} className="grid gap-2 border-t border-[var(--border)] pt-2">
-          <p><strong>{family.family_key}</strong> · revision {family.revision} · {family.review_status}
+          <p><strong>{family.family_key}</strong> · {family.base_kind === "bound_root" ? "root" : "base"} · revision {family.revision} · {family.review_status}
             {member ? " · this word is a member" : " · this word is not a member"}</p>
           {!member && family.review_status !== "approved" && <p>A family revision is awaiting review. Finish or withdraw it before another member can be added.</p>}
           {!member && family.review_status === "approved" && !morphologyReady && <p>
@@ -207,7 +207,9 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
               : <>The approved morphology does not yet provide an exact base and reconstructed spelling for this family.</>}
             {" "}Close this window, review the word parts in Overview, then return to approve the family membership.
           </p>}
-          {!member && family.review_status === "approved" && morphologyReady && <form action={reviewLexicalFamilyMember} className="grid gap-2">
+          {!member && family.review_status === "approved" && morphologyReady && family.base_kind === "bound_root" &&
+            <p>Root membership needs the reviewed root revision write path before it can be approved here.</p>}
+          {!member && family.review_status === "approved" && morphologyReady && family.base_kind === "free_base" && <form action={reviewLexicalFamilyMember} className="grid gap-2">
             <input type="hidden" name="word_id" value={word.id} />
             <input type="hidden" name="family_key" value={family.family_key} />
             <input type="hidden" name="expected_revision" value={family.revision} />
@@ -222,7 +224,6 @@ async function BaseFamilyReviewContent({ word, morphology, meaning, error, manua
               {partOfSpeechOptions("").map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select></label>
             <label className={labelClass}>Meaning in this family<input name="intended_meaning" className={inputClass} defaultValue={meaning} required /></label>
-            <label className={labelClass}>Why this relationship is correct<input name="review_note" className={inputClass} required /></label>
             <FamilySubmitButton pendingLabel="Approving lexical family revision…" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 font-semibold text-white">Approve lexical member in new revision</FamilySubmitButton>
           </form>}
         </div>;

@@ -23,13 +23,12 @@ export async function reviewLexicalFamilyMember(form: FormData) {
     const partOfSpeech = field(form, "word_part_of_speech");
     const relationshipKind = field(form, "relationship_kind");
     const intendedMeaning = field(form, "intended_meaning");
-    const reviewNote = field(form, "review_note");
     if (!isUuid(wordId) || !isUuid(morphologyId) ||
       !/^[a-z0-9_]+_base_family$/.test(familyKey) ||
       !Number.isInteger(revision) || revision < 1 ||
       !["regular_inflection", "irregular_inflection", "derived", "contraction", "historical_relative"].includes(relationshipKind) ||
-      !partOfSpeech || !intendedMeaning || !reviewNote ||
-      [partOfSpeech, intendedMeaning, reviewNote].some((value) => value.length > 1000))
+      !partOfSpeech || !intendedMeaning ||
+      [partOfSpeech, intendedMeaning].some((value) => value.length > 1000))
       throw new Error("LEXICAL_FAMILY_REVIEW_INCOMPLETE");
     const requestId = randomUUID();
     const result = await createServiceRoleClient().rpc("review_lexical_base_family_member_revision", {
@@ -42,7 +41,7 @@ export async function reviewLexicalFamilyMember(form: FormData) {
       p_intended_meaning: intendedMeaning,
       p_source_reference: `Teaching Dictionary lexical family review ${requestId}`,
       p_reviewer: actor.id,
-      p_approval_reference: `${reviewNote} (${requestId})`,
+      p_approval_reference: `Teaching Dictionary family approval ${requestId}`,
     });
     if (result.error) throw new Error(result.error.message.match(/LEXICAL_FAMILY_[A-Z_]+/)?.[0] ?? "LEXICAL_FAMILY_REVIEW_FAILED");
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);

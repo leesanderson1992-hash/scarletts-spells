@@ -12,7 +12,8 @@ export function approvedLexicalBaseTexts(morphology: Morphology | null): string[
   return [...new Set(morphology.parts.flatMap((raw) => {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) return [];
     const part = raw as Record<string, unknown>;
-    if (part.kind !== "base" && part.type !== "base" && part.partType !== "free_base") return [];
+    if (!["base", "root"].includes(String(part.kind ?? part.type)) &&
+        !["free_base", "bound_root"].includes(String(part.partType))) return [];
     const source = part.sourceText ?? part.text;
     return typeof source === "string" && source.trim() ? [normaliseWord(source)] : [];
   }))];
@@ -35,5 +36,6 @@ export function lexicalMorphologyReady(
       typeof part.surfaceText === "string" && typeof part.sourceText === "string" &&
       typeof part.kind === "string") &&
     parts.map((part) => part.surfaceText).join("") === displayWord &&
-    parts.some((part) => part.kind === "base" && normaliseWord(String(part.sourceText)) === baseLemma);
+    parts.some((part) => ["base", "root"].includes(String(part.kind)) &&
+      normaliseWord(String(part.sourceText)) === baseLemma);
 }

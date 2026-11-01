@@ -45,7 +45,7 @@ import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesso
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 import { approveTeachingDictionaryPartOfSpeech, saveWordWorkspace } from "./actions";
 
-type FamilySearchResult = { kind: "lexical" | "adle"; id: string; name: string; meaning: string; baseLemma: string; skillKey: string };
+type FamilySearchResult = { kind: "lexical"; id: string; name: string; meaning: string; baseLemma: string; baseKind: "free_base" | "bound_root" };
 import { launchReviewedAdleLesson } from "../adle-lesson-readiness/actions";
 import { CompoundPartsEditor } from "./compound-parts-editor";
 import {
@@ -2228,7 +2228,7 @@ export function WordWorkspace(props: {
               placeholder="Type a base word or family name, e.g. ingredient"
               className="w-full rounded border border-[var(--border)] bg-white px-3 py-2 font-normal" />
           </label>
-          <p className="text-xs text-[color:var(--mid)]">Searches approved dictionary and ADLE families. Type at least two letters; only matching results are loaded.</p>
+          <p className="text-xs text-[color:var(--mid)]">Searches approved dictionary base and root families. Type at least two letters; only matching results are loaded.</p>
           {selectedFamilyLabel && <p className="text-sm">Selected: <strong>{selectedFamilyLabel}</strong></p>}
           {familyQuery.trim().length >= 2 && <div role="status" className="text-sm">
             {familySearchBusy ? "Searching families…" : familySearchError ? "Family search could not load. Try again."
@@ -2239,17 +2239,14 @@ export function WordWorkspace(props: {
               {familyMatches.map((match) => <li key={`${match.kind}:${match.id}`}>
                 <button type="button" className="w-full border-b border-[var(--border)] px-3 py-2 text-left text-sm hover:bg-rose-50"
                   onClick={() => {
-                    setSelectedFamilyLabel(`${match.name} · ${match.kind === "lexical" ? "dictionary" : match.skillKey.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}`);
+                    setSelectedFamilyLabel(`${match.name} · ${match.baseKind === "bound_root" ? "root" : "base"} family`);
                     setFamilyQuery("");
                     setFamilyMatches([]);
                     setFamilySearchBusy(false);
                     setFamilySearchLimited(false);
-                    void showFamilyReview(match.kind === "adle" ? match.id : undefined,
-                      match.kind === "lexical" ? match.id : undefined);
+                    void showFamilyReview(undefined, match.id);
                   }}>
-                  <strong>{match.name}</strong> · {match.kind === "lexical" ? "dictionary family" : match.skillKey.replace("D4_MOR_BASE_WORDS_", "").replaceAll("_", " ").toLowerCase()}
-                  {familyMatches.filter((other) => other.kind === match.kind && other.name === match.name && other.skillKey === match.skillKey).length > 1
-                    ? ` · source ${match.id.slice(0, 8)}` : ""}
+                  <strong>{match.name}</strong> · {match.baseKind === "bound_root" ? "root family" : "base family"}
                   {match.meaning ? ` · ${match.meaning}` : ""}
                 </button>
               </li>)}
