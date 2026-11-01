@@ -154,13 +154,27 @@ function Editable({
   options?: Field["options"];
 }) {
   const [editing, setEditing] = useState(false);
+  const help: Record<string, string> = {
+    "Display word": "Enter the spelling exactly as it should appear to learners, for example scrolling.",
+    "Shared definition": "Enter one reviewed dictionary meaning that can be reused by lessons.",
+    "Stress pattern": "Describe the stressed spoken syllable, for example stress on the first syllable.",
+    "Legacy morphemes": "Compatibility text only. Review word parts in the visual editor for canonical morphology.",
+    "Morphology notes": "Describe an exceptional spelling change in plain language.",
+    "Age band": "Choose or enter the learner age band used by the dictionary.",
+    "Frequency band": "Choose or enter the reviewed word-frequency band.",
+    "Complexity band": "Choose or enter the reviewed teaching-complexity band.",
+  };
+  const guidance = help[label] ?? `Enter the reviewed ${label.toLocaleLowerCase("en-GB")} in plain language. Use the same wording wherever this dictionary fact appears.`;
   return (
     <div id={id} className="min-w-0 scroll-mt-6">
       <label
         htmlFor={`${id}-input`}
         className={hideLabel ? "sr-only" : "text-xs text-[color:var(--mid)]"}
       >
-        {label}
+        {label} <span className="group relative inline-flex" tabIndex={0} aria-label={`How to fill ${label}: ${guidance}`}>
+          <span aria-hidden="true" className="inline-flex size-4 items-center justify-center rounded-full border text-xs">i</span>
+          <span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-20 hidden w-64 rounded bg-white p-2 text-xs text-[color:var(--ink)] shadow group-hover:block group-focus:block">{guidance}</span>
+        </span>
       </label>
       <div className="flex min-h-9 items-start justify-between gap-1">
         {editing ? (
