@@ -3,5 +3,7 @@
 test-results/
 playwright-report/
 .env*
+outputs/
+tmp/
 docs/implementation/qa/
 supabase/migrations/
