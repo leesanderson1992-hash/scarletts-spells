@@ -131,3 +131,14 @@ and `20261101211000`. The staging ledger was corrected only after checking its
 stored SQL against the exact renamed files, first in a rollback proof and then
 in an applied transaction. The free-base and bound-root transaction proofs
 passed again after the correction. Production family schema remains unchanged.
+
+The repository also carried two files at `20261101150000`. Production has
+applied the retired-base-word guard under that version, while the disabled
+resolver replacement function was still pending. The latter was renumbered to
+`20261101200000` without changing its SQL. Its five-scenario staging proof
+passed transactionally and rolled back all writes. A Production migration
+dry-run from an isolated workdir excluded only the documented, pre-existing
+local-only `20261013120000_homophone_two_confirmations_trigger.sql` file and
+listed exactly three pending migrations: `20261101200000`, `20261101210000`,
+and `20261101211000`. The normal repository dry-run still stops on that
+historical local-only file. No Production migration has been applied.

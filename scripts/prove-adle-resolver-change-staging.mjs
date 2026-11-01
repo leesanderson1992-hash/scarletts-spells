@@ -10,7 +10,7 @@ if (!url || new URL(url).username.split(".").at(-1) !== "qkpjbajicacbrphthibk")
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10000 });
 const migration = fs.readFileSync(new URL("../supabase/migrations/20261101120000_adle_resolver_change_reconciliation_events.sql", import.meta.url), "utf8")
   .replace(/^begin;/m, "").replace(/commit;\s*$/, "");
-const disabledReplacementMigration = fs.readFileSync(new URL("../supabase/migrations/20261101150000_adle_disabled_resolver_replacement_reconciliation.sql", import.meta.url), "utf8")
+const disabledReplacementMigration = fs.readFileSync(new URL("../supabase/migrations/20261101200000_adle_disabled_resolver_replacement_reconciliation.sql", import.meta.url), "utf8")
   .replace(/^begin;/m, "").replace(/commit;\s*$/, "");
 const oldMapping = "e232663c-23fb-4b7d-9781-b9e39fd71e02";
 const candidateId = "db846eae-9537-40c6-a56c-9652fc00574c";
