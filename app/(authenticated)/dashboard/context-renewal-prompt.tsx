@@ -10,8 +10,8 @@ export function ContextRenewalPrompt({ renewals, error }: {
 }) {
   const [open, setOpen] = useState(true);
   const [page, setPage] = useState(0);
-  const pageCount = Math.ceil(renewals.length / 3);
-  const visibleRenewals = renewals.slice(page * 3, page * 3 + 3);
+  const pageCount = Math.ceil(renewals.length / 2);
+  const visibleRenewals = renewals.slice(page * 2, page * 2 + 2);
   const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -21,7 +21,7 @@ export function ContextRenewalPrompt({ renewals, error }: {
   if (!open) return null;
   const close = () => dialogRef.current?.close();
   return <dialog ref={dialogRef} onClose={() => setOpen(false)} aria-labelledby="context-renewal-title"
-      className="brand-card m-auto w-[min(36rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-4 shadow-2xl backdrop:bg-[#1d1640]/55 sm:p-6">
+      className="brand-card m-auto w-[min(36rem,calc(100vw-2rem))] rounded-3xl border border-[#d8c8f4] bg-[#fffaf5] p-4 shadow-2xl backdrop:bg-[#1d1640]/55">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="brand-eyebrow">Parent choice</p>
@@ -32,7 +32,7 @@ export function ContextRenewalPrompt({ renewals, error }: {
         <button type="button" onClick={close} aria-label="Close renewal prompt"
           className="rounded-full border border-[#d8c8f4] bg-white px-3 py-1.5 text-lg text-[#3a285e]">×</button>
       </div>
-      <p className="brand-copy mt-4 text-sm leading-6">
+      <p className="brand-copy mt-3 text-sm leading-6">
         Choose each child profile for which you want context checking of writing you submit in the parent area.
         Authorisation is recorded separately for each child.
       </p>
@@ -77,7 +77,7 @@ export function ContextRenewalPrompt({ renewals, error }: {
         <button type="button" className="font-semibold text-[#3a285e] disabled:opacity-40" disabled={page === pageCount - 1}
           onClick={() => setPage((current) => current + 1)}>Next</button>
       </div>}
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-wrap gap-3">
         <button type="button" onClick={close} className="brand-secondary-btn">Not now</button>
       </div>
   </dialog>;
