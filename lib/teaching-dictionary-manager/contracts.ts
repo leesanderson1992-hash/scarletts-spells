@@ -163,9 +163,8 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
   return [...new Set(blockers)];
 }
 
-/** Route compilers still receive their established payload shape, but shared
- * dictionary facts are authored once. A route value is only an override when
- * it is explicitly present. */
+/** Route compilers retain their established payload shape while shared facts
+ * always come from the canonical Overview. Teaching-only splits stay in the route. */
 export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraftPayload): RouteContentDraft {
   const parts = payload.canonicalMorphology.parts;
   const joins = payload.canonicalMorphology.joins;

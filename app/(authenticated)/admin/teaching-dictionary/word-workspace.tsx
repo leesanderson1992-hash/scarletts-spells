@@ -52,7 +52,8 @@ import {
   PairedDictationEditor,
   type PassageSet,
 } from "./paired-dictation-editor";
-import { PartSequenceEditor } from "./word-editor";
+import { PartSequenceEditor } from "./part-sequence-editor";
+import { RouteFactsEditor } from "./route-facts-editor";
 import { canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import { ActionSubmitButton } from "./action-submit-button";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
@@ -511,6 +512,12 @@ export function WordWorkspace(props: {
             ? { suffixVariant: suffix.surfaceText } : {}) } },
       ],
     });
+  }
+  function replaceRouteContent(key: string, content: Record<string, unknown>) {
+    const current = routeContent(key);
+    if (!current) return;
+    change({ routeContents: [...payload.routeContents.filter((route) => route.microSkillKey !== key),
+      { ...current, content }] });
   }
   useEffect(() => {
     function reveal() {
@@ -1795,37 +1802,11 @@ export function WordWorkspace(props: {
               onChange={(value) => metadata("morphology_notes", value)}
             />
           </div>
-          {payload.routeContents.map((route) => (
-            <label
-              key={route.microSkillKey}
-              id={`td-route-${route.microSkillKey}-advanced`}
-              className="text-sm"
-            >
-              {name(route.microSkillKey)} · additional reviewed route facts
-              <textarea
-                className={`${input} mt-1 font-mono`}
-                rows={4}
-                defaultValue={JSON.stringify(route.content, null, 2)}
-                onBlur={(event) => {
-                  try {
-                    const content: unknown = JSON.parse(event.target.value);
-                    if (
-                      content &&
-                      typeof content === "object" &&
-                      !Array.isArray(content)
-                    )
-                      updateRoute(
-                        route.microSkillKey,
-                        content as Record<string, unknown>,
-                      );
-                  } catch {
-                    event.target.setCustomValidity("Enter a valid JSON object");
-                    event.target.reportValidity();
-                  }
-                }}
-              />
-            </label>
-          ))}
+          {payload.routeContents.map((route) => <div key={route.microSkillKey}
+            id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
+            <RouteFactsEditor name={name(route.microSkillKey)} content={route.content}
+              onChange={(content) => replaceRouteContent(route.microSkillKey, content)} />
+          </div>)}
           <div id="td-source" className="grid gap-3 sm:grid-cols-3">
             {(
               [

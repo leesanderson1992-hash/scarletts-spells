@@ -37,6 +37,8 @@ row.payload.metadata = { syllables: "re-new", phoneme_hint: "rɪˈnjuː", graphe
   stress_pattern: "second", has_schwa: false, morphemes: "re + new", morphology_notes: "prefix plus base", irregularity_notes: "" };
 row.payload.ageBand = "middle_primary";
 row.payload.frequencyBand = "medium";
+// Shared word sums now come from Overview, even when an imported route carries one.
+row.payload.canonicalMorphology.wordSum = route.wordSum;
 assert.deepEqual(routeBlockers(route, row.payload), []);
 assert(routeBlockers({ ...route, content: { ...route.content,
   teachingSplitParts: [{ id: "bad", kind: "prefix", surfaceText: "re", sourceText: "re" }] } }, row.payload)
