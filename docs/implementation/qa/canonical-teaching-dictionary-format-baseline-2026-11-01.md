@@ -106,3 +106,7 @@ the canonical word-sum approval guard was added. The focused workspace
 regression rejects an approved sum that differs from the reviewed parts while
 accepting the generated sum. The browser smoke does not itself submit an
 invalid approval.
+
+The Preview at commit `0819076` passed the protected browser proof for all
+three reviewed band selectors and their allowed values. Its queue still loaded
+and linked missing shared facts. No selections were saved in the browser proof.
