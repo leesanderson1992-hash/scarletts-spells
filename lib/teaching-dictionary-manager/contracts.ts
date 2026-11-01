@@ -1,4 +1,4 @@
-import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
+import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, generatedWordSum, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { weakVowelRouteBlockers } from "./weak-vowel-authoring";
 import { auditCanonicalMorphology } from "./canonical-morphology";
@@ -158,6 +158,9 @@ export function publicationBlockers(payload: WordDraftPayload, normalisedWord: s
         joins: payload.canonicalMorphology.joins, displayWord: payload.displayWord,
         linkedToFamily: false }).status !== "canonical")
         blockers.push("Review word parts in the canonical editor before approval.");
+      if (payload.canonicalMorphology.wordSum.trim() !==
+        generatedWordSum(payload.canonicalMorphology.parts, payload.displayWord))
+        blockers.push("The canonical word sum must match the reviewed word parts and spelling.");
     } else if (payload.canonicalMorphology.analysisStatus === "not_applicable") {
       if (payload.canonicalMorphology.parts.length || payload.canonicalMorphology.joins.length ||
         payload.canonicalMorphology.wordSum.trim())

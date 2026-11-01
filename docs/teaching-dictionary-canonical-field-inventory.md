@@ -7,7 +7,7 @@
 | Dictation sentence and target | Approved dictation version | Overview sentence and target selector | Exact target occurrence | Dictation activities |
 | Pronunciation, syllables and word metadata | Active word metadata and reviewed written facts | Overview controls | Route readiness and written spelling checks | Audio, phonology and route adapters |
 | Source and confidence | Word, metadata and morphology provenance | Overview source controls | Source category and licence rules | Review audit and publication gate |
-| Word parts, joins, transformations and word sum | Approved active canonical word morphology | Visual word-parts editor | Typed parts, exact surface reconstruction and reviewed status | Family membership and route morphology projection |
+| Word parts, joins, transformations and word sum | Approved active canonical word morphology | Visual word-parts editor | Typed parts, exact surface reconstruction, generated word sum and reviewed status | Family membership and route morphology projection |
 | Base or root family and chosen meaning | Latest approved lexical family revision; historical registry aliases for compatibility | Searchable family selector | Exact base/root evidence in approved morphology | Dictionary family display and lesson family inputs |
 | Affix meanings | Reviewed affix profiles, selected on canonical parts | Word-parts meaning selector | One reviewed choice per affix use | Morphology gloss and route semantics |
 | Micro skills | Reviewed word-skill pairs and releases | Micro-skills selector | Active assignable skill and review release | Lesson eligibility |

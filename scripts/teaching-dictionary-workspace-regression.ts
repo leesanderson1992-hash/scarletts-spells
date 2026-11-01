@@ -61,6 +61,9 @@ const canonicalOverview={...completeOverview,canonicalMorphology:{...completeOve
   parts:[{...completeOverview.canonicalMorphology.parts[0],displayRange:{start:0,end:4}}]}};
 assert.deepEqual(publicationBlockers(canonicalOverview,"word",{requireCanonicalParts:true}),[]);
 assert(publicationBlockers({...canonicalOverview,canonicalMorphology:{...canonicalOverview.canonicalMorphology,
+  wordSum:"word + s → words"}},"word",{requireCanonicalParts:true})
+  .some(message=>message.includes("word sum must match")));
+assert(publicationBlockers({...canonicalOverview,canonicalMorphology:{...canonicalOverview.canonicalMorphology,
   parts:[{...canonicalOverview.canonicalMorphology.parts[0],displayRange:{start:1,end:5}}]}},"word",
   {requireCanonicalParts:true}).some(message=>message.includes("canonical editor")));
 assert(publicationBlockers({...completeOverview,canonicalMorphology:{...completeOverview.canonicalMorphology,parts:[{...completeOverview.canonicalMorphology.parts[0],gloss:""}]}},"word").some(message=>message.includes("meaning for each morphology part")));
