@@ -16,6 +16,7 @@ import {
   getCurriculumRouteOwnerForTaxonomy,
   getNewAssignmentCurriculumRouteForMicroSkill,
 } from "../lib/adle/curriculum-readiness/route-registry";
+import { baseWordSkillForNewWork, IDENTIFY_BASE_WORD_SKILL } from "../lib/adle/base-word-skill-merge";
 import { compileBaseWordFamilyLessonSnapshot } from "../lib/adle/morphology/base-word-family-payload";
 import { BASE_WORD_FAMILY_PREVIEW_READ_MODEL } from "../lib/adle/morphology/base-word-family-preview-fixture";
 import { buildBaseWordFamilyPilotItems } from "../lib/adle/morphology/base-word-family-pilot-plan";
@@ -58,8 +59,13 @@ for (const skill of CLUSTER_SKILLS) {
   assert.deepEqual(resolveCanonicalIntakeRoute(skill, BASE_WORD_CLUSTER), { routeId: "base_word_lab", routeVersion: "v2" });
   assert.equal(getCurriculumRouteOwnerForTaxonomy({ microSkillKey: skill, skillClusterKey: BASE_WORD_CLUSTER })?.routeId, "base_word_lab");
 }
-for (const skill of CLUSTER_SKILLS)
-  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId, "base_word_lab", `${skill} shares the governed Base Word family recipe boundary`);
+for (const skill of CLUSTER_SKILLS) {
+  assert.equal(baseWordSkillForNewWork(skill), IDENTIFY_BASE_WORD_SKILL,
+    `${skill} merges into Identify base word for new work`);
+  assert.equal(getNewAssignmentCurriculumRouteForMicroSkill(skill)?.routeId,
+    skill === IDENTIFY_BASE_WORD_SKILL ? "base_word_lab" : undefined,
+    `${skill} retains historical route ownership without creating retired assignments`);
+}
 assert.equal(isBaseWordIntakeSkill("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), false);
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_BASE_WORDS_INVENTED", "D4_MOR_ROOTS"), { routeId: "adle_word_level", routeVersion: "v1" });
 assert.deepEqual(resolveCanonicalIntakeRoute("D4_MOR_PREFIXES_UN"), { routeId: "dynamic_prefix_word_lab", routeVersion: "v2" });
@@ -122,7 +128,7 @@ for (const canonicalWordId of ["bed", "foot", "sun"]) {
   const result = compileMembership(member(canonicalWordId, "base"));
   assert.equal(result.readyPairs.size, 0, `${canonicalWordId} remains support-only through its base role`);
 }
-const baseLedSkill = "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
+const baseLedSkill = IDENTIFY_BASE_WORD_SKILL;
 const baseLedActivation: ActivatedBaseWordReleaseAuthority = {
   ...activation,
   microSkillKey: baseLedSkill,
@@ -143,6 +149,13 @@ const baseLedActivation: ActivatedBaseWordReleaseAuthority = {
   dictionaryWords: [{ ...activation.dictionaryWords[0], canonicalWordId: "word-careful", wordKey: "careful_en_gb", normalisedWord: "careful", displayWord: "careful", dictationSentence: "Be careful now.", dictationTargetTokenIndex: 1, audioText: "Be careful now." }],
 };
 assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [baseLedActivation] }).readyPairs.has(canonicalWordSkillPair("word-careful", baseLedSkill)), true, "family-authority v2 accepts a genuine misspelling through reviewed base relationship without a permanent authentic role");
+const retiredActivation = structuredClone(baseLedActivation);
+retiredActivation.microSkillKey = "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
+retiredActivation.teachingContent.microSkillKey = retiredActivation.microSkillKey;
+if (retiredActivation.family.schemaVersion !== 2) throw new Error("expected family authority v2");
+retiredActivation.family.families[0].members[0].applicableMicroSkillKeys = [retiredActivation.microSkillKey];
+assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [retiredActivation] }).readyPairs.size, 0,
+  "a retired Base Word skill cannot create a new ready pair");
 const baseAsLearnerTarget = structuredClone(baseLedActivation);
 const baseAsLearnerMember = baseAsLearnerTarget.family.families[0].members[0];
 if (!("structuralRole" in baseAsLearnerMember)) throw new Error("base-led fixture must use family authority v2");

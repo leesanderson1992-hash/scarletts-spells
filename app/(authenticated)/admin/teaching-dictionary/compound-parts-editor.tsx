@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import { findTeachingDictionaryWord } from "./actions";
+import { FormatHint } from "./format-hint";
 
 type Component = {
   ordinal: number;
@@ -35,8 +36,8 @@ export function CompoundPartsEditor(props: {
           <thead>
             <tr>
               <th>Component word</th>
-              <th>Meaning in this word</th>
-              <th>Sense</th>
+              <th>Meaning in this word <FormatHint label="compound component meaning" format="Write the reviewed meaning this component contributes to the compound." example="A place where books are kept" /></th>
+              <th>Sense <FormatHint label="compound component sense" format="Name the intended sense when the component has more than one meaning; leave blank when unambiguous." example="book as a written work" /></th>
               <th>Join before</th>
               <th />
             </tr>
@@ -129,6 +130,7 @@ export function CompoundPartsEditor(props: {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
+            <FormatHint label="component dictionary word search" format="Search for an approved dictionary word to use as this component." example="book" />
             <button
               type="button"
               disabled={pending}

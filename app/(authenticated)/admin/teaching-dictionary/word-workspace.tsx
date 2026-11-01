@@ -58,6 +58,7 @@ import { PartSequenceEditor } from "./part-sequence-editor";
 import { RouteFactsEditor } from "./route-facts-editor";
 import { auditCanonicalMorphology, canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import { ActionSubmitButton } from "./action-submit-button";
+import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import type { BritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
@@ -169,7 +170,7 @@ function Editable({
     "Morphology notes": { format: "Explain any exceptional spelling change in plain language.", example: "The final consonant doubles before -ing." },
     "Age band": { format: "Choose the dictionary learner age band.", example: "middle_primary" },
     "Frequency band": { format: "Choose the reviewed frequency band.", example: "medium" },
-    "Complexity band": { format: "Choose the reviewed teaching complexity band.", example: "moderate" },
+    "Complexity band": { format: "Choose the reviewed teaching complexity band.", example: "medium" },
     "Source category": { format: "Choose the provenance category for this fact.", example: "internal_authored" },
     "Source name": { format: "Name the source used for review.", example: "Teaching Dictionary editorial review" },
     "Source URL": { format: "Enter a full source URL when one applies.", example: "https://example.org/entry" },
@@ -906,7 +907,9 @@ export function WordWorkspace(props: {
               <input type="hidden" name="part_of_speech" value={payload.canonicalMorphology.rawPartOfSpeech} />
               <p>Approve <strong>{payload.canonicalMorphology.rawPartOfSpeech}</strong> as the live part of speech. This publishes only that dictionary fact; lesson content still needs its own review.</p>
               {dirty && <p className="mt-1 text-amber-900">Other edits on this page will not be published by this action. Save them as a draft first if needed.</p>}
-              <label className="mt-2 block" htmlFor="td-pos-review-note">Reason for correction</label>
+              <label className="mt-2 block" htmlFor="td-pos-review-note">Reason for correction
+                <FormatHint label="reason for part-of-speech correction" format="Briefly state the evidence for changing the approved grammatical role." example="Used as a verb in the reviewed dictionary example." />
+              </label>
               <input id="td-pos-review-note" name="review_note" className={input} required maxLength={1000} placeholder="Why is this classification correct?" />
               <ActionSubmitButton className={`${button} mt-2`} pendingLabel="Approving…">Approve part of speech</ActionSubmitButton>
             </form>
@@ -978,7 +981,9 @@ export function WordWorkspace(props: {
               <thead className="text-xs text-[color:var(--mid)]">
                 <tr>
                   <th className="p-2 font-medium">Use</th>
-                  <th className="p-2 font-medium">Sentence</th>
+                  <th className="p-2 font-medium">Sentence
+                    <FormatHint label="dictation sentence" format="Write a complete sentence containing the dictionary word exactly as spelled." example="We are scrolling down the page." />
+                  </th>
                   <th className="p-2 font-medium">Target occurrence</th>
                   <th className="p-2 font-medium">Action</th>
                 </tr>
@@ -1985,6 +1990,7 @@ export function WordWorkspace(props: {
         </div>
         <label id="td-written-syllables" className="mt-3 block text-sm">
           Written syllable breakdown
+          <FormatHint label="written syllable breakdown" format="Separate written syllables with a middle dot; the letters must reproduce the word." example="scroll·ing" />
           <input
             className={`${input} mt-1`}
             value={payload.writtenSyllableBreakdown ?? ""}
@@ -2078,6 +2084,7 @@ export function WordWorkspace(props: {
               </label>
               <label className="text-xs">
                 Explanation
+                <FormatHint label="transformation explanation" format="Explain the spelling change in a short learner-facing sentence." example="Double the final l before adding -ing." />
                 <input
                   className={input}
                   value={item.explanation}
@@ -2105,6 +2112,7 @@ export function WordWorkspace(props: {
               ).map(([field, label]) => (
                 <label key={field} className="text-xs">
                   {label}
+                  <FormatHint label={label.toLowerCase()} format={field === "sourceText" ? "Enter the letters before this spelling change." : "Enter the letters after this spelling change."} example={field === "sourceText" ? "hop" : "hopp"} />
                   <input
                     className={input}
                     value={item[field]}
@@ -2197,6 +2205,7 @@ export function WordWorkspace(props: {
         </div>
         <label className="mt-3 block text-sm">
           Morphology source / review note
+          <FormatHint label="morphology source or review note" format="Name the evidence or editorial decision used to review these word parts." example="Reviewed against the approved scroll family and suffix meaning." />
           <input
             className={`${input} mt-1`}
             value={payload.canonicalMorphology.reviewNotes}
@@ -2284,6 +2293,7 @@ export function WordWorkspace(props: {
       >
         <div className="mb-4 grid gap-2 rounded border border-[var(--border)] p-3">
           <label className="grid gap-1 text-sm font-semibold" htmlFor="family-search">Find an existing word family
+            <FormatHint label="family search" format="Search by the approved free base or bound root spelling." example="scroll" />
             <input id="family-search" type="search" autoComplete="off" value={familyQuery}
               onChange={event => {
                 const value = event.target.value;

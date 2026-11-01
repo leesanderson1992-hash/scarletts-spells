@@ -1,6 +1,7 @@
 "use client";
 
 import type { WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { FormatHint } from "./format-hint";
 
 type Facts = Partial<WeakVowelRouteFactsV1>;
 type Activity = keyof WeakVowelRouteFactsV1["activityEligibility"];
@@ -12,6 +13,24 @@ const activities: { key: Activity; label: string }[] = [
   { key: "family", label: "Family exploration (optional)" },
 ];
 const field = "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--ink)]";
+const textGuidance: Record<string, { format: string; example: string }> = {
+  "Source fingerprint": { format: "Use the fingerprint of the reviewed shared dictionary facts; keep the prefilled value when it matches this review.", example: "The prefilled 64-character fingerprint" },
+  "Reviewed source link or reference": { format: "Name the source reviewed for this word's weak vowel pattern.", example: "Reviewed dictionary pronunciation" },
+  "Chosen sense": { format: "State the meaning that matches this pronunciation and lesson.", example: "A person who acts" },
+  "Reviewed pronunciation ID": { format: "Use the ID of the reviewed British pronunciation or device voice.", example: "device-voice:actor" },
+  "Word audio source (British recording or device voice)": { format: "Use the reviewed audio path or device-voice source for the word.", example: "/audio/actor.mp3" },
+  "Word recording SHA-256": { format: "Enter the 64-character SHA-256 hash of the exact word recording source.", example: "64 lowercase hexadecimal characters" },
+  "Spoken syllable count": { format: "Enter the number of syllables heard in the chosen recording.", example: "2" },
+  "Accepted cut positions": { format: "Enter zero-based letter gaps, separated by commas; separate alternative sets with a semicolon.", example: "2; 2,5" },
+  "Full target start": { format: "Enter the zero-based first letter position of the weak vowel target in the word.", example: "3" },
+  "Full target end (exclusive)": { format: "Enter the first letter position after the target.", example: "4" },
+  "Target spoken syllable (1-based)": { format: "Enter the spoken syllable number containing the target, starting at 1.", example: "2" },
+  "Sentence audio source (British recording or device voice)": { format: "Use the reviewed audio path or device-voice source for the full sentence.", example: "/audio/actor-sentence.mp3" },
+  "Sentence recording SHA-256": { format: "Enter the 64-character SHA-256 hash of the exact sentence recording source.", example: "64 lowercase hexadecimal characters" },
+  "Target start in full sentence": { format: "Enter the zero-based first character position of the dictionary word in the sentence.", example: "7" },
+  "Target end in full sentence (exclusive)": { format: "Enter the first character position after the dictionary word.", example: "12" },
+  "Approved family authority ID": { format: "Use the ID of the approved family revision selected for this word.", example: "A reviewed family UUID" },
+};
 
 export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictionaryFingerprint, dictionarySyllables,
   blockers, onChange }: {
@@ -29,6 +48,7 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
   const label = (title: string, id: string, value: string, update: (value: string) => void, hint?: string) =>
     <label className="block min-w-0 text-sm" htmlFor={id}>
       <span className="font-medium">{title}</span>
+      <FormatHint label={title} format={textGuidance[title]?.format ?? "Enter the reviewed route fact."} example={textGuidance[title]?.example ?? "A reviewed value"} />
       {hint && <span className="ml-1 text-xs text-[var(--mid)]">{hint}</span>}
       <input id={id} className={`${field} mt-1`} value={value} onChange={event => update(event.target.value)} />
     </label>;
@@ -138,7 +158,9 @@ export function WeakVowelRouteEditor({ skillKey, word, sentence, facts, dictiona
           onChange={e => setEligibility(key, { status: e.target.value as "ready" | "blocked" | "not_applicable", reason: e.target.value === "ready" ? null : current.activityEligibility?.[key]?.reason ?? "Awaiting review" })}>
           <option value="">Review status</option><option value="ready">Ready</option><option value="blocked">Blocked</option>{key === "family" && <option value="not_applicable">Not applicable</option>}
         </select>
-        <input aria-label={`${activity} reason`} placeholder="Reason when blocked" className={field} value={current.activityEligibility?.[key]?.reason ?? ""} onChange={e => setEligibility(key, { reason: e.target.value || null })} />
+        <div className="flex items-center gap-1"><input aria-label={`${activity} reason`} placeholder="Reason when blocked" className={field} value={current.activityEligibility?.[key]?.reason ?? ""} onChange={e => setEligibility(key, { reason: e.target.value || null })} />
+          <FormatHint label={`${activity} reason`} format="When this activity is blocked, state the missing teaching fact in plain language." example="The target vowel has not been reviewed." />
+        </div>
       </div>)}
     </fieldset>
     <div role="status" className="rounded-lg border border-[var(--border)] p-3 text-sm">

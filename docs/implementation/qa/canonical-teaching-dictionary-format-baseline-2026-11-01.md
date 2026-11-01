@@ -141,4 +141,34 @@ dry-run from an isolated workdir excluded only the documented, pre-existing
 local-only `20261013120000_homophone_two_confirmations_trigger.sql` file and
 listed exactly three pending migrations: `20261101200000`, `20261101210000`,
 and `20261101211000`. The normal repository dry-run still stops on that
-historical local-only file. No Production migration has been applied.
+historical local-only file. This paragraph records the pre-release state;
+the Production receipt below records the later application.
+
+## Production release and follow-up audit
+
+The isolated Production migration push applied exactly `20261101200000`,
+`20261101210000`, and `20261101211000`. The canonical dictionary release
+passed the protected staging browser check, the exact-commit Production
+candidate health check, alias promotion, and the writing-context policy and
+scheduler cutover. The follow-up approval-form and range-validation repairs
+were released at commit `0a1fa8ef8bf7d375ec558038f8a9f91b0ec5dde0`.
+The Production alias and the policy and scheduler SHA all matched that commit;
+the authenticated recovery endpoint and the 23:10 UTC scheduler request
+returned HTTP 200 with the release hold disabled.
+
+The read-only post-release audit still found 2,495 active words. Four now have
+canonical morphology: the original two plus `blow` and `series`, whose exact
+display positions were reviewed through Overview, approved, and published.
+There are no remaining exact-range-only conversions. The remaining 2,491
+records are in the review queue: 169 need a new reviewed family evidence
+version, 264 need joins reviewed, 972 contain legacy part aliases, and 1,086
+need reviewed part facts. The latest 842 route versions still include seven
+shared-meaning conflicts and 22 word-sum conflicts. Those records were left
+unchanged because their interpretation is not exact and unambiguous.
+
+The post-release browser proof confirmed an approved free-base family search,
+an approved bound-root search on Production, the scrolling Overview, and
+Lesson checks. The new staging Preview at commit `0a1fa8e` passed the
+read-only browser smoke for the queue, index, free-base search, Overview,
+reviewed selectors, and Lesson checks. Its staging dataset has no persistent
+approved bound root, so bound-root search on that Preview remains untested.
