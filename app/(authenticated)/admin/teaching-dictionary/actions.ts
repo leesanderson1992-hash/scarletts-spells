@@ -25,10 +25,31 @@ import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage 
 import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manager/morphology-publication";
+import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "@/lib/teaching-dictionary-manager/affix-meanings";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 const errorCode = (error: unknown) => error instanceof Error && /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : "TEACHING_DICTIONARY_ACTION_FAILED";
+
+async function assertReviewedAffixMeanings(
+  db: ReturnType<typeof createServiceRoleClient>, payload: WordDraftPayload,
+) {
+  const parts = payload.canonicalMorphology.parts;
+  if (!parts.some((part) => part && typeof part === "object" &&
+    ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind ??
+      (part as Record<string, unknown>).role ?? (part as Record<string, unknown>).type ??
+      (part as Record<string, unknown>).partType ?? "")))) return;
+  const [prefixes, suffixes] = await Promise.all([
+    db.from("canonical_teaching_dictionary_prefix_profiles").select("prefix_choices")
+      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    db.from("canonical_teaching_dictionary_suffix_profiles").select("micro_skill_key,meaning_bins")
+      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+  ]);
+  if (prefixes.error || suffixes.error) throw new Error("TEACHING_AFFIX_MEANING_CHOICES_READ_FAILED");
+  const choices = reviewedAffixMeanings(prefixes.data ?? [], suffixes.data ?? []);
+  if (unreviewedAffixMeaningParts(parts, choices).length)
+    throw new Error("TEACHING_AFFIX_MEANING_NOT_REVIEWED");
+}
 
 /** Publish one reviewed dictionary fact without releasing any ADLE lesson content. */
 export async function approveTeachingDictionaryPartOfSpeech(form: FormData) {
@@ -91,9 +112,10 @@ async function publishValidatedDraft(
       .eq("canonical_word_id", source.data.canonical_word_id).eq("row_status", "active").maybeSingle()
     : null;
   if (activeMorphology?.error) throw new Error("TEACHING_MORPHOLOGY_READ_FAILED");
-  if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts:
-    changesMorphologyForPublication(payload.canonicalMorphology, activeMorphology?.data ?? null) }).length)
+  const morphologyChanged = changesMorphologyForPublication(payload.canonicalMorphology, activeMorphology?.data ?? null);
+  if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: morphologyChanged }).length)
     throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
+  if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
     const proof = !payload.dictationVariants && payload.writtenSyllableBreakdown === undefined && !payload.canonicalMorphology.transformations
@@ -417,6 +439,7 @@ async function performWorkspaceSave(form: FormData) {
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
       if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
         throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
+      if (reviewSection === "overview") await assertReviewedAffixMeanings(db, payload);
       if(reviewSection.startsWith("lesson:")) {
         const fingerprint=await db.rpc("teaching_dictionary_overview_fingerprint",{p_payload:payload});
         if(fingerprint.error)throw new Error("TEACHING_OVERVIEW_FINGERPRINT_FAILED");

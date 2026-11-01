@@ -14,6 +14,33 @@ import { assessWordActivities } from "../lib/teaching-dictionary-manager/activit
 import { matrixCell, matrixColumns } from "../lib/teaching-dictionary-manager/activity-matrix";
 import { deriveReviewedSuffixCandidate } from "../lib/adle/morphology/derived-suffix-candidate";
 import { isDynamicAffixWordLessonReady } from "../lib/adle/morphology/dynamic-affix-transfer-selection";
+import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "../lib/teaching-dictionary-manager/affix-meanings";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { PartSequenceEditor } from "../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor";
+
+const affixChoices = reviewedAffixMeanings(
+  [{ prefix_choices: [{ text: "re", meaning: "again" }, { text: "re", meaning: "back" }] }],
+  [{ micro_skill_key: "D4_MOR_SUFFIXES_ITY", meaning_bins: [
+    { id: "state", label: "STATE", description: "a state" },
+    { id: "quality", label: "QUALITY", description: "a quality" },
+  ] }],
+);
+assert.deepEqual(affixChoices.re, ["again", "back"]);
+assert.deepEqual(affixChoices.ity, ["a state", "a quality"]);
+assert.deepEqual(unreviewedAffixMeaningParts([
+  { kind: "prefix", sourceText: "re", gloss: "back" },
+  { kind: "suffix", sourceText: "ity", gloss: "old meaning" },
+], affixChoices), [2], "an obsolete affix meaning cannot pass the approval check");
+const affixEditor = renderToStaticMarkup(createElement(PartSequenceEditor, {
+  label: "Reviewed parts", word: "equality",
+  parts: [{ id: "base", kind: "base", sourceText: "equal", surfaceText: "equal", gloss: "the same" },
+    { id: "suffix", kind: "suffix", sourceText: "ity", surfaceText: "ity", gloss: "a state" }],
+  joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
+  affixMeanings: affixChoices, onChange: () => {},
+}));
+assert.match(affixEditor, /<option[^>]*>a state<\/option>/);
+assert.match(affixEditor, /<option[^>]*>a quality<\/option>/);
 
 const [row] = parseDictionaryCsv([
   "targetWord,routeId,routeVersion,microSkillKey,wordMeaning,wordSum,wordPartsJSON,dictation1_sentence",

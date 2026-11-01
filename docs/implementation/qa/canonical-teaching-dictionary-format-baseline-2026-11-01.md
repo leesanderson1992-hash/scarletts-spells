@@ -185,3 +185,7 @@ existing validator.
 The visual parts editor also normalises historical `partType: bound_root` to
 the selectable `root` role, so those queued entries can be reviewed without
 an empty role control; `canonical-morphology-regression.ts` covers this read.
+The reviewed affix-choice projection is now shared by the visual editor and
+the server approval path. When an approved profile defines meanings for a
+prefix or suffix form, a new Overview or changed morphology publication must
+use one of those meanings. Historical unchanged morphology remains readable.

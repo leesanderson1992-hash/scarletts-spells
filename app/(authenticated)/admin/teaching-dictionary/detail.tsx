@@ -30,6 +30,7 @@ import type { ReviewedWeakVowelSource, ReviewedWeakVowelWrittenFact } from "@/li
 import type { WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import { SpellingCasesForWord } from "./spelling-cases";
 import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } from "./actions";
+import { reviewedAffixMeanings } from "@/lib/teaching-dictionary-manager/affix-meanings";
 
 type Params = {
   draft?: string;
@@ -436,26 +437,7 @@ export async function TeachingDictionaryDetail({
       ]),
     ).values(),
   ];
-  const affixMeanings: Record<string, string[]> = {};
-  for (const profile of prefixProfiles.data ?? [])
-    for (const raw of Array.isArray(profile.prefix_choices)
-      ? profile.prefix_choices
-      : []) {
-      const choice = raw as { text?: string; meaning?: string };
-      if (choice.text && choice.meaning)
-        (affixMeanings[choice.text] ??= []).push(choice.meaning);
-    }
-  for (const profile of suffixProfiles.data ?? [])
-    for (const form of getSharedAffixProfileMapping(profile.micro_skill_key)
-      ?.forms ?? []) {
-      for (const raw of Array.isArray(profile.meaning_bins)
-        ? profile.meaning_bins
-        : []) {
-        const bin = raw as { label?: string; description?: string };
-        if (bin.label)
-          (affixMeanings[form] ??= []).push(bin.description || bin.label);
-      }
-    }
+  const affixMeanings = reviewedAffixMeanings(prefixProfiles.data ?? [], suffixProfiles.data ?? []);
   if (staleDraft && params.historical === "1" && draft && wordId) return (
     <main className="mx-auto grid max-w-5xl gap-4 p-6 text-[color:var(--ink)]">
       <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}`}>← Current approved facts</Link>
