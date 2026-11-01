@@ -36,10 +36,15 @@ try {
   await db.connect();
   await db.query("begin");
   for (const name of migrationNames) {
+    const version = name.slice(0, 14);
+    const applied = await db.query("select 1 from supabase_migrations.schema_migrations where version=$1", [version]);
+    if (applied.rowCount) continue;
     const sql = fs.readFileSync(new URL(`../supabase/migrations/${name}`, import.meta.url), "utf8")
       .replace(/^begin;/m, "").replace(/commit;\s*$/, "");
     await db.query(sql);
   }
+  const functionCheck = await db.query("select to_regprocedure('public.create_reviewed_lexical_free_base_family(uuid,uuid,uuid,uuid,text,text,text,text,text,text,text,text)')::text name");
+  assert.ok(functionCheck.rows[0]?.name, "family creation function is installed");
   await proof("standalone plate", [
     "00ccd7e3-f46c-516c-bb8a-535c49a4c817", "00ccd7e3-f46c-516c-bb8a-535c49a4c817",
     "e9ec241a-36c7-5b34-b09b-97f5e5f3088f", "e9ec241a-36c7-5b34-b09b-97f5e5f3088f",

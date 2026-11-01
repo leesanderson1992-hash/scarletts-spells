@@ -60,3 +60,8 @@ The follow-up Preview at commit `1d31bf3` passed the same protected browser
 proof, including an assertion that approved staging words with no morphology
 row appear in the format-review queue. The first page contains 59 such words.
 The check was read-only and did not alter dictionary records.
+
+The installed staging family functions also passed the transaction-rolled-back
+`prove-lexical-free-base-creation-staging.mjs` proof: creating a standalone
+`plate` family and a `kid`/`kids` family produced the expected reviewed
+memberships, and duplicate creation was rejected. No fixture was committed.
