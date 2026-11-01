@@ -110,3 +110,10 @@ invalid approval.
 The Preview at commit `0819076` passed the protected browser proof for all
 three reviewed band selectors and their allowed values. Its queue still loaded
 and linked missing shared facts. No selections were saved in the browser proof.
+
+The Preview at commit `c8c30bc` passed the protected search proof. An approved
+free-base family remained searchable, and a two-letter query returned only
+families whose reviewed lemma contains those letters. The focused regression
+covers bound-root ranking, latest approved revisions, and the old family-key
+suffix false match. Staging still has no persistent approved bound-root family
+for a live browser search.
