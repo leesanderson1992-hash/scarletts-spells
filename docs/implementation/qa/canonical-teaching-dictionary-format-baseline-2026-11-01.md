@@ -55,3 +55,8 @@ family search API. It made no dictionary mutations. This staging dataset has
 no approved bound-root family, so bound-root search remains unproved by this
 browser check. The Preview does not include later source commits and is not a
 Production release candidate.
+
+The follow-up Preview at commit `1d31bf3` passed the same protected browser
+proof, including an assertion that approved staging words with no morphology
+row appear in the format-review queue. The first page contains 59 such words.
+The check was read-only and did not alter dictionary records.
