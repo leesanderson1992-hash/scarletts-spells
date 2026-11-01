@@ -7,7 +7,7 @@ import {
 } from "@/lib/teaching-dictionary-manager/base-family-candidates";
 import { approvedLexicalBaseTexts, lexicalMorphologyReady } from "@/lib/teaching-dictionary-manager/lexical-family-candidates";
 import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
-import { reviewBaseFamilyMember, withdrawBaseFamilyMember } from "./base-family-actions";
+import { withdrawBaseFamilyMember } from "./base-family-actions";
 import { reviewLexicalFamilyMember } from "./lexical-family-actions";
 import type { ReactNode } from "react";
 
@@ -42,7 +42,7 @@ function FormFields({ word, baseWordId, baseLabel, proposedKey, legacy, baseMean
       ? morphology.parts : [];
   const joins = isBase ? [] : exactMorphology ? morphology.joins : [];
   const governedMorphology = Boolean(exactMorphology);
-  return <form action={reviewBaseFamilyMember} className="grid gap-3 rounded border border-[var(--border)] p-3">
+  return <form action="/api/admin/teaching-dictionary/base-family-review" method="post" className="grid gap-3 rounded border border-[var(--border)] p-3">
     <input type="hidden" name="request_id" value={randomUUID()} />
     <input type="hidden" name="word_id" value={word.id} />
     <input type="hidden" name="base_word_id" value={baseWordId} />
