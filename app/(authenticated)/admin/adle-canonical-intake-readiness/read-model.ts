@@ -19,6 +19,7 @@ export type { ReadinessView } from "./readiness-groups";
 export type ReadinessRow = {
   key: string;
   word: string;
+  misspellings: string[];
   dictionaryWordId: string | null;
   intake: IntakeOutcome;
   microSkillKey: string;
@@ -256,6 +257,11 @@ export async function loadReadinessRows(params: {
       };
     });
     const teachingRow = (contentResult.data ?? []).find((content: any) => content.micro_skill_key === group.skill && content.is_active);
+    const relevantSourceIds = new Set((group.waiting.length ? group.waiting : group.candidates)
+      .map((candidate) => candidate.source_candidate_mapping_id));
+    const misspellings = [...new Set<string>(sources.filter((source: any) =>
+      relevantSourceIds.has(source.id) && source.correct_spelling_normalized === group.word &&
+      source.micro_skill_key === group.skill).map((source: any) => source.misspelling_normalized as string))].sort();
     const facets = projectReadiness({
       target: group.word, microSkillKey: group.skill, routeId: route.routeId,
       candidates: sources.filter((source: any) => source.correct_spelling_normalized === group.word && source.micro_skill_key === group.skill &&
@@ -294,7 +300,7 @@ export async function loadReadinessRows(params: {
     facets.lesson.href = `/admin/adle-lesson-readiness?route=${encodeURIComponent(route.routeId)}&skill=${encodeURIComponent(group.skill)}`;
     const intake = intakeOutcome(group.demands, group.candidates);
     if (intake.state === "waiting" && Object.values(facets).every((facet) => facet.state === "complete")) intake.label = "Ready · awaiting intake";
-    return { key: group.key, word: group.word, dictionaryWordId: wordRows.filter((word: any) => word.row_status === "active").length === 1 ? wordRows.find((word: any) => word.row_status === "active")!.id : null,
+    return { key: group.key, word: group.word, misspellings, dictionaryWordId: wordRows.filter((word: any) => word.row_status === "active").length === 1 ? wordRows.find((word: any) => word.row_status === "active")!.id : null,
       intake, microSkillKey: group.skill,
       routeId: route.routeId, routeVersion: route.routeVersion,
       occurrences: distinctOccurrences(group.candidates),

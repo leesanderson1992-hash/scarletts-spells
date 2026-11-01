@@ -24,7 +24,7 @@ export async function allUnresolvedReadinessRows(): Promise<ReadinessRow[]> {
   return [...rows.values()].sort((a, b) => a.word.localeCompare(b.word) || a.microSkillKey.localeCompare(b.microSkillKey));
 }
 
-export const READINESS_CSV_COLUMNS = ["word", "micro_skill_key", "route_id", "occurrences", "users_waiting",
+export const READINESS_CSV_COLUMNS = ["word", "misspellings", "micro_skill_key", "route_id", "occurrences", "users_waiting",
   "resolver", "resolver_reason", "resolver_link", "teaching_content", "teaching_content_reason", "teaching_content_link",
   "dictionary", "dictionary_reason", "dictionary_link", "metadata", "metadata_reason", "metadata_link",
   "adle_lesson", "adle_lesson_reason", "adle_lesson_link", "next_action", "next_action_link",
@@ -36,7 +36,7 @@ function exportStatus(facet: ReadinessRow["facets"][keyof ReadinessRow["facets"]
 
 export function readinessCsvRows(rows: ReadinessRow[]): Array<Record<string, unknown>> {
   return rows.map((row) => { const next = Object.values(row.facets).find((facet) => facet.state !== "complete");
-    return { word: row.word, micro_skill_key: row.microSkillKey, route_id: row.routeId,
+    return { word: row.word, misspellings: row.misspellings.join("; "), micro_skill_key: row.microSkillKey, route_id: row.routeId,
     occurrences: row.occurrences, users_waiting: row.usersWaiting, resolver: exportStatus(row.facets.resolver),
     resolver_reason: row.facets.resolver.details.join("; "), resolver_link: row.facets.resolver.href ?? "",
     teaching_content: exportStatus(row.facets.teaching), teaching_content_reason: row.facets.teaching.details.join("; "),

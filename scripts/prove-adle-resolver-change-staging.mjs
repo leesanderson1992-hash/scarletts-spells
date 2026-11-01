@@ -10,6 +10,8 @@ if (!url || new URL(url).username.split(".").at(-1) !== "qkpjbajicacbrphthibk")
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10000 });
 const migration = fs.readFileSync(new URL("../supabase/migrations/20261101120000_adle_resolver_change_reconciliation_events.sql", import.meta.url), "utf8")
   .replace(/^begin;/m, "").replace(/commit;\s*$/, "");
+const disabledReplacementMigration = fs.readFileSync(new URL("../supabase/migrations/20261101150000_adle_disabled_resolver_replacement_reconciliation.sql", import.meta.url), "utf8")
+  .replace(/^begin;/m, "").replace(/commit;\s*$/, "");
 const oldMapping = "e232663c-23fb-4b7d-9781-b9e39fd71e02";
 const candidateId = "db846eae-9537-40c6-a56c-9652fc00574c";
 const identify = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
@@ -50,6 +52,7 @@ try {
   await q("begin");
   await q("set local lock_timeout='5s'");
   await q(migration);
+  await q(disabledReplacementMigration);
   await scenario("issued lesson stays pinned", async () => {}, async ({ event, candidate }) => {
     const outcome = (await q("select * from public.adle_resolver_change_source_outcomes where change_id=$1", [event.id])).rows[0];
     assert.equal(outcome.outcome, "issued_pinned");
@@ -185,6 +188,31 @@ try {
     const destination = (await q("select * from public.adle_learning_items where id=$1", [outcome.new_learning_item_id])).rows[0];
     assert.equal(destination.micro_skill_key, identify);
   });
+  await q("savepoint disabled_replacement");
+  try {
+    const original = (await q("select * from public.spelling_canonical_mappings where id=$1", [oldMapping])).rows[0];
+    await q(`update public.adle_canonical_intake_candidates set candidate_state='pending_content',
+      learning_item_id=null,activated_at=null where id=$1`, [candidateId]);
+    await q(`update public.spelling_canonical_mappings set mapping_status='disabled',
+      resolver_visibility_status='disabled' where id=$1`, [oldMapping]);
+    const replacement = (await q(`select public.create_spelling_canonical_mapping_admin(
+      p_misspelling_normalized=>$1,p_correct_spelling_normalized=>$2,
+      p_micro_skill_key=>$3,p_admin_user_id=>$4,p_decision_note=>$5) id`,
+      [original.misspelling_normalized,original.correct_spelling_normalized,identify,
+        original.created_by_admin_user_id,"Staging proof for an independently created resolver replacement"])).rows[0].id;
+    await q("update public.spelling_canonical_mappings set resolver_visibility_status='visible' where id=$1", [replacement]);
+    const change = (await q("select * from public.adle_resolver_change_reconciliations where old_mapping_id=$1", [oldMapping])).rows[0];
+    assert.equal(change.new_mapping_id,replacement);
+    const processed = (await q("select * from public.adle_process_resolver_changes_v1(20)")).rows;
+    assert.deepEqual(processed,[{ change_id:change.id,outcome:"complete" }]);
+    const current = (await q("select micro_skill_key,candidate_state from public.adle_canonical_intake_candidates where id=$1", [candidateId])).rows[0];
+    assert.equal(current.micro_skill_key,identify);
+    assert.equal(current.candidate_state,"queued");
+    console.log("disabled exact-pair replacement requeues pending intake: ok");
+  } finally {
+    await q("rollback to savepoint disabled_replacement");
+    await q("release savepoint disabled_replacement");
+  }
   console.log("staging proof complete; all changes rolled back");
 } finally {
   await q("rollback").catch(() => {});

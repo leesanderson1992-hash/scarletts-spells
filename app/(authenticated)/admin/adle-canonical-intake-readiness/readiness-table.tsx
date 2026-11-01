@@ -57,6 +57,7 @@ function DetailDialog({ row, onClose, preview, routeStatus }: { row: ReadinessRo
     description={<span>{row.routeId} {row.routeVersion} · Last evaluated {date(row.lastEvaluatedAt)}</span>}
     footer={<button type="button" className="adle-admin-dialog-close" onClick={onClose}>Close</button>}>
     <div className="adle-admin-dialog-body">
+      {row.misspellings.length > 0 && <p className="text-sm text-[#414a55]"><strong>Spelling pairs:</strong> {row.misspellings.map((misspelling) => `${misspelling} → ${row.word}`).join(", ")}</p>}
       <p className="text-sm text-[#414a55]"><strong>Intake: {row.intake.label}</strong> · {row.intake.activated} activated · {row.intake.pending} pending. Admission is separate from mastery and from having enough eligible words to schedule a complete lesson.</p>
       {routeStatus && <section className="adle-admin-detail-section">
         <h4>Governed route readiness</h4>
@@ -157,7 +158,9 @@ export function ReadinessTable({ rows, view, controls = {
           <th scope="col" className="options"><span className="sr-only">Options</span></th>
         </tr></thead>
         <tbody>{rows.map((row) => <tr key={row.key}>
-          <th scope="row" className="word">{row.word}</th>
+          <th scope="row" className="word">{row.misspellings.length > 0
+            ? row.misspellings.map((misspelling) => <span className="block" key={misspelling}>{misspelling} → {row.word}</span>)
+            : row.word}</th>
           <td className="skill" title={row.microSkillKey}>{row.microSkillKey.replace(/^D4_/, "").replaceAll("_", " ").toLowerCase()}</td>
           <td className="number">{row.occurrences}</td><td className="number">{row.usersWaiting}</td>
           {FACET_KEYS.map((key) => <td key={key} className="check"><Indicator facet={row.facets[key]} label={LABELS[key]} /></td>)}
