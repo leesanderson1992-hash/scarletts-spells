@@ -480,6 +480,10 @@ export function WordWorkspace(props: {
     builder.current?.showModal();
   }
   const formId = "word-workspace-save";
+  const reviewSectionInput = useRef<HTMLInputElement>(null);
+  function selectReviewSection(section: string) {
+    if (reviewSectionInput.current) reviewSectionInput.current.value = section;
+  }
   function change(update: Partial<WordDraftPayload>) {
     setEditVersion(version => version + 1);
     setPayload((old) => withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
@@ -693,6 +697,7 @@ export function WordWorkspace(props: {
         form={formId}
         name="review_section"
         value={review}
+        onClick={() => selectReviewSection(review)}
         pendingLabel="Saving…"
         className={button}
       >
@@ -820,6 +825,7 @@ export function WordWorkspace(props: {
   return (
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
+        <input ref={reviewSectionInput} type="hidden" name="review_section" defaultValue="draft" />
         <input type="hidden" name="word_id" value={props.wordId ?? ""} />
         <input
           type="hidden"
@@ -1282,8 +1288,8 @@ export function WordWorkspace(props: {
             </div>
           </details>
           <div className={actions}>
-            {dirty && <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>}
-            {!complete && <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>}
+            {dirty && <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" onClick={() => selectReviewSection("draft")} pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>}
+            {!complete && <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} onClick={() => selectReviewSection(`lesson:${key}`)} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>}
           </div>
           </div>
         </details>;

@@ -12,11 +12,12 @@ export function ActionSubmitButton(props: {
   form?: string;
   name?: string;
   value?: string;
+  onClick?: () => void;
 }) {
   const status = useFormStatus();
   const pending=props.pending ?? status.pending;
   return <button
-    type="submit" form={props.form} name={props.name} value={props.value}
+    type="submit" form={props.form} name={props.name} value={props.value} onClick={props.onClick}
     className={`${props.className ?? ""} inline-flex min-w-fit items-center justify-center gap-2 transition active:scale-[0.98]`}
     disabled={props.disabled || pending}
     aria-busy={pending}
