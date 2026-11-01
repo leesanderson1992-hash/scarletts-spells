@@ -24,6 +24,7 @@ import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dic
 import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
+import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manager/morphology-publication";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -74,7 +75,8 @@ async function publishValidatedDraft(
   payload: WordDraftPayload,
   normalisedWord: string,
 ): Promise<string> {
-  const source = await db.from("teaching_dictionary_manager_drafts").select("source_reference").eq("id", id).single();
+  const source = await db.from("teaching_dictionary_manager_drafts")
+    .select("source_reference,canonical_word_id").eq("id", id).single();
   if (source.error) throw new Error("TEACHING_DRAFT_NOT_FOUND");
   const batchId = source.data.source_reference.match(/^CSV batch ([a-f0-9-]{36}),/)?.[1];
   if (batchId) {
@@ -83,7 +85,15 @@ async function publishValidatedDraft(
     if (replaced.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
     if (replaced.data) throw new Error("TEACHING_BATCH_REPLACED");
   }
-  if (publicationBlockers(payload, normalisedWord).length) throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
+  const activeMorphology = source.data.canonical_word_id
+    ? await db.from("canonical_teaching_dictionary_word_morphology")
+      .select("raw_morpholex_segmentation,raw_morpholex_pos,morphology_parts,feature_keys,morphology_joins,morphology_transformations,transformation_notes,word_sum,analysis_status,review_notes")
+      .eq("canonical_word_id", source.data.canonical_word_id).eq("row_status", "active").maybeSingle()
+    : null;
+  if (activeMorphology?.error) throw new Error("TEACHING_MORPHOLOGY_READ_FAILED");
+  if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts:
+    changesMorphologyForPublication(payload.canonicalMorphology, activeMorphology?.data ?? null) }).length)
+    throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
     const proof = !payload.dictationVariants && payload.writtenSyllableBreakdown === undefined && !payload.canonicalMorphology.transformations
