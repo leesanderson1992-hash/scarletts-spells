@@ -335,10 +335,11 @@ export default async function DashboardPage({
     activeChildren.length > 0 ? selectedChild ?? activeChildren[0] : null;
 
   if (resolvedSearchParams?.mode !== "child") {
-    const contextRenewal = activeScopedChild
-      ? await loadParentContextRenewal({ childId: activeScopedChild.id, parentUserId: user.id })
-        .catch((error) => { console.error("[parent-context-renewal] status unavailable", error); return null; })
-      : null;
+    const contextRenewals = (await Promise.all(activeChildren.map(async (child) => {
+      const renewal = await loadParentContextRenewal({ childId: child.id, parentUserId: user.id })
+        .catch((error) => { console.error("[parent-context-renewal] status unavailable", error); return null; });
+      return renewal ? { childId: child.id, childName: child.first_name, status: renewal.status } : null;
+    }))).filter((renewal): renewal is { childId: string; childName: string; status: "not_authorised" | "expired" | "due_soon" } => renewal !== null);
     const rawName = user.user_metadata?.full_name ?? user.user_metadata?.first_name;
     const parentName = typeof rawName === "string" && rawName.trim()
       ? rawName.trim().split(/\s+/)[0] : "Parent";
@@ -347,10 +348,8 @@ export default async function DashboardPage({
       resolvedSearchParams?.period === "six-months" ? resolvedSearchParams.period : "week";
     return <AppShell currentPath="/dashboard" mode="parent" activeChildId={activeScopedChild?.id ?? null}
       availableChildren={activeChildren} userEmail={user.email} showAdminNav={showAdminNav}>
-      {contextRenewal && activeScopedChild && <ContextRenewalPrompt
-        childId={activeScopedChild.id}
-        childName={activeScopedChild.first_name}
-        expired={contextRenewal.expired}
+      {contextRenewals.length > 0 && <ContextRenewalPrompt
+        renewals={contextRenewals}
         error={resolvedSearchParams?.context_error === "renewal_unavailable"} />}
       {resolvedSearchParams?.context_renewed === "1" && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
         Your writing context choice was recorded for 30 days.
