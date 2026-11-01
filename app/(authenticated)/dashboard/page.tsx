@@ -47,6 +47,8 @@ type DashboardPageProps = {
     context_renewed?: string;
     context_saved?: string;
     context_choices?: string;
+    approved?: string;
+    declined?: string;
   }>;
 };
 
@@ -343,8 +345,8 @@ export default async function DashboardPage({
       return renewal ? { childId: child.id, childName: child.first_name, status: renewal.status } : null;
     }))).filter((renewal): renewal is { childId: string; childName: string; status: ParentContextChoiceStatus } => renewal !== null);
     const showContextChoices = resolvedSearchParams?.context_choices === "1" ||
-      contextRenewals.some((renewal) => renewal.status === "not_authorised" ||
-        renewal.status === "expired" || renewal.status === "due_soon");
+      (resolvedSearchParams?.context_saved !== "1" && contextRenewals.some((renewal) => renewal.status === "not_authorised" ||
+        renewal.status === "expired" || renewal.status === "due_soon"));
     const rawName = user.user_metadata?.full_name ?? user.user_metadata?.first_name;
     const parentName = typeof rawName === "string" && rawName.trim()
       ? rawName.trim().split(/\s+/)[0] : "Parent";
@@ -362,7 +364,8 @@ export default async function DashboardPage({
         </Link>
       </div>
       {resolvedSearchParams?.context_saved === "1" && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
-        Your writing context choices were recorded.
+        Your writing context choices were saved. {Number(resolvedSearchParams.approved) || 0} approved, {Number(resolvedSearchParams.declined) || 0} not approved.
+        You can manage any remaining profiles using the link above.
       </p>}
       <ParentDashboard parentId={user.id} parentName={parentName} childOptions={activeChildren}
         selectedChildId={activeScopedChild?.id ?? null} allChildren={resolvedSearchParams?.scope === "all"} period={period} />
