@@ -1,9 +1,11 @@
 /** Read-only active-word format audit. Never prints child evidence or DB credentials. */
 import pg from "pg";
+import { writeFileSync } from "node:fs";
 import { auditCanonicalMorphology } from "../lib/teaching-dictionary-manager/canonical-morphology";
 import { DICTIONARY_BANDS, routeContentFromStoredRow } from "../lib/teaching-dictionary-manager/contracts";
 
 const environment = process.argv[2];
+const exportPath = process.argv[3];
 if (environment !== "production" && environment !== "staging")
   throw new Error("Usage: tsx scripts/audit-canonical-dictionary-format.ts production|staging");
 const url = environment === "production" ? process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED :
@@ -59,6 +61,7 @@ async function main() { try {
   ]);
   const counts = new Map<string, number>();
   const byWord = new Map<string, { definition: string | null; wordSum: string | null }>();
+  const reviewRows = new Map<string, { id: string; word: string; reviewStatus: string; issues: Set<string> }>();
   let missingMorphology = 0;
   let safeButGoverned = 0;
   const sharedFacts = { approvedWords: 0, missingDefinition: 0, missingMetadata: 0,
@@ -67,36 +70,40 @@ async function main() { try {
     nonCanonicalBands: 0,
     missingProvenance: 0, morphologyNotApproved: 0, linkedToLexicalFamily: 0 };
   for (const row of result.rows) {
+    const review = { id: String(row.word_id), word: String(row.display_word),
+      reviewStatus: String(row.word_review_status), issues: new Set<string>() };
+    reviewRows.set(review.id, review);
     byWord.set(row.word_id, { definition: row.definition, wordSum: row.word_sum });
     if (row.word_review_status === "approved_for_first_exposure") {
       sharedFacts.approvedWords++;
-      if (!row.definition?.trim()) sharedFacts.missingDefinition++;
+      if (!row.definition?.trim()) { sharedFacts.missingDefinition++; review.issues.add("Shared definition missing"); }
       if (!row.metadata_id) sharedFacts.missingMetadata++;
-      if (!row.syllables?.trim()) sharedFacts.missingSyllables++;
-      if (!row.phoneme_hint?.trim()) sharedFacts.missingPronunciationHint++;
-      if (!row.written_syllable_breakdown?.trim()) sharedFacts.missingWrittenSyllableBreakdown++;
-      if (!row.dictation_id || !row.dictation_sentence?.trim()) sharedFacts.missingDictation++;
-      if (row.dictation_target_token_index == null) sharedFacts.missingDictationTarget++;
+      if (!row.syllables?.trim()) { sharedFacts.missingSyllables++; review.issues.add("Syllables missing"); }
+      if (!row.phoneme_hint?.trim()) { sharedFacts.missingPronunciationHint++; review.issues.add("Pronunciation hint missing"); }
+      if (!row.written_syllable_breakdown?.trim()) { sharedFacts.missingWrittenSyllableBreakdown++; review.issues.add("Written syllable breakdown missing"); }
+      if (!row.dictation_id || !row.dictation_sentence?.trim()) { sharedFacts.missingDictation++; review.issues.add("Dictation sentence missing"); }
+      if (row.dictation_target_token_index == null) { sharedFacts.missingDictationTarget++; review.issues.add("Dictation target missing"); }
       if (![row.age_band, row.frequency_band, row.complexity_band].every((item) =>
-        typeof item === "string" && item.trim())) sharedFacts.missingBands++;
+        typeof item === "string" && item.trim())) { sharedFacts.missingBands++; review.issues.add("Age, frequency or complexity band missing"); }
       else if (!(DICTIONARY_BANDS.ageBand as readonly string[]).includes(row.age_band) ||
         !(DICTIONARY_BANDS.frequencyBand as readonly string[]).includes(row.frequency_band) ||
         !(DICTIONARY_BANDS.complexityBand as readonly string[]).includes(row.complexity_band))
-        sharedFacts.nonCanonicalBands++;
+        { sharedFacts.nonCanonicalBands++; review.issues.add("Age, frequency or complexity band needs review"); }
       if (![row.source_name, row.source_use_note, row.source_category, row.confidence].every((item) =>
         typeof item === "string" && item.trim()) ||
         (["open_licensed", "licensed_vendor"].includes(row.source_category) &&
-          !row.source_licence?.trim())) sharedFacts.missingProvenance++;
+          !row.source_licence?.trim())) { sharedFacts.missingProvenance++; review.issues.add("Source or confidence missing"); }
       if (!row.morphology_id || row.analysis_status !== "approved" ||
         row.morphology_review_status !== "approved_for_first_exposure")
-        sharedFacts.morphologyNotApproved++;
+        { sharedFacts.morphologyNotApproved++; review.issues.add("Morphology not approved"); }
       if (row.linked_to_family) sharedFacts.linkedToLexicalFamily++;
     }
-    if (!row.morphology_id) { missingMorphology++; continue; }
+    if (!row.morphology_id) { missingMorphology++; if (row.word_review_status === "approved_for_first_exposure") review.issues.add("Morphology missing"); continue; }
     const audit = auditCanonicalMorphology({ parts: row.parts, joins: row.joins,
       displayWord: row.display_word, linkedToFamily: row.linked_to_family });
     const key = `${audit.status}:${audit.reason}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
+    if (audit.status !== "canonical") review.issues.add(`Morphology ${audit.status}: ${audit.reason}`);
     if (audit.status === "safe_range_conversion" && row.governed_route) safeButGoverned++;
   }
   let routeMeaningConflicts = 0;
@@ -108,9 +115,23 @@ async function main() { try {
     if (!shared) continue;
     const route = routeContentFromStoredRow(row);
     if (!shared.definition) routesWithoutSharedDefinition++;
-    else if (route.wordMeaning.trim() && route.wordMeaning.trim() !== shared.definition.trim()) routeMeaningConflicts++;
+    else if (route.wordMeaning.trim() && route.wordMeaning.trim() !== shared.definition.trim()) {
+      routeMeaningConflicts++; reviewRows.get(row.canonical_word_id)?.issues.add("Route meaning differs from Overview");
+    }
     if (!shared.wordSum) routesWithoutSharedWordSum++;
-    else if (route.wordSum.trim() && route.wordSum.trim() !== shared.wordSum.trim()) routeWordSumConflicts++;
+    else if (route.wordSum.trim() && route.wordSum.trim() !== shared.wordSum.trim()) {
+      routeWordSumConflicts++; reviewRows.get(row.canonical_word_id)?.issues.add("Route word sum differs from Overview");
+    }
+  }
+  const needsReview = [...reviewRows.values()].filter((row) => row.issues.size)
+    .sort((a, b) => a.word.localeCompare(b.word) || a.id.localeCompare(b.id));
+  if (exportPath) {
+    const csv = (value: string) => `"${value.replaceAll('"', '""')}"`;
+    const lines = ["word,word_id,review_status,issues,review_url", ...needsReview.map((row) => [
+      row.word, row.id, row.reviewStatus, [...row.issues].join("; "),
+      `https://scarletts-spells.vercel.app/admin/teaching-dictionary/${row.id}#td-overview`,
+    ].map(csv).join(","))];
+    writeFileSync(exportPath, `${lines.join("\n")}\n`, { flag: "wx" });
   }
   console.log(JSON.stringify({ environment, activeWords: result.rows.length,
     activeMorphologyRows: result.rows.length - missingMorphology, missingMorphology,
@@ -118,7 +139,8 @@ async function main() { try {
     safeConversionBlockedByGovernedRoute: safeButGoverned,
     latestRouteVersions: routes.rows.length, routeMeaningConflicts, routeWordSumConflicts,
     routesWithoutSharedDefinition, routesWithoutSharedWordSum,
-    categories: Object.fromEntries([...counts].sort(([a], [b]) => a.localeCompare(b))) }, null, 2));
+    categories: Object.fromEntries([...counts].sort(([a], [b]) => a.localeCompare(b))),
+    wordsNeedingReview: needsReview.length, exportPath: exportPath ?? null }, null, 2));
 } finally {
   await db.end().catch(() => {});
 } }
