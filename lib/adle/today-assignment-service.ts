@@ -13,6 +13,7 @@ import {
   type ExistingAssignmentHeaderFact,
 } from "./assignment-persistence";
 import { selectPartTwoSkill } from "./composer-skill-selection";
+import { prepareWeakVowelFallbackAfterBaseWordBlock } from "./base-word-weak-vowel-fallback";
 import { reconcilePendingContextualHandoffs } from "./contextual-handoff-reconciliation";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "./curriculum-readiness/route-registry";
 import { composeDailyPlan } from "./daily-assignment-composer";
@@ -408,7 +409,7 @@ export async function ensureParentAdleTodayAssignment(params: {
       today: practiceDate as IsoDate,
       wordReadMode: "scoped",
     });
-    const selection = selectPartTwoSkill({
+    const selectionFacts = {
       learningItems: facts.learningItems.filter((item) => item.childId === params.childId),
       skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,
       prerequisiteKeysBySkill: facts.prerequisiteKeysBySkill,
@@ -416,7 +417,8 @@ export async function ensureParentAdleTodayAssignment(params: {
       frequencyBandByWordId: facts.frequencyBandByWordId,
       previousLessonFamilyKey: facts.previousLessonFamilyKey,
       homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
-    });
+    };
+    const selection = selectPartTwoSkill(selectionFacts);
     if (!selection.microSkillKey) {
       const result = {
         outcome: "no_eligible" as const,
@@ -626,6 +628,22 @@ export async function ensureParentAdleTodayAssignment(params: {
         });
         generatedAssignmentId = result.assignmentId;
         blockerCode = result.readinessReason;
+        if (!generatedAssignmentId && blockerCode?.includes("two_distinct_authentic_families_required")) {
+          const fallback = await prepareWeakVowelFallbackAfterBaseWordBlock({
+            client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId,
+            date: practiceDate as IsoDate, blockedMicroSkillKey: selection.microSkillKey,
+            selectionFacts, facts, environmentKey,
+          });
+          if (fallback) {
+            generatedAssignmentId = await persistSpecialistSnapshotV3(
+              supabaseSpecialistSnapshotV3PersistencePort(params.serviceClient), {
+                parentUserId: params.parentUserId, childId: params.childId, planDate: practiceDate,
+                header: fallback.header, items: fallback.items, snapshot: fallback.snapshot, intakes: [],
+              });
+            routeId = "weak_vowel_word_lab";
+            blockerCode = null;
+          }
+        }
       }
     } else if (routeId === "compound_word_lab") {
       if (!COMPOUND_WORD_MICRO_SKILL_KEYS.includes(

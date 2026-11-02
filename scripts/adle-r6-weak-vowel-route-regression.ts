@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { LearningItemFact } from "../lib/adle/learning-items";
 
 import { resolveSpecialistRouteR6 } from "../lib/adle/review-v3/r6-specialist-stage";
+import { nextRankedSkillAfterBaseWordBlock } from "../lib/adle/base-word-weak-vowel-fallback";
 
 const CHILD = "11111111-1111-4111-8111-111111111111";
 const OTHER_CHILD = "22222222-2222-4222-8222-222222222222";
@@ -28,6 +30,25 @@ function activationClient(status: "enabled" | "disabled", allowedChildId: string
 }
 
 async function main() {
+  const baseSkill = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+  const item = (skill: string, index: number): LearningItemFact => ({
+    learningItemId: `item-${skill}-${index}`, childId: CHILD,
+    canonicalWordId: `word-${skill}-${index}`, microSkillKey: skill,
+    itemStatus: "pending", sourceKind: "verified_misspelling",
+    sourceRef: `verified-${skill}-${index}`, sourceAttemptText: null,
+    reteachPriority: false, ejectedOn: null, intakeOn: "2026-10-01", rowStatus: "active",
+  });
+  const selectionFacts = {
+    learningItems: [...Array.from({ length: 4 }, (_, index) => item(baseSkill, index)),
+      ...Array.from({ length: 3 }, (_, index) => item(SKILL, index))],
+    skillFamilyKeyBySkill: new Map([[baseSkill, "base"], [SKILL, "weak_vowel"]]),
+    prerequisiteKeysBySkill: new Map<string, string[]>(),
+    frequencyBandByWordId: new Map<string, string | null>(),
+    previousLessonFamilyKey: null,
+  };
+  assert.equal(nextRankedSkillAfterBaseWordBlock(selectionFacts, baseSkill), SKILL,
+    "a blocked four-word Base Word cluster leaves the three-word weak-vowel skill next in the governed order");
+  assert.equal(selectionFacts.learningItems.length, 7, "fallback never removes queued learning items");
   const request = { childId: CHILD, microSkillKey: SKILL, environmentKey: "production" as const };
   assert.equal(await resolveSpecialistRouteR6({ ...request, client: activationClient("enabled", CHILD) }),
     "weak_vowel_word_lab", "enabled child-scoped activation selects the governed weak-vowel route");
