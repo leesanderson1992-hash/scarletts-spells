@@ -50,7 +50,9 @@ readback to verify the candidate without claiming queued work. For a change
 to AI terms or a failed readback, disable database AI control and the recovery
 scheduler until the release is safe. Build a candidate deployment with its exact
 `CONTEXT_AI_DEPLOYMENT_SHA` and a per-deployment
-`CONTEXT_AI_RELEASE_HOLD=disabled` override. Verify
+`CONTEXT_AI_RELEASE_HOLD=disabled` override. Supply the same exact SHA as the
+build-time `NEXT_DEPLOYMENT_ID` so Next.js can detect stale pages before they
+submit old Server Action IDs. Verify
 its authenticated SHA, runtime and hold readback against the new approval
 before promotion. After promotion, verify the public alias has the same
 readback; then bind the policy and scheduler to that SHA as one cutover. Check the

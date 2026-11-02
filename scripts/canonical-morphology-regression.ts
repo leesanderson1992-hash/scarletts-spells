@@ -3,6 +3,7 @@ import { auditCanonicalMorphology, canonicalPartsStatus } from "../lib/teaching-
 import { emptyMorphology } from "../lib/teaching-dictionary-manager/contracts";
 import { changesMorphologyForPublication } from "../lib/teaching-dictionary-manager/morphology-publication";
 import { asParts } from "../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor";
+import { morphologyReviewGuidance } from "../lib/teaching-dictionary-manager/morphology-review-guidance";
 
 const parts = [
   { id: "base", kind: "base", sourceText: "scroll", surfaceText: "scroll", gloss: "move across a screen" },
@@ -47,4 +48,21 @@ assert.deepEqual(asParts([
   { kind: "root", surfaceText: "act", sourceText: "act", gloss: "to do" },
   { kind: "suffix", surfaceText: "ion", sourceText: "ion", gloss: "an action" },
 ], "historical partType and bound-root values remain editable in the visual control");
+const ability = { ...emptyMorphology(), analysisStatus: "approved" as const,
+  parts: [
+    { id: "part_1", kind: "base", role: "base", text: "abil", type: "base", sourceText: "able", surfaceText: "abil", gloss: "capable of doing something", displayRange: { start: 0, end: 4 } },
+    { id: "part_2", kind: "suffix", role: "suffix", text: "ity", type: "suffix", sourceText: "", surfaceText: "ity", gloss: "the state, quality or power of", displayRange: { start: 4, end: 7 } },
+  ], joins: [], transformations: [] };
+const abilityIssues = morphologyReviewGuidance(ability, "ability", { ity: ["the state or quality of being"] }, false);
+assert.ok(abilityIssues.some((item) => item.includes("Older duplicate part fields")));
+assert.ok(abilityIssues.some((item) => item.includes("Part 2 needs its underlying form")));
+assert.ok(abilityIssues.some((item) => item.includes("older affix meaning")));
+assert.ok(abilityIssues.some((item) => item.includes("able → abil")));
+assert.ok(abilityIssues.some((item) => item.includes("joins must connect")));
+const reviewedAbility = { ...ability, parts: [
+  { id: "part_1", kind: "base", sourceText: "able", surfaceText: "abil", gloss: "capable of doing something", displayRange: { start: 0, end: 4 } },
+  { id: "part_2", kind: "suffix", sourceText: "ity", surfaceText: "ity", gloss: "the state or quality of being", displayRange: { start: 4, end: 7 } },
+], joins: [{ afterPartId: "part_1", beforePartId: "part_2", joinType: "none" }],
+  transformations: [{ type: "base_spelling_change", sourcePartId: "part_1", sourceText: "able", surfaceText: "abil", explanation: "The final e changes to i before -ity." }] };
+assert.deepEqual(morphologyReviewGuidance(reviewedAbility, "ability", { ity: ["the state or quality of being"] }, false), []);
 console.log("Canonical morphology audit regression passed.");

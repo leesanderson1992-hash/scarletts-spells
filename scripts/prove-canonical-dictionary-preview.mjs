@@ -6,8 +6,11 @@ import pg from "pg";
 
 process.loadEnvFile(".env.staging.local");
 const base = process.argv[2];
+const deploymentId = process.argv[3];
 if (!base || !/^https:\/\/scarletts-spells-adle-staging-20261025-[a-z0-9]+\.vercel\.app$/.test(base))
   throw new Error("STAGING_PREVIEW_URL_REQUIRED");
+if (!deploymentId || !/^[0-9a-f]{40}$/.test(deploymentId))
+  throw new Error("EXACT_DEPLOYMENT_SHA_REQUIRED");
 const token = process.env.VERCEL_OIDC_TOKEN;
 const email = process.env.STAGING_ADMIN_EMAIL;
 const password = process.env.STAGING_ADMIN_PASSWORD;
@@ -34,6 +37,8 @@ try {
   const page = await context.newPage();
   const login = await page.goto(`${base}/login`, { waitUntil: "domcontentloaded" });
   assert.equal(login?.status(), 200, "application login loads after Vercel protection");
+  assert.equal(await page.locator("html").getAttribute("data-dpl-id"), deploymentId,
+    "pages carry the exact deployment ID for stale Server Action recovery");
   await page.getByRole("textbox", { name: "Email" }).fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();

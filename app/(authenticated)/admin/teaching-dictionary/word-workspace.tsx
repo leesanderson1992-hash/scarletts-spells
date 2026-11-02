@@ -56,7 +56,8 @@ import {
 } from "./paired-dictation-editor";
 import { PartSequenceEditor } from "./part-sequence-editor";
 import { RouteFactsEditor } from "./route-facts-editor";
-import { auditCanonicalMorphology, canonicalPartsStatus } from "@/lib/teaching-dictionary-manager/canonical-morphology";
+import { auditCanonicalMorphology } from "@/lib/teaching-dictionary-manager/canonical-morphology";
+import { morphologyReviewGuidance } from "@/lib/teaching-dictionary-manager/morphology-review-guidance";
 import { ActionSubmitButton } from "./action-submit-button";
 import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
@@ -314,7 +315,13 @@ export function WordWorkspace(props: {
       const revision = editRevision.current;
       setActionError(undefined);
       setSaveMessage("");
-      const result = await saveWordWorkspace(form);
+      let result: Awaited<ReturnType<typeof saveWordWorkspace>>;
+      try {
+        result = await saveWordWorkspace(form);
+      } catch {
+        setActionError("The page changed while it was open. Reload this page and try saving again.");
+        return null;
+      }
       setLastSaveMs(Math.round(performance.now() - saveStarted));
       const destination = new URL(result.destination, window.location.origin);
       const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
@@ -823,6 +830,10 @@ export function WordWorkspace(props: {
     parts: payload.canonicalMorphology.parts, joins: payload.canonicalMorphology.joins,
     displayWord: payload.displayWord, linkedToFamily: props.currentMorphologyLinkedToFamily,
   });
+  const morphologyReviewItems = payload.canonicalMorphology.parts.length > 0
+    ? morphologyReviewGuidance(payload.canonicalMorphology, payload.displayWord,
+      props.affixMeanings, props.currentMorphologyLinkedToFamily)
+    : [];
   return (
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
@@ -1975,8 +1986,11 @@ export function WordWorkspace(props: {
             })
           }
         />
-        {payload.canonicalMorphology.parts.length > 0 && canonicalPartsStatus(payload.canonicalMorphology.parts) !== "canonical" &&
-          <p role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">This entry uses older or incomplete word parts. Review them in the visual editor before approving Overview or joining a family.</p>}
+        {morphologyReviewItems.length > 0 &&
+          <div role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">
+            <p>Review these word parts before approving Overview or joining a family:</p>
+            <ul className="mt-1 list-disc pl-5">{morphologyReviewItems.map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>}
         {!props.draftId && props.currentMorphologyId && morphologyFormatAudit.status === "safe_range_conversion" &&
           <button type="button" className="mt-2 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
             onClick={() => change({ canonicalMorphology: { ...payload.canonicalMorphology,
