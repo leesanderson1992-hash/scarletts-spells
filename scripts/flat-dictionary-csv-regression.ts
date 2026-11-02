@@ -28,6 +28,8 @@ assert.match(errorOf(values.map((value, index) => index === headers.indexOf("par
 assert.match(errorOf(values.map((value, index) => index === headers.indexOf("part_2_visible_letters") ? "ed" : value)), /spell/);
 assert.match(errorOf(values.map((value, index) => index === headers.indexOf("age_band") ? "in_review" : value)), /reviewed age band/);
 assert.match(errorOf(values.map((value, index) => index === headers.indexOf("source_name") ? "" : value)), /Source name/);
+assert.match(errorOf(values.map((value, index) => index === headers.indexOf("source_category") ? "" : value)), /Source category/);
+assert.match(errorOf(values.map((value, index) => index === headers.indexOf("confidence") ? "" : value)), /Confidence/);
 
 const changed = values.map((value, index) => index === headers.indexOf("display_word") ? "ability"
   : index === headers.indexOf("part_1_underlying_form") ? "able"

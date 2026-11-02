@@ -217,8 +217,10 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       ...(!payload.metadata.phoneme_hint.trim() ? ["Pronunciation hint is required."] : []),
       ...(!payload.writtenSyllableBreakdown?.trim() ? ["Written syllable breakdown is required."] : []),
       ...(!payload.canonicalMorphology.rawPartOfSpeech.trim() ? ["Part of speech is required."] : []),
+      ...(!raw.source_category?.trim() ? ["Source category is required."] : []),
       ...(!payload.provenance.sourceName.trim() ? ["Source name is required."] : []),
       ...(!payload.provenance.sourceUseNote.trim() ? ["Source use note is required."] : []),
+      ...(!raw.confidence?.trim() ? ["Confidence is required."] : []),
       ...publicationBlockers(payload, normalisedWord, { requireCanonicalParts: true }),
     ] : [];
     return { rowNumber: index + 2, normalisedWord, payload, providedColumns: names,
