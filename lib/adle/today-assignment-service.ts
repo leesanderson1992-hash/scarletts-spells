@@ -13,7 +13,7 @@ import {
   type ExistingAssignmentHeaderFact,
 } from "./assignment-persistence";
 import { selectPartTwoSkill } from "./composer-skill-selection";
-import { prepareWeakVowelFallbackAfterBaseWordBlock } from "./base-word-weak-vowel-fallback";
+import { baseWordFamilyDemandUnavailable, prepareWeakVowelFallbackAfterBaseWordBlock } from "./base-word-weak-vowel-fallback";
 import { reconcilePendingContextualHandoffs } from "./contextual-handoff-reconciliation";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "./curriculum-readiness/route-registry";
 import { composeDailyPlan } from "./daily-assignment-composer";
@@ -628,7 +628,7 @@ export async function ensureParentAdleTodayAssignment(params: {
         });
         generatedAssignmentId = result.assignmentId;
         blockerCode = result.readinessReason;
-        if (!generatedAssignmentId && blockerCode?.includes("two_distinct_authentic_families_required")) {
+        if (!generatedAssignmentId && baseWordFamilyDemandUnavailable(blockerCode)) {
           const fallback = await prepareWeakVowelFallbackAfterBaseWordBlock({
             client: params.serviceClient, childId: params.childId, parentUserId: params.parentUserId,
             date: practiceDate as IsoDate, blockedMicroSkillKey: selection.microSkillKey,

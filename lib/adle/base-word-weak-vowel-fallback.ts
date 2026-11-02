@@ -10,6 +10,12 @@ import { weakVowelRouteSelectedForChild } from "./weak-vowel/readiness-loader";
 
 /** Only used after the selected Base Word skill cannot form two reviewed
  * authentic families. The original needs remain queued for a future release. */
+export function baseWordFamilyDemandUnavailable(reason: string | null): boolean {
+  return reason?.split(/[;,]/).some((code) =>
+    code === "two_distinct_authentic_families_required" ||
+    code === "authentic_target_missing_reviewed_family_member") ?? false;
+}
+
 export function nextRankedSkillAfterBaseWordBlock(
   selectionFacts: SkillSelectionFacts,
   blockedMicroSkillKey: string,

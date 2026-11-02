@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LearningItemFact } from "../lib/adle/learning-items";
 
 import { resolveSpecialistRouteR6 } from "../lib/adle/review-v3/r6-specialist-stage";
-import { nextRankedSkillAfterBaseWordBlock } from "../lib/adle/base-word-weak-vowel-fallback";
+import { baseWordFamilyDemandUnavailable, nextRankedSkillAfterBaseWordBlock } from "../lib/adle/base-word-weak-vowel-fallback";
 
 const CHILD = "11111111-1111-4111-8111-111111111111";
 const OTHER_CHILD = "22222222-2222-4222-8222-222222222222";
@@ -30,6 +30,9 @@ function activationClient(status: "enabled" | "disabled", allowedChildId: string
 }
 
 async function main() {
+  assert.equal(baseWordFamilyDemandUnavailable("two_distinct_authentic_families_required"), true);
+  assert.equal(baseWordFamilyDemandUnavailable("authentic_target_missing_reviewed_family_member"), true);
+  assert.equal(baseWordFamilyDemandUnavailable("selected_family_missing_transfer_word"), false);
   const baseSkill = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
   const item = (skill: string, index: number): LearningItemFact => ({
     learningItemId: `item-${skill}-${index}`, childId: CHILD,

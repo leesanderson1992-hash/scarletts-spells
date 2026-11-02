@@ -13,7 +13,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { planAssignmentPersistence } from "../assignment-persistence";
 import { selectPartTwoSkill } from "../composer-skill-selection";
-import { prepareWeakVowelFallbackAfterBaseWordBlock } from "../base-word-weak-vowel-fallback";
+import { baseWordFamilyDemandUnavailable, prepareWeakVowelFallbackAfterBaseWordBlock } from "../base-word-weak-vowel-fallback";
 import { composeDailyPlan } from "../daily-assignment-composer";
 import {
   authorCompleteGenericSnapshotV3,
@@ -213,7 +213,7 @@ async function ensureSpecialistStageR6Internal(input: {
     // The queue can select a large Base Word cluster whose reviewed family
     // release cannot yet supply two authentic families. Keep those needs in
     // the queue and check the next ranked skill for a complete governed lesson.
-    if (baseReadiness.readinessReason?.includes("two_distinct_authentic_families_required")) {
+    if (baseWordFamilyDemandUnavailable(baseReadiness.readinessReason)) {
       weakVowelFallback = await prepareWeakVowelFallbackAfterBaseWordBlock({
         client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
         date: input.assignmentDate as IsoDate, blockedMicroSkillKey: selectedMicroSkillKey,
