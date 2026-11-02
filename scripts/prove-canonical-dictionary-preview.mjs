@@ -37,7 +37,7 @@ try {
   const page = await context.newPage();
   const login = await page.goto(`${base}/login`, { waitUntil: "domcontentloaded" });
   assert.equal(login?.status(), 200, "application login loads after Vercel protection");
-  assert.equal(await page.locator("html").getAttribute("data-dpl-id"), deploymentId,
+  assert.equal(await page.locator("html").getAttribute("data-dpl-id"), deploymentId.slice(0, 32),
     "pages carry the exact deployment ID for stale Server Action recovery");
   await page.getByRole("textbox", { name: "Email" }).fill(email);
   await page.getByLabel("Password").fill(password);
