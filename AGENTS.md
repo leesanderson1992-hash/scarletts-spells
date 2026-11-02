@@ -50,9 +50,10 @@ readback to verify the candidate without claiming queued work. For a change
 to AI terms or a failed readback, disable database AI control and the recovery
 scheduler until the release is safe. Build a candidate deployment with its exact
 `CONTEXT_AI_DEPLOYMENT_SHA` and a per-deployment
-`CONTEXT_AI_RELEASE_HOLD=disabled` override. Supply the first 32 characters of
-the exact SHA as the build-time `NEXT_DEPLOYMENT_ID` (Vercel's maximum) so
-Next.js can detect stale pages before they
+`CONTEXT_AI_RELEASE_HOLD=disabled` override. Supply a unique 32-character
+`NEXT_DEPLOYMENT_ID` at both build time and runtime, derived from the exact SHA
+and a release attempt suffix. Vercel requires uniqueness within each project.
+This lets Next.js detect stale pages before they
 submit old Server Action IDs. Verify
 its authenticated SHA, runtime and hold readback against the new approval
 before promotion. After promotion, verify the public alias has the same
