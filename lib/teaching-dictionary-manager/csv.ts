@@ -1,5 +1,52 @@
-import { emptyMetadata, normaliseWord, type WordDraftPayload } from "./contracts";
+import { emptyMetadata, normaliseWord, publicationBlockers, type WordDraftPayload } from "./contracts";
 import { createHash } from "node:crypto";
+import { canonicalWordSum, type CanonicalPart, type CanonicalJoin } from "./canonical-morphology";
+import type { ReviewedTransformation } from "./authoring";
+
+export const FLAT_IMPORT_PART_LIMIT = 6;
+
+/** Human-editable CSV columns used by the Google Sheet template. */
+function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
+  if (!headers.includes("part_1_kind")) return null;
+  if (raw.morphology_parts || raw.morphology_joins)
+    throw new Error("Use either the word-part columns or morphology JSON, not both.");
+  const parts: CanonicalPart[] = [];
+  const joins: CanonicalJoin[] = [];
+  const transformations: ReviewedTransformation[] = [];
+  let surface = "";
+  for (let number = 1; number <= FLAT_IMPORT_PART_LIMIT; number += 1) {
+    const prefix = `part_${number}_`;
+    const kind = raw[`${prefix}kind`] ?? "";
+    const sourceText = raw[`${prefix}underlying_form`] ?? "";
+    const surfaceText = raw[`${prefix}visible_letters`] ?? "";
+    const gloss = raw[`${prefix}meaning`] ?? "";
+    const explanation = raw[`${prefix}spelling_change_explanation`] ?? "";
+    const join = number > 1 ? raw[`${prefix}join_before`] ?? "" : "";
+    if (![kind, sourceText, surfaceText, gloss, explanation, join].some(Boolean)) continue;
+    if (parts.length !== number - 1) throw new Error(`Part ${number} follows an empty part.`);
+    if (!kind || !sourceText || !surfaceText || !gloss)
+      throw new Error(`Part ${number} needs its role, underlying form, visible letters and meaning.`);
+    if (!["prefix", "base", "root", "suffix", "connector"].includes(kind))
+      throw new Error(`Part ${number} has an invalid role.`);
+    if (number > 1) {
+      if (!["none", "space", "hyphen"].includes(join)) throw new Error(`Part ${number} needs a valid join before it.`);
+      joins.push({ afterPartId: parts[number - 2].id, beforePartId: `part_${number}`, joinType: join as CanonicalJoin["joinType"] });
+      surface += join === "space" ? " " : join === "hyphen" ? "-" : "";
+    }
+    const start = surface.length;
+    surface += surfaceText;
+    parts.push({ id: `part_${number}`, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
+      displayRange: { start, end: surface.length } });
+    if (sourceText !== surfaceText) {
+      if (!explanation) throw new Error(`Part ${number} needs a spelling-change explanation.`);
+      transformations.push({ type: ["base", "root"].includes(kind) ? "base_spelling_change" : "affix_spelling_change",
+        sourcePartId: `part_${number}`, sourceText, surfaceText, explanation });
+    } else if (explanation) throw new Error(`Part ${number} has a spelling-change explanation but its forms match.`);
+  }
+  if (!parts.length) throw new Error("Add at least one word part.");
+  if (surface !== displayWord) throw new Error(`Visible parts and joins spell “${surface}”, not “${displayWord}”.`);
+  return { parts, joins, transformations, wordSum: canonicalWordSum(parts, displayWord) };
+}
 
 function jsonArray(value: string): unknown[] {
   if (!value) return [];
@@ -100,14 +147,14 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
   const [headers, ...values] = records(text);
   if (!headers || values.length > 10000) throw new Error("CSV_ROW_LIMIT");
   const names = headers.map((header) => header.trim());
-  if (!names.includes("normalised_word") && !names.includes("targetWord")) throw new Error("CSV_WORD_COLUMN_MISSING");
+  if (!names.includes("normalised_word") && !names.includes("targetWord") && !names.includes("display_word")) throw new Error("CSV_WORD_COLUMN_MISSING");
   if (names.includes("tdm_export_version") && !names.includes("canonical_word_id")) throw new Error("CSV_ID_COLUMN_MISSING");
   return values.map((cells, index) => {
     const raw = Object.fromEntries(names.map((name, column) => [name, cells[column]?.trim() ?? ""]));
     if (raw.tdm_export_version) for (const name of names) {
       if (/^'[=+@\-\t\r]/.test(raw[name])) raw[name] = raw[name].slice(1);
     }
-    const normalisedWord = normaliseWord(raw.normalised_word || raw.targetWord);
+    const normalisedWord = normaliseWord(raw.normalised_word || raw.targetWord || raw.display_word);
     const target = raw.dictation_sentence || raw.dictation1_sentence || "";
     const tokens = target.match(/[\p{L}]+(?:['’ʼ-][\p{L}]+)*/gu) ?? [];
     const targetLength = normalisedWord.split(/\s+/u).length;
@@ -131,24 +178,30 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     let morphologyParts: unknown[] = [];
     let featureKeys: unknown[] = [];
     let morphologyJoins: unknown[] = [];
+    let flat: ReturnType<typeof flatMorphology> = null;
     let morphologyError: string | undefined;
     try {
       morphologyParts = jsonArray(raw.morphology_parts);
       featureKeys = jsonArray(raw.feature_keys);
       morphologyJoins = jsonArray(raw.morphology_joins);
-    } catch { morphologyError = "Invalid morphology JSON array."; }
+      flat = flatMorphology(raw, names, raw.display_word || raw.targetWord || normalisedWord);
+      if (flat) { morphologyParts = flat.parts; morphologyJoins = flat.joins; }
+    } catch (error) { morphologyError = error instanceof Error ? error.message : "Invalid morphology format."; }
     const payload: WordDraftPayload = {
       displayWord: raw.display_word || raw.targetWord || normalisedWord,
       definition: raw.definition || raw.wordMeaning || "",
       dictationSentence: target, dictationTargetTokenIndex: raw.tdm_export_version && /^\d+$/.test(raw.dictation_target_token_index)
         ? Number(raw.dictation_target_token_index) : Math.max(0, tokenIndex),
+      ...(raw.written_syllable_breakdown && !raw.tdm_export_version
+        ? { writtenSyllableBreakdown: raw.written_syllable_breakdown } : {}),
       ageBand: raw.age_band || "", frequencyBand: raw.frequency_band || "", complexityBand: raw.complexity_band || "",
       metadata, skillKeys: raw.tdm_export_version ? (raw.affected_micro_skills || "").split(/[;,]/).map((key) => key.trim()).filter(Boolean)
         : raw.microSkillKey ? [raw.microSkillKey] : (raw.affected_micro_skills || "").split(/[;,]/).map((key) => key.trim()).filter(Boolean),
       canonicalMorphology: {
         rawSegmentation: raw.raw_morpholex_segmentation || "", rawPartOfSpeech: raw.raw_morpholex_pos || "",
         parts: morphologyParts, featureKeys, joins: morphologyJoins, transformationNotes: raw.transformation_notes || "",
-        wordSum: raw.word_sum || "", analysisStatus: (raw.analysis_status || "in_review") as WordDraftPayload["canonicalMorphology"]["analysisStatus"], reviewNotes: raw.morphology_review_notes || raw.review_notes || "",
+        ...(flat ? { transformations: flat.transformations } : {}),
+        wordSum: flat?.wordSum || raw.word_sum || "", analysisStatus: (raw.analysis_status || (flat ? "approved" : "in_review")) as WordDraftPayload["canonicalMorphology"]["analysisStatus"], reviewNotes: raw.morphology_review_notes || raw.review_notes || "",
       },
       provenance: {
         sourceCategory: (raw.source_category || (raw.lineageJSON ? "ai_assisted_draft" : "internal_authored")) as WordDraftPayload["provenance"]["sourceCategory"],
@@ -158,6 +211,16 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       },
       routeContents,
     };
+    const flatRequired = flat ? [
+      ...(!payload.definition.trim() ? ["Definition is required."] : []),
+      ...(!payload.metadata.syllables.trim() ? ["Spoken syllable count is required."] : []),
+      ...(!payload.metadata.phoneme_hint.trim() ? ["Pronunciation hint is required."] : []),
+      ...(!payload.writtenSyllableBreakdown?.trim() ? ["Written syllable breakdown is required."] : []),
+      ...(!payload.canonicalMorphology.rawPartOfSpeech.trim() ? ["Part of speech is required."] : []),
+      ...(!payload.provenance.sourceName.trim() ? ["Source name is required."] : []),
+      ...(!payload.provenance.sourceUseNote.trim() ? ["Source use note is required."] : []),
+      ...publicationBlockers(payload, normalisedWord, { requireCanonicalParts: true }),
+    ] : [];
     return { rowNumber: index + 2, normalisedWord, payload, providedColumns: names,
       canonicalWordId: raw.tdm_export_version ? raw.canonical_word_id : undefined,
       sourceRowHash: raw.tdm_export_version ? raw.source_row_hash : undefined,
@@ -165,6 +228,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
       error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."
         : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError
+        || flatRequired[0]
         || (raw.tdm_export_version && raw.tdm_export_version !== "1" ? "Unsupported export version." : undefined) };
   });
 }

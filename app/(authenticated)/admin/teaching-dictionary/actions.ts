@@ -677,11 +677,11 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
           const old = row.payload.canonicalMorphology;
           if (!supplied.has("raw_morpholex_segmentation")) old.rawSegmentation = String(oldMorphology.raw_morpholex_segmentation ?? "");
           if (!supplied.has("raw_morpholex_pos")) old.rawPartOfSpeech = String(oldMorphology.raw_morpholex_pos ?? "");
-          if (!supplied.has("morphology_parts")) old.parts = oldMorphology.morphology_parts as unknown[] ?? [];
+          if (!supplied.has("morphology_parts") && !supplied.has("part_1_kind")) old.parts = oldMorphology.morphology_parts as unknown[] ?? [];
           if (!supplied.has("feature_keys")) old.featureKeys = oldMorphology.feature_keys as unknown[] ?? [];
-          if (!supplied.has("morphology_joins")) old.joins = oldMorphology.morphology_joins as unknown[] ?? [];
+          if (!supplied.has("morphology_joins") && !supplied.has("part_1_kind")) old.joins = oldMorphology.morphology_joins as unknown[] ?? [];
           if (!supplied.has("transformation_notes")) old.transformationNotes = String(oldMorphology.transformation_notes ?? "");
-          if (!supplied.has("word_sum")) old.wordSum = String(oldMorphology.word_sum ?? "");
+          if (!supplied.has("word_sum") && !supplied.has("part_1_kind")) old.wordSum = String(oldMorphology.word_sum ?? "");
           if (!supplied.has("analysis_status")) old.analysisStatus = oldMorphology.analysis_status as WordDraftPayload["canonicalMorphology"]["analysisStatus"];
           if (!supplied.has("review_notes")) old.reviewNotes = String(oldMorphology.review_notes ?? "");
         }

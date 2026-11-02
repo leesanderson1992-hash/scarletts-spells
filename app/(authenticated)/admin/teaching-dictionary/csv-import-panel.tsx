@@ -10,6 +10,7 @@ export function CsvImportPanel() {
   const [state, action, pending] = useActionState(importTeachingDictionaryCsv, initial);
   return <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
     <h2 className="text-lg font-semibold">Bulk review with CSV</h2>
+    <p className="mt-2 text-sm">New-word CSVs can use part_1 through part_6 columns for the role, underlying form, visible letters, meaning, joins and spelling changes. The importer builds the reviewed word-part format without JSON entry.</p>
     <p className="mt-1 text-sm">Download every active word and its selected specialist routes. The missing facts column shows what to fill in. Keep the word ID and source hash columns unchanged.</p>
     <Link prefetch={false} className="mt-3 inline-block rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-semibold" href="/admin/teaching-dictionary/export">Export all words and route facts</Link>
     <p className="mt-3 text-sm">Edit the CSV and reimport it below. Each word becomes one recoverable draft, even when it has several route rows. Import does not grant evidence approval or publish lessons; open a draft to review and publish it.</p>
