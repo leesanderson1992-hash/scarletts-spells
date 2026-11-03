@@ -3,9 +3,13 @@ import pg from "pg";
 import { emptyMetadata, emptyMorphology, publicationBlockers, WORD_METADATA_FIELDS,
   type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 import { MAX_DICTIONARY_CSV_BYTES } from "../lib/teaching-dictionary-manager/csv";
-import { projectOverviewCsvRows, renderOverviewCsv, type OverviewFamilySelection } from
+import { OVERVIEW_EXPORT_BATCH_SIZE, projectOverviewCsvRows, renderOverviewCsv } from
   "../lib/teaching-dictionary-manager/overview-csv";
+import { selectOverviewFamilies, type OverviewFamily, type OverviewRoot } from
+  "../lib/teaching-dictionary-manager/overview-family-selection";
 
+delete process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
+process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
 if (!url || new URL(url).username.split(".").at(-1) !== "wwohrqtunajrbwxyssjf")
   throw new Error("PRODUCTION_READ_ONLY_DATABASE_REQUIRED");
@@ -49,23 +53,19 @@ try {
       and not exists(select 1 from teaching_dictionary_pair_latest_decisions d
         where d.environment_key='production' and d.canonical_word_id=p.canonical_word_id
           and d.micro_skill_key=p.micro_skill_key and d.action='deassign')`);
-  const familyByWord = new Map<string, OverviewFamilySelection>();
+  const latest = new Map<string, OverviewFamily>();
+  const roots = new Map<string, OverviewRoot>();
   const familyCount = new Map<string, number>();
   for (const item of memberships.rows) {
     const id = String(item.canonical_word_id);
     familyCount.set(id, (familyCount.get(id) ?? 0) + 1);
-    if (item.base_kind !== "free_base" && item.base_kind !== "bound_root") continue;
-    const root = item.root_metadata ?? {};
-    familyByWord.set(id, { kind: item.base_kind, familyKey: item.family_key,
-      revision: item.revision, basePartOfSpeech: item.base_part_of_speech,
-      baseLemma: item.base_lemma, baseMeaning: item.base_meaning,
-      rootDefinition: root.root_definition ?? "", rootOriginLanguage: root.origin_language ?? "",
-      rootPronunciationApplicability: root.pronunciation_applicability ?? "",
-      rootPronunciationIpa: root.pronunciation_ipa ?? "" });
+    latest.set(item.family_key, { family_key: item.family_key, revision: item.revision,
+      base_kind: item.base_kind, base_part_of_speech: item.base_part_of_speech,
+      base_lemma: item.base_lemma, base_meaning: item.base_meaning, review_status: "approved" });
+    if (item.root_metadata) roots.set(`${item.family_key}:${item.revision}`, item.root_metadata);
   }
-  for (const [id, count] of familyCount) if (count > 1)
-    familyByWord.set(id, { kind: "free_base", familyKey: "", basePartOfSpeech: "",
-      reviewIssue: "Multiple current families: select one in Overview" });
+  const familyByWord = selectOverviewFamilies(facts.rows.map((item) => String(item.word?.id ?? "")),
+    memberships.rows, latest, roots, new Set());
   const skills = new Map<string, string[]>();
   for (const pair of pairs.rows) skills.set(pair.canonical_word_id,
     [...(skills.get(pair.canonical_word_id) ?? []), pair.micro_skill_key]);
@@ -116,14 +116,19 @@ try {
   });
   const rows = projectOverviewCsvRows(source, familyByWord);
   const bytes = Buffer.byteLength(renderOverviewCsv(rows), "utf8");
+  const batchBytes = Array.from({ length: Math.ceil(rows.length / OVERVIEW_EXPORT_BATCH_SIZE) },
+    (_, index) => Buffer.byteLength(renderOverviewCsv(rows.slice(index * OVERVIEW_EXPORT_BATCH_SIZE,
+      (index + 1) * OVERVIEW_EXPORT_BATCH_SIZE)), "utf8"));
   console.log(JSON.stringify({ activeWords: facts.rows.length, overviewRows: rows.length,
     csvBytes: bytes, importLimitBytes: MAX_DICTIONARY_CSV_BYTES,
     marginBytes: MAX_DICTIONARY_CSV_BYTES - bytes,
+    batchBytes,
     canonicalMorphologyRows: rows.filter((row) => row.analysis_status === "approved").length,
     reviewNeededRows: rows.filter((row) => row.analysis_status === "in_review").length,
     ambiguousCurrentFamilies: [...familyCount.values()].filter((count) => count > 1).length,
     currentFamilyMembershipRows: memberships.rows.length, effectiveWordSkillPairs: pairs.rows.length }, null, 2));
-  if (bytes > MAX_DICTIONARY_CSV_BYTES) throw new Error("OVERVIEW_CSV_EXCEEDS_IMPORT_LIMIT");
+  if (bytes > MAX_DICTIONARY_CSV_BYTES || batchBytes.some((count) => count > MAX_DICTIONARY_CSV_BYTES))
+    throw new Error("OVERVIEW_CSV_EXCEEDS_IMPORT_LIMIT");
 } finally {
   await db.query("rollback").catch(() => {});
   await db.end().catch(() => {});
