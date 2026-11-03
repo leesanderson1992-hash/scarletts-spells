@@ -12,7 +12,9 @@ This is a read-only Production snapshot after the reviewed 14-word Overview impo
 | Only the dictionary fingerprint changed | 31 | Revalidate and refresh as a governed batch against the current approved Overview; keep route-only teaching choices and audio unchanged |
 | Meaning conflict | 1 | Editorial review of `answer` before any refresh |
 
-All 11 weak-vowel pairs assigned to the 14-word pilot are in the fingerprint-only category. For each, the published meaning, route source fingerprint, and word/sentence audio hashes still match. Native `loadRouteWordStatuses` currently blocks these pairs with `published_content_or_dictionary_source_changed` because the publication fingerprint predates the Overview update. A new publication must bind to current shared facts; changing the fingerprint in place would bypass review history.
+All 11 weak-vowel pairs assigned to the 14-word pilot were in the fingerprint-only category. For each, the published meaning, route source fingerprint, and word/sentence audio hashes still matched. Native `loadRouteWordStatuses` blocked them with `published_content_or_dictionary_source_changed` because the publication fingerprint predated the Overview update.
+
+The governed 11-pair refresh passed a Production transaction rollback proof, then applied with the exact reviewed CSV SHA-256 and owner-reviewed written-fact workbook. It staged new immutable route versions, reviewed and published them against current Overview facts, and checked protected learner-state counts in the transaction. The post-apply native check reports all 11 pilot pairs as administrative candidates with zero blockers. The full publication audit moved from **408 current / 31 fingerprint-only drift / 1 meaning conflict** to **419 current / 20 fingerprint-only drift / 1 meaning conflict**. The 20 remaining drifts and the `answer` meaning conflict were not changed.
 
 ## Base Word route
 
@@ -29,7 +31,7 @@ These are issue counts, so a word can appear in more than one category. Of seven
 
 ## Batch repair boundary
 
-1. Refresh fingerprint-only weak-vowel pairs through a new immutable reviewed route version and publication. Require exact current Overview meaning, sentence, pronunciation, source identity, and audio checks in a rollback proof. The 11 reviewed pilot pairs are the first governed batch. The other 20 need their own reviewed change provenance before approval.
+1. Refresh fingerprint-only weak-vowel pairs through a new immutable reviewed route version and publication. The 11 reviewed pilot pairs are complete. The other 20 need their own reviewed change provenance before approval.
 2. Build current Base Word route candidates from canonical Overview and the chosen approved family. Reuse route-only teaching choices only where their source is exact and still valid. Group malformed drafts, stale editorial reviews, and stale morphology by their source pattern; send ambiguous content to human review in one sheet.
 3. Run the native preflight and compiler on the whole release candidate, then verify the 14-word pilot at the word level. Do not infer readiness from historical member rows or release status alone.
 

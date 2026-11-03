@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /** Refresh owner-approved Schwa publications after dictionary morphology changed. Dry-run by default. */
+/* eslint-disable @typescript-eslint/no-explicit-any -- existing owner-review workbook and governed DB rows are dynamic JSON */
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import pg from "pg";
 import { loadWeakVowelRepairInventory } from "./weak-vowel-repair-source";
 import { repairSourceFingerprint } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
 import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 
 process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
@@ -14,11 +16,29 @@ if (!url || !new URL(url).username.includes("wwohrqtunajrbwxyssjf") ||
     !new URL(url).hostname.endsWith("pooler.supabase.com") || !/^[a-f0-9-]{36}$/i.test(actor))
   throw Error("PRODUCTION_TARGET_OR_ACTOR_MISMATCH");
 const apply = process.argv.includes("--apply");
+const pilot = process.argv.includes("--reviewed-14-word-pilot");
+if (!pilot) throw Error("REVIEWED_PILOT_SCOPE_REQUIRED");
+const pilotCsv = pilot ? readFileSync(
+  "docs/implementation/seed-data/teaching-dictionary/candidates/2026-11-03-canonical-pilot/reviewed-14-word-pilot.csv") : null;
+if (pilotCsv && createHash("sha256").update(pilotCsv).digest("hex") !==
+  "43920532d314cfe413b0fba7a760bcab296c0ba334b0bf5dc27b72248999306f")
+  throw Error("REVIEWED_PILOT_HASH_CHANGED");
+const pilotRows = pilotCsv ? parseDictionaryCsv(pilotCsv.toString("utf8")) : [];
+if (apply && pilot && !process.argv.includes("--confirm=reviewed-14-word-pilot-schwa-refresh"))
+  throw Error("PILOT_REFRESH_CONFIRMATION_REQUIRED");
+if (pilot && (pilotRows.length !== 14 || pilotRows.some(row => row.error || !row.canonicalWordId)))
+  throw Error("REVIEWED_PILOT_CHANGED");
+const pilotPairs = new Set(pilotRows.flatMap(row => row.payload.skillKeys
+  .filter(skill => skill.startsWith("D4_SCHWA_"))
+  .map(skill => `${row.canonicalWordId}:${skill}`)));
+if (pilot && pilotPairs.size !== 11) throw Error("PILOT_SCHWA_PAIR_COUNT_CHANGED");
 const limitAt = process.argv.indexOf("--limit");
-const limit = limitAt >= 0 ? Number(process.argv[limitAt + 1]) : 78;
-if (!Number.isInteger(limit) || limit < 1 || limit > 78) throw Error("INVALID_LIMIT");
+const limit = limitAt >= 0 ? Number(process.argv[limitAt + 1]) : 11;
+if (!Number.isInteger(limit) || limit < 1 || limit > 11) throw Error("INVALID_LIMIT");
 const manifest = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json", "utf8"));
-const rows = manifest.rows.filter((row: any) => row.reviewStatus === "approved_written");
+const rows = manifest.rows.filter((row: any) => row.reviewStatus === "approved_written" &&
+  (!pilot || pilotPairs.has(`${row.canonicalWordId}:${row.microSkillKey}`)));
+if (pilot && rows.length !== 11) throw Error("PILOT_OWNER_REVIEW_COVERAGE_CHANGED");
 const rowByPair = new Map<string, any>(rows.map((row: any) => [`${row.canonicalWordId}:${row.microSkillKey}`, row]));
 const live = await loadWeakVowelRepairInventory(url, "production");
 const sources = new Map(live.sources.map(source => [`${source.word.id}:${source.microSkillKey}`, source]));
@@ -82,7 +102,7 @@ try {
     if (blockers.length) throw Error(`ROUTE_BLOCKED:${row.word}:${blockers.join(",")}`);
     candidates.push({ row, source, facts, content: published.content });
   }
-  if (mismatches.length !== 1 || mismatches[0].word !== "player" || candidates.length !== 77)
+  if (mismatches.length !== 0 || candidates.length !== 11)
     throw Error(`STALE_COVERAGE_CHANGED:${JSON.stringify({ candidates: candidates.length, mismatches })}`);
   await db.query("begin isolation level serializable");
   await db.query("set local lock_timeout='5s'");
@@ -95,6 +115,13 @@ try {
   const before = await protectedState();
   const refreshed = [];
   for (const { row, source, facts, content } of candidates.slice(0, limit)) {
+    if (pilot) {
+      const currentMeaning = await db.query(`select definition from public.teaching_dictionary_definition_versions
+        where canonical_word_id=$1 and route_id is null order by published_at desc,id desc limit 1`,
+      [row.canonicalWordId]);
+      if (currentMeaning.rows.length !== 1 || currentMeaning.rows[0].definition !== row.sourceMeaning)
+        throw Error(`CURRENT_OVERVIEW_MEANING_CHANGED:${row.word}`);
+    }
     const written = await db.query(`select decision_status,lesson_target,selected_vowel,family_decision
       from public.teaching_dictionary_weak_vowel_written_reviews
       where canonical_word_id=$1 and micro_skill_key=$2 and workbook_sha256=$3`,
