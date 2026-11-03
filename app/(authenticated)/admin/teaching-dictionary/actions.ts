@@ -31,14 +31,7 @@ const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
 const errorCode = (error: unknown) => error instanceof Error && /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : "TEACHING_DICTIONARY_ACTION_FAILED";
 
-async function assertReviewedAffixMeanings(
-  db: ReturnType<typeof createServiceRoleClient>, payload: WordDraftPayload,
-) {
-  const parts = payload.canonicalMorphology.parts;
-  if (!parts.some((part) => part && typeof part === "object" &&
-    ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind ??
-      (part as Record<string, unknown>).role ?? (part as Record<string, unknown>).type ??
-      (part as Record<string, unknown>).partType ?? "")))) return;
+async function loadReviewedAffixChoices(db: ReturnType<typeof createServiceRoleClient>) {
   const [prefixes, suffixes, affixMeanings] = await Promise.all([
     db.from("canonical_teaching_dictionary_prefix_profiles").select("prefix_choices")
       .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
@@ -48,7 +41,18 @@ async function assertReviewedAffixMeanings(
       .eq("row_status", "active").eq("review_status", "approved"),
   ]);
   if (prefixes.error || suffixes.error || affixMeanings.error) throw new Error("TEACHING_AFFIX_MEANING_CHOICES_READ_FAILED");
-  const choices = reviewedAffixMeanings(prefixes.data ?? [], suffixes.data ?? [], affixMeanings.data ?? []);
+  return reviewedAffixMeanings(prefixes.data ?? [], suffixes.data ?? [], affixMeanings.data ?? []);
+}
+
+async function assertReviewedAffixMeanings(
+  db: ReturnType<typeof createServiceRoleClient>, payload: WordDraftPayload,
+) {
+  const parts = payload.canonicalMorphology.parts;
+  if (!parts.some((part) => part && typeof part === "object" &&
+    ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind ??
+      (part as Record<string, unknown>).role ?? (part as Record<string, unknown>).type ??
+      (part as Record<string, unknown>).partType ?? "")))) return;
+  const choices = await loadReviewedAffixChoices(db);
   if (unreviewedAffixMeaningParts(parts, choices).length)
     throw new Error("TEACHING_AFFIX_MEANING_NOT_REVIEWED");
 }
@@ -572,6 +576,9 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
     const grouped = combineRoundTripRows(parseDictionaryCsv(await file.text()));
     const rows = grouped.rows;
     const db = createServiceRoleClient();
+    const affixChoices = rows.some((row) => row.payload.canonicalMorphology.parts.some((part) =>
+      part && typeof part === "object" && ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind))))
+      ? await loadReviewedAffixChoices(db) : {};
     const spellings = [...new Set(rows.map((row) => row.normalisedWord).filter(Boolean))];
     const prefixKeys = [...new Set(rows.flatMap((row) => row.payload.routeContents)
       .filter((route) => route.routeId === "dynamic_prefix_word_lab").map((route) => route.microSkillKey))];
@@ -694,7 +701,11 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
           if (!supplied.has("review_notes")) old.reviewNotes = String(oldMorphology.review_notes ?? "");
         }
       }
-      const issues = row.error ? [row.error] : validateDraft(row.payload, row.normalisedWord);
+      const issues = row.error ? [row.error] : [
+        ...validateDraft(row.payload, row.normalisedWord),
+        ...unreviewedAffixMeaningParts(row.payload.canonicalMorphology.parts, affixChoices)
+          .map((part) => `Part ${part} needs a reviewed affix meaning.`),
+      ];
       if (issues.length) { errors.push(`Row ${row.rowNumber}: ${issues.join(" ")}`); return []; }
       return [{ canonical_word_id: current?.id ?? null,
         normalised_word: row.normalisedWord, dialect_code: "en-GB", payload: row.payload,
