@@ -41,3 +41,15 @@ columns, and carried version 2 source Overview hashes for every row. All 747
 rows were unchanged and the import created zero drafts. Staging's older source
 data left all 747 rows needing some review, so this proves the safe unchanged
 round trip, not an edited publication or the exact 14-word Production batch.
+
+## Full-dictionary export preflight
+
+The read-only Production audit `scripts/audit-overview-export-production.mts`
+found 2,495 active en-GB words and generated 2,495 flat Overview rows. The
+current unreviewed CSV would occupy 3,604,394 bytes against the 4,000,000-byte
+import cap, leaving only 395,606 bytes for reviewed meanings and notes. Of the
+rows, 2,491 require morphology review under the typed format and 37 currently
+have multiple family memberships. These are review counts, not automatic
+conversion candidates. The admin export therefore offers deterministic
+500-word batches as well as the complete reference sheet. Reimporting a batch
+still creates drafts for review; it does not publish the full dictionary.

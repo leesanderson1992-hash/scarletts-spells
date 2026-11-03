@@ -4,7 +4,8 @@ import { chromium } from "@playwright/test";
 import pg from "pg";
 import { MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv } from
   "../lib/teaching-dictionary-manager/csv";
-import { OVERVIEW_CSV_COLUMNS } from "../lib/teaching-dictionary-manager/overview-csv";
+import { OVERVIEW_CSV_COLUMNS, OVERVIEW_EXPORT_BATCH_SIZE } from
+  "../lib/teaching-dictionary-manager/overview-csv";
 
 process.loadEnvFile(".env.staging.local");
 const base = process.argv[2];
@@ -61,6 +62,24 @@ try {
   assert.ok(rows.every((row) => row.exportVersion === "2" && row.unchanged === true));
   assert.ok(rows.every((row) => /^[a-f0-9]{64}$/u.test(row.sourceOverviewHash ?? "")));
   assert.ok(OVERVIEW_CSV_COLUMNS.every((name) => csv.slice(0, csv.indexOf("\n")).includes(name)));
+  const batchCount = Math.ceil(activeWords / OVERVIEW_EXPORT_BATCH_SIZE);
+  const batchRows = [];
+  for (let batch = 1; batch <= batchCount; batch += 1) {
+    const batchResponse = await context.request.get(
+      `${base}/admin/teaching-dictionary/export/overview?batch=${batch}`);
+    assert.equal(batchResponse.status(), 200, `Overview batch ${batch}`);
+    const batchCsv = await batchResponse.text();
+    assert.ok(Buffer.byteLength(batchCsv, "utf8") <= MAX_DICTIONARY_CSV_BYTES);
+    const parsed = parseDictionaryCsv(batchCsv);
+    assert.equal(parsed.length, Math.min(OVERVIEW_EXPORT_BATCH_SIZE,
+      activeWords - ((batch - 1) * OVERVIEW_EXPORT_BATCH_SIZE)));
+    batchRows.push(...parsed);
+  }
+  assert.deepEqual(batchRows.map((row) => row.canonicalWordId),
+    rows.map((row) => row.canonicalWordId), "batch exports cover the full sheet exactly once");
+  const missingBatch = await context.request.get(
+    `${base}/admin/teaching-dictionary/export/overview?batch=${batchCount + 1}`);
+  assert.equal(missingBatch.status(), 400);
   // Every row has its exact exported edit hash; the server action must skip
   // the entire unchanged sheet without creating drafts or changing approvals.
   await page.goto(`${base}/admin/teaching-dictionary`, { waitUntil: "domcontentloaded" });
@@ -73,7 +92,8 @@ try {
   assert.deepEqual(alerts.map((alert) => alert.trim()).filter(Boolean), [],
     `unexpected import alerts: ${JSON.stringify(alerts)}`);
   console.log(JSON.stringify({ result: "passed", preview: base, activeWords,
-    csvBytes: Buffer.byteLength(csv, "utf8"), reviewRows: rows.filter((row) => row.error).length,
+    csvBytes: Buffer.byteLength(csv, "utf8"), batchCount,
+    reviewRows: rows.filter((row) => row.error).length,
     importedDrafts: 0 }));
 } finally {
   await browser.close();

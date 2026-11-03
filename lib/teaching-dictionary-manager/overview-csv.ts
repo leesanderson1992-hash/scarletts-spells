@@ -3,6 +3,8 @@ import { FLAT_IMPORT_PART_LIMIT, roundTripEditHash } from "./csv";
 import { WORD_METADATA_FIELDS } from "./contracts";
 import { overviewSourceHash } from "./overview-source-hash";
 
+export const OVERVIEW_EXPORT_BATCH_SIZE = 500;
+
 export type OverviewFamilySelection = {
   kind: "free_base" | "bound_root";
   familyKey: string;
