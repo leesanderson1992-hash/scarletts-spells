@@ -26,8 +26,9 @@ try {
   const baseWord = await db.query(`select id,import_batch_id from canonical_teaching_dictionary_words
     where normalised_word='colour' and row_status='active'`);
   assert.equal(baseWord.rows.length, 1);
+  const oldBaseMeaning = "an older reviewed colour wording";
   const basePart = [{ id: "base", kind: "base", sourceText: "colour", surfaceText: "colour",
-    gloss: "the appearance made by reflected light", displayRange: { start: 0, end: 6 } }];
+    gloss: oldBaseMeaning, displayRange: { start: 0, end: 6 } }];
   const baseMorph = await db.query(`insert into canonical_teaching_dictionary_word_morphology
     (import_batch_id,canonical_word_id,source_sheet,source_row_number,source_row_hash,
      morphology_parts,morphology_joins,word_sum,analysis_status,source_category,
@@ -40,8 +41,30 @@ try {
   const family = await db.query(`select create_reviewed_lexical_free_base_family(
     $1,$1,$2,$2,'noun','noun','free_base',$3,$3,
     'staging rollback proof','staging proof','staging rollback proof') family_key`,
-  [baseWord.rows[0].id, baseMorph.rows[0].id, "the appearance made by reflected light"]);
+  [baseWord.rows[0].id, baseMorph.rows[0].id, oldBaseMeaning]);
   assert.equal(family.rows[0].family_key, "colour_noun_base_family");
+  const oldParts = [basePart[0], { id: "suffix", kind: "suffix", sourceText: "ful",
+    surfaceText: "ful", gloss: "full of", displayRange: { start: 6, end: 9 } }];
+  const joins = [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }];
+  const oldMorph = await db.query(`insert into canonical_teaching_dictionary_word_morphology
+    (import_batch_id,canonical_word_id,source_sheet,source_row_number,source_row_hash,
+     morphology_parts,morphology_joins,word_sum,analysis_status,source_category,
+     source_name,source_use_note,confidence,review_status,reviewed_by,reviewed_at)
+    values($1,$2,'staging rollback proof',2,$3,$4::jsonb,$5::jsonb,'colour + ful → colourful',
+      'approved','internal_authored','staging rollback proof','transaction rollback proof',
+      'high','approved_for_first_exposure','staging proof',now()) returning id`,
+  [w.import_batch_id, wordId, `suffix-old-proof:${randomUUID()}`,
+    JSON.stringify(oldParts), JSON.stringify(joins)]);
+  const priorRevision = await db.query(`select review_lexical_base_family_member_revision(
+    $1,1,$2,$3,'adjective','derived','Full of colour.',
+    'staging rollback proof','staging proof','staging rollback proof') revision`,
+  [family.rows[0].family_key, wordId, oldMorph.rows[0].id]);
+  assert.equal(priorRevision.rows[0].revision, 2);
+  await db.query(`insert into adle_base_word_lexical_family_authorizations
+    (family_key,revision,semantic_fingerprint,authorization_reference,authorized_by)
+    select family_key,revision,semantic_fingerprint,'staging rollback proof',$2
+    from canonical_teaching_dictionary_lexical_base_families
+    where family_key=$1 and revision=2`, [family.rows[0].family_key, actor]);
   const profile = await db.query(`select p.id,p.micro_skill_key,m.id member_id
     from canonical_teaching_dictionary_suffix_profiles p
     join canonical_teaching_dictionary_suffix_members m on m.suffix_profile_id=p.id
@@ -55,7 +78,6 @@ try {
     { id: "suffix", kind: "suffix", sourceText: "ful", surfaceText: "ful",
       gloss: "full of", displayRange: { start: 6, end: 9 } },
   ];
-  const joins = [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }];
   const inserted = await db.query(`insert into canonical_teaching_dictionary_suffix_members
     (import_batch_id,suffix_profile_id,canonical_word_id,member_role,suffix_variant,semantic_base_text,
      semantic_base_kind,base_meaning,new_word_meaning,meaning_bin_key,teaching_split_parts,
@@ -142,8 +164,11 @@ try {
       on m.family_key=f.family_key and m.revision=f.revision
     where f.family_key=$1 and f.review_status='approved' and m.canonical_word_id=$2
     order by f.revision desc limit 1`, [family.rows[0].family_key, wordId]);
-  assert.equal(joined.rows[0].revision, 2);
+  assert.equal(joined.rows[0].revision, 3);
   assert.equal(joined.rows[0].canonical_morphology_id, current.rows[0].id);
+  const authorization = await db.query(`select 1 from adle_base_word_lexical_family_authorizations
+    where family_key=$1 and revision=3 and withdrawn_at is null`, [family.rows[0].family_key]);
+  assert.equal(authorization.rows.length, 1);
   console.log("Reviewed suffix Overview and skill publication passed inside rollback");
 } finally {
   await db.query("rollback").catch(() => {});

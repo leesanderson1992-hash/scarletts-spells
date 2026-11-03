@@ -29,6 +29,7 @@ declare
   v_base_meaning text;
   v_word uuid;
   v_morphology uuid;
+  v_family_revision integer;
   v_desired text[];
   v_live text[];
   v_actual text[];
@@ -81,18 +82,20 @@ begin
       where part->>'kind'='suffix')<>1 then
     raise exception 'TEACHING_SUFFIX_IMPORT_PART_INVALID';
   end if;
-  -- A separate family or published route authority must be revised together
-  -- with this Overview; this path covers the suffix-only dependency slice.
+  -- Other curriculum structures still require their own coordinated release.
+  -- Older base-family and suffix-route rows can coexist only when they point
+  -- at the same free-base identity and the same suffix skill.
   if exists(select 1 from public.canonical_teaching_dictionary_prefix_members x where x.canonical_word_id=d.canonical_word_id and x.row_status='active')
-    or exists(select 1 from public.canonical_teaching_dictionary_base_word_family_members x where x.canonical_word_id=d.canonical_word_id and x.row_status='active')
-    or exists(select 1 from public.canonical_teaching_dictionary_lexical_base_family_members x where x.canonical_word_id=d.canonical_word_id)
-    or exists(select 1 from public.canonical_teaching_dictionary_base_family_registry_members x where x.canonical_word_id=d.canonical_word_id)
     or exists(select 1 from public.canonical_teaching_dictionary_compound_structures_v2 x where x.canonical_word_id=d.canonical_word_id)
     or exists(select 1 from public.canonical_teaching_dictionary_compound_facts x where x.canonical_word_id=d.canonical_word_id)
-    or exists(select 1 from public.canonical_teaching_dictionary_word_support x where x.canonical_word_id=d.canonical_word_id and x.row_status='active')
+    or exists(select 1 from public.canonical_teaching_dictionary_word_support x
+      where x.canonical_word_id=d.canonical_word_id and x.row_status='active'
+        and x.review_status='approved_for_first_exposure')
     or exists(select 1 from public.teaching_dictionary_route_content_versions v
       join public.teaching_dictionary_route_content_publications p on p.content_version_id=v.id
-      where v.canonical_word_id=d.canonical_word_id) then
+      where v.canonical_word_id=d.canonical_word_id
+        and (v.route_id<>'dynamic_affix_word_lab' or v.route_version<>'v3'
+          or v.micro_skill_key<>v_profile.micro_skill_key)) then
     raise exception 'TEACHING_SUFFIX_IMPORT_OTHER_DEPENDENCIES';
   end if;
   select coalesce(array_agg(distinct value order by value),'{}'::text[])
@@ -132,28 +135,63 @@ begin
     where part->>'kind'='base';
   select f.* into v_family from public.canonical_teaching_dictionary_lexical_base_families f
     where f.base_kind='free_base' and f.base_lemma=lower(v_base_text)
-      and f.base_meaning=v_base_meaning and f.review_status='approved'
+      and f.review_status='approved'
+      and (coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')<>''
+        and f.family_key=d.payload#>>'{freeBaseFamilyReview,familyKey}'
+        or coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')=''
+          and f.base_meaning=v_base_meaning)
       and not exists(select 1 from public.canonical_teaching_dictionary_lexical_base_families newer
         where newer.family_key=f.family_key and newer.revision>f.revision)
     order by f.family_key limit 1 for update;
   if v_family.family_key is null or (select count(*) from public.canonical_teaching_dictionary_lexical_base_families f
     where f.base_kind='free_base' and f.base_lemma=lower(v_base_text)
-      and f.base_meaning=v_base_meaning and f.review_status='approved'
+      and f.review_status='approved'
+      and (coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')<>''
+        and f.family_key=d.payload#>>'{freeBaseFamilyReview,familyKey}'
+        or coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')=''
+          and f.base_meaning=v_base_meaning)
       and not exists(select 1 from public.canonical_teaching_dictionary_lexical_base_families newer
         where newer.family_key=f.family_key and newer.revision>f.revision))<>1 then
     raise exception 'TEACHING_SUFFIX_IMPORT_FAMILY_AMBIGUOUS_OR_MISSING';
   end if;
-  if (coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')<>''
-      and d.payload#>>'{freeBaseFamilyReview,familyKey}' is distinct from v_family.family_key)
-    or (coalesce(d.payload#>>'{freeBaseFamilyReview,basePartOfSpeech}','')<>''
+  if (coalesce(d.payload#>>'{freeBaseFamilyReview,basePartOfSpeech}','')<>''
       and d.payload#>>'{freeBaseFamilyReview,basePartOfSpeech}' is distinct from v_family.base_part_of_speech) then
     raise exception 'TEACHING_SUFFIX_IMPORT_FAMILY_REVIEW_CONFLICT';
   end if;
-  perform public.review_lexical_base_family_member_revision(
-    v_family.family_key,v_family.revision,v_word,v_morphology,
+  if exists(select 1 from public.canonical_teaching_dictionary_base_word_family_members m
+    join public.canonical_teaching_dictionary_base_word_families f on f.id=m.base_word_family_id
+    where m.canonical_word_id=v_word and m.row_status='active' and f.row_status='active'
+      and f.base_word_id is distinct from v_family.canonical_base_word_id)
+    or exists(select 1 from public.canonical_teaching_dictionary_base_family_registry_members m
+      join public.canonical_teaching_dictionary_base_family_registry r on r.id=m.canonical_family_id
+      where m.canonical_word_id=v_word
+        and r.canonical_base_word_id is distinct from v_family.canonical_base_word_id)
+    or exists(select 1 from public.canonical_teaching_dictionary_lexical_base_family_members m
+      join public.canonical_teaching_dictionary_lexical_base_families f
+        on f.family_key=m.family_key and f.revision=m.revision
+      where m.canonical_word_id=v_word and f.review_status='approved'
+        and m.family_key<>v_family.family_key
+        and not exists(select 1 from public.canonical_teaching_dictionary_lexical_base_families newer
+          where newer.family_key=f.family_key and newer.revision>f.revision)) then
+    raise exception 'TEACHING_SUFFIX_IMPORT_FAMILY_IDENTITY_CONFLICT';
+  end if;
+  select public.review_existing_free_base_member_revision(
+    v_family.family_key,v_family.revision,v_word,v_morphology,v_base_meaning,
     d.payload#>>'{canonicalMorphology,rawPartOfSpeech}','derived',
-    d.payload->>'definition',d.source_reference,p_actor::text,
-    'Reviewed Teaching Dictionary CSV: '||d.source_reference);
+    d.source_reference,p_actor::text,
+    'Reviewed Teaching Dictionary CSV: '||d.source_reference)
+    into v_family_revision;
+  if exists(select 1 from public.adle_base_word_lexical_family_authorizations a
+      where a.family_key=v_family.family_key and a.revision=v_family.revision
+        and a.withdrawn_at is null)
+    or exists(select 1 from unnest(v_desired) skill where skill like 'D4_MOR_BASE_WORDS_%') then
+    insert into public.adle_base_word_lexical_family_authorizations
+      (family_key,revision,semantic_fingerprint,authorization_reference,authorized_by)
+    select family_key,revision,semantic_fingerprint,
+      'Reviewed Teaching Dictionary CSV: '||d.source_reference,p_actor
+    from public.canonical_teaching_dictionary_lexical_base_families
+    where family_key=v_family.family_key and revision=v_family_revision;
+  end if;
   foreach v_skill in array v_live loop
     if v_skill=any(v_desired) then continue; end if;
     perform public.withdraw_teaching_dictionary_manager_skill_pair(

@@ -16,6 +16,8 @@ declare
   v_base_morphology uuid;
   v_morphology uuid;
   v_word uuid;
+  v_family_key text;
+  v_family_revision integer;
 begin
   if p_actor is null or p_environment not in ('staging','production') then
     raise exception 'TEACHING_FREE_BASE_IMPORT_REVIEW_REQUIRED';
@@ -94,17 +96,34 @@ begin
     raise exception 'TEACHING_FREE_BASE_IMPORT_MORPHOLOGY_MISMATCH';
   end if;
   if v_family.family_key is not null then
-    perform public.review_lexical_base_family_member_revision(
+    v_family_key:=v_family.family_key;
+    select public.review_lexical_base_family_member_revision(
       v_family.family_key,v_family.revision,v_word,v_morphology,
       d.payload#>>'{canonicalMorphology,rawPartOfSpeech}','derived',
       d.payload->>'definition',d.source_reference,p_actor::text,
-      'Reviewed Teaching Dictionary CSV: '||d.source_reference);
+      'Reviewed Teaching Dictionary CSV: '||d.source_reference)
+      into v_family_revision;
   else
-    perform public.create_reviewed_lexical_free_base_family(
+    select public.create_reviewed_lexical_free_base_family(
       v_base_word.id,v_word,v_base_morphology,v_morphology,
       family_review->>'basePartOfSpeech',d.payload#>>'{canonicalMorphology,rawPartOfSpeech}',
       'derived',v_base_meaning,d.payload->>'definition',d.source_reference,
-      p_actor::text,'Reviewed Teaching Dictionary CSV: '||d.source_reference);
+      p_actor::text,'Reviewed Teaching Dictionary CSV: '||d.source_reference)
+      into v_family_key;
+    v_family_revision:=1;
+  end if;
+  if (v_family.family_key is not null and exists(select 1
+      from public.adle_base_word_lexical_family_authorizations a
+      where a.family_key=v_family.family_key and a.revision=v_family.revision
+        and a.withdrawn_at is null))
+    or exists(select 1 from jsonb_array_elements_text(d.payload->'skillKeys') skill
+      where skill like 'D4_MOR_BASE_WORDS_%') then
+    insert into public.adle_base_word_lexical_family_authorizations
+      (family_key,revision,semantic_fingerprint,authorization_reference,authorized_by)
+    select family_key,revision,semantic_fingerprint,
+      'Reviewed Teaching Dictionary CSV: '||d.source_reference,p_actor
+    from public.canonical_teaching_dictionary_lexical_base_families
+    where family_key=v_family_key and revision=v_family_revision;
   end if;
   return v_word;
 end $$;

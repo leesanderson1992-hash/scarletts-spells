@@ -47,3 +47,12 @@ The pilot cannot claim complete family alignment until those six families are
 created and the `read` meaning is reconciled. `understand` has its own internal
 `under + stand` analysis, so a free-base family must support a compound base
 word without replacing that word's internal morphology.
+
+The guarded suffix import now accepts a selected existing free-base family and
+creates a new revision when the reviewed base meaning changes, preserving the
+current ADLE lexical-family authorization where one exists. A read-only check
+found one active suffix member and no conflicting family anchor or approved
+support row for each of `comfortable`, `enjoyable`, and `readable`. Rolled-back
+staging proofs cover a suffix profile, an existing lexical member, a meaning
+revision, a learner skill release, and family authorization. They do not yet
+replay the exact Production legacy registry and published route rows.

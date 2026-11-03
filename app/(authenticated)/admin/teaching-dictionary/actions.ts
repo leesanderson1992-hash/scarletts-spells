@@ -142,6 +142,20 @@ async function publishValidatedDraft(
     const hasDerivedBase = payload.canonicalMorphology.parts.length > 1 &&
       payload.canonicalMorphology.parts.filter((part) => part && typeof part === "object" &&
         (part as Record<string, unknown>).kind === "base").length === 1;
+    if (hasDerivedBase) {
+      const suffix = await db.from("canonical_teaching_dictionary_suffix_members")
+        .select("id").eq("canonical_word_id", source.data.canonical_word_id)
+        .eq("row_status", "active").limit(1);
+      if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
+      if (suffix.data?.length) {
+        const projected = await db.rpc("publish_teaching_dictionary_reviewed_suffix_overview_draft", {
+          p_draft: id, p_actor: actorId, p_environment: environment,
+        });
+        if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
+        throw new Error(projected.error?.message.match(/TEACHING_SUFFIX_IMPORT_[A-Z_]+/)?.[0]
+          ?? "TEACHING_SUFFIX_IMPORT_PUBLICATION_FAILED");
+      }
+    }
     const reconciled = hasDerivedBase
       ? await db.rpc("publish_teaching_dictionary_reviewed_free_base_draft", {
         p_draft: id, p_actor: actorId, p_environment: environment,
