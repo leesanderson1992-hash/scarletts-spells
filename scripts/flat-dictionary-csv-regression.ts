@@ -44,4 +44,15 @@ const changed = values.map((value, index) => index === headers.indexOf("display_
   : index === headers.indexOf("part_2_visible_letters") ? "ity"
   : value);
 assert.match(parse(changed).error ?? "", /spelling-change explanation/);
+const rootHeaders = [...headers, "root_family_key", "root_definition", "root_origin_language",
+  "root_pronunciation_applicability", "root_pronunciation_ipa"];
+const rootValues = [...values.map((value, index) => index === headers.indexOf("part_1_kind") ? "root" : value),
+  "scroll_bound_root_base_family", "move through content", "Latin", "not_applicable", ""];
+const root = parseDictionaryCsv(`${csv(rootHeaders)}\n${csv(rootValues)}\n`)[0];
+assert.equal(root.error, undefined);
+assert.equal(root.payload.rootFamilyReview?.familyKey, "scroll_bound_root_base_family");
+assert.equal(root.payload.rootFamilyReview?.pronunciationApplicability, "not_applicable");
+const invalidRoot = parseDictionaryCsv(`${csv(rootHeaders)}\n${csv(rootValues.map((value, index) =>
+  index === rootHeaders.indexOf("root_pronunciation_ipa") ? "/skrəʊl/" : value))}\n`)[0];
+assert.match(invalidRoot.error ?? "", /Bound-root review/);
 console.log("Flat dictionary CSV regression passed.");

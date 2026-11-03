@@ -75,6 +75,13 @@ export type WordDraftPayload = {
     confidence: "low" | "medium" | "high";
   };
   skillKeys: string[];
+  rootFamilyReview?: {
+    familyKey: string;
+    rootDefinition: string;
+    originLanguage: string;
+    pronunciationApplicability: "reviewed" | "not_applicable";
+    pronunciationIpa: string;
+  };
   routeContents: RouteContentDraft[];
 };
 
@@ -86,6 +93,7 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
   const metadata = row.metadata as Record<string, unknown> | null;
   const morphology = row.canonicalMorphology as Record<string, unknown> | null;
   const provenance = row.provenance as Record<string, unknown> | null;
+  const rootFamilyReview = row.rootFamilyReview as Record<string, unknown> | undefined;
   return ["displayWord", "definition", "dictationSentence", "ageBand", "frequencyBand", "complexityBand"]
     .every((key) => typeof row[key] === "string")
     && Number.isInteger(row.dictationTargetTokenIndex)
@@ -100,7 +108,10 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
       .every((key) => typeof morphology?.[key] === "string")
     && Boolean(provenance) && !Array.isArray(provenance)
     && ["sourceCategory", "sourceName", "sourceUrl", "sourceLicence", "sourceUseNote", "confidence"]
-      .every((key) => typeof provenance?.[key] === "string");
+      .every((key) => typeof provenance?.[key] === "string")
+    && (rootFamilyReview === undefined || Boolean(rootFamilyReview) && !Array.isArray(rootFamilyReview)
+      && ["familyKey", "rootDefinition", "originLanguage", "pronunciationApplicability", "pronunciationIpa"]
+        .every((key) => typeof rootFamilyReview[key] === "string"));
 }
 
 export function normaliseWord(value: string) {
@@ -137,6 +148,17 @@ export function validateDraft(payload: WordDraftPayload, normalisedWord: string)
   if (!payload.canonicalMorphology || !Array.isArray(payload.canonicalMorphology.parts)
     || !Array.isArray(payload.canonicalMorphology.featureKeys) || !Array.isArray(payload.canonicalMorphology.joins)
     || !["in_review", "approved", "not_applicable", "rejected"].includes(payload.canonicalMorphology.analysisStatus)) errors.push("Canonical morphology is invalid.");
+  if (payload.rootFamilyReview) {
+    const root = payload.rootFamilyReview;
+    const rootParts = payload.canonicalMorphology.parts.filter((part) => part && typeof part === "object"
+      && (part as Record<string, unknown>).kind === "root");
+    if (!/^[a-z0-9_]+$/u.test(root.familyKey) || !root.rootDefinition.trim()
+      || !root.originLanguage.trim() || rootParts.length !== 1
+      || !["reviewed", "not_applicable"].includes(root.pronunciationApplicability)
+      || root.pronunciationApplicability === "reviewed" && !root.pronunciationIpa.trim()
+      || root.pronunciationApplicability === "not_applicable" && Boolean(root.pronunciationIpa.trim()))
+      errors.push("Complete the reviewed bound-root family entry.");
+  }
   return errors;
 }
 

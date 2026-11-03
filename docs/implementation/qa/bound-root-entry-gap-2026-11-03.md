@@ -25,3 +25,13 @@ missing-entry rejection, and preservation of not-applicable pronunciation.
 The dictionary family summary now prefers the latest approved lexical family
 over a historical registry link. When a newer approved lexical revision removes
 a word, the old registry link no longer displays it as a current member.
+
+The 14-word pilot CSV now carries veget's family key, root definition, Latin
+origin, and explicit not-applicable pronunciation. Its reviewed root gloss is
+“To grow or live”. The import publisher has an atomic bound-root path for an
+existing member with no route, learner, suffix, prefix, or legacy Base Word Lab
+dependency: it publishes the Overview, creates the next immutable family and
+root-entry revision, and reconciles the reviewed skill set in one transaction.
+A rolled-back staging proof used an immigrant/migr fixture to verify the whole
+path, including a missing-review rejection. The pilot's vegetable row still
+needs the full staging and Production release gates before it changes live data.

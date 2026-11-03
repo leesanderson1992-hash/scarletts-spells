@@ -123,12 +123,22 @@ async function publishValidatedDraft(
   if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: morphologyChanged }).length)
     throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
+  if (payload.rootFamilyReview && !reviewedCsvSkills)
+    throw new Error("TEACHING_ROOT_IMPORT_REVIEW_REQUIRED");
   if (reviewedCsvSkills && !source.data.canonical_word_id && payload.skillKeys.length)
     throw new Error("TEACHING_IMPORT_NEW_WORD_SKILLS_NEED_RELEASE");
   if (reviewedCsvSkills && source.data.canonical_word_id) {
     const environment = resolveAdleRouteActivationEnvironment();
     if (environment !== "staging" && environment !== "production")
       throw new Error("TEACHING_IMPORT_SKILL_ENVIRONMENT_REQUIRED");
+    if (payload.rootFamilyReview) {
+      const rooted = await db.rpc("publish_teaching_dictionary_reviewed_bound_root_draft", {
+        p_draft: id, p_actor: actorId, p_environment: environment,
+      });
+      if (!rooted.error && rooted.data) return `${PATH}/${rooted.data}`;
+      throw new Error(rooted.error?.message.match(/TEACHING_[A-Z_]+|LEXICAL_[A-Z_]+/)?.[0]
+        ?? "TEACHING_ROOT_IMPORT_PUBLICATION_FAILED");
+    }
     const reconciled = await db.rpc("publish_teaching_dictionary_reviewed_reconciled_draft", {
       p_draft: id, p_actor: actorId, p_environment: environment,
     });

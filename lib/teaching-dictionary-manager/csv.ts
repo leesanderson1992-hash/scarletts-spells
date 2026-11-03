@@ -229,8 +229,26 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
         sourceLicence: raw.source_licence || "", sourceUseNote: raw.source_use_note || raw.teacherEditorialNotes || "",
         confidence: (raw.confidence || "medium") as WordDraftPayload["provenance"]["confidence"],
       },
+      ...(["root_family_key", "root_definition", "root_origin_language",
+        "root_pronunciation_applicability", "root_pronunciation_ipa"].some((key) => raw[key])
+        ? { rootFamilyReview: {
+          familyKey: raw.root_family_key || "",
+          rootDefinition: raw.root_definition || "",
+          originLanguage: raw.root_origin_language || "",
+          pronunciationApplicability: raw.root_pronunciation_applicability as "reviewed" | "not_applicable",
+          pronunciationIpa: raw.root_pronunciation_ipa || "",
+        } } : {}),
       routeContents,
     };
+    const rootReview = payload.rootFamilyReview;
+    const rootReviewError = rootReview && (
+      !rootReview.familyKey || !rootReview.rootDefinition || !rootReview.originLanguage
+      || !["reviewed", "not_applicable"].includes(rootReview.pronunciationApplicability)
+      || (rootReview.pronunciationApplicability === "reviewed" && !rootReview.pronunciationIpa)
+      || (rootReview.pronunciationApplicability === "not_applicable" && Boolean(rootReview.pronunciationIpa))
+      || morphologyParts.filter((part) => part && typeof part === "object"
+        && (part as Record<string, unknown>).kind === "root").length !== 1
+    ) ? "Bound-root review needs a family key, definition, origin, one root part and a valid pronunciation choice." : undefined;
     const flatRequired = flat ? [
       ...(!payload.definition.trim() ? ["Definition is required."] : []),
       ...(!/^[1-9][0-9]*$/u.test(payload.metadata.syllables) ? ["Spoken syllable count must be a positive number."] : []),
@@ -252,7 +270,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       writtenSyllableBreakdown: names.includes("written_syllable_breakdown") ? raw.written_syllable_breakdown : undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
       error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."
-        : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError
+        : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError || rootReviewError
         || flatRequired[0]
         || (raw.tdm_export_version && raw.tdm_export_version !== "1" ? "Unsupported export version." : undefined) };
   });
