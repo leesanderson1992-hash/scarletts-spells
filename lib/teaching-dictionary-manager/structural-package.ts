@@ -267,7 +267,7 @@ export async function buildStructuralPackage(input: {
     const supportIds = ids.filter((id) => !candidates.has(id) && !oldById.has(id));
     const supportRows = supportIds.length ? await read(input.db
       .from("canonical_teaching_dictionary_dictation_sentences")
-      .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,dictation_variants")
+      .select("canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text")
       .in("canonical_word_id", supportIds).eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure")) : [];
     const supportById = new Map<string, any>(supportRows.map((row: any) => [row.canonical_word_id, row]));
