@@ -174,10 +174,13 @@ async function main() {
   }];
   (canonicalTables.canonical_teaching_dictionary_suffix_profiles[0] as any)
     .canonical_teaching_dictionary_suffix_members[0].new_word_meaning = null;
+  (canonicalTables.canonical_teaching_dictionary_suffix_profiles[0] as any)
+    .canonical_teaching_dictionary_suffix_members[0].base_meaning = "obsolete profile gloss";
   const canonicalClient = { from(table: string) { return new ReadOnlyQuery(canonicalTables[table] ?? []); } } as unknown as SupabaseClient;
   const projected = await loadDynamicSuffixProfiles(canonicalClient, "fixture-child");
   const projectedWord = projected.profiles[0]!.wordsByCanonicalId.get(canonicalWord)!;
   assert.equal(projectedWord.derivedMeaning, "The quality of being kind.");
+  assert.equal(projectedWord.baseMeaning, "having a caring nature");
   assert.equal(projectedWord.trueMorphology.parts[0]?.gloss, "having a caring nature");
   assert.equal(projectedWord.trueMorphology.provenance.status, "reviewed");
   const conflictingTables = structuredClone(canonicalTables);

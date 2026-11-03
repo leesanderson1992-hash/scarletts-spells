@@ -144,8 +144,21 @@ async function publishValidatedDraft(
     });
     if (!reconciled.error && reconciled.data) return `${PATH}/${reconciled.data}`;
     const code = reconciled.error?.message.match(/TEACHING_[A-Z_]+/)?.[0];
-    if (code !== "TEACHING_RECONCILED_DEPENDENCIES_EXIST")
+    if (code !== "TEACHING_RECONCILED_DEPENDENCIES_EXIST" &&
+      code !== "TEACHING_RECONCILED_GOVERNED_SKILL_CHANGE")
       throw new Error(code ?? "TEACHING_RECONCILED_PUBLICATION_FAILED");
+    const suffix = await db.from("canonical_teaching_dictionary_suffix_members")
+      .select("id").eq("canonical_word_id", source.data.canonical_word_id)
+      .eq("row_status", "active").limit(1);
+    if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
+    if (suffix.data?.length) {
+      const projected = await db.rpc("publish_teaching_dictionary_reviewed_suffix_overview_draft", {
+        p_draft: id, p_actor: actorId, p_environment: environment,
+      });
+      if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
+      throw new Error(projected.error?.message.match(/TEACHING_SUFFIX_IMPORT_[A-Z_]+/)?.[0]
+        ?? "TEACHING_SUFFIX_IMPORT_PUBLICATION_FAILED");
+    }
   }
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {

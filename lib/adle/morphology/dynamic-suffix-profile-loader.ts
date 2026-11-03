@@ -435,6 +435,15 @@ export async function loadDynamicSuffixProfiles(
         continue;
       }
       const reviewedCanonical = canonicalIntent && canonicalAudit?.status === "canonical";
+      const canonicalBase = reviewedCanonical && Array.isArray(canonicalParts)
+        ? canonicalParts.find((part) => isRecord(part) && (part.kind === "base" || part.kind === "root"))
+        : null;
+      const semanticBaseText = canonicalBase && isRecord(canonicalBase)
+        ? text(canonicalBase.sourceText) : text(member.semantic_base_text);
+      const semanticBaseKind = canonicalBase && isRecord(canonicalBase)
+        ? canonicalBase.kind : member.semantic_base_kind;
+      const baseMeaning = canonicalBase && isRecord(canonicalBase)
+        ? text(canonicalBase.gloss) : text(member.base_meaning);
       const derivedMeaning = reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning);
       const trueParts = parts(reviewedCanonical ? canonicalParts : member.true_morphology_parts);
       const teachingJoins = joins(member.teaching_split_joins);
@@ -447,7 +456,6 @@ export async function loadDynamicSuffixProfiles(
       const provenance = reviewedCanonical
         ? { source: "approved Teaching Dictionary Overview", status: "reviewed" }
         : isRecord(member.true_morphology_provenance) ? member.true_morphology_provenance : null;
-      const semanticBaseKind = member.semantic_base_kind;
       const metadataReady = Boolean(
         text(word?.frequency_band)
         && text(word?.age_band)
@@ -470,9 +478,9 @@ export async function loadDynamicSuffixProfiles(
         && audioText === dictationSentence
         && typeof dictation.dictation_target_token_index === "number"
         && text(member.suffix_variant)
-        && text(member.semantic_base_text)
+        && semanticBaseText
         && (semanticBaseKind === "base" || semanticBaseKind === "root")
-        && text(member.base_meaning)
+        && baseMeaning
         && derivedMeaning
         && text(member.meaning_bin_key)
         && teachingParts
@@ -506,10 +514,10 @@ export async function loadDynamicSuffixProfiles(
         canonicalWordId,
         displayWord,
         audioText,
-        semanticBaseText: member.semantic_base_text as string,
+        semanticBaseText: semanticBaseText!,
         semanticBaseKind: semanticBaseKind as "base" | "root",
         teachingBaseText: teachingBase,
-        baseMeaning: member.base_meaning as string,
+        baseMeaning: baseMeaning!,
         derivedMeaning: derivedMeaning!,
         effect: member.meaning_bin_key as string,
         affixVariant: member.suffix_variant as string,
