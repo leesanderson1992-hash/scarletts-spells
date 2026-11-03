@@ -15,6 +15,13 @@ immutable and readable; the 27 gaps need reviewed entries and new revisions
 where family facts change. Root entries are dictionary family anchors and do
 not receive standalone dictation sentences.
 
+The new existing-member revision operation can replace a member's immutable
+word-part snapshot and create a reviewed root entry in the next revision. It
+accepts a changed root meaning only when every other current member already
+uses that meaning; otherwise those members need review first. The rolled-back
+staging proof covers a one-member meaning change, a later member replacement,
+missing-entry rejection, and preservation of not-applicable pronunciation.
+
 The dictionary family summary now prefers the latest approved lexical family
 over a historical registry link. When a newer approved lexical revision removes
 a word, the old registry link no longer displays it as a current member.

@@ -87,6 +87,41 @@ try {
   const approved = await db.query(`select public.approve_canonical_lexical_base_family(
     $1,1,'staging proof','staging rollback proof') fingerprint`, [familyKey]);
   assert.match(approved.rows[0].fingerprint, /^[a-f0-9]{64}$/);
+  await db.query("savepoint single_member_root_meaning");
+  try {
+    await db.query(`update public.canonical_teaching_dictionary_word_morphology
+      set row_status='retired' where id=$1`, [morphIds[0]]);
+    const actBatch = await db.query(`select b.id from public.canonical_teaching_dictionary_import_batches b
+      where not exists(select 1 from public.canonical_teaching_dictionary_word_morphology m
+        where m.import_batch_id=b.id and m.canonical_word_id=$1)
+      order by b.imported_at desc limit 1`, [words[0].id]);
+    assert.ok(actBatch.rows[0]?.id);
+    const actParts = structuredClone(words[0].parts);
+    actParts[0].gloss = "to act";
+    const actMorph = await db.query(`insert into public.canonical_teaching_dictionary_word_morphology
+      (import_batch_id,canonical_word_id,source_sheet,source_row_number,source_row_hash,
+       morphology_parts,morphology_joins,word_sum,analysis_status,source_category,
+       source_name,source_use_note,confidence,review_status,reviewed_by,reviewed_at)
+      values($1,$2,'staging rollback proof',2,'bound-root-proof:act-revised',
+        $3::jsonb,'[]'::jsonb,'act → act','approved','internal_authored',
+        'staging rollback proof','transaction rollback proof','high',
+        'approved_for_first_exposure','staging proof',now()) returning id`,
+    [actBatch.rows[0].id, words[0].id, JSON.stringify(actParts)]);
+    const actDraft = await db.query(`insert into public.teaching_dictionary_manager_drafts
+      (canonical_word_id,normalised_word,dialect_code,payload,source_kind,source_reference,created_by)
+      values($1,'act','en-GB','{}'::jsonb,'manual','staging rollback proof',$2) returning id`,
+    [words[0].id, process.env.STAGING_ADMIN_USER_ID]);
+    await db.query(`insert into public.teaching_dictionary_definition_versions
+      (canonical_word_id,definition,draft_id) values($1,'To do something.',$2)`,
+    [words[0].id, actDraft.rows[0].id]);
+    const meaningRevision = await db.query(`select public.review_existing_bound_root_member_revision(
+      $1,1,$2,$3,'to act','to act','Latin','not_applicable',null,
+      'staging rollback proof','staging proof','staging rollback proof') revision`,
+    [familyKey, words[0].id, actMorph.rows[0].id]);
+    assert.equal(meaningRevision.rows[0].revision, 2);
+  } finally {
+    await db.query("rollback to savepoint single_member_root_meaning");
+  }
   await db.query("savepoint invalid_root");
   try {
     const invalidParts = structuredClone(words[1].parts);
@@ -105,6 +140,46 @@ try {
     'staging rollback proof','staging proof','staging rollback proof') revision`,
   [familyKey, words[1].id, morphIds[1]]);
   assert.equal(joined.rows[0].revision, 2);
+  await db.query(`update public.canonical_teaching_dictionary_word_morphology
+    set row_status='retired' where id=$1`, [morphIds[1]]);
+  const revisedParts = structuredClone(words[1].parts);
+  revisedParts[1].gloss = "the process of doing";
+  const revisedBatch = await db.query(`select b.id from public.canonical_teaching_dictionary_import_batches b
+    where not exists(select 1 from public.canonical_teaching_dictionary_word_morphology m
+      where m.import_batch_id=b.id and m.canonical_word_id=$1)
+    order by b.imported_at desc limit 1`, [words[1].id]);
+  assert.ok(revisedBatch.rows[0]?.id);
+  const revisedMorphology = await db.query(`insert into public.canonical_teaching_dictionary_word_morphology
+    (import_batch_id,canonical_word_id,source_sheet,source_row_number,source_row_hash,
+     morphology_parts,morphology_joins,word_sum,analysis_status,source_category,
+     source_name,source_use_note,confidence,review_status,reviewed_by,reviewed_at)
+    values($1,$2,'staging rollback proof',2,'bound-root-proof:action-revised',
+      $3::jsonb,$4::jsonb,'act + ion → action','approved',
+      'internal_authored','staging rollback proof','transaction rollback proof','high',
+      'approved_for_first_exposure','staging proof',now()) returning id`,
+  [revisedBatch.rows[0].id, words[1].id,
+    JSON.stringify(revisedParts), JSON.stringify(words[1].joins)]);
+  const definitionDraft = await db.query(`insert into public.teaching_dictionary_manager_drafts
+    (canonical_word_id,normalised_word,dialect_code,payload,source_kind,source_reference,created_by)
+    values($1,'action','en-GB','{}'::jsonb,'manual','staging rollback proof',$2) returning id`,
+  [words[1].id, process.env.STAGING_ADMIN_USER_ID]);
+  await db.query(`insert into public.teaching_dictionary_definition_versions
+    (canonical_word_id,definition,draft_id)
+    values($1,'Something that is done.',$2)`, [words[1].id, definitionDraft.rows[0].id]);
+  await db.query("savepoint changed_shared_root");
+  try {
+    await assert.rejects(db.query(`select public.review_existing_bound_root_member_revision(
+      $1,2,$2,$3,'different root meaning','different root meaning','Latin',
+      'not_applicable',null,'staging rollback proof','staging proof','staging rollback proof')`,
+    [familyKey, words[1].id, revisedMorphology.rows[0].id]), /LEXICAL_ROOT_OTHER_MEMBERS_NEED_REVIEW/);
+  } finally {
+    await db.query("rollback to savepoint changed_shared_root");
+  }
+  const replaced = await db.query(`select public.review_existing_bound_root_member_revision(
+    $1,2,$2,$3,'to do','the bound root meaning to do','Latin',
+    'not_applicable',null,'staging rollback proof','staging proof','staging rollback proof') revision`,
+  [familyKey, words[1].id, revisedMorphology.rows[0].id]);
+  assert.equal(replaced.rows[0].revision, 3);
   const proof = await db.query(`select f.revision,f.review_status,
       (select count(*)::int from public.canonical_teaching_dictionary_lexical_base_family_members m
         where m.family_key=f.family_key and m.revision=f.revision) members,
@@ -116,9 +191,10 @@ try {
     status: row.review_status, members: row.members, pronunciationApplicability: row.pronunciation_applicability })), [
     { revision: 1, status: "approved", members: 1, pronunciationApplicability: "not_applicable" },
     { revision: 2, status: "approved", members: 2, pronunciationApplicability: "not_applicable" },
+    { revision: 3, status: "approved", members: 2, pronunciationApplicability: "not_applicable" },
   ]);
   console.log(JSON.stringify({ result: "passed", environment: "staging",
-    familyKind: "bound_root", revisedMembership: true, mutations: "rolled_back" }));
+    familyKind: "bound_root", revisedMembership: true, replacedMembership: true, mutations: "rolled_back" }));
 } finally {
   await db.query("rollback").catch(() => {});
   await db.end();
