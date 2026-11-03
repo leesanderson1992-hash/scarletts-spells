@@ -123,6 +123,8 @@ async function publishValidatedDraft(
   if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: morphologyChanged }).length)
     throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
+  if (reviewedCsvSkills && !source.data.canonical_word_id && payload.skillKeys.length)
+    throw new Error("TEACHING_IMPORT_NEW_WORD_SKILLS_NEED_RELEASE");
   if (reviewedCsvSkills && source.data.canonical_word_id) {
     const environment = resolveAdleRouteActivationEnvironment();
     if (environment !== "staging" && environment !== "production")
