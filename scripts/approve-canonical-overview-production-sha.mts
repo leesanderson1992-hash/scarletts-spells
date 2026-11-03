@@ -2,14 +2,18 @@
 import pg from "pg";
 
 const sha = process.argv[2];
+const baselineSha = process.argv[3];
 const apply = process.argv.includes("--apply");
-if (!sha || !/^[a-f0-9]{40}$/u.test(sha)) throw new Error("EXACT_COMMIT_SHA_REQUIRED");
+if (!sha || !/^[a-f0-9]{40}$/u.test(sha) || !baselineSha
+  || !/^[a-f0-9]{40}$/u.test(baselineSha) || sha === baselineSha)
+  throw new Error("NEW_AND_BASELINE_COMMIT_SHA_REQUIRED");
 if (apply && !process.argv.includes(`--confirm=owner-standing-2026-10-09:${sha}`))
   throw new Error("EXACT_OWNER_STANDING_CONFIRMATION_REQUIRED");
+delete process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
+process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
 if (!url || new URL(url).username.split(".").at(-1) !== "wwohrqtunajrbwxyssjf")
   throw new Error("PRODUCTION_DATABASE_REQUIRED");
-const baselineSha = "63fc744f235a3a00ece71b34afcd4dd0633825df";
 const expectedRuntime = "5d2de1feb5104acbba1ad3edb2652830b6fdd71d40af36af422eabd47274bd35";
 const expectedConfig = "a874b27c4f42538821dac4e5d784f3735e5a97e100150cc0dcd88e0c37159958";
 const expectedRateCard = "76a726a72596d742f25cf4629d0a379d543e496a0a95d4c985af872ad7f74782";

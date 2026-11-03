@@ -1,12 +1,18 @@
 /** Rebind the existing Production policy and scheduler to an exact promoted SHA. */
 import pg from "pg";
 
-const sha = "d3543e894030fdda818e66efe52c293c6948e4d0";
-const approvalId = "8dc423d0-255f-4712-a4d1-e05b77a78f00";
-const oldSha = "63fc744f235a3a00ece71b34afcd4dd0633825df";
+const sha = process.argv[2];
+const approvalId = process.argv[3];
+const oldSha = process.argv[4];
+if (!sha || !/^[a-f0-9]{40}$/u.test(sha) || !oldSha
+  || !/^[a-f0-9]{40}$/u.test(oldSha) || sha === oldSha
+  || !approvalId || !/^[a-f0-9-]{36}$/u.test(approvalId))
+  throw new Error("NEW_SHA_APPROVAL_AND_BASELINE_REQUIRED");
 const apply = process.argv.includes("--apply");
 if (apply && !process.argv.includes(`--confirm=context-cutover:${sha}`))
   throw new Error("EXACT_CUTOVER_CONFIRMATION_REQUIRED");
+delete process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
+process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
 if (!url || new URL(url).username.split(".").at(-1) !== "wwohrqtunajrbwxyssjf")
   throw new Error("PRODUCTION_DATABASE_REQUIRED");
