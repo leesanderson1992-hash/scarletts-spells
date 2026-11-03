@@ -2,7 +2,7 @@ begin;
 
 -- A reviewed CSV may replace one existing bound-root member, its immutable
 -- family revision, root entry and word-skill choices as one transaction.
-create function public.publish_teaching_dictionary_reviewed_bound_root_draft(
+create or replace function public.publish_teaching_dictionary_reviewed_bound_root_draft(
   p_draft uuid,p_actor uuid,p_environment text)
 returns uuid language plpgsql security definer set search_path=public,pg_temp as $$
 declare
