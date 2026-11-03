@@ -53,3 +53,13 @@ have multiple family memberships. These are review counts, not automatic
 conversion candidates. The admin export therefore offers deterministic
 500-word batches as well as the complete reference sheet. Reimporting a batch
 still creates drafts for review; it does not publish the full dictionary.
+
+Committed source `32eae1015ea4b70e22fb0b8331e71878704e054c` built as
+isolated staging Preview `dpl_CoCJtyLdnzHnsqwLXSH2E8CG4d5Y` at
+<https://scarletts-spells-adle-staging-20261025-2db8wswna.vercel.app>.
+Vercel reported Ready. The authenticated browser proof passed: 747 active
+words produced 747 Overview rows in the full export (926,628 bytes) and two
+numbered batches. In order, the batch IDs exactly matched the complete sheet,
+each batch parsed through the importer and fit the upload cap, an out-of-range
+batch returned HTTP 400, and reimporting the unchanged full sheet created zero
+drafts. The site remained on staging; this did not publish Production data.
