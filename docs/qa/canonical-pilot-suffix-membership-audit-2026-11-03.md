@@ -108,3 +108,28 @@ for later typed review; this compatibility read does not approve them.
 the current profile generation and its six-member roster. It supports the
 same transaction as a guarded apply after the updated loader is released.
 No new suffix member was published by the rollback proof.
+
+## Production suffix release
+
+Runtime commit `21503a89293b089702bacb303decd98e2d6d3b88` passed local
+regression, TypeScript, ESLint and staging Preview build
+`dpl_45854nDKmjLT9EZQs4iP3eQDtiRn`. The Production candidate
+`dpl_GbSHbuyBAMwNjcr7CqaNK385ozv9` passed authenticated exact-SHA and
+runtime-fingerprint HEAD readback, then was promoted to the public alias.
+Provider approval `3eb6363d-ccb5-4695-94ce-ff88a6e094a9` and scheduler
+cutover were bound to that SHA under the owner's 2026-10-09 standing authority.
+
+The same ten-word guarded publisher transaction was then applied in Production.
+The current -able/-ible profile is
+`f4fcdf7e-be8e-40d8-bebb-e9e5ec7a61de`. A separate read-only live check
+(`scripts/verify-canonical-pilot-suffix-live.mts`) found 16 active members,
+all 16 accepted by the runtime loader, all 13 pilot words assigned to this
+suffix skill present, and valid generated lesson JSON for each of those 13.
+The 14-word Overview and family verifier still passed after publication.
+Authenticated recovery GET was idle and the Production safety monitor passed
+with AI control disabled and zero unrecorded sends. Scheduler job 73 remained
+enabled and bound to the new SHA; its 16:10 UTC run succeeded.
+
+This completes the pilot's **suffix lesson** slice. Other skills assigned to
+the 14 words, including Base Word and weak-vowel routes, still require their
+own readiness audit before the whole pilot can be called end-to-end complete.
