@@ -31,3 +31,16 @@ have unpublished route drafts. This profile must be revised with the reviewed
 Overview facts before the three words can be released; historical superseded
 member rows are not active dependencies. The regression test reads this fixed
 candidate and checks the approved `veget` and `enjoyable` decisions.
+
+The reproducible read-only audit is
+`scripts/audit-canonical-pilot-production.mts`. All 14 word IDs and source
+hashes still match Production. Six reviewed base parts match an approved
+free-base family (`avail`, `rely`, `comfort`, `notice`, `joy`, `respect`). Six
+have no matching approved family (`adore`, `reason`, `understand`, `desire`,
+`apply`, `consider`). The `read` family exists but says “to understand written
+words”; the reviewed CSV says “understand written words”. `veget` uses its
+existing bound-root family and its reviewed meaning requires a new revision.
+The pilot cannot claim complete family alignment until those six families are
+created and the `read` meaning is reconciled. `understand` has its own internal
+`under + stand` analysis, so a free-base family must support a compound base
+word without replacing that word's internal morphology.
