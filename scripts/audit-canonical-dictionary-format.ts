@@ -8,9 +8,15 @@ const environment = process.argv[2];
 const exportPath = process.argv[3];
 if (environment !== "production" && environment !== "staging")
   throw new Error("Usage: tsx scripts/audit-canonical-dictionary-format.ts production|staging");
+const envKey = environment === "production" ? "SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED" :
+  "SUPABASE_STAGING_DB_URL";
+delete process.env[envKey];
+process.loadEnvFile(environment === "production" ? ".env.local" : ".env.staging.local");
 const url = environment === "production" ? process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED :
   process.env.SUPABASE_STAGING_DB_URL;
 if (!url) throw new Error("DATABASE_URL_REQUIRED");
+if (environment === "production" && new URL(url).username.split(".").at(-1) !== "wwohrqtunajrbwxyssjf")
+  throw new Error("PRODUCTION_DATABASE_REQUIRED");
 if (environment === "staging" && new URL(url).username.split(".").at(-1) !== "qkpjbajicacbrphthibk")
   throw new Error("STAGING_DATABASE_REQUIRED");
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false }, connectionTimeoutMillis: 10000 });
