@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { auditCanonicalMorphology } from "../lib/teaching-dictionary-manager/canonical-morphology";
 
@@ -55,4 +57,20 @@ assert.equal(root.payload.rootFamilyReview?.pronunciationApplicability, "not_app
 const invalidRoot = parseDictionaryCsv(`${csv(rootHeaders)}\n${csv(rootValues.map((value, index) =>
   index === rootHeaders.indexOf("root_pronunciation_ipa") ? "/skrəʊl/" : value))}\n`)[0];
 assert.match(invalidRoot.error ?? "", /Bound-root review/);
+
+const pilotPath = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-11-03-canonical-pilot/reviewed-14-word-pilot.csv");
+const pilot = parseDictionaryCsv(readFileSync(pilotPath, "utf8"));
+assert.equal(pilot.length, 14);
+assert.deepEqual(pilot.filter((entry) => entry.error).map((entry) => entry.normalisedWord), []);
+const vegetable = pilot.find((entry) => entry.normalisedWord === "vegetable")!;
+assert.equal(vegetable.payload.rootFamilyReview?.rootDefinition, "To grow or live");
+assert.equal(vegetable.payload.rootFamilyReview?.pronunciationApplicability, "not_applicable");
+assert.equal(vegetable.payload.rootFamilyReview?.pronunciationIpa, "");
+assert.deepEqual(vegetable.payload.canonicalMorphology.parts.map((part) => part.gloss),
+  ["To grow or live", "able to be or suitable for"]);
+const enjoyable = pilot.find((entry) => entry.normalisedWord === "enjoyable")!;
+assert.equal(enjoyable.payload.metadata.stress_pattern, "unstressed-primary-unstressed-unstressed");
+assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.sourceText), ["en", "joy", "able"]);
+assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.gloss),
+  ["to cause or to be", "a feeling of great happiness", "able to be or suitable for"]);
 console.log("Flat dictionary CSV regression passed.");
