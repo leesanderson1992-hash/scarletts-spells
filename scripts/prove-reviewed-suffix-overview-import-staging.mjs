@@ -1,6 +1,6 @@
 /** Disposable staging proof for reviewed Overview publication beside a suffix profile. */
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import pg from "pg";
 
 const url = process.env.SUPABASE_STAGING_DB_URL;
@@ -10,6 +10,7 @@ const actor = process.env.STAGING_ADMIN_USER_ID;
 if (!actor) throw new Error("STAGING_ADMIN_USER_REQUIRED");
 const wordId = "479e8116-f29c-52bc-a50c-4ae45f328939"; // colourful
 const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+const hash = (value) => createHash("sha256").update(value).digest("hex");
 let memberId;
 let draftId;
 
@@ -94,6 +95,43 @@ try {
   [profileId, wordId, JSON.stringify(parts), JSON.stringify(joins),
     `suffix-import-proof:${randomUUID()}`, templateId]);
   memberId = inserted.rows[0].id;
+  const legacy = await db.query(`insert into canonical_teaching_dictionary_base_word_families
+    select (jsonb_populate_record(null::canonical_teaching_dictionary_base_word_families,
+      to_jsonb(f)||jsonb_build_object('id',$1::uuid,'base_family_key',$2::text,
+        'base_word_id',$3::uuid,'base_meaning',$4::text,'source_row_hash',$5::text))).*
+    from canonical_teaching_dictionary_base_word_families f
+    where f.base_family_key='care_base_family' and f.row_status='active'
+    returning id`, [randomUUID(), "colour_proof_base_family", baseWord.rows[0].id,
+    oldBaseMeaning, hash(`legacy-family:${randomUUID()}`)]);
+  assert.equal(legacy.rows.length, 1);
+  const legacyMember = await db.query(`insert into canonical_teaching_dictionary_base_word_family_members
+    select (jsonb_populate_record(null::canonical_teaching_dictionary_base_word_family_members,
+      to_jsonb(m)||jsonb_build_object('id',$1::uuid,'base_word_family_id',$2::uuid,
+        'canonical_word_id',$3::uuid,'word_sum',$4::text,'morphology_parts',$5::jsonb,
+        'morphology_joins',$6::jsonb,'source_row_hash',$7::text,
+        'dictation_sentence_id',null))).*
+    from canonical_teaching_dictionary_base_word_family_members m
+    join canonical_teaching_dictionary_base_word_families f on f.id=m.base_word_family_id
+    where f.base_family_key='care_base_family' and f.row_status='active'
+      and m.canonical_word_id=(select id from canonical_teaching_dictionary_words
+        where normalised_word='careful' and row_status='active')
+      and m.row_status='active' limit 1 returning id`,
+  [randomUUID(), legacy.rows[0].id, wordId, "colour + ful → colourful",
+    JSON.stringify(oldParts), JSON.stringify(joins), hash(`legacy-member:${randomUUID()}`)]);
+  assert.equal(legacyMember.rows.length, 1);
+  const registryId = randomUUID();
+  await db.query(`insert into canonical_teaching_dictionary_base_family_registry
+    (id,family_key,base_kind,canonical_base_word_id,base_lemma,meaning_variants,
+     decision_status,decision_reference,source_manifest_sha256)
+    values($1,$2,'free_base',$3,'colour',$4::jsonb,'owner_reviewed',
+      'staging rollback proof',$5)`,
+  [registryId, "colour_proof_registry", baseWord.rows[0].id,
+    JSON.stringify([{ meaning: oldBaseMeaning }]), hash(`registry:${randomUUID()}`)]);
+  await db.query(`insert into canonical_teaching_dictionary_base_family_registry_members
+    (canonical_family_id,canonical_word_id,source_family_keys,source_member_roles,
+     source_assignment_eligibility,source_record_ids)
+    values($1,$2,$3::text[],$4::text[],$5::boolean[],$6::uuid[])`,
+  [registryId, wordId, ["colour_proof_base_family"], ["derived"], [true], [legacyMember.rows[0].id]]);
   await db.query(`update adle_word_skill_review_controls
     set review_enabled=true,publication_enabled=true,withdrawal_enabled=true
     where environment_key='staging'`);
@@ -130,6 +168,15 @@ try {
     values($1,'colourful','en-GB',$2::jsonb,'csv',$3,$4) returning id`,
   [wordId, JSON.stringify(payload), `CSV batch ${randomUUID()}, row 2 (staging rollback proof)`, actor]);
   draftId = draft.rows[0].id;
+  const route = await db.query(`insert into teaching_dictionary_route_content_versions
+    (canonical_word_id,route_id,route_version,micro_skill_key,content,runtime_status,draft_id)
+    values($1,'dynamic_affix_word_lab','v3',$2,$3::jsonb,'published_to_route',$4)
+    returning id`, [wordId, skillKey, JSON.stringify({ routeId: "dynamic_affix_word_lab",
+    routeVersion: "v3", microSkillKey: skillKey, wordMeaning: "Older route wording.",
+    wordSum: "colour + ful → colourful", content: {} }), draftId]);
+  await db.query(`insert into teaching_dictionary_route_content_publications
+    (content_version_id,route_profile_id,published_by) values($1,$2,$3)`,
+  [route.rows[0].id, profileId, actor]);
   await db.query("select review_teaching_dictionary_overview($1,$2)", [draftId, actor]);
   await db.query("savepoint missing_skill_review");
   try {
