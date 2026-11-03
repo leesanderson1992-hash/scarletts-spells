@@ -127,7 +127,7 @@ export function projectOverviewCsvRows(
       root_pronunciation_applicability: family?.kind === "bound_root"
         ? family.rootPronunciationApplicability ?? "" : "",
       root_pronunciation_ipa: family?.kind === "bound_root" ? family.rootPronunciationIpa ?? "" : "",
-      missing_facts: [String(source.missing_facts ?? ""),
+      missing_facts: [String(source.__overview_missing_facts ?? source.missing_facts ?? ""),
         family?.reviewIssue ?? "",
         ...(familyMeaningConflict ? ["Family meaning differs from the word part: review in Overview"] : []),
         ...(derivedWithoutFamily ? ["Select or create a base or root family in Overview"] : []),

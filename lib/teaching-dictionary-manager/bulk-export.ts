@@ -140,17 +140,20 @@ export async function teachingDictionaryExportRows(): Promise<Record<string, unk
         }];
       });
       if (!routeRows.length) {
-        output.push({ ...common, missing_facts: publicationBlockers(payload, word.normalised_word).join("; ") });
+        const overviewMissing = publicationBlockers(payload, word.normalised_word).join("; ");
+        output.push({ ...common, __overview_missing_facts: overviewMissing, missing_facts: overviewMissing });
         continue;
       }
       for (const route of routeRows) {
         const content = route.content;
+        const overviewMissing = publicationBlockers(payload, word.normalised_word).join("; ");
         output.push({ ...common, routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: route.microSkillKey,
           wordMeaning: route.wordMeaning, wordSum: route.wordSum,
           ...Object.fromEntries(ROUTE_TEXT_FIELDS.map((field) => [field, content[field] ?? ""])),
           ...Object.fromEntries(ROUTE_JSON_FIELDS.map((field) => [field, content[field] ?? ""])),
           sourceRefs: Array.isArray(content.sourceRefs) ? content.sourceRefs.join("\n") : "",
           route_content_json: content,
+          __overview_missing_facts: overviewMissing,
           missing_facts: [...publicationBlockers(payload, word.normalised_word), ...routeBlockers(route, payload)].join("; "),
         });
       }

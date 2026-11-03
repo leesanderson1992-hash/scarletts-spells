@@ -27,7 +27,8 @@ function fromPilot(row: (typeof pilot)[number]) {
     source_category: payload.provenance.sourceCategory, source_name: payload.provenance.sourceName,
     source_url: payload.provenance.sourceUrl, source_licence: payload.provenance.sourceLicence,
     source_use_note: payload.provenance.sourceUseNote, confidence: payload.provenance.confidence,
-    missing_facts: "", route_content_json: { staleRouteCopy: true },
+    __overview_missing_facts: "", missing_facts: "Route-only choice missing",
+    route_content_json: { staleRouteCopy: true },
   };
 }
 const typed = fromPilot(reviewed);
@@ -57,6 +58,7 @@ assert.equal(rows[0].part_1_kind, "prefix");
 assert.equal(rows[0].part_2_underlying_form, "joy");
 assert.equal(rows[0].part_3_meaning, "able to be or suitable for");
 assert.equal(rows[0].base_family_key, "joy_noun_base_family");
+assert(!String(rows[0].missing_facts).includes("Route-only"));
 assert.match(String(rows[0].tdm_source_overview_hash), /^[a-f0-9]{64}$/);
 assert.equal(rows[0].tdm_source_overview_hash, overviewSourceHash(typed));
 assert.notEqual(rows[0].tdm_source_overview_hash, overviewSourceHash({ ...typed, definition: "Changed later" }));
