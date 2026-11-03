@@ -22,10 +22,12 @@ export function selectOverviewFamilies(ids: readonly string[], members: readonly
       const family = latest.get(member.family_key);
       return family?.revision === member.revision && family.review_status === "approved";
     });
-    const unique = [...new Set(current.map((member) => member.family_key))];
+    const unique = [...new Set(current.map((member) => member.family_key))].sort();
+    const refs = unique.map((key) => `${key}@${latest.get(key)!.revision}`);
     if (unique.length > 1) {
       selections.set(id, { kind: "free_base", familyKey: "", basePartOfSpeech: "",
-        reviewIssue: "Multiple current families: select one in Overview" });
+        linkedFamilyRefs: refs,
+        reviewIssue: "Multiple approved family links retained: review the word parts and choose a teaching family in each relevant lesson" });
       continue;
     }
     if (!unique.length) {
@@ -41,6 +43,7 @@ export function selectOverviewFamilies(ids: readonly string[], members: readonly
     }
     const root = roots.get(`${family.family_key}:${family.revision}`);
     selections.set(id, { kind: family.base_kind, familyKey: family.family_key, revision: family.revision,
+      linkedFamilyRefs: refs,
       basePartOfSpeech: family.base_part_of_speech, baseLemma: family.base_lemma,
       baseMeaning: family.base_meaning,
       ...(family.base_kind === "bound_root" ? {

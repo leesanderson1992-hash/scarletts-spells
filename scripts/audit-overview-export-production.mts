@@ -125,7 +125,7 @@ try {
     batchBytes,
     canonicalMorphologyRows: rows.filter((row) => row.analysis_status === "approved").length,
     reviewNeededRows: rows.filter((row) => row.analysis_status === "in_review").length,
-    ambiguousCurrentFamilies: [...familyCount.values()].filter((count) => count > 1).length,
+    multiFamilyWords: [...familyCount.values()].filter((count) => count > 1).length,
     currentFamilyMembershipRows: memberships.rows.length, effectiveWordSkillPairs: pairs.rows.length }, null, 2));
   if (bytes > MAX_DICTIONARY_CSV_BYTES || batchBytes.some((count) => count > MAX_DICTIONARY_CSV_BYTES))
     throw new Error("OVERVIEW_CSV_EXCEEDS_IMPORT_LIMIT");

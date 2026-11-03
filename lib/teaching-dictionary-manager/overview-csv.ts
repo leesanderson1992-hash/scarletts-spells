@@ -16,6 +16,7 @@ export type OverviewFamilySelection = {
   rootOriginLanguage?: string;
   rootPronunciationApplicability?: string;
   rootPronunciationIpa?: string;
+  linkedFamilyRefs?: string[];
   reviewIssue?: string;
 };
 
@@ -28,6 +29,7 @@ const PART_COLUMNS = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) =
 export const OVERVIEW_CSV_COLUMNS = [
   "tdm_export_version", "tdm_edit_hash", "canonical_word_id", "source_row_hash",
   "tdm_source_overview_hash", "tdm_source_family_key", "tdm_source_family_revision",
+  "current_approved_family_links",
   "normalised_word", "display_word",
   "affected_micro_skills", "definition", "dictation_sentence", "dictation_target_token_index",
   "written_syllable_breakdown", "age_band", "frequency_band", "complexity_band", ...WORD_METADATA_FIELDS,
@@ -35,8 +37,16 @@ export const OVERVIEW_CSV_COLUMNS = [
   "morphology_review_notes", ...PART_COLUMNS, "base_family_key", "base_part_of_speech",
   "root_family_key", "root_definition", "root_origin_language", "root_pronunciation_applicability",
   "root_pronunciation_ipa", "source_category", "source_name", "source_url", "source_licence",
-  "source_use_note", "confidence", "missing_facts",
+  "source_use_note", "confidence", "review_group", "review_action", "missing_facts",
 ] as const;
+
+const MORPHOLOGY_REVIEW_ACTIONS: Record<string, string> = {
+  immutable_family_evidence: "Review the existing family evidence and the proposed word parts together.",
+  join_count: "Add one join between each pair of visible parts.",
+  legacy_aliases: "Check the prefilled parts, meanings and joins, then approve the typed format.",
+  unreviewed_part_fact: "Supply the missing part role, underlying form, visible letters or meaning.",
+  parts_or_joins_missing: "Build the visible parts and joins in the word-part columns.",
+};
 
 function candidates(part: Record<string, unknown>, names: string[]): string {
   const values = [...new Set(names.map((name) => part[name]).filter((value): value is string =>
@@ -119,6 +129,8 @@ export function projectOverviewCsvRows(
       tdm_export_version: "2", tdm_source_overview_hash: overviewSourceHash(source),
       tdm_source_family_key: family?.familyKey ?? "",
       tdm_source_family_revision: family?.revision ?? "",
+      current_approved_family_links: (family?.linkedFamilyRefs ??
+        (family?.familyKey && family.revision ? [`${family.familyKey}@${family.revision}`] : [])).join("; "),
       analysis_status: canonical ? "approved" : "in_review",
       ...partColumns(parts, joins, source.__morphology_transformations, family),
       base_family_key: family?.kind === "free_base" ? family.familyKey : "",
@@ -129,6 +141,12 @@ export function projectOverviewCsvRows(
       root_pronunciation_applicability: family?.kind === "bound_root"
         ? family.rootPronunciationApplicability ?? "" : "",
       root_pronunciation_ipa: family?.kind === "bound_root" ? family.rootPronunciationIpa ?? "" : "",
+      review_group: family?.reviewIssue ? "family_links" : familyMeaningConflict
+        ? "family_meaning" : derivedWithoutFamily ? "family_missing" : canonical ? "ready" : audit.reason,
+      review_action: family?.reviewIssue ?? (familyMeaningConflict
+        ? "Review the family meaning against the matching word part." : derivedWithoutFamily
+        ? "Choose or create the reviewed base or root family." : canonical
+        ? "No word-part review needed." : MORPHOLOGY_REVIEW_ACTIONS[audit.reason] ?? "Review the word parts in Overview."),
       missing_facts: [String(source.__overview_missing_facts ?? source.missing_facts ?? ""),
         family?.reviewIssue ?? "",
         ...(familyMeaningConflict ? ["Family meaning differs from the word part: review in Overview"] : []),

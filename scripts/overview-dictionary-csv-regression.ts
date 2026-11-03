@@ -31,7 +31,8 @@ assert.equal(familySelection.get("veget-word")?.kind, "bound_root");
 assert.equal(familySelection.get("veget-word")?.rootPronunciationApplicability, "not_applicable");
 assert.equal(familySelection.has("unlinked-word"), false);
 assert.match(familySelection.get("historical-word")?.reviewIssue ?? "", /Historical family link/);
-assert.match(familySelection.get("conflict-word")?.reviewIssue ?? "", /Multiple current families/);
+assert.deepEqual(familySelection.get("conflict-word")?.linkedFamilyRefs, ["joy@2", "veget@3"]);
+assert.match(familySelection.get("conflict-word")?.reviewIssue ?? "", /Multiple approved family links retained/);
 
 const pilot = parseDictionaryCsv(readFileSync(
   "docs/implementation/seed-data/teaching-dictionary/candidates/2026-11-03-canonical-pilot/reviewed-14-word-pilot.csv", "utf8"));
@@ -82,15 +83,18 @@ const rows = projectOverviewCsvRows([typed, { ...typed, routeId: "base_word_lab"
   }]]));
 assert.equal(rows.length, 4, "a word with multiple routes has one Overview row");
 assert.equal(rows[0].analysis_status, "approved");
+assert.equal(rows[0].review_group, "ready");
 assert.equal(rows[0].part_1_kind, "prefix");
 assert.equal(rows[0].part_2_underlying_form, "joy");
 assert.equal(rows[0].part_3_meaning, "able to be or suitable for");
 assert.equal(rows[0].base_family_key, "joy_noun_base_family");
+assert.equal(rows[0].current_approved_family_links, "joy_noun_base_family@1");
 assert(!String(rows[0].missing_facts).includes("Route-only"));
 assert.match(String(rows[0].tdm_source_overview_hash), /^[a-f0-9]{64}$/);
 assert.equal(rows[0].tdm_source_overview_hash, overviewSourceHash(typed));
 assert.notEqual(rows[0].tdm_source_overview_hash, overviewSourceHash({ ...typed, definition: "Changed later" }));
 assert.equal(rows[1].analysis_status, "in_review");
+assert.equal(rows[1].review_group, "legacy_aliases");
 assert.equal(rows[1].part_1_kind, "base");
 assert.equal(rows[1].part_1_meaning, "To make use of something helpful or offered.");
 assert.equal(rows[1].part_2_join_before, "");
@@ -111,6 +115,7 @@ assert.equal(imported[0].exportVersion, "2");
 assert.equal(imported[0].sourceOverviewHash, rows[0].tdm_source_overview_hash);
 assert.equal(imported[0].sourceFamilyKey, "joy_noun_base_family");
 assert.equal(imported[0].sourceFamilyRevision, 1);
+assert.equal(imported[0].sourceFamilyLinks, "joy_noun_base_family@1");
 assert.equal(imported[0].unchanged, true);
 assert.equal(imported[0].payload.writtenSyllableBreakdown, reviewed.writtenSyllableBreakdown);
 assert.equal(imported[0].payload.freeBaseFamilyReview?.familyKey, "joy_noun_base_family");

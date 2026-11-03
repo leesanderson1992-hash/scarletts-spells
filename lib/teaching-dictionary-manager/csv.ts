@@ -62,6 +62,7 @@ function jsonArray(value: string): unknown[] {
 export type CsvDraft = { rowNumber: number; normalisedWord: string; payload: WordDraftPayload; providedColumns: string[]; error?: string;
   canonicalWordId?: string; sourceRowHash?: string; sourceOverviewHash?: string;
   sourceFamilyKey?: string; sourceFamilyRevision?: number;
+  sourceFamilyLinks?: string;
   writtenSyllableBreakdown?: string; exportVersion?: string; unchanged?: boolean };
 
 export function roundTripEditHash(row: Record<string, unknown>, columns: readonly string[]): string {
@@ -103,6 +104,7 @@ export function combineRoundTripRows(rows: CsvDraft[]): { rows: CsvDraft[]; erro
     const inconsistent = group.find((row) => row.canonicalWordId !== first.canonicalWordId
       || row.sourceRowHash !== first.sourceRowHash || row.sourceOverviewHash !== first.sourceOverviewHash
       || row.sourceFamilyKey !== first.sourceFamilyKey || row.sourceFamilyRevision !== first.sourceFamilyRevision
+      || row.sourceFamilyLinks !== first.sourceFamilyLinks
       || JSON.stringify({ ...row.payload, routeContents: [] }) !== shared);
     const invalid = group.find((row) => row.error);
     if (invalid || inconsistent) {
@@ -280,6 +282,8 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       sourceFamilyKey: raw.tdm_source_family_key || undefined,
       sourceFamilyRevision: /^[1-9][0-9]*$/u.test(raw.tdm_source_family_revision)
         ? Number(raw.tdm_source_family_revision) : undefined,
+      sourceFamilyLinks: names.includes("current_approved_family_links")
+        ? raw.current_approved_family_links : undefined,
       writtenSyllableBreakdown: names.includes("written_syllable_breakdown") ? raw.written_syllable_breakdown : undefined,
       exportVersion: raw.tdm_export_version || undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),

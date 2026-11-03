@@ -27,6 +27,7 @@ import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/we
 import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manager/morphology-publication";
 import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "@/lib/teaching-dictionary-manager/affix-meanings";
 import { overviewSourceHash } from "@/lib/teaching-dictionary-manager/overview-source-hash";
+import { selectLexicalLessonFamily } from "@/lib/teaching-dictionary-manager/lexical-lesson-family";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -463,9 +464,9 @@ async function performWorkspaceSave(form: FormData) {
             member.word_sum === payload.canonicalMorphology.wordSum &&
             JSON.stringify(member.morphology_parts) === JSON.stringify(payload.canonicalMorphology.parts) &&
             JSON.stringify(member.morphology_joins) === JSON.stringify(payload.canonicalMorphology.joins));
-          if (matching.length > 1) throw new Error("BASE_FAMILY_LEXICAL_AMBIGUOUS");
-          if (matching.length === 1) {
-            const family = matching[0];
+          const family = selectLexicalLessonFamily(matching,
+            String(route.content.familyKey ?? ""));
+          if (family) {
             route.content.familyKey = family.family_key;
             route.content.familyId = lexicalFamilyId(family.family_key, family.revision);
           }
@@ -689,9 +690,10 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
     const dictationByWord = new Map<string, { dictation_sentence: string; dictation_target_token_index: number }>();
     const definitionByWord = new Map<string, string>();
     const morphologyByWord = new Map<string, Record<string, unknown>>();
+    const lexicalMembersByWord = new Map<string, { family_key: string; revision: number }[]>();
     for (let i = 0; i < existingIds.length; i += 100) {
       const ids = existingIds.slice(i, i + 100);
-      const [metadata, dictation, definitions, morphology] = await Promise.all([
+      const [metadata, dictation, definitions, morphology, lexicalMembers] = await Promise.all([
         db.from("canonical_teaching_dictionary_word_metadata").select("*").in("canonical_word_id", ids)
           .eq("row_status", "active").order("created_at", { ascending: false }),
         db.from("canonical_teaching_dictionary_dictation_sentences")
@@ -700,8 +702,11 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         db.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition,published_at").in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
         db.from("canonical_teaching_dictionary_word_morphology").select("*").in("canonical_word_id", ids)
           .eq("row_status", "active").order("created_at", { ascending: false }),
+        db.from("canonical_teaching_dictionary_lexical_base_family_members")
+          .select("canonical_word_id,family_key,revision").in("canonical_word_id", ids),
       ]);
-      if (metadata.error || dictation.error || definitions.error || morphology.error) throw new Error("CSV_EXISTING_FACTS_READ_FAILED");
+      if (metadata.error || dictation.error || definitions.error || morphology.error || lexicalMembers.error)
+        throw new Error("CSV_EXISTING_FACTS_READ_FAILED");
       for (const row of metadata.data ?? []) if (!metadataByWord.has(row.canonical_word_id))
         metadataByWord.set(row.canonical_word_id, row);
       for (const row of dictation.data ?? []) if (!dictationByWord.has(row.canonical_word_id))
@@ -709,17 +714,25 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       for (const row of definitions.data ?? []) if (!definitionByWord.has(row.canonical_word_id)) definitionByWord.set(row.canonical_word_id, row.definition);
       for (const row of morphology.data ?? []) if (!morphologyByWord.has(row.canonical_word_id))
         morphologyByWord.set(row.canonical_word_id, row);
+      for (const member of lexicalMembers.data ?? []) lexicalMembersByWord.set(member.canonical_word_id,
+        [...(lexicalMembersByWord.get(member.canonical_word_id) ?? []), member]);
     }
-    const sourceFamilyKeys = [...new Set(rows.map((row) => row.sourceFamilyKey).filter((key): key is string => Boolean(key)))];
+    const sourceFamilyKeys = [...new Set([
+      ...rows.map((row) => row.sourceFamilyKey).filter((key): key is string => Boolean(key)),
+      ...[...lexicalMembersByWord.values()].flatMap((members) => members.map((member) => member.family_key)),
+    ])];
     const currentFamilyRevision = new Map<string, number>();
+    const currentFamilyApproved = new Set<string>();
     for (let i = 0; i < sourceFamilyKeys.length; i += 100) {
       const families = await db.from("canonical_teaching_dictionary_lexical_base_families")
-        .select("family_key,revision").in("family_key", sourceFamilyKeys.slice(i, i + 100))
+        .select("family_key,revision,review_status").in("family_key", sourceFamilyKeys.slice(i, i + 100))
         .order("revision", { ascending: false });
       if (families.error || (families.data?.length ?? 0) >= 1000)
         throw new Error("CSV_SOURCE_FAMILY_READ_FAILED");
-      for (const family of families.data ?? []) if (!currentFamilyRevision.has(family.family_key))
+      for (const family of families.data ?? []) if (!currentFamilyRevision.has(family.family_key)) {
         currentFamilyRevision.set(family.family_key, family.revision);
+        if (family.review_status === "approved") currentFamilyApproved.add(family.family_key);
+      }
     }
     const errors: string[] = [...grouped.errors];
     const batchId = randomUUID();
@@ -749,6 +762,16 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         return [];
       }
       if (row.exportVersion === "2" && current) {
+        if (row.sourceFamilyLinks !== undefined) {
+          const currentLinks = [...new Set((lexicalMembersByWord.get(current.id) ?? [])
+            .filter((member) => currentFamilyApproved.has(member.family_key)
+              && currentFamilyRevision.get(member.family_key) === member.revision)
+            .map((member) => `${member.family_key}@${member.revision}`))].sort().join("; ");
+          if (row.sourceFamilyLinks !== currentLinks) {
+            errors.push(`Row ${row.rowNumber}: Approved family links changed since export. Download a fresh CSV.`);
+            return [];
+          }
+        }
         if (row.sourceFamilyKey && currentFamilyRevision.get(row.sourceFamilyKey) !== row.sourceFamilyRevision) {
           errors.push(`Row ${row.rowNumber}: Family changed since export. Download a fresh CSV.`);
           return [];

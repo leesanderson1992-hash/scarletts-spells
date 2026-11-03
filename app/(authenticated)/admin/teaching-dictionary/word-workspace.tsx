@@ -1850,10 +1850,29 @@ export function WordWorkspace(props: {
           </div>
           {payload.routeContents.map((route) => {
             const profile = props.profileOptions.find((item) => item.microSkillKey === route.microSkillKey);
+            const lessonFamilies = props.baseFamilies.filter((family) =>
+              family.words.some((member) => member.id === props.wordId));
+            const selectedFamily = String(route.content.familyKey ?? "");
             return <div key={route.microSkillKey}
               id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
+              {route.routeId === "base_word_lab" && <label className="mb-2 grid gap-1 text-sm">
+                <span className="inline-flex items-center gap-1">Teaching family
+                  <FormatHint label="teaching family" format="Choose the approved family this lesson teaches. A word can keep other valid family memberships for different components or senses." example="understand_verb_base_family" />
+                </span>
+                <select id={`td-route-${route.microSkillKey}-familyKey`} className={input}
+                  value={selectedFamily} onChange={(event) => updateRoute(route.microSkillKey,
+                    { familyKey: event.target.value })}>
+                  <option value="">Choose this lesson’s family</option>
+                  {selectedFamily && !lessonFamilies.some((family) => family.name === selectedFamily)
+                    && <option value={selectedFamily} disabled>{selectedFamily} · review this old selection</option>}
+                  {lessonFamilies.map((family) => <option key={family.name} value={family.name}>
+                    {family.name}{family.meaning ? ` · ${family.meaning}` : ""}
+                  </option>)}
+                </select>
+              </label>}
               <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, payload).content}
-                sharedKeys={sharedRouteContentKeys(route.routeId, payload)}
+                sharedKeys={[...sharedRouteContentKeys(route.routeId, payload),
+                  ...(route.routeId === "base_word_lab" ? ["familyKey"] : [])]}
                 choices={{ prefixVariant: profile?.choices ?? [], suffixVariant: profile?.choices ?? [],
                   meaningBinKey: profile?.meaningBins.map((bin) => bin.id) ?? [],
                   semanticBaseKind: ["base", "root"],
