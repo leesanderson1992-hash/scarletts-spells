@@ -25,3 +25,19 @@ and suffix dependency shapes. The read-only Production preflight confirms all
 14 word IDs and source hashes, the selected existing families, and one approved
 base anchor for every free-base part. The full batch still needs a controlled
 end-to-end rehearsal and release checks before any Production import.
+
+## Overview-only CSV Preview
+
+Committed source `ee8292620626aae4fa9a97a34f2d3e8ba005daf3` built in the
+same isolated staging Vercel project as Preview
+`dpl_F4isjU9rCRTvh1KUQgPHe8wLskrY` at
+<https://scarletts-spells-adle-staging-20261025-pous2lvgr.vercel.app>. The
+deployment was Ready and used one unique 32-character deployment ID at build
+and runtime. The protected signed-in `scripts/prove-overview-csv-preview.mts`
+downloaded the new Overview sheet, parsed it through the real importer, and
+submitted it unchanged. It contained 747 distinct rows for 747 active staging
+words, occupied 975,630 bytes (within the 4 MB import limit), had no JSON
+columns, and carried version 2 source Overview hashes for every row. All 747
+rows were unchanged and the import created zero drafts. Staging's older source
+data left all 747 rows needing some review, so this proves the safe unchanged
+round trip, not an edited publication or the exact 14-word Production batch.
