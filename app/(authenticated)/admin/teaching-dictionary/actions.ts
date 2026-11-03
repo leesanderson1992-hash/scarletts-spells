@@ -139,9 +139,16 @@ async function publishValidatedDraft(
       throw new Error(rooted.error?.message.match(/TEACHING_[A-Z_]+|LEXICAL_[A-Z_]+/)?.[0]
         ?? "TEACHING_ROOT_IMPORT_PUBLICATION_FAILED");
     }
-    const reconciled = await db.rpc("publish_teaching_dictionary_reviewed_reconciled_draft", {
-      p_draft: id, p_actor: actorId, p_environment: environment,
-    });
+    const hasDerivedBase = payload.canonicalMorphology.parts.length > 1 &&
+      payload.canonicalMorphology.parts.filter((part) => part && typeof part === "object" &&
+        (part as Record<string, unknown>).kind === "base").length === 1;
+    const reconciled = hasDerivedBase
+      ? await db.rpc("publish_teaching_dictionary_reviewed_free_base_draft", {
+        p_draft: id, p_actor: actorId, p_environment: environment,
+      })
+      : await db.rpc("publish_teaching_dictionary_reviewed_reconciled_draft", {
+        p_draft: id, p_actor: actorId, p_environment: environment,
+      });
     if (!reconciled.error && reconciled.data) return `${PATH}/${reconciled.data}`;
     const code = reconciled.error?.message.match(/TEACHING_[A-Z_]+/)?.[0];
     if (code !== "TEACHING_RECONCILED_DEPENDENCIES_EXIST" &&

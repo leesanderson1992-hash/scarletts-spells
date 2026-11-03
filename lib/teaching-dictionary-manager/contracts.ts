@@ -2,6 +2,7 @@ import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { weakVowelRouteBlockers } from "./weak-vowel-authoring";
 import { auditCanonicalMorphology } from "./canonical-morphology";
+import { PART_OF_SPEECH_OPTIONS } from "./part-of-speech-options";
 
 export const WORD_METADATA_FIELDS = [
   "syllables", "phoneme_hint", "grapheme_notes", "stress_pattern", "morphemes",
@@ -82,6 +83,10 @@ export type WordDraftPayload = {
     pronunciationApplicability: "reviewed" | "not_applicable";
     pronunciationIpa: string;
   };
+  freeBaseFamilyReview?: {
+    familyKey: string;
+    basePartOfSpeech: string;
+  };
   routeContents: RouteContentDraft[];
 };
 
@@ -94,6 +99,7 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
   const morphology = row.canonicalMorphology as Record<string, unknown> | null;
   const provenance = row.provenance as Record<string, unknown> | null;
   const rootFamilyReview = row.rootFamilyReview as Record<string, unknown> | undefined;
+  const freeBaseFamilyReview = row.freeBaseFamilyReview as Record<string, unknown> | undefined;
   return ["displayWord", "definition", "dictationSentence", "ageBand", "frequencyBand", "complexityBand"]
     .every((key) => typeof row[key] === "string")
     && Number.isInteger(row.dictationTargetTokenIndex)
@@ -111,7 +117,9 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
       .every((key) => typeof provenance?.[key] === "string")
     && (rootFamilyReview === undefined || Boolean(rootFamilyReview) && !Array.isArray(rootFamilyReview)
       && ["familyKey", "rootDefinition", "originLanguage", "pronunciationApplicability", "pronunciationIpa"]
-        .every((key) => typeof rootFamilyReview[key] === "string"));
+        .every((key) => typeof rootFamilyReview[key] === "string"))
+    && (freeBaseFamilyReview === undefined || Boolean(freeBaseFamilyReview) && !Array.isArray(freeBaseFamilyReview)
+      && ["familyKey", "basePartOfSpeech"].every((key) => typeof freeBaseFamilyReview[key] === "string"));
 }
 
 export function normaliseWord(value: string) {
@@ -159,6 +167,16 @@ export function validateDraft(payload: WordDraftPayload, normalisedWord: string)
       || root.pronunciationApplicability === "not_applicable" && Boolean(root.pronunciationIpa.trim()))
       errors.push("Complete the reviewed bound-root family entry.");
   }
+  if (payload.freeBaseFamilyReview) {
+    const family = payload.freeBaseFamilyReview;
+    const baseParts = payload.canonicalMorphology.parts.filter((part) => part && typeof part === "object"
+      && (part as Record<string, unknown>).kind === "base");
+    if (baseParts.length !== 1 || (family.familyKey && !/^[a-z0-9_]+$/u.test(family.familyKey))
+      || (family.basePartOfSpeech && !PART_OF_SPEECH_OPTIONS.some((option) => option.value === family.basePartOfSpeech)))
+      errors.push("Select one approved free-base family or provide its base part of speech.");
+  }
+  if (payload.rootFamilyReview && payload.freeBaseFamilyReview)
+    errors.push("Choose either a free-base family or a bound-root family.");
   return errors;
 }
 

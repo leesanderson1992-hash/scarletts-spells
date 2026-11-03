@@ -3,7 +3,7 @@
 `reviewed-14-word-pilot.csv` is the fixed 14-word import candidate derived from
 the owner's reviewed `Test - Sheet1 (1).csv`, with the owner's subsequent
 decisions applied. SHA-256:
-`80e24782e6eec047cba9e702e558105890ced8801a352331bf193f9ef829157c`.
+`43920532d314cfe413b0fba7a760bcab296c0ba334b0bf5dc27b72248999306f`.
 
 Decisions recorded in the 2026-11-03 Codex conversation:
 
@@ -14,6 +14,9 @@ Decisions recorded in the 2026-11-03 Codex conversation:
   is not applicable. The existing approved family's Latin origin is retained.
 - Written syllable breaks use middle dots; the importer accepts hyphens and
   normalises them to middle dots.
+- The owner approved these parts of speech for new free-base families:
+  `adore` verb, `reason` noun, `understand` verb, `desire` noun, `apply` verb,
+  and `consider` verb. The CSV also names existing families explicitly.
 
 The candidate includes the existing canonical word IDs and source row hashes
 for optimistic identity checks. It parses as 14 rows with no structural errors.

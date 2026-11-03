@@ -238,6 +238,11 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
           pronunciationApplicability: raw.root_pronunciation_applicability as "reviewed" | "not_applicable",
           pronunciationIpa: raw.root_pronunciation_ipa || "",
         } } : {}),
+      ...(["base_family_key", "base_part_of_speech"].some((key) => raw[key])
+        ? { freeBaseFamilyReview: {
+          familyKey: raw.base_family_key || "",
+          basePartOfSpeech: raw.base_part_of_speech || "",
+        } } : {}),
       routeContents,
     };
     const rootReview = payload.rootFamilyReview;

@@ -143,6 +143,12 @@ begin
         where newer.family_key=f.family_key and newer.revision>f.revision))<>1 then
     raise exception 'TEACHING_SUFFIX_IMPORT_FAMILY_AMBIGUOUS_OR_MISSING';
   end if;
+  if (coalesce(d.payload#>>'{freeBaseFamilyReview,familyKey}','')<>''
+      and d.payload#>>'{freeBaseFamilyReview,familyKey}' is distinct from v_family.family_key)
+    or (coalesce(d.payload#>>'{freeBaseFamilyReview,basePartOfSpeech}','')<>''
+      and d.payload#>>'{freeBaseFamilyReview,basePartOfSpeech}' is distinct from v_family.base_part_of_speech) then
+    raise exception 'TEACHING_SUFFIX_IMPORT_FAMILY_REVIEW_CONFLICT';
+  end if;
   perform public.review_lexical_base_family_member_revision(
     v_family.family_key,v_family.revision,v_word,v_morphology,
     d.payload#>>'{canonicalMorphology,rawPartOfSpeech}','derived',

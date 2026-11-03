@@ -57,6 +57,15 @@ assert.equal(root.payload.rootFamilyReview?.pronunciationApplicability, "not_app
 const invalidRoot = parseDictionaryCsv(`${csv(rootHeaders)}\n${csv(rootValues.map((value, index) =>
   index === rootHeaders.indexOf("root_pronunciation_ipa") ? "/skrəʊl/" : value))}\n`)[0];
 assert.match(invalidRoot.error ?? "", /Bound-root review/);
+const familyHeaders = [...headers, "base_family_key", "base_part_of_speech"];
+const family = parseDictionaryCsv(`${csv(familyHeaders)}\n${csv([...values,
+  "scroll_verb_base_family", "verb"])}\n`)[0];
+assert.equal(family.error, undefined);
+assert.deepEqual(family.payload.freeBaseFamilyReview,
+  { familyKey: "scroll_verb_base_family", basePartOfSpeech: "verb" });
+const invalidFamily = parseDictionaryCsv(`${csv(familyHeaders)}\n${csv([...values,
+  "scroll_verb_base_family", "made-up-pos"])}\n`)[0];
+assert.match(invalidFamily.error ?? "", /free-base family/);
 
 const pilotPath = resolve("docs/implementation/seed-data/teaching-dictionary/candidates/2026-11-03-canonical-pilot/reviewed-14-word-pilot.csv");
 const pilot = parseDictionaryCsv(readFileSync(pilotPath, "utf8"));
@@ -73,4 +82,10 @@ assert.equal(enjoyable.payload.metadata.stress_pattern, "unstressed-primary-unst
 assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.sourceText), ["en", "joy", "able"]);
 assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.gloss),
   ["to cause or to be", "a feeling of great happiness", "able to be or suitable for"]);
+assert.deepEqual(enjoyable.payload.freeBaseFamilyReview,
+  { familyKey: "joy_noun_base_family", basePartOfSpeech: "noun" });
+assert.deepEqual(pilot.find((entry) => entry.normalisedWord === "understandable")?.payload.freeBaseFamilyReview,
+  { familyKey: "", basePartOfSpeech: "verb" });
+assert.deepEqual(pilot.find((entry) => entry.normalisedWord === "reasonable")?.payload.freeBaseFamilyReview,
+  { familyKey: "", basePartOfSpeech: "noun" });
 console.log("Flat dictionary CSV regression passed.");

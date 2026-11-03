@@ -101,6 +101,7 @@ try {
       sourceUseNote: w.source_use_note ?? "", confidence: w.confidence,
     },
     skillKeys: [skillKey], routeContents: [],
+    freeBaseFamilyReview: { familyKey: family.rows[0].family_key, basePartOfSpeech: "noun" },
   };
   const draft = await db.query(`insert into teaching_dictionary_manager_drafts
     (canonical_word_id,normalised_word,dialect_code,payload,source_kind,source_reference,created_by)
