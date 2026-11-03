@@ -39,14 +39,16 @@ async function assertReviewedAffixMeanings(
     ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind ??
       (part as Record<string, unknown>).role ?? (part as Record<string, unknown>).type ??
       (part as Record<string, unknown>).partType ?? "")))) return;
-  const [prefixes, suffixes] = await Promise.all([
+  const [prefixes, suffixes, affixMeanings] = await Promise.all([
     db.from("canonical_teaching_dictionary_prefix_profiles").select("prefix_choices")
       .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
     db.from("canonical_teaching_dictionary_suffix_profiles").select("micro_skill_key,meaning_bins")
       .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    db.from("canonical_teaching_dictionary_affix_meanings").select("part_kind,source_text,gloss")
+      .eq("row_status", "active").eq("review_status", "approved"),
   ]);
-  if (prefixes.error || suffixes.error) throw new Error("TEACHING_AFFIX_MEANING_CHOICES_READ_FAILED");
-  const choices = reviewedAffixMeanings(prefixes.data ?? [], suffixes.data ?? []);
+  if (prefixes.error || suffixes.error || affixMeanings.error) throw new Error("TEACHING_AFFIX_MEANING_CHOICES_READ_FAILED");
+  const choices = reviewedAffixMeanings(prefixes.data ?? [], suffixes.data ?? [], affixMeanings.data ?? []);
   if (unreviewedAffixMeaningParts(parts, choices).length)
     throw new Error("TEACHING_AFFIX_MEANING_NOT_REVIEWED");
 }

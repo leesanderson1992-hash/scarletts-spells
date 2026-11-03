@@ -28,6 +28,16 @@ const affixChoices = reviewedAffixMeanings(
 );
 assert.deepEqual(affixChoices.re, ["again", "back"]);
 assert.deepEqual(affixChoices.ity, ["a state", "a quality"]);
+const dictionaryAffixChoices = reviewedAffixMeanings([], [{ micro_skill_key: "D4_MOR_SUFFIXES_ABLE_IBLE",
+  meaning_bins: [{ label: "CAN BE", description: "can be" }] }],
+[{ part_kind: "suffix", source_text: "able", gloss: "able to be or suitable for" },
+  { part_kind: "prefix", source_text: "en", gloss: "to cause or to be" }]);
+assert.deepEqual(dictionaryAffixChoices.able, ["able to be or suitable for"],
+  "the approved dictionary gloss governs the editor over lesson meaning bins");
+assert.deepEqual(dictionaryAffixChoices.en, ["to cause or to be"]);
+assert.deepEqual(unreviewedAffixMeaningParts([
+  { kind: "suffix", sourceText: "able", gloss: "able to be or suitable for" },
+], dictionaryAffixChoices), []);
 assert.deepEqual(unreviewedAffixMeaningParts([
   { kind: "prefix", sourceText: "re", gloss: "back" },
   { kind: "suffix", sourceText: "ity", gloss: "old meaning" },

@@ -60,6 +60,7 @@ export async function TeachingDictionaryDetail({
     skillResult,
     prefixProfiles,
     suffixProfiles,
+    dictionaryAffixMeanings,
     metadataResult,
     morphologyResult,
     dictationResult,
@@ -107,6 +108,11 @@ export async function TeachingDictionaryDetail({
       .select("micro_skill_key,meaning_bins,suffix_choices")
       .eq("row_status", "active")
       .eq("review_status", "approved_for_first_exposure"),
+    db
+      .from("canonical_teaching_dictionary_affix_meanings")
+      .select("part_kind,source_text,gloss")
+      .eq("row_status", "active")
+      .eq("review_status", "approved"),
     wordId
       ? db
           .from("canonical_teaching_dictionary_word_metadata")
@@ -440,7 +446,7 @@ export async function TeachingDictionaryDetail({
       ]),
     ).values(),
   ];
-  const affixMeanings = reviewedAffixMeanings(prefixProfiles.data ?? [], suffixProfiles.data ?? []);
+  const affixMeanings = reviewedAffixMeanings(prefixProfiles.data ?? [], suffixProfiles.data ?? [], dictionaryAffixMeanings.data ?? []);
   if (staleDraft && params.historical === "1" && draft && wordId) return (
     <main className="mx-auto grid max-w-5xl gap-4 p-6 text-[color:var(--ink)]">
       <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}`}>← Current approved facts</Link>

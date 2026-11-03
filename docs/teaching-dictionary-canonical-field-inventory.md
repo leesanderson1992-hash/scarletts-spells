@@ -9,7 +9,7 @@
 | Source and confidence | Word, metadata and morphology provenance | Overview source controls | Source category and licence rules | Review audit and publication gate |
 | Word parts, joins, transformations and word sum | Approved active canonical word morphology | Visual word-parts editor | Typed parts, exact surface reconstruction, generated word sum and reviewed status | Family membership and route morphology projection |
 | Base or root family and chosen meaning | Latest approved lexical family revision; historical registry aliases for compatibility | Searchable family selector | Exact base/root evidence in approved morphology | Dictionary family display and lesson family inputs |
-| Affix meanings | Reviewed affix profiles, selected on canonical parts | Word-parts meaning selector | One reviewed choice per affix use | Morphology gloss and route semantics |
+| Affix meanings | Approved dictionary affix meanings, with lesson profiles as compatibility fallback | Word-parts meaning selector | One reviewed choice per affix use | Morphology gloss; route profiles retain lesson-specific meaning bins |
 | Micro skills | Reviewed word-skill pairs and releases | Micro-skills selector | Active assignable skill and review release | Lesson eligibility |
 | Lesson-only choices | Reviewed route content version | Route controls | Route-specific preflight | Compiled lesson JSON |
 
@@ -33,7 +33,7 @@
 | `word_sum` | Derived from approved source parts and `display_word`; read-only Overview display | Must equal the generated sum before approval; projected into lesson content |
 | Morphology review and provenance | Active approved morphology version; Overview review action | New approvals require canonical parts; historical versions remain readable without rewriting evidence |
 | Family key, base or root lemma, family meaning and membership | Latest approved lexical family revision; searchable Overview selector or free-base creation controls | Exact approved base/root evidence is required; family display and route base facts read the latest approved revision plus historical registry links |
-| Affix meaning for this word | Approved part `gloss` chosen from reviewed affix choices in Overview | Multiple reviewed meanings appear in a dropdown; stale selections are marked for review; route meaning uses the approved part |
+| Affix meaning for this word | Approved part `gloss` chosen from `canonical_teaching_dictionary_affix_meanings` in Overview; older profile choices remain readable until catalogued | Multiple reviewed meanings appear in a dropdown; stale selections are marked for review; route meaning uses the approved part |
 | Micro-skill keys | Reviewed word-skill pair and released skill authority; Micro-skills control | Active assignable choice; drives lesson eligibility and Lesson checks |
 | Route-specific facts and pedagogy | Reviewed route content version; route text, select and visual controls with accessible format help | Route preflight checks the named facts; adapters combine them with shared Overview facts to produce lesson JSON |
 
