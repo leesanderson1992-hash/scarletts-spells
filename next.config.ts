@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   deploymentId: (process.env.NEXT_DEPLOYMENT_ID ?? process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VERCEL_URL)?.slice(0, 32),
   allowedDevOrigins: ["localhost", "127.0.0.1", "192.168.1.110"],
   experimental: {
-    // The Teaching Dictionary CSV export is about 2.4 MB. Leave multipart
-    // overhead above the import action's 4 MB file limit.
+    // Leave multipart overhead above the import action's 4 MB file limit.
+    // Full dictionary reviews need several bounded batches on Vercel.
     serverActions: { bodySizeLimit: "4.2mb" },
   },
 };

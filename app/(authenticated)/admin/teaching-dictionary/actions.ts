@@ -14,7 +14,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeContentsForSelectedSkills, routeWithSingleProfileDefaults, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
-import { combineRoundTripRows, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
+import { combineRoundTripRows, MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadTeachingDictionaryEvidenceAuthorityForWord, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
@@ -565,7 +565,7 @@ export type CsvImportState = { imported?: number; batchId?: string; errorCount?:
 export async function importTeachingDictionaryCsv(_previous: CsvImportState, form: FormData): Promise<CsvImportState> {
   const actor = await requireAdminUser();
   const file = form.get("dictionary_csv");
-  if (!(file instanceof File) || file.size === 0 || file.size > 4_000_000) return { error: "Choose a CSV file smaller than 4 MB." };
+  if (!(file instanceof File) || file.size === 0 || file.size > MAX_DICTIONARY_CSV_BYTES) return { error: "Choose a CSV file smaller than 4 MB." };
   try {
     const grouped = combineRoundTripRows(parseDictionaryCsv(await file.text()));
     const rows = grouped.rows;
@@ -599,7 +599,10 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       const result = await db.from("canonical_teaching_dictionary_words").select("id,normalised_word,source_row_hash,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence")
         .in("normalised_word", spellings.slice(i, i + 100)).eq("row_status", "active").eq("dialect_code", "en-GB");
       if (result.error) throw new Error("CSV_WORD_LOOKUP_FAILED");
-      for (const word of result.data ?? []) existing.set(word.normalised_word, word);
+      for (const word of result.data ?? []) {
+        if (existing.has(word.normalised_word)) throw new Error("CSV_DUPLICATE_ACTIVE_WORD");
+        existing.set(word.normalised_word, word);
+      }
     }
     const existingIds = [...existing.values()].map((word) => word.id);
     const metadataByWord = new Map<string, Record<string, unknown>>();
@@ -695,6 +698,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         normalised_word: row.normalisedWord, dialect_code: "en-GB", payload: row.payload,
         source_kind: "csv", source_reference: `CSV batch ${batchId}, ${file.name}, row ${row.rowNumber}`, created_by: actor.id }];
     });
+    if (errors.length) return { imported: 0, errorCount: errors.length, errors: errors.slice(0, 50) };
     for (let i = 0; i < drafts.length; i += 100) {
       const result = await db.from("teaching_dictionary_manager_drafts").insert(drafts.slice(i, i + 100));
       if (result.error) throw new Error("CSV_DRAFT_IMPORT_FAILED");

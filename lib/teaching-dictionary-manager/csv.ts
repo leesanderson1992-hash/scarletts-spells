@@ -5,6 +5,7 @@ import type { ReviewedTransformation } from "./authoring";
 import { normaliseWrittenSyllableBreakdown } from "./authoring";
 
 export const FLAT_IMPORT_PART_LIMIT = 6;
+export const MAX_DICTIONARY_CSV_BYTES = 4_000_000;
 
 /** Human-editable CSV columns used by the Google Sheet template. */
 function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
@@ -51,7 +52,9 @@ function flatMorphology(raw: Record<string, string>, headers: readonly string[],
 
 function jsonArray(value: string): unknown[] {
   if (!value) return [];
-  const parsed: unknown = JSON.parse(value);
+  let parsed: unknown;
+  try { parsed = JSON.parse(value); }
+  catch { throw new Error("Invalid morphology JSON array."); }
   if (!Array.isArray(parsed) || parsed.length > 50) throw new Error("Invalid morphology JSON array.");
   return parsed;
 }
@@ -70,14 +73,28 @@ export function roundTripEditHash(row: Record<string, unknown>, columns: readonl
 
 export function combineRoundTripRows(rows: CsvDraft[]): { rows: CsvDraft[]; errors: string[] } {
   const groups = new Map<string, CsvDraft[]>();
-  const legacy: CsvDraft[] = [];
+  const singleRows = new Map<string, CsvDraft>();
+  const duplicateWords = new Set<string>();
+  const errors: string[] = [];
   for (const row of rows) {
-    if (!row.providedColumns.includes("tdm_export_version")) { legacy.push(row); continue; }
+    if (!row.providedColumns.includes("tdm_export_version")) {
+      const previous = singleRows.get(row.normalisedWord);
+      if (previous) {
+        duplicateWords.add(row.normalisedWord);
+        errors.push(`Row ${row.rowNumber}: Duplicate word also appears on row ${previous.rowNumber}. Keep one Overview row per word.`);
+      }
+      else singleRows.set(row.normalisedWord, row);
+      continue;
+    }
     groups.set(row.normalisedWord, [...(groups.get(row.normalisedWord) ?? []), row]);
   }
-  const errors: string[] = [];
-  const combined = [...legacy];
+  for (const word of singleRows.keys()) if (groups.has(word)) {
+    duplicateWords.add(word);
+    errors.push(`Word ${word}: The CSV mixes a single Overview row with route export rows.`);
+  }
+  const combined = [...singleRows.values()].filter((row) => !duplicateWords.has(row.normalisedWord));
   for (const group of groups.values()) {
+    if (duplicateWords.has(group[0]!.normalisedWord)) continue;
     if (group.every((row) => row.unchanged)) continue;
     const first = group[0];
     const shared = JSON.stringify({ ...first.payload, routeContents: [] });
@@ -144,7 +161,7 @@ function records(text: string): string[][] {
 }
 
 export function parseDictionaryCsv(text: string): CsvDraft[] {
-  if (text.length > 4_000_000) throw new Error("CSV_TOO_LARGE");
+  if (Buffer.byteLength(text, "utf8") > MAX_DICTIONARY_CSV_BYTES) throw new Error("CSV_TOO_LARGE");
   const [headers, ...values] = records(text);
   if (!headers || values.length > 10000) throw new Error("CSV_ROW_LIMIT");
   const names = headers.map((header) => header.trim());
@@ -230,8 +247,8 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       ...publicationBlockers(payload, normalisedWord, { requireCanonicalParts: true }),
     ] : [];
     return { rowNumber: index + 2, normalisedWord, payload, providedColumns: names,
-      canonicalWordId: raw.tdm_export_version ? raw.canonical_word_id : undefined,
-      sourceRowHash: raw.tdm_export_version ? raw.source_row_hash : undefined,
+      canonicalWordId: raw.canonical_word_id || undefined,
+      sourceRowHash: raw.source_row_hash || undefined,
       writtenSyllableBreakdown: names.includes("written_syllable_breakdown") ? raw.written_syllable_breakdown : undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
       error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."

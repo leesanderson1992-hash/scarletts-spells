@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { combineRoundTripRows, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
+import { combineRoundTripRows, MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { emptyMorphology, isStructurallyUsableWordDraftPayload, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults, sharedRouteContentKeys } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
@@ -184,6 +184,13 @@ assert.equal(publicationBlockerTarget("The dictation target token must be the di
 assert.equal(publicationBlockerTarget("Approved canonical morphology needs a word sum and parts."), "td-canonical-parts");
 const [badMorphology] = parseDictionaryCsv('normalised_word,morphology_parts\nrenew,"{bad}"');
 assert.match(badMorphology.error ?? "", /morphology JSON/);
+assert.equal(MAX_DICTIONARY_CSV_BYTES, 4_000_000, "each server-action import must stay below Vercel's request limit");
+const flatIdentity = parseDictionaryCsv("canonical_word_id,source_row_hash,display_word\nword-1,hash-1,renew")[0]!;
+assert.equal(flatIdentity.canonicalWordId, "word-1");
+assert.equal(flatIdentity.sourceRowHash, "hash-1");
+const duplicateFlat = combineRoundTripRows(parseDictionaryCsv("display_word,definition\nrenew,first\nrenew,second"));
+assert.equal(duplicateFlat.rows.length, 0);
+assert.match(duplicateFlat.errors[0] ?? "", /Duplicate word/);
 const roundTrip = [
   "tdm_export_version,canonical_word_id,source_row_hash,normalised_word,display_word,affected_micro_skills,definition,dictation_sentence,dictation_target_token_index,routeId,routeVersion,microSkillKey,wordMeaning,wordSum,baseMeaning,route_content_json",
   '1,word-1,hash-1,activity,activity,D4_MOR_SUFFIXES_ITY; D4_MOR_BASE_WORDS,an action,The activity begins.,1,dynamic_affix_word_lab,v3,D4_MOR_SUFFIXES_ITY,an action,act + ive + ity,act,"{""meaningBinKey"":""state""}"',
