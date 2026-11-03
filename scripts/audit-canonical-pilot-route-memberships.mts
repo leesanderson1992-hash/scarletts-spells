@@ -49,7 +49,9 @@ try {
       const prepared = candidate && profileFacts.rows[0]
         ? routeWithSingleProfileDefaults(candidate, {
           choices: Array.isArray(profileFacts.rows[0].suffix_choices)
-            ? profileFacts.rows[0].suffix_choices.map(String) : [],
+            ? profileFacts.rows[0].suffix_choices.map((choice: unknown) =>
+              choice && typeof choice === "object" && !Array.isArray(choice)
+                ? String((choice as Record<string, unknown>).text ?? "") : String(choice)) : [],
           meaningBins: Array.isArray(profileFacts.rows[0].meaning_bins)
             ? profileFacts.rows[0].meaning_bins : [],
         }) : null;

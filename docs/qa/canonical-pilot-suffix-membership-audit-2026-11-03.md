@@ -19,13 +19,27 @@ required fields; it does **not** decide whether a word's meaning fits the lesson
 | available | avail → avail | Ready for someone to use, take or have. | Fits the current `can_be` group. |
 | reliable | rely → reli | Able to be trusted to work well or do what is promised. | Fits; preserve the reviewed spelling change. |
 | adorable | adore → ador | Very cute and easy to love. | Fits; preserve the reviewed final-e change. |
-| reasonable | reason → reason | Fair or sensible in a particular situation. | Editorial decision: this meaning is not “can be reasoned.” |
+| reasonable | reason → reason | Fair or sensible in a particular situation. | Keep the reviewed skill assignment; use the broader approved suffix meaning. |
 | noticeable | notice → notice | Easy to see or recognise. | Fits. |
 | understandable | understand → understand | Easy or reasonable to understand. | Fits; `understand` remains one base. |
 | desirable | desire → desir | Worth wanting or having. | Fits; preserve the reviewed final-e change. |
 | respectable | respect → respect | Behaving properly and deserving respect. | Review teaching phrasing before release; “deserving respect” is close to “suitable for.” |
 | applicable | apply → applic | Relevant to a particular situation or able to be used there. | Fits; preserve the reviewed `apply` → `applic` change. |
-| considerable | consider → consider | Quite large or important in amount or size. | Editorial decision: this meaning is not “can be considered.” |
+| considerable | consider → consider | Quite large or important in amount or size. | Keep the reviewed skill assignment; use the broader approved suffix meaning. |
+
+The owner clarified that the -able/-ible profile meaning should be **“Capable
+of, fit for, or able to be”**. The current active profile still says `can be`
+in its suffix meaning, meaning bin and target choices. This is a profile-level
+correction; it does not change the reviewed Overview suffix gloss “able to be or
+suitable for” or remove any reviewed word-skill pairs.
+
+`scripts/revise-able-ible-profile-meaning.mts` creates a new immutable profile
+revision, copies the current members with their teaching and morphology facts,
+and supersedes the previous profile. Production transaction rollback verified
+the revision over all six current members. The pinned staging database lacks
+this skill and profile, so a disposable four-member fixture was created and
+the same revision passed inside a staging transaction that was rolled back.
+The profile meaning has not yet been applied or exposed to learners.
 
 The existing `launch_teaching_dictionary_lesson_v2` path accepts a set of
 reviewed content versions for one profile in one transaction. It can therefore
