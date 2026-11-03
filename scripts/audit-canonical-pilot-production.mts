@@ -17,6 +17,7 @@ try {
   await db.connect();
   await db.query("begin read only");
   const report = [];
+  const blockers: string[] = [];
   for (const row of candidate) {
     const base = row.payload.canonicalMorphology.parts.find((part) => part.kind === "base");
     const current = await db.query(`select w.id,w.normalised_word,w.source_row_hash,
@@ -45,6 +46,40 @@ try {
         and not exists(select 1 from canonical_teaching_dictionary_lexical_base_families newer
           where newer.family_key=f.family_key and newer.revision>f.revision)
       order by f.family_key`, [base.sourceText, base.gloss]) : { rows: [] };
+    const anchor = base ? await db.query(`select w.id,w.review_status,
+      (select count(*)::int from canonical_teaching_dictionary_word_morphology m
+        where m.canonical_word_id=w.id and m.row_status='active'
+          and m.review_status='approved_for_first_exposure'
+          and m.analysis_status='approved') approved_morphology_rows,
+      (select count(*)::int from canonical_teaching_dictionary_lexical_base_families f
+        where f.base_lemma=lower($1)) families_with_same_lemma
+      from canonical_teaching_dictionary_words w
+      where w.normalised_word=lower($1) and w.dialect_code='en-GB' and w.row_status='active'`,
+    [base.sourceText]) : { rows: [] };
+    const selectedKey = row.payload.freeBaseFamilyReview?.familyKey;
+    const selectedFamily = selectedKey ? await db.query(`select f.family_key,f.revision,f.base_lemma,
+      f.base_part_of_speech,f.review_status from canonical_teaching_dictionary_lexical_base_families f
+      where f.family_key=$1 order by f.revision desc limit 1`, [selectedKey]) : { rows: [] };
+    const selectedRootKey = row.payload.rootFamilyReview?.familyKey;
+    const selectedRoot = selectedRootKey ? await db.query(`select f.family_key,f.revision,f.base_lemma,
+      f.base_kind,f.review_status from canonical_teaching_dictionary_lexical_base_families f
+      where f.family_key=$1 order by f.revision desc limit 1`, [selectedRootKey]) : { rows: [] };
+    if (base && (anchor.rows.length !== 1 || anchor.rows[0].review_status !== 'approved_for_first_exposure'
+      || anchor.rows[0].approved_morphology_rows !== 1)) blockers.push(`${row.normalisedWord}: base anchor is not approved`);
+    if (base && selectedKey) {
+      const family = selectedFamily.rows[0];
+      if (!family || family.review_status !== 'approved' || family.base_lemma !== base.sourceText.toLowerCase()
+        || family.base_part_of_speech !== row.payload.freeBaseFamilyReview?.basePartOfSpeech)
+        blockers.push(`${row.normalisedWord}: selected free-base family is not current and approved`);
+    } else if (base && anchor.rows[0]?.families_with_same_lemma !== 0)
+      blockers.push(`${row.normalisedWord}: new family conflicts with an existing lemma`);
+    if (selectedRootKey) {
+      const root = selectedRoot.rows[0];
+      const rootText = row.payload.canonicalMorphology.parts.find((part) => part.kind === 'root')?.sourceText;
+      if (!root || root.review_status !== 'approved' || root.base_kind !== 'bound_root'
+        || root.base_lemma !== rootText?.toLowerCase())
+        blockers.push(`${row.normalisedWord}: selected bound-root family is not current and approved`);
+    }
     const skills = await db.query(`select distinct p.micro_skill_key from adle_reviewed_word_skill_pairs p
       join adle_reviewed_word_skill_releases r on r.id=p.release_id and r.environment_key='production'
       where p.canonical_word_id=$1
@@ -59,6 +94,13 @@ try {
       identityMatches: row.sourceRowHash === word.source_row_hash,
       base: base?.sourceText ?? null,
       matchingApprovedFamilies: families.rows.map((family) => `${family.family_key}@${family.revision}`),
+      selectedFamilyRevision: selectedFamily.rows[0]?.revision ?? selectedRoot.rows[0]?.revision ?? null,
+      baseAnchor: base ? {
+        activeCount: anchor.rows.length,
+        approved: anchor.rows.length === 1 && anchor.rows[0].review_status === 'approved_for_first_exposure',
+        approvedMorphologyRows: anchor.rows.length === 1 ? anchor.rows[0].approved_morphology_rows : 0,
+        familiesWithSameLemma: anchor.rows.length === 1 ? anchor.rows[0].families_with_same_lemma : 0,
+      } : null,
       suffixMembers: word.suffix_members,
       legacyFamilyMembers: word.legacy_family_members,
       lexicalFamilyRows: word.lexical_family_rows,
@@ -70,6 +112,7 @@ try {
     });
   }
   console.log(JSON.stringify(report, null, 2));
+  if (blockers.length) throw new Error(`PILOT_IMPORT_PRECONDITIONS_FAILED: ${blockers.join('; ')}`);
 } finally {
   await db.query("rollback").catch(() => {});
   await db.end().catch(() => {});
