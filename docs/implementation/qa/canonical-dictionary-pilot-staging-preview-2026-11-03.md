@@ -84,3 +84,11 @@ work. The bound-root, free-base and suffix publication rollback proofs passed
 again against that schema. The same 12 migrations passed a rolled-back
 Production transaction, with zero previously ledgered; the Production
 transaction was rolled back and no Production schema change has been made.
+
+The 12 migrations were subsequently applied and ledgered in Production in
+their reviewed order. A follow-up readback found all 12 ledger entries with
+matching file hashes and no pending migration. The Production affix audit now
+passes for every pilot part: `-able` has the owner-reviewed meaning “able to be
+or suitable for” and `en-` has “to cause or to be”. This is a schema release
+only; the application code, reviewed word records, families, and lessons have
+not yet been switched or imported.
