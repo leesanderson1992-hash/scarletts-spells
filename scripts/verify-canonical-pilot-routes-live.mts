@@ -58,6 +58,14 @@ for (const group of groups.values()) {
       .map((message) => [message, lesson.issues.filter((item) => item.message === message).length])),
     lessonIssues: lesson.issues.slice(0, 12).map((item) => ({ wordId: item.wordId, code: item.code, message: item.message })),
     wordCount: lesson.words.length,
+    ...(group.routeId === "base_word_lab" ? { baseEntryCategories: Object.fromEntries(
+      [...new Set(lesson.words.map((item) => `${item.role}:${item.requiredForRelease === false ? "optional" : "required"}:${item.blockers.join("|")}`))]
+        .map((key) => [key, lesson.words.filter((item) =>
+          `${item.role}:${item.requiredForRelease === false ? "optional" : "required"}:${item.blockers.join("|")}` === key).length])),
+      requiredBlockedExamples: lesson.words.filter((item) => item.requiredForRelease !== false && !item.ready)
+        .slice(0, 8).map((item) => ({ id: item.id, word: item.word, role: item.role, blockers: item.blockers })),
+      compilerBlockedWords: lesson.words.filter((item) => item.blockers.some((blocker) => blocker.includes("compiler-valid")))
+        .map((item) => ({ id: item.id, word: item.word, role: item.role })) } : {}),
     released: lesson.released, activated: lesson.activationEnabled,
     words: group.words.map((word) => {
       const status = statuses.find((item) => item.wordId === word.id)?.status;

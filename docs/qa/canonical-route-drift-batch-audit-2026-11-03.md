@@ -29,6 +29,8 @@ After `vercel env pull .tmp/canonical-pilot-production.env --environment=product
 
 These are issue counts, so a word can appear in more than one category. Of seven pilot words assigned the Base Word skill, all have an approved word–skill relationship and an authorized lexical family. Six have no reviewed route content in the current lesson; `enjoyable` has reviewed content with complete technical facts, but the route-wide compiler block still prevents it being an administrative candidate. Family authorization alone does not provide an ADLE Base Word lesson selection.
 
+The 61 malformed required candidates came from short route-only drafts. All 61 currently have approved dictionary words, definitions, pronunciation metadata, dictation, and morphology review status, but their stored morphology shapes differ: 18 have incomplete join records, 42 lack required typed part facts, and one (`packed`) needs only exact display ranges. **All 61 current morphology records are linked to family evidence**, so even the range-only case needs a coordinated family revision before the Overview row can change. The review export [base-word-route-61-morphology-review-2026-11-03.csv](base-word-route-61-morphology-review-2026-11-03.csv) shows the existing parts, meanings, joins, transformations, family links, and Overview link as ordinary columns. Its review decisions are blank; the export grants no approvals. The three compiler-unreachable released words are `make`, `made`, and `making`.
+
 ## Batch repair boundary
 
 1. Refresh fingerprint-only weak-vowel pairs through a new immutable reviewed route version and publication. The 11 reviewed pilot pairs are complete. The other 20 need their own reviewed change provenance before approval.
