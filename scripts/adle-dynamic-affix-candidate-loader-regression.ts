@@ -122,6 +122,8 @@ const tables: Record<string, unknown[]> = {
       review_status: "approved_for_first_exposure",
     },
   ],
+  canonical_teaching_dictionary_word_morphology: [],
+  teaching_dictionary_definition_versions: [],
 };
 
 class ReadOnlyQuery implements PromiseLike<{ data: unknown[]; error: null }> {
@@ -129,6 +131,8 @@ class ReadOnlyQuery implements PromiseLike<{ data: unknown[]; error: null }> {
   select() { return this; }
   in() { return this; }
   eq() { return this; }
+  is() { return this; }
+  order() { return this; }
   then<TResult1 = { data: unknown[]; error: null }, TResult2 = never>(
     onfulfilled?: ((value: { data: unknown[]; error: null }) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
@@ -153,6 +157,35 @@ async function main() {
     blockerCode: "member_validation_failed",
     memberIndex: 4,
   }], "excluded member reports a governed readiness blocker without rejecting the complete profile");
+
+  const canonicalTables = structuredClone(tables);
+  const canonicalWord = reviewed.words[0].word;
+  const canonicalParts = reviewed.words[0].trueMorphology.parts.map((part: any) => ({
+    ...part, gloss: part.kind === "base" ? "having a caring nature" : "a state or quality",
+  }));
+  canonicalTables.canonical_teaching_dictionary_word_morphology = [{
+    canonical_word_id: canonicalWord, morphology_parts: canonicalParts,
+    morphology_joins: reviewed.words[0].trueMorphology.joins,
+    morphology_transformations: [], word_sum: "kind + ness → kindness",
+    analysis_status: "approved", review_status: "approved_for_first_exposure", row_status: "active",
+  }];
+  canonicalTables.teaching_dictionary_definition_versions = [{
+    canonical_word_id: canonicalWord, definition: "The quality of being kind.", published_at: "2026-11-03T00:00:00Z",
+  }];
+  (canonicalTables.canonical_teaching_dictionary_suffix_profiles[0] as any)
+    .canonical_teaching_dictionary_suffix_members[0].new_word_meaning = null;
+  const canonicalClient = { from(table: string) { return new ReadOnlyQuery(canonicalTables[table] ?? []); } } as unknown as SupabaseClient;
+  const projected = await loadDynamicSuffixProfiles(canonicalClient, "fixture-child");
+  const projectedWord = projected.profiles[0]!.wordsByCanonicalId.get(canonicalWord)!;
+  assert.equal(projectedWord.derivedMeaning, "The quality of being kind.");
+  assert.equal(projectedWord.trueMorphology.parts[0]?.gloss, "having a caring nature");
+  assert.equal(projectedWord.trueMorphology.provenance.status, "reviewed");
+  const conflictingTables = structuredClone(canonicalTables);
+  (conflictingTables.canonical_teaching_dictionary_word_morphology[0] as any).morphology_parts[0].surfaceText = "bad";
+  const conflictingClient = { from(table: string) { return new ReadOnlyQuery(conflictingTables[table] ?? []); } } as unknown as SupabaseClient;
+  const conflicting = await loadDynamicSuffixProfiles(conflictingClient, "fixture-child");
+  assert(conflicting.diagnostics.some((entry) => entry.blockerCode === "member_validation_failed" && entry.memberIndex === 0),
+    "conflicting approved Overview morphology cannot fall back to an older suffix snapshot");
 
   const missingNoteTables = structuredClone(tables);
   const missingNoteProfile = missingNoteTables.canonical_teaching_dictionary_suffix_profiles[0] as any;

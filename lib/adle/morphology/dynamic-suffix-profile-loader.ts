@@ -1,6 +1,7 @@
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
+import { auditCanonicalMorphology, canonicalWordSum } from "@/lib/teaching-dictionary-manager/canonical-morphology";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { LearningItemFact } from "../learning-items";
@@ -89,6 +90,21 @@ type MetadataRow = {
   has_schwa: unknown;
   row_status: unknown;
   review_status: unknown;
+};
+type MorphologyRow = {
+  canonical_word_id: unknown;
+  morphology_parts: unknown;
+  morphology_joins: unknown;
+  morphology_transformations: unknown;
+  word_sum: unknown;
+  analysis_status: unknown;
+  review_status: unknown;
+  row_status: unknown;
+};
+type DefinitionRow = {
+  canonical_word_id: unknown;
+  definition: unknown;
+  published_at: unknown;
 };
 type LearningItemRow = {
   id: unknown;
@@ -313,18 +329,24 @@ export async function loadDynamicSuffixProfiles(
       .map((member) => text(member.canonical_word_id))
       .filter((id): id is string => id !== null),
   ))];
-  const [{ data: rawWords, error: wordsError }, { data: rawDictations, error: dictationError }, { data: rawMetadata, error: metadataError }] = wordIds.length
+  const [{ data: rawWords, error: wordsError }, { data: rawDictations, error: dictationError },
+    { data: rawMetadata, error: metadataError }, { data: rawMorphology, error: morphologyError },
+    { data: rawDefinitions, error: definitionError }] = wordIds.length
     ? await Promise.all([
       client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds),
       client.from("canonical_teaching_dictionary_dictation_sentences").select("id,source_row_hash,canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status").in("canonical_word_id", wordIds),
       client.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,row_status,review_status").in("canonical_word_id", wordIds),
+      client.from("canonical_teaching_dictionary_word_morphology").select("canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,word_sum,analysis_status,review_status,row_status").in("canonical_word_id", wordIds).eq("row_status", "active"),
+      client.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition,published_at").in("canonical_word_id", wordIds).is("route_id", null).order("published_at", { ascending: false }),
     ])
-    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
-  if (wordsError || dictationError || metadataError) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordsError?.message ?? dictationError?.message ?? metadataError?.message}`);
+    : Array.from({ length: 5 }, () => ({ data: [], error: null }));
+  if (wordsError || dictationError || metadataError || morphologyError || definitionError) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordsError?.message ?? dictationError?.message ?? metadataError?.message ?? morphologyError?.message ?? definitionError?.message}`);
 
   const dictionaryWords = records<DictionaryWordRow>(rawWords);
   const dictations = records<DictationRow>(rawDictations);
   const metadata = records<MetadataRow>(rawMetadata);
+  const morphology = records<MorphologyRow>(rawMorphology);
+  const definitions = records<DefinitionRow>(rawDefinitions);
   const wordsById = new Map(dictionaryWords.flatMap((word) => {
     const id = text(word.id);
     return id ? [[id, word] as const] : [];
@@ -338,6 +360,16 @@ export async function loadDynamicSuffixProfiles(
   for (const row of metadata) {
     const id = text(row.canonical_word_id);
     if (id) metadataByWordId.set(id, [...(metadataByWordId.get(id) ?? []), row]);
+  }
+  const morphologyByWordId = new Map(morphology.flatMap((row) => {
+    const id = text(row.canonical_word_id);
+    return id ? [[id, row] as const] : [];
+  }));
+  const definitionByWordId = new Map<string, string>();
+  for (const row of definitions) {
+    const id = text(row.canonical_word_id);
+    const definition = text(row.definition);
+    if (id && definition && !definitionByWordId.has(id)) definitionByWordId.set(id, definition);
   }
 
   for (const candidate of options.candidateMembers ?? []) if (candidate.dictionary) {
@@ -385,17 +417,36 @@ export async function loadDynamicSuffixProfiles(
       const wordMetadata = canonicalWordId
         ? metadataByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
         : undefined;
+      const displayWord = text(word?.display_word);
       const teachingParts = parts(member.teaching_split_parts);
-      const trueParts = parts(member.true_morphology_parts);
+      const canonical = canonicalWordId ? morphologyByWordId.get(canonicalWordId) : undefined;
+      const canonicalParts = canonical?.morphology_parts;
+      const canonicalIntent = Array.isArray(canonicalParts) && canonicalParts.some((part) =>
+        isRecord(part) && ("sourceText" in part || "surfaceText" in part));
+      const canonicalAudit = canonicalIntent && displayWord ? auditCanonicalMorphology({
+        parts: canonicalParts, joins: canonical?.morphology_joins,
+        displayWord, linkedToFamily: false,
+      }) : null;
+      if (canonicalIntent && (canonical?.analysis_status !== "approved" ||
+        canonical?.review_status !== "approved_for_first_exposure" || canonicalAudit?.status !== "canonical" ||
+        canonical?.word_sum !== canonicalWordSum(canonicalParts as Parameters<typeof canonicalWordSum>[0], displayWord!) ||
+        !definitionByWordId.has(canonicalWordId!))) {
+        diagnostics.push({ profileKey, blockerCode: "member_validation_failed", memberIndex });
+        continue;
+      }
+      const reviewedCanonical = canonicalIntent && canonicalAudit?.status === "canonical";
+      const derivedMeaning = reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning);
+      const trueParts = parts(reviewedCanonical ? canonicalParts : member.true_morphology_parts);
       const teachingJoins = joins(member.teaching_split_joins);
-      const trueJoins = joins(member.true_morphology_joins);
+      const trueJoins = joins(reviewedCanonical ? canonical?.morphology_joins : member.true_morphology_joins);
       const suffixPart = teachingParts?.find((part) => part.role === "suffix");
       const teachingBase = teachingParts?.filter((part) => part.role !== "suffix").map((part) => part.text).join("") ?? "";
       const split = teachingParts?.filter((part) => part.role === "suffix").map((part) => part.start) ?? [];
-      const displayWord = text(word?.display_word);
       const dictationSentence = text(dictation?.dictation_sentence);
       const audioText = text(dictation?.audio_text);
-      const provenance = isRecord(member.true_morphology_provenance) ? member.true_morphology_provenance : null;
+      const provenance = reviewedCanonical
+        ? { source: "approved Teaching Dictionary Overview", status: "reviewed" }
+        : isRecord(member.true_morphology_provenance) ? member.true_morphology_provenance : null;
       const semanticBaseKind = member.semantic_base_kind;
       const metadataReady = Boolean(
         text(word?.frequency_band)
@@ -422,7 +473,7 @@ export async function loadDynamicSuffixProfiles(
         && text(member.semantic_base_text)
         && (semanticBaseKind === "base" || semanticBaseKind === "root")
         && text(member.base_meaning)
-        && text(member.new_word_meaning)
+        && derivedMeaning
         && text(member.meaning_bin_key)
         && teachingParts
         && trueParts
@@ -459,7 +510,7 @@ export async function loadDynamicSuffixProfiles(
         semanticBaseKind: semanticBaseKind as "base" | "root",
         teachingBaseText: teachingBase,
         baseMeaning: member.base_meaning as string,
-        derivedMeaning: member.new_word_meaning as string,
+        derivedMeaning: derivedMeaning!,
         effect: member.meaning_bin_key as string,
         affixVariant: member.suffix_variant as string,
         ...(suffixPart?.gloss ? { affixMeaning: suffixPart.gloss } : {}),
@@ -471,7 +522,8 @@ export async function loadDynamicSuffixProfiles(
         trueMorphology: {
           parts: trueParts,
           joins: trueJoins,
-          transformations: Array.isArray(member.true_morphology_transformations) ? member.true_morphology_transformations : [],
+          transformations: reviewedCanonical && Array.isArray(canonical?.morphology_transformations)
+            ? canonical.morphology_transformations : Array.isArray(member.true_morphology_transformations) ? member.true_morphology_transformations : [],
           notes: typeof member.transformation_notes === "string" ? member.transformation_notes : "",
           provenance,
         },
