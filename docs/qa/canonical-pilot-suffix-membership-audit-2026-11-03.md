@@ -85,3 +85,26 @@ reviewer to check the joins. A read-only Production scan found 262 active words
 with multiple parts and zero join rows; 256 meet this exact suggestion rule.
 The remaining six still need manual join entry. This reduces repetitive typing
 without treating historical morphology as approved.
+
+## Governed suffix batch proof pending release
+
+The ten reviewed pilot lesson candidates were staged, route-reviewed and
+published through the existing suffix lesson publisher inside one Production
+transaction that was rolled back. The publisher projected 16 current members
+with distinct word identities and ten route publication records. The first
+runtime loader check accepted only 14: the existing **possible** and **visible**
+Overview rows have older partial `sourceText`/`surfaceText` parts without typed
+glosses or joins. The loader had mistaken these for completed canonical facts
+and rejected their separately reviewed suffix members.
+
+The loader now retains the reviewed suffix member for precisely this incomplete
+older Overview shape. A conflicting fully typed Overview still blocks. A
+focused regression and the same Production rollback proof passed: all 16
+members loaded, and each of the ten newly proposed authentic target words
+generated valid ADLE lesson JSON. The two older Overview rows remain marked
+for later typed review; this compatibility read does not approve them.
+
+`scripts/prove-canonical-pilot-suffix-batch.mts` pins the reviewed CSV hash,
+the current profile generation and its six-member roster. It supports the
+same transaction as a guarded apply after the updated loader is released.
+No new suffix member was published by the rollback proof.

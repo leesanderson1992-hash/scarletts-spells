@@ -421,8 +421,16 @@ export async function loadDynamicSuffixProfiles(
       const teachingParts = parts(member.teaching_split_parts);
       const canonical = canonicalWordId ? morphologyByWordId.get(canonicalWordId) : undefined;
       const canonicalParts = canonical?.morphology_parts;
-      const canonicalIntent = Array.isArray(canonicalParts) && canonicalParts.some((part) =>
-        isRecord(part) && ("sourceText" in part || "surfaceText" in part));
+      // Older approved rows can have source/surface letters but no reviewed
+      // glosses or ranges. Keep their reviewed suffix member as the teaching
+      // authority until Overview is converted. A typed but conflicting
+      // Overview still blocks instead of falling back to the old member.
+      const legacyPartialOverview = Array.isArray(canonicalParts) && canonicalParts.length > 0
+        && canonicalParts.every((part) => isRecord(part)
+          && !("gloss" in part) && !("displayRange" in part));
+      const canonicalIntent = !legacyPartialOverview && Array.isArray(canonicalParts)
+        && canonicalParts.some((part) =>
+          isRecord(part) && ("sourceText" in part || "surfaceText" in part));
       const canonicalAudit = canonicalIntent && displayWord ? auditCanonicalMorphology({
         parts: canonicalParts, joins: canonical?.morphology_joins,
         displayWord, linkedToFamily: false,

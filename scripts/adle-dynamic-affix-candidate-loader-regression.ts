@@ -190,6 +190,23 @@ async function main() {
   assert(conflicting.diagnostics.some((entry) => entry.blockerCode === "member_validation_failed" && entry.memberIndex === 0),
     "conflicting approved Overview morphology cannot fall back to an older suffix snapshot");
 
+  const legacyPartialTables = structuredClone(canonicalTables);
+  (legacyPartialTables.canonical_teaching_dictionary_word_morphology[0] as any).morphology_parts = [
+    { kind: "base", sourceText: "kind", surfaceText: "kind" },
+    { kind: "suffix", sourceText: "ness", surfaceText: "ness" },
+  ];
+  (legacyPartialTables.canonical_teaching_dictionary_word_morphology[0] as any).morphology_joins = [];
+  (legacyPartialTables.canonical_teaching_dictionary_suffix_profiles[0] as any)
+    .canonical_teaching_dictionary_suffix_members[0].new_word_meaning = reviewed.words[0].newWordMeaning;
+  const legacyPartialClient = {
+    from(table: string) { return new ReadOnlyQuery(legacyPartialTables[table] ?? []); },
+  } as unknown as SupabaseClient;
+  const legacyPartial = await loadDynamicSuffixProfiles(legacyPartialClient, "fixture-child");
+  assert(legacyPartial.profiles[0]?.wordsByCanonicalId.has(canonicalWord),
+    "an incomplete older Overview keeps its separately reviewed suffix member until conversion");
+  assert.equal(legacyPartial.profiles[0]?.wordsByCanonicalId.get(canonicalWord)?.baseMeaning,
+    "obsolete profile gloss", "legacy Overview must not replace the reviewed member with partial facts");
+
   const missingNoteTables = structuredClone(tables);
   const missingNoteProfile = missingNoteTables.canonical_teaching_dictionary_suffix_profiles[0] as any;
   missingNoteProfile.canonical_teaching_dictionary_suffix_members[0].transformation_notes = "   ";
