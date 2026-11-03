@@ -13,6 +13,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { planAssignmentPersistence } from "../assignment-persistence";
 import { selectPartTwoSkill } from "../composer-skill-selection";
+import { baseWordFamilyDemandUnavailable, prepareWeakVowelFallbackAfterBaseWordBlock } from "../base-word-weak-vowel-fallback";
 import { composeDailyPlan } from "../daily-assignment-composer";
 import {
   authorCompleteGenericSnapshotV3,
@@ -178,7 +179,7 @@ async function ensureSpecialistStageR6Internal(input: {
     today: input.assignmentDate as IsoDate,
     wordReadMode: "scoped",
   });
-  const selection = selectPartTwoSkill({
+  const selectionFacts = {
     learningItems: facts.learningItems.filter((item) => item.childId === input.childId),
     skillFamilyKeyBySkill: facts.skillFamilyKeyBySkill,
     prerequisiteKeysBySkill: facts.prerequisiteKeysBySkill,
@@ -186,7 +187,8 @@ async function ensureSpecialistStageR6Internal(input: {
     frequencyBandByWordId: facts.frequencyBandByWordId,
     previousLessonFamilyKey: facts.previousLessonFamilyKey,
     homophoneThresholdMetSkillKeys: facts.homophoneThresholdMetSkillKeys,
-  });
+  };
+  const selection = selectPartTwoSkill(selectionFacts);
   if (!selection.microSkillKey) {
     const completed = await input.serviceClient.rpc("complete_adle_review_only_session_r6", {
       p_daily_assignment_id: input.assignmentId,
@@ -194,16 +196,36 @@ async function ensureSpecialistStageR6Internal(input: {
     if (completed.error) throw new Error(`completeReviewOnlySessionR6: ${completed.error.message}`);
     return { outcome: "not_due", assignmentId: input.assignmentId };
   }
+  const selectedMicroSkillKey = selection.microSkillKey;
 
   const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging"
     : process.env.NODE_ENV === "production" ? "production" : "local";
-  const routeId = await resolveSpecialistRouteR6({ client: input.serviceClient, childId: input.childId,
-    microSkillKey: selection.microSkillKey, environmentKey });
+  let routeId = await resolveSpecialistRouteR6({ client: input.serviceClient, childId: input.childId,
+    microSkillKey: selectedMicroSkillKey, environmentKey });
   const allowStagingProfiles = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging";
+  let baseReadiness: Awaited<ReturnType<typeof loadBaseWordFamilyPilotReadiness>> | null = null;
+  let weakVowelFallback: Awaited<ReturnType<typeof prepareWeakVowelAssignment>> | null = null;
+  if (routeId === "base_word_lab") {
+    baseReadiness = await loadBaseWordFamilyPilotReadiness({
+      client: input.serviceClient, childId: input.childId,
+      planDate: input.assignmentDate, requiredMicroSkillKey: selectedMicroSkillKey,
+    });
+    // The queue can select a large Base Word cluster whose reviewed family
+    // release cannot yet supply two authentic families. Keep those needs in
+    // the queue and check the next ranked skill for a complete governed lesson.
+    if (baseWordFamilyDemandUnavailable(baseReadiness.readinessReason)) {
+      weakVowelFallback = await prepareWeakVowelFallbackAfterBaseWordBlock({
+        client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
+        date: input.assignmentDate as IsoDate, blockedMicroSkillKey: selectedMicroSkillKey,
+        selectionFacts, facts, environmentKey,
+      });
+      if (weakVowelFallback) routeId = "weak_vowel_word_lab";
+    }
+  }
   if (routeId === "homophone_contextual_choice") {
     const prepared = await prepareContextualHomophoneAssignment({ client: input.serviceClient,
       childId: input.childId, parentUserId: input.parentUserId, date: input.assignmentDate,
-      microSkillKey: selection.microSkillKey, learningItems: facts.learningItems,
+      microSkillKey: selectedMicroSkillKey, learningItems: facts.learningItems,
       wordStates, environmentKey });
     if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId,
       blockerCode: prepared.reason };
@@ -212,16 +234,16 @@ async function ensureSpecialistStageR6Internal(input: {
       lessonRouteMetadata: prepared.header.lessonRouteMetadata });
   }
   if (routeId === "weak_vowel_word_lab") {
-    const prepared = await prepareWeakVowelAssignment({ client: input.serviceClient,
+    const prepared = weakVowelFallback ?? await prepareWeakVowelAssignment({ client: input.serviceClient,
       childId: input.childId, parentUserId: input.parentUserId, date: input.assignmentDate as IsoDate,
-      microSkillKey: selection.microSkillKey, facts, environmentKey });
+      microSkillKey: selectedMicroSkillKey, facts, environmentKey });
     if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
     return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot,
       items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
   }
   if (routeId === "homophone_word_lab") {
     const prepared = await prepareHomophoneAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
-      date: input.assignmentDate, microSkillKey: selection.microSkillKey, learningItems: facts.learningItems, environmentKey });
+      date: input.assignmentDate, microSkillKey: selectedMicroSkillKey, learningItems: facts.learningItems, environmentKey });
     if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
     return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot,
       items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
@@ -229,14 +251,14 @@ async function ensureSpecialistStageR6Internal(input: {
   if (routeId === "ing_endings_word_lab") {
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
     const prepared = await prepareIngAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
-      date: input.assignmentDate, microSkillKey: selection.microSkillKey as IngMicroSkill, learningItems: facts.learningItems, environmentKey });
+      date: input.assignmentDate, microSkillKey: selectedMicroSkillKey as IngMicroSkill, learningItems: facts.learningItems, environmentKey });
     if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
     return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot, items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
   }
   if (routeId === "comparative_superlative_word_lab") {
     const environmentKey = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT === "staging" ? "staging" : process.env.NODE_ENV === "production" ? "production" : "local";
     const prepared = await prepareComparativeAssignment({ client: input.serviceClient, childId: input.childId, parentUserId: input.parentUserId,
-      date: input.assignmentDate, microSkillKey: selection.microSkillKey as ComparativeMicroSkill, learningItems: facts.learningItems, environmentKey });
+      date: input.assignmentDate, microSkillKey: selectedMicroSkillKey as ComparativeMicroSkill, learningItems: facts.learningItems, environmentKey });
     if (prepared.status !== "ready") return { outcome: "blocked", assignmentId: input.assignmentId, blockerCode: prepared.reason };
     return append({ client: input.serviceClient, assignmentId: input.assignmentId, snapshot: prepared.snapshot, items: prepared.items, lessonRouteMetadata: prepared.header.lessonRouteMetadata });
   }
@@ -247,7 +269,7 @@ async function ensureSpecialistStageR6Internal(input: {
       parentUserId: input.parentUserId,
       childId: input.childId,
       planDate: input.assignmentDate,
-      requiredProfileKey: selection.microSkillKey as DynamicPrefixQaProfileKey,
+      requiredProfileKey: selectedMicroSkillKey as DynamicPrefixQaProfileKey,
       allowStagingProfiles,
       generationTrigger: "parent_manual",
       r6AppendAssignmentId: input.assignmentId,
@@ -278,7 +300,7 @@ async function ensureSpecialistStageR6Internal(input: {
       parentUserId: input.parentUserId,
       childId: input.childId,
       planDate: input.assignmentDate,
-      requiredProfileKey: selection.microSkillKey,
+      requiredProfileKey: selectedMicroSkillKey,
       allowStagingProfiles,
       generationTrigger: "parent_manual",
       r6AppendAssignmentId: input.assignmentId,
@@ -301,9 +323,9 @@ async function ensureSpecialistStageR6Internal(input: {
       lessonRouteMetadata: persistence.header.lessonRouteMetadata });
   }
   if (routeId === "base_word_lab") {
-    const readiness = await loadBaseWordFamilyPilotReadiness({
+    const readiness = baseReadiness ?? await loadBaseWordFamilyPilotReadiness({
       client: input.serviceClient, childId: input.childId,
-      planDate: input.assignmentDate, requiredMicroSkillKey: selection.microSkillKey,
+      planDate: input.assignmentDate, requiredMicroSkillKey: selectedMicroSkillKey,
     });
     if (!readiness.payload || !readiness.releaseAuthority) return {
       outcome: "blocked", assignmentId: input.assignmentId,
@@ -347,7 +369,7 @@ async function ensureSpecialistStageR6Internal(input: {
     const readiness = await loadCompoundWordAssignmentReadiness({
       client: input.serviceClient, childId: input.childId,
       planDate: input.assignmentDate,
-      microSkillKey: selection.microSkillKey as Parameters<typeof loadCompoundWordAssignmentReadiness>[0]["microSkillKey"],
+      microSkillKey: selectedMicroSkillKey as Parameters<typeof loadCompoundWordAssignmentReadiness>[0]["microSkillKey"],
     });
     if (!readiness.payload || !readiness.releaseAuthority) return {
       outcome: "blocked", assignmentId: input.assignmentId,
