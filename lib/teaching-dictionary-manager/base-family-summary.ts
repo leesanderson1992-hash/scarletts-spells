@@ -31,13 +31,14 @@ export async function loadWordBaseFamilies(
     const rootKeys = rootAliases.map((row) => String(row.source_key));
     const rootDetails = rootKeys.length ? await read(
       db.from("canonical_teaching_dictionary_lexical_root_metadata")
-        .select("family_key,revision,pronunciation_ipa").in("family_key", rootKeys),
+        .select("family_key,revision,pronunciation_ipa,pronunciation_applicability").in("family_key", rootKeys),
     ) : [];
     const pronunciation = new Map(rootAliases.flatMap((alias) => {
       const detail = rootDetails.find((row) => row.family_key === alias.source_key &&
         row.revision === alias.source_revision);
-      return detail?.pronunciation_ipa
-        ? [[String(alias.canonical_family_id), String(detail.pronunciation_ipa)] as const] : [];
+      return detail
+        ? [[String(alias.canonical_family_id), detail.pronunciation_applicability === "not_applicable"
+          ? "Not applicable (bound root)" : String(detail.pronunciation_ipa)] as const] : [];
     }));
     const wordIds = [...new Set(members.map((row) => String(row.canonical_word_id)))];
     const words = wordIds.length ? await read(
@@ -86,12 +87,13 @@ export async function loadWordBaseFamilies(
         const rootKeys = activeKeys.filter((key) => latest.get(key)?.base_kind === "bound_root");
         const rootDetails = rootKeys.length ? await read(
           db.from("canonical_teaching_dictionary_lexical_root_metadata")
-            .select("family_key,revision,pronunciation_ipa")
+            .select("family_key,revision,pronunciation_ipa,pronunciation_applicability")
             .in("family_key", rootKeys),
         ) : [];
         const rootPronunciation = new Map(rootDetails
           .filter((row) => latest.get(row.family_key)?.revision === row.revision)
-          .map((row) => [row.family_key, String(row.pronunciation_ipa)]));
+          .map((row) => [row.family_key, row.pronunciation_applicability === "not_applicable"
+            ? "Not applicable (bound root)" : String(row.pronunciation_ipa)]));
         const ids = [...new Set(currentMembers.filter((row) => activeKeys.includes(row.family_key))
           .map((row) => String(row.canonical_word_id)))];
         const lexicalWords = await read(
