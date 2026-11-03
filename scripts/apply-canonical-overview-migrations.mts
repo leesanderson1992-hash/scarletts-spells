@@ -8,10 +8,14 @@ const VERSIONS = [
   "20261103110000", "20261103113000", "20261103120000", "20261103123000",
   "20261103130000", "20261103131000", "20261103132000", "20261103133000",
   "20261103140000", "20261103142000", "20261103143000", "20261103144000",
+  "20261103145000",
 ] as const;
 const target = process.argv[2];
 const apply = process.argv.includes("--apply");
 if (target !== "staging" && target !== "production") throw new Error("STAGING_OR_PRODUCTION_REQUIRED");
+const envKey = target === "staging" ? "SUPABASE_STAGING_DB_URL" : "SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED";
+delete process.env[envKey];
+process.loadEnvFile(target === "staging" ? ".env.staging.local" : ".env.local");
 const confirmation = `canonical-overview-migrations:${target}:${VERSIONS.at(-1)}`;
 if (apply && !process.argv.includes(`--confirm=${confirmation}`))
   throw new Error(`EXACT_CONFIRMATION_REQUIRED:${confirmation}`);

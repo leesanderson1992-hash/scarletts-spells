@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import pg from "pg";
 
+delete process.env.SUPABASE_STAGING_DB_URL;
+process.loadEnvFile(".env.staging.local");
 const url = process.env.SUPABASE_STAGING_DB_URL;
 if (!url || new URL(url).username.split(".").at(-1) !== "qkpjbajicacbrphthibk")
   throw new Error("STAGING_DATABASE_REQUIRED");
@@ -74,6 +76,14 @@ try {
     set review_enabled=true,publication_enabled=true,withdrawal_enabled=true
     where environment_key='staging'`);
   const skillKey = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+  await db.query(`insert into canonical_teaching_dictionary_word_support
+    (import_batch_id,canonical_word_id,source_sheet,source_row_number,source_row_hash,
+      micro_skill_key,support_role,source_category,source_name,source_use_note,
+      confidence,review_status,row_status)
+    values($1,$2,'staging rollback proof',2,$3,$4,'support_example',
+      'internal_authored','staging rollback proof','Unreviewed historical support candidate',
+      'medium','in_review','active')`,
+  [batch.rows[0].id, wordId, `root-support-proof:${randomUUID()}`, skillKey]);
   const payload = {
     displayWord: w.display_word, definition: "A person who moves to another country to live.",
     dictationSentence: ds.dictation_sentence,
@@ -121,6 +131,18 @@ try {
     await db.query("rollback to savepoint missing_skill_review");
   }
   await db.query("select review_teaching_dictionary_import_skills($1,$2)", [draftId, actor]);
+  await db.query("savepoint approved_support_guard");
+  await db.query(`update canonical_teaching_dictionary_word_support
+    set review_status='approved_for_first_exposure',reviewed_by='staging proof',reviewed_at=now()
+    where canonical_word_id=$1 and source_sheet='staging rollback proof' and row_status='active'`, [wordId]);
+  try {
+    await db.query(`select publish_teaching_dictionary_reviewed_bound_root_draft(
+      $1,$2,'staging')`, [draftId, actor]);
+    throw new Error("APPROVED_SUPPORT_UNEXPECTEDLY_ACCEPTED");
+  } catch (error) {
+    assert.match(String(error.message), /TEACHING_ROOT_IMPORT_DEPENDENCIES_EXIST/);
+    await db.query("rollback to savepoint approved_support_guard");
+  }
   const published = await db.query(`select publish_teaching_dictionary_reviewed_bound_root_draft(
     $1,$2,'staging') word_id`, [draftId, actor]);
   assert.equal(published.rows[0].word_id, wordId);
