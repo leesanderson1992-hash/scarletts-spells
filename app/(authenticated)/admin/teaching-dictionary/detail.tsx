@@ -1,5 +1,6 @@
 import "./word-workspace.css";
 import { createHash } from "node:crypto";
+import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -336,7 +337,7 @@ export async function TeachingDictionaryDetail({
         dictationTargetTokenIndex: dictation?.dictation_target_token_index ?? 0,
         dictationVariants:
           set?.variants as WordDraftPayload["dictationVariants"],
-        writtenSyllableBreakdown: metadata?.written_syllable_breakdown ?? "",
+        writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(metadata?.written_syllable_breakdown ?? ""),
         ageBand: word?.age_band ?? "",
         frequencyBand: word?.frequency_band ?? "",
         complexityBand: word?.complexity_band ?? "",
@@ -396,6 +397,8 @@ export async function TeachingDictionaryDetail({
     : assignmentAuthority
       ? assignedWorkspaceSkills(currentInitial, initialAssignedSkillKeys, activeSkillKeys)
       : currentWorkspaceSkills(currentInitial, activeSkillKeys);
+  if (initial.writtenSyllableBreakdown)
+    initial.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(initial.writtenSyllableBreakdown);
   const suggestions = [
     ...routeContents.map((route) => ({
       label: `Existing ${route.microSkillKey.replaceAll("_", " ")} analysis`,

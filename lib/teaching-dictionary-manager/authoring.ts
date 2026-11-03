@@ -133,6 +133,11 @@ export function writtenSyllableBlockers(
     : ["Written syllable breakdown must reproduce the word."];
 }
 
+/** Accept historical separators at intake while storing one display format. */
+export function normaliseWrittenSyllableBreakdown(value: string): string {
+  return value.trim().replace(/[-‧]/gu, "·");
+}
+
 export function canonicalStructureBlockers(
   morphology: WordDraftPayload["canonicalMorphology"],
   word: string,

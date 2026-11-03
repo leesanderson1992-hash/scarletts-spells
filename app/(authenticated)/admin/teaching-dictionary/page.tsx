@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadCachedTeachingDictionaryEvidenceAuthority, loadCachedTeachingDictionaryEvidenceAuthorityForWords } from "@/lib/teaching-dictionary-manager/evidence-authority";
@@ -122,7 +123,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
           const routeKeys = routeKeysByWord.get(word.id) ?? [];
           const missingRoute = [...new Set([...keys, ...routeKeys])].some((key) => memberMissing(word.id, key, routeMembers));
           const fact = metadataByWord.get(word.id);
-          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown || "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{missingRoute ? "Member missing · " : null}{keys.length || routeKeys.length ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-skills`}>View route status</Link> : "No specialist skill"}</td></tr>;
+          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown ? normaliseWrittenSyllableBreakdown(fact.written_syllable_breakdown) : "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{missingRoute ? "Member missing · " : null}{keys.length || routeKeys.length ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-skills`}>View route status</Link> : "No specialist skill"}</td></tr>;
         })}
       </tbody></table></div>
       <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < total && <Link href={href(page + 1)}>Next</Link>}</div>

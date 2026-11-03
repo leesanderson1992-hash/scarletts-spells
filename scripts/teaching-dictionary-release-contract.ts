@@ -393,7 +393,7 @@ export function validateCanonicalCsv(csv: Record<string, CsvRow[]>): ReleaseCoun
       !/^(TRUE|FALSE)$/i.test(normaliseCell(row.has_schwa))
       || (row.written_syllable_breakdown !== undefined && (
         !normaliseCell(row.written_syllable_breakdown) ||
-        row.written_syllable_breakdown.split("-").length !== Number.parseInt(row.syllables, 10)
+        row.written_syllable_breakdown.split(/[-·‧]/u).length !== Number.parseInt(row.syllables, 10)
       ))
     ) {
       throw new Error(`canonical_word_metadata.csv row ${index + 2} lacks approved pronunciation metadata.`);

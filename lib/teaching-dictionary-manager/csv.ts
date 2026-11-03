@@ -2,6 +2,7 @@ import { emptyMetadata, normaliseWord, publicationBlockers, type WordDraftPayloa
 import { createHash } from "node:crypto";
 import { canonicalWordSum, type CanonicalPart, type CanonicalJoin } from "./canonical-morphology";
 import type { ReviewedTransformation } from "./authoring";
+import { normaliseWrittenSyllableBreakdown } from "./authoring";
 
 export const FLAT_IMPORT_PART_LIMIT = 6;
 
@@ -151,6 +152,8 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
   if (names.includes("tdm_export_version") && !names.includes("canonical_word_id")) throw new Error("CSV_ID_COLUMN_MISSING");
   return values.map((cells, index) => {
     const raw = Object.fromEntries(names.map((name, column) => [name, cells[column]?.trim() ?? ""]));
+    if (names.includes("written_syllable_breakdown"))
+      raw.written_syllable_breakdown = normaliseWrittenSyllableBreakdown(raw.written_syllable_breakdown);
     if (raw.tdm_export_version) for (const name of names) {
       if (/^'[=+@\-\t\r]/.test(raw[name])) raw[name] = raw[name].slice(1);
     }
@@ -213,9 +216,12 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     };
     const flatRequired = flat ? [
       ...(!payload.definition.trim() ? ["Definition is required."] : []),
-      ...(!payload.metadata.syllables.trim() ? ["Spoken syllable count is required."] : []),
+      ...(!/^[1-9][0-9]*$/u.test(payload.metadata.syllables) ? ["Spoken syllable count must be a positive number."] : []),
       ...(!payload.metadata.phoneme_hint.trim() ? ["Pronunciation hint is required."] : []),
       ...(!payload.writtenSyllableBreakdown?.trim() ? ["Written syllable breakdown is required."] : []),
+      ...(!/^(?:primary|secondary|unstressed)(?:-(?:primary|secondary|unstressed))*$/u.test(payload.metadata.stress_pattern)
+        || payload.metadata.stress_pattern.split("-").length !== Number(payload.metadata.syllables)
+        ? ["Stress pattern needs one position for each spoken syllable."] : []),
       ...(!payload.canonicalMorphology.rawPartOfSpeech.trim() ? ["Part of speech is required."] : []),
       ...(!raw.source_category?.trim() ? ["Source category is required."] : []),
       ...(!payload.provenance.sourceName.trim() ? ["Source name is required."] : []),

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { requireAdminUser } from "@/lib/admin/access";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -71,7 +72,8 @@ export default async function BulkAssignPage() {
       id: row.id, normalisedWord: row.normalised_word, displayWord: row.display_word,
       approvable: row.review_status === "approved_for_first_exposure",
       hasSchwa: metadata?.has_schwa ?? null, syllableCount: syllableCount(metadata?.syllables),
-      writtenSyllableBreakdown: metadata?.written_syllable_breakdown ?? null,
+      writtenSyllableBreakdown: metadata?.written_syllable_breakdown
+        ? normaliseWrittenSyllableBreakdown(metadata.written_syllable_breakdown) : null,
       morphemeParts: morphemeParts(morphologyByWord.get(row.id)?.morphology_parts),
       phonemeHint: metadata?.phoneme_hint ?? null,
       phonemeSymbols: isolatedPhonemeSymbols(metadata?.phoneme_hint),

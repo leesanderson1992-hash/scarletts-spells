@@ -2,7 +2,7 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
+import { normaliseWrittenSyllableBreakdown, withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -265,6 +265,8 @@ function payloadFromForm(form: FormData): WordDraftPayload {
     const parsed = JSON.parse(value(form, "payload_json")) as WordDraftPayload;
     if (!parsed || !Array.isArray(parsed.skillKeys) || !parsed.metadata || !parsed.canonicalMorphology
       || !Array.isArray(parsed.routeContents)) throw new Error("TEACHING_DRAFT_INVALID");
+    if (parsed.writtenSyllableBreakdown !== undefined)
+      parsed.writtenSyllableBreakdown = normaliseWrittenSyllableBreakdown(parsed.writtenSyllableBreakdown);
     parsed.routeContents = routeContentsForSelectedSkills(parsed);
     return withDerivedMorphologyMetadata(parsed);
   }
@@ -645,8 +647,9 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         errors.push(`Row ${row.rowNumber}: Dictionary word changed since export. Download a fresh CSV.`);
         return [];
       }
-      if (row.writtenSyllableBreakdown !== undefined &&
-        row.writtenSyllableBreakdown !== String(current ? metadataByWord.get(current.id)?.written_syllable_breakdown ?? "" : "")) {
+      if (current && row.writtenSyllableBreakdown !== undefined &&
+        row.writtenSyllableBreakdown !== normaliseWrittenSyllableBreakdown(
+          String(metadataByWord.get(current.id)?.written_syllable_breakdown ?? ""))) {
         errors.push(`Row ${row.rowNumber}: Written syllable breakdown is read-only. Download a fresh CSV if this review changed.`);
         return [];
       }
