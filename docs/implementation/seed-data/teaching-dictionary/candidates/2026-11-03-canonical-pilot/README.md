@@ -20,6 +20,13 @@ Decisions recorded in the 2026-11-03 Codex conversation:
 
 The candidate includes the existing canonical word IDs and source row hashes
 for optimistic identity checks. It parses as 14 rows with no structural errors.
+The publication contract now reports zero shared-fact or typed-morphology
+blockers for all 14 rows (`scripts/audit-canonical-pilot-readiness.ts`). The
+affix audit (`scripts/audit-canonical-pilot-affixes.mts`) passes on staging:
+the two approved dictionary affix facts are `-able` = “able to be or suitable
+for” and `en-` = “to cause or to be”. Production currently lacks the reviewed
+affix table and still offers only “can be”; its Nov 3 migrations must be
+released before these rows can import.
 It has not been imported or released to Production. Separate staging
 transactions proved disposable bound-root, free-base creation and join, and
 suffix-profile publication paths, then rolled back all changes.
