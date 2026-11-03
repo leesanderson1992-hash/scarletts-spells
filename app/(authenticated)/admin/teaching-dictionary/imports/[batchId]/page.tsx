@@ -106,12 +106,16 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     </span>)}</p>}
     {pending.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Publish complete drafts</h2>
-      <p className="mt-1 text-sm">Runs the existing word and route validators, up to ten words per pass. Incomplete drafts stay available for editing. Evidence approval remains separate.</p>
+      <p className="mt-1 text-sm">Runs the word and route validators, up to ten words per pass. Incomplete or governed drafts stay available for review.</p>
       <form action={publishTeachingDictionaryBatch} className="mt-3">
         <input type="hidden" name="batch_id" value={batchId} />
-        {query.cursor && isUuid(query.cursor) && <input type="hidden" name="cursor" value={query.cursor} />}
-        {query.finished === "true" ? <p className="text-sm">This validation pass reached the end of the import.</p>
-          : <button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 text-sm font-semibold text-white">Publish next ten ready words</button>}
+        {query.finished !== "true" && query.cursor && isUuid(query.cursor) && <input type="hidden" name="cursor" value={query.cursor} />}
+        <label className="mb-3 flex items-start gap-2 text-sm"><input type="checkbox" name="reviewed_facts" value="confirmed" required />
+          <span>I confirm that I have human-reviewed the facts, word parts and meanings in this import batch.</span></label>
+        {query.finished === "true" && <p className="mb-2 text-sm">This validation pass reached the end of the import. Correct remaining drafts, then run another pass.</p>}
+        <button className="rounded-lg bg-[var(--scarlett)] px-4 py-2 text-sm font-semibold text-white">
+          {query.finished === "true" ? "Recheck remaining words" : "Publish next ten ready words"}
+        </button>
       </form>
     </section>}
     {pending.length === 0 ? <p role="status" className="rounded-lg bg-emerald-50 p-4 text-emerald-900">Every imported word has been published.</p>
@@ -127,10 +131,10 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
           : `/admin/teaching-dictionary/new?draft=${draft.id}`;
         return <tr key={draft.id} className="border-b align-top last:border-0">
           <td className="p-2 font-semibold">{payload.displayWord || draft.normalised_word}</td>
-          <td className="p-2">{draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition ? "Definition published; other facts pending"
-            : failedIds.has(draft.id) ? "Publication needs review"
+          <td className="p-2">{failedIds.has(draft.id) ? "Publication needs review"
+            : draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition ? "Definition published; other facts pending"
             : blockers.length ? "Needs facts" : "Ready to validate"}</td>
-          <td className="p-2">{blockers.length ? <details><summary>{blockers.length} missing or unreviewed</summary>
+          <td className="p-2">{failedIds.has(draft.id) ? failures[draft.id].replaceAll("_", " ") : blockers.length ? <details><summary>{blockers.length} missing or unreviewed</summary>
             <ul className="mt-1 list-disc pl-5">{blockers.map((blocker, index) => <li key={`${index}:${blocker}`}>{blocker}</li>)}</ul>
           </details> : draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition
             ? "Route or shared-fact release needed" : "—"}</td>

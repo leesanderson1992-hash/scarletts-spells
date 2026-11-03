@@ -124,6 +124,17 @@ async function publishValidatedDraft(
   if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
+    const environment = resolveAdleRouteActivationEnvironment();
+    if (environment === "staging" || environment === "production") {
+      const unrouted = await db.rpc("publish_teaching_dictionary_reviewed_unrouted_draft", {
+        p_draft: id, p_actor: actorId, p_environment: environment,
+      });
+      if (!unrouted.error && unrouted.data) return `${PATH}/${unrouted.data}`;
+      const unroutedCode = unrouted.error?.message.match(/TEACHING_UNROUTED_[A-Z_]+/)?.[0];
+      if (unroutedCode && unroutedCode !== "TEACHING_UNROUTED_DEPENDENCIES_EXIST")
+        throw new Error(unroutedCode);
+      if (!unroutedCode) throw new Error("TEACHING_UNROUTED_PUBLICATION_FAILED");
+    }
     const proof = !payload.dictationVariants && payload.writtenSyllableBreakdown === undefined && !payload.canonicalMorphology.transformations
       ? await definitionOnlyPublicationProof(db, payload, normalisedWord) : null;
     if (proof) {
@@ -724,6 +735,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
 
 export async function publishTeachingDictionaryBatch(form: FormData) {
   const actor = await requireAdminUser();
+  if (value(form, "reviewed_facts") !== "confirmed") throw new Error("TEACHING_BATCH_HUMAN_REVIEW_REQUIRED");
   const batchId = value(form, "batch_id");
   if (!isUuid(batchId)) throw new Error("TEACHING_BATCH_ID_INVALID");
   const path = `${PATH}/imports/${batchId}`;
@@ -772,6 +784,9 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
       if (publicationBlockers(payload, draft.normalised_word).length
         || payload.routeContents.some((route) => routeBlockers(route, payload).length)) continue;
       try {
+        await assertReviewedAffixMeanings(db, payload);
+        const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: draft.id, p_actor: actor.id });
+        if (overview.error) throw new Error("TEACHING_OVERVIEW_REVIEW_FAILED");
         const destination = await publishValidatedDraft(db, draft.id, actor.id, payload, draft.normalised_word);
         if (destination.includes("route_error=")) {
           failed += 1;
