@@ -79,9 +79,21 @@ assert.equal(familyBase.contentRole, "reviewed family base (teaching support)");
 assert(familyBase.blockerDetails.some(blocker => blocker.code === "SUPPORT_FORM_NOT_TARGET"));
 assert(!familyBase.blockerDetails.some(blocker => blocker.code === "RELATIONSHIP_NOT_APPROVED"));
 
+const baseSkill = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
+const irregularBaseWord = wordRouteStatus({ wordId: "made", dictionaryApproved: true,
+  approvedSkillKeys: new Set([baseSkill]), lesson: { ...lesson, routeId: "base_word_lab",
+    routeVersion: "v1", microSkillKey: baseSkill,
+    releaseContentPreview: [{ authorityType: "family_membership",
+      content: { selectionPolicyVersion: "base_word_regularity_v1" } }],
+    words: [{ ...lesson.words[0], id: "made", contentPreview: {
+      lessonRegularity: { status: "irregular" } } }] } });
+assert.equal(irregularBaseWord.administrativeCandidate, false);
+assert(irregularBaseWord.blockerDetails.some(blocker => blocker.code === "BASE_WORD_REGULARITY_EXCLUDED"));
+
 const weakSkill = "D4_SCHWA_FINAL_A_FINAL";
 const weakPublished = wordRouteStatus({ wordId: "pizza", dictionaryApproved: true,
-  approvedSkillKeys: new Set([weakSkill]), lesson: { ...lesson, routeId: "weak_vowel_word_lab",
+  approvedSkillKeys: new Set([weakSkill]), weakVowelPublished: true,
+  lesson: { ...lesson, routeId: "weak_vowel_word_lab",
     routeVersion: "v1", microSkillKey: weakSkill,
     words: [{ id: "pizza", word: "pizza", role: "published route word", requiredForRelease: false,
       editorialApproved: true, ready: true, nativeSelectionCheck: true,

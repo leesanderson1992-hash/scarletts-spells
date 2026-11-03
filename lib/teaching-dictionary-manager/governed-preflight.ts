@@ -59,6 +59,7 @@ type BasePreflightMember = {
   assignmentEligible: boolean;
   lessonContentEligible: boolean;
   authenticSelectionEligible: boolean;
+  lessonRegularity?: { status: "regular" | "irregular" | "needs_review" };
 };
 
 /** Historical v1 base/transfer roles supply teaching context but are not
@@ -66,10 +67,12 @@ type BasePreflightMember = {
 export function requiredBaseWordPreflightTargets(
   schemaVersion: 1 | 2,
   members: readonly BasePreflightMember[],
+  selectionPolicyVersion?: "base_word_regularity_v1",
 ): string[] {
   return [...new Set(members.filter((member) =>
     member.assignmentEligible && member.lessonContentEligible &&
     member.authenticSelectionEligible &&
+    (selectionPolicyVersion !== "base_word_regularity_v1" || member.lessonRegularity?.status === "regular") &&
     (schemaVersion === 2 || member.memberRole === "authentic_target"),
   ).map((member) => member.canonicalWordId))];
 }
@@ -454,6 +457,8 @@ async function preflightGovernedReleaseCore(input: {
         return bad(
           "Current Base Word family, teaching content and closure do not resolve together",
         );
+      const selectionPolicyVersion = authority.family.schemaVersion === 2
+        ? authority.family.selectionPolicyVersion : undefined;
       const familyCounts = indexedEligibleBaseFamilyCounts(authority);
       const familyPairs = shortlistBaseFamilyPairs(familyCounts);
       const families = authority.family.families.map((f) => ({
@@ -485,6 +490,7 @@ async function preflightGovernedReleaseCore(input: {
           ),
           lessonContentEligible: closure.has(member.canonicalWordId),
           assignmentEligible: member.assignmentEligible,
+          lessonRegularity: member.lessonRegularity,
           complexityLevel: member.complexityLevel,
           rowStatus: "active" as const,
           reviewStatus: "approved_for_first_exposure" as const,
@@ -493,13 +499,17 @@ async function preflightGovernedReleaseCore(input: {
       const witnesses: Record<string, string[]> = {};
       let preview: unknown = null;
       for (const target of members.filter(
-        (m) => m.authenticSelectionEligible && m.assignmentEligible,
+        (m) => m.authenticSelectionEligible && m.assignmentEligible &&
+          (selectionPolicyVersion !== "base_word_regularity_v1" ||
+            m.lessonRegularity?.status === "regular"),
       ))
         for (const partner of members.filter(
           (m) =>
             m.baseFamilyKey !== target.baseFamilyKey &&
             m.authenticSelectionEligible &&
-            m.assignmentEligible,
+            m.assignmentEligible &&
+            (selectionPolicyVersion !== "base_word_regularity_v1" ||
+              m.lessonRegularity?.status === "regular"),
         )) {
           const items = preflightItems(skill, [
             target.canonicalWordId,
@@ -507,6 +517,7 @@ async function preflightGovernedReleaseCore(input: {
           ]);
           const selected = selectBaseWordFamilyLesson(PREFLIGHT_CHILD, skill, {
             familyAuthoritySchemaVersion: authority.family.schemaVersion,
+            selectionPolicyVersion,
             learningItems: items,
             families,
             members,
@@ -552,7 +563,8 @@ async function preflightGovernedReleaseCore(input: {
       // singleton base or an unselected transfer must not veto an otherwise
       // compiling released route. V2 permits every applicable member to be
       // an authentic target, so it still requires full member coverage.
-      const requiredTargets = requiredBaseWordPreflightTargets(authority.family.schemaVersion, members);
+      const requiredTargets = requiredBaseWordPreflightTargets(authority.family.schemaVersion,
+        members, selectionPolicyVersion);
       const ready = requiredTargets.length >= 2 &&
         requiredTargets.every((id) => witnesses[id]);
       const unpairableFamilyBlockers = unpairableBaseFamilyBlockers(familyCounts, familyPairs);

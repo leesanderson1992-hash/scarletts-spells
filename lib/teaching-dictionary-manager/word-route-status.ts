@@ -54,6 +54,14 @@ export function wordRouteStatus(input: {
     ?? lesson.words.find((word) => word.id === wordId);
   const comparativeBaseSupport = lesson.routeId === "comparative_superlative_word_lab" &&
     (member?.contentPreview as { degree?: string } | null)?.degree === "base";
+  const baseRegularityPolicy = lesson.routeId === "base_word_lab" &&
+    lesson.releaseContentPreview.some((entry) => {
+      const authority = entry as { authorityType?: string; content?: { selectionPolicyVersion?: string } };
+      return authority.authorityType === "family_membership" &&
+        authority.content?.selectionPolicyVersion === "base_word_regularity_v1";
+    });
+  const baseRegularityExcluded = baseRegularityPolicy && member?.role === "released lesson word" &&
+    (member.contentPreview as { lessonRegularity?: { status?: string } } | null)?.lessonRegularity?.status !== "regular";
   const relationshipApproved = input.approvedSkillKeys.has(lesson.microSkillKey);
   const contentPresent = Boolean(member);
   const contentPreflightReady = member?.ready === true && !member.nativeSelectionCheck;
@@ -73,6 +81,8 @@ export function wordRouteStatus(input: {
   if (!input.dictionaryApproved) add("DICTIONARY_NOT_APPROVED", "dictionary", "Dictionary word is not approved");
   if (comparativeBaseSupport) add("SUPPORT_FORM_NOT_TARGET", "relationship", "Reviewed base form supports this family; only its -er and -est forms are independent lesson targets");
   else if (!relationshipApproved) add("RELATIONSHIP_NOT_APPROVED", "relationship", "Word–micro-skill relationship is not approved");
+  if (baseRegularityExcluded) add("BASE_WORD_REGULARITY_EXCLUDED", "relationship",
+    "This reviewed word is outside the Base Word lesson's regular spelling selection");
   if (!contentPresent) add("ROUTE_CONTENT_MISSING", "content", "Word is not in the reviewed route content or member group");
   if (lesson.routeId === "weak_vowel_word_lab") {
     if (!input.weakVowelPublished) add("REQUIRED_ROUTE_CONTENT_UNPUBLISHED", "release", "Approved Schwa word facts are not published yet");

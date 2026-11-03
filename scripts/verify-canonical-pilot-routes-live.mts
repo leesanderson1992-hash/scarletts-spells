@@ -65,7 +65,8 @@ for (const group of groups.values()) {
       requiredBlockedExamples: lesson.words.filter((item) => item.requiredForRelease !== false && !item.ready)
         .slice(0, 8).map((item) => ({ id: item.id, word: item.word, role: item.role, blockers: item.blockers })),
       compilerBlockedWords: lesson.words.filter((item) => item.blockers.some((blocker) => blocker.includes("compiler-valid")))
-        .map((item) => ({ id: item.id, word: item.word, role: item.role })) } : {}),
+        .map((item) => ({ id: item.id, word: item.word, role: item.role,
+          regularity: (item.contentPreview as { lessonRegularity?: unknown } | null)?.lessonRegularity ?? null })) } : {}),
     released: lesson.released, activated: lesson.activationEnabled,
     words: group.words.map((word) => {
       const status = statuses.find((item) => item.wordId === word.id)?.status;

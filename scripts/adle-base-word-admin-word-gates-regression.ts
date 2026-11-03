@@ -8,4 +8,6 @@ assert.equal(baseWordEntryLacksCompilerWitness({ requiredForRelease: true,
   assignmentEligible: true, canonicalWordId: 'orphan', witnesses }), true);
 assert.equal(baseWordEntryLacksCompilerWitness({ requiredForRelease: true,
   assignmentEligible: false, canonicalWordId: 'orphan', witnesses }), false);
+assert.equal(baseWordEntryLacksCompilerWitness({ requiredForRelease: true,
+  assignmentEligible: true, lessonSelectable: false, canonicalWordId: 'made', witnesses }), false);
 console.log('adle-base-word-admin-word-gates-regression: ok');

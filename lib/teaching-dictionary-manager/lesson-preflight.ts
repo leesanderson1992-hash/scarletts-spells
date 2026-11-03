@@ -173,10 +173,11 @@ export function collectWordFacts(
 export function baseWordEntryLacksCompilerWitness(input: {
   requiredForRelease: boolean;
   assignmentEligible: boolean;
+  lessonSelectable?: boolean;
   canonicalWordId: string;
   witnesses: Readonly<Record<string, string[]>>;
 }): boolean {
-  return input.requiredForRelease && input.assignmentEligible &&
+  return input.requiredForRelease && input.assignmentEligible && input.lessonSelectable !== false &&
     !input.witnesses[input.canonicalWordId];
 }
 
@@ -1104,6 +1105,16 @@ async function loadLessonReadinessUnmeasured(
             release?.route_id === route.routeId &&
             release?.route_version === route.routeVersion &&
             currentRevisionIds.has(String(revision.id));
+        // An immutable active release can still teach while a later reviewed
+        // route-only draft awaits canonical Overview repair. Keep that draft's
+        // word-level blocker visible, but do not let its malformed source
+        // payload veto the already released package.
+        if (route.routeId === "base_word_lab" && activationEnabled && contentRelease?.id === release?.id) {
+          for (const entry of entries)
+            if (entry.role === "route content candidate" &&
+              entry.blockers.includes("Source draft payload is malformed"))
+              entry.requiredForRelease = false;
+        }
         const activationBlockers =
           route.activationAuthority === "generic_composer_policy"
             ? []
@@ -1418,6 +1429,9 @@ async function loadLessonReadinessUnmeasured(
           // base or transfer members can support a valid lesson without each
           // word being an independently selectable authentic target.
           if (route.routeId === "base_word_lab") {
+            const regularityPolicy = boundAuthorities.some((authority) =>
+              authority.authority_type === "family_membership" &&
+              authority.semantic_projection?.selectionPolicyVersion === "base_word_regularity_v1");
             for (const entry of entries) {
               const fact = entry.contentPreview as Record<
                 string,
@@ -1426,6 +1440,8 @@ async function loadLessonReadinessUnmeasured(
               if (baseWordEntryLacksCompilerWitness({
                 requiredForRelease: entry.requiredForRelease !== false,
                 assignmentEligible: fact?.assignmentEligible !== false,
+                lessonSelectable: !regularityPolicy ||
+                  (fact?.lessonRegularity as { status?: string } | undefined)?.status === "regular",
                 canonicalWordId: entry.id,
                 witnesses: governed.witnesses,
               })) {
