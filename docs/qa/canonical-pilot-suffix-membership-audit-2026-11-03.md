@@ -28,10 +28,10 @@ required fields; it does **not** decide whether a word's meaning fits the lesson
 | considerable | consider → consider | Quite large or important in amount or size. | Keep the reviewed skill assignment; use the broader approved suffix meaning. |
 
 The owner clarified that the -able/-ible profile meaning should be **“Capable
-of, fit for, or able to be”**. The current active profile still says `can be`
-in its suffix meaning, meaning bin and target choices. This is a profile-level
-correction; it does not change the reviewed Overview suffix gloss “able to be or
-suitable for” or remove any reviewed word-skill pairs.
+of, fit for, or able to be”**. The new active Production profile now uses that
+wording in its suffix meaning, meaning bin and both target choices. This was a
+profile-level correction; it did not change the reviewed Overview suffix gloss
+“able to be or suitable for” or remove any reviewed word-skill pairs.
 
 `scripts/revise-able-ible-profile-meaning.mts` creates a new immutable profile
 revision, copies the current members with their teaching and morphology facts,
@@ -39,7 +39,21 @@ and supersedes the previous profile. Production transaction rollback verified
 the revision over all six current members. The pinned staging database lacks
 this skill and profile, so a disposable four-member fixture was created and
 the same revision passed inside a staging transaction that was rolled back.
-The profile meaning has not yet been applied or exposed to learners.
+The revision was applied to Production as profile
+`abd3c9a9-ba0a-4953-bf9e-47d5bfeccc5c`, retaining all six current members.
+The previous profile `97c9011c-f5b2-4485-95aa-192789e6f883` is superseded
+and disabled. Read-only post-release inspection found exactly one active
+profile, the updated wording in all three fields, and the same three pilot
+members; the ten remaining pilot members still need lesson publication.
+
+Runtime commit `118bd064bb143ef425bb2a006208748199740843` was built as
+Preview `dpl_9JoNi9LhifMHoN3TmZdjRTyAHBaN` and promoted to Production as
+`dpl_DdR54QqF8a51BWXMcemL5bNjMWiA`. Authenticated candidate and public
+HEAD checks returned the exact SHA, expected runtime fingerprint, valid
+identity and release hold disabled. The Production safety monitor passed,
+authenticated recovery GET was idle, scheduler job 73 was enabled and bound
+to the new SHA, its 15:55 UTC run succeeded, AI control remained disabled,
+and unrecorded sends stayed at zero.
 
 The existing `launch_teaching_dictionary_lesson_v2` path accepts a set of
 reviewed content versions for one profile in one transaction. It can therefore
