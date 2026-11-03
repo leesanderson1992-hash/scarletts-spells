@@ -84,8 +84,11 @@ assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.
   ["to cause or to be", "a feeling of great happiness", "able to be or suitable for"]);
 assert.deepEqual(enjoyable.payload.freeBaseFamilyReview,
   { familyKey: "joy_noun_base_family", basePartOfSpeech: "noun" });
-assert.deepEqual(pilot.find((entry) => entry.normalisedWord === "understandable")?.payload.freeBaseFamilyReview,
-  { familyKey: "", basePartOfSpeech: "verb" });
-assert.deepEqual(pilot.find((entry) => entry.normalisedWord === "reasonable")?.payload.freeBaseFamilyReview,
-  { familyKey: "", basePartOfSpeech: "noun" });
+for (const [word, partOfSpeech] of [
+  ["adorable", "verb"], ["reasonable", "noun"], ["understandable", "verb"],
+  ["desirable", "noun"], ["applicable", "verb"], ["considerable", "verb"],
+] as const) {
+  assert.deepEqual(pilot.find((entry) => entry.normalisedWord === word)?.payload.freeBaseFamilyReview,
+    { familyKey: "", basePartOfSpeech: partOfSpeech });
+}
 console.log("Flat dictionary CSV regression passed.");

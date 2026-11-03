@@ -20,18 +20,18 @@ Decisions recorded in the 2026-11-03 Codex conversation:
 
 The candidate includes the existing canonical word IDs and source row hashes
 for optimistic identity checks. It parses as 14 rows with no structural errors.
-It has not been imported or released to Production. A staging transaction proof
-used a disposable bound-root fixture and rolled back all word, family, skill,
-and control changes. The remaining family and lesson dependencies for
-`comfortable`, `enjoyable`, and `readable` still need coordinated releases.
+It has not been imported or released to Production. Separate staging
+transactions proved disposable bound-root, free-base creation and join, and
+suffix-profile publication paths, then rolled back all changes.
 
 A read-only Production dependency check on 2026-11-03 found that all three
 words belong to the same active `D4_MOR_SUFFIXES_ABLE_IBLE` profile. Its six
 active members are `comfortable`, `enjoyable`, `possible`, `readable`,
 `responsible`, and `visible`; the profile still says “can be” for the suffix.
 `readable` has two previously published suffix content versions. The others
-have unpublished route drafts. This profile must be revised with the reviewed
-Overview facts before the three words can be released; historical superseded
+have unpublished route drafts. The suffix loader now projects approved
+Overview facts at runtime, while the reviewed import revises the existing
+suffix member and lexical family in one transaction. Historical superseded
 member rows are not active dependencies. The regression test reads this fixed
 candidate and checks the approved `veget` and `enjoyable` decisions.
 
@@ -54,5 +54,6 @@ current ADLE lexical-family authorization where one exists. A read-only check
 found one active suffix member and no conflicting family anchor or approved
 support row for each of `comfortable`, `enjoyable`, and `readable`. Rolled-back
 staging proofs cover a suffix profile, an existing lexical member, a meaning
-revision, a learner skill release, and family authorization. They do not yet
-replay the exact Production legacy registry and published route rows.
+revision, a learner skill release, family authorization, legacy family and
+registry links, and a published route row. The exact 14-word Production
+identities and every downstream route still need an end-to-end release proof.
