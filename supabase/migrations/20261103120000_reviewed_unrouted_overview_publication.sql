@@ -52,7 +52,10 @@ begin
     from public.adle_reviewed_word_skill_pairs p
     join public.adle_reviewed_word_skill_releases r on r.id=p.release_id and r.environment_key=p_environment
     where p.canonical_word_id=d.canonical_word_id
-      and not exists(select 1 from public.adle_reviewed_word_skill_withdrawals x where x.release_id=r.id);
+      and not exists(select 1 from public.adle_reviewed_word_skill_withdrawals x where x.release_id=r.id)
+      and not exists(select 1 from public.teaching_dictionary_pair_latest_decisions x
+        where x.environment_key=p_environment and x.canonical_word_id=p.canonical_word_id
+          and x.micro_skill_key=p.micro_skill_key and x.action='deassign');
   if v_draft_keys is distinct from v_live_keys then
     raise exception 'TEACHING_UNROUTED_SKILL_SET_CHANGED';
   end if;

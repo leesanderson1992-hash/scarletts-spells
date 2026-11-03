@@ -101,6 +101,7 @@ async function publishValidatedDraft(
   actorId: string,
   payload: WordDraftPayload,
   normalisedWord: string,
+  reviewedCsvSkills = false,
 ): Promise<string> {
   const source = await db.from("teaching_dictionary_manager_drafts")
     .select("source_reference,canonical_word_id").eq("id", id).single();
@@ -122,6 +123,18 @@ async function publishValidatedDraft(
   if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: morphologyChanged }).length)
     throw new Error("TEACHING_DRAFT_REQUIRED_FACTS_MISSING");
   if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
+  if (reviewedCsvSkills && source.data.canonical_word_id) {
+    const environment = resolveAdleRouteActivationEnvironment();
+    if (environment !== "staging" && environment !== "production")
+      throw new Error("TEACHING_IMPORT_SKILL_ENVIRONMENT_REQUIRED");
+    const reconciled = await db.rpc("publish_teaching_dictionary_reviewed_reconciled_draft", {
+      p_draft: id, p_actor: actorId, p_environment: environment,
+    });
+    if (!reconciled.error && reconciled.data) return `${PATH}/${reconciled.data}`;
+    const code = reconciled.error?.message.match(/TEACHING_[A-Z_]+/)?.[0];
+    if (code !== "TEACHING_RECONCILED_DEPENDENCIES_EXIST")
+      throw new Error(code ?? "TEACHING_RECONCILED_PUBLICATION_FAILED");
+  }
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
     const environment = resolveAdleRouteActivationEnvironment();
@@ -787,7 +800,9 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
         await assertReviewedAffixMeanings(db, payload);
         const overview = await db.rpc("review_teaching_dictionary_overview", { p_draft: draft.id, p_actor: actor.id });
         if (overview.error) throw new Error("TEACHING_OVERVIEW_REVIEW_FAILED");
-        const destination = await publishValidatedDraft(db, draft.id, actor.id, payload, draft.normalised_word);
+        const skills = await db.rpc("review_teaching_dictionary_import_skills", { p_draft: draft.id, p_actor: actor.id });
+        if (skills.error) throw new Error("TEACHING_IMPORT_SKILL_REVIEW_FAILED");
+        const destination = await publishValidatedDraft(db, draft.id, actor.id, payload, draft.normalised_word, true);
         if (destination.includes("route_error=")) {
           failed += 1;
           failureCodes[draft.id] = new URL(destination, "https://example.invalid").searchParams.get("route_error") ?? "ROUTE_PUBLICATION_FAILED";
