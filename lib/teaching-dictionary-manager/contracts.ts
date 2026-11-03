@@ -287,11 +287,15 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
       content.semanticBaseKind = base.kind;
     }
     if (base?.meaning) content.baseMeaning = base.meaning;
-    if ((!content.trueMorphologyProvenance || typeof content.trueMorphologyProvenance !== "object")
-      && payload.canonicalMorphology.analysisStatus === "approved" && payload.canonicalMorphology.reviewNotes.trim()) {
+    if (payload.canonicalMorphology.analysisStatus === "approved"
+      && auditCanonicalMorphology({ parts, joins, displayWord: payload.displayWord,
+        linkedToFamily: false }).status === "canonical"
+      && payload.canonicalMorphology.wordSum.trim() === generatedWordSum(parts, payload.displayWord)) {
       content.trueMorphologyProvenance = {
-        source: "approved canonical morphology",
-        reviewNote: payload.canonicalMorphology.reviewNotes.trim(),
+        source: "approved Teaching Dictionary Overview",
+        status: "reviewed",
+        ...(payload.canonicalMorphology.reviewNotes.trim()
+          ? { reviewNote: payload.canonicalMorphology.reviewNotes.trim() } : {}),
       };
     }
   }

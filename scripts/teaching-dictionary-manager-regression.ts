@@ -140,6 +140,7 @@ assert.equal(routeRequirements(savedBasePayload[0], { ...sharedMorphologyPayload
   skillKeys: [baseRoute.microSkillKey], routeContents: savedBasePayload }, () => true)
   .find((item) => item.label === "base meaning")?.status, "needs_review");
 const abilityPayload = structuredClone(selectedSuffixPayload);
+abilityPayload.displayWord = "ability";
 abilityPayload.definition = "the quality of being able to do something";
 abilityPayload.canonicalMorphology = {
   ...abilityPayload.canonicalMorphology,
@@ -147,10 +148,10 @@ abilityPayload.canonicalMorphology = {
   reviewNotes: "Able changes to abil- before -ity.",
   wordSum: "able + ity → ability",
   parts: [
-    { surfaceText: "abil", sourceText: "able", kind: "base", gloss: "capable of doing something" },
-    { surfaceText: "ity", sourceText: "", kind: "suffix", gloss: "the state or quality of" },
+    { id: "base", surfaceText: "abil", sourceText: "able", kind: "base", gloss: "capable of doing something", displayRange: { start: 0, end: 4 } },
+    { id: "suffix", surfaceText: "ity", sourceText: "ity", kind: "suffix", gloss: "the state or quality of", displayRange: { start: 4, end: 7 } },
   ],
-  joins: [{ joinType: "none" }],
+  joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
 };
 const [abilityRoute] = routeContentsForSelectedSkills(abilityPayload);
 const completedAbilityRoute = routeWithSingleProfileDefaults(abilityRoute, {
@@ -162,9 +163,15 @@ assert.equal(routeRequirements(completedAbilityRoute, abilityPayload)
 assert(!routeBlockers({ ...completedAbilityRoute, content: {
   ...completedAbilityRoute.content, transformationNotes: "Reviewed base spelling change before -ity.",
 } }, abilityPayload).includes("Add reviewed true morphology notes."));
+assert(!routeBlockers({ ...completedAbilityRoute, content: {
+  ...completedAbilityRoute.content, trueMorphologyProvenance: { status: "draft_requires_editorial_review" },
+} }, abilityPayload).includes("Review true morphology provenance."),
+"a stale route copy cannot override approved Overview morphology evidence");
 assert(routeBlockers({ ...completedAbilityRoute, content: {
   ...completedAbilityRoute.content, trueMorphologyProvenance: { status: "draft_requires_editorial_review" },
-} }, abilityPayload).includes("Review true morphology provenance."));
+} }, { ...abilityPayload, canonicalMorphology: { ...abilityPayload.canonicalMorphology,
+  analysisStatus: "in_review" } }).includes("Review true morphology provenance."),
+"an unapproved Overview cannot supply reviewed morphology evidence");
 assert.equal(completedAbilityRoute.content.suffixVariant, "ity");
 assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
 assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");
@@ -183,8 +190,18 @@ assert.equal(staleBaseRoute.content.baseMeaning, "capable of doing something");
 assert.deepEqual(sharedRouteContentKeys("base_word_lab", abilityPayload), ["baseWord", "baseMeaning"]);
 assert.equal(completedAbilityRoute.content.meaningBinKey, "state_or_quality");
 assert.deepEqual(completedAbilityRoute.content.trueMorphologyProvenance, {
-  source: "approved canonical morphology", reviewNote: "Able changes to abil- before -ity.",
+  source: "approved Teaching Dictionary Overview", status: "reviewed",
+  reviewNote: "Able changes to abil- before -ity.",
 });
+const approvedWithoutNotes = routeWithSharedFacts(completedAbilityRoute, {
+  ...abilityPayload, canonicalMorphology: { ...abilityPayload.canonicalMorphology, reviewNotes: "" },
+});
+assert.deepEqual(approvedWithoutNotes.content.trueMorphologyProvenance, {
+  source: "approved Teaching Dictionary Overview", status: "reviewed",
+}, "approved Overview morphology does not require a duplicate route review note");
+assert.equal(routeRequirements(approvedWithoutNotes, { ...abilityPayload,
+  canonicalMorphology: { ...abilityPayload.canonicalMorphology, reviewNotes: "" },
+}).find((item) => item.label === "true morphology provenance")?.status, "present");
 assert(routeRequirements(publishedRoute, row.payload, (target) => target.includes("td-route-"))
   .some((item) => item.status === "needs_review"));
 assert.deepEqual(publicationBlockers(row.payload, "renew"), []);
