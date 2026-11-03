@@ -4,6 +4,34 @@ import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
 import { OVERVIEW_CSV_COLUMNS, projectOverviewCsvRows, renderOverviewCsv } from
   "../lib/teaching-dictionary-manager/overview-csv";
 import { overviewSourceHash } from "../lib/teaching-dictionary-manager/overview-source-hash";
+import { selectOverviewFamilies } from "../lib/teaching-dictionary-manager/overview-family-selection";
+
+const familySelection = selectOverviewFamilies(
+  ["joy-word", "veget-word", "unlinked-word", "historical-word", "conflict-word"],
+  [
+    { canonical_word_id: "joy-word", family_key: "joy", revision: 2 },
+    { canonical_word_id: "joy-word", family_key: "joy", revision: 1 },
+    { canonical_word_id: "veget-word", family_key: "veget", revision: 3 },
+    { canonical_word_id: "conflict-word", family_key: "joy", revision: 2 },
+    { canonical_word_id: "conflict-word", family_key: "veget", revision: 3 },
+  ],
+  new Map([
+    ["joy", { family_key: "joy", revision: 2, base_kind: "free_base", base_lemma: "joy",
+      base_meaning: "happiness", base_part_of_speech: "noun", review_status: "approved" }],
+    ["veget", { family_key: "veget", revision: 3, base_kind: "bound_root", base_lemma: "veget",
+      base_meaning: "To grow or live", base_part_of_speech: "bound_root", review_status: "approved" }],
+  ]),
+  new Map([["veget:3", { family_key: "veget", revision: 3, root_definition: "To grow or live",
+    origin_language: "Latin", pronunciation_applicability: "not_applicable", pronunciation_ipa: null }]]),
+  new Set(["historical-word"]),
+);
+assert.equal(familySelection.get("joy-word")?.familyKey, "joy",
+  "another word's family must not create a false conflict");
+assert.equal(familySelection.get("veget-word")?.kind, "bound_root");
+assert.equal(familySelection.get("veget-word")?.rootPronunciationApplicability, "not_applicable");
+assert.equal(familySelection.has("unlinked-word"), false);
+assert.match(familySelection.get("historical-word")?.reviewIssue ?? "", /Historical family link/);
+assert.match(familySelection.get("conflict-word")?.reviewIssue ?? "", /Multiple current families/);
 
 const pilot = parseDictionaryCsv(readFileSync(
   "docs/implementation/seed-data/teaching-dictionary/candidates/2026-11-03-canonical-pilot/reviewed-14-word-pilot.csv", "utf8"));
