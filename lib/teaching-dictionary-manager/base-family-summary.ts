@@ -3,6 +3,22 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 
+export type FamilySummary = { name: string; meaning?: string; pronunciation?: string;
+  words: { id: string; word: string }[] };
+
+/** The latest approved lexical revision owns shared family facts. Registry and
+ * lesson families remain compatibility sources only when no lexical successor exists. */
+export function mergeWordFamilySummaries(
+  registry: FamilySummary[], lexical: FamilySummary[], adle: FamilySummary[],
+  lexicalSuccessorKeys: ReadonlySet<string>,
+): FamilySummary[] {
+  const current = new Map<string, FamilySummary>();
+  for (const family of adle) if (!lexicalSuccessorKeys.has(family.name)) current.set(family.name, family);
+  for (const family of registry) if (!lexicalSuccessorKeys.has(family.name)) current.set(family.name, family);
+  for (const family of lexical) current.set(family.name, family);
+  return [...current.values()].sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
+}
+
 export async function loadWordBaseFamilies(
   db: SupabaseClient,
   wordId: string,
@@ -16,7 +32,7 @@ export async function loadWordBaseFamilies(
     db.from("canonical_teaching_dictionary_base_family_registry_members")
       .select("canonical_family_id").eq("canonical_word_id", wordId),
   );
-  let registryFamilies: { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[] = [];
+  let registryFamilies: FamilySummary[] = [];
   if (canonicalLinks.length) {
     const familyIds = [...new Set(canonicalLinks.map((row) => String(row.canonical_family_id)))];
     const [families, members, rootAliases] = await Promise.all([
@@ -65,7 +81,8 @@ export async function loadWordBaseFamilies(
     db.from("canonical_teaching_dictionary_lexical_base_family_members")
       .select("family_key,revision").eq("canonical_word_id", wordId),
   );
-  let lexicalFamilies: { name: string; meaning?: string; pronunciation?: string; words: { id: string; word: string }[] }[] = [];
+  let lexicalFamilies: FamilySummary[] = [];
+  const lexicalSuccessorKeys = new Set<string>();
   if (lexicalMatches.length) {
     const keys = [...new Set(lexicalMatches.map((row) => String(row.family_key)))];
     const revisions = await read(
@@ -76,6 +93,7 @@ export async function loadWordBaseFamilies(
     );
     const latest = new Map<string, any>();
     for (const row of revisions) if (!latest.has(row.family_key)) latest.set(row.family_key, row);
+    for (const key of latest.keys()) lexicalSuccessorKeys.add(key);
     if (latest.size) {
       const currentMembers = (await read(
         db.from("canonical_teaching_dictionary_lexical_base_family_members")
@@ -130,7 +148,7 @@ export async function loadWordBaseFamilies(
     ...wordReviews.flatMap((row) => row.legacy_family_id || row.definition_id
       ? [String(row.legacy_family_id ?? row.definition_id)] : []),
   ])];
-  if (!candidateIds.length) return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
+  if (!candidateIds.length) return mergeWordFamilySummaries(registryFamilies, lexicalFamilies, [], lexicalSuccessorKeys);
   const reviewIds = wordReviews.map((row) => String(row.id));
   const releaseIds = [...new Set(wordReviews.map((row) => String(row.word_skill_release_id)))];
   const [wordWithdrawals, wordSkillWithdrawals] = await Promise.all([
@@ -149,7 +167,7 @@ export async function loadWordBaseFamilies(
     else activeForWord.add(id);
   }
   const familyIds = [...activeForWord];
-  if (!familyIds.length) return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
+  if (!familyIds.length) return mergeWordFamilySummaries(registryFamilies, lexicalFamilies, [], lexicalSuccessorKeys);
   const legacyIds = familyIds.filter((id) => wordLegacy.some((row) => row.base_word_family_id === id) ||
     wordReviews.some((row) => row.legacy_family_id === id));
   const definitionIds = familyIds.filter((id) => !legacyIds.includes(id));
@@ -227,6 +245,5 @@ export async function loadWordBaseFamilies(
       )
       .sort((a, b) => a.word.localeCompare(b.word, "en-GB")),
   }));
-  return [...registryFamilies, ...lexicalFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name)),
-    ...adleFamilies.filter((family) => !registryFamilies.some((registered) => registered.name === family.name))];
+  return mergeWordFamilySummaries(registryFamilies, lexicalFamilies, adleFamilies, lexicalSuccessorKeys);
 }
