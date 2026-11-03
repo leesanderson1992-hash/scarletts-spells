@@ -57,3 +57,5 @@ staging proofs cover a suffix profile, an existing lexical member, a meaning
 revision, a learner skill release, family authorization, legacy family and
 registry links, and a published route row. The exact 14-word Production
 identities and every downstream route still need an end-to-end release proof.
+The isolated [staging Preview receipt](../../../../qa/canonical-dictionary-pilot-staging-preview-2026-11-03.md)
+records the signed-in read-only browser check for the current editor and queue.
