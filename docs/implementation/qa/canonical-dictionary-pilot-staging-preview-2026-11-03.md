@@ -62,4 +62,7 @@ words produced 747 Overview rows in the full export (926,628 bytes) and two
 numbered batches. In order, the batch IDs exactly matched the complete sheet,
 each batch parsed through the importer and fit the upload cap, an out-of-range
 batch returned HTTP 400, and reimporting the unchanged full sheet created zero
-drafts. The site remained on staging; this did not publish Production data.
+drafts. A separate read-only comparison matched every exported source Overview
+hash against the live staging word, definition, metadata, dictation and
+morphology facts that the edited importer checks. The site remained on staging;
+this did not publish Production data.

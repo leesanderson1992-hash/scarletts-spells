@@ -6,6 +6,8 @@ import { MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv } from
   "../lib/teaching-dictionary-manager/csv";
 import { OVERVIEW_CSV_COLUMNS, OVERVIEW_EXPORT_BATCH_SIZE } from
   "../lib/teaching-dictionary-manager/overview-csv";
+import { WORD_METADATA_FIELDS } from "../lib/teaching-dictionary-manager/contracts";
+import { overviewSourceHash } from "../lib/teaching-dictionary-manager/overview-source-hash";
 
 process.loadEnvFile(".env.staging.local");
 const base = process.argv[2];
@@ -62,6 +64,54 @@ try {
   assert.ok(rows.every((row) => row.exportVersion === "2" && row.unchanged === true));
   assert.ok(rows.every((row) => /^[a-f0-9]{64}$/u.test(row.sourceOverviewHash ?? "")));
   assert.ok(OVERVIEW_CSV_COLUMNS.every((name) => csv.slice(0, csv.indexOf("\n")).includes(name)));
+  const sourceDb = new pg.Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
+  try {
+    await sourceDb.connect();
+    await sourceDb.query("begin read only");
+    const facts = await sourceDb.query(`select to_jsonb(w) word,to_jsonb(md) metadata,
+      to_jsonb(ds) dictation,to_jsonb(m) morphology,d.definition
+      from canonical_teaching_dictionary_words w
+      left join lateral (select * from canonical_teaching_dictionary_word_metadata
+        where canonical_word_id=w.id and row_status='active'
+        order by created_at desc,id desc limit 1) md on true
+      left join lateral (select * from canonical_teaching_dictionary_dictation_sentences
+        where canonical_word_id=w.id and row_status='active'
+        order by created_at desc,id desc limit 1) ds on true
+      left join lateral (select * from canonical_teaching_dictionary_word_morphology
+        where canonical_word_id=w.id and row_status='active'
+        order by created_at desc,id desc limit 1) m on true
+      left join lateral (select definition from teaching_dictionary_definition_versions
+        where canonical_word_id=w.id and route_id is null
+        order by published_at desc,id desc limit 1) d on true
+      where w.row_status='active' and w.dialect_code='en-GB'`);
+    const byId = new Map(rows.map((row) => [row.canonicalWordId, row]));
+    for (const item of facts.rows) {
+      const w = item.word ?? {};
+      const md = item.metadata ?? {};
+      const ds = item.dictation ?? {};
+      const m = item.morphology ?? {};
+      const source = { ...w, definition: item.definition ?? "",
+        dictation_sentence: ds.dictation_sentence ?? "",
+        dictation_target_token_index: ds.dictation_target_token_index ?? 0,
+        ...Object.fromEntries(WORD_METADATA_FIELDS.map((key) => [key, md[key] ?? ""])),
+        written_syllable_breakdown: md.written_syllable_breakdown ?? "",
+        has_schwa: md.has_schwa,
+        raw_morpholex_segmentation: m.raw_morpholex_segmentation ?? "",
+        raw_morpholex_pos: m.raw_morpholex_pos ?? "",
+        morphology_parts: m.morphology_parts ?? [], feature_keys: m.feature_keys ?? [],
+        morphology_joins: m.morphology_joins ?? [],
+        __morphology_transformations: m.morphology_transformations ?? [],
+        transformation_notes: m.transformation_notes ?? "", word_sum: m.word_sum ?? "",
+        analysis_status: m.analysis_status ?? "in_review",
+        morphology_review_notes: m.review_notes ?? "" };
+      assert.equal(byId.get(w.id)?.sourceOverviewHash, overviewSourceHash(source),
+        `source Overview hash for ${w.normalised_word}`);
+    }
+    assert.equal(facts.rows.length, rows.length);
+  } finally {
+    await sourceDb.query("rollback").catch(() => {});
+    await sourceDb.end().catch(() => {});
+  }
   const batchCount = Math.ceil(activeWords / OVERVIEW_EXPORT_BATCH_SIZE);
   const batchRows = [];
   for (let batch = 1; batch <= batchCount; batch += 1) {
