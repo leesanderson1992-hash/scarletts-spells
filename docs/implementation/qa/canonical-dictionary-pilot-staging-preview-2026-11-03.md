@@ -66,3 +66,21 @@ drafts. A separate read-only comparison matched every exported source Overview
 hash against the live staging word, definition, metadata, dictation and
 morphology facts that the edited importer checks. The site remained on staging;
 this did not publish Production data.
+
+## Pilot publication and migration gates
+
+The fixed 14-row reviewed CSV passes `publicationBlockers` with
+`requireCanonicalParts` for every word. The affix approval audit passes on
+staging with the owner's reviewed `-able` and `en-` meanings. The same audit
+fails on Production because the reviewed affix table has not yet been released;
+the only current Production `-able` choice is “can be”. This is a real import
+blocker, not a row-format error.
+
+The 12 ordered `20261103` canonical Overview migrations passed
+`scripts/apply-canonical-overview-migrations.mts` in a rolled-back staging
+transaction and were then applied and ledgered on staging. A second staging
+run found all 12 ledger entries with matching source hashes and no pending
+work. The bound-root, free-base and suffix publication rollback proofs passed
+again against that schema. The same 12 migrations passed a rolled-back
+Production transaction, with zero previously ledgered; the Production
+transaction was rolled back and no Production schema change has been made.
