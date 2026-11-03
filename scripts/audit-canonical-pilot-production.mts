@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import pg from "pg";
 import { parseDictionaryCsv } from "../lib/teaching-dictionary-manager/csv";
+import { normaliseWrittenSyllableBreakdown } from "../lib/teaching-dictionary-manager/authoring";
 
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
 if (!url || new URL(url).username.split(".").at(-1) !== "wwohrqtunajrbwxyssjf")
@@ -21,6 +22,8 @@ try {
   for (const row of candidate) {
     const base = row.payload.canonicalMorphology.parts.find((part) => part.kind === "base");
     const current = await db.query(`select w.id,w.normalised_word,w.source_row_hash,
+      w.display_word,w.age_band,w.frequency_band,w.complexity_band,
+      w.source_category,w.source_name,w.source_url,w.source_licence,w.source_use_note,w.confidence,
       (select count(*)::int from canonical_teaching_dictionary_suffix_members m
         join canonical_teaching_dictionary_suffix_profiles p on p.id=m.suffix_profile_id
         where m.canonical_word_id=w.id and m.row_status='active' and p.row_status='active') suffix_members,
@@ -40,6 +43,48 @@ try {
     if (current.rows.length !== 1 || current.rows[0].normalised_word !== row.normalisedWord)
       throw new Error(`PILOT_WORD_IDENTITY_CHANGED:${row.normalisedWord}`);
     const word = current.rows[0];
+    if (row.sourceRowHash !== word.source_row_hash)
+      blockers.push(`${row.normalisedWord}: source row hash changed since review`);
+    const existingFacts = await db.query(`select
+      (select definition from teaching_dictionary_definition_versions d
+        where d.canonical_word_id=$1 and d.route_id is null
+        order by d.published_at desc,d.id desc limit 1) definition,
+      (select to_jsonb(md) from canonical_teaching_dictionary_word_metadata md
+        where md.canonical_word_id=$1 and md.row_status='active'
+        order by md.created_at desc,md.id desc limit 1) metadata,
+      (select to_jsonb(ds) from canonical_teaching_dictionary_dictation_sentences ds
+        where ds.canonical_word_id=$1 and ds.row_status='active'
+        order by ds.created_at desc,ds.id desc limit 1) dictation`, [row.canonicalWordId]);
+    const old = existingFacts.rows[0];
+    if (!old.definition || !old.metadata || !old.dictation)
+      blockers.push(`${row.normalisedWord}: approved shared facts are incomplete`);
+    const changedSharedFields: string[] = [];
+    const compare = (name: string, actual: unknown, reviewed: unknown) => {
+      if (String(actual ?? '') !== String(reviewed ?? '')) changedSharedFields.push(name);
+    };
+    compare('definition', old.definition, row.payload.definition);
+    compare('display_word', word.display_word, row.payload.displayWord);
+    compare('dictation_sentence', old.dictation?.dictation_sentence, row.payload.dictationSentence);
+    compare('dictation_target_token_index', old.dictation?.dictation_target_token_index,
+      row.payload.dictationTargetTokenIndex);
+    for (const [name, reviewed] of [
+      ['age_band', row.payload.ageBand], ['frequency_band', row.payload.frequencyBand],
+      ['complexity_band', row.payload.complexityBand],
+      ['source_category', row.payload.provenance.sourceCategory],
+      ['source_name', row.payload.provenance.sourceName],
+      ['source_url', row.payload.provenance.sourceUrl],
+      ['source_licence', row.payload.provenance.sourceLicence],
+      ['source_use_note', row.payload.provenance.sourceUseNote],
+      ['confidence', row.payload.provenance.confidence],
+    ] as const) compare(name, word[name], reviewed);
+    for (const [name, reviewed] of Object.entries(row.payload.metadata))
+      compare(name, old.metadata?.[name], reviewed);
+    if (row.writtenSyllableBreakdown !== undefined) {
+      const currentBreakdown = normaliseWrittenSyllableBreakdown(
+        String(old.metadata?.written_syllable_breakdown ?? ''));
+      if (currentBreakdown !== row.writtenSyllableBreakdown)
+        blockers.push(`${row.normalisedWord}: written syllable breakdown changed since review`);
+    }
     const families = base ? await db.query(`select f.family_key,f.revision from canonical_teaching_dictionary_lexical_base_families f
       where f.base_kind='free_base' and f.base_lemma=lower($1) and f.base_meaning=$2
         and f.review_status='approved'
@@ -92,6 +137,7 @@ try {
     report.push({
       word: row.normalisedWord,
       identityMatches: row.sourceRowHash === word.source_row_hash,
+      changedSharedFields,
       base: base?.sourceText ?? null,
       matchingApprovedFamilies: families.rows.map((family) => `${family.family_key}@${family.revision}`),
       selectedFamilyRevision: selectedFamily.rows[0]?.revision ?? selectedRoot.rows[0]?.revision ?? null,
