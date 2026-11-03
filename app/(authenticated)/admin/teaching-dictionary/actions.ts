@@ -26,6 +26,7 @@ import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manager/morphology-publication";
 import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "@/lib/teaching-dictionary-manager/affix-meanings";
+import { overviewSourceHash } from "@/lib/teaching-dictionary-manager/overview-source-hash";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -691,16 +692,34 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
     for (let i = 0; i < existingIds.length; i += 100) {
       const ids = existingIds.slice(i, i + 100);
       const [metadata, dictation, definitions, morphology] = await Promise.all([
-        db.from("canonical_teaching_dictionary_word_metadata").select("*").in("canonical_word_id", ids).eq("row_status", "active"),
-        db.from("canonical_teaching_dictionary_dictation_sentences").select("canonical_word_id,dictation_sentence,dictation_target_token_index").in("canonical_word_id", ids).eq("row_status", "active"),
+        db.from("canonical_teaching_dictionary_word_metadata").select("*").in("canonical_word_id", ids)
+          .eq("row_status", "active").order("created_at", { ascending: false }),
+        db.from("canonical_teaching_dictionary_dictation_sentences")
+          .select("canonical_word_id,dictation_sentence,dictation_target_token_index,created_at")
+          .in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false }),
         db.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition,published_at").in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
-        db.from("canonical_teaching_dictionary_word_morphology").select("*").in("canonical_word_id", ids).eq("row_status", "active"),
+        db.from("canonical_teaching_dictionary_word_morphology").select("*").in("canonical_word_id", ids)
+          .eq("row_status", "active").order("created_at", { ascending: false }),
       ]);
       if (metadata.error || dictation.error || definitions.error || morphology.error) throw new Error("CSV_EXISTING_FACTS_READ_FAILED");
-      for (const row of metadata.data ?? []) metadataByWord.set(row.canonical_word_id, row);
-      for (const row of dictation.data ?? []) dictationByWord.set(row.canonical_word_id, row);
+      for (const row of metadata.data ?? []) if (!metadataByWord.has(row.canonical_word_id))
+        metadataByWord.set(row.canonical_word_id, row);
+      for (const row of dictation.data ?? []) if (!dictationByWord.has(row.canonical_word_id))
+        dictationByWord.set(row.canonical_word_id, row);
       for (const row of definitions.data ?? []) if (!definitionByWord.has(row.canonical_word_id)) definitionByWord.set(row.canonical_word_id, row.definition);
-      for (const row of morphology.data ?? []) morphologyByWord.set(row.canonical_word_id, row);
+      for (const row of morphology.data ?? []) if (!morphologyByWord.has(row.canonical_word_id))
+        morphologyByWord.set(row.canonical_word_id, row);
+    }
+    const sourceFamilyKeys = [...new Set(rows.map((row) => row.sourceFamilyKey).filter((key): key is string => Boolean(key)))];
+    const currentFamilyRevision = new Map<string, number>();
+    for (let i = 0; i < sourceFamilyKeys.length; i += 100) {
+      const families = await db.from("canonical_teaching_dictionary_lexical_base_families")
+        .select("family_key,revision").in("family_key", sourceFamilyKeys.slice(i, i + 100))
+        .order("revision", { ascending: false });
+      if (families.error || (families.data?.length ?? 0) >= 1000)
+        throw new Error("CSV_SOURCE_FAMILY_READ_FAILED");
+      for (const family of families.data ?? []) if (!currentFamilyRevision.has(family.family_key))
+        currentFamilyRevision.set(family.family_key, family.revision);
     }
     const errors: string[] = [...grouped.errors];
     const batchId = randomUUID();
@@ -729,7 +748,37 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         errors.push(`Row ${row.rowNumber}: Dictionary word changed since export. Download a fresh CSV.`);
         return [];
       }
-      if (current && row.writtenSyllableBreakdown !== undefined &&
+      if (row.exportVersion === "2" && current) {
+        if (row.sourceFamilyKey && currentFamilyRevision.get(row.sourceFamilyKey) !== row.sourceFamilyRevision) {
+          errors.push(`Row ${row.rowNumber}: Family changed since export. Download a fresh CSV.`);
+          return [];
+        }
+        const metadata = metadataByWord.get(current.id) ?? {};
+        const sentence = dictationByWord.get(current.id);
+        const morph = morphologyByWord.get(current.id) ?? {};
+        const source = {
+          ...current,
+          definition: definitionByWord.get(current.id) ?? "",
+          dictation_sentence: sentence?.dictation_sentence ?? "",
+          dictation_target_token_index: sentence?.dictation_target_token_index ?? 0,
+          ...Object.fromEntries(WORD_METADATA_FIELDS.map((key) => [key, metadata[key] ?? ""])),
+          written_syllable_breakdown: metadata.written_syllable_breakdown ?? "",
+          has_schwa: metadata.has_schwa,
+          raw_morpholex_segmentation: morph.raw_morpholex_segmentation ?? "",
+          raw_morpholex_pos: morph.raw_morpholex_pos ?? "",
+          morphology_parts: morph.morphology_parts ?? [], feature_keys: morph.feature_keys ?? [],
+          morphology_joins: morph.morphology_joins ?? [],
+          __morphology_transformations: morph.morphology_transformations ?? [],
+          transformation_notes: morph.transformation_notes ?? "", word_sum: morph.word_sum ?? "",
+          analysis_status: morph.analysis_status ?? "in_review",
+          morphology_review_notes: morph.review_notes ?? "",
+        };
+        if (!row.sourceOverviewHash || row.sourceOverviewHash !== overviewSourceHash(source)) {
+          errors.push(`Row ${row.rowNumber}: Approved Overview facts changed since export. Download a fresh CSV.`);
+          return [];
+        }
+      }
+      if (current && row.exportVersion === "1" && row.writtenSyllableBreakdown !== undefined &&
         row.writtenSyllableBreakdown !== normaliseWrittenSyllableBreakdown(
           String(metadataByWord.get(current.id)?.written_syllable_breakdown ?? ""))) {
         errors.push(`Row ${row.rowNumber}: Written syllable breakdown is read-only. Download a fresh CSV if this review changed.`);

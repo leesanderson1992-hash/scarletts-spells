@@ -108,6 +108,7 @@ export async function teachingDictionaryExportRows(): Promise<Record<string, unk
         has_schwa: metadata.has_schwa == null ? "" : String(metadata.has_schwa),
         raw_morpholex_segmentation: morph.raw_morpholex_segmentation ?? "", raw_morpholex_pos: morph.raw_morpholex_pos ?? "",
         morphology_parts: morph.morphology_parts ?? [], feature_keys: morph.feature_keys ?? [], morphology_joins: morph.morphology_joins ?? [],
+        __morphology_transformations: morph.morphology_transformations ?? [],
         transformation_notes: morph.transformation_notes ?? "", word_sum: morph.word_sum ?? "",
         analysis_status: morph.analysis_status ?? "in_review", morphology_review_notes: morph.review_notes ?? "",
         source_category: word.source_category, source_name: word.source_name ?? "", source_url: word.source_url ?? "",

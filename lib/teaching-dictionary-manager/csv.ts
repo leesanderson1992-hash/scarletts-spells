@@ -60,7 +60,9 @@ function jsonArray(value: string): unknown[] {
 }
 
 export type CsvDraft = { rowNumber: number; normalisedWord: string; payload: WordDraftPayload; providedColumns: string[]; error?: string;
-  canonicalWordId?: string; sourceRowHash?: string; writtenSyllableBreakdown?: string; unchanged?: boolean };
+  canonicalWordId?: string; sourceRowHash?: string; sourceOverviewHash?: string;
+  sourceFamilyKey?: string; sourceFamilyRevision?: number;
+  writtenSyllableBreakdown?: string; exportVersion?: string; unchanged?: boolean };
 
 export function roundTripEditHash(row: Record<string, unknown>, columns: readonly string[]): string {
   const editable = columns.filter((name) => name !== "missing_facts" && name !== "tdm_edit_hash");
@@ -99,7 +101,9 @@ export function combineRoundTripRows(rows: CsvDraft[]): { rows: CsvDraft[]; erro
     const first = group[0];
     const shared = JSON.stringify({ ...first.payload, routeContents: [] });
     const inconsistent = group.find((row) => row.canonicalWordId !== first.canonicalWordId
-      || row.sourceRowHash !== first.sourceRowHash || JSON.stringify({ ...row.payload, routeContents: [] }) !== shared);
+      || row.sourceRowHash !== first.sourceRowHash || row.sourceOverviewHash !== first.sourceOverviewHash
+      || row.sourceFamilyKey !== first.sourceFamilyKey || row.sourceFamilyRevision !== first.sourceFamilyRevision
+      || JSON.stringify({ ...row.payload, routeContents: [] }) !== shared);
     const invalid = group.find((row) => row.error);
     if (invalid || inconsistent) {
       errors.push(`Row ${invalid?.rowNumber ?? inconsistent?.rowNumber}: ${invalid?.error ?? "Shared word facts differ between route rows."}`);
@@ -212,7 +216,7 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
       definition: raw.definition || raw.wordMeaning || "",
       dictationSentence: target, dictationTargetTokenIndex: raw.tdm_export_version && /^\d+$/.test(raw.dictation_target_token_index)
         ? Number(raw.dictation_target_token_index) : Math.max(0, tokenIndex),
-      ...(raw.written_syllable_breakdown && !raw.tdm_export_version
+      ...(raw.written_syllable_breakdown && (!raw.tdm_export_version || raw.tdm_export_version === "2")
         ? { writtenSyllableBreakdown: raw.written_syllable_breakdown } : {}),
       ageBand: raw.age_band || "", frequencyBand: raw.frequency_band || "", complexityBand: raw.complexity_band || "",
       metadata, skillKeys: raw.tdm_export_version ? (raw.affected_micro_skills || "").split(/[;,]/).map((key) => key.trim()).filter(Boolean)
@@ -272,11 +276,21 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
     return { rowNumber: index + 2, normalisedWord, payload, providedColumns: names,
       canonicalWordId: raw.canonical_word_id || undefined,
       sourceRowHash: raw.source_row_hash || undefined,
+      sourceOverviewHash: raw.tdm_source_overview_hash || undefined,
+      sourceFamilyKey: raw.tdm_source_family_key || undefined,
+      sourceFamilyRevision: /^[1-9][0-9]*$/u.test(raw.tdm_source_family_revision)
+        ? Number(raw.tdm_source_family_revision) : undefined,
       writtenSyllableBreakdown: names.includes("written_syllable_breakdown") ? raw.written_syllable_breakdown : undefined,
+      exportVersion: raw.tdm_export_version || undefined,
       unchanged: Boolean(raw.tdm_edit_hash && raw.tdm_edit_hash === roundTripEditHash(raw, names)),
       error: !normalisedWord ? "Missing word." : cells.length !== names.length ? "Column count does not match header."
         : schwa && schwa !== "true" && schwa !== "false" ? "has_schwa must be TRUE, FALSE, or blank." : morphologyError || routeError || rootReviewError
         || flatRequired[0]
-        || (raw.tdm_export_version && raw.tdm_export_version !== "1" ? "Unsupported export version." : undefined) };
+        || (raw.tdm_export_version && !["1", "2"].includes(raw.tdm_export_version) ? "Unsupported export version." : undefined)
+        || (raw.tdm_export_version === "2" && raw.tdm_source_family_key
+          && !/^[1-9][0-9]*$/u.test(raw.tdm_source_family_revision)
+          ? "Source family revision is missing or invalid." : undefined)
+        || (raw.tdm_export_version === "2" && !raw.tdm_source_family_key && raw.tdm_source_family_revision
+          ? "Source family key is missing." : undefined) };
   });
 }
