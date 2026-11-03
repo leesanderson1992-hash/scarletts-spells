@@ -67,16 +67,23 @@ try {
     (family_key,revision,base_lemma,base_part_of_speech,base_kind,base_meaning,
       source_reference,review_status)
     values($1,1,'act','verb','bound_root','to do','staging rollback proof','draft')`, [familyKey]);
-  await db.query(`insert into public.canonical_teaching_dictionary_lexical_root_metadata
-    (family_key,revision,root_text,root_meaning,root_definition,origin_language,
-      pronunciation_ipa,source_reference,approval_reference,reviewed_by,reviewed_at)
-    values($1,1,'act','to do','the bound root meaning to do','Latin',
-      '/ækt/','staging rollback proof','staging rollback proof','staging proof',now())`, [familyKey]);
   await db.query(`insert into public.canonical_teaching_dictionary_lexical_base_family_members
     (family_key,revision,canonical_word_id,word_part_of_speech,relationship_kind,
       canonical_morphology_id,word_sum,morphology_parts,morphology_joins,intended_meaning,source_reference)
     values($1,1,$2,'verb','derived',$3,'act → act',$4::jsonb,'[]'::jsonb,
       'to do','staging rollback proof')`, [familyKey, words[0].id, morphIds[0], JSON.stringify(words[0].parts)]);
+  await db.query("savepoint missing_root_entry");
+  try {
+    await assert.rejects(db.query(`select public.approve_canonical_lexical_base_family(
+      $1,1,'staging proof','staging rollback proof')`, [familyKey]), /LEXICAL_ROOT_ENTRY_REQUIRED/);
+  } finally {
+    await db.query("rollback to savepoint missing_root_entry");
+  }
+  await db.query(`insert into public.canonical_teaching_dictionary_lexical_root_metadata
+    (family_key,revision,root_text,root_meaning,root_definition,origin_language,
+      pronunciation_ipa,pronunciation_applicability,source_reference,approval_reference,reviewed_by,reviewed_at)
+    values($1,1,'act','to do','the bound root meaning to do','Latin',
+      null,'not_applicable','staging rollback proof','staging rollback proof','staging proof',now())`, [familyKey]);
   const approved = await db.query(`select public.approve_canonical_lexical_base_family(
     $1,1,'staging proof','staging rollback proof') fingerprint`, [familyKey]);
   assert.match(approved.rows[0].fingerprint, /^[a-f0-9]{64}$/);
@@ -101,14 +108,14 @@ try {
   const proof = await db.query(`select f.revision,f.review_status,
       (select count(*)::int from public.canonical_teaching_dictionary_lexical_base_family_members m
         where m.family_key=f.family_key and m.revision=f.revision) members,
-      exists(select 1 from public.canonical_teaching_dictionary_lexical_root_metadata r
-        where r.family_key=f.family_key and r.revision=f.revision) root_metadata
+      (select r.pronunciation_applicability from public.canonical_teaching_dictionary_lexical_root_metadata r
+        where r.family_key=f.family_key and r.revision=f.revision) pronunciation_applicability
     from public.canonical_teaching_dictionary_lexical_base_families f
     where f.family_key=$1 order by f.revision`, [familyKey]);
   assert.deepEqual(proof.rows.map((row) => ({ revision: row.revision,
-    status: row.review_status, members: row.members, rootMetadata: row.root_metadata })), [
-    { revision: 1, status: "approved", members: 1, rootMetadata: true },
-    { revision: 2, status: "approved", members: 2, rootMetadata: true },
+    status: row.review_status, members: row.members, pronunciationApplicability: row.pronunciation_applicability })), [
+    { revision: 1, status: "approved", members: 1, pronunciationApplicability: "not_applicable" },
+    { revision: 2, status: "approved", members: 2, pronunciationApplicability: "not_applicable" },
   ]);
   console.log(JSON.stringify({ result: "passed", environment: "staging",
     familyKind: "bound_root", revisedMembership: true, mutations: "rolled_back" }));

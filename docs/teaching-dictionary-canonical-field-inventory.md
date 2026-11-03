@@ -33,7 +33,7 @@
 | `word_sum` | Derived from approved source parts and `display_word`; read-only Overview display | Must equal the generated sum before approval; projected into lesson content |
 | Morphology review and provenance | Active approved morphology version; Overview review action | New approvals require canonical parts; historical versions remain readable without rewriting evidence |
 | Family key, base or root lemma, family meaning and membership | Latest approved lexical family revision; searchable Overview selector or free-base creation controls | Exact approved base/root evidence is required; family display and route base facts read the latest approved revision plus historical registry links |
-| Bound-root pronunciation applicability | Root metadata on the approved family revision | Dedicated root review | Reviewed IPA or explicit `not_applicable`; a bound root is not a standalone dictation word | Dictionary family display |
+| Bound-root pronunciation applicability | Root entry metadata on the approved family revision | Dedicated root review | Reviewed IPA or explicit `not_applicable`; a bound root has no standalone dictation sentence | Dictionary family display |
 | Affix meaning for this word | Approved part `gloss` chosen from `canonical_teaching_dictionary_affix_meanings` in Overview; older profile choices remain readable until catalogued | Multiple reviewed meanings appear in a dropdown; stale selections are marked for review; route meaning uses the approved part |
 | Micro-skill keys | Reviewed word-skill pair and released skill authority; Micro-skills control | Active assignable choice; drives lesson eligibility and Lesson checks |
 | Route-specific facts and pedagogy | Reviewed route content version; route text, select and visual controls with accessible format help | Route preflight checks the named facts; adapters combine them with shared Overview facts to produce lesson JSON |
@@ -50,3 +50,10 @@ Shared definition, word sum and true morphology are projected from Overview. His
 Family search matches the reviewed base or root lemma. It ignores the common
 `_base_family` key suffix, shows only approved revisions, and ranks exact and
 prefix matches before other matches. Historical family links remain readable.
+
+An approved bound-root family revision must have a reviewed root entry with the
+same root text and meaning as the family. The root entry records its definition,
+origin, pronunciation applicability and provenance. It is a dictionary family
+anchor, distinguished from a standalone spoken word so it is not selected for
+dictation. Historical approved revisions without an entry remain visible for
+review; they are not silently assigned a pronunciation or meaning.
