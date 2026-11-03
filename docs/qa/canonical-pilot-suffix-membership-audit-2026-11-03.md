@@ -47,3 +47,13 @@ For the full import, generate lesson candidates from Overview in groups, review
 only semantic exceptions and teaching-only fields, and launch each profile's
 reviewed set together. Keep the Overview import batches at or below 500 rows;
 use smaller human-review groups within each technical batch.
+
+## Batch export improvement pending release
+
+The Overview CSV now suggests `none` for each missing join only when the
+existing visible part strings concatenate to the display word exactly and no
+join evidence exists. It leaves `analysis_status=in_review` and asks the human
+reviewer to check the joins. A read-only Production scan found 262 active words
+with multiple parts and zero join rows; 256 meet this exact suggestion rule.
+The remaining six still need manual join entry. This reduces repetitive typing
+without treating historical morphology as approved.

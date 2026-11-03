@@ -124,6 +124,20 @@ assert.equal(imported[2].error, undefined);
 assert.equal(imported[2].payload.canonicalMorphology.transformations?.length, 1);
 assert.equal(imported[3].error, undefined);
 assert.equal(imported[3].payload.rootFamilyReview?.pronunciationApplicability, "not_applicable");
+const missingJoins = projectOverviewCsvRows([{ ...typed, morphology_joins: [] }],
+  new Map([[typed.canonical_word_id, { kind: "free_base", familyKey: "joy_noun_base_family",
+    revision: 1, basePartOfSpeech: "noun", baseLemma: "joy",
+    baseMeaning: "a feeling of great happiness" }]]))[0];
+assert.equal(missingJoins.review_group, "join_count");
+assert.equal(missingJoins.analysis_status, "in_review", "a suggested join is never approved automatically");
+assert.equal(missingJoins.part_2_join_before, "none");
+assert.equal(missingJoins.part_3_join_before, "none");
+assert.match(String(missingJoins.review_action), /Check the suggested no-space joins/);
+const unsafeJoins = projectOverviewCsvRows([{
+  ...typed, display_word: "en-joyable", morphology_joins: [],
+}], new Map([[typed.canonical_word_id, { kind: "free_base",
+  familyKey: "joy_noun_base_family", basePartOfSpeech: "noun" }]]))[0];
+assert.equal(unsafeJoins.part_2_join_before, "", "a visible separator needs manual review");
 const edited = parseDictionaryCsv(csv.replace("en·joy·a·ble", "en·joy·ab·le"));
 assert.equal(edited[0].unchanged, false);
 assert.equal(edited[0].payload.writtenSyllableBreakdown, "en·joy·ab·le");

@@ -62,12 +62,23 @@ function partRole(part: Record<string, unknown>): string {
   return unique.length === 1 ? unique[0] : "";
 }
 
-function partColumns(parts: unknown, joins: unknown, transformations: unknown,
+function boundariesCanBeSuggested(parts: unknown, joins: unknown, displayWord: string): boolean {
+  if (!Array.isArray(parts) || parts.length < 2 || !Array.isArray(joins) || joins.length !== 0)
+    return false;
+  const surface = parts.map((raw) => raw && typeof raw === "object" && !Array.isArray(raw)
+    ? candidates(raw as Record<string, unknown>, ["surfaceText", "text"]) : "");
+  return surface.every(Boolean) && surface.join("") === displayWord;
+}
+
+function partColumns(parts: unknown, joins: unknown, transformations: unknown, displayWord: string,
   family?: OverviewFamilySelection) {
   const fields: Record<string, string> = {};
   const listed = Array.isArray(parts) ? parts : [];
   const boundaries = Array.isArray(joins) ? joins : [];
   const changes = Array.isArray(transformations) ? transformations : [];
+  // A missing join can be suggested only when every visible part already
+  // spells the word exactly without a separator. It remains in review.
+  const suggestNoSpaceJoins = boundariesCanBeSuggested(parts, joins, displayWord);
   for (const [index, raw] of listed.slice(0, FLAT_IMPORT_PART_LIMIT).entries()) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const part = raw as Record<string, unknown>;
@@ -88,6 +99,8 @@ function partColumns(parts: unknown, joins: unknown, transformations: unknown,
           && ["none", "space", "hyphen"].includes(String(record.joinType)))
           fields[`${prefix}join_before`] = String(record.joinType);
       }
+      if (!fields[`${prefix}join_before`] && suggestNoSpaceJoins)
+        fields[`${prefix}join_before`] = "none";
     }
     const change = changes.find((item) => item && typeof item === "object" && !Array.isArray(item)
       && (item as Record<string, unknown>).sourcePartId === part.id) as Record<string, unknown> | undefined;
@@ -132,7 +145,8 @@ export function projectOverviewCsvRows(
       current_approved_family_links: (family?.linkedFamilyRefs ??
         (family?.familyKey && family.revision ? [`${family.familyKey}@${family.revision}`] : [])).join("; "),
       analysis_status: canonical ? "approved" : "in_review",
-      ...partColumns(parts, joins, source.__morphology_transformations, family),
+      ...partColumns(parts, joins, source.__morphology_transformations,
+        String(source.display_word ?? ""), family),
       base_family_key: family?.kind === "free_base" ? family.familyKey : "",
       base_part_of_speech: family?.kind === "free_base" ? family.basePartOfSpeech : "",
       root_family_key: family?.kind === "bound_root" ? family.familyKey : "",
@@ -146,7 +160,10 @@ export function projectOverviewCsvRows(
       review_action: family?.reviewIssue ?? (familyMeaningConflict
         ? "Review the family meaning against the matching word part." : derivedWithoutFamily
         ? "Choose or create the reviewed base or root family." : canonical
-        ? "No word-part review needed." : MORPHOLOGY_REVIEW_ACTIONS[audit.reason] ?? "Review the word parts in Overview."),
+        ? "No word-part review needed." : audit.reason === "join_count"
+          && boundariesCanBeSuggested(parts, joins, String(source.display_word ?? ""))
+          ? "Check the suggested no-space joins against the reviewed word parts, then approve."
+          : MORPHOLOGY_REVIEW_ACTIONS[audit.reason] ?? "Review the word parts in Overview."),
       missing_facts: [String(source.__overview_missing_facts ?? source.missing_facts ?? ""),
         family?.reviewIssue ?? "",
         ...(familyMeaningConflict ? ["Family meaning differs from the word part: review in Overview"] : []),
