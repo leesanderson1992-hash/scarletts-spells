@@ -1,5 +1,6 @@
 import { dictationVariantBlockers, selectDictationVariant } from "@/lib/teaching-dictionary-manager/authoring";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadCurrentLessonSenses } from "@/lib/teaching-dictionary-manager/lesson-sense-projection";
 
 import type {
   BaseWordFamilyAuthenticTarget,
@@ -226,8 +227,24 @@ export async function loadBaseWordFamilyLessonReadModel(
     "loadBaseWordFamilyLessonReadModel:dictationSentences",
   );
   if (!dictationSentences) return null;
+  const lessonSenses = await loadCurrentLessonSenses(client, memberIds, [request.microSkillKey]);
+  if (memberIds.some(id => lessonSenses.get(`${id}:${request.microSkillKey}`)?.status === "stale")) return null;
   const wordById = new Map(words.map((word) => [word.id, word]));
-  const dictationSentenceByWordId = new Map(dictationSentences.map((sentence) => [sentence.canonical_word_id, sentence]));
+  const dictationSentenceByWordId = new Map(dictationSentences.map((sentence) => {
+    const sense = lessonSenses.get(`${sentence.canonical_word_id}:${request.microSkillKey}`);
+    return [sentence.canonical_word_id, sense?.status === "current" && sense.dictationSentence
+      && sense.dictationTargetTokenIndex !== null
+      ? { ...sentence, dictation_sentence: sense.dictationSentence,
+          audio_text: sense.dictationSentence,
+          dictation_target_token_index: sense.dictationTargetTokenIndex }
+      : sentence] as const;
+  }));
+  const approvedMemberWord = (member: MemberRow, id: string) => {
+    const sense = lessonSenses.get(`${id}:${request.microSkillKey}`);
+    return approvedWord(sense?.status === "current"
+      ? { ...member, child_friendly_meaning: sense.meaning } : member,
+      wordById.get(id), dictationSentenceByWordId.get(id));
+  };
   const membersByFamily = new Map<string, MemberRow[]>();
   for (const member of members) membersByFamily.set(member.base_word_family_id, [...(membersByFamily.get(member.base_word_family_id) ?? []), member]);
   const familyByKey = new Map(families.map((family) => [family.base_family_key, family]));
@@ -237,10 +254,10 @@ export async function loadBaseWordFamilyLessonReadModel(
     if (!family) return null;
     const familyMembers = membersByFamily.get(family.id) ?? [];
     const baseMember = familyMembers.find((member) => member.member_role === "base");
-    const baseWord = baseMember ? approvedWord(baseMember, wordById.get(baseMember.canonical_word_id), dictationSentenceByWordId.get(baseMember.canonical_word_id)) : null;
+    const baseWord = baseMember ? approvedMemberWord(baseMember, baseMember.canonical_word_id) : null;
     const guidedWords = requested.guidedWordIds.map((id) => {
       const member = familyMembers.find((candidate) => candidate.canonical_word_id === id);
-      return member ? approvedWord(member, wordById.get(id), dictationSentenceByWordId.get(id)) : null;
+      return member ? approvedMemberWord(member, id) : null;
     });
     if (!baseWord || guidedWords.some((word) => word === null) || !requested.guidedWordIds.includes(baseWord.canonicalWordId)) return null;
     sections.push({ baseFamilyKey: family.base_family_key, baseWord, baseMeaning: family.base_meaning, etymologyRoute: family.etymology_route!, authenticTargetWordIds: requested.authenticTargetWordIds, guidedWords: guidedWords as BaseWordFamilySnapshotWord[] });

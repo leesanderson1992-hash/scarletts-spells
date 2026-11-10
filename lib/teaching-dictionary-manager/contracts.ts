@@ -1,8 +1,9 @@
-import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, generatedWordSum, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
+import { canonicalStructureBlockers, dictationVariantBlockers, dictationVariants, generatedWordSum, targetOccurrences, writtenSyllableBlockers, type DictationVariant, type ReviewedTransformation } from "./authoring";
 import { ADLE_CURRICULUM_ROUTE_REGISTRY } from "@/lib/adle/curriculum-readiness/route-registry";
 import { weakVowelRouteBlockers } from "./weak-vowel-authoring";
 import { auditCanonicalMorphology } from "./canonical-morphology";
 import { PART_OF_SPEECH_OPTIONS } from "./part-of-speech-options";
+import { ING_RULE_FOR_SKILL, ingStem, type IngMicroSkill } from "@/lib/adle/ing/contracts";
 
 export const WORD_METADATA_FIELDS = [
   "syllables", "phoneme_hint", "grapheme_notes", "stress_pattern", "morphemes",
@@ -45,6 +46,7 @@ export function routeContentFromStoredRow(row: {
 }
 
 export type WordDraftPayload = {
+  senseSet?: import("./senses").DictionarySenseSet;
   displayWord: string;
   definition: string;
   dictationSentence: string;
@@ -76,6 +78,8 @@ export type WordDraftPayload = {
     confidence: "low" | "medium" | "high";
   };
   skillKeys: string[];
+  /** The reviewed meaning selected for each micro-skill lesson. */
+  skillSenseIds?: Record<string, string>;
   rootFamilyReview?: {
     familyKey: string;
     rootDefinition: string;
@@ -105,6 +109,12 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
     && Number.isInteger(row.dictationTargetTokenIndex)
     && Array.isArray(row.skillKeys)
     && Array.isArray(row.routeContents)
+    && (row.senseSet === undefined || Boolean(row.senseSet) && typeof row.senseSet === "object"
+      && !Array.isArray(row.senseSet)
+      && Array.isArray((row.senseSet as Record<string, unknown>).senses)
+      && Array.isArray((row.senseSet as Record<string, unknown>).pronunciations))
+    && (row.skillSenseIds === undefined || Boolean(row.skillSenseIds) && typeof row.skillSenseIds === "object"
+      && !Array.isArray(row.skillSenseIds))
     && Boolean(metadata) && !Array.isArray(metadata)
     && WORD_METADATA_FIELDS.every((key) => typeof metadata?.[key] === "string")
     && (metadata?.has_schwa === null || typeof metadata?.has_schwa === "boolean")
@@ -261,6 +271,8 @@ export function sharedRouteContentKeys(routeId: string, payload: WordDraftPayloa
 }
 
 export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraftPayload): RouteContentDraft {
+  const senseId = payload.skillSenseIds?.[route.microSkillKey];
+  const sense = senseId ? payload.senseSet?.senses.find(item => item.id === senseId) : undefined;
   const parts = payload.canonicalMorphology.parts;
   const joins = payload.canonicalMorphology.joins;
   const content = { ...route.content };
@@ -304,9 +316,20 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     if (base?.text) content.baseWord = base.text;
     if (base?.meaning) content.baseMeaning = base.meaning;
   }
+  if (route.routeId === "ing_endings_word_lab" && base?.kind === "base"
+    && payload.canonicalMorphology.analysisStatus === "approved"
+    && route.microSkillKey in ING_RULE_FOR_SKILL
+    && `${ingStem(base.text.toLocaleLowerCase("en-GB"),
+      ING_RULE_FOR_SKILL[route.microSkillKey as IngMicroSkill])}ing` === payload.displayWord.toLocaleLowerCase("en-GB")) {
+    content.base = base.text;
+    if (!Array.isArray(content.sourceRefs) || !content.sourceRefs.length) {
+      const source = payload.provenance.sourceUrl.trim() || payload.provenance.sourceName.trim();
+      if (source) content.sourceRefs = [source];
+    }
+  }
   return {
     ...route,
-    wordMeaning: payload.definition.trim(),
+    wordMeaning: (sense?.definition ?? payload.definition).trim(),
     wordSum: payload.canonicalMorphology.wordSum.trim(),
     content,
   };
@@ -345,13 +368,39 @@ export function routeContentsForSelectedSkills(payload: WordDraftPayload): Route
 export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftPayload) {
   const route = routeWithSharedFacts(routeInput, payload);
   const blockers: string[] = [];
+  const selectedSense = payload.senseSet?.senses.find(sense =>
+    sense.id === payload.skillSenseIds?.[route.microSkillKey]);
+  const selectedPronunciation = payload.senseSet?.pronunciations.find(pronunciation =>
+    pronunciation.id === selectedSense?.pronunciationId);
+  const lessonPronunciationMetadata = selectedPronunciation
+    ? { ...payload.metadata, phoneme_hint: selectedPronunciation.ipa,
+        syllables: String(selectedPronunciation.spokenSyllableCount ?? ""),
+        stress_pattern: selectedPronunciation.stressPattern }
+    : payload.metadata;
+  if (selectedSense && !selectedPronunciation && selectedSense.partOfSpeech !== "root")
+    blockers.push("Select a reviewed pronunciation for this lesson meaning.");
+  const pronunciationDiffers = selectedPronunciation && (
+    selectedPronunciation.ipa !== payload.metadata.phoneme_hint ||
+    String(selectedPronunciation.spokenSyllableCount ?? "") !== payload.metadata.syllables ||
+    selectedPronunciation.stressPattern !== payload.metadata.stress_pattern);
+  if (pronunciationDiffers && !["dynamic_prefix_word_lab", "dynamic_affix_word_lab", "ing_endings_word_lab"].includes(route.routeId))
+    blockers.push("This lesson route still needs sense-specific pronunciation support.");
+  if (selectedSense?.dictationSentence && selectedSense.dictationSentence !== payload.dictationSentence &&
+    !["dynamic_prefix_word_lab", "dynamic_affix_word_lab", "base_word_lab", "ing_endings_word_lab"].includes(route.routeId))
+    blockers.push("This lesson route still needs the selected meaning's sentence adapter.");
+  if (pronunciationDiffers && ["dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(route.routeId) &&
+    (!selectedSense?.dictationSentence || !Number.isInteger(selectedSense.dictationTargetTokenIndex) ||
+      !targetOccurrences(selectedSense.dictationSentence, payload.displayWord)
+        .includes(selectedSense.dictationTargetTokenIndex!)))
+    blockers.push("Add a reviewed sentence for this meaning and select its target word.");
   const definition = ADLE_CURRICULUM_ROUTE_REGISTRY.find((candidate) =>
     candidate.routeId === route.routeId && candidate.routeVersion === route.routeVersion);
   if (!definition) return ["This ADLE route/version has no runtime adapter."];
   if (!definition.supportedMicroSkillKeys.includes(route.microSkillKey)) blockers.push("The micro skill is not supported by this route.");
   if (!route.wordMeaning.trim()) blockers.push("Add the route-specific teaching meaning.");
   if (!route.wordSum.trim() && ["base_word_lab", "dynamic_prefix_word_lab", "dynamic_affix_word_lab"].includes(route.routeId)) blockers.push("Add the word sum.");
-  if (!payload.dictationSentence.trim()) blockers.push("Add the dictionary dictation sentence.");
+  if (!(selectedSense?.dictationSentence ?? payload.dictationSentence).trim())
+    blockers.push("Add a sentence for the selected meaning.");
   if (route.routeId === "weak_vowel_word_lab") {
     blockers.push(...weakVowelRouteBlockers(route.content.weakVowel, {
       displayWord: payload.displayWord,
@@ -365,7 +414,7 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     if (!payload.frequencyBand.trim()) blockers.push("Set the dictionary frequency band.");
     if (!payload.complexityBand.trim()) blockers.push("Set the dictionary complexity band.");
     for (const [field, label] of [["syllables", "syllables"], ["phoneme_hint", "phoneme hint"], ["stress_pattern", "stress pattern"]] as const) {
-      if (!payload.metadata[field].trim()) blockers.push(`Add dictionary ${label}.`);
+      if (!lessonPronunciationMetadata[field].trim()) blockers.push(`Add dictionary ${label}.`);
     }
     if (payload.metadata.has_schwa == null) blockers.push("Review whether the word has a schwa.");
   }

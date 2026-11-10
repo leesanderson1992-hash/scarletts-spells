@@ -1,4 +1,5 @@
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
+import { loadCurrentLessonSenses } from "@/lib/teaching-dictionary-manager/lesson-sense-projection";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import { auditCanonicalMorphology, canonicalWordSum } from "@/lib/teaching-dictionary-manager/canonical-morphology";
@@ -329,6 +330,8 @@ export async function loadDynamicSuffixProfiles(
       .map((member) => text(member.canonical_word_id))
       .filter((id): id is string => id !== null),
   ))];
+  const lessonSenses = await loadCurrentLessonSenses(client, wordIds,
+    profileRows.map(row => String(row.micro_skill_key)));
   const [{ data: rawWords, error: wordsError }, { data: rawDictations, error: dictationError },
     { data: rawMetadata, error: metadataError }, { data: rawMorphology, error: morphologyError },
     { data: rawDefinitions, error: definitionError }] = wordIds.length
@@ -411,12 +414,33 @@ export async function loadDynamicSuffixProfiles(
     for (const [memberIndex, member] of members.entries()) {
       const canonicalWordId = text(member.canonical_word_id);
       const word = canonicalWordId ? wordsById.get(canonicalWordId) : undefined;
-      const dictation = canonicalWordId
+      const originalDictation = canonicalWordId
         ? pool.get(canonicalWordId) ?? dictationsByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
         : undefined;
-      const wordMetadata = canonicalWordId
+      const sense = canonicalWordId ? lessonSenses.get(`${canonicalWordId}:${profileKey}`) : undefined;
+      if (sense?.status === "stale") {
+        diagnostics.push({ profileKey, blockerCode: "member_validation_failed", memberIndex });
+        continue;
+      }
+      const originalMetadata = canonicalWordId
         ? metadataByWordId.get(canonicalWordId)?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure")
         : undefined;
+      const pronunciationDiffers = sense?.status === "current" && sense.pronunciation && originalMetadata &&
+        sense.pronunciation.ipa !== originalMetadata.phoneme_hint;
+      if (pronunciationDiffers && !sense.dictationSentence) {
+        diagnostics.push({ profileKey, blockerCode: "member_validation_failed", memberIndex });
+        continue;
+      }
+      const dictation = originalDictation && sense?.status === "current" && sense.dictationSentence
+        && sense.dictationTargetTokenIndex !== null
+        ? { ...originalDictation, dictation_sentence: sense.dictationSentence,
+          audio_text: sense.dictationSentence, dictation_target_token_index: sense.dictationTargetTokenIndex,
+          id: sense.dictationAuthorityId!, source_row_hash: sense.dictationSourceHash! }
+        : originalDictation;
+      const wordMetadata = originalMetadata && sense?.status === "current" && sense.pronunciation
+        ? { ...originalMetadata, syllables: String(sense.pronunciation.spokenSyllableCount ?? ""),
+          phoneme_hint: sense.pronunciation.ipa, stress_pattern: sense.pronunciation.stressPattern }
+        : originalMetadata;
       const displayWord = text(word?.display_word);
       const teachingParts = parts(member.teaching_split_parts);
       const canonical = canonicalWordId ? morphologyByWordId.get(canonicalWordId) : undefined;
@@ -452,7 +476,8 @@ export async function loadDynamicSuffixProfiles(
         ? canonicalBase.kind : member.semantic_base_kind;
       const baseMeaning = canonicalBase && isRecord(canonicalBase)
         ? text(canonicalBase.gloss) : text(member.base_meaning);
-      const derivedMeaning = reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning);
+      const derivedMeaning = sense?.status === "current" ? sense.meaning
+        : reviewedCanonical ? definitionByWordId.get(canonicalWordId!) : text(member.new_word_meaning);
       const trueParts = parts(reviewedCanonical ? canonicalParts : member.true_morphology_parts);
       const teachingJoins = joins(member.teaching_split_joins);
       const trueJoins = joins(reviewedCanonical ? canonical?.morphology_joins : member.true_morphology_joins);

@@ -1,9 +1,12 @@
 "use client";
 
 import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
-import { filterBulkWords, nextAssignedBulkDraft, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { useRouter } from "next/navigation";
+import { filterBulkWords, isolatedPhonemeSymbols, nextAssignedBulkDraft, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
 import { saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
 import type { BulkAssignedPair } from "@/lib/teaching-dictionary-manager/bulk-review";
+import { bulkSenseChoiceError } from "@/lib/teaching-dictionary-manager/bulk-sense-approval";
+import { evaluateLessonCandidate, hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 
 type Family = { key: string; label: string };
 type Skill = { key: string; label: string; familyKey: string; clusterKey: string };
@@ -107,9 +110,11 @@ export function BulkAssignWorkspace(props: {
   families: Family[];
   skills: Skill[];
   assignedPairs: BulkAssignedPair[];
+  assignedSenseIds: Record<string, string>;
   excludedPairs: string[];
   approvalEnabled: boolean;
 }) {
+  const router = useRouter();
   const [stage, setStage] = useState<1 | 2>(1);
   const [familyKey, setFamilyKey] = useState("");
   const [draftSkillKey, setDraftSkillKey] = useState("");
@@ -117,6 +122,8 @@ export function BulkAssignWorkspace(props: {
   const [draft, setDraft] = useState<Map<string, BulkDraftChoice>>(() => new Map());
   const [assigned, setAssigned] = useState<Map<string, boolean>>(() => new Map(props.assignedPairs.map((pair) =>
     [`${pair.microSkillKey}:${pair.wordId}`, pair.removable])));
+  const [selectedSenses, setSelectedSenses] = useState<Record<string, string>>(props.assignedSenseIds);
+  const [approvedSenseIds, setApprovedSenseIds] = useState<Record<string, string>>(props.assignedSenseIds);
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set(props.excludedPairs));
   const [editingWordId, setEditingWordId] = useState<string | null>(null);
   const [filters, setFilters] = useState<BulkFilters>({ search: "", schwa: "all", morpheme: "", syllables: "", phoneme: "" });
@@ -132,12 +139,44 @@ export function BulkAssignWorkspace(props: {
   const wordById = useMemo(() => new Map(props.words.map((word) => [word.id, word])), [props.words]);
   const parts = useMemo(() => [...new Set(props.words.flatMap((word) => word.morphemeParts))]
     .sort((a, b) => a.localeCompare(b)), [props.words]);
-  const counts = useMemo(() => [...new Set(props.words.map((word) => word.syllableCount)
+  const counts = useMemo(() => [...new Set(props.words.flatMap((word) => word.senseSet?.pronunciations
+    .map(pronunciation => pronunciation.spokenSyllableCount) ?? [word.syllableCount])
     .filter((count): count is number => count !== null))].sort((a, b) => a - b), [props.words]);
-  const phonemes = useMemo(() => [...new Set(props.words.flatMap((word) => word.phonemeSymbols))]
+  const phonemes = useMemo(() => [...new Set(props.words.flatMap((word) => word.senseSet?.pronunciations.length
+    ? word.senseSet.pronunciations.flatMap(pronunciation => isolatedPhonemeSymbols(pronunciation.ipa))
+    : word.phonemeSymbols))]
     .sort((a, b) => a.localeCompare(b)), [props.words]);
-  const filtered = useMemo(() => filterBulkWords(props.words, { ...filters, search: deferredSearch }),
-    [props.words, filters, deferredSearch]);
+  const selectedSenseId = (word: BulkWord) => selectedSenses[`${chosenSkillKey}:${word.id}`]
+    ?? (word.senseSet?.senses.length === 1 ? word.senseSet.senses[0].id : "");
+  const selectedPronunciation = (word: BulkWord) => {
+    const sense = word.senseSet?.senses.find(row => row.id === selectedSenseId(word));
+    return word.senseSet?.pronunciations.find(row => row.id === sense?.pronunciationId);
+  };
+  const displayedSchwa = (word: BulkWord): boolean | null => {
+    const pronunciation = selectedPronunciation(word);
+    if (pronunciation?.ipa.trim()) return pronunciation.ipa.includes("ə");
+    return word.senseSet?.senses.length ? null : word.hasSchwa;
+  };
+  const filterSource = useMemo(() => props.words.map(word => {
+    const selectedId = selectedSenses[`${chosenSkillKey}:${word.id}`]
+      ?? (word.senseSet?.senses.length === 1 ? word.senseSet.senses[0].id : "");
+    const selected = word.senseSet?.senses.find(row => row.id === selectedId);
+    const pronunciations = selected
+      ? word.senseSet?.pronunciations.filter(row => row.id === selected.pronunciationId) ?? []
+      : word.senseSet?.pronunciations ?? [];
+    return { ...word,
+      hasSchwa: selected && pronunciations[0]?.ipa.trim()
+        ? pronunciations[0].ipa.includes("ə") : word.senseSet?.senses.length ? null : word.hasSchwa,
+      phonemeHint: selected ? pronunciations[0]?.ipa ?? null : pronunciations.map(row => row.ipa).join("; ") || word.phonemeHint,
+      phonemeSymbols: pronunciations.length
+        ? [...new Set(pronunciations.flatMap(row => isolatedPhonemeSymbols(row.ipa)))] : word.phonemeSymbols,
+      syllableCount: selected ? pronunciations[0]?.spokenSyllableCount ?? null
+        : pronunciations.length === 1 ? pronunciations[0].spokenSyllableCount : pronunciations.length ? null : word.syllableCount,
+      possibleSyllableCounts: pronunciations.flatMap(row => row.spokenSyllableCount === null ? [] : [row.spokenSyllableCount]),
+    };
+  }), [props.words, selectedSenses, chosenSkillKey]);
+  const filtered = useMemo(() => filterBulkWords(filterSource, { ...filters, search: deferredSearch }),
+    [filterSource, filters, deferredSearch]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
   const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -205,6 +244,13 @@ export function BulkAssignWorkspace(props: {
   function confirmSelection() {
     if (!chosenSkillKey || draft.size === 0 || pending) return;
     const applyWordIds = applyWords.map((word) => word.id);
+    const senseIds = Object.fromEntries(applyWords.map(word => [word.id, selectedSenseId(word)]));
+    const missing = applyWords.find(word => !senseIds[word.id] ||
+      !word.senseSet?.senses.some(sense => sense.id === senseIds[word.id]));
+    if (missing) {
+      setReviewError(`Choose a reviewed meaning for ${missing.displayWord} before confirming.`);
+      return;
+    }
     const excludeWordIds = excludeWords.map((word) => word.id);
     const clearWordIds = clearWords.map((word) => word.id);
     const deassignWordIds = deassignWords.map((word) => word.id);
@@ -213,7 +259,7 @@ export function BulkAssignWorkspace(props: {
     startTransition(async () => {
       try {
         const response = await saveBulkSkillApprovals({ microSkillKey: chosenSkillKey,
-          applyWordIds, excludeWordIds, clearWordIds, deassignWordIds, requestId: currentRequestId });
+          applyWordIds, excludeWordIds, clearWordIds, deassignWordIds, senseIds, requestId: currentRequestId });
         setResult(response);
         if (response.ok) {
           if (response.readbackRequired) { window.location.reload(); return; }
@@ -227,6 +273,18 @@ export function BulkAssignWorkspace(props: {
             const next = new Set(previous);
             for (const key of next) if (key.startsWith(`${chosenSkillKey}:`)) next.delete(key);
             for (const id of response.excluded) next.add(`${chosenSkillKey}:${id}`);
+            return next;
+          });
+          setSelectedSenses(previous => {
+            const next = { ...previous };
+            for (const [id, senseId] of Object.entries(senseIds)) next[`${chosenSkillKey}:${id}`] = senseId;
+            for (const id of [...deassignWordIds, ...excludeWordIds]) delete next[`${chosenSkillKey}:${id}`];
+            return next;
+          });
+          setApprovedSenseIds(previous => {
+            const next = { ...previous };
+            for (const [id, senseId] of Object.entries(senseIds)) next[`${chosenSkillKey}:${id}`] = senseId;
+            for (const id of [...deassignWordIds, ...excludeWordIds]) delete next[`${chosenSkillKey}:${id}`];
             return next;
           });
           setDraft(new Map());
@@ -259,9 +317,67 @@ export function BulkAssignWorkspace(props: {
     const draftChoice = draft.get(word.id);
     const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
     const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
+    const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
+      wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
+      senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
+      morphology: word.candidateMorphology ?? null, familyLinks: word.candidateFamilyLinks ?? [],
+    }) : null;
     return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
-      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked}
+      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked
+        || choice === "apply" && candidate !== null && candidate.status !== "ready" && !isAssigned}
       onChange={(event) => changeSelection([word.id], choice, event.target.checked)} />;
+  }
+
+  function senseChoice(word: BulkWord) {
+    const senses = word.senseSet?.senses ?? [];
+    if (!senses.length) return <a className="text-xs underline" href={`/admin/teaching-dictionary/${word.id}#td-definition`}>Review meanings in Overview</a>;
+    const chosen = senses.find(sense => sense.id === selectedSenseId(word));
+    if (senses.length === 1) return <span className="block text-xs font-normal">{chosen?.definition} · {chosen?.partOfSpeech}</span>;
+    return <label className="mt-1 block text-xs font-normal">Meaning taught
+      <select className={`${fieldClass} mt-1`} aria-label={`Meaning taught for ${word.displayWord}`}
+        value={selectedSenseId(word)} onChange={event => {
+          setSelectedSenses(previous => ({ ...previous, [`${chosenSkillKey}:${word.id}`]: event.target.value }));
+          if (assigned.has(`${chosenSkillKey}:${word.id}`)) {
+            if (draft.size >= MAX_SELECTION && !draft.has(word.id))
+              setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`);
+            else setDraft(previous => {
+              const next = new Map(previous);
+              if (event.target.value === approvedSenseIds[`${chosenSkillKey}:${word.id}`]) next.delete(word.id);
+              else next.set(word.id, "apply");
+              return next;
+            });
+          }
+          setReviewError(""); setRequestId(null);
+        }}>
+        <option value="">Choose meaning</option>
+        {senses.map(sense => {
+          const ipa = word.senseSet?.pronunciations.find(row => row.id === sense.pronunciationId)?.ipa ?? "";
+          return <option key={sense.id} value={sense.id}>{sense.definition} · {sense.partOfSpeech}{ipa ? ` · ${ipa}` : ""}</option>;
+        })}
+      </select>
+    </label>;
+  }
+
+  function senseDetails(word: BulkWord) {
+    const sense = word.senseSet?.senses.find(row => row.id === selectedSenseId(word));
+    const issue = bulkSenseChoiceError({ wordId: word.id, displayWord: word.displayWord,
+      senseSet: word.senseSet ?? null, senseId: selectedSenseId(word) });
+    const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
+      wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
+      senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
+      morphology: word.candidateMorphology ?? null, familyLinks: word.candidateFamilyLinks ?? [],
+    }) : null;
+    return <div className="mt-1 text-xs font-normal">
+      {sense?.dictationSentence && <p>Sentence: {sense.dictationSentence}</p>}
+      {candidate ? <p className={candidate.status === "ready" ? "text-emerald-800" : "text-amber-900"}>
+        {candidate.status === "ready" ? "Lesson facts ready · assignment will approve automatically"
+          : candidate.status === "not_match" ? "This meaning and spelling do not match the lesson rule."
+          : candidate.issues[0] ? <a className="underline" href={candidate.issues[0].href}>{candidate.issues[0].message}</a>
+          : "Review this lesson's requirements."}</p>
+        : <p className={issue ? "text-amber-900" : "text-emerald-800"}>{issue ?? "Reviewed meaning facts ready"}</p>}
+      {candidate?.status === "needs_facts" && <button type="button" className="mt-1 underline"
+        onClick={() => router.refresh()}>Recheck requirements</button>}
+    </div>;
   }
 
   function rowStatus(word: BulkWord) {
@@ -274,7 +390,7 @@ export function BulkAssignWorkspace(props: {
         : choice === "exclude" ? <span>Doesn’t apply · pending</span>
           : choice === "clear" ? <span>Clear review · pending</span>
             : choice === "deassign" ? <span>De-assign · pending</span>
-            : isAssigned ? <span>Applied</span> : isExcluded ? <span>Doesn’t apply</span>
+            : isAssigned ? <span>{approvedSenseIds[pairKey] ? "Applied to reviewed meaning" : "Assigned · meaning needs review"}</span> : isExcluded ? <span>Doesn’t apply</span>
               : !word.approvable ? <span>Word not approved</span> : null}
       {(isAssigned || isExcluded) && <button type="button" aria-label={`Edit review choice for ${word.displayWord}`}
         title="Edit review choice" disabled={pending || !props.approvalEnabled}
@@ -282,6 +398,15 @@ export function BulkAssignWorkspace(props: {
         onClick={() => setEditingWordId(editingWordId === word.id ? null : word.id)}>✎</button>}
       {isAssigned && editingWordId === word.id && <button type="button" className="underline"
         onClick={() => removeAssignment(word.id)}>De-assign</button>}
+      {isAssigned && editingWordId === word.id
+        && word.senseSet?.senses.length && <button type="button" className="underline"
+          onClick={() => {
+            if (draft.size >= MAX_SELECTION && !draft.has(word.id)) {
+              setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`); return;
+            }
+            setDraft(previous => new Map(previous).set(word.id, "apply"));
+            setSelectionError(""); setResult(null); setRequestId(null);
+          }}>{approvedSenseIds[pairKey] ? "Re-review meaning" : "Review meaning"}</button>}
       {isAssigned && choice && <button type="button" className="underline" onClick={() => removeDraft(word.id)}>Undo</button>}
       {isExcluded && editingWordId === word.id && <button type="button" className="underline"
         onClick={() => { const next = new Map(draft); next.set(word.id, "clear");
@@ -388,11 +513,11 @@ export function BulkAssignWorkspace(props: {
                   <td className="p-1">{choiceInput(word, "apply")}</td>
                   <td className="p-1">{choiceInput(word, "exclude")}</td>
                   <td className="break-words p-1 font-semibold" style={{ overflowWrap: "anywhere" }}>
-                    {word.displayWord}{rowStatus(word)}</td>
-                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{word.phonemeHint || "Unknown"}</td>
-                  <td className="break-words p-1">{word.hasSchwa === null ? "Unknown" : word.hasSchwa ? "Yes" : "No"}</td>
-                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"}</td>
-                  <td className="break-words p-1">{word.writtenSyllableBreakdown || "No reviewed split"}<br /><span className="text-[color:var(--mid)]">{word.syllableCount ?? "Unknown"} spoken</span></td>
+                    <a className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.displayWord}</a>{senseChoice(word)}{senseDetails(word)}{rowStatus(word)}</td>
+                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{selectedPronunciation(word)?.ipa ?? word.phonemeHint ?? "Unknown"}</td>
+                  <td className="break-words p-1">{displayedSchwa(word) === null ? "Unknown" : displayedSchwa(word) ? "Yes" : "No"}</td>
+                  <td className="break-words p-1" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"}<span className="block text-[color:var(--mid)]">Word analysis</span></td>
+                  <td className="break-words p-1">{word.writtenSyllableBreakdown || "No reviewed split"}<br /><span className="text-[color:var(--mid)]">{selectedPronunciation(word)?.spokenSyllableCount ?? word.syllableCount ?? "Unknown"} spoken</span></td>
                 </tr>;
               })}</tbody>
             </table>
@@ -401,14 +526,16 @@ export function BulkAssignWorkspace(props: {
             const reviewed = assigned.has(`${chosenSkillKey}:${word.id}`)
               || excluded.has(`${chosenSkillKey}:${word.id}`) || draft.has(word.id);
             return <article key={word.id} className={`min-w-0 rounded-lg border border-[var(--border)] p-3 text-sm ${reviewed ? "bg-slate-100 text-slate-600" : ""}`}>
-              <h3 className="break-words font-semibold">{word.displayWord}</h3>
+              <h3 className="break-words font-semibold"><a className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.displayWord}</a></h3>
+              {senseChoice(word)}
+              {senseDetails(word)}
               {rowStatus(word)}
               <dl className="mt-2 grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
-                <dt>Phoneme</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.phonemeHint || "Unknown"}</dd>
-                <dt>Schwa</dt><dd>{word.hasSchwa === null ? "Unknown" : word.hasSchwa ? "Yes" : "No"}</dd>
-                <dt>Parts</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"}</dd>
+                <dt>Phoneme</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{selectedPronunciation(word)?.ipa ?? word.phonemeHint ?? "Unknown"}</dd>
+                <dt>Schwa</dt><dd>{displayedSchwa(word) === null ? "Unknown" : displayedSchwa(word) ? "Yes" : "No"}</dd>
+                <dt>Parts</dt><dd className="break-words" style={{ overflowWrap: "anywhere" }}>{word.morphemeParts.join(", ") || "Unknown"} <span className="text-[color:var(--mid)]">(word analysis)</span></dd>
                 <dt>Written syllables</dt><dd>{word.writtenSyllableBreakdown || "No reviewed split"}</dd>
-                <dt>Spoken syllable count</dt><dd>{word.syllableCount ?? "Unknown"}</dd>
+                <dt>Spoken syllable count</dt><dd>{selectedPronunciation(word)?.spokenSyllableCount ?? word.syllableCount ?? "Unknown"}</dd>
               </dl>
               <div className="mt-3 flex gap-5"><label className="flex items-center gap-2">{choiceInput(word, "apply")} Apply</label>
                 <label className="flex items-center gap-2">{choiceInput(word, "exclude")} Doesn’t apply</label></div>
@@ -430,7 +557,7 @@ export function BulkAssignWorkspace(props: {
               <div className="mt-3 flex max-h-52 flex-wrap gap-2 overflow-y-auto" aria-label={box.title}>
                 {box.words.length ? box.words.map((word) => <span key={word.id}
                   className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-white px-3 py-1 text-sm">
-                  <span className="break-all">{word.displayWord}</span><button type="button" aria-label={`Remove ${word.displayWord} from ${box.title}`}
+                  <span className="break-all">{word.displayWord}{box.choice === "apply" && <span className="block text-xs">{word.senseSet?.senses.find(sense => sense.id === selectedSenseId(word))?.definition ?? "Choose meaning"}</span>}</span><button type="button" aria-label={`Remove ${word.displayWord} from ${box.title}`}
                     disabled={pending} className="font-bold disabled:opacity-50" onClick={() => removeDraft(word.id)}>×</button>
                 </span>) : <p className="text-sm">Select words from the table.</p>}
               </div>

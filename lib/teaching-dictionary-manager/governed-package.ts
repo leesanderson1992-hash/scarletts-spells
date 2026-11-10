@@ -109,6 +109,9 @@ export function buildGovernedPackage(input: {
     }
 
     if (input.routeId === "ing_endings_word_lab") {
+      const selectedSense = candidate.dictionary.senseSet?.senses.find(sense =>
+        sense.id === candidate.dictionary.skillSenseIds?.[candidate.route.microSkillKey]);
+      const sentence = selectedSense?.dictationSentence?.trim() || candidate.dictionary.dictationSentence;
       const previous = source.words.find(
         (word: any) => word.canonicalWordId === candidate.canonicalWordId,
       );
@@ -119,8 +122,8 @@ export function buildGovernedPackage(input: {
         microSkillKey: candidate.route.microSkillKey,
         word: candidate.dictionary.displayWord,
         meaning: candidate.route.wordMeaning,
-        dictationSentence: candidate.dictionary.dictationSentence,
-        audioText: candidate.dictionary.dictationSentence,
+        dictationSentence: sentence,
+        audioText: sentence,
         sourceRefs: Array.isArray(facts.sourceRefs)
           ? facts.sourceRefs
           : previous?.sourceRefs,
@@ -142,7 +145,10 @@ export function buildGovernedPackage(input: {
       ];
       source.dictationSets = {
         ...source.dictationSets,
-        [candidate.canonicalWordId]: candidate.dictionary.dictationVariants ?? [
+        [candidate.canonicalWordId]: selectedSense?.dictationSentence ? [
+          { id: `sense:${selectedSense.id}`, sentence,
+            targetTokenIndex: selectedSense.dictationTargetTokenIndex ?? 0, audioText: sentence },
+        ] : candidate.dictionary.dictationVariants ?? [
           {
             id: "primary",
             sentence: word.dictationSentence,

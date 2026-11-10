@@ -1,4 +1,5 @@
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
+import { loadCurrentLessonSenses } from "@/lib/teaching-dictionary-manager/lesson-sense-projection";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical-fingerprint";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -298,6 +299,8 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
     (row) => (row.canonical_teaching_dictionary_prefix_members ?? [])
       .map((member) => member.canonical_word_id),
   ))];
+  const lessonSenses = await loadCurrentLessonSenses(client, canonicalWordIds,
+    typedProfileRows.map(row => row.micro_skill_key));
   const { data: metadataRows, error: metadataError } = canonicalWordIds.length
     ? await client.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status").in("canonical_word_id", canonicalWordIds).eq("row_status", "active").eq("review_status", "approved_for_first_exposure")
     : { data: [], error: null };
@@ -331,8 +334,23 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
     let safe = true;
     for (const member of (source.canonical_teaching_dictionary_prefix_members ?? []) as DictionaryMember[]) {
       const word = member.canonical_teaching_dictionary_words;
-      const dictation = pool.get(member.canonical_word_id) ?? word?.canonical_teaching_dictionary_dictation_sentences?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
-      const metadata = metadataByCanonicalWordId.get(member.canonical_word_id);
+      const sense = lessonSenses.get(`${member.canonical_word_id}:${source.micro_skill_key}`);
+      if (sense?.status === "stale") { safe = false; break; }
+      const originalMetadata = metadataByCanonicalWordId.get(member.canonical_word_id);
+      const originalDictation = pool.get(member.canonical_word_id) ?? word?.canonical_teaching_dictionary_dictation_sentences?.find((entry) => entry.row_status === "active" && entry.review_status === "approved_for_first_exposure");
+      const pronunciationDiffers = sense?.status === "current" && sense.pronunciation && originalMetadata &&
+        sense.pronunciation.ipa !== originalMetadata.phoneme_hint;
+      if (pronunciationDiffers && !sense.dictationSentence) { safe = false; break; }
+      const dictation = originalDictation && sense?.status === "current" && sense.dictationSentence
+        && sense.dictationTargetTokenIndex !== null
+        ? { ...originalDictation, dictation_sentence: sense.dictationSentence,
+          audio_text: sense.dictationSentence, dictation_target_token_index: sense.dictationTargetTokenIndex,
+          id: sense.dictationAuthorityId!, source_row_hash: sense.dictationSourceHash! }
+        : originalDictation;
+      const metadata = originalMetadata && sense?.status === "current" && sense.pronunciation
+        ? { ...originalMetadata, syllables: String(sense.pronunciation.spokenSyllableCount ?? ""),
+          phoneme_hint: sense.pronunciation.ipa, stress_pattern: sense.pronunciation.stressPattern }
+        : originalMetadata;
       const readyParts = (Array.isArray(member.teaching_split_parts) ? member.teaching_split_parts : []).filter(isReadyDictionaryPart);
       const readyJoins = (Array.isArray(member.teaching_split_joins) ? member.teaching_split_joins : []).filter(isReadyDictionaryJoin);
       const requiresFullDictionaryReadiness = requirements.dictionaryReadiness === "full";
@@ -348,7 +366,7 @@ export async function loadDynamicPrefixProfiles(client: SupabaseClient, childId:
       const prefixText = member.prefix_variant ?? prefixPart?.surfaceText;
       const teachingBuildText = readyParts.filter((part) => part.kind !== "prefix").map((part) => part.surfaceText).join("");
       if (!prefixText || !teachingBuildText || `${prefixText}${teachingBuildText}` !== word.display_word) { safe = false; break; }
-      words.set(member.canonical_word_id, { canonicalWordId: member.canonical_word_id, displayWord: word.display_word, audioText: dictation.audio_text, baseWord: member.base_word, teachingBuildText, baseMeaning: member.base_meaning, derivedMeaning: member.child_friendly_meaning, effect: member.meaning_bin_key, parts: readyParts.map((part) => ({ id: part.id, text: part.surfaceText, sourceText: part.sourceText, role: part.kind as MorphologyPartRole, gloss: part.gloss || undefined, start: part.displayRange.start, end: part.displayRange.end })), joins: readyJoins.map((join) => ({ afterPartId: join.afterPartId, beforePartId: join.beforePartId, joinType: join.joinType })), splitPoints: cleaverSplitPoints, dictationSentence: dictation.dictation_sentence, dictationTargetTokenIndex: dictation.dictation_target_token_index, prefixText, prefixLabel: `${prefixText}-`, prefixMeaning: prefixPart?.gloss || undefined, approvedTransfer: true, governance: { memberId: member.id, memberSourceRowHash: member.source_row_hash, dictionaryWordSourceRowHash: word.source_row_hash, dictationId: dictation.id, dictationSourceRowHash: dictation.source_row_hash } });
+      words.set(member.canonical_word_id, { canonicalWordId: member.canonical_word_id, displayWord: word.display_word, audioText: dictation.audio_text, baseWord: member.base_word, teachingBuildText, baseMeaning: member.base_meaning, derivedMeaning: sense?.status === "current" ? sense.meaning : member.child_friendly_meaning, effect: member.meaning_bin_key, parts: readyParts.map((part) => ({ id: part.id, text: part.surfaceText, sourceText: part.sourceText, role: part.kind as MorphologyPartRole, gloss: part.gloss || undefined, start: part.displayRange.start, end: part.displayRange.end })), joins: readyJoins.map((join) => ({ afterPartId: join.afterPartId, beforePartId: join.beforePartId, joinType: join.joinType })), splitPoints: cleaverSplitPoints, dictationSentence: dictation.dictation_sentence, dictationTargetTokenIndex: dictation.dictation_target_token_index, prefixText, prefixLabel: `${prefixText}-`, prefixMeaning: prefixPart?.gloss || undefined, approvedTransfer: true, governance: { memberId: member.id, memberSourceRowHash: member.source_row_hash, dictionaryWordSourceRowHash: word.source_row_hash, dictationId: dictation.id, dictationSourceRowHash: dictation.source_row_hash } });
     }
     const loadedForms = [...new Set([...words.values()].map((word) => word.prefixText).filter((form): form is string => Boolean(form)))].sort();
     const declaredForms = [...mapping.forms].sort();

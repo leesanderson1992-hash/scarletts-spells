@@ -22,6 +22,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- conditional nested route select is ahead of generated Supabase types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadCurrentLessonSenses } from "@/lib/teaching-dictionary-manager/lesson-sense-projection";
 import { recordAdleReadPage, withAdleReadMetrics } from "../observability/read-metrics";
 
 import type { ChildBandProfile } from "../dictionary-eligibility";
@@ -143,6 +144,7 @@ export async function loadActiveReviewPolicy(client: AdleClient): Promise<Review
 export async function loadGenericV3DictationForWords(
   client: AdleClient,
   canonicalWordIds: readonly string[],
+  microSkillKey?: string,
 ): Promise<ReadonlyMap<string, GenericV3DictationFact>> {
   const ids = [...new Set(canonicalWordIds)];
   if (ids.length === 0) return new Map();
@@ -160,16 +162,25 @@ export async function loadGenericV3DictationForWords(
       .eq("review_status", "approved_for_first_exposure"),
     "loadGenericV3DictationForWords",
   );
-  return new Map(dictationRows.map((row): [string, GenericV3DictationFact] => [
+  const lessonSenses = microSkillKey
+    ? await loadCurrentLessonSenses(client, ids, [microSkillKey]) : new Map();
+  return new Map(dictationRows.flatMap((row): [string, GenericV3DictationFact][] => {
+    const sense = lessonSenses.get(`${row.canonical_word_id}:${microSkillKey}`);
+    if (sense?.status === "stale" || sense?.status === "current" &&
+      (!sense.dictationSentence || sense.dictationTargetTokenIndex === null)) return [];
+    return [[
     row.canonical_word_id,
     {
       canonicalWordId: row.canonical_word_id,
-      sentence: row.dictation_sentence,
-      audioText: row.audio_text,
-      targetTokenIndex: row.dictation_target_token_index,
-      sourceRowHash: row.source_row_hash,
+      sentence: sense?.status === "current" ? sense.dictationSentence! : row.dictation_sentence,
+      audioText: sense?.status === "current" ? sense.dictationSentence! : row.audio_text,
+      targetTokenIndex: sense?.status === "current" ? sense.dictationTargetTokenIndex! : row.dictation_target_token_index,
+      sourceRowHash: sense?.status === "current"
+        ? sense.dictationSourceHash!
+        : row.source_row_hash,
     },
-  ]));
+  ]];
+  }));
 }
 
 export interface DailyPlanFactsLoad {

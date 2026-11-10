@@ -2,7 +2,7 @@
 
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { normaliseWrittenSyllableBreakdown, withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
+import { normaliseWrittenSyllableBreakdown, targetOccurrences, withDerivedMorphologyMetadata } from "@/lib/teaching-dictionary-manager/authoring";
 import { randomUUID } from "node:crypto";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -14,6 +14,8 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeContentsForSelectedSkills, routeWithSingleProfileDefaults, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { senseSetErrors } from "@/lib/teaching-dictionary-manager/senses";
+import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 import { combineRoundTripRows, MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
@@ -21,7 +23,6 @@ import { loadTeachingDictionaryEvidenceAuthorityForWord, TEACHING_DICTIONARY_EVI
 import { matchesPublishedFactsForDefinitionOnly } from "@/lib/teaching-dictionary-manager/definition-only";
 import { PART_OF_SPEECH_OPTIONS } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
-import { loadWordSkillPackage, previewWordSkillPackage, publishWordSkillPackage } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { deviceSpeechSource, isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { loadWeakVowelFamilyPrefill } from "@/lib/teaching-dictionary-manager/weak-vowel-family-prefill";
 import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manager/morphology-publication";
@@ -134,8 +135,8 @@ async function publishValidatedDraft(
     if (environment !== "staging" && environment !== "production")
       throw new Error("TEACHING_IMPORT_SKILL_ENVIRONMENT_REQUIRED");
     if (payload.rootFamilyReview) {
-      const rooted = await db.rpc("publish_teaching_dictionary_reviewed_bound_root_draft", {
-        p_draft: id, p_actor: actorId, p_environment: environment,
+      const rooted = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+        p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "bound_root",
       });
       if (!rooted.error && rooted.data) return `${PATH}/${rooted.data}`;
       throw new Error(rooted.error?.message.match(/TEACHING_[A-Z_]+|LEXICAL_[A-Z_]+/)?.[0]
@@ -150,8 +151,8 @@ async function publishValidatedDraft(
         .eq("row_status", "active").limit(1);
       if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
       if (suffix.data?.length) {
-        const projected = await db.rpc("publish_teaching_dictionary_reviewed_suffix_overview_draft", {
-          p_draft: id, p_actor: actorId, p_environment: environment,
+        const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+          p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "suffix_overview",
         });
         if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
         throw new Error(projected.error?.message.match(/TEACHING_SUFFIX_IMPORT_[A-Z_]+/)?.[0]
@@ -159,11 +160,11 @@ async function publishValidatedDraft(
       }
     }
     const reconciled = hasDerivedBase
-      ? await db.rpc("publish_teaching_dictionary_reviewed_free_base_draft", {
-        p_draft: id, p_actor: actorId, p_environment: environment,
+      ? await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+        p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "free_base",
       })
-      : await db.rpc("publish_teaching_dictionary_reviewed_reconciled_draft", {
-        p_draft: id, p_actor: actorId, p_environment: environment,
+      : await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+        p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "reconciled",
       });
     if (!reconciled.error && reconciled.data) return `${PATH}/${reconciled.data}`;
     const code = reconciled.error?.message.match(/TEACHING_[A-Z_]+/)?.[0];
@@ -175,8 +176,8 @@ async function publishValidatedDraft(
       .eq("row_status", "active").limit(1);
     if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
     if (suffix.data?.length) {
-      const projected = await db.rpc("publish_teaching_dictionary_reviewed_suffix_overview_draft", {
-        p_draft: id, p_actor: actorId, p_environment: environment,
+      const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+        p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "suffix_overview",
       });
       if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
       throw new Error(projected.error?.message.match(/TEACHING_SUFFIX_IMPORT_[A-Z_]+/)?.[0]
@@ -517,6 +518,8 @@ async function performWorkspaceSave(form: FormData) {
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
+      if (reviewSection === "overview" && payload.senseSet && senseSetErrors(payload.senseSet).length)
+        throw new Error("TEACHING_SENSE_SET_INVALID");
       if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
         throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
       if (reviewSection === "overview") await assertReviewedAffixMeanings(db, payload);
@@ -545,6 +548,7 @@ async function performWorkspaceSave(form: FormData) {
     }
     if (reviewSection === "skills" && wordId) {
       const skillsForm = new FormData(); skillsForm.set("word_id", wordId);
+      skillsForm.set("skill_senses", JSON.stringify(payload.skillSenseIds ?? {}));
       for (const key of payload.skillKeys) skillsForm.append("skill_key", key);
       await applyTeachingDictionarySkillApprovals(skillsForm, actor.id);
     }
@@ -554,6 +558,12 @@ async function performWorkspaceSave(form: FormData) {
       if (!lesson || routeBlockers(lesson, payload).length) {
         destination = `${path}?draft=${result.data.id}&publish_error=TEACHING_ROUTE_FACTS_INCOMPLETE`;
       } else {
+        if (!wordId || !payload.skillKeys.includes(key))
+          throw new Error("TEACHING_LESSON_SKILL_SELECTION_INVALID");
+        const lessonSkillForm = new FormData();
+        lessonSkillForm.set("word_id", wordId);
+        lessonSkillForm.set("skill_senses", JSON.stringify(payload.skillSenseIds ?? {}));
+        await applyTeachingDictionarySkillApprovals(lessonSkillForm, actor.id, key);
         if(lesson.routeId === "base_word_lab" && wordId) {
           const environment=resolveAdleRouteActivationEnvironment();
           const familyKey=String(lesson.content.familyKey ?? "");
@@ -686,6 +696,14 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       }
     }
     const existingIds = [...existing.values()].map((word) => word.id);
+    const reviewedSensesByWord = new Map<string, NonNullable<WordDraftPayload["senseSet"]>>();
+    for (let i = 0; i < existingIds.length; i += 100) {
+      const reviewed = await db.from("teaching_dictionary_reviewed_sense_sets")
+        .select("canonical_word_id,sense_set").in("canonical_word_id", existingIds.slice(i, i + 100));
+      if (reviewed.error) throw new Error("CSV_REVIEWED_SENSE_READ_FAILED");
+      for (const item of reviewed.data ?? []) reviewedSensesByWord.set(item.canonical_word_id,
+        item.sense_set as NonNullable<WordDraftPayload["senseSet"]>);
+    }
     const metadataByWord = new Map<string, Record<string, unknown>>();
     const dictationByWord = new Map<string, { dictation_sentence: string; dictation_target_token_index: number }>();
     const definitionByWord = new Map<string, string>();
@@ -753,6 +771,19 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       });
       const current = existing.get(row.normalisedWord);
       const supplied = new Set(row.providedColumns);
+      const previousSenses = current ? reviewedSensesByWord.get(current.id) : undefined;
+      if (row.payload.senseSet && previousSenses) {
+        if (previousSenses.senses.length !== 1 || previousSenses.pronunciations.length !== 1) {
+          errors.push(`Row ${row.rowNumber}: This spelling has multiple reviewed meanings or pronunciations. Edit its meanings on the word page; one CSV row cannot replace them.`);
+          return [];
+        }
+        const pronunciationId = previousSenses.pronunciations[0].id;
+        row.payload.senseSet = {
+          pronunciations: [{ ...row.payload.senseSet.pronunciations[0], id: pronunciationId }],
+          senses: [{ ...row.payload.senseSet.senses[0], id: previousSenses.senses[0].id,
+            pronunciationId }],
+        };
+      }
       if (row.canonicalWordId && (!current || current.id !== row.canonicalWordId)) {
         errors.push(`Row ${row.rowNumber}: Canonical word ID no longer matches the active word.`);
         return [];
@@ -845,6 +876,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       }
       const issues = row.error ? [row.error] : [
         ...validateDraft(row.payload, row.normalisedWord),
+        ...(row.payload.senseSet ? senseSetErrors(row.payload.senseSet) : []),
         ...unreviewedAffixMeaningParts(row.payload.canonicalMorphology.parts, affixChoices)
           .map((part) => `Part ${part} needs a reviewed affix meaning.`),
       ];
@@ -913,6 +945,7 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
       if (done.has(draft.id) || !latestIds.has(draft.id)) continue;
       const payload = draft.payload as WordDraftPayload;
       if (publicationBlockers(payload, draft.normalised_word).length
+        || payload.senseSet && senseSetErrors(payload.senseSet).length
         || payload.routeContents.some((route) => routeBlockers(route, payload).length)) continue;
       try {
         await assertReviewedAffixMeanings(db, payload);
@@ -937,23 +970,43 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes) })}`);
 }
 
-async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: string) {
+async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: string, onlyKey?: string) {
   const wordId = value(form, "word_id");
 
     if (!isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
-    const keys = form.getAll("skill_key").map((item) => String(item).trim()).filter(Boolean);
+    const keys = onlyKey ? [onlyKey] : form.getAll("skill_key").map((item) => String(item).trim()).filter(Boolean);
+    let skillSenses: Record<string, string> = {};
+    try {
+      const parsed: unknown = JSON.parse(value(form, "skill_senses") || "{}");
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
+      skillSenses = parsed as Record<string, string>;
+    } catch { throw new Error("TEACHING_LESSON_SENSE_INVALID"); }
     if (keys.length !== new Set(keys).size || keys.length > 30) throw new Error("TEACHING_SKILL_SELECTION_INVALID");
     const db = createServiceRoleClient();
     const environment = resolveAdleRouteActivationEnvironment();
     if (!environment) throw new Error("WORD_SKILL_ENVIRONMENT_UNSET");
-    const [word, skillRows, managerPackages, bulkPackages] = await Promise.all([
-      db.from("canonical_teaching_dictionary_words").select("id,row_status,review_status").eq("id", wordId).single(),
+    const [word, skillRows, managerPackages, bulkPackages, senseSet] = await Promise.all([
+      db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status").eq("id", wordId).single(),
       keys.length ? db.from("micro_skill_catalog").select("micro_skill_key").in("micro_skill_key", keys).eq("is_active", true) : Promise.resolve({ data: [], error: null }),
       db.from("adle_word_skill_candidate_packages").select("id,candidates").like("package_key", `tdm:${wordId}:%`).eq("environment_key", environment),
       db.from("adle_word_skill_candidate_packages").select("id,candidates").like("package_key", `tdm-bulk:%:${wordId}`).eq("environment_key", environment),
+      db.from("teaching_dictionary_reviewed_sense_sets").select("sense_set").eq("canonical_word_id", wordId).maybeSingle(),
     ]);
     if (word.error || word.data.row_status !== "active" || word.data.review_status !== "approved_for_first_exposure") throw new Error("TEACHING_WORD_NOT_APPROVED");
     if (skillRows.error || (skillRows.data?.length ?? 0) !== keys.length || managerPackages.error || bulkPackages.error) throw new Error("TEACHING_SKILL_SELECTION_INVALID");
+    if (senseSet.error) throw new Error("TEACHING_LESSON_SENSE_READ_FAILED");
+    const reviewedSenses = (senseSet.data?.sense_set as WordDraftPayload["senseSet"] | undefined)?.senses ?? [];
+    for (const key of keys) {
+      const sense = reviewedSenses.find(item => item.id === skillSenses[key]);
+      if (!sense) throw new Error("TEACHING_LESSON_REVIEWED_SENSE_REQUIRED");
+      if (reviewedSenses.length > 1 && !sense.dictationSentence?.trim())
+        throw new Error("TEACHING_LESSON_SENSE_SENTENCE_REQUIRED");
+      if (sense.dictationSentence?.trim() && (
+        !Number.isInteger(sense.dictationTargetTokenIndex) ||
+        !targetOccurrences(sense.dictationSentence, word.data.display_word)
+          .includes(sense.dictationTargetTokenIndex!)))
+        throw new Error("TEACHING_LESSON_SENSE_SENTENCE_INVALID");
+    }
     const allManagerPackages = [...(managerPackages.data ?? []), ...(bulkPackages.data ?? [])];
     const published = allManagerPackages.length ? await db.from("adle_word_skill_package_publications").select("package_id,release_id").in("package_id", allManagerPackages.map((pack) => pack.id)) : { data: [], error: null };
     if (published.error) throw new Error("WORD_SKILL_PUBLICATION_READ_FAILED");
@@ -968,29 +1021,22 @@ async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: st
       const candidate = Array.isArray(pack.candidates) ? pack.candidates[0] as { microSkillKey?: string } : null;
       if (candidate?.microSkillKey) managerApprovals.set(candidate.microSkillKey, [...(managerApprovals.get(candidate.microSkillKey) ?? []), releaseId]);
     }
-    for (const [key, releaseIds] of managerApprovals) if (!keys.includes(key)) {
-      for (const releaseId of releaseIds) {
-        const result = await db.rpc("withdraw_word_skill_reviewed_release", { p_release: releaseId, p_environment: environment, p_actor: actorId, p_reason: "Removed in Teaching Dictionary Manager" });
-        if (result.error) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
-      }
+    const currentAuthority = await loadTeachingDictionaryEvidenceAuthorityForWord(db, environment, wordId);
+    const effectiveKeys = new Set(currentAuthority.relationships.filter(row => row.canonicalWordId === wordId)
+      .map(row => row.microSkillKey));
+    for (const [key] of managerApprovals) if (!onlyKey && !keys.includes(key) && effectiveKeys.has(key)) {
+      const result = await saveBulkSkillApprovals({ microSkillKey: key, applyWordIds: [],
+        excludeWordIds: [], clearWordIds: [], deassignWordIds: [wordId], senseIds: {},
+        requestId: randomUUID() });
+      if (!result.ok) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
     }
-    const authority = await loadTeachingDictionaryEvidenceAuthorityForWord(db, environment, wordId);
-    const effective = new Set(authority.relationships.filter((row) => row.canonicalWordId === wordId).map((row) => row.microSkillKey));
     for (const key of keys) {
-      if (effective.has(key)) continue;
-      const candidate = { canonicalWordId: wordId, microSkillKey: key, relationshipRole: "demonstrates", method: "deterministic_candidate",
-        sourceReference: `Teaching Dictionary Manager human approval: ${wordId}:${key}`, licenceReference: "internal_authored" };
-      const packageKey = `tdm:${wordId}:${randomUUID()}`;
-      const created = await db.rpc("create_word_skill_candidate_package", { p_key: packageKey, p_environment: environment, p_candidates: [candidate], p_actor: actorId });
-      if (created.error || !created.data) throw new Error("WORD_SKILL_PACKAGE_CREATE_FAILED");
-      const reviewed = await db.rpc("review_word_skill_candidate_package_with_metrics", { p_package: created.data, p_environment: environment,
-        p_decisions: ["approved"], p_rejection_reasons: [""], p_actor: actorId, p_note: "Approved in Teaching Dictionary Manager", p_active_seconds: 0 });
-      if (reviewed.error) throw new Error("WORD_SKILL_REVIEW_FAILED");
-      const pack = await loadWordSkillPackage(db, environment, created.data);
-      const preview = await previewWordSkillPackage(db, pack.package, pack.review);
-      if (!preview.pairs[0]?.ready) throw new Error("WORD_SKILL_AUTHORITY_BLOCKED");
-      await publishWordSkillPackage(db, environment, created.data, actorId, preview.result.reconciliation.sourceFingerprint);
-      effective.add(key);
+      const result = await saveBulkSkillApprovals({ microSkillKey: key, applyWordIds: [wordId],
+        excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
+        senseIds: { [wordId]: skillSenses[key] }, requestId: randomUUID() });
+      if (!result.ok) throw new Error(result.blocked.length
+        ? "TEACHING_LESSON_REQUIREMENTS_INCOMPLETE"
+        : result.error ?? "TEACHING_LESSON_SENSE_BIND_FAILED");
     }
 
 }

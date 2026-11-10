@@ -229,6 +229,20 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
         ...(flat ? { transformations: flat.transformations } : {}),
         wordSum: flat?.wordSum || raw.word_sum || "", analysisStatus: (raw.analysis_status || (flat ? "approved" : "in_review")) as WordDraftPayload["canonicalMorphology"]["analysisStatus"], reviewNotes: raw.morphology_review_notes || raw.review_notes || "",
       },
+      ...(flat && raw.definition?.trim() && raw.raw_morpholex_pos?.trim()
+        && raw.phoneme_hint?.trim() && /^[1-9][0-9]*$/u.test(raw.syllables ?? "")
+        && raw.stress_pattern?.trim() ? {
+          senseSet: {
+            pronunciations: [{ id: `csv-pronunciation:${normalisedWord}`,
+              ipa: raw.phoneme_hint, spokenSyllableCount: Number(raw.syllables),
+              stressPattern: raw.stress_pattern }],
+            senses: [{ id: `csv-sense:${normalisedWord}`,
+              partOfSpeech: raw.raw_morpholex_pos, definition: raw.definition,
+              pronunciationId: `csv-pronunciation:${normalisedWord}`,
+              ...(target ? { dictationSentence: target,
+                dictationTargetTokenIndex: Math.max(0, tokenIndex) } : {}) }],
+          },
+        } : {}),
       provenance: {
         sourceCategory: (raw.source_category || (raw.lineageJSON ? "ai_assisted_draft" : "internal_authored")) as WordDraftPayload["provenance"]["sourceCategory"],
         sourceName: raw.source_name || raw.sourceFile || "", sourceUrl: raw.source_url || "",

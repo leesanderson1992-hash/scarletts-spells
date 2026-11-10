@@ -61,6 +61,11 @@ import { morphologyReviewGuidance } from "@/lib/teaching-dictionary-manager/morp
 import { ActionSubmitButton } from "./action-submit-button";
 import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
+import { SenseEditor } from "./sense-editor";
+import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
+import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
+import { evaluateLessonCandidate, hasCandidateRule,
+  type CandidateMorphology, type CandidateFamilyLink } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { weakVowelBlockerCode, weakVowelBlockerTarget, weakVowelRouteBlockers, type WeakVowelRouteFactsV1 } from "@/lib/teaching-dictionary-manager/weak-vowel-authoring";
 import type { BritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
 import { prefillWeakVowelDrafts, type ReviewedWeakVowelSource, type ReviewedWeakVowelWrittenFact } from "@/lib/teaching-dictionary-manager/weak-vowel-prefill";
@@ -162,7 +167,7 @@ function Editable({
   const help: Record<string, { format: string; example: string }> = {
     "Display word": { format: "Enter the spelling exactly as learners should see it.", example: "scrolling" },
     Definition: { format: "Enter one reviewed dictionary meaning reusable across lessons.", example: "Moving content up or down a screen." },
-    "Spoken syllables": { format: "Separate spoken syllables with a hyphen.", example: "scroll-ing" },
+    "Spoken syllables": { format: "Enter the number of syllables heard. Written syllable divisions use middle dots in their own field.", example: "2" },
     Phonemes: { format: "Enter the reviewed British pronunciation or phoneme hint.", example: "/ˈskrəʊ.lɪŋ/" },
     "Part of speech": { format: "Choose the grammatical role of this word.", example: "verb" },
     Schwa: { format: "Choose whether this pronunciation contains a schwa.", example: "No" },
@@ -237,6 +242,12 @@ export function WordWorkspace(props: {
   draftId: string | null;
   normalisedWord: string;
   initial: WordDraftPayload;
+  approvedSenseSet: DictionarySenseSet | null;
+  approvedCandidateMorphology: CandidateMorphology | null;
+  approvedCandidateFamilyLinks: CandidateFamilyLink[];
+  staleLessonSenseKeys: string[];
+  approvedLessonSenseKeys: string[];
+  approvedSkillSenseIds: Record<string, string>;
   weakPublicationState: { microSkillKey: string; contentVersionId: string; sourceCurrent: boolean }[];
   approvedWord: string | null;
   approvedDefinition: string | null;
@@ -278,6 +289,13 @@ export function WordWorkspace(props: {
       ...props.initial,
       dictationVariants: dictationVariants(props.initial),
       writtenSyllableBreakdown: props.initial.writtenSyllableBreakdown ?? "",
+      senseSet: props.initial.senseSet ?? legacySenseSet({ wordId: props.wordId,
+        definition: props.initial.definition, partOfSpeech: props.initial.canonicalMorphology.rawPartOfSpeech,
+        ipa: props.initial.metadata.phoneme_hint, spokenSyllables: props.initial.metadata.syllables,
+        stressPattern: props.initial.metadata.stress_pattern,
+        dictationSentence: props.initial.dictationSentence,
+        dictationTargetTokenIndex: props.initial.dictationTargetTokenIndex }),
+      skillSenseIds: props.initial.skillSenseIds ?? {},
     },
     dictionaryFingerprint: props.dictionaryFingerprint,
     approvedWord: props.approvedWord,
@@ -494,8 +512,43 @@ export function WordWorkspace(props: {
   }
   function change(update: Partial<WordDraftPayload>) {
     setEditVersion(version => version + 1);
-    setPayload((old) => withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
-      payload: { ...old, ...update },
+    setPayload((old) => {
+      const next = { ...old, ...update };
+      const set = next.senseSet;
+      if (set?.senses[0]) {
+        if (update.senseSet) {
+          next.definition = set.senses[0].definition;
+          if (set.senses[0].dictationSentence !== undefined)
+            next.dictationSentence = set.senses[0].dictationSentence;
+          if (set.senses[0].dictationTargetTokenIndex !== undefined)
+            next.dictationTargetTokenIndex = set.senses[0].dictationTargetTokenIndex;
+          next.canonicalMorphology = { ...next.canonicalMorphology,
+            rawPartOfSpeech: set.senses[0].partOfSpeech };
+          const pronunciation = set.pronunciations.find(row => row.id === set.senses[0].pronunciationId);
+          if (pronunciation) next.metadata = { ...next.metadata,
+            phoneme_hint: pronunciation.ipa, syllables: String(pronunciation.spokenSyllableCount ?? ""),
+            stress_pattern: pronunciation.stressPattern };
+        } else if (update.definition !== undefined || update.dictationSentence !== undefined ||
+          update.dictationTargetTokenIndex !== undefined || update.canonicalMorphology?.rawPartOfSpeech !== undefined ||
+          update.metadata?.phoneme_hint !== undefined || update.metadata?.syllables !== undefined ||
+          update.metadata?.stress_pattern !== undefined) {
+          const first = set.senses[0];
+          next.senseSet = { ...set, senses: [{ ...first,
+            definition: update.definition ?? first.definition,
+            dictationSentence: update.dictationSentence ?? first.dictationSentence,
+            dictationTargetTokenIndex: update.dictationTargetTokenIndex ?? first.dictationTargetTokenIndex,
+            partOfSpeech: update.canonicalMorphology?.rawPartOfSpeech ?? first.partOfSpeech }, ...set.senses.slice(1)],
+            pronunciations: set.pronunciations.map(row => row.id === first.pronunciationId ? {
+              ...row, ipa: update.metadata?.phoneme_hint ?? row.ipa,
+              spokenSyllableCount: update.metadata?.syllables !== undefined
+                ? (/^[1-9][0-9]*$/.test(update.metadata.syllables) ? Number(update.metadata.syllables) : null)
+                : row.spokenSyllableCount,
+              stressPattern: update.metadata?.stress_pattern ?? row.stressPattern,
+            } : row) };
+        }
+      }
+      return withDerivedMorphologyMetadata(prefillWeakVowelDrafts({
+      payload: next,
       dictionaryFingerprint: props.dictionaryFingerprint,
       approvedWord: props.approvedWord,
       approvedDefinition: props.approvedDefinition,
@@ -506,7 +559,8 @@ export function WordWorkspace(props: {
       writtenFacts: props.approvedWrittenFacts,
       family: props.weakFamilyPrefill,
       sourceReference: props.approvedSourceReference,
-    })));
+    }));
+    });
     setDirty(true);
   }
   function metadata(
@@ -872,6 +926,7 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
+          {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })} />}
           <div className="overflow-x-auto">
             <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
@@ -1164,7 +1219,7 @@ export function WordWorkspace(props: {
       </details>
       <section id="td-skills" className={`${section} scroll-mt-6`}>
         <h2 className="p-4 font-semibold">
-          2 · Micro-skills{" "}
+          2 · Micro-skill lessons{" "}
           <span className="ml-2 text-xs font-normal">
             {payload.skillKeys.length} joined
           </span>
@@ -1173,6 +1228,12 @@ export function WordWorkspace(props: {
           <div className="grid gap-2">
               {payload.skillKeys.map((key) => {
                 const route = routeForSkill(key);
+                const candidate = props.wordId && hasCandidateRule(key) ? evaluateLessonCandidate({
+                  wordId: props.wordId, displayWord: props.approvedWord ?? payload.displayWord,
+                  skillKey: key, senseId: payload.skillSenseIds?.[key],
+                  senseSet: props.approvedSenseSet, morphology: props.approvedCandidateMorphology,
+                  familyLinks: props.approvedCandidateFamilyLinks,
+                }) : null;
                 const preflight = preflights.find(
                   (row) => row.microSkillKey === key,
                 );
@@ -1180,17 +1241,34 @@ export function WordWorkspace(props: {
                   ? wordRouteStatuses.filter((row) => row.microSkillKey === key)
                   : [];
                 const published = props.weakPublicationState.find(row => row.microSkillKey === key);
+                const wordApproved = Boolean(assignedSkillKeys?.includes(key)
+                  && props.approvedLessonSenseKeys.includes(key)
+                  && payload.skillSenseIds?.[key] === props.approvedSkillSenseIds[key]
+                  && !props.staleLessonSenseKeys.includes(key));
                 const complete = !dirty && assignedSkillKeys?.includes(key) &&
                   (route?.routeId === "weak_vowel_word_lab" ? published?.sourceCurrent :
                     checks.find(row => row.key === key)?.ready);
                 return (
                   <details key={key} className="rounded-lg border border-[var(--border)] p-3">
-                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : checksState === "loading" ? "Checking…" : "Needs attention"}</span></summary>
+                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : wordApproved && !route?.newAssignmentCapable ? "Word approved · awaiting lesson route" : checksState === "loading" ? "Checking…" : "Needs attention"}</span></summary>
                     <div className="mt-2 text-sm">
+                      {candidate && <div className="mb-3 rounded border border-[var(--border)] p-2">
+                        <p className="font-medium">Lesson requirements: {candidate.status === "ready"
+                          ? "Ready; saving this assignment approves the selected meaning automatically"
+                          : candidate.status === "not_match" ? "This meaning does not match the lesson rule"
+                          : "Needs reviewed facts"}</p>
+                        {candidate.issues.length > 0 && <details className="mt-1" open>
+                          <summary className="cursor-pointer">{candidate.issues.length} requirement{candidate.issues.length === 1 ? "" : "s"} to review</summary>
+                          <ul className="mt-1 list-disc pl-5">{candidate.issues.map(issue =>
+                            <li key={issue.code}><a className="underline" href={issue.href}>{issue.message}</a></li>)}</ul>
+                        </details>}
+                        <button type="button" className="mt-1 underline" onClick={() => router.refresh()}>Recheck requirements</button>
+                      </div>}
+                      {props.staleLessonSenseKeys.includes(key) && <p className="text-amber-900">The reviewed meaning or pronunciation changed. Review this lesson again before release.</p>}
                       {checksState !== "ready"
                         ? checksState === "loading" ? "Checking route status…" : "Route status unavailable · retry checks below"
                         : !route?.newAssignmentCapable
-                        ? "No Route Available"
+                        ? wordApproved ? "This meaning is approved for the micro-skill. A lesson route is not available yet." : "No lesson route available yet"
                         : preflight?.activationEnabled
                           ? "Active"
                           : "Built · inactive"}
@@ -1202,6 +1280,13 @@ export function WordWorkspace(props: {
                       {published && !published.sourceCurrent && <p className="mt-1 text-amber-900">Approved dictionary facts changed; re-review this lesson content.</p>}
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+                      <label className="min-w-64 flex-1">Meaning taught in this lesson <FormatHint label="lesson meaning" format="Choose the reviewed Overview meaning that this micro-skill lesson teaches." example="live — performed in real time" />
+                        <select className={input} value={payload.skillSenseIds?.[key] ?? ""}
+                          onChange={event => change({ skillSenseIds: { ...payload.skillSenseIds, [key]: event.target.value } })}>
+                          <option value="">Choose meaning</option>
+                          {payload.senseSet?.senses.map(sense => <option key={sense.id} value={sense.id}>{sense.definition || "Meaning needs review"} · {sense.partOfSpeech || "part of speech needed"}</option>)}
+                        </select>
+                      </label>
                       {route?.newAssignmentCapable && <a href={`#td-route-${key}`} className="text-[color:var(--scarlett)] underline"
                         onClick={() => { const panel = document.getElementById(`td-route-${key}`); if (panel instanceof HTMLDetailsElement) panel.open = true; }}>Open pre-populated lesson fields</a>}
                       <button
@@ -1248,15 +1333,19 @@ export function WordWorkspace(props: {
               className={button}
               disabled={!joined}
               onClick={() => {
-                change({ skillKeys: [...payload.skillKeys, joined] });
+                const onlySense = payload.senseSet?.senses.length === 1 ? payload.senseSet.senses[0] : null;
+                change({ skillKeys: [...payload.skillKeys, joined],
+                  skillSenseIds: onlySense ? { ...payload.skillSenseIds, [joined]: onlySense.id } : payload.skillSenseIds });
                 setJoined("");
               }}
             >
-              Add micro-skill
+              Find other micro-skill
             </button>
             {(assignedSkillKeys === null ? payload.skillKeys.length > 0 :
               payload.skillKeys.length !== assignedSkillKeys.length ||
-              payload.skillKeys.some(key => !assignedSkillKeys.includes(key))) && saveButton("skills", "Save micro-skills")}
+              payload.skillKeys.some(key => !assignedSkillKeys.includes(key))) ||
+              payload.skillKeys.some(key => payload.skillSenseIds?.[key] !== props.approvedSkillSenseIds[key]) ?
+              saveButton("skills", "Save and validate micro-skills") : null}
           </div>
         </div>
       </section>

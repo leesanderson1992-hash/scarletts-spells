@@ -4,6 +4,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { publicationBlockers, routeBlockers, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
+import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { publishTeachingDictionaryBatch } from "../../actions";
 
@@ -102,7 +103,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     {(failedResult.data ?? []).length > 0 && <p className="text-sm">Review failed publications: {(failedResult.data ?? []).map((draft, index) => <span key={draft.id}>
       {index > 0 ? ", " : ""}<Link className="underline" href={draft.canonical_word_id
         ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}`
-        : `/admin/teaching-dictionary/new?draft=${draft.id}`}>{draft.normalised_word}</Link> ({failures[draft.id].replaceAll("_", " ")})
+        : `/admin/teaching-dictionary/new?draft=${draft.id}`}>{draft.normalised_word}</Link> ({workspaceErrorMessage(failures[draft.id])})
     </span>)}</p>}
     {pending.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Publish complete drafts</h2>
@@ -134,7 +135,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
           <td className="p-2">{failedIds.has(draft.id) ? "Publication needs review"
             : draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition ? "Definition published; other facts pending"
             : blockers.length ? "Needs facts" : "Ready to validate"}</td>
-          <td className="p-2">{failedIds.has(draft.id) ? failures[draft.id].replaceAll("_", " ") : blockers.length ? <details><summary>{blockers.length} missing or unreviewed</summary>
+          <td className="p-2">{failedIds.has(draft.id) ? workspaceErrorMessage(failures[draft.id]) : blockers.length ? <details><summary>{blockers.length} missing or unreviewed</summary>
             <ul className="mt-1 list-disc pl-5">{blockers.map((blocker, index) => <li key={`${index}:${blocker}`}>{blocker}</li>)}</ul>
           </details> : draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition
             ? "Route or shared-fact release needed" : "—"}</td>

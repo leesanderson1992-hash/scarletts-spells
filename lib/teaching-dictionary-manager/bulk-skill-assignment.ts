@@ -5,10 +5,14 @@ export type BulkWord = {
   approvable: boolean;
   hasSchwa: boolean | null;
   syllableCount: number | null;
+  possibleSyllableCounts?: number[];
   writtenSyllableBreakdown?: string | null;
   morphemeParts: string[];
   phonemeHint: string | null;
   phonemeSymbols: string[];
+  senseSet?: import("./senses").DictionarySenseSet | null;
+  candidateMorphology?: import("./lesson-candidate").CandidateMorphology | null;
+  candidateFamilyLinks?: import("./lesson-candidate").CandidateFamilyLink[];
 };
 
 export type BulkFilters = {
@@ -105,9 +109,11 @@ export function filterBulkWords(words: readonly BulkWord[], filters: BulkFilters
     if (filters.schwa === "no" && word.hasSchwa !== false) return false;
     if (filters.schwa === "unknown" && word.hasSchwa !== null) return false;
     if (filters.morpheme && !word.morphemeParts.includes(filters.morpheme)) return false;
-    if (filters.syllables === "unknown" && word.syllableCount !== null) return false;
+    if (filters.syllables === "unknown" && (word.syllableCount !== null
+      || (word.possibleSyllableCounts?.length ?? 0) > 0)) return false;
     if (filters.syllables && filters.syllables !== "unknown"
-      && word.syllableCount !== Number(filters.syllables)) return false;
+      && word.syllableCount !== Number(filters.syllables)
+      && !word.possibleSyllableCounts?.includes(Number(filters.syllables))) return false;
     if (filters.phoneme && !word.phonemeSymbols.includes(filters.phoneme)) return false;
     return true;
   });

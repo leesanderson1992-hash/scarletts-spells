@@ -450,6 +450,7 @@ export async function ensureParentAdleTodayAssignment(params: {
         genericV3Dictation: await loadGenericV3DictationForWords(
           params.serviceClient,
           composed.partTwo.lessonWords.map((word) => word.canonicalWordId),
+          selection.microSkillKey,
         ),
       };
       const authored = authorCompleteGenericSnapshotV3(
