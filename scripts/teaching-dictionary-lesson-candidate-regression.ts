@@ -5,11 +5,21 @@ import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
 import { compileIngLesson, validateIngLesson } from "../lib/adle/ing/lesson";
 import { ingActivityDeclarations, ingAssignmentItems } from "../lib/adle/ing/snapshot";
 import { ingReleasedWordMatchesCurrentOverview } from "../lib/adle/ing/current-overview";
-import { evaluateLessonCandidate, hasCandidateRule } from "../lib/teaching-dictionary-manager/lesson-candidate";
+import { evaluateLessonCandidate, hasCandidateRule,
+  LESSON_CANDIDATE_RULE_REVISION } from "../lib/teaching-dictionary-manager/lesson-candidate";
 import { approvedGeneratedIngWord, generateIngWordFromOverview } from "../lib/teaching-dictionary-manager/ing-overview-recipe";
 import { previewIngOverviewRelease } from "../lib/teaching-dictionary-manager/ing-overview-release-preview";
 import { candidateDecisionIsCurrent } from "../lib/teaching-dictionary-manager/candidate-decision-current";
 import { routeBlockers, routeWithSharedFacts, sharedRouteContentKeys, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
+
+function ranged<T extends { surfaceText: string }>(parts: T[]): (T & { displayRange: { start: number; end: number } })[] {
+  let start = 0;
+  return parts.map(part => {
+    const range = { start, end: start + part.surfaceText.length };
+    start = range.end;
+    return { ...part, displayRange: range };
+  });
+}
 
 const reading = {
   wordId: "00000000-0000-4000-8000-000000000101",
@@ -23,21 +33,32 @@ const reading = {
     dictationTargetTokenIndex: 2 }] },
   morphology: { analysisStatus: "approved", reviewStatus: "approved_for_first_exposure",
     wordSum: "read + ing → reading", joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
-    parts: [{ id: "base", kind: "base", sourceText: "read", surfaceText: "read", gloss: "read text" },
-      { id: "suffix", kind: "suffix", sourceText: "ing", surfaceText: "ing", gloss: "action in progress" }] },
+    parts: ranged([{ id: "base", kind: "base", sourceText: "read", surfaceText: "read", gloss: "read text" },
+      { id: "suffix", kind: "suffix", sourceText: "ing", surfaceText: "ing", gloss: "action in progress" }]) },
   familyLinks: [{ sense_id: "reading-verb", family_key: "read_verb_base_family",
     component_part_id: "base", relationship_kind: "regular_inflection" }],
 };
 
 assert.equal(evaluateLessonCandidate(reading).status, "ready");
+for (const morphology of [
+  { ...reading.morphology, parts: reading.morphology.parts.map(part => ({ id: part.id,
+    kind: part.kind, sourceText: part.sourceText, surfaceText: part.surfaceText, gloss: part.gloss })) },
+  { ...reading.morphology, joins: [{ afterPartId: "suffix", beforePartId: "base", joinType: "none" }] },
+  { ...reading.morphology, parts: [{ ...reading.morphology.parts[0], id: "suffix" },
+    reading.morphology.parts[1]] },
+  { ...reading.morphology, wordSum: "reed + ing → reading" },
+]) assert.deepEqual(evaluateLessonCandidate({ ...reading, morphology }).issues.map(issue => issue.code),
+  ["REVIEWED_PARTS"], "incomplete or conflicting approved word parts cannot approve a lesson candidate");
 const decision = { action: "approve", sense_id: reading.senseId,
-  pronunciation_id: "reading-ipa", rule_revision: "reviewed_overview_candidate_v1",
+  pronunciation_id: "reading-ipa", rule_revision: LESSON_CANDIDATE_RULE_REVISION,
   fact_snapshot: { senseId: reading.senseId, senseSet: reading.senseSet,
     morphologyId: "reviewed-morphology", familyLinkIds: ["read-family-link"] } };
 const currentFacts = { event: decision, senseId: reading.senseId,
   senseSet: reading.senseSet, morphologyId: "reviewed-morphology",
   familyLinkIds: ["read-family-link"] };
 assert(candidateDecisionIsCurrent(currentFacts));
+assert(!candidateDecisionIsCurrent({ ...currentFacts, event: { ...decision,
+  rule_revision: "reviewed_overview_candidate_v1" } }), "a previous rule revision needs recheck");
 assert(candidateDecisionIsCurrent({ ...currentFacts, senseSet: { ...reading.senseSet,
   senses: [...reading.senseSet.senses, { id: "unrelated", partOfSpeech: "noun",
     definition: "Another meaning", pronunciationId: "reading-ipa" }] } }),
@@ -103,21 +124,22 @@ assert.equal(evaluateLessonCandidate({ ...reading, skillKey: "D4_INF_ING_ENDINGS
   "not_match");
 const invalidDropE = evaluateLessonCandidate({ ...reading, displayWord: "boing",
   skillKey: "D4_INF_ING_ENDINGS_DROP_E", morphology: { ...reading.morphology,
-    wordSum: "box + ing → boing", parts: [
+    wordSum: "box + ing → boing", parts: ranged([
       { id: "base", kind: "base", sourceText: "box", surfaceText: "bo", gloss: "a box" },
-      reading.morphology.parts[1]] } });
+      reading.morphology.parts[1]]) } });
 assert.equal(invalidDropE.status, "not_match", "drop-e requires a base ending in e");
 const invalidIe = evaluateLessonCandidate({ ...reading, displayWord: "fying",
   skillKey: "D4_INF_ING_ENDINGS_IE_TO_Y", morphology: { ...reading.morphology,
-    wordSum: "foe + ing → fying", parts: [
+    wordSum: "foe + ing → fying", parts: ranged([
       { id: "base", kind: "base", sourceText: "foe", surfaceText: "fy", gloss: "an adversary" },
-      reading.morphology.parts[1]] } });
+      reading.morphology.parts[1]]) } });
 assert.equal(invalidIe.status, "not_match", "ie-to-y requires a base ending in ie");
 const vegetable = evaluateLessonCandidate({ ...reading, displayWord: "vegetable",
   skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE",
   morphology: { ...reading.morphology, wordSum: "veget + able → vegetable",
-    parts: [{ id: "root", kind: "root", sourceText: "veget", surfaceText: "veget", gloss: "To grow or live" },
-      { id: "suffix", kind: "suffix", sourceText: "able", surfaceText: "able", gloss: "able to be" }] },
+    parts: ranged([{ id: "root", kind: "root", sourceText: "veget", surfaceText: "veget", gloss: "To grow or live" },
+      { id: "suffix", kind: "suffix", sourceText: "able", surfaceText: "able", gloss: "able to be" }]),
+    joins: [{ afterPartId: "root", beforePartId: "suffix", joinType: "none" }] },
   familyLinks: [{ sense_id: "reading-verb", family_key: "veget_bound_root_base_family",
     component_part_id: "root", relationship_kind: "historical_relative" }] });
 assert.equal(vegetable.status, "not_match");
@@ -126,17 +148,17 @@ const hopping = { ...reading, displayWord: "hopping", skillKey: doublingSkill,
   senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
     dictationSentence: "She is hopping now." }] },
   morphology: { ...reading.morphology, wordSum: "hop + ing → hopping",
-    parts: [{ id: "base", kind: "base", sourceText: "hop", surfaceText: "hopp", gloss: "to jump" },
-      reading.morphology.parts[1]] } };
+    parts: ranged([{ id: "base", kind: "base", sourceText: "hop", surfaceText: "hopp", gloss: "to jump" },
+      reading.morphology.parts[1]]) } };
 assert.equal(evaluateLessonCandidate(hopping).status, "ready",
   "the lesson-only doubling pattern cannot block word and sense approval");
 const readable = { ...reading, displayWord: "readable", skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE",
   senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
     dictationSentence: "This book is readable.", dictationTargetTokenIndex: 3 }] },
   morphology: { ...reading.morphology, wordSum: "read + able → readable",
-    parts: [reading.morphology.parts[0],
+    parts: ranged([reading.morphology.parts[0],
       { id: "suffix", kind: "suffix", sourceText: "able", surfaceText: "able",
-        gloss: "Capable of, fit for, or able to be" }] },
+        gloss: "Capable of, fit for, or able to be" }]) },
   familyLinks: [{ ...reading.familyLinks[0], relationship_kind: "derived" }] };
 assert.equal(evaluateLessonCandidate(readable).status, "ready",
   "a reviewed free-base derivation can be approved without route-only content");
@@ -147,14 +169,14 @@ const careful = { ...readable, displayWord: "careful", skillKey: fulLessSkill,
   senseSet: { ...readable.senseSet, senses: [{ ...readable.senseSet.senses[0],
     dictationSentence: "She is careful.", dictationTargetTokenIndex: 2 }] },
   morphology: { ...readable.morphology, wordSum: "care + ful → careful",
-    parts: [{ id: "base", kind: "base", sourceText: "care", surfaceText: "care", gloss: "attention" },
-      { id: "suffix", kind: "suffix", sourceText: "ful", surfaceText: "ful", gloss: "full of" }] } };
+    parts: ranged([{ id: "base", kind: "base", sourceText: "care", surfaceText: "care", gloss: "attention" },
+      { id: "suffix", kind: "suffix", sourceText: "ful", surfaceText: "ful", gloss: "full of" }]) } };
 assert(hasCandidateRule(fulLessSkill));
 assert.equal(evaluateLessonCandidate(careful).status, "ready");
 const careless = { ...careful, displayWord: "careless",
   morphology: { ...careful.morphology, wordSum: "care + less → careless",
-    parts: [careful.morphology.parts[0],
-      { id: "suffix", kind: "suffix", sourceText: "less", surfaceText: "less", gloss: "without" }] },
+    parts: ranged([careful.morphology.parts[0],
+      { id: "suffix", kind: "suffix", sourceText: "less", surfaceText: "less", gloss: "without" }]) },
   senseSet: { ...careful.senseSet, senses: [{ ...careful.senseSet.senses[0],
     dictationSentence: "She is careless." }] } };
 assert.equal(evaluateLessonCandidate(careless).status, "ready");
@@ -167,9 +189,10 @@ assert.equal(evaluateLessonCandidate({ ...careful, skillKey: "D4_MOR_SUFFIXES_AB
   "not_match", "a -ful word must not pass the -able/-ible rule");
 assert.equal(evaluateLessonCandidate({ ...reading, skillKey: fulLessSkill,
   displayWord: "vegetful", morphology: { ...reading.morphology,
-    wordSum: "veget + ful → vegetful", parts: [{ id: "root", kind: "root",
+    wordSum: "veget + ful → vegetful", parts: ranged([{ id: "root", kind: "root",
       sourceText: "veget", surfaceText: "veget", gloss: "To grow or live" }, { id: "suffix", kind: "suffix",
-      sourceText: "ful", surfaceText: "ful", gloss: "full of" }] } }).status,
+      sourceText: "ful", surfaceText: "ful", gloss: "full of" }]),
+    joins: [{ afterPartId: "root", beforePartId: "suffix", joinType: "none" }] } }).status,
   "not_match", "a bound root alone does not meet the free-base family requirement");
 const unSkill = "D4_MOR_PREFIXES_UN";
 const unhappy = { ...reading, displayWord: "unhappy", skillKey: unSkill,
@@ -177,8 +200,8 @@ const unhappy = { ...reading, displayWord: "unhappy", skillKey: unSkill,
     definition: "Not feeling happy.", dictationSentence: "She feels unhappy today.",
     dictationTargetTokenIndex: 2 }] },
   morphology: { ...reading.morphology, wordSum: "un + happy → unhappy",
-    parts: [{ id: "prefix", kind: "prefix", sourceText: "un", surfaceText: "un", gloss: "not" },
-      { id: "base", kind: "base", sourceText: "happy", surfaceText: "happy", gloss: "feeling joy" }],
+    parts: ranged([{ id: "prefix", kind: "prefix", sourceText: "un", surfaceText: "un", gloss: "not" },
+      { id: "base", kind: "base", sourceText: "happy", surfaceText: "happy", gloss: "feeling joy" }]),
     joins: [{ afterPartId: "prefix", beforePartId: "base", joinType: "none" }] },
   familyLinks: [{ ...reading.familyLinks[0], relationship_kind: "derived" }] };
 assert(hasCandidateRule(unSkill));
@@ -191,8 +214,8 @@ assert.deepEqual(evaluateLessonCandidate({ ...unhappy, morphology: { ...unhappy.
 assert.equal(evaluateLessonCandidate({ ...unhappy, skillKey: "D4_MOR_SUFFIXES_FUL_LESS" }).status,
   "not_match", "a prefixed word cannot pass a suffix candidate rule");
 assert.equal(evaluateLessonCandidate({ ...unhappy, morphology: { ...unhappy.morphology,
-  parts: [{ ...unhappy.morphology.parts[0], surfaceText: "u" },
-    { ...unhappy.morphology.parts[1], surfaceText: "nhappy" }] } }).status,
+  parts: ranged([{ ...unhappy.morphology.parts[0], surfaceText: "u" },
+    { ...unhappy.morphology.parts[1], surfaceText: "nhappy" }]) } }).status,
   "not_match", "the visible prefix must match its reviewed form");
 const ingRoute = { routeId: "ing_endings_word_lab", routeVersion: "v1",
   microSkillKey: reading.skillKey, wordMeaning: "", wordSum: "", content: {} };

@@ -36,7 +36,7 @@ try {
     public.reconcile_teaching_dictionary_bulk_review_v5(
       'staging',$1,array[]::uuid[],array[]::uuid[],
       $2::uuid[], $3::uuid[],array[]::uuid[],
-      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v1',$7::jsonb,
+      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v2',$7::jsonb,
       'teaching_dictionary_bulk') n`, [skill, deassign ? [] : [wordId],
       deassign ? [wordId] : [], JSON.stringify(deassign ? {} : { [wordId]: senseId }),
       actor, requestId, JSON.stringify(deassign ? {} : { [wordId]: snapshot })]);

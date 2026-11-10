@@ -1,8 +1,10 @@
 import { ING_RULE_FOR_SKILL, ingStem, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { generatedWordSum } from "./authoring";
 import { bulkSenseChoiceError } from "./bulk-sense-approval";
+import { auditCanonicalMorphology } from "./canonical-morphology";
 import type { DictionarySenseSet } from "./senses";
 
-export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v1";
+export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v2";
 export type CandidateIssue = { code: string; message: string; href: string };
 export type CandidateDecision = {
   status: "not_match" | "needs_facts" | "ready" | "legacy_review";
@@ -64,14 +66,19 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const senseIssue = bulkSenseChoiceError({ wordId: input.wordId, displayWord: input.displayWord,
     senseSet: input.senseSet, senseId: input.senseId });
   if (senseIssue) add("SENSE_FACTS", senseIssue, "td-definition");
+  const morphologyAudit = input.morphology ? auditCanonicalMorphology({ parts: input.morphology.parts,
+    joins: input.morphology.joins, displayWord: input.displayWord,
+    linkedToFamily: input.familyLinks.length > 0 }) : null;
   if (!input.morphology || input.morphology.analysisStatus !== "approved"
     || input.morphology.reviewStatus !== "approved_for_first_exposure"
-    || !input.morphology.wordSum?.trim() || !Array.isArray(input.morphology.joins)
-    || input.morphology.joins.length !== parts.length - 1
-    || !parts.length || parts.some(part => !["base", "root", "prefix", "suffix"].includes(String(part.kind))
-      || !String(part.sourceText ?? "").trim() || !String(part.surfaceText ?? "").trim())
-    || parts.map(part => part.surfaceText).join("").toLocaleLowerCase("en-GB") !== spelling) {
-    add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
+    || morphologyAudit?.status !== "canonical"
+    || input.morphology.wordSum?.trim() !== generatedWordSum(parts, input.displayWord)) {
+    const affix = acceptedPrefixes ? parts[0] : parts.at(-1);
+    if (morphologyAudit?.reason === "unreviewed_part_fact" && affix?.kind === (acceptedPrefixes ? "prefix" : "suffix")
+      && !String(affix.gloss ?? "").trim())
+      add(acceptedPrefixes ? "PREFIX_MEANING" : "SUFFIX_MEANING",
+        `Choose the reviewed meaning of this ${acceptedPrefixes ? "prefix" : "suffix"}.`, "td-canonical-parts");
+    else add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
   }
   const suffix = acceptedPrefixes ? undefined : parts.at(-1);
