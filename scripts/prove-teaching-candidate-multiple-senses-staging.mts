@@ -37,7 +37,7 @@ try {
     return db.query(`select public.reconcile_teaching_dictionary_bulk_review_v6(
       'staging',$1,array[]::uuid[],array[]::uuid[],
       $2::uuid[],$3::uuid[],array[]::uuid[],
-      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v2',$7::jsonb,
+      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v3',$7::jsonb,
       'teaching_dictionary_bulk') n`, [skill, senseId ? [wordId] : [],
       senseId ? [] : [wordId], JSON.stringify(senseId ? { [wordId]: senseId } : {}),
       actor, randomUUID(), JSON.stringify(senseId ? { [wordId]: snapshot } : {})]);

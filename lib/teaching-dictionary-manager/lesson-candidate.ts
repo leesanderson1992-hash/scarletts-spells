@@ -1,10 +1,11 @@
 import { ING_RULE_FOR_SKILL, ingStem, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { SHARED_AFFIX_PROFILE_REGISTRY } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import { generatedWordSum } from "./authoring";
 import { bulkSenseChoiceError } from "./bulk-sense-approval";
 import { auditCanonicalMorphology } from "./canonical-morphology";
 import type { DictionarySenseSet } from "./senses";
 
-export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v2";
+export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v3";
 export type CandidateIssue = { code: string; message: string; href: string };
 export type CandidateDecision = {
   status: "not_match" | "needs_facts" | "ready" | "legacy_review";
@@ -32,14 +33,19 @@ export type CandidateInput = {
 };
 
 const ingKeys = new Set(Object.keys(ING_RULE_FOR_SKILL));
-const ableKey = "D4_MOR_SUFFIXES_ABLE_IBLE";
-const fulLessKey = "D4_MOR_SUFFIXES_FUL_LESS";
-const unPrefixKey = "D4_MOR_PREFIXES_UN";
-const suffixForms: Record<string, readonly string[]> = {
-  [ableKey]: ["able", "ible"],
-  [fulLessKey]: ["ful", "less"],
-};
-const prefixForms: Record<string, readonly string[]> = { [unPrefixKey]: ["un"] };
+const suffixForms: Record<string, readonly string[]> = Object.fromEntries(
+  SHARED_AFFIX_PROFILE_REGISTRY.filter(profile => profile.position === "after")
+    .map(profile => [profile.microSkillKey, profile.forms]));
+const prefixForms: Record<string, readonly string[]> = Object.fromEntries(
+  SHARED_AFFIX_PROFILE_REGISTRY.filter(profile => profile.position === "before")
+    .map(profile => [profile.microSkillKey, profile.forms]));
+const assimilatedInKey = "D4_MOR_PREFIXES_IN_IM_IL_IR";
+function expectedInForm(base: string): "in" | "im" | "il" | "ir" {
+  if (/^[bmp]/u.test(base)) return "im";
+  if (base.startsWith("l")) return "il";
+  if (base.startsWith("r")) return "ir";
+  return "in";
+}
 export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey)
   || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
@@ -91,8 +97,17 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     else if (!String(prefix.gloss ?? "").trim())
       add("PREFIX_MEANING", "Choose the reviewed meaning of this prefix.", "td-canonical-parts");
     else evidence.push(`${prefixSource}: ${String(prefix.gloss)}`);
-    if (prefix?.kind === "prefix" && acceptedPrefixes.includes(prefixSource)
-      && String(prefix.surfaceText).toLocaleLowerCase("en-GB") !== prefixSource) return done("not_match");
+    if (prefix?.kind === "prefix" && acceptedPrefixes.includes(prefixSource)) {
+      const visiblePrefix = String(prefix.surfaceText).toLocaleLowerCase("en-GB");
+      if (!acceptedPrefixes.includes(visiblePrefix) || !spelling.startsWith(visiblePrefix))
+        return done("not_match");
+      if (input.skillKey === assimilatedInKey) {
+        const baseSource = String(parts.find(part => part.kind === "base")?.sourceText ?? "")
+          .toLocaleLowerCase("en-GB");
+        if (!baseSource || visiblePrefix !== expectedInForm(baseSource)
+          || (prefixSource !== "in" && prefixSource !== visiblePrefix)) return done("not_match");
+      } else if (visiblePrefix !== prefixSource) return done("not_match");
+    }
   } else if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
     : !acceptedSuffixes?.includes(suffixSource))) {
     const label = ingKeys.has(input.skillKey) ? "-ing" : acceptedSuffixes?.map(form => `-${form}`).join("/");

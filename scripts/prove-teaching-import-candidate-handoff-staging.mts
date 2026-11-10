@@ -36,7 +36,7 @@ try {
   await db.query(`select public.reconcile_teaching_dictionary_bulk_review_v6(
     'staging',$1,array[]::uuid[],array[]::uuid[],
     $2::uuid[],array[]::uuid[],array[]::uuid[],
-    $3::jsonb,$4,$5,null,'reviewed_overview_candidate_v2',$6::jsonb,
+    $3::jsonb,$4,$5,null,'reviewed_overview_candidate_v3',$6::jsonb,
     'teaching_dictionary_import')`, [skill, [wordId], JSON.stringify({ [wordId]: senseId }),
     actor, requestId, JSON.stringify({ [wordId]: snapshot })]);
   const approved = await db.query(`select action,source_kind,fact_fingerprint from

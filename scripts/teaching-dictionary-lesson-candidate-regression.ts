@@ -4,6 +4,7 @@ import { ING_MICRO_SKILLS } from "../lib/adle/ing/contracts";
 import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
 import { compileIngLesson, validateIngLesson } from "../lib/adle/ing/lesson";
 import { ingActivityDeclarations, ingAssignmentItems } from "../lib/adle/ing/snapshot";
+import { SHARED_AFFIX_PROFILE_REGISTRY } from "../lib/adle/morphology/shared-affix-profile-registry";
 import { ingReleasedWordMatchesCurrentOverview } from "../lib/adle/ing/current-overview";
 import { evaluateLessonCandidate, hasCandidateRule,
   LESSON_CANDIDATE_RULE_REVISION } from "../lib/teaching-dictionary-manager/lesson-candidate";
@@ -217,6 +218,47 @@ assert.equal(evaluateLessonCandidate({ ...unhappy, morphology: { ...unhappy.morp
   parts: ranged([{ ...unhappy.morphology.parts[0], surfaceText: "u" },
     { ...unhappy.morphology.parts[1], surfaceText: "nhappy" }]) } }).status,
   "not_match", "the visible prefix must match its reviewed form");
+const happiness = { ...careful, displayWord: "happiness", skillKey: "D4_MOR_SUFFIXES_NESS",
+  senseSet: { ...careful.senseSet, senses: [{ ...careful.senseSet.senses[0],
+    dictationSentence: "She found happiness.", dictationTargetTokenIndex: 2 }] },
+  morphology: { ...careful.morphology, wordSum: "happy + ness → happiness",
+    parts: ranged([{ id: "base", kind: "base", sourceText: "happy", surfaceText: "happi",
+      gloss: "feeling joy" }, { id: "suffix", kind: "suffix", sourceText: "ness",
+      surfaceText: "ness", gloss: "a state or quality" }]) } };
+assert(hasCandidateRule(happiness.skillKey));
+assert.equal(evaluateLessonCandidate(happiness).status, "ready");
+assert.equal(evaluateLessonCandidate({ ...happiness, skillKey: "D4_MOR_SUFFIXES_MENT" }).status,
+  "not_match");
+const replay = { ...unhappy, displayWord: "replay", skillKey: "D4_MOR_PREFIXES_RE_PRE",
+  senseSet: { ...unhappy.senseSet, senses: [{ ...unhappy.senseSet.senses[0],
+    dictationSentence: "They replay the scene.", dictationTargetTokenIndex: 1 }] },
+  morphology: { ...unhappy.morphology, wordSum: "re + play → replay",
+    parts: ranged([{ id: "prefix", kind: "prefix", sourceText: "re", surfaceText: "re",
+      gloss: "again" }, { id: "base", kind: "base", sourceText: "play",
+      surfaceText: "play", gloss: "take part in a game" }]) } };
+assert(hasCandidateRule(replay.skillKey));
+assert.equal(evaluateLessonCandidate(replay).status, "ready");
+const impossible = { ...unhappy, displayWord: "impossible",
+  skillKey: "D4_MOR_PREFIXES_IN_IM_IL_IR",
+  senseSet: { ...unhappy.senseSet, senses: [{ ...unhappy.senseSet.senses[0],
+    dictationSentence: "That is impossible.", dictationTargetTokenIndex: 2 }] },
+  morphology: { ...unhappy.morphology, wordSum: "in + possible → impossible",
+    parts: ranged([{ id: "prefix", kind: "prefix", sourceText: "in", surfaceText: "im",
+      gloss: "not" }, { id: "base", kind: "base", sourceText: "possible",
+      surfaceText: "possible", gloss: "able to happen" }]) } };
+assert(hasCandidateRule(impossible.skillKey));
+assert.equal(evaluateLessonCandidate(impossible).status, "ready");
+assert.equal(evaluateLessonCandidate({ ...impossible, displayWord: "inpossible",
+  morphology: { ...impossible.morphology, wordSum: "in + possible → inpossible",
+    parts: ranged([{ ...impossible.morphology.parts[0], surfaceText: "in" },
+      impossible.morphology.parts[1]]) } }).status, "not_match",
+"the reviewed allomorph must match the base's initial letter");
+assert.equal(evaluateLessonCandidate({ ...impossible, morphology: { ...impossible.morphology,
+  parts: ranged([{ ...impossible.morphology.parts[0], sourceText: "il" },
+    impossible.morphology.parts[1]]), wordSum: "il + possible → impossible" } }).status,
+  "not_match", "a changed allomorph must identify the in- family as its source");
+for (const profile of SHARED_AFFIX_PROFILE_REGISTRY) assert(hasCandidateRule(profile.microSkillKey),
+  `${profile.microSkillKey} must use the shared candidate evaluator`);
 const ingRoute = { routeId: "ing_endings_word_lab", routeVersion: "v1",
   microSkillKey: reading.skillKey, wordMeaning: "", wordSum: "", content: {} };
 const payload = {

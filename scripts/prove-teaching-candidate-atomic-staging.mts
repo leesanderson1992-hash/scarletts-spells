@@ -20,7 +20,7 @@ try {
   const call = (expected: object, clear: string[] = []) => db.query(`select
     public.reconcile_teaching_dictionary_bulk_review_v4(
       'staging',$1,$2::uuid[],$2::uuid[],$3::uuid[],$2::uuid[],$2::uuid[],
-      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v2',$7::jsonb) n`,
+      $4::jsonb,$5,$6,null,'reviewed_overview_candidate_v3',$7::jsonb) n`,
   [skill, [], clear, JSON.stringify(clear.length ? { [wordId]: "live-on-stage" } : {}),
     actor, randomUUID(), JSON.stringify(expected)]);
   await db.query("savepoint stale_fact");
