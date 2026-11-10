@@ -44,6 +44,9 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
         Overview recipe: {routeWords.counts.generatedReadyIng} words have generated content;
         {" "}{routeWords.counts.approvedGeneratedIng} have a current reviewed meaning and governed skill approval.
         A release needs at least six approved words for this micro-skill and its other group checks.
+        {" "}<Link className="font-semibold underline" href={`/admin/teaching-dictionary/export/overview?skill=${selectedLesson.microSkillKey}`}>
+          Export associated words for Overview review
+        </Link>.
       </p>}
       <details className="mt-3"><summary className="cursor-pointer font-semibold">Inspect word gates and blockers</summary>
         <ul className="mt-3 grid gap-2 text-sm">{routeWords.words.slice(0, 50).map((word) => <li key={word.wordId} className="rounded-lg border border-[var(--border)] p-2">

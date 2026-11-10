@@ -46,6 +46,9 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const globalAuthorityPromise = environment && needsGlobalAuthority
     ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
+  const reviewSkillsPromise = db.from("micro_skill_catalog")
+    .select("micro_skill_key,display_name").eq("is_active", true).eq("is_assignable", true)
+    .order("display_name");
   const activeCountPromise = db.from("canonical_teaching_dictionary_words")
     .select("id", { count: "exact", head: true }).eq("dialect_code", "en-GB").eq("row_status", "active");
   const initialPagePromise = !needsGlobalAuthority && filter !== "awaiting_british_recording" ? db.rpc("teaching_dictionary_admin_filtered_page", {
@@ -81,14 +84,17 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const authorityPromise = needsGlobalAuthority ? globalAuthorityPromise
     : environment && wordIds.length ? loadCachedTeachingDictionaryEvidenceAuthorityForWords(environment, wordIds)
       : Promise.resolve(null);
-  const [drafts, activeCount, authority, pageFactsResult] = await Promise.all([
+  const [drafts, activeCount, reviewSkills, authority, pageFactsResult] = await Promise.all([
     draftsPromise,
     activeCountPromise,
+    reviewSkillsPromise,
     authorityPromise,
     wordIds.length ? db.rpc("teaching_dictionary_admin_page_facts", { p_word_ids: wordIds })
       : Promise.resolve({ data: { metadata: [], dictation: [], route_members: [], route_content: [] }, error: null }),
   ]);
   if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
+  if (reviewSkills.error || (reviewSkills.data?.length ?? 0) >= 1000)
+    throw new Error("TEACHING_REVIEW_SKILL_CATALOG_READ_FAILED");
   if (activeCount.error || activeCount.count == null) throw new Error("TEACHING_WORD_COUNT_READ_FAILED");
   if (pageFactsResult.error || !pageFactsResult.data) throw new Error("TEACHING_DICTIONARY_PAGE_FACTS_READ_FAILED");
   const facts = pageFactsResult.data as PageFacts;
@@ -110,7 +116,8 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
     <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/bulk-assign">Assign words to a micro-skill</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/format-review">Review dictionary formats</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-lesson-readiness">ADLE lesson readiness and launch</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
-    <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)} />
+    <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)}
+      reviewSkills={reviewSkills.data ?? []} />
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
         <input className="rounded-lg border border-[var(--border)] px-3 py-2" name="q" placeholder="Search all words" defaultValue={q} />

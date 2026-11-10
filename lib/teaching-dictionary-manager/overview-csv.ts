@@ -192,3 +192,17 @@ export function renderOverviewCsv(rows: Record<string, unknown>[]): string {
   });
   return `\uFEFF${OVERVIEW_CSV_COLUMNS.map(csvCell).join(",")}\r\n${lines.join("\r\n")}\r\n`;
 }
+
+/** Keep every row for a word when an Overview export is narrowed to one
+ * existing lesson association; a multi-row word must round-trip together. */
+export function selectOverviewCsvRowsForSkill(rows: readonly Record<string, unknown>[],
+  microSkillKey: string): Record<string, unknown>[] {
+  const identity = (row: Record<string, unknown>) => {
+    const id = String(row.canonical_word_id ?? "").trim();
+    const spelling = String(row.normalised_word ?? "").trim();
+    return id || (spelling ? `word:${spelling}` : "");
+  };
+  const associated = new Set(rows.filter(row => String(row.affected_micro_skills ?? "")
+    .split(/[;,]/u).some(key => key.trim() === microSkillKey)).map(identity).filter(Boolean));
+  return rows.filter(row => Boolean(identity(row)) && associated.has(identity(row)));
+}
