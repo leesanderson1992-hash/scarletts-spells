@@ -15,11 +15,16 @@ export function ingActivityDeclarations(lesson: IngLessonV1): Omit<SpecialistCan
   }
   add("teaching-pages", "INTRODUCTION", "teaching_page", "lesson_intro", { config: lesson.teaching }, lesson.words.map(w => w.canonicalWordId));
   const meaning = [0, 2, 4].map(index => lesson.words[index]);
-  add("meaning-match", "MEANING_MATCH", "word_to_definition", "guided_practice", { targets: meaning.map(w => ({ canonicalWordId: w.canonicalWordId, word: w.word, definition: w.meaning })) }, meaning.map(w => w.canonicalWordId));
+  add("meaning-match", "MEANING_MATCH", "word_to_definition", "guided_practice", { targets: meaning.map(w => ({ canonicalWordId: w.canonicalWordId, word: w.word, definition: w.meaning,
+    ...(w.senseId ? { senseId: w.senseId, pronunciationId: w.pronunciationId,
+      pronunciationIpa: w.pronunciationIpa } : {}) })) }, meaning.map(w => w.canonicalWordId));
   for (const index of [1, 3, 5]) { const word = lesson.words[index]; add(`scrabble:${word.canonicalWordId}`, "SCRABBLE", "ing_tiles", "guided_practice", { word: { canonicalWordId: word.canonicalWordId, base: word.base, word: word.word } }, [word.canonicalWordId]); }
   for (const target of lesson.queuedTargets) { const word = lesson.words.find(w => w.canonicalWordId === target.canonicalWordId)!; add(`cleaver:${word.canonicalWordId}`, "CLEAVER", "ing_transform_target", "guided_practice", { transformation: ingTransformation(word) }, [word.canonicalWordId]); }
   for (const word of lesson.words) add(`cover:${word.canonicalWordId}`, "COVER_CHECK", "whole_word", "lesson_production", { canonicalWordId: word.canonicalWordId, word: word.word, splitPoints: [] }, [word.canonicalWordId]);
-  for (const word of lesson.words) add(`dictation:${word.canonicalWordId}`, "DICTATION", "single_word_gap", "lesson_dictation", { canonicalWordId: word.canonicalWordId, word: word.word, sentence: word.dictationSentence, audioText: word.audioText, ...(word.dictationVariant?{targetTokenIndex:word.dictationVariant.targetTokenIndex,dictationVariant:word.dictationVariant}:{}) }, [word.canonicalWordId]);
+  for (const word of lesson.words) add(`dictation:${word.canonicalWordId}`, "DICTATION", "single_word_gap", "lesson_dictation", { canonicalWordId: word.canonicalWordId, word: word.word, sentence: word.dictationSentence, audioText: word.audioText,
+    ...(word.senseId ? { senseId: word.senseId, pronunciationId: word.pronunciationId,
+      pronunciationIpa: word.pronunciationIpa } : {}),
+    ...(word.dictationVariant?{targetTokenIndex:word.dictationVariant.targetTokenIndex,dictationVariant:word.dictationVariant}:{}) }, [word.canonicalWordId]);
   add("lesson-reflection", "LESSON_REFLECTION", "standard_lesson_reflection", "lesson_reflection", { promptKey: `ing:${lesson.microSkillKey}:reflection:v1`, promptText: lesson.reflectionPrompt }, lesson.words.map(w => w.canonicalWordId));
   return list.map((entry, index) => ({ ...entry, contractVersion: 3, order: index + 1 }));
 }
@@ -37,7 +42,9 @@ export function ingAssignmentItems(lesson: IngLessonV1, childId: string, parentU
         targetWord: word?.word ?? null, position, status: "ready",
         promptData: { ingActivityId: activity.activityId, canonical: activity.canonical, ...(activity.activityId === "teaching-pages" && index === 0 ? { ingLesson: lesson } : {}) },
         metadata: { planDate: date, sectionKey: activity.sectionKey, provenance: word?.learningItemId ? "authentic_target" : "generated_dictionary_practice", microSkillKey: lesson.microSkillKey,
-          canonicalWordId, expectedEvidenceKind: activity.sectionKey === "lesson_production" || activity.sectionKey === "lesson_dictation" ? "controlled_word" : null,
+          canonicalWordId, ...(word?.senseId ? { senseId: word.senseId,
+            pronunciationId: word.pronunciationId, pronunciationIpa: word.pronunciationIpa } : {}),
+          expectedEvidenceKind: activity.sectionKey === "lesson_production" || activity.sectionKey === "lesson_dictation" ? "controlled_word" : null,
           adleLearningItemRef: word?.learningItemId ?? null, composerPolicyVersion: "ing_six_word_v1", schedulePolicyVersion: "review_policy_v1_2026-07-04" } });
     });
   }

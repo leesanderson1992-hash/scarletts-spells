@@ -3,7 +3,9 @@ import { ING_RULE_FOR_SKILL, ingWordBlockers, type IngDictionaryWordV1,
 import { evaluateLessonCandidate, type CandidateInput, type CandidateIssue } from "./lesson-candidate";
 
 export type GeneratedIngWord = Omit<IngDictionaryWordV1,
-  "reviewerRef" | "approvalRef" | "rowStatus" | "reviewStatus">;
+  "reviewerRef" | "approvalRef" | "rowStatus" | "reviewStatus"> & {
+    senseId: string; pronunciationId: string; pronunciationIpa: string;
+  };
 export type IngRecipeResult =
   | { status: "ready"; word: GeneratedIngWord; issues: [] }
   | { status: "needs_facts" | "not_match"; word: null; issues: CandidateIssue[] };
@@ -47,9 +49,14 @@ export function generateIngWordFromOverview(input: CandidateInput & {
   const base = parts.find(part => part.kind === "base" && part.id === link?.component_part_id);
   if (!base) issues.push({ code: "LESSON_BASE", message: "Choose the reviewed free-base family part.",
     href: `${href}#td-base-family` });
+  const pronunciation = input.senseSet?.pronunciations.find(item => item.id === sense?.pronunciationId);
+  if (!pronunciation?.ipa.trim())
+    issues.push({ code: "LESSON_PRONUNCIATION", message: "Review this meaning's pronunciation.",
+      href: `${href}#td-pronunciation` });
   if (issues.length || !sense || !base) return { status: "needs_facts", word: null, issues };
   const word: GeneratedIngWord = {
     canonicalWordId: input.wordId, microSkillKey: input.skillKey as IngMicroSkill,
+    senseId: sense.id, pronunciationId: sense.pronunciationId!, pronunciationIpa: pronunciation!.ipa,
     base: String(base.sourceText).toLocaleLowerCase("en-GB"),
     word: input.displayWord.toLocaleLowerCase("en-GB"), meaning: sense.definition,
     dictationSentence: sentence, audioText: sentence, sourceRefs: [source],

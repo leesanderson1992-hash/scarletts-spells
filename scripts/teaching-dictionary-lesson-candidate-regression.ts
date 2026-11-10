@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { ING_MICRO_SKILLS } from "../lib/adle/ing/contracts";
 import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
+import { compileIngLesson, validateIngLesson } from "../lib/adle/ing/lesson";
+import { ingActivityDeclarations, ingAssignmentItems } from "../lib/adle/ing/snapshot";
+import { ingReleasedWordMatchesCurrentOverview } from "../lib/adle/ing/current-overview";
 import { evaluateLessonCandidate } from "../lib/teaching-dictionary-manager/lesson-candidate";
 import { approvedGeneratedIngWord, generateIngWordFromOverview } from "../lib/teaching-dictionary-manager/ing-overview-recipe";
 import { previewIngOverviewRelease } from "../lib/teaching-dictionary-manager/ing-overview-release-preview";
@@ -49,6 +52,9 @@ const recipe = generateIngWordFromOverview({ ...reading,
 assert.equal(recipe.status, "ready");
 if (recipe.status === "ready") {
   assert.equal(recipe.word.base, "read");
+  assert.equal(recipe.word.senseId, "reading-verb");
+  assert.equal(recipe.word.pronunciationId, "reading-ipa");
+  assert.equal(recipe.word.pronunciationIpa, "/ˈriːdɪŋ/");
   assert.equal(recipe.word.meaning, "The act of reading.");
   assert.equal(recipe.word.dictationSentence, "She is reading a book.");
   assert.deepEqual(recipe.word.sourceRefs, ["Reviewed import"]);
@@ -56,6 +62,38 @@ if (recipe.status === "ready") {
     approvalRef: "governed-release" })?.word, "reading");
   assert.equal(approvedGeneratedIngWord({ generated: recipe.word, reviewerRef: "reviewer",
     approvalRef: "" }), null);
+  const approved = approvedGeneratedIngWord({ generated: recipe.word, reviewerRef: "reviewer",
+    approvalRef: "governed-release" });
+  assert(approved);
+  const currentReleased = { released: approved, senseSet: reading.senseSet,
+    morphology: { ...reading.morphology, id: "reviewed-morphology" },
+    familyLinks: [{ ...reading.familyLinks[0], id: "read-family-link" }],
+    decision, boundSenseIds: ["reading-verb"], sourceName: "Reviewed import", sourceUrl: null };
+  assert(ingReleasedWordMatchesCurrentOverview(currentReleased));
+  assert(!ingReleasedWordMatchesCurrentOverview({ ...currentReleased, boundSenseIds: [] }));
+  assert(!ingReleasedWordMatchesCurrentOverview({ ...currentReleased,
+    senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
+      definition: "A changed meaning." }] } }));
+  assert(!ingReleasedWordMatchesCurrentOverview({ ...currentReleased, sourceName: "Changed source" }));
+  assert(!ingReleasedWordMatchesCurrentOverview({ ...currentReleased,
+    decision: { ...decision, action: "withdraw" } }));
+  const selected = { ok: true as const, words: [
+    { ...approved, learningItemId: "reviewed:reading" },
+    ...ingPreviewPool("D4_INF_ING_ENDINGS_REGULAR").filter(word => word.word !== "reading")
+      .slice(0, 5).map(word => ({ ...word, learningItemId: null })),
+  ], queuedTargets: [{ canonicalWordId: approved.canonicalWordId,
+    learningItemId: "reviewed:reading" }], deferredLearningItemIds: [] };
+  const lesson = compileIngLesson(selected, "fixture:overview-sense", "dev_fixture");
+  assert(validateIngLesson(lesson, true));
+  const meaningActivity = ingActivityDeclarations(lesson).find(item => item.activityId === "meaning-match");
+  const targets = meaningActivity?.payload.targets as { senseId?: string; pronunciationId?: string }[];
+  assert.deepEqual({ senseId: targets[0].senseId, pronunciationId: targets[0].pronunciationId },
+    { senseId: "reading-verb", pronunciationId: "reading-ipa" });
+  const dictationActivity = ingActivityDeclarations(lesson).find(item =>
+    item.activityId === `dictation:${approved.canonicalWordId}`);
+  assert.equal(dictationActivity?.payload.senseId, "reading-verb");
+  const assignment = ingAssignmentItems(lesson, "child", "parent", "2026-11-10");
+  assert.equal(assignment.find(item => item.targetWord === "reading")?.metadata.senseId, "reading-verb");
 }
 assert.equal(generateIngWordFromOverview({ ...reading,
   provenance: { sourceName: "", sourceUrl: "" } }).status, "needs_facts");
