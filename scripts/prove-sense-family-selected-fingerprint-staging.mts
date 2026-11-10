@@ -34,7 +34,9 @@ try {
   assert.equal(before.rows[0].sense_id, reviewed.rows[0].sense_set.senses[0].id);
   await db.query("begin");
   await db.query("set local lock_timeout='5s'");
-  await db.query(body);
+  const applied = await db.query<{ present: boolean }>(`select exists(select 1 from
+    supabase_migrations.schema_migrations where version='20261111010000') present`);
+  if (!applied.rows[0].present) await db.query(body);
   const converted = await db.query<{ sense_fingerprint: string }>(`select sense_fingerprint
     from public.teaching_dictionary_sense_family_selected_facts where event_id=$1`, [before.rows[0].id]);
   assert.match(converted.rows[0]?.sense_fingerprint ?? "", /^[a-f0-9]{64}$/);

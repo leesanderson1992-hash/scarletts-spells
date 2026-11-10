@@ -51,29 +51,30 @@ try {
   const family = await db.query(`select max(revision)::int revision from
     public.canonical_teaching_dictionary_lexical_base_families
     where family_key='read_verb_base_family' and review_status='approved'`);
-  assert.equal(family.rows[0].revision, 1);
+  const currentRevision = family.rows[0].revision as number;
+  assert(Number.isInteger(currentRevision) && currentRevision > 0);
   await db.query("savepoint rejected_sense");
   try {
     await db.query(`select public.review_lexical_base_family_member_for_sense(
-      $1,'read_verb_base_family',1,$2,$3,'verb','regular_inflection',
-      'missing-sense','base','Disposable rollback proof',$4,'Disposable rollback proof')`,
-    [randomUUID(),wordId,morphology.rows[0].id,actor]);
+      $1,'read_verb_base_family',$2,$3,$4,'verb','regular_inflection',
+      'missing-sense','base','Disposable rollback proof',$5,'Disposable rollback proof')`,
+    [randomUUID(),currentRevision,wordId,morphology.rows[0].id,actor]);
     throw new Error("MISSING_SENSE_UNEXPECTEDLY_APPROVED");
   } catch (error) {
     assert.match(String(error), /SENSE_FAMILY_MEANING_CONFLICT/);
     await db.query("rollback to savepoint rejected_sense");
   }
   const joined = await db.query(`select public.review_lexical_base_family_member_for_sense(
-    $1,'read_verb_base_family',1,$2,$3,'verb','regular_inflection',
-    $4,'base','Disposable rollback proof',$5,'Disposable rollback proof') revision`,
-  [randomUUID(),wordId,morphology.rows[0].id,senseId,actor]);
-  assert.equal(joined.rows[0].revision, 2);
+    $1,'read_verb_base_family',$2,$3,$4,'verb','regular_inflection',
+    $5,'base','Disposable rollback proof',$6,'Disposable rollback proof') revision`,
+  [randomUUID(),currentRevision,wordId,morphology.rows[0].id,senseId,actor]);
+  assert.equal(joined.rows[0].revision, currentRevision + 1);
   const link = await db.query(`select family_key,current_family_revision,component_part_id
     from public.teaching_dictionary_current_sense_family_links
     where canonical_word_id=$1 and sense_id=$2`, [wordId,senseId]);
   assert.deepEqual(link.rows, [{ family_key: "read_verb_base_family",
-    current_family_revision: 2, component_part_id: "base" }]);
-  console.log(JSON.stringify({ result: "passed", word: "reading", atomicRevision: 2,
+    current_family_revision: currentRevision + 1, component_part_id: "base" }]);
+  console.log(JSON.stringify({ result: "passed", word: "reading", atomicRevision: currentRevision + 1,
     missingSenseRejected: true, changes: "rolled back" }));
   await db.query("rollback");
 } catch (error) {
