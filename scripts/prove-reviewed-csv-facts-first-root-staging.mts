@@ -19,6 +19,9 @@ const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: fal
 await db.connect();
 try {
   await db.query("begin");
+  const migration = readFileSync(
+    "supabase/migrations/20261110210000_teaching_csv_atomic_sense_family_link.sql", "utf8");
+  await db.query(migration.slice("begin;\n".length, -"\ncommit;\n".length));
   await db.query(`update public.adle_word_skill_review_controls
     set review_enabled=true,publication_enabled=true,withdrawal_enabled=true
     where environment_key='staging'`);
@@ -51,6 +54,12 @@ try {
     public.teaching_dictionary_import_candidate_handoffs where draft_id=$1`, [draftId]);
   assert.deepEqual(queue.rows.map(row => row.micro_skill_key).sort(),
     [...reviewed.payload.skillKeys].sort());
+  const links = await db.query(`select family_key,component_part_id from
+    public.teaching_dictionary_current_sense_family_links
+    where canonical_word_id=$1 and sense_id=$2`,
+  [wordId, payload.senseSet!.senses[0].id]);
+  assert.deepEqual(links.rows, [{ family_key: "veget_bound_root_base_family",
+    component_part_id: "part_1" }]);
   await db.query("rollback");
   const controls = await db.query(`select review_enabled,publication_enabled,withdrawal_enabled
     from public.adle_word_skill_review_controls where environment_key='staging'`);
@@ -58,7 +67,7 @@ try {
     withdrawal_enabled: false }]);
   console.log(JSON.stringify({ result: "passed", word: "vegetable",
     rootFamilyPreserved: true, pairSetUnchanged: true,
-    requestedSkillsQueued: true, changes: "rolled back" }));
+    requestedSkillsQueued: true, senseFamilyLinked: true, changes: "rolled back" }));
 } catch (error) {
   await db.query("rollback").catch(() => {});
   throw error;
