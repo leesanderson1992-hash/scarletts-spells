@@ -261,6 +261,7 @@ export function canonicalBaseFact(parts: readonly unknown[]): { text: string; me
 
 export function sharedRouteContentKeys(routeId: string, payload: WordDraftPayload): string[] {
   const base = canonicalBaseFact(payload.canonicalMorphology.parts);
+  if (routeId === "ing_endings_word_lab") return ["base", "sourceRefs"];
   if (!base) return [];
   if (routeId === "dynamic_affix_word_lab")
     return [...(base.text ? ["semanticBaseText", "semanticBaseKind"] : []),
@@ -322,10 +323,8 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     && `${ingStem(base.text.toLocaleLowerCase("en-GB"),
       ING_RULE_FOR_SKILL[route.microSkillKey as IngMicroSkill])}ing` === payload.displayWord.toLocaleLowerCase("en-GB")) {
     content.base = base.text;
-    if (!Array.isArray(content.sourceRefs) || !content.sourceRefs.length) {
-      const source = payload.provenance.sourceUrl.trim() || payload.provenance.sourceName.trim();
-      if (source) content.sourceRefs = [source];
-    }
+    const source = payload.provenance.sourceUrl.trim() || payload.provenance.sourceName.trim();
+    content.sourceRefs = source ? [source] : [];
   }
   return {
     ...route,
@@ -492,9 +491,13 @@ export function routeBlockers(routeInput: RouteContentDraft, payload: WordDraftP
     }
   }
   if (route.routeId === "ing_endings_word_lab") {
+    if (payload.senseSet && !selectedSense) blockers.push("Choose the reviewed Overview meaning for this lesson.");
+    if (selectedSense && payload.canonicalMorphology.analysisStatus !== "approved")
+      blockers.push("Approve the Overview word parts before release.");
     if (!route.content.base) blockers.push("Add the unchanged base word.");
     if (route.microSkillKey.endsWith("DOUBLE_FINAL_CONSONANT") && !route.content.doublingPattern) blockers.push("Choose the doubling pattern.");
-    if (!route.content.sourceRefs) blockers.push("Add source references for the derived form.");
+    if (!Array.isArray(route.content.sourceRefs) || !route.content.sourceRefs.length)
+      blockers.push("Add reviewed Overview provenance for the derived form.");
   }
   if (route.routeId === "comparative_superlative_word_lab") {
     for (const [field, label] of [["familyKey", "adjective family"], ["degreeWords", "base, comparative and superlative forms"],

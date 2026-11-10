@@ -78,10 +78,25 @@ const dictionary:WordDraftPayload={displayWord:"jumping",definition:"moving off 
 const ingWords=ING_MICRO_SKILLS.flatMap(skill=>ingPreviewPool(skill).map(word=>({...word,canonicalWordId:randomUUID(),rowStatus:"active" as const,reviewStatus:"approved_for_first_exposure" as const,reviewerRef:"test",approvalRef:"test"})));
 const ingPackage=buildIngReleasePackage(ingWords,"test:ing",["test"]);
 const word=ingWords.find(word=>word.word==="jumping")!;
-const candidate={id:randomUUID(),canonicalWordId:word.canonicalWordId,reviewedBy:randomUUID(),dictionary,route:{routeId:"ing_endings_word_lab",routeVersion:"v1",microSkillKey:word.microSkillKey,wordMeaning:dictionary.definition,wordSum:"",content:{base:"jump"}}};
+dictionary.senseSet={pronunciations:[{id:"jumping-pronunciation",ipa:"/ˈdʒʌmpɪŋ/",spokenSyllableCount:2,stressPattern:"primary-unstressed"}],
+  senses:[{id:"jumping-sense",partOfSpeech:"verb",definition:dictionary.definition,
+    pronunciationId:"jumping-pronunciation",dictationSentence:dictionary.dictationSentence,dictationTargetTokenIndex:2}]};
+dictionary.skillSenseIds={[word.microSkillKey]:"jumping-sense"};
+dictionary.canonicalMorphology={...emptyMorphology(),analysisStatus:"approved",wordSum:"jump + ing → jumping",
+  parts:[{id:"jump-base",kind:"base",sourceText:"jump",surfaceText:"jump",gloss:"move off the ground"},
+    {id:"jump-ing",kind:"suffix",sourceText:"ing",surfaceText:"ing",gloss:"action in progress"}],
+  joins:[{afterPartId:"jump-base",beforePartId:"jump-ing",joinType:"none"}]};
+const candidate={id:randomUUID(),canonicalWordId:word.canonicalWordId,reviewedBy:randomUUID(),dictionary,route:{routeId:"ing_endings_word_lab",routeVersion:"v1",microSkillKey:word.microSkillKey,wordMeaning:"Stale route meaning",wordSum:"",content:{base:"wrong",sourceRefs:["Stale route source"]}}};
 const ing=buildGovernedPackage({routeId:candidate.route.routeId,manifest:ingPackage.manifest,authorities:projection(ingPackage).reverse(),candidates:[candidate]});
 assert.deepEqual(ing.blockers,[]);assert(ing.package);
 const ingAuthority=ing.package.authorities.find(a=>a.authorityType==="ing_word_members"&&a.semanticProjection.microSkillKey===word.microSkillKey)!;
+const generatedWord=ingAuthority.semanticProjection.words.find((entry:{canonicalWordId:string})=>entry.canonicalWordId===word.canonicalWordId);
+assert.equal(generatedWord.base,"jump");assert.equal(generatedWord.meaning,dictionary.definition);
+assert.deepEqual(generatedWord.sourceRefs,["Test"],"Overview facts replace stale route copies at package time");
+const unreviewedIng=buildGovernedPackage({routeId:candidate.route.routeId,manifest:ingPackage.manifest,
+  authorities:projection(ingPackage),candidates:[{...candidate,dictionary:{...dictionary,
+    canonicalMorphology:{...dictionary.canonicalMorphology,analysisStatus:"in_review"}}}]});
+assert(unreviewedIng.blockers.some(blocker=>blocker.includes("approve the Overview word parts")));
 const varied=applyIngDictationVariants(ingAuthority.semanticProjection.words,ingAuthority.semanticProjection.dictationSets,"stable-date",ingAuthority.semanticFingerprint);
 assert.deepEqual(ingWordBlockers(varied.find(w=>w.canonicalWordId===word.canonicalWordId)!),[]);
 const shared={db,revision:{id:randomUUID()},release:{id:randomUUID(),release_key:"test",release_manifest_sha256:"a".repeat(64),dependency_fingerprint:"b".repeat(64)},environment:"staging" as const};
@@ -146,7 +161,7 @@ assert.equal((await preflightGovernedRelease(weakChanged)).ready,false);
 const nativeAuthorities=(pkg:NonNullable<typeof ing.package>,skill:string)=>pkg.authorities.filter(a=>a.semanticProjection.microSkillKey===skill).map(a=>({id:a.authorityKey,authority_type:a.authorityType,semantic_projection:a.semanticProjection,semantic_fingerprint:a.semanticFingerprint}));
 const preflight=await preflightGovernedRelease({...shared,routeId:candidate.route.routeId,skill:word.microSkillKey,authorities:nativeAuthorities(ing.package,word.microSkillKey)});
 assert(preflight.ready,preflight.blockers.join(","));assert.equal(Object.keys(preflight.witnesses).length,7);
-const invalid=structuredClone(ing.package);invalid.authorities.find(a=>a.authorityKey===ingAuthority.authorityKey)!.semanticProjection.dictationSets[word.canonicalWordId][1].targetTokenIndex=1;
+const invalid=structuredClone(ing.package);invalid.authorities.find(a=>a.authorityKey===ingAuthority.authorityKey)!.semanticProjection.dictationSets[word.canonicalWordId][0].targetTokenIndex=1;
 assert.equal((await preflightGovernedRelease({...shared,routeId:candidate.route.routeId,skill:word.microSkillKey,authorities:nativeAuthorities(invalid,word.microSkillKey)})).ready,false);
 
 const canonicalWords=Object.fromEntries(HOMOPHONE_LESSONS.map(lesson=>[lesson.microSkillKey,Object.fromEntries(lesson.words.map(word=>[word.word,randomUUID()]))]));

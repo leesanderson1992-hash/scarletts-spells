@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { evaluateLessonCandidate } from "../lib/teaching-dictionary-manager/lesson-candidate";
-import { routeBlockers, routeWithSharedFacts, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
+import { routeBlockers, routeWithSharedFacts, sharedRouteContentKeys, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 
 const reading = {
   wordId: "00000000-0000-4000-8000-000000000101",
@@ -49,5 +49,14 @@ const generated = routeWithSharedFacts(ingRoute, payload);
 assert.equal(generated.wordMeaning, "The act of reading.");
 assert.equal(generated.content.base, "read");
 assert.deepEqual(generated.content.sourceRefs, ["Reviewed import"]);
+assert.deepEqual(sharedRouteContentKeys("ing_endings_word_lab", payload), ["base", "sourceRefs"]);
 assert.deepEqual(routeBlockers(ingRoute, payload), []);
+const staleRoute = { ...ingRoute, wordMeaning: "Old meaning",
+  content: { base: "reed", sourceRefs: ["Old source"] } };
+const regenerated = routeWithSharedFacts(staleRoute, payload);
+assert.equal(regenerated.wordMeaning, "The act of reading.");
+assert.equal(regenerated.content.base, "read");
+assert.deepEqual(regenerated.content.sourceRefs, ["Reviewed import"]);
+assert.deepEqual(routeBlockers(staleRoute, { ...payload, provenance: { ...payload.provenance,
+  sourceName: "", sourceUrl: "" } }), ["Add reviewed Overview provenance for the derived form."]);
 console.log("lesson candidate rules: passed");
