@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { ING_MICRO_SKILLS } from "../lib/adle/ing/contracts";
+import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
 import { evaluateLessonCandidate } from "../lib/teaching-dictionary-manager/lesson-candidate";
+import { approvedGeneratedIngWord, generateIngWordFromOverview } from "../lib/teaching-dictionary-manager/ing-overview-recipe";
+import { previewIngOverviewRelease } from "../lib/teaching-dictionary-manager/ing-overview-release-preview";
+import { candidateDecisionIsCurrent } from "../lib/teaching-dictionary-manager/candidate-decision-current";
 import { routeBlockers, routeWithSharedFacts, sharedRouteContentKeys, type WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
 
 const reading = {
@@ -21,10 +27,54 @@ const reading = {
 };
 
 assert.equal(evaluateLessonCandidate(reading).status, "ready");
+const decision = { action: "approve", sense_id: reading.senseId,
+  pronunciation_id: "reading-ipa", rule_revision: "reviewed_overview_candidate_v1",
+  fact_snapshot: { senseId: reading.senseId, senseSet: reading.senseSet,
+    morphologyId: "reviewed-morphology", familyLinkIds: ["read-family-link"] } };
+const currentFacts = { event: decision, senseId: reading.senseId,
+  senseSet: reading.senseSet, morphologyId: "reviewed-morphology",
+  familyLinkIds: ["read-family-link"] };
+assert(candidateDecisionIsCurrent(currentFacts));
+assert(candidateDecisionIsCurrent({ ...currentFacts, senseSet: { ...reading.senseSet,
+  senses: [...reading.senseSet.senses, { id: "unrelated", partOfSpeech: "noun",
+    definition: "Another meaning", pronunciationId: "reading-ipa" }] } }),
+"reviewing another meaning does not stale this lesson's approved meaning");
+assert(!candidateDecisionIsCurrent({ ...currentFacts, senseSet: { ...reading.senseSet,
+  senses: [{ ...reading.senseSet.senses[0], definition: "Changed selected meaning" }] } }));
+assert(!candidateDecisionIsCurrent({ ...currentFacts, morphologyId: "new-morphology" }));
+assert(!candidateDecisionIsCurrent({ ...currentFacts, familyLinkIds: [] }));
+assert(!candidateDecisionIsCurrent({ ...currentFacts, event: { ...decision, action: "withdraw" } }));
+const recipe = generateIngWordFromOverview({ ...reading,
+  provenance: { sourceName: "Reviewed import", sourceUrl: null } });
+assert.equal(recipe.status, "ready");
+if (recipe.status === "ready") {
+  assert.equal(recipe.word.base, "read");
+  assert.equal(recipe.word.meaning, "The act of reading.");
+  assert.equal(recipe.word.dictationSentence, "She is reading a book.");
+  assert.deepEqual(recipe.word.sourceRefs, ["Reviewed import"]);
+  assert.equal(approvedGeneratedIngWord({ generated: recipe.word, reviewerRef: "reviewer",
+    approvalRef: "governed-release" })?.word, "reading");
+  assert.equal(approvedGeneratedIngWord({ generated: recipe.word, reviewerRef: "reviewer",
+    approvalRef: "" }), null);
+}
+assert.equal(generateIngWordFromOverview({ ...reading,
+  provenance: { sourceName: "", sourceUrl: "" } }).status, "needs_facts");
 assert.deepEqual(evaluateLessonCandidate({ ...reading, familyLinks: [] }).issues.map(issue => issue.code),
   ["FAMILY_LINK"]);
 assert.equal(evaluateLessonCandidate({ ...reading, skillKey: "D4_INF_ING_ENDINGS_DROP_E" }).status,
   "not_match");
+const invalidDropE = evaluateLessonCandidate({ ...reading, displayWord: "boing",
+  skillKey: "D4_INF_ING_ENDINGS_DROP_E", morphology: { ...reading.morphology,
+    wordSum: "box + ing → boing", parts: [
+      { id: "base", kind: "base", sourceText: "box", surfaceText: "bo", gloss: "a box" },
+      reading.morphology.parts[1]] } });
+assert.equal(invalidDropE.status, "not_match", "drop-e requires a base ending in e");
+const invalidIe = evaluateLessonCandidate({ ...reading, displayWord: "fying",
+  skillKey: "D4_INF_ING_ENDINGS_IE_TO_Y", morphology: { ...reading.morphology,
+    wordSum: "foe + ing → fying", parts: [
+      { id: "base", kind: "base", sourceText: "foe", surfaceText: "fy", gloss: "an adversary" },
+      reading.morphology.parts[1]] } });
+assert.equal(invalidIe.status, "not_match", "ie-to-y requires a base ending in ie");
 const vegetable = evaluateLessonCandidate({ ...reading, displayWord: "vegetable",
   skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE",
   morphology: { ...reading.morphology, wordSum: "veget + able → vegetable",
@@ -59,4 +109,14 @@ assert.equal(regenerated.content.base, "read");
 assert.deepEqual(regenerated.content.sourceRefs, ["Reviewed import"]);
 assert.deepEqual(routeBlockers(staleRoute, { ...payload, provenance: { ...payload.provenance,
   sourceName: "", sourceUrl: "" } }), ["Add reviewed Overview provenance for the derived form."]);
+const releaseWords = ING_MICRO_SKILLS.flatMap(skill => ingPreviewPool(skill).slice(0, 6)
+  .map(word => ({ ...word, canonicalWordId: randomUUID(), rowStatus: "active" as const,
+    reviewStatus: "approved_for_first_exposure" as const, reviewerRef: "reviewed",
+    approvalRef: `approved:${word.word}` })));
+const incompletePool = previewIngOverviewRelease(releaseWords.slice(1), "test:ing");
+assert.equal(incompletePool.status, "needs_words");
+assert.deepEqual(incompletePool.missing, [{ skill: ING_MICRO_SKILLS[0], count: 1 }]);
+const fullPool = previewIngOverviewRelease(releaseWords, "test:ing");
+assert.equal(fullPool.status, "ready");
+assert(fullPool.package?.packageSha256);
 console.log("lesson candidate rules: passed");

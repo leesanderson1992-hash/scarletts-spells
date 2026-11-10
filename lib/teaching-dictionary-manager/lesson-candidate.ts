@@ -81,9 +81,15 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   if (!base) add("FAMILY_LINK", `Review a ${expectedRelationship.replaceAll("_", " ")} link to this meaning's free-base family.`, "td-base-family");
   else evidence.push(`Base ${String(base.sourceText)} linked to a reviewed family`);
   if (ingKeys.has(input.skillKey) && base) {
-    const expected = `${ingStem(String(base.sourceText).toLocaleLowerCase("en-GB"),
-      ING_RULE_FOR_SKILL[input.skillKey as IngMicroSkill])}ing`;
+    const baseText = String(base.sourceText).toLocaleLowerCase("en-GB");
+    const rule = ING_RULE_FOR_SKILL[input.skillKey as IngMicroSkill];
+    const expected = `${ingStem(baseText, rule)}ing`;
     if (expected !== spelling) return done("not_match");
+    if (rule === "drop_e" && (!baseText.endsWith("e") || baseText.endsWith("ie")))
+      return done("not_match");
+    if (rule === "ie_to_y" && !baseText.endsWith("ie")) return done("not_match");
+    if (rule === "double_final_consonant" && !/[aeiou][b-df-hj-np-tv-z]$/.test(baseText))
+      return done("not_match");
     if (input.skillKey.endsWith("DOUBLE_FINAL_CONSONANT"))
       add("DOUBLING_PATTERN", "Choose the reviewed doubling pattern for this lesson.", `td-route-${input.skillKey}`);
     evidence.push(`${String(base.sourceText)} + ing → ${spelling}`);

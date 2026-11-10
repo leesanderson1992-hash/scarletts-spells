@@ -1027,13 +1027,14 @@ async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: st
     for (const [key] of managerApprovals) if (!onlyKey && !keys.includes(key) && effectiveKeys.has(key)) {
       const result = await saveBulkSkillApprovals({ microSkillKey: key, applyWordIds: [],
         excludeWordIds: [], clearWordIds: [], deassignWordIds: [wordId], senseIds: {},
-        requestId: randomUUID() });
+        requestId: randomUUID(), sourceKind: "teaching_dictionary_word" });
       if (!result.ok) throw new Error("WORD_SKILL_WITHDRAWAL_FAILED");
     }
     for (const key of keys) {
       const result = await saveBulkSkillApprovals({ microSkillKey: key, applyWordIds: [wordId],
         excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
-        senseIds: { [wordId]: skillSenses[key] }, requestId: randomUUID() });
+        senseIds: { [wordId]: skillSenses[key] }, requestId: randomUUID(),
+        sourceKind: "teaching_dictionary_word" });
       if (!result.ok) throw new Error(result.blocked.length
         ? "TEACHING_LESSON_REQUIREMENTS_INCOMPLETE"
         : result.error ?? "TEACHING_LESSON_SENSE_BIND_FAILED");
