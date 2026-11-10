@@ -94,8 +94,9 @@ const suffixChecklist = routeRequirements(routeContentForReadiness({
   routeId: "dynamic_affix_word_lab", routeVersion: "v3", microSkillKey: "D4_MOR_SUFFIXES_ITY",
 }, row.payload), row.payload);
 assert(suffixChecklist.some((item) => item.label === "suffix form" && item.status === "missing"
-  && item.editTarget === "td-route-D4_MOR_SUFFIXES_ITY-suffixVariant"));
-assert(suffixChecklist.some((item) => item.label === "the dictionary dictation sentence" && item.status === "present"));
+  && item.editTarget === "td-canonical-parts"));
+assert(suffixChecklist.some((item) => item.label === "a sentence for the selected meaning"
+  && item.status === "present" && item.editTarget === "td-dictation"));
 const sharedMorphologyPayload = structuredClone(row.payload);
 sharedMorphologyPayload.canonicalMorphology.parts = [{ id: "part_1", surfaceText: "renew", sourceText: "renew", kind: "base" }];
 sharedMorphologyPayload.canonicalMorphology.joins = [];
@@ -177,12 +178,28 @@ assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
 assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");
 assert.equal(completedAbilityRoute.content.baseMeaning, "capable of doing something");
 const staleAbilityRoute = routeWithSharedFacts({ ...abilityRoute, content: { ...abilityRoute.content,
-  semanticBaseText: "old", semanticBaseKind: "root", baseMeaning: "old" } }, abilityPayload);
+  suffixVariant: "old", semanticBaseText: "old", semanticBaseKind: "root", baseMeaning: "old" } }, abilityPayload);
+assert.equal(staleAbilityRoute.content.suffixVariant, "ity");
 assert.equal(staleAbilityRoute.content.semanticBaseText, "able");
 assert.equal(staleAbilityRoute.content.semanticBaseKind, "base");
 assert.equal(staleAbilityRoute.content.baseMeaning, "capable of doing something");
 assert.deepEqual(sharedRouteContentKeys("dynamic_affix_word_lab", abilityPayload),
-  ["semanticBaseText", "semanticBaseKind", "baseMeaning"]);
+  ["suffixVariant", "semanticBaseText", "semanticBaseKind", "baseMeaning"]);
+const missingApprovedSuffix = routeWithSharedFacts(staleAbilityRoute, {
+  ...abilityPayload, canonicalMorphology: { ...abilityPayload.canonicalMorphology,
+    parts: [abilityPayload.canonicalMorphology.parts[0]], joins: [], wordSum: "able" },
+});
+assert.equal(missingApprovedSuffix.content.suffixVariant, "");
+assert(routeBlockers(staleAbilityRoute, { ...abilityPayload,
+  canonicalMorphology: { ...abilityPayload.canonicalMorphology,
+    parts: [abilityPayload.canonicalMorphology.parts[0]], joins: [], wordSum: "able" } })
+  .includes("Add suffix form."), "a stale route suffix cannot satisfy a changed approved Overview");
+const missingApprovedBase = routeWithSharedFacts(staleAbilityRoute, {
+  ...abilityPayload, canonicalMorphology: { ...abilityPayload.canonicalMorphology,
+    parts: [abilityPayload.canonicalMorphology.parts[1]], joins: [], wordSum: "ity" },
+});
+assert.equal(missingApprovedBase.content.semanticBaseText, "");
+assert.equal(missingApprovedBase.content.baseMeaning, "");
 const staleBaseRoute = routeWithSharedFacts({ ...baseRoute, content: { ...baseRoute.content,
   baseWord: "old", baseMeaning: "old" } }, abilityPayload);
 assert.equal(staleBaseRoute.content.baseWord, "able");

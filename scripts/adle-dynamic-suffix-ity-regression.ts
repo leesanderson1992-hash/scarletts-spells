@@ -78,9 +78,11 @@ const overview: WordDraftPayload = {
 };
 const projected = routeWithSharedFacts({ routeId: "dynamic_affix_word_lab", routeVersion: "v3",
   microSkillKey: profile.microSkillKey, wordMeaning: "outdated route meaning", wordSum: "outdated route sum",
-  content: { semanticBaseText: "wrong", baseMeaning: "wrong", trueMorphologyParts: [] } }, overview);
+  content: { suffixVariant: "ness", semanticBaseText: "wrong", baseMeaning: "wrong",
+    trueMorphologyParts: [] } }, overview);
 assert.equal(projected.wordMeaning, equality.newWordMeaning);
 assert.equal(projected.wordSum, "equal + ity → equality");
+assert.equal(projected.content.suffixVariant, "ity");
 assert.deepEqual(projected.content.trueMorphologyParts, overview.canonicalMorphology.parts);
 assert.equal(projected.content.baseMeaning, equality.baseMeaning);
 const derived = deriveReviewedSuffixCandidate(profile, {

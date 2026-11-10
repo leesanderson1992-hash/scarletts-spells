@@ -201,6 +201,13 @@ const regenerated = routeWithSharedFacts(staleRoute, payload);
 assert.equal(regenerated.wordMeaning, "The act of reading.");
 assert.equal(regenerated.content.base, "read");
 assert.deepEqual(regenerated.content.sourceRefs, ["Reviewed import"]);
+const changedOverview = { ...payload, canonicalMorphology: { ...payload.canonicalMorphology,
+  parts: [{ id: "root", kind: "root", sourceText: "reading", surfaceText: "reading",
+    gloss: "the activity" }], joins: [], wordSum: "reading" } };
+assert.equal(routeWithSharedFacts({ ...staleRoute, content: { ...staleRoute.content,
+  base: "read" } }, changedOverview).content.base, "",
+"an old route base cannot survive a changed approved Overview analysis");
+assert(routeBlockers(staleRoute, changedOverview).includes("Add the unchanged base word."));
 assert.deepEqual(routeBlockers(staleRoute, { ...payload, provenance: { ...payload.provenance,
   sourceName: "", sourceUrl: "" } }), ["Add reviewed Overview provenance for the derived form."]);
 const releaseWords = ING_MICRO_SKILLS.flatMap(skill => ingPreviewPool(skill).slice(0, 6)

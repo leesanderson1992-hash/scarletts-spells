@@ -1498,6 +1498,7 @@ export function WordWorkspace(props: {
       </details>}
       {checks.map((row, index) => {
         const route = routeWithSharedFacts(row.content, payload);
+        const overviewFields = new Set(sharedRouteContentKeys(route.routeId, payload));
         const profile = props.profileOptions.find(
           (profile) => profile.microSkillKey === row.key,
         );
@@ -1548,7 +1549,7 @@ export function WordWorkspace(props: {
                         "meaning_sort",
                         "word_build",
                       ].includes(variant.kind) && (
-                        sharedField("Word meaning", payload.definition, "td-definition")
+                        sharedField("Word meaning", route.wordMeaning, "td-definition")
                       )}
                       {["cleaver", "word_build"].includes(variant.kind) && (
                         <>
@@ -1596,7 +1597,8 @@ export function WordWorkspace(props: {
                           key={field.key}
                           className="rounded-md bg-[var(--paper)] p-2"
                         >
-                          <Editable
+                          {overviewFields.has(field.key) ? sharedField(field.label,
+                            String(route.content[field.key] ?? ""), "td-canonical-parts") : <Editable
                             id={`td-route-${row.key}-${field.key}`}
                             label={field.label}
                             value={String(route.content[field.key] ?? "")}
@@ -1604,7 +1606,7 @@ export function WordWorkspace(props: {
                             onChange={(value) =>
                               updateRoute(row.key, { [field.key]: value })
                             }
-                          />
+                          />}
                         </div>
                       ))}
                     </div>

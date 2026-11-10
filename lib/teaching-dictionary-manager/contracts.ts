@@ -267,14 +267,17 @@ export function canonicalBaseFact(parts: readonly unknown[]): { text: string; me
 }
 
 export function sharedRouteContentKeys(routeId: string, payload: WordDraftPayload): string[] {
-  const base = canonicalBaseFact(payload.canonicalMorphology.parts);
   if (routeId === "ing_endings_word_lab") return ["base", "sourceRefs"];
-  if (!base) return [];
+  const approved = payload.canonicalMorphology.analysisStatus === "approved"
+    && payload.canonicalMorphology.parts.length > 0;
+  const base = canonicalBaseFact(payload.canonicalMorphology.parts);
   if (routeId === "dynamic_affix_word_lab")
-    return [...(base.text ? ["semanticBaseText", "semanticBaseKind"] : []),
-      ...(base.meaning ? ["baseMeaning"] : [])];
+    return approved ? ["suffixVariant", "semanticBaseText", "semanticBaseKind", "baseMeaning"]
+      : [...(base?.text ? ["semanticBaseText", "semanticBaseKind"] : []),
+        ...(base?.meaning ? ["baseMeaning"] : [])];
   if (["dynamic_prefix_word_lab", "base_word_lab"].includes(routeId))
-    return [...(base.text ? ["baseWord"] : []), ...(base.meaning ? ["baseMeaning"] : [])];
+    return approved ? ["baseWord", "baseMeaning"]
+      : [...(base?.text ? ["baseWord"] : []), ...(base?.meaning ? ["baseMeaning"] : [])];
   return [];
 }
 
@@ -285,11 +288,12 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
   const joins = payload.canonicalMorphology.joins;
   const content = { ...route.content };
   const base = canonicalBaseFact(parts);
+  const approvedParts = payload.canonicalMorphology.analysisStatus === "approved" && parts.length > 0;
   if (route.routeId === "dynamic_prefix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
     if (!Array.isArray(content.teachingSplitJoins)) content.teachingSplitJoins = joins;
-    if (base?.text) content.baseWord = base.text;
-    if (base?.meaning) content.baseMeaning = base.meaning;
+    if (base?.text || approvedParts) content.baseWord = base?.text ?? "";
+    if (base?.meaning || approvedParts) content.baseMeaning = base?.meaning ?? "";
   }
   if (route.routeId === "dynamic_affix_word_lab") {
     if (!Array.isArray(content.teachingSplitParts) || content.teachingSplitParts.length === 0) content.teachingSplitParts = parts;
@@ -299,14 +303,13 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
     content.trueMorphologyTransformations = payload.canonicalMorphology.transformations ?? [];
     const suffixes = parts.filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object" && !Array.isArray(part))
       .filter((part) => String(part.kind ?? part.role ?? part.type ?? part.partType ?? "") === "suffix");
-    if (!content.suffixVariant && suffixes.length === 1) {
-      content.suffixVariant = String(suffixes[0].surfaceText ?? suffixes[0].text ?? "");
+    if (suffixes.length === 1 || approvedParts) content.suffixVariant = suffixes.length === 1
+      ? String(suffixes[0].surfaceText ?? suffixes[0].text ?? "") : "";
+    if (base?.text || approvedParts) {
+      content.semanticBaseText = base?.text ?? "";
+      content.semanticBaseKind = base?.kind ?? "";
     }
-    if (base?.text) {
-      content.semanticBaseText = base.text;
-      content.semanticBaseKind = base.kind;
-    }
-    if (base?.meaning) content.baseMeaning = base.meaning;
+    if (base?.meaning || approvedParts) content.baseMeaning = base?.meaning ?? "";
     if (payload.canonicalMorphology.analysisStatus === "approved"
       && auditCanonicalMorphology({ parts, joins, displayWord: payload.displayWord,
         linkedToFamily: false }).status === "canonical"
@@ -321,8 +324,11 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
   }
   if (route.routeId === "base_word_lab") {
     content.morphologyParts = parts;
-    if (base?.text) content.baseWord = base.text;
-    if (base?.meaning) content.baseMeaning = base.meaning;
+    if (base?.text || approvedParts) content.baseWord = base?.text ?? "";
+    if (base?.meaning || approvedParts) content.baseMeaning = base?.meaning ?? "";
+  }
+  if (route.routeId === "ing_endings_word_lab" && approvedParts) {
+    content.base = "";
   }
   if (route.routeId === "ing_endings_word_lab" && base?.kind === "base"
     && payload.canonicalMorphology.analysisStatus === "approved"

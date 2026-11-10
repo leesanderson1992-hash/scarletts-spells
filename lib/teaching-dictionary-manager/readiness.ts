@@ -54,6 +54,7 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Add the route-specific teaching meaning.": "td-definition",
     "Add the word sum.": "td-canonical-word-sum",
     "Add the dictionary dictation sentence.": "td-dictation",
+    "Add a sentence for the selected meaning.": "td-dictation",
     "Set the dictionary age band.": "td-age-band",
     "Set the dictionary frequency band.": "td-frequency-band",
     "Set the dictionary complexity band.": "td-complexity-band",
@@ -63,6 +64,12 @@ export function requirementEditTarget(message: string, skillKey: string): string
     "Review whether the word has a schwa.": "td-has-schwa",
     "Add dictionary morphemes.": "td-morphemes",
     "Add dictionary morphology notes.": "td-morphology_notes",
+    "Add base word.": "td-canonical-parts",
+    "Add base meaning.": "td-canonical-parts",
+    "Add suffix form.": "td-canonical-parts",
+    "Add semantic base.": "td-canonical-parts",
+    "Add base or root classification.": "td-canonical-parts",
+    "Add the unchanged base word.": "td-canonical-parts",
   };
   if (shared[message]) return shared[message];
   const fieldByMessage: Record<string, string> = {
@@ -143,10 +150,9 @@ export function runtimeBlockerTarget(message:string,skill:string):string {
   if(text.includes("true morphology editorial")||text.includes("true morphology provenance"))return `td-route-${skill}-trueMorphologyProvenance`;
   if(text.includes("dictation")||text.includes("audio"))return "td-dictation";
   if(text.includes("pronunciation"))return "td-phoneme_hint";
-  if(text.includes("semantic base"))return `td-route-${skill}-semanticBaseText`;
-  if(text.includes("base and meaning"))return `td-route-${skill}-baseMeaning`;
+  if(text.includes("semantic base")||text.includes("base and meaning"))return "td-canonical-parts";
   if(text.includes("prefix form"))return `td-route-${skill}-prefixVariant`;
-  if(text.includes("suffix form"))return `td-route-${skill}-suffixVariant`;
+  if(text.includes("suffix form"))return "td-canonical-parts";
   if(text.includes("meaning group"))return `td-route-${skill}-meaningBinKey`;
   if(text.includes("true morphology")||text.includes("canonical morphology"))return "td-canonical-parts";
   if(text.includes("teaching part")||text.includes("teaching join"))return `td-route-${skill}-teachingSplitParts`;
