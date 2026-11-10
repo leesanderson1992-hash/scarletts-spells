@@ -73,6 +73,12 @@ try {
     assert.equal(bindings.rows.length, reviewed.payload.skillKeys.length);
     assert.deepEqual(bindings.rows.map(row => row.micro_skill_key), [...reviewed.payload.skillKeys].sort());
     assert.ok(bindings.rows.every(row => row.sense_id === reviewed.payload.senseSet?.senses[0].id));
+    const handoffs = await db.query(`select micro_skill_key,sense_id from
+      public.teaching_dictionary_import_candidate_handoffs
+      where draft_id=$1 and environment_key='staging' order by micro_skill_key`, [draftId]);
+    assert.deepEqual(handoffs.rows, [{ micro_skill_key: "D4_MOR_SUFFIXES_ABLE_IBLE",
+      sense_id: reviewed.payload.senseSet?.senses[0].id }],
+    "the supported candidate request must survive CSV publication");
     const families = await db.query(`select
       (select count(*)::int from public.canonical_teaching_dictionary_base_word_family_members
         where canonical_word_id=$1 and row_status='active') historical,
@@ -86,7 +92,7 @@ try {
     await db.query("rollback"); inTransaction = false;
     console.log(JSON.stringify({ result: "passed", word: "readable",
       skillsBound: bindings.rows.length, historicalFamilyPreserved: true,
-      canonicalFamilyApproved: true, changes: "rolled back" }));
+      canonicalFamilyApproved: true, candidateHandoffQueued: true, changes: "rolled back" }));
   }
 } finally {
   if (inTransaction) await db.query("rollback");

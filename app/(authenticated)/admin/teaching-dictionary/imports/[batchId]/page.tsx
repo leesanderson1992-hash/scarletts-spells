@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { loadImportCandidateRequests } from "@/lib/teaching-dictionary-manager/import-candidate-queue";
 import { publicationBlockers, routeBlockers, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import type { ImportCandidatePending } from "@/lib/teaching-dictionary-manager/import-candidate-handoff";
-import { publishTeachingDictionaryBatch } from "../../actions";
+import { publishTeachingDictionaryBatch, recheckImportedTeachingCandidate } from "../../actions";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
@@ -42,7 +44,8 @@ function candidatePending(value: string | undefined): ImportCandidatePending[] {
 export default async function TeachingDictionaryImportPage({ params, searchParams }: {
   params: Promise<{ batchId: string }>;
   searchParams: Promise<{ page?: string; published?: string; failed?: string; scanned?: string; cursor?: string; finished?: string; failures?: string;
-    candidateApproved?: string; candidatePendingCount?: string; candidatePending?: string }>;
+    candidateApproved?: string; candidatePendingCount?: string; candidatePending?: string;
+    recheck?: string; word?: string }>;
 }) {
   await requireAdminUser();
   const { batchId } = await params;
@@ -72,6 +75,12 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     if ((result.data?.length ?? 0) < FETCH_SIZE) break;
   }
   if (!allDrafts.length) notFound();
+  const environment = resolveAdleRouteActivationEnvironment();
+  const queued = environment === "staging" || environment === "production"
+    ? await loadImportCandidateRequests(db, allDrafts.map(draft => draft.id), environment) : [];
+  const outstanding = queued.filter(row => !row.current);
+  const namesByWord = new Map(allDrafts.filter(row => row.canonical_word_id)
+    .map(row => [row.canonical_word_id, row.normalised_word]));
   const done = new Set<string>();
   const publicationQueries = Array.from({ length: Math.ceil(allDrafts.length / 100) }, (_, index) =>
     allDrafts.slice(index * 100, (index + 1) * 100).map((draft) => draft.id));
@@ -127,6 +136,31 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
         {` · ${item.skillKey}: ${item.reason}`}
       </li>)}</ul>
     </div>}
+    {query.recheck && isUuid(query.word ?? "") && <p role="status" className={query.recheck === "approved"
+      ? "rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900"
+      : "rounded-lg bg-amber-50 p-3 text-sm text-amber-900"}>
+      {query.recheck === "approved" ? "The candidate passed the current checks."
+        : <>The candidate still needs facts. <Link className="underline" href={`/admin/teaching-dictionary/${query.word}#td-skills`}>Open the word’s lesson checks</Link>.</>}
+    </p>}
+    {queued.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
+      <h2 className="font-semibold">Imported lesson candidates</h2>
+      <p className="mt-1 text-sm">{queued.length - outstanding.length} current approvals · {outstanding.length} needing review. This queue remains available after leaving or reloading the import page.</p>
+      {outstanding.length > 0 && <ul className="mt-3 grid gap-2 text-sm">{outstanding.slice(0, 50).map(item =>
+        <li key={`${item.draft_id}:${item.micro_skill_key}:${item.sense_id}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] p-2">
+          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${item.canonical_word_id}#td-skills`}>
+            {namesByWord.get(item.canonical_word_id) ?? item.canonical_word_id}</Link>
+          <span>{item.micro_skill_key}</span>
+          <form action={recheckImportedTeachingCandidate}>
+            <input type="hidden" name="batch_id" value={batchId} />
+            <input type="hidden" name="draft_id" value={item.draft_id} />
+            <input type="hidden" name="word_id" value={item.canonical_word_id} />
+            <input type="hidden" name="skill_key" value={item.micro_skill_key} />
+            <input type="hidden" name="sense_id" value={item.sense_id} />
+            <button className="rounded border border-[var(--border)] px-2 py-1 font-semibold">Recheck requirements</button>
+          </form>
+        </li>)}</ul>}
+      {outstanding.length > 50 && <p className="mt-2 text-sm">Showing the first 50. Resolve these, then reload for the next candidates.</p>}
+    </section>}
     {(failedResult.data ?? []).length > 0 && <p className="text-sm">Review failed publications: {(failedResult.data ?? []).map((draft, index) => <span key={draft.id}>
       {index > 0 ? ", " : ""}<Link className="underline" href={draft.canonical_word_id
         ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}`

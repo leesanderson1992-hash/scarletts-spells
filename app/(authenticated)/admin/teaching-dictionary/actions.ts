@@ -991,6 +991,41 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
     candidatePending: JSON.stringify(candidatePending.slice(0, 10)) })}`);
 }
 
+export async function recheckImportedTeachingCandidate(form: FormData) {
+  await requireAdminUser();
+  const batchId = value(form, "batch_id");
+  const draftId = value(form, "draft_id");
+  const wordId = value(form, "word_id");
+  const skillKey = value(form, "skill_key");
+  const senseId = value(form, "sense_id");
+  if (!isUuid(batchId) || !isUuid(draftId) || !isUuid(wordId)
+    || !/^D[0-9]_[A-Z0-9_]+$/.test(skillKey) || !senseId)
+    throw new Error("TEACHING_IMPORT_CANDIDATE_RECHECK_INVALID");
+  const path = `${PATH}/imports/${batchId}`;
+  const environment = resolveAdleRouteActivationEnvironment();
+  if (environment !== "staging" && environment !== "production")
+    throw new Error("TEACHING_IMPORT_CANDIDATE_ENVIRONMENT_INVALID");
+  const db = createServiceRoleClient();
+  const [queued, draft] = await Promise.all([
+    db.from("teaching_dictionary_import_candidate_handoffs").select("draft_id")
+      .eq("draft_id", draftId).eq("environment_key", environment)
+      .eq("canonical_word_id", wordId).eq("micro_skill_key", skillKey)
+      .eq("sense_id", senseId).maybeSingle(),
+    db.from("teaching_dictionary_manager_drafts").select("source_reference")
+      .eq("id", draftId).maybeSingle(),
+  ]);
+  if (queued.error || draft.error || !queued.data ||
+    !draft.data?.source_reference.startsWith(`CSV batch ${batchId},`))
+    throw new Error("TEACHING_IMPORT_CANDIDATE_RECHECK_NOT_QUEUED");
+  const result = await saveBulkSkillApprovals({ microSkillKey: skillKey,
+    applyWordIds: [wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
+    senseIds: { [wordId]: senseId }, requestId: randomUUID(),
+    sourceKind: "teaching_dictionary_import" });
+  revalidatePath(path);
+  redirect(`${path}?${new URLSearchParams({ recheck: result.ok ? "approved" : "needs_facts",
+    word: wordId })}`);
+}
+
 async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: string, onlyKey?: string) {
   const wordId = value(form, "word_id");
 
