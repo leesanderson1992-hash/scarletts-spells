@@ -320,6 +320,8 @@ export function routeWithSharedFacts(route: RouteContentDraft, payload: WordDraf
         ...(payload.canonicalMorphology.reviewNotes.trim()
           ? { reviewNote: payload.canonicalMorphology.reviewNotes.trim() } : {}),
       };
+    } else if (payload.canonicalMorphology.analysisStatus === "approved") {
+      content.trueMorphologyProvenance = null;
     }
   }
   if (route.routeId === "base_word_lab") {

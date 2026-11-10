@@ -194,6 +194,11 @@ assert(routeBlockers(staleAbilityRoute, { ...abilityPayload,
   canonicalMorphology: { ...abilityPayload.canonicalMorphology,
     parts: [abilityPayload.canonicalMorphology.parts[0]], joins: [], wordSum: "able" } })
   .includes("Add suffix form."), "a stale route suffix cannot satisfy a changed approved Overview");
+assert(routeBlockers(staleAbilityRoute, { ...abilityPayload,
+  canonicalMorphology: { ...abilityPayload.canonicalMorphology,
+    parts: [abilityPayload.canonicalMorphology.parts[0]], joins: [], wordSum: "able" } })
+  .includes("Review true morphology provenance."),
+"a stale reviewed badge cannot survive an invalid approved Overview analysis");
 const missingApprovedBase = routeWithSharedFacts(staleAbilityRoute, {
   ...abilityPayload, canonicalMorphology: { ...abilityPayload.canonicalMorphology,
     parts: [abilityPayload.canonicalMorphology.parts[1]], joins: [], wordSum: "ity" },
