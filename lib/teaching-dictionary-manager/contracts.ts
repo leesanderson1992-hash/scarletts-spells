@@ -78,6 +78,8 @@ export type WordDraftPayload = {
     confidence: "low" | "medium" | "high";
   };
   skillKeys: string[];
+  /** CSV lesson proposals; importing facts does not itself approve these pairs. */
+  requestedSkillKeys?: string[];
   /** The reviewed meaning selected for each micro-skill lesson. */
   skillSenseIds?: Record<string, string>;
   rootFamilyReview?: {
@@ -108,6 +110,8 @@ export function isStructurallyUsableWordDraftPayload(value: unknown): value is W
     .every((key) => typeof row[key] === "string")
     && Number.isInteger(row.dictationTargetTokenIndex)
     && Array.isArray(row.skillKeys)
+    && (row.requestedSkillKeys === undefined || Array.isArray(row.requestedSkillKeys)
+      && row.requestedSkillKeys.every((key: unknown) => typeof key === "string"))
     && Array.isArray(row.routeContents)
     && (row.senseSet === undefined || Boolean(row.senseSet) && typeof row.senseSet === "object"
       && !Array.isArray(row.senseSet)
@@ -159,6 +163,9 @@ export function validateDraft(payload: WordDraftPayload, normalisedWord: string)
   if (!payload.displayWord.trim()) errors.push("Display word is required.");
   if (payload.skillKeys.length !== new Set(payload.skillKeys).size) errors.push("Each micro skill may be selected once.");
   if (payload.skillKeys.some((key) => !/^D[0-9]_[A-Z0-9_]+$/.test(key))) errors.push("A micro skill key is invalid.");
+  if (payload.requestedSkillKeys && (payload.requestedSkillKeys.length !== new Set(payload.requestedSkillKeys).size
+    || payload.requestedSkillKeys.some((key) => !/^D[0-9]_[A-Z0-9_]+$/.test(key))))
+    errors.push("An imported micro skill request is invalid or repeated.");
   if (payload.definition.length > 2000 || payload.dictationSentence.length > 2000) errors.push("Definition or dictation is too long.");
   if (payload.routeContents.some((route) => !route.routeId || !route.routeVersion || !route.microSkillKey)) errors.push("Route identity is incomplete.");
   if (!payload.provenance || !["internal_authored", "internal_reviewed_seed", "public_domain", "open_licensed", "licensed_vendor", "reference_only", "ai_assisted_draft"].includes(payload.provenance.sourceCategory)

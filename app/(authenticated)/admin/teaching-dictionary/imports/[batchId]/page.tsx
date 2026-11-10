@@ -144,20 +144,21 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     </p>}
     {queued.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Imported lesson candidates</h2>
-      <p className="mt-1 text-sm">{queued.length - outstanding.length} current approvals · {outstanding.length} needing review. This queue remains available after leaving or reloading the import page.</p>
+      <p className="mt-1 text-sm">{queued.length - outstanding.length} assigned or approved · {outstanding.length} needing review. This queue remains available after leaving or reloading the import page.</p>
       {outstanding.length > 0 && <ul className="mt-3 grid gap-2 text-sm">{outstanding.slice(0, 50).map(item =>
         <li key={`${item.draft_id}:${item.micro_skill_key}:${item.sense_id}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-[var(--border)] p-2">
           <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${item.canonical_word_id}#td-skills`}>
             {namesByWord.get(item.canonical_word_id) ?? item.canonical_word_id}</Link>
           <span>{item.micro_skill_key}</span>
-          <form action={recheckImportedTeachingCandidate}>
+          {item.supported ? <form action={recheckImportedTeachingCandidate}>
             <input type="hidden" name="batch_id" value={batchId} />
             <input type="hidden" name="draft_id" value={item.draft_id} />
             <input type="hidden" name="word_id" value={item.canonical_word_id} />
             <input type="hidden" name="skill_key" value={item.micro_skill_key} />
             <input type="hidden" name="sense_id" value={item.sense_id} />
             <button className="rounded border border-[var(--border)] px-2 py-1 font-semibold">Recheck requirements</button>
-          </form>
+          </form> : <Link className="underline" href="/admin/teaching-dictionary/bulk-assign">
+            Review this request in bulk assign</Link>}
         </li>)}</ul>}
       {outstanding.length > 50 && <p className="mt-2 text-sm">Showing the first 50. Resolve these, then reload for the next candidates.</p>}
     </section>}
@@ -192,7 +193,9 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
           ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}`
           : `/admin/teaching-dictionary/new?draft=${draft.id}`;
         return <tr key={draft.id} className="border-b align-top last:border-0">
-          <td className="p-2 font-semibold">{payload.displayWord || draft.normalised_word}</td>
+          <td className="p-2 font-semibold">{payload.displayWord || draft.normalised_word}
+            {payload.requestedSkillKeys?.length ? <span className="mt-1 block text-xs font-normal">
+              Requested lessons: {payload.requestedSkillKeys.join(", ")}</span> : null}</td>
           <td className="p-2">{failedIds.has(draft.id) ? "Publication needs review"
             : draft.canonical_word_id && latestDefinitions.get(draft.canonical_word_id) === payload.definition ? "Definition published; other facts pending"
             : blockers.length ? "Needs facts" : "Ready to validate"}</td>

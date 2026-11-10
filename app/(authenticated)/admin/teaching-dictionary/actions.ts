@@ -29,7 +29,9 @@ import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manag
 import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "@/lib/teaching-dictionary-manager/affix-meanings";
 import { overviewSourceHash } from "@/lib/teaching-dictionary-manager/overview-source-hash";
 import { selectLexicalLessonFamily } from "@/lib/teaching-dictionary-manager/lexical-lesson-family";
-import { approveImportedCandidates, type ImportCandidatePending } from "@/lib/teaching-dictionary-manager/import-candidate-handoff";
+import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { approveImportedCandidates, factFirstImportSkills,
+  type ImportCandidatePending } from "@/lib/teaching-dictionary-manager/import-candidate-handoff";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -129,14 +131,24 @@ async function publishValidatedDraft(
   if (morphologyChanged) await assertReviewedAffixMeanings(db, payload);
   if (payload.rootFamilyReview && !reviewedCsvSkills)
     throw new Error("TEACHING_ROOT_IMPORT_REVIEW_REQUIRED");
-  if (reviewedCsvSkills && !source.data.canonical_word_id && payload.skillKeys.length)
-    throw new Error("TEACHING_IMPORT_NEW_WORD_SKILLS_NEED_RELEASE");
+  if (reviewedCsvSkills && !source.data.canonical_word_id) {
+    const environment = resolveAdleRouteActivationEnvironment();
+    if (environment !== "staging" && environment !== "production")
+      throw new Error("TEACHING_IMPORT_SKILL_ENVIRONMENT_REQUIRED");
+    const created = await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
+      p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "new_word",
+    });
+    if (created.error || !created.data)
+      throw new Error(created.error?.message.match(/TEACHING_[A-Z_]+/)?.[0]
+        ?? "TEACHING_CSV_FACTS_FIRST_NEW_WORD_FAILED");
+    return `${PATH}/${created.data}`;
+  }
   if (reviewedCsvSkills && source.data.canonical_word_id) {
     const environment = resolveAdleRouteActivationEnvironment();
     if (environment !== "staging" && environment !== "production")
       throw new Error("TEACHING_IMPORT_SKILL_ENVIRONMENT_REQUIRED");
     if (payload.rootFamilyReview) {
-      const rooted = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+      const rooted = await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
         p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "bound_root",
       });
       if (!rooted.error && rooted.data) return `${PATH}/${rooted.data}`;
@@ -152,7 +164,7 @@ async function publishValidatedDraft(
         .eq("row_status", "active").limit(1);
       if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
       if (suffix.data?.length) {
-        const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+        const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
           p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "suffix_overview",
         });
         if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
@@ -161,10 +173,10 @@ async function publishValidatedDraft(
       }
     }
     const reconciled = hasDerivedBase
-      ? await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+      ? await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
         p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "free_base",
       })
-      : await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+      : await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
         p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "reconciled",
       });
     if (!reconciled.error && reconciled.data) return `${PATH}/${reconciled.data}`;
@@ -177,13 +189,14 @@ async function publishValidatedDraft(
       .eq("row_status", "active").limit(1);
     if (suffix.error) throw new Error("TEACHING_SUFFIX_IMPORT_MEMBER_READ_FAILED");
     if (suffix.data?.length) {
-      const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_senses", {
+      const projected = await db.rpc("publish_teaching_dictionary_reviewed_csv_facts_first", {
         p_draft: id, p_actor: actorId, p_environment: environment, p_mode: "suffix_overview",
       });
       if (!projected.error && projected.data) return `${PATH}/${projected.data}`;
       throw new Error(projected.error?.message.match(/TEACHING_SUFFIX_IMPORT_[A-Z_]+/)?.[0]
         ?? "TEACHING_SUFFIX_IMPORT_PUBLICATION_FAILED");
     }
+    throw new Error(code ?? "TEACHING_CSV_FACTS_FIRST_DEPENDENCIES_EXIST");
   }
   const published = await db.rpc("publish_teaching_dictionary_manager_draft", { p_draft: id, p_actor: actorId });
   if (published.error?.message.includes("TEACHING_DRAFT_ROUTE_RELEASE_REQUIRED")) {
@@ -659,6 +672,14 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
     const grouped = combineRoundTripRows(parseDictionaryCsv(await file.text()));
     const rows = grouped.rows;
     const db = createServiceRoleClient();
+    const requestedCatalogKeys = [...new Set(rows.flatMap((row) => row.payload.skillKeys))];
+    const knownCatalogKeys = new Set<string>();
+    for (let i = 0; i < requestedCatalogKeys.length; i += 100) {
+      const catalog = await db.from("micro_skill_catalog").select("micro_skill_key")
+        .in("micro_skill_key", requestedCatalogKeys.slice(i, i + 100));
+      if (catalog.error) throw new Error("CSV_SKILL_CATALOG_READ_FAILED");
+      for (const skill of catalog.data ?? []) knownCatalogKeys.add(skill.micro_skill_key);
+    }
     const affixChoices = rows.some((row) => row.payload.canonicalMorphology.parts.some((part) =>
       part && typeof part === "object" && ["prefix", "suffix"].includes(String((part as Record<string, unknown>).kind))))
       ? await loadReviewedAffixChoices(db) : {};
@@ -697,6 +718,24 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       }
     }
     const existingIds = [...existing.values()].map((word) => word.id);
+    const environment = resolveAdleRouteActivationEnvironment();
+    if (environment !== "staging" && environment !== "production")
+      throw new Error("CSV_FACTS_FIRST_ENVIRONMENT_REQUIRED");
+    const liveSkillKeysByWord = new Map<string, string[]>();
+    for (let i = 0; i < existingIds.length; i += 100) {
+      const ids = existingIds.slice(i, i + 100);
+      const current = await db.rpc("teaching_dictionary_import_live_skill_keys", {
+        p_environment: environment, p_word_ids: ids,
+      });
+      if (current.error || !Array.isArray(current.data) || current.data.length !== ids.length)
+        throw new Error("CSV_LIVE_SKILL_READ_FAILED");
+      for (const row of current.data as { canonical_word_id: string; skill_keys: string[] }[]) {
+        if (!ids.includes(row.canonical_word_id) || !Array.isArray(row.skill_keys)
+          || row.skill_keys.some((key) => typeof key !== "string"))
+          throw new Error("CSV_LIVE_SKILL_READ_FAILED");
+        liveSkillKeysByWord.set(row.canonical_word_id, row.skill_keys);
+      }
+    }
     const reviewedSensesByWord = new Map<string, NonNullable<WordDraftPayload["senseSet"]>>();
     for (let i = 0; i < existingIds.length; i += 100) {
       const reviewed = await db.from("teaching_dictionary_reviewed_sense_sets")
@@ -771,6 +810,9 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
         return route;
       });
       const current = existing.get(row.normalisedWord);
+      if (current && !liveSkillKeysByWord.has(current.id)) throw new Error("CSV_LIVE_SKILL_READ_FAILED");
+      row.payload = factFirstImportSkills(row.payload,
+        current ? liveSkillKeysByWord.get(current.id) ?? [] : []);
       const supplied = new Set(row.providedColumns);
       const previousSenses = current ? reviewedSensesByWord.get(current.id) : undefined;
       if (row.payload.senseSet && previousSenses) {
@@ -877,6 +919,8 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       }
       const issues = row.error ? [row.error] : [
         ...validateDraft(row.payload, row.normalisedWord),
+        ...(row.payload.requestedSkillKeys ?? []).filter((key) => !knownCatalogKeys.has(key))
+          .map((key) => `Micro skill ${key} is not in the catalogue.`),
         ...(row.payload.senseSet ? senseSetErrors(row.payload.senseSet) : []),
         ...unreviewedAffixMeaningParts(row.payload.canonicalMorphology.parts, affixChoices)
           .map((part) => `Part ${part} needs a reviewed affix meaning.`),
@@ -965,7 +1009,8 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
           published += 1;
           const wordId = draft.canonical_word_id ?? destination.split("?")[0].split("/").at(-1) ?? "";
           const handoff = await approveImportedCandidates({
-            wordId, word: payload.displayWord, skillKeys: payload.skillKeys,
+            wordId, word: payload.displayWord,
+            skillKeys: payload.requestedSkillKeys ?? payload.skillKeys,
             senseId: payload.senseSet?.senses.length === 1 ? payload.senseSet.senses[0].id : undefined,
             approve: async (microSkillKey, senseId) => {
               const result = await saveBulkSkillApprovals({ microSkillKey,
@@ -999,7 +1044,7 @@ export async function recheckImportedTeachingCandidate(form: FormData) {
   const skillKey = value(form, "skill_key");
   const senseId = value(form, "sense_id");
   if (!isUuid(batchId) || !isUuid(draftId) || !isUuid(wordId)
-    || !/^D[0-9]_[A-Z0-9_]+$/.test(skillKey) || !senseId)
+    || !hasCandidateRule(skillKey) || !senseId)
     throw new Error("TEACHING_IMPORT_CANDIDATE_RECHECK_INVALID");
   const path = `${PATH}/imports/${batchId}`;
   const environment = resolveAdleRouteActivationEnvironment();

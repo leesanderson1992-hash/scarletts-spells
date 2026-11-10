@@ -1,5 +1,15 @@
 import assert from "node:assert/strict";
-import { approveImportedCandidates } from "../lib/teaching-dictionary-manager/import-candidate-handoff";
+import { approveImportedCandidates, factFirstImportSkills } from "../lib/teaching-dictionary-manager/import-candidate-handoff";
+import type { WordDraftPayload } from "../lib/teaching-dictionary-manager/contracts";
+
+const requested = { skillKeys: ["D4_INF_ING_ENDINGS_REGULAR", "D4_MOR_SUFFIXES_ABLE_IBLE"] } as WordDraftPayload;
+const factsFirst = factFirstImportSkills(requested, ["D4_EXISTING", "D4_EXISTING"]);
+assert.deepEqual(factsFirst.requestedSkillKeys, requested.skillKeys);
+assert.deepEqual(factsFirst.skillKeys, ["D4_EXISTING"]);
+assert.deepEqual(requested.skillKeys, ["D4_INF_ING_ENDINGS_REGULAR", "D4_MOR_SUFFIXES_ABLE_IBLE"],
+  "the imported proposal must remain intact for validation and audit");
+assert.deepEqual(factFirstImportSkills(requested, []).skillKeys, [],
+  "new words cannot gain a governed pair merely by importing a tag");
 
 const approved: string[] = [];
 const result = await approveImportedCandidates({

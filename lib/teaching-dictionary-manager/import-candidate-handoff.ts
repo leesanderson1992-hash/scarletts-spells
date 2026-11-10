@@ -1,7 +1,17 @@
 import { hasCandidateRule } from "./lesson-candidate";
+import type { WordDraftPayload } from "./contracts";
 
 export type ImportCandidatePending = { wordId: string; word: string; skillKey: string;
   reason: string };
+
+/** Keep CSV skill tags as requests while the publishable snapshot contains
+ * only pairs already governed before this import. */
+export function factFirstImportSkills(payload: WordDraftPayload,
+  currentlyApprovedSkills: readonly string[]): WordDraftPayload {
+  return { ...payload,
+    requestedSkillKeys: [...payload.skillKeys],
+    skillKeys: [...new Set(currentlyApprovedSkills)].sort() };
+}
 
 /** CSV publication preserves its reviewed facts. Supported lesson candidates
  * then pass through the same governed approval action as the admin screens. */
