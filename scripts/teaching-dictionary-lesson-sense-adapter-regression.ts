@@ -13,15 +13,19 @@ const liveSound = { id: "stage-pronunciation", ipa: "/laɪv/", spokenSyllableCou
   stressPattern: "primary" };
 let stale = false;
 let missingSentenceAuthority = false;
+let twoMeanings = false;
 const data = (table: string) => table === "canonical_teaching_dictionary_dictation_sentences"
   ? [{ canonical_word_id: word, dictation_sentence: "I live here.", audio_text: "I live here.",
       dictation_target_token_index: 1, source_row_hash: "legacy-hash" }]
-  : table === "teaching_dictionary_lesson_sense_bindings"
+  : table === "teaching_dictionary_effective_lesson_sense_bindings"
     ? [{ canonical_word_id: word, micro_skill_key: skill, sense_id: "stage",
         sense_snapshot: stale ? { ...liveStage, definition: "older meaning" } : liveStage,
-        pronunciation_snapshot: liveSound }]
+        pronunciation_snapshot: liveSound }, ...(twoMeanings ? [{ canonical_word_id: word,
+          micro_skill_key: skill, sense_id: "other", sense_snapshot: { ...liveStage, id: "other" },
+          pronunciation_snapshot: liveSound }] : [])]
     : table === "teaching_dictionary_reviewed_sense_sets"
-      ? [{ canonical_word_id: word, sense_set: { senses: [liveStage], pronunciations: [liveSound] } }]
+      ? [{ canonical_word_id: word, sense_set: { senses: [liveStage,
+          ...(twoMeanings ? [{ ...liveStage, id: "other" }] : [])], pronunciations: [liveSound] } }]
     : table === "teaching_dictionary_reviewed_sense_sentences"
       ? missingSentenceAuthority ? [] : [{ id: "22222222-2222-4222-8222-222222222222", canonical_word_id: word,
           sense_id: "stage", sentence: liveStage.dictationSentence,
@@ -48,6 +52,11 @@ async function main() {
   assert.equal((await loadGenericV3DictationForWords(db, [word], skill)).has(word), false);
   stale = false;
   missingSentenceAuthority = true;
+  assert.equal((await loadGenericV3DictationForWords(db, [word], skill)).has(word), false);
+  missingSentenceAuthority = false;
+  twoMeanings = true;
+  assert.equal((await loadCurrentLessonSenses(db, [word], [skill])).get(`${word}:${skill}`)?.status,
+    "stale", "legacy word-level lessons must not choose an arbitrary meaning");
   assert.equal((await loadGenericV3DictationForWords(db, [word], skill)).has(word), false);
   console.log("lesson sense adapter regression passed");
 }

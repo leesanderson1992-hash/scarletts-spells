@@ -54,6 +54,10 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
             ? word.status.technicalFacts === "not_evaluated" ? "administrative gates passed; native word validation pending" : "administrative gates passed; child scope checked separately"
             : "blocked"}</span>
           {word.overviewCandidate && <div className="mt-2 rounded bg-slate-50 p-2">
+            {Boolean(word.multipleSenseChoices?.length) && <p className="font-medium text-amber-900">
+              Multiple meanings are approved for this skill. Choose the meaning in lesson content before this word can enter its pool:
+              {" "}{word.multipleSenseChoices?.map(choice => choice.definition).join("; ")}.
+            </p>}
             <p><strong>Reviewed Overview facts:</strong> {word.overviewCandidate.status === "ready"
               ? word.status.relationshipApproved && word.senseBindingApproved && word.candidateDecisionCurrent
                 ? "meaning approved for this micro-skill; check content and release below"

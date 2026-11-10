@@ -193,7 +193,7 @@ export async function saveBulkSkillApprovals(input: {
       authorityFingerprint = preview.reconciliation.sourceFingerprint;
     }
 
-    const reconciled = await db.rpc("reconcile_teaching_dictionary_bulk_review_v5", {
+    const reconciled = await db.rpc("reconcile_teaching_dictionary_bulk_review_v6", {
       p_environment: environment, p_skill_key: input.microSkillKey,
       p_publish_ids: newIds, p_exclude_ids: excludeWordIds,
       p_clear_ids: [...clearWordIds, ...applyWordIds],

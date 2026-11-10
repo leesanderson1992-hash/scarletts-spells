@@ -62,9 +62,9 @@ async function readSenseBindings(environment: string): Promise<SenseBinding[]> {
   const db = createServiceRoleClient();
   const rows: SenseBinding[] = [];
   for (let start = 0; ; start += 500) {
-    const result = await db.from("teaching_dictionary_lesson_sense_bindings")
+    const result = await db.from("teaching_dictionary_effective_lesson_sense_bindings")
       .select("canonical_word_id,micro_skill_key,sense_id")
-      .eq("environment_key", environment).is("withdrawn_at", null)
+      .eq("environment_key", environment)
       .order("canonical_word_id").order("micro_skill_key").range(start, start + 499);
     if (result.error) throw new Error("TEACHING_BULK_BINDING_READ_FAILED");
     rows.push(...result.data);
@@ -143,6 +143,11 @@ export default async function BulkAssignPage() {
     };
   }).sort((a, b) => a.normalisedWord.localeCompare(b.normalisedWord));
   const assignedPairs = managerAssignedPairs(authority?.relationships ?? []);
+  const bindingIds = new Map<string, string[]>();
+  for (const row of senseBindings) {
+    const key = `${row.micro_skill_key}:${row.canonical_word_id}`;
+    bindingIds.set(key, [...(bindingIds.get(key) ?? []), row.sense_id]);
+  }
   const enabled = Boolean(environment && controls?.review_enabled && controls.publication_enabled && controls.withdrawal_enabled);
 
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
@@ -155,8 +160,9 @@ export default async function BulkAssignPage() {
     }))} skills={(skillsResult.data ?? []).map((row) => ({
       key: row.micro_skill_key, label: row.display_name, familyKey: row.skill_family_key,
       clusterKey: row.skill_cluster_key,
-    }))} assignedPairs={assignedPairs} assignedSenseIds={Object.fromEntries(senseBindings.map(row =>
-      [`${row.micro_skill_key}:${row.canonical_word_id}`, row.sense_id]))} excludedPairs={exclusions.map((row) =>
+    }))} assignedPairs={assignedPairs} assignedSenseIds={Object.fromEntries([...bindingIds]
+      .filter(([, ids]) => ids.length === 1).map(([key, ids]) => [key, ids[0]]))}
+    approvedSenseIdsByPair={Object.fromEntries(bindingIds)} excludedPairs={exclusions.map((row) =>
       `${row.micro_skill_key}:${row.canonical_word_id}`)} approvalEnabled={enabled} />
   </main>;
 }

@@ -111,6 +111,7 @@ export function BulkAssignWorkspace(props: {
   skills: Skill[];
   assignedPairs: BulkAssignedPair[];
   assignedSenseIds: Record<string, string>;
+  approvedSenseIdsByPair: Record<string, string[]>;
   excludedPairs: string[];
   approvalEnabled: boolean;
 }) {
@@ -123,7 +124,7 @@ export function BulkAssignWorkspace(props: {
   const [assigned, setAssigned] = useState<Map<string, boolean>>(() => new Map(props.assignedPairs.map((pair) =>
     [`${pair.microSkillKey}:${pair.wordId}`, pair.removable])));
   const [selectedSenses, setSelectedSenses] = useState<Record<string, string>>(props.assignedSenseIds);
-  const [approvedSenseIds, setApprovedSenseIds] = useState<Record<string, string>>(props.assignedSenseIds);
+  const [approvedSenseIdsByPair, setApprovedSenseIdsByPair] = useState<Record<string, string[]>>(props.approvedSenseIdsByPair);
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set(props.excludedPairs));
   const [editingWordId, setEditingWordId] = useState<string | null>(null);
   const [filters, setFilters] = useState<BulkFilters>({ search: "", schwa: "all", morpheme: "", syllables: "", phoneme: "" });
@@ -281,9 +282,12 @@ export function BulkAssignWorkspace(props: {
             for (const id of [...deassignWordIds, ...excludeWordIds]) delete next[`${chosenSkillKey}:${id}`];
             return next;
           });
-          setApprovedSenseIds(previous => {
+          setApprovedSenseIdsByPair(previous => {
             const next = { ...previous };
-            for (const [id, senseId] of Object.entries(senseIds)) next[`${chosenSkillKey}:${id}`] = senseId;
+            for (const [id, senseId] of Object.entries(senseIds)) {
+              const key = `${chosenSkillKey}:${id}`;
+              next[key] = [...new Set([...(next[key] ?? []), senseId])];
+            }
             for (const id of [...deassignWordIds, ...excludeWordIds]) delete next[`${chosenSkillKey}:${id}`];
             return next;
           });
@@ -342,7 +346,7 @@ export function BulkAssignWorkspace(props: {
               setSelectionError(`Choose up to ${MAX_SELECTION} words per confirmation.`);
             else setDraft(previous => {
               const next = new Map(previous);
-              if (event.target.value === approvedSenseIds[`${chosenSkillKey}:${word.id}`]) next.delete(word.id);
+              if (approvedSenseIdsByPair[`${chosenSkillKey}:${word.id}`]?.includes(event.target.value)) next.delete(word.id);
               else next.set(word.id, "apply");
               return next;
             });
@@ -390,7 +394,9 @@ export function BulkAssignWorkspace(props: {
         : choice === "exclude" ? <span>Doesn’t apply · pending</span>
           : choice === "clear" ? <span>Clear review · pending</span>
             : choice === "deassign" ? <span>De-assign · pending</span>
-            : isAssigned ? <span>{approvedSenseIds[pairKey] ? "Applied to reviewed meaning" : "Assigned · meaning needs review"}</span> : isExcluded ? <span>Doesn’t apply</span>
+            : isAssigned ? <span>{approvedSenseIdsByPair[pairKey]?.length > 1
+              ? `${approvedSenseIdsByPair[pairKey].length} meanings approved · choose one for a lesson`
+              : approvedSenseIdsByPair[pairKey]?.length ? "Applied to reviewed meaning" : "Assigned · meaning needs review"}</span> : isExcluded ? <span>Doesn’t apply</span>
               : !word.approvable ? <span>Word not approved</span> : null}
       {(isAssigned || isExcluded) && <button type="button" aria-label={`Edit review choice for ${word.displayWord}`}
         title="Edit review choice" disabled={pending || !props.approvalEnabled}
@@ -406,7 +412,7 @@ export function BulkAssignWorkspace(props: {
             }
             setDraft(previous => new Map(previous).set(word.id, "apply"));
             setSelectionError(""); setResult(null); setRequestId(null);
-          }}>{approvedSenseIds[pairKey] ? "Re-review meaning" : "Review meaning"}</button>}
+          }}>{approvedSenseIdsByPair[pairKey]?.length ? "Add or review meaning" : "Review meaning"}</button>}
       {isAssigned && choice && <button type="button" className="underline" onClick={() => removeDraft(word.id)}>Undo</button>}
       {isExcluded && editingWordId === word.id && <button type="button" className="underline"
         onClick={() => { const next = new Map(draft); next.set(word.id, "clear");

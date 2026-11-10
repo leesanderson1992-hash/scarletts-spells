@@ -24,6 +24,7 @@ import type { DictionarySenseSet } from "./senses";
 type Candidate = { wordId: string; displayWord: string; status: WordRouteStatus;
   overviewCandidate?: CandidateDecision; selectedSenseId?: string | null;
   selectedSenseDefinition?: string | null; senseBindingApproved?: boolean;
+  multipleSenseChoices?: { id: string; definition: string }[];
   candidateDecisionCurrent?: boolean;
   generatedIng?: IngRecipeResult; approvedIngWord?: IngDictionaryWordV1 | null };
 type RouteWordCounts = { candidates: number; approvedRelationships: number; technicalComplete: number;
@@ -59,8 +60,8 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
   const [senseSets, bindings, morphology, familyLinks, decisions] = await Promise.all([
     readByIds(client, "teaching_dictionary_reviewed_sense_sets", "canonical_word_id,sense_set",
       "canonical_word_id", ids, "canonical_word_id"),
-    readByIds(client, "teaching_dictionary_lesson_sense_bindings",
-      "canonical_word_id,micro_skill_key,environment_key,sense_id,reviewed_by,withdrawn_at",
+    readByIds(client, "teaching_dictionary_effective_lesson_sense_bindings",
+      "canonical_word_id,micro_skill_key,environment_key,sense_id,reviewed_by",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "canonical_teaching_dictionary_word_morphology",
       "id,canonical_word_id,row_status,created_at,morphology_parts,morphology_joins,analysis_status,review_status,word_sum",
@@ -74,9 +75,10 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
   ]);
   const sensesByWord = new Map<string, DictionarySenseSet>(senseSets.map(row =>
     [row.canonical_word_id, row.sense_set as DictionarySenseSet]));
-  const bindingByWord = new Map<string, { senseId: string; reviewedBy: string }>(bindings.filter(row => row.environment_key === environment
-    && row.micro_skill_key === skillKey && row.withdrawn_at == null).map(row =>
-    [row.canonical_word_id, { senseId: row.sense_id, reviewedBy: row.reviewed_by }]));
+  const bindingByWord = new Map<string, { senseId: string; reviewedBy: string }[]>();
+  for (const row of bindings.filter(row => row.environment_key === environment && row.micro_skill_key === skillKey))
+    bindingByWord.set(row.canonical_word_id, [...(bindingByWord.get(row.canonical_word_id) ?? []),
+      { senseId: row.sense_id, reviewedBy: row.reviewed_by }]);
   const morphologyByWord = new Map<string, typeof morphology[number]>();
   for (const row of morphology) {
     if (row.row_status !== "active") continue;
@@ -186,8 +188,9 @@ async function loadRouteWordStatusesUnmeasured(input: {
   }
   const words = dictionary.map((row): Candidate => {
     const senseSet = overview?.sensesByWord.get(row.id) ?? null;
-    const binding = overview?.bindingByWord.get(row.id);
-    const selectedSenseId = binding?.senseId
+    const bindings = overview?.bindingByWord.get(row.id) ?? [];
+    const binding = bindings.length === 1 ? bindings[0] : null;
+    const selectedSenseId = bindings.length > 1 ? null : binding?.senseId
       ?? (senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
     const morphology = overview?.morphologyByWord.get(row.id);
     const recipe = overview && lesson.microSkillKey in ING_RULE_FOR_SKILL
@@ -213,6 +216,8 @@ async function loadRouteWordStatusesUnmeasured(input: {
         reviewerRef: binding?.reviewedBy ?? "", approvalRef: approvalRefByWord.get(row.id) ?? "" }) : null;
     return { wordId: row.id, displayWord: row.display_word,
       ...(overview ? { selectedSenseId, senseBindingApproved: bindingCurrent,
+        multipleSenseChoices: bindings.length > 1 ? bindings.map(item => ({ id: item.senseId,
+          definition: senseSet?.senses.find(sense => sense.id === item.senseId)?.definition ?? item.senseId })) : [],
         candidateDecisionCurrent: decisionCurrent,
         selectedSenseDefinition: senseSet?.senses.find(sense => sense.id === selectedSenseId)?.definition ?? null,
         overviewCandidate: evaluateLessonCandidate({
