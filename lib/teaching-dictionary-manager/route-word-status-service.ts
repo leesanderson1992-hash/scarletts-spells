@@ -94,7 +94,7 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
 
 /** Discover possible relationships by one micro-skill, without treating a
  * source row as approval. The governed interpreter makes that decision. */
-async function discoverWordIds(client: SupabaseClient, lesson: LessonReadinessRow): Promise<{ ids: string[]; nonReviewedIds: Set<string> }> {
+async function discoverWordIds(client: SupabaseClient, lesson: LessonReadinessRow): Promise<string[]> {
   const skill = lesson.microSkillKey;
   const [reviewed, support, mappings, prefixProfiles, suffixProfiles] = await Promise.all([
     readPages(client, "adle_reviewed_word_skill_pairs", "id,canonical_word_id", (query) => query.eq("micro_skill_key", skill)),
@@ -108,14 +108,14 @@ async function discoverWordIds(client: SupabaseClient, lesson: LessonReadinessRo
     readByIds(client, "canonical_teaching_dictionary_prefix_members", "id,canonical_word_id", "prefix_profile_id", prefixProfiles.map((row) => row.id)),
     readByIds(client, "canonical_teaching_dictionary_suffix_members", "id,canonical_word_id", "suffix_profile_id", suffixProfiles.map((row) => row.id)),
   ]);
-  const nonReviewedIds = new Set<string>([
+  return [...new Set<string>([
     ...lesson.words.map((word) => word.id),
     ...support.map((row) => row.canonical_word_id),
     ...mappedWords.map((row) => row.id),
     ...prefixMembers.map((row) => row.canonical_word_id),
     ...suffixMembers.map((row) => row.canonical_word_id),
-  ].filter(Boolean));
-  return { ids: [...new Set([...nonReviewedIds, ...reviewed.map((row) => row.canonical_word_id)].filter(Boolean))], nonReviewedIds };
+    ...reviewed.map((row) => row.canonical_word_id),
+  ].filter(Boolean))];
 }
 
 export async function loadRouteWordStatuses(input: {
@@ -139,7 +139,7 @@ async function loadRouteWordStatusesUnmeasured(input: {
     throw new Error("Route word status requires a registered route and micro-skill");
   const client = createServiceRoleClient();
   const discovery = input.wordIds ? null : await discoverWordIds(client, lesson);
-  const ids = [...new Set(input.wordIds ?? discovery?.ids ?? [])];
+  const ids = [...new Set(input.wordIds ?? discovery ?? [])];
   if (ids.length === 0) return { words: [], counts: { candidates: 0, approvedRelationships: 0,
     technicalComplete: 0, administrativeCandidates: 0, awaitingEditorial: 0, missingContent: 0,
     generatedReadyIng: 0, approvedGeneratedIng: 0 } };
@@ -184,8 +184,7 @@ async function loadRouteWordStatusesUnmeasured(input: {
         publishedWeakVowelWordBlockers(row, lesson.microSkillKey as WeakVowelMicroSkill));
     }
   }
-  const words = dictionary.filter((row) => input.wordIds || discovery?.nonReviewedIds.has(row.id)
-    || approvedByWord.get(row.id)?.has(lesson.microSkillKey)).map((row): Candidate => {
+  const words = dictionary.map((row): Candidate => {
     const senseSet = overview?.sensesByWord.get(row.id) ?? null;
     const binding = overview?.bindingByWord.get(row.id);
     const selectedSenseId = binding?.senseId
