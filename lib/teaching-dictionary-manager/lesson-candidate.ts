@@ -90,14 +90,9 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     if (rule === "ie_to_y" && !baseText.endsWith("ie")) return done("not_match");
     if (rule === "double_final_consonant" && !/[aeiou][b-df-hj-np-tv-z]$/.test(baseText))
       return done("not_match");
-    if (input.skillKey.endsWith("DOUBLE_FINAL_CONSONANT"))
-      add("DOUBLING_PATTERN", "Choose the reviewed doubling pattern for this lesson.", `td-route-${input.skillKey}`);
     evidence.push(`${String(base.sourceText)} + ing → ${spelling}`);
   }
   if (input.skillKey === ableKey && suffix && suffixSource !== spelling.slice(-suffixSource.length))
     return done("not_match");
-  if (input.skillKey === ableKey && base)
-    add("PRODUCTIVE_SUFFIX_REVIEW", "Confirm that this family uses -able/-ible productively for this meaning.",
-      `td-route-${input.skillKey}`);
   return done(issues.length ? "needs_facts" : "ready");
 }

@@ -121,6 +121,27 @@ const vegetable = evaluateLessonCandidate({ ...reading, displayWord: "vegetable"
   familyLinks: [{ sense_id: "reading-verb", family_key: "veget_bound_root_base_family",
     component_part_id: "root", relationship_kind: "historical_relative" }] });
 assert.equal(vegetable.status, "not_match");
+const doublingSkill = "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT";
+const hopping = { ...reading, displayWord: "hopping", skillKey: doublingSkill,
+  senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
+    dictationSentence: "She is hopping now." }] },
+  morphology: { ...reading.morphology, wordSum: "hop + ing → hopping",
+    parts: [{ id: "base", kind: "base", sourceText: "hop", surfaceText: "hopp", gloss: "to jump" },
+      reading.morphology.parts[1]] } };
+assert.equal(evaluateLessonCandidate(hopping).status, "ready",
+  "the lesson-only doubling pattern cannot block word and sense approval");
+const readable = { ...reading, displayWord: "readable", skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE",
+  senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
+    dictationSentence: "This book is readable.", dictationTargetTokenIndex: 3 }] },
+  morphology: { ...reading.morphology, wordSum: "read + able → readable",
+    parts: [reading.morphology.parts[0],
+      { id: "suffix", kind: "suffix", sourceText: "able", surfaceText: "able",
+        gloss: "Capable of, fit for, or able to be" }] },
+  familyLinks: [{ ...reading.familyLinks[0], relationship_kind: "derived" }] };
+assert.equal(evaluateLessonCandidate(readable).status, "ready",
+  "a reviewed free-base derivation can be approved without route-only content");
+assert.deepEqual(evaluateLessonCandidate({ ...readable, familyLinks: [] }).issues.map(issue => issue.code),
+  ["FAMILY_LINK"]);
 const ingRoute = { routeId: "ing_endings_word_lab", routeVersion: "v1",
   microSkillKey: reading.skillKey, wordMeaning: "", wordSum: "", content: {} };
 const payload = {
@@ -139,6 +160,12 @@ assert.equal(generated.content.base, "read");
 assert.deepEqual(generated.content.sourceRefs, ["Reviewed import"]);
 assert.deepEqual(sharedRouteContentKeys("ing_endings_word_lab", payload), ["base", "sourceRefs"]);
 assert.deepEqual(routeBlockers(ingRoute, payload), []);
+const hoppingRoute = { ...ingRoute, microSkillKey: doublingSkill };
+const hoppingPayload = { ...payload, displayWord: "hopping",
+  skillSenseIds: { [doublingSkill]: reading.senseId },
+  canonicalMorphology: { ...payload.canonicalMorphology, ...hopping.morphology } };
+assert.deepEqual(routeBlockers(hoppingRoute, hoppingPayload), ["Choose the doubling pattern."],
+  "lesson content remains incomplete until its doubling pattern is selected");
 const staleRoute = { ...ingRoute, wordMeaning: "Old meaning",
   content: { base: "reed", sourceRefs: ["Old source"] } };
 const regenerated = routeWithSharedFacts(staleRoute, payload);
