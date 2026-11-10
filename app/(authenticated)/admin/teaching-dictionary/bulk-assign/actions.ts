@@ -43,7 +43,7 @@ export async function saveBulkSkillApprovals(input: {
   deassignWordIds: string[];
   senseIds: Record<string, string>;
   requestId: string;
-  sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word";
+  sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word" | "teaching_dictionary_import";
 }): Promise<BulkApprovalResult> {
   const actor = await requireAdminUser();
   const environment = resolveAdleRouteActivationEnvironment();
@@ -203,8 +203,7 @@ export async function saveBulkSkillApprovals(input: {
       p_authority_fingerprint: authorityFingerprint,
       p_rule_revision: LESSON_CANDIDATE_RULE_REVISION,
       p_expected_facts: expectedFacts,
-      p_source_kind: input.sourceKind === "teaching_dictionary_word"
-        ? "teaching_dictionary_word" : "teaching_dictionary_bulk",
+      p_source_kind: input.sourceKind ?? "teaching_dictionary_bulk",
     });
     if (reconciled.error || reconciled.data !== newIds.length) {
       return failed("The batch result could not be confirmed. Retry with the same selection.");

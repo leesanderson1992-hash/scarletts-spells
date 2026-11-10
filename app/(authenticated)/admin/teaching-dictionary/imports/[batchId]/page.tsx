@@ -6,6 +6,7 @@ import { publicationBlockers, routeBlockers, type WordDraftPayload } from "@/lib
 import { pendingImportDrafts, type ImportDraftSummary } from "@/lib/teaching-dictionary-manager/import-review";
 import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import type { ImportCandidatePending } from "@/lib/teaching-dictionary-manager/import-candidate-handoff";
 import { publishTeachingDictionaryBatch } from "../../actions";
 
 export const dynamic = "force-dynamic";
@@ -22,9 +23,26 @@ function failureCodes(value: string | undefined): Record<string, string> {
   } catch { return {}; }
 }
 
+function candidatePending(value: string | undefined): ImportCandidatePending[] {
+  if (!value || value.length > 3000) return [];
+  try {
+    const rows: unknown = JSON.parse(value);
+    if (!Array.isArray(rows)) return [];
+    return rows.filter((row): row is ImportCandidatePending => Boolean(row)
+      && typeof row === "object" && isUuid((row as ImportCandidatePending).wordId)
+      && typeof (row as ImportCandidatePending).word === "string"
+      && (row as ImportCandidatePending).word.length <= 100
+      && typeof (row as ImportCandidatePending).skillKey === "string"
+      && /^D[0-9]_[A-Z0-9_]+$/.test((row as ImportCandidatePending).skillKey)
+      && typeof (row as ImportCandidatePending).reason === "string"
+      && (row as ImportCandidatePending).reason.length <= 500).slice(0, 10);
+  } catch { return []; }
+}
+
 export default async function TeachingDictionaryImportPage({ params, searchParams }: {
   params: Promise<{ batchId: string }>;
-  searchParams: Promise<{ page?: string; published?: string; failed?: string; scanned?: string; cursor?: string; finished?: string; failures?: string }>;
+  searchParams: Promise<{ page?: string; published?: string; failed?: string; scanned?: string; cursor?: string; finished?: string; failures?: string;
+    candidateApproved?: string; candidatePendingCount?: string; candidatePending?: string }>;
 }) {
   await requireAdminUser();
   const { batchId } = await params;
@@ -84,6 +102,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     if (!latestDefinitions.has(definition.canonical_word_id)) latestDefinitions.set(definition.canonical_word_id, definition.definition);
   }
   const failures = failureCodes(query.failures);
+  const pendingCandidates = candidatePending(query.candidatePending);
   const pendingIds = new Set(pending.map((draft) => draft.id));
   const failedIds = new Set(Object.keys(failures).filter((id) => pendingIds.has(id)));
   const failedResult = failedIds.size ? await db.from("teaching_dictionary_manager_drafts")
@@ -99,7 +118,15 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     {query.published && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
       Published {query.published} ready drafts in this pass. Checked {query.scanned ?? "0"} drafts.
       {Number(query.failed) > 0 && ` ${query.failed} need individual review.`}
+      {Number(query.candidateApproved) > 0 && ` ${query.candidateApproved} supported lesson candidates passed the shared approval checks.`}
     </p>}
+    {Number(query.candidatePendingCount) > 0 && <div role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+      <p>{query.candidatePendingCount} supported lesson candidates still need review. Their dictionary facts were published, but candidate approval was not confirmed.</p>
+      <ul className="mt-2 list-disc pl-5">{pendingCandidates.map((item) => <li key={`${item.wordId}:${item.skillKey}`}>
+        <Link className="underline" href={`/admin/teaching-dictionary/${item.wordId}#td-skills`}>{item.word}</Link>
+        {` · ${item.skillKey}: ${item.reason}`}
+      </li>)}</ul>
+    </div>}
     {(failedResult.data ?? []).length > 0 && <p className="text-sm">Review failed publications: {(failedResult.data ?? []).map((draft, index) => <span key={draft.id}>
       {index > 0 ? ", " : ""}<Link className="underline" href={draft.canonical_word_id
         ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}`
@@ -107,7 +134,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     </span>)}</p>}
     {pending.length > 0 && <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="font-semibold">Publish complete drafts</h2>
-      <p className="mt-1 text-sm">Runs the word and route validators, up to ten words per pass. Incomplete or governed drafts stay available for review.</p>
+      <p className="mt-1 text-sm">Runs the word and route validators, up to ten words per pass. Supported micro-skill candidates then pass the same fact checks as the word page and bulk assigner. A published word whose candidate still needs facts appears above with a direct review link.</p>
       <form action={publishTeachingDictionaryBatch} className="mt-3">
         <input type="hidden" name="batch_id" value={batchId} />
         {query.finished !== "true" && query.cursor && isUuid(query.cursor) && <input type="hidden" name="cursor" value={query.cursor} />}

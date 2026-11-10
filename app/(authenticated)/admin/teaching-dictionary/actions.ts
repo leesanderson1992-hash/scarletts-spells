@@ -29,6 +29,7 @@ import { changesMorphologyForPublication } from "@/lib/teaching-dictionary-manag
 import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "@/lib/teaching-dictionary-manager/affix-meanings";
 import { overviewSourceHash } from "@/lib/teaching-dictionary-manager/overview-source-hash";
 import { selectLexicalLessonFamily } from "@/lib/teaching-dictionary-manager/lexical-lesson-family";
+import { approveImportedCandidates, type ImportCandidatePending } from "@/lib/teaching-dictionary-manager/import-candidate-handoff";
 
 const PATH = "/admin/teaching-dictionary";
 const value = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
@@ -922,13 +923,15 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
   const latestIds = new Set(pendingImportDrafts(batchDrafts, new Set()).map((draft) => draft.id));
   let published = 0;
   let failed = 0;
+  let candidateApproved = 0;
+  const candidatePending: ImportCandidatePending[] = [];
   let scanned = 0;
   let cursor = requestedCursor;
   let finished = false;
   const failureCodes: Record<string, string> = {};
   for (let page = 0; page < 100 && published + failed < 10; page += 1) {
     let query = db.from("teaching_dictionary_manager_drafts")
-      .select("id,normalised_word,payload").like("source_reference", `CSV batch ${batchId},%`)
+      .select("id,canonical_word_id,normalised_word,payload").like("source_reference", `CSV batch ${batchId},%`)
       .order("id").limit(100);
     if (cursor) query = query.gt("id", cursor);
     const result = await query;
@@ -958,7 +961,23 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
           failed += 1;
           failureCodes[draft.id] = new URL(destination, "https://example.invalid").searchParams.get("route_error") ?? "ROUTE_PUBLICATION_FAILED";
         }
-        else published += 1;
+        else {
+          published += 1;
+          const wordId = draft.canonical_word_id ?? destination.split("?")[0].split("/").at(-1) ?? "";
+          const handoff = await approveImportedCandidates({
+            wordId, word: payload.displayWord, skillKeys: payload.skillKeys,
+            senseId: payload.senseSet?.senses.length === 1 ? payload.senseSet.senses[0].id : undefined,
+            approve: async (microSkillKey, senseId) => {
+              const result = await saveBulkSkillApprovals({ microSkillKey,
+                applyWordIds: [wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
+                senseIds: { [wordId]: senseId }, requestId: randomUUID(),
+                sourceKind: "teaching_dictionary_import" });
+              return { ok: result.ok, error: result.error, blocked: result.blocked };
+            },
+          });
+          candidateApproved += handoff.approved;
+          candidatePending.push(...handoff.pending);
+        }
       } catch (error) { failed += 1; failureCodes[draft.id] = errorCode(error); }
       if (published + failed >= 10) break;
     }
@@ -967,7 +986,9 @@ export async function publishTeachingDictionaryBatch(form: FormData) {
   if (published) updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(path);
   redirect(`${path}?${new URLSearchParams({ published: String(published), failed: String(failed),
-    scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes) })}`);
+    scanned: String(scanned), cursor, finished: String(finished), failures: JSON.stringify(failureCodes),
+    candidateApproved: String(candidateApproved), candidatePendingCount: String(candidatePending.length),
+    candidatePending: JSON.stringify(candidatePending.slice(0, 10)) })}`);
 }
 
 async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: string, onlyKey?: string) {
