@@ -15,16 +15,17 @@ const approved: string[] = [];
 const result = await approveImportedCandidates({
   wordId: "00000000-0000-4000-8000-000000000001", word: "reading", senseId: "reading-verb",
   skillKeys: ["D4_INF_ING_ENDINGS_REGULAR", "D4_INF_ING_ENDINGS_REGULAR",
-    "D4_MOR_SUFFIXES_ABLE_IBLE", "D4_OTHER_LEGACY"],
+    "D4_MOR_SUFFIXES_ABLE_IBLE", "D4_MOR_PREFIXES_UN", "D4_OTHER_LEGACY"],
   approve: async (skillKey, senseId) => {
     assert.equal(senseId, "reading-verb");
     approved.push(skillKey);
-    return skillKey.endsWith("REGULAR") ? { ok: true }
+    return skillKey.endsWith("REGULAR") || skillKey === "D4_MOR_PREFIXES_UN" ? { ok: true }
       : { ok: false, blocked: [{ reason: "Review the derived family link." }] };
   },
 });
-assert.deepEqual(approved, ["D4_INF_ING_ENDINGS_REGULAR", "D4_MOR_SUFFIXES_ABLE_IBLE"]);
-assert.equal(result.approved, 1);
+assert.deepEqual(approved, ["D4_INF_ING_ENDINGS_REGULAR", "D4_MOR_SUFFIXES_ABLE_IBLE",
+  "D4_MOR_PREFIXES_UN"]);
+assert.equal(result.approved, 2);
 assert.deepEqual(result.pending, [{ wordId: "00000000-0000-4000-8000-000000000001",
   word: "reading", skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE",
   reason: "Review the derived family link." }]);

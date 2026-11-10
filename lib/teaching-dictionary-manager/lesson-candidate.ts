@@ -32,11 +32,14 @@ export type CandidateInput = {
 const ingKeys = new Set(Object.keys(ING_RULE_FOR_SKILL));
 const ableKey = "D4_MOR_SUFFIXES_ABLE_IBLE";
 const fulLessKey = "D4_MOR_SUFFIXES_FUL_LESS";
+const unPrefixKey = "D4_MOR_PREFIXES_UN";
 const suffixForms: Record<string, readonly string[]> = {
   [ableKey]: ["able", "ible"],
   [fulLessKey]: ["ful", "less"],
 };
-export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey) || Object.hasOwn(suffixForms, skillKey);
+const prefixForms: Record<string, readonly string[]> = { [unPrefixKey]: ["un"] };
+export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey)
+  || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
 /** Rules are evaluated from approved facts. A skill choice is never evidence by itself. */
 export function evaluateLessonCandidate(input: CandidateInput): CandidateDecision {
@@ -55,7 +58,9 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const spelling = input.displayWord.toLocaleLowerCase("en-GB");
   if (ingKeys.has(input.skillKey) && !spelling.endsWith("ing")) return done("not_match");
   const acceptedSuffixes = suffixForms[input.skillKey];
+  const acceptedPrefixes = prefixForms[input.skillKey];
   if (acceptedSuffixes && !acceptedSuffixes.some(form => spelling.endsWith(form))) return done("not_match");
+  if (acceptedPrefixes && !acceptedPrefixes.some(form => spelling.startsWith(form))) return done("not_match");
   const senseIssue = bulkSenseChoiceError({ wordId: input.wordId, displayWord: input.displayWord,
     senseSet: input.senseSet, senseId: input.senseId });
   if (senseIssue) add("SENSE_FACTS", senseIssue, "td-definition");
@@ -69,9 +74,19 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
   }
-  const suffix = parts.at(-1);
+  const suffix = acceptedPrefixes ? undefined : parts.at(-1);
   const suffixSource = String(suffix?.sourceText ?? "").toLocaleLowerCase("en-GB");
-  if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
+  if (acceptedPrefixes) {
+    const prefix = parts[0];
+    const prefixSource = String(prefix?.sourceText ?? "").toLocaleLowerCase("en-GB");
+    if (prefix?.kind !== "prefix" || !acceptedPrefixes.includes(prefixSource))
+      add("PREFIX_PART", `Review the ${acceptedPrefixes.map(form => `${form}-`).join("/")} prefix part.`, "td-canonical-parts");
+    else if (!String(prefix.gloss ?? "").trim())
+      add("PREFIX_MEANING", "Choose the reviewed meaning of this prefix.", "td-canonical-parts");
+    else evidence.push(`${prefixSource}: ${String(prefix.gloss)}`);
+    if (prefix?.kind === "prefix" && acceptedPrefixes.includes(prefixSource)
+      && String(prefix.surfaceText).toLocaleLowerCase("en-GB") !== prefixSource) return done("not_match");
+  } else if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
     : !acceptedSuffixes?.includes(suffixSource))) {
     const label = ingKeys.has(input.skillKey) ? "-ing" : acceptedSuffixes?.map(form => `-${form}`).join("/");
     add("SUFFIX_PART", `Review the ${label} suffix part.`, "td-canonical-parts");
@@ -83,7 +98,7 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const expectedRelationship = ingKeys.has(input.skillKey) ? "regular_inflection" : "derived";
   const base = bases.find(part => links.some(link => link.component_part_id === part.id
     && link.relationship_kind === expectedRelationship));
-  if (acceptedSuffixes && !bases.length && parts.some(part => part.kind === "root"))
+  if ((acceptedSuffixes || acceptedPrefixes) && !bases.length && parts.some(part => part.kind === "root"))
     return done("not_match");
   if (!base) add("FAMILY_LINK", `Review a ${expectedRelationship.replaceAll("_", " ")} link to this meaning's free-base family.`, "td-base-family");
   else evidence.push(`Base ${String(base.sourceText)} linked to a reviewed family`);

@@ -171,6 +171,29 @@ assert.equal(evaluateLessonCandidate({ ...reading, skillKey: fulLessSkill,
       sourceText: "veget", surfaceText: "veget", gloss: "To grow or live" }, { id: "suffix", kind: "suffix",
       sourceText: "ful", surfaceText: "ful", gloss: "full of" }] } }).status,
   "not_match", "a bound root alone does not meet the free-base family requirement");
+const unSkill = "D4_MOR_PREFIXES_UN";
+const unhappy = { ...reading, displayWord: "unhappy", skillKey: unSkill,
+  senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
+    definition: "Not feeling happy.", dictationSentence: "She feels unhappy today.",
+    dictationTargetTokenIndex: 2 }] },
+  morphology: { ...reading.morphology, wordSum: "un + happy → unhappy",
+    parts: [{ id: "prefix", kind: "prefix", sourceText: "un", surfaceText: "un", gloss: "not" },
+      { id: "base", kind: "base", sourceText: "happy", surfaceText: "happy", gloss: "feeling joy" }],
+    joins: [{ afterPartId: "prefix", beforePartId: "base", joinType: "none" }] },
+  familyLinks: [{ ...reading.familyLinks[0], relationship_kind: "derived" }] };
+assert(hasCandidateRule(unSkill));
+assert.equal(evaluateLessonCandidate(unhappy).status, "ready");
+assert.deepEqual(evaluateLessonCandidate({ ...unhappy, familyLinks: [] }).issues.map(issue => issue.code),
+  ["FAMILY_LINK"]);
+assert.deepEqual(evaluateLessonCandidate({ ...unhappy, morphology: { ...unhappy.morphology,
+  parts: [{ ...unhappy.morphology.parts[0], gloss: "" }, unhappy.morphology.parts[1]] } }).issues
+  .map(issue => issue.code), ["PREFIX_MEANING"]);
+assert.equal(evaluateLessonCandidate({ ...unhappy, skillKey: "D4_MOR_SUFFIXES_FUL_LESS" }).status,
+  "not_match", "a prefixed word cannot pass a suffix candidate rule");
+assert.equal(evaluateLessonCandidate({ ...unhappy, morphology: { ...unhappy.morphology,
+  parts: [{ ...unhappy.morphology.parts[0], surfaceText: "u" },
+    { ...unhappy.morphology.parts[1], surfaceText: "nhappy" }] } }).status,
+  "not_match", "the visible prefix must match its reviewed form");
 const ingRoute = { routeId: "ing_endings_word_lab", routeVersion: "v1",
   microSkillKey: reading.skillKey, wordMeaning: "", wordSum: "", content: {} };
 const payload = {
