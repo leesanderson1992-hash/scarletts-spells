@@ -5,7 +5,7 @@ import { ingPreviewPool } from "../lib/adle/ing/preview-fixture";
 import { compileIngLesson, validateIngLesson } from "../lib/adle/ing/lesson";
 import { ingActivityDeclarations, ingAssignmentItems } from "../lib/adle/ing/snapshot";
 import { ingReleasedWordMatchesCurrentOverview } from "../lib/adle/ing/current-overview";
-import { evaluateLessonCandidate } from "../lib/teaching-dictionary-manager/lesson-candidate";
+import { evaluateLessonCandidate, hasCandidateRule } from "../lib/teaching-dictionary-manager/lesson-candidate";
 import { approvedGeneratedIngWord, generateIngWordFromOverview } from "../lib/teaching-dictionary-manager/ing-overview-recipe";
 import { previewIngOverviewRelease } from "../lib/teaching-dictionary-manager/ing-overview-release-preview";
 import { candidateDecisionIsCurrent } from "../lib/teaching-dictionary-manager/candidate-decision-current";
@@ -142,6 +142,35 @@ assert.equal(evaluateLessonCandidate(readable).status, "ready",
   "a reviewed free-base derivation can be approved without route-only content");
 assert.deepEqual(evaluateLessonCandidate({ ...readable, familyLinks: [] }).issues.map(issue => issue.code),
   ["FAMILY_LINK"]);
+const fulLessSkill = "D4_MOR_SUFFIXES_FUL_LESS";
+const careful = { ...readable, displayWord: "careful", skillKey: fulLessSkill,
+  senseSet: { ...readable.senseSet, senses: [{ ...readable.senseSet.senses[0],
+    dictationSentence: "She is careful.", dictationTargetTokenIndex: 2 }] },
+  morphology: { ...readable.morphology, wordSum: "care + ful → careful",
+    parts: [{ id: "base", kind: "base", sourceText: "care", surfaceText: "care", gloss: "attention" },
+      { id: "suffix", kind: "suffix", sourceText: "ful", surfaceText: "ful", gloss: "full of" }] } };
+assert(hasCandidateRule(fulLessSkill));
+assert.equal(evaluateLessonCandidate(careful).status, "ready");
+const careless = { ...careful, displayWord: "careless",
+  morphology: { ...careful.morphology, wordSum: "care + less → careless",
+    parts: [careful.morphology.parts[0],
+      { id: "suffix", kind: "suffix", sourceText: "less", surfaceText: "less", gloss: "without" }] },
+  senseSet: { ...careful.senseSet, senses: [{ ...careful.senseSet.senses[0],
+    dictationSentence: "She is careless." }] } };
+assert.equal(evaluateLessonCandidate(careless).status, "ready");
+assert.deepEqual(evaluateLessonCandidate({ ...careful, familyLinks: [] }).issues.map(issue => issue.code),
+  ["FAMILY_LINK"]);
+assert.deepEqual(evaluateLessonCandidate({ ...careful, morphology: { ...careful.morphology,
+  parts: [careful.morphology.parts[0], { ...careful.morphology.parts[1], gloss: "" }] } }).issues
+  .map(issue => issue.code), ["SUFFIX_MEANING"]);
+assert.equal(evaluateLessonCandidate({ ...careful, skillKey: "D4_MOR_SUFFIXES_ABLE_IBLE" }).status,
+  "not_match", "a -ful word must not pass the -able/-ible rule");
+assert.equal(evaluateLessonCandidate({ ...reading, skillKey: fulLessSkill,
+  displayWord: "vegetful", morphology: { ...reading.morphology,
+    wordSum: "veget + ful → vegetful", parts: [{ id: "root", kind: "root",
+      sourceText: "veget", surfaceText: "veget", gloss: "To grow or live" }, { id: "suffix", kind: "suffix",
+      sourceText: "ful", surfaceText: "ful", gloss: "full of" }] } }).status,
+  "not_match", "a bound root alone does not meet the free-base family requirement");
 const ingRoute = { routeId: "ing_endings_word_lab", routeVersion: "v1",
   microSkillKey: reading.skillKey, wordMeaning: "", wordSum: "", content: {} };
 const payload = {

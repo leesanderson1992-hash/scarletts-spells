@@ -31,7 +31,12 @@ export type CandidateInput = {
 
 const ingKeys = new Set(Object.keys(ING_RULE_FOR_SKILL));
 const ableKey = "D4_MOR_SUFFIXES_ABLE_IBLE";
-export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey) || skillKey === ableKey;
+const fulLessKey = "D4_MOR_SUFFIXES_FUL_LESS";
+const suffixForms: Record<string, readonly string[]> = {
+  [ableKey]: ["able", "ible"],
+  [fulLessKey]: ["ful", "less"],
+};
+export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey) || Object.hasOwn(suffixForms, skillKey);
 
 /** Rules are evaluated from approved facts. A skill choice is never evidence by itself. */
 export function evaluateLessonCandidate(input: CandidateInput): CandidateDecision {
@@ -49,7 +54,8 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   if (!hasCandidateRule(input.skillKey)) return done("legacy_review");
   const spelling = input.displayWord.toLocaleLowerCase("en-GB");
   if (ingKeys.has(input.skillKey) && !spelling.endsWith("ing")) return done("not_match");
-  if (input.skillKey === ableKey && !/(?:able|ible)$/u.test(spelling)) return done("not_match");
+  const acceptedSuffixes = suffixForms[input.skillKey];
+  if (acceptedSuffixes && !acceptedSuffixes.some(form => spelling.endsWith(form))) return done("not_match");
   const senseIssue = bulkSenseChoiceError({ wordId: input.wordId, displayWord: input.displayWord,
     senseSet: input.senseSet, senseId: input.senseId });
   if (senseIssue) add("SENSE_FACTS", senseIssue, "td-definition");
@@ -66,8 +72,9 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const suffix = parts.at(-1);
   const suffixSource = String(suffix?.sourceText ?? "").toLocaleLowerCase("en-GB");
   if (suffix?.kind !== "suffix" || (ingKeys.has(input.skillKey) ? suffixSource !== "ing"
-    : !["able", "ible"].includes(suffixSource))) {
-    add("SUFFIX_PART", `Review the ${ingKeys.has(input.skillKey) ? "-ing" : "-able/-ible"} suffix part.`, "td-canonical-parts");
+    : !acceptedSuffixes?.includes(suffixSource))) {
+    const label = ingKeys.has(input.skillKey) ? "-ing" : acceptedSuffixes?.map(form => `-${form}`).join("/");
+    add("SUFFIX_PART", `Review the ${label} suffix part.`, "td-canonical-parts");
   } else if (!String(suffix.gloss ?? "").trim()) {
     add("SUFFIX_MEANING", "Choose the reviewed meaning of this suffix.", "td-canonical-parts");
   } else evidence.push(`${suffixSource}: ${String(suffix.gloss)}`);
@@ -76,7 +83,7 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const expectedRelationship = ingKeys.has(input.skillKey) ? "regular_inflection" : "derived";
   const base = bases.find(part => links.some(link => link.component_part_id === part.id
     && link.relationship_kind === expectedRelationship));
-  if (input.skillKey === ableKey && !bases.length && parts.some(part => part.kind === "root"))
+  if (acceptedSuffixes && !bases.length && parts.some(part => part.kind === "root"))
     return done("not_match");
   if (!base) add("FAMILY_LINK", `Review a ${expectedRelationship.replaceAll("_", " ")} link to this meaning's free-base family.`, "td-base-family");
   else evidence.push(`Base ${String(base.sourceText)} linked to a reviewed family`);
@@ -92,7 +99,7 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
       return done("not_match");
     evidence.push(`${String(base.sourceText)} + ing → ${spelling}`);
   }
-  if (input.skillKey === ableKey && suffix && suffixSource !== spelling.slice(-suffixSource.length))
+  if (acceptedSuffixes && suffix && suffixSource !== spelling.slice(-suffixSource.length))
     return done("not_match");
   return done(issues.length ? "needs_facts" : "ready");
 }
