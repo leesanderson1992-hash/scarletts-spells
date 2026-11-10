@@ -33,8 +33,13 @@ try {
     "Both staging live senses must appear in Overview");
   await page.goto(`${base}/admin/teaching-dictionary/bulk-assign`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Assign words to a micro-skill" }).waitFor();
+  await page.goto(`${base}/admin/adle-lesson-readiness?route=ing_endings_word_lab&skill=D4_INF_ING_ENDINGS_REGULAR`,
+    { waitUntil: "domcontentloaded" });
+  await page.getByText("Inspect word gates and blockers").click();
+  await page.getByText("Reviewed Overview facts:").first().waitFor();
   assert.deepEqual(pageErrors, [], "Preview pages must not throw client errors");
-  console.log(JSON.stringify({ result: "passed", liveSenses: 2, bulkPage: "loaded" }));
+  console.log(JSON.stringify({ result: "passed", liveSenses: 2, bulkPage: "loaded",
+    adleOverviewCandidates: "visible" }));
 } finally {
   await browser.close();
 }

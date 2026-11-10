@@ -48,6 +48,16 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
             : word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate
             ? word.status.technicalFacts === "not_evaluated" ? "administrative gates passed; native word validation pending" : "administrative gates passed; child scope checked separately"
             : "blocked"}</span>
+          {word.overviewCandidate && <div className="mt-2 rounded bg-slate-50 p-2">
+            <p><strong>Reviewed Overview facts:</strong> {word.overviewCandidate.status === "ready"
+              ? word.status.relationshipApproved && word.senseBindingApproved
+                ? "meaning approved for this micro-skill; check content and release below"
+                : "ready for automatic approval"
+              : word.overviewCandidate.status === "not_match" ? "not a match for this lesson rule"
+              : "needs review"}{word.selectedSenseDefinition ? ` · ${word.selectedSenseDefinition}` : ""}</p>
+            {word.overviewCandidate.issues.length > 0 && <ul className="mt-1 list-disc pl-5">{word.overviewCandidate.issues.map(issue =>
+              <li key={issue.code}><Link className="underline" href={issue.href}>{issue.message}</Link></li>)}</ul>}
+          </div>}
           {word.status.blockerDetails.length > 0 && <ul className="mt-1 list-disc pl-5">{word.status.blockerDetails.map((blocker, index) => <li key={`${blocker.code}:${index}`}>{blocker.gate}: {blocker.message}</li>)}</ul>}
         </li>)}</ul>
         {routeWords.words.length > 50 && <p className="mt-2 text-sm">Showing the first 50 words alphabetically; the counts cover all {routeWords.words.length} words.</p>}

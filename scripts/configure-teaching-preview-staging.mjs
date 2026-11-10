@@ -21,11 +21,13 @@ const values = {
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   SB_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   ADMIN_USER_IDS: process.env.STAGING_ADMIN_USER_ID,
+  ADLE_ROUTE_ACTIVATION_ENVIRONMENT: "staging",
 };
 for (const [key, value] of Object.entries(values)) {
   assert(value, `${key}_MISSING`);
   const result = spawnSync("vercel", ["env", "add", key, "preview", branch,
-    "--yes", "--force", ...(key.startsWith("NEXT_PUBLIC_") ? ["--no-sensitive"] : [])],
+    "--yes", "--force", ...(key.startsWith("NEXT_PUBLIC_") || key === "ADLE_ROUTE_ACTIVATION_ENVIRONMENT"
+      ? ["--no-sensitive"] : [])],
     { input: value, encoding: "utf8", timeout: 30_000 });
   if (result.status !== 0) throw new Error(`PREVIEW_ENV_SET_FAILED:${key}:${result.status}`);
   console.log(`${key}: staging branch override installed`);
