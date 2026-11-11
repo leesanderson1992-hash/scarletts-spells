@@ -3,15 +3,19 @@
 import { useActionState } from "react";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "./multi-sense-actions";
 
-export function MultiSenseCsvPanel({ wordId }: { wordId: string }) {
+export function MultiSenseCsvPanel({ wordId, batchCount = 0 }: { wordId?: string; batchCount?: number }) {
   const [state, action, pending] = useActionState(importReviewedMultiSenseCsv, {} as MultiSenseImportState);
   return <details className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
-    <summary className="cursor-pointer font-semibold">Export or import all meanings for this word</summary>
+    <summary className="cursor-pointer font-semibold">{wordId ? "Export or import all meanings for this word" : "Bulk review word meanings"}</summary>
     <p className="mt-2">The sheet has one row per meaning, with its pronunciation, word parts, family relationship and requested micro-skills. Keep every existing meaning row when reimporting. A combined sheet may contain up to 100 complete words.</p>
-    <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
+    {wordId ? <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
       href={`/admin/teaching-dictionary/export/multi-sense?word_id=${wordId}`}>
       Download reviewed meanings sheet
-    </a>
+    </a> : <div className="mt-2 flex flex-wrap gap-2">{Array.from({ length: batchCount }, (_, index) =>
+      <a key={index} className="rounded border border-[var(--border)] px-3 py-2 font-semibold"
+        href={`/admin/teaching-dictionary/export/multi-sense?batch=${index + 1}`}>
+        Meanings batch {index + 1}
+      </a>)}</div>}
     <form action={action} className="mt-3 flex flex-wrap items-end gap-2">
       <label className="grid gap-1">Reviewed meanings CSV
         <input type="file" name="multi_sense_csv" accept=".csv,text/csv" required

@@ -7,6 +7,7 @@ import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activati
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { OVERVIEW_EXPORT_BATCH_SIZE } from "@/lib/teaching-dictionary-manager/overview-csv";
 import { CsvImportPanel } from "./csv-import-panel";
+import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
@@ -51,6 +52,8 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     .order("display_name");
   const activeCountPromise = db.from("canonical_teaching_dictionary_words")
     .select("id", { count: "exact", head: true }).eq("dialect_code", "en-GB").eq("row_status", "active");
+  const reviewedSenseCountPromise = db.from("teaching_dictionary_reviewed_sense_sets")
+    .select("canonical_word_id", { count: "exact", head: true });
   const initialPagePromise = !needsGlobalAuthority && filter !== "awaiting_british_recording" ? db.rpc("teaching_dictionary_admin_filtered_page", {
     p_filter: filter, p_search: q, p_word_ids: null,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
@@ -84,9 +87,10 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const authorityPromise = needsGlobalAuthority ? globalAuthorityPromise
     : environment && wordIds.length ? loadCachedTeachingDictionaryEvidenceAuthorityForWords(environment, wordIds)
       : Promise.resolve(null);
-  const [drafts, activeCount, reviewSkills, authority, pageFactsResult] = await Promise.all([
+  const [drafts, activeCount, reviewedSenseCount, reviewSkills, authority, pageFactsResult] = await Promise.all([
     draftsPromise,
     activeCountPromise,
+    reviewedSenseCountPromise,
     reviewSkillsPromise,
     authorityPromise,
     wordIds.length ? db.rpc("teaching_dictionary_admin_page_facts", { p_word_ids: wordIds })
@@ -96,6 +100,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   if (reviewSkills.error || (reviewSkills.data?.length ?? 0) >= 1000)
     throw new Error("TEACHING_REVIEW_SKILL_CATALOG_READ_FAILED");
   if (activeCount.error || activeCount.count == null) throw new Error("TEACHING_WORD_COUNT_READ_FAILED");
+  if (reviewedSenseCount.error || reviewedSenseCount.count == null) throw new Error("TEACHING_MEANING_COUNT_READ_FAILED");
   if (pageFactsResult.error || !pageFactsResult.data) throw new Error("TEACHING_DICTIONARY_PAGE_FACTS_READ_FAILED");
   const facts = pageFactsResult.data as PageFacts;
   const { metadata, dictation } = facts;
@@ -118,6 +123,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/bulk-assign">Assign words to a micro-skill</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/format-review">Review dictionary formats</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-lesson-readiness">ADLE lesson readiness and launch</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
     <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)}
       reviewSkills={reviewSkills.data ?? []} />
+    <MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)} />
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
         <input className="rounded-lg border border-[var(--border)] px-3 py-2" name="q" placeholder="Search all words" defaultValue={q} />

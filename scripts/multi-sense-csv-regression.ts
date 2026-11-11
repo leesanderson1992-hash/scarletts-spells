@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseMultiSenseCsv, renderMultiSenseCsv, type MultiSenseCsvBundle } from
+import { parseMultiSenseCsv, renderMultiSenseCsv, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from
   "../lib/teaching-dictionary-manager/multi-sense-csv";
 
 const wordId = "efa04f55-0f0c-528a-954c-30baacb32e33";
@@ -39,6 +39,11 @@ assert.deepEqual(parsed.analyses.map(row => row.relationshipKind),
   ["derived", "regular_inflection", "regular_inflection"]);
 assert.deepEqual(parsed.analyses.map(row => row.requestedSkillKeys.length), [0, 1, 1]);
 assert.equal(parsed.analyses[2].wordSum, "box + ing → boxing");
+const second: MultiSenseCsvBundle = { ...bundle,
+  wordId: "eea2483f-60e5-463f-87be-2283493f645a",
+  senseSet: { ...bundle.senseSet, senses: [bundle.senseSet.senses[0]] },
+  analyses: [bundle.analyses[0]] };
+assert.equal(parseMultiSenseCsv(renderMultiSenseCsvBundles([bundle, second])).length, 2);
 
 const lines = csv.trim().split("\r\n");
 assert.throws(() => parseMultiSenseCsv(`${lines[0]}\r\n${lines[1]}\r\n${lines[1]}\r\n`),

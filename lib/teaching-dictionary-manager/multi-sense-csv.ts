@@ -129,8 +129,8 @@ function cell(value: unknown): string {
   return `"${safe.replaceAll('"', '""')}"`;
 }
 
-export function renderMultiSenseCsv(bundle: MultiSenseCsvBundle): string {
-  const rows = bundle.senseSet.senses.map(sense => {
+export function renderMultiSenseCsvBundles(bundles: readonly MultiSenseCsvBundle[]): string {
+  const rows = bundles.flatMap(bundle => bundle.senseSet.senses.map(sense => {
     const pronunciation = bundle.senseSet.pronunciations.find(row => row.id === sense.pronunciationId);
     const analysis = bundle.analyses.find(row => row.senseId === sense.id);
     const row: Record<string, unknown> = {
@@ -158,6 +158,10 @@ export function renderMultiSenseCsv(bundle: MultiSenseCsvBundle): string {
         change => change.sourcePartId === part.id)?.explanation ?? "";
     }
     return MULTI_SENSE_CSV_COLUMNS.map(name => cell(row[name])).join(",");
-  });
+  }));
   return `\uFEFF${MULTI_SENSE_CSV_COLUMNS.map(cell).join(",")}\r\n${rows.join("\r\n")}\r\n`;
+}
+
+export function renderMultiSenseCsv(bundle: MultiSenseCsvBundle): string {
+  return renderMultiSenseCsvBundles([bundle]);
 }

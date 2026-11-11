@@ -66,12 +66,38 @@ try {
       $1::uuid,$2::jsonb,$3::uuid,$4::text) count`;
     assert.equal((await db.query(query, args)).rows[0].count, 1);
     assert.equal((await db.query(query, args)).rows[0].count, 1);
-    await db.query("savepoint invalid_second_word");
     const current = await db.query(`select reviewed_at::text reviewed_at from
       public.teaching_dictionary_reviewed_sense_sets where canonical_word_id=$1`, [wordId]);
     const valid = { ...bundle, sourceSenseReviewedAt: current.rows[0].reviewed_at };
-    const invalid = { ...valid, wordId: randomUUID() };
-    await assert.rejects(() => db.query(query, [randomUUID(), JSON.stringify([valid, invalid]),
+    const boxId = "eea2483f-60e5-463f-87be-2283493f645a";
+    const boxReviewed = await db.query(`select sense_set,reviewed_at::text reviewed_at from
+      public.teaching_dictionary_reviewed_sense_sets where canonical_word_id=$1`, [boxId]);
+    const boxAnalyses = await db.query(`select id,sense_id,morphology_parts,morphology_joins,
+      morphology_transformations,word_sum from public.teaching_dictionary_current_sense_morphology
+      where canonical_word_id=$1`, [boxId]);
+    const boxLinks = await db.query(`select sense_id,sense_morphology_id,family_key,component_part_id,
+      relationship_kind from public.teaching_dictionary_current_sense_family_memberships
+      where canonical_word_id=$1`, [boxId]);
+    assert.equal(boxAnalyses.rows.length, 2);
+    const second = { wordId: boxId, sourceSenseReviewedAt: boxReviewed.rows[0].reviewed_at,
+      senseSet: boxReviewed.rows[0].sense_set,
+      analyses: boxAnalyses.rows.map(row => {
+        const link = boxLinks.rows.find(item => item.sense_id === row.sense_id
+          && item.sense_morphology_id === row.id);
+        return { senseId: row.sense_id, parts: row.morphology_parts,
+          joins: row.morphology_joins, transformations: row.morphology_transformations,
+          wordSum: row.word_sum, familyKey: link?.family_key ?? "",
+          componentPartId: link?.component_part_id ?? "",
+          relationshipKind: link?.relationship_kind ?? "", requestedSkillKeys: [] };
+      }) };
+    assert.equal((await db.query(query, [randomUUID(), JSON.stringify([valid, second]),
+      reviewed.rows[0].reviewed_by, "Rollback proof: boxing and box batch"])).rows[0].count, 2);
+    await db.query("savepoint invalid_second_word");
+    const latest = await db.query(`select reviewed_at::text reviewed_at from
+      public.teaching_dictionary_reviewed_sense_sets where canonical_word_id=$1`, [wordId]);
+    const refreshed = { ...bundle, sourceSenseReviewedAt: latest.rows[0].reviewed_at };
+    const invalid = { ...refreshed, wordId: randomUUID() };
+    await assert.rejects(() => db.query(query, [randomUUID(), JSON.stringify([refreshed, invalid]),
       reviewed.rows[0].reviewed_by, "Rollback proof: invalid second word"]),
     /MULTI_SENSE_CSV_APPROVED_WORD_REQUIRED/);
     await db.query("rollback to savepoint invalid_second_word");
