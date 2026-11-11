@@ -245,6 +245,7 @@ export function WordWorkspace(props: {
   normalisedWord: string;
   initial: WordDraftPayload;
   approvedSenseSet: DictionarySenseSet | null;
+  meaningImportRequests: { sense_id: string; micro_skill_key: string }[];
   approvedCandidateMorphology: CandidateMorphology | null;
   approvedMorphologyTransformations: unknown[];
   approvedCandidateFamilyLinks: CandidateFamilyLink[];
@@ -964,7 +965,8 @@ export function WordWorkspace(props: {
         </summary>
         <div className="px-4 pb-4">
           {props.wordId && props.approvedSenseSet?.senses.length ?
-            <MultiSenseCsvPanel wordId={props.wordId} /> : null}
+            <MultiSenseCsvPanel wordId={props.wordId} requests={props.meaningImportRequests}
+              senses={props.approvedSenseSet.senses} /> : null}
           {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })}
             selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
           {props.wordId && props.approvedSenseSet?.senses.length ? <SenseMorphologyReview

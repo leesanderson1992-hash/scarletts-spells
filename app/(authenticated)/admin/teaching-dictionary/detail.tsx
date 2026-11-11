@@ -353,6 +353,14 @@ export async function TeachingDictionaryDetail({
   if (reviewedSenses?.error) throw new Error("TEACHING_SENSE_SET_READ_FAILED");
   if (candidateFamilyLinks?.error) throw new Error("TEACHING_CANDIDATE_FAMILY_READ_FAILED");
   if (senseAnalyses?.error || senseFamilyLinks?.error) throw new Error("TEACHING_SENSE_MORPHOLOGY_READ_FAILED");
+  const recentMeaningImport = wordId ? await db.from("teaching_dictionary_multi_sense_csv_requests")
+    .select("request_id").eq("canonical_word_id", wordId)
+    .order("reviewed_at", { ascending: false }).limit(1).maybeSingle() : null;
+  if (recentMeaningImport?.error) throw new Error("TEACHING_MEANING_IMPORT_READ_FAILED");
+  const meaningImportRequests = recentMeaningImport?.data ? await db
+    .from("teaching_dictionary_multi_sense_csv_skill_requests")
+    .select("sense_id,micro_skill_key").eq("request_id", recentMeaningImport.data.request_id) : null;
+  if (meaningImportRequests?.error) throw new Error("TEACHING_MEANING_SKILL_REQUEST_READ_FAILED");
   const familySourceTexts = [...new Set([morphology?.morphology_parts,
     ...(senseAnalyses?.data ?? []).map(row => row.morphology_parts)]
     .flatMap(value => Array.isArray(value) ? value : [])
@@ -558,6 +566,7 @@ export async function TeachingDictionaryDetail({
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         approvedSenseSet={approvedSenseSet ?? null}
+        meaningImportRequests={meaningImportRequests?.data ?? []}
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null}
