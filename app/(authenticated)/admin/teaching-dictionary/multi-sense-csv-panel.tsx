@@ -48,6 +48,24 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
       Saved {state.words} {state.words === 1 ? "word" : "words"}. {state.approved} new lesson {state.approved === 1 ? "approval" : "approvals"}.
       {state.alreadyApproved ? ` ${state.alreadyApproved} already approved.` : ""}
     </p>}
+    {state.lessons?.length ? <div className="mt-4 space-y-4">
+      <h4 className="font-semibold">Results by lesson</h4>
+      {[...new Set(state.lessons.map(row => row.skillKey))].map(skillKey => {
+        const rows = state.lessons!.filter(row => row.skillKey === skillKey);
+        const routeId = rows[0].routeId;
+        return <section key={skillKey} className="rounded-lg border border-[var(--border)] p-3">
+          <h5 className="font-semibold">{skills?.find(skill => skill.micro_skill_key === skillKey)?.display_name ?? skillKey}</h5>
+          <ul className="my-2 space-y-1">{rows.map((row, index) => <li key={index}>
+            <Link className="underline" href={`/admin/teaching-dictionary/${row.wordId}`}>{row.word}</Link>
+            { ` · ${row.meaning} · ${row.approval} · ${row.release}` }
+          </li>)}</ul>
+          {rows.some(row => row.release === "Ready to publish") && <Link className="mr-4 font-semibold underline"
+            href="/admin/teaching-dictionary/lesson-updates">Preview and publish the update</Link>}
+          {routeId && <Link className="underline" href={`/admin/adle-lesson-readiness?${new URLSearchParams({ route: routeId, skill: skillKey })}`}>
+            View current lesson status</Link>}
+        </section>;
+      })}
+    </div> : null}
     {state.issues?.length ? <div className="mt-3">
       <h4 className="font-semibold">What needs fixing</h4>
       <ul className="mt-2 space-y-2">

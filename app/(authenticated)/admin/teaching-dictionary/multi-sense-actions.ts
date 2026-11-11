@@ -8,10 +8,17 @@ import { MAX_DICTIONARY_CSV_BYTES } from "@/lib/teaching-dictionary-manager/csv"
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
+import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
+import { canUpdateStagingIngLesson, loadRegularIngUpdate } from "@/lib/teaching-dictionary-manager/regular-ing-staging-release";
+import { REGULAR_ING_SKILL } from "@/lib/teaching-dictionary-manager/ing-bulk-review";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
+type LessonResult = { word: string; wordId: string; meaning: string; skillKey: string;
+  approval: "Approved" | "Already approved" | "Needs review"; release?: string; routeId?: string };
 export type MultiSenseImportState = {
+  lessons?: LessonResult[];
   words?: number; approved?: number; alreadyApproved?: number; issues?: ImportIssue[]; error?: string;
 };
 
@@ -45,6 +52,7 @@ export async function importReviewedMultiSenseCsv(
   catch (error) { return { error: error instanceof Error ? error.message : "The sheet format is invalid." }; }
   const db = createServiceRoleClient();
   const issues: ImportIssue[] = [];
+  const lessons: LessonResult[] = [];
   let words = 0;
   let approved = 0;
   let alreadyApproved = 0;
@@ -67,6 +75,9 @@ export async function importReviewedMultiSenseCsv(
     const wordId = applied.data;
     for (const [index, analysis] of bundle.analyses.entries()) {
       for (const skillKey of analysis.requestedSkillKeys) {
+        const lesson: LessonResult = { word, wordId, skillKey, meaning: bundle.senseSet.senses[index].definition,
+          approval: "Needs review", routeId: routeForSkill(skillKey)?.routeId };
+        lessons.push(lesson);
         const prefix = `${skillKey} · ${bundle.senseSet.senses[index].definition}`;
         const report = (reason: string) => issues.push({
           word, wordId, rows: [rows[index]], reason: `${prefix}: ${reason}`,
@@ -81,6 +92,7 @@ export async function importReviewedMultiSenseCsv(
             senseIds: { [wordId]: analysis.senseId }, requestId: randomUUID(),
             sourceKind: "teaching_dictionary_import" });
           if (result.ok) {
+            lesson.approval = result.approvedCount ? "Approved" : "Already approved";
             approved += result.approvedCount;
             alreadyApproved += result.alreadyAssignedCount;
           } else report(result.blocked[0]?.reason ?? result.error ?? "Recheck this lesson request.");
@@ -93,5 +105,25 @@ export async function importReviewedMultiSenseCsv(
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath("/admin/teaching-dictionary");
   }
-  return { words, approved, alreadyApproved, issues };
+  await Promise.all([...new Set(lessons.map(lesson => lesson.skillKey))].map(async skillKey => {
+    const results = lessons.filter(lesson => lesson.skillKey === skillKey);
+    try {
+      if (skillKey === REGULAR_ING_SKILL && canUpdateStagingIngLesson()) {
+        const update = await loadRegularIngUpdate(db);
+        for (const row of results) row.release = update.current.some(word => word.canonicalWordId === row.wordId)
+          && row.approval !== "Needs review" ? "In active lesson pool"
+          : row.approval !== "Needs review" && update.changes.some(word => word.canonicalWordId === row.wordId)
+            ? "Ready to publish" : "Release review needed";
+        return;
+      }
+      const routeId = results[0].routeId;
+      const [lesson] = routeId ? await loadLessonReadiness({ routeId, microSkillKey: skillKey }) : [];
+      for (const row of results) row.release = !lesson ? "No lesson release status"
+        : !lesson.released ? "Lesson awaiting release" : !lesson.activationEnabled ? "Lesson released · awaiting activation"
+          : "Lesson active · check word inclusion";
+    } catch {
+      for (const row of results) row.release = "Check current lesson readiness";
+    }
+  }));
+  return { words, approved, alreadyApproved, issues, lessons };
 }
