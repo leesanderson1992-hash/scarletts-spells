@@ -126,13 +126,24 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     <header><h1 className="text-3xl font-semibold">Teaching Dictionary</h1></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
-    <MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)}
-      skills={reviewSkills.data?.filter(skill => hasCandidateRule(skill.micro_skill_key))} />
+    <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-white p-5">
+      <div>
+        <h2 className="text-xl font-semibold">Bulk word review</h2>
+        <p className="mt-1 text-sm">Upload a word list, review matches and apply changes together. Available for regular <strong>-ing</strong>.</p>
+      </div>
+      <Link href="/admin/teaching-dictionary/ing-review"
+        className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white">Open bulk review</Link>
+    </section>
+    <details id="word-csv-import" className="scroll-mt-4">
+      <summary className="cursor-pointer text-sm font-semibold">Import a full dictionary CSV</summary>
+      <div className="mt-2"><MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)}
+        skills={reviewSkills.data?.filter(skill => hasCandidateRule(skill.micro_skill_key))} /></div>
+    </details>
     <section id="dictionary-word-search" aria-labelledby="dictionary-word-search-heading"
       className="scroll-mt-4 rounded-2xl border border-[var(--border)] bg-white p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 id="dictionary-word-search-heading" className="text-lg font-semibold">Find existing words</h2>
-        <a className="text-sm underline" href="#word-csv-import">Back to CSV upload</a>
+        <Link className="text-sm underline" href="/admin/teaching-dictionary/ing-review">Open bulk review</Link>
       </div>
       <form action="/admin/teaching-dictionary#dictionary-word-search"
         className="grid gap-3 md:grid-cols-[1fr_220px_auto]">

@@ -63,7 +63,7 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
     </div> : null}
   </>;
 
-  if (!wordId) return <section id="word-csv-import" aria-labelledby="word-csv-heading"
+  if (!wordId) return <section aria-labelledby="word-csv-heading"
     className="scroll-mt-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6">
     <h2 id="word-csv-heading" className="text-xl font-semibold">Import words for ADLE</h2>
     <p className="mt-1 text-sm">Add new words and update existing words in the same CSV.</p>
