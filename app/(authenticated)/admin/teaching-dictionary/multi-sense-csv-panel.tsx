@@ -7,8 +7,12 @@ import type { DictionarySense } from "@/lib/teaching-dictionary-manager/senses";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "./multi-sense-actions";
 
-export function MultiSenseCsvPanel({ wordId, batchCount = 0, requests = [], senses = [] }: {
-  wordId?: string; batchCount?: number;
+const exportUrl = "/admin/teaching-dictionary/export/multi-sense";
+
+export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = [], senses = [] }: {
+  wordId?: string;
+  batchCount?: number;
+  skills?: { micro_skill_key: string; display_name: string }[];
   requests?: { sense_id: string; micro_skill_key: string }[];
   senses?: DictionarySense[];
 }) {
@@ -29,19 +33,9 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, requests = [], sens
     } catch { setRecheckMessage(`${skillKey}: Recheck could not complete. Try again.`); }
     finally { setRecheck(null); }
   }
-  return <details open={wordId ? undefined : true} className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
-    <summary className="cursor-pointer font-semibold">{wordId ? "Export or import all meanings for this word" : "Upload reviewed words for lessons"}</summary>
-    <p className="mt-2">Use one row per meaning. Leave the word ID and source revision blank for a new word. Keep the IDs and every meaning from an existing word’s export. Add the lesson’s micro-skill key to the meaning you want to teach. You can upload up to 100 words at once.</p>
-    {wordId ? <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
-      href={`/admin/teaching-dictionary/export/multi-sense?word_id=${wordId}`}>
-      Download reviewed meanings sheet
-    </a> : <div className="mt-2 flex flex-wrap gap-2"><Link className="rounded border border-[var(--border)] px-3 py-2 font-semibold" prefetch={false} href="/admin/teaching-dictionary/export/multi-sense?template=1">Download CSV template</Link>{Array.from({ length: batchCount }, (_, index) =>
-      <a key={index} className="rounded border border-[var(--border)] px-3 py-2 font-semibold"
-        href={`/admin/teaching-dictionary/export/multi-sense?batch=${index + 1}`}>
-        Meanings batch {index + 1}
-      </a>)}</div>}
-    <form action={action} className="mt-3 flex flex-wrap items-end gap-2">
-      <label className="grid gap-1">Reviewed words CSV
+  const form = <>
+    <form action={action} className="mt-3 flex flex-wrap items-end gap-3">
+      <label className="grid min-w-0 gap-1 font-medium">Choose your completed CSV
         <input type="file" name="multi_sense_csv" accept=".csv,text/csv" required
           className="rounded border border-[var(--border)] px-3 py-2" />
       </label>
@@ -50,17 +44,86 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, requests = [], sens
       </button>
     </form>
     {state.error && <p role="alert" className="mt-2 text-rose-800">{state.error}</p>}
-    {state.words !== undefined && <p role="status" className="mt-2">
-      Saved {state.words} dictionary words. {state.approved} new lesson approvals.
+    {state.words !== undefined && <p role="status" className="mt-3 rounded-md border border-[var(--border)] p-3">
+      Saved {state.words} {state.words === 1 ? "word" : "words"}. {state.approved} new lesson {state.approved === 1 ? "approval" : "approvals"}.
       {state.alreadyApproved ? ` ${state.alreadyApproved} already approved.` : ""}
     </p>}
-    {state.issues?.length ? <ul className="mt-2 space-y-2">
+    {state.issues?.length ? <div className="mt-3">
+      <h4 className="font-semibold">What needs fixing</h4>
+      <ul className="mt-2 space-y-2">
       {state.issues.map((issue, index) => <li key={index}>
         <strong>{issue.word || "Missing spelling"} · CSV {issue.rows.length === 1 ? "row" : "rows"} {issue.rows.join(", ")}</strong>
-        <p>{issue.reason} {issue.wordId && <Link className="underline" href={`/admin/teaching-dictionary/${issue.wordId}`}>Open word</Link>}</p>
+        <p>{issue.reason}</p>
+        {issue.wordId ? <p className="mt-1 flex flex-wrap gap-3">
+          <Link className="underline" href={`/admin/teaching-dictionary/${issue.wordId}`}>Open saved word</Link>
+          <a className="underline" href={`${exportUrl}?word_id=${issue.wordId}`}>Download fresh CSV</a>
+        </p> : null}
       </li>)}
-    </ul> : null}
-    {wordId && requests.length ? <div className="mt-3 border-t border-[var(--border)] pt-3">
+      </ul>
+    </div> : null}
+  </>;
+
+  if (!wordId) return <section id="word-csv-import" aria-labelledby="word-csv-heading"
+    className="scroll-mt-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-6">
+    <h2 id="word-csv-heading" className="text-xl font-semibold">Import words for ADLE</h2>
+    <p className="mt-1 text-sm">Add new words and update existing words in the same CSV.</p>
+
+    <div className="mt-5 grid gap-5 text-sm md:grid-cols-2">
+      <div className="rounded-xl border border-[var(--border)] p-4">
+        <h3 className="font-semibold">Add new words</h3>
+        <p className="mt-1">Start with the blank template. Add one row per meaning and leave <code>canonical_word_id</code> and <code>source_sense_reviewed_at</code> blank.</p>
+        <Link className="mt-3 inline-block rounded-lg border border-[var(--border)] px-3 py-2 font-semibold"
+          prefetch={false} href={`${exportUrl}?template=1`}>Download blank CSV template</Link>
+      </div>
+      <div className="rounded-xl border border-[var(--border)] p-4">
+        <h3 className="font-semibold">Update existing words</h3>
+        <p className="mt-1">Find the spelling below and choose <strong>Download word CSV</strong> beside it. Copy all its meaning rows into your file and keep the IDs and source revision.</p>
+        <a className="mt-3 inline-block rounded-lg border border-[var(--border)] px-3 py-2 font-semibold"
+          href="#dictionary-word-search">Find an existing word</a>
+        {batchCount > 0 ? <details className="mt-3">
+          <summary className="cursor-pointer">Download multiple existing words</summary>
+          <div className="mt-2 flex flex-wrap gap-3">{Array.from({ length: batchCount }, (_, index) =>
+            <a key={index} className="underline" href={`${exportUrl}?batch=${index + 1}`}>
+              Download reviewed words, batch {index + 1}
+            </a>)}</div>
+        </details> : null}
+      </div>
+    </div>
+
+    <div className="mt-5 border-t border-[var(--border)] pt-4 text-sm">
+      <h3 className="font-semibold">Request lesson approval</h3>
+      <p className="mt-1">Copy the micro-skill key into <code>requested_micro_skills</code> on the row for the meaning you want to teach. For a dictionary update only, leave it blank.</p>
+      {skills?.length ? <details className="mt-2">
+        <summary className="cursor-pointer font-medium">Find a micro-skill key for automatic approval</summary>
+        <ul className="mt-2 space-y-1">{skills.map(skill => <li key={skill.micro_skill_key}>
+          {skill.display_name} <code className="break-all">{skill.micro_skill_key}</code>
+        </li>)}</ul>
+      </details> : null}
+      <details className="mt-2">
+        <summary className="cursor-pointer font-medium">What to fill in for a new word</summary>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>Give each meaning a distinct <code>sense_id</code>, such as <code>boxing-packing</code>, and fill in its definition and part of speech.</li>
+          <li>Fill in the pronunciation ID, IPA, syllable count and stress. Reuse a pronunciation ID if two meanings sound the same.</li>
+          <li>Fill in the word parts in order. For a family link, use the reviewed <code>family_key</code> and the ID of the matching base or root part.</li>
+          <li>For dictation, add a sentence and the target word’s position. Count from zero, so <em>We are boxing the books</em> gives <code>2</code>.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div className="mt-5 border-t border-[var(--border)] pt-4 text-sm">
+      <h3 className="font-semibold">Upload and check your words</h3>
+      <p className="mt-1">Upload up to 100 words. You’ll see what saved, which lessons were approved, and the row numbers for any fixes.</p>
+      {form}
+    </div>
+  </section>;
+
+  return <details className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
+    <summary className="cursor-pointer font-semibold">Export or import all meanings for this word</summary>
+    <p className="mt-2">Keep the word ID, source revision and every meaning row from this export when you make edits.</p>
+    <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
+      href={`${exportUrl}?word_id=${wordId}`}>Download word CSV</a>
+    {form}
+    {requests.length ? <div className="mt-3 border-t border-[var(--border)] pt-3">
       <p className="font-semibold">Requested micro-skills from the latest meanings import</p>
       <ul className="mt-1 space-y-2">{requests.map(row => <li key={`${row.sense_id}:${row.micro_skill_key}`}
         className="flex flex-wrap items-center gap-2">
