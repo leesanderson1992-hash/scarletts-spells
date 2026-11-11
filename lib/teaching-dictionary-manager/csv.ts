@@ -8,7 +8,7 @@ export const FLAT_IMPORT_PART_LIMIT = 6;
 export const MAX_DICTIONARY_CSV_BYTES = 4_000_000;
 
 /** Human-editable CSV columns used by the Google Sheet template. */
-function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
+export function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
   if (!headers.includes("part_1_kind")) return null;
   if (raw.morphology_parts || raw.morphology_joins)
     throw new Error("Use either the word-part columns or morphology JSON, not both.");
@@ -18,6 +18,7 @@ function flatMorphology(raw: Record<string, string>, headers: readonly string[],
   let surface = "";
   for (let number = 1; number <= FLAT_IMPORT_PART_LIMIT; number += 1) {
     const prefix = `part_${number}_`;
+    const id = raw[`${prefix}id`] || `part_${number}`;
     const kind = raw[`${prefix}kind`] ?? "";
     const sourceText = raw[`${prefix}underlying_form`] ?? "";
     const surfaceText = raw[`${prefix}visible_letters`] ?? "";
@@ -28,21 +29,23 @@ function flatMorphology(raw: Record<string, string>, headers: readonly string[],
     if (parts.length !== number - 1) throw new Error(`Part ${number} follows an empty part.`);
     if (!kind || !sourceText || !surfaceText || !gloss)
       throw new Error(`Part ${number} needs its role, underlying form, visible letters and meaning.`);
+    if (!/^[A-Za-z0-9:_-]{1,100}$/u.test(id) || parts.some(part => part.id === id))
+      throw new Error(`Part ${number} needs a unique, stable part ID.`);
     if (!["prefix", "base", "root", "suffix", "connector"].includes(kind))
       throw new Error(`Part ${number} has an invalid role.`);
     if (number > 1) {
       if (!["none", "space", "hyphen"].includes(join)) throw new Error(`Part ${number} needs a valid join before it.`);
-      joins.push({ afterPartId: parts[number - 2].id, beforePartId: `part_${number}`, joinType: join as CanonicalJoin["joinType"] });
+      joins.push({ afterPartId: parts[number - 2].id, beforePartId: id, joinType: join as CanonicalJoin["joinType"] });
       surface += join === "space" ? " " : join === "hyphen" ? "-" : "";
     }
     const start = surface.length;
     surface += surfaceText;
-    parts.push({ id: `part_${number}`, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
+    parts.push({ id, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
       displayRange: { start, end: surface.length } });
     if (sourceText !== surfaceText) {
       if (!explanation) throw new Error(`Part ${number} needs a spelling-change explanation.`);
       transformations.push({ type: ["base", "root"].includes(kind) ? "base_spelling_change" : "affix_spelling_change",
-        sourcePartId: `part_${number}`, sourceText, surfaceText, explanation });
+        sourcePartId: id, sourceText, surfaceText, explanation });
     } else if (explanation) throw new Error(`Part ${number} has a spelling-change explanation but its forms match.`);
   }
   if (!parts.length) throw new Error("Add at least one word part.");
@@ -140,7 +143,7 @@ function routeFacts(raw: Record<string, string>): Record<string, unknown> {
   return result;
 }
 
-function records(text: string): string[][] {
+export function csvRecords(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -168,7 +171,7 @@ function records(text: string): string[][] {
 
 export function parseDictionaryCsv(text: string): CsvDraft[] {
   if (Buffer.byteLength(text, "utf8") > MAX_DICTIONARY_CSV_BYTES) throw new Error("CSV_TOO_LARGE");
-  const [headers, ...values] = records(text);
+  const [headers, ...values] = csvRecords(text);
   if (!headers || values.length > 10000) throw new Error("CSV_ROW_LIMIT");
   const names = headers.map((header) => header.trim());
   if (!names.includes("normalised_word") && !names.includes("targetWord") && !names.includes("display_word")) throw new Error("CSV_WORD_COLUMN_MISSING");

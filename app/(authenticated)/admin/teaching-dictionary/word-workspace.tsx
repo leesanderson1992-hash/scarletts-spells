@@ -63,6 +63,7 @@ import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { SenseEditor } from "./sense-editor";
 import { SenseMorphologyReview } from "./sense-morphology-review";
+import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { evaluateLessonCandidate, hasCandidateRule,
@@ -962,6 +963,8 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
+          {props.wordId && props.approvedSenseSet?.senses.length ?
+            <MultiSenseCsvPanel wordId={props.wordId} /> : null}
           {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })}
             selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
           {props.wordId && props.approvedSenseSet?.senses.length ? <SenseMorphologyReview
