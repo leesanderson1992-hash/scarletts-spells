@@ -10,8 +10,7 @@ import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-mana
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
-import { canUpdateStagingIngLesson, loadRegularIngUpdate } from "@/lib/teaching-dictionary-manager/regular-ing-staging-release";
-import { REGULAR_ING_SKILL } from "@/lib/teaching-dictionary-manager/ing-bulk-review";
+import { canUpdateStagingIngLesson, isStagingIngSkill, loadStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
@@ -108,8 +107,8 @@ export async function importReviewedMultiSenseCsv(
   await Promise.all([...new Set(lessons.map(lesson => lesson.skillKey))].map(async skillKey => {
     const results = lessons.filter(lesson => lesson.skillKey === skillKey);
     try {
-      if (skillKey === REGULAR_ING_SKILL && canUpdateStagingIngLesson()) {
-        const update = await loadRegularIngUpdate(db);
+      if (isStagingIngSkill(skillKey) && canUpdateStagingIngLesson()) {
+        const update = await loadStagingIngUpdate(db, skillKey);
         for (const row of results) row.release = update.current.some(word => word.canonicalWordId === row.wordId)
           && row.approval !== "Needs review" ? "In active lesson pool"
           : row.approval !== "Needs review" && update.changes.some(word => word.canonicalWordId === row.wordId)

@@ -1,4 +1,4 @@
-import { canUpdateStagingIngLesson } from "@/lib/teaching-dictionary-manager/regular-ing-staging-release";
+import { canUpdateStagingIngLesson } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import Link from "next/link";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { requireAdminUser } from "@/lib/admin/access";
@@ -134,7 +134,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     <nav aria-label="ADLE lesson tools" className="flex flex-wrap gap-4 text-sm font-semibold">
       <Link className="underline" href="/admin/adle-lesson-readiness">Lesson approval and release status</Link>
       {canUpdateStagingIngLesson() && <Link className="underline" href="/admin/teaching-dictionary/lesson-updates">
-        Publish or generate a regular -ing lesson
+        Publish or generate an -ing lesson
       </Link>}
     </nav>
     <section id="dictionary-word-search" aria-labelledby="dictionary-word-search-heading"

@@ -6,8 +6,18 @@ import { buildIngReleasePackage } from "@/lib/adle/ing/release";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { REGULAR_ING_SKILL } from "./ing-bulk-review";
+
 import { loadRouteWordStatuses } from "./route-word-status-service";
+
+export const STAGING_ING_LESSONS = {
+  D4_INF_ING_ENDINGS_REGULAR: "Regular -ing",
+  D4_INF_ING_ENDINGS_DROP_E: "Final-e dropping",
+} as const;
+export type StagingIngSkill = keyof typeof STAGING_ING_LESSONS;
+
+export function isStagingIngSkill(value: unknown): value is StagingIngSkill {
+  return typeof value === "string" && Object.hasOwn(STAGING_ING_LESSONS, value);
+}
 
 export const ING_ROUTE = "ing_endings_word_lab";
 
@@ -16,12 +26,12 @@ export function canUpdateStagingIngLesson() {
     && process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") === "https://qkpjbajicacbrphthibk.supabase.co";
 }
 
-export async function loadRegularIngUpdate(db: ReturnType<typeof createServiceRoleClient>) {
+export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
   if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
   const head = await db.from("adle_route_activation_heads").select("current_revision_id")
     .eq("route_id", ING_ROUTE).eq("route_version", "v1").eq("environment_key", "staging")
-    .eq("micro_skill_key", REGULAR_ING_SKILL).maybeSingle();
-  if (head.error || !head.data) throw new Error("The staging regular -ing lesson has no active release.");
+    .eq("micro_skill_key", skill).maybeSingle();
+  if (head.error || !head.data) throw new Error("The selected staging lesson has no active release.");
   const revision = await db.from("adle_route_activation_revisions").select("*")
     .eq("id", head.data.current_revision_id).single();
   const scope = revision.data?.readiness_report?.scope;
@@ -29,7 +39,7 @@ export async function loadRegularIngUpdate(db: ReturnType<typeof createServiceRo
     || !Array.isArray(scope.childIds) || !scope.childIds.length)
     throw new Error("Enable the lesson for a staging test learner first.");
   const [statuses, dependencies] = await Promise.all([
-    loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: REGULAR_ING_SKILL }),
+    loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill }),
     db.from("adle_curriculum_release_dependencies").select("authority_id")
       .eq("release_manifest_id", revision.data.release_manifest_id).eq("authority_type", "ing_word_members"),
   ]);
@@ -40,7 +50,7 @@ export async function loadRegularIngUpdate(db: ReturnType<typeof createServiceRo
   const released = authorities.data.flatMap(row => row.semantic_projection.words as IngDictionaryWordV1[]);
   const approved = statuses.words.flatMap(row => row.approvedIngWord ? [row.approvedIngWord] : []);
   const byId = new Map(approved.map(word => [word.canonicalWordId, word]));
-  const releasedById = new Map(released.filter(word => word.microSkillKey === REGULAR_ING_SKILL)
+  const releasedById = new Map(released.filter(word => word.microSkillKey === skill)
     .map(word => [word.canonicalWordId, word]));
   const current = approved.filter(word => semanticJson(word) === semanticJson(releasedById.get(word.canonicalWordId) ?? null));
   const currentIds = new Set(current.map(word => word.canonicalWordId));
@@ -48,16 +58,17 @@ export async function loadRegularIngUpdate(db: ReturnType<typeof createServiceRo
   const retired = [...releasedById.values()].filter(word => (word.senseId !== undefined || word.pronunciationId !== undefined)
     && !byId.has(word.canonicalWordId));
   const removed = new Set(retired.map(word => word.canonicalWordId));
-  const words = [...released.filter(word => word.microSkillKey !== REGULAR_ING_SKILL
+  const words = [...released.filter(word => word.microSkillKey !== skill
     || (!byId.has(word.canonicalWordId) && !removed.has(word.canonicalWordId))), ...approved]
     .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId));
   return { revision: revision.data, childIds: scope.childIds as string[], current, changes, retired, words,
-    fingerprint: fingerprintSnapshotValue({ revision: revision.data.id, words }) };
+    skill, fingerprint: fingerprintSnapshotValue({ revision: revision.data.id, words }) };
 }
 
-export async function publishRegularIngUpdate(db: ReturnType<typeof createServiceRoleClient>, actorId: string,
-  update: Awaited<ReturnType<typeof loadRegularIngUpdate>>) {
-  const pkg = buildIngReleasePackage(update.words, `staging:regular-ing:${update.fingerprint}`,
+export async function publishStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, actorId: string,
+  update: Awaited<ReturnType<typeof loadStagingIngUpdate>>) {
+  const { skill } = update;
+  const pkg = buildIngReleasePackage(update.words, `staging:ing:${skill}:${update.fingerprint}`,
     [...new Set(update.words.map(word => word.approvalRef).filter((ref): ref is string => Boolean(ref)))]);
   async function hash(value: unknown) {
     const result = await db.rpc("adle_generic_snapshot_json_sha256_v1", { p_value: value });
@@ -80,14 +91,14 @@ export async function publishRegularIngUpdate(db: ReturnType<typeof createServic
   const release = await db.from("adle_curriculum_release_manifests").select("release_manifest_sha256")
     .eq("id", published.data).single();
   if (release.error) throw new Error("Could not confirm the published lesson package.");
-  if ((await loadRegularIngUpdate(db)).fingerprint !== update.fingerprint)
+  if ((await loadStagingIngUpdate(db, skill)).fingerprint !== update.fingerprint)
     throw new Error("The approved words changed. Review the lesson update again.");
   const active = await db.rpc("set_adle_route_activation_revision_v2", {
-    p_release_manifest_sha256: release.data.release_manifest_sha256, p_micro_skill_key: REGULAR_ING_SKILL,
+    p_release_manifest_sha256: release.data.release_manifest_sha256, p_micro_skill_key: skill,
     p_environment_key: "staging", p_activation_status: "enabled",
     p_incomplete_assignment_policy: update.revision.incomplete_assignment_policy,
     p_readiness_report: update.revision.readiness_report, p_expected_current_revision_id: update.revision.id,
-    p_changed_by: actorId, p_change_reason: "Publish reviewed regular -ing dictionary words in staging",
+    p_changed_by: actorId, p_change_reason: `Publish reviewed ${STAGING_ING_LESSONS[skill]} dictionary words in staging`,
   });
   if (active.error || !active.data) throw new Error("Could not activate this update. Refresh and retry.");
 }

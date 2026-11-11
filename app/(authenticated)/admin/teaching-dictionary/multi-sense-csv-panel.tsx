@@ -60,7 +60,7 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
             { ` · ${row.meaning} · ${row.approval} · ${row.release}` }
           </li>)}</ul>
           {rows.some(row => row.release === "Ready to publish") && <Link className="mr-4 font-semibold underline"
-            href="/admin/teaching-dictionary/lesson-updates">Preview and publish the update</Link>}
+            href={`/admin/teaching-dictionary/lesson-updates?skill=${encodeURIComponent(skillKey)}`}>Preview and publish the update</Link>}
           {routeId && <Link className="underline" href={`/admin/adle-lesson-readiness?${new URLSearchParams({ route: routeId, skill: skillKey })}`}>
             View current lesson status</Link>}
         </section>;
@@ -123,6 +123,7 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
           <li>Give each meaning a distinct <code>sense_id</code>, such as <code>boxing-packing</code>, and fill in its definition and part of speech.</li>
           <li>Fill in the pronunciation ID, IPA, syllable count and stress. Reuse a pronunciation ID if two meanings sound the same.</li>
           <li>Fill in the word parts in order. For a family link, use the reviewed <code>family_key</code> and the ID of the matching base or root part.</li>
+          <li>For final-e dropping, enter the full base as the underlying form and the base without its final e as the visible letters. For <em>making</em>, enter <code>make</code>, <code>mak</code>, and a spelling-change explanation such as “Drop the final e before adding -ing.”</li>
           <li>For dictation, add a sentence and the target word’s position. Count from zero, so <em>We are boxing the books</em> gives <code>2</code>.</li>
         </ul>
       </details>

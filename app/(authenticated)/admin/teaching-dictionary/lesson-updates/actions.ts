@@ -10,34 +10,39 @@ import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { buildScopedPath } from "@/lib/children-shared";
 import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { REGULAR_ING_SKILL } from "@/lib/teaching-dictionary-manager/ing-bulk-review";
-import { loadRegularIngUpdate, publishRegularIngUpdate } from "@/lib/teaching-dictionary-manager/regular-ing-staging-release";
+import { isStagingIngSkill, loadStagingIngUpdate, publishStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 
 const path = "/admin/teaching-dictionary/lesson-updates";
 
-export async function publishRegularIng(form: FormData) {
+export async function publishIngLesson(form: FormData) {
   const actor = await requireAdminUser();
+  const skill = form.get("skill");
+  if (!isStagingIngSkill(skill)) redirect(path);
+  const lessonPath = `${path}?skill=${skill}`;
   try {
     const db = createServiceRoleClient();
-    const update = await loadRegularIngUpdate(db);
+    const update = await loadStagingIngUpdate(db, skill);
     if (form.get("fingerprint") !== update.fingerprint)
       throw new Error("The lesson preview changed. Review the latest list before publishing.");
     if (!update.changes.length && !update.retired.length) throw new Error("The lesson pool is already current.");
-    await publishRegularIngUpdate(db, actor.id, update);
+    await publishStagingIngUpdate(db, actor.id, update);
   } catch (error) {
-    redirect(`${path}?error=${encodeURIComponent(error instanceof Error ? error.message : "The lesson update failed.")}`);
+    redirect(`${lessonPath}&error=${encodeURIComponent(error instanceof Error ? error.message : "The lesson update failed.")}`);
   }
   revalidatePath(path);
   revalidatePath("/admin/adle-lesson-readiness");
-  redirect(`${path}?published=1`);
+  redirect(`${lessonPath}&published=1`);
 }
 
-export async function generateRegularIng(form: FormData) {
+export async function generateIngLesson(form: FormData) {
   const actor = await requireAdminUser();
+  const skill = form.get("skill");
+  if (!isStagingIngSkill(skill)) redirect(path);
+  const lessonPath = `${path}?skill=${skill}`;
   let childId = "";
   try {
     const db = createServiceRoleClient();
-    const update = await loadRegularIngUpdate(db);
+    const update = await loadStagingIngUpdate(db, skill);
     childId = String(form.get("child_id") ?? "");
     if (!update.childIds.includes(childId)) throw new Error("Choose an enabled staging test learner.");
     const child = await db.from("children").select("id").eq("id", childId)
@@ -52,19 +57,19 @@ export async function generateRegularIng(form: FormData) {
     if (existing.error || existing.data.length)
       throw new Error("This learner already has an ADLE lesson today. Open it or choose another enabled test learner.");
     const items = await db.from("adle_learning_items").select("id,canonical_word_id,item_status,intake_on")
-      .eq("child_id", childId).eq("micro_skill_key", REGULAR_ING_SKILL).eq("row_status", "active")
+      .eq("child_id", childId).eq("micro_skill_key", skill).eq("row_status", "active")
       .in("canonical_word_id", ids);
     if (items.error || items.data.some(item => !["pending", "pending_reteach"].includes(item.item_status)))
       throw new Error("A selected word already has learning progress. Choose another test word or learner.");
     const queue: LearningItemFact[] = ids.map(id => {
       const prior = items.data.find(item => item.canonical_word_id === id);
       return { learningItemId: prior?.id ?? randomUUID(), canonicalWordId: id, childId,
-        microSkillKey: REGULAR_ING_SKILL, itemStatus: prior?.item_status === "pending_reteach" ? "pending_reteach" : "pending",
-        sourceKind: "verified_misspelling", sourceRef: `staging-regular-ing-test:${childId}:${id}`,
+        microSkillKey: skill, itemStatus: prior?.item_status === "pending_reteach" ? "pending_reteach" : "pending",
+        sourceKind: "verified_misspelling", sourceRef: `staging-ing-test:${skill}:${childId}:${id}`,
         sourceAttemptText: null, reteachPriority: false, ejectedOn: null, intakeOn: prior?.intake_on ?? date, rowStatus: "active" };
     });
     const prepared = await prepareIngAssignment({ client: db, childId, parentUserId: actor.id,
-      date, microSkillKey: REGULAR_ING_SKILL, learningItems: queue, environmentKey: "staging" });
+      date, microSkillKey: skill, learningItems: queue, environmentKey: "staging" });
     if (prepared.status !== "ready") throw new Error(`Lesson generation is blocked (${prepared.reason.replaceAll("_", " ")}).`);
     if (ids.some(id => !prepared.snapshot.payload.resolvedLesson.queuedTargets.some(word => word.canonicalWordId === id)))
       throw new Error("The lesson could not include all selected target words.");
@@ -72,7 +77,7 @@ export async function generateRegularIng(form: FormData) {
     if (newItems.length) {
       const saved = await db.from("adle_learning_items").insert(newItems.map(item => ({
         id: item.learningItemId, child_id: childId, canonical_word_id: item.canonicalWordId,
-        micro_skill_key: REGULAR_ING_SKILL, source_kind: item.sourceKind, source_ref: item.sourceRef,
+        micro_skill_key: skill, source_kind: item.sourceKind, source_ref: item.sourceRef,
         intake_on: date, item_status: "pending", row_status: "active",
       })));
       if (saved.error) throw new Error("Could not save the staging targets. Refresh and retry.");
@@ -82,7 +87,7 @@ export async function generateRegularIng(form: FormData) {
       items: prepared.items, intakes: [], snapshot: prepared.snapshot,
     });
   } catch (error) {
-    redirect(`${path}?error=${encodeURIComponent(error instanceof Error && !error.message.startsWith("persistSpecialist")
+    redirect(`${lessonPath}&error=${encodeURIComponent(error instanceof Error && !error.message.startsWith("persistSpecialist")
       ? error.message : "The lesson could not be saved. Refresh and retry.")}`);
   }
   revalidatePath("/dashboard");
