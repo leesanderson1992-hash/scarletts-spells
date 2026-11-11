@@ -24,8 +24,9 @@ export function flatMorphology(raw: Record<string, string>, headers: readonly st
     const surfaceText = raw[`${prefix}visible_letters`] ?? "";
     const gloss = raw[`${prefix}meaning`] ?? "";
     const explanation = raw[`${prefix}spelling_change_explanation`] ?? "";
+    const transformationType = raw[`${prefix}spelling_change_type`] ?? "";
     const join = number > 1 ? raw[`${prefix}join_before`] ?? "" : "";
-    if (![kind, sourceText, surfaceText, gloss, explanation, join].some(Boolean)) continue;
+    if (![kind, sourceText, surfaceText, gloss, explanation, transformationType, join].some(Boolean)) continue;
     if (parts.length !== number - 1) throw new Error(`Part ${number} follows an empty part.`);
     if (!kind || !sourceText || !surfaceText || !gloss)
       throw new Error(`Part ${number} needs its role, underlying form, visible letters and meaning.`);
@@ -44,9 +45,11 @@ export function flatMorphology(raw: Record<string, string>, headers: readonly st
       displayRange: { start, end: surface.length } });
     if (sourceText !== surfaceText) {
       if (!explanation) throw new Error(`Part ${number} needs a spelling-change explanation.`);
-      transformations.push({ type: ["base", "root"].includes(kind) ? "base_spelling_change" : "affix_spelling_change",
+      transformations.push({ type: transformationType || (["base", "root"].includes(kind)
+        ? "base_spelling_change" : "affix_spelling_change"),
         sourcePartId: id, sourceText, surfaceText, explanation });
-    } else if (explanation) throw new Error(`Part ${number} has a spelling-change explanation but its forms match.`);
+    } else if (explanation || transformationType)
+      throw new Error(`Part ${number} has a spelling change but its forms match.`);
   }
   if (!parts.length) throw new Error("Add at least one word part.");
   if (surface !== displayWord) throw new Error(`Visible parts and joins spell “${surface}”, not “${displayWord}”.`);

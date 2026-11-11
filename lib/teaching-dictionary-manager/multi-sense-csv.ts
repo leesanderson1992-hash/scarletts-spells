@@ -28,7 +28,7 @@ export const MULTI_SENSE_CSV_COLUMNS = [
   ...Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => {
     const prefix = `part_${index + 1}_`;
     return [`${prefix}id`, `${prefix}kind`, `${prefix}underlying_form`, `${prefix}visible_letters`, `${prefix}meaning`,
-      ...(index ? [`${prefix}join_before`] : []), `${prefix}spelling_change_explanation`];
+      ...(index ? [`${prefix}join_before`] : []), `${prefix}spelling_change_type`, `${prefix}spelling_change_explanation`];
   }).flat(),
   "family_key", "component_part_id", "relationship_kind", "requested_micro_skills",
 ] as const;
@@ -133,6 +133,9 @@ export function renderMultiSenseCsvBundles(bundles: readonly MultiSenseCsvBundle
   const rows = bundles.flatMap(bundle => bundle.senseSet.senses.map(sense => {
     const pronunciation = bundle.senseSet.pronunciations.find(row => row.id === sense.pronunciationId);
     const analysis = bundle.analyses.find(row => row.senseId === sense.id);
+    if (analysis && new Set(analysis.transformations.map(change => change.sourcePartId)).size
+      !== analysis.transformations.length)
+      throw new Error("MULTI_SENSE_CSV_MULTIPLE_CHANGES_FOR_PART");
     const row: Record<string, unknown> = {
       canonical_word_id: bundle.wordId, source_sense_reviewed_at: bundle.sourceSenseReviewedAt,
       display_word: bundle.displayWord, sense_id: sense.id, definition: sense.definition,
@@ -154,8 +157,9 @@ export function renderMultiSenseCsvBundles(bundles: readonly MultiSenseCsvBundle
       row[`${prefix}visible_letters`] = part.surfaceText;
       row[`${prefix}meaning`] = part.gloss;
       if (index) row[`${prefix}join_before`] = analysis?.joins.find(join => join.beforePartId === part.id)?.joinType ?? "";
-      row[`${prefix}spelling_change_explanation`] = analysis?.transformations.find(
-        change => change.sourcePartId === part.id)?.explanation ?? "";
+      const change = analysis?.transformations.find(item => item.sourcePartId === part.id);
+      row[`${prefix}spelling_change_type`] = change?.type ?? "";
+      row[`${prefix}spelling_change_explanation`] = change?.explanation ?? "";
     }
     return MULTI_SENSE_CSV_COLUMNS.map(name => cell(row[name])).join(",");
   }));
