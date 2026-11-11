@@ -1305,18 +1305,18 @@ export function WordWorkspace(props: {
                     checks.find(row => row.key === key)?.ready);
                 return (
                   <details key={key} className="rounded-lg border border-[var(--border)] p-3">
-                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : wordApproved && !route?.newAssignmentCapable ? "Word approved · awaiting lesson route" : checksState === "loading" ? "Checking…" : "Needs attention"}</span></summary>
+                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : !payload.skillSenseIds?.[key] ? "Choose the meaning taught" : !lessonUsesActiveSense ? "Another meaning selected for this lesson" : dirty ? "Save the selected meaning" : candidate?.status === "ready" && !wordApproved ? "Ready to approve this meaning" : wordApproved && !route?.newAssignmentCapable ? "Word approved · awaiting lesson route" : checksState === "loading" ? "Checking…" : "Needs lesson content"}</span></summary>
                     <div className="mt-2 text-sm">
                       {!lessonUsesActiveSense && <p className="mb-2 rounded bg-amber-50 p-2 text-amber-950">
-                        This lesson currently uses another meaning. The requirements below are for <strong>{activeSense?.definition}</strong>.
+                        This lesson currently uses {payload.senseSet?.senses.find(sense => sense.id === payload.skillSenseIds?.[key])?.definition ?? "another meaning"}. The requirements below are for <strong>{activeSense?.definition}</strong>.
                         <button type="button" className="ml-2 underline" onClick={() =>
                           change({ skillSenseIds: { ...payload.skillSenseIds, [key]: activeSenseId } })}>
-                          Choose this meaning for the lesson
+                          Use this meaning in the lesson (then save)
                         </button>
                       </p>}
                       {candidate && <div className="mb-3 rounded border border-[var(--border)] p-2">
-                        <p className="font-medium">Lesson requirements: {candidate.status === "ready"
-                          ? "Ready; saving this assignment approves the selected meaning automatically"
+                        <p className="font-medium">{!lessonUsesActiveSense ? "Selected meaning candidate" : "Lesson requirements"}: {candidate.status === "ready"
+                          ? lessonUsesActiveSense ? "Ready; save and validate micro-skills to approve this meaning" : "Ready to choose; select and save this meaning for the lesson"
                           : candidate.status === "not_match" ? "This meaning does not match the lesson rule"
                           : "Needs reviewed facts"}</p>
                         {candidate.issues.length > 0 && <details className="mt-1" open>
