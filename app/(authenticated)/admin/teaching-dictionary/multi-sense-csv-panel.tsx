@@ -7,7 +7,7 @@ export function MultiSenseCsvPanel({ wordId }: { wordId: string }) {
   const [state, action, pending] = useActionState(importReviewedMultiSenseCsv, {} as MultiSenseImportState);
   return <details className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
     <summary className="cursor-pointer font-semibold">Export or import all meanings for this word</summary>
-    <p className="mt-2">The sheet has one row per meaning, with its pronunciation, word parts, family relationship and requested micro-skills. Keep every existing meaning row when reimporting.</p>
+    <p className="mt-2">The sheet has one row per meaning, with its pronunciation, word parts, family relationship and requested micro-skills. Keep every existing meaning row when reimporting. A combined sheet may contain up to 100 complete words.</p>
     <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
       href={`/admin/teaching-dictionary/export/multi-sense?word_id=${wordId}`}>
       Download reviewed meanings sheet
@@ -23,7 +23,7 @@ export function MultiSenseCsvPanel({ wordId }: { wordId: string }) {
     </form>
     {state.error && <p role="alert" className="mt-2 text-rose-800">{state.error}</p>}
     {state.reviewed !== undefined && <p role="status" className="mt-2">
-      Reviewed {state.reviewed} meanings. {state.approved} requested micro-skill candidates approved.
+      Reviewed {state.reviewed} meanings across {state.words} word{state.words === 1 ? "" : "s"}. {state.approved} requested micro-skill candidates approved.
       {state.pending?.length ? ` ${state.pending.length} requests need review.` : ""}
     </p>}
     {state.pending?.length ? <ul className="mt-1 list-disc pl-5">{state.pending.map(item => <li key={item}>{item}</li>)}</ul> : null}
