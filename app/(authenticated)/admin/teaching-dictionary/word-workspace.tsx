@@ -318,6 +318,12 @@ export function WordWorkspace(props: {
     family: props.weakFamilyPrefill,
     sourceReference: props.approvedSourceReference,
   }));
+  const [activeSenseId, setActiveSenseId] = useState(props.approvedSenseSet?.senses[0]?.id ?? "");
+  const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
+  const activeSenseFamilyKeys = new Set((props.approvedCandidateSenseFacts[activeSenseId]?.familyLinks ?? [])
+    .map(link => link.family_key));
+  const activeSenseFamilies = props.approvedSenseSet && props.approvedSenseSet.senses.length > 1
+    ? props.baseFamilies.filter(family => activeSenseFamilyKeys.has(family.name)) : props.baseFamilies;
   const [dirty, setDirty] = useState(false);
   const workspace = useRef<HTMLDivElement>(null);
   const [checksLoadedMs, setChecksLoadedMs] = useState<number | null>(null);
@@ -580,9 +586,29 @@ export function WordWorkspace(props: {
     change({ metadata: { ...payload.metadata, [key]: value } });
   }
   function routeContent(key: string): RouteContentDraft | undefined {
-    return routeContentsForSelectedSkills(payload).find(
+    return routeContentsForSelectedSkills(meaningPayload(key)).find(
       (route) => route.microSkillKey === key,
     );
+  }
+  function meaningPayload(key: string): WordDraftPayload {
+    if (!activeSenseId || !props.approvedSenseSet || props.approvedSenseSet.senses.length < 2)
+      return payload;
+    const facts = props.approvedCandidateSenseFacts[activeSenseId]?.morphology;
+    const analysis = props.senseAnalyses.find(row => row.sense_id === activeSenseId);
+    return {
+      ...payload,
+      skillSenseIds: { ...payload.skillSenseIds, [key]: activeSenseId },
+      canonicalMorphology: facts && analysis ? {
+        ...payload.canonicalMorphology,
+        parts: Array.isArray(facts.parts) ? facts.parts : [],
+        joins: Array.isArray(facts.joins) ? facts.joins : [],
+        transformations: analysis.morphology_transformations as WordDraftPayload["canonicalMorphology"]["transformations"],
+        wordSum: facts.wordSum ?? "",
+        analysisStatus: "approved",
+        reviewNotes: "Approved analysis for the selected meaning",
+      } : { ...payload.canonicalMorphology, parts: [], joins: [], transformations: [],
+        wordSum: "", analysisStatus: "in_review" },
+    };
   }
   function updateRoute(key: string, values: Record<string, unknown>) {
     const current = routeContent(key);
@@ -661,7 +687,7 @@ export function WordWorkspace(props: {
       (row) => row.routeId === route.routeId && row.microSkillKey === key,
     );
     const requirements = [
-      ...routeRequirements(content, payload),
+      ...routeRequirements(content, meaningPayload(key)),
       ...publicationBlockers(
         payload,
         props.normalisedWord || payload.displayWord.toLowerCase(),
@@ -936,9 +962,11 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
-          {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })} />}
+          {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })}
+            selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
           {props.wordId && props.approvedSenseSet?.senses.length ? <SenseMorphologyReview
             wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
+            selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId}
             senses={props.approvedSenseSet.senses} analyses={props.senseAnalyses}
             links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
             shared={{ parts: props.approvedCandidateMorphology?.parts as unknown[] ?? [],
@@ -1187,12 +1215,12 @@ export function WordWorkspace(props: {
               Add sentence
             </button>
           </div>
-          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!props.baseFamilies.length}>
-            <summary className="cursor-pointer font-semibold">Base word family · {props.baseFamilies.length ? "complete" : "none joined"}</summary>
+          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!activeSenseFamilies.length}>
+            <summary className="cursor-pointer font-semibold">Family for {activeSense?.definition ?? "this word"} · {activeSenseFamilies.length ? "linked" : "none joined"}</summary>
             <div className="mt-2">
-            {props.baseFamilies.length > 0 && <p className="text-xs text-[color:var(--mid)]">Family details and members are filled from their approved dictionary and lesson relationships.</p>}
-            {props.baseFamilies.length ? (
-              props.baseFamilies.map((item) => (
+            {activeSenseFamilies.length > 0 && <p className="text-xs text-[color:var(--mid)]">These approved families apply to the selected meaning.</p>}
+            {activeSenseFamilies.length ? (
+              activeSenseFamilies.map((item) => (
                 <div
                   key={item.name}
                   className="mt-2 flex flex-wrap items-center gap-2 text-sm"
@@ -1213,7 +1241,7 @@ export function WordWorkspace(props: {
               ))
             ) : (
               <p className="mt-2 text-sm text-[color:var(--mid)]">
-                No reviewed family joined
+                No reviewed family is linked to this meaning.
               </p>
             )}
             {props.familyReviewContext.error && <p role="alert" className="mt-2 rounded bg-rose-50 p-2 text-sm text-rose-900">
@@ -1224,9 +1252,13 @@ export function WordWorkspace(props: {
               <button
                 type="button"
                 className={button}
-                onClick={openFamily}
+                onClick={() => {
+                  if (props.approvedSenseSet && props.approvedSenseSet.senses.length > 1) {
+                    document.getElementById("td-sense-morphology")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else void openFamily();
+                }}
               >
-                {props.baseFamilies.length ? "Review or change family" : "Review family suggestions"}
+                {activeSenseFamilies.length ? "Review or change family" : "Review family suggestions"}
               </button>
               {dirty && saveButton("draft", "Save draft")}
               {(dirty || !overviewReviewed) && saveButton("overview")}
@@ -1237,7 +1269,7 @@ export function WordWorkspace(props: {
       </details>
       <section id="td-skills" className={`${section} scroll-mt-6`}>
         <h2 className="p-4 font-semibold">
-          2 · Micro-skill lessons{" "}
+          2 · Micro-skill lessons for {activeSense?.definition ?? "this word"}{" "}
           <span className="ml-2 text-xs font-normal">
             {payload.skillKeys.length} joined
           </span>
@@ -1248,31 +1280,40 @@ export function WordWorkspace(props: {
                 const route = routeForSkill(key);
                 const candidate = props.wordId && hasCandidateRule(key) ? evaluateLessonCandidate({
                   wordId: props.wordId, displayWord: props.approvedWord ?? payload.displayWord,
-                  skillKey: key, senseId: payload.skillSenseIds?.[key],
+                  skillKey: key, senseId: activeSenseId || payload.skillSenseIds?.[key],
                   senseSet: props.approvedSenseSet,
-                  morphology: props.approvedCandidateSenseFacts[payload.skillSenseIds?.[key] ?? ""]?.morphology
+                  morphology: props.approvedCandidateSenseFacts[activeSenseId || payload.skillSenseIds?.[key] || ""]?.morphology
                     ?? (props.approvedSenseSet?.senses.length === 1 ? props.approvedCandidateMorphology : null),
-                  familyLinks: props.approvedCandidateSenseFacts[payload.skillSenseIds?.[key] ?? ""]?.familyLinks
+                  familyLinks: props.approvedCandidateSenseFacts[activeSenseId || payload.skillSenseIds?.[key] || ""]?.familyLinks
                     ?? props.approvedCandidateFamilyLinks,
                 }) : null;
                 const preflight = preflights.find(
                   (row) => row.microSkillKey === key,
                 );
-                const statuses = checksState === "ready"
+                const lessonUsesActiveSense = !activeSenseId || payload.skillSenseIds?.[key] === activeSenseId;
+                const statuses = checksState === "ready" && lessonUsesActiveSense
                   ? wordRouteStatuses.filter((row) => row.microSkillKey === key)
                   : [];
                 const published = props.weakPublicationState.find(row => row.microSkillKey === key);
                 const wordApproved = Boolean(assignedSkillKeys?.includes(key)
                   && props.approvedLessonSenseKeys.includes(key)
+                  && lessonUsesActiveSense
                   && payload.skillSenseIds?.[key] === props.approvedSkillSenseIds[key]
                   && !props.staleLessonSenseKeys.includes(key));
-                const complete = !dirty && assignedSkillKeys?.includes(key) &&
+                const complete = lessonUsesActiveSense && !dirty && assignedSkillKeys?.includes(key) &&
                   (route?.routeId === "weak_vowel_word_lab" ? published?.sourceCurrent :
                     checks.find(row => row.key === key)?.ready);
                 return (
                   <details key={key} className="rounded-lg border border-[var(--border)] p-3">
                     <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : wordApproved && !route?.newAssignmentCapable ? "Word approved · awaiting lesson route" : checksState === "loading" ? "Checking…" : "Needs attention"}</span></summary>
                     <div className="mt-2 text-sm">
+                      {!lessonUsesActiveSense && <p className="mb-2 rounded bg-amber-50 p-2 text-amber-950">
+                        This lesson currently uses another meaning. The requirements below are for <strong>{activeSense?.definition}</strong>.
+                        <button type="button" className="ml-2 underline" onClick={() =>
+                          change({ skillSenseIds: { ...payload.skillSenseIds, [key]: activeSenseId } })}>
+                          Choose this meaning for the lesson
+                        </button>
+                      </p>}
                       {candidate && <div className="mb-3 rounded border border-[var(--border)] p-2">
                         <p className="font-medium">Lesson requirements: {candidate.status === "ready"
                           ? "Ready; saving this assignment approves the selected meaning automatically"
@@ -1354,9 +1395,9 @@ export function WordWorkspace(props: {
               className={button}
               disabled={!joined}
               onClick={() => {
-                const onlySense = payload.senseSet?.senses.length === 1 ? payload.senseSet.senses[0] : null;
                 change({ skillKeys: [...payload.skillKeys, joined],
-                  skillSenseIds: onlySense ? { ...payload.skillSenseIds, [joined]: onlySense.id } : payload.skillSenseIds });
+                  skillSenseIds: activeSenseId ? { ...payload.skillSenseIds, [joined]: activeSenseId }
+                    : payload.skillSenseIds });
                 setJoined("");
               }}
             >
@@ -1518,7 +1559,7 @@ export function WordWorkspace(props: {
         </details>}
       </details>}
       {checks.map((row, index) => {
-        const route = routeWithSharedFacts(row.content, payload);
+        const route = routeWithSharedFacts(row.content, meaningPayload(row.key));
         const overviewFields = new Set(sharedRouteContentKeys(route.routeId, payload));
         const profile = props.profileOptions.find(
           (profile) => profile.microSkillKey === row.key,
@@ -1962,8 +2003,12 @@ export function WordWorkspace(props: {
           </div>
           {payload.routeContents.map((route) => {
             const profile = props.profileOptions.find((item) => item.microSkillKey === route.microSkillKey);
-            const lessonFamilies = props.baseFamilies.filter((family) =>
-              family.words.some((member) => member.id === props.wordId));
+            const lessonSenseId = payload.skillSenseIds?.[route.microSkillKey] || activeSenseId;
+            const lessonFamilyKeys = new Set((props.approvedCandidateSenseFacts[lessonSenseId]?.familyLinks ?? [])
+              .map(link => link.family_key));
+            const lessonFamilies = props.approvedSenseSet && props.approvedSenseSet.senses.length > 1
+              ? props.baseFamilies.filter((family) => lessonFamilyKeys.has(family.name))
+              : props.baseFamilies.filter((family) => family.words.some(member => member.id === props.wordId));
             const selectedFamily = String(route.content.familyKey ?? "");
             return <div key={route.microSkillKey}
               id={`td-route-${route.microSkillKey}-advanced`} className="text-sm">
@@ -1982,8 +2027,8 @@ export function WordWorkspace(props: {
                   </option>)}
                 </select>
               </label>}
-              <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, payload).content}
-                sharedKeys={[...sharedRouteContentKeys(route.routeId, payload),
+              <RouteFactsEditor name={name(route.microSkillKey)} content={routeWithSharedFacts(route, meaningPayload(route.microSkillKey)).content}
+                sharedKeys={[...sharedRouteContentKeys(route.routeId, meaningPayload(route.microSkillKey)),
                   ...(route.routeId === "base_word_lab" ? ["familyKey"] : [])]}
                 choices={{ prefixVariant: profile?.choices ?? [], suffixVariant: profile?.choices ?? [],
                   meaningBinKey: profile?.meaningBins.map((bin) => bin.id) ?? [],

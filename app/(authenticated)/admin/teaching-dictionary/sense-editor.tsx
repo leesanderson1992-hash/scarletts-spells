@@ -5,9 +5,11 @@ import { FormatHint } from "./format-hint";
 
 const field = "w-full rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
 
-export function SenseEditor({ value, onChange }: {
+export function SenseEditor({ value, onChange, selectedSenseId, onSelectSense }: {
   value: DictionarySenseSet;
   onChange: (next: DictionarySenseSet) => void;
+  selectedSenseId?: string;
+  onSelectSense?: (senseId: string) => void;
 }) {
   const updateSense = (id: string, update: Partial<DictionarySenseSet["senses"][number]>) =>
     onChange({ ...value, senses: value.senses.map(sense => sense.id === id ? { ...sense, ...update } : sense) });
@@ -26,7 +28,9 @@ export function SenseEditor({ value, onChange }: {
       {value.pronunciations.length > 1 && !value.senses.some(sense => sense.pronunciationId === pronunciation.id) && <button type="button" className="text-left text-sm underline" onClick={() => onChange({ ...value, pronunciations: value.pronunciations.filter(row => row.id !== pronunciation.id) })}>Remove unused pronunciation</button>}
     </div>)}
     <button type="button" className="mt-2 text-sm underline" onClick={() => onChange({ ...value, pronunciations: [...value.pronunciations, { id: crypto.randomUUID(), ipa: "", spokenSyllableCount: null, stressPattern: "" }] })}>Add pronunciation</button>
-    {value.senses.map((sense, index) => <div key={sense.id} className="mt-4 grid gap-2 rounded border border-[var(--border)] p-3 sm:grid-cols-3">
+    {value.senses.map((sense, index) => <div key={sense.id} className={`mt-4 grid gap-2 rounded border p-3 sm:grid-cols-3 ${selectedSenseId === sense.id ? "border-[var(--scarlett)]" : "border-[var(--border)]"}`}>
+      {onSelectSense && <button type="button" className="text-left text-sm underline sm:col-span-3" aria-pressed={selectedSenseId === sense.id}
+        onClick={() => onSelectSense(sense.id)}>{selectedSenseId === sense.id ? "Showing this meaning below" : "Show family and lessons for this meaning"}</button>}
       <label className="text-sm">Meaning {index + 1} <FormatHint label="meaning" format="Write one reviewed meaning for this sense, reusable across lessons." example="Performed in real time." />
         <input className={field} value={sense.definition} onChange={event => updateSense(sense.id, { definition: event.target.value })} /></label>
       <label className="text-sm">Part of speech <FormatHint label="part of speech" format="Choose the grammatical role of this meaning." example="verb" />

@@ -144,10 +144,11 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
 
 export function SenseMorphologyReview(props: { wordId: string; displayWord: string;
   senses: { id: string; definition: string; partOfSpeech: string }[];
+  selectedSenseId: string; onSelectSense: (senseId: string) => void;
   analyses: Analysis[]; links: Link[]; families: Family[];
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
   affixMeanings: Record<string, string[]> }) {
-  const [senseId, setSenseId] = useState(props.senses[0]?.id ?? "");
+  const senseId = props.selectedSenseId;
   const sense = props.senses.find(row => row.id === senseId);
   const current = props.analyses.find(row => row.sense_id === senseId) ?? null;
   if (!sense) return null;
@@ -156,7 +157,7 @@ export function SenseMorphologyReview(props: { wordId: string; displayWord: stri
       format="Approve the word-part analysis for each reviewed meaning that will enter a lesson. A matching family can then be linked to that meaning."
       example="live /lɪv/ and live /laɪv/ can keep separate analyses" /></h3>
     <label className="mt-2 block text-sm">Reviewed meaning <select className={field} value={senseId}
-      onChange={event => setSenseId(event.target.value)}>
+      onChange={event => props.onSelectSense(event.target.value)}>
       {props.senses.map(row => <option key={row.id} value={row.id}>
         {row.definition} · {row.partOfSpeech}</option>)}
     </select></label>
