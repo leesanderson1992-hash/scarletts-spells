@@ -1,0 +1,52 @@
+/** Apply or rollback-test reviewed-sense free-base family identity on staging. */
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import pg from "pg";
+
+process.loadEnvFile(".env.staging.local");
+const version = "20261111060000";
+const name = "teaching_sense_free_base_family_identity";
+const sql = readFileSync(`supabase/migrations/${version}_${name}.sql`, "utf8");
+const apply = process.argv.includes("--apply");
+if (apply && !process.argv.includes(`--confirm=sense-free-base:staging:${version}`))
+  throw new Error("EXACT_STAGING_CONFIRMATION_REQUIRED");
+const url = process.env.SUPABASE_STAGING_DB_URL;
+assert(url && new URL(url).username.split(".").at(-1) === "qkpjbajicacbrphthibk",
+  "STAGING_DATABASE_TARGET_MISMATCH");
+assert(sql.startsWith("begin;\n") && sql.endsWith("\ncommit;\n"));
+const body = sql.slice("begin;\n".length, -"\ncommit;\n".length);
+const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 10_000 });
+await db.connect();
+try {
+  await db.query("begin");
+  await db.query("set local lock_timeout='5s'");
+  const controls = await db.query(`select review_enabled,publication_enabled,withdrawal_enabled
+    from public.adle_word_skill_review_controls where environment_key='staging'`);
+  assert.deepEqual(controls.rows, [{ review_enabled: false, publication_enabled: false,
+    withdrawal_enabled: false }]);
+  const prior = await db.query(`select name,statements from supabase_migrations.schema_migrations
+    where version=$1`, [version]);
+  if (prior.rows.length) {
+    assert.equal(prior.rows[0].name, name);
+    assert.equal(createHash("sha256").update(prior.rows[0].statements[0]).digest("hex"),
+      createHash("sha256").update(sql).digest("hex"));
+  } else {
+    await db.query(body);
+    await db.query(`insert into supabase_migrations.schema_migrations(version,statements,name)
+      values($1,$2::text[],$3)`, [version, [sql], name]);
+  }
+  const functionDef = await db.query<{ body: string }>(`select pg_get_functiondef(
+    'public.create_reviewed_free_base_family_from_sense(
+      uuid,uuid,text,uuid,text,text,text,uuid,text
+    )'::regprocedure) body`);
+  assert.match(functionDef.rows[0].body, /canonical_base_sense_id/);
+  const priorFamilies = await db.query(`select count(*)::integer n from
+    public.canonical_teaching_dictionary_lexical_base_families
+    where canonical_base_sense_id is not null`);
+  if (!apply) assert.equal(priorFamilies.rows[0].n, 0);
+  await db.query(apply ? "commit" : "rollback");
+  console.log(JSON.stringify({ target: "staging", version,
+    status: apply ? "applied" : "rollback_proof" }));
+} finally { await db.end(); }

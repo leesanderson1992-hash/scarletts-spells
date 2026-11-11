@@ -52,3 +52,24 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
   return { ok: true };
 }
+
+/** A reviewed whole-word free base can anchor a family for this exact meaning. */
+export async function createSenseFreeBaseFamily(input: { wordId: string; senseId: string;
+  componentPartId: string }): Promise<{ ok: boolean; error?: string }> {
+  const actor = await requireAdminUser();
+  if (!isUuid(input.wordId) || !input.senseId || input.senseId.length > 200
+    || !input.componentPartId || input.componentPartId.length > 200)
+    return { ok: false, error: "Choose a reviewed whole-word base and meaning." };
+  const result = await createServiceRoleClient().rpc("create_reviewed_free_base_family_from_sense", {
+    p_request_id: randomUUID(), p_base_word_id: input.wordId, p_base_sense_id: input.senseId,
+    p_word_id: input.wordId, p_word_sense_id: input.senseId,
+    p_component_part_id: input.componentPartId, p_relationship_kind: "free_base",
+    p_reviewer: actor.id,
+    p_source_reference: "Teaching Dictionary reviewed meaning free-base family",
+  });
+  if (result.error) return { ok: false, error: result.error.message.match(/SENSE_FREE_BASE_[A-Z_]+/)?.[0]
+    ?.replaceAll("_", " ").toLowerCase() ?? "The family could not be created." };
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+  revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
+  return { ok: true };
+}
