@@ -41,6 +41,26 @@ const reading = {
 };
 
 assert.equal(evaluateLessonCandidate(reading).status, "ready");
+const boxingSenses = { ...reading.senseSet, senses: [
+  { ...reading.senseSet.senses[0], id: "boxing-noun-sport", partOfSpeech: "noun",
+    definition: "A sport using padded gloves.", dictationSentence: "Boxing is a sport.",
+    dictationTargetTokenIndex: 0 },
+  { ...reading.senseSet.senses[0], id: "boxing-verb-fighting", partOfSpeech: "verb",
+    definition: "Fighting using padded gloves.", dictationSentence: "She is boxing now." },
+  { ...reading.senseSet.senses[0], id: "boxing-verb-packing", partOfSpeech: "verb",
+    definition: "Putting things into boxes.", dictationSentence: "She is boxing books." },
+] };
+const boxing = { ...reading, displayWord: "boxing", senseSet: boxingSenses,
+  morphology: { ...reading.morphology, wordSum: "box + ing → boxing",
+    parts: ranged([{ ...reading.morphology.parts[0], sourceText: "box", surfaceText: "box" },
+      reading.morphology.parts[1]]) } };
+for (const senseId of ["boxing-verb-fighting", "boxing-verb-packing"]) {
+  assert.equal(evaluateLessonCandidate({ ...boxing, senseId,
+    familyLinks: [{ ...reading.familyLinks[0], sense_id: senseId }] }).status, "ready");
+}
+assert.equal(evaluateLessonCandidate({ ...boxing, senseId: "boxing-noun-sport",
+  familyLinks: [{ ...reading.familyLinks[0], sense_id: "boxing-noun-sport" }] }).status,
+"not_match", "the sport noun is not a regular verb -ing inflection");
 for (const morphology of [
   { ...reading.morphology, parts: reading.morphology.parts.map(part => ({ id: part.id,
     kind: part.kind, sourceText: part.sourceText, surfaceText: part.surfaceText, gloss: part.gloss })) },

@@ -5,7 +5,7 @@ import { bulkSenseChoiceError } from "./bulk-sense-approval";
 import { auditCanonicalMorphology } from "./canonical-morphology";
 import type { DictionarySenseSet } from "./senses";
 
-export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v3";
+export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v4";
 export type CandidateIssue = { code: string; message: string; href: string };
 export type CandidateDecision = {
   status: "not_match" | "needs_facts" | "ready" | "legacy_review";
@@ -72,6 +72,9 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const senseIssue = bulkSenseChoiceError({ wordId: input.wordId, displayWord: input.displayWord,
     senseSet: input.senseSet, senseId: input.senseId });
   if (senseIssue) add("SENSE_FACTS", senseIssue, "td-definition");
+  const selectedSense = input.senseSet?.senses.find(sense => sense.id === input.senseId);
+  if (ingKeys.has(input.skillKey) && selectedSense && selectedSense.partOfSpeech !== "verb")
+    return done("not_match");
   const morphologyAudit = input.morphology ? auditCanonicalMorphology({ parts: input.morphology.parts,
     joins: input.morphology.joins, displayWord: input.displayWord,
     linkedToFamily: input.familyLinks.length > 0 }) : null;
