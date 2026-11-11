@@ -3,6 +3,8 @@ import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { candidateDecisionIsCurrent, type CandidateDecisionEvent } from "./candidate-decision-current";
 import { hasCandidateRule } from "./lesson-candidate";
 import type { DictionarySenseSet } from "./senses";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "./candidate-sense-facts";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 export type ImportCandidateRequest = { draft_id: string; environment_key: string;
@@ -32,14 +34,22 @@ export async function loadImportCandidateRequests(db: Db, draftIds: readonly str
   const wordIds = [...new Set(requests.map(row => row.canonical_word_id))];
   for (let start = 0; start < wordIds.length; start += 50) {
     const ids = wordIds.slice(start, start + 50);
-    const [senses, morphologies, links, decisions, bindings] = await Promise.all([
+    const [senses, morphologies, links, senseAnalyses, senseLinks, decisions, bindings] = await Promise.all([
       db.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", ids),
       db.from("canonical_teaching_dictionary_word_morphology")
-        .select("id,canonical_word_id,created_at").in("canonical_word_id", ids)
+        .select("id,canonical_word_id,created_at,morphology_parts,morphology_joins,word_sum,analysis_status,review_status")
+        .in("canonical_word_id", ids)
         .eq("row_status", "active").order("created_at", { ascending: false }),
       db.from("teaching_dictionary_current_sense_family_links")
-        .select("id,canonical_word_id,sense_id").in("canonical_word_id", ids),
+        .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
+        .in("canonical_word_id", ids),
+      db.from("teaching_dictionary_current_sense_morphology")
+        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+        .in("canonical_word_id", ids),
+      db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+        .in("canonical_word_id", ids),
       db.from("teaching_dictionary_current_candidate_decisions")
         .select("canonical_word_id,micro_skill_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot")
         .eq("environment_key", environment).in("canonical_word_id", ids),
@@ -47,15 +57,17 @@ export async function loadImportCandidateRequests(db: Db, draftIds: readonly str
         .select("canonical_word_id,micro_skill_key,sense_id")
         .eq("environment_key", environment).in("canonical_word_id", ids),
     ]);
-    if (senses.error || morphologies.error || links.error || decisions.error || bindings.error
-      || [senses.data, morphologies.data, links.data, decisions.data, bindings.data]
+    if (senses.error || morphologies.error || links.error || senseAnalyses.error || senseLinks.error
+      || decisions.error || bindings.error
+      || [senses.data, morphologies.data, links.data, senseAnalyses.data, senseLinks.data,
+        decisions.data, bindings.data]
         .some(rows => (rows?.length ?? 0) >= 1000))
       throw new Error("TEACHING_IMPORT_CANDIDATE_FACTS_READ_FAILED");
     const senseByWord = new Map((senses.data ?? []).map(row => [row.canonical_word_id,
       row.sense_set as DictionarySenseSet]));
-    const morphologyByWord = new Map<string, string>();
+    const morphologyByWord = new Map<string, NonNullable<typeof morphologies.data>[number]>();
     for (const row of morphologies.data ?? []) if (!morphologyByWord.has(row.canonical_word_id))
-      morphologyByWord.set(row.canonical_word_id, row.id);
+      morphologyByWord.set(row.canonical_word_id, row);
     const decisionByKey = new Map((decisions.data ?? []).map(row => [
       key(row.canonical_word_id, row.micro_skill_key, row.sense_id), row as CandidateDecisionEvent]));
     const boundKeys = new Set((bindings.data ?? []).map(row => key(row.canonical_word_id,
@@ -66,13 +78,21 @@ export async function loadImportCandidateRequests(db: Db, draftIds: readonly str
         if (boundKeys.has(requestKey)) current.add(requestKey);
         continue;
       }
+      const legacy = morphologyByWord.get(request.canonical_word_id);
+      const facts = candidateFactsForSense({ wordId: request.canonical_word_id,
+        senseId: request.sense_id, senseSet: senseByWord.get(request.canonical_word_id) ?? null,
+        legacyMorphology: legacy ? { id: legacy.id, parts: legacy.morphology_parts,
+          joins: legacy.morphology_joins, wordSum: legacy.word_sum,
+          analysisStatus: legacy.analysis_status, reviewStatus: legacy.review_status } : null,
+        legacyLinks: (links.data ?? []) as CandidateLinkRow[],
+        senseAnalyses: (senseAnalyses.data ?? []) as CandidateAnalysisRow[],
+        senseLinks: (senseLinks.data ?? []) as CandidateLinkRow[] });
       if (candidateDecisionIsCurrent({
         event: decisionByKey.get(requestKey) ?? null,
         senseId: request.sense_id,
         senseSet: senseByWord.get(request.canonical_word_id) ?? null,
-        morphologyId: morphologyByWord.get(request.canonical_word_id) ?? null,
-        familyLinkIds: (links.data ?? []).filter(row => row.canonical_word_id === request.canonical_word_id
-          && row.sense_id === request.sense_id).map(row => row.id),
+        morphologyId: facts.morphologyId,
+        familyLinkIds: facts.familyLinkIds,
       })) current.add(requestKey);
     }
   }

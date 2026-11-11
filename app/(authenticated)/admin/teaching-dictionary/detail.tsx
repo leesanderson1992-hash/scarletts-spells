@@ -34,6 +34,8 @@ import { reviewTeachingDictionaryRouteContent, publishWeakVowelRouteContent } fr
 import { reviewedAffixMeanings } from "@/lib/teaching-dictionary-manager/affix-meanings";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import type { CandidateFamilyLink } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 
 type Params = {
   draft?: string;
@@ -335,14 +337,22 @@ export async function TeachingDictionaryDetail({
       )
     )
       routeContents.push(routeContentFromStoredRow(row));
-  const [reviewedSenses, candidateFamilyLinks] = wordId ? await Promise.all([
+  const [reviewedSenses, candidateFamilyLinks, senseAnalyses, senseFamilyLinks] = wordId ? await Promise.all([
     db.from("teaching_dictionary_reviewed_sense_sets")
       .select("sense_set,reviewed_at").eq("canonical_word_id", wordId).maybeSingle(),
     db.from("teaching_dictionary_current_sense_family_links")
-      .select("sense_id,family_key,component_part_id,relationship_kind").eq("canonical_word_id", wordId),
-  ]) : [null, null];
+      .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
+      .eq("canonical_word_id", wordId),
+    db.from("teaching_dictionary_current_sense_morphology")
+      .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+      .eq("canonical_word_id", wordId),
+    db.from("teaching_dictionary_current_sense_family_memberships")
+      .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+      .eq("canonical_word_id", wordId),
+  ]) : [null, null, null, null];
   if (reviewedSenses?.error) throw new Error("TEACHING_SENSE_SET_READ_FAILED");
   if (candidateFamilyLinks?.error) throw new Error("TEACHING_CANDIDATE_FAMILY_READ_FAILED");
+  if (senseAnalyses?.error || senseFamilyLinks?.error) throw new Error("TEACHING_SENSE_MORPHOLOGY_READ_FAILED");
   const lessonSenseBindings = wordId && environment
     ? await db.from("teaching_dictionary_lesson_sense_bindings")
       .select("micro_skill_key,sense_id,sense_snapshot,pronunciation_snapshot").eq("canonical_word_id", wordId)
@@ -350,6 +360,17 @@ export async function TeachingDictionaryDetail({
     : null;
   if (lessonSenseBindings?.error) throw new Error("TEACHING_LESSON_SENSE_READ_FAILED");
   const approvedSenseSet = reviewedSenses?.data?.sense_set as DictionarySenseSet | undefined;
+  const approvedCandidateSenseFacts = Object.fromEntries((approvedSenseSet?.senses ?? []).map(sense => {
+    const facts = candidateFactsForSense({ wordId: wordId!, senseId: sense.id,
+      senseSet: approvedSenseSet ?? null,
+      legacyMorphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
+        joins: morphology.morphology_joins, wordSum: morphology.word_sum,
+        analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status } : null,
+      legacyLinks: (candidateFamilyLinks?.data ?? []) as CandidateLinkRow[],
+      senseAnalyses: (senseAnalyses?.data ?? []) as CandidateAnalysisRow[],
+      senseLinks: (senseFamilyLinks?.data ?? []) as CandidateLinkRow[] });
+    return [sense.id, { morphology: facts.morphology, familyLinks: facts.familyLinks }];
+  }));
   const staleLessonSenseKeys = (lessonSenseBindings?.data ?? []).filter(binding => {
     const sense = approvedSenseSet?.senses.find(item => item.id === binding.sense_id);
     const pronunciation = approvedSenseSet?.pronunciations.find(item => item.id === sense?.pronunciationId);
@@ -527,6 +548,7 @@ export async function TeachingDictionaryDetail({
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null}
         approvedCandidateFamilyLinks={(candidateFamilyLinks?.data ?? []) as CandidateFamilyLink[]}
+        approvedCandidateSenseFacts={approvedCandidateSenseFacts}
         staleLessonSenseKeys={staleLessonSenseKeys}
         approvedLessonSenseKeys={(lessonSenseBindings?.data ?? []).map(row => row.micro_skill_key)}
         approvedSkillSenseIds={Object.fromEntries((lessonSenseBindings?.data ?? []).map(row => [row.micro_skill_key, row.sense_id]))}

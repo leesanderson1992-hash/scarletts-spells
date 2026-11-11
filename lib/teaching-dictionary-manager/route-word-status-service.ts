@@ -20,6 +20,8 @@ import { ING_RULE_FOR_SKILL, type IngDictionaryWordV1 } from "@/lib/adle/ing/con
 import { loadCurrentLessonSenses } from "./lesson-sense-projection";
 import { candidateDecisionIsCurrent, type CandidateDecisionEvent } from "./candidate-decision-current";
 import type { DictionarySenseSet } from "./senses";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "./candidate-sense-facts";
 
 type Candidate = { wordId: string; displayWord: string; status: WordRouteStatus;
   overviewCandidate?: CandidateDecision; selectedSenseId?: string | null;
@@ -57,7 +59,7 @@ async function readByIds(client: SupabaseClient, table: string, columns: string,
 
 async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly string[],
   environment: string, skillKey: string) {
-  const [senseSets, bindings, morphology, familyLinks, decisions] = await Promise.all([
+  const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions] = await Promise.all([
     readByIds(client, "teaching_dictionary_reviewed_sense_sets", "canonical_word_id,sense_set",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_effective_lesson_sense_bindings",
@@ -68,6 +70,12 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_current_sense_family_links",
       "id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind",
+      "canonical_word_id", ids, "canonical_word_id"),
+    readByIds(client, "teaching_dictionary_current_sense_morphology",
+      "id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum",
+      "canonical_word_id", ids, "canonical_word_id"),
+    readByIds(client, "teaching_dictionary_current_sense_family_memberships",
+      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_current_candidate_decisions",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot,event_sequence",
@@ -88,10 +96,17 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
   const linksByWord = new Map<string, (CandidateFamilyLink & { id: string })[]>();
   for (const row of familyLinks) linksByWord.set(row.canonical_word_id,
     [...(linksByWord.get(row.canonical_word_id) ?? []), row]);
+  const senseAnalysesByWord = new Map<string, CandidateAnalysisRow[]>();
+  for (const row of senseAnalyses) senseAnalysesByWord.set(row.canonical_word_id,
+    [...(senseAnalysesByWord.get(row.canonical_word_id) ?? []), row]);
+  const senseLinksByWord = new Map<string, CandidateLinkRow[]>();
+  for (const row of senseFamilyLinks) senseLinksByWord.set(row.canonical_word_id,
+    [...(senseLinksByWord.get(row.canonical_word_id) ?? []), row]);
   const decisionsByWordSense = new Map<string, CandidateDecisionEvent>();
   for (const row of decisions.filter(row => row.environment_key === environment && row.micro_skill_key === skillKey))
     decisionsByWordSense.set(`${row.canonical_word_id}:${row.sense_id}`, row);
-  return { sensesByWord, bindingByWord, morphologyByWord, linksByWord, decisionsByWordSense };
+  return { sensesByWord, bindingByWord, morphologyByWord, linksByWord,
+    senseAnalysesByWord, senseLinksByWord, decisionsByWordSense };
 }
 
 /** Discover possible relationships by one micro-skill, without treating a
@@ -193,21 +208,26 @@ async function loadRouteWordStatusesUnmeasured(input: {
     const selectedSenseId = bindings.length > 1 ? null : binding?.senseId
       ?? (senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
     const morphology = overview?.morphologyByWord.get(row.id);
+    const facts = overview ? candidateFactsForSense({ wordId: row.id,
+      senseId: selectedSenseId ?? undefined, senseSet,
+      legacyMorphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
+        joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
+        reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null,
+      legacyLinks: (overview.linksByWord.get(row.id) ?? []) as CandidateLinkRow[],
+      senseAnalyses: overview.senseAnalysesByWord.get(row.id) ?? [],
+      senseLinks: overview.senseLinksByWord.get(row.id) ?? [] }) : null;
     const recipe = overview && lesson.microSkillKey in ING_RULE_FOR_SKILL
       ? generateIngWordFromOverview({ wordId: row.id, displayWord: row.display_word,
         skillKey: lesson.microSkillKey, senseId: selectedSenseId ?? undefined, senseSet,
-        morphology: morphology ? { parts: morphology.morphology_parts, joins: morphology.morphology_joins,
-          analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
-          wordSum: morphology.word_sum } : null,
-        familyLinks: overview.linksByWord.get(row.id) ?? [],
+        morphology: facts?.morphology ?? null,
+        familyLinks: facts?.familyLinks ?? [],
         provenance: { sourceName: row.source_name, sourceUrl: row.source_url },
       }) : null;
     const bindingCurrent = currentSenses.get(`${row.id}:${lesson.microSkillKey}`)?.status === "current";
     const decisionCurrent = overview && selectedSenseId ? candidateDecisionIsCurrent({
       event: overview.decisionsByWordSense.get(`${row.id}:${selectedSenseId}`) ?? null,
-      senseId: selectedSenseId, senseSet, morphologyId: morphology?.id ?? null,
-      familyLinkIds: (overview.linksByWord.get(row.id) ?? [])
-        .filter(link => link.sense_id === selectedSenseId).map(link => link.id),
+      senseId: selectedSenseId, senseSet, morphologyId: facts?.morphologyId ?? null,
+      familyLinkIds: facts?.familyLinkIds ?? [],
     }) : false;
     const approvedIngWord = recipe?.status === "ready" && bindingCurrent && decisionCurrent
       && approvedByWord.get(row.id)?.has(lesson.microSkillKey)
@@ -223,10 +243,8 @@ async function loadRouteWordStatusesUnmeasured(input: {
         overviewCandidate: evaluateLessonCandidate({
         wordId: row.id, displayWord: row.display_word, skillKey: lesson.microSkillKey,
         senseId: selectedSenseId ?? undefined, senseSet,
-        morphology: morphology ? { parts: morphology.morphology_parts, joins: morphology.morphology_joins,
-          analysisStatus: morphology.analysis_status, reviewStatus: morphology.review_status,
-          wordSum: morphology.word_sum } : null,
-        familyLinks: overview.linksByWord.get(row.id) ?? [],
+        morphology: facts?.morphology ?? null,
+        familyLinks: facts?.familyLinks ?? [],
       }),
         ...(recipe ? { generatedIng: recipe, approvedIngWord } : {}) } : {}),
       status: wordRouteStatus({

@@ -13,6 +13,10 @@ export type BulkWord = {
   senseSet?: import("./senses").DictionarySenseSet | null;
   candidateMorphology?: import("./lesson-candidate").CandidateMorphology | null;
   candidateFamilyLinks?: import("./lesson-candidate").CandidateFamilyLink[];
+  candidateSenseFacts?: Record<string, {
+    morphology: import("./lesson-candidate").CandidateMorphology | null;
+    familyLinks: import("./lesson-candidate").CandidateFamilyLink[];
+  }>;
 };
 
 export type BulkFilters = {

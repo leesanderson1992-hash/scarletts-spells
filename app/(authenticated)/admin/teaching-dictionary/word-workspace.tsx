@@ -245,6 +245,8 @@ export function WordWorkspace(props: {
   approvedSenseSet: DictionarySenseSet | null;
   approvedCandidateMorphology: CandidateMorphology | null;
   approvedCandidateFamilyLinks: CandidateFamilyLink[];
+  approvedCandidateSenseFacts: Record<string, { morphology: CandidateMorphology | null;
+    familyLinks: CandidateFamilyLink[] }>;
   staleLessonSenseKeys: string[];
   approvedLessonSenseKeys: string[];
   approvedSkillSenseIds: Record<string, string>;
@@ -1231,8 +1233,11 @@ export function WordWorkspace(props: {
                 const candidate = props.wordId && hasCandidateRule(key) ? evaluateLessonCandidate({
                   wordId: props.wordId, displayWord: props.approvedWord ?? payload.displayWord,
                   skillKey: key, senseId: payload.skillSenseIds?.[key],
-                  senseSet: props.approvedSenseSet, morphology: props.approvedCandidateMorphology,
-                  familyLinks: props.approvedCandidateFamilyLinks,
+                  senseSet: props.approvedSenseSet,
+                  morphology: props.approvedCandidateSenseFacts[payload.skillSenseIds?.[key] ?? ""]?.morphology
+                    ?? (props.approvedSenseSet?.senses.length === 1 ? props.approvedCandidateMorphology : null),
+                  familyLinks: props.approvedCandidateSenseFacts[payload.skillSenseIds?.[key] ?? ""]?.familyLinks
+                    ?? props.approvedCandidateFamilyLinks,
                 }) : null;
                 const preflight = preflights.find(
                   (row) => row.microSkillKey === key,

@@ -10,6 +10,8 @@ import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/
 import { BulkAssignWorkspace } from "./workspace";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import type { CandidateFamilyLink } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 
 export const dynamic = "force-dynamic";
 
@@ -72,12 +74,12 @@ async function readSenseBindings(environment: string): Promise<SenseBinding[]> {
   }
 }
 
-async function readFamilyLinks(): Promise<(CandidateFamilyLink & { canonical_word_id: string })[]> {
+async function readFamilyLinks(): Promise<CandidateLinkRow[]> {
   const db = createServiceRoleClient();
-  const rows: (CandidateFamilyLink & { canonical_word_id: string })[] = [];
+  const rows: CandidateLinkRow[] = [];
   for (let start = 0; ; start += 500) {
     const result = await db.from("teaching_dictionary_current_sense_family_links")
-      .select("canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
+      .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
       .order("canonical_word_id").order("sense_id").range(start, start + 499);
     if (result.error) throw new Error("TEACHING_BULK_FAMILY_LINK_READ_FAILED");
     rows.push(...result.data);
@@ -85,11 +87,23 @@ async function readFamilyLinks(): Promise<(CandidateFamilyLink & { canonical_wor
   }
 }
 
+async function readSenseFactRows<T>(table: string, columns: string): Promise<T[]> {
+  const db = createServiceRoleClient();
+  const rows: T[] = [];
+  for (let start = 0; ; start += 500) {
+    const result = await db.from(table).select(columns).order("canonical_word_id")
+      .order("sense_id").order("id").range(start, start + 499);
+    if (result.error) throw new Error(`TEACHING_BULK_SENSE_FACT_READ_FAILED:${table}`);
+    rows.push(...(result.data as T[]));
+    if ((result.data?.length ?? 0) < 500) return rows;
+  }
+}
+
 export default async function BulkAssignPage() {
   await requireAdminUser();
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
-  const [wordRows, metadataRows, morphologyRows, familiesResult, skillsResult, controls, authority, exclusions, senseRows, senseBindings, familyLinks] = await Promise.all([
+  const [wordRows, metadataRows, morphologyRows, familiesResult, skillsResult, controls, authority, exclusions, senseRows, senseBindings, familyLinks, senseAnalyses, senseFamilyLinks] = await Promise.all([
     readAll<DictionaryWord>("canonical_teaching_dictionary_words", "id,normalised_word,display_word,row_status,review_status"),
     readAll<Metadata>("canonical_teaching_dictionary_word_metadata", "id,canonical_word_id,row_status,created_at,has_schwa,syllables,written_syllable_breakdown,phoneme_hint"),
     readAll<Morphology>("canonical_teaching_dictionary_word_morphology", "id,canonical_word_id,row_status,created_at,morphology_parts,morphology_joins,analysis_status,review_status,word_sum"),
@@ -103,6 +117,10 @@ export default async function BulkAssignPage() {
     readSenseSets(),
     environment ? readSenseBindings(environment) : [],
     readFamilyLinks(),
+    readSenseFactRows<CandidateAnalysisRow>("teaching_dictionary_current_sense_morphology",
+      "id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum"),
+    readSenseFactRows<CandidateLinkRow>("teaching_dictionary_current_sense_family_memberships",
+      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind"),
   ]);
   if (familiesResult.error || skillsResult.error) throw new Error("TEACHING_BULK_CATALOG_READ_FAILED");
   const metadataByWord = new Map<string, Metadata>();
@@ -118,8 +136,17 @@ export default async function BulkAssignPage() {
   }
   const sensesByWord = new Map(senseRows.map(row => [row.canonical_word_id, row.sense_set]));
   const linksByWord = new Map<string, CandidateFamilyLink[]>();
+  const legacyLinksByWord = new Map<string, CandidateLinkRow[]>();
   for (const link of familyLinks) linksByWord.set(link.canonical_word_id,
     [...(linksByWord.get(link.canonical_word_id) ?? []), link]);
+  for (const link of familyLinks) legacyLinksByWord.set(link.canonical_word_id,
+    [...(legacyLinksByWord.get(link.canonical_word_id) ?? []), link]);
+  const analysesByWord = new Map<string, CandidateAnalysisRow[]>();
+  for (const row of senseAnalyses) analysesByWord.set(row.canonical_word_id,
+    [...(analysesByWord.get(row.canonical_word_id) ?? []), row]);
+  const senseLinksByWord = new Map<string, CandidateLinkRow[]>();
+  for (const row of senseFamilyLinks) senseLinksByWord.set(row.canonical_word_id,
+    [...(senseLinksByWord.get(row.canonical_word_id) ?? []), row]);
   const words: BulkWord[] = wordRows.filter((row) => row.row_status === "active").map((row) => {
     const metadata = metadataByWord.get(row.id);
     return {
@@ -140,6 +167,18 @@ export default async function BulkAssignPage() {
         wordSum: morphologyByWord.get(row.id)!.word_sum,
       } : null,
       candidateFamilyLinks: linksByWord.get(row.id) ?? [],
+      candidateSenseFacts: Object.fromEntries((sensesByWord.get(row.id)?.senses ?? []).map(sense => {
+        const legacy = morphologyByWord.get(row.id);
+        const facts = candidateFactsForSense({ wordId: row.id, senseId: sense.id,
+          senseSet: sensesByWord.get(row.id) ?? null,
+          legacyMorphology: legacy ? { id: legacy.id, parts: legacy.morphology_parts,
+            joins: legacy.morphology_joins, analysisStatus: legacy.analysis_status,
+            reviewStatus: legacy.review_status, wordSum: legacy.word_sum } : null,
+          legacyLinks: legacyLinksByWord.get(row.id) ?? [],
+          senseAnalyses: analysesByWord.get(row.id) ?? [],
+          senseLinks: senseLinksByWord.get(row.id) ?? [] });
+        return [sense.id, { morphology: facts.morphology, familyLinks: facts.familyLinks }];
+      })),
     };
   }).sort((a, b) => a.normalisedWord.localeCompare(b.normalisedWord));
   const assignedPairs = managerAssignedPairs(authority?.relationships ?? []);

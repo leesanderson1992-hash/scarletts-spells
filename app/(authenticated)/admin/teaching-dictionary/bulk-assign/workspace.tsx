@@ -324,7 +324,12 @@ export function BulkAssignWorkspace(props: {
     const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
       wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
       senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
-      morphology: word.candidateMorphology ?? null, familyLinks: word.candidateFamilyLinks ?? [],
+      morphology: word.candidateSenseFacts
+        ? word.candidateSenseFacts[selectedSenseId(word)]?.morphology ?? null
+        : word.candidateMorphology ?? null,
+      familyLinks: word.candidateSenseFacts
+        ? word.candidateSenseFacts[selectedSenseId(word)]?.familyLinks ?? []
+        : word.candidateFamilyLinks ?? [],
     }) : null;
     return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
       checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked
@@ -369,7 +374,12 @@ export function BulkAssignWorkspace(props: {
     const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
       wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
       senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
-      morphology: word.candidateMorphology ?? null, familyLinks: word.candidateFamilyLinks ?? [],
+      morphology: word.candidateSenseFacts
+        ? word.candidateSenseFacts[selectedSenseId(word)]?.morphology ?? null
+        : word.candidateMorphology ?? null,
+      familyLinks: word.candidateSenseFacts
+        ? word.candidateSenseFacts[selectedSenseId(word)]?.familyLinks ?? []
+        : word.candidateFamilyLinks ?? [],
     }) : null;
     return <div className="mt-1 text-xs font-normal">
       {sense?.dictationSentence && <p>Sentence: {sense.dictationSentence}</p>}

@@ -12,6 +12,8 @@ import { bulkSenseChoiceError } from "@/lib/teaching-dictionary-manager/bulk-sen
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { evaluateLessonCandidate, hasCandidateRule,
   LESSON_CANDIDATE_RULE_REVISION } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { updateTag } from "next/cache";
 import type { EnrichmentCandidate } from "@/lib/writing-engine/whole-writing/knowledge";
@@ -86,9 +88,9 @@ export async function saveBulkSkillApprovals(input: {
     || applyWordIds.some(id => typeof input.senseIds[id] !== "string"))
     return failed("Choose a reviewed meaning for every word being applied.");
   const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;
-    morphologyId: string; familyLinkIds: string[] }> = {};
+    morphologyId: string; morphologySource: "legacy" | "sense"; familyLinkIds: string[] }> = {};
   if (applyWordIds.length) {
-    const [reviewed, morphology, familyLinks] = await Promise.all([
+    const [reviewed, morphology, familyLinks, senseAnalyses, senseFamilyLinks] = await Promise.all([
       db.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", applyWordIds),
       hasCandidateRule(input.microSkillKey) ? db.from("canonical_teaching_dictionary_word_morphology")
@@ -98,8 +100,14 @@ export async function saveBulkSkillApprovals(input: {
       hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_links")
         .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
+      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_morphology")
+        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+        .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
+      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+        .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
     ]);
-    if (reviewed.error || morphology.error || familyLinks.error)
+    if (reviewed.error || morphology.error || familyLinks.error || senseAnalyses.error || senseFamilyLinks.error)
       return failed("Could not check current reviewed lesson facts. Please retry.");
     const byWord = new Map((reviewed.data ?? []).map(row => [row.canonical_word_id,
       row.sense_set as DictionarySenseSet]));
@@ -109,23 +117,28 @@ export async function saveBulkSkillApprovals(input: {
     const blocked = applyWordIds.flatMap(id => {
       const word = byId.get(id)!;
       const selected = morphologyByWord.get(id);
+      const facts = candidateFactsForSense({ wordId: id, senseId: input.senseIds[id],
+        senseSet: byWord.get(id) ?? null,
+        legacyMorphology: selected ? { id: selected.id, parts: selected.morphology_parts,
+          joins: selected.morphology_joins, analysisStatus: selected.analysis_status,
+          reviewStatus: selected.review_status, wordSum: selected.word_sum } : null,
+        legacyLinks: (familyLinks.data ?? []) as CandidateLinkRow[],
+        senseAnalyses: (senseAnalyses.data ?? []) as CandidateAnalysisRow[],
+        senseLinks: (senseFamilyLinks.data ?? []) as CandidateLinkRow[] });
       const candidate = hasCandidateRule(input.microSkillKey) ? evaluateLessonCandidate({
         wordId: id, displayWord: word.display_word, skillKey: input.microSkillKey,
         senseId: input.senseIds[id], senseSet: byWord.get(id) ?? null,
-        morphology: selected ? { parts: selected.morphology_parts, joins: selected.morphology_joins,
-          analysisStatus: selected.analysis_status, reviewStatus: selected.review_status,
-          wordSum: selected.word_sum } : null,
-        familyLinks: (familyLinks.data ?? []).filter(row => row.canonical_word_id === id),
+        morphology: facts.morphology, familyLinks: facts.familyLinks,
       }) : null;
       const reason = candidate && candidate.status !== "ready"
         ? candidate.issues[0]?.message ?? "This word does not match this lesson rule."
         : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,
           senseSet: byWord.get(id) ?? null, senseId: input.senseIds[id] });
       if (reason) return [{ id, word: word.display_word, reason }];
-      if (candidate && selected && byWord.has(id)) expectedFacts[id] = {
-        senseId: input.senseIds[id], senseSet: byWord.get(id)!, morphologyId: selected.id,
-        familyLinkIds: (familyLinks.data ?? []).filter(row => row.canonical_word_id === id
-          && row.sense_id === input.senseIds[id]).map(row => row.id).sort(),
+      if (candidate && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
+        senseId: input.senseIds[id], senseSet: byWord.get(id)!,
+        morphologyId: facts.morphologyId, morphologySource: facts.source,
+        familyLinkIds: facts.familyLinkIds,
       };
       return [];
     });
