@@ -11,6 +11,11 @@ export const MULTI_SENSE_EXPORT_BATCH_SIZE = 100;
 export async function GET(request: Request) {
   await requireAdminUser();
   const params = new URL(request.url).searchParams;
+  if (params.get("template") === "1") return new NextResponse(renderMultiSenseCsvBundles([]), {
+    headers: { "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": 'attachment; filename="reviewed-teaching-dictionary-template.csv"',
+      "Cache-Control": "no-store" },
+  });
   const wordId = params.get("word_id") ?? "";
   const batch = params.get("batch") ? Number(params.get("batch")) : null;
   if (wordId && !isUuid(wordId) || wordId && batch !== null || !wordId &&

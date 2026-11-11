@@ -29,32 +29,37 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, requests = [], sens
     } catch { setRecheckMessage(`${skillKey}: Recheck could not complete. Try again.`); }
     finally { setRecheck(null); }
   }
-  return <details className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
-    <summary className="cursor-pointer font-semibold">{wordId ? "Export or import all meanings for this word" : "Bulk review word meanings"}</summary>
-    <p className="mt-2">The sheet has one row per meaning, with its pronunciation, word parts, family relationship and requested micro-skills. Keep every existing meaning row when reimporting. A combined sheet may contain up to 100 complete words.</p>
+  return <details open={wordId ? undefined : true} className="mb-4 rounded-lg border border-[var(--border)] p-3 text-sm">
+    <summary className="cursor-pointer font-semibold">{wordId ? "Export or import all meanings for this word" : "Upload reviewed words for lessons"}</summary>
+    <p className="mt-2">Use one row per meaning. Leave the word ID and source revision blank for a new word. Keep the IDs and every meaning from an existing word’s export. Add the lesson’s micro-skill key to the meaning you want to teach. You can upload up to 100 words at once.</p>
     {wordId ? <a className="mt-2 inline-block rounded border border-[var(--border)] px-3 py-2 font-semibold"
       href={`/admin/teaching-dictionary/export/multi-sense?word_id=${wordId}`}>
       Download reviewed meanings sheet
-    </a> : <div className="mt-2 flex flex-wrap gap-2">{Array.from({ length: batchCount }, (_, index) =>
+    </a> : <div className="mt-2 flex flex-wrap gap-2"><Link className="rounded border border-[var(--border)] px-3 py-2 font-semibold" prefetch={false} href="/admin/teaching-dictionary/export/multi-sense?template=1">Download CSV template</Link>{Array.from({ length: batchCount }, (_, index) =>
       <a key={index} className="rounded border border-[var(--border)] px-3 py-2 font-semibold"
         href={`/admin/teaching-dictionary/export/multi-sense?batch=${index + 1}`}>
         Meanings batch {index + 1}
       </a>)}</div>}
     <form action={action} className="mt-3 flex flex-wrap items-end gap-2">
-      <label className="grid gap-1">Reviewed meanings CSV
+      <label className="grid gap-1">Reviewed words CSV
         <input type="file" name="multi_sense_csv" accept=".csv,text/csv" required
           className="rounded border border-[var(--border)] px-3 py-2" />
       </label>
       <button disabled={pending} className="rounded bg-[var(--scarlett)] px-3 py-2 font-semibold text-white disabled:opacity-50">
-        {pending ? "Reviewing…" : "Import and review meanings"}
+        {pending ? "Checking words and lessons…" : "Upload and check lessons"}
       </button>
     </form>
     {state.error && <p role="alert" className="mt-2 text-rose-800">{state.error}</p>}
-    {state.reviewed !== undefined && <p role="status" className="mt-2">
-      Reviewed {state.reviewed} meanings across {state.words} word{state.words === 1 ? "" : "s"}. {state.approved} requested micro-skill candidates approved.
-      {state.pending?.length ? ` ${state.pending.length} requests need review.` : ""}
+    {state.words !== undefined && <p role="status" className="mt-2">
+      Saved {state.words} dictionary words. {state.approved} new lesson approvals.
+      {state.alreadyApproved ? ` ${state.alreadyApproved} already approved.` : ""}
     </p>}
-    {state.pending?.length ? <ul className="mt-1 list-disc pl-5">{state.pending.map(item => <li key={item}>{item}</li>)}</ul> : null}
+    {state.issues?.length ? <ul className="mt-2 space-y-2">
+      {state.issues.map((issue, index) => <li key={index}>
+        <strong>{issue.word || "Missing spelling"} · CSV {issue.rows.length === 1 ? "row" : "rows"} {issue.rows.join(", ")}</strong>
+        <p>{issue.reason} {issue.wordId && <Link className="underline" href={`/admin/teaching-dictionary/${issue.wordId}`}>Open word</Link>}</p>
+      </li>)}
+    </ul> : null}
     {wordId && requests.length ? <div className="mt-3 border-t border-[var(--border)] pt-3">
       <p className="font-semibold">Requested micro-skills from the latest meanings import</p>
       <ul className="mt-1 space-y-2">{requests.map(row => <li key={`${row.sense_id}:${row.micro_skill_key}`}

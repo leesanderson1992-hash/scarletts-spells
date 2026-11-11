@@ -121,9 +121,11 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
     <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/bulk-assign">Assign words to a micro-skill</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/format-review">Review dictionary formats</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-lesson-readiness">ADLE lesson readiness and launch</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
+    <MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)} />
+    <details><summary className="cursor-pointer text-sm font-semibold">Other dictionary imports and exports</summary>
     <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)}
       reviewSkills={reviewSkills.data ?? []} />
-    <MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)} />
+    </details>
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
         <input className="rounded-lg border border-[var(--border)] px-3 py-2" name="q" placeholder="Search all words" defaultValue={q} />

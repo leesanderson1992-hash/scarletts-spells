@@ -1,4 +1,5 @@
 import { csvRecords, flatMorphology, FLAT_IMPORT_PART_LIMIT, MAX_DICTIONARY_CSV_BYTES } from "./csv";
+import { normaliseWord } from "./contracts";
 import { targetOccurrences } from "./authoring";
 import { senseSetErrors, type DictionarySenseSet } from "./senses";
 
@@ -54,13 +55,14 @@ export function parseMultiSenseCsv(text: string): MultiSenseCsvBundle[] {
       return [name, /^'[=+@\-\t\r]/u.test(input) ? input.slice(1) : input];
     }));
     const wordId = raw.canonical_word_id;
+    const groupKey = wordId || normaliseWord(raw.display_word);
     const word = raw.display_word;
     const senseId = raw.sense_id;
-    if (!UUID.test(wordId) || !word || !senseId || senseId.length > 200)
-      throw new Error(`Row ${number}: Select an existing dictionary word and a stable meaning ID.`);
+    if ((wordId && !UUID.test(wordId)) || !word || !senseId || senseId.length > 200)
+      throw new Error(`Row ${number}: Provide a spelling and a stable meaning ID. Keep the word ID from an existing word export.`);
     if (raw.source_sense_reviewed_at && Number.isNaN(Date.parse(raw.source_sense_reviewed_at)))
       throw new Error(`Row ${number}: Source meaning revision is invalid; download a fresh sheet.`);
-    const existing = bundles.get(wordId);
+    const existing = bundles.get(groupKey);
     if (existing && (existing.displayWord !== word || existing.sourceSenseReviewedAt !== raw.source_sense_reviewed_at))
       throw new Error(`Row ${number}: Shared word identity or source revision differs between meanings.`);
     const bundle = existing ?? { wordId, displayWord: word,
@@ -76,13 +78,13 @@ export function parseMultiSenseCsv(text: string): MultiSenseCsvBundle[] {
       if (!/^[1-9][0-9]*$/u.test(count)) throw new Error(`Row ${number}: Spoken syllable count is invalid.`);
       const pronunciation = { id: pronunciationId, ipa: raw.ipa,
         spokenSyllableCount: Number(count), stressPattern: raw.stress_pattern };
-      const byId = pronunciationByWord.get(wordId) ?? new Map<string, string>();
+      const byId = pronunciationByWord.get(groupKey) ?? new Map<string, string>();
       const snapshot = JSON.stringify(pronunciation);
       if (byId.has(pronunciationId) && byId.get(pronunciationId) !== snapshot)
         throw new Error(`Row ${number}: Shared pronunciation facts disagree between meanings.`);
       if (!byId.has(pronunciationId)) bundle.senseSet.pronunciations.push(pronunciation);
       byId.set(pronunciationId, snapshot);
-      pronunciationByWord.set(wordId, byId);
+      pronunciationByWord.set(groupKey, byId);
     } else if (raw.ipa || raw.spoken_syllable_count || raw.stress_pattern) {
       throw new Error(`Row ${number}: A bound root without a pronunciation cannot have spoken fields.`);
     }
@@ -114,7 +116,7 @@ export function parseMultiSenseCsv(text: string): MultiSenseCsvBundle[] {
     bundle.analyses.push({ senseId, ...morphology, familyKey: family,
       componentPartId: component, relationshipKind: relationship,
       requestedSkillKeys: requested });
-    bundles.set(wordId, bundle);
+    bundles.set(groupKey, bundle);
   }
   for (const bundle of bundles.values()) {
     const issues = senseSetErrors(bundle.senseSet);
@@ -127,6 +129,39 @@ function cell(value: unknown): string {
   const raw = value == null ? "" : String(value);
   const safe = /^[=+@\-\t\r]/u.test(raw) ? `'${raw}` : raw;
   return `"${safe.replaceAll('"', '""')}"`;
+}
+
+/** Validate every spelling independently while retaining original sheet row numbers. */
+export function prepareReviewedCsv(text: string) {
+  if (Buffer.byteLength(text, "utf8") > MAX_DICTIONARY_CSV_BYTES) throw new Error("Choose a CSV smaller than 4 MB.");
+  const [headers, ...rows] = csvRecords(text);
+  if (!headers || !rows.length || rows.length > 2000)
+    throw new Error("Include 1 to 100 words with at most 20 meanings each.");
+  const names = headers.map(name => name.trim());
+  if (new Set(names).size !== names.length || MULTI_SENSE_CSV_COLUMNS.some(name => !names.includes(name)))
+    throw new Error("Download the reviewed words template and keep its column headings.");
+  const groups = new Map<string, { word: string; rows: number[]; cells: string[][] }>();
+  for (const [index, cells] of rows.entries()) {
+    const word = cells[names.indexOf("display_word")]?.trim() ?? "";
+    const key = normaliseWord(word) || `row-${index + 2}`;
+    const group = groups.get(key) ?? { word, rows: [], cells: [] };
+    group.rows.push(index + 2);
+    group.cells.push(cells);
+    groups.set(key, group);
+  }
+  if (groups.size > 100) throw new Error("Upload up to 100 words at a time.");
+  return [...groups.values()].map(({ word, rows, cells }) => {
+    try {
+      const bundles = parseMultiSenseCsv([headers, ...cells].map(row => row.map(cell).join(",")).join("\r\n"));
+      if (bundles.length !== 1) throw new Error("All meanings of a word must use the same dictionary word ID.");
+      if (bundles[0].analyses.length > 20) throw new Error("A word may have up to 20 meanings.");
+      return { word, rows, bundle: bundles[0], error: null };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Check this word's facts.";
+      return { word, rows, bundle: null, error: message.replace(/^Row (\d+): /u,
+        (_, line) => `Row ${rows[Number(line) - 2]}: `) };
+    }
+  });
 }
 
 export function renderMultiSenseCsvBundles(bundles: readonly MultiSenseCsvBundle[]): string {

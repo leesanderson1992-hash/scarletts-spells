@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseMultiSenseCsv, renderMultiSenseCsv, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from
+import { parseMultiSenseCsv, prepareReviewedCsv, renderMultiSenseCsv, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from
   "../lib/teaching-dictionary-manager/multi-sense-csv";
 
 const wordId = "efa04f55-0f0c-528a-954c-30baacb32e33";
@@ -53,3 +53,18 @@ assert.throws(() => parseMultiSenseCsv(csv.replace('"part_1","base","box","box",
 assert.throws(() => parseMultiSenseCsv(csv.replace('"box_verb_packing_base_family"', '""')),
   /Select a matching base or root part, family and relationship/);
 console.log("Three-meaning CSV round-trip and invalid-row checks passed.");
+
+const newWord: MultiSenseCsvBundle = {
+  wordId: "", displayWord: "box", sourceSenseReviewedAt: "",
+  senseSet: { pronunciations: [pronunciation], senses: [
+    { id: "pack", definition: "Put something in a box.", partOfSpeech: "verb", pronunciationId },
+  ] },
+  analyses: [{ ...bundle.analyses[2], senseId: "pack", parts: [bundle.analyses[2].parts[0]],
+    joins: [], wordSum: "box → box", familyKey: "", componentPartId: "", relationshipKind: "" }],
+};
+const mixed = renderMultiSenseCsvBundles([bundle, newWord]);
+assert.deepEqual(prepareReviewedCsv(mixed).map(entry => [entry.bundle?.wordId, entry.rows]),
+  [[wordId, [2, 3, 4]], ["", [5]]]);
+const partial = prepareReviewedCsv(mixed.replace('"Put something in a box."', '""'));
+assert.equal(partial[0].bundle?.wordId, wordId);
+assert.match(partial[1].error ?? "", /definition/i);

@@ -1,5 +1,7 @@
 "use server";
 
+import { ING_RULE_FOR_SKILL } from "@/lib/adle/ing/contracts";
+import { generateIngWordFromOverview } from "@/lib/teaching-dictionary-manager/ing-overview-recipe";
 import { requireAdminUser } from "@/lib/admin/access";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
@@ -68,7 +70,7 @@ export async function saveBulkSkillApprovals(input: {
   const [skill, words, controls] = await Promise.all([
     db.from("micro_skill_catalog").select("micro_skill_key").eq("micro_skill_key", input.microSkillKey)
       .eq("is_active", true).eq("is_assignable", true).maybeSingle(),
-    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status")
+    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,source_name,source_url")
       .in("id", allIds),
     loadWordSkillReviewControls(db, environment),
   ]);
@@ -125,11 +127,15 @@ export async function saveBulkSkillApprovals(input: {
         legacyLinks: (familyLinks.data ?? []) as CandidateLinkRow[],
         senseAnalyses: (senseAnalyses.data ?? []) as CandidateAnalysisRow[],
         senseLinks: (senseFamilyLinks.data ?? []) as CandidateLinkRow[] });
-      const candidate = hasCandidateRule(input.microSkillKey) ? evaluateLessonCandidate({
+      const candidateInput = {
         wordId: id, displayWord: word.display_word, skillKey: input.microSkillKey,
         senseId: input.senseIds[id], senseSet: byWord.get(id) ?? null,
         morphology: facts.morphology, familyLinks: facts.familyLinks,
-      }) : null;
+      };
+      const candidate = input.sourceKind === "teaching_dictionary_import" && input.microSkillKey in ING_RULE_FOR_SKILL
+        ? generateIngWordFromOverview({ ...candidateInput,
+            provenance: { sourceName: word.source_name, sourceUrl: word.source_url } })
+        : hasCandidateRule(input.microSkillKey) ? evaluateLessonCandidate(candidateInput) : null;
       const reason = candidate && candidate.status !== "ready"
         ? candidate.issues[0]?.message ?? "This word does not match this lesson rule."
         : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,
