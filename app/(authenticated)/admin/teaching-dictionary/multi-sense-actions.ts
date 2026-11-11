@@ -31,8 +31,14 @@ export async function importReviewedMultiSenseCsv(
     p_request_id: requestId, p_bundles: bundles,
     p_actor: actor.id, p_source_reference: `Reviewed multi-meaning CSV: ${file.name.slice(0, 120)}`,
   });
-  if (applied.error) return { error: applied.error.message.match(/MULTI_SENSE_CSV_[A-Z_]+|SENSE_(?:MORPHOLOGY|FAMILY)_[A-Z_]+/)?.[0]
-    ?.replaceAll("_", " ").toLowerCase() ?? "The reviewed meanings could not be imported." };
+  if (applied.error) {
+    const code = applied.error.message.match(/MULTI_SENSE_CSV_[A-Z_]+|SENSE_(?:MORPHOLOGY|FAMILY)_[A-Z_]+/)?.[0];
+    if (code === "MULTI_SENSE_CSV_SOURCE_CHANGED") return {
+      error: "This sheet is out of date because the reviewed meanings changed. Download a fresh meanings sheet, reapply your edits, and import it again.",
+    };
+    return { error: code?.replaceAll("_", " ").toLowerCase()
+      ?? "The reviewed meanings could not be imported." };
+  }
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   for (const bundle of bundles) revalidatePath(`/admin/teaching-dictionary/${bundle.wordId}`);
   let approved = 0;
