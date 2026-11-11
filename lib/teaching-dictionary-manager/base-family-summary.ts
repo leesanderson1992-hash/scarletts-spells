@@ -77,10 +77,14 @@ export async function loadWordBaseFamilies(
   // Lexical families are canonical dictionary facts. Read only the families
   // touching this word, then resolve their latest approved revision so older
   // immutable revisions do not appear as duplicate memberships.
-  const lexicalMatches = await read(
-    db.from("canonical_teaching_dictionary_lexical_base_family_members")
-      .select("family_key,revision").eq("canonical_word_id", wordId),
-  );
+  const [legacyLexicalMatches, senseLexicalMatches] = await Promise.all([
+    read(db.from("canonical_teaching_dictionary_lexical_base_family_members")
+      .select("family_key,revision").eq("canonical_word_id", wordId)),
+    read(db.from("teaching_dictionary_current_sense_family_memberships")
+      .select("family_key,current_family_revision").eq("canonical_word_id", wordId)),
+  ]);
+  const lexicalMatches = [...legacyLexicalMatches, ...senseLexicalMatches.map(row => ({
+    family_key: row.family_key, revision: row.current_family_revision }))];
   let lexicalFamilies: FamilySummary[] = [];
   const lexicalSuccessorKeys = new Set<string>();
   if (lexicalMatches.length) {
@@ -95,10 +99,17 @@ export async function loadWordBaseFamilies(
     for (const row of revisions) if (!latest.has(row.family_key)) latest.set(row.family_key, row);
     for (const key of latest.keys()) lexicalSuccessorKeys.add(key);
     if (latest.size) {
-      const currentMembers = (await read(
+      const historicalMembers = (await read(
         db.from("canonical_teaching_dictionary_lexical_base_family_members")
           .select("family_key,revision,canonical_word_id").in("family_key", [...latest.keys()]),
       )).filter((row) => latest.get(row.family_key)?.revision === row.revision);
+      const reviewedSenseMembers = await read(db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("family_key,current_family_revision,canonical_word_id")
+        .in("family_key", [...latest.keys()]));
+      const currentMembers = [...new Map([...historicalMembers,
+        ...reviewedSenseMembers.map(row => ({ family_key: row.family_key,
+          revision: row.current_family_revision, canonical_word_id: row.canonical_word_id }))]
+        .map(row => [`${row.family_key}:${row.canonical_word_id}`, row])).values()];
       const activeKeys = [...latest.keys()].filter((key) =>
         currentMembers.some((row) => row.family_key === key && row.canonical_word_id === wordId));
       if (activeKeys.length) {

@@ -62,6 +62,7 @@ import { ActionSubmitButton } from "./action-submit-button";
 import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { SenseEditor } from "./sense-editor";
+import { SenseMorphologyReview } from "./sense-morphology-review";
 import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
 import { evaluateLessonCandidate, hasCandidateRule,
@@ -244,9 +245,16 @@ export function WordWorkspace(props: {
   initial: WordDraftPayload;
   approvedSenseSet: DictionarySenseSet | null;
   approvedCandidateMorphology: CandidateMorphology | null;
+  approvedMorphologyTransformations: unknown[];
   approvedCandidateFamilyLinks: CandidateFamilyLink[];
   approvedCandidateSenseFacts: Record<string, { morphology: CandidateMorphology | null;
     familyLinks: CandidateFamilyLink[] }>;
+  senseAnalyses: { id: string; sense_id: string; morphology_parts: unknown[];
+    morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string }[];
+  senseFamilyMemberships: { id: string; sense_id: string; sense_morphology_id: string;
+    family_key: string; component_part_id: string; relationship_kind: string }[];
+  senseFamilyOptions: { family_key: string; base_lemma: string; base_kind: string;
+    base_meaning: string; canonical_base_word_id: string | null }[];
   staleLessonSenseKeys: string[];
   approvedLessonSenseKeys: string[];
   approvedSkillSenseIds: Record<string, string>;
@@ -929,6 +937,14 @@ export function WordWorkspace(props: {
         </summary>
         <div className="px-4 pb-4">
           {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })} />}
+          {props.wordId && props.approvedSenseSet?.senses.length ? <SenseMorphologyReview
+            wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
+            senses={props.approvedSenseSet.senses} analyses={props.senseAnalyses}
+            links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
+            shared={{ parts: props.approvedCandidateMorphology?.parts as unknown[] ?? [],
+              joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
+              transformations: props.approvedMorphologyTransformations }}
+            affixMeanings={props.affixMeanings} /> : null}
           <div className="overflow-x-auto">
             <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">

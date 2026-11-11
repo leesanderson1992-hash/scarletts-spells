@@ -344,7 +344,7 @@ export async function TeachingDictionaryDetail({
       .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
       .eq("canonical_word_id", wordId),
     db.from("teaching_dictionary_current_sense_morphology")
-      .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+      .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,morphology_transformations,word_sum")
       .eq("canonical_word_id", wordId),
     db.from("teaching_dictionary_current_sense_family_memberships")
       .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
@@ -353,6 +353,20 @@ export async function TeachingDictionaryDetail({
   if (reviewedSenses?.error) throw new Error("TEACHING_SENSE_SET_READ_FAILED");
   if (candidateFamilyLinks?.error) throw new Error("TEACHING_CANDIDATE_FAMILY_READ_FAILED");
   if (senseAnalyses?.error || senseFamilyLinks?.error) throw new Error("TEACHING_SENSE_MORPHOLOGY_READ_FAILED");
+  const familySourceTexts = [...new Set([morphology?.morphology_parts,
+    ...(senseAnalyses?.data ?? []).map(row => row.morphology_parts)]
+    .flatMap(value => Array.isArray(value) ? value : [])
+    .filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object")
+    .filter(part => ["base", "root"].includes(String(part.kind ?? "")))
+    .map(part => String(part.sourceText ?? "").toLowerCase()).filter(Boolean))];
+  const matchingFamilies = familySourceTexts.length ? await db.from("canonical_teaching_dictionary_lexical_base_families")
+    .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,review_status")
+    .in("base_lemma", familySourceTexts).order("revision", { ascending: false })
+    : { data: [], error: null };
+  if (matchingFamilies.error) throw new Error("TEACHING_SENSE_FAMILY_OPTIONS_READ_FAILED");
+  const latestFamilies = new Map<string, NonNullable<typeof matchingFamilies.data>[number]>();
+  for (const family of matchingFamilies.data ?? []) if (!latestFamilies.has(family.family_key))
+    latestFamilies.set(family.family_key, family);
   const lessonSenseBindings = wordId && environment
     ? await db.from("teaching_dictionary_lesson_sense_bindings")
       .select("micro_skill_key,sense_id,sense_snapshot,pronunciation_snapshot").eq("canonical_word_id", wordId)
@@ -547,8 +561,16 @@ export async function TeachingDictionaryDetail({
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null}
+        approvedMorphologyTransformations={morphology?.morphology_transformations ?? []}
         approvedCandidateFamilyLinks={(candidateFamilyLinks?.data ?? []) as CandidateFamilyLink[]}
         approvedCandidateSenseFacts={approvedCandidateSenseFacts}
+        senseAnalyses={(senseAnalyses?.data ?? []) as { id: string; sense_id: string;
+          morphology_parts: unknown[]; morphology_joins: unknown[];
+          morphology_transformations: unknown[]; word_sum: string }[]}
+        senseFamilyMemberships={(senseFamilyLinks?.data ?? []) as { id: string; sense_id: string;
+          sense_morphology_id: string; family_key: string; component_part_id: string;
+          relationship_kind: string }[]}
+        senseFamilyOptions={[...latestFamilies.values()].filter(family => family.review_status === "approved")}
         staleLessonSenseKeys={staleLessonSenseKeys}
         approvedLessonSenseKeys={(lessonSenseBindings?.data ?? []).map(row => row.micro_skill_key)}
         approvedSkillSenseIds={Object.fromEntries((lessonSenseBindings?.data ?? []).map(row => [row.micro_skill_key, row.sense_id]))}

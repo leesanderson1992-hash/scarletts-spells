@@ -1,6 +1,12 @@
 # Teaching Dictionary: approve words for micro-skills first
 
-Target design approved 2026-11-08. Updated 2026-11-10 with implementation status and the next build slice. The 14-word canonical pilot is live in Production; the sense-aware approval work described below is in staging only.
+Target design approved 2026-11-08. Updated 2026-11-11 with implementation status and the next build slice. The 14-word canonical pilot is live in Production; the sense-aware approval work described below is in staging only.
+
+## 2026-11-11 sense-specific implementation checkpoint
+
+The immutable per-meaning morphology and exact-analysis family membership tables are installed in staging. Rollback proofs verify spelling, word-sum and transformation validation; family links survive an unrelated meaning change and stale when their selected meaning changes. The bulk assigner, word page, import retry queue, route readiness and active `-ing` reader select the meaning's current approved analysis and matching family links. Multi-meaning words with only a spelling-wide legacy analysis require explicit review before a new candidate approval. The atomic candidate guard accepts either source and rejects stale analysis or family IDs; its installed-version rollback proof passed. A Preview build of these readers is ready.
+
+The word page now has a visual per-meaning parts editor, spelling-change controls, and a matching approved base or root family selector. Its server actions call the guarded review functions, and family summaries include newly approved per-meaning memberships. This editor still needs a signed-in staging browser proof and a Preview build before it is considered verified. The CSV importer still writes one spelling-wide morphology analysis and needs an explicit per-meaning import schema. Most lesson rules beyond the supported affix and `-ing` candidates, complete ADLE release availability, and Production rollout remain open. Staging review controls remain closed; Production is unchanged.
 
 ## What the first release must do
 
