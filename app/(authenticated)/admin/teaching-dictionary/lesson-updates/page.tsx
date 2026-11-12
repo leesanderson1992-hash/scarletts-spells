@@ -28,8 +28,12 @@ export default async function LessonUpdates({ searchParams }: {
   const selected = params.skill ?? "";
   const skill = isStagingIngSkill(selected) ? selected : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
-  const clusters = (clusterRows.data ?? []).map(row => ({ key: row.skill_cluster_key, label: row.display_name }));
+  const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
+  const clusters = [...new Set(skills.map(item => item.cluster).filter(Boolean))].map(key => ({
+    key,
+    label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
+  })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
   const children = update ? await db.from("children").select("id,first_name").in("id", update.childIds)
     .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
