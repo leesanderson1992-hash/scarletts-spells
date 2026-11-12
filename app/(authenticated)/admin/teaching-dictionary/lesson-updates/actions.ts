@@ -10,7 +10,7 @@ import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { buildScopedPath } from "@/lib/children-shared";
 import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { chooseStagingIngLessonMeaning, isStagingIngSkill, loadStagingIngUpdate, publishStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { chooseStagingIngLessonMeaning, findPreparedStagingIngRelease, isStagingIngSkill, loadStagingIngUpdate, publishStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 
 const path = "/admin/teaching-dictionary/lesson-updates";
 
@@ -40,10 +40,17 @@ export async function publishIngLesson(form: FormData) {
   try {
     const db = createServiceRoleClient();
     const update = await loadStagingIngUpdate(db, skill);
-    if (form.get("fingerprint") !== update.fingerprint)
-      throw new Error("The lesson preview changed. Review the latest list before publishing.");
-    if (!update.changes.length && !update.retired.length) throw new Error("The lesson pool is already current.");
-    await publishStagingIngUpdate(db, actor.id, update);
+    const fingerprint = form.get("fingerprint");
+    if (typeof fingerprint !== "string" || !/^[0-9a-f]{64}$/.test(fingerprint))
+      throw new Error("Open the latest lesson preview before publishing.");
+    if (fingerprint === update.fingerprint) {
+      if (!update.changes.length && !update.retired.length) throw new Error("The lesson pool is already current.");
+      await publishStagingIngUpdate(db, actor.id, update);
+    } else {
+      const prior = await findPreparedStagingIngRelease(db, skill, fingerprint);
+      if (prior?.id !== update.revision.release_manifest_id)
+        throw new Error("The lesson preview changed. Review the latest list before publishing.");
+    }
   } catch (error) {
     redirect(`${lessonPath}&error=${encodeURIComponent(error instanceof Error ? error.message : "The lesson update failed.")}`);
   }

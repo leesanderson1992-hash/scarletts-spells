@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { buildScopedPath } from "@/lib/children-shared";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { canUpdateStagingIngLesson, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { canUpdateStagingIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { BulkReviewFlow } from "./bulk-review-flow";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
@@ -38,8 +38,12 @@ export default async function LessonUpdates({ searchParams }: {
     label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
-  const children = update && view === "preview" ? await db.from("children").select("id,first_name").in("id", update.childIds)
-    .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
+  const [children, prepared] = await Promise.all([
+    update && view === "preview" ? db.from("children").select("id,first_name").in("id", update.childIds)
+      .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null,
+    update && view === "preview" && (update.changes.length || update.retired.length)
+      ? findPreparedStagingIngRelease(db, update.skill, update.fingerprint) : null,
+  ]);
   const learners = children?.data ?? [];
   return <main className="mx-auto max-w-4xl space-y-5 p-6">
     <Link href="/admin/teaching-dictionary" className="text-sm underline">Teaching Dictionary</Link>
@@ -76,10 +80,11 @@ export default async function LessonUpdates({ searchParams }: {
         {update.changes.length > 0 && <ul className="list-disc pl-5">{update.changes.map(word =>
           <li key={word.canonicalWordId}><Link className="underline" href={`/admin/teaching-dictionary/${word.canonicalWordId}`}>{word.word}</Link> · {word.meaning}</li>)}</ul>}
         {update.retired.length > 0 && <p>Remove words whose approval is no longer current. {update.retired.map(word => word.word).join(", ")}.</p>}
+        {prepared && <p role="status">The update has been validated and is waiting for activation.</p>}
         {update.changes.length || update.retired.length ? <form action={publishIngLesson}>
           <input type="hidden" name="skill" value={selected} />
           <input type="hidden" name="fingerprint" value={update.fingerprint} />
-          <button className={button}>Publish {lessonName} update</button>
+          <button className={button}>{prepared ? "Resume publishing" : `Publish ${lessonName} update`}</button>
         </form> : <p>The approved words are up to date.</p>}
       </section>
       <section className={card}>

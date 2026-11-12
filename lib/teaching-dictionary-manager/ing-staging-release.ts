@@ -105,10 +105,26 @@ export async function chooseStagingIngLessonMeaning(db: ReturnType<typeof create
   if (saved.error) throw new Error("Could not save the lesson meaning.");
 }
 
-export async function publishStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, actorId: string,
-  update: Awaited<ReturnType<typeof loadStagingIngUpdate>>) {
+type StagingIngUpdate = Awaited<ReturnType<typeof loadStagingIngUpdate>>;
+type StagingDb = ReturnType<typeof createServiceRoleClient>;
+
+function stagingIngReleaseKey(skill: StagingIngSkill, fingerprint: string) {
+  return `staging:ing:${skill}:${fingerprint}`;
+}
+
+export async function findPreparedStagingIngRelease(db: StagingDb, skill: StagingIngSkill, fingerprint: string) {
+  if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
+  const release = await db.from("adle_curriculum_release_manifests").select("id,release_manifest_sha256")
+    .eq("route_id", ING_ROUTE).eq("route_version", "v1")
+    .eq("release_key", stagingIngReleaseKey(skill, fingerprint)).maybeSingle();
+  if (release.error) throw new Error("Could not check for a prepared lesson release.");
+  return release.data;
+}
+
+export async function prepareStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate) {
+  if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
   const { skill } = update;
-  const pkg = buildIngReleasePackage(update.words, `staging:ing:${skill}:${update.fingerprint}`,
+  const pkg = buildIngReleasePackage(update.words, stagingIngReleaseKey(skill, update.fingerprint),
     [...new Set(update.words.map(word => word.approvalRef).filter((ref): ref is string => Boolean(ref)))]);
   async function hash(value: unknown) {
     const result = await db.rpc("adle_generic_snapshot_json_sha256_v1", { p_value: value });
@@ -128,13 +144,24 @@ export async function publishStagingIngUpdate(db: ReturnType<typeof createServic
     p_package: pkg, p_package_file_sha256: await hash(pkg), p_published_by: actorId,
   });
   if (published.error || !published.data) throw new Error("The lesson package failed publication checks.");
-  const release = await db.from("adle_curriculum_release_manifests").select("release_manifest_sha256")
-    .eq("id", published.data).single();
-  if (release.error) throw new Error("Could not confirm the published lesson package.");
-  if ((await loadStagingIngUpdate(db, skill)).fingerprint !== update.fingerprint)
-    throw new Error("The approved words changed. Review the lesson update again.");
+  const release = await findPreparedStagingIngRelease(db, skill, update.fingerprint);
+  if (!release || release.id !== published.data) throw new Error("Could not confirm the published lesson package.");
+  return release;
+}
+
+export async function publishStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate) {
+  const { skill } = update;
+  // The update fingerprint covers the live head and every word in the preview.
+  // A previously validated package for that exact fingerprint can be activated
+  // immediately. A newly prepared package needs a fresh read before activation.
+  let release = await findPreparedStagingIngRelease(db, skill, update.fingerprint);
+  if (!release) {
+    release = await prepareStagingIngUpdate(db, actorId, update);
+    if ((await loadStagingIngUpdate(db, skill)).fingerprint !== update.fingerprint)
+      throw new Error("The approved words changed. Review the lesson update again.");
+  }
   const active = await db.rpc("set_adle_route_activation_revision_v2", {
-    p_release_manifest_sha256: release.data.release_manifest_sha256, p_micro_skill_key: skill,
+    p_release_manifest_sha256: release.release_manifest_sha256, p_micro_skill_key: skill,
     p_environment_key: "staging", p_activation_status: "enabled",
     p_incomplete_assignment_policy: update.revision.incomplete_assignment_policy,
     p_readiness_report: update.revision.readiness_report, p_expected_current_revision_id: update.revision.id,
