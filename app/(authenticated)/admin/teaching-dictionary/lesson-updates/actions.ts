@@ -18,7 +18,7 @@ export async function publishIngLesson(form: FormData) {
   const actor = await requireAdminUser();
   const skill = form.get("skill");
   if (!isStagingIngSkill(skill)) redirect(path);
-  const lessonPath = `${path}?skill=${skill}`;
+  const lessonPath = `${path}?skill=${skill}&view=preview`;
   try {
     const db = createServiceRoleClient();
     const update = await loadStagingIngUpdate(db, skill);
@@ -38,7 +38,7 @@ export async function generateIngLesson(form: FormData) {
   const actor = await requireAdminUser();
   const skill = form.get("skill");
   if (!isStagingIngSkill(skill)) redirect(path);
-  const lessonPath = `${path}?skill=${skill}`;
+  const lessonPath = `${path}?skill=${skill}&view=preview`;
   let childId = "";
   try {
     const db = createServiceRoleClient();

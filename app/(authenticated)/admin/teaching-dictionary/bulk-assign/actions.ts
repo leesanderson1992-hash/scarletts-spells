@@ -47,6 +47,7 @@ export async function saveBulkSkillApprovals(input: {
   deassignWordIds: string[];
   senseIds: Record<string, string>;
   requestId: string;
+  workbookReadback?: boolean;
   sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word" | "teaching_dictionary_import";
 }): Promise<BulkApprovalResult> {
   const actor = await requireAdminUser();
@@ -152,16 +153,24 @@ export async function saveBulkSkillApprovals(input: {
   }
 
   try {
-    const existing = await loadPublishedWritingAssociations(db, environment);
-    const current = await loadCanonicalWordSkillRelationshipAuthority({
-      client: db, environmentKey: environment, explicitReviewedAssociations: existing,
-    });
-    const effective = new Set(current.relationships.filter((row) => row.microSkillKey === input.microSkillKey)
-      .map((row) => row.canonicalWordId));
-    if (deassignWordIds.some((id) => !effective.has(id))) return failed("A selected word is no longer assigned. Reload and retry.");
-    const decisions = await db.from("teaching_dictionary_pair_latest_decisions")
-      .select("canonical_word_id,action").eq("environment_key", environment)
-      .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", allIds);
+    // Imports apply explicit word–skill pairs. The scoped authority still
+    // checks their identity, historical sources, withdrawals and deassignments.
+    const scopedIds = input.workbookReadback && input.sourceKind === "teaching_dictionary_import" ? allIds : undefined;
+    const [existing, decisions] = await Promise.all([
+      loadPublishedWritingAssociations(db, environment, scopedIds),
+      db.from("teaching_dictionary_pair_latest_decisions")
+        .select("canonical_word_id,action").eq("environment_key", environment)
+        .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", allIds),
+    ]);
+    const effective = new Set<string>();
+    if (deassignWordIds.length || excludeWordIds.length) {
+      const current = await loadCanonicalWordSkillRelationshipAuthority({
+        client: db, environmentKey: environment, explicitReviewedAssociations: existing, canonicalWordIds: scopedIds,
+      });
+      for (const row of current.relationships)
+        if (row.microSkillKey === input.microSkillKey) effective.add(row.canonicalWordId);
+    }
+    if (deassignWordIds.some(id => !effective.has(id))) return failed("A selected word is no longer assigned. Reload and retry.");
     if (decisions.error) return failed("Could not check saved de-assignments. Please retry.");
     const suppressed = new Set((decisions.data ?? []).filter((row) => row.action === "deassign")
       .map((row) => row.canonical_word_id));
@@ -198,7 +207,7 @@ export async function saveBulkSkillApprovals(input: {
       if (previewAssociations.length !== newIds.length) return failed("Could not verify the approval batch. No words were approved.");
       const preview = await loadCanonicalWordSkillRelationshipAuthority({
         client: db, environmentKey: environment,
-        explicitReviewedAssociations: [...existing, ...previewAssociations],
+        explicitReviewedAssociations: [...existing, ...previewAssociations], canonicalWordIds: scopedIds,
         ignorePairDecisionsFor: restoreIds.map((id) => ({ canonicalWordId: id, microSkillKey: input.microSkillKey })),
       });
       const blocked = candidates.flatMap((candidate) => {
@@ -231,6 +240,8 @@ export async function saveBulkSkillApprovals(input: {
     const summary = { ok: true, approvedCount: applyWordIds.length - alreadyAssignedCount, alreadyAssignedCount,
       excludedCount: excludeWordIds.length, clearedCount: clearWordIds.length,
       deassignedCount: deassignIds.length, blocked: [] };
+    // The workbook returns its affected words' release status separately.
+    if (scopedIds) return { ...summary, assigned: [], excluded: [] };
     try {
       const saved = await loadTeachingDictionaryEvidenceAuthority(db, environment);
       const excluded: string[] = [];

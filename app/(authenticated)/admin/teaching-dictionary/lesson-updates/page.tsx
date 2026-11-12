@@ -10,23 +10,26 @@ const button = "rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-whi
 const card = "space-y-3 rounded-xl border border-[var(--border)] bg-white p-5";
 
 export default async function LessonUpdates({ searchParams }: {
-  searchParams: Promise<{ error?: string; published?: string; skill?: string; cluster?: string }>;
+  searchParams: Promise<{ error?: string; published?: string; skill?: string; cluster?: string; view?: string }>;
 }) {
   const actor = await requireAdminUser();
   const params = await searchParams;
   const db = createServiceRoleClient();
+  const view = params.published || params.error || params.view === "preview" ? "preview"
+    : params.view === "workbook" ? "workbook" : "export";
+  const skill = isStagingIngSkill(params.skill) ? params.skill : null;
+  const supported = canUpdateStagingIngLesson() && Boolean(skill);
   const [clusterRows, skillRows, result] = await Promise.all([
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
-    canUpdateStagingIngLesson() && isStagingIngSkill(params.skill)
-      ? loadStagingIngUpdate(db, params.skill).then(update => ({ update, error: null }),
+    supported && skill && view !== "workbook"
+      ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
   ]);
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const selected = params.skill ?? "";
-  const skill = isStagingIngSkill(selected) ? selected : null;
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
@@ -35,7 +38,7 @@ export default async function LessonUpdates({ searchParams }: {
     label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
-  const children = update ? await db.from("children").select("id,first_name").in("id", update.childIds)
+  const children = update && view === "preview" ? await db.from("children").select("id,first_name").in("id", update.childIds)
     .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null;
   const learners = children?.data ?? [];
   return <main className="mx-auto max-w-4xl space-y-5 p-6">
@@ -45,10 +48,10 @@ export default async function LessonUpdates({ searchParams }: {
       {params.error || result.error || "Could not load staging learners."}</p> : null}
     {params.published && <p role="status" className="rounded-lg bg-emerald-50 p-3">The updated {lessonName} pool is active.</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
-      initialCluster={params.cluster ?? ""} supported={Boolean(update)} published={Boolean(params.published)}
+      initialCluster={params.cluster ?? ""} supported={supported} view={view}
       batches={update ? Math.ceil(new Set([...update.reviewWords.map(word => word.wordId),
-        ...update.words.filter(word => word.microSkillKey === skill && !word.senseId).map(word => word.canonicalWordId)]).size / 100) : 0}>
-    {update && <>
+        ...update.words.filter(word => word.microSkillKey === skill && !word.senseId).map(word => word.canonicalWordId)]).size / 100) : null}>
+    {update && view === "preview" && <>
       <section className={card}>
         <h2 className="text-xl font-semibold">Preview the lesson update</h2>
         <p><strong>{update.current.length}</strong> approved words already released · <strong>{update.changes.length}</strong> approved words ready to publish</p>

@@ -155,11 +155,33 @@ async function loadRouteWordStatusesUnmeasured(input: {
   if (!lesson || lesson.routeId !== input.routeId || lesson.microSkillKey !== input.microSkillKey)
     throw new Error("Route word status requires a registered route and micro-skill");
   const client = createServiceRoleClient();
-  const discovery = input.wordIds ? null : await discoverWordIds(client, lesson);
-  const ids = [...new Set(input.wordIds ?? discovery ?? [])];
-  if (ids.length === 0) return { words: [], counts: { candidates: 0, approvedRelationships: 0,
-    technicalComplete: 0, administrativeCandidates: 0, awaitingEditorial: 0, missingContent: 0,
-    generatedReadyIng: 0, approvedGeneratedIng: 0 } };
+  const ids = [...new Set(input.wordIds ?? await discoverWordIds(client, lesson))];
+  const words = await loadRouteWordCandidates(client, lesson, ids, (candidate, facts) => ({
+    ...candidate, status: wordRouteStatus({ ...facts, lesson }),
+  }));
+  return { words, counts: {
+    candidates: words.length,
+    approvedRelationships: words.filter((word) => word.status.relationshipApproved).length,
+    technicalComplete: words.filter((word) => word.status.technicalFacts === "complete").length,
+    administrativeCandidates: words.filter((word) => word.status.administrativeCandidate).length,
+    awaitingEditorial: words.filter((word) => word.status.contentPresent && !word.status.editorialApproved).length,
+    missingContent: words.filter((word) => !word.status.contentPresent).length,
+    generatedReadyIng: words.filter(word => word.generatedIng?.status === "ready").length,
+    approvedGeneratedIng: words.filter(word => Boolean(word.approvedIngWord)).length,
+  } };
+}
+
+export async function loadApprovedIngWordsForIds(client: SupabaseClient, microSkillKey: string, ids: readonly string[]) {
+  const candidates = await loadRouteWordCandidates(client, { routeId: "ing_endings_word_lab", microSkillKey },
+    [...new Set(ids)], candidate => candidate);
+  return candidates.flatMap(candidate => candidate.approvedIngWord ? [candidate.approvedIngWord] : []);
+}
+
+async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
+  client: SupabaseClient, lesson: Pick<LessonReadinessRow, "routeId" | "microSkillKey">,
+  ids: readonly string[], project: (candidate: Omit<Candidate, "status">, facts: Omit<Parameters<typeof wordRouteStatus>[0], "lesson">) => T,
+): Promise<T[]> {
+  if (!ids.length) return [];
   const environment = resolveAdleRouteActivationEnvironment();
   const [authority, dictionary, overview, currentSenses] = await Promise.all([
     environment ? lesson.routeId === "weak_vowel_word_lab"
@@ -201,7 +223,7 @@ async function loadRouteWordStatusesUnmeasured(input: {
         publishedWeakVowelWordBlockers(row, lesson.microSkillKey as WeakVowelMicroSkill));
     }
   }
-  const words = dictionary.map((row): Candidate => {
+  return dictionary.map((row) => {
     const senseSet = overview?.sensesByWord.get(row.id) ?? null;
     const bindings = overview?.bindingByWord.get(row.id) ?? [];
     const binding = bindings.length === 1 ? bindings[0] : null;
@@ -234,7 +256,7 @@ async function loadRouteWordStatusesUnmeasured(input: {
       && row.row_status === "active" && row.review_status === "approved_for_first_exposure"
       ? approvedGeneratedIngWord({ generated: recipe.word,
         reviewerRef: binding?.reviewedBy ?? "", approvalRef: approvalRefByWord.get(row.id) ?? "" }) : null;
-    return { wordId: row.id, displayWord: row.display_word,
+    return project({ wordId: row.id, displayWord: row.display_word,
       ...(overview ? { selectedSenseId, senseBindingApproved: bindingCurrent,
         multipleSenseChoices: bindings.length > 1 ? bindings.map(item => ({ id: item.senseId,
           definition: senseSet?.senses.find(sense => sense.id === item.senseId)?.definition ?? item.senseId })) : [],
@@ -247,24 +269,13 @@ async function loadRouteWordStatusesUnmeasured(input: {
         familyLinks: facts?.familyLinks ?? [],
       }),
         ...(recipe ? { generatedIng: recipe, approvedIngWord } : {}) } : {}),
-      status: wordRouteStatus({
+    }, {
       wordId: row.id,
       dictionaryApproved: row.row_status === "active" && row.review_status === "approved_for_first_exposure",
       approvedSkillKeys: approvedByWord.get(row.id) ?? new Set(),
-      lesson,
       ...(lesson.routeId === "weak_vowel_word_lab" ? {
         weakVowelPublished: weakPublished.has(row.id), weakVowelContentBlockers: weakPublished.get(row.id) ?? [],
       } : {}),
-    }) };
+    });
   }).sort((a, b) => a.displayWord.localeCompare(b.displayWord) || a.wordId.localeCompare(b.wordId));
-  return { words, counts: {
-    candidates: words.length,
-    approvedRelationships: words.filter((word) => word.status.relationshipApproved).length,
-    technicalComplete: words.filter((word) => word.status.technicalFacts === "complete").length,
-    administrativeCandidates: words.filter((word) => word.status.administrativeCandidate).length,
-    awaitingEditorial: words.filter((word) => word.status.contentPresent && !word.status.editorialApproved).length,
-    missingContent: words.filter((word) => !word.status.contentPresent).length,
-    generatedReadyIng: words.filter(word => word.generatedIng?.status === "ready").length,
-    approvedGeneratedIng: words.filter(word => Boolean(word.approvedIngWord)).length,
-  } };
 }

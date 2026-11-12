@@ -7,7 +7,7 @@ import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
-import { loadRouteWordStatuses } from "./route-word-status-service";
+import { loadApprovedIngWordsForIds, loadRouteWordStatuses } from "./route-word-status-service";
 
 export const STAGING_ING_LESSONS = {
   D4_INF_ING_ENDINGS_REGULAR: "Regular -ing",
@@ -26,7 +26,7 @@ export function canUpdateStagingIngLesson() {
     && process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") === "https://qkpjbajicacbrphthibk.supabase.co";
 }
 
-export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
+async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
   if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
   const head = await db.from("adle_route_activation_heads").select("current_revision_id")
     .eq("route_id", ING_ROUTE).eq("route_version", "v1").eq("environment_key", "staging")
@@ -38,21 +38,45 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
   if (revision.error || revision.data.activation_status !== "enabled" || scope?.kind !== "child_allowlist"
     || !Array.isArray(scope.childIds) || !scope.childIds.length)
     throw new Error("Enable the lesson for a staging test learner first.");
-  const [statuses, dependencies] = await Promise.all([
-    loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill }),
-    db.from("adle_curriculum_release_dependencies").select("authority_id")
-      .eq("release_manifest_id", revision.data.release_manifest_id).eq("authority_type", "ing_word_members"),
-  ]);
+  const dependencies = await db.from("adle_curriculum_release_dependencies").select("authority_id")
+    .eq("release_manifest_id", revision.data.release_manifest_id).eq("authority_type", "ing_word_members");
   if (dependencies.error || !dependencies.data.length) throw new Error("Could not read the active lesson pool.");
   const authorities = await db.from("adle_curriculum_dependency_authorities").select("semantic_projection")
     .in("id", dependencies.data.map(row => row.authority_id));
   if (authorities.error) throw new Error("Could not read the released words.");
   const released = authorities.data.flatMap(row => row.semantic_projection.words as IngDictionaryWordV1[]);
+  return { revision: revision.data, childIds: scope.childIds as string[], released };
+}
+
+function releasedIngWordsById(words: IngDictionaryWordV1[], skill: StagingIngSkill) {
+  return new Map(words.filter(word => word.microSkillKey === skill).map(word => [word.canonicalWordId, word]));
+}
+
+function matchesReleasedWord(word: IngDictionaryWordV1, releasedById: Map<string, IngDictionaryWordV1>) {
+  return semanticJson(word) === semanticJson(releasedById.get(word.canonicalWordId) ?? null);
+}
+
+export async function loadStagingIngWordReleaseStatuses(
+  db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill, wordIds: readonly string[],
+) {
+  if (!wordIds.length) return new Map<string, string>();
+  const [{ released }, approved] = await Promise.all([
+    loadActiveIngRelease(db, skill), loadApprovedIngWordsForIds(db, skill, wordIds),
+  ]);
+  const releasedById = releasedIngWordsById(released, skill);
+  return new Map(approved.map(word => [word.canonicalWordId,
+    matchesReleasedWord(word, releasedById) ? "In active lesson pool" : "Ready to publish"] as const));
+}
+
+export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
+  if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
+  const [{ revision, childIds, released }, statuses] = await Promise.all([
+    loadActiveIngRelease(db, skill), loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill }),
+  ]);
   const approved = statuses.words.flatMap(row => row.approvedIngWord ? [row.approvedIngWord] : []);
   const byId = new Map(approved.map(word => [word.canonicalWordId, word]));
-  const releasedById = new Map(released.filter(word => word.microSkillKey === skill)
-    .map(word => [word.canonicalWordId, word]));
-  const current = approved.filter(word => semanticJson(word) === semanticJson(releasedById.get(word.canonicalWordId) ?? null));
+  const releasedById = releasedIngWordsById(released, skill);
+  const current = approved.filter(word => matchesReleasedWord(word, releasedById));
   const currentIds = new Set(current.map(word => word.canonicalWordId));
   const changes = approved.filter(word => !currentIds.has(word.canonicalWordId));
   const retired = [...releasedById.values()].filter(word => (word.senseId !== undefined || word.pronunciationId !== undefined)
@@ -61,8 +85,8 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
   const words = [...released.filter(word => word.microSkillKey !== skill
     || (!byId.has(word.canonicalWordId) && !removed.has(word.canonicalWordId))), ...approved]
     .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId));
-  return { revision: revision.data, childIds: scope.childIds as string[], current, changes, retired, words, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
-    skill, fingerprint: fingerprintSnapshotValue({ revision: revision.data.id, words }) };
+  return { revision, childIds, current, changes, retired, words, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
+    skill, fingerprint: fingerprintSnapshotValue({ revision: revision.id, words }) };
 }
 
 export async function publishStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, actorId: string,

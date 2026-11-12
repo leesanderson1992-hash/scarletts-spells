@@ -12,7 +12,7 @@ import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-mana
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
-import { canUpdateStagingIngLesson, isStagingIngSkill, loadStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { canUpdateStagingIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
@@ -123,7 +123,7 @@ export async function importReviewedMultiSenseCsv(
           const result = await saveBulkSkillApprovals({ microSkillKey: skillKey,
             applyWordIds: [wordId], excludeWordIds: [], clearWordIds: [], deassignWordIds: [],
             senseIds: { [wordId]: analysis.senseId }, requestId: randomUUID(),
-            sourceKind: "teaching_dictionary_import" });
+            sourceKind: "teaching_dictionary_import", workbookReadback: Boolean(workbook) });
           if (result.ok) {
             lesson.approval = result.approvedCount ? "Approved" : "Already approved";
             approved += result.approvedCount;
@@ -143,11 +143,10 @@ export async function importReviewedMultiSenseCsv(
     const results = lessons.filter(lesson => lesson.skillKey === skillKey);
     try {
       if (isStagingIngSkill(skillKey) && canUpdateStagingIngLesson()) {
-        const update = await loadStagingIngUpdate(db, skillKey);
-        for (const row of results) row.release = update.current.some(word => word.canonicalWordId === row.wordId)
-          && row.approval !== "Needs review" ? "In active lesson pool"
-          : row.approval !== "Needs review" && update.changes.some(word => word.canonicalWordId === row.wordId)
-            ? "Ready to publish" : "Release review needed";
+        const statuses = await loadStagingIngWordReleaseStatuses(db, skillKey,
+          results.filter(row => row.approval !== "Needs review").map(row => row.wordId));
+        for (const row of results) row.release = row.approval === "Needs review" ? "Release review needed"
+          : statuses.get(row.wordId) ?? "Release review needed";
         return;
       }
       const routeId = results[0].routeId;
