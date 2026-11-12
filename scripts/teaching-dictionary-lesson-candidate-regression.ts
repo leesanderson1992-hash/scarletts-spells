@@ -175,6 +175,20 @@ const invalidDropE = evaluateLessonCandidate({ ...reading, displayWord: "boing",
       { id: "base", kind: "base", sourceText: "box", surfaceText: "bo", gloss: "a box" },
       reading.morphology.parts[1]]) } });
 assert.equal(invalidDropE.status, "not_match", "drop-e requires a base ending in e");
+const tying = { ...reading, displayWord: "tying", skillKey: "D4_INF_ING_ENDINGS_IE_TO_Y",
+  senseSet: { ...reading.senseSet, senses: [{ ...reading.senseSet.senses[0],
+    definition: "Fastening something with a knot.", dictationSentence: "She is tying her laces." }] },
+  morphology: { ...reading.morphology, wordSum: "tie + ing → tying",
+    parts: ranged([{ ...reading.morphology.parts[0], sourceText: "tie", surfaceText: "ty", gloss: "to fasten" },
+      reading.morphology.parts[1]]) } };
+const tyingRecipe = generateIngWordFromOverview({ ...tying, provenance: { sourceName: "Reviewed import", sourceUrl: null } });
+assert.equal(tyingRecipe.status, "ready");
+assert.equal(tyingRecipe.word?.base, "tie");
+assert.equal(tyingRecipe.word?.word, "tying");
+assert.equal(evaluateLessonCandidate({ ...tying, displayWord: "tiing",
+  morphology: { ...tying.morphology, wordSum: "tie + ing → tiing",
+    parts: ranged([{ ...tying.morphology.parts[0], surfaceText: "ti" }, tying.morphology.parts[1]]) },
+}).status, "not_match", "a correctly assembled but misspelled form cannot pass the lesson rule");
 const invalidIe = evaluateLessonCandidate({ ...reading, displayWord: "fying",
   skillKey: "D4_INF_ING_ENDINGS_IE_TO_Y", morphology: { ...reading.morphology,
     wordSum: "foe + ing → fying", parts: ranged([

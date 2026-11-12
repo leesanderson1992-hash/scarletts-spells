@@ -20,9 +20,12 @@ export async function GET(request: Request) {
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
   const rule = ING_RULE_FOR_SKILL[skill];
-  const spellingChange = rule === "double_final_consonant"
-    ? "Double the final consonant before adding -ing."
-    : "Drop the final e before adding -ing.";
+  const spellingChange = {
+    regular: "",
+    drop_e: "Drop the final e before adding -ing.",
+    double_final_consonant: "Double the final consonant before adding -ing.",
+    ie_to_y: "Change the final ie to y before adding -ing.",
+  }[rule];
   const db = createServiceRoleClient();
   const update = await loadStagingIngUpdate(db, skill);
   const legacy = update.words.filter(word => word.microSkillKey === skill && !word.senseId);

@@ -13,6 +13,7 @@ export const STAGING_ING_LESSONS = {
   D4_INF_ING_ENDINGS_REGULAR: "Regular -ing",
   D4_INF_ING_ENDINGS_DROP_E: "Final-e dropping",
   D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT: "Final consonant doubling",
+  D4_INF_ING_ENDINGS_IE_TO_Y: "Change ie to y",
 } as const;
 export type StagingIngSkill = keyof typeof STAGING_ING_LESSONS;
 

@@ -60,7 +60,14 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     }
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
-  const doubling = ING_RULE_FOR_SKILL[input.skill as IngMicroSkill] === "double_final_consonant";
+  const rule = ING_RULE_FOR_SKILL[input.skill as IngMicroSkill];
+  const wordPartsExample = rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
+    : rule === "double_final_consonant" ? "For hopping, enter hop as the underlying form and hopp as the visible letters."
+      : "For caring, enter care as the underlying form and car as the visible letters.";
+  const spellingChangeExample = rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."
+    : rule === "double_final_consonant"
+      ? "For beginning, the final syllable of begin has primary stress. Enter unstressed-primary-unstressed for beginning."
+      : "For caring, drop the final e before adding -ing.";
   const guide = workbook.addWorksheet("Field guide");
   guide.columns = [{ width: 27 }, { width: 104 }];
   guide.addRows([
@@ -68,12 +75,8 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Words with no Yes stay out of this upload."],
     ["Word family", "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
-    ["Word parts", doubling
-      ? "Enter the base and its visible letters separately. For hopping, enter hop and hopp, then enter ing as the suffix. Use none for a join with no space."
-      : "Keep the full base and its visible letters in separate fields. For caring, enter care and car. Use none for a join with no space."],
-    ["Spelling change", doubling
-      ? "Explain why the consonant doubles. For beginning, the stress pattern is unstressed-primary-unstressed. The final syllable of begin has primary stress."
-      : "If the forms differ, record the change and explanation. For caring, drop the final e before adding -ing."],
+    ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
+    ["Spelling change", `If the forms differ, record the change and explanation. ${spellingChangeExample}`],
     ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
