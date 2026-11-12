@@ -17,6 +17,7 @@ import { evaluateLessonCandidate, hasCandidateRule, type CandidateDecision,
   type CandidateFamilyLink } from "./lesson-candidate";
 import { approvedGeneratedIngWord, generateIngWordFromOverview, type IngRecipeResult } from "./ing-overview-recipe";
 import { ING_RULE_FOR_SKILL, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
+import { canUpdateStagingIngLesson } from "./ing-staging-scope";
 import { loadCurrentLessonSenses } from "./lesson-sense-projection";
 import { candidateDecisionIsCurrent, type CandidateDecisionEvent } from "./candidate-decision-current";
 import type { DictionarySenseSet } from "./senses";
@@ -58,8 +59,8 @@ async function readByIds(client: SupabaseClient, table: string, columns: string,
 }
 
 async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly string[],
-  environment: string, skillKey: string) {
-  const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions] = await Promise.all([
+  environment: string, skillKey: string, stagingIng: boolean) {
+  const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions, choices] = await Promise.all([
     readByIds(client, "teaching_dictionary_reviewed_sense_sets", "canonical_word_id,sense_set",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_effective_lesson_sense_bindings",
@@ -80,6 +81,9 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
     readByIds(client, "teaching_dictionary_current_candidate_decisions",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot,event_sequence",
       "canonical_word_id", ids, "event_sequence"),
+    stagingIng ? readByIds(client, "teaching_dictionary_staging_ing_meaning_choices",
+      "canonical_word_id,micro_skill_key,sense_id", "canonical_word_id", ids, "canonical_word_id")
+      : Promise.resolve([]),
   ]);
   const sensesByWord = new Map<string, DictionarySenseSet>(senseSets.map(row =>
     [row.canonical_word_id, row.sense_set as DictionarySenseSet]));
@@ -105,7 +109,9 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
   const decisionsByWordSense = new Map<string, CandidateDecisionEvent>();
   for (const row of decisions.filter(row => row.environment_key === environment && row.micro_skill_key === skillKey))
     decisionsByWordSense.set(`${row.canonical_word_id}:${row.sense_id}`, row);
-  return { sensesByWord, bindingByWord, morphologyByWord, linksByWord,
+  const releaseSenseByWord = new Map<string, string>(choices.filter(row => row.micro_skill_key === skillKey)
+    .map(row => [row.canonical_word_id, row.sense_id]));
+  return { sensesByWord, bindingByWord, morphologyByWord, linksByWord, releaseSenseByWord,
     senseAnalysesByWord, senseLinksByWord, decisionsByWordSense };
 }
 
@@ -171,18 +177,21 @@ async function loadRouteWordStatusesUnmeasured(input: {
   } };
 }
 
-export async function loadApprovedIngWordsForIds(client: SupabaseClient, microSkillKey: string, ids: readonly string[]) {
+export async function loadApprovedIngWordsForIds(client: SupabaseClient, microSkillKey: string, ids: readonly string[],
+  selectedSenses?: ReadonlyMap<string, string>) {
   const candidates = await loadRouteWordCandidates(client, { routeId: "ing_endings_word_lab", microSkillKey },
-    [...new Set(ids)], candidate => candidate);
+    [...new Set(ids)], candidate => candidate, selectedSenses);
   return candidates.flatMap(candidate => candidate.approvedIngWord ? [candidate.approvedIngWord] : []);
 }
 
 async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
   client: SupabaseClient, lesson: Pick<LessonReadinessRow, "routeId" | "microSkillKey">,
   ids: readonly string[], project: (candidate: Omit<Candidate, "status">, facts: Omit<Parameters<typeof wordRouteStatus>[0], "lesson">) => T,
+  selectedSenses?: ReadonlyMap<string, string>,
 ): Promise<T[]> {
   if (!ids.length) return [];
   const environment = resolveAdleRouteActivationEnvironment();
+  const stagingIng = lesson.routeId === "ing_endings_word_lab" && canUpdateStagingIngLesson();
   const [authority, dictionary, overview, currentSenses] = await Promise.all([
     environment ? lesson.routeId === "weak_vowel_word_lab"
       ? loadPublishedWritingAssociations(client, environment, ids).then((explicitReviewedAssociations) =>
@@ -192,10 +201,10 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
     readByIds(client, "canonical_teaching_dictionary_words",
       "id,display_word,row_status,review_status,source_name,source_url", "id", ids),
     environment && hasCandidateRule(lesson.microSkillKey)
-      ? loadOverviewCandidateFacts(client, ids, environment, lesson.microSkillKey)
+      ? loadOverviewCandidateFacts(client, ids, environment, lesson.microSkillKey, stagingIng)
       : Promise.resolve(null),
     environment && hasCandidateRule(lesson.microSkillKey)
-      ? loadCurrentLessonSenses(client, ids, [lesson.microSkillKey])
+      ? loadCurrentLessonSenses(client, ids, [lesson.microSkillKey], stagingIng)
       : Promise.resolve(new Map()),
   ]);
   const approvedByWord = new Map<string, Set<string>>();
@@ -226,9 +235,12 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
   return dictionary.map((row) => {
     const senseSet = overview?.sensesByWord.get(row.id) ?? null;
     const bindings = overview?.bindingByWord.get(row.id) ?? [];
-    const binding = bindings.length === 1 ? bindings[0] : null;
-    const selectedSenseId = bindings.length > 1 ? null : binding?.senseId
-      ?? (senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
+    const releaseSenseId = stagingIng
+      ? selectedSenses?.get(row.id) ?? overview?.releaseSenseByWord.get(row.id) : undefined;
+    const binding = releaseSenseId ? bindings.find(item => item.senseId === releaseSenseId)
+      : bindings.length === 1 ? bindings[0] : null;
+    const selectedSenseId = releaseSenseId ?? binding?.senseId
+      ?? (bindings.length === 0 && senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
     const morphology = overview?.morphologyByWord.get(row.id);
     const facts = overview ? candidateFactsForSense({ wordId: row.id,
       senseId: selectedSenseId ?? undefined, senseSet,
@@ -245,7 +257,9 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
         familyLinks: facts?.familyLinks ?? [],
         provenance: { sourceName: row.source_name, sourceUrl: row.source_url },
       }) : null;
-    const bindingCurrent = currentSenses.get(`${row.id}:${lesson.microSkillKey}`)?.status === "current";
+    const pairKey = `${row.id}:${lesson.microSkillKey}`;
+    const bindingCurrent = Boolean(binding)
+      && currentSenses.get(stagingIng ? `${pairKey}:${selectedSenseId}` : pairKey)?.status === "current";
     const decisionCurrent = overview && selectedSenseId ? candidateDecisionIsCurrent({
       event: overview.decisionsByWordSense.get(`${row.id}:${selectedSenseId}`) ?? null,
       senseId: selectedSenseId, senseSet, morphologyId: facts?.morphologyId ?? null,
@@ -258,7 +272,7 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
         reviewerRef: binding?.reviewedBy ?? "", approvalRef: approvalRefByWord.get(row.id) ?? "" }) : null;
     return project({ wordId: row.id, displayWord: row.display_word,
       ...(overview ? { selectedSenseId, senseBindingApproved: bindingCurrent,
-        multipleSenseChoices: bindings.length > 1 ? bindings.map(item => ({ id: item.senseId,
+        multipleSenseChoices: bindings.length > 1 || releaseSenseId ? bindings.map(item => ({ id: item.senseId,
           definition: senseSet?.senses.find(sense => sense.id === item.senseId)?.definition ?? item.senseId })) : [],
         candidateDecisionCurrent: decisionCurrent,
         selectedSenseDefinition: senseSet?.senses.find(sense => sense.id === selectedSenseId)?.definition ?? null,

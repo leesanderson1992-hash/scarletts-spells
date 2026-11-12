@@ -4,7 +4,7 @@ import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical
 import { type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import { buildIngReleasePackage } from "@/lib/adle/ing/release";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
-import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { canUpdateStagingIngLesson } from "./ing-staging-scope";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 import { loadApprovedIngWordsForIds, loadRouteWordStatuses } from "./route-word-status-service";
@@ -23,10 +23,7 @@ export function isStagingIngSkill(value: unknown): value is StagingIngSkill {
 
 export const ING_ROUTE = "ing_endings_word_lab";
 
-export function canUpdateStagingIngLesson() {
-  return resolveAdleRouteActivationEnvironment() === "staging"
-    && process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") === "https://qkpjbajicacbrphthibk.supabase.co";
-}
+export { canUpdateStagingIngLesson };
 
 async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
   if (!canUpdateStagingIngLesson()) throw new Error("This lesson update is available in staging.");
@@ -87,8 +84,25 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
   const words = [...released.filter(word => word.microSkillKey !== skill
     || (!byId.has(word.canonicalWordId) && !removed.has(word.canonicalWordId))), ...approved]
     .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId));
-  return { revision, childIds, current, changes, retired, words, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
+  const meaningChoices = statuses.words.filter(row => row.multipleSenseChoices?.length).map(row => ({
+    wordId: row.wordId, word: row.displayWord, options: row.multipleSenseChoices!,
+    selectedSenseId: row.selectedSenseId, selectedMeaningReady: Boolean(row.approvedIngWord),
+    activeMeaning: releasedById.get(row.wordId)?.meaning ?? null,
+  }));
+  return { revision, childIds, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
     skill, fingerprint: fingerprintSnapshotValue({ revision: revision.id, words }) };
+}
+
+export async function chooseStagingIngLessonMeaning(db: ReturnType<typeof createServiceRoleClient>,
+  skill: StagingIngSkill, wordId: string, senseId: string, actorId: string) {
+  if (!canUpdateStagingIngLesson()) throw new Error("Lesson meaning choices are available in staging.");
+  const [candidate] = await loadApprovedIngWordsForIds(db, skill, [wordId], new Map([[wordId, senseId]]));
+  if (candidate?.senseId !== senseId) throw new Error("This meaning needs a current lesson approval before it can be selected.");
+  const saved = await db.from("teaching_dictionary_staging_ing_meaning_choices").upsert({
+    canonical_word_id: wordId, micro_skill_key: skill, sense_id: senseId,
+    selected_by: actorId, selected_at: new Date().toISOString(),
+  });
+  if (saved.error) throw new Error("Could not save the lesson meaning.");
 }
 
 export async function publishStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, actorId: string,

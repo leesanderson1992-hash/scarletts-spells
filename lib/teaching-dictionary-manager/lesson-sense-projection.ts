@@ -13,6 +13,7 @@ export type LessonSenseProjection =
  * still match the current approved Overview. Historical pairs have no binding. */
 export async function loadCurrentLessonSenses(
   db: SupabaseClient, wordIds: readonly string[], skillKeys: readonly string[],
+  perSense = false,
 ): Promise<Map<string, LessonSenseProjection>> {
   const environment = resolveAdleRouteActivationEnvironment();
   if (!environment || !wordIds.length || !skillKeys.length) return new Map();
@@ -33,7 +34,8 @@ export async function loadCurrentLessonSenses(
   if (sentenceError) throw new Error("TEACHING_LESSON_SENSE_SENTENCES_READ_FAILED");
   const result = new Map<string, LessonSenseProjection>();
   for (const binding of bindings ?? []) {
-    const key = `${binding.canonical_word_id}:${binding.micro_skill_key}`;
+    const pair = `${binding.canonical_word_id}:${binding.micro_skill_key}`;
+    const key = perSense ? `${pair}:${binding.sense_id}` : pair;
     if (result.has(key)) {
       // Word-level legacy routes cannot choose between two approved meanings.
       // Their compiler must carry an explicit sense before it can use either.

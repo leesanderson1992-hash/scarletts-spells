@@ -10,9 +10,27 @@ import type { LearningItemFact } from "@/lib/adle/learning-items";
 import { buildScopedPath } from "@/lib/children-shared";
 import { getLondonPracticeDate } from "@/lib/practice-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { isStagingIngSkill, loadStagingIngUpdate, publishStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { chooseStagingIngLessonMeaning, isStagingIngSkill, loadStagingIngUpdate, publishStagingIngUpdate } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 
 const path = "/admin/teaching-dictionary/lesson-updates";
+
+export async function chooseIngLessonMeaning(form: FormData) {
+  const actor = await requireAdminUser();
+  const skill = form.get("skill");
+  if (!isStagingIngSkill(skill)) redirect(path);
+  const lessonPath = `${path}?skill=${skill}&view=preview`;
+  const wordId = form.get("word_id");
+  const senseId = form.get("sense_id");
+  try {
+    if (typeof wordId !== "string" || !/^[a-f0-9-]{36}$/i.test(wordId) || typeof senseId !== "string" || !senseId.trim())
+      throw new Error("Choose an approved meaning for this lesson.");
+    await chooseStagingIngLessonMeaning(createServiceRoleClient(), skill, wordId, senseId, actor.id);
+  } catch (error) {
+    redirect(`${lessonPath}&error=${encodeURIComponent(error instanceof Error ? error.message : "Could not save the lesson meaning.")}`);
+  }
+  revalidatePath(path);
+  redirect(lessonPath);
+}
 
 export async function publishIngLesson(form: FormData) {
   const actor = await requireAdminUser();

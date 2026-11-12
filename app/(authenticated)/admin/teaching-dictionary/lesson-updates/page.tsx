@@ -4,7 +4,7 @@ import { buildScopedPath } from "@/lib/children-shared";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateStagingIngLesson, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { BulkReviewFlow } from "./bulk-review-flow";
-import { generateIngLesson, publishIngLesson } from "./actions";
+import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
 const button = "rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white";
 const card = "space-y-3 rounded-xl border border-[var(--border)] bg-white p-5";
@@ -52,6 +52,24 @@ export default async function LessonUpdates({ searchParams }: {
       batches={update ? Math.ceil(new Set([...update.reviewWords.map(word => word.wordId),
         ...update.words.filter(word => word.microSkillKey === skill && !word.senseId).map(word => word.canonicalWordId)]).size / 100) : null}>
     {update && view === "preview" && <>
+      {update.meaningChoices.length > 0 && <section className={card}>
+        <h2 className="text-xl font-semibold">Choose lesson meanings</h2>
+        <p>Choose which approved meaning ADLE should teach for this micro-skill. Publish the update to use that meaning in new lessons.</p>
+        {update.meaningChoices.map(choice => <form key={choice.wordId} action={chooseIngLessonMeaning}
+          className="space-y-2 rounded-lg border border-[var(--border)] p-3">
+          <input type="hidden" name="skill" value={selected} />
+          <input type="hidden" name="word_id" value={choice.wordId} />
+          <label className="grid gap-1"><strong>Lesson meaning for {choice.word}</strong>
+            <select name="sense_id" className="rounded border p-2" defaultValue={choice.selectedSenseId ?? ""} required>
+              <option value="" disabled>Choose an approved meaning</option>
+              {choice.options.map(option => <option key={option.id} value={option.id}>{option.definition}</option>)}
+            </select>
+          </label>
+          {choice.activeMeaning && <p>Currently taught · {choice.activeMeaning}</p>}
+          {choice.selectedSenseId && !choice.selectedMeaningReady && <p>Recheck the selected meaning’s lesson approval before publishing.</p>}
+          <button className={button}>Save lesson meaning for {choice.word}</button>
+        </form>)}
+      </section>}
       <section className={card}>
         <h2 className="text-xl font-semibold">Preview the lesson update</h2>
         <p><strong>{update.current.length}</strong> approved words already released · <strong>{update.changes.length}</strong> approved words ready to publish</p>
