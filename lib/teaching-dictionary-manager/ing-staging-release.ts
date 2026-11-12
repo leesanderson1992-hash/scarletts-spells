@@ -61,7 +61,7 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
   const words = [...released.filter(word => word.microSkillKey !== skill
     || (!byId.has(word.canonicalWordId) && !removed.has(word.canonicalWordId))), ...approved]
     .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId));
-  return { revision: revision.data, childIds: scope.childIds as string[], current, changes, retired, words,
+  return { revision: revision.data, childIds: scope.childIds as string[], current, changes, retired, words, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
     skill, fingerprint: fingerprintSnapshotValue({ revision: revision.data.id, words }) };
 }
 

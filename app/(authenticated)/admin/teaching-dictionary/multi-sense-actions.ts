@@ -5,6 +5,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { MAX_DICTIONARY_CSV_BYTES } from "@/lib/teaching-dictionary-manager/csv";
+import { readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
@@ -43,11 +44,25 @@ export async function importReviewedMultiSenseCsv(
   _previous: MultiSenseImportState, form: FormData,
 ): Promise<MultiSenseImportState> {
   const actor = await requireAdminUser();
-  const file = form.get("multi_sense_csv");
+  const workbook = form.get("review_workbook");
+  const skill = form.get("workbook_skill");
+  if (workbook && (!canUpdateStagingIngLesson() || !isStagingIngSkill(skill)))
+    return { error: "Workbook review is available for the staged -ing lessons." };
+  const file = workbook ?? form.get("multi_sense_csv");
   if (!(file instanceof File) || !file.size || file.size > MAX_DICTIONARY_CSV_BYTES)
-    return { error: "Choose a CSV smaller than 4 MB." };
+    return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   let entries: ReturnType<typeof prepareReviewedCsv>;
-  try { entries = prepareReviewedCsv(await file.text()); }
+  try {
+    if (workbook && isStagingIngSkill(skill)) {
+      const { csv, rowNumbers } = await readReviewWorkbook(await file.arrayBuffer(), skill);
+      entries = prepareReviewedCsv(csv).map(entry => {
+        const rows = entry.rows.map(row => rowNumbers[row - 2]);
+        if (entry.bundle) return { ...entry, rows };
+        return { ...entry, rows,
+          error: entry.error.replace(/^Row (\d+):/u, (_, row) => `Row ${rowNumbers[Number(row) - 2]}:`) };
+      });
+    } else entries = prepareReviewedCsv(await file.text());
+  }
   catch (error) { return { error: error instanceof Error ? error.message : "The sheet format is invalid." }; }
   const db = createServiceRoleClient();
   const issues: ImportIssue[] = [];
@@ -64,7 +79,7 @@ export async function importReviewedMultiSenseCsv(
       p_request_id: randomUUID(), p_word_id: bundle.wordId || null, p_display_word: bundle.displayWord,
       p_expected_reviewed_at: bundle.sourceSenseReviewedAt, p_sense_set: bundle.senseSet,
       p_analyses: bundle.analyses, p_actor: actor.id,
-      p_source_reference: `Admin reviewed CSV: ${file.name.slice(0, 120)}`,
+      p_source_reference: `Admin reviewed ${workbook ? "workbook" : "CSV"}: ${file.name.slice(0, 120)}`,
     });
     if (applied.error || typeof applied.data !== "string") {
       issues.push({ word, rows, reason: importIssue(applied.error?.code === "23505" ? "23505" : applied.error?.message ?? "") });
@@ -103,6 +118,7 @@ export async function importReviewedMultiSenseCsv(
   if (words) {
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath("/admin/teaching-dictionary");
+    revalidatePath("/admin/teaching-dictionary/lesson-updates");
   }
   await Promise.all([...new Set(lessons.map(lesson => lesson.skillKey))].map(async skillKey => {
     const results = lessons.filter(lesson => lesson.skillKey === skillKey);

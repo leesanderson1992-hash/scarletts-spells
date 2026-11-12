@@ -134,7 +134,7 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
     <nav aria-label="ADLE lesson tools" className="flex flex-wrap gap-4 text-sm font-semibold">
       <Link className="underline" href="/admin/adle-lesson-readiness">Lesson approval and release status</Link>
       {canUpdateStagingIngLesson() && <Link className="underline" href="/admin/teaching-dictionary/lesson-updates">
-        Publish or generate an -ing lesson
+        Bulk review workbook
       </Link>}
     </nav>
     <section id="dictionary-word-search" aria-labelledby="dictionary-word-search-heading"
