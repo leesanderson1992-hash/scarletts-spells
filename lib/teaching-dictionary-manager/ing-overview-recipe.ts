@@ -57,6 +57,7 @@ export function generateIngWordFromOverview(input: CandidateInput & {
   const word: GeneratedIngWord = {
     canonicalWordId: input.wordId, microSkillKey: input.skillKey as IngMicroSkill,
     senseId: sense.id, pronunciationId: sense.pronunciationId!, pronunciationIpa: pronunciation!.ipa,
+    ...(decision.doublingPattern ? { doublingPattern: decision.doublingPattern } : {}),
     base: String(base.sourceText).toLocaleLowerCase("en-GB"),
     word: input.displayWord.toLocaleLowerCase("en-GB"), meaning: sense.definition,
     dictationSentence: sentence, audioText: sentence, sourceRefs: [source],

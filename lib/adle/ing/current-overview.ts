@@ -35,6 +35,7 @@ export function ingReleasedWordMatchesCurrentOverview(input: {
     senseId: word.senseId, pronunciationId: word.pronunciationId,
     pronunciationIpa: word.pronunciationIpa,
     base: word.base, word: word.word, meaning: word.meaning,
+    ...(word.doublingPattern ? { doublingPattern: word.doublingPattern } : {}),
     dictationSentence: word.dictationSentence, audioText: word.audioText,
     sourceRefs: word.sourceRefs,
   });

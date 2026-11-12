@@ -1,9 +1,9 @@
-import { ING_RULE_FOR_SKILL, ingStem, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { ING_RULE_FOR_SKILL, ingStem, type IngDoublingPattern, type IngMicroSkill } from "@/lib/adle/ing/contracts";
 import { SHARED_AFFIX_PROFILE_REGISTRY } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import { generatedWordSum } from "./authoring";
 import { bulkSenseChoiceError } from "./bulk-sense-approval";
 import { auditCanonicalMorphology } from "./canonical-morphology";
-import type { DictionarySenseSet } from "./senses";
+import type { DictionaryPronunciation, DictionarySenseSet } from "./senses";
 
 export const LESSON_CANDIDATE_RULE_REVISION = "reviewed_overview_candidate_v4";
 export type CandidateIssue = { code: string; message: string; href: string };
@@ -11,6 +11,7 @@ export type CandidateDecision = {
   status: "not_match" | "needs_facts" | "ready" | "legacy_review";
   ruleRevision: string;
   evidence: string[];
+  doublingPattern?: IngDoublingPattern;
   issues: CandidateIssue[];
 };
 export type CandidateMorphology = {
@@ -59,8 +60,10 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   const rawParts = Array.isArray(input.morphology?.parts) ? input.morphology.parts : [];
   const parts = rawParts.filter((part): part is Record<string, unknown> =>
     Boolean(part && typeof part === "object" && !Array.isArray(part)));
+  let doublingPattern: IngDoublingPattern | undefined;
   const done = (status: CandidateDecision["status"]): CandidateDecision => ({
     status, ruleRevision: LESSON_CANDIDATE_RULE_REVISION, evidence, issues,
+    ...(doublingPattern ? { doublingPattern } : {}),
   });
   if (!hasCandidateRule(input.skillKey)) return done("legacy_review");
   const spelling = input.displayWord.toLocaleLowerCase("en-GB");
@@ -135,11 +138,29 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     if (rule === "drop_e" && (!baseText.endsWith("e") || baseText.endsWith("ie")))
       return done("not_match");
     if (rule === "ie_to_y" && !baseText.endsWith("ie")) return done("not_match");
-    if (rule === "double_final_consonant" && !/[aeiou][b-df-hj-np-tv-z]$/.test(baseText))
-      return done("not_match");
+    if (rule === "double_final_consonant") {
+      if (!/[aeiou][b-df-hj-np-tv-z]$/.test(baseText)) return done("not_match");
+      const pronunciation = input.senseSet?.pronunciations.find(item => item.id === selectedSense?.pronunciationId);
+      doublingPattern = reviewedDoublingPattern(baseText, pronunciation);
+      if (!doublingPattern) add("DOUBLING_STRESS",
+        "Check the reviewed stress. The -ing syllable must be unstressed and the syllable before it must have primary stress.",
+        "td-pronunciation");
+    }
     evidence.push(`${String(base.sourceText)} + ing → ${spelling}`);
   }
   if (acceptedSuffixes && suffix && suffixSource !== spelling.slice(-suffixSource.length))
     return done("not_match");
   return done(issues.length ? "needs_facts" : "ready");
+}
+
+
+function reviewedDoublingPattern(base: string, pronunciation: DictionaryPronunciation | undefined): IngDoublingPattern | undefined {
+  // In these regular inflections, syllabic -ing adds an unstressed syllable
+  // and preserves the base stress. The preceding syllable is the base's last.
+  const stress = pronunciation?.stressPattern.split("-") ?? [];
+  if (stress.length !== pronunciation?.spokenSyllableCount
+    || stress.at(-1) !== "unstressed" || stress.at(-2) !== "primary") return undefined;
+  if (stress.length === 2 && base.length <= 4 && (base.match(/[aeiou]/g) ?? []).length === 1) return "short_cvc";
+  if (stress.length >= 3 && base.length > 4) return "stressed_final_syllable";
+  return undefined;
 }

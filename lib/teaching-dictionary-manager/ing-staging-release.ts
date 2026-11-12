@@ -12,6 +12,7 @@ import { loadApprovedIngWordsForIds, loadRouteWordStatuses } from "./route-word-
 export const STAGING_ING_LESSONS = {
   D4_INF_ING_ENDINGS_REGULAR: "Regular -ing",
   D4_INF_ING_ENDINGS_DROP_E: "Final-e dropping",
+  D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT: "Final consonant doubling",
 } as const;
 export type StagingIngSkill = keyof typeof STAGING_ING_LESSONS;
 

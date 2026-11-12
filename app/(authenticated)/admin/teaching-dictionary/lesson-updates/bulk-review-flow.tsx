@@ -110,7 +110,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     </section>
     {!selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
-        Workbook review is available in staging for regular -ing and final-e dropping.</p> : <>
+        Choose Regular -ing, Final-e dropping or Final consonant doubling for workbook review in staging.</p> : <>
       <nav aria-label="Bulk review steps" className="grid gap-2 sm:grid-cols-4">
         {steps.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
           disabled={pending || navigating} onClick={() => openStep(index)}

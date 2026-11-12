@@ -19,6 +19,10 @@ export async function GET(request: Request) {
   if (!Number.isSafeInteger(batch) || batch < 1)
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
+  const rule = ING_RULE_FOR_SKILL[skill];
+  const spellingChange = rule === "double_final_consonant"
+    ? "Double the final consonant before adding -ing."
+    : "Drop the final e before adding -ing.";
   const db = createServiceRoleClient();
   const update = await loadStagingIngUpdate(db, skill);
   const legacy = update.words.filter(word => word.microSkillKey === skill && !word.senseId);
@@ -69,7 +73,7 @@ export async function GET(request: Request) {
     const facts = metadata.data.find(row => row.canonical_word_id === id);
     const senseId = `${word.display_word}-review`;
     const base = old?.base ?? "";
-    const visible = ingStem(base, ING_RULE_FOR_SKILL[skill]);
+    const visible = ingStem(base, rule);
     const gloss = familyRows?.data.find(row => row.base_lemma === base)?.base_meaning ?? "";
     const sentence = old?.dictationSentence ?? "";
     const tokens = sentence.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu) ?? [];
@@ -85,7 +89,7 @@ export async function GET(request: Request) {
           displayRange: { start: visible.length, end: visible.length + 3 } },
       ], joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
       transformations: base === visible ? [] : [{ type: "base_spelling_change", sourcePartId: "base",
-        sourceText: base, surfaceText: visible, explanation: "Drop the final e before adding -ing." }],
+        sourceText: base, surfaceText: visible, explanation: spellingChange }],
       wordSum: `${base} + ing → ${word.display_word}`, familyKey: "", componentPartId: "base",
       relationshipKind: "regular_inflection", requestedSkillKeys: [] }] : [],
     });

@@ -143,6 +143,32 @@ assert.deepEqual(evaluateLessonCandidate({ ...reading, familyLinks: [] }).issues
   ["FAMILY_LINK"]);
 assert.equal(evaluateLessonCandidate({ ...reading, skillKey: "D4_INF_ING_ENDINGS_DROP_E" }).status,
   "not_match");
+for (const [base, stem, stressPattern, pattern] of [
+  ["hop", "hopp", "primary-unstressed", "short_cvc"],
+  ["begin", "beginn", "unstressed-primary-unstressed", "stressed_final_syllable"],
+  ["visit", "visitt", "primary-unstressed-unstressed", undefined],
+] as const) {
+  const displayWord = `${stem}ing`;
+  const result = generateIngWordFromOverview({
+    ...reading, displayWord, skillKey: "D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT",
+    senseSet: {
+      pronunciations: [{ ...reading.senseSet.pronunciations[0],
+        spokenSyllableCount: stressPattern.split("-").length, stressPattern }],
+      senses: [{ ...reading.senseSet.senses[0], dictationSentence: `She is ${displayWord} again.` }],
+    },
+    morphology: { ...reading.morphology, wordSum: `${base} + ing → ${displayWord}`,
+      parts: ranged([{ ...reading.morphology.parts[0], sourceText: base, surfaceText: stem },
+        reading.morphology.parts[1]]) },
+    provenance: { sourceName: "Reviewed import", sourceUrl: null },
+  });
+  if (pattern) {
+    assert.equal(result.status, "ready");
+    assert.equal(result.word?.doublingPattern, pattern);
+  } else {
+    assert.equal(result.status, "needs_facts");
+    assert.equal(result.issues[0]?.code, "DOUBLING_STRESS");
+  }
+}
 const invalidDropE = evaluateLessonCandidate({ ...reading, displayWord: "boing",
   skillKey: "D4_INF_ING_ENDINGS_DROP_E", morphology: { ...reading.morphology,
     wordSum: "box + ing → boing", parts: ranged([
