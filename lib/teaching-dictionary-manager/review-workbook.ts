@@ -1,7 +1,11 @@
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
+import type { WorkbookFamily } from "./workbook-family-resolution";
 import { MULTI_SENSE_CSV_COLUMNS, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from "./multi-sense-csv";
+
+export type WorkbookFamilyTask = { row: number; word: string; meaning: string; base: string; sentence: string };
+export type WorkbookFamilyDecision = { row: number; familyKey?: string; createSenseId?: string };
 
 const sheetName = "Words to review";
 const headerRow = 3;
@@ -60,7 +64,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   guide.addRows([
     ["Field", "How to fill it in"],
     ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Words with no Yes stay out of this upload."],
-    ["Word family", "Choose the approved family that matches the meaning. Use Needs family review if a family is missing."],
+    ["Word family", "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", "Keep the full base and its visible letters in separate fields. For caring, enter care and car. Use none for a join with no space."],
     ["Spelling change", "If the forms differ, record the change and explanation. For caring, drop the final e before adding -ing."],
@@ -72,7 +76,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   return Buffer.from(await workbook.xlsx.writeBuffer());
 }
 
-export async function readReviewWorkbook(file: ArrayBuffer, skill: string) {
+export async function readReviewWorkbook(file: ArrayBuffer, skill: string, options?: {
+  targetRow?: number;
+  decisions: WorkbookFamilyDecision[];
+  resolve: (base: string, decision: WorkbookFamilyDecision) => Promise<WorkbookFamily | null>;
+}) {
   let expanded = 0;
   unzipSync(new Uint8Array(file), { filter: entry => {
     expanded += entry.originalSize;
@@ -104,22 +112,49 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string) {
     group.push(entry);
     groups.set(groupKey, group);
   }
-  const records = [...groups.values()].filter(group => group.some(row => row.use_in_lesson === "Yes")).flat();
-  if (!records.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
+  const pendingFamilies: WorkbookFamilyTask[] = [];
+  const records: Record<string, string>[] = [];
+  const decisions = new Map(options?.decisions.map(decision => [decision.row, decision]));
+  const selected = [...groups.values()].filter(group => group.some(row => row.use_in_lesson === "Yes"
+    && (!options?.targetRow || Number(row.workbook_row) === options.targetRow)));
+  if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
+  for (const group of selected) {
+    const tasks: WorkbookFamilyTask[] = [];
+    for (const row of group) {
+      const rowNumber = Number(row.workbook_row);
+      row.family_key = row.family_key.split(" | ").at(-1) ?? "";
+      if (row.family_key === "Needs family review") row.family_key = "";
+      if (row.use_in_lesson !== "Yes") continue;
+      const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
+        .filter(index => row[`part_${index}_kind`] === "base");
+      const part = bases.length === 1 ? bases[0] : bases.find(index =>
+        (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
+      const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";
+      const decision = decisions.get(rowNumber) ?? (row.family_key ? { row: rowNumber, familyKey: row.family_key } : null);
+      if (!decision || !base || !part) {
+        tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition, base, sentence: row.dictation_sentence });
+        continue;
+      }
+      const family = options ? await options.resolve(base, decision) : null;
+      if (options && (!family || family.base !== base))
+        throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
+      if (family) {
+        row.family_key = family.key;
+        row[`part_${part}_meaning`] = family.meaning;
+      }
+      row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
+      row.relationship_kind ||= "regular_inflection";
+    }
+    if (tasks.length) pendingFamilies.push(...tasks);
+    else records.push(...group);
+  }
   const csv = [MULTI_SENSE_CSV_COLUMNS, ...records.map(row => {
-    row.family_key = row.family_key.split(" | ").at(-1) ?? "";
-    if (row.family_key === "Needs family review") row.family_key = "";
     if (!row.family_key) {
       row.component_part_id = "";
       row.relationship_kind = "";
-    } else if (row.use_in_lesson === "Yes") {
-      const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
-        .filter(index => row[`part_${index}_kind`] === "base");
-      if (bases.length === 1) row.component_part_id ||= row[`part_${bases[0]}_id`] || `part_${bases[0]}`;
-      row.relationship_kind ||= "regular_inflection";
     }
     return MULTI_SENSE_CSV_COLUMNS.map(key => key === "requested_micro_skills"
       ? row.use_in_lesson === "Yes" ? skill : "" : row[key] ?? "");
   })].map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(",")).join("\r\n");
-  return { csv, rowNumbers: records.map(row => Number(row.workbook_row)) };
+  return { csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }

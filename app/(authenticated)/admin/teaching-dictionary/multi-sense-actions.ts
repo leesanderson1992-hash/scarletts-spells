@@ -5,7 +5,8 @@ import { revalidatePath, updateTag } from "next/cache";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { MAX_DICTIONARY_CSV_BYTES } from "@/lib/teaching-dictionary-manager/csv";
-import { readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
+import { approvedWorkbookFamily, createWorkbookFamily, loadWorkbookFamilyChoices } from "@/lib/teaching-dictionary-manager/workbook-family-resolution";
+import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
@@ -19,6 +20,7 @@ type LessonResult = { word: string; wordId: string; meaning: string; skillKey: s
   approval: "Approved" | "Already approved" | "Needs review"; release?: string; routeId?: string };
 export type MultiSenseImportState = {
   lessons?: LessonResult[];
+  familyTasks?: WorkbookFamilyTask[];
   words?: number; approved?: number; alreadyApproved?: number; issues?: ImportIssue[]; error?: string;
 };
 
@@ -51,11 +53,29 @@ export async function importReviewedMultiSenseCsv(
   const file = workbook ?? form.get("multi_sense_csv");
   if (!(file instanceof File) || !file.size || file.size > MAX_DICTIONARY_CSV_BYTES)
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
+  const db = createServiceRoleClient();
+  let familyTasks: WorkbookFamilyTask[] | undefined;
   let entries: ReturnType<typeof prepareReviewedCsv>;
   try {
     if (workbook && isStagingIngSkill(skill)) {
-      const { csv, rowNumbers } = await readReviewWorkbook(await file.arrayBuffer(), skill);
-      entries = prepareReviewedCsv(csv).map(entry => {
+      const rawTarget = form.get("family_target_row");
+      const targetRow = typeof rawTarget === "string" ? Number(rawTarget) : undefined;
+      const rawDecisions = form.get("family_decisions");
+      const decisions = typeof rawDecisions === "string" ? JSON.parse(rawDecisions) as WorkbookFamilyDecision[] : [];
+      if (targetRow !== undefined && (!Number.isSafeInteger(targetRow) || targetRow < 4)
+        || !Array.isArray(decisions) || decisions.length > 20 || decisions.some(item =>
+          !item || !Number.isSafeInteger(item.row) || item.row < 4 ||
+          (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
+          (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
+        throw new Error("Choose a valid family decision.");
+      const { csv, rowNumbers, pendingFamilies } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+        targetRow, decisions,
+        resolve: (base, decision) => decision.createSenseId
+          ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
+          : approvedWorkbookFamily(db, decision.familyKey ?? ""),
+      });
+      familyTasks = pendingFamilies;
+      entries = !rowNumbers.length ? [] : prepareReviewedCsv(csv).map(entry => {
         const rows = entry.rows.map(row => rowNumbers[row - 2]);
         if (entry.bundle) return { ...entry, rows };
         return { ...entry, rows,
@@ -64,7 +84,6 @@ export async function importReviewedMultiSenseCsv(
     } else entries = prepareReviewedCsv(await file.text());
   }
   catch (error) { return { error: error instanceof Error ? error.message : "The sheet format is invalid." }; }
-  const db = createServiceRoleClient();
   const issues: ImportIssue[] = [];
   const lessons: LessonResult[] = [];
   let words = 0;
@@ -140,5 +159,13 @@ export async function importReviewedMultiSenseCsv(
       for (const row of results) row.release = "Check current lesson readiness";
     }
   }));
-  return { words, approved, alreadyApproved, issues, lessons };
+  return { words, approved, alreadyApproved, issues, lessons, familyTasks };
+}
+
+
+export async function getWorkbookFamilyChoices(skill: string, base: string) {
+  await requireAdminUser();
+  if (!canUpdateStagingIngLesson() || !isStagingIngSkill(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
+    throw new Error("Choose a workbook row with a base spelling.");
+  return loadWorkbookFamilyChoices(createServiceRoleClient(), base);
 }
