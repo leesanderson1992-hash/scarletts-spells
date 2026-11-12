@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
-import { csvRecords } from "./csv";
+import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
 import { MULTI_SENSE_CSV_COLUMNS, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from "./multi-sense-csv";
 
 const sheetName = "Words to review";
@@ -64,7 +64,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", "Keep the full base and its visible letters in separate fields. For caring, enter care and car. Use none for a join with no space."],
     ["Spelling change", "If the forms differ, record the change and explanation. For caring, drop the final e before adding -ing."],
-    ["Family relationship", "Set the component part ID to the linked base and use regular_inflection for a verb inflection."],
+    ["Family relationship", "Selecting a family for a single base links that base. For words with multiple bases, specify the component part ID."],
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
@@ -108,10 +108,15 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string) {
   if (!records.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
   const csv = [MULTI_SENSE_CSV_COLUMNS, ...records.map(row => {
     row.family_key = row.family_key.split(" | ").at(-1) ?? "";
-    if (row.family_key === "Needs family review") {
-      row.family_key = "";
+    if (row.family_key === "Needs family review") row.family_key = "";
+    if (!row.family_key) {
       row.component_part_id = "";
       row.relationship_kind = "";
+    } else if (row.use_in_lesson === "Yes") {
+      const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
+        .filter(index => row[`part_${index}_kind`] === "base");
+      if (bases.length === 1) row.component_part_id ||= row[`part_${bases[0]}_id`] || `part_${bases[0]}`;
+      row.relationship_kind ||= "regular_inflection";
     }
     return MULTI_SENSE_CSV_COLUMNS.map(key => key === "requested_micro_skills"
       ? row.use_in_lesson === "Yes" ? skill : "" : row[key] ?? "");
