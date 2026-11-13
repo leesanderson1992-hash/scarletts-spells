@@ -64,6 +64,10 @@ for (const skill of ING_MICRO_SKILLS) {
       let board = initialIngScrabbleBoard(word);
       assert(validIngScrabbleBoard(board, word)); checks++;
       assert.equal(board.tiles.filter(tile => tile.origin === "distractor").length, 3); checks++;
+      const bankTiles = board.bank.map(id => board.tiles.find(tile => tile.id === id)!);
+      assert(!bankTiles.map(tile => tile.letter).join("").includes("ING")); checks++;
+      assert.notDeepEqual(bankTiles.filter(tile => tile.origin === "bank"), board.tiles.filter(tile => tile.origin === "bank")); checks++;
+      assert(validIngScrabbleBoard({ ...board, bank: board.tiles.filter(tile => tile.origin !== "base").map(tile => tile.id) }, word)); checks++;
       let retained = 0;
       while (word.base[retained] && word.base[retained] === word.word[retained]) retained++;
       for (let i = retained; i < word.base.length; i++) board = moveIngTile(board, `base:${i}`, { kind: "bank" });
@@ -92,4 +96,6 @@ for (const skill of ING_MICRO_SKILLS) {
 function lessonRule(skill: typeof ING_MICRO_SKILLS[number]) {
   return ({ D4_INF_ING_ENDINGS_REGULAR: "regular", D4_INF_ING_ENDINGS_DROP_E: "drop_e", D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT: "double_final_consonant", D4_INF_ING_ENDINGS_IE_TO_Y: "ie_to_y" } as const)[skill];
 }
+const duplicateLetterBoard = initialIngScrabbleBoard({ base: "clean", word: "cleaning", canonicalWordId: "55" });
+assert(!duplicateLetterBoard.bank.map(id => duplicateLetterBoard.tiles.find(tile => tile.id === id)!.letter).join("").includes("ING")); checks++;
 console.log(`PASS: -ing selection, frozen lesson, four rules and Scrabble tile inventory (${checks} checks)`);
