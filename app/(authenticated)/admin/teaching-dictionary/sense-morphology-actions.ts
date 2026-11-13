@@ -7,9 +7,25 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 
+export async function findSenseFamilies(forms: string[]) {
+  await requireAdminUser();
+  const bases = [...new Set(forms.map(form => form.trim().toLocaleLowerCase("en-GB")).filter(Boolean))];
+  if (!bases.length || bases.length > 12 || bases.some(base => base.length > 120)) return [];
+  const result = await createServiceRoleClient().from("canonical_teaching_dictionary_lexical_base_families")
+    .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,review_status")
+    .in("base_lemma", bases).order("revision", { ascending: false });
+  if (result.error) throw new Error("Could not load matching families.");
+  const seen = new Set<string>();
+  return result.data.filter(family => {
+    if (seen.has(family.family_key)) return false;
+    seen.add(family.family_key);
+    return family.review_status === "approved";
+  });
+}
+
 export async function reviewSenseMorphology(input: { wordId: string; senseId: string;
   action: "approve" | "withdraw"; parts: unknown[]; joins: unknown[];
-  transformations: unknown[]; wordSum: string }): Promise<{ ok: boolean; error?: string }> {
+  transformations: unknown[]; wordSum: string }): Promise<{ ok: boolean; error?: string; morphologyId?: string }> {
   const actor = await requireAdminUser();
   if (!isUuid(input.wordId) || !input.senseId || input.senseId.length > 200
     || !["approve", "withdraw"].includes(input.action)
@@ -26,7 +42,7 @@ export async function reviewSenseMorphology(input: { wordId: string; senseId: st
     ?.replaceAll("_", " ").toLowerCase() ?? "The word parts could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
-  return { ok: true };
+  return { ok: true, morphologyId: result.data ?? undefined };
 }
 
 export async function reviewSenseFamilyMembership(input: { wordId: string; senseId: string;

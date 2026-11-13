@@ -39,6 +39,7 @@ import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRo
 
 type Params = {
   draft?: string;
+  sense?: string;
   historical?: string;
   saved?: string;
   error?: string;
@@ -566,6 +567,7 @@ export async function TeachingDictionaryDetail({
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         approvedSenseSet={approvedSenseSet ?? null}
+        initialSenseId={params.sense}
         meaningImportRequests={meaningImportRequests?.data ?? []}
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,

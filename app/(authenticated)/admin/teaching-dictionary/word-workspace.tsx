@@ -245,6 +245,7 @@ export function WordWorkspace(props: {
   normalisedWord: string;
   initial: WordDraftPayload;
   approvedSenseSet: DictionarySenseSet | null;
+  initialSenseId?: string;
   meaningImportRequests: { sense_id: string; micro_skill_key: string }[];
   approvedCandidateMorphology: CandidateMorphology | null;
   approvedMorphologyTransformations: unknown[];
@@ -320,7 +321,8 @@ export function WordWorkspace(props: {
     family: props.weakFamilyPrefill,
     sourceReference: props.approvedSourceReference,
   }));
-  const [activeSenseId, setActiveSenseId] = useState(props.approvedSenseSet?.senses[0]?.id ?? "");
+  const [activeSenseId, setActiveSenseId] = useState(() =>
+    payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const activeSenseFamilyKeys = new Set((props.approvedCandidateSenseFacts[activeSenseId]?.familyLinks ?? [])
     .map(link => link.family_key));
@@ -349,6 +351,9 @@ export function WordWorkspace(props: {
     async (_previous: null, form: FormData) => {
       const saveStarted = performance.now();
       const revision = editRevision.current;
+      const continueToFamily = form.get("review_section") === "overview-family";
+      if (continueToFamily) form.set("review_section", "overview");
+      if (!form.has("review_section")) form.set("review_section", "draft");
       setActionError(undefined);
       setSaveMessage("");
       let result: Awaited<ReturnType<typeof saveWordWorkspace>>;
@@ -372,6 +377,11 @@ export function WordWorkspace(props: {
       }
       if (!props.wordId && destination.pathname !== "/admin/teaching-dictionary/new" && !result.error) {
         router.push(result.destination);
+        return null;
+      }
+      if (continueToFamily && !error && result.overviewApproved) {
+        destination.searchParams.set("sense", String(form.get("selected_sense_id") ?? ""));
+        router.replace(`${destination.pathname}${destination.search}#td-sense-morphology`);
         return null;
       }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
@@ -524,10 +534,6 @@ export function WordWorkspace(props: {
     builder.current?.showModal();
   }
   const formId = "word-workspace-save";
-  const reviewSectionInput = useRef<HTMLInputElement>(null);
-  function selectReviewSection(section: string) {
-    if (reviewSectionInput.current) reviewSectionInput.current.value = section;
-  }
   function change(update: Partial<WordDraftPayload>) {
     setEditVersion(version => version + 1);
     setPayload((old) => {
@@ -797,7 +803,6 @@ export function WordWorkspace(props: {
         form={formId}
         name="review_section"
         value={review}
-        onClick={() => selectReviewSection(review)}
         pendingLabel="Saving…"
         className={button}
       >
@@ -929,7 +934,7 @@ export function WordWorkspace(props: {
   return (
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
-        <input ref={reviewSectionInput} type="hidden" name="review_section" defaultValue="draft" />
+        <input type="hidden" name="selected_sense_id" value={activeSenseId} />
         <input type="hidden" name="word_id" value={props.wordId ?? ""} />
         <input
           type="hidden"
@@ -964,20 +969,30 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
-          {props.wordId && props.approvedSenseSet?.senses.length ?
-            <MultiSenseCsvPanel wordId={props.wordId} requests={props.meaningImportRequests}
-              senses={props.approvedSenseSet.senses} /> : null}
-          {payload.senseSet && <SenseEditor value={payload.senseSet} onChange={senseSet => change({ senseSet })}
+          {payload.senseSet && <SenseEditor value={payload.senseSet} word={payload.displayWord}
+            onChange={senseSet => change({ senseSet })}
             selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
-          {props.wordId && props.approvedSenseSet?.senses.length ? <SenseMorphologyReview
+          {props.wordId && !activeSense && activeSenseId && <div id="td-sense-morphology" className="mt-3 flex flex-wrap items-center gap-3">
+            <ActionSubmitButton form={formId} name="review_section" value="overview-family" pending={saving}
+              pendingLabel="Approving meaning…" className={button}>
+              Approve meaning and continue to family
+            </ActionSubmitButton>
+            <p className="text-sm">The meaning needs approval before you can assign its family.</p>
+          </div>}
+          {props.wordId && activeSense && props.approvedSenseSet ? <SenseMorphologyReview
             wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
-            selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId}
+            selectedSenseId={activeSenseId}
             senses={props.approvedSenseSet.senses} analyses={props.senseAnalyses}
             links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
             shared={{ parts: props.approvedCandidateMorphology?.parts as unknown[] ?? [],
               joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
               transformations: props.approvedMorphologyTransformations }}
             affixMeanings={props.affixMeanings} /> : null}
+          {props.wordId && props.approvedSenseSet?.senses.length ? <details className="my-3">
+            <summary className="cursor-pointer text-sm font-medium">Import or export meanings</summary>
+            <MultiSenseCsvPanel wordId={props.wordId} requests={props.meaningImportRequests}
+              senses={props.approvedSenseSet.senses} />
+          </details> : null}
           <div className="overflow-x-auto">
             <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
@@ -1460,8 +1475,8 @@ export function WordWorkspace(props: {
             </div>
           </details>
           <div className={actions}>
-            {dirty && <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" onClick={() => selectReviewSection("draft")} pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>}
-            {!complete && <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} onClick={() => selectReviewSection(`lesson:${key}`)} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>}
+            {dirty && <ActionSubmitButton pending={saving} form={formId} name="review_section" value="draft" pendingLabel="Saving…" className={button}>Save draft</ActionSubmitButton>}
+            {!complete && <ActionSubmitButton pending={saving} disabled={blockers.length > 0} form={formId} name="review_section" value={`lesson:${key}`} pendingLabel="Staging…" className={button}>Save and stage reviewed version</ActionSubmitButton>}
           </div>
           </div>
         </details>;
