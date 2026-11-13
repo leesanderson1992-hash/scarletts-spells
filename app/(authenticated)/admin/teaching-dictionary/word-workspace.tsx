@@ -78,6 +78,16 @@ const button =
   "rounded-lg bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50";
 const input =
   "w-full min-w-0 rounded-md border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
+const overviewViews = [
+  ["meaning", "Meaning"],
+  ["pronunciation", "Pronunciation & dictation"],
+  ["family", "Word parts & family"],
+  ["lessons", "Micro-skills & checks"],
+  ["details", "Word details"],
+] as const;
+
+type OverviewView = typeof overviewViews[number][0];
+
 const section = "min-w-0 rounded-xl border border-[var(--border)] bg-white";
 const actions = "mt-3 flex flex-wrap justify-end gap-2";
 type Skill = {
@@ -294,6 +304,7 @@ export function WordWorkspace(props: {
   baseFamilies: Family[];
   familyReviewContext: { error?: string };
   advanced: ReactNode;
+  recordingSettings: ReactNode;
   saved?: boolean;
   error?: string;
   overviewReviewed: boolean;
@@ -325,6 +336,7 @@ export function WordWorkspace(props: {
   }));
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
+  const [overviewView, setOverviewView] = useState<OverviewView>(props.initialSenseId ? "family" : props.wordId ? "meaning" : "details");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
   const dictationRecordingSources = new Map(props.dictationRecordingSources);
@@ -606,6 +618,7 @@ export function WordWorkspace(props: {
     change({ senseSet: { ...set, senses: [...set.senses, { id, definition: "", partOfSpeech: "",
       pronunciationId: selectedMeaning?.pronunciationId ?? set.pronunciations[0]?.id ?? null }] } });
     setActiveSenseId(id);
+    setOverviewView("meaning");
     requestAnimationFrame(() => document.querySelector<HTMLInputElement>("#td-definition input")?.focus());
   }
   function metadata(
@@ -686,14 +699,19 @@ export function WordWorkspace(props: {
         if (!splitDialog.current?.open) splitDialog.current?.showModal();
       }
       const target = document.getElementById(id);
+      const panel = target?.closest<HTMLElement>("[data-overview-view]")?.dataset.overviewView as OverviewView | undefined;
+      if (panel) setOverviewView(panel);
+      if (target instanceof HTMLDetailsElement) target.open = true;
       let parent = target?.parentElement;
       while (parent) {
         if (parent instanceof HTMLDetailsElement) parent.open = true;
         parent = parent.parentElement;
       }
-      target?.scrollIntoView({ block: "center" });
-      if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement ||
-        target instanceof HTMLTextAreaElement) target.focus({ preventScroll: true });
+      requestAnimationFrame(() => {
+        target?.scrollIntoView({ block: "center" });
+        if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement ||
+          target instanceof HTMLTextAreaElement) target.focus({ preventScroll: true });
+      });
     }
     reveal();
     window.addEventListener("hashchange", reveal);
@@ -947,20 +965,15 @@ export function WordWorkspace(props: {
       </form>
       {saveMessage && <p role="status" className="text-sm text-emerald-800">{saveMessage}{dirty ? " Unsaved edits need approval." : ""}</p>}
       {actionError && <p role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">{workspaceErrorMessage(actionError)}</p>}
-      <details id="td-overview" className={section} open>
-        <summary className="cursor-pointer p-4 font-semibold">
-          1 · Overview{" "}
-          <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">
-            {dirty
-              ? "Edited · needs approval"
-              : overviewReviewed
-                ? draftId ? "Reviewed" : "Dictionary approved"
-                : weakRows.length ? "General dictionary review required" : "Review required"}
+      <section id="td-overview" className={section} aria-labelledby="td-overview-title">
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-3 sm:px-5">
+          <h2 id="td-overview-title" className="text-lg font-semibold">Overview</h2>
+          <span className="text-sm text-[color:var(--mid)]">
+            {dirty ? "Unsaved changes" : overviewReviewed ? "Dictionary approved" : "Review required"}
           </span>
-        </summary>
-        <div className="px-4 pb-4">
-          <div className="grid items-start gap-4 lg:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)]">
-          {payload.senseSet && <aside aria-label="Word meanings" className="grid gap-2 rounded-xl border border-[var(--border)] border-t-2 border-t-[var(--scarlett)] p-3">
+        </header>
+        <div className="grid items-start gap-5 p-4 md:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)] sm:p-5">
+          {payload.senseSet && <aside aria-label="Word meanings" className="grid gap-2 rounded-xl border border-[var(--border)] border-t-2 border-t-[var(--scarlett)] p-3 md:sticky md:top-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-semibold">Meanings</h3>
               <button type="button" className={button} onClick={addMeaning}>Add meaning</button>
@@ -978,10 +991,25 @@ export function WordWorkspace(props: {
               </button>;
             })}
           </aside>}
-          <div className="min-w-0 space-y-4 rounded-xl border border-[var(--border)] p-4">
-          {payload.senseSet && <SenseEditor value={payload.senseSet} word={payload.displayWord} recordingSources={dictationRecordingSources}
-            onChange={senseSet => change({ senseSet })}
-            selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
+          <div className="min-w-0 rounded-xl border border-[var(--border)] p-3 sm:p-4">
+            <nav aria-label="Overview views" className="mb-4 flex flex-wrap gap-1 border-b border-[var(--border)] pb-3">
+              {overviewViews.map(([view, label]) => (
+                <button key={view} type="button" aria-pressed={overviewView === view}
+                  onClick={() => setOverviewView(view)}
+                  className="rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--paper)] aria-pressed:bg-[var(--mist)] aria-pressed:text-[var(--scarlett)]">
+                  {label}
+                </button>
+              ))}
+            </nav>
+            {(["meaning", "pronunciation"] as const).map(panel => (
+              <div key={panel} data-overview-view={panel} hidden={overviewView !== panel}>
+                <h3 className="mb-3 text-base font-semibold">{panel === "meaning" ? "Meaning" : "Pronunciation & dictation"}</h3>
+                {payload.senseSet && <SenseEditor panel={panel} value={payload.senseSet} word={payload.displayWord}
+                  recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
+                  selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
+              </div>
+            ))}
+          <div data-overview-view="family" hidden={overviewView !== "family"} className="space-y-4">
           {props.wordId && !activeSense && activeSenseId && <div id="td-sense-morphology" className="mt-3 flex flex-wrap items-center gap-3">
             <ActionSubmitButton form={formId} name="review_section" value="overview-family" pending={saving}
               pendingLabel="Approving meaning…" className={button}>
@@ -998,19 +1026,148 @@ export function WordWorkspace(props: {
               joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
               transformations: props.approvedMorphologyTransformations }}
             affixMeanings={props.affixMeanings} /> : null}
-          {(dirty || !overviewReviewed) && (activeSense || !props.wordId) && <div className={actions}>
-            {dirty && saveButton("draft", "Save draft")}
-            {saveButton("overview")}
-          </div>}
+          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!activeSenseFamilies.length}>
+            <summary className="cursor-pointer font-semibold">{activeSenseFamilies.length ? "Family members" : "Family suggestions"}</summary>
+            <div className="mt-2">
+            {activeSenseFamilies.length ? (
+              activeSenseFamilies.map((item) => (
+                <div
+                  key={item.name}
+                  className="mt-2 flex flex-wrap items-center gap-2 text-sm"
+                >
+                  <strong>Base Family: {item.name}</strong>
+                  {item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
+                  {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
+                  {item.words.map((word) => (
+                    <Link
+                      key={word.id}
+                      href={`/admin/teaching-dictionary/${word.id}`}
+                      className="rounded-full bg-[var(--paper)] px-3 py-1 hover:underline"
+                    >
+                      {word.word}
+                    </Link>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <p className="mt-2 text-sm text-[color:var(--mid)]">
+                No reviewed family is linked to this meaning.
+              </p>
+            )}
+            {props.familyReviewContext.error && <p role="alert" className="mt-2 rounded bg-rose-50 p-2 text-sm text-rose-900">
+              Family review needs attention: {props.familyReviewContext.error.replaceAll("_", " ")}.
+              Open the family editor to check the details.
+            </p>}
+            <div className={actions}>
+              <button
+                type="button"
+                className={button}
+                onClick={() => {
+                  if (props.approvedSenseSet && props.approvedSenseSet.senses.length > 1) {
+                    document.getElementById("td-sense-morphology")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else void openFamily();
+                }}
+              >
+                {activeSenseFamilies.length ? "Review or change family" : "Review family suggestions"}
+              </button>
+            </div>
+            </div>
+          </details>
           </div>
-          </div>
+          <div data-overview-view="details" hidden={overviewView !== "details"} className="space-y-4">
+            <h3 className="text-base font-semibold">Word details</h3>
           {props.wordId && props.approvedSenseSet?.senses.length ? <details className="my-3">
             <summary className="cursor-pointer text-sm font-medium">Import or export meanings</summary>
             <MultiSenseCsvPanel wordId={props.wordId} requests={props.meaningImportRequests}
               senses={props.approvedSenseSet.senses} />
           </details> : null}
-          <details className="mt-4 rounded-lg border border-[var(--border)] p-3" open={!props.wordId}>
-          <summary className="cursor-pointer font-semibold">Shared word details</summary>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {(
+              [
+                ["ageBand", "Age band"],
+                ["frequencyBand", "Frequency band"],
+                ["complexityBand", "Complexity band"],
+              ] as const
+            ).map(([key, label]) => (
+              <Editable
+                key={key}
+                id={`td-${key.replace("Band", "-band")}`}
+                label={label}
+                value={payload[key]}
+                options={[
+                  ...(!(DICTIONARY_BANDS[key] as readonly string[]).includes(payload[key]) && payload[key]
+                    ? [{ value: payload[key], label: `${payload[key]} · needs review` }] : []),
+                  ...DICTIONARY_BANDS[key].map((band) => ({ value: band,
+                    label: band.replaceAll("_", " ") })),
+                ]}
+                onChange={(value) => change({ [key]: value })}
+              />
+            ))}
+            <Editable
+              id="td-morphemes"
+              label="Legacy morphemes"
+              value={payload.metadata.morphemes}
+              onChange={(value) => metadata("morphemes", value)}
+            />
+            <Editable
+              id="td-morphology_notes"
+              label="Morphology notes"
+              value={payload.metadata.morphology_notes}
+              onChange={(value) => metadata("morphology_notes", value)}
+            />
+          </div>
+          <details className="rounded-lg border border-[var(--border)] p-3">
+            <summary className="cursor-pointer font-semibold">Sources and review history</summary>
+            <div className="mt-3 space-y-3">
+          <div id="td-source" className="grid gap-3 sm:grid-cols-3">
+            {(
+              [
+                ["sourceCategory", "Source category"],
+                ["sourceName", "Source name"],
+                ["sourceUrl", "Source URL"],
+                ["sourceLicence", "Source licence"],
+                ["sourceUseNote", "Source use note"],
+                ["confidence", "Confidence"],
+              ] as const
+            ).map(([key, label]) => (
+              <Editable
+                key={key}
+                id={`td-source-${key}`}
+                label={label}
+                value={payload.provenance[key]}
+                options={
+                  key === "sourceCategory"
+                    ? [
+                        "internal_authored",
+                        "internal_reviewed_seed",
+                        "public_domain",
+                        "open_licensed",
+                        "licensed_vendor",
+                        "reference_only",
+                        "ai_assisted_draft",
+                      ].map((value) => ({
+                        value,
+                        label: value.replaceAll("_", " "),
+                      }))
+                    : key === "confidence"
+                      ? ["low", "medium", "high"].map((value) => ({
+                          value,
+                          label: value,
+                        }))
+                      : undefined
+                }
+                onChange={(value) =>
+                  change({
+                    provenance: { ...payload.provenance, [key]: value },
+                  })
+                }
+              />
+            ))}
+          </div>
+          {props.advanced}
+            </div>
+          </details>
+          {props.recordingSettings}
           <div className="mt-2 overflow-x-auto">
             <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
@@ -1240,60 +1397,11 @@ export function WordWorkspace(props: {
               Add sentence
             </button>
           </div>
-          </details>
-          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!activeSenseFamilies.length}>
-            <summary className="cursor-pointer font-semibold">Family for {activeSense?.definition ?? "this word"} · {activeSenseFamilies.length ? "linked" : "none joined"}</summary>
-            <div className="mt-2">
-            {activeSenseFamilies.length > 0 && <p className="text-xs text-[color:var(--mid)]">These approved families apply to the selected meaning.</p>}
-            {activeSenseFamilies.length ? (
-              activeSenseFamilies.map((item) => (
-                <div
-                  key={item.name}
-                  className="mt-2 flex flex-wrap items-center gap-2 text-sm"
-                >
-                  <strong>Base Family: {item.name}</strong>
-                  {item.meaning ? <span className="text-[color:var(--mid)]">{item.meaning}</span> : null}
-                  {item.pronunciation ? <span className="text-[color:var(--mid)]">{item.pronunciation}</span> : null}
-                  {item.words.map((word) => (
-                    <Link
-                      key={word.id}
-                      href={`/admin/teaching-dictionary/${word.id}`}
-                      className="rounded-full bg-[var(--paper)] px-3 py-1 hover:underline"
-                    >
-                      {word.word}
-                    </Link>
-                  ))}
-                </div>
-              ))
-            ) : (
-              <p className="mt-2 text-sm text-[color:var(--mid)]">
-                No reviewed family is linked to this meaning.
-              </p>
-            )}
-            {props.familyReviewContext.error && <p role="alert" className="mt-2 rounded bg-rose-50 p-2 text-sm text-rose-900">
-              Family review needs attention: {props.familyReviewContext.error.replaceAll("_", " ")}.
-              Open the family editor to check the details.
-            </p>}
-            <div className={actions}>
-              <button
-                type="button"
-                className={button}
-                onClick={() => {
-                  if (props.approvedSenseSet && props.approvedSenseSet.senses.length > 1) {
-                    document.getElementById("td-sense-morphology")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else void openFamily();
-                }}
-              >
-                {activeSenseFamilies.length ? "Review or change family" : "Review family suggestions"}
-              </button>
-            </div>
-            </div>
-          </details>
-        </div>
-      </details>
+          </div>
+          <div data-overview-view="lessons" hidden={overviewView !== "lessons"} className="space-y-4">
       <section id="td-skills" className={`${section} scroll-mt-6`}>
         <h2 className="p-4 font-semibold">
-          2 · Micro-skill lessons for {activeSense?.definition ?? "this word"}{" "}
+          Micro-skill lessons{" "}
           <span className="ml-2 text-xs font-normal">
             {payload.skillKeys.length} joined
           </span>
@@ -1982,49 +2090,8 @@ export function WordWorkspace(props: {
         );
       })}
       <details className={section}>
-        <summary className="cursor-pointer p-4 font-semibold">Advanced</summary>
+        <summary className="cursor-pointer p-4 font-semibold">Advanced lesson fields</summary>
         <div className="grid gap-4 px-4 pb-4">
-          <div className="grid gap-3 sm:grid-cols-3">
-            {(
-              [
-                ["ageBand", "Age band"],
-                ["frequencyBand", "Frequency band"],
-                ["complexityBand", "Complexity band"],
-              ] as const
-            ).map(([key, label]) => (
-              <Editable
-                key={key}
-                id={`td-${key.replace("Band", "-band")}`}
-                label={label}
-                value={payload[key]}
-                options={[
-                  ...(!(DICTIONARY_BANDS[key] as readonly string[]).includes(payload[key]) && payload[key]
-                    ? [{ value: payload[key], label: `${payload[key]} · needs review` }] : []),
-                  ...DICTIONARY_BANDS[key].map((band) => ({ value: band,
-                    label: band.replaceAll("_", " ") })),
-                ]}
-                onChange={(value) => change({ [key]: value })}
-              />
-            ))}
-            <Editable
-              id="td-stress_pattern"
-              label="Stress pattern"
-              value={payload.metadata.stress_pattern}
-              onChange={(value) => metadata("stress_pattern", value)}
-            />
-            <Editable
-              id="td-morphemes"
-              label="Legacy morphemes"
-              value={payload.metadata.morphemes}
-              onChange={(value) => metadata("morphemes", value)}
-            />
-            <Editable
-              id="td-morphology_notes"
-              label="Morphology notes"
-              value={payload.metadata.morphology_notes}
-              onChange={(value) => metadata("morphology_notes", value)}
-            />
-          </div>
           {payload.routeContents.map((route) => {
             const profile = props.profileOptions.find((item) => item.microSkillKey === route.microSkillKey);
             const lessonSenseId = payload.skillSenseIds?.[route.microSkillKey] || activeSenseId;
@@ -2061,55 +2128,20 @@ export function WordWorkspace(props: {
                 onChange={(content) => replaceRouteContent(route.microSkillKey, content)} />
             </div>;
           })}
-          <div id="td-source" className="grid gap-3 sm:grid-cols-3">
-            {(
-              [
-                ["sourceCategory", "Source category"],
-                ["sourceName", "Source name"],
-                ["sourceUrl", "Source URL"],
-                ["sourceLicence", "Source licence"],
-                ["sourceUseNote", "Source use note"],
-                ["confidence", "Confidence"],
-              ] as const
-            ).map(([key, label]) => (
-              <Editable
-                key={key}
-                id={`td-source-${key}`}
-                label={label}
-                value={payload.provenance[key]}
-                options={
-                  key === "sourceCategory"
-                    ? [
-                        "internal_authored",
-                        "internal_reviewed_seed",
-                        "public_domain",
-                        "open_licensed",
-                        "licensed_vendor",
-                        "reference_only",
-                        "ai_assisted_draft",
-                      ].map((value) => ({
-                        value,
-                        label: value.replaceAll("_", " "),
-                      }))
-                    : key === "confidence"
-                      ? ["low", "medium", "high"].map((value) => ({
-                          value,
-                          label: value,
-                        }))
-                      : undefined
-                }
-                onChange={(value) =>
-                  change({
-                    provenance: { ...payload.provenance, [key]: value },
-                  })
-                }
-              />
-            ))}
-          </div>
-          {props.advanced}
           <div className={actions}>{saveButton("overview")}</div>
         </div>
       </details>
+          </div>
+          {(dirty || !overviewReviewed) && (activeSense || !props.wordId || overviewView !== "family") && <div className={actions}>
+            {dirty && saveButton("draft", "Save draft")}
+            {props.wordId && !activeSense
+              ? <ActionSubmitButton form={formId} name="review_section" value="overview-family" pending={saving}
+                  pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to family</ActionSubmitButton>
+              : saveButton("overview")}
+          </div>}
+          </div>
+        </div>
+      </section>
       <dialog
         ref={builder}
         className="w-[min(900px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"

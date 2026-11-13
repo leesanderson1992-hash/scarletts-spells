@@ -114,7 +114,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
       setSaved(true); router.refresh();
     });
   }
-  return <div className="mt-3 grid gap-3 rounded-lg border border-[var(--border)] p-3">
+  return <div className="mt-3 grid gap-3">
     <p className="text-sm"><strong>{props.senseLabel}</strong> · {props.current ? "Approved analysis" : "Needs a meaning-specific analysis"}</p>
     {!props.current && props.canCreateFreeBase && <button type="button" className="w-fit text-sm underline"
       onClick={() => {
@@ -124,6 +124,10 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         setJoins([]);
         setTransformations([]);
       }}>Use {props.displayWord} as the base for this meaning</button>}
+    <p className="text-sm font-medium">Word sum · {generatedWordSum(parts, props.displayWord)}</p>
+    <details className="rounded-lg border border-[var(--border)] p-3" open={!props.current}>
+      <summary className="cursor-pointer text-sm font-semibold">Edit word parts and spelling changes</summary>
+      <div className="mt-3 grid gap-3">
     <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
       parts={parts} joins={joins} affixMeanings={props.affixMeanings}
       onChange={(nextParts, nextJoins) => { setParts(nextParts); setJoins(nextJoins); setSaved(false); }} />
@@ -157,12 +161,13 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         [...current, { type: "drop_final_e", sourcePartId: "", sourceText: "",
           surfaceText: "", explanation: "" }])}>Add spelling change</button>
     </div>
-    <p className="text-sm">Word sum: {generatedWordSum(parts, props.displayWord)}</p>
     <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
       disabled={pending || !typedParts.length || (Boolean(props.current) && !changed)} onClick={submitAnalysis}>
       {pending ? "Saving…" : props.current ? "Approve revised parts for this meaning" : "Approve parts for this meaning"}
     </button>
-    <div className="grid gap-2 border-t pt-3">
+      </div>
+    </details>
+    <div className="grid gap-2 border-t border-[var(--border)] pt-3">
       <h4 className="font-semibold">Family for this meaning <FormatHint label="meaning family"
         format="Choose an approved family whose base or root spelling and meaning match a reviewed part above."
         example="live · To be alive or remain alive" /></h4>
@@ -219,8 +224,8 @@ export function SenseMorphologyReview(props: { wordId: string; displayWord: stri
   const sense = props.senses.find(row => row.id === senseId);
   const current = props.analyses.find(row => row.sense_id === senseId) ?? null;
   if (!sense) return null;
-  return <section id="td-sense-morphology" className="mt-4 scroll-mt-6 rounded-lg border border-[var(--border)] p-3">
-    <h3 className="font-semibold">Parts and family for each meaning <FormatHint label="meaning-specific word parts"
+  return <section id="td-sense-morphology" className="scroll-mt-6">
+    <h3 className="font-semibold">Word parts &amp; family <FormatHint label="meaning-specific word parts"
       format="Approve the word-part analysis for each reviewed meaning that will enter a lesson. A matching family can then be linked to that meaning."
       example="live /lɪv/ and live /laɪv/ can keep separate analyses" /></h3>
     <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}`} wordId={props.wordId}

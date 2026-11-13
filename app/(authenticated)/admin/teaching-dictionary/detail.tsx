@@ -558,8 +558,6 @@ export async function TeachingDictionaryDetail({
           {word?.display_word ?? "New word"}
         </h1>
       </header>
-      {wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure" && <BritishRecordingPanel wordId={wordId}
-        word={word.display_word} sentence={approvedSentence} wordClip={wordClip} sentenceClip={sentenceClip} />}
       {wordId && latestSavedDraft && <div role="status" className="rounded-xl border border-sky-300 bg-sky-50 p-4 text-sm">
         A newer saved draft exists, but its changes are not yet in the live dictionary.{" "}
         <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${latestSavedDraft.id}`}>
@@ -658,6 +656,8 @@ export async function TeachingDictionaryDetail({
             ],
           })),
         ]}
+        recordingSettings={wordId && word?.row_status === "active" && word?.review_status === "approved_for_first_exposure" && <BritishRecordingPanel wordId={wordId}
+        word={word.display_word} sentence={approvedSentence} wordClip={wordClip} sentenceClip={sentenceClip} />}
         advanced={
           <div className="text-sm">
             <p>Canonical ID: {wordId ?? "New word"}</p>

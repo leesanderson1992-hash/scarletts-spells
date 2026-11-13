@@ -7,9 +7,8 @@
 .td-word-workspace select, .td-word-workspace textarea { min-width: 0; max-width: 100%; }
 .td-word-workspace button { max-width: 100%; white-space: normal; }
 .td-word-workspace .td-overview-table th:nth-child(4) { width: 26%; }
-.td-word-workspace .td-dictation-table th:nth-child(1) { width: 12%; }
-.td-word-workspace .td-dictation-table th:nth-child(2) { width: 48%; }
-.td-word-workspace .td-dictation-table th:nth-child(3) { width: 28%; }
+.td-word-workspace .td-dictation-table th:first-child { width: 58%; }
+.td-word-workspace .td-dictation-table th:nth-child(2) { width: 27%; }
 .td-word-workspace .td-checks th, .td-word-workspace .td-checks td { padding: .5rem .2rem; }
 .td-word-workspace .td-checks td a { display: inline-flex; min-height: 2rem; align-items: center; justify-content: center; }
 .td-word-workspace .td-checks thead th { font-size: .65rem; }
@@ -28,7 +27,7 @@
   .td-word-workspace .td-reflow-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .td-word-workspace .td-reflow-table td { display: block; min-width: 0; }
   .td-word-workspace .td-reflow-table td::before { content: attr(data-label); display: block; margin-bottom: .25rem; font-size: .75rem; color: var(--mid); }
-  .td-word-workspace .td-dictation-table td:nth-child(2) { grid-column: 1 / -1; }
+  .td-word-workspace .td-dictation-table td:first-child { grid-column: 1 / -1; }
   .td-word-workspace .td-checks th, .td-word-workspace .td-checks td { font-size: .6rem; padding: .4rem .1rem; }
   .td-word-workspace .td-checks thead th { font-size: .55rem; font-weight: 500; }
 }
