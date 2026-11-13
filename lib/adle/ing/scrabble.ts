@@ -1,9 +1,35 @@
+import { shuffledIndices } from "../homophone/random-order";
 import type { IngLessonWordV1 } from "./contracts";
 
 export interface IngTile { id: string; letter: string; origin: "base" | "bank" | "distractor" }
 export interface IngScrabbleBoard { tiles: IngTile[]; slots: (string | null)[]; bank: string[] }
 
 function hash(value: string): number { return [...value].reduce((sum, letter) => ((sum * 31) + letter.charCodeAt(0)) >>> 0, 7); }
+
+/** Spread answer tiles through the letter box and vary their order by word. */
+function jumbleBank(required: IngTile[], distractors: IngTile[], key: string): string[] {
+  let seed = hash(key);
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 2 ** 32;
+  };
+  const answers = shuffledIndices(required.length, random).map(index => required[index]);
+  const extras = shuffledIndices(distractors.length, random).map(index => distractors[index]);
+  if (answers.length > 1 && answers.every((tile, index) => tile.letter === required[index].letter)) {
+    answers.reverse();
+  }
+  const extrasFirst = random() < .5;
+  const bank = Array.from({ length: Math.max(answers.length, extras.length) }, (_, index) =>
+    extrasFirst ? [extras[index], answers[index]] : [answers[index], extras[index]])
+    .flat().filter((tile): tile is IngTile => tile !== undefined);
+  // A distractor can match an answer letter and accidentally reveal -ing.
+  for (let index = 0; index < bank.length - 2; index++) {
+    if (bank[index].letter === "I" && bank[index + 1].letter === "N" && bank[index + 2].letter === "G") {
+      [bank[index + 1], bank[index + 2]] = [bank[index + 2], bank[index + 1]];
+    }
+  }
+  return bank.map(tile => tile.id);
+}
 
 /** Keep the unchanged prefix in place, exposing each spelling change as a movable tile. */
 export function initialIngScrabbleBoard(word: Pick<IngLessonWordV1, "base" | "word" | "canonicalWordId">): IngScrabbleBoard {
@@ -16,7 +42,7 @@ export function initialIngScrabbleBoard(word: Pick<IngLessonWordV1, "base" | "wo
   const distractors = Array.from({ length: 3 }, (_, index) => ({ id: `distractor:${index}`, letter: alphabet[(offset + index * 7) % alphabet.length], origin: "distractor" as const }));
   const tiles = [...base, ...required, ...distractors];
   const slots = Array.from({ length: Math.max(word.base.length, word.word.length) }, (_, index) => base[index]?.id ?? null);
-  return { tiles, slots, bank: [...required, ...distractors].map(tile => tile.id) };
+  return { tiles, slots, bank: jumbleBank(required, distractors, `${word.canonicalWordId}:${word.word}`) };
 }
 
 export function moveIngTile(board: IngScrabbleBoard, tileId: string, destination: { kind: "slot"; index: number } | { kind: "bank"; index?: number }): IngScrabbleBoard {
