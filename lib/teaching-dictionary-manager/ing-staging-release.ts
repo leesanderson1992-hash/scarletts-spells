@@ -25,7 +25,7 @@ export const ING_ROUTE = "ing_endings_word_lab";
 
 export { canUpdateIngLesson };
 
-async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
+export async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("This lesson update is unavailable.");
   const heads = await db.from("adle_route_activation_heads").select("current_revision_id,micro_skill_key")
@@ -90,9 +90,13 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
   const [{ revision, childIds, released, environment, projections, heads }, statuses] = await Promise.all([
     loadActiveIngRelease(db, skill), loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill }),
   ]);
-  const approved = statuses.words.flatMap(row => row.approvedIngWord ? [row.approvedIngWord] : []);
-  const byId = new Map(approved.map(word => [word.canonicalWordId, word]));
   const releasedById = releasedIngWordsById(released, skill);
+  const otherPoolIds = new Set(released.filter(word => word.microSkillKey !== skill)
+    .map(word => word.canonicalWordId));
+  const approved = statuses.words.flatMap(row =>
+    row.approvedIngWord && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))
+      ? [row.approvedIngWord] : []);
+  const byId = new Map(approved.map(word => [word.canonicalWordId, word]));
   const current = [...releasedById.values()];
   const currentIds = new Set(approved.filter(word => matchesReleasedWord(word, releasedById)).map(word => word.canonicalWordId));
   const changes = approved.filter(word => !currentIds.has(word.canonicalWordId));

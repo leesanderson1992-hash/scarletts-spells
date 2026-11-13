@@ -1,7 +1,7 @@
 import "server-only";
 
-import { ING_MICRO_SKILLS, ING_ROUTE_ID, ING_RULE_FOR_SKILL, type IngDictionaryWordV1, type IngMicroSkill } from "@/lib/adle/ing/contracts";
-import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
+import { ING_MICRO_SKILLS, ING_ROUTE_ID, ING_RULE_FOR_SKILL, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { loadActiveIngRelease } from "./ing-staging-release";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { targetOccurrences } from "./authoring";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
@@ -19,32 +19,21 @@ export function isIngReviewSkill(value: unknown): value is IngMicroSkill {
 }
 
 export async function loadIngReviewWords(skill: IngMicroSkill) {
-  const environment = resolveAdleRouteActivationEnvironment();
-  if (!environment) throw new Error("Lesson review environment is unavailable.");
   const db = createServiceRoleClient();
-  const [head, associated] = await Promise.all([
-    db.from("adle_route_activation_heads").select("current_revision_id")
-      .eq("environment_key", environment).eq("route_id", ING_ROUTE_ID)
-      .eq("route_version", "v1").eq("micro_skill_key", skill).single(),
+  const [{ released }, associated] = await Promise.all([
+    loadActiveIngRelease(db, skill),
     loadRouteWordStatuses({ routeId: ING_ROUTE_ID, microSkillKey: skill }),
   ]);
-  if (head.error) throw new Error("Could not find the active lesson.");
-  const revision = await db.from("adle_route_activation_revisions").select("release_manifest_id")
-    .eq("id", head.data.current_revision_id).eq("activation_status", "enabled").single();
-  if (revision.error) throw new Error("Could not read the active lesson revision.");
-  const binding = await db.from("adle_curriculum_release_dependencies").select("authority_id")
-    .eq("release_manifest_id", revision.data.release_manifest_id).eq("micro_skill_key", skill)
-    .eq("authority_type", "ing_word_members").single();
-  if (binding.error) throw new Error("Could not find the released lesson words.");
-  const source = await db.from("adle_curriculum_dependency_authorities").select("semantic_projection")
-    .eq("id", binding.data.authority_id).single();
-  const words: IngDictionaryWordV1[] = source.data?.semantic_projection?.words;
-  if (source.error || !Array.isArray(words) || words.some(word => word.microSkillKey !== skill))
-    throw new Error("Could not read the released lesson words.");
+  const words = released.filter(word => word.microSkillKey === skill);
   const active = new Map(words.map(word => [word.canonicalWordId, word]));
-  const rows = associated.words.map(({ wordId, displayWord, status }) => ({
-    wordId, displayWord, released: active.get(wordId), blockers: status.blockers,
-  }));
+  const otherPoolIds = new Set(released.filter(word => word.microSkillKey !== skill)
+    .map(word => word.canonicalWordId));
+  const rows = associated.words
+    .filter(({ wordId, status }) => active.has(wordId)
+      || (status.relationshipApproved && status.dictionaryApproved && !otherPoolIds.has(wordId)))
+    .map(({ wordId, displayWord, status }) => ({
+      wordId, displayWord, released: active.get(wordId), blockers: status.blockers,
+    }));
   const known = new Set(rows.map(row => row.wordId));
   for (const word of words) if (!known.has(word.canonicalWordId)) rows.push({
     wordId: word.canonicalWordId, displayWord: word.word, released: word, blockers: [],
