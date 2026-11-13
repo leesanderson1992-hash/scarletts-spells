@@ -313,19 +313,28 @@
   .word-lab-workspace [data-lesson-reflection] > button { flex: none; }
 }
 @media (min-width: 768px) {
-  /* Share the available height with notices and the review summary. */
-  .app-shell.focus-layout .app-main > section:has(.ing-lesson),
-  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson) {
+  /* Fit the lesson below the app header, including when navigation is open. */
+  .app-shell:has(.ing-lesson) { height: 100dvh; min-height: 0; }
+  .app-shell:has(.ing-lesson) > .app-main {
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: .5rem .75rem;
+  }
+  .app-shell:has(.ing-lesson) > .app-main > section:has(.ing-lesson),
+  .app-shell:has(.ing-lesson) .adle-session-runner {
     display: flex;
     flex-direction: column;
-  }
-  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson),
-  .app-shell.focus-layout .adle-session-runner > .ing-lesson {
-    flex: 1;
+    gap: .5rem;
+    height: 100%;
     min-height: 0;
-    height: auto;
   }
-  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson) { gap: .5rem; }
+  .app-shell:has(.ing-lesson) .adle-session-runner,
+  .app-shell:has(.ing-lesson) .adle-session-runner > .ing-lesson {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
 
   .ing-lesson { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
   .ing-lesson .word-lab-workspace {
