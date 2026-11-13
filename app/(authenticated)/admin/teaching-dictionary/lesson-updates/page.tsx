@@ -5,6 +5,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadIngReviewWords } from "@/lib/teaching-dictionary-manager/ing-review-data";
+import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
@@ -49,12 +50,11 @@ export default async function LessonUpdates({ searchParams }: {
       ? findPreparedStagingIngRelease(db, update.skill, update.fingerprint) : null,
   ]);
   const learners = children?.data ?? [];
+  const pageError = result.error || (!update ? params.error : undefined) || (children?.error ? "Could not load staging learners." : undefined);
   return <main className="mx-auto max-w-4xl space-y-5 p-6">
     <Link href="/admin/teaching-dictionary" className="text-sm underline">Teaching Dictionary</Link>
     <h1 className="text-3xl font-semibold">Bulk review</h1>
-    {params.error || result.error || children?.error ? <p role="alert" className="rounded-lg bg-rose-50 p-3">
-      {params.error || result.error || "Could not load staging learners."}</p> : null}
-    {params.published && update && <p role="status" className="rounded-lg bg-emerald-50 p-3">The updated {lessonName} pool is active.</p>}
+    {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       reviewRows={productionRows?.map(row => ({ id: row.wordId, word: row.displayWord, live: Boolean(row.released) })) ?? null}
@@ -81,6 +81,8 @@ export default async function LessonUpdates({ searchParams }: {
       </section>}
       <section className={card}>
         <h2 className="text-xl font-semibold">Preview the lesson update</h2>
+        {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3">{params.error}</p>}
+        {params.published && <p role="status" className="rounded-lg bg-emerald-50 p-3">The updated {lessonName} pool is active.</p>}
         <p><strong>{update.current.length}</strong> words in the live pool · <strong>{update.changes.length}</strong> additions or updates · <strong>{update.retired.length}</strong> removals</p>
         {update.changes.length > 0 && <ul className="list-disc pl-5">{update.changes.map(word =>
           <li key={word.canonicalWordId}><Link className="underline" href={`/admin/teaching-dictionary/${word.canonicalWordId}`}>{word.word}</Link> · {update.current.some(current => current.canonicalWordId === word.canonicalWordId) ? "Update" : "Add"} · {word.meaning}</li>)}</ul>}
@@ -89,7 +91,9 @@ export default async function LessonUpdates({ searchParams }: {
         {update.changes.length || update.retired.length ? <form action={publishIngLesson}>
           <input type="hidden" name="skill" value={selected} />
           <input type="hidden" name="fingerprint" value={update.fingerprint} />
-          <button className={button}>{prepared ? "Resume publishing" : `Publish ${lessonName} update`}</button>
+          <ActionSubmitButton className={`${button} disabled:opacity-70`} pendingLabel={`Publishing ${lessonName} update…`}>
+            {prepared ? "Resume publishing" : `Publish ${lessonName} update`}
+          </ActionSubmitButton>
         </form> : <p>The approved words are up to date.</p>}
       </section>
       {update.environment === "staging" && <section className={card}>

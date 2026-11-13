@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useActionState, useRef, useState, useTransition, type ReactNode } from "react";
+import { startTransition, useActionState, useOptimistic, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "../multi-sense-actions";
 
@@ -12,12 +12,12 @@ type Skill = Option & { cluster: string };
 const steps = ["Export workbook", "Edit and upload", "Resolve word families", "Preview and publish"];
 const actionClass = "inline-flex rounded-lg bg-[color:var(--scarlett)] px-4 py-2 font-semibold text-[color:var(--ink)] disabled:opacity-50";
 
-function SearchMenu({ label, value, options, onChange }: {
-  label: string; value: string; options: Option[]; onChange: (key: string) => void;
+function SearchMenu({ label, value, options, disabled, onChange }: {
+  label: string; value: string; options: Option[]; disabled: boolean; onChange: (key: string) => void;
 }) {
   const [search, setSearch] = useState("");
   const matches = options.filter(option => option.label.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
-  return <fieldset className="min-w-0 space-y-2">
+  return <fieldset disabled={disabled} className="min-w-0 space-y-2">
     <legend className="font-semibold">{label}</legend>
     <input type="search" aria-label={`Search ${label.toLowerCase()}s`} placeholder={`Search ${label.toLowerCase()}s`}
       value={search} onChange={event => setSearch(event.target.value)}
@@ -39,6 +39,9 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
   const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
   const [workbookStep, setWorkbookStep] = useState(1);
   const [navigating, navigate] = useTransition();
+  const [visibleSkill, setVisibleSkill] = useOptimistic(selected);
+  const switchingLesson = visibleSkill !== selected;
+  const nextLesson = skills.find(skill => skill.key === visibleSkill);
   const step = view === "export" ? 0 : view === "preview" ? 3 : workbookStep;
   const workbook = useRef<File | null>(null);
   const decisions = useRef(new Map<string, WorkbookFamilyDecision[]>());
@@ -97,18 +100,26 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
   }
   return <>
     <section aria-label="Lesson filters" className="grid gap-4 rounded-2xl border border-[var(--border)] bg-white p-5 sm:grid-cols-2">
-      <SearchMenu label="Cluster" value={cluster} options={clusters} onChange={key => {
+      <SearchMenu label="Cluster" value={cluster} options={clusters} disabled={navigating || pending} onChange={key => {
         setCluster(key);
         setWorkbookStep(1);
-        if (selected) router.push(`?cluster=${encodeURIComponent(key)}`, { scroll: false });
+        if (selected) navigate(() => {
+          setVisibleSkill("");
+          router.push(`?${new URLSearchParams({ cluster: key })}`, { scroll: false });
+        });
       }} />
-      {cluster && <SearchMenu key={cluster} label="Micro-skill" value={selected}
+      {cluster && <SearchMenu key={cluster} label="Micro-skill" value={visibleSkill} disabled={navigating || pending}
         options={skills.filter(skill => skill.cluster === cluster)} onChange={key => {
           setWorkbookStep(1);
-          router.push(`?cluster=${encodeURIComponent(cluster)}&skill=${encodeURIComponent(key)}`, { scroll: false });
+          navigate(() => {
+            setVisibleSkill(key);
+            router.push(`?${new URLSearchParams({ cluster, skill: key })}`, { scroll: false });
+          });
         }} />}
     </section>
-    {!selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
+    {switchingLesson ? <p role="status" className="rounded-xl bg-[color:var(--mist)] p-4">
+      {nextLesson ? `Opening ${nextLesson.label}…` : "Loading lesson filters…"}
+    </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
         Choose an -ing micro-skill for workbook review.</p> : <>
       <nav aria-label="Bulk review steps" className="grid gap-2 sm:grid-cols-4">

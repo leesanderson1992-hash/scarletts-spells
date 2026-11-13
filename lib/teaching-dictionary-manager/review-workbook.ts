@@ -40,7 +40,13 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const [headers, ...rows] = csvRecords(renderMultiSenseCsvBundles(input.bundles));
   for (const values of rows) {
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
-    const row = sheet.addRow({ ...entry, use_in_lesson: "Review", needs_review: input.notes.get(entry.canonical_word_id) ?? "" });
+    const notes = [
+      input.notes.get(entry.canonical_word_id),
+      !entry.family_key ? "Choose the teaching family for this meaning." : "",
+      !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
+        ? "Check pronunciation, syllable count and stress." : "",
+    ].filter(Boolean).join(" ");
+    const row = sheet.addRow({ ...entry, use_in_lesson: "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     row.getCell("use_in_lesson").dataValidation = { type: "list", allowBlank: false, formulae: ['"Review,Yes,No"'],

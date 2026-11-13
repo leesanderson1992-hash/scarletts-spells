@@ -94,8 +94,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
     const family = linkedFamilies.length === 1 ? linkedFamilies[0] : null;
     const stem = released?.word.slice(0, -3) ?? "";
     notes.set(wordId, [
-      released ? (family ? "In the live lesson pool. Confirm the lesson meaning and linked family." : "In the live lesson pool. Choose the teaching family.") : "Associated with this lesson. Review the meaning, family and word parts.",
-      !facts?.phoneme_hint || !facts?.syllables || !facts?.stress_pattern ? "Check pronunciation, syllable count and stress." : "",
+      released ? "In the live lesson pool." : "Associated with this lesson.",
       ...(!released ? blockers : []),
     ].filter(Boolean).join(" "));
     return {
