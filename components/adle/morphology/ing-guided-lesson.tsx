@@ -69,7 +69,7 @@ export function IngGuidedLesson(props: IngGuidedLessonProps) {
     finally { setPending(false); }
   }
   return <>
-    <FirstImpressionLesson teaching={lesson.teaching} initialStageId={progress.stageId} initialTeachingPageIndex={progress.teachingPageIndex}
+    <FirstImpressionLesson sceneClassName="ing-lesson" teaching={lesson.teaching} initialStageId={progress.stageId} initialTeachingPageIndex={progress.teachingPageIndex}
       onTeachingPageChange={teachingPageIndex => change({ teachingPageIndex })} onStageChange={stageId => change({ stageId })}
       activities={[
         { id: "meaning-match", type: "meaning_match", label: "Meaning Match", binding: binding("meaning-match", "MEANING_MATCH", "word_to_definition", navigation => ({
