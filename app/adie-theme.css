@@ -312,6 +312,73 @@
   .word-lab-workspace .lesson-reflection-content { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .word-lab-workspace [data-lesson-reflection] > button { flex: none; }
 }
+@media (min-width: 768px) {
+  /* Share the available height with notices and the review summary. */
+  .app-shell.focus-layout .app-main > section:has(.ing-lesson),
+  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson) {
+    display: flex;
+    flex-direction: column;
+  }
+  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson),
+  .app-shell.focus-layout .adle-session-runner > .ing-lesson {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+  .app-shell.focus-layout .adle-session-runner:has(.ing-lesson) { gap: .5rem; }
+
+  .ing-lesson { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
+  .ing-lesson .word-lab-workspace {
+    padding: clamp(.75rem, 2dvh, 1.25rem);
+    scrollbar-gutter: stable both-edges;
+  }
+  .ing-lesson .word-lab-task { max-width: 64rem; margin-inline: auto; }
+  .ing-lesson .word-lab-tools { margin-bottom: .5rem; }
+  .ing-lesson .word-lab-task > :is([data-transform-target-state], [data-single-word-dictation-state], [data-ing-scrabble-state]) {
+    gap: .75rem;
+  }
+  .ing-lesson [aria-label="Choose the spelling rule"] { gap: .5rem; }
+  .ing-lesson [aria-label="Choose the spelling rule"] > button { min-height: 3rem; padding-block: .65rem; }
+  .ing-lesson .teaching-pages { gap: .65rem; }
+  .ing-lesson .teaching-pages > div:first-child {
+    display: grid;
+    align-content: safe center;
+    scrollbar-gutter: stable both-edges;
+    padding: .375rem .125rem;
+  }
+  .ing-lesson :is([data-teaching-page-type="reading"], [data-teaching-page-type="meet_words"]) { gap: .75rem; }
+  .ing-lesson [data-teaching-page-type="reading"] { padding: clamp(.75rem, 2dvh, 1.25rem); }
+  .ing-lesson .teaching-pages header h1 {
+    margin-top: .25rem;
+    font-size: clamp(1.6rem, 3.9dvh, 2.25rem);
+    line-height: 1.15;
+  }
+  .ing-lesson [data-teaching-page-type="reading"] > div:first-of-type,
+  .ing-lesson [data-teaching-page-type="meet_words"] header > p:last-child {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .ing-lesson .teaching-key-idea { padding: .6rem 1rem; font-size: 1.1rem; }
+  .ing-lesson :is(.teaching-gold-clue, .teaching-example) { padding: .75rem; }
+  .ing-lesson .teaching-gold-clue { gap: .5rem; }
+  .ing-lesson .teaching-gold-clue h2 { font-size: 1.125rem; line-height: 1.25; }
+  .ing-lesson .teaching-examples { gap: .5rem; }
+  .ing-lesson [aria-label="Lesson words"] { gap: .65rem; }
+  .ing-lesson [aria-label="Lesson words"] > li { padding: .75rem; }
+  .ing-lesson [aria-label="Lesson words"] > li > div > p:nth-child(2) {
+    font-size: clamp(1.4rem, 3.5dvh, 1.875rem);
+    line-height: 1.15;
+  }
+}
+@media (min-width: 1024px) {
+  .ing-lesson [aria-label="Lesson words"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ing-lesson [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ing-lesson [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) > :not(.teaching-gold-clue) {
+    grid-column: 1 / -1;
+  }
+}
 .word-lab-workspace .teaching-key-idea { width: fit-content; max-width: 100%; justify-self: center; }
 .word-lab-workspace .teaching-examples { width: min(100%, 56rem); margin-inline: auto; }
 .word-lab-workspace .teaching-example[data-transformation="true"] { border: 2px solid #51b7cb; background: #e7faff; text-align: center; }
