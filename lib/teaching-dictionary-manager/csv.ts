@@ -8,7 +8,7 @@ export const FLAT_IMPORT_PART_LIMIT = 6;
 export const MAX_DICTIONARY_CSV_BYTES = 4_000_000;
 
 /** Human-editable CSV columns used by the Google Sheet template. */
-function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
+export function flatMorphology(raw: Record<string, string>, headers: readonly string[], displayWord: string) {
   if (!headers.includes("part_1_kind")) return null;
   if (raw.morphology_parts || raw.morphology_joins)
     throw new Error("Use either the word-part columns or morphology JSON, not both.");
@@ -140,7 +140,7 @@ function routeFacts(raw: Record<string, string>): Record<string, unknown> {
   return result;
 }
 
-function records(text: string): string[][] {
+export function csvRecords(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -168,7 +168,7 @@ function records(text: string): string[][] {
 
 export function parseDictionaryCsv(text: string): CsvDraft[] {
   if (Buffer.byteLength(text, "utf8") > MAX_DICTIONARY_CSV_BYTES) throw new Error("CSV_TOO_LARGE");
-  const [headers, ...values] = records(text);
+  const [headers, ...values] = csvRecords(text);
   if (!headers || values.length > 10000) throw new Error("CSV_ROW_LIMIT");
   const names = headers.map((header) => header.trim());
   if (!names.includes("normalised_word") && !names.includes("targetWord") && !names.includes("display_word")) throw new Error("CSV_WORD_COLUMN_MISSING");
