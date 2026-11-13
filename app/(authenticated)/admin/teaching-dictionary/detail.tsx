@@ -383,6 +383,23 @@ export async function TeachingDictionaryDetail({
     : null;
   if (lessonSenseBindings?.error) throw new Error("TEACHING_LESSON_SENSE_READ_FAILED");
   const approvedSenseSet = reviewedSenses?.data?.sense_set as DictionarySenseSet | undefined;
+  const approvedAlternates = Array.isArray(set?.variants) ? set.variants as WordDraftPayload["dictationVariants"] : [];
+  const otherSentenceTexts = [...new Set([
+    ...(approvedSenseSet?.senses ?? []).map(sense => sense.dictationSentence),
+    ...(approvedAlternates ?? []).map(variant => variant.sentence),
+  ].filter((sentence): sentence is string => Boolean(sentence) && sentence !== approvedSentence))];
+  const sentenceRecordings = wordId && word?.row_status === "active" &&
+    word.review_status === "approved_for_first_exposure" && otherSentenceTexts.length
+    ? await db.from("teaching_dictionary_british_recording_versions")
+      .select("spoken_text,recording_src").eq("canonical_word_id", wordId).eq("kind", "sentence")
+      .in("spoken_text", otherSentenceTexts).order("approved_at", { ascending: false }).order("id", { ascending: false })
+    : null;
+  if (sentenceRecordings?.error) throw new Error("DICTIONARY_RECORDING_READ_FAILED");
+  const dictationRecordingSources = new Map<string, string>();
+  if (approvedSentence && sentenceClip) dictationRecordingSources.set(approvedSentence, sentenceClip.src);
+  for (const row of sentenceRecordings?.data ?? []) {
+    if (!dictationRecordingSources.has(row.spoken_text)) dictationRecordingSources.set(row.spoken_text, row.recording_src);
+  }
   const approvedCandidateSenseFacts = Object.fromEntries((approvedSenseSet?.senses ?? []).map(sense => {
     const facts = candidateFactsForSense({ wordId: wordId!, senseId: sense.id,
       senseSet: approvedSenseSet ?? null,
@@ -591,6 +608,7 @@ export async function TeachingDictionaryDetail({
         approvedSentence={approvedSentence}
         wordClip={wordClip}
         sentenceClip={sentenceClip}
+        dictationRecordingSources={[...dictationRecordingSources]}
         deviceWordClip={deviceWordClip}
         deviceSentenceClip={deviceSentenceClip}
         approvedWeakSources={approvedWeakSources}

@@ -62,6 +62,7 @@ import { ActionSubmitButton } from "./action-submit-button";
 import { FormatHint } from "./format-hint";
 import { WeakVowelRouteEditor } from "./weak-vowel-route-editor";
 import { SenseEditor } from "./sense-editor";
+import { DictationListen } from "./dictation-listen";
 import { SenseMorphologyReview } from "./sense-morphology-review";
 import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 import { legacySenseSet } from "@/lib/teaching-dictionary-manager/senses";
@@ -267,6 +268,7 @@ export function WordWorkspace(props: {
   approvedSentence: string | null;
   wordClip: BritishRecording | null;
   sentenceClip: BritishRecording | null;
+  dictationRecordingSources: readonly [string, string][];
   deviceWordClip: { src: string; sha256: string } | null;
   deviceSentenceClip: { src: string; sha256: string } | null;
   approvedWeakSources: ReviewedWeakVowelSource[];
@@ -324,6 +326,8 @@ export function WordWorkspace(props: {
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
+  const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
+  const dictationRecordingSources = new Map(props.dictationRecordingSources);
   const activeSenseFamilyKeys = new Set((props.approvedCandidateSenseFacts[activeSenseId]?.familyLinks ?? [])
     .map(link => link.family_key));
   const activeSenseFamilies = props.approvedSenseSet && props.approvedSenseSet.senses.length > 1
@@ -541,11 +545,19 @@ export function WordWorkspace(props: {
       const set = next.senseSet;
       if (set?.senses[0]) {
         if (update.senseSet) {
-          next.definition = set.senses[0].definition;
-          if (set.senses[0].dictationSentence !== undefined)
-            next.dictationSentence = set.senses[0].dictationSentence;
-          if (set.senses[0].dictationTargetTokenIndex !== undefined)
-            next.dictationTargetTokenIndex = set.senses[0].dictationTargetTokenIndex;
+          const first = set.senses[0];
+          const previous = old.senseSet?.senses[0];
+          next.definition = first.definition;
+          if (first.dictationSentence !== previous?.dictationSentence ||
+              first.dictationTargetTokenIndex !== previous?.dictationTargetTokenIndex) {
+            next.dictationSentence = first.dictationSentence ?? "";
+            next.dictationTargetTokenIndex = first.dictationTargetTokenIndex ?? -1;
+            const [primary, ...alternates] = dictationVariants(old);
+            const sentenceChanged = next.dictationSentence !== primary.sentence;
+            next.dictationVariants = [{ ...primary, sentence: next.dictationSentence,
+              audioText: sentenceChanged ? next.dictationSentence : primary.audioText,
+              targetTokenIndex: next.dictationTargetTokenIndex }, ...alternates];
+          }
           next.canonicalMorphology = { ...next.canonicalMorphology,
             rawPartOfSpeech: set.senses[0].partOfSpeech };
           const pronunciation = set.pronunciations.find(row => row.id === set.senses[0].pronunciationId);
@@ -586,6 +598,15 @@ export function WordWorkspace(props: {
     }));
     });
     setDirty(true);
+  }
+  function addMeaning() {
+    const set = payload.senseSet;
+    if (!set) return;
+    const id = crypto.randomUUID();
+    change({ senseSet: { ...set, senses: [...set.senses, { id, definition: "", partOfSpeech: "",
+      pronunciationId: selectedMeaning?.pronunciationId ?? set.pronunciations[0]?.id ?? null }] } });
+    setActiveSenseId(id);
+    requestAnimationFrame(() => document.querySelector<HTMLInputElement>("#td-definition input")?.focus());
   }
   function metadata(
     key: keyof WordDraftPayload["metadata"],
@@ -748,37 +769,6 @@ export function WordWorkspace(props: {
       label: "Display word",
       value: payload.displayWord,
       change: (v: string) => change({ displayWord: v }),
-    },
-    {
-      key: "speech",
-      label: "Part of speech",
-      value: payload.canonicalMorphology.rawPartOfSpeech,
-      options: partOfSpeechOptions(payload.canonicalMorphology.rawPartOfSpeech),
-      change: (v: string) =>
-        change({
-          canonicalMorphology: {
-            ...payload.canonicalMorphology,
-            rawPartOfSpeech: v,
-          },
-        }),
-    },
-    {
-      key: "definition",
-      label: "Definition",
-      value: payload.definition,
-      change: (v: string) => change({ definition: v }),
-    },
-    {
-      key: "syllables",
-      label: "Spoken syllables",
-      value: payload.metadata.syllables,
-      change: (v: string) => metadata("syllables", v),
-    },
-    {
-      key: "phoneme_hint",
-      label: "Phonemes",
-      value: payload.metadata.phoneme_hint,
-      change: (v: string) => metadata("phoneme_hint", v),
     },
     {
       key: "has-schwa",
@@ -969,7 +959,27 @@ export function WordWorkspace(props: {
           </span>
         </summary>
         <div className="px-4 pb-4">
-          {payload.senseSet && <SenseEditor value={payload.senseSet} word={payload.displayWord}
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)]">
+          {payload.senseSet && <aside aria-label="Word meanings" className="grid gap-2 rounded-xl border border-[var(--border)] border-t-2 border-t-[var(--scarlett)] p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-semibold">Meanings</h3>
+              <button type="button" className={button} onClick={addMeaning}>Add meaning</button>
+            </div>
+            {payload.senseSet.senses.map(sense => {
+              const approved = props.approvedSenseSet?.senses.find(row => row.id === sense.id);
+              const familyLinked = Boolean(props.approvedCandidateSenseFacts[sense.id]?.familyLinks.length);
+              return <button key={sense.id} type="button" aria-pressed={sense.id === activeSenseId}
+                onClick={() => setActiveSenseId(sense.id)}
+                className="break-words rounded-lg border border-[var(--border)] p-2 text-left text-sm aria-pressed:border-[var(--scarlett)] aria-pressed:bg-[var(--mist)]">
+                <span className="block font-medium">{sense.definition || "New meaning"}</span>
+                <span className="block text-xs text-[color:var(--mid)]">
+                  {[sense.partOfSpeech, !approved ? "Needs approval" : familyLinked ? "Family linked" : "Family needed"].filter(Boolean).join(" · ")}
+                </span>
+              </button>;
+            })}
+          </aside>}
+          <div className="min-w-0 space-y-4 rounded-xl border border-[var(--border)] p-4">
+          {payload.senseSet && <SenseEditor value={payload.senseSet} word={payload.displayWord} recordingSources={dictationRecordingSources}
             onChange={senseSet => change({ senseSet })}
             selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
           {props.wordId && !activeSense && activeSenseId && <div id="td-sense-morphology" className="mt-3 flex flex-wrap items-center gap-3">
@@ -988,12 +998,20 @@ export function WordWorkspace(props: {
               joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
               transformations: props.approvedMorphologyTransformations }}
             affixMeanings={props.affixMeanings} /> : null}
+          {(dirty || !overviewReviewed) && (activeSense || !props.wordId) && <div className={actions}>
+            {dirty && saveButton("draft", "Save draft")}
+            {saveButton("overview")}
+          </div>}
+          </div>
+          </div>
           {props.wordId && props.approvedSenseSet?.senses.length ? <details className="my-3">
             <summary className="cursor-pointer text-sm font-medium">Import or export meanings</summary>
             <MultiSenseCsvPanel wordId={props.wordId} requests={props.meaningImportRequests}
               senses={props.approvedSenseSet.senses} />
           </details> : null}
-          <div className="overflow-x-auto">
+          <details className="mt-4 rounded-lg border border-[var(--border)] p-3" open={!props.wordId}>
+          <summary className="cursor-pointer font-semibold">Shared word details</summary>
+          <div className="mt-2 overflow-x-auto">
             <table className="td-overview-table w-full table-fixed text-left text-sm">
               <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
                 <tr>
@@ -1105,14 +1123,13 @@ export function WordWorkspace(props: {
               Edit word parts
             </button>
           </div>
-          <h3 id="td-dictation" className="mt-4 scroll-mt-6 font-semibold">
-            Dictation sentences
+          <h3 className="mt-4 font-semibold">
+            Alternate dictation sentences
           </h3>
           <div className="mt-2 overflow-x-auto">
             <table className="td-reflow-table td-dictation-table w-full text-left text-sm">
               <thead className="text-xs text-[color:var(--mid)]">
                 <tr>
-                  <th className="p-2 font-medium">Use</th>
                   <th className="p-2 font-medium">Sentence
                     <FormatHint label="dictation sentence" format="Write a complete sentence containing the dictionary word exactly as spelled." example="We are scrolling down the page." />
                   </th>
@@ -1121,14 +1138,11 @@ export function WordWorkspace(props: {
                 </tr>
               </thead>
               <tbody>
-                {dictationVariants(payload).map((variant, index) => (
+                {dictationVariants(payload).map((variant, index) => index === 0 ? null : (
                   <tr
                     key={variant.id}
                     className="border-t border-[var(--border)]"
                   >
-                    <td data-label="Use" className="p-2">
-                      {index === 0 ? "Primary" : "Alternate"}
-                    </td>
                     <td data-label="Sentence" className="p-2">
                       <div className="flex min-w-0 items-center gap-2"><input
                         aria-label={`Dictation sentence ${index + 1}`}
@@ -1145,17 +1159,12 @@ export function WordWorkspace(props: {
                                   }
                                 : old,
                           );
-                          const primary = variants[0];
-                          change({
-                            dictationVariants: variants,
-                            dictationSentence: primary.sentence,
-                            dictationTargetTokenIndex: primary.targetTokenIndex,
-                          });
+                          change({ dictationVariants: variants });
                         }}
                       />
-                      {props.sentenceClip && variant.sentence === props.approvedSentence &&
-                        <InlineBritishRecording clip={props.sentenceClip} label="sentence" />}
                       </div>
+                      <DictationListen key={variant.sentence} sentence={variant.sentence}
+                        recordingSrc={dictationRecordingSources.get(variant.sentence)} />
                     </td>
                     <td data-label="Target occurrence" className="p-2">
                       <select
@@ -1174,11 +1183,7 @@ export function WordWorkspace(props: {
                                   }
                                 : old,
                           );
-                          change({
-                            dictationVariants: variants,
-                            dictationTargetTokenIndex:
-                              variants[0].targetTokenIndex,
-                          });
+                          change({ dictationVariants: variants });
                         }}
                       >
                         <option value={-1}>Choose target</option>
@@ -1235,6 +1240,7 @@ export function WordWorkspace(props: {
               Add sentence
             </button>
           </div>
+          </details>
           <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!activeSenseFamilies.length}>
             <summary className="cursor-pointer font-semibold">Family for {activeSense?.definition ?? "this word"} · {activeSenseFamilies.length ? "linked" : "none joined"}</summary>
             <div className="mt-2">
@@ -1280,8 +1286,6 @@ export function WordWorkspace(props: {
               >
                 {activeSenseFamilies.length ? "Review or change family" : "Review family suggestions"}
               </button>
-              {dirty && saveButton("draft", "Save draft")}
-              {(dirty || !overviewReviewed) && saveButton("overview")}
             </div>
             </div>
           </details>
