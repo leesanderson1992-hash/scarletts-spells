@@ -40,6 +40,14 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
     {routeWords && <section className="rounded-xl border border-[var(--border)] bg-white p-4" aria-label="Governed word readiness">
       <h2 className="text-lg font-semibold">Word readiness for this route</h2>
       <p className="mt-1 text-sm">{routeWords.counts.candidates} associated or route-content words · {routeWords.counts.approvedRelationships} approved relationships · {routeWords.counts.technicalComplete} technically complete · {routeWords.counts.awaitingEditorial} awaiting content review · {routeWords.counts.missingContent} missing route content · {routeWords.counts.administrativeCandidates} through all administrative gates. Child selection is evaluated separately.</p>
+      {selectedLesson?.routeId === "ing_endings_word_lab" && <p className="mt-2 text-sm">
+        Overview recipe: {routeWords.counts.generatedReadyIng} words have generated content;
+        {" "}{routeWords.counts.approvedGeneratedIng} have a current reviewed meaning and governed skill approval.
+        A release needs at least six approved words for this micro-skill and its other group checks.
+        {" "}<Link className="font-semibold underline" href={`/admin/teaching-dictionary/export/overview?skill=${selectedLesson.microSkillKey}`}>
+          Export associated words for Overview review
+        </Link>.
+      </p>}
       <details className="mt-3"><summary className="cursor-pointer font-semibold">Inspect word gates and blockers</summary>
         <ul className="mt-3 grid gap-2 text-sm">{routeWords.words.slice(0, 50).map((word) => <li key={word.wordId} className="rounded-lg border border-[var(--border)] p-2">
           <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.wordId}`}>{word.displayWord}</Link>
@@ -48,6 +56,35 @@ export default async function AdleLessonReadinessPage({ searchParams }: {
             : word.status.relationshipApproved ? "relationship approved" : "relationship not approved"} · technical facts {word.status.technicalFacts.replaceAll("_", " ")} · {word.status.administrativeCandidate
             ? word.status.technicalFacts === "not_evaluated" ? "administrative gates passed; native word validation pending" : "administrative gates passed; child scope checked separately"
             : "blocked"}</span>
+          {word.overviewCandidate && <div className="mt-2 rounded bg-slate-50 p-2">
+            {Boolean(word.multipleSenseChoices?.length) && <p className="font-medium text-amber-900">
+              Multiple meanings are approved for this skill. Choose the meaning in lesson content before this word can enter its pool:
+              {" "}{word.multipleSenseChoices?.map(choice => choice.definition).join("; ")}.
+            </p>}
+            <p><strong>Reviewed Overview facts:</strong> {word.overviewCandidate.status === "ready"
+              ? word.status.relationshipApproved && word.senseBindingApproved && word.candidateDecisionCurrent
+                ? "meaning approved for this micro-skill; check content and release below"
+                : "ready for automatic approval"
+              : word.overviewCandidate.status === "not_match" ? "not a match for this lesson rule"
+              : "needs review"}{word.selectedSenseDefinition ? ` · ${word.selectedSenseDefinition}` : ""}</p>
+            {word.overviewCandidate.issues.length > 0 && <ul className="mt-1 list-disc pl-5">{word.overviewCandidate.issues.map(issue =>
+              <li key={issue.code}><Link className="underline" href={issue.href}>{issue.message}</Link></li>)}</ul>}
+            {word.status.relationshipApproved && word.senseBindingApproved && !word.candidateDecisionCurrent
+              && word.overviewCandidate.status === "ready" && <p className="mt-1 text-amber-900">
+                This meaning needs a current fact-bound approval. Recheck it from the word page or bulk assigner.
+              </p>}
+            {word.generatedIng?.status === "ready" && <details className="mt-2">
+              <summary className="cursor-pointer font-medium">{word.approvedIngWord
+                ? "Approved generated -ing candidate · inspect facts"
+                : "Generated -ing word content ready · awaits approval"}</summary>
+              <p className="mt-1">{word.generatedIng.word.base} + ing → {word.generatedIng.word.word} · {word.generatedIng.word.meaning}</p>
+              <p>{word.generatedIng.word.dictationSentence}</p>
+              <p className="text-xs">Source: {word.generatedIng.word.sourceRefs.join(", ")}</p>
+            </details>}
+            {word.overviewCandidate.status === "ready" && word.generatedIng?.status === "needs_facts" &&
+              <ul className="mt-1 list-disc pl-5">{word.generatedIng.issues.map(issue =>
+                <li key={issue.code}><Link className="underline" href={issue.href}>{issue.message}</Link></li>)}</ul>}
+          </div>}
           {word.status.blockerDetails.length > 0 && <ul className="mt-1 list-disc pl-5">{word.status.blockerDetails.map((blocker, index) => <li key={`${blocker.code}:${index}`}>{blocker.gate}: {blocker.message}</li>)}</ul>}
         </li>)}</ul>
         {routeWords.words.length > 50 && <p className="mt-2 text-sm">Showing the first 50 words alphabetically; the counts cover all {routeWords.words.length} words.</p>}

@@ -23,6 +23,10 @@ export interface IngDictionaryWordV1 {
   dictationVariant?: { id: string; targetTokenIndex: number; authorityFingerprint: string };
   canonicalWordId: string;
   microSkillKey: IngMicroSkill;
+  /** Present on Overview-generated words; omitted by historical releases. */
+  senseId?: string;
+  pronunciationId?: string;
+  pronunciationIpa?: string;
   base: string;
   word: string;
   /** Required for doubling words so the lesson can teach the right pattern. */
@@ -65,6 +69,9 @@ export function ingWordBlockers(value: IngDictionaryWordV1, fixture = false): st
   const errors: string[] = [];
   const rule = ING_RULE_FOR_SKILL[value.microSkillKey];
   if (!rule || !/^[a-z]+$/.test(value.base) || !/^[a-z]+$/.test(value.word)) return ["word_shape_invalid"];
+  if ((value.senseId !== undefined || value.pronunciationId !== undefined || value.pronunciationIpa !== undefined)
+    && (!value.senseId?.trim() || !value.pronunciationId?.trim() || !value.pronunciationIpa?.trim()))
+    errors.push("sense_identity_incomplete");
   if (value.word !== `${ingStem(value.base, rule)}ing`) errors.push("transformation_invalid");
   if (rule === "drop_e" && (!value.base.endsWith("e") || value.base.endsWith("ie"))) errors.push("drop_e_condition_invalid");
   if (rule === "ie_to_y" && !value.base.endsWith("ie")) errors.push("ie_condition_invalid");

@@ -1,3 +1,4 @@
+import { canUpdateIngLesson } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import Link from "next/link";
 import { normaliseWrittenSyllableBreakdown } from "@/lib/teaching-dictionary-manager/authoring";
 import { requireAdminUser } from "@/lib/admin/access";
@@ -5,8 +6,10 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadCachedTeachingDictionaryEvidenceAuthority, loadCachedTeachingDictionaryEvidenceAuthorityForWords } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
+import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { OVERVIEW_EXPORT_BATCH_SIZE } from "@/lib/teaching-dictionary-manager/overview-csv";
 import { CsvImportPanel } from "./csv-import-panel";
+import { MultiSenseCsvPanel } from "./multi-sense-csv-panel";
 
 export const dynamic = "force-dynamic";
 const PAGE_SIZE = 50;
@@ -46,8 +49,13 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const globalAuthorityPromise = environment && needsGlobalAuthority
     ? loadCachedTeachingDictionaryEvidenceAuthority(environment) : Promise.resolve(null);
   const draftsPromise = db.from("teaching_dictionary_manager_drafts").select("id,canonical_word_id,normalised_word,created_at").order("created_at", { ascending: false }).limit(12);
+  const reviewSkillsPromise = db.from("micro_skill_catalog")
+    .select("micro_skill_key,display_name").eq("is_active", true).eq("is_assignable", true)
+    .order("display_name");
   const activeCountPromise = db.from("canonical_teaching_dictionary_words")
     .select("id", { count: "exact", head: true }).eq("dialect_code", "en-GB").eq("row_status", "active");
+  const reviewedSenseCountPromise = db.from("teaching_dictionary_reviewed_sense_sets")
+    .select("canonical_word_id", { count: "exact", head: true });
   const initialPagePromise = !needsGlobalAuthority && filter !== "awaiting_british_recording" ? db.rpc("teaching_dictionary_admin_filtered_page", {
     p_filter: filter, p_search: q, p_word_ids: null,
     p_limit: PAGE_SIZE, p_offset: (page - 1) * PAGE_SIZE,
@@ -81,15 +89,25 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const authorityPromise = needsGlobalAuthority ? globalAuthorityPromise
     : environment && wordIds.length ? loadCachedTeachingDictionaryEvidenceAuthorityForWords(environment, wordIds)
       : Promise.resolve(null);
-  const [drafts, activeCount, authority, pageFactsResult] = await Promise.all([
+  const [drafts, activeCount, reviewedSenseCount, reviewSkills, authority, pageFactsResult, reviewedWords] = await Promise.all([
     draftsPromise,
     activeCountPromise,
+    reviewedSenseCountPromise,
+    reviewSkillsPromise,
     authorityPromise,
     wordIds.length ? db.rpc("teaching_dictionary_admin_page_facts", { p_word_ids: wordIds })
       : Promise.resolve({ data: { metadata: [], dictation: [], route_members: [], route_content: [] }, error: null }),
+    wordIds.length ? db.from("teaching_dictionary_reviewed_sense_sets")
+      .select("canonical_word_id").in("canonical_word_id", wordIds)
+      : Promise.resolve({ data: [], error: null }),
   ]);
+  if (reviewedWords.error) throw new Error("TEACHING_REVIEWED_WORDS_READ_FAILED");
+  const csvWordIds = new Set(reviewedWords.data?.map(row => row.canonical_word_id));
   if (drafts.error) throw new Error("TEACHING_DRAFT_READ_FAILED");
+  if (reviewSkills.error || (reviewSkills.data?.length ?? 0) >= 1000)
+    throw new Error("TEACHING_REVIEW_SKILL_CATALOG_READ_FAILED");
   if (activeCount.error || activeCount.count == null) throw new Error("TEACHING_WORD_COUNT_READ_FAILED");
+  if (reviewedSenseCount.error || reviewedSenseCount.count == null) throw new Error("TEACHING_MEANING_COUNT_READ_FAILED");
   if (pageFactsResult.error || !pageFactsResult.data) throw new Error("TEACHING_DICTIONARY_PAGE_FACTS_READ_FAILED");
   const facts = pageFactsResult.data as PageFacts;
   const { metadata, dictation } = facts;
@@ -106,34 +124,58 @@ export default async function TeachingDictionaryPage({ searchParams }: { searchP
   const dictationReady = new Set(dictation.filter((row) => row.row_status === "active" && row.review_status === "approved_for_first_exposure").map((row) => row.canonical_word_id));
   const href = (next: number) => `${"/admin/teaching-dictionary"}?${new URLSearchParams({ q, filter, page: String(next) })}`;
   return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">
-    <header><h1 className="text-3xl font-semibold">Teaching Dictionary Manager</h1><p className="mt-2 text-sm">Manage shared word facts, exact evidence approvals, and ADLE route readiness in one place.</p></header>
+    <header><h1 className="text-3xl font-semibold">Teaching Dictionary</h1></header>
     {params.saved && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-emerald-900">Saved.</p>}
     {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-900">{params.error.replaceAll("_", " ")}</p>}
-    <nav className="flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/bulk-assign">Assign words to a micro-skill</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/format-review">Review dictionary formats</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-lesson-readiness">ADLE lesson readiness and launch</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
-    <Link className="w-fit rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-semibold" href="/admin/teaching-dictionary/lesson-updates">Bulk review lesson words</Link>
-    <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)} />
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
-      <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
-        <input className="rounded-lg border border-[var(--border)] px-3 py-2" name="q" placeholder="Search all words" defaultValue={q} />
-        <select className="rounded-lg border border-[var(--border)] px-3 py-2" name="filter" defaultValue={filter}>
+    <div id="word-csv-import" className="scroll-mt-4">
+      <MultiSenseCsvPanel batchCount={Math.ceil(reviewedSenseCount.count / 100)}
+        skills={reviewSkills.data?.filter(skill => hasCandidateRule(skill.micro_skill_key))} />
+    </div>
+    <nav aria-label="ADLE lesson tools" className="flex flex-wrap gap-4 text-sm font-semibold">
+      <Link className="underline" href="/admin/adle-lesson-readiness">Lesson approval and release status</Link>
+      {canUpdateIngLesson() && <Link className="underline" href="/admin/teaching-dictionary/lesson-updates">
+        Bulk review workbook
+      </Link>}
+    </nav>
+    <section id="dictionary-word-search" aria-labelledby="dictionary-word-search-heading"
+      className="scroll-mt-4 rounded-2xl border border-[var(--border)] bg-white p-5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 id="dictionary-word-search-heading" className="text-lg font-semibold">Find existing words</h2>
+      </div>
+      <form action="/admin/teaching-dictionary#dictionary-word-search"
+        className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
+        <input aria-label="Search dictionary words" className="rounded-lg border border-[var(--border)] px-3 py-2"
+          name="q" placeholder="Enter a spelling, e.g. boxing" defaultValue={q} />
+        <select aria-label="Filter words" className="rounded-lg border border-[var(--border)] px-3 py-2" name="filter" defaultValue={filter}>
           <option value="all">All active words</option><option value="missing_metadata">Missing core facts or dictation</option>
           <option value="evidence_approved">Evidence approved</option><option value="route_blocked">Prefix, suffix or base member missing</option>
           <option value="awaiting_british_recording">Awaiting British recording (device voice)</option>
-        </select><button className="rounded-lg border border-[var(--border)] px-4 py-2">Filter</button>
+        </select><button className="rounded-lg border border-[var(--border)] px-4 py-2">Search</button>
       </form>
       <p className="my-4 text-sm">{total} words · page {page} of {Math.max(1, Math.ceil(total / PAGE_SIZE))}</p>
-      <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b"><th className="p-2">Word</th><th className="p-2">Dictionary facts</th><th className="p-2">Evidence skills</th><th className="p-2">ADLE route</th></tr></thead><tbody>
+      <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="border-b"><th className="p-2">Word</th><th className="p-2">Dictionary facts</th><th className="p-2">ADLE route</th><th className="p-2">CSV</th></tr></thead><tbody>
         {shown.map((word) => {
           const keys = skillsByWord.get(word.id) ?? [];
           const missing = !metadataReady.has(word.id) || !dictationReady.has(word.id) || !word.age_band || !word.frequency_band;
           const routeKeys = routeKeysByWord.get(word.id) ?? [];
           const missingRoute = [...new Set([...keys, ...routeKeys])].some((key) => memberMissing(word.id, key, routeMembers));
           const fact = metadataByWord.get(word.id);
-          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown ? normaliseWrittenSyllableBreakdown(fact.written_syllable_breakdown) : "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{missingRoute ? "Member missing · " : null}{keys.length || routeKeys.length ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-skills`}>View route status</Link> : "No specialist skill"}</td></tr>;
+          return <tr key={word.id} className="border-b last:border-0"><td className="p-2 font-semibold"><Link className="underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.display_word}</Link><div className="mt-1 text-xs font-normal">Written: {fact?.written_syllable_breakdown ? normaliseWrittenSyllableBreakdown(fact.written_syllable_breakdown) : "No reviewed split"}</div><div className="text-xs font-normal">Phoneme: {fact?.phoneme_hint || "Unknown"}</div></td><td className="p-2">{missing ? "Needs facts" : "Present"}<div className="text-xs">{fact?.syllables || "Unknown"} spoken syllables</div></td><td className="p-2">{missingRoute ? "Member missing · " : null}{keys.length || routeKeys.length ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-skills`}>View route status</Link> : "No specialist skill"}</td>
+            <td className="p-2">{csvWordIds.has(word.id) ? <a className="underline"
+              aria-label={`Download word CSV for ${word.display_word}`}
+              href={`/admin/teaching-dictionary/export/multi-sense?word_id=${word.id}`}>Download word CSV</a>
+              : q ? <Link className="underline" href={`/admin/teaching-dictionary/${word.id}#td-overview`}>Review meanings first</Link> : null}</td>
+          </tr>;
         })}
       </tbody></table></div>
       <div className="mt-4 flex gap-3">{page > 1 && <Link href={href(page - 1)}>Previous</Link>}{page * PAGE_SIZE < total && <Link href={href(page + 1)}>Next</Link>}</div>
     </section>
+    <details>
+      <summary className="cursor-pointer text-sm font-semibold">Other dictionary tools, imports and exports</summary>
+    <nav aria-label="Dictionary tools" className="mt-3 flex flex-wrap gap-2 text-sm"><Link className="rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white" href="/admin/teaching-dictionary/new">Add word</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/bulk-assign">Assign words to a micro-skill</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/format-review">Review dictionary formats</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-lesson-readiness">ADLE lesson readiness and launch</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/teaching-dictionary/routes">ADLE activity requirements</Link><Link className="rounded-lg border border-[var(--border)] px-4 py-2" href="/admin/adle-canonical-intake-readiness">Child readiness</Link></nav>
+      <CsvImportPanel overviewBatchCount={Math.ceil(activeCount.count / OVERVIEW_EXPORT_BATCH_SIZE)}
+        reviewSkills={reviewSkills.data ?? []} />
+    </details>
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5"><h2 className="text-lg font-semibold">Recent drafts</h2><ul className="mt-2 grid gap-1 text-sm">{(drafts.data ?? []).map((draft) => <li key={draft.id}><Link className="underline" href={draft.canonical_word_id ? `/admin/teaching-dictionary/${draft.canonical_word_id}?draft=${draft.id}` : `/admin/teaching-dictionary/new?draft=${draft.id}`}>{draft.normalised_word}</Link> · {new Date(draft.created_at).toLocaleString("en-GB")}</li>)}</ul></section>
   </main>;
 }

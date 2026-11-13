@@ -13,7 +13,7 @@ import {
   validateHomophoneLesson,
   type HomophonePassage,
 } from "@/lib/adle/homophone/lesson";
-import type { WordDraftPayload, RouteContentDraft } from "./contracts";
+import { routeWithSharedFacts, type WordDraftPayload, type RouteContentDraft } from "./contracts";
 
 export type GovernedCandidate = {
   id: string;
@@ -73,7 +73,11 @@ export function buildGovernedPackage(input: {
   const blockers: string[] = [];
   const groupEdits = new Map<string, string>();
   for (const candidate of input.candidates) {
-    const facts = candidate.route.content;
+    // Reproject shared facts at package time. A saved route draft may predate
+    // the latest reviewed Overview meaning, base or provenance.
+    const canonicalRoute = input.routeId === "ing_endings_word_lab"
+      ? routeWithSharedFacts(candidate.route, candidate.dictionary) : candidate.route;
+    const facts = canonicalRoute.content;
     const authority = authorities.find(
       (a) =>
         a.semanticProjection.microSkillKey === candidate.route.microSkillKey &&
@@ -109,6 +113,17 @@ export function buildGovernedPackage(input: {
     }
 
     if (input.routeId === "ing_endings_word_lab") {
+      const selectedSense = candidate.dictionary.senseSet?.senses.find(sense =>
+        sense.id === candidate.dictionary.skillSenseIds?.[candidate.route.microSkillKey]);
+      if (candidate.dictionary.senseSet && !selectedSense) {
+        blockers.push(`${candidate.dictionary.displayWord}: choose the reviewed Overview meaning for this lesson`);
+        continue;
+      }
+      if (selectedSense && candidate.dictionary.canonicalMorphology.analysisStatus !== "approved") {
+        blockers.push(`${candidate.dictionary.displayWord}: approve the Overview word parts before release`);
+        continue;
+      }
+      const sentence = selectedSense?.dictationSentence?.trim() || candidate.dictionary.dictationSentence;
       const previous = source.words.find(
         (word: any) => word.canonicalWordId === candidate.canonicalWordId,
       );
@@ -118,9 +133,9 @@ export function buildGovernedPackage(input: {
         canonicalWordId: candidate.canonicalWordId,
         microSkillKey: candidate.route.microSkillKey,
         word: candidate.dictionary.displayWord,
-        meaning: candidate.route.wordMeaning,
-        dictationSentence: candidate.dictionary.dictationSentence,
-        audioText: candidate.dictionary.dictationSentence,
+        meaning: canonicalRoute.wordMeaning,
+        dictationSentence: sentence,
+        audioText: sentence,
         sourceRefs: Array.isArray(facts.sourceRefs)
           ? facts.sourceRefs
           : previous?.sourceRefs,
@@ -142,7 +157,10 @@ export function buildGovernedPackage(input: {
       ];
       source.dictationSets = {
         ...source.dictationSets,
-        [candidate.canonicalWordId]: candidate.dictionary.dictationVariants ?? [
+        [candidate.canonicalWordId]: selectedSense?.dictationSentence ? [
+          { id: `sense:${selectedSense.id}`, sentence,
+            targetTokenIndex: selectedSense.dictationTargetTokenIndex ?? 0, audioText: sentence },
+        ] : candidate.dictionary.dictationVariants ?? [
           {
             id: "primary",
             sentence: word.dictationSentence,

@@ -1,7 +1,12 @@
 import { ING_RULE_FOR_SKILL, type IngMicroSkill } from "@/lib/adle/ing/contracts";
 import ExcelJS from "exceljs";
-import { csvRecords } from "./csv";
+import { unzipSync } from "fflate";
+import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
+import type { WorkbookFamily } from "./workbook-family-resolution";
 import { MULTI_SENSE_CSV_COLUMNS, renderMultiSenseCsvBundles, type MultiSenseCsvBundle } from "./multi-sense-csv";
+
+export type WorkbookFamilyTask = { row: number; word: string; meaning: string; base: string; sentence: string };
+export type WorkbookFamilyDecision = { row: number; familyKey?: string; createSenseId?: string };
 
 const sheetName = "Words to review";
 const headerRow = 3;
@@ -69,8 +74,8 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   guide.columns = [{ width: 27 }, { width: 104 }];
   guide.addRows([
     ["Field", "How to fill it in"],
-    ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Use Review if you still need to check that meaning."],
-    ["Word family", "Choose the approved family that matches the meaning. Choose Needs family review if the right family is missing."],
+    ["Use in lesson", "Choose Yes on the intended meaning. Keep all existing meaning rows. Words with no Yes stay out of this upload."],
+    ["Word family", "Choose the approved family that matches the meaning. Leave the family blank or choose Needs family review to resolve it after uploading."],
     ["Meaning and pronunciation", "Confirm the definition, part of speech, IPA, syllable count and stress. Use the same pronunciation ID for identical pronunciations."],
     ["Word parts", `Keep the full base and its visible letters in separate fields. ${wordPartsExample} Use none for a join with no space.`],
     ["Spelling change", `If the forms differ, record the change and explanation. ${spellingChangeExample}`],
@@ -80,4 +85,87 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   ]);
   guide.getRow(1).font = { bold: true, color: { argb: "FFA7135A" } };
   return Buffer.from(await workbook.xlsx.writeBuffer());
+}
+
+export async function readReviewWorkbook(file: ArrayBuffer, skill: string, options?: {
+  targetRow?: number;
+  decisions: WorkbookFamilyDecision[];
+  resolve: (base: string, decision: WorkbookFamilyDecision) => Promise<WorkbookFamily | null>;
+}) {
+  let expanded = 0;
+  unzipSync(new Uint8Array(file), { filter: entry => {
+    expanded += entry.originalSize;
+    if (expanded > 16_000_000) throw new Error("The workbook is too large when opened.");
+    return false;
+  } });
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(file);
+  const sheet = workbook.getWorksheet(sheetName);
+  if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== label(key)))
+    throw new Error("Use the review workbook for this micro-skill and keep its column headings.");
+  if (sheet.rowCount > 2000 + headerRow) throw new Error("Upload at most 2,000 meaning rows.");
+  const groups = new Map<string, Record<string, string>[]>();
+  for (let index = headerRow + 1; index <= sheet.rowCount; index++) {
+    const row = sheet.getRow(index);
+    if (!row.hasValues) continue;
+    const entry = Object.fromEntries(keys.map((key, column) => {
+      const value = row.getCell(column + 1).value;
+      if (value !== null && typeof value !== "string" && typeof value !== "number")
+        throw new Error(`Workbook row ${index} must contain plain text or numbers.`);
+      return [key, String(value ?? "").trim()];
+    }));
+    if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
+      throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
+    entry.workbook_row = String(index);
+    if (!entry.display_word) throw new Error(`Workbook row ${index} needs a word.`);
+    const groupKey = entry.display_word.toLocaleLowerCase("en-GB");
+    const group = groups.get(groupKey) ?? [];
+    group.push(entry);
+    groups.set(groupKey, group);
+  }
+  const pendingFamilies: WorkbookFamilyTask[] = [];
+  const records: Record<string, string>[] = [];
+  const decisions = new Map(options?.decisions.map(decision => [decision.row, decision]));
+  const selected = [...groups.values()].filter(group => group.some(row => row.use_in_lesson === "Yes"
+    && (!options?.targetRow || Number(row.workbook_row) === options.targetRow)));
+  if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
+  for (const group of selected) {
+    const tasks: WorkbookFamilyTask[] = [];
+    for (const row of group) {
+      const rowNumber = Number(row.workbook_row);
+      row.family_key = row.family_key.split(" | ").at(-1) ?? "";
+      if (row.family_key === "Needs family review") row.family_key = "";
+      if (row.use_in_lesson !== "Yes") continue;
+      const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
+        .filter(index => row[`part_${index}_kind`] === "base");
+      const part = bases.length === 1 ? bases[0] : bases.find(index =>
+        (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
+      const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";
+      const decision = decisions.get(rowNumber) ?? (row.family_key ? { row: rowNumber, familyKey: row.family_key } : null);
+      if (!decision || !base || !part) {
+        tasks.push({ row: rowNumber, word: row.display_word, meaning: row.definition, base, sentence: row.dictation_sentence });
+        continue;
+      }
+      const family = options ? await options.resolve(base, decision) : null;
+      if (options && (!family || family.base !== base))
+        throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
+      if (family) {
+        row.family_key = family.key;
+        row[`part_${part}_meaning`] = family.meaning;
+      }
+      row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
+      row.relationship_kind ||= "regular_inflection";
+    }
+    if (tasks.length) pendingFamilies.push(...tasks);
+    else records.push(...group);
+  }
+  const csv = [MULTI_SENSE_CSV_COLUMNS, ...records.map(row => {
+    if (!row.family_key) {
+      row.component_part_id = "";
+      row.relationship_kind = "";
+    }
+    return MULTI_SENSE_CSV_COLUMNS.map(key => key === "requested_micro_skills"
+      ? row.use_in_lesson === "Yes" ? skill : "" : row[key] ?? "");
+  })].map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(",")).join("\r\n");
+  return { csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }

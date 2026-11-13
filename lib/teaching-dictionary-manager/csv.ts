@@ -18,32 +18,38 @@ export function flatMorphology(raw: Record<string, string>, headers: readonly st
   let surface = "";
   for (let number = 1; number <= FLAT_IMPORT_PART_LIMIT; number += 1) {
     const prefix = `part_${number}_`;
+    const id = raw[`${prefix}id`] || `part_${number}`;
     const kind = raw[`${prefix}kind`] ?? "";
     const sourceText = raw[`${prefix}underlying_form`] ?? "";
     const surfaceText = raw[`${prefix}visible_letters`] ?? "";
     const gloss = raw[`${prefix}meaning`] ?? "";
     const explanation = raw[`${prefix}spelling_change_explanation`] ?? "";
+    const transformationType = raw[`${prefix}spelling_change_type`] ?? "";
     const join = number > 1 ? raw[`${prefix}join_before`] ?? "" : "";
-    if (![kind, sourceText, surfaceText, gloss, explanation, join].some(Boolean)) continue;
+    if (![kind, sourceText, surfaceText, gloss, explanation, transformationType, join].some(Boolean)) continue;
     if (parts.length !== number - 1) throw new Error(`Part ${number} follows an empty part.`);
     if (!kind || !sourceText || !surfaceText || !gloss)
       throw new Error(`Part ${number} needs its role, underlying form, visible letters and meaning.`);
+    if (!/^[A-Za-z0-9:_-]{1,100}$/u.test(id) || parts.some(part => part.id === id))
+      throw new Error(`Part ${number} needs a unique, stable part ID.`);
     if (!["prefix", "base", "root", "suffix", "connector"].includes(kind))
       throw new Error(`Part ${number} has an invalid role.`);
     if (number > 1) {
       if (!["none", "space", "hyphen"].includes(join)) throw new Error(`Part ${number} needs a valid join before it.`);
-      joins.push({ afterPartId: parts[number - 2].id, beforePartId: `part_${number}`, joinType: join as CanonicalJoin["joinType"] });
+      joins.push({ afterPartId: parts[number - 2].id, beforePartId: id, joinType: join as CanonicalJoin["joinType"] });
       surface += join === "space" ? " " : join === "hyphen" ? "-" : "";
     }
     const start = surface.length;
     surface += surfaceText;
-    parts.push({ id: `part_${number}`, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
+    parts.push({ id, kind: kind as CanonicalPart["kind"], sourceText, surfaceText, gloss,
       displayRange: { start, end: surface.length } });
     if (sourceText !== surfaceText) {
       if (!explanation) throw new Error(`Part ${number} needs a spelling-change explanation.`);
-      transformations.push({ type: ["base", "root"].includes(kind) ? "base_spelling_change" : "affix_spelling_change",
-        sourcePartId: `part_${number}`, sourceText, surfaceText, explanation });
-    } else if (explanation) throw new Error(`Part ${number} has a spelling-change explanation but its forms match.`);
+      transformations.push({ type: transformationType || (["base", "root"].includes(kind)
+        ? "base_spelling_change" : "affix_spelling_change"),
+        sourcePartId: id, sourceText, surfaceText, explanation });
+    } else if (explanation || transformationType)
+      throw new Error(`Part ${number} has a spelling change but its forms match.`);
   }
   if (!parts.length) throw new Error("Add at least one word part.");
   if (surface !== displayWord) throw new Error(`Visible parts and joins spell “${surface}”, not “${displayWord}”.`);
@@ -229,6 +235,20 @@ export function parseDictionaryCsv(text: string): CsvDraft[] {
         ...(flat ? { transformations: flat.transformations } : {}),
         wordSum: flat?.wordSum || raw.word_sum || "", analysisStatus: (raw.analysis_status || (flat ? "approved" : "in_review")) as WordDraftPayload["canonicalMorphology"]["analysisStatus"], reviewNotes: raw.morphology_review_notes || raw.review_notes || "",
       },
+      ...(flat && raw.definition?.trim() && raw.raw_morpholex_pos?.trim()
+        && raw.phoneme_hint?.trim() && /^[1-9][0-9]*$/u.test(raw.syllables ?? "")
+        && raw.stress_pattern?.trim() ? {
+          senseSet: {
+            pronunciations: [{ id: `csv-pronunciation:${normalisedWord}`,
+              ipa: raw.phoneme_hint, spokenSyllableCount: Number(raw.syllables),
+              stressPattern: raw.stress_pattern }],
+            senses: [{ id: `csv-sense:${normalisedWord}`,
+              partOfSpeech: raw.raw_morpholex_pos, definition: raw.definition,
+              pronunciationId: `csv-pronunciation:${normalisedWord}`,
+              ...(target ? { dictationSentence: target,
+                dictationTargetTokenIndex: Math.max(0, tokenIndex) } : {}) }],
+          },
+        } : {}),
       provenance: {
         sourceCategory: (raw.source_category || (raw.lineageJSON ? "ai_assisted_draft" : "internal_authored")) as WordDraftPayload["provenance"]["sourceCategory"],
         sourceName: raw.source_name || raw.sourceFile || "", sourceUrl: raw.source_url || "",

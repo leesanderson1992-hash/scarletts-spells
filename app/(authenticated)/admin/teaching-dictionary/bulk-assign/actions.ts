@@ -1,5 +1,7 @@
 "use server";
 
+import { ING_RULE_FOR_SKILL } from "@/lib/adle/ing/contracts";
+import { generateIngWordFromOverview } from "@/lib/teaching-dictionary-manager/ing-overview-recipe";
 import { requireAdminUser } from "@/lib/admin/access";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
@@ -8,6 +10,12 @@ import { candidatePreviewAssociations, isUuid, reviewPairReadiness } from "@/lib
 import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
 import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/knowledge-review-repository";
 import { managerAssignedPairs } from "@/lib/teaching-dictionary-manager/bulk-review";
+import { bulkSenseChoiceError } from "@/lib/teaching-dictionary-manager/bulk-sense-approval";
+import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
+import { evaluateLessonCandidate, hasCandidateRule,
+  LESSON_CANDIDATE_RULE_REVISION } from "@/lib/teaching-dictionary-manager/lesson-candidate";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
+  "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { updateTag } from "next/cache";
 import type { EnrichmentCandidate } from "@/lib/writing-engine/whole-writing/knowledge";
@@ -37,13 +45,17 @@ export async function saveBulkSkillApprovals(input: {
   excludeWordIds: string[];
   clearWordIds: string[];
   deassignWordIds: string[];
+  senseIds: Record<string, string>;
   requestId: string;
+  workbookReadback?: boolean;
+  sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word" | "teaching_dictionary_import";
 }): Promise<BulkApprovalResult> {
   const actor = await requireAdminUser();
   const environment = resolveAdleRouteActivationEnvironment();
   if (!environment) return failed("Evidence approval is not configured for this environment.");
   if (!input || typeof input !== "object" || typeof input.microSkillKey !== "string"
     || typeof input.requestId !== "string" || !isUuid(input.requestId)
+    || !input.senseIds || typeof input.senseIds !== "object" || Array.isArray(input.senseIds)
     || !Array.isArray(input.applyWordIds) || !Array.isArray(input.excludeWordIds)
     || !Array.isArray(input.clearWordIds) || !Array.isArray(input.deassignWordIds)) {
     return failed("Select between 1 and 100 distinct words.");
@@ -59,7 +71,7 @@ export async function saveBulkSkillApprovals(input: {
   const [skill, words, controls] = await Promise.all([
     db.from("micro_skill_catalog").select("micro_skill_key").eq("micro_skill_key", input.microSkillKey)
       .eq("is_active", true).eq("is_assignable", true).maybeSingle(),
-    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status")
+    db.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,source_name,source_url")
       .in("id", allIds),
     loadWordSkillReviewControls(db, environment),
   ]);
@@ -75,30 +87,101 @@ export async function saveBulkSkillApprovals(input: {
       : [{ id, word: word?.display_word ?? id, reason: "Word is no longer active and approved." }];
   });
   if (invalid.length) return failed("Resolve the blocked words before confirming.", invalid);
+  if (Object.keys(input.senseIds).length !== applyWordIds.length
+    || applyWordIds.some(id => typeof input.senseIds[id] !== "string"))
+    return failed("Choose a reviewed meaning for every word being applied.");
+  const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;
+    morphologyId: string; morphologySource: "legacy" | "sense"; familyLinkIds: string[] }> = {};
+  if (applyWordIds.length) {
+    const [reviewed, morphology, familyLinks, senseAnalyses, senseFamilyLinks] = await Promise.all([
+      db.from("teaching_dictionary_reviewed_sense_sets")
+        .select("canonical_word_id,sense_set").in("canonical_word_id", applyWordIds),
+      hasCandidateRule(input.microSkillKey) ? db.from("canonical_teaching_dictionary_word_morphology")
+        .select("id,canonical_word_id,morphology_parts,morphology_joins,analysis_status,review_status,word_sum,created_at")
+        .in("canonical_word_id", applyWordIds).eq("row_status", "active")
+        .order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
+      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_links")
+        .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
+        .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
+      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_morphology")
+        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
+        .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
+      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_memberships")
+        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+        .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (reviewed.error || morphology.error || familyLinks.error || senseAnalyses.error || senseFamilyLinks.error)
+      return failed("Could not check current reviewed lesson facts. Please retry.");
+    const byWord = new Map((reviewed.data ?? []).map(row => [row.canonical_word_id,
+      row.sense_set as DictionarySenseSet]));
+    const morphologyByWord = new Map<string, NonNullable<typeof morphology.data>[number]>();
+    for (const row of morphology.data ?? []) if (!morphologyByWord.has(row.canonical_word_id))
+      morphologyByWord.set(row.canonical_word_id, row);
+    const blocked = applyWordIds.flatMap(id => {
+      const word = byId.get(id)!;
+      const selected = morphologyByWord.get(id);
+      const facts = candidateFactsForSense({ wordId: id, senseId: input.senseIds[id],
+        senseSet: byWord.get(id) ?? null,
+        legacyMorphology: selected ? { id: selected.id, parts: selected.morphology_parts,
+          joins: selected.morphology_joins, analysisStatus: selected.analysis_status,
+          reviewStatus: selected.review_status, wordSum: selected.word_sum } : null,
+        legacyLinks: (familyLinks.data ?? []) as CandidateLinkRow[],
+        senseAnalyses: (senseAnalyses.data ?? []) as CandidateAnalysisRow[],
+        senseLinks: (senseFamilyLinks.data ?? []) as CandidateLinkRow[] });
+      const candidateInput = {
+        wordId: id, displayWord: word.display_word, skillKey: input.microSkillKey,
+        senseId: input.senseIds[id], senseSet: byWord.get(id) ?? null,
+        morphology: facts.morphology, familyLinks: facts.familyLinks,
+      };
+      const candidate = input.sourceKind === "teaching_dictionary_import" && input.microSkillKey in ING_RULE_FOR_SKILL
+        ? generateIngWordFromOverview({ ...candidateInput,
+            provenance: { sourceName: word.source_name, sourceUrl: word.source_url } })
+        : hasCandidateRule(input.microSkillKey) ? evaluateLessonCandidate(candidateInput) : null;
+      const reason = candidate && candidate.status !== "ready"
+        ? candidate.issues[0]?.message ?? "This word does not match this lesson rule."
+        : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,
+          senseSet: byWord.get(id) ?? null, senseId: input.senseIds[id] });
+      if (reason) return [{ id, word: word.display_word, reason }];
+      if (candidate && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
+        senseId: input.senseIds[id], senseSet: byWord.get(id)!,
+        morphologyId: facts.morphologyId, morphologySource: facts.source,
+        familyLinkIds: facts.familyLinkIds,
+      };
+      return [];
+    });
+    if (blocked.length) return failed("Review the selected meanings before confirming.", blocked);
+  }
 
   try {
-    const existing = await loadPublishedWritingAssociations(db, environment);
-    const current = await loadCanonicalWordSkillRelationshipAuthority({
-      client: db, environmentKey: environment, explicitReviewedAssociations: existing,
-    });
-    const effective = new Set(current.relationships.filter((row) => row.microSkillKey === input.microSkillKey)
-      .map((row) => row.canonicalWordId));
-    if (deassignWordIds.some((id) => !effective.has(id))) return failed("A selected word is no longer assigned. Reload and retry.");
-    const decisions = await db.from("teaching_dictionary_pair_latest_decisions")
-      .select("canonical_word_id,action").eq("environment_key", environment)
-      .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", allIds);
+    // Imports apply explicit word–skill pairs. The scoped authority still
+    // checks their identity, historical sources, withdrawals and deassignments.
+    const scopedIds = input.workbookReadback && input.sourceKind === "teaching_dictionary_import" ? allIds : undefined;
+    const [existing, decisions] = await Promise.all([
+      loadPublishedWritingAssociations(db, environment, scopedIds),
+      db.from("teaching_dictionary_pair_latest_decisions")
+        .select("canonical_word_id,action").eq("environment_key", environment)
+        .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", allIds),
+    ]);
+    const effective = new Set<string>();
+    if (deassignWordIds.length || excludeWordIds.length) {
+      const current = await loadCanonicalWordSkillRelationshipAuthority({
+        client: db, environmentKey: environment, explicitReviewedAssociations: existing, canonicalWordIds: scopedIds,
+      });
+      for (const row of current.relationships)
+        if (row.microSkillKey === input.microSkillKey) effective.add(row.canonicalWordId);
+    }
+    if (deassignWordIds.some(id => !effective.has(id))) return failed("A selected word is no longer assigned. Reload and retry.");
     if (decisions.error) return failed("Could not check saved de-assignments. Please retry.");
     const suppressed = new Set((decisions.data ?? []).filter((row) => row.action === "deassign")
       .map((row) => row.canonical_word_id));
     const restoreIds = applyWordIds.filter((id) => suppressed.has(id));
-    const underlying = restoreIds.length ? await loadCanonicalWordSkillRelationshipAuthority({
-      client: db, environmentKey: environment, explicitReviewedAssociations: existing,
-      ignorePairDecisionsFor: restoreIds.map((id) => ({ canonicalWordId: id, microSkillKey: input.microSkillKey })),
-    }) : current;
-    const underlyingEffective = new Set(underlying.relationships.filter((row) => row.microSkillKey === input.microSkillKey)
+    const activeReviewedPairs = new Set(existing.filter((row) => row.microSkillKey === input.microSkillKey
+      && row.relationshipRole === "demonstrates" && row.rowStatus === "active")
       .map((row) => row.canonicalWordId));
-    const newIds = applyWordIds.filter((id) => !underlyingEffective.has(id));
-    const alreadyAssignedCount = applyWordIds.filter((id) => effective.has(id)).length;
+    // A historical effective word–skill relationship without an active reviewed
+    // release still needs one governed publication before its sense can bind.
+    const newIds = applyWordIds.filter((id) => !activeReviewedPairs.has(id));
+    const alreadyAssignedCount = applyWordIds.length - newIds.length;
     const deassignIds = [...new Set([...deassignWordIds, ...excludeWordIds.filter((id) => effective.has(id))])];
     let authorityFingerprint: string | null = null;
     if (newIds.length) {
@@ -124,7 +207,7 @@ export async function saveBulkSkillApprovals(input: {
       if (previewAssociations.length !== newIds.length) return failed("Could not verify the approval batch. No words were approved.");
       const preview = await loadCanonicalWordSkillRelationshipAuthority({
         client: db, environmentKey: environment,
-        explicitReviewedAssociations: [...existing, ...previewAssociations],
+        explicitReviewedAssociations: [...existing, ...previewAssociations], canonicalWordIds: scopedIds,
         ignorePairDecisionsFor: restoreIds.map((id) => ({ canonicalWordId: id, microSkillKey: input.microSkillKey })),
       });
       const blocked = candidates.flatMap((candidate) => {
@@ -138,13 +221,17 @@ export async function saveBulkSkillApprovals(input: {
       authorityFingerprint = preview.reconciliation.sourceFingerprint;
     }
 
-    const reconciled = await db.rpc("reconcile_teaching_dictionary_bulk_review_v2", {
+    const reconciled = await db.rpc("reconcile_teaching_dictionary_bulk_review_v6", {
       p_environment: environment, p_skill_key: input.microSkillKey,
       p_publish_ids: newIds, p_exclude_ids: excludeWordIds,
       p_clear_ids: [...clearWordIds, ...applyWordIds],
       p_deassign_ids: deassignIds, p_restore_ids: restoreIds,
+      p_sense_ids: input.senseIds,
       p_actor: actor.id, p_request_id: input.requestId,
       p_authority_fingerprint: authorityFingerprint,
+      p_rule_revision: LESSON_CANDIDATE_RULE_REVISION,
+      p_expected_facts: expectedFacts,
+      p_source_kind: input.sourceKind ?? "teaching_dictionary_bulk",
     });
     if (reconciled.error || reconciled.data !== newIds.length) {
       return failed("The batch result could not be confirmed. Retry with the same selection.");
@@ -153,6 +240,8 @@ export async function saveBulkSkillApprovals(input: {
     const summary = { ok: true, approvedCount: applyWordIds.length - alreadyAssignedCount, alreadyAssignedCount,
       excludedCount: excludeWordIds.length, clearedCount: clearWordIds.length,
       deassignedCount: deassignIds.length, blocked: [] };
+    // The workbook returns its affected words' release status separately.
+    if (scopedIds) return { ...summary, assigned: [], excluded: [] };
     try {
       const saved = await loadTeachingDictionaryEvidenceAuthority(db, environment);
       const excluded: string[] = [];

@@ -11,7 +11,7 @@ export async function bindNativePackageFingerprints(
   const hash = async (value: unknown, algorithm = "adle_generic_snapshot_json_sha256_v1"): Promise<string> => {
     const result = await db.rpc(algorithm, { p_value: value });
     if (result.error || typeof result.data !== "string" || !/^[a-f0-9]{64}$/.test(result.data)) {
-      throw new Error("TEACHING_LESSON_PACKAGE_FINGERPRINT_FAILED");
+      throw new Error(`TEACHING_LESSON_PACKAGE_FINGERPRINT_FAILED:${result.error?.code ?? "INVALID_RESPONSE"}`);
     }
     return result.data;
   };
