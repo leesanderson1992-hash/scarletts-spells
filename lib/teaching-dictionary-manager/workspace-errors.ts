@@ -6,7 +6,7 @@ const messages:Record<string,string>={
   TEACHING_LESSON_SENSE_BIND_FAILED:"The lesson meaning could not be approved. Reload and review the lesson selection.",
   TEACHING_LESSON_REQUIREMENTS_INCOMPLETE:"This selected meaning does not yet satisfy the micro-skill requirements. Open its lesson requirements below, complete the linked facts, then recheck.",
   TEACHING_LESSON_SENSE_SENTENCE_REQUIRED:"Add a sentence in Overview that clearly uses the selected meaning before approving this lesson.",
-  TEACHING_LESSON_SENSE_SENTENCE_INVALID:"Select the position of this word in its reviewed meaning sentence.",
+  TEACHING_LESSON_SENSE_SENTENCE_INVALID:"In Pronunciation & dictation, include the word and choose which occurrence to use if it appears more than once.",
   TEACHING_CSV_SINGLE_SENSE_REQUIRED:"This CSV format holds one meaning per word. Open the word page to review its multiple meanings.",
   TEACHING_CSV_SKILL_REVIEW_REQUIRED:"The imported micro-skill choices need a current human review. Reopen the latest CSV batch.",
   TEACHING_FREE_BASE_IMPORT_FAMILY_REVIEW_REQUIRED:"Choose an approved base family, or add the reviewed base_part_of_speech to the CSV so its free-base family can be created. The standalone base must be approved first.",

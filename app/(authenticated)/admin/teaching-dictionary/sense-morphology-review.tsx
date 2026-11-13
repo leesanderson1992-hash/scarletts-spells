@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 import { PartSequenceEditor, asParts } from "./part-sequence-editor";
 import { FormatHint } from "./format-hint";
-import { createSenseFreeBaseFamily, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
+import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
 
 type Analysis = { id: string; sense_id: string; morphology_parts: unknown[];
   morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string };
@@ -18,7 +19,7 @@ type Transformation = { type: string; sourcePartId: string; sourceText: string;
 const field = "w-full rounded border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
 
 function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
-  senseId: string; senseLabel: string; senseDefinition: string; canCreateFreeBase: boolean; current: Analysis | null;
+  senseId: string; senseDefinition: string; canCreateFreeBase: boolean; current: Analysis | null;
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
   families: Family[]; links: Link[]; affixMeanings: Record<string, string[]> }) {
   const router = useRouter();
@@ -29,6 +30,10 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     (props.current?.morphology_transformations ?? props.shared.transformations) as Transformation[]);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [familyMode, setFamilyMode] = useState<"find" | "create" | null>(null);
+  const [baseEntry, setBaseEntry] = useState<Awaited<ReturnType<typeof findReviewedFamilyBase>>>(null);
+  const [baseSenseId, setBaseSenseId] = useState("");
+  const [basePartId, setBasePartId] = useState("");
   const [familyChoice, setFamilyChoice] = useState("");
   const [familySearch, setFamilySearch] = useState("");
   const [searchedFamilies, setSearchedFamilies] = useState<Family[]>([]);
@@ -42,6 +47,9 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
   const visibleMatches = matches.filter(({ family }) => family === chosen?.family ||
     `${family.base_lemma} ${family.base_meaning}`.toLowerCase().includes(familySearch.trim().toLowerCase()));
   const firstPart = typedParts[0];
+  const baseParts = typedParts.filter(part => part.kind === "base" && part.id && part.sourceText);
+  const basePart = baseParts.find(part => part.id === basePartId) ?? (baseParts.length === 1 ? baseParts[0] : undefined);
+  const baseSense = baseEntry?.senses.find(sense => sense.id === baseSenseId);
   const wholeWordBase = typedParts.length === 1 && firstPart?.kind === "base"
     && firstPart.id && String(firstPart.sourceText).toLowerCase() === props.displayWord.toLowerCase()
     && firstPart.surfaceText === props.displayWord
@@ -96,36 +104,114 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         setError(`${needsPartsApproval ? "Parts approved. " : ""}${result.error ?? "Family review failed."}`);
         return;
       }
+      setFamilyMode(null);
       setSaved(true); router.refresh();
+    });
+  }
+  function loadBase(partId: string) {
+    setBasePartId(partId);
+    setBaseEntry(null);
+    setBaseSenseId("");
+    setError("");
+    const part = baseParts.find(item => item.id === partId);
+    if (!part?.sourceText || part.sourceText.toLocaleLowerCase("en-GB") === props.displayWord.toLocaleLowerCase("en-GB")) return;
+    const sourceText = part.sourceText;
+    start(async () => {
+      try {
+        setBaseEntry(await findReviewedFamilyBase(sourceText));
+      } catch {
+        setError("Could not load the base word’s meanings.");
+      }
     });
   }
   function createFamily() {
-    if (!wholeWordBase?.id) return;
-    const partId = wholeWordBase.id;
-    setSaved(false); setError("");
+    const component = wholeWordBase ?? basePart;
+    if (!component?.id || (!wholeWordBase && (!baseEntry || !baseSense))) return;
+    const componentPartId = component.id;
+    setSaved(false);
+    setError("");
     start(async () => {
-      if ((!props.current || changed) && !await approveParts(parts)) return;
-      const result = await createSenseFreeBaseFamily({ wordId: props.wordId,
-        senseId: props.senseId, componentPartId: partId });
+      const nextParts = baseSense ? typedParts.map(part => part.id === componentPartId
+        ? { ...part, gloss: baseSense.definition } : part) : parts;
+      const needsApproval = !props.current || changed || Boolean(baseSense && component.gloss !== baseSense.definition);
+      if (needsApproval && !await approveParts(nextParts)) return;
+      const result = await createSenseFreeBaseFamily({ wordId: props.wordId, senseId: props.senseId,
+        componentPartId, baseWordId: baseEntry?.id, baseSenseId: baseSense?.id, relationshipKind: relationship });
       if (!result.ok) {
-        setError(`${!props.current || changed ? "Parts approved. " : ""}${result.error ?? "Family creation failed."}`);
+        setError(`${needsApproval ? "Parts approved. " : ""}${result.error ?? "Family creation failed."}`);
         return;
       }
-      setSaved(true); router.refresh();
+      setFamilyMode(null);
+      setSaved(true);
+      router.refresh();
     });
   }
-  return <div className="mt-3 grid gap-3">
-    <p className="text-sm"><strong>{props.senseLabel}</strong> · {props.current ? "Approved analysis" : "Needs a meaning-specific analysis"}</p>
-    {!props.current && props.canCreateFreeBase && <button type="button" className="w-fit text-sm underline"
-      onClick={() => {
-        setParts([{ id: "base", kind: "base", sourceText: props.displayWord.toLocaleLowerCase("en-GB"),
-          surfaceText: props.displayWord, gloss: props.senseDefinition,
-          displayRange: { start: 0, end: props.displayWord.length } }]);
-        setJoins([]);
-        setTransformations([]);
-      }}>Use {props.displayWord} as the base for this meaning</button>}
-    <p className="text-sm font-medium">Word sum · {generatedWordSum(parts, props.displayWord)}</p>
-    <details className="rounded-lg border border-[var(--border)] p-3" open={!props.current}>
+  const familyButton = "rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold disabled:opacity-50";
+  function selectMode(mode: "find" | "create") {
+    setFamilyMode(current => current === mode ? null : mode);
+    setError("");
+    if (mode === "find" && !matches.length) refreshFamilyChoices();
+    if (mode === "create" && basePart?.id) loadBase(basePart.id);
+  }
+  return <div className="grid gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--paper)] p-3">
+      <p className="font-semibold">{typedParts.length ? generatedWordSum(parts, props.displayWord) : "Word parts needed"}</p>
+      <span className={currentLinks.length ? "text-sm text-emerald-800" : "text-sm text-amber-900"}>
+        {currentLinks.length ? "✓ Family linked" : "Family needed"}
+      </span>
+    </div>
+    {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
+      <span>{families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
+      <button type="button" className="underline disabled:opacity-50" disabled={pending}
+        onClick={() => submitLink("withdraw", link)}>Remove link</button>
+    </div>)}
+    <div className="flex flex-wrap gap-2">
+      <button type="button" className={familyButton} aria-expanded={familyMode === "find"} disabled={pending}
+        onClick={() => selectMode("find")}>{currentLinks.length ? "Find another family" : "Find existing family"}</button>
+      {props.canCreateFreeBase && <button type="button" className={familyButton}
+        aria-expanded={familyMode === "create"} disabled={pending} onClick={() => selectMode("create")}>Create family</button>}
+    </div>
+    {familyMode === "create" && <div className="grid gap-2 rounded-lg border border-[var(--border)] p-3">
+      {baseParts.length > 1 && <label className="text-sm">Base part
+        <select className={field} value={basePartId} onChange={event => loadBase(event.target.value)}>
+          <option value="">Choose a base</option>
+          {baseParts.map(part => <option key={part.id} value={part.id}>{part.sourceText}</option>)}
+        </select>
+      </label>}
+      {baseEntry && <label className="text-sm">Reviewed meaning of {baseEntry.word}
+        <select className={field} value={baseSenseId} onChange={event => setBaseSenseId(event.target.value)}>
+          <option value="">Choose a meaning</option>
+          {baseEntry.senses.map(sense => <option key={sense.id} value={sense.id}>{sense.partOfSpeech} · {sense.definition}</option>)}
+        </select>
+      </label>}
+      {baseEntry && <Link target="_blank" rel="noopener" href={`/admin/teaching-dictionary/${baseEntry.id}`} className="w-fit text-sm underline">
+        Open base entry to add or review a meaning (new tab)
+      </Link>}
+      {baseEntry && <button type="button" className="w-fit text-sm underline" disabled={pending}
+        onClick={() => basePart?.id && loadBase(basePart.id)}>Reload reviewed meanings</button>}
+      {baseSense && <label className="text-sm">Relationship
+        <select className={field} value={relationship} onChange={event => setRelationship(event.target.value)}>
+          {["regular_inflection", "irregular_inflection", "derived", "contraction", "historical_relative"].map(kind =>
+            <option key={kind} value={kind}>{kind.replaceAll("_", " ")}</option>)}
+        </select>
+      </label>}
+      {!wholeWordBase && !baseEntry && <p className="text-sm">
+        {pending ? "Loading reviewed base meanings…" : "Choose a reviewed base. If this word is the base, use the selected meaning to start its family."}
+      </p>}
+      {!wholeWordBase && !baseEntry && <button type="button" className="w-fit text-sm underline" disabled={pending}
+        onClick={() => {
+          setParts([{ id: "base", kind: "base", sourceText: props.displayWord.toLocaleLowerCase("en-GB"),
+            surfaceText: props.displayWord, gloss: props.senseDefinition,
+            displayRange: { start: 0, end: props.displayWord.length } }]);
+          setJoins([]);
+          setTransformations([]);
+          setBaseEntry(null);
+        }}>Use {props.displayWord} as the whole base</button>}
+      {wholeWordBase && <p className="text-sm">{props.senseDefinition}</p>}
+      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && !baseSense)}
+        onClick={createFamily}>Create and link family</button>
+    </div>}
+    <details className="rounded-lg border border-[var(--border)] p-3" >
       <summary className="cursor-pointer text-sm font-semibold">Edit word parts and spelling changes</summary>
       <div className="mt-3 grid gap-3">
     <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
@@ -167,25 +253,9 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     </button>
       </div>
     </details>
-    <div className="grid gap-2 border-t border-[var(--border)] pt-3">
-      <h4 className="font-semibold">Family for this meaning <FormatHint label="meaning family"
-        format="Choose an approved family whose base or root spelling and meaning match a reviewed part above."
-        example="live · To be alive or remain alive" /></h4>
-      {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
-        <span>{link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
-        <button type="button" className="underline disabled:opacity-50" disabled={pending}
-          onClick={() => submitLink("withdraw", link)}>Remove link</button>
-      </div>)}
+    {familyMode === "find" && <div className="grid gap-2 border-t border-[var(--border)] pt-3">
       {chosen && <p className="text-sm">Base meaning from the family · {chosen.family.base_meaning}</p>}
-      {typedParts.some(part => (part.kind === "base" || part.kind === "root") && part.sourceText) &&
-        <button type="button" disabled={pending} className="w-fit text-sm underline" onClick={refreshFamilyChoices}>
-          Find families for these parts
-        </button>}
-      {!matches.length && <p className="text-sm">Use the base or root spelling to find a family. A whole-word free base can start its own family here.</p>}
-      {props.canCreateFreeBase && wholeWordBase && !matches.some(({ family }) =>
-        family.canonical_base_word_id === props.wordId && family.base_meaning === props.senseDefinition) && <button type="button"
-        className="w-fit rounded border border-[var(--border)] px-3 py-2 text-sm font-semibold disabled:opacity-50"
-        disabled={pending} onClick={createFamily}>Approve parts and create family</button>}
+      {!matches.length && <p className="text-sm">{pending ? "Finding families…" : "No approved family matches these parts. Check the base or root spelling, or create a family."}</p>}
       {matches.length > 0 && <div className="grid gap-2 sm:grid-cols-2">
         <label className="text-sm sm:col-span-2">Search matching families
           <input type="search" className={field} value={familySearch} onChange={event => setFamilySearch(event.target.value)} />
@@ -206,9 +276,9 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
             .map(kind => <option key={kind} value={kind}>{kind.replaceAll("_", " ")}</option>)}
         </select></label>
         <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          disabled={pending || !chosen} onClick={() => submitLink("approve")}>Approve parts and link family</button>
+          disabled={pending || !chosen} onClick={() => submitLink("approve")}>Confirm and link</button>
       </div>}
-    </div>
+    </div>}
     {error && <p role="alert" className="text-sm text-rose-900">{error}</p>}
     {saved && <p role="status" className="text-sm text-emerald-800">Saved. Lesson requirements have been rechecked.</p>}
   </div>;
@@ -225,12 +295,8 @@ export function SenseMorphologyReview(props: { wordId: string; displayWord: stri
   const current = props.analyses.find(row => row.sense_id === senseId) ?? null;
   if (!sense) return null;
   return <section id="td-sense-morphology" className="scroll-mt-6">
-    <h3 className="font-semibold">Word parts &amp; family <FormatHint label="meaning-specific word parts"
-      format="Approve the word-part analysis for each reviewed meaning that will enter a lesson. A matching family can then be linked to that meaning."
-      example="live /lɪv/ and live /laɪv/ can keep separate analyses" /></h3>
     <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}`} wordId={props.wordId}
       displayWord={props.displayWord} senseId={senseId}
-      senseLabel={`${sense.definition} · ${sense.partOfSpeech}`}
       senseDefinition={sense.definition}
       canCreateFreeBase={sense.partOfSpeech !== "root"}
       current={current} shared={props.shared} families={props.families}

@@ -82,7 +82,7 @@ const overviewViews = [
   ["meaning", "Meaning"],
   ["pronunciation", "Pronunciation & dictation"],
   ["family", "Word parts & family"],
-  ["lessons", "Micro-skills & checks"],
+  ["lessons", "Micro-skills"],
   ["details", "Word details"],
 ] as const;
 
@@ -1003,7 +1003,6 @@ export function WordWorkspace(props: {
             </nav>
             {(["meaning", "pronunciation"] as const).map(panel => (
               <div key={panel} data-overview-view={panel} hidden={overviewView !== panel}>
-                <h3 className="mb-3 text-base font-semibold">{panel === "meaning" ? "Meaning" : "Pronunciation & dictation"}</h3>
                 {payload.senseSet && <SenseEditor panel={panel} value={payload.senseSet} word={payload.displayWord}
                   recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
@@ -1026,8 +1025,8 @@ export function WordWorkspace(props: {
               joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
               transformations: props.approvedMorphologyTransformations }}
             affixMeanings={props.affixMeanings} /> : null}
-          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3" open={!activeSenseFamilies.length}>
-            <summary className="cursor-pointer font-semibold">{activeSenseFamilies.length ? "Family members" : "Family suggestions"}</summary>
+          <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3">
+            <summary className="cursor-pointer font-semibold">{activeSenseFamilies.length ? "Family members" : "More family options"}</summary>
             <div className="mt-2">
             {activeSenseFamilies.length ? (
               activeSenseFamilies.map((item) => (
@@ -1168,42 +1167,18 @@ export function WordWorkspace(props: {
             </div>
           </details>
           {props.recordingSettings}
-          <div className="mt-2 overflow-x-auto">
-            <table className="td-overview-table w-full table-fixed text-left text-sm">
-              <thead className="border-b border-[var(--border)] text-xs text-[color:var(--mid)]">
-                <tr>
-                  {overview.map((field) => (
-                    <th key={field.key} className="p-2 font-medium">
-                      {field.label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {overview.map((field) => (
-                    <td key={field.key} data-label={field.label} className="p-2 align-top">
-                      {field.readOnly ? (
-                        <span className="block py-1">{field.value}</span>
-                      ) : (
-                        <div className="flex min-w-0 items-center gap-2">
-                          <div className="min-w-0 flex-1"><Editable
-                            hideLabel
-                            id={`td-${field.key}`}
-                            label={field.label}
-                            value={field.value}
-                            onChange={field.change}
-                            options={field.options}
-                          /></div>
-                          {field.key === "display" && props.wordClip && payload.displayWord === props.approvedWord &&
-                            <InlineBritishRecording clip={props.wordClip} label="word" />}
-                        </div>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {overview.map(field => field.readOnly ? (
+              <div key={field.key} className="rounded-lg bg-[var(--paper)] p-3 text-sm">
+                <p className="text-xs text-[color:var(--mid)]">{field.label}</p>
+                <p>{field.value}</p>
+              </div>
+            ) : <div key={field.key} className="flex min-w-0 items-end gap-2">
+              <div className="min-w-0 flex-1"><Editable id={`td-${field.key}`} label={field.label}
+                value={field.value} onChange={field.change} options={field.options} /></div>
+              {field.key === "display" && props.wordClip && payload.displayWord === props.approvedWord &&
+                <InlineBritishRecording clip={props.wordClip} label="word" />}
+            </div>)}
           </div>
           {props.wordId && props.currentMorphologyId &&
             payload.canonicalMorphology.rawPartOfSpeech.toLowerCase() !== props.currentApprovedPartOfSpeech.toLowerCase() &&
@@ -1401,12 +1376,10 @@ export function WordWorkspace(props: {
           <div data-overview-view="lessons" hidden={overviewView !== "lessons"} className="space-y-4">
       <section id="td-skills" className={`${section} scroll-mt-6`}>
         <h2 className="p-4 font-semibold">
-          Micro-skill lessons{" "}
-          <span className="ml-2 text-xs font-normal">
-            {payload.skillKeys.length} joined
-          </span>
+          Readiness for this meaning
         </h2>
         <div className="px-4 pb-4">
+          {!payload.skillKeys.length && <p className="text-sm text-[color:var(--mid)]">No micro-skills assigned yet.</p>}
           <div className="grid gap-2">
               {payload.skillKeys.map((key) => {
                 const route = routeForSkill(key);
@@ -1435,9 +1408,28 @@ export function WordWorkspace(props: {
                 const complete = lessonUsesActiveSense && !dirty && assignedSkillKeys?.includes(key) &&
                   (route?.routeId === "weak_vowel_word_lab" ? published?.sourceCurrent :
                     checks.find(row => row.key === key)?.ready);
+                const readiness = !payload.skillSenseIds?.[key] ? "Choose meaning"
+                  : !lessonUsesActiveSense ? "Different meaning"
+                  : dirty ? "Unsaved changes"
+                  : checksState === "loading" ? "Checking…"
+                  : checksState === "error" ? "Checks unavailable"
+                  : wordApproved && !route?.newAssignmentCapable ? "Route unavailable"
+                  : complete ? "✓ Ready"
+                  : candidate?.status === "ready" && !wordApproved ? "Ready to approve"
+                  : "Needs review";
+                const statusStyle = readiness === "✓ Ready" ? "bg-emerald-50 text-emerald-800"
+                  : readiness === "Needs review" || readiness === "Choose meaning" ? "bg-amber-50 text-amber-900"
+                  : "bg-[var(--paper)] text-[color:var(--mid)]";
                 return (
-                  <details key={key} className="rounded-lg border border-[var(--border)] p-3">
-                    <summary className="cursor-pointer font-semibold">{name(key)} <span className="ml-2 text-xs font-normal text-[color:var(--mid)]">{complete ? "Word content complete" : !payload.skillSenseIds?.[key] ? "Choose the meaning taught" : !lessonUsesActiveSense ? "Another meaning selected for this lesson" : dirty ? "Save the selected meaning" : candidate?.status === "ready" && !wordApproved ? "Ready to approve this meaning" : wordApproved && !route?.newAssignmentCapable ? "Word approved · awaiting lesson route" : checksState === "loading" ? "Checking…" : "Needs lesson content"}</span></summary>
+                  <details key={key} className="group rounded-lg border border-[var(--border)] p-3">
+                    <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold">{name(key)}</span>
+                      <span className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className={`rounded-full px-2 py-1 font-medium ${statusStyle}`}>{readiness}</span>
+                        <span className="underline group-open:hidden">View checks</span>
+                        <span className="hidden underline group-open:inline">Close checks</span>
+                      </span>
+                    </summary>
                     <div className="mt-2 text-sm">
                       {!lessonUsesActiveSense && <p className="mb-2 rounded bg-amber-50 p-2 text-amber-950">
                         This lesson currently uses {payload.senseSet?.senses.find(sense => sense.id === payload.skillSenseIds?.[key])?.definition ?? "another meaning"}. The requirements below are for <strong>{activeSense?.definition}</strong>.
@@ -1533,7 +1525,7 @@ export function WordWorkspace(props: {
                 setJoined("");
               }}
             >
-              Find other micro-skill
+              Assign to this meaning
             </button>
             {(assignedSkillKeys === null ? payload.skillKeys.length > 0 :
               payload.skillKeys.length !== assignedSkillKeys.length ||

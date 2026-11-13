@@ -69,17 +69,44 @@ export async function reviewSenseFamilyMembership(input: { wordId: string; sense
   return { ok: true };
 }
 
+export async function findReviewedFamilyBase(form: string) {
+  await requireAdminUser();
+  const db = createServiceRoleClient();
+  const word = await db.from("canonical_teaching_dictionary_words").select("id,display_word")
+    .eq("normalised_word", form.trim().toLocaleLowerCase("en-GB")).eq("dialect_code", "en-GB")
+    .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").maybeSingle();
+  if (word.error || !word.data) return null;
+  const reviewed = await db.from("teaching_dictionary_reviewed_sense_sets").select("sense_set")
+    .eq("canonical_word_id", word.data.id).maybeSingle();
+  if (reviewed.error) throw new Error("Could not load the base word’s meanings.");
+  const set = reviewed.data?.sense_set as import("@/lib/teaching-dictionary-manager/senses").DictionarySenseSet | undefined;
+  return { id: word.data.id, word: word.data.display_word, senses: (set?.senses ?? [])
+    .filter(sense => sense.definition.trim() && sense.partOfSpeech && sense.partOfSpeech !== "root")
+    .map(({ id, definition, partOfSpeech }) => ({ id, definition, partOfSpeech })) };
+}
+
 /** A reviewed whole-word free base can anchor a family for this exact meaning. */
 export async function createSenseFreeBaseFamily(input: { wordId: string; senseId: string;
-  componentPartId: string }): Promise<{ ok: boolean; error?: string }> {
+  componentPartId: string; baseWordId?: string; baseSenseId?: string; relationshipKind?: string }): Promise<{ ok: boolean; error?: string }> {
   const actor = await requireAdminUser();
   if (!isUuid(input.wordId) || !input.senseId || input.senseId.length > 200
     || !input.componentPartId || input.componentPartId.length > 200)
     return { ok: false, error: "Choose a reviewed whole-word base and meaning." };
-  const result = await createServiceRoleClient().rpc("create_reviewed_free_base_family_from_sense", {
-    p_request_id: randomUUID(), p_base_word_id: input.wordId, p_base_sense_id: input.senseId,
+  const db = createServiceRoleClient();
+  const baseWordId = input.baseWordId ?? input.wordId;
+  const baseSenseId = input.baseSenseId ?? input.senseId;
+  if (!isUuid(baseWordId) || !baseSenseId || baseSenseId.length > 200)
+    return { ok: false, error: "Choose a reviewed base meaning." };
+  if (baseWordId !== input.wordId) {
+    const current = await db.from("teaching_dictionary_current_sense_morphology").select("id")
+      .eq("canonical_word_id", baseWordId).eq("sense_id", baseSenseId).maybeSingle();
+    if (current.error || !current.data)
+      return { ok: false, error: "Open the base entry and approve its whole-word parts before creating the family." };
+  }
+  const result = await db.rpc("create_reviewed_free_base_family_from_sense", {
+    p_request_id: randomUUID(), p_base_word_id: baseWordId, p_base_sense_id: baseSenseId,
     p_word_id: input.wordId, p_word_sense_id: input.senseId,
-    p_component_part_id: input.componentPartId, p_relationship_kind: "free_base",
+    p_component_part_id: input.componentPartId, p_relationship_kind: baseWordId === input.wordId ? "free_base" : input.relationshipKind ?? "derived",
     p_reviewer: actor.id,
     p_source_reference: "Teaching Dictionary reviewed meaning free-base family",
   });

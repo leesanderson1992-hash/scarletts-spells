@@ -420,6 +420,19 @@ async function performWorkspaceSave(form: FormData) {
     if (wordId && !isUuid(wordId)) throw new Error("TEACHING_WORD_ID_INVALID");
     const normalisedWord = normaliseWord(value(form, "normalised_word"));
     const payload = payloadFromForm(form);
+    if (payload.senseSet) {
+      payload.senseSet = { ...payload.senseSet, senses: payload.senseSet.senses.map(sense => {
+        const targets = targetOccurrences(sense.dictationSentence ?? "", payload.displayWord);
+        return targets.length === 1 ? { ...sense, dictationTargetTokenIndex: targets[0] } : sense;
+      }) };
+      const targets = targetOccurrences(payload.dictationSentence, payload.displayWord);
+      if (targets.length === 1) {
+        payload.dictationTargetTokenIndex = targets[0];
+        if (payload.dictationVariants?.[0]?.sentence === payload.dictationSentence) {
+          payload.dictationVariants[0] = { ...payload.dictationVariants[0], targetTokenIndex: targets[0] };
+        }
+      }
+    }
     for (const route of payload.routeContents) {
       if (route.routeId !== "weak_vowel_word_lab") continue;
       const facts = route.content.weakVowel as Record<string, unknown> | undefined;
@@ -536,6 +549,10 @@ async function performWorkspaceSave(form: FormData) {
         throw new Error("TEACHING_SENSE_SET_INVALID");
       if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
         throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
+      if (reviewSection === "overview" && payload.senseSet?.senses.some(sense =>
+        sense.dictationSentence?.trim() && !targetOccurrences(sense.dictationSentence, payload.displayWord)
+          .includes(sense.dictationTargetTokenIndex ?? -1)))
+        throw new Error("TEACHING_LESSON_SENSE_SENTENCE_INVALID");
       if (reviewSection === "overview") await assertReviewedAffixMeanings(db, payload);
       if(reviewSection.startsWith("lesson:")) {
         const fingerprint=await db.rpc("teaching_dictionary_overview_fingerprint",{p_payload:payload});
