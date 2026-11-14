@@ -58,12 +58,12 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       frequency_band: list(DICTIONARY_BANDS.frequencyBand),
       complexity_band: list(DICTIONARY_BANDS.complexityBand),
       has_schwa: list(["Yes", "No"]),
-      relationship_kind: list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]),
     });
-    for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
-      commonDropdowns[`part_${index}_kind`] = list(["prefix", "base", "root", "suffix", "connector"]);
-      if (index > 1) commonDropdowns[`part_${index}_join_before`] = list(["none", "space", "hyphen"]);
-    }
+  }
+  commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
+  for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
+    commonDropdowns[`part_${index}_kind`] = list(["prefix", "base", "root", "suffix", "connector"]);
+    if (index > 1) commonDropdowns[`part_${index}_join_before`] = list(["none", "space", "hyphen"]);
   }
   const addDropdowns = (row: ExcelJS.Row) => {
     for (const [key, validation] of Object.entries(commonDropdowns)) row.getCell(key).dataValidation = validation;
@@ -81,7 +81,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);
-    const familyChoices = input.families.get(entry.part_1_underlying_form) ?? [];
+    const familyPart = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
+      .find(index => (entry[`part_${index}_id`] || `part_${index}`) === entry.component_part_id
+        || (!entry.component_part_id && ["base", "root"].includes(entry[`part_${index}_kind`])));
+    const familyChoices = input.families.get(entry[`part_${familyPart}_underlying_form`]) ?? [];
     const options = [...new Set([...familyChoices, entry.family_key, "Needs family review"].filter(Boolean))];
     const start = familyOptions.rowCount + 1;
     for (const family of options) familyOptions.addRow([family]);
@@ -106,12 +109,14 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
     : rule === "double_final_consonant" ? "For hopping, enter hop as the underlying form and hopp as the visible letters."
       : rule === "regular" ? "For walking, enter walk as both forms."
-        : "For caring, enter care as the underlying form and car as the visible letters.";
+        : rule === "drop_e" ? "For caring, enter care as the underlying form and car as the visible letters."
+          : "For unkind, enter un as the prefix and kind as the base.";
   const spellingChangeExample = input.skill === ABLE_IBLE_SKILL ? "For noticeable, retain notice as the underlying form and visible letters." : rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."
     : rule === "double_final_consonant"
       ? "For beginning, the final syllable of begin has primary stress. Enter unstressed-primary-unstressed for beginning."
       : rule === "regular" ? "For walking, the base walk stays the same."
-        : "For caring, drop the final e before adding -ing.";
+        : rule === "drop_e" ? "For caring, drop the final e before adding -ing."
+          : "Keep the underlying base and enter the letters visible in the word.";
   const guide = workbook.addWorksheet("Field guide");
   guide.columns = [{ width: 27 }, { width: 104 }];
   guide.addRows([
@@ -221,7 +226,10 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         row[`part_${part}_meaning`] ||= family.meaning;
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
-      row.relationship_kind ||= skill === ABLE_IBLE_SKILL ? "derived" : "regular_inflection";
+      if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
+      if (!row.relationship_kind && skill === ABLE_IBLE_SKILL) row.relationship_kind = "derived";
+      if (!row.relationship_kind)
+        throw new Error(`Row ${rowNumber}: choose the relationship to the teaching family.`);
     }
     if (tasks.length) pendingFamilies.push(...tasks);
     else records.push(...group);

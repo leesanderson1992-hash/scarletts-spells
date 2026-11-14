@@ -168,7 +168,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
         {Boolean(result.issues?.length) && <ul className="list-disc space-y-1 pl-5 text-rose-900">
           {result.issues?.map((issue, index) => <li key={index}><strong>{issue.word}</strong> · {issue.reason}</li>)}
         </ul>}
-        {Boolean(result.approved || result.alreadyApproved) && <button type="button" className={actionClass}
+        {Boolean(result.words || result.approved || result.alreadyApproved) && <button type="button" className={actionClass}
           disabled={navigating || pending} onClick={() => openStep(3)}>Preview lesson update</button>}
       </section>}
       {step === 2 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">

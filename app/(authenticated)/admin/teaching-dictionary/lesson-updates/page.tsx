@@ -1,3 +1,5 @@
+import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
+import { publishIdentifyBaseWord } from "./base-word-actions";
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/admin/access";
 import { buildScopedPath } from "@/lib/children-shared";
@@ -6,7 +8,7 @@ import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, l
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
-import { isAbleIblePilot } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isAbleIblePilot, isIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { publishAbleIbleLesson } from "./able-ible-actions";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
@@ -24,8 +26,9 @@ export default async function LessonUpdates({ searchParams }: {
     : params.view === "workbook" ? "workbook" : "export";
   const skill = isStagingIngSkill(params.skill) ? params.skill : null;
   const suffixPilot = isAbleIblePilot(params.skill);
-  const supported = suffixPilot || canUpdateIngLesson() && Boolean(skill);
-  const [clusterRows, skillRows, result, suffix] = await Promise.all([
+  const baseReview = isIdentifyBaseReview(params.skill);
+  const supported = baseReview || suffixPilot || canUpdateIngLesson() && Boolean(skill);
+  const [clusterRows, skillRows, result, suffix, base] = await Promise.all([
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
@@ -33,7 +36,8 @@ export default async function LessonUpdates({ searchParams }: {
       ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
-    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db) : Promise.resolve(null),
+    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db) : null,
+    baseReview && view !== "workbook" ? loadIdentifyBaseReview(db) : null,
   ]);
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const selected = params.skill ?? "";
@@ -60,9 +64,15 @@ export default async function LessonUpdates({ searchParams }: {
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
-      fullPoolSize={suffix?.current.length ?? update?.current.length ?? null}
+      fullPoolSize={base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       allowsBlankWorkbook={suffixPilot}
-      review={suffix && view === "export" && suffix.rows.length > 0 ? <section className={card}>
+      review={base && view === "export" ? <section className={card}>
+        <h2 className="text-xl font-semibold">{base.rows.length} words waiting for review</h2>
+        <ul className="divide-y divide-[var(--border)]">{base.rows.map(row => <li key={row.id} className="py-2">
+          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
+          <p className="text-sm">{row.note}</p>
+        </li>)}</ul>
+      </section> : suffix && view === "export" && suffix.rows.length > 0 ? <section className={card}>
         <h2 className="text-xl font-semibold">Lesson words to reconcile</h2>
         <ul className="divide-y divide-[var(--border)]">{suffix.rows.map(word => <li key={word.id} className="space-y-1 py-3">
           <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.word}</Link>
@@ -70,7 +80,24 @@ export default async function LessonUpdates({ searchParams }: {
           <p className="text-sm">{word.note}</p>
         </li>)}</ul>
       </section> : null}
-      batches={suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+      batches={base ? Math.ceil(base.rows.length / ING_REVIEW_BATCH_SIZE) : suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+    {base && view === "preview" && <section className={card}>
+      <h2 className="text-xl font-semibold">Publish words for Identify the Base</h2>
+      {params.published && <p role="status">The word is Active in Identify the Base.</p>}
+      <p>{base.current.length} active words · {base.rows.length} waiting for review</p>
+      {base.rows.filter(row => row.choices.length).map(row => <form key={row.id} action={publishIdentifyBaseWord}
+        className="space-y-2 rounded-lg border p-3">
+        <input type="hidden" name="word_id" value={row.id} />
+        <label className="grid gap-1">Teaching meaning for {row.word}
+          <select name="sense_id" required defaultValue={row.choices.length === 1 ? row.choices[0].id : ""}
+            className="rounded border p-2">
+            {row.choices.length > 1 && <option value="" disabled>Choose a meaning</option>}
+            {row.choices.map(choice => <option key={choice.id} value={choice.id}>{choice.definition}</option>)}
+          </select>
+        </label>
+        <ActionSubmitButton className={button} pendingLabel="Publishing…">Publish {row.word}</ActionSubmitButton>
+      </form>)}
+    </section>}
     {suffix && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">Preview the -able/-ible lesson update</h2>
       {params.error && <p role="alert">{params.error}</p>}

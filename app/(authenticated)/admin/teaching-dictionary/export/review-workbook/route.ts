@@ -1,3 +1,4 @@
+import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { NextResponse } from "next/server";
 import { requireAdminUser } from "@/lib/admin/access";
 import { ING_RULE_FOR_SKILL, ingStem } from "@/lib/adle/ing/contracts";
@@ -6,7 +7,7 @@ import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagin
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
-import { isAbleIblePilot } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isAbleIblePilot, isIdentifyBaseReview, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
   const skill = params.get("skill");
   const scope = params.get("scope") ?? "review";
   const batch = Number(params.get("batch") ?? "1");
-  if (!canUpdateIngLesson() || (!isStagingIngSkill(skill) && !isAbleIblePilot(skill)))
+  if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope !== "review" && scope !== "pool")
     return new Response("This workbook export is unavailable.", { status: 404 });
@@ -37,6 +38,18 @@ export async function GET(request: Request) {
       notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map() });
     return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
+  if (isIdentifyBaseReview(skill)) {
+    const { rows, current } = await loadIdentifyBaseReview(db, scope === "review");
+    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook("Identify the Base", current),
+      `teaching-dictionary-active-pool-${skill}.xlsx`);
+    const selected = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
+    if (!selected.length) return new Response("No words need review in this batch.", { status: 404 });
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base",
+      bundles: selected.flatMap(row => row.bundle ? [row.bundle] : []),
+      notes: new Map(selected.map(row => [row.id, row.note])), families: new Map() }),
+    `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+  }
+  if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope === "pool") {
     const { released } = await loadActiveIngRelease(db, skill);
     const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], released.filter(word => word.microSkillKey === skill));

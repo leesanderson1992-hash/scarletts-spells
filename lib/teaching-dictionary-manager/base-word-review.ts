@@ -1,0 +1,86 @@
+import "server-only";
+
+import { loadEnabledBaseWordReleaseAuthorities } from "@/lib/adle/loaders/curriculum-release-authority";
+import { projectPublishedBaseWordRelease, baseWordPartShape } from "@/lib/adle/loaders/published-base-family-words";
+import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
+import { baseWordMemberSelectable } from "@/lib/adle/base-word-regularity";
+import { loadReviewedMeaningBundles } from "./multi-sense-export";
+import { bulkSenseChoiceError } from "./bulk-sense-approval";
+import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
+import type { MultiSenseCsvBundle } from "./multi-sense-csv";
+import type { createServiceRoleClient } from "@/lib/supabase/service-role";
+
+type Db = ReturnType<typeof createServiceRoleClient>;
+
+export async function loadIdentifyBaseReview(db: Db, includeBundles = false) {
+  const skill = IDENTIFY_BASE_SKILL;
+  const [release] = await loadEnabledBaseWordReleaseAuthorities({
+    client: db, environmentKey: "staging", microSkillKeys: [skill],
+  });
+  if (!release) throw new Error("The staging Identify the Base release is unavailable.");
+  const active = await projectPublishedBaseWordRelease(db, release);
+  const words = new Map(release.dictionaryWords.map(word => [word.canonicalWordId, word]));
+  const current = active.family.families.flatMap(family => family.members.flatMap(member => {
+    const word = active.dictionaryWords.find(row => row.canonicalWordId === member.canonicalWordId);
+    return word && baseWordMemberSelectable(active.family, member) &&
+      baseWordFamilyMemberAppliesToMicroSkill(active.family, member, skill) ? [{
+        canonicalWordId: word.canonicalWordId, word: word.displayWord, base: words.get(family.baseWordId)?.displayWord ?? "",
+        meaning: member.childFriendlyMeaning, dictationSentence: word.dictationSentence,
+      }] : [];
+  }));
+  const inPool = new Set(current.map(word => word.canonicalWordId));
+  const legacy = release.family.families.flatMap(family => family.members.flatMap(member => {
+    const word = words.get(member.canonicalWordId);
+    return word && baseWordFamilyMemberAppliesToMicroSkill(release.family, member, skill)
+      ? [{ family, member, word }] : [];
+  }));
+  const ids = [...new Set(legacy.filter(({ word }) => !inPool.has(word.canonicalWordId)).map(({ word }) => word.canonicalWordId))];
+  const bundles = await readBundles(db, [...new Set([...ids, ...legacy.map(({ family }) => family.baseWordId)])]);
+  const byWord = new Map(bundles.map(bundle => [bundle.wordId, bundle]));
+  const rows = ids.map(id => {
+    const records = legacy.filter(({ word }) => word.canonicalWordId === id);
+    const [{ word, member, family }] = records;
+    const bundle = byWord.get(id);
+    const eligible = records.filter(({ member }) => baseWordMemberSelectable(release.family, member));
+    const choices = bundle?.senseSet.senses.filter(sense => {
+      if (!sense.dictationSentence || bulkSenseChoiceError({ wordId: id, displayWord: word.displayWord,
+        senseSet: bundle.senseSet, senseId: sense.id })) return false;
+      const analysis = bundle.analyses.find(item => item.senseId === sense.id);
+      return Boolean(analysis?.familyKey && eligible.some(({ member, family }) => {
+        if (baseWordPartShape(analysis.parts) !== baseWordPartShape(member.morphologyParts)) return false;
+        const basePart = analysis.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
+        if (!basePart) return false;
+        if (family.baseWordId === id) return analysis.relationshipKind === "free_base";
+        const baseBundle = byWord.get(family.baseWordId);
+        // Use the actual published anchor, including its chosen meaning.
+        const activeAnchor = active.family.families.find(item => item.baseFamilyKey === family.baseFamilyKey)
+          ?.members.find(item => item.canonicalWordId === family.baseWordId);
+        return Boolean(activeAnchor && baseBundle?.analyses.some(base => base.familyKey === analysis.familyKey &&
+          base.relationshipKind === "free_base" && base.parts.find(part => part.id === base.componentPartId)?.sourceText === basePart.sourceText &&
+          base.senseId === activeAnchor.dictionarySenseId) &&
+          ["derived", "regular_inflection"].includes(analysis.relationshipKind));
+      }));
+    }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
+    const base = words.get(family.baseWordId)?.displayWord ?? "";
+    const note = !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
+      : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
+        : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
+          : !inPool.has(family.baseWordId) && family.baseWordId !== id
+            ? `Publish the reviewed base “${base}” for this micro-skill first. Check this word’s meaning, parts and family link.`
+            : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
+    return { id, word: word.displayWord, choices, note, base, bundle: includeBundles ? bundle ?? {
+      wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
+      senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
+        dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },
+      analyses: [],
+    } satisfies MultiSenseCsvBundle : undefined };
+  });
+  return { current, rows: rows.sort((a, b) => a.word.localeCompare(b.word, "en-GB")) };
+}
+
+async function readBundles(db: Db, ids: string[]) {
+  const result: MultiSenseCsvBundle[] = [];
+  for (let offset = 0; offset < ids.length; offset += 75)
+    result.push(...await loadReviewedMeaningBundles(db, ids.slice(offset, offset + 75)));
+  return result;
+}

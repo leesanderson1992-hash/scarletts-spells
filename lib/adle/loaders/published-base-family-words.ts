@@ -18,6 +18,13 @@ type ApprovedWord = {
 
 export const baseFamilyWordKey = (family: string, wordId: string) => `${family}:${wordId}`;
 
+export function baseWordPartShape(parts: unknown[]) {
+  return semanticJson(parts.map(raw => {
+    const part = raw as Partial<CanonicalPart>;
+    return [part.kind, part.sourceText, part.surfaceText];
+  }));
+}
+
 export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activation: ActivatedBaseWordReleaseAuthority) {
   const skill = activation.microSkillKey;
   const ids = [...new Set(activation.family.families.flatMap(f => f.members.map(w => w.canonicalWordId)))];
@@ -52,10 +59,6 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
       membershipsBySense.set(key, [...membershipsBySense.get(key) ?? [], link]);
     }
   }
-  const shape = (parts: unknown[]) => parts.map(raw => {
-    const part = raw as Partial<CanonicalPart>;
-    return [part.kind, part.sourceText, part.surfaceText];
-  });
   for (const family of activation.family.families) {
     const baseSense = senses.get(`${family.baseWordId}:${skill}`);
     if (baseSense?.status !== "current" || !baseSense.pronunciation || !baseSense.dictationAuthorityId) continue;
@@ -70,7 +73,7 @@ export async function loadPublishedBaseFamilyWords(client: SupabaseClient, activ
       const senseKey = `${member.canonicalWordId}:${sense.senseId}`;
       const analysis = morphologyBySense.get(senseKey);
       if (!analysis || !Array.isArray(analysis.morphology_parts) || !Array.isArray(analysis.morphology_joins) ||
-        semanticJson(shape(analysis.morphology_parts)) !== semanticJson(shape(member.morphologyParts))) continue;
+        baseWordPartShape(analysis.morphology_parts) !== baseWordPartShape(member.morphologyParts)) continue;
       const parts = analysis.morphology_parts as CanonicalPart[];
       const membership = (membershipsBySense.get(senseKey) ?? []).filter(link =>
         link.sense_morphology_id === analysis.id && link.family_key === anchor[0].family_key &&
@@ -102,7 +105,7 @@ export async function projectPublishedBaseWordRelease(client: SupabaseClient, ac
       if (!facts) return [];
       factsByWord.set(member.canonicalWordId, facts.sense);
       return [{ ...member, morphologyParts: facts.parts, morphologyJoins: facts.joins,
-        wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
+        dictionarySenseId: facts.sense.senseId, wordSum: facts.wordSum, childFriendlyMeaning: facts.sense.meaning }];
     });
   }
   const dictionaryWords = activation.dictionaryWords.flatMap(word => {

@@ -14,7 +14,7 @@ import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
-import { isAbleIblePilot, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isAbleIblePilot, isIdentifyBaseReview, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
@@ -128,6 +128,10 @@ export async function importReviewedMultiSenseCsv(
         const report = (reason: string) => issues.push({
           word, wordId, rows: [rows[index]], reason: `${prefix}: ${reason}`,
         });
+        if (workbook && isIdentifyBaseReview(skillKey)) {
+          lesson.release = "Check and publish from the preview step";
+          continue;
+        }
         if (!hasCandidateRule(skillKey)) {
           report("This lesson does not have automatic approval checks yet. Review it in the bulk assigner.");
           continue;
@@ -167,7 +171,7 @@ export async function importReviewedMultiSenseCsv(
           : statuses.get(row.wordId) ?? "Release review needed";
         return;
       }
-      if (workbook && skillKey === ABLE_IBLE_SKILL) return;
+      if (workbook && (skillKey === ABLE_IBLE_SKILL || isIdentifyBaseReview(skillKey))) return;
       const routeId = results[0].routeId;
       const [lesson] = routeId ? await loadLessonReadiness({ routeId, microSkillKey: skillKey }) : [];
       for (const row of results) row.release = !lesson ? "No lesson release status"
