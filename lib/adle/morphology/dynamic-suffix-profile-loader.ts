@@ -1,5 +1,5 @@
-import { loadPublishedAbleIbleFacts } from "@/lib/teaching-dictionary-manager/able-ible-published-facts";
-import { ABLE_IBLE_SKILL } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { loadPublishedSuffixFacts } from "@/lib/teaching-dictionary-manager/able-ible-published-facts";
+import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, suffixDictionaryOnly } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
@@ -387,15 +387,19 @@ export async function loadDynamicSuffixProfiles(
     metadataByWordId.set(candidate.canonicalWordId, [{ canonical_word_id: candidate.canonicalWordId,
       ...candidate.dictionary.metadata, row_status: "active", review_status: "approved_for_first_exposure" }]);
   }
-  const stagingAbleIble = ingReviewEnvironment() === "staging";
-  const dictionaryMembers = stagingAbleIble ? profileRows.filter(profile => profile.micro_skill_key === ABLE_IBLE_SKILL)
-    .flatMap(profile => records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members).flatMap(member => {
-      const wordId = text(member.canonical_word_id);
-      const word = wordId ? text(wordsById.get(wordId)?.display_word) : null;
-      const contentVersionId = isRecord(member.source_metadata) ? text(member.source_metadata.contentVersionId) : null;
-      return wordId && word && contentVersionId ? [{ wordId, word, contentVersionId }] : [];
-    })) : [];
-  const dictionaryFacts = await loadPublishedAbleIbleFacts(client, dictionaryMembers);
+  const stagingDictionary = ingReviewEnvironment() === "staging";
+  const dictionaryFactsBySkill = new Map(await Promise.all(profileRows.filter(profile =>
+    stagingDictionary && (profile.micro_skill_key === ABLE_IBLE_SKILL || profile.micro_skill_key === FUL_LESS_SKILL))
+    .map(async profile => {
+      const skill = String(profile.micro_skill_key);
+      const members = records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members).flatMap(member => {
+        const wordId = text(member.canonical_word_id);
+        const word = wordId ? text(wordsById.get(wordId)?.display_word) : null;
+        const contentVersionId = isRecord(member.source_metadata) ? text(member.source_metadata.contentVersionId) : null;
+        return wordId && word && contentVersionId ? [{ wordId, word, contentVersionId }] : [];
+      });
+      return [skill, await loadPublishedSuffixFacts(client, skill, members)] as const;
+    })));
   const dictionaryReadyWordIds = new Set<string>();
   const pool = await loadDictationPool(client, wordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers);
   const profiles: DynamicAffixProfile[] = [];
@@ -424,13 +428,12 @@ export async function loadDynamicSuffixProfiles(
       diagnostics.push({ profileKey, blockerCode: "profile_validation_failed" });
       continue;
     }
-    const strict = stagingAbleIble && profileKey === ABLE_IBLE_SKILL
-      && process.env.ADLE_ABLE_IBLE_DICTIONARY_ONLY === "enabled" && !options.allowLegacyAbleIble;
+    const strict = stagingDictionary && suffixDictionaryOnly(profileKey) && !options.allowLegacyAbleIble;
     const words = new Map<string, DynamicAffixWord>();
     for (const [memberIndex, member] of members.entries()) {
       const canonicalWordId = text(member.canonical_word_id);
       const word = canonicalWordId ? wordsById.get(canonicalWordId) : undefined;
-      const dictionary = canonicalWordId && profileKey === ABLE_IBLE_SKILL ? dictionaryFacts.get(canonicalWordId) : undefined;
+      const dictionary = canonicalWordId ? dictionaryFactsBySkill.get(profileKey)?.get(canonicalWordId) : undefined;
       if (strict && !dictionary) {
         diagnostics.push({ profileKey, blockerCode: "dictionary_approval_required", memberIndex });
         continue;
