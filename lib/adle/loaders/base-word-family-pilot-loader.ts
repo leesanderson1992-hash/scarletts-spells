@@ -1,3 +1,4 @@
+import { projectPublishedBaseWordRelease } from "./published-base-family-words";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BaseWordFamilyLessonSnapshotV1 } from "../morphology/base-word-family-payload";
 import { validateBaseWordFamilyLessonSnapshot } from "../morphology/base-word-family-payload";
@@ -80,7 +81,10 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
   if (runError) throw new Error(`loadBaseWordFamilyPilotReadiness: ${runError.message}`);
   const candidates: Array<{ activation: ActivatedBaseWordReleaseAuthority; microSkillKey: string; selection: ReturnType<typeof selectBaseWordFamilyLesson> }> = [];
   const reasons: string[] = [];
-  for (const activation of enabledActivations) {
+  for (const original of enabledActivations) {
+    const activation = activationEnvironment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
+      ? await projectPublishedBaseWordRelease(params.client, original)
+      : original;
     const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
     const familyWordIds = [...new Set(activation.family.families.flatMap((family) =>
       family.members.map((member) => member.canonicalWordId)))];

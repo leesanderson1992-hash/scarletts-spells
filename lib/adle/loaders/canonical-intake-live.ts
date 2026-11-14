@@ -32,6 +32,7 @@ import {
 import { isDynamicSuffixRouteEnabled } from "../morphology/dynamic-suffix-route-gate";
 import { ADLE_PILOT_CHILD_BAND } from "./composer-facts-loader";
 import { resolveAdleRouteActivationEnvironment } from "../route-activation-environment";
+import { projectPublishedBaseWordRelease } from "./published-base-family-words";
 import { loadEnabledBaseWordReleaseAuthorities } from "./curriculum-release-authority";
 import { isBaseWordIntakeSkill } from "../canonical-intake/route-readiness";
 import {
@@ -373,10 +374,11 @@ export async function routeActivationFacts(client: AdleClient, childId: string,
       environmentKey: activationEnvironment,
       microSkillKeys: BASE_WORD_ROUTE.supportedMicroSkillKeys,
     });
-    const baseFacts = compileBaseWordCanonicalIntakeRouteFacts({
-      activations,
-    });
-    for (const activation of activations) {
+    const selectableActivations = activationEnvironment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
+      ? await Promise.all(activations.map(activation => projectPublishedBaseWordRelease(client, activation)))
+      : activations;
+    const baseFacts = compileBaseWordCanonicalIntakeRouteFacts({ activations: selectableActivations });
+    for (const activation of selectableActivations) {
       for (const word of activation.dictionaryWords) {
         baseWordClosureWords.push({
           activationRevisionId: activation.activationRevisionId,
