@@ -115,6 +115,28 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
     skill, fingerprint: fingerprintSnapshotValue({ heads, words }) };
 }
 
+/** Reuse the live pool and the lesson's selected approved sense for one word. */
+export async function loadSingleStagingIngUpdate(db: StagingDb, skill: StagingIngSkill, wordId: string) {
+  if (ingReviewEnvironment() !== "staging") throw new Error("Single word publishing is available in staging.");
+  const [live, [approved]] = await Promise.all([
+    loadActiveIngRelease(db, skill),
+    loadApprovedIngWordsForIds(db, skill, [wordId]),
+  ]);
+  const current = live.released.filter(word => word.microSkillKey === skill);
+  const member = current.find(word => word.canonicalWordId === wordId);
+  const collision = approved && live.released.some(word => word.word === approved.word &&
+    (word.canonicalWordId !== wordId || word.microSkillKey !== skill));
+  if (!approved || collision) return { activeSenseId: member?.senseId, update: null };
+  if (matchesReleasedWord(approved, releasedIngWordsById(current, skill)))
+    return { activeSenseId: approved.senseId, update: null };
+  const words = [...live.released.filter(word => word.canonicalWordId !== wordId), approved]
+    .sort((a, b) => a.canonicalWordId.localeCompare(b.canonicalWordId));
+  return { activeSenseId: member?.senseId, update: {
+    ...live, skill, current, words, changes: [approved], retired: [], meaningChoices: [],
+    reviewWords: [], fingerprint: fingerprintSnapshotValue({ heads: live.heads, words }),
+  } };
+}
+
 export async function chooseStagingIngLessonMeaning(db: ReturnType<typeof createServiceRoleClient>,
   skill: StagingIngSkill, wordId: string, senseId: string, actorId: string) {
   if (!canUpdateIngLesson()) throw new Error("Lesson meaning choices are unavailable.");
@@ -183,7 +205,9 @@ export async function prepareStagingIngUpdate(db: StagingDb, actorId: string, up
   return release;
 }
 
-export async function publishStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate) {
+export async function publishStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate,
+  readFingerprint: () => Promise<string | undefined> = async () => (await loadStagingIngUpdate(db, update.skill)).fingerprint,
+) {
   const { skill } = update;
   // The update fingerprint covers the live head and every word in the preview.
   // A previously validated package for that exact fingerprint can be activated
@@ -191,9 +215,9 @@ export async function publishStagingIngUpdate(db: StagingDb, actorId: string, up
   let release = await findPreparedStagingIngRelease(db, skill, update.fingerprint);
   if (!release) {
     release = await prepareStagingIngUpdate(db, actorId, update);
-    if ((await loadStagingIngUpdate(db, skill)).fingerprint !== update.fingerprint)
-      throw new Error("The approved words changed. Review the lesson update again.");
   }
+  if (await readFingerprint() !== update.fingerprint)
+    throw new Error("The approved words changed. Review the lesson update again.");
   const active = await db.rpc("set_adle_route_activation_revision_v2", {
     p_release_manifest_sha256: release.release_manifest_sha256, p_micro_skill_key: skill,
     p_environment_key: update.environment, p_activation_status: "enabled",

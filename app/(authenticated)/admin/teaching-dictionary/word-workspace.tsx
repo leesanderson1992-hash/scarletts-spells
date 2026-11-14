@@ -13,6 +13,8 @@ import {
   type CSSProperties,
 } from "react";
 import Link from "next/link";
+import { ING_MICRO_SKILLS, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { StagingWordPublish } from "./staging-word-publish";
 import { useRouter } from "next/navigation";
 import { hydrateWorkspaceFacts } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadWordFamilyReview } from "./family-review-loader";
@@ -253,6 +255,7 @@ function Editable({
 
 export function WordWorkspace(props: {
   wordId: string | null;
+  stagingWordPublishing: boolean;
   currentMorphologyId: string | null;
   currentMorphologyLinkedToFamily: boolean;
   currentApprovedPartOfSpeech: string;
@@ -738,7 +741,7 @@ export function WordWorkspace(props: {
     reveal();
     window.addEventListener("hashchange", reveal);
     return () => window.removeEventListener("hashchange", reveal);
-  }, [checksState, props.wordId]);
+  }, [props.wordId]);
   const selectedRoutes = payload.skillKeys.flatMap((key) => {
     const route = routeForSkill(key);
     return route?.newAssignmentCapable && route.routeId !== "weak_vowel_word_lab" ? [{ key, route }] : [];
@@ -1469,12 +1472,21 @@ export function WordWorkspace(props: {
                 const statusStyle = readiness === "✓ Ready" ? "bg-emerald-50 text-emerald-800"
                   : readiness === "Needs review" || readiness === "Choose meaning" ? "bg-amber-50 text-amber-900"
                   : "bg-[var(--paper)] text-[color:var(--mid)]";
+                const directPublish = props.stagingWordPublishing && props.wordId && activeSenseId &&
+                  !dirty && ING_MICRO_SKILLS.includes(key as IngMicroSkill);
                 return (
-                  <details key={key} className="group rounded-lg border border-[var(--border)] p-3">
+                  <div key={key} className="rounded-lg border border-[var(--border)] p-3">
+                  {directPublish && props.wordId && <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                    <span className="font-semibold">{name(key)}</span>
+                    <StagingWordPublish key={`${key}:${activeSenseId}:${checkVersion}:${morphologyRevision}`}
+                      wordId={props.wordId} skill={key} senseId={activeSenseId}
+                      word={props.approvedWord ?? payload.displayWord} lesson={name(key)} fallback={readiness} />
+                  </div>}
+                  <details className="group">
                     <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold">{name(key)}</span>
+                      {!directPublish && <span className="font-semibold">{name(key)}</span>}
                       <span className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className={`rounded-full px-2 py-1 font-medium ${statusStyle}`}>{readiness}</span>
+                        {!directPublish && <span className={`rounded-full px-2 py-1 font-medium ${statusStyle}`}>{readiness}</span>}
                         <span className="underline group-open:hidden">View checks</span>
                         <span className="hidden underline group-open:inline">Close checks</span>
                       </span>
@@ -1546,6 +1558,7 @@ export function WordWorkspace(props: {
                       </button>
                     </div>
                   </details>
+                  </div>
                 );
               })}
           </div>
