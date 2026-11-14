@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { requireAdminUser } from "@/lib/admin/access";
 import { ING_RULE_FOR_SKILL, ingStem } from "@/lib/adle/ing/contracts";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
@@ -65,8 +65,8 @@ export async function GET(request: Request) {
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope === "pool") {
-    const { released } = await loadActiveIngRelease(db, skill);
-    const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], released.filter(word => word.microSkillKey === skill));
+    const { current } = await loadStagingIngUpdate(db, skill);
+    const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], current);
     return downloadWorkbook(bytes, `teaching-dictionary-active-pool-${skill}.xlsx`);
   }
 
