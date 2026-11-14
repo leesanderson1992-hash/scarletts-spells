@@ -349,6 +349,7 @@ export function MorphologyGuidedLesson(props: {
   });
   return (
     <FirstImpressionLesson
+      sceneClassName={props.payload.words.anchor.affixPosition === "after" ? "suffix-lesson" : undefined}
       teaching={resolveMorphologyTeachingPages(props.payload)}
       activities={activities}
       initialStageId={morphologyShellStage(state.stage)}
@@ -404,6 +405,11 @@ export function Discovery(props: {
   const affixTerm = activity.affixTerm ?? "prefix";
   const [selected, setSelected] = useState<string | null>(null);
   const correct = selected === card.derivedMeaning;
+  const separator = card.baseMeaning.indexOf(":");
+  const glossLabel = card.baseMeaning.slice(0, separator).trim().toLowerCase().replace(/-$/u, "");
+  const gloss = separator >= 0 && glossLabel === card.baseWord.trim().toLowerCase().replace(/-$/u, "")
+    ? card.baseMeaning.slice(separator + 1).trim() || card.baseMeaning
+    : card.baseMeaning;
   return (
     <div className="grid gap-5 text-center">
       <p className="text-sm font-bold uppercase tracking-[.2em] text-cyan-200">
@@ -412,10 +418,10 @@ export function Discovery(props: {
       <div className="grid gap-4 md:grid-cols-2">
         <section className="rounded-3xl border border-amber-200/40 bg-amber-50 p-5 text-amber-950">
           <p className="text-xs font-black uppercase tracking-[.18em]">
-            {legacy ? "Before un-" : "Base or root word"}
+            {legacy ? "Before un-" : "Base or root"}
           </p>
           <p className="mt-3 text-3xl font-black">{card.baseWord}</p>
-          <p className="mt-2 text-lg font-bold">Base/root word meaning: {card.baseMeaning}</p>
+          <p className="mt-2 text-lg font-bold">{gloss}</p>
         </section>
         <section className="rounded-3xl border border-cyan-200/40 bg-cyan-50 p-5 text-cyan-950">
           <p className="text-xs font-black uppercase tracking-[.18em]">

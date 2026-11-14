@@ -43,6 +43,31 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
   });
   const familyOptions = workbook.addWorksheet("Family options", { state: "veryHidden" });
+  const suffixWorkbook = input.skill === ABLE_IBLE_SKILL;
+  const list = (choices: readonly string[], allowBlank = true): ExcelJS.DataValidation => ({
+    type: "list", allowBlank, formulae: [`"${choices.join(",")}"`],
+    showErrorMessage: true, error: "Choose a value from the list.",
+  });
+  const commonDropdowns: Record<string, ExcelJS.DataValidation> = {
+    use_in_lesson: list(["Review", "Yes", "No"], false),
+    part_of_speech: list(["verb", "noun", "adjective", "adverb", "pronoun", "preposition", "conjunction", "determiner", "interjection", "root"]),
+  };
+  if (suffixWorkbook) {
+    Object.assign(commonDropdowns, {
+      age_band: list(DICTIONARY_BANDS.ageBand),
+      frequency_band: list(DICTIONARY_BANDS.frequencyBand),
+      complexity_band: list(DICTIONARY_BANDS.complexityBand),
+      has_schwa: list(["Yes", "No"]),
+      relationship_kind: list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]),
+    });
+    for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
+      commonDropdowns[`part_${index}_kind`] = list(["prefix", "base", "root", "suffix", "connector"]);
+      if (index > 1) commonDropdowns[`part_${index}_join_before`] = list(["none", "space", "hyphen"]);
+    }
+  }
+  const addDropdowns = (row: ExcelJS.Row) => {
+    for (const [key, validation] of Object.entries(commonDropdowns)) row.getCell(key).dataValidation = validation;
+  };
   const [headers, ...rows] = csvRecords(renderMultiSenseCsvBundles(input.bundles));
   for (const values of rows) {
     const entry = Object.fromEntries(headers.map((key, i) => [key, (values[i] ?? "").replace(/^'(?=[=+@\-\t\r])/u, "")]));
@@ -55,8 +80,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
-    row.getCell("use_in_lesson").dataValidation = { type: "list", allowBlank: false, formulae: ['"Review,Yes,No"'],
-      showErrorMessage: true, error: "Choose Review, Yes or No." };
+    addDropdowns(row);
     const familyChoices = input.families.get(entry.part_1_underlying_form) ?? [];
     const options = [...new Set([...familyChoices, entry.family_key, "Needs family review"].filter(Boolean))];
     const start = familyOptions.rowCount + 1;
@@ -64,18 +88,17 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     const rangeName = `FamilyChoices${row.number}`;
     workbook.definedNames.add(`'Family options'!$A$${start}:$A$${familyOptions.rowCount}`, rangeName);
     row.getCell("family_key").dataValidation = { type: "list", allowBlank: true, formulae: [rangeName] };
-    row.getCell("part_of_speech").dataValidation = { type: "list", allowBlank: true,
-      formulae: ['"verb,noun,adjective,adverb,pronoun,preposition,conjunction,determiner,interjection,root"'] };
-    if (input.skill === ABLE_IBLE_SKILL) {
-      const bandOptions = [DICTIONARY_BANDS.ageBand, DICTIONARY_BANDS.frequencyBand, DICTIONARY_BANDS.complexityBand, ["Yes", "No"]];
-      suffixFields.forEach((key, index) => {
-        row.getCell(key).dataValidation = { type: "list", allowBlank: true, formulae: [`"${bandOptions[index].join(",")}"`],
-          showErrorMessage: true, error: "Choose a value from the list." };
-      });
-    }
     for (const key of ["use_in_lesson", "family_key", "definition", "part_of_speech", "dictation_sentence"]) {
       if (key !== "use_in_lesson" && entry[key]) continue;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
+    }
+  }
+  if (suffixWorkbook) {
+    const firstBlankRow = headerRow + rows.length + 1;
+    for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
+      const row = sheet.getRow(number);
+      addDropdowns(row);
+      row.getCell("family_key").dataValidation = list(["Needs family review"]);
     }
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
@@ -103,6 +126,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
   if (input.skill === ABLE_IBLE_SKILL) guide.addRows([
+    ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
     ["Dictionary bands", "Use the dropdowns to choose the word’s age, frequency and complexity bands."],
     ["Has schwa", "Choose Yes or No for the selected British pronunciation."],
   ]);

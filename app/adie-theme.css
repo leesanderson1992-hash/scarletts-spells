@@ -314,77 +314,77 @@
 }
 @media (min-width: 768px) {
   /* Fit the lesson below the app header, including when navigation is open. */
-  .app-shell:has(.ing-lesson) { height: 100dvh; min-height: 0; }
-  .app-shell:has(.ing-lesson) > .app-main {
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) { height: 100dvh; min-height: 0; }
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) > .app-main {
     height: auto;
     min-height: 0;
     overflow: hidden;
     padding: .5rem .75rem;
   }
-  .app-shell:has(.ing-lesson) > .app-main > section:has(.ing-lesson),
-  .app-shell:has(.ing-lesson) .adle-session-runner {
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) > .app-main > section:has(:is(.ing-lesson, .suffix-lesson)),
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner {
     display: flex;
     flex-direction: column;
     gap: .5rem;
     height: 100%;
     min-height: 0;
   }
-  .app-shell:has(.ing-lesson) .adle-session-runner,
-  .app-shell:has(.ing-lesson) .adle-session-runner > .ing-lesson {
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner,
+  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner > :is(.ing-lesson, .suffix-lesson) {
     flex: 1;
     height: auto;
     min-height: 0;
   }
 
-  .ing-lesson { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
-  .ing-lesson .word-lab-workspace {
+  :is(.ing-lesson, .suffix-lesson) { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
+  :is(.ing-lesson, .suffix-lesson) .word-lab-workspace {
     padding: clamp(.75rem, 2dvh, 1.25rem);
     scrollbar-gutter: stable both-edges;
   }
-  .ing-lesson .word-lab-task { max-width: 64rem; margin-inline: auto; }
-  .ing-lesson .word-lab-tools { margin-bottom: .5rem; }
+  :is(.ing-lesson, .suffix-lesson) .word-lab-task { max-width: 64rem; margin-inline: auto; }
+  :is(.ing-lesson, .suffix-lesson) .word-lab-tools { margin-bottom: .5rem; }
   .ing-lesson .word-lab-task > :is([data-transform-target-state], [data-single-word-dictation-state], [data-ing-scrabble-state]) {
     gap: .75rem;
   }
   .ing-lesson [aria-label="Choose the spelling rule"] { gap: .5rem; }
   .ing-lesson [aria-label="Choose the spelling rule"] > button { min-height: 3rem; padding-block: .65rem; }
-  .ing-lesson .teaching-pages { gap: .65rem; }
-  .ing-lesson .teaching-pages > div:first-child {
+  :is(.ing-lesson, .suffix-lesson) .teaching-pages { gap: .65rem; }
+  :is(.ing-lesson, .suffix-lesson) .teaching-pages > div:first-child {
     display: grid;
     align-content: safe center;
     scrollbar-gutter: stable both-edges;
     padding: .375rem .125rem;
   }
-  .ing-lesson :is([data-teaching-page-type="reading"], [data-teaching-page-type="meet_words"]) { gap: .75rem; }
-  .ing-lesson [data-teaching-page-type="reading"] { padding: clamp(.75rem, 2dvh, 1.25rem); }
-  .ing-lesson .teaching-pages header h1 {
+  :is(.ing-lesson, .suffix-lesson) :is([data-teaching-page-type="reading"], [data-teaching-page-type="meet_words"]) { gap: .75rem; }
+  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"] { padding: clamp(.75rem, 2dvh, 1.25rem); }
+  :is(.ing-lesson, .suffix-lesson) .teaching-pages header h1 {
     margin-top: .25rem;
     font-size: clamp(1.6rem, 3.9dvh, 2.25rem);
     line-height: 1.15;
   }
-  .ing-lesson [data-teaching-page-type="reading"] > div:first-of-type,
-  .ing-lesson [data-teaching-page-type="meet_words"] header > p:last-child {
+  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"] > div:first-of-type,
+  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="meet_words"] header > p:last-child {
     font-size: 1rem;
     line-height: 1.5;
   }
-  .ing-lesson .teaching-key-idea { padding: .6rem 1rem; font-size: 1.1rem; }
-  .ing-lesson :is(.teaching-gold-clue, .teaching-example) { padding: .75rem; }
-  .ing-lesson .teaching-gold-clue { gap: .5rem; }
-  .ing-lesson .teaching-gold-clue h2 { font-size: 1.125rem; line-height: 1.25; }
-  .ing-lesson .teaching-examples { gap: .5rem; }
-  .ing-lesson [aria-label="Lesson words"] { gap: .65rem; }
-  .ing-lesson [aria-label="Lesson words"] > li { padding: .75rem; }
-  .ing-lesson [aria-label="Lesson words"] > li > div > p:nth-child(2) {
+  :is(.ing-lesson, .suffix-lesson) .teaching-key-idea { padding: .6rem 1rem; font-size: 1.1rem; }
+  :is(.ing-lesson, .suffix-lesson) :is(.teaching-gold-clue, .teaching-example) { padding: .75rem; }
+  :is(.ing-lesson, .suffix-lesson) .teaching-gold-clue { gap: .5rem; }
+  :is(.ing-lesson, .suffix-lesson) .teaching-gold-clue h2 { font-size: 1.125rem; line-height: 1.25; }
+  :is(.ing-lesson, .suffix-lesson) .teaching-examples { gap: .5rem; }
+  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] { gap: .65rem; }
+  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] > li { padding: .75rem; }
+  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] > li > div > p:nth-child(2) {
     font-size: clamp(1.4rem, 3.5dvh, 1.875rem);
     line-height: 1.15;
   }
 }
 @media (min-width: 1024px) {
   .ing-lesson [aria-label="Lesson words"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .ing-lesson [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) {
+  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .ing-lesson [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) > :not(.teaching-gold-clue) {
+  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) > :not(.teaching-gold-clue) {
     grid-column: 1 / -1;
   }
 }
