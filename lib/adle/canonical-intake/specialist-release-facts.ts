@@ -1,3 +1,5 @@
+import { currentReleasedIngWordIds } from "../ing/current-released-pool";
+import type { IngMicroSkill } from "../ing/contracts";
 import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- immutable release projections are validated at this boundary */
 
@@ -141,7 +143,7 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
       authorityCache.set(cacheKey, result);
       return result;
     }
-    const members = membersFor(routeId, exact[0].semantic_projection, skill);
+    let members = membersFor(routeId, exact[0].semantic_projection, skill);
     if (!members.length || new Set(members.map((member) => member.id)).size !== members.length) {
       const result = fail("reviewed_words_incomplete"); authorityCache.set(cacheKey, result); return result;
     }
@@ -171,6 +173,16 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
         ({ canonicalWordId: word.canonicalWordId, word: word.word, sentence: word.dictationSentence, audioText: word.audioText }))) ||
         !exact[1].semantic_projection.sharedPage || !exact[1].semantic_projection.rulePage || !exact[1].semantic_projection.reflectionPrompt) {
         const result = fail("reviewed_audio_or_teaching_incomplete"); authorityCache.set(cacheKey, result); return result;
+      }
+      if (environmentKey === "staging" && process.env.ADLE_ING_DICTIONARY_ONLY === "enabled") {
+        const ids = await currentReleasedIngWordIds({ client, environmentKey,
+          microSkillKey: skill as IngMicroSkill, words: source.words });
+        members = members.filter(word => ids.has(word.id));
+        if (members.length < 6) {
+          const result = fail("six_published_teaching_dictionary_words_required");
+          authorityCache.set(cacheKey, result);
+          return result;
+        }
       }
     }
     if (routeId === "comparative_superlative_word_lab") {

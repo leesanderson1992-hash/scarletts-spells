@@ -12,8 +12,7 @@ import { selectIngWords, compileIngLesson, validateIngLesson } from "./lesson";
 import { compileIngSnapshotV3 } from "./snapshot";
 import { ingReadinessFacts } from "./readiness-facts";
 import { semanticJson } from "../inflection/semantic-json";
-import { ingReleasedWordMatchesCurrentOverview } from "./current-overview";
-import { candidateFactsForSense } from "@/lib/teaching-dictionary-manager/candidate-sense-facts";
+import { currentReleasedIngWordIds } from "./current-released-pool";
 
 /** Activated, reviewed content and the current release head are mandatory. */
 export async function prepareIngAssignment(input: { client: SupabaseClient; childId: string; parentUserId: string; date: string; microSkillKey: IngMicroSkill; learningItems: readonly LearningItemFact[]; environmentKey: "local" | "staging" | "production" }) {
@@ -51,59 +50,11 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
   if (words.some(word => !rows.some(row => row.id === word.canonicalWordId && row.display_word === word.word && row.row_status === "active" && row.review_status === "approved_for_first_exposure" && row.dialect_code === "en-GB"))) return blocked("ing_canonical_word_not_ready");
   const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_ING_DICTIONARY_ONLY === "enabled";
   const overviewWords = words.filter(word => word.senseId !== undefined || word.pronunciationId !== undefined);
-  const currentOverviewIds = new Set<string>();
   // Production serves the approved release snapshot while an editor reviews new facts.
-  if (overviewWords.length && input.environmentKey !== "production") {
-    const ids = overviewWords.map(word => word.canonicalWordId);
-    const [sets, morphologies, links, senseAnalyses, senseLinks, decisions, senseBindings]: any[][] = await Promise.all([
-      read(input.client.from("teaching_dictionary_reviewed_sense_sets")
-        .select("canonical_word_id,sense_set").in("canonical_word_id", ids)),
-      read(input.client.from("canonical_teaching_dictionary_word_morphology")
-        .select("id,canonical_word_id,created_at,morphology_parts,morphology_joins,analysis_status,review_status,word_sum")
-        .in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false })),
-      read(input.client.from("teaching_dictionary_current_sense_family_links")
-        .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
-        .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_sense_morphology")
-        .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
-        .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_sense_family_memberships")
-        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
-        .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_candidate_decisions")
-        .select("canonical_word_id,sense_id,action,pronunciation_id,rule_revision,fact_snapshot")
-        .eq("environment_key", input.environmentKey).eq("micro_skill_key", input.microSkillKey)
-        .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_effective_lesson_sense_bindings")
-        .select("canonical_word_id,sense_id").eq("environment_key", input.environmentKey)
-        .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", ids)),
-    ]);
-    for (const word of overviewWords) {
-      const morphology = morphologies.find(row => row.canonical_word_id === word.canonicalWordId);
-      const source = rows.find(row => row.id === word.canonicalWordId);
-      const senseSet = sets.find(row => row.canonical_word_id === word.canonicalWordId)?.sense_set ?? null;
-      const facts = candidateFactsForSense({ wordId: word.canonicalWordId,
-        senseId: word.senseId, senseSet,
-        legacyMorphology: morphology ? { id: morphology.id, parts: morphology.morphology_parts,
-          joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
-          reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null,
-        legacyLinks: links, senseAnalyses, senseLinks });
-      const matches = ingReleasedWordMatchesCurrentOverview({ released: word,
-        senseSet,
-        morphology: facts.morphology && facts.morphologyId
-          ? { ...facts.morphology, id: facts.morphologyId } : null,
-        familyLinks: (facts.source === "sense" ? senseLinks : links)
-          .filter(row => row.canonical_word_id === word.canonicalWordId
-            && row.sense_id === word.senseId),
-        decision: decisions.find(row => row.canonical_word_id === word.canonicalWordId
-          && row.sense_id === word.senseId) ?? null,
-        boundSenseIds: senseBindings.filter(row => row.canonical_word_id === word.canonicalWordId)
-          .map(row => row.sense_id),
-        sourceName: source?.source_name ?? null, sourceUrl: source?.source_url ?? null });
-      if (matches) currentOverviewIds.add(word.canonicalWordId);
-      else if (!dictionaryOnly) return blocked("ing_overview_facts_changed");
-    }
-  }
+  const currentOverviewIds = input.environmentKey !== "production"
+    ? await currentReleasedIngWordIds({ ...input, words: overviewWords }) : new Set<string>();
+  if (!dictionaryOnly && input.environmentKey !== "production" && currentOverviewIds.size !== overviewWords.length)
+    return blocked("ing_overview_facts_changed");
   const selectableWords = dictionaryOnly ? words.filter(word => currentOverviewIds.has(word.canonicalWordId)) : words;
   if (selectableWords.length < 6) return blocked("six_published_teaching_dictionary_words_required");
   const variedWords = applyIngDictationVariants(selectableWords, wordAuthority.semantic_projection.dictationSets, `${input.childId}:${input.date}:${input.microSkillKey}`, wordAuthority.semantic_fingerprint);
