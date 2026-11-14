@@ -61,7 +61,7 @@ export function ContextualChoiceLesson(props: { assignmentId: string; childId: s
   const question = props.snapshot.contextCheck.questions[progress.responses.length];
   const selectedSet = props.snapshot.contextCheck.selectedSets.find(set => set.setId === question?.setId);
   const allAnswered = progress.responses.length === props.snapshot.contextCheck.questions.length;
-  return <section className="brand-card mx-auto w-full max-w-4xl rounded-3xl p-5 text-center md:p-8" aria-label="Choose words in sentences">
+  return <section className="adle-contextual-lesson brand-card mx-auto w-full max-w-4xl rounded-3xl p-5 text-center md:p-8" aria-label="Choose words in sentences">
     <p className="brand-eyebrow">Sentence check · {Math.min(progress.responses.length + 1, props.snapshot.contextCheck.questions.length)} of {props.snapshot.contextCheck.questions.length}</p>
     <h2 className="mt-2 text-2xl font-bold text-[color:var(--ink)]">Choose the word that fits the meaning</h2>
     <p className="mx-auto mt-3 max-w-2xl text-base text-[color:var(--mid)]">Read the whole sentence before you choose. Your first choice is saved.</p>

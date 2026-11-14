@@ -182,16 +182,19 @@
 .adie-guide-portrait img { width: clamp(92px, 65%, 160px); }
 .adie-guide { gap: .75rem; }
 .adie-guide-bubble { padding: .85rem; font-size: .9rem; }
-.app-shell.focus-layout .app-main:has(.word-lab-scene) { height: calc(100dvh - 58px); overflow: hidden; padding: 8px 12px; }
-.app-shell.focus-layout .app-main > section:has(.word-lab-scene) { display: grid; height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
-.app-shell.focus-layout .app-main > section:has(.word-lab-scene) > :not(:first-child) { min-height: 0; overflow: hidden; }
-.app-shell.focus-layout .word-lab-scene { height: 100%; }
 .app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child { padding: 8px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child :is(h1, p, a) { margin-top: 0; }
 .app-shell.focus-layout .app-main > section:has(.word-lab-scene) > .review-scene:first-child h1 { font-size: 1.15rem; }
-.app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; grid-template-rows: auto minmax(0, 1fr); }
-.app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) > :has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
-.app-shell.focus-layout form:has(> .word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
+
+@media (max-width: 767px) {
+  .app-shell.focus-layout .app-main:has(.word-lab-scene) { height: calc(100dvh - 58px); overflow: hidden; padding: 8px 12px; }
+  .app-shell.focus-layout .app-main > section:has(.word-lab-scene) { display: grid; height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+  .app-shell.focus-layout .app-main > section:has(.word-lab-scene) > :not(:first-child) { min-height: 0; overflow: hidden; }
+  .app-shell.focus-layout .word-lab-scene { height: 100%; }
+  .app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; grid-template-rows: auto minmax(0, 1fr); }
+  .app-shell.focus-layout .adle-session-runner:has(.word-lab-scene) > :has(.word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
+  .app-shell.focus-layout form:has(> .word-lab-scene) { height: 100%; min-height: 0; overflow: hidden; }
+}
 .adle-preview-stack .word-lab-scene { height: calc(100dvh - 90px); }
 .prefix-preview-stack .word-lab-scene { height: calc(100dvh - 126px); }
 .prefix-family-link { background: var(--adie-surface); border-color: var(--adie-line); color: var(--adie-ink); }
@@ -313,78 +316,99 @@
   .word-lab-workspace [data-lesson-reflection] > button { flex: none; }
 }
 @media (min-width: 768px) {
-  /* Fit the lesson below the app header, including when navigation is open. */
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) { height: 100dvh; min-height: 0; }
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) > .app-main {
+  /* Fit the learner lesson between the app header and the bottom of the screen. */
+  .app-shell:has(:is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson)) {
+    height: 100dvh;
+    min-height: 0;
+  }
+  .app-shell > .app-main:has(:is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson)) {
     height: auto;
     min-height: 0;
     overflow: hidden;
     padding: .5rem .75rem;
   }
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) > .app-main > section:has(:is(.ing-lesson, .suffix-lesson)),
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner {
+  .app-shell > .app-main > section:has(:is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson)),
+  .app-shell .adle-session-runner:has(:is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson)),
+  .app-shell > .app-main form:has(> .word-lab-scene) {
     display: flex;
     flex-direction: column;
     gap: .5rem;
     height: 100%;
     min-height: 0;
   }
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner,
-  .app-shell:has(:is(.ing-lesson, .suffix-lesson)) .adle-session-runner > :is(.ing-lesson, .suffix-lesson) {
+  .app-shell :is(.adle-session-runner, form):has(:is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson)),
+  .app-shell :is(.word-lab-scene, .generic-adle-panel, .adle-contextual-lesson) {
     flex: 1;
     height: auto;
     min-height: 0;
   }
+  .app-shell .adle-session-runner:has(.generic-adle-panel) {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable both-edges;
+  }
+  .app-shell .adle-contextual-lesson {
+    flex: 0 1 auto;
+    margin-block: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .app-shell .generic-adle-panel {
+    flex: none;
+    width: min(100%, 64rem);
+    margin-inline: auto;
+  }
+  .app-shell .generic-adle-panel:only-child { margin-block: auto; }
 
-  :is(.ing-lesson, .suffix-lesson) { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
-  :is(.ing-lesson, .suffix-lesson) .word-lab-workspace {
+  .word-lab-scene { width: min(100%, 90rem); margin-inline: auto; padding: .75rem; }
+  .word-lab-scene .word-lab-workspace {
     padding: clamp(.75rem, 2dvh, 1.25rem);
     scrollbar-gutter: stable both-edges;
   }
-  :is(.ing-lesson, .suffix-lesson) .word-lab-task { max-width: 64rem; margin-inline: auto; }
-  :is(.ing-lesson, .suffix-lesson) .word-lab-tools { margin-bottom: .5rem; }
+  .word-lab-scene .word-lab-task { max-width: 64rem; margin-inline: auto; }
+  .word-lab-scene .word-lab-tools { margin-bottom: .5rem; }
   .ing-lesson .word-lab-task > :is([data-transform-target-state], [data-single-word-dictation-state], [data-ing-scrabble-state]) {
     gap: .75rem;
   }
   .ing-lesson [aria-label="Choose the spelling rule"] { gap: .5rem; }
   .ing-lesson [aria-label="Choose the spelling rule"] > button { min-height: 3rem; padding-block: .65rem; }
-  :is(.ing-lesson, .suffix-lesson) .teaching-pages { gap: .65rem; }
-  :is(.ing-lesson, .suffix-lesson) .teaching-pages > div:first-child {
+  .word-lab-scene .teaching-pages { gap: .65rem; }
+  .word-lab-scene .teaching-pages > div:first-child {
     display: grid;
     align-content: safe center;
     scrollbar-gutter: stable both-edges;
     padding: .375rem .125rem;
   }
-  :is(.ing-lesson, .suffix-lesson) :is([data-teaching-page-type="reading"], [data-teaching-page-type="meet_words"]) { gap: .75rem; }
-  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"] { padding: clamp(.75rem, 2dvh, 1.25rem); }
-  :is(.ing-lesson, .suffix-lesson) .teaching-pages header h1 {
+  .word-lab-scene :is([data-teaching-page-type="reading"], [data-teaching-page-type="meet_words"]) { gap: .75rem; }
+  .word-lab-scene [data-teaching-page-type="reading"] { padding: clamp(.75rem, 2dvh, 1.25rem); }
+  .word-lab-scene .teaching-pages header h1 {
     margin-top: .25rem;
     font-size: clamp(1.6rem, 3.9dvh, 2.25rem);
     line-height: 1.15;
   }
-  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"] > div:first-of-type,
-  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="meet_words"] header > p:last-child {
+  .word-lab-scene [data-teaching-page-type="reading"] > div:first-of-type,
+  .word-lab-scene [data-teaching-page-type="meet_words"] header > p:last-child {
     font-size: 1rem;
     line-height: 1.5;
   }
-  :is(.ing-lesson, .suffix-lesson) .teaching-key-idea { padding: .6rem 1rem; font-size: 1.1rem; }
-  :is(.ing-lesson, .suffix-lesson) :is(.teaching-gold-clue, .teaching-example) { padding: .75rem; }
-  :is(.ing-lesson, .suffix-lesson) .teaching-gold-clue { gap: .5rem; }
-  :is(.ing-lesson, .suffix-lesson) .teaching-gold-clue h2 { font-size: 1.125rem; line-height: 1.25; }
-  :is(.ing-lesson, .suffix-lesson) .teaching-examples { gap: .5rem; }
-  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] { gap: .65rem; }
-  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] > li { padding: .75rem; }
-  :is(.ing-lesson, .suffix-lesson) [aria-label="Lesson words"] > li > div > p:nth-child(2) {
+  .word-lab-scene .teaching-key-idea { padding: .6rem 1rem; font-size: 1.1rem; }
+  .word-lab-scene :is(.teaching-gold-clue, .teaching-example) { padding: .75rem; }
+  .word-lab-scene .teaching-gold-clue { gap: .5rem; }
+  .word-lab-scene .teaching-gold-clue h2 { font-size: 1.125rem; line-height: 1.25; }
+  .word-lab-scene .teaching-examples { gap: .5rem; }
+  .word-lab-scene [aria-label="Lesson words"] { gap: .65rem; }
+  .word-lab-scene [aria-label="Lesson words"] > li { padding: .75rem; }
+  .word-lab-scene [aria-label="Lesson words"] > li > div > p:nth-child(2) {
     font-size: clamp(1.4rem, 3.5dvh, 1.875rem);
     line-height: 1.15;
   }
 }
 @media (min-width: 1024px) {
   .ing-lesson [aria-label="Lesson words"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) {
+  .word-lab-scene [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  :is(.ing-lesson, .suffix-lesson) [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) > :not(.teaching-gold-clue) {
+  .word-lab-scene [data-teaching-page-type="reading"]:has(> .teaching-gold-clue + .teaching-gold-clue) > :not(.teaching-gold-clue) {
     grid-column: 1 / -1;
   }
 }

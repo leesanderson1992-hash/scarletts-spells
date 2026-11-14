@@ -349,7 +349,6 @@ export function MorphologyGuidedLesson(props: {
   });
   return (
     <FirstImpressionLesson
-      sceneClassName={props.payload.words.anchor.affixPosition === "after" ? "suffix-lesson" : undefined}
       teaching={resolveMorphologyTeachingPages(props.payload)}
       activities={activities}
       initialStageId={morphologyShellStage(state.stage)}
