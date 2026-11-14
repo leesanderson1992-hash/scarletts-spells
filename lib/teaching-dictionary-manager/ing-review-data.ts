@@ -31,12 +31,14 @@ export async function loadIngReviewWords(skill: IngMicroSkill) {
   const rows = associated.words
     .filter(({ wordId, status }) => active.has(wordId)
       || (status.relationshipApproved && status.dictionaryApproved && !otherPoolIds.has(wordId)))
-    .map(({ wordId, displayWord, status }) => ({
+    .map(({ wordId, displayWord, status, familyMeaningReview }) => ({
       wordId, displayWord, released: active.get(wordId), blockers: status.blockers,
+      familyMeaningReview,
     }));
   const known = new Set(rows.map(row => row.wordId));
   for (const word of words) if (!known.has(word.canonicalWordId)) rows.push({
     wordId: word.canonicalWordId, displayWord: word.word, released: word, blockers: [],
+    familyMeaningReview: undefined,
   });
   return rows.sort((a, b) => a.displayWord.localeCompare(b.displayWord, "en-GB"));
 }
@@ -53,7 +55,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
       .in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false }),
     db.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition")
       .in("canonical_word_id", ids).is("route_id", null).order("published_at", { ascending: false }),
-    bases.length ? db.from("canonical_teaching_dictionary_lexical_base_families")
+    bases.length ? db.from("teaching_dictionary_families_with_current_meaning")
       .select("family_key,revision,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status").in("base_lemma", bases)
       .order("revision", { ascending: false }) : { data: [], error: null },
     db.from("canonical_teaching_dictionary_dictation_sentences")
@@ -77,7 +79,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
     double_final_consonant: "Double the final consonant before adding -ing.",
     ie_to_y: "Change the final ie to y before adding -ing.",
   };
-  const bundles: MultiSenseCsvBundle[] = rows.map(({ wordId, displayWord, released, blockers }) => {
+  const bundles: MultiSenseCsvBundle[] = rows.map(({ wordId, displayWord, released, blockers, familyMeaningReview }) => {
     const facts = metadata.data.find(row => row.canonical_word_id === wordId);
     const sentence = released?.dictationSentence ?? dictation.data.find(row => row.canonical_word_id === wordId)?.dictation_sentence ?? "";
     const definition = released?.meaning ?? definitions.data.find(row => row.canonical_word_id === wordId)?.definition ?? "";
@@ -95,6 +97,7 @@ export async function loadIngReviewWorkbook(skill: IngMicroSkill, batch: number)
     const stem = released?.word.slice(0, -3) ?? "";
     notes.set(wordId, [
       released ? "In the live lesson pool." : "Associated with this lesson.",
+      familyMeaningReview ? `The family meaning for “${familyMeaningReview}” changed. Confirm which family meaning this word should use.` : "",
       ...(!released ? blockers : []),
     ].filter(Boolean).join(" "));
     return {

@@ -57,7 +57,7 @@ export default async function LessonUpdates({ searchParams }: {
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
-      reviewRows={productionRows?.map(row => ({ id: row.wordId, word: row.displayWord, live: Boolean(row.released) })) ?? null}
+      reviewRows={productionRows?.map(row => ({ id: row.wordId, word: row.displayWord, live: Boolean(row.released), familyMeaningReview: row.familyMeaningReview })) ?? null}
       batches={productionRows ? Math.ceil(productionRows.length / 100) : update ? Math.ceil(new Set([...update.reviewWords.map(word => word.wordId),
         ...update.words.filter(word => word.microSkillKey === skill && !word.senseId).map(word => word.canonicalWordId)]).size / 100) : null}>
     {update && view === "preview" && <>

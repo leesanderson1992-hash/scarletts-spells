@@ -33,7 +33,7 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
 
 export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, view, reviewRows, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
-  view: "export" | "workbook" | "preview"; reviewRows: { id: string; word: string; live: boolean }[] | null; children: ReactNode;
+  view: "export" | "workbook" | "preview"; reviewRows: { id: string; word: string; live: boolean; familyMeaningReview?: string }[] | null; children: ReactNode;
 }) {
   const router = useRouter();
   const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
@@ -138,7 +138,8 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
           <summary>{reviewRows.length} associated words · {reviewRows.filter(row => row.live).length} in the live lesson pool</summary>
           <ul className="mt-2 grid gap-2 sm:grid-cols-3">{reviewRows.map(row =>
             <li key={row.id}><a className="underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</a>
-              {row.live ? " · In the live pool" : ""}</li>)}</ul>
+              {row.live ? " · In the live pool" : ""}
+              {row.familyMeaningReview ? ` · Review the changed meaning of ${row.familyMeaningReview}` : ""}</li>)}</ul>
         </details>}
         {batches ? <div className="flex flex-wrap gap-2">{Array.from({ length: batches }, (_, index) =>
           <a key={index} className={actionClass} download
