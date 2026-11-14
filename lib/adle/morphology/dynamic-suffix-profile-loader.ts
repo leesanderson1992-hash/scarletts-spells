@@ -1,4 +1,4 @@
-import { loadPublishedSuffixFacts } from "@/lib/teaching-dictionary-manager/able-ible-published-facts";
+import { loadPublishedAffixFacts } from "@/lib/teaching-dictionary-manager/able-ible-published-facts";
 import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, suffixDictionaryOnly } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadDictationPool } from "@/lib/teaching-dictionary-manager/dictation-pool";
@@ -398,7 +398,7 @@ export async function loadDynamicSuffixProfiles(
         const contentVersionId = isRecord(member.source_metadata) ? text(member.source_metadata.contentVersionId) : null;
         return wordId && word && contentVersionId ? [{ wordId, word, contentVersionId }] : [];
       });
-      return [skill, await loadPublishedSuffixFacts(client, skill, members)] as const;
+      return [skill, await loadPublishedAffixFacts(client, skill, members)] as const;
     })));
   const dictionaryReadyWordIds = new Set<string>();
   const pool = await loadDictationPool(client, wordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers);
