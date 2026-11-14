@@ -476,10 +476,14 @@ export async function TeachingDictionaryDetail({
         ],
         routeContents,
       };
+  const draftSenseSet = (draft?.payload as WordDraftPayload | undefined)?.senseSet;
+  const draftMatchesReviewedMeanings = draftSenseSet && approvedSenseSet &&
+    fingerprintSnapshotValue(draftSenseSet) === fingerprintSnapshotValue(approvedSenseSet);
   const staleDraft = Boolean(draft && approvedFactsSupersedeDraft(
     draftPublicationResult?.data?.published_at ?? draft.created_at, [
     word?.updated_at, metadata?.created_at, morphology?.created_at,
-    dictation?.created_at, definitions?.data?.[0]?.published_at, reviewedSenses?.data?.reviewed_at,
+    dictation?.created_at, definitions?.data?.[0]?.published_at,
+    draftMatchesReviewedMeanings ? null : reviewedSenses?.data?.reviewed_at,
   ]));
   const approvedFactDates = [word?.updated_at, metadata?.created_at, morphology?.created_at,
     dictation?.created_at, definitions?.data?.[0]?.published_at, reviewedSenses?.data?.reviewed_at]
@@ -585,6 +589,7 @@ export async function TeachingDictionaryDetail({
         normalisedWord={draft?.normalised_word ?? word?.normalised_word ?? ""}
         initial={initial}
         approvedSenseSet={approvedSenseSet ?? null}
+        senseReviewedAt={reviewedSenses?.data?.reviewed_at ?? null}
         initialSenseId={params.sense}
         meaningImportRequests={meaningImportRequests?.data ?? []}
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
@@ -636,6 +641,7 @@ export async function TeachingDictionaryDetail({
             : word?.review_status === "approved_for_first_exposure")
         }
         saved={Boolean(params.saved)}
+        meaningSaved={params.saved === "meaning"}
         error={params.error ?? params.publish_error ?? params.route_error}
         profileOptions={[
           ...(prefixProfiles.data ?? []).map((profile) => ({

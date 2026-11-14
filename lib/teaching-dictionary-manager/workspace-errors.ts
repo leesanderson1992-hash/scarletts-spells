@@ -1,5 +1,6 @@
 const messages:Record<string,string>={
   TEACHING_SENSE_SET_INVALID:"Review each meaning, its part of speech, and its pronunciation before approving Overview.",
+  TEACHING_MEANING_REVIEW_STALE:"Someone approved a newer version of these meanings. Reload the word before approving your changes.",
   TEACHING_SENSE_SET_SAVE_FAILED:"The meanings could not be saved. The draft remains available; reload before approving again.",
   TEACHING_LESSON_REVIEWED_SENSE_REQUIRED:"Choose a reviewed Overview meaning for every lesson before approving it.",
   TEACHING_LESSON_SENSE_INVALID:"The selected meaning is no longer available. Reload and choose a reviewed meaning.",

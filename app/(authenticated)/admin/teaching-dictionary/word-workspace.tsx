@@ -258,6 +258,8 @@ export function WordWorkspace(props: {
   normalisedWord: string;
   initial: WordDraftPayload;
   approvedSenseSet: DictionarySenseSet | null;
+  senseReviewedAt: string | null;
+  meaningSaved: boolean;
   initialSenseId?: string;
   meaningImportRequests: { sense_id: string; micro_skill_key: string }[];
   approvedCandidateMorphology: CandidateMorphology | null;
@@ -364,16 +366,17 @@ export function WordWorkspace(props: {
   const [checkVersion, setCheckVersion] = useState(0);
   const checksGeneration = useRef(0);
   const initialChecksApplied = useRef(false);
-  const [saveMessage, setSaveMessage] = useState(props.saved ? "Saved." : "");
+  const [saveMessage, setSaveMessage] = useState(props.meaningSaved ? "Meaning approved. You can now review its word parts and family." : props.saved ? "Saved." : "");
   const [actionError, setActionError] = useState(props.error);
+  const [approvalIssues, setApprovalIssues] = useState<string[]>([]);
   const [saveState, saveAction, saving] = useActionState(
     async (_previous: null, form: FormData) => {
       const saveStarted = performance.now();
       const revision = editRevision.current;
-      const continueToFamily = form.get("review_section") === "overview-family";
-      if (continueToFamily) form.set("review_section", "overview");
+      const continueToFamily = form.get("review_section") === "meaning";
       if (!form.has("review_section")) form.set("review_section", "draft");
       setActionError(undefined);
+      setApprovalIssues([]);
       setSaveMessage("");
       let result: Awaited<ReturnType<typeof saveWordWorkspace>>;
       try {
@@ -386,6 +389,7 @@ export function WordWorkspace(props: {
       const destination = new URL(result.destination, window.location.origin);
       const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
       setActionError(error);
+      setApprovalIssues(result.issues ?? []);
       setDraftId(destination.searchParams.get("draft"));
       if (result.error === "TEACHING_OVERVIEW_REVIEW_REQUIRED") {
         // The save created a new draft. Show that draft's required Overview
@@ -398,7 +402,8 @@ export function WordWorkspace(props: {
         router.push(result.destination);
         return null;
       }
-      if (continueToFamily && !error && result.overviewApproved) {
+      if (continueToFamily && !error) {
+        destination.searchParams.set("saved", "meaning");
         destination.searchParams.set("sense", String(form.get("selected_sense_id") ?? ""));
         router.replace(`${destination.pathname}${destination.search}#td-sense-morphology`);
         return null;
@@ -957,6 +962,7 @@ export function WordWorkspace(props: {
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
         <input type="hidden" name="selected_sense_id" value={activeSenseId} />
+        <input type="hidden" name="expected_sense_reviewed_at" value={props.senseReviewedAt ?? ""} />
         <input type="hidden" name="word_id" value={props.wordId ?? ""} />
         <input
           type="hidden"
@@ -978,12 +984,17 @@ export function WordWorkspace(props: {
         />
       </form>
       {saveMessage && <p role="status" className="text-sm text-emerald-800">{saveMessage}{dirty ? " Unsaved edits need approval." : ""}</p>}
-      {actionError && <p role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">{workspaceErrorMessage(actionError)}</p>}
+      {actionError && <div role="alert" className="rounded bg-amber-50 p-3 text-sm text-amber-950">
+        <p>{workspaceErrorMessage(actionError)}</p>
+        {approvalIssues.length > 0 && <ul className="mt-1 list-disc pl-5">
+          {approvalIssues.map(issue => <li key={issue}>{issue}</li>)}
+        </ul>}
+      </div>}
       <section id="td-overview" className={section} aria-labelledby="td-overview-title">
         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-3 sm:px-5">
           <h2 id="td-overview-title" className="text-lg font-semibold">Overview</h2>
           <span className="text-sm text-[color:var(--mid)]">
-            {dirty ? "Unsaved changes" : overviewReviewed ? "Dictionary approved" : "Review required"}
+            {dirty ? "Unsaved changes" : overviewReviewed ? "Dictionary approved" : activeSense ? "Word details need review" : "Review required"}
           </span>
         </header>
         <div className="grid items-start gap-5 p-4 md:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)] sm:p-5">
@@ -1000,7 +1011,7 @@ export function WordWorkspace(props: {
                 className="break-words rounded-lg border border-[var(--border)] p-2 text-left text-sm aria-pressed:border-[var(--scarlett)] aria-pressed:bg-[var(--mist)]">
                 <span className="block font-medium">{sense.definition || "New meaning"}</span>
                 <span className="block text-xs text-[color:var(--mid)]">
-                  {[sense.partOfSpeech, !approved ? "Needs approval" : familyLinked ? "Family linked" : "Family needed"].filter(Boolean).join(" · ")}
+                  {[sense.partOfSpeech, approved ? (familyLinked ? "Approved · Family linked" : "Approved · Family needed") : "Needs approval"].filter(Boolean).join(" · ")}
                 </span>
               </button>;
             })}
@@ -1024,7 +1035,7 @@ export function WordWorkspace(props: {
             ))}
           <div data-overview-view="family" hidden={overviewView !== "family"} className="space-y-4">
           {props.wordId && !activeSense && activeSenseId && <div id="td-sense-morphology" className="mt-3 flex flex-wrap items-center gap-3">
-            <ActionSubmitButton form={formId} name="review_section" value="overview-family" pending={saving}
+            <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
               pendingLabel="Approving meaning…" className={button}>
               Approve meaning and continue to family
             </ActionSubmitButton>
@@ -2139,10 +2150,11 @@ export function WordWorkspace(props: {
         </div>
       </details>
           </div>
-          {(dirty || !overviewReviewed) && (activeSense || !props.wordId || overviewView !== "family") && <div className={actions}>
+          {(dirty || !overviewReviewed || (props.wordId && !activeSense)) &&
+            (activeSense || !props.wordId || overviewView !== "family") && <div className={actions}>
             {dirty && saveButton("draft", "Save draft")}
-            {props.wordId && !activeSense
-              ? <ActionSubmitButton form={formId} name="review_section" value="overview-family" pending={saving}
+            {props.wordId && (overviewView === "meaning" || overviewView === "pronunciation")
+              ? <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
                   pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to family</ActionSubmitButton>
               : saveButton("overview")}
           </div>}

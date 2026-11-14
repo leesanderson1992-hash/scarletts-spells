@@ -544,6 +544,25 @@ async function performWorkspaceSave(form: FormData) {
     }).select("id").single();
     if (result.error) throw new Error("TEACHING_DRAFT_SAVE_FAILED");
     destination = `${path}?draft=${result.data.id}`;
+    if (reviewSection === "meaning") {
+      if (!wordId || !payload.senseSet?.senses.some(sense => sense.id === value(form, "selected_sense_id")))
+        throw new Error("TEACHING_LESSON_SENSE_INVALID");
+      const meaningIssues = senseSetErrors(payload.senseSet);
+      if (meaningIssues.length) return {
+        destination, error: "TEACHING_SENSE_SET_INVALID", overviewApproved, issues: meaningIssues,
+      };
+      if (payload.senseSet.senses.some(sense =>
+        sense.dictationSentence?.trim() && !targetOccurrences(sense.dictationSentence, payload.displayWord)
+          .includes(sense.dictationTargetTokenIndex ?? -1)))
+        throw new Error("TEACHING_LESSON_SENSE_SENTENCE_INVALID");
+      const meaning = await db.rpc("review_teaching_dictionary_meanings", {
+        p_draft: result.data.id, p_actor: actor.id,
+        p_expected_reviewed_at: value(form, "expected_sense_reviewed_at") || null,
+      });
+      if (meaning.error) throw new Error(meaning.error.message.match(/TEACHING_[A-Z_]+/)?.[0]
+        ?? "TEACHING_SENSE_SET_SAVE_FAILED");
+      return { destination, error: null, overviewApproved };
+    }
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
       if (reviewSection === "overview" && payload.senseSet && senseSetErrors(payload.senseSet).length)
         throw new Error("TEACHING_SENSE_SET_INVALID");
