@@ -31,10 +31,10 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, allowsBlankWorkbook, view, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, allowsBlankWorkbook, view, review, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
   fullPoolSize: number | null; allowsBlankWorkbook: boolean;
-  view: "export" | "workbook" | "preview"; children: ReactNode;
+  view: "export" | "workbook" | "preview"; review?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
   const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
@@ -152,6 +152,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
           <p className="text-sm">{fullPoolSize} active words. Use this snapshot to see what the lesson currently teaches.</p>
         </div>}
       </section>}
+      {step === 0 && review}
       {step === 1 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Edit and upload the workbook</h2>
         <p>Choose Yes on the meaning you want to teach and fix the flagged fields. Leave any family you need to look up blank.</p>

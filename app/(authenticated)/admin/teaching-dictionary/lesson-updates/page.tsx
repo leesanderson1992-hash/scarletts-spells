@@ -62,15 +62,15 @@ export default async function LessonUpdates({ searchParams }: {
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={suffix?.current.length ?? update?.current.length ?? null}
       allowsBlankWorkbook={suffixPilot}
+      review={suffix && view === "export" && suffix.rows.length > 0 ? <section className={card}>
+        <h2 className="text-xl font-semibold">Lesson words to reconcile</h2>
+        <ul className="divide-y divide-[var(--border)]">{suffix.rows.map(word => <li key={word.id} className="space-y-1 py-3">
+          <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.word}</Link>
+            {" · "}{word.status}</p>
+          <p className="text-sm">{word.note}</p>
+        </li>)}</ul>
+      </section> : null}
       batches={suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
-    {suffix && view === "export" && suffix.rows.length > 0 && <section className={card}>
-      <h2 className="text-xl font-semibold">Lesson words to reconcile</h2>
-      <ul className="divide-y divide-[var(--border)]">{suffix.rows.map(word => <li key={word.id} className="space-y-1 py-3">
-        <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.word}</Link>
-          {" · "}{word.status}</p>
-        <p className="text-sm">{word.note}</p>
-      </li>)}</ul>
-    </section>}
     {suffix && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">Preview the -able/-ible lesson update</h2>
       {params.error && <p role="alert">{params.error}</p>}
