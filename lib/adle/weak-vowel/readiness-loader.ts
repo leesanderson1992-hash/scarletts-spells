@@ -10,6 +10,7 @@ import { loadPublishedWritingAssociations } from "../../writing-engine/whole-wri
 import { WEAK_VOWEL_MICRO_SKILLS } from "../word-lab/weak-vowel-dinner";
 import { prepareLessonFromPublishedWeakVowelWords, publishedWeakVowelWordBlockers } from "./governed-content";
 import { loadPublishedWeakVowelWords } from "./governed-content-loader";
+import { dictionaryWordFromRow } from "../loaders/rows";
 import { loadWeakVowelFamilies } from "./family-loader";
 import type { WeakVowelLessonV1, WeakVowelMicroSkill } from "./lesson";
 import type { WeakVowelContentBlocker } from "./prepare";
@@ -64,10 +65,13 @@ export async function loadWeakVowelLessonReadiness(input: {
     client: input.client, childId: input.childId, microSkillKey: skill,
     environmentKey: input.environmentKey,
   })) return blocked("weak_vowel_route_inactive_or_out_of_scope");
-  const authority = await loadPublishedWritingAssociations(input.client, input.environmentKey).then((explicitReviewedAssociations) =>
-    loadCanonicalWordSkillRelationshipAuthority({ client: input.client, environmentKey: input.environmentKey,
-      explicitReviewedAssociations }));
-  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill)
+  const publishedAssociations = await loadPublishedWritingAssociations(input.client, input.environmentKey);
+  const authority = await loadCanonicalWordSkillRelationshipAuthority({ client: input.client,
+    environmentKey: input.environmentKey, explicitReviewedAssociations: publishedAssociations });
+  const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_WEAK_VOWEL_DICTIONARY_ONLY === "enabled";
+  const publishedIds = new Set(publishedAssociations.filter(pair => pair.microSkillKey === skill &&
+    pair.relationshipRole === "demonstrates" && pair.rowStatus === "active").map(pair => pair.canonicalWordId));
+  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill && (!dictionaryOnly || publishedIds.has(pair.canonicalWordId)))
     .map((pair) => pair.canonicalWordId));
   const queuedWordIds = [...new Set(input.facts.learningItems.filter((item) =>
     item.childId === input.childId && item.microSkillKey === skill && item.rowStatus === "active")
@@ -84,6 +88,12 @@ export async function loadWeakVowelLessonReadiness(input: {
       if (publishedWeakVowelWordBlockers(row, skill).length === 0) pool.add(row.canonicalWordId);
     }
   }
+  const scopedWords = dictionaryOnly && pool.size ? await input.client.from("canonical_teaching_dictionary_words")
+    .select("id,word_key,normalised_word,display_word,row_status,review_status,frequency_band,age_band")
+    .in("id", [...pool]).eq("row_status", "active") : null;
+  if (scopedWords?.error) throw new Error("Could not load the published weak-vowel dictionary words.");
+  const words = new Map(input.facts.dictionary.words.map(word => [word.canonicalWordId, word]));
+  for (const row of scopedWords?.data ?? []) words.set(row.id, dictionaryWordFromRow(row));
   const selection = selectWeakVowelLessonWords(skill, input.childId, {
     learningItems: input.facts.learningItems,
     // The governed route release is this specialist lesson's teaching
@@ -91,7 +101,14 @@ export async function loadWeakVowelLessonReadiness(input: {
     // content row, but only a child with an enabled route may use it.
     dictionary: { ...input.facts.dictionary, activeTeachingSkillKeys: new Set([
       ...input.facts.dictionary.activeTeachingSkillKeys, skill,
-    ]) },
+    ]),
+      words: [...words.values()],
+      supports: dictionaryOnly ? [
+        ...input.facts.dictionary.supports.filter(support => support.microSkillKey !== skill),
+        ...[...pool].map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill,
+          supportRole: "support_example" as const, rowStatus: "active" as const, reviewStatus: "approved_for_first_exposure" as const })),
+      ] : input.facts.dictionary.supports,
+    },
     taughtHistory: input.facts.taughtHistory,
     probeRuns: input.facts.probeRuns,
     probeMissWordIdsToday: input.facts.probeMissWordIdsToday,

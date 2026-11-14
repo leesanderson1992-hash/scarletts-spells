@@ -225,9 +225,14 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
   // Loading every historical reviewed release here made each child on the
   // admin readiness page rebuild the whole dictionary authority.
   const weakWordIds = [...new Set(weakTargets.map((target) => target.canonicalWordId))];
+  const weakAssociations = weakWordIds.length ? await loadPublishedWritingAssociations(client, environmentKey, weakWordIds) : [];
+  const weakDictionaryOnly = environmentKey === "staging" && process.env.ADLE_WEAK_VOWEL_DICTIONARY_ONLY === "enabled";
+  const weakPublishedPairs = new Set(weakAssociations.flatMap(row =>
+    row.canonicalWordId && row.relationshipRole === "demonstrates" && row.rowStatus === "active"
+      ? [canonicalWordSkillPair(row.canonicalWordId, row.microSkillKey)] : []));
   const weakRelationships = weakWordIds.length ? await loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey,
     canonicalWordIds: weakWordIds,
-    explicitReviewedAssociations: await loadPublishedWritingAssociations(client, environmentKey, weakWordIds) }) : null;
+    explicitReviewedAssociations: weakAssociations }) : null;
 
   for (const target of targets) {
     const pair = canonicalWordSkillPair(target.canonicalWordId, target.microSkillKey);
@@ -259,7 +264,7 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
       contentBlockers = row ? publishedWeakVowelWordBlockers(row, target.microSkillKey as Parameters<typeof publishedWeakVowelWordBlockers>[1]) : ["required_route_content_unpublished"];
       contentReady = Boolean(row && contentBlockers.length === 0);
       contentReason = row ? "published_content_or_dictionary_source_changed" : "required_route_content_unpublished";
-      memberReady = decision !== "deassign" && Boolean(weakRelationships?.relationships.some((entry) =>
+      memberReady = decision !== "deassign" && (!weakDictionaryOnly || weakPublishedPairs.has(pair)) && Boolean(weakRelationships?.relationships.some((entry) =>
         entry.canonicalWordId === target.canonicalWordId && entry.microSkillKey === target.microSkillKey));
     } else if (releaseMatches && routeId) {
       const inspected = await inspectRelease(routeId, target.microSkillKey, revision, release);
