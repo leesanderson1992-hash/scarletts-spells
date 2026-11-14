@@ -49,7 +49,9 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
   if (closure.capability !== "single_ing_word_audio" || semanticJson(closure.words) !== semanticJson(words.map(word => ({ canonicalWordId: word.canonicalWordId, word: word.word, sentence: word.dictationSentence, audioText: word.audioText })))) return blocked("ing_audio_closure_incomplete");
   const rows: any[] = await read(input.client.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code,source_name,source_url").in("id", words.map(word => word.canonicalWordId)));
   if (words.some(word => !rows.some(row => row.id === word.canonicalWordId && row.display_word === word.word && row.row_status === "active" && row.review_status === "approved_for_first_exposure" && row.dialect_code === "en-GB"))) return blocked("ing_canonical_word_not_ready");
+  const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_ING_DICTIONARY_ONLY === "enabled";
   const overviewWords = words.filter(word => word.senseId !== undefined || word.pronunciationId !== undefined);
+  const currentOverviewIds = new Set<string>();
   // Production serves the approved release snapshot while an editor reviews new facts.
   if (overviewWords.length && input.environmentKey !== "production") {
     const ids = overviewWords.map(word => word.canonicalWordId);
@@ -76,7 +78,7 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
         .select("canonical_word_id,sense_id").eq("environment_key", input.environmentKey)
         .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", ids)),
     ]);
-    if (overviewWords.some(word => {
+    for (const word of overviewWords) {
       const morphology = morphologies.find(row => row.canonical_word_id === word.canonicalWordId);
       const source = rows.find(row => row.id === word.canonicalWordId);
       const senseSet = sets.find(row => row.canonical_word_id === word.canonicalWordId)?.sense_set ?? null;
@@ -86,7 +88,7 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null,
         legacyLinks: links, senseAnalyses, senseLinks });
-      return !ingReleasedWordMatchesCurrentOverview({ released: word,
+      const matches = ingReleasedWordMatchesCurrentOverview({ released: word,
         senseSet,
         morphology: facts.morphology && facts.morphologyId
           ? { ...facts.morphology, id: facts.morphologyId } : null,
@@ -98,9 +100,13 @@ export async function prepareIngAssignment(input: { client: SupabaseClient; chil
         boundSenseIds: senseBindings.filter(row => row.canonical_word_id === word.canonicalWordId)
           .map(row => row.sense_id),
         sourceName: source?.source_name ?? null, sourceUrl: source?.source_url ?? null });
-    })) return blocked("ing_overview_facts_changed");
+      if (matches) currentOverviewIds.add(word.canonicalWordId);
+      else if (!dictionaryOnly) return blocked("ing_overview_facts_changed");
+    }
   }
-  const variedWords = applyIngDictationVariants(words, wordAuthority.semantic_projection.dictationSets, `${input.childId}:${input.date}:${input.microSkillKey}`, wordAuthority.semantic_fingerprint);
+  const selectableWords = dictionaryOnly ? words.filter(word => currentOverviewIds.has(word.canonicalWordId)) : words;
+  if (selectableWords.length < 6) return blocked("six_published_teaching_dictionary_words_required");
+  const variedWords = applyIngDictationVariants(selectableWords, wordAuthority.semantic_projection.dictationSets, `${input.childId}:${input.date}:${input.microSkillKey}`, wordAuthority.semantic_fingerprint);
   const selection = selectIngWords(input.childId, input.microSkillKey, variedWords, input.learningItems);
   if (!selection.ok) return blocked(selection.blockers.join(","));
   const lesson = compileIngLesson(selection, `adle:${input.childId}:${input.date}:${input.microSkillKey}`);

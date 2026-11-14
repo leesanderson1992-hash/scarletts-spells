@@ -97,8 +97,9 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
     row.approvedIngWord && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))
       ? [row.approvedIngWord] : []);
   const byId = new Map(approved.map(word => [word.canonicalWordId, word]));
-  const current = [...releasedById.values()];
   const currentIds = new Set(approved.filter(word => matchesReleasedWord(word, releasedById)).map(word => word.canonicalWordId));
+  const dictionaryOnly = environment === "staging" && process.env.ADLE_ING_DICTIONARY_ONLY === "enabled";
+  const current = [...releasedById.values()].filter(word => !dictionaryOnly || currentIds.has(word.canonicalWordId));
   const changes = approved.filter(word => !currentIds.has(word.canonicalWordId));
   const retired = [...releasedById.values()].filter(word => environment === "staging" && (word.senseId !== undefined || word.pronunciationId !== undefined)
     && !byId.has(word.canonicalWordId));
@@ -111,7 +112,7 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
     selectedSenseId: row.selectedSenseId, selectedMeaningReady: Boolean(row.approvedIngWord),
     activeMeaning: releasedById.get(row.wordId)?.meaning ?? null,
   }));
-  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => !row.approvedIngWord && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))),
+  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => (!row.approvedIngWord || dictionaryOnly && !currentIds.has(row.wordId)) && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))),
     skill, fingerprint: fingerprintSnapshotValue({ heads, words }) };
 }
 

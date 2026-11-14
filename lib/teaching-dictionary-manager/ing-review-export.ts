@@ -15,8 +15,10 @@ export const ING_REVIEW_BATCH_SIZE = 100;
 export function ingReviewExportRows(update: {
   current: IngDictionaryWordV1[];
   reviewWords: IngReviewCandidate[];
+  changes?: IngDictionaryWordV1[];
 }) {
   const activeById = new Map(update.current.map(word => [word.canonicalWordId, word]));
+  const pending = new Set(update.changes?.map(word => word.canonicalWordId));
   return update.reviewWords.flatMap(candidate => {
     const active = activeById.get(candidate.wordId);
     const wordIssues = candidate.status.blockerDetails.filter(({ code }) =>
@@ -31,7 +33,7 @@ export function ingReviewExportRows(update: {
       ...candidate.overviewCandidate?.issues.map(issue => issue.message) ?? [],
       ...candidate.generatedIng?.issues.map(issue => issue.message) ?? [],
     ];
-    const reason = [...new Set(facts)].join(" ") || "Recheck the approval for the meaning this lesson should teach.";
+    const reason = pending.has(candidate.wordId) ? "Ready to publish." : [...new Set(facts)].join(" ") || "Recheck the approval for the meaning this lesson should teach.";
     return [{
       wordId: candidate.wordId, displayWord: candidate.displayWord, active,
       note: active ? `Active in the live lesson pool. ${reason}` : reason,
