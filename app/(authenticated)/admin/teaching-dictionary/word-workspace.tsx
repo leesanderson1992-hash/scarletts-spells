@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { hydrateWorkspaceFacts } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadWordFamilyReview } from "./family-review-loader";
 import { activityVariantsForRoute } from "@/lib/adle/composable-lesson/activity-variants";
+import { SearchableAssignmentMenu } from "./searchable-assignment-menu";
+import { assessWordActivities } from "@/lib/teaching-dictionary-manager/activity-assessment";
 import { ACTIVITY_LABELS } from "@/lib/teaching-dictionary-manager/activity-matrix";
 import {
   DICTIONARY_BANDS,
@@ -289,6 +291,7 @@ export function WordWorkspace(props: {
   dictionaryFingerprint: string | null;
   sourceReference: string;
   skills: Skill[];
+  skillClusters: { skill_cluster_key: string; display_name: string }[];
   affixMeanings: Record<string, string[]>;
   partSuggestions: {
     label: string;
@@ -467,6 +470,7 @@ export function WordWorkspace(props: {
     props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference,
     props.skills, checkVersion]);
   const [joined, setJoined] = useState("");
+  const [assignmentCluster, setAssignmentCluster] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
   const splitDialog = useRef<HTMLDialogElement>(null);
   const builder = useRef<HTMLDialogElement>(null);
@@ -773,6 +777,16 @@ export function WordWorkspace(props: {
       ),
     ),
   ];
+  const assignableSkills = props.skills.filter(skill => !payload.skillKeys.includes(skill.micro_skill_key));
+  const clusterLabels = new Map(props.skillClusters.map(cluster => [cluster.skill_cluster_key, cluster.display_name]));
+  const clusters = [...new Set(assignableSkills.map(skill => skill.skill_cluster_key || "other"))].map(key => ({
+    key,
+    label: clusterLabels.get(key) ?? (key === "other" ? "Other micro-skills"
+      : key.replace(/^D\d+_/u, "").replaceAll("_", " ").toLowerCase()),
+  })).sort((left, right) => left.label.localeCompare(right.label));
+  const skillsInCluster = assignableSkills.filter(skill => (skill.skill_cluster_key || "other") === assignmentCluster)
+    .map(skill => ({ key: skill.micro_skill_key, label: skill.display_name }));
+  const selectedAssignment = skillsInCluster.find(skill => skill.key === joined);
   const overview = [
     {
       key: "dictionary",
@@ -1408,6 +1422,14 @@ export function WordWorkspace(props: {
                 const complete = lessonUsesActiveSense && !dirty && assignedSkillKeys?.includes(key) &&
                   (route?.routeId === "weak_vowel_word_lab" ? published?.sourceCurrent :
                     checks.find(row => row.key === key)?.ready);
+                const activityChecks = route?.newAssignmentCapable && lessonUsesActiveSense && payload.skillSenseIds?.[key]
+                  ? assessWordActivities({
+                    microSkillKey: key,
+                    payload: meaningPayload(key),
+                    routeContent: routeContent(key) ?? null,
+                    releasedMember: Boolean(complete || (!dirty && wordApproved &&
+                      statuses.some(status => status.administrativeCandidate))),
+                  }).filter(activity => activity.status !== "not_used") : [];
                 const readiness = !payload.skillSenseIds?.[key] ? "Choose meaning"
                   : !lessonUsesActiveSense ? "Different meaning"
                   : dirty ? "Unsaved changes"
@@ -1430,6 +1452,13 @@ export function WordWorkspace(props: {
                         <span className="hidden underline group-open:inline">Close checks</span>
                       </span>
                     </summary>
+                    {activityChecks.length > 0 && <ul aria-label={`Activity readiness for ${name(key)}`} className="mt-2 flex flex-wrap gap-2">
+                      {activityChecks.map(activity => <li key={activity.variant.kind} className={`rounded-full px-2 py-1 text-xs ${activity.status === "ready"
+                        ? "bg-emerald-50 text-emerald-800" : "bg-[var(--paper)] text-[color:var(--mid)]"}`}>
+                        {activity.status === "ready" && <><span aria-hidden="true">✓ </span><span className="sr-only">Ready: </span></>}
+                        {ACTIVITY_LABELS[activity.variant.kind]}
+                      </li>)}
+                    </ul>}
                     <div className="mt-2 text-sm">
                       {!lessonUsesActiveSense && <p className="mb-2 rounded bg-amber-50 p-2 text-amber-950">
                         This lesson currently uses {payload.senseSet?.senses.find(sense => sense.id === payload.skillSenseIds?.[key])?.definition ?? "another meaning"}. The requirements below are for <strong>{activeSense?.definition}</strong>.
@@ -1493,40 +1522,26 @@ export function WordWorkspace(props: {
                 );
               })}
           </div>
-          <div className="mt-3 flex flex-wrap justify-end gap-2">
-            <select
-              aria-label="Micro-skill to join"
-              className={`${input} max-w-sm`}
-              value={joined}
-              onChange={(event) => setJoined(event.target.value)}
-            >
-              <option value="">Choose micro-skill</option>
-              {props.skills
-                .filter(
-                  (skill) => !payload.skillKeys.includes(skill.micro_skill_key),
-                )
-                .map((skill) => (
-                  <option
-                    key={skill.micro_skill_key}
-                    value={skill.micro_skill_key}
-                  >
-                    {skill.display_name}
-                  </option>
-                ))}
-            </select>
-            <button
-              type="button"
-              className={button}
-              disabled={!joined}
+          {assignableSkills.length > 0 && <fieldset className="mt-4 min-w-0">
+            <legend className="mb-2 text-sm font-semibold">Assign a micro-skill</legend>
+            <div className="grid items-start gap-2 sm:grid-cols-2">
+              <SearchableAssignmentMenu label="Cluster" options={clusters} value={assignmentCluster}
+                onChange={key => { setAssignmentCluster(key); setJoined(""); }} />
+              <SearchableAssignmentMenu key={assignmentCluster} label="Micro-skill" options={skillsInCluster}
+                value={joined} disabled={!skillsInCluster.length} onChange={setJoined} />
+            </div>
+            <button type="button" className={`${button} mt-2`} disabled={!selectedAssignment}
               onClick={() => {
+                if (!selectedAssignment) return;
                 change({ skillKeys: [...payload.skillKeys, joined],
                   skillSenseIds: activeSenseId ? { ...payload.skillSenseIds, [joined]: activeSenseId }
                     : payload.skillSenseIds });
                 setJoined("");
-              }}
-            >
+              }}>
               Assign to this meaning
             </button>
+          </fieldset>}
+          <div className="mt-3 flex flex-wrap justify-end gap-2">
             {(assignedSkillKeys === null ? payload.skillKeys.length > 0 :
               payload.skillKeys.length !== assignedSkillKeys.length ||
               payload.skillKeys.some(key => !assignedSkillKeys.includes(key))) ||

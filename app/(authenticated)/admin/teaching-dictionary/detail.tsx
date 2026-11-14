@@ -63,6 +63,7 @@ export async function TeachingDictionaryDetail({
     draftResult,
     draftPublicationResult,
     skillResult,
+    clusterResult,
     prefixProfiles,
     suffixProfiles,
     dictionaryAffixMeanings,
@@ -103,6 +104,7 @@ export async function TeachingDictionaryDetail({
       .eq("is_active", true)
       .eq("is_assignable", true)
       .order("display_name"),
+    db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true),
     db
       .from("canonical_teaching_dictionary_prefix_profiles")
       .select("micro_skill_key,meaning_bins,prefix_choices")
@@ -206,6 +208,7 @@ export async function TeachingDictionaryDetail({
     draftResult,
     draftPublicationResult,
     skillResult,
+    clusterResult,
     prefixProfiles,
     suffixProfiles,
     metadataResult,
@@ -621,6 +624,7 @@ export async function TeachingDictionaryDetail({
           "Internally authored and reviewed"
         }
         skills={skillResult.data ?? []}
+        skillClusters={clusterResult.data ?? []}
         affixMeanings={affixMeanings}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
