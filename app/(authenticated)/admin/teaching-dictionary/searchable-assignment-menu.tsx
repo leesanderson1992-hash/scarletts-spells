@@ -4,12 +4,13 @@ import { useRef, useState } from "react";
 
 type Option = { key: string; label: string };
 
-export function SearchableAssignmentMenu({ label, value, options, disabled, onChange }: {
+export function SearchableAssignmentMenu({ label, value, options, disabled, onChange, onCreate }: {
   label: string;
   value: string;
   options: readonly Option[];
   disabled?: boolean;
   onChange: (key: string) => void;
+  onCreate?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -47,6 +48,8 @@ export function SearchableAssignmentMenu({ label, value, options, disabled, onCh
             onClick={() => { close(true); onChange(option.key); }}>{option.label}</button>
         </li>)}
       </ul>
+      {onCreate && <button type="button" className="mt-1 w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-[var(--scarlett)] hover:bg-[var(--paper)]"
+        onClick={() => { close(true); onCreate(); }}>+ Create new {label.toLowerCase()}</button>}
       {!matches.length && <p role="status" className="px-3 py-2 text-sm text-[color:var(--mid)]">No matches</p>}
     </div>}
   </div>;

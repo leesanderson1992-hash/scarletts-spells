@@ -1,5 +1,7 @@
 "use client";
 
+import { AffixPicker, type AffixCatalog } from "./affix-picker";
+
 const fieldClass = "min-h-10 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm";
 const labelClass = "grid gap-1 text-sm font-medium";
 type EditablePart = { id?: string; kind?: string; sourceText?: string; surfaceText?: string; gloss?: string; displayRange?: { start: number; end: number }; [key: string]: unknown };
@@ -8,6 +10,7 @@ type EditableJoin = { afterPartId?: string; beforePartId?: string; joinType?: st
 const FIELD_GUIDANCE: Record<string, { format: string; example: string }> = {
   "Visible letters": { format: "Enter the letters the learner sees in this part.", example: "scroll" },
   "Underlying form": { format: "Enter the base, root or affix before any spelling change.", example: "scroll" },
+  "Affix meaning": { format: "Choose what this prefix or suffix adds to this meaning. Use wording that works across words.", example: "-ing can show an action in progress." },
   Role: { format: "Choose whether the part is a prefix, base, root, suffix or connector.", example: "base" },
   "Meaning of this part": { format: "Choose the reviewed affix meaning or use the selected family meaning for a base or root.", example: "move across a surface" },
   "Join before this part": { format: "Choose no space, a space or a hyphen in the printed word.", example: "No space" },
@@ -75,6 +78,7 @@ export function PartSequenceEditor(props: {
   joins: unknown;
   onChange: (parts: EditablePart[], joins: EditableJoin[]) => void;
   affixMeanings?: Record<string, string[]>;
+  affixCatalog?: AffixCatalog;
   familyBase?: { lemma: string; kind: "base" | "root"; meaning: string };
 }) {
   const parts = asParts(props.parts);
@@ -85,16 +89,24 @@ export function PartSequenceEditor(props: {
   }
   return <div id={props.id} className="grid gap-2 rounded-lg border border-[var(--border)] p-3 scroll-mt-6">
     <div><strong className="text-sm">{props.label}</strong><p className="text-xs">Enter the parts the learner should see. Their visible spelling must join to make <strong>{props.word || "the word"}</strong>.</p></div>
-    {parts.map((part, index) => <div key={index} className="grid gap-2 rounded-lg bg-[var(--paper)] p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+    {parts.map((part, index) => {
+      const affix = props.affixCatalog && (part.kind === "prefix" || part.kind === "suffix") ? part.kind : null;
+      return <div key={part.id ?? index} className="grid gap-2 rounded-lg bg-[var(--paper)] p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
       <label className={labelClass}><FieldTitle label="Visible letters" /><input className={fieldClass} value={String(part.surfaceText ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, surfaceText: event.target.value } : item))} /></label>
-      <label className={labelClass}><FieldTitle label="Underlying form" /><input className={fieldClass} value={String(part.sourceText ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, sourceText: event.target.value } : item))} /></label>
+      {!affix && <label className={labelClass}><FieldTitle label="Underlying form" /><input className={fieldClass} value={String(part.sourceText ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, sourceText: event.target.value } : item))} /></label>}
       <label className={labelClass}><FieldTitle label="Role" /><select className={fieldClass} value={String(part.kind ?? "base")} disabled={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, kind: event.target.value } : item))}>
         {["prefix", "base", "root", "suffix", "connector"].map((role) => <option key={role} value={role}>{role}</option>)}
       </select></label>
       <button type="button" className="self-end rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50" aria-label={`Remove part ${index + 1}`} disabled={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onClick={() => save(parts.filter((_, at) => at !== index))}>Remove</button>
-      <label className={`${labelClass} md:col-span-3`}><FieldTitle label="Meaning of this part" />{["prefix", "suffix"].includes(String(part.kind)) && props.affixMeanings?.[String(part.sourceText || part.surfaceText)]?.length ? <select className={fieldClass} value={String(part.gloss ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))}><option value="">Select reviewed meaning</option>{part.gloss && !props.affixMeanings[String(part.sourceText || part.surfaceText)].includes(String(part.gloss)) && <option value={String(part.gloss)} disabled>Current meaning needs review: {String(part.gloss)}</option>}{[...new Set(props.affixMeanings[String(part.sourceText || part.surfaceText)])].filter(Boolean).map(meaning => <option key={meaning}>{meaning}</option>)}</select> : <input className={fieldClass} value={String(part.gloss ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))} />}</label>
+      {affix && props.affixCatalog ? <AffixPicker key={affix} kind={affix} form={part.sourceText ?? ""} meaning={part.gloss ?? ""}
+        catalog={props.affixCatalog[affix]} formTitle={<FieldTitle label="Underlying form" />}
+        meaningTitle={<FieldTitle label="Affix meaning" helpKey="Affix meaning" />}
+        onChange={(form, meaning) => save(parts.map((item, at) => at === index ? {
+          ...item, sourceText: form, gloss: meaning,
+          surfaceText: !item.surfaceText || item.surfaceText === item.sourceText ? form : item.surfaceText,
+        } : item))} /> :       <label className={`${labelClass} md:col-span-3`}><FieldTitle label="Meaning of this part" />{["prefix", "suffix"].includes(String(part.kind)) && props.affixMeanings?.[String(part.sourceText || part.surfaceText)]?.length ? <select className={fieldClass} value={String(part.gloss ?? "")} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))}><option value="">Select reviewed meaning</option>{part.gloss && !props.affixMeanings[String(part.sourceText || part.surfaceText)].includes(String(part.gloss)) && <option value={String(part.gloss)} disabled>Current meaning needs review: {String(part.gloss)}</option>}{[...new Set(props.affixMeanings[String(part.sourceText || part.surfaceText)])].filter(Boolean).map(meaning => <option key={meaning}>{meaning}</option>)}</select> : <input className={fieldClass} value={String(part.gloss ?? "")} readOnly={Boolean(props.familyBase && String(part.sourceText) === props.familyBase.lemma && part.kind === props.familyBase.kind)} onChange={(event) => save(parts.map((item, at) => at === index ? { ...item, gloss: event.target.value } : item))} />}</label>}
       {index > 0 && <label className={labelClass}><FieldTitle label="Join before this part" /><select className={fieldClass} value={String(joins[index - 1]?.joinType ?? "none")} onChange={(event) => save(parts, Array.from({ length: parts.length - 1 }, (_, at) => at === index - 1 ? { ...(joins[at] ?? {}), joinType: event.target.value } : joins[at] ?? {}))}><option value="none">No space</option><option value="space">Space</option><option value="hyphen">Hyphen</option></select></label>}
-    </div>)}
+    </div>})}
     <div className="flex flex-wrap items-center gap-3"><button type="button" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm" onClick={() => save([...parts, { surfaceText: "", sourceText: "", kind: "base", gloss: "" }])}>Add part</button><button type="button" className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50" disabled={!parts.length} onClick={() => save(parts, joins)}>Apply reviewed parts</button><span className="text-xs">Preview: {parts.map((part) => String(part.surfaceText ?? "")).join(" | ") || "No parts yet"}</span></div>
   </div>;
 }

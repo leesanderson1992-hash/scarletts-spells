@@ -13,7 +13,7 @@ import { lexicalFamilyId } from "@/lib/adle/lexical-base-family-release";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
-import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeContentsForSelectedSkills, routeWithSingleProfileDefaults, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
+import { emptyMetadata, emptyMorphology, normaliseWord, publicationBlockers, routeBlockers, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults, validateDraft, WORD_METADATA_FIELDS, type RouteContentDraft, type WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
 import { senseSetErrors } from "@/lib/teaching-dictionary-manager/senses";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 import { combineRoundTripRows, MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv } from "@/lib/teaching-dictionary-manager/csv";
@@ -456,6 +456,29 @@ async function performWorkspaceSave(form: FormData) {
     // Rebase a newly approved lesson draft to that exact revision rather than
     // creating a second, conflicting manager family for the same base.
     const reviewSection = value(form, "review_section");
+    let reviewedFacts = payload;
+    if (wordId && (reviewSection === "overview" || reviewSection.startsWith("lesson:"))) {
+      const key = reviewSection.startsWith("lesson:") ? reviewSection.slice(7) : null;
+      const senseId = key ? payload.skillSenseIds?.[key] : payload.senseSet?.senses[0]?.id;
+      if (senseId) {
+        const analysis = await db.from("teaching_dictionary_current_sense_morphology")
+          .select("morphology_parts,morphology_joins,morphology_transformations,word_sum")
+          .eq("canonical_word_id", wordId).eq("sense_id", senseId).maybeSingle();
+        if (analysis.error) throw new Error("TEACHING_MORPHOLOGY_READ_FAILED");
+        if (analysis.data) {
+          reviewedFacts = { ...payload, canonicalMorphology: {
+            ...payload.canonicalMorphology, parts: analysis.data.morphology_parts,
+            joins: analysis.data.morphology_joins, transformations: analysis.data.morphology_transformations,
+            wordSum: analysis.data.word_sum, analysisStatus: "approved",
+            reviewNotes: "Approved word parts for this meaning",
+          }};
+          if (key) payload.routeContents = payload.routeContents.map(route =>
+            route.microSkillKey === key ? routeWithSharedFacts(route, reviewedFacts) : route);
+        } else if (key && (payload.senseSet?.senses.length ?? 0) > 1) {
+          reviewedFacts = { ...payload, canonicalMorphology: emptyMorphology() };
+        }
+      }
+    }
     if (wordId && reviewSection.startsWith("lesson:")) {
       const weakRoute = payload.routeContents.find((entry) => entry.routeId === "weak_vowel_word_lab" &&
         entry.microSkillKey === reviewSection.slice(7));
@@ -566,7 +589,7 @@ async function performWorkspaceSave(form: FormData) {
     if (reviewSection && reviewSection !== "skills" && reviewSection !== "draft") {
       if (reviewSection === "overview" && payload.senseSet && senseSetErrors(payload.senseSet).length)
         throw new Error("TEACHING_SENSE_SET_INVALID");
-      if (publicationBlockers(payload, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
+      if (publicationBlockers(reviewedFacts, normalisedWord, { requireCanonicalParts: reviewSection === "overview" }).length)
         throw new Error("TEACHING_OVERVIEW_FACTS_INCOMPLETE");
       if (reviewSection === "overview" && payload.senseSet?.senses.some(sense =>
         sense.dictationSentence?.trim() && !targetOccurrences(sense.dictationSentence, payload.displayWord)
@@ -605,7 +628,7 @@ async function performWorkspaceSave(form: FormData) {
     if (reviewSection.startsWith("lesson:")) {
       const key = reviewSection.slice(7);
       const lesson = payload.routeContents.find(route => route.microSkillKey === key);
-      if (!lesson || routeBlockers(lesson, payload).length) {
+      if (!lesson || routeBlockers(lesson, reviewedFacts).length) {
         destination = `${path}?draft=${result.data.id}&publish_error=TEACHING_ROUTE_FACTS_INCOMPLETE`;
       } else {
         if (!wordId || !payload.skillKeys.includes(key))

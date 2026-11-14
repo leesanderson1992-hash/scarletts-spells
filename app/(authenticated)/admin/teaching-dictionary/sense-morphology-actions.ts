@@ -32,12 +32,17 @@ export async function reviewSenseMorphology(input: { wordId: string; senseId: st
     || !Array.isArray(input.parts) || !Array.isArray(input.joins)
     || !Array.isArray(input.transformations) || typeof input.wordSum !== "string")
     return { ok: false, error: "Choose a reviewed meaning and complete its word parts." };
-  const result = await createServiceRoleClient().rpc("review_teaching_dictionary_sense_morphology", {
+  const db = createServiceRoleClient();
+  const facts = {
     p_request_id: randomUUID(), p_word_id: input.wordId, p_sense_id: input.senseId,
-    p_action: input.action, p_parts: input.parts, p_joins: input.joins,
-    p_transformations: input.transformations, p_word_sum: input.wordSum,
-    p_actor: actor.id, p_source_reference: `Teaching Dictionary meaning morphology ${input.action}`,
-  });
+    p_parts: input.parts, p_joins: input.joins, p_transformations: input.transformations,
+    p_word_sum: input.wordSum, p_actor: actor.id,
+  };
+  const result = input.action === "approve"
+    ? await db.rpc("approve_teaching_dictionary_word_parts", facts)
+    : await db.rpc("review_teaching_dictionary_sense_morphology", {
+      ...facts, p_action: input.action, p_source_reference: "Teaching Dictionary Word parts withdrawal",
+    });
   if (result.error) return { ok: false, error: result.error.message.match(/SENSE_MORPHOLOGY_[A-Z_]+/)?.[0]
     ?.replaceAll("_", " ").toLowerCase() ?? "The word parts could not be approved." };
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
@@ -115,4 +120,21 @@ export async function createSenseFreeBaseFamily(input: { wordId: string; senseId
   updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   revalidatePath(`/admin/teaching-dictionary/${input.wordId}`);
   return { ok: true };
+}
+
+export async function registerReviewedAffixMeaning(kind: "prefix" | "suffix", input: string, gloss: string):
+  Promise<{ ok: true; form: string; meaning: string } | { ok: false; error: string }> {
+  const actor = await requireAdminUser();
+  const form = input.trim().toLocaleLowerCase("en-GB").replace(/^-+|-+$/g, "");
+  const meaning = gloss.trim().replace(/\s+/g, " ");
+  if (!["prefix", "suffix"].includes(kind) || !/^[\p{L}]{1,30}$/u.test(form) || !meaning || meaning.length > 300)
+    return { ok: false, error: "Enter the affix spelling and a short meaning." };
+  const db = createServiceRoleClient();
+  const result = await db.rpc("register_teaching_dictionary_affix_meaning", {
+    p_kind: kind, p_form: form, p_gloss: meaning, p_actor: actor.id,
+  });
+  if (result.error || !result.data)
+    return { ok: false, error: "The affix meaning could not be saved. Try again." };
+  updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
+  return { ok: true, form, meaning: result.data };
 }

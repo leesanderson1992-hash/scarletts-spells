@@ -8,6 +8,7 @@ type ReviewedAffixMeaning = { part_kind: string; source_text: string; gloss: str
 export function reviewedAffixMeanings(
   prefixProfiles: readonly PrefixProfile[], suffixProfiles: readonly SuffixProfile[],
   dictionaryMeanings: readonly ReviewedAffixMeaning[] = [],
+  kind?: "prefix" | "suffix",
 ): Record<string, string[]> {
   const meanings: Record<string, string[]> = {};
   const dictionaryForms = new Set<string>();
@@ -18,6 +19,7 @@ export function reviewedAffixMeanings(
   };
   for (const row of dictionaryMeanings) {
     if (row.part_kind !== "prefix" && row.part_kind !== "suffix") continue;
+    if (kind && row.part_kind !== kind) continue;
     add(row.source_text, row.gloss);
     dictionaryForms.add(row.source_text);
   }

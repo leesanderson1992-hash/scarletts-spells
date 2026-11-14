@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { generatedWordSum } from "@/lib/teaching-dictionary-manager/authoring";
 import { PartSequenceEditor, asParts } from "./part-sequence-editor";
 import { FormatHint } from "./format-hint";
+import type { AffixCatalog } from "./affix-picker";
 import { createSenseFreeBaseFamily, findReviewedFamilyBase, findSenseFamilies, reviewSenseFamilyMembership, reviewSenseMorphology } from "./sense-morphology-actions";
 
+type Suggestion = { label: string; parts: unknown[]; joins: unknown[]; transformations: unknown[] };
 type Analysis = { id: string; sense_id: string; morphology_parts: unknown[];
   morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string };
 type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string;
@@ -21,10 +23,17 @@ const field = "w-full rounded border border-[var(--border)] bg-white px-2 py-1.5
 function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
   senseId: string; senseDefinition: string; canCreateFreeBase: boolean; current: Analysis | null;
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
-  families: Family[]; links: Link[]; affixMeanings: Record<string, string[]> }) {
+  families: Family[]; links: Link[]; affixCatalog: AffixCatalog; panel: "parts" | "family";
+  openNext: () => void; suggestions: Suggestion[];
+  baseMeaningPrefill: { partId: string; meaning: string } | null;
+  onBaseMeaning: (partId: string, meaning: string) => void }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [parts, setParts] = useState<unknown[]>(props.current?.morphology_parts ?? props.shared.parts);
+  const [parts, setParts] = useState<unknown[]>(() => {
+    const initial = props.current?.morphology_parts ?? props.shared.parts;
+    const prefill = props.panel === "parts" ? props.baseMeaningPrefill : null;
+    return prefill ? asParts(initial).map(part => part.id === prefill.partId ? { ...part, gloss: prefill.meaning } : part) : initial;
+  });
   const [joins, setJoins] = useState<unknown[]>(props.current?.morphology_joins ?? props.shared.joins);
   const [transformations, setTransformations] = useState<Transformation[]>(
     (props.current?.morphology_transformations ?? props.shared.transformations) as Transformation[]);
@@ -81,7 +90,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     setSaved(false); setError("");
     start(async () => {
       if (!await approveParts(parts)) return;
-      setSaved(true); router.refresh();
+      router.refresh();
     });
   }
   function submitLink(action: "approve" | "withdraw", link?: Link) {
@@ -91,17 +100,13 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     if (!familyKey || !componentPartId || !relationshipKind) return;
     setSaved(false); setError("");
     start(async () => {
-      const usesFamilyMeaning = action === "approve" && chosen && chosen.part.gloss !== chosen.family.base_meaning;
-      const nextParts = usesFamilyMeaning ? typedParts.map(part => part.id === componentPartId
-        ? { ...part, gloss: chosen.family.base_meaning } : part) : parts;
-      const needsPartsApproval = action === "approve" && (!props.current || changed || usesFamilyMeaning);
-      const morphologyId = needsPartsApproval ? await approveParts(nextParts) : props.current?.id;
+      const morphologyId = props.current?.id;
       if (!morphologyId) return;
       const result = await reviewSenseFamilyMembership({ wordId: props.wordId,
         senseId: props.senseId, morphologyId,
         familyKey, componentPartId, relationshipKind, action });
       if (!result.ok) {
-        setError(`${needsPartsApproval ? "Parts approved. " : ""}${result.error ?? "Family review failed."}`);
+        setError(result.error ?? "Family review failed.");
         return;
       }
       setFamilyMode(null);
@@ -131,14 +136,10 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     setSaved(false);
     setError("");
     start(async () => {
-      const nextParts = baseSense ? typedParts.map(part => part.id === componentPartId
-        ? { ...part, gloss: baseSense.definition } : part) : parts;
-      const needsApproval = !props.current || changed || Boolean(baseSense && component.gloss !== baseSense.definition);
-      if (needsApproval && !await approveParts(nextParts)) return;
       const result = await createSenseFreeBaseFamily({ wordId: props.wordId, senseId: props.senseId,
         componentPartId, baseWordId: baseEntry?.id, baseSenseId: baseSense?.id, relationshipKind: relationship });
       if (!result.ok) {
-        setError(`${needsApproval ? "Parts approved. " : ""}${result.error ?? "Family creation failed."}`);
+        setError(result.error ?? "Family creation failed.");
         return;
       }
       setFamilyMode(null);
@@ -153,6 +154,71 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
     if (mode === "find" && !matches.length) refreshFamilyChoices();
     if (mode === "create" && basePart?.id) loadBase(basePart.id);
   }
+  if (props.panel === "parts") return <div className="grid gap-3">
+    <div id="td-canonical-word-sum" className="flex flex-wrap justify-between gap-2 rounded-lg bg-[var(--paper)] p-3">
+      <strong>{typedParts.length ? generatedWordSum(parts, props.displayWord) : "Word parts needed"}</strong>
+      <span className="text-sm">{props.current && !changed ? "✓ Parts approved" : "Parts need approval"}</span>
+    </div>
+    {!props.current && <div className="flex flex-wrap gap-3">
+      <button type="button" className={familyButton} onClick={() => {
+        setParts([{ id: "base", kind: "base", sourceText: props.displayWord, surfaceText: props.displayWord,
+          gloss: props.senseDefinition, displayRange: { start: 0, end: props.displayWord.length } }]);
+        setJoins([]);
+        setTransformations([]);
+      }}>Use {props.displayWord} as the whole base</button>
+      {props.suggestions.map((suggestion, index) => <button type="button" className={familyButton} key={index}
+        onClick={() => {
+          setParts(suggestion.parts);
+          setJoins(suggestion.joins);
+          setTransformations(suggestion.transformations as Transformation[]);
+        }}>{suggestion.label}</button>)}
+    </div>}
+    <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
+      parts={parts} joins={joins} affixCatalog={props.affixCatalog}
+      onChange={(nextParts, nextJoins) => { setParts(nextParts); setJoins(nextJoins); setSaved(false); }} />
+    <div className="grid gap-2">
+      <h4 className="font-semibold">Spelling changes <FormatHint label="spelling changes"
+        format="Record each change from an underlying part to the letters shown in the word. Leave empty when no spelling changes occur."
+        example="make → mak before -ing; drop final e" /></h4>
+      {transformations.map((item, index) => <div key={index} className="grid gap-2 rounded bg-[var(--paper)] p-2 sm:grid-cols-2">
+        <label className="text-sm">Part <select className={field} value={item.sourcePartId}
+          onChange={event => setTransformations(current => current.map((row, at) => at === index
+            ? { ...row, sourcePartId: event.target.value } : row))}>
+          <option value="">Choose part</option>{typedParts.map(part =>
+            <option key={part.id} value={part.id}>{part.sourceText} → {part.surfaceText}</option>)}
+        </select></label>
+        <label className="text-sm">Change <select className={field} value={item.type}
+          onChange={event => setTransformations(current => current.map((row, at) => at === index
+            ? { ...row, type: event.target.value } : row))}>
+          {(["drop_final_e", "change_final_y_to_i", "remove_letter", "replace_final", "base_spelling_change"])
+            .map(type => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
+        </select></label>
+        {(["sourceText", "surfaceText", "explanation"] as const).map(key => <label key={key} className="text-sm">
+          {key === "sourceText" ? "Before" : key === "surfaceText" ? "After" : "Explanation"}
+          <input className={field} value={item[key] ?? ""}
+            onChange={event => setTransformations(current => current.map((row, at) => at === index
+              ? { ...row, [key]: event.target.value } : row))} />
+        </label>)}
+        <button type="button" className="self-end text-sm underline" onClick={() =>
+          setTransformations(current => current.filter((_, at) => at !== index))}>Remove change</button>
+      </div>)}
+      <button type="button" className="w-fit text-sm underline" onClick={() => setTransformations(current =>
+        [...current, { type: "drop_final_e", sourcePartId: "", sourceText: "",
+          surfaceText: "", explanation: "" }])}>Add spelling change</button>
+    </div>
+    <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+      disabled={pending || !typedParts.length || (Boolean(props.current) && !changed)} onClick={submitAnalysis}>
+      {pending ? "Saving…" : props.current ? "Approve revised parts for this meaning" : "Approve parts for this meaning"}
+    </button>
+    {props.current && !changed && <button type="button" className={familyButton} onClick={props.openNext}>Continue to Family</button>}
+    {error && <p role="alert" className="text-sm text-rose-900">{error}</p>}
+  </div>;
+
+  if (!props.current) return <div className="grid gap-2">
+    <p className="text-sm">Approve the Word parts for this meaning before linking a family.</p>
+    <a className="w-fit text-sm underline" href="#td-canonical-parts">Go to Word parts</a>
+  </div>;
+
   return <div className="grid gap-4">
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--paper)] p-3">
       <p className="font-semibold">{typedParts.length ? generatedWordSum(parts, props.displayWord) : "Word parts needed"}</p>
@@ -198,63 +264,18 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
       {!wholeWordBase && !baseEntry && <p className="text-sm">
         {pending ? "Loading reviewed base meanings…" : "Choose a reviewed base. If this word is the base, use the selected meaning to start its family."}
       </p>}
-      {!wholeWordBase && !baseEntry && <button type="button" className="w-fit text-sm underline" disabled={pending}
-        onClick={() => {
-          setParts([{ id: "base", kind: "base", sourceText: props.displayWord.toLocaleLowerCase("en-GB"),
-            surfaceText: props.displayWord, gloss: props.senseDefinition,
-            displayRange: { start: 0, end: props.displayWord.length } }]);
-          setJoins([]);
-          setTransformations([]);
-          setBaseEntry(null);
-        }}>Use {props.displayWord} as the whole base</button>}
       {wholeWordBase && <p className="text-sm">{props.senseDefinition}</p>}
-      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && !baseSense)}
+      {baseSense && basePart?.id && basePart.gloss !== baseSense.definition && <button type="button" className="w-fit text-sm underline"
+        onClick={() => props.onBaseMeaning(basePart.id!, baseSense.definition)}>Use this base meaning in Word parts</button>}
+      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && (!baseSense || basePart?.gloss !== baseSense.definition))}
         onClick={createFamily}>Create and link family</button>
     </div>}
-    <details className="rounded-lg border border-[var(--border)] p-3" >
-      <summary className="cursor-pointer text-sm font-semibold">Edit word parts and spelling changes</summary>
-      <div className="mt-3 grid gap-3">
-    <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
-      parts={parts} joins={joins} affixMeanings={props.affixMeanings}
-      onChange={(nextParts, nextJoins) => { setParts(nextParts); setJoins(nextJoins); setSaved(false); }} />
-    <div className="grid gap-2">
-      <h4 className="font-semibold">Spelling changes <FormatHint label="spelling changes"
-        format="Record each change from an underlying part to the letters shown in the word. Leave empty when no spelling changes occur."
-        example="make → mak before -ing; drop final e" /></h4>
-      {transformations.map((item, index) => <div key={index} className="grid gap-2 rounded bg-[var(--paper)] p-2 sm:grid-cols-2">
-        <label className="text-sm">Part <select className={field} value={item.sourcePartId}
-          onChange={event => setTransformations(current => current.map((row, at) => at === index
-            ? { ...row, sourcePartId: event.target.value } : row))}>
-          <option value="">Choose part</option>{typedParts.map(part =>
-            <option key={part.id} value={part.id}>{part.sourceText} → {part.surfaceText}</option>)}
-        </select></label>
-        <label className="text-sm">Change <select className={field} value={item.type}
-          onChange={event => setTransformations(current => current.map((row, at) => at === index
-            ? { ...row, type: event.target.value } : row))}>
-          {(["drop_final_e", "change_final_y_to_i", "remove_letter", "replace_final", "base_spelling_change"])
-            .map(type => <option key={type} value={type}>{type.replaceAll("_", " ")}</option>)}
-        </select></label>
-        {(["sourceText", "surfaceText", "explanation"] as const).map(key => <label key={key} className="text-sm">
-          {key === "sourceText" ? "Before" : key === "surfaceText" ? "After" : "Explanation"}
-          <input className={field} value={item[key] ?? ""}
-            onChange={event => setTransformations(current => current.map((row, at) => at === index
-              ? { ...row, [key]: event.target.value } : row))} />
-        </label>)}
-        <button type="button" className="self-end text-sm underline" onClick={() =>
-          setTransformations(current => current.filter((_, at) => at !== index))}>Remove change</button>
-      </div>)}
-      <button type="button" className="w-fit text-sm underline" onClick={() => setTransformations(current =>
-        [...current, { type: "drop_final_e", sourcePartId: "", sourceText: "",
-          surfaceText: "", explanation: "" }])}>Add spelling change</button>
-    </div>
-    <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-      disabled={pending || !typedParts.length || (Boolean(props.current) && !changed)} onClick={submitAnalysis}>
-      {pending ? "Saving…" : props.current ? "Approve revised parts for this meaning" : "Approve parts for this meaning"}
-    </button>
-      </div>
-    </details>
     {familyMode === "find" && <div className="grid gap-2 border-t border-[var(--border)] pt-3">
-      {chosen && <p className="text-sm">Base meaning from the family · {chosen.family.base_meaning}</p>}
+      {chosen && <div className="grid gap-1 text-sm">
+        <p>Base meaning from the family · {chosen.family.base_meaning}</p>
+        {chosen.part.gloss !== chosen.family.base_meaning && <button type="button" className="w-fit underline"
+          onClick={() => props.onBaseMeaning(String(chosen.part.id), chosen.family.base_meaning)}>Use this base meaning in Word parts</button>}
+      </div>}
       {!matches.length && <p className="text-sm">{pending ? "Finding families…" : "No approved family matches these parts. Check the base or root spelling, or create a family."}</p>}
       {matches.length > 0 && <div className="grid gap-2 sm:grid-cols-2">
         <label className="text-sm sm:col-span-2">Search matching families
@@ -276,7 +297,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
             .map(kind => <option key={kind} value={kind}>{kind.replaceAll("_", " ")}</option>)}
         </select></label>
         <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          disabled={pending || !chosen} onClick={() => submitLink("approve")}>Confirm and link</button>
+          disabled={pending || !chosen || chosen.part.gloss !== chosen.family.base_meaning} onClick={() => submitLink("approve")}>Confirm and link</button>
       </div>}
     </div>}
     {error && <p role="alert" className="text-sm text-rose-900">{error}</p>}
@@ -289,17 +310,21 @@ export function SenseMorphologyReview(props: { wordId: string; displayWord: stri
   selectedSenseId: string;
   analyses: Analysis[]; links: Link[]; families: Family[];
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
-  affixMeanings: Record<string, string[]> }) {
+  affixCatalog: AffixCatalog; panel: "parts" | "family"; openNext: () => void; suggestions: Suggestion[];
+  baseMeaningPrefill: { partId: string; meaning: string } | null;
+  onBaseMeaning: (partId: string, meaning: string) => void }) {
   const senseId = props.selectedSenseId;
   const sense = props.senses.find(row => row.id === senseId);
   const current = props.analyses.find(row => row.sense_id === senseId) ?? null;
   if (!sense) return null;
-  return <section id="td-sense-morphology" className="scroll-mt-6">
-    <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}`} wordId={props.wordId}
+  return <section id={props.panel === "parts" ? "td-canonical-parts" : "td-sense-morphology"} className="scroll-mt-6">
+    <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}:${props.baseMeaningPrefill?.partId ?? ""}:${props.baseMeaningPrefill?.meaning ?? ""}`} wordId={props.wordId}
       displayWord={props.displayWord} senseId={senseId}
       senseDefinition={sense.definition}
       canCreateFreeBase={sense.partOfSpeech !== "root"}
       current={current} shared={props.shared} families={props.families}
-      links={props.links} affixMeanings={props.affixMeanings} />
+      panel={props.panel} openNext={props.openNext} suggestions={props.suggestions}
+      baseMeaningPrefill={props.baseMeaningPrefill} onBaseMeaning={props.onBaseMeaning}
+      links={props.links} affixCatalog={props.affixCatalog} />
   </section>;
 }

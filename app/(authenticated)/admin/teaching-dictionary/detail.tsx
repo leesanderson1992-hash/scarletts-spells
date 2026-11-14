@@ -631,6 +631,10 @@ export async function TeachingDictionaryDetail({
         skills={skillResult.data ?? []}
         skillClusters={clusterResult.data ?? []}
         affixMeanings={affixMeanings}
+        affixCatalog={{
+          prefix: reviewedAffixMeanings(prefixProfiles.data ?? [], [], dictionaryAffixMeanings.data ?? [], "prefix"),
+          suffix: reviewedAffixMeanings([], suffixProfiles.data ?? [], dictionaryAffixMeanings.data ?? [], "suffix"),
+        }}
         partSuggestions={partSuggestions}
         baseFamilies={baseFamilies}
         familyReviewContext={{ error: params.family_error }}

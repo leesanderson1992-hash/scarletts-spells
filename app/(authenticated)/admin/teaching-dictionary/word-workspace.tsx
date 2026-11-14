@@ -83,7 +83,8 @@ const input =
 const overviewViews = [
   ["meaning", "Meaning"],
   ["pronunciation", "Pronunciation & dictation"],
-  ["family", "Word parts & family"],
+  ["parts", "Word parts"],
+  ["family", "Family"],
   ["lessons", "Micro-skills"],
   ["details", "Word details"],
 ] as const;
@@ -295,6 +296,7 @@ export function WordWorkspace(props: {
   skills: Skill[];
   skillClusters: { skill_cluster_key: string; display_name: string }[];
   affixMeanings: Record<string, string[]>;
+  affixCatalog: Record<"prefix" | "suffix", Record<string, string[]>>;
   partSuggestions: {
     label: string;
     parts: unknown[];
@@ -341,7 +343,10 @@ export function WordWorkspace(props: {
   }));
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
-  const [overviewView, setOverviewView] = useState<OverviewView>(props.initialSenseId ? "family" : props.wordId ? "meaning" : "details");
+  const [baseMeaningPrefill, setBaseMeaningPrefill] = useState<{
+    senseId: string; analysisId: string | undefined; partId: string; meaning: string;
+  } | null>(null);
+  const [overviewView, setOverviewView] = useState<OverviewView>(props.initialSenseId ? "parts" : props.wordId ? "meaning" : "details");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
   const dictationRecordingSources = new Map(props.dictationRecordingSources);
@@ -366,7 +371,7 @@ export function WordWorkspace(props: {
   const [checkVersion, setCheckVersion] = useState(0);
   const checksGeneration = useRef(0);
   const initialChecksApplied = useRef(false);
-  const [saveMessage, setSaveMessage] = useState(props.meaningSaved ? "Meaning approved. You can now review its word parts and family." : props.saved ? "Saved." : "");
+  const [saveMessage, setSaveMessage] = useState(props.meaningSaved ? "Meaning approved. You can now review its word parts." : props.saved ? "Saved." : "");
   const [actionError, setActionError] = useState(props.error);
   const [approvalIssues, setApprovalIssues] = useState<string[]>([]);
   const [saveState, saveAction, saving] = useActionState(
@@ -405,7 +410,7 @@ export function WordWorkspace(props: {
       if (continueToFamily && !error) {
         destination.searchParams.set("saved", "meaning");
         destination.searchParams.set("sense", String(form.get("selected_sense_id") ?? ""));
-        router.replace(`${destination.pathname}${destination.search}#td-sense-morphology`);
+        router.replace(`${destination.pathname}${destination.search}#td-canonical-parts`);
         return null;
       }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
@@ -427,6 +432,7 @@ export function WordWorkspace(props: {
     }, null,
   );
   void saveState;
+  const morphologyRevision = props.senseAnalyses.map(analysis => analysis.id).sort().join(",");
   useEffect(() => {
     if (!props.wordId) return;
     const controller = new AbortController();
@@ -469,7 +475,7 @@ export function WordWorkspace(props: {
       if (!controller.signal.aborted && generation === checksGeneration.current) setChecksState("error");
     });
     return () => controller.abort();
-  }, [props.wordId, props.draftId, props.initial, props.dictionaryFingerprint,
+  }, [morphologyRevision, props.wordId, props.draftId, props.initial, props.dictionaryFingerprint,
     props.approvedWord, props.approvedDefinition, props.approvedSentence, props.wordClip, props.sentenceClip,
     props.deviceWordClip, props.deviceSentenceClip,
     props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference,
@@ -641,24 +647,36 @@ export function WordWorkspace(props: {
       (route) => route.microSkillKey === key,
     );
   }
+  function approvedPartsFor(senseId: string): WordDraftPayload["canonicalMorphology"] {
+    const analysis = props.senseAnalyses.find(row => row.sense_id === senseId);
+    if (analysis) return {
+      ...payload.canonicalMorphology,
+      parts: analysis.morphology_parts,
+      joins: analysis.morphology_joins,
+      transformations: analysis.morphology_transformations as WordDraftPayload["canonicalMorphology"]["transformations"],
+      wordSum: analysis.word_sum,
+      analysisStatus: "approved",
+      reviewNotes: "Approved word parts for this meaning",
+    };
+    if (!props.wordId) return payload.canonicalMorphology;
+    if (payload.senseSet?.senses.length === 1 && props.approvedCandidateMorphology?.analysisStatus === "approved") {
+      const legacy = props.approvedCandidateMorphology;
+      return { ...payload.canonicalMorphology, parts: Array.isArray(legacy.parts) ? legacy.parts : [],
+        joins: Array.isArray(legacy.joins) ? legacy.joins : [], wordSum: legacy.wordSum ?? "",
+        transformations: props.approvedMorphologyTransformations as WordDraftPayload["canonicalMorphology"]["transformations"],
+        analysisStatus: "approved" };
+    }
+    return { ...payload.canonicalMorphology, parts: [], joins: [], transformations: [],
+      wordSum: "", analysisStatus: "in_review" };
+  }
+  const selectedParts = approvedPartsFor(activeSenseId);
   function meaningPayload(key: string): WordDraftPayload {
-    if (!activeSenseId || !props.approvedSenseSet || props.approvedSenseSet.senses.length < 2)
-      return payload;
-    const facts = props.approvedCandidateSenseFacts[activeSenseId]?.morphology;
-    const analysis = props.senseAnalyses.find(row => row.sense_id === activeSenseId);
+    const senseId = payload.skillSenseIds?.[key] || activeSenseId;
+    if (!senseId) return payload;
     return {
       ...payload,
-      skillSenseIds: { ...payload.skillSenseIds, [key]: activeSenseId },
-      canonicalMorphology: facts && analysis ? {
-        ...payload.canonicalMorphology,
-        parts: Array.isArray(facts.parts) ? facts.parts : [],
-        joins: Array.isArray(facts.joins) ? facts.joins : [],
-        transformations: analysis.morphology_transformations as WordDraftPayload["canonicalMorphology"]["transformations"],
-        wordSum: facts.wordSum ?? "",
-        analysisStatus: "approved",
-        reviewNotes: "Approved analysis for the selected meaning",
-      } : { ...payload.canonicalMorphology, parts: [], joins: [], transformations: [],
-        wordSum: "", analysisStatus: "in_review" },
+      skillSenseIds: { ...payload.skillSenseIds, [key]: senseId },
+      canonicalMorphology: approvedPartsFor(senseId),
     };
   }
   function updateRoute(key: string, values: Record<string, unknown>) {
@@ -690,14 +708,7 @@ export function WordWorkspace(props: {
     function reveal() {
       const id = decodeURIComponent(window.location.hash.slice(1));
       if (!id) return;
-      if (
-        [
-          "td-canonical-parts",
-          "td-canonical-word-sum",
-          "td-written-syllables",
-        ].includes(id) &&
-        !builder.current?.open
-      )
+      if (!props.wordId && ["td-canonical-parts", "td-canonical-word-sum"].includes(id))
         builder.current?.showModal();
       const splitMatch =
         /^td-route-(.+)-(teachingSplitParts|teachingSplitJoins|trueMorphologyParts|trueMorphologyJoins)$/.exec(
@@ -725,7 +736,7 @@ export function WordWorkspace(props: {
     reveal();
     window.addEventListener("hashchange", reveal);
     return () => window.removeEventListener("hashchange", reveal);
-  }, [checksState]);
+  }, [checksState, props.wordId]);
   const selectedRoutes = payload.skillKeys.flatMap((key) => {
     const route = routeForSkill(key);
     return route?.newAssignmentCapable && route.routeId !== "weak_vowel_word_lab" ? [{ key, route }] : [];
@@ -745,7 +756,7 @@ export function WordWorkspace(props: {
     const requirements = [
       ...routeRequirements(content, meaningPayload(key)),
       ...publicationBlockers(
-        payload,
+        meaningPayload(key),
         props.normalisedWord || payload.displayWord.toLowerCase(),
       ).map((label) => ({
         label,
@@ -754,6 +765,7 @@ export function WordWorkspace(props: {
       })),
     ];
     const word = preflight?.words.find((word) => word.id === props.wordId);
+    const usesSelectedMeaning = !activeSenseId || activeSenseId === payload.skillSenseIds?.[key];
     return {
       key,
       route,
@@ -762,7 +774,7 @@ export function WordWorkspace(props: {
       requirements,
       word,
       ready:
-        !dirty && checksState === "ready" &&
+        usesSelectedMeaning && !dirty && checksState === "ready" &&
         Boolean(
           preflight?.compilerReady &&
           reviewedWordCanLaunch(
@@ -1033,23 +1045,36 @@ export function WordWorkspace(props: {
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
               </div>
             ))}
-          <div data-overview-view="family" hidden={overviewView !== "family"} className="space-y-4">
-          {props.wordId && !activeSense && activeSenseId && <div id="td-sense-morphology" className="mt-3 flex flex-wrap items-center gap-3">
-            <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
-              pendingLabel="Approving meaning…" className={button}>
-              Approve meaning and continue to family
-            </ActionSubmitButton>
-            <p className="text-sm">The meaning needs approval before you can assign its family.</p>
-          </div>}
-          {props.wordId && activeSense && props.approvedSenseSet ? <SenseMorphologyReview
-            wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
-            selectedSenseId={activeSenseId}
-            senses={props.approvedSenseSet.senses} analyses={props.senseAnalyses}
-            links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
-            shared={{ parts: props.approvedCandidateMorphology?.parts as unknown[] ?? [],
-              joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
-              transformations: props.approvedMorphologyTransformations }}
-            affixMeanings={props.affixMeanings} /> : null}
+          {(["parts", "family"] as const).map(panel => (
+            <div key={panel} data-overview-view={panel} hidden={overviewView !== panel} className="space-y-4">
+              {props.wordId && !activeSense && activeSenseId && <div className="flex flex-wrap items-center gap-3">
+                <p className="text-sm">Approve this meaning before reviewing its word parts or family.</p>
+                <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
+                  pendingLabel="Approving meaning…" className={button}>Approve meaning</ActionSubmitButton>
+              </div>}
+              {props.wordId && activeSense && props.approvedSenseSet && <SenseMorphologyReview
+                panel={panel} openNext={() => setOverviewView("family")}
+                baseMeaningPrefill={panel === "parts" && baseMeaningPrefill?.senseId === activeSenseId
+                  && baseMeaningPrefill.analysisId === props.senseAnalyses.find(row => row.sense_id === activeSenseId)?.id
+                  ? baseMeaningPrefill : null}
+                onBaseMeaning={(partId, meaning) => {
+                  setBaseMeaningPrefill({ senseId: activeSenseId,
+                    analysisId: props.senseAnalyses.find(row => row.sense_id === activeSenseId)?.id, partId, meaning });
+                  setOverviewView("parts");
+                }}
+                wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
+                selectedSenseId={activeSenseId} senses={props.approvedSenseSet.senses}
+                analyses={props.senseAnalyses} links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
+                shared={{ parts: props.approvedCandidateMorphology?.parts as unknown[] ?? [],
+                  joins: props.approvedCandidateMorphology?.joins as unknown[] ?? [],
+                  transformations: props.approvedMorphologyTransformations }}
+                suggestions={payload.senseSet?.senses.length === 1 ? props.partSuggestions : []}
+                affixCatalog={props.affixCatalog} />}
+              {!props.wordId && panel === "parts" && <button type="button" className={button}
+                onClick={() => builder.current?.showModal()}>Enter word parts</button>}
+            </div>
+          ))}
+          <div data-overview-view="family" hidden={overviewView !== "family"}>
           <details id="td-base-family" className="mt-4 border-t border-[var(--border)] pt-3">
             <summary className="cursor-pointer font-semibold">{activeSenseFamilies.length ? "Family members" : "More family options"}</summary>
             <div className="mt-2">
@@ -1082,19 +1107,9 @@ export function WordWorkspace(props: {
               Family review needs attention: {props.familyReviewContext.error.replaceAll("_", " ")}.
               Open the family editor to check the details.
             </p>}
-            <div className={actions}>
-              <button
-                type="button"
-                className={button}
-                onClick={() => {
-                  if (props.approvedSenseSet && props.approvedSenseSet.senses.length > 1) {
-                    document.getElementById("td-sense-morphology")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else void openFamily();
-                }}
-              >
-                {activeSenseFamilies.length ? "Review or change family" : "Review family suggestions"}
-              </button>
-            </div>
+            {!props.wordId && <button type="button" className={button} onClick={() => void openFamily()}>
+              Review family suggestions
+            </button>}
             </div>
           </details>
           </div>
@@ -1234,7 +1249,7 @@ export function WordWorkspace(props: {
               <tbody>
                 <tr>
                   <td data-label="Parts & meanings" className="p-2">
-                    {payload.canonicalMorphology.parts.map((raw, i) => {
+                    {selectedParts.parts.map((raw, i) => {
                       const part = raw as Record<string, unknown>;
                       return (
                         <span
@@ -1253,13 +1268,13 @@ export function WordWorkspace(props: {
                     })}
                   </td>
                   <td data-label="Canonical word sum" className="p-2">
-                    {payload.canonicalMorphology.wordSum || "Missing"}
+                    {selectedParts.wordSum || "Missing"}
                   </td>
                   <td data-label="Written syllables" className="p-2">
                     {payload.writtenSyllableBreakdown || "Missing"}
                   </td>
                   <td data-label="Transformations" className="p-2">
-                    {payload.canonicalMorphology.transformations
+                    {selectedParts.transformations
                       ?.map(
                         (item) =>
                           item.explanation ||
@@ -1275,11 +1290,17 @@ export function WordWorkspace(props: {
             <button
               type="button"
               className={button}
-              onClick={() => builder.current?.showModal()}
+              onClick={() => setOverviewView("parts")}
             >
-              Edit word parts
+              Go to Word parts
             </button>
           </div>
+          <label id="td-written-syllables" className="mt-3 block text-sm">
+            Written syllable breakdown
+            <FormatHint label="written syllable breakdown" format="Separate written syllables with a middle dot." example="bul·ly·ing" />
+            <input className={`${input} mt-1`} value={payload.writtenSyllableBreakdown ?? ""}
+              onChange={event => change({ writtenSyllableBreakdown: event.target.value })} />
+          </label>
           <h3 className="mt-4 font-semibold">
             Alternate dictation sentences
           </h3>
@@ -1710,7 +1731,7 @@ export function WordWorkspace(props: {
       </details>}
       {checks.map((row, index) => {
         const route = routeWithSharedFacts(row.content, meaningPayload(row.key));
-        const overviewFields = new Set(sharedRouteContentKeys(route.routeId, payload));
+        const overviewFields = new Set(sharedRouteContentKeys(route.routeId, meaningPayload(row.key)));
         const profile = props.profileOptions.find(
           (profile) => profile.microSkillKey === row.key,
         );
@@ -1771,7 +1792,7 @@ export function WordWorkspace(props: {
                               : "Parts and word sum",
                             (Array.isArray(route.content.teachingSplitParts)
                               ? route.content.teachingSplitParts
-                              : payload.canonicalMorphology.parts
+                              : meaningPayload(row.key).canonicalMorphology.parts
                             )
                               .map((raw) => {
                                 const part = raw as Record<string, unknown>;
@@ -1943,11 +1964,11 @@ export function WordWorkspace(props: {
                         <>
                           <p className="mt-2 text-xs text-[color:var(--mid)]">
                             Canonical morphology:{" "}
-                            {payload.canonicalMorphology.wordSum || "Missing"}
+                            {meaningPayload(row.key).canonicalMorphology.wordSum || "Missing"}
                           </p>
                           {JSON.stringify(route.content.teachingSplitParts) !==
                             JSON.stringify(
-                              payload.canonicalMorphology.parts,
+                              meaningPayload(row.key).canonicalMorphology.parts,
                             ) && (
                             <p className="mt-1 text-xs text-amber-900">
                               The learner cut differs from the shared parts.
@@ -2034,7 +2055,7 @@ export function WordWorkspace(props: {
                                   source:
                                     "Teaching Dictionary editorial review",
                                   reviewNote:
-                                    payload.canonicalMorphology.reviewNotes ||
+                                    meaningPayload(row.key).canonicalMorphology.reviewNotes ||
                                     "Reviewed canonical parts and activity split",
                                 },
                               })
@@ -2151,17 +2172,17 @@ export function WordWorkspace(props: {
       </details>
           </div>
           {(dirty || !overviewReviewed || (props.wordId && !activeSense)) &&
-            (activeSense || !props.wordId || overviewView !== "family") && <div className={actions}>
+            overviewView !== "family" && overviewView !== "parts" && <div className={actions}>
             {dirty && saveButton("draft", "Save draft")}
             {props.wordId && (overviewView === "meaning" || overviewView === "pronunciation")
               ? <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
-                  pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to family</ActionSubmitButton>
+                  pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to Word parts</ActionSubmitButton>
               : saveButton("overview")}
           </div>}
           </div>
         </div>
       </section>
-      <dialog
+      {!props.wordId && <dialog
         ref={builder}
         className="w-[min(900px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
       >
@@ -2217,7 +2238,7 @@ export function WordWorkspace(props: {
           </details>
         )}
         <PartSequenceEditor
-          id="td-canonical-parts"
+
           label="Morphology parts and cuts"
           word={payload.displayWord}
           parts={payload.canonicalMorphology.parts}
@@ -2250,10 +2271,10 @@ export function WordWorkspace(props: {
                 payload.displayWord) } })}>
             Fill exact display positions for review
           </button>}
-        <div id="td-canonical-word-sum" className="mt-2 text-sm">
+        <div  className="mt-2 text-sm">
           {payload.canonicalMorphology.wordSum}
         </div>
-        <label id="td-written-syllables" className="mt-3 block text-sm">
+        <label  className="mt-3 block text-sm">
           Written syllable breakdown
           <FormatHint label="written syllable breakdown" format="Separate written syllables with a middle dot; the letters must reproduce the word." example="scroll·ing" />
           <input
@@ -2494,7 +2515,7 @@ export function WordWorkspace(props: {
           </button>
           {saveButton("overview")}
         </div>
-      </dialog>
+      </dialog>}
       <dialog
         ref={splitDialog}
         className="w-[min(900px,95vw)] max-h-[85vh] overflow-auto rounded-xl border border-[var(--border)] bg-white p-5 text-[color:var(--ink)] backdrop:bg-black/40"
@@ -2510,11 +2531,11 @@ export function WordWorkspace(props: {
               word={payload.displayWord}
               parts={
                 routeContent(splitSkill)?.content.teachingSplitParts ??
-                payload.canonicalMorphology.parts
+                meaningPayload(splitSkill).canonicalMorphology.parts
               }
               joins={
                 routeContent(splitSkill)?.content.teachingSplitJoins ??
-                payload.canonicalMorphology.joins
+                meaningPayload(splitSkill).canonicalMorphology.joins
               }
               affixMeanings={props.affixMeanings}
               onChange={(parts, joins) =>
