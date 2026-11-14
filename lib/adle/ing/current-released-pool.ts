@@ -1,3 +1,4 @@
+import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { IngDictionaryWordV1, IngMicroSkill } from "./contracts";
 import { ingReleasedWordMatchesCurrentOverview } from "./current-overview";
@@ -22,6 +23,11 @@ export async function currentReleasedIngWordIds(input: {
   const currentOverviewIds = new Set<string>();
   if (overviewWords.length) {
     const ids = overviewWords.map(word => word.canonicalWordId);
+    const activeApprovals = input.environmentKey === "staging" && process.env.ADLE_ING_DICTIONARY_ONLY === "enabled"
+      ? new Set((await loadPublishedWritingAssociations(input.client, input.environmentKey, ids))
+        .filter(row => row.microSkillKey === input.microSkillKey && row.relationshipRole === "demonstrates" && row.rowStatus === "active")
+        .map(row => row.canonicalWordId))
+      : null;
     const vetoes = input.environmentKey === "staging" ? await loadCurrentPairDeassignments({ client: input.client,
       environmentKey: input.environmentKey,
       pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: input.microSkillKey })) }) : new Set<string>();
@@ -70,7 +76,7 @@ export async function currentReleasedIngWordIds(input: {
         boundSenseIds: senseBindings.filter(row => row.canonical_word_id === word.canonicalWordId)
           .map(row => row.sense_id),
         sourceName: source?.source_name ?? null, sourceUrl: source?.source_url ?? null });
-      if (matches && !vetoes.has(canonicalPairKey(word.canonicalWordId,input.microSkillKey)))
+      if (matches && (!activeApprovals || activeApprovals.has(word.canonicalWordId)) && !vetoes.has(canonicalPairKey(word.canonicalWordId,input.microSkillKey)))
         currentOverviewIds.add(word.canonicalWordId);
 
     }
