@@ -1,3 +1,5 @@
+import { publishedDictionaryDegreeFamilies } from "../inflection/published-dictionary-families";
+import type { ComparativeMicroSkill } from "../inflection/contracts";
 import { currentReleasedIngWordIds } from "../ing/current-released-pool";
 import type { IngMicroSkill } from "../ing/contracts";
 import "server-only";
@@ -192,6 +194,16 @@ export async function loadSpecialistReleaseIntakeFacts(input: {
         semanticJson(closure.pairedSentences) !== semanticJson(families.map((family: any) => family.content.pairedSentence)) ||
         !exact[1].semantic_projection.sharedPage || !exact[1].semantic_projection.rulePage || !exact[1].semantic_projection.reflectionPrompt) {
         const result = fail("reviewed_audio_or_teaching_incomplete"); authorityCache.set(cacheKey, result); return result;
+      }
+      if (environmentKey === "staging" && process.env.ADLE_COMPARATIVE_DICTIONARY_ONLY === "enabled") {
+        const eligible = await publishedDictionaryDegreeFamilies({ client, skill: skill as ComparativeMicroSkill, families });
+        const ids = new Set(eligible.flatMap(family => family.words.slice(1).map(word => word.canonicalWordId)));
+        members = members.filter(word => ids.has(word.id));
+        if (eligible.length < 2) {
+          const result = fail("two_published_teaching_dictionary_families_required");
+          authorityCache.set(cacheKey, result);
+          return result;
+        }
       }
     }
     const result = { ready: true, members, blocker: "" };
