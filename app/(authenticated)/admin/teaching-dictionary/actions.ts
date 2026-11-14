@@ -578,9 +578,11 @@ async function performWorkspaceSave(form: FormData) {
         sense.dictationSentence?.trim() && !targetOccurrences(sense.dictationSentence, payload.displayWord)
           .includes(sense.dictationTargetTokenIndex ?? -1)))
         throw new Error("TEACHING_LESSON_SENSE_SENTENCE_INVALID");
-      const meaning = await db.rpc("review_teaching_dictionary_meanings", {
+      const meaning = await db.rpc("review_teaching_dictionary_meaning_change", {
         p_draft: result.data.id, p_actor: actor.id,
         p_expected_reviewed_at: value(form, "expected_sense_reviewed_at") || null,
+        p_selected_sense_id: value(form, "selected_sense_id"),
+        p_change_kind: value(form, "meaning_change_kind") || "meaning",
       });
       if (meaning.error) throw new Error(meaning.error.message.match(/TEACHING_[A-Z_]+/)?.[0]
         ?? "TEACHING_SENSE_SET_SAVE_FAILED");

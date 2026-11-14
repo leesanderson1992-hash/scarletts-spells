@@ -29,6 +29,7 @@ type Candidate = { wordId: string; displayWord: string; status: WordRouteStatus;
   selectedSenseDefinition?: string | null; senseBindingApproved?: boolean;
   multipleSenseChoices?: { id: string; definition: string }[];
   candidateDecisionCurrent?: boolean;
+  familyMeaningReview?: string;
   generatedIng?: IngRecipeResult; approvedIngWord?: IngDictionaryWordV1 | null };
 type RouteWordCounts = { candidates: number; approvedRelationships: number; technicalComplete: number;
   administrativeCandidates: number; awaitingEditorial: number; missingContent: number;
@@ -60,7 +61,7 @@ async function readByIds(client: SupabaseClient, table: string, columns: string,
 
 async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly string[],
   environment: string, skillKey: string, stagingIng: boolean) {
-  const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions, choices] = await Promise.all([
+  const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions, choices, familyMeaningChanges] = await Promise.all([
     readByIds(client, "teaching_dictionary_reviewed_sense_sets", "canonical_word_id,sense_set",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_effective_lesson_sense_bindings",
@@ -76,7 +77,7 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
       "id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_current_sense_family_memberships",
-      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind",
+      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning",
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_current_candidate_decisions",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot,event_sequence",
@@ -84,6 +85,8 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
     stagingIng ? readByIds(client, "teaching_dictionary_staging_ing_meaning_choices",
       "canonical_word_id,micro_skill_key,sense_id", "canonical_word_id", ids, "canonical_word_id")
       : Promise.resolve([]),
+    readByIds(client, "teaching_dictionary_family_links_needing_meaning_review",
+      "canonical_word_id,sense_id,base_lemma", "canonical_word_id", ids, "canonical_word_id"),
   ]);
   const sensesByWord = new Map<string, DictionarySenseSet>(senseSets.map(row =>
     [row.canonical_word_id, row.sense_set as DictionarySenseSet]));
@@ -112,7 +115,7 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
   const releaseSenseByWord = new Map<string, string>(choices.filter(row => row.micro_skill_key === skillKey)
     .map(row => [row.canonical_word_id, row.sense_id]));
   return { sensesByWord, bindingByWord, morphologyByWord, linksByWord, releaseSenseByWord,
-    senseAnalysesByWord, senseLinksByWord, decisionsByWordSense };
+    senseAnalysesByWord, senseLinksByWord, decisionsByWordSense, familyMeaningChanges };
 }
 
 /** Discover possible relationships by one micro-skill, without treating a
@@ -275,6 +278,8 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
         multipleSenseChoices: bindings.length > 1 || releaseSenseId ? bindings.map(item => ({ id: item.senseId,
           definition: senseSet?.senses.find(sense => sense.id === item.senseId)?.definition ?? item.senseId })) : [],
         candidateDecisionCurrent: decisionCurrent,
+        familyMeaningReview: overview.familyMeaningChanges.find(change => change.canonical_word_id === row.id
+          && change.sense_id === selectedSenseId)?.base_lemma,
         selectedSenseDefinition: senseSet?.senses.find(sense => sense.id === selectedSenseId)?.definition ?? null,
         overviewCandidate: evaluateLessonCandidate({
         wordId: row.id, displayWord: row.display_word, skillKey: lesson.microSkillKey,

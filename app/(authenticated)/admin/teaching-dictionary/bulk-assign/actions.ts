@@ -107,7 +107,7 @@ export async function saveBulkSkillApprovals(input: {
         .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
       hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_memberships")
-        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
     ]);
     if (reviewed.error || morphology.error || familyLinks.error || senseAnalyses.error || senseFamilyLinks.error)

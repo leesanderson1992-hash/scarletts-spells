@@ -48,7 +48,7 @@ export async function loadImportCandidateRequests(db: Db, draftIds: readonly str
         .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
         .in("canonical_word_id", ids),
       db.from("teaching_dictionary_current_sense_family_memberships")
-        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+        .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
         .in("canonical_word_id", ids),
       db.from("teaching_dictionary_current_candidate_decisions")
         .select("canonical_word_id,micro_skill_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot")

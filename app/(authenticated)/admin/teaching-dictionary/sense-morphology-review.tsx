@@ -15,7 +15,7 @@ type Analysis = { id: string; sense_id: string; morphology_parts: unknown[];
 type Family = { family_key: string; base_lemma: string; base_kind: string; base_meaning: string;
   canonical_base_word_id: string | null };
 type Link = { id: string; sense_id: string; sense_morphology_id: string;
-  family_key: string; component_part_id: string; relationship_kind: string };
+  family_key: string; component_part_id: string; relationship_kind: string; base_meaning?: string };
 type Transformation = { type: string; sourcePartId: string; sourceText: string;
   surfaceText: string; explanation: string };
 const field = "w-full rounded border border-[var(--border)] bg-white px-2 py-1.5 text-sm";
@@ -24,16 +24,10 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
   senseId: string; senseDefinition: string; canCreateFreeBase: boolean; current: Analysis | null;
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
   families: Family[]; links: Link[]; affixCatalog: AffixCatalog; panel: "parts" | "family";
-  openNext: () => void; suggestions: Suggestion[];
-  baseMeaningPrefill: { partId: string; meaning: string } | null;
-  onBaseMeaning: (partId: string, meaning: string) => void }) {
+  openNext: () => void; suggestions: Suggestion[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [parts, setParts] = useState<unknown[]>(() => {
-    const initial = props.current?.morphology_parts ?? props.shared.parts;
-    const prefill = props.panel === "parts" ? props.baseMeaningPrefill : null;
-    return prefill ? asParts(initial).map(part => part.id === prefill.partId ? { ...part, gloss: prefill.meaning } : part) : initial;
-  });
+  const [parts, setParts] = useState<unknown[]>(props.current?.morphology_parts ?? props.shared.parts);
   const [joins, setJoins] = useState<unknown[]>(props.current?.morphology_joins ?? props.shared.joins);
   const [transformations, setTransformations] = useState<Transformation[]>(
     (props.current?.morphology_transformations ?? props.shared.transformations) as Transformation[]);
@@ -62,9 +56,11 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
   const wholeWordBase = typedParts.length === 1 && firstPart?.kind === "base"
     && firstPart.id && String(firstPart.sourceText).toLowerCase() === props.displayWord.toLowerCase()
     && firstPart.surfaceText === props.displayWord
-    && firstPart.gloss === props.senseDefinition ? firstPart : null;
+    && firstPart ? firstPart : null;
   const currentLinks = props.links.filter(link => link.sense_id === props.senseId
     && link.sense_morphology_id === props.current?.id);
+  const inheritedMeanings = new Map(currentLinks.filter(link => link.base_meaning)
+    .map(link => [link.component_part_id, link.base_meaning!]));
   function refreshFamilyChoices() {
     setError("");
     start(async () => {
@@ -174,7 +170,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         }}>{suggestion.label}</button>)}
     </div>}
     <PartSequenceEditor label="Parts for this meaning" word={props.displayWord}
-      parts={parts} joins={joins} affixCatalog={props.affixCatalog}
+      parts={parts} joins={joins} affixCatalog={props.affixCatalog} inheritedMeanings={inheritedMeanings}
       onChange={(nextParts, nextJoins) => { setParts(nextParts); setJoins(nextJoins); setSaved(false); }} />
     <div className="grid gap-2">
       <h4 className="font-semibold">Spelling changes <FormatHint label="spelling changes"
@@ -227,7 +223,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
       </span>
     </div>
     {currentLinks.map(link => <div key={link.id} className="flex flex-wrap items-center gap-2 text-sm">
-      <span>{families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
+      <span>{link.base_meaning ?? families.get(link.family_key)?.base_meaning ?? link.family_key} · {link.relationship_kind.replaceAll("_", " ")}</span>
       <button type="button" className="underline disabled:opacity-50" disabled={pending}
         onClick={() => submitLink("withdraw", link)}>Remove link</button>
     </div>)}
@@ -265,17 +261,12 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
         {pending ? "Loading reviewed base meanings…" : "Choose a reviewed base. If this word is the base, use the selected meaning to start its family."}
       </p>}
       {wholeWordBase && <p className="text-sm">{props.senseDefinition}</p>}
-      {baseSense && basePart?.id && basePart.gloss !== baseSense.definition && <button type="button" className="w-fit text-sm underline"
-        onClick={() => props.onBaseMeaning(basePart.id!, baseSense.definition)}>Use this base meaning in Word parts</button>}
-      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && (!baseSense || basePart?.gloss !== baseSense.definition))}
+      {baseSense && <p className="text-sm">This word will inherit “{baseSense.definition}” from the family.</p>}
+      <button type="button" className={familyButton} disabled={pending || (!wholeWordBase && !baseSense)}
         onClick={createFamily}>Create and link family</button>
     </div>}
     {familyMode === "find" && <div className="grid gap-2 border-t border-[var(--border)] pt-3">
-      {chosen && <div className="grid gap-1 text-sm">
-        <p>Base meaning from the family · {chosen.family.base_meaning}</p>
-        {chosen.part.gloss !== chosen.family.base_meaning && <button type="button" className="w-fit underline"
-          onClick={() => props.onBaseMeaning(String(chosen.part.id), chosen.family.base_meaning)}>Use this base meaning in Word parts</button>}
-      </div>}
+      {chosen && <p className="text-sm">This word will inherit “{chosen.family.base_meaning}” from the family.</p>}
       {!matches.length && <p className="text-sm">{pending ? "Finding families…" : "No approved family matches these parts. Check the base or root spelling, or create a family."}</p>}
       {matches.length > 0 && <div className="grid gap-2 sm:grid-cols-2">
         <label className="text-sm sm:col-span-2">Search matching families
@@ -297,7 +288,7 @@ function MeaningAnalysisEditor(props: { wordId: string; displayWord: string;
             .map(kind => <option key={kind} value={kind}>{kind.replaceAll("_", " ")}</option>)}
         </select></label>
         <button type="button" className="w-fit rounded bg-[var(--scarlett)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          disabled={pending || !chosen || chosen.part.gloss !== chosen.family.base_meaning} onClick={() => submitLink("approve")}>Confirm and link</button>
+          disabled={pending || !chosen} onClick={() => submitLink("approve")}>Confirm and link</button>
       </div>}
     </div>}
     {error && <p role="alert" className="text-sm text-rose-900">{error}</p>}
@@ -310,21 +301,18 @@ export function SenseMorphologyReview(props: { wordId: string; displayWord: stri
   selectedSenseId: string;
   analyses: Analysis[]; links: Link[]; families: Family[];
   shared: { parts: unknown[]; joins: unknown[]; transformations: unknown[] };
-  affixCatalog: AffixCatalog; panel: "parts" | "family"; openNext: () => void; suggestions: Suggestion[];
-  baseMeaningPrefill: { partId: string; meaning: string } | null;
-  onBaseMeaning: (partId: string, meaning: string) => void }) {
+  affixCatalog: AffixCatalog; panel: "parts" | "family"; openNext: () => void; suggestions: Suggestion[] }) {
   const senseId = props.selectedSenseId;
   const sense = props.senses.find(row => row.id === senseId);
   const current = props.analyses.find(row => row.sense_id === senseId) ?? null;
   if (!sense) return null;
   return <section id={props.panel === "parts" ? "td-canonical-parts" : "td-sense-morphology"} className="scroll-mt-6">
-    <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}:${props.baseMeaningPrefill?.partId ?? ""}:${props.baseMeaningPrefill?.meaning ?? ""}`} wordId={props.wordId}
+    <MeaningAnalysisEditor key={`${senseId}:${current?.id ?? "new"}`} wordId={props.wordId}
       displayWord={props.displayWord} senseId={senseId}
       senseDefinition={sense.definition}
       canCreateFreeBase={sense.partOfSpeech !== "root"}
       current={current} shared={props.shared} families={props.families}
       panel={props.panel} openNext={props.openNext} suggestions={props.suggestions}
-      baseMeaningPrefill={props.baseMeaningPrefill} onBaseMeaning={props.onBaseMeaning}
       links={props.links} affixCatalog={props.affixCatalog} />
   </section>;
 }

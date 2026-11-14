@@ -103,8 +103,8 @@ export function planIngReview(row: IngReviewRow): { group: string; message: stri
     : `There is no reviewed verb family for “${base}”. Review its base family in the dictionary first.`, senseId);
   if (existing?.links.some(link => link.senseId === senseId && link.familyKey !== family.key))
     return block("Review dictionary facts", "This meaning already has a different family link. Resolve the family on the word page first.", senseId);
-  if (analysis && (!basePart || basePart.gloss !== family.meaning))
-    return block("Review dictionary facts", "The reviewed word parts and family meaning disagree. Review the word parts first.", senseId);
+  if (analysis && !basePart)
+    return block("Review dictionary facts", "The approved base spelling does not match this family. Review the word parts first.", senseId);
   const selected: Analysis = analysis ? { ...analysis, familyKey: family.key,
     componentPartId: basePart!.id, relationshipKind: "regular_inflection", requestedSkillKeys: [REGULAR_ING_SKILL] }
     : {

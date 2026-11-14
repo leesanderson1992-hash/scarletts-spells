@@ -351,7 +351,7 @@ export async function TeachingDictionaryDetail({
       .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,morphology_transformations,word_sum")
       .eq("canonical_word_id", wordId),
     db.from("teaching_dictionary_current_sense_family_memberships")
-      .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
+      .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
       .eq("canonical_word_id", wordId),
   ]) : [null, null, null, null];
   if (reviewedSenses?.error) throw new Error("TEACHING_SENSE_SET_READ_FAILED");
@@ -371,7 +371,7 @@ export async function TeachingDictionaryDetail({
     .filter((part): part is Record<string, unknown> => Boolean(part) && typeof part === "object")
     .filter(part => ["base", "root"].includes(String(part.kind ?? "")))
     .map(part => String(part.sourceText ?? "").toLowerCase()).filter(Boolean))];
-  const matchingFamilies = familySourceTexts.length ? await db.from("canonical_teaching_dictionary_lexical_base_families")
+  const matchingFamilies = familySourceTexts.length ? await db.from("teaching_dictionary_families_with_current_meaning")
     .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,review_status")
     .in("base_lemma", familySourceTexts).order("revision", { ascending: false })
     : { data: [], error: null };
@@ -603,7 +603,7 @@ export async function TeachingDictionaryDetail({
           morphology_transformations: unknown[]; word_sum: string }[]}
         senseFamilyMemberships={(senseFamilyLinks?.data ?? []) as { id: string; sense_id: string;
           sense_morphology_id: string; family_key: string; component_part_id: string;
-          relationship_kind: string }[]}
+          relationship_kind: string; base_meaning: string }[]}
         senseFamilyOptions={[...latestFamilies.values()].filter(family => family.review_status === "approved")}
         staleLessonSenseKeys={staleLessonSenseKeys}
         approvedLessonSenseKeys={(lessonSenseBindings?.data ?? []).map(row => row.micro_skill_key)}

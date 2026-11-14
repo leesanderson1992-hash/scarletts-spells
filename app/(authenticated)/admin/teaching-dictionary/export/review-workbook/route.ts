@@ -59,7 +59,7 @@ export async function GET(request: Request) {
   const baseForms = [...new Set([...legacy.map(word => word.base),
     ...reviewed.flatMap(bundle => bundle.analyses.flatMap(analysis =>
       analysis.parts.filter(part => part.kind === "base").map(part => part.sourceText)))])];
-  const familyRows = baseForms.length ? await db.from("canonical_teaching_dictionary_lexical_base_families")
+  const familyRows = baseForms.length ? await db.from("teaching_dictionary_families_with_current_meaning")
     .select("family_key,base_lemma,base_meaning").eq("review_status", "approved").in("base_lemma", baseForms)
     .order("revision", { ascending: false }) : null;
   if (familyRows?.error) throw new Error("Could not load approved word families.");
@@ -80,9 +80,14 @@ export async function GET(request: Request) {
     const old = byId.get(id);
     const issues = candidates.get(id)?.overviewCandidate?.issues.map(issue => issue.message) ?? [];
     const generated = candidates.get(id)?.generatedIng?.issues.map(issue => issue.message) ?? [];
+    const changedBase = candidates.get(id)?.familyMeaningReview;
+    if (changedBase) issues.unshift(`The family meaning for “${changedBase}” changed. Confirm which family meaning this word should use.`);
     notes.set(id, current ? [...new Set([...issues, ...generated])].join(" ") || "Confirm the meaning for this lesson."
       : "Confirm the meaning, pronunciation, word parts and family. Existing lesson facts are suggestions.");
-    if (current) { bundles.push(current); continue; }
+    if (current) {
+      bundles.push(current);
+      continue;
+    }
 
     const facts = metadata.data.find(row => row.canonical_word_id === id);
     const senseId = `${word.display_word}-review`;

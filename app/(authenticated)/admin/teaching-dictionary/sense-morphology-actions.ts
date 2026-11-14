@@ -11,7 +11,7 @@ export async function findSenseFamilies(forms: string[]) {
   await requireAdminUser();
   const bases = [...new Set(forms.map(form => form.trim().toLocaleLowerCase("en-GB")).filter(Boolean))];
   if (!bases.length || bases.length > 12 || bases.some(base => base.length > 120)) return [];
-  const result = await createServiceRoleClient().from("canonical_teaching_dictionary_lexical_base_families")
+  const result = await createServiceRoleClient().from("teaching_dictionary_families_with_current_meaning")
     .select("family_key,revision,base_lemma,base_kind,base_meaning,canonical_base_word_id,review_status")
     .in("base_lemma", bases).order("revision", { ascending: false });
   if (result.error) throw new Error("Could not load matching families.");

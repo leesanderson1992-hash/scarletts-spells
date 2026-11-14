@@ -33,6 +33,7 @@ import {
 import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
 import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { reviewedWordCanLaunch } from "@/lib/teaching-dictionary-manager/editorial-review";
+import { inheritFamilyPartMeanings } from "@/lib/teaching-dictionary-manager/family-part-meanings";
 import { publicationBlockerTarget } from "@/lib/teaching-dictionary-manager/readiness";
 import {
   routeRequirements,
@@ -271,7 +272,7 @@ export function WordWorkspace(props: {
   senseAnalyses: { id: string; sense_id: string; morphology_parts: unknown[];
     morphology_joins: unknown[]; morphology_transformations: unknown[]; word_sum: string }[];
   senseFamilyMemberships: { id: string; sense_id: string; sense_morphology_id: string;
-    family_key: string; component_part_id: string; relationship_kind: string }[];
+    family_key: string; component_part_id: string; relationship_kind: string; base_meaning: string }[];
   senseFamilyOptions: { family_key: string; base_lemma: string; base_kind: string;
     base_meaning: string; canonical_base_word_id: string | null }[];
   staleLessonSenseKeys: string[];
@@ -343,12 +344,12 @@ export function WordWorkspace(props: {
   }));
   const [activeSenseId, setActiveSenseId] = useState(() =>
     payload.senseSet?.senses.find(sense => sense.id === props.initialSenseId)?.id ?? payload.senseSet?.senses[0]?.id ?? "");
-  const [baseMeaningPrefill, setBaseMeaningPrefill] = useState<{
-    senseId: string; analysisId: string | undefined; partId: string; meaning: string;
-  } | null>(null);
+  const [meaningChangeKind, setMeaningChangeKind] = useState("");
   const [overviewView, setOverviewView] = useState<OverviewView>(props.initialSenseId ? "parts" : props.wordId ? "meaning" : "details");
   const activeSense = props.approvedSenseSet?.senses.find(sense => sense.id === activeSenseId);
   const selectedMeaning = payload.senseSet?.senses.find(sense => sense.id === activeSenseId);
+  const definitionChanged = Boolean(activeSense && selectedMeaning && activeSense.definition !== selectedMeaning.definition);
+  const familyMeanings = props.senseFamilyMemberships;
   const dictationRecordingSources = new Map(props.dictationRecordingSources);
   const activeSenseFamilyKeys = new Set((props.approvedCandidateSenseFacts[activeSenseId]?.familyLinks ?? [])
     .map(link => link.family_key));
@@ -651,7 +652,8 @@ export function WordWorkspace(props: {
     const analysis = props.senseAnalyses.find(row => row.sense_id === senseId);
     if (analysis) return {
       ...payload.canonicalMorphology,
-      parts: analysis.morphology_parts,
+      parts: inheritFamilyPartMeanings(analysis.morphology_parts, familyMeanings.filter(link =>
+        link.sense_id === senseId && link.sense_morphology_id === analysis.id)),
       joins: analysis.morphology_joins,
       transformations: analysis.morphology_transformations as WordDraftPayload["canonicalMorphology"]["transformations"],
       wordSum: analysis.word_sum,
@@ -974,6 +976,7 @@ export function WordWorkspace(props: {
     <div className="td-word-workspace grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3" ref={workspace} data-checks-ready-ms={checksLoadedMs} data-last-save-ms={lastSaveMs}>
       <form id={formId} action={saveAction}>
         <input type="hidden" name="selected_sense_id" value={activeSenseId} />
+        <input type="hidden" name="meaning_change_kind" value={meaningChangeKind || "meaning"} />
         <input type="hidden" name="expected_sense_reviewed_at" value={props.senseReviewedAt ?? ""} />
         <input type="hidden" name="word_id" value={props.wordId ?? ""} />
         <input
@@ -1019,7 +1022,7 @@ export function WordWorkspace(props: {
               const approved = props.approvedSenseSet?.senses.find(row => row.id === sense.id);
               const familyLinked = Boolean(props.approvedCandidateSenseFacts[sense.id]?.familyLinks.length);
               return <button key={sense.id} type="button" aria-pressed={sense.id === activeSenseId}
-                onClick={() => setActiveSenseId(sense.id)}
+                onClick={() => { setActiveSenseId(sense.id); setMeaningChangeKind(""); }}
                 className="break-words rounded-lg border border-[var(--border)] p-2 text-left text-sm aria-pressed:border-[var(--scarlett)] aria-pressed:bg-[var(--mist)]">
                 <span className="block font-medium">{sense.definition || "New meaning"}</span>
                 <span className="block text-xs text-[color:var(--mid)]">
@@ -1054,14 +1057,6 @@ export function WordWorkspace(props: {
               </div>}
               {props.wordId && activeSense && props.approvedSenseSet && <SenseMorphologyReview
                 panel={panel} openNext={() => setOverviewView("family")}
-                baseMeaningPrefill={panel === "parts" && baseMeaningPrefill?.senseId === activeSenseId
-                  && baseMeaningPrefill.analysisId === props.senseAnalyses.find(row => row.sense_id === activeSenseId)?.id
-                  ? baseMeaningPrefill : null}
-                onBaseMeaning={(partId, meaning) => {
-                  setBaseMeaningPrefill({ senseId: activeSenseId,
-                    analysisId: props.senseAnalyses.find(row => row.sense_id === activeSenseId)?.id, partId, meaning });
-                  setOverviewView("parts");
-                }}
                 wordId={props.wordId} displayWord={props.approvedWord ?? payload.displayWord}
                 selectedSenseId={activeSenseId} senses={props.approvedSenseSet.senses}
                 analyses={props.senseAnalyses} links={props.senseFamilyMemberships} families={props.senseFamilyOptions}
@@ -2171,11 +2166,20 @@ export function WordWorkspace(props: {
         </div>
       </details>
           </div>
+          {definitionChanged && (overviewView === "meaning" || overviewView === "pronunciation") && <label className="mt-3 block text-sm font-medium">
+            How has this definition changed?
+            <select className={input} value={meaningChangeKind} onChange={event => setMeaningChangeKind(event.target.value)}>
+              <option value="">Choose the type of change</option>
+              <option value="wording">Clearer wording for the same meaning</option>
+              <option value="meaning">The meaning has changed</option>
+            </select>
+          </label>}
           {(dirty || !overviewReviewed || (props.wordId && !activeSense)) &&
             overviewView !== "family" && overviewView !== "parts" && <div className={actions}>
             {dirty && saveButton("draft", "Save draft")}
             {props.wordId && (overviewView === "meaning" || overviewView === "pronunciation")
               ? <ActionSubmitButton form={formId} name="review_section" value="meaning" pending={saving}
+                  disabled={definitionChanged && !meaningChangeKind}
                   pendingLabel="Approving meaning…" className={button}>Approve meaning and continue to Word parts</ActionSubmitButton>
               : saveButton("overview")}
           </div>}

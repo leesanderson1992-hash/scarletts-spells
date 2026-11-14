@@ -10,7 +10,7 @@ export type WorkbookFamily = { key: string; base: string; meaning: string; partO
 export type WorkbookBaseChoice = { wordId: string; senseId: string; partId: string; meaning: string; partOfSpeech: string };
 
 export async function approvedWorkbookFamily(db: Db, key: string): Promise<WorkbookFamily | null> {
-  const result = await db.from("canonical_teaching_dictionary_lexical_base_families")
+  const result = await db.from("teaching_dictionary_families_with_current_meaning")
     .select("family_key,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status")
     .eq("family_key", key).order("revision", { ascending: false }).limit(1).maybeSingle();
   if (result.error) throw new Error("Could not read the approved word family.");
@@ -36,7 +36,7 @@ async function loadWorkbookBases(db: Db, base: string) {
     for (const sense of senseSet?.senses ?? []) {
       const parts = analyses.data.find(row => row.sense_id === sense.id)?.morphology_parts as CanonicalPart[] | undefined;
       const part = parts?.find(item => item.kind === "base" && item.sourceText === base
-        && item.surfaceText === word.data?.display_word && item.gloss === sense.definition);
+        && item.surfaceText === word.data?.display_word);
       if (part && sense.partOfSpeech === "verb")
         bases.push({ wordId, senseId: sense.id, partId: part.id, meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
     }
@@ -46,7 +46,7 @@ async function loadWorkbookBases(db: Db, base: string) {
 
 export async function loadWorkbookFamilyChoices(db: Db, base: string) {
   const [familyRows, reviewedBases] = await Promise.all([
-    db.from("canonical_teaching_dictionary_lexical_base_families")
+    db.from("teaching_dictionary_families_with_current_meaning")
       .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
       .eq("base_lemma", base).order("revision", { ascending: false }),
     loadWorkbookBases(db, base),
@@ -68,7 +68,7 @@ export async function createWorkbookFamily(db: Db, actor: string, base: string, 
   const choice = bases.find(item => item.senseId === senseId);
   if (!choice) throw new Error("Choose a reviewed verb meaning for the base.");
   const existing = async () => {
-    const result = await db.from("canonical_teaching_dictionary_lexical_base_families").select("family_key")
+    const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key")
       .eq("canonical_base_word_id", choice.wordId).eq("canonical_base_sense_id", choice.senseId)
       .order("revision", { ascending: false }).limit(1).maybeSingle();
     if (result.error) throw new Error("Could not check whether this family already exists.");

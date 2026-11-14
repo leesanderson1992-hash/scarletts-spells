@@ -157,7 +157,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
       if (family) {
         row.family_key = family.key;
-        row[`part_${part}_meaning`] = family.meaning;
+        row[`part_${part}_meaning`] ||= family.meaning;
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
       row.relationship_kind ||= "regular_inflection";

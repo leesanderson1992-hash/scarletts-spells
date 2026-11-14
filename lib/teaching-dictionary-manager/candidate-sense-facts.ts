@@ -1,3 +1,4 @@
+import { inheritFamilyPartMeanings } from "./family-part-meanings";
 import type { CandidateFamilyLink, CandidateMorphology } from "./lesson-candidate";
 import type { DictionarySenseSet } from "./senses";
 
@@ -13,6 +14,7 @@ export type CandidateLinkRow = CandidateFamilyLink & {
   id: string;
   canonical_word_id: string;
   sense_morphology_id?: string;
+  base_meaning?: string;
 };
 export type CandidateFactChoice = {
   source: "legacy" | "sense";
@@ -39,7 +41,8 @@ export function candidateFactsForSense(input: {
       && row.sense_id === input.senseId && row.sense_morphology_id === selected.id);
     return {
       source: "sense", morphologyId: selected.id,
-      morphology: { parts: selected.morphology_parts, joins: selected.morphology_joins,
+      morphology: { parts: Array.isArray(selected.morphology_parts)
+        ? inheritFamilyPartMeanings(selected.morphology_parts, links) : selected.morphology_parts, joins: selected.morphology_joins,
         wordSum: selected.word_sum, analysisStatus: "approved",
         reviewStatus: "approved_for_first_exposure" },
       familyLinks: links, familyLinkIds: links.map(row => row.id).sort(),

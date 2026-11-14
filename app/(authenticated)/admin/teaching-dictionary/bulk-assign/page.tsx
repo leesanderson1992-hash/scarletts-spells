@@ -120,7 +120,7 @@ export default async function BulkAssignPage() {
     readSenseFactRows<CandidateAnalysisRow>("teaching_dictionary_current_sense_morphology",
       "id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum"),
     readSenseFactRows<CandidateLinkRow>("teaching_dictionary_current_sense_family_memberships",
-      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind"),
+      "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning"),
   ]);
   if (familiesResult.error || skillsResult.error) throw new Error("TEACHING_BULK_CATALOG_READ_FAILED");
   const metadataByWord = new Map<string, Metadata>();

@@ -81,6 +81,12 @@ export default async function LessonUpdates({ searchParams }: {
       </section>}
       <section className={card}>
         <h2 className="text-xl font-semibold">Preview the lesson update</h2>
+        {update.reviewWords.some(word => word.familyMeaningReview) && <details>
+          <summary>Family meanings to review</summary>
+          <ul className="mt-2 list-disc pl-5">{update.reviewWords.filter(word => word.familyMeaningReview).map(word =>
+            <li key={word.wordId}><Link className="underline" href={`/admin/teaching-dictionary/${word.wordId}#td-base-family`}>{word.displayWord}</Link>
+              {" · Confirm the changed family meaning for "}{word.familyMeaningReview}.</li>)}</ul>
+        </details>}
         {params.error && <p role="alert" className="rounded-lg bg-rose-50 p-3">{params.error}</p>}
         {params.published && <p role="status" className="rounded-lg bg-emerald-50 p-3">The updated {lessonName} pool is active.</p>}
         <p><strong>{update.current.length}</strong> words in the live pool · <strong>{update.changes.length}</strong> additions or updates · <strong>{update.retired.length}</strong> removals</p>
