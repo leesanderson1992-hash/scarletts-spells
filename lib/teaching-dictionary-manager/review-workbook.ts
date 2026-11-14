@@ -203,7 +203,8 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       if (row.family_key === "Needs family review") row.family_key = "";
       if (row.use_in_lesson !== "Yes") continue;
       const bases = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1)
-        .filter(index => row[`part_${index}_kind`] === "base");
+        .filter(index => row[`part_${index}_kind`] === "base" ||
+          (skill === ABLE_IBLE_SKILL && row[`part_${index}_kind`] === "root"));
       const part = bases.length === 1 ? bases[0] : bases.find(index =>
         (row[`part_${index}_id`] || `part_${index}`) === row.component_part_id);
       const base = part ? row[`part_${part}_underlying_form`].toLocaleLowerCase("en-GB") : "";
@@ -213,7 +214,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         continue;
       }
       const family = options ? await options.resolve(base, decision) : null;
-      if (options && (!family || family.base !== base))
+      if (options && (!family || family.base !== base || (row[`part_${part}_kind`] === "root") !== (family.kind === "bound_root")))
         throw new Error(`Row ${rowNumber}: choose an approved family with the base “${base}”.`);
       if (family) {
         row.family_key = family.key;

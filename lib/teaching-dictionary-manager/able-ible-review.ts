@@ -99,25 +99,37 @@ export async function loadAbleIbleReview(db: Db) {
   if (!isAbleIblePilot(ABLE_IBLE_SKILL)) throw new Error("The suffix workbook pilot is available in staging.");
   const [lesson] = await loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: ABLE_IBLE_SKILL });
   const [pool, candidates] = await Promise.all([
-    loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [ABLE_IBLE_SKILL] }),
+    loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [ABLE_IBLE_SKILL], allowLegacyAbleIble: true }),
     loadRouteWordStatuses({ lesson, routeId: ABLE_IBLE_ROUTE, microSkillKey: ABLE_IBLE_SKILL }),
   ]);
-  const current = [...(pool.profiles[0]?.wordsByCanonicalId.values() ?? [])].map(word => ({
+  const current = [...(pool.profiles[0]?.wordsByCanonicalId.values() ?? [])]
+    .filter(word => process.env.ADLE_ABLE_IBLE_DICTIONARY_ONLY !== "enabled" || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
+    .map(word => ({
     canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.semanticBaseText,
     meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
   }));
-  const active = new Set(current.map(word => word.canonicalWordId));
-  const review = new Map<string, string>();
-  for (const word of lesson.words) if (word.blockers.length && (!active.has(word.id) || word.role === "unreleased draft"))
-    review.set(word.id, word.blockers.join(" "));
-  for (const word of candidates.words) {
-    if (word.familyMeaningReview) review.set(word.wordId, `The family meaning for “${word.familyMeaningReview}” changed. Confirm the teaching family.`);
-    else if (!active.has(word.wordId) && word.status.relationshipApproved &&
-      !lesson.words.some(row => row.id === word.wordId && row.ready))
-      review.set(word.wordId, word.overviewCandidate?.issues.map(issue => issue.message).join(" ") || "Review the lesson facts in the workbook.");
-  }
-  const rows = [...review].map(([id, reason]) => ({ id, note: active.has(id) ? `Active in the live lesson pool. ${reason}` : reason,
-    word: candidates.words.find(word => word.wordId === id)?.displayWord ?? lesson.words.find(word => word.id === id)?.word ?? id }));
+  const inPool = new Set(current.map(word => word.canonicalWordId));
+  const candidatesById = new Map(candidates.words.map(word => [word.wordId, word]));
+  const entries = new Map(lesson.words.map(word => [word.id, word]));
+  const ids = new Set([...inPool, ...entries.keys(), ...candidates.words.filter(word =>
+    word.status.relationshipApproved || word.familyMeaningReview).map(word => word.wordId)]);
+  const rows = [...ids].flatMap(id => {
+    const entry = entries.get(id);
+    const candidate = candidatesById.get(id);
+    const currentlyUsed = inPool.has(id);
+    const issues = candidate?.overviewCandidate?.issues.map(issue => issue.message) ?? [];
+    const familyIssue = candidate?.familyMeaningReview
+      ? `The family meaning for “${candidate.familyMeaningReview}” changed. Confirm the teaching family.` : null;
+    const ready = Boolean(entry?.ready && entry.reviewedDraftId && !familyIssue);
+    if (!entry?.reviewedDraftId && pool.dictionaryReadyWordIds.has(id) && !familyIssue && !entry?.blockers.length) return [];
+    const blockers = [...new Set([...(entry?.blockers ?? []), ...issues, ...(familyIssue ? [familyIssue] : [])])];
+    if (!ready && !candidate?.overviewCandidate?.evidence.some(fact => fact.includes("linked to a reviewed family")) &&
+      !blockers.some(message => message.includes("family"))) blockers.push("Confirm the teaching family for this meaning.");
+    if (!ready && !blockers.length) blockers.push("Approve the teaching meaning and publish the word for this micro-skill.");
+    return [{ id, currentlyUsed, status: ready ? "Ready to publish" : "Needs review",
+      note: [currentlyUsed ? "Currently used in ADLE." : "", ready ? "Ready to publish." : blockers.join(" ")].filter(Boolean).join(" "),
+      word: candidate?.displayWord ?? entry?.word ?? current.find(word => word.canonicalWordId === id)?.word ?? id }];
+  });
   rows.sort((a, b) => a.word.localeCompare(b.word, "en-GB") || a.id.localeCompare(b.id));
   return { lesson, current, rows };
 }

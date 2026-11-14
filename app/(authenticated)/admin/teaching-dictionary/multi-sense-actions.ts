@@ -76,7 +76,7 @@ export async function importReviewedMultiSenseCsv(
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
-          : approvedWorkbookFamily(db, decision.familyKey ?? ""),
+          : approvedWorkbookFamily(db, decision.familyKey ?? "", isAbleIblePilot(skill)),
       });
       suffixFacts = workbookSuffixFacts;
       familyTasks = pendingFamilies;
@@ -185,5 +185,5 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
-  return loadWorkbookFamilyChoices(createServiceRoleClient(), base);
+  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, isAbleIblePilot(skill));
 }

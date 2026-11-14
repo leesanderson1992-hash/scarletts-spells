@@ -6,17 +6,17 @@ import type { CanonicalPart } from "./canonical-morphology";
 import type { DictionarySenseSet } from "./senses";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
-export type WorkbookFamily = { key: string; base: string; meaning: string; partOfSpeech: string };
+export type WorkbookFamily = { key: string; base: string; meaning: string; partOfSpeech: string; kind: "free_base" | "bound_root" };
 export type WorkbookBaseChoice = { wordId: string; senseId: string; partId: string; meaning: string; partOfSpeech: string };
 
-export async function approvedWorkbookFamily(db: Db, key: string): Promise<WorkbookFamily | null> {
+export async function approvedWorkbookFamily(db: Db, key: string, includeRoots = false): Promise<WorkbookFamily | null> {
   const result = await db.from("teaching_dictionary_families_with_current_meaning")
     .select("family_key,base_lemma,base_meaning,base_part_of_speech,base_kind,review_status")
     .eq("family_key", key).order("revision", { ascending: false }).limit(1).maybeSingle();
   if (result.error) throw new Error("Could not read the approved word family.");
   const row = result.data;
-  return row?.review_status === "approved" && row.base_kind === "free_base"
-    ? { key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech } : null;
+  return row?.review_status === "approved" && (row.base_kind === "free_base" || (includeRoots && row.base_kind === "bound_root"))
+    ? { key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind } : null;
 }
 
 async function loadWorkbookBases(db: Db, base: string) {
@@ -44,7 +44,7 @@ async function loadWorkbookBases(db: Db, base: string) {
   return { bases, baseWordId: word.data?.id ?? null };
 }
 
-export async function loadWorkbookFamilyChoices(db: Db, base: string) {
+export async function loadWorkbookFamilyChoices(db: Db, base: string, includeRoots = false) {
   const [familyRows, reviewedBases] = await Promise.all([
     db.from("teaching_dictionary_families_with_current_meaning")
       .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
@@ -57,8 +57,8 @@ export async function loadWorkbookFamilyChoices(db: Db, base: string) {
   for (const row of familyRows.data) {
     if (seen.has(row.family_key)) continue;
     seen.add(row.family_key);
-    if (row.review_status === "approved" && row.base_kind === "free_base")
-      families.push({ key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech });
+    if (row.review_status === "approved" && (row.base_kind === "free_base" || (includeRoots && row.base_kind === "bound_root")))
+      families.push({ key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind });
   }
   return { families, ...reviewedBases };
 }

@@ -607,7 +607,7 @@ async function loadLessonReadinessUnmeasured(
   const [loadedPrefix, loadedSuffix, candidatePrefixRead, candidateSuffix] =
     await Promise.all([
       loadDynamicPrefixProfiles(db, ZERO_CHILD, { microSkillKeys: prefixKeys }),
-      loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys }),
+      loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys, allowLegacyAbleIble: true }),
       prefixCandidateMembers.length
         ? loadDynamicPrefixProfiles(db, ZERO_CHILD, {
             microSkillKeys: prefixKeys,
@@ -617,6 +617,7 @@ async function loadLessonReadinessUnmeasured(
         : Promise.resolve(null),
       loadDynamicSuffixProfiles(db, ZERO_CHILD, {
         microSkillKeys: suffixKeys,
+        allowLegacyAbleIble: true,
         allowStagingProfiles: true,
         candidateMembers: candidateMembers.filter((row) =>
           reviewedCandidates.some(

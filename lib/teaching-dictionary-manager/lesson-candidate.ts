@@ -1,3 +1,4 @@
+import { ABLE_IBLE_SKILL } from "./able-ible-workbook";
 import { ING_RULE_FOR_SKILL, ingStem, type IngDoublingPattern, type IngMicroSkill } from "@/lib/adle/ing/contracts";
 import { SHARED_AFFIX_PROFILE_REGISTRY } from "@/lib/adle/morphology/shared-affix-profile-registry";
 import { generatedWordSum } from "./authoring";
@@ -121,14 +122,15 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
   } else if (!String(suffix.gloss ?? "").trim()) {
     add("SUFFIX_MEANING", "Choose the reviewed meaning of this suffix.", "td-canonical-parts");
   } else evidence.push(`${suffixSource}: ${String(suffix.gloss)}`);
-  const bases = parts.filter(part => part.kind === "base");
+  const allowsRoot = input.skillKey === ABLE_IBLE_SKILL;
+  const bases = parts.filter(part => part.kind === "base" || (allowsRoot && part.kind === "root"));
   const links = input.familyLinks.filter(row => row.sense_id === input.senseId);
   const expectedRelationship = ingKeys.has(input.skillKey) ? "regular_inflection" : "derived";
   const base = bases.find(part => links.some(link => link.component_part_id === part.id
     && link.relationship_kind === expectedRelationship));
   if ((acceptedSuffixes || acceptedPrefixes) && !bases.length && parts.some(part => part.kind === "root"))
     return done("not_match");
-  if (!base) add("FAMILY_LINK", `Review a ${expectedRelationship.replaceAll("_", " ")} link to this meaning's free-base family.`, "td-base-family");
+  if (!base) add("FAMILY_LINK", `Review a ${expectedRelationship.replaceAll("_", " ")} link to this meaning's ${allowsRoot ? "base or root family" : "free-base family"}.`, "td-base-family");
   else evidence.push(`Base ${String(base.sourceText)} linked to a reviewed family`);
   if (ingKeys.has(input.skillKey) && base) {
     const baseText = String(base.sourceText).toLocaleLowerCase("en-GB");
