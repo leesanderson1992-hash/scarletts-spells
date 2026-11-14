@@ -5,9 +5,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
-import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
-import { loadIngReviewWorkbook } from "@/lib/teaching-dictionary-manager/ing-review-data";
-import { ING_REVIEW_BATCH_SIZE, stagingIngReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
+import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 export const dynamic = "force-dynamic";
@@ -20,19 +18,10 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !isStagingIngSkill(skill))
     return new Response("Workbook review is available for the four -ing lessons.", { status: 404 });
-  if (scope !== "review" && (scope !== "pool" || ingReviewEnvironment() !== "staging"))
+  if (scope !== "review" && scope !== "pool")
     return new Response("This workbook export is unavailable.", { status: 404 });
   if (!Number.isSafeInteger(batch) || batch < 1)
     return new Response("Choose a valid workbook batch.", { status: 400 });
-
-  if (ingReviewEnvironment() === "production") {
-    const review = await loadIngReviewWorkbook(skill, batch);
-    if (!review) return new Response("There are no words in this batch.", { status: 404 });
-    const reviewed = await loadReviewedMeaningBundles(createServiceRoleClient(), review.bundles.map(bundle => bundle.wordId));
-    const byId = new Map(reviewed.map(bundle => [bundle.wordId, bundle]));
-    review.bundles = review.bundles.map(bundle => byId.get(bundle.wordId) ?? bundle);
-    return workbookResponse(skill, batch, review);
-  }
 
   const db = createServiceRoleClient();
   if (scope === "pool") {
@@ -49,7 +38,7 @@ export async function GET(request: Request) {
     ie_to_y: "Change the final ie to y before adding -ing.",
   }[rule];
   const update = await loadStagingIngUpdate(db, skill);
-  const rows = stagingIngReviewExportRows(update)
+  const rows = ingReviewExportRows(update)
     .slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
   const ids = rows.map(row => row.wordId);
   if (!ids.length) return new Response("No words need review in this batch.", { status: 404 });

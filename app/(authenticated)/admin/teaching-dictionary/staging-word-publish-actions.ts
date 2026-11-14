@@ -6,7 +6,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { isStagingIngSkill, loadSingleStagingIngUpdate, publishStagingIngUpdate } from
   "@/lib/teaching-dictionary-manager/ing-staging-release";
-import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
+import { canUpdateIngLesson } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 
 type WordPublishResult =
   | { status: "active" } | { status: "unavailable" }
@@ -17,7 +17,7 @@ export async function stagingWordPublishStatus(
   wordId: string, skill: string, senseId: string, fingerprint?: string,
 ): Promise<WordPublishResult> {
   const actor = await requireAdminUser();
-  if (ingReviewEnvironment() !== "staging" || !isUuid(wordId) || !isStagingIngSkill(skill))
+  if (!canUpdateIngLesson() || !isUuid(wordId) || !isStagingIngSkill(skill))
     return { status: "unavailable" } as const;
   const db = createServiceRoleClient();
   try {

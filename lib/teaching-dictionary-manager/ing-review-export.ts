@@ -12,7 +12,7 @@ type IngReviewCandidate = {
 
 export const ING_REVIEW_BATCH_SIZE = 100;
 
-export function stagingIngReviewExportRows(update: {
+export function ingReviewExportRows(update: {
   current: IngDictionaryWordV1[];
   reviewWords: IngReviewCandidate[];
 }) {

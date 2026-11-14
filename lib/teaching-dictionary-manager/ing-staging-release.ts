@@ -111,13 +111,13 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
     selectedSenseId: row.selectedSenseId, selectedMeaningReady: Boolean(row.approvedIngWord),
     activeMeaning: releasedById.get(row.wordId)?.meaning ?? null,
   }));
-  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => !row.approvedIngWord),
+  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => !row.approvedIngWord && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))),
     skill, fingerprint: fingerprintSnapshotValue({ heads, words }) };
 }
 
 /** Reuse the live pool and the lesson's selected approved sense for one word. */
 export async function loadSingleStagingIngUpdate(db: StagingDb, skill: StagingIngSkill, wordId: string) {
-  if (ingReviewEnvironment() !== "staging") throw new Error("Single word publishing is available in staging.");
+  if (!canUpdateIngLesson()) throw new Error("Single word publishing is unavailable.");
   const [live, [approved]] = await Promise.all([
     loadActiveIngRelease(db, skill),
     loadApprovedIngWordsForIds(db, skill, [wordId]),

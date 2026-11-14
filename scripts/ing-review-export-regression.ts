@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
 import type { IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
-import { stagingIngReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
+import { ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { buildLessonPoolWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 const skill = "D4_INF_ING_ENDINGS_REGULAR";
@@ -18,7 +18,7 @@ const current = [member("cleaning", "cleaning-verb"), member("asking"), member("
   member("jumping"), member("scrolling", "scrolling-verb")];
 
 async function main() {
-  const rows = stagingIngReviewExportRows({ current, reviewWords: [
+  const rows = ingReviewExportRows({ current, reviewWords: [
     { wordId: "asking", displayWord: "asking", status: noBlockers,
       overviewCandidate: { issues: [{ message: "Add a reviewed meaning." }] } },
     { wordId: "walking", displayWord: "walking", status: noBlockers, familyMeaningReview: "walk" },

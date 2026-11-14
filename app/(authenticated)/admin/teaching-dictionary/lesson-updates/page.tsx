@@ -3,9 +3,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { buildScopedPath } from "@/lib/children-shared";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
-import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
-import { ING_REVIEW_BATCH_SIZE, stagingIngReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
-import { loadIngReviewWords } from "@/lib/teaching-dictionary-manager/ing-review-data";
+import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
@@ -27,7 +25,7 @@ export default async function LessonUpdates({ searchParams }: {
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
-    supported && skill && (view === "preview" || (view === "export" && ingReviewEnvironment() !== "production"))
+    supported && skill && (view === "preview" || view === "export")
       ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
@@ -42,9 +40,7 @@ export default async function LessonUpdates({ searchParams }: {
     label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
-  const stagingReview = update?.environment === "staging" && view === "export" ? stagingIngReviewExportRows(update) : null;
-  const productionRows = skill && view === "export" && ingReviewEnvironment() === "production"
-    ? await loadIngReviewWords(skill) : null;
+  const review = update && view === "export" ? ingReviewExportRows(update) : null;
   const [children, prepared] = await Promise.all([
     update && view === "preview" && update.childIds.length ? db.from("children").select("id,first_name").in("id", update.childIds)
       .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null,
@@ -59,10 +55,8 @@ export default async function LessonUpdates({ searchParams }: {
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
-      reviewRows={productionRows?.map(row => ({ id: row.wordId, word: row.displayWord, live: Boolean(row.released), familyMeaningReview: row.familyMeaningReview })) ?? null}
-      fullPoolSize={update?.environment === "staging" ? update.current.length : null}
-      batches={productionRows ? Math.ceil(productionRows.length / 100)
-        : stagingReview ? Math.ceil(stagingReview.length / ING_REVIEW_BATCH_SIZE) : null}>
+      fullPoolSize={update?.current.length ?? null}
+      batches={review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
     {update && view === "preview" && <>
       {update.meaningChoices.length > 0 && <section className={card}>
         <h2 className="text-xl font-semibold">Choose lesson meanings</h2>

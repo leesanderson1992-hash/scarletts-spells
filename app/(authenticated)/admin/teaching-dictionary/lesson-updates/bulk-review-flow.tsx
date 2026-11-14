@@ -31,10 +31,10 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, view, reviewRows, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, view, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
   fullPoolSize: number | null;
-  view: "export" | "workbook" | "preview"; reviewRows: { id: string; word: string; live: boolean; familyMeaningReview?: string }[] | null; children: ReactNode;
+  view: "export" | "workbook" | "preview"; children: ReactNode;
 }) {
   const router = useRouter();
   const [cluster, setCluster] = useState(skills.find(skill => skill.key === selected)?.cluster ?? initialCluster);
@@ -135,13 +135,6 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
       {step === 0 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Export words needing review</h2>
         <p>The workbook shows existing facts and what needs checking. Choose the lesson meaning in the workbook. You can resolve missing families after uploading.</p>
-        {reviewRows && <details>
-          <summary>{reviewRows.length} associated words · {reviewRows.filter(row => row.live).length} in the live lesson pool</summary>
-          <ul className="mt-2 grid gap-2 sm:grid-cols-3">{reviewRows.map(row =>
-            <li key={row.id}><a className="underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</a>
-              {row.live ? " · In the live pool" : ""}
-              {row.familyMeaningReview ? ` · Review the changed meaning of ${row.familyMeaningReview}` : ""}</li>)}</ul>
-        </details>}
         {batches ? <div className="flex flex-wrap gap-2">{Array.from({ length: batches }, (_, index) =>
           <a key={index} className={actionClass} download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&batch=${index + 1}`}>

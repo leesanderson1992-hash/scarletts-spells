@@ -22,7 +22,7 @@ import { fingerprintSnapshotValue } from "@/lib/adle/composable-lesson/canonical
 import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/draft-freshness";
 import { assignedWorkspaceSkills, currentWorkspaceSkills } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
-import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
+import { canUpdateIngLesson } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
 import { BritishRecordingPanel } from "./british-recording-panel";
@@ -582,7 +582,7 @@ export async function TeachingDictionaryDetail({
       <WordWorkspace
         key={`${activeDraft?.id ?? wordId}:${fingerprintSnapshotValue(JSON.parse(JSON.stringify(initial)))}`}
         wordId={wordId}
-        stagingWordPublishing={ingReviewEnvironment() === "staging"}
+        stagingWordPublishing={canUpdateIngLesson()}
         currentMorphologyId={morphology?.id ?? null}
         currentMorphologyLinkedToFamily={Boolean(morphology && morphologyFamilyLinks.data?.some(
           (link) => link.canonical_morphology_id === morphology.id))}
