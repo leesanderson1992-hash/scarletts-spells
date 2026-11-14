@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -27,5 +28,6 @@ export async function publishIdentifyBaseWord(form: FormData) {
   const after = result.ok ? await loadIdentifyBaseReview(db) : null;
   if (!after?.current.some(word => word.canonicalWordId === wordId))
     redirect(`${path}&error=${encodeURIComponent(result.blocked[0]?.reason ?? result.error ?? "The word is still waiting for the lesson checks.")}`);
+  revalidatePath("/admin/teaching-dictionary/lesson-updates");
   redirect(`${path}&published=1`);
 }

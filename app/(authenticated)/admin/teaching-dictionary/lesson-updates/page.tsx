@@ -1,3 +1,5 @@
+import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
+import { suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { publishIdentifyBaseWord } from "./base-word-actions";
 import Link from "next/link";
@@ -8,7 +10,7 @@ import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, l
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
-import { isAbleIblePilot, isIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { publishAbleIbleLesson } from "./able-ible-actions";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
@@ -25,10 +27,11 @@ export default async function LessonUpdates({ searchParams }: {
   const view = params.published || params.error || params.view === "preview" ? "preview"
     : params.view === "workbook" ? "workbook" : "export";
   const skill = isStagingIngSkill(params.skill) ? params.skill : null;
-  const suffixPilot = isAbleIblePilot(params.skill);
+  const suffixPilot = isSuffixWorkbookPilot(params.skill);
   const baseReview = isIdentifyBaseReview(params.skill);
-  const supported = baseReview || suffixPilot || canUpdateIngLesson() && Boolean(skill);
-  const [clusterRows, skillRows, result, suffix, base] = await Promise.all([
+  const specialistRoute = specialistWorkbookRoute(params.skill);
+  const supported = Boolean(specialistRoute) || baseReview || suffixPilot || canUpdateIngLesson() && Boolean(skill);
+  const [clusterRows, skillRows, result, suffix, base, specialist] = await Promise.all([
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
@@ -36,10 +39,12 @@ export default async function LessonUpdates({ searchParams }: {
       ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
-    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db) : null,
+    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db, params.skill) : null,
     baseReview && view !== "workbook" ? loadIdentifyBaseReview(db) : null,
+    specialistRoute && params.skill && view !== "workbook" ? loadSpecialistBulkReview(db, params.skill, specialistRoute) : null,
   ]);
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
+  const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
@@ -64,9 +69,15 @@ export default async function LessonUpdates({ searchParams }: {
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
-      fullPoolSize={base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
+      fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
       allowsBlankWorkbook={suffixPilot}
-      review={base && view === "export" ? <section className={card}>
+      review={specialist && view === "export" ? <section className={card}>
+        <h2 className="text-xl font-semibold">{specialist.rows.length} words waiting for review</h2>
+        <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
+          <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
+          <p className="text-sm">{row.note}</p>
+        </li>)}</ul>
+      </section> : base && view === "export" ? <section className={card}>
         <h2 className="text-xl font-semibold">{base.rows.length} words waiting for review</h2>
         <ul className="divide-y divide-[var(--border)]">{base.rows.map(row => <li key={row.id} className="py-2">
           <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.id}`}>{row.word}</Link>
@@ -80,7 +91,16 @@ export default async function LessonUpdates({ searchParams }: {
           <p className="text-sm">{word.note}</p>
         </li>)}</ul>
       </section> : null}
-      batches={base ? Math.ceil(base.rows.length / ING_REVIEW_BATCH_SIZE) : suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+      batches={specialist ? Math.ceil(specialist.rows.length / ING_REVIEW_BATCH_SIZE) : base ? Math.ceil(base.rows.length / ING_REVIEW_BATCH_SIZE) : suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+    {specialist && view === "preview" && <section className={card}>
+      <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
+      <p>{specialist.current.length} active words · {specialist.rows.length} waiting for review</p>
+      <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
+      <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
+        <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
+        <p className="text-sm">{row.note}</p>
+      </li>)}</ul>
+    </section>}
     {base && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">Publish words for Identify the Base</h2>
       {params.published && <p role="status">The word is Active in Identify the Base.</p>}
@@ -99,17 +119,18 @@ export default async function LessonUpdates({ searchParams }: {
       </form>)}
     </section>}
     {suffix && view === "preview" && <section className={card}>
-      <h2 className="text-xl font-semibold">Preview the -able/-ible lesson update</h2>
+      <h2 className="text-xl font-semibold">Preview the {suffixTitle} lesson update</h2>
       {params.error && <p role="alert">{params.error}</p>}
-      {params.published && <p role="status">The updated -able/-ible pool is active.</p>}
+      {params.published && <p role="status">The updated {suffixTitle} pool is active.</p>}
       <p>{suffix.current.length} active words · {suffix.lesson.reviewedCandidateIds.length} reviewed updates</p>
       <ul className="list-disc pl-5">{suffix.lesson.words.filter(word => word.reviewedDraftId).map(word =>
         <li key={word.id}><Link className="underline" href={word.editHref}>{word.word}</Link>
           {word.blockers.length ? ` · ${word.blockers.join(" ")}` : ""}</li>)}</ul>
       {suffix.lesson.blockers.map(blocker => <p key={blocker}>{blocker}</p>)}
       {suffix.lesson.status === "ready_to_launch" && <form action={publishAbleIbleLesson}>
+        <input type="hidden" name="skill" value={selected} />
         <input type="hidden" name="fingerprint" value={suffix.lesson.preflightFingerprint} />
-        <ActionSubmitButton className={button} pendingLabel="Publishing -able/-ible update…">Publish -able/-ible update</ActionSubmitButton>
+        <ActionSubmitButton className={button} pendingLabel="Publishing suffix update…">Publish {suffixTitle} update</ActionSubmitButton>
       </form>}
     </section>}
     {update && view === "preview" && <>

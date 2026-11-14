@@ -1,3 +1,5 @@
+import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
+import { suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { NextResponse } from "next/server";
 import { requireAdminUser } from "@/lib/admin/access";
@@ -7,7 +9,7 @@ import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagin
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
-import { isAbleIblePilot, isIdentifyBaseReview, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
@@ -27,14 +29,14 @@ export async function GET(request: Request) {
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
   const db = createServiceRoleClient();
-  if (isAbleIblePilot(skill)) {
-    const { rows, current } = await loadAbleIbleReview(db);
-    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook("-able/-ible", current),
+  if (isSuffixWorkbookPilot(skill)) {
+    const { rows, current } = await loadAbleIbleReview(db, skill);
+    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook(suffixReviewTitle(skill), current),
       `teaching-dictionary-active-pool-${skill}.xlsx`);
     const batchRows = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!batchRows.length && batch !== 1) return new Response("No words need review in this batch.", { status: 404 });
     const data = await loadAbleIbleWorkbook(db, batchRows.map(row => row.id));
-    const bytes = await buildReviewWorkbook({ skill, title: "-able/-ible", ...data,
+    const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), ...data,
       notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map() });
     return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
@@ -47,6 +49,18 @@ export async function GET(request: Request) {
     return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base",
       bundles: selected.flatMap(row => row.bundle ? [row.bundle] : []),
       notes: new Map(selected.map(row => [row.id, row.note])), families: new Map() }),
+    `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+  }
+  const specialistRoute = specialistWorkbookRoute(skill);
+  if (specialistRoute) {
+    const { rows, current, bundles, title } = await loadSpecialistBulkReview(db, skill, specialistRoute, scope === "review");
+    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook(title, current),
+      `teaching-dictionary-active-pool-${skill}.xlsx`);
+    const selected = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
+    if (!selected.length) return new Response("No words need review in this batch.", { status: 404 });
+    const notes = new Map(selected.map(row => [row.id, row.note]));
+    return downloadWorkbook(await buildReviewWorkbook({ skill, title,
+      bundles: bundles.filter(bundle => notes.has(bundle.wordId)), notes, families: new Map() }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });

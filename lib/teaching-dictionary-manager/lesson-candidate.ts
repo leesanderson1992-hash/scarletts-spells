@@ -48,6 +48,7 @@ function expectedInForm(base: string): "in" | "im" | "il" | "ir" {
   if (base.startsWith("r")) return "ir";
   return "in";
 }
+export const IDENTIFY_BASE_SKILL = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 export const hasCandidateRule = (skillKey: string) => ingKeys.has(skillKey)
   || Object.hasOwn(suffixForms, skillKey) || Object.hasOwn(prefixForms, skillKey);
 
@@ -66,7 +67,8 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
     status, ruleRevision: LESSON_CANDIDATE_RULE_REVISION, evidence, issues,
     ...(doublingPattern ? { doublingPattern } : {}),
   });
-  if (!hasCandidateRule(input.skillKey)) return done("legacy_review");
+  const identifyBase = input.skillKey === IDENTIFY_BASE_SKILL;
+  if (!identifyBase && !hasCandidateRule(input.skillKey)) return done("legacy_review");
   const spelling = input.displayWord.toLocaleLowerCase("en-GB");
   if (ingKeys.has(input.skillKey) && !spelling.endsWith("ing")) return done("not_match");
   const acceptedSuffixes = suffixForms[input.skillKey];
@@ -93,6 +95,14 @@ export function evaluateLessonCandidate(input: CandidateInput): CandidateDecisio
         `Choose the reviewed meaning of this ${acceptedPrefixes ? "prefix" : "suffix"}.`, "td-canonical-parts");
     else add("REVIEWED_PARTS", "Approve typed parts and joins that spell this word.", "td-canonical-parts");
     return done("needs_facts");
+  }
+  if (identifyBase) {
+    if (!selectedSense?.dictationSentence) add("DICTATION", "Approve a dictation sentence for this meaning.", "td-dictation");
+    const base = parts.find(part => part.kind === "base" && input.familyLinks.some(link =>
+      link.sense_id === input.senseId && link.component_part_id === part.id &&
+      ["free_base", "regular_inflection", "derived"].includes(link.relationship_kind)));
+    if (!base) add("FAMILY_LINK", "Link the base part to its reviewed free-base family.", "td-base-family");
+    return done(issues.length ? "needs_facts" : "ready");
   }
   const suffix = acceptedPrefixes ? undefined : parts.at(-1);
   const suffixSource = String(suffix?.sourceText ?? "").toLocaleLowerCase("en-GB");

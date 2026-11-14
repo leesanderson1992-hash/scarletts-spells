@@ -1,5 +1,5 @@
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
-import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "./able-ible-workbook";
+import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbookFacts } from "./able-ible-workbook";
 import { DICTIONARY_BANDS } from "./contracts";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
@@ -17,7 +17,7 @@ const priority = ["display_word", "definition", "part_of_speech", "family_key", 
 const reviewKeys = [...priority.slice(0, 3), "use_in_lesson", "needs_review", ...priority.slice(3),
   ...csvColumns.filter(key => !priority.includes(key))];
 const suffixFields = ["age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
-const workbookKeys = (skill: string) => skill === ABLE_IBLE_SKILL ? [...reviewKeys, ...suffixFields] : reviewKeys;
+const workbookKeys = (skill: string) => isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
   display_word: "Word", definition: "Meaning", family_key: "Word family",
@@ -43,7 +43,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
   });
   const familyOptions = workbook.addWorksheet("Family options", { state: "veryHidden" });
-  const suffixWorkbook = input.skill === ABLE_IBLE_SKILL;
+  const suffixWorkbook = isSuffixReviewSkill(input.skill);
   const list = (choices: readonly string[], allowBlank = true): ExcelJS.DataValidation => ({
     type: "list", allowBlank, formulae: [`"${choices.join(",")}"`],
     showErrorMessage: true, error: "Choose a value from the list.",
@@ -106,7 +106,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
   const rule = ING_RULE_FOR_SKILL[input.skill as IngMicroSkill];
-  const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
+  const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : input.skill === FUL_LESS_SKILL ? "For helpful, enter help as the base and ful as the suffix." : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
     : rule === "double_final_consonant" ? "For hopping, enter hop as the underlying form and hopp as the visible letters."
       : rule === "regular" ? "For walking, enter walk as both forms."
         : rule === "drop_e" ? "For caring, enter care as the underlying form and car as the visible letters."
@@ -130,7 +130,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
-  if (input.skill === ABLE_IBLE_SKILL) guide.addRows([
+  if (suffixWorkbook) guide.addRows([
     ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
     ["Dictionary bands", "Use the dropdowns to choose the word’s age, frequency and complexity bands."],
     ["Has schwa", "Choose Yes or No for the selected British pronunciation."],
@@ -227,7 +227,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
       if (!row.relationship_kind && ING_RULE_FOR_SKILL[skill as IngMicroSkill]) row.relationship_kind = "regular_inflection";
-      if (!row.relationship_kind && skill === ABLE_IBLE_SKILL) row.relationship_kind = "derived";
+      if (!row.relationship_kind && isSuffixReviewSkill(skill)) row.relationship_kind = "derived";
       if (!row.relationship_kind)
         throw new Error(`Row ${rowNumber}: choose the relationship to the teaching family.`);
     }

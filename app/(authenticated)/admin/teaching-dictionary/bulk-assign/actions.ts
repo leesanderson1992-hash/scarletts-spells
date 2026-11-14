@@ -12,7 +12,7 @@ import { loadWordSkillReviewControls } from "@/lib/writing-engine/whole-writing/
 import { managerAssignedPairs } from "@/lib/teaching-dictionary-manager/bulk-review";
 import { bulkSenseChoiceError } from "@/lib/teaching-dictionary-manager/bulk-sense-approval";
 import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
-import { evaluateLessonCandidate, hasCandidateRule,
+import { evaluateLessonCandidate, hasCandidateRule, IDENTIFY_BASE_SKILL,
   LESSON_CANDIDATE_RULE_REVISION } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
   "@/lib/teaching-dictionary-manager/candidate-sense-facts";
@@ -90,23 +90,25 @@ export async function saveBulkSkillApprovals(input: {
   if (Object.keys(input.senseIds).length !== applyWordIds.length
     || applyWordIds.some(id => typeof input.senseIds[id] !== "string"))
     return failed("Choose a reviewed meaning for every word being applied.");
+  const hasRule = hasCandidateRule(input.microSkillKey)
+    || environment === "staging" && input.microSkillKey === IDENTIFY_BASE_SKILL;
   const expectedFacts: Record<string, { senseId: string; senseSet: DictionarySenseSet;
     morphologyId: string; morphologySource: "legacy" | "sense"; familyLinkIds: string[] }> = {};
   if (applyWordIds.length) {
     const [reviewed, morphology, familyLinks, senseAnalyses, senseFamilyLinks] = await Promise.all([
       db.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", applyWordIds),
-      hasCandidateRule(input.microSkillKey) ? db.from("canonical_teaching_dictionary_word_morphology")
+      hasRule ? db.from("canonical_teaching_dictionary_word_morphology")
         .select("id,canonical_word_id,morphology_parts,morphology_joins,analysis_status,review_status,word_sum,created_at")
         .in("canonical_word_id", applyWordIds).eq("row_status", "active")
         .order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
-      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_links")
+      hasRule ? db.from("teaching_dictionary_current_sense_family_links")
         .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
-      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_morphology")
+      hasRule ? db.from("teaching_dictionary_current_sense_morphology")
         .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
-      hasCandidateRule(input.microSkillKey) ? db.from("teaching_dictionary_current_sense_family_memberships")
+      hasRule ? db.from("teaching_dictionary_current_sense_family_memberships")
         .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning")
         .in("canonical_word_id", applyWordIds) : Promise.resolve({ data: [], error: null }),
     ]);
@@ -136,7 +138,7 @@ export async function saveBulkSkillApprovals(input: {
       const candidate = input.sourceKind === "teaching_dictionary_import" && input.microSkillKey in ING_RULE_FOR_SKILL
         ? generateIngWordFromOverview({ ...candidateInput,
             provenance: { sourceName: word.source_name, sourceUrl: word.source_url } })
-        : hasCandidateRule(input.microSkillKey) ? evaluateLessonCandidate(candidateInput) : null;
+        : hasRule ? evaluateLessonCandidate(candidateInput) : null;
       const reason = candidate && candidate.status !== "ready"
         ? candidate.issues[0]?.message ?? "This word does not match this lesson rule."
         : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,

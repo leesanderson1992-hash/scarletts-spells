@@ -10,6 +10,11 @@ export type SuffixWorkbookFacts = {
 
 export const FUL_LESS_SKILL = "D4_MOR_SUFFIXES_FUL_LESS";
 
+export const isSuffixReviewSkill = (skill: unknown): skill is typeof ABLE_IBLE_SKILL | typeof FUL_LESS_SKILL =>
+  skill === ABLE_IBLE_SKILL || skill === FUL_LESS_SKILL;
+
+export const suffixReviewTitle = (skill: string) => skill === FUL_LESS_SKILL ? "-ful/-less" : "-able/-ible";
+
 export function suffixDictionaryOnly(skill: string) {
   return (skill === ABLE_IBLE_SKILL && process.env.ADLE_ABLE_IBLE_DICTIONARY_ONLY === "enabled")
     || (skill === FUL_LESS_SKILL && process.env.ADLE_FUL_LESS_DICTIONARY_ONLY === "enabled");

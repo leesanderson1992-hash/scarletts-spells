@@ -1,8 +1,8 @@
 import "server-only";
 
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { ABLE_IBLE_ROUTE, ABLE_IBLE_SKILL, FUL_LESS_SKILL, type SuffixWorkbookFacts } from "./able-ible-workbook";
-import { isAbleIblePilot } from "./bulk-review-scope";
+import { ABLE_IBLE_ROUTE, ABLE_IBLE_SKILL, FUL_LESS_SKILL, suffixDictionaryOnly, type SuffixWorkbookFacts } from "./able-ible-workbook";
+import { isSuffixWorkbookPilot } from "./bulk-review-scope";
 import { emptyMetadata, emptyMorphology, DICTIONARY_BANDS, publicationBlockers, routeBlockers,
   routeWithSharedFacts, type WordDraftPayload, type RouteContentDraft } from "./contracts";
 import { inheritFamilyPartMeanings } from "./family-part-meanings";
@@ -25,7 +25,7 @@ export function suffixWorkbookIssues(facts: SuffixWorkbookFacts | undefined) {
 }
 
 export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSenseCsvBundle, senseId: string, facts: SuffixWorkbookFacts, skill: string = ABLE_IBLE_SKILL) {
-  if (!isAbleIblePilot(ABLE_IBLE_SKILL) || ![ABLE_IBLE_SKILL, FUL_LESS_SKILL].includes(skill)) throw new Error("The suffix workbook pilot is available in staging.");
+  if (!isSuffixWorkbookPilot(ABLE_IBLE_SKILL) || ![ABLE_IBLE_SKILL, FUL_LESS_SKILL].includes(skill)) throw new Error("The suffix workbook pilot is available in staging.");
   const wordId = bundle.wordId;
   const sense = bundle.senseSet.senses.find(item => item.id === senseId);
   const pronunciation = bundle.senseSet.pronunciations.find(item => item.id === sense?.pronunciationId);
@@ -99,15 +99,15 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
   if (review.error) throw new Error("Could not record the suffix lesson approval.");
 }
 
-export async function loadAbleIbleReview(db: Db) {
-  if (!isAbleIblePilot(ABLE_IBLE_SKILL)) throw new Error("The suffix workbook pilot is available in staging.");
-  const [lesson] = await loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: ABLE_IBLE_SKILL });
+export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL) {
+  if (!isSuffixWorkbookPilot(skill)) throw new Error("The suffix workbook pilot is available in staging.");
+  const [lesson] = await loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: skill });
   const [pool, candidates] = await Promise.all([
-    loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [ABLE_IBLE_SKILL], allowLegacyAbleIble: true }),
-    loadRouteWordStatuses({ lesson, routeId: ABLE_IBLE_ROUTE, microSkillKey: ABLE_IBLE_SKILL }),
+    loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true }),
+    loadRouteWordStatuses({ lesson, routeId: ABLE_IBLE_ROUTE, microSkillKey: skill }),
   ]);
   const current = [...(pool.profiles[0]?.wordsByCanonicalId.values() ?? [])]
-    .filter(word => process.env.ADLE_ABLE_IBLE_DICTIONARY_ONLY !== "enabled" || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
+    .filter(word => !suffixDictionaryOnly(skill) || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
     .map(word => ({
     canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.semanticBaseText,
     meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,

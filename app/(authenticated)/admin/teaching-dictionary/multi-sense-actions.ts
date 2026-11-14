@@ -14,7 +14,7 @@ import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
-import { isAbleIblePilot, isIdentifyBaseReview, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
@@ -76,7 +76,7 @@ export async function importReviewedMultiSenseCsv(
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
-          : approvedWorkbookFamily(db, decision.familyKey ?? "", isAbleIblePilot(skill)),
+          : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
       });
       suffixFacts = workbookSuffixFacts;
       familyTasks = pendingFamilies;
@@ -99,7 +99,7 @@ export async function importReviewedMultiSenseCsv(
       issues.push({ word, rows, reason: error ?? "Check the word facts." });
       continue;
     }
-    if (workbook && isAbleIblePilot(skill)) {
+    if (workbook && isSuffixWorkbookPilot(skill)) {
       const blockers = bundle.analyses.flatMap((analysis, index) => analysis.requestedSkillKeys.length
         ? suffixWorkbookIssues(suffixFacts.get(rows[index])) : []);
       if (blockers.length) {
@@ -132,6 +132,10 @@ export async function importReviewedMultiSenseCsv(
           lesson.release = "Check and publish from the preview step";
           continue;
         }
+        if (workbook && specialistWorkbookRoute(skillKey) && !hasCandidateRule(skillKey)) {
+          lesson.release = "Review the lesson’s publication requirements in Preview";
+          continue;
+        }
         if (!hasCandidateRule(skillKey)) {
           report("This lesson does not have automatic approval checks yet. Review it in the bulk assigner.");
           continue;
@@ -142,15 +146,15 @@ export async function importReviewedMultiSenseCsv(
             senseIds: { [wordId]: analysis.senseId }, requestId: randomUUID(),
             sourceKind: "teaching_dictionary_import", workbookReadback: Boolean(workbook) });
           if (result.ok) {
-            if (workbook && isAbleIblePilot(skillKey)) {
-              await stageAbleIbleWord(db, actor.id, { ...bundle, wordId }, analysis.senseId, suffixFacts.get(rows[index])!);
+            if (workbook && isSuffixWorkbookPilot(skillKey)) {
+              await stageAbleIbleWord(db, actor.id, { ...bundle, wordId }, analysis.senseId, suffixFacts.get(rows[index])!, skillKey);
               lesson.release = "Ready for publish preview";
             }
             lesson.approval = result.approvedCount ? "Approved" : "Already approved";
             approved += result.approvedCount;
             alreadyApproved += result.alreadyAssignedCount;
           } else report(result.blocked[0]?.reason ?? result.error ?? "Recheck this lesson request.");
-        } catch (error) { report(workbook && isAbleIblePilot(skillKey) && error instanceof Error
+        } catch (error) { report(workbook && isSuffixWorkbookPilot(skillKey) && error instanceof Error
           ? error.message : "The lesson check could not finish. Recheck the saved request."); }
       }
     }
@@ -171,7 +175,7 @@ export async function importReviewedMultiSenseCsv(
           : statuses.get(row.wordId) ?? "Release review needed";
         return;
       }
-      if (workbook && (skillKey === ABLE_IBLE_SKILL || isIdentifyBaseReview(skillKey))) return;
+      if (workbook && (isSuffixWorkbookPilot(skillKey) || isIdentifyBaseReview(skillKey) || specialistWorkbookRoute(skillKey))) return;
       const routeId = results[0].routeId;
       const [lesson] = routeId ? await loadLessonReadiness({ routeId, microSkillKey: skillKey }) : [];
       for (const row of results) row.release = !lesson ? "No lesson release status"
@@ -189,5 +193,5 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
-  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, isAbleIblePilot(skill));
+  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, skill === ABLE_IBLE_SKILL);
 }

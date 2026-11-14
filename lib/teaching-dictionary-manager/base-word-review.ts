@@ -5,24 +5,24 @@ import { projectPublishedBaseWordRelease, baseWordPartShape } from "@/lib/adle/l
 import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
 import { baseWordMemberSelectable } from "@/lib/adle/base-word-regularity";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
-import { bulkSenseChoiceError } from "./bulk-sense-approval";
+import { evaluateLessonCandidate } from "./lesson-candidate";
 import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 
-export async function loadIdentifyBaseReview(db: Db, includeBundles = false) {
-  const skill = IDENTIFY_BASE_SKILL;
+export async function loadIdentifyBaseReview(db: Db, includeBundles = false, skill: string = IDENTIFY_BASE_SKILL) {
   const [release] = await loadEnabledBaseWordReleaseAuthorities({
     client: db, environmentKey: "staging", microSkillKeys: [skill],
   });
   if (!release) throw new Error("The staging Identify the Base release is unavailable.");
   const active = await projectPublishedBaseWordRelease(db, release);
+  const generationSupported = skill === IDENTIFY_BASE_SKILL;
   const words = new Map(release.dictionaryWords.map(word => [word.canonicalWordId, word]));
   const current = active.family.families.flatMap(family => family.members.flatMap(member => {
     const word = active.dictionaryWords.find(row => row.canonicalWordId === member.canonicalWordId);
-    return word && baseWordMemberSelectable(active.family, member) &&
+    return generationSupported && word && baseWordMemberSelectable(active.family, member) &&
       baseWordFamilyMemberAppliesToMicroSkill(active.family, member, skill) ? [{
         canonicalWordId: word.canonicalWordId, word: word.displayWord, base: words.get(family.baseWordId)?.displayWord ?? "",
         meaning: member.childFriendlyMeaning, dictationSentence: word.dictationSentence,
@@ -43,10 +43,15 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false) {
     const bundle = byWord.get(id);
     const eligible = records.filter(({ member }) => baseWordMemberSelectable(release.family, member));
     const choices = bundle?.senseSet.senses.filter(sense => {
-      if (!sense.dictationSentence || bulkSenseChoiceError({ wordId: id, displayWord: word.displayWord,
-        senseSet: bundle.senseSet, senseId: sense.id })) return false;
       const analysis = bundle.analyses.find(item => item.senseId === sense.id);
-      return Boolean(analysis?.familyKey && eligible.some(({ member, family }) => {
+      if (!analysis?.familyKey || evaluateLessonCandidate({
+        wordId: id, displayWord: word.displayWord, skillKey: IDENTIFY_BASE_SKILL, senseId: sense.id, senseSet: bundle.senseSet,
+        morphology: { parts: analysis.parts, joins: analysis.joins, wordSum: analysis.wordSum,
+          analysisStatus: "approved", reviewStatus: "approved_for_first_exposure" },
+        familyLinks: [{ family_key: analysis.familyKey, sense_id: sense.id,
+          component_part_id: analysis.componentPartId, relationship_kind: analysis.relationshipKind }],
+      }).status !== "ready") return false;
+      return eligible.some(({ member, family }) => {
         if (baseWordPartShape(analysis.parts) !== baseWordPartShape(member.morphologyParts)) return false;
         const basePart = analysis.parts.find(part => part.id === analysis.componentPartId && part.kind === "base");
         if (!basePart) return false;
@@ -59,16 +64,16 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false) {
           base.relationshipKind === "free_base" && base.parts.find(part => part.id === base.componentPartId)?.sourceText === basePart.sourceText &&
           base.senseId === activeAnchor.dictionarySenseId) &&
           ["derived", "regular_inflection"].includes(analysis.relationshipKind));
-      }));
+      });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
     const base = words.get(family.baseWordId)?.displayWord ?? "";
-    const note = !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
+    const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
       : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
         : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Publish the reviewed base “${base}” for this micro-skill first. Check this word’s meaning, parts and family link.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, choices, note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, choices: generationSupported ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },
