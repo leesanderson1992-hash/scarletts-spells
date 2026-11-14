@@ -31,8 +31,9 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, view, reviewRows, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, view, reviewRows, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
+  fullPoolSize: number | null;
   view: "export" | "workbook" | "preview"; reviewRows: { id: string; word: string; live: boolean; familyMeaningReview?: string }[] | null; children: ReactNode;
 }) {
   const router = useRouter();
@@ -145,7 +146,14 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
           <a key={index} className={actionClass} download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&batch=${index + 1}`}>
             {batches === 1 ? "Download review workbook" : `Download workbook ${index + 1}`}
-          </a>)}</div> : batches === 0 ? <p>All associated words have current reviewed facts.</p> : null}
+          </a>)}</div> : batches === 0 ? <p>No words need review for this lesson.</p> : null}
+        {fullPoolSize !== null && <div className="space-y-1 border-t border-[var(--border)] pt-3">
+          <a className="font-semibold underline" download
+            href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&scope=pool`}>
+            Export full lesson pool
+          </a>
+          <p className="text-sm">{fullPoolSize} active words. Use this snapshot to see what the lesson currently teaches.</p>
+        </div>}
       </section>}
       {step === 1 && <section className="space-y-3 rounded-2xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-xl font-semibold">Edit and upload the workbook</h2>

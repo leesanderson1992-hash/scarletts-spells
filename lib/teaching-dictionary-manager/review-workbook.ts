@@ -1,4 +1,4 @@
-import { ING_RULE_FOR_SKILL, type IngMicroSkill } from "@/lib/adle/ing/contracts";
+import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
@@ -90,6 +90,24 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
   guide.getRow(1).font = { bold: true, color: { argb: "FFA7135A" } };
+  return Buffer.from(await workbook.xlsx.writeBuffer());
+}
+
+export async function buildLessonPoolWorkbook(title: string, words: readonly IngDictionaryWordV1[]) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Active lesson pool", { views: [{ state: "frozen", xSplit: 1, ySplit: 2 }] });
+  sheet.getCell("A1").value = title;
+  sheet.getCell("A1").font = { bold: true, size: 15 };
+  const headers = ["Word", "Status", "Meaning taught", "Base", "Pronunciation (IPA)", "Dictation sentence", "Word ID", "Meaning ID"];
+  sheet.getRow(2).values = headers;
+  sheet.getRow(2).font = { bold: true };
+  [22, 12, 45, 18, 22, 52, 40, 32].forEach((width, index) => { sheet.getColumn(index + 1).width = width; });
+  for (const word of [...words].sort((a, b) => a.word.localeCompare(b.word, "en-GB") || a.canonicalWordId.localeCompare(b.canonicalWordId))) {
+    const row = sheet.addRow([word.word, "Active", word.meaning, word.base, word.pronunciationIpa ?? "",
+      word.dictationSentence, word.canonicalWordId, word.senseId ?? ""]);
+    row.alignment = { vertical: "middle", wrapText: true };
+  }
+  sheet.autoFilter = { from: { row: 2, column: 1 }, to: { row: 2, column: headers.length } };
   return Buffer.from(await workbook.xlsx.writeBuffer());
 }
 

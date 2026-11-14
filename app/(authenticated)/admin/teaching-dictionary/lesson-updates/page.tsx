@@ -4,6 +4,7 @@ import { buildScopedPath } from "@/lib/children-shared";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
+import { ING_REVIEW_BATCH_SIZE, stagingIngReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { loadIngReviewWords } from "@/lib/teaching-dictionary-manager/ing-review-data";
 import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
@@ -41,6 +42,7 @@ export default async function LessonUpdates({ searchParams }: {
     label: clusterLabels.get(key) ?? (key === "D4_INF_ING_ENDINGS" ? "-ing endings" : key.replace(/^D\d+_/u, "").replaceAll("_", " ")),
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
+  const stagingReview = update?.environment === "staging" && view === "export" ? stagingIngReviewExportRows(update) : null;
   const productionRows = skill && view === "export" && ingReviewEnvironment() === "production"
     ? await loadIngReviewWords(skill) : null;
   const [children, prepared] = await Promise.all([
@@ -58,8 +60,9 @@ export default async function LessonUpdates({ searchParams }: {
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       reviewRows={productionRows?.map(row => ({ id: row.wordId, word: row.displayWord, live: Boolean(row.released), familyMeaningReview: row.familyMeaningReview })) ?? null}
-      batches={productionRows ? Math.ceil(productionRows.length / 100) : update ? Math.ceil(new Set([...update.reviewWords.map(word => word.wordId),
-        ...update.words.filter(word => word.microSkillKey === skill && !word.senseId).map(word => word.canonicalWordId)]).size / 100) : null}>
+      fullPoolSize={update?.environment === "staging" ? update.current.length : null}
+      batches={productionRows ? Math.ceil(productionRows.length / 100)
+        : stagingReview ? Math.ceil(stagingReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {update && view === "preview" && <>
       {update.meaningChoices.length > 0 && <section className={card}>
         <h2 className="text-xl font-semibold">Choose lesson meanings</h2>

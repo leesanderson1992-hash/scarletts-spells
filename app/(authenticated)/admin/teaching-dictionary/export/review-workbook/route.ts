@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { requireAdminUser } from "@/lib/admin/access";
 import { ING_RULE_FOR_SKILL, ingStem } from "@/lib/adle/ing/contracts";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagingIngUpdate, STAGING_ING_LESSONS } from "@/lib/teaching-dictionary-manager/ing-staging-release";
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadIngReviewWorkbook } from "@/lib/teaching-dictionary-manager/ing-review-data";
-import { buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
+import { ING_REVIEW_BATCH_SIZE, stagingIngReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
+import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +16,12 @@ export async function GET(request: Request) {
   await requireAdminUser();
   const params = new URL(request.url).searchParams;
   const skill = params.get("skill");
+  const scope = params.get("scope") ?? "review";
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !isStagingIngSkill(skill))
     return new Response("Workbook review is available for the four -ing lessons.", { status: 404 });
+  if (scope !== "review" && (scope !== "pool" || ingReviewEnvironment() !== "staging"))
+    return new Response("This workbook export is unavailable.", { status: 404 });
   if (!Number.isSafeInteger(batch) || batch < 1)
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
@@ -30,6 +34,13 @@ export async function GET(request: Request) {
     return workbookResponse(skill, batch, review);
   }
 
+  const db = createServiceRoleClient();
+  if (scope === "pool") {
+    const { released } = await loadActiveIngRelease(db, skill);
+    const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], released.filter(word => word.microSkillKey === skill));
+    return downloadWorkbook(bytes, `teaching-dictionary-active-pool-${skill}.xlsx`);
+  }
+
   const rule = ING_RULE_FOR_SKILL[skill];
   const spellingChange = {
     regular: "",
@@ -37,26 +48,20 @@ export async function GET(request: Request) {
     double_final_consonant: "Double the final consonant before adding -ing.",
     ie_to_y: "Change the final ie to y before adding -ing.",
   }[rule];
-  const db = createServiceRoleClient();
   const update = await loadStagingIngUpdate(db, skill);
-  const legacy = update.words.filter(word => word.microSkillKey === skill && !word.senseId);
-  const byId = new Map(legacy.map(word => [word.canonicalWordId, word]));
-  const candidates = new Map(update.reviewWords.map(word => [word.wordId, word]));
-  const ids = [...new Set([...byId.keys(), ...candidates.keys()])]
-    .sort((a, b) => (byId.get(a)?.word ?? candidates.get(a)!.displayWord)
-      .localeCompare(byId.get(b)?.word ?? candidates.get(b)!.displayWord, "en-GB"))
-    .slice((batch - 1) * 100, batch * 100);
+  const rows = stagingIngReviewExportRows(update)
+    .slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
+  const ids = rows.map(row => row.wordId);
   if (!ids.length) return new Response("No words need review in this batch.", { status: 404 });
 
   const [reviewed, wordRows, metadata] = await Promise.all([
     loadReviewedMeaningBundles(db, ids),
-    db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", ids)
-      .eq("row_status", "active").eq("review_status", "approved_for_first_exposure"),
+    db.from("canonical_teaching_dictionary_words").select("id,display_word").in("id", ids),
     db.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,phoneme_hint,syllables,stress_pattern")
       .in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false }),
   ]);
   if (wordRows.error || metadata.error) throw new Error("Could not load the review workbook facts.");
-  const baseForms = [...new Set([...legacy.map(word => word.base),
+  const baseForms = [...new Set([...rows.flatMap(row => row.active ? [row.active.base] : []),
     ...reviewed.flatMap(bundle => bundle.analyses.flatMap(analysis =>
       analysis.parts.filter(part => part.kind === "base").map(part => part.sourceText)))])];
   const familyRows = baseForms.length ? await db.from("teaching_dictionary_families_with_current_meaning")
@@ -73,17 +78,11 @@ export async function GET(request: Request) {
 
   const bundles: MultiSenseCsvBundle[] = [];
   const notes = new Map<string, string>();
-  for (const id of ids) {
+  for (const { wordId: id, active: old, note } of rows) {
     const word = wordRows.data.find(row => row.id === id);
     if (!word) continue;
     const current = reviewed.find(bundle => bundle.wordId === id);
-    const old = byId.get(id);
-    const issues = candidates.get(id)?.overviewCandidate?.issues.map(issue => issue.message) ?? [];
-    const generated = candidates.get(id)?.generatedIng?.issues.map(issue => issue.message) ?? [];
-    const changedBase = candidates.get(id)?.familyMeaningReview;
-    if (changedBase) issues.unshift(`The family meaning for “${changedBase}” changed. Confirm which family meaning this word should use.`);
-    notes.set(id, current ? [...new Set([...issues, ...generated])].join(" ") || "Confirm the meaning for this lesson."
-      : "Confirm the meaning, pronunciation, word parts and family. Existing lesson facts are suggestions.");
+    notes.set(id, current ? note : `${note} Existing lesson facts are suggestions.`);
     if (current) {
       bundles.push(current);
       continue;
@@ -119,9 +118,13 @@ export async function GET(request: Request) {
 async function workbookResponse(skill: keyof typeof STAGING_ING_LESSONS, batch: number,
   data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families">) {
   const bytes = await buildReviewWorkbook({ skill, title: STAGING_ING_LESSONS[skill], ...data });
+  return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+}
+
+function downloadWorkbook(bytes: Buffer, filename: string) {
   return new NextResponse(new Uint8Array(bytes), { headers: {
     "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "Content-Disposition": `attachment; filename="teaching-dictionary-review-${skill}-${batch}.xlsx"`,
+    "Content-Disposition": `attachment; filename="${filename}"`,
     "Cache-Control": "no-store",
   } });
 }
