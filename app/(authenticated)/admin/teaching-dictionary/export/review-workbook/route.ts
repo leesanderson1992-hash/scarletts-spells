@@ -6,6 +6,8 @@ import { canUpdateIngLesson, isStagingIngSkill, loadActiveIngRelease, loadStagin
 import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
+import { isAbleIblePilot } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 export const dynamic = "force-dynamic";
@@ -16,14 +18,25 @@ export async function GET(request: Request) {
   const skill = params.get("skill");
   const scope = params.get("scope") ?? "review";
   const batch = Number(params.get("batch") ?? "1");
-  if (!canUpdateIngLesson() || !isStagingIngSkill(skill))
-    return new Response("Workbook review is available for the four -ing lessons.", { status: 404 });
+  if (!canUpdateIngLesson() || (!isStagingIngSkill(skill) && !isAbleIblePilot(skill)))
+    return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope !== "review" && scope !== "pool")
     return new Response("This workbook export is unavailable.", { status: 404 });
   if (!Number.isSafeInteger(batch) || batch < 1)
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
   const db = createServiceRoleClient();
+  if (isAbleIblePilot(skill)) {
+    const { rows, current } = await loadAbleIbleReview(db);
+    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook("-able/-ible", current),
+      `teaching-dictionary-active-pool-${skill}.xlsx`);
+    const batchRows = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
+    if (!batchRows.length && batch !== 1) return new Response("No words need review in this batch.", { status: 404 });
+    const data = await loadAbleIbleWorkbook(db, batchRows.map(row => row.id));
+    const bytes = await buildReviewWorkbook({ skill, title: "-able/-ible", ...data,
+      notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map() });
+    return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+  }
   if (scope === "pool") {
     const { released } = await loadActiveIngRelease(db, skill);
     const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], released.filter(word => word.microSkillKey === skill));

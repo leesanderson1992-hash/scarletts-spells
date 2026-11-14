@@ -13,6 +13,9 @@ import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candi
 import { routeForSkill } from "@/lib/teaching-dictionary-manager/contracts";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
 import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuses } from "@/lib/teaching-dictionary-manager/ing-staging-release";
+import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { isAbleIblePilot, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
@@ -48,16 +51,17 @@ export async function importReviewedMultiSenseCsv(
   const actor = await requireAdminUser();
   const workbook = form.get("review_workbook");
   const skill = form.get("workbook_skill");
-  if (workbook && (!canUpdateIngLesson() || !isStagingIngSkill(skill)))
-    return { error: "Workbook review is available for the four -ing lessons." };
+  if (workbook && !supportsReviewWorkbook(skill))
+    return { error: "Workbook review is unavailable for this lesson." };
   const file = workbook ?? form.get("multi_sense_csv");
   if (!(file instanceof File) || !file.size || file.size > MAX_DICTIONARY_CSV_BYTES)
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   const db = createServiceRoleClient();
   let familyTasks: WorkbookFamilyTask[] | undefined;
+  let suffixFacts = new Map<number, SuffixWorkbookFacts>();
   let entries: ReturnType<typeof prepareReviewedCsv>;
   try {
-    if (workbook && isStagingIngSkill(skill)) {
+    if (workbook && supportsReviewWorkbook(skill)) {
       const rawTarget = form.get("family_target_row");
       const targetRow = typeof rawTarget === "string" ? Number(rawTarget) : undefined;
       const rawDecisions = form.get("family_decisions");
@@ -68,12 +72,13 @@ export async function importReviewedMultiSenseCsv(
           (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
           (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
         throw new Error("Choose a valid family decision.");
-      const { csv, rowNumbers, pendingFamilies } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+      const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
           : approvedWorkbookFamily(db, decision.familyKey ?? ""),
       });
+      suffixFacts = workbookSuffixFacts;
       familyTasks = pendingFamilies;
       entries = !rowNumbers.length ? [] : prepareReviewedCsv(csv).map(entry => {
         const rows = entry.rows.map(row => rowNumbers[row - 2]);
@@ -93,6 +98,14 @@ export async function importReviewedMultiSenseCsv(
     if (!bundle) {
       issues.push({ word, rows, reason: error ?? "Check the word facts." });
       continue;
+    }
+    if (workbook && isAbleIblePilot(skill)) {
+      const blockers = bundle.analyses.flatMap((analysis, index) => analysis.requestedSkillKeys.length
+        ? suffixWorkbookIssues(suffixFacts.get(rows[index])) : []);
+      if (blockers.length) {
+        issues.push({ word, rows, reason: [...new Set(blockers)].join(" ") });
+        continue;
+      }
     }
     const applied = await db.rpc("import_reviewed_teaching_dictionary_word", {
       p_request_id: randomUUID(), p_word_id: bundle.wordId || null, p_display_word: bundle.displayWord,
@@ -125,11 +138,16 @@ export async function importReviewedMultiSenseCsv(
             senseIds: { [wordId]: analysis.senseId }, requestId: randomUUID(),
             sourceKind: "teaching_dictionary_import", workbookReadback: Boolean(workbook) });
           if (result.ok) {
+            if (workbook && isAbleIblePilot(skillKey)) {
+              await stageAbleIbleWord(db, actor.id, { ...bundle, wordId }, analysis.senseId, suffixFacts.get(rows[index])!);
+              lesson.release = "Ready for publish preview";
+            }
             lesson.approval = result.approvedCount ? "Approved" : "Already approved";
             approved += result.approvedCount;
             alreadyApproved += result.alreadyAssignedCount;
           } else report(result.blocked[0]?.reason ?? result.error ?? "Recheck this lesson request.");
-        } catch { report("The lesson check could not finish. Recheck the saved request."); }
+        } catch (error) { report(workbook && isAbleIblePilot(skillKey) && error instanceof Error
+          ? error.message : "The lesson check could not finish. Recheck the saved request."); }
       }
     }
     revalidatePath(`/admin/teaching-dictionary/${wordId}`);
@@ -149,6 +167,7 @@ export async function importReviewedMultiSenseCsv(
           : statuses.get(row.wordId) ?? "Release review needed";
         return;
       }
+      if (workbook && skillKey === ABLE_IBLE_SKILL) return;
       const routeId = results[0].routeId;
       const [lesson] = routeId ? await loadLessonReadiness({ routeId, microSkillKey: skillKey }) : [];
       for (const row of results) row.release = !lesson ? "No lesson release status"
@@ -164,7 +183,7 @@ export async function importReviewedMultiSenseCsv(
 
 export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
-  if (!canUpdateIngLesson() || !isStagingIngSkill(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
+  if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
   return loadWorkbookFamilyChoices(createServiceRoleClient(), base);
 }

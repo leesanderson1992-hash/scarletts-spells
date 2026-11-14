@@ -1,4 +1,6 @@
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
+import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "./able-ible-workbook";
+import { DICTIONARY_BANDS } from "./contracts";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
@@ -12,8 +14,10 @@ const sheetName = "Words to review";
 const headerRow = 3;
 const csvColumns = MULTI_SENSE_CSV_COLUMNS.filter(key => key !== "requested_micro_skills");
 const priority = ["display_word", "definition", "part_of_speech", "family_key", "dictation_sentence"];
-const keys = [...priority.slice(0, 3), "use_in_lesson", "needs_review", ...priority.slice(3),
+const reviewKeys = [...priority.slice(0, 3), "use_in_lesson", "needs_review", ...priority.slice(3),
   ...csvColumns.filter(key => !priority.includes(key))];
+const suffixFields = ["age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
+const workbookKeys = (skill: string) => skill === ABLE_IBLE_SKILL ? [...reviewKeys, ...suffixFields] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
   display_word: "Word", definition: "Meaning", family_key: "Word family",
@@ -21,7 +25,9 @@ const label = (key: string) => ({
 }[key] ?? key.replace(/^part_(\d+)_/, "Part $1 ").replaceAll("_", " ").replace(/^./, char => char.toUpperCase()));
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
-  notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]> }) {
+  notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
+  suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts> }) {
+  const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
   sheet.columns = keys.map(key => ({ key, width: key === "definition" || key === "needs_review" ? 43
@@ -46,7 +52,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
     ].filter(Boolean).join(" ");
-    const row = sheet.addRow({ ...entry, use_in_lesson: "Review", needs_review: notes });
+    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     row.getCell("use_in_lesson").dataValidation = { type: "list", allowBlank: false, formulae: ['"Review,Yes,No"'],
@@ -60,6 +66,13 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     row.getCell("family_key").dataValidation = { type: "list", allowBlank: true, formulae: [rangeName] };
     row.getCell("part_of_speech").dataValidation = { type: "list", allowBlank: true,
       formulae: ['"verb,noun,adjective,adverb,pronoun,preposition,conjunction,determiner,interjection,root"'] };
+    if (input.skill === ABLE_IBLE_SKILL) {
+      const bandOptions = [DICTIONARY_BANDS.ageBand, DICTIONARY_BANDS.frequencyBand, DICTIONARY_BANDS.complexityBand, ["Yes", "No"]];
+      suffixFields.forEach((key, index) => {
+        row.getCell(key).dataValidation = { type: "list", allowBlank: true, formulae: [`"${bandOptions[index].join(",")}"`],
+          showErrorMessage: true, error: "Choose a value from the list." };
+      });
+    }
     for (const key of ["use_in_lesson", "family_key", "definition", "part_of_speech", "dictation_sentence"]) {
       if (key !== "use_in_lesson" && entry[key]) continue;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
@@ -67,11 +80,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   }
   sheet.autoFilter = { from: { row: headerRow, column: 1 }, to: { row: headerRow, column: keys.length } };
   const rule = ING_RULE_FOR_SKILL[input.skill as IngMicroSkill];
-  const wordPartsExample = rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
+  const wordPartsExample = input.skill === ABLE_IBLE_SKILL ? "For washable, enter wash as the base and able as the suffix." : rule === "ie_to_y" ? "For tying, enter tie as the underlying form and ty as the visible letters."
     : rule === "double_final_consonant" ? "For hopping, enter hop as the underlying form and hopp as the visible letters."
       : rule === "regular" ? "For walking, enter walk as both forms."
         : "For caring, enter care as the underlying form and car as the visible letters.";
-  const spellingChangeExample = rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."
+  const spellingChangeExample = input.skill === ABLE_IBLE_SKILL ? "For noticeable, retain notice as the underlying form and visible letters." : rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."
     : rule === "double_final_consonant"
       ? "For beginning, the final syllable of begin has primary stress. Enter unstressed-primary-unstressed for beginning."
       : rule === "regular" ? "For walking, the base walk stays the same."
@@ -89,11 +102,15 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
+  if (input.skill === ABLE_IBLE_SKILL) guide.addRows([
+    ["Dictionary bands", "Use the dropdowns to choose the word’s age, frequency and complexity bands."],
+    ["Has schwa", "Choose Yes or No for the selected British pronunciation."],
+  ]);
   guide.getRow(1).font = { bold: true, color: { argb: "FFA7135A" } };
   return Buffer.from(await workbook.xlsx.writeBuffer());
 }
 
-export async function buildLessonPoolWorkbook(title: string, words: readonly IngDictionaryWordV1[]) {
+export async function buildLessonPoolWorkbook(title: string, words: readonly Pick<IngDictionaryWordV1, "word" | "canonicalWordId" | "base" | "meaning" | "dictationSentence" | "pronunciationIpa" | "senseId">[]) {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Active lesson pool", { views: [{ state: "frozen", xSplit: 1, ySplit: 2 }] });
   sheet.getCell("A1").value = title;
@@ -124,6 +141,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   } });
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(file);
+  const keys = workbookKeys(skill);
   const sheet = workbook.getWorksheet(sheetName);
   if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== label(key)))
     throw new Error("Use the review workbook for this micro-skill and keep its column headings.");
@@ -178,7 +196,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
         row[`part_${part}_meaning`] ||= family.meaning;
       }
       row.component_part_id = row[`part_${part}_id`] || `part_${part}`;
-      row.relationship_kind ||= "regular_inflection";
+      row.relationship_kind ||= skill === ABLE_IBLE_SKILL ? "derived" : "regular_inflection";
     }
     if (tasks.length) pendingFamilies.push(...tasks);
     else records.push(...group);
@@ -191,5 +209,6 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     return MULTI_SENSE_CSV_COLUMNS.map(key => key === "requested_micro_skills"
       ? row.use_in_lesson === "Yes" ? skill : "" : row[key] ?? "");
   })].map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(",")).join("\r\n");
-  return { csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
+  return { suffixFacts: new Map(records.filter(row => row.use_in_lesson === "Yes").map(row => [Number(row.workbook_row),
+    { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }

@@ -31,9 +31,9 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, view, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, allowsBlankWorkbook, view, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
-  fullPoolSize: number | null;
+  fullPoolSize: number | null; allowsBlankWorkbook: boolean;
   view: "export" | "workbook" | "preview"; children: ReactNode;
 }) {
   const router = useRouter();
@@ -122,7 +122,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
       {nextLesson ? `Opening ${nextLesson.label}…` : "Loading lesson filters…"}
     </p> : !selected ? <p className="rounded-xl bg-[color:var(--mist)] p-4">Choose a cluster and micro-skill to start reviewing words.</p>
       : !supported ? <p className="rounded-xl bg-[color:var(--mist)] p-4">
-        Choose an -ing micro-skill for workbook review.</p> : <>
+        Workbook review is unavailable for this micro-skill.</p> : <>
       <nav aria-label="Bulk review steps" className="grid gap-2 sm:grid-cols-4">
         {steps.map((label, index) => <button key={label} type="button" aria-current={step === index ? "step" : undefined}
           disabled={pending || navigating} onClick={() => openStep(index)}
@@ -139,7 +139,11 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
           <a key={index} className={actionClass} download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&batch=${index + 1}`}>
             {batches === 1 ? "Download review workbook" : `Download workbook ${index + 1}`}
-          </a>)}</div> : batches === 0 ? <p>No words need review for this lesson.</p> : null}
+          </a>)}</div> : batches === 0 ? <>
+          <p>No words need review for this lesson.</p>
+          {allowsBlankWorkbook && <a className={actionClass} download
+            href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}`}>Download blank workbook</a>}
+        </> : null}
         {fullPoolSize !== null && <div className="space-y-1 border-t border-[var(--border)] pt-3">
           <a className="font-semibold underline" download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&scope=pool`}>

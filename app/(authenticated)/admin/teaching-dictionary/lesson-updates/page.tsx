@@ -6,6 +6,9 @@ import { canUpdateIngLesson, findPreparedStagingIngRelease, isStagingIngSkill, l
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
+import { isAbleIblePilot } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
+import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { publishAbleIbleLesson } from "./able-ible-actions";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
 const button = "rounded-lg bg-[var(--scarlett)] px-4 py-2 font-semibold text-white";
@@ -20,8 +23,9 @@ export default async function LessonUpdates({ searchParams }: {
   const view = params.published || params.error || params.view === "preview" ? "preview"
     : params.view === "workbook" ? "workbook" : "export";
   const skill = isStagingIngSkill(params.skill) ? params.skill : null;
-  const supported = canUpdateIngLesson() && Boolean(skill);
-  const [clusterRows, skillRows, result] = await Promise.all([
+  const suffixPilot = isAbleIblePilot(params.skill);
+  const supported = suffixPilot || canUpdateIngLesson() && Boolean(skill);
+  const [clusterRows, skillRows, result, suffix] = await Promise.all([
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
@@ -29,6 +33,7 @@ export default async function LessonUpdates({ searchParams }: {
       ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
+    suffixPilot && view !== "workbook" ? loadAbleIbleReview(db) : Promise.resolve(null),
   ]);
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const selected = params.skill ?? "";
@@ -55,8 +60,23 @@ export default async function LessonUpdates({ searchParams }: {
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
-      fullPoolSize={update?.current.length ?? null}
-      batches={review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+      fullPoolSize={suffix?.current.length ?? update?.current.length ?? null}
+      allowsBlankWorkbook={suffixPilot}
+      batches={suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>
+    {suffix && view === "preview" && <section className={card}>
+      <h2 className="text-xl font-semibold">Preview the -able/-ible lesson update</h2>
+      {params.error && <p role="alert">{params.error}</p>}
+      {params.published && <p role="status">The updated -able/-ible pool is active.</p>}
+      <p>{suffix.current.length} active words · {suffix.lesson.reviewedCandidateIds.length} reviewed updates</p>
+      <ul className="list-disc pl-5">{suffix.lesson.words.filter(word => word.reviewedDraftId).map(word =>
+        <li key={word.id}><Link className="underline" href={word.editHref}>{word.word}</Link>
+          {word.blockers.length ? ` · ${word.blockers.join(" ")}` : ""}</li>)}</ul>
+      {suffix.lesson.blockers.map(blocker => <p key={blocker}>{blocker}</p>)}
+      {suffix.lesson.status === "ready_to_launch" && <form action={publishAbleIbleLesson}>
+        <input type="hidden" name="fingerprint" value={suffix.lesson.preflightFingerprint} />
+        <ActionSubmitButton className={button} pendingLabel="Publishing -able/-ible update…">Publish -able/-ible update</ActionSubmitButton>
+      </form>}
+    </section>}
     {update && view === "preview" && <>
       {update.meaningChoices.length > 0 && <section className={card}>
         <h2 className="text-xl font-semibold">Choose lesson meanings</h2>
