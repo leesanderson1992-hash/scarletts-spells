@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
-import { DIS_MIS_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { DIS_MIS_PREFIX_SKILL, NEGATIVE_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
@@ -169,13 +169,43 @@ async function main() {
     ["again or back", "before"]);
   rePreSheet.getCell("E5").value = "Again or back";
   await assert.rejects(readReviewWorkbook(await rePreUpload(), RE_PRE_PREFIX_SKILL), /row 5: choose Before/);
+  const negatives = new ExcelJS.Workbook();
+  await negatives.xlsx.load(await buildReviewWorkbook({ skill: NEGATIVE_PREFIX_SKILL, title: "Negative prefixes",
+    bundles: [], notes: new Map(), families: new Map() }));
+  const negativeSheet = negatives.getWorksheet("Words to review")!;
+  assert.equal(negativeSheet.getCell("E3").text, "Prefix form");
+  for (const row of [4, 103])
+    assert.deepEqual(negativeSheet.getCell(`E${row}`).dataValidation.formulae, ['"in-,im-,il-,ir-"']);
+  const negativeHeaders = negativeSheet.getRow(3).values as string[];
+  const forms = [["in", "accurate"], ["im", "perfect"], ["il", "logical"], ["ir", "rational"]] as const;
+  for (const [index, [prefix, base]] of forms.entries()) {
+    const word = prefix + base;
+    for (const [key, value] of Object.entries({
+      ...values, Word: word, "Prefix meaning group": undefined, "Prefix form": index ? prefix + "-" : "",
+      "Word family": base, "Dictation sentence": `That is ${word}.`, "Dictation target token index": 2,
+      "Part 1 underlying form": prefix, "Part 1 visible letters": prefix,
+      "Part 2 underlying form": base, "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
+    })) if (value !== undefined) negativeSheet.getCell(index + 4, negativeHeaders.indexOf(key)).value = value;
+  }
+  const negativeUpload = async () => Uint8Array.from(await negatives.xlsx.writeBuffer()).buffer;
+  const parsedNegatives = await readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL);
+  assert.deepEqual([...parsedNegatives.prefixMeanings.values()], ["in", "im", "il", "ir"]);
+  assert.deepEqual(parseMultiSenseCsv(parsedNegatives.csv).map(word => word.analyses[0].parts[0].gloss),
+    ["not", "not", "not", "not"]);
+  negativeSheet.getCell("E5").value = "il-";
+  await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: choose im- under Prefix form/);
+  negativeSheet.getCell("E5").value = "im-";
+  negativeSheet.getCell("A5").value = "imlogical";
+  await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: use il- before l/);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "staging";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://qkpjbajicacbrphthibk.supabase.co";
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
+  assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), true);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "production";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
   assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
+  assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), false);
   assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }

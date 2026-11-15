@@ -19,7 +19,9 @@ export async function approvedWorkbookFamily(db: Db, key: string, includeRoots =
     ? { key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind } : null;
 }
 
-async function loadWorkbookBases(db: Db, base: string) {
+type WorkbookBasePartOfSpeech = "verb" | "adjective";
+
+async function loadWorkbookBases(db: Db, base: string, partOfSpeech: WorkbookBasePartOfSpeech) {
   const word = await db.from("canonical_teaching_dictionary_words").select("id,display_word")
     .eq("normalised_word", base).eq("dialect_code", "en-GB").eq("row_status", "active")
     .eq("review_status", "approved_for_first_exposure").maybeSingle();
@@ -37,19 +39,20 @@ async function loadWorkbookBases(db: Db, base: string) {
       const parts = analyses.data.find(row => row.sense_id === sense.id)?.morphology_parts as CanonicalPart[] | undefined;
       const part = parts?.find(item => item.kind === "base" && item.sourceText === base
         && item.surfaceText === word.data?.display_word);
-      if (part && sense.partOfSpeech === "verb")
+      if (part && sense.partOfSpeech === partOfSpeech)
         bases.push({ wordId, senseId: sense.id, partId: part.id, meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
     }
   }
   return { bases, baseWordId: word.data?.id ?? null };
 }
 
-export async function loadWorkbookFamilyChoices(db: Db, base: string, includeRoots = false) {
+export async function loadWorkbookFamilyChoices(db: Db, base: string, includeRoots = false,
+  basePartOfSpeech: WorkbookBasePartOfSpeech = "verb") {
   const [familyRows, reviewedBases] = await Promise.all([
     db.from("teaching_dictionary_families_with_current_meaning")
       .select("family_key,base_lemma,base_meaning,base_part_of_speech,review_status,base_kind")
       .eq("base_lemma", base).order("revision", { ascending: false }),
-    loadWorkbookBases(db, base),
+    loadWorkbookBases(db, base, basePartOfSpeech),
   ]);
   if (familyRows.error) throw new Error("Could not load the approved word families.");
   const families: WorkbookFamily[] = [];
@@ -60,13 +63,14 @@ export async function loadWorkbookFamilyChoices(db: Db, base: string, includeRoo
     if (row.review_status === "approved" && (row.base_kind === "free_base" || (includeRoots && row.base_kind === "bound_root")))
       families.push({ key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind });
   }
-  return { families, ...reviewedBases };
+  return { families, ...reviewedBases, basePartOfSpeech };
 }
 
-export async function createWorkbookFamily(db: Db, actor: string, base: string, senseId: string) {
-  const { bases } = await loadWorkbookBases(db, base);
+export async function createWorkbookFamily(db: Db, actor: string, base: string, senseId: string,
+  basePartOfSpeech: WorkbookBasePartOfSpeech = "verb") {
+  const { bases } = await loadWorkbookBases(db, base, basePartOfSpeech);
   const choice = bases.find(item => item.senseId === senseId);
-  if (!choice) throw new Error("Choose a reviewed verb meaning for the base.");
+  if (!choice) throw new Error(`Choose a reviewed ${basePartOfSpeech} meaning for the base.`);
   const existing = async () => {
     const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key")
       .eq("canonical_base_word_id", choice.wordId).eq("canonical_base_sense_id", choice.senseId)

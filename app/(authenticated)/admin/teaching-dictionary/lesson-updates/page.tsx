@@ -14,7 +14,7 @@ import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute } 
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { writtenSyllableBlockers } from "@/lib/teaching-dictionary-manager/authoring";
 import { DICTIONARY_BANDS } from "@/lib/teaching-dictionary-manager/contracts";
-import { prefixWorkbookChoice, prefixWorkbookEnabled, PREFIX_PUBLISH_BATCH_SIZE } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbookFieldLabel, PREFIX_PUBLISH_BATCH_SIZE } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { loadPendingPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
 import { publishPrefixWorkbookWords, savePrefixWorkbookDetails } from "./prefix-actions";
 import { publishAbleIbleLesson } from "./able-ible-actions";
@@ -114,7 +114,7 @@ export default async function LessonUpdates({ searchParams }: {
           <input type="hidden" name="word_id" value={row.wordId} />
           <input type="hidden" name="draft_id" value={row.id} />
           <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
-          <p className="text-sm">{row.payload.definition} · Meaning group {prefixWorkbookChoice(prefixSkill, row.payload.routeContents[0]?.content.meaningBinKey)?.label ?? "Needs review"}</p>
+          <p className="text-sm">{row.payload.definition} · {prefixWorkbookFieldLabel(prefixSkill)} {prefixWorkbookChoice(prefixSkill, row.payload.routeContents[0]?.content.meaningBinKey)?.label ?? "Needs review"}</p>
           {row.blockers.length > 0 && <>
             <ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
             <div className="grid gap-2 sm:grid-cols-2">

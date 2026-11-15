@@ -16,7 +16,7 @@ import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuse
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
-import { prefixWorkbookChoice, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { NEGATIVE_PREFIX_SKILL, prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbookFieldLabel } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { loadPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
@@ -79,7 +79,7 @@ export async function importReviewedMultiSenseCsv(
       const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
-          ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
+          ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb")
           : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
       });
       suffixFacts = workbookSuffixFacts;
@@ -146,7 +146,7 @@ export async function importReviewedMultiSenseCsv(
             lesson.release = row && !row.blockers.length ? `Ready to publish · ${label}` : `Complete missing facts in Preview · ${label}`;
           } catch (error) {
             report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
-            lesson.release = "Meaning group needs review";
+            lesson.release = `${prefixWorkbookFieldLabel(skillKey)} needs review`;
           }
           continue;
         }
@@ -211,5 +211,6 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   await requireAdminUser();
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
-  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, skill === ABLE_IBLE_SKILL);
+  return loadWorkbookFamilyChoices(createServiceRoleClient(), base, skill === ABLE_IBLE_SKILL,
+    skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb");
 }

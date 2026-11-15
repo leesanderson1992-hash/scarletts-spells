@@ -7,7 +7,8 @@ import { emptyMetadata, emptyMorphology, routeForSkill, routeWithSharedFacts,
 import { normaliseWrittenSyllableBreakdown, writtenSyllableBlockers } from "./authoring";
 import { inheritFamilyPartMeanings } from "./family-part-meanings";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
-import { prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
+import { NEGATIVE_PREFIX_SKILL, negativePrefixForBase, prefixWorkbookChoice, prefixWorkbookEnabled,
+  prefixWorkbooks, type PrefixWorkbookSkill } from "./prefix-workbook";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 
@@ -47,6 +48,8 @@ export async function stagePrefixWorkbookDraft(db: Db, actorId: string, bundle: 
   const prefix = parts[0];
   if (prefix?.kind !== "prefix" || prefix.sourceText !== choice.prefix || prefix.surfaceText !== choice.prefix)
     throw new Error("The reviewed prefix part must match the selected meaning group.");
+  if (skill === NEGATIVE_PREFIX_SKILL && prefix.surfaceText !== negativePrefixForBase(bundle.displayWord.slice(prefix.surfaceText.length)))
+    throw new Error("Use the negative prefix form that matches the first letter of the base.");
   const facts = word.data;
   const priorPayload = previous.data?.payload as WordDraftPayload | undefined;
   const prior = priorPayload?.skillSenseIds?.[skill] === senseId

@@ -2,7 +2,8 @@ import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from
 import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbookFacts } from "./able-ible-workbook";
 import { DICTIONARY_BANDS } from "./contracts";
 import { UN_PREFIX_SKILL } from "./prefix-content";
-import { isPrefixWorkbookSkill, prefixWorkbooks } from "./prefix-workbook";
+import { isPrefixWorkbookSkill, NEGATIVE_PREFIX_SKILL, negativePrefixForBase, prefixWorkbookFieldLabel,
+  prefixWorkbooks } from "./prefix-workbook";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
@@ -30,6 +31,7 @@ const label = (key: string) => ({
   display_word: "Word", definition: "Meaning", family_key: "Word family",
   use_in_lesson: "Use in lesson", needs_review: "Needs review", ipa: "IPA",
 }[key] ?? key.replace(/^part_(\d+)_/, "Part $1 ").replaceAll("_", " ").replace(/^./, char => char.toUpperCase()));
+const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ? prefixWorkbookFieldLabel(skill) : label(key);
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
@@ -43,7 +45,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   sheet.getCell("A1").font = { bold: true, size: 15, color: { argb: "FF0F172A" } };
   sheet.getCell("A2").value = input.skill;
   sheet.getRow(2).hidden = true;
-  sheet.getRow(headerRow).values = keys.map(label);
+  sheet.getRow(headerRow).values = keys.map(key => workbookLabel(input.skill, key));
   sheet.getRow(headerRow).height = 28;
   sheet.getRow(headerRow).eachCell(cell => {
     cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
@@ -130,6 +132,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       : rule === "regular" ? "For walking, enter walk as both forms."
         : rule === "drop_e" ? "For caring, enter care as the underlying form and car as the visible letters."
           : input.skill === UN_PREFIX_SKILL ? "For unkind, enter un as the prefix and kind as the base."
+            : input.skill === NEGATIVE_PREFIX_SKILL ? "For illegal, enter il as the prefix and legal as the base."
             : prefixWorkbook ? "For misread, enter mis as the prefix and read as the base."
               : "Enter the underlying form and visible letters for each part.";
   const spellingChangeExample = input.skill === ABLE_IBLE_SKILL ? "For noticeable, retain notice as the underlying form and visible letters." : rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."
@@ -155,9 +158,13 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     "Prefix meaning group",
     "Choose Not or Reverse for the meaning used in the lesson. Uploading fills the meaning of the un- word part and the ADLE Meaning group. Choose Not for untidy and Reverse for unlock.",
   ]);
-  if (prefixWorkbook && input.skill !== UN_PREFIX_SKILL) guide.addRow([
-    "Prefix meaning group",
-    "Choose Not or opposite for dis- and Wrongly or badly for mis-. If you leave this blank, upload uses the group for the prefix you enter.",
+  if (input.skill === NEGATIVE_PREFIX_SKILL) guide.addRow([
+    prefixWorkbookFieldLabel(input.skill),
+    "All four forms mean not. Use im- before b, m or p, il- before l, ir- before r, and in- before other letters. Leave this blank to use the form you entered in Word parts.",
+  ]);
+  else if (prefixWorkbook && input.skill !== UN_PREFIX_SKILL) guide.addRow([
+    prefixWorkbookFieldLabel(input.skill),
+    `Choose ${prefixWorkbook.choices.map(choice => `${choice.label} for ${choice.prefix}-`).join(" and ")}. Leave this blank to use the group for the prefix you enter.`,
   ]);
   if (blankPrefixWorkbook) guide.addRows([
     ["New words", "Start on the first blank row. Enter the spelling, meaning, part of speech, IPA, spoken syllable count, stress and dictation. The upload fills the hidden IDs."],
@@ -206,9 +213,9 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   await workbook.xlsx.load(file);
   const sheet = workbook.getWorksheet(sheetName);
   const prefixWorkbook = isPrefixWorkbookSkill(skill) ? prefixWorkbooks[skill] : null;
-  const hasPrefixChoice = prefixWorkbook && sheet?.getCell(headerRow, 5).value === label(prefixMeaningKey);
+  const hasPrefixChoice = prefixWorkbook && sheet?.getCell(headerRow, 5).value === workbookLabel(skill, prefixMeaningKey);
   const keys = skill === UN_PREFIX_SKILL && !hasPrefixChoice ? reviewKeys : workbookKeys(skill);
-  if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== label(key)))
+  if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== workbookLabel(skill, key)))
     throw new Error("Use the review workbook for this micro-skill and keep its column headings.");
   if (sheet.rowCount > 2000 + headerRow) throw new Error("Upload at most 2,000 meaning rows.");
   const groups = new Map<string, Record<string, string>[]>();
@@ -255,7 +262,12 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
       const entered = row[prefixMeaningKey].toLowerCase();
       const available = choices.filter(choice => choice.prefix === prefix);
       const choice = !entered && available.length === 1 ? available[0] : available.find(choice => choice.label.toLowerCase() === entered);
-      if (!choice) throw new Error(`Workbook row ${row.workbook_row}: choose ${available.map(option => option.label).join(" or ")} under Prefix meaning group.`);
+      if (!choice) throw new Error(`Workbook row ${row.workbook_row}: choose ${available.map(option => option.label).join(" or ")} under ${prefixWorkbookFieldLabel(skill)}.`);
+      if (skill === NEGATIVE_PREFIX_SKILL) {
+        const following = row.display_word.slice(prefix.length);
+        const expected = negativePrefixForBase(following);
+        if (prefix !== expected) throw new Error(`Workbook row ${row.workbook_row}: use ${expected}- before ${following[0]?.toLowerCase()}.`);
+      }
       row[`part_${parts[0]}_meaning`] = choice.gloss;
       row[prefixMeaningKey] = choice.id;
     }

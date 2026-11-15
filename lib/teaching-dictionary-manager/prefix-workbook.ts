@@ -3,6 +3,7 @@ import { ingReviewEnvironment } from "./ing-staging-scope";
 
 export const DIS_MIS_PREFIX_SKILL = "D4_MOR_PREFIXES_DIS_MIS";
 export const RE_PRE_PREFIX_SKILL = "D4_MOR_PREFIXES_RE_PRE";
+export const NEGATIVE_PREFIX_SKILL = "D4_MOR_PREFIXES_IN_IM_IL_IR";
 export const PREFIX_WORKBOOK_ROUTE = "dynamic_prefix_word_lab";
 export const PREFIX_PUBLISH_BATCH_SIZE = 30;
 
@@ -33,6 +34,16 @@ export const prefixWorkbooks = {
       { id: "before", label: "Before", prefix: "pre", gloss: "before" },
     ],
   },
+  [NEGATIVE_PREFIX_SKILL]: {
+    title: "Negative prefixes in-, im-, il- and ir-",
+    source: "Reviewed in-, im-, il- and ir- Bulk review",
+    choices: [
+      { id: "in", label: "in-", prefix: "in", gloss: "not" },
+      { id: "im", label: "im-", prefix: "im", gloss: "not" },
+      { id: "il", label: "il-", prefix: "il", gloss: "not" },
+      { id: "ir", label: "ir-", prefix: "ir", gloss: "not" },
+    ],
+  },
 } satisfies Record<string, { title: string; source: string; choices: PrefixWorkbookChoice[] }>;
 
 export type PrefixWorkbookSkill = keyof typeof prefixWorkbooks;
@@ -42,7 +53,21 @@ export function isPrefixWorkbookSkill(skill: unknown): skill is PrefixWorkbookSk
 }
 
 export function prefixWorkbookEnabled(skill: unknown): skill is PrefixWorkbookSkill {
-  return ingReviewEnvironment() !== null && isPrefixWorkbookSkill(skill);
+  const environment = ingReviewEnvironment();
+  return isPrefixWorkbookSkill(skill) &&
+    (environment === "staging" || (environment === "production" && skill !== NEGATIVE_PREFIX_SKILL));
+}
+
+export function prefixWorkbookFieldLabel(skill: string) {
+  return skill === NEGATIVE_PREFIX_SKILL ? "Prefix form" : "Prefix meaning group";
+}
+
+export function negativePrefixForBase(base: string) {
+  const initial = base[0]?.toLowerCase();
+  if (initial === "l") return "il";
+  if (initial === "r") return "ir";
+  if (initial === "b" || initial === "m" || initial === "p") return "im";
+  return "in";
 }
 
 export function prefixWorkbookChoice(skill: PrefixWorkbookSkill, meaning: unknown) {
