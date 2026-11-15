@@ -100,6 +100,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
   client: SupabaseClient;
   environmentKey: "local" | "staging" | "production";
   microSkillKeys: readonly string[];
+  includePaused?: boolean;
 }): Promise<ActivatedBaseWordReleaseAuthority[]> {
   const { data: heads, error: headsError } = await params.client
     .from("adle_route_activation_heads")
@@ -118,7 +119,7 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
     .in("id", revisionIds);
   if (revisionsError) queryError("Base Word release activation revisions", revisionsError);
   const enabledRevisions = (revisions ?? []).filter((row: any) =>
-    row.activation_status === "enabled" && row.environment_key === params.environmentKey &&
+    (row.activation_status === "enabled" || params.includePaused && row.activation_status === "paused") && row.environment_key === params.environmentKey &&
     row.route_id === "base_word_lab" && row.route_version === "v2" &&
     row.activation_route_key === "base_word_family_v1" &&
     params.microSkillKeys.includes(row.micro_skill_key),
@@ -201,17 +202,19 @@ export async function loadEnabledBaseWordReleaseAuthorities(params: {
     if (!familyAuthority || !teachingAuthority || !closureAuthority || !family || !teachingContent ||
         !baseWordFamilyAuthorityAppliesToMicroSkill(family, revision.micro_skill_key) || teachingContent.microSkillKey !== revision.micro_skill_key ||
         dictionaryWords.length === 0) continue;
-    const { data: current, error: currentError } = await params.client.rpc(
-      "adle_route_activation_revision_is_current_v2",
-      {
-        p_activation_revision_id: revision.id,
-        p_release_manifest_id: release.id,
-        p_release_manifest_sha256: release.release_manifest_sha256,
-        p_dependency_fingerprint: release.dependency_fingerprint,
-      },
-    );
-    if (currentError) queryError("Base Word activation revision CAS", currentError);
-    if (current !== true) continue;
+    if (revision.activation_status === "enabled") {
+      const { data: current, error: currentError } = await params.client.rpc(
+        "adle_route_activation_revision_is_current_v2",
+        {
+          p_activation_revision_id: revision.id,
+          p_release_manifest_id: release.id,
+          p_release_manifest_sha256: release.release_manifest_sha256,
+          p_dependency_fingerprint: release.dependency_fingerprint,
+        },
+      );
+      if (currentError) queryError("Base Word activation revision CAS", currentError);
+      if (current !== true) continue;
+    }
     resolved.push({
       activationRevisionId: revision.id,
       environmentKey: revision.environment_key,

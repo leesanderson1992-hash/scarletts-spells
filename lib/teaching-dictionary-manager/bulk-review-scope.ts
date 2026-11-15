@@ -6,10 +6,10 @@ import { isSuffixReviewSkill, ABLE_IBLE_SKILL, FUL_LESS_SKILL } from "./able-ibl
 import { IDENTIFY_BASE_SKILL } from "./lesson-candidate";
 export { IDENTIFY_BASE_SKILL };
 export const isIdentifyBaseReview = (skill: unknown): skill is typeof IDENTIFY_BASE_SKILL =>
-  skill === IDENTIFY_BASE_SKILL && ingReviewEnvironment() === "staging";
+  skill === IDENTIFY_BASE_SKILL && ingReviewEnvironment() !== null;
 
 export function isSuffixWorkbookPilot(skill: unknown): skill is typeof ABLE_IBLE_SKILL | typeof FUL_LESS_SKILL {
-  return isSuffixReviewSkill(skill) && ingReviewEnvironment() === "staging";
+  return isSuffixReviewSkill(skill) && ingReviewEnvironment() !== null;
 }
 
 const specialistRoutes: Readonly<Record<string, string>> = {
@@ -25,7 +25,7 @@ const specialistRoutes: Readonly<Record<string, string>> = {
 };
 
 export function specialistWorkbookRoute(skill: unknown) {
-  return ingReviewEnvironment() === "staging" && typeof skill === "string" && Object.hasOwn(specialistRoutes, skill)
+  return ingReviewEnvironment() !== null && typeof skill === "string" && Object.hasOwn(specialistRoutes, skill)
     ? specialistRoutes[skill] : null;
 }
 

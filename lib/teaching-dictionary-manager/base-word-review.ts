@@ -7,27 +7,36 @@ import { baseWordMemberSelectable } from "@/lib/adle/base-word-regularity";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
 import { evaluateLessonCandidate } from "./lesson-candidate";
 import { IDENTIFY_BASE_SKILL } from "./bulk-review-scope";
+import { ingReviewEnvironment } from "./ing-staging-scope";
+import { loadBaseWordSelectionPool } from "@/lib/adle/loaders/base-word-family-pilot-loader";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 
 export async function loadIdentifyBaseReview(db: Db, includeBundles = false, skill: string = IDENTIFY_BASE_SKILL) {
-  const [release] = await loadEnabledBaseWordReleaseAuthorities({
-    client: db, environmentKey: "staging", microSkillKeys: [skill],
-  });
-  if (!release) throw new Error("The staging Identify the Base release is unavailable.");
-  const active = await projectPublishedBaseWordRelease(db, release);
+  const environment = ingReviewEnvironment();
+  if (!environment) throw new Error("Bulk review is unavailable.");
   const generationSupported = skill === IDENTIFY_BASE_SKILL;
+  const [release] = await loadEnabledBaseWordReleaseAuthorities({
+    client: db, environmentKey: environment, microSkillKeys: [skill], includePaused: !generationSupported,
+  });
+  if (!release) return { current: [], rows: [] };
+  const active = environment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
+    ? await projectPublishedBaseWordRelease(db, release) : release;
+  const pool = generationSupported ? await loadBaseWordSelectionPool(db, active) : null;
+  const paired = new Set(pool?.eligibleFamilyPairs.flat());
+  const familyPool = new Map(pool?.familyCounts.map(family => [family.baseFamilyKey, family.eligibleWordIds]));
+
   const words = new Map(release.dictionaryWords.map(word => [word.canonicalWordId, word]));
-  const current = active.family.families.flatMap(family => family.members.flatMap(member => {
+  const currentRows = active.family.families.flatMap(family => family.members.flatMap(member => {
     const word = active.dictionaryWords.find(row => row.canonicalWordId === member.canonicalWordId);
-    return generationSupported && word && baseWordMemberSelectable(active.family, member) &&
-      baseWordFamilyMemberAppliesToMicroSkill(active.family, member, skill) ? [{
+    return word && paired.has(family.baseFamilyKey) && familyPool.get(family.baseFamilyKey)?.has(member.canonicalWordId) ? [{
         canonicalWordId: word.canonicalWordId, word: word.displayWord, base: words.get(family.baseWordId)?.displayWord ?? "",
         meaning: member.childFriendlyMeaning, dictationSentence: word.dictationSentence,
       }] : [];
   }));
+  const current = [...new Map(currentRows.map(word => [word.canonicalWordId, word])).values()];
   const inPool = new Set(current.map(word => word.canonicalWordId));
   const legacy = release.family.families.flatMap(family => family.members.flatMap(member => {
     const word = words.get(member.canonicalWordId);
@@ -67,13 +76,13 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       });
     }).map(sense => ({ id: sense.id, definition: sense.definition })) ?? [];
     const base = words.get(family.baseWordId)?.displayWord ?? "";
-    const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
+    const note = !generationSupported ? "This historical lesson needs a supported release before any word can become Active." : environment === "production" ? "This word is outside the current selectable family pool. Check its family and the lesson release." : !eligible.length ? "The teaching release excludes this form. Review the family’s regularity before it can be published."
       : choices.length ? "Reviewed facts are ready. Choose the teaching meaning and publish."
         : !bundle ? "Review the meaning, pronunciation, dictation and word parts, then confirm the teaching family."
           : !inPool.has(family.baseWordId) && family.baseWordId !== id
             ? `Publish the reviewed base “${base}” for this micro-skill first. Check this word’s meaning, parts and family link.`
             : "Check the reviewed meaning, dictation, word parts and link to the released teaching family.";
-    return { id, word: word.displayWord, choices: generationSupported ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
+    return { id, word: word.displayWord, choices: generationSupported && environment === "staging" ? choices : [], note, base, bundle: includeBundles ? bundle ?? {
       wordId: id, displayWord: word.displayWord, sourceSenseReviewedAt: "",
       senseSet: { senses: [{ id: "review", definition: member.childFriendlyMeaning, partOfSpeech: "", pronunciationId: null,
         dictationSentence: word.dictationSentence, dictationTargetTokenIndex: word.dictationTargetTokenIndex }], pronunciations: [] },

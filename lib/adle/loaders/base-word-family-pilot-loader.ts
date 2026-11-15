@@ -1,3 +1,4 @@
+import type { AdleRouteActivationEnvironment } from "../route-activation-environment";
 import { projectPublishedBaseWordRelease } from "./published-base-family-words";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BaseWordFamilyLessonSnapshotV1 } from "../morphology/base-word-family-payload";
@@ -44,6 +45,22 @@ const BASE_WORD_PAIR_DECISION_KEYS = [
 ] as const;
 const baseWordPairVetoed = (vetoes: ReadonlySet<string>, canonicalWordId: string): boolean =>
   BASE_WORD_PAIR_DECISION_KEYS.some((key) => vetoes.has(canonicalPairKey(canonicalWordId, key)));
+export async function loadBaseWordSelectionPool(client: SupabaseClient, activation: ActivatedBaseWordReleaseAuthority) {
+  const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
+  const familyWordIds = [...new Set(activation.family.families.flatMap((family) =>
+    family.members.map((member) => member.canonicalWordId)))];
+  const vetoes = await loadCurrentPairDeassignments({
+    client: client, environmentKey: activation.environmentKey as AdleRouteActivationEnvironment,
+    pairs: familyWordIds.flatMap((canonicalWordId) => BASE_WORD_PAIR_DECISION_KEYS.map((microSkillKey) =>
+      ({ canonicalWordId, microSkillKey }))),
+  });
+  const excludedWordIds = new Set(familyWordIds.filter((canonicalWordId) =>
+    baseWordPairVetoed(vetoes, canonicalWordId)));
+  const familyCounts = eligibleBaseFamilyCounts(activation.family, activation.microSkillKey, closureWordIds, excludedWordIds);
+  const eligibleFamilyPairs = shortlistBaseFamilyPairs(familyCounts);
+  return { closureWordIds, excludedWordIds, familyCounts, eligibleFamilyPairs };
+}
+
 /**
  * Loads only existing verified learning items and reviewed curriculum data.
  * It never creates a substitute target or turns a raw attempt into a lesson.
@@ -85,18 +102,8 @@ export async function loadBaseWordFamilyPilotReadiness(params: {
     const activation = activationEnvironment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
       ? await projectPublishedBaseWordRelease(params.client, original)
       : original;
-    const closureWordIds = new Set(activation.dictionaryWords.map((word) => word.canonicalWordId));
-    const familyWordIds = [...new Set(activation.family.families.flatMap((family) =>
-      family.members.map((member) => member.canonicalWordId)))];
-    const vetoes = await loadCurrentPairDeassignments({
-      client: params.client, environmentKey: activationEnvironment,
-      pairs: familyWordIds.flatMap((canonicalWordId) => BASE_WORD_PAIR_DECISION_KEYS.map((microSkillKey) =>
-        ({ canonicalWordId, microSkillKey }))),
-    });
-    const excludedWordIds = new Set(familyWordIds.filter((canonicalWordId) =>
-      baseWordPairVetoed(vetoes, canonicalWordId)));
-    const familyCounts = eligibleBaseFamilyCounts(activation.family, activation.microSkillKey, closureWordIds, excludedWordIds);
-    const eligibleFamilyPairs = shortlistBaseFamilyPairs(familyCounts);
+    const { closureWordIds, excludedWordIds, eligibleFamilyPairs } =
+      await loadBaseWordSelectionPool(params.client, activation);
     if (eligibleFamilyPairs.length === 0) {
       reasons.push("insufficient_eligible_family_transfer_words");
       continue;

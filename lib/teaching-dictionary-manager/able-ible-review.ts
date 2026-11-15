@@ -100,13 +100,14 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
 }
 
 export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL) {
-  if (!isSuffixWorkbookPilot(skill)) throw new Error("The suffix workbook pilot is available in staging.");
+  if (!isSuffixWorkbookPilot(skill)) throw new Error("Suffix Bulk review is unavailable.");
   const [lesson] = await loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: skill });
   const [pool, candidates] = await Promise.all([
     loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true }),
     loadRouteWordStatuses({ lesson, routeId: ABLE_IBLE_ROUTE, microSkillKey: skill }),
   ]);
-  const current = [...(pool.profiles[0]?.wordsByCanonicalId.values() ?? [])]
+  const profile = pool.profiles.find(profile => profile.productionEnabled);
+  const current = [...(profile?.wordsByCanonicalId.values() ?? [])]
     .filter(word => !suffixDictionaryOnly(skill) || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
     .map(word => ({
     canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.semanticBaseText,

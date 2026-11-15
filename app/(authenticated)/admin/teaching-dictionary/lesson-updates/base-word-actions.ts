@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { IDENTIFY_BASE_SKILL, isIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { saveBulkSkillApprovals } from "../bulk-assign/actions";
@@ -13,7 +14,7 @@ export async function publishIdentifyBaseWord(form: FormData) {
   await requireAdminUser();
   const skill = IDENTIFY_BASE_SKILL;
   const path = `/admin/teaching-dictionary/lesson-updates?skill=${skill}&view=preview`;
-  if (!isIdentifyBaseReview(skill)) redirect(path);
+  if (ingReviewEnvironment() !== "staging" || !isIdentifyBaseReview(skill)) redirect(path);
   const db = createServiceRoleClient();
   const wordId = form.get("word_id");
   const senseId = form.get("sense_id");

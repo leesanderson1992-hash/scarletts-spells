@@ -130,6 +130,10 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
+  if (input.skill === "D4_MOR_PREFIXES_UN") guide.addRow([
+    "Prefix meaning group",
+    "Enter not or reverse as the meaning of the un- word part. In Preview and publish, open the word’s lesson editor to choose the Meaning group for the sorting activity. For untidy choose Not.",
+  ]);
   if (suffixWorkbook) guide.addRows([
     ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
     ["Dictionary bands", "Use the dropdowns to choose the word’s age, frequency and complexity bands."],

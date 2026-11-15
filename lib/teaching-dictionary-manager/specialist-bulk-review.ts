@@ -1,13 +1,12 @@
 import "server-only";
 
-import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-writing/knowledge-repository";
-import { loadPublishedWeakVowelWords } from "@/lib/adle/weak-vowel/governed-content-loader";
-import { publishedWeakVowelWordBlockers } from "@/lib/adle/weak-vowel/governed-content";
-import { publishedDictionaryDegreeFamilies } from "@/lib/adle/inflection/published-dictionary-families";
+import { loadWeakVowelSelectionPool } from "@/lib/adle/weak-vowel/readiness-loader";
+import { loadComparativeSelectionPool } from "@/lib/adle/inflection/readiness-loader";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
 import { loadCurrentPairDeassignments } from "@/lib/adle/word-skill-relationships/pair-decision-veto";
-import { canonicalPairKey } from "@/lib/adle/word-skill-relationships/pair-key";
-import type { AdjectiveFamilyV1, ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
+import { excludeDeassignedDynamicPrefixWords } from "@/lib/adle/morphology/dynamic-prefix-pair-eligibility";
+import { ingReviewEnvironment } from "./ing-staging-scope";
+import type { ComparativeMicroSkill } from "@/lib/adle/inflection/contracts";
 import type { WeakVowelMicroSkill } from "@/lib/adle/weak-vowel/lesson";
 import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadIdentifyBaseReview } from "./base-word-review";
@@ -18,6 +17,8 @@ import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 type Db = ReturnType<typeof createServiceRoleClient>;
 type PoolWord = { canonicalWordId: string; word: string; base: string; meaning: string; dictationSentence: string };
 export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: string, includeBundles = false) {
+  const environment = ingReviewEnvironment();
+  if (!environment) throw new Error("Bulk review is unavailable.");
   if (routeId === "base_word_lab") {
     const base = await loadIdentifyBaseReview(db, includeBundles, skill);
     return { current: base.current, routeId, skill,
@@ -38,7 +39,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   if (routeId === "dynamic_prefix_word_lab") {
     const child = "00000000-0000-4000-8000-000000000001";
     const [ready, profile] = await Promise.all([
-      loadDynamicPrefixProfiles(db, child, { microSkillKeys: [skill], allowStagingProfiles: true }),
+      loadDynamicPrefixProfiles(db, child, { microSkillKeys: [skill], allowStagingProfiles: environment === "staging" }),
       db.from("canonical_teaching_dictionary_prefix_profiles").select("canonical_teaching_dictionary_prefix_members(canonical_word_id,row_status,assignment_eligible,canonical_teaching_dictionary_words(display_word))")
         .eq("micro_skill_key", skill).eq("row_status", "active").maybeSingle(),
     ]);
@@ -51,34 +52,23 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       const word = member.canonical_teaching_dictionary_words?.display_word;
       if (word && member.row_status === "active" && member.assignment_eligible) words.set(member.canonical_word_id, word);
     }
-    for (const word of ready.profiles[0]?.wordsByCanonicalId.values() ?? []) current.push({
+    const profiles = ready.profiles.filter(profile => profile.productionEnabled);
+    const vetoes = await loadCurrentPairDeassignments({ client: db, environmentKey: environment,
+      pairs: profiles.flatMap(profile => [...profile.wordsByCanonicalId.keys()].map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill }))) });
+    const [selectable] = excludeDeassignedDynamicPrefixWords(profiles, vetoes);
+    for (const word of selectable && selectable.wordsByCanonicalId.size >= 4 ? selectable.wordsByCanonicalId.values() : []) current.push({
       canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.baseWord,
       meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
     });
-    blockedNote = "Review the prefix, its meaning and the teaching family, then publish the word through Lesson readiness.";
+    blockedNote = "Review the prefix and teaching family. In the word’s Micro-skills editor, choose the Meaning group, then review and publish the lesson.";
   } else if (routeId === "comparative_superlative_word_lab") {
-    const head = await db.from("adle_route_activation_heads").select("current_revision_id").eq("environment_key", "staging")
-      .eq("route_id", routeId).eq("micro_skill_key", skill).maybeSingle();
-    if (head.error) throw new Error("Could not load the comparative lesson.");
-    if (head.data) {
-      const revision = await db.from("adle_route_activation_revisions").select("release_manifest_id,activation_status")
-        .eq("id", head.data.current_revision_id).single();
-      if (revision.error) throw new Error("Could not load the comparative release.");
-      if (revision.data.activation_status === "enabled") {
-        const binding = await db.from("adle_curriculum_release_dependencies").select("authority_id")
-          .eq("release_manifest_id", revision.data.release_manifest_id).eq("micro_skill_key", skill)
-          .eq("authority_type", "adjective_degree_families").single();
-        if (binding.error) throw new Error("Could not load the comparative family reference.");
-        const source = await db.from("adle_curriculum_dependency_authorities").select("semantic_projection").eq("id", binding.data.authority_id).single();
-        if (source.error) throw new Error("Could not load the comparative words.");
-        const families = (source.data.semantic_projection as { families: AdjectiveFamilyV1[] }).families;
-        for (const family of families) for (const word of family.words) words.set(word.canonicalWordId, word.word);
-        const approved = await publishedDictionaryDegreeFamilies({ client: db, skill: skill as ComparativeMicroSkill, families });
-        for (const family of approved) for (const word of family.words) current.push({
-          canonicalWordId: word.canonicalWordId, word: word.word, base: family.words[0].word,
-          meaning: family.meaning, dictationSentence: "",
-        });
-      }
+    const pool = await loadComparativeSelectionPool({ client: db, environmentKey: environment, microSkillKey: skill as ComparativeMicroSkill });
+    if (pool.status === "ready") {
+      for (const family of pool.families) for (const word of family.words) words.set(word.canonicalWordId, word.word);
+      for (const family of pool.selectableFamilies.length >= 2 ? pool.selectableFamilies : []) for (const word of family.words) current.push({
+        canonicalWordId: word.canonicalWordId, word: word.word, base: family.words[0].word,
+        meaning: family.meaning, dictationSentence: "",
+      });
     }
     blockedNote = "Confirm the reviewed base, comparative and superlative forms and publish approvals for all three forms.";
   } else {
@@ -88,19 +78,9 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
     for (const row of publications.data as unknown as { canonical_word_id: string; canonical_teaching_dictionary_words: { display_word: string } | null }[]) {
       if (row.canonical_teaching_dictionary_words) words.set(row.canonical_word_id, row.canonical_teaching_dictionary_words.display_word);
     }
-    const ids = [...words.keys()];
-    const [relationships, vetoes] = await Promise.all([
-      loadPublishedWritingAssociations(db, "staging", ids),
-      loadCurrentPairDeassignments({ client: db, environmentKey: "staging",
-        pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill })) }),
-    ]);
-    const approved = new Set(relationships.filter(row => row.microSkillKey === skill && row.rowStatus === "active" &&
-      row.relationshipRole === "demonstrates").map(row => row.canonicalWordId));
-    const candidates = ids.filter(id => approved.has(id) && !vetoes.has(canonicalPairKey(id, skill)));
-    if (lesson.activationEnabled) for (let at = 0; at < candidates.length; at += 6) {
-      const published = await loadPublishedWeakVowelWords({ client: db, microSkillKey: skill as WeakVowelMicroSkill,
-        canonicalWordIds: candidates.slice(at, at + 6) });
-      for (const word of published) if (!publishedWeakVowelWordBlockers(word, skill as WeakVowelMicroSkill).length) current.push({
+    if (lesson.activationEnabled) {
+      const pool = await loadWeakVowelSelectionPool({ client: db, environmentKey: environment }, skill as WeakVowelMicroSkill);
+      for (const word of pool.words.length >= 4 ? pool.words : []) current.push({
         canonicalWordId: word.canonicalWordId, word: word.spelling, base: "", meaning: word.definition, dictationSentence: word.sentence,
       });
     }
@@ -123,5 +103,5 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       senseSet: { pronunciations: [], senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: null }] },
     }))];
   }
-  return { current, rows, bundles, title: lesson.title, routeId, skill };
+  return { current, rows, bundles, title: skill === "D4_MOR_PREFIXES_UN" ? "Prefix un-" : lesson.title, routeId, skill };
 }

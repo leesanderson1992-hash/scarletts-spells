@@ -16,6 +16,30 @@ import type { WeakVowelLessonV1, WeakVowelMicroSkill } from "./lesson";
 import type { WeakVowelContentBlocker } from "./prepare";
 import { selectWeakVowelLessonWords } from "./selection";
 
+export async function loadWeakVowelSelectionPool(input: {
+  client: SupabaseClient; environmentKey: "local" | "staging" | "production";
+}, skill: WeakVowelMicroSkill) {
+  const publishedAssociations = await loadPublishedWritingAssociations(input.client, input.environmentKey);
+  const authority = await loadCanonicalWordSkillRelationshipAuthority({ client: input.client,
+    environmentKey: input.environmentKey, explicitReviewedAssociations: publishedAssociations });
+  const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_WEAK_VOWEL_DICTIONARY_ONLY === "enabled";
+  const publishedIds = new Set(publishedAssociations.filter(pair => pair.microSkillKey === skill &&
+    pair.relationshipRole === "demonstrates" && pair.rowStatus === "active").map(pair => pair.canonicalWordId));
+  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill && (!dictionaryOnly || publishedIds.has(pair.canonicalWordId)))
+    .map((pair) => pair.canonicalWordId));
+  const words = [];
+  const candidates = [...approvedIds];
+  for (let start = 0; start < candidates.length; start += 24) {
+    const batches = Array.from({ length: Math.min(4, Math.ceil((candidates.length - start) / 6)) },
+      (_, index) => candidates.slice(start + index * 6, start + (index + 1) * 6));
+    const rows = (await Promise.all(batches.map(canonicalWordIds => loadPublishedWeakVowelWords({
+      client: input.client, microSkillKey: skill, canonicalWordIds,
+    })))).flat();
+    words.push(...rows.filter(row => publishedWeakVowelWordBlockers(row, skill).length === 0));
+  }
+  return { authority, approvedIds, dictionaryOnly, words };
+}
+
 export type WeakVowelReadiness =
   | { status: "ready"; lesson: WeakVowelLessonV1; selectedWordIds: string[]; selection: WordSelectionResult }
   | { status: "blocked"; reason: string; selectedWordIds: string[]; blockers: WeakVowelContentBlocker[] };
@@ -65,29 +89,14 @@ export async function loadWeakVowelLessonReadiness(input: {
     client: input.client, childId: input.childId, microSkillKey: skill,
     environmentKey: input.environmentKey,
   })) return blocked("weak_vowel_route_inactive_or_out_of_scope");
-  const publishedAssociations = await loadPublishedWritingAssociations(input.client, input.environmentKey);
-  const authority = await loadCanonicalWordSkillRelationshipAuthority({ client: input.client,
-    environmentKey: input.environmentKey, explicitReviewedAssociations: publishedAssociations });
-  const dictionaryOnly = input.environmentKey === "staging" && process.env.ADLE_WEAK_VOWEL_DICTIONARY_ONLY === "enabled";
-  const publishedIds = new Set(publishedAssociations.filter(pair => pair.microSkillKey === skill &&
-    pair.relationshipRole === "demonstrates" && pair.rowStatus === "active").map(pair => pair.canonicalWordId));
-  const approvedIds = new Set(authority.relationships.filter((pair) => pair.microSkillKey === skill && (!dictionaryOnly || publishedIds.has(pair.canonicalWordId)))
-    .map((pair) => pair.canonicalWordId));
+  const { authority, approvedIds, dictionaryOnly, words: publishedPool } = await loadWeakVowelSelectionPool(input, skill);
   const queuedWordIds = [...new Set(input.facts.learningItems.filter((item) =>
     item.childId === input.childId && item.microSkillKey === skill && item.rowStatus === "active")
     .map((item) => item.canonicalWordId))];
   const unapprovedDemand = queuedWordIds.filter((id) => !approvedIds.has(id));
   if (unapprovedDemand.length) return blocked("queued_word_relationship_not_approved", queuedWordIds,
     unapprovedDemand.map((id) => ({ canonicalWordId: id, reason: "approved_word_skill_relationship_missing" })));
-  const pool = new Set<string>();
-  const candidates = [...approvedIds];
-  for (let start = 0; start < candidates.length; start += 6) {
-    const rows = await loadPublishedWeakVowelWords({ client: input.client, microSkillKey: skill,
-      canonicalWordIds: candidates.slice(start, start + 6) });
-    for (const row of rows) {
-      if (publishedWeakVowelWordBlockers(row, skill).length === 0) pool.add(row.canonicalWordId);
-    }
-  }
+  const pool = new Set(publishedPool.map(word => word.canonicalWordId));
   const scopedWords = dictionaryOnly && pool.size ? await input.client.from("canonical_teaching_dictionary_words")
     .select("id,word_key,normalised_word,display_word,row_status,review_status,frequency_band,age_band")
     .in("id", [...pool]).eq("row_status", "active") : null;

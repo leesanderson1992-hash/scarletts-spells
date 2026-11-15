@@ -14,15 +14,16 @@ import { compileComparativeSnapshotV3 } from "./snapshot";
 import { semanticJson } from "./semantic-json";
 import { comparativeReadinessFacts } from "./readiness-facts";
 
-/** No enabled head, incomplete review or closure means no assignment. */
-export async function prepareComparativeAssignment(input: { client: SupabaseClient; childId: string; parentUserId: string; date: string; microSkillKey: ComparativeMicroSkill; learningItems: readonly LearningItemFact[]; environmentKey: "local" | "staging" | "production" }) {
+export async function loadComparativeSelectionPool(input: {
+  client: SupabaseClient; microSkillKey: ComparativeMicroSkill; environmentKey: "local" | "staging" | "production";
+}) {
   const blocked = (reason: string) => ({ status: "blocked" as const, reason });
   if (!COMPARATIVE_MICRO_SKILLS.includes(input.microSkillKey)) return blocked("comparative_skill_not_supported");
   const read = async (query: PromiseLike<{ data: any; error: { message: string } | null }>) => { const r = await query; if (r.error) throw new Error(`comparative_readiness:${r.error.message}`); return r.data; };
   const head = await read(input.client.from("adle_route_activation_heads").select("current_revision_id").eq("environment_key", input.environmentKey).eq("route_id", "comparative_superlative_word_lab").eq("route_version", "v1").eq("micro_skill_key", input.microSkillKey).maybeSingle());
   if (!head) return blocked("comparative_route_inactive");
   const revision = await read(input.client.from("adle_route_activation_revisions").select("*").eq("id", head.current_revision_id).maybeSingle());
-  if (!revision || revision.activation_status !== "enabled" || revision.activation_route_key !== COMPARATIVE_ROUTE_KEY || !activationAllowsChild(revision.readiness_report, input.childId)) return blocked("comparative_activation_scope_not_ready");
+  if (!revision || revision.activation_status !== "enabled" || revision.activation_route_key !== COMPARATIVE_ROUTE_KEY) return blocked("comparative_activation_scope_not_ready");
   const release = await read(input.client.from("adle_curriculum_release_manifests").select("*").eq("id", revision.release_manifest_id).maybeSingle());
   if (!release || release.route_id !== "comparative_superlative_word_lab" || release.route_version !== "v1" || release.payload_version !== 1 || release.activation_route_key !== COMPARATIVE_ROUTE_KEY
     || release.release_manifest_sha256 !== revision.release_manifest_sha256 || release.dependency_fingerprint !== revision.dependency_fingerprint) return blocked("comparative_release_mismatch");
@@ -43,6 +44,18 @@ export async function prepareComparativeAssignment(input: { client: SupabaseClie
   if (families.flatMap(f => f.words).some(w => !wordRows.some(r => r.id === w.canonicalWordId && r.display_word === w.word && r.row_status === "active" && r.review_status === "approved_for_first_exposure" && r.dialect_code === "en-GB"))) return blocked("comparative_canonical_word_not_ready");
   const selectableFamilies = input.environmentKey === "staging" && process.env.ADLE_COMPARATIVE_DICTIONARY_ONLY === "enabled"
     ? await publishedDictionaryDegreeFamilies({ client: input.client, skill: input.microSkillKey, families }) : families;
+  if (!teachingAuthority.semantic_projection.sharedPage || !teachingAuthority.semantic_projection.rulePage ||
+    !teachingAuthority.semantic_projection.reflectionPrompt) return blocked("comparative_teaching_missing");
+  return { status: "ready" as const, families, selectableFamilies, revision, release, teachingAuthority, exact, kinds };
+}
+
+/** No enabled head, incomplete review or closure means no assignment. */
+export async function prepareComparativeAssignment(input: { client: SupabaseClient; childId: string; parentUserId: string; date: string; microSkillKey: ComparativeMicroSkill; learningItems: readonly LearningItemFact[]; environmentKey: "local" | "staging" | "production" }) {
+  const pool = await loadComparativeSelectionPool(input);
+  if (pool.status === "blocked") return pool;
+  const blocked = (reason: string) => ({ status: "blocked" as const, reason });
+  const { selectableFamilies, revision, release, teachingAuthority, exact, kinds } = pool;
+  if (!activationAllowsChild(revision.readiness_report, input.childId)) return blocked("comparative_activation_scope_not_ready");
   const selection = selectDegreeFamilies(input.childId, input.microSkillKey, selectableFamilies, input.learningItems);
   if (!selection.ok) return blocked(selection.blockers.join(","));
   const lesson = compileComparativeLesson(selection, `adle:${input.childId}:${input.date}:${input.microSkillKey}`);

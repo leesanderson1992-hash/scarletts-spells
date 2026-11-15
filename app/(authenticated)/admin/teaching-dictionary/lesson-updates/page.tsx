@@ -105,6 +105,8 @@ export default async function LessonUpdates({ searchParams }: {
       <h2 className="text-xl font-semibold">Publish words for Identify the Base</h2>
       {params.published && <p role="status">The word is Active in Identify the Base.</p>}
       <p>{base.current.length} active words · {base.rows.length} waiting for review</p>
+      {base.rows.length > 0 && !base.rows.some(row => row.choices.length) &&
+        <Link className="font-semibold underline" href="/admin/adle-lesson-readiness?route=base_word_lab&skill=D4_MOR_BASE_WORDS_IDENTIFY_BASE">Open lesson readiness</Link>}
       {base.rows.filter(row => row.choices.length).map(row => <form key={row.id} action={publishIdentifyBaseWord}
         className="space-y-2 rounded-lg border p-3">
         <input type="hidden" name="word_id" value={row.id} />
