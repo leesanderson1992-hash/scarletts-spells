@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useActionState, useOptimistic, useRef, useState, useTransition, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "../multi-sense-actions";
 
@@ -82,6 +83,8 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
     <p>{result.words} saved · {result.approved} newly approved · {result.alreadyApproved} already approved</p>
     {result.lessons?.map(row => <p key={`${row.wordId}:${row.meaning}`}>
       <strong>{row.word}</strong> · {row.meaning} · {row.approval} · {row.release}
+      {row.draftId && <> · <Link className="font-semibold underline"
+        href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.draftId}#td-route-${row.skillKey}`}>Open lesson draft</Link></>}
     </p>)}
   </div>;
 

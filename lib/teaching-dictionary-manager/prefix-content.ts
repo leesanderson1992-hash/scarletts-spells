@@ -1,3 +1,5 @@
+export const UN_PREFIX_SKILL = "D4_MOR_PREFIXES_UN";
+
 type SourcePart = { text?: unknown; partType?: unknown; meaning?: unknown };
 
 /** Converts approved editorial word parts into the prefix route's governed shape.

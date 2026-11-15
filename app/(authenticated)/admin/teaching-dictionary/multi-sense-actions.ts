@@ -6,7 +6,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { MAX_DICTIONARY_CSV_BYTES } from "@/lib/teaching-dictionary-manager/csv";
 import { approvedWorkbookFamily, createWorkbookFamily, loadWorkbookFamilyChoices } from "@/lib/teaching-dictionary-manager/workbook-family-resolution";
-import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
+import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision, type UnPrefixMeaning } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
@@ -16,11 +16,13 @@ import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuse
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
+import { stageUnPrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
 type LessonResult = { word: string; wordId: string; meaning: string; skillKey: string;
-  approval: "Approved" | "Already approved" | "Needs review"; release?: string; routeId?: string };
+  approval: "Approved" | "Already approved" | "Needs review"; release?: string; routeId?: string; draftId?: string };
 export type MultiSenseImportState = {
   lessons?: LessonResult[];
   familyTasks?: WorkbookFamilyTask[];
@@ -58,6 +60,7 @@ export async function importReviewedMultiSenseCsv(
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   const db = createServiceRoleClient();
   let familyTasks: WorkbookFamilyTask[] | undefined;
+  let prefixMeanings = new Map<number, UnPrefixMeaning>();
   let suffixFacts = new Map<number, SuffixWorkbookFacts>();
   let entries: ReturnType<typeof prepareReviewedCsv>;
   try {
@@ -72,13 +75,14 @@ export async function importReviewedMultiSenseCsv(
           (typeof item.familyKey === "string") === (typeof item.createSenseId === "string") ||
           (item.familyKey?.length ?? 0) > 200 || (item.createSenseId?.length ?? 0) > 200))
         throw new Error("Choose a valid family decision.");
-      const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
+      const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
           ? createWorkbookFamily(db, actor.id, base, decision.createSenseId)
           : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
       });
       suffixFacts = workbookSuffixFacts;
+      prefixMeanings = workbookPrefixMeanings;
       familyTasks = pendingFamilies;
       entries = !rowNumbers.length ? [] : prepareReviewedCsv(csv).map(entry => {
         const rows = entry.rows.map(row => rowNumbers[row - 2]);
@@ -130,6 +134,17 @@ export async function importReviewedMultiSenseCsv(
         });
         if (workbook && isIdentifyBaseReview(skillKey)) {
           lesson.release = "Check and publish from the preview step";
+          continue;
+        }
+        const prefixMeaning = skillKey === UN_PREFIX_SKILL ? prefixMeanings.get(rows[index]) : undefined;
+        if (prefixMeaning) {
+          try {
+            lesson.draftId = await stageUnPrefixWorkbookDraft(db, actor.id, { ...bundle, wordId }, analysis.senseId, prefixMeaning);
+            lesson.release = `Meaning group saved as ${prefixMeaning === "not" ? "Not" : "Reverse"}`;
+          } catch (error) {
+            report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
+            lesson.release = "Meaning group needs review";
+          }
           continue;
         }
         if (workbook && specialistWorkbookRoute(skillKey) && !hasCandidateRule(skillKey)) {

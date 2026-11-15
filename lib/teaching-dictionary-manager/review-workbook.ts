@@ -1,6 +1,7 @@
 import { ING_RULE_FOR_SKILL, type IngMicroSkill, type IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbookFacts } from "./able-ible-workbook";
 import { DICTIONARY_BANDS } from "./contracts";
+import { UN_PREFIX_SKILL } from "./prefix-content";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
@@ -17,7 +18,14 @@ const priority = ["display_word", "definition", "part_of_speech", "family_key", 
 const reviewKeys = [...priority.slice(0, 3), "use_in_lesson", "needs_review", ...priority.slice(3),
   ...csvColumns.filter(key => !priority.includes(key))];
 const suffixFields = ["age_band", "frequency_band", "complexity_band", "has_schwa"] as const;
-const workbookKeys = (skill: string) => isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields] : reviewKeys;
+const prefixMeaningKey = "prefix_meaning_group";
+const prefixMeaningOptions = ["Not", "Reverse"] as const;
+export type UnPrefixMeaning = Lowercase<(typeof prefixMeaningOptions)[number]>;
+const partIndexes = Array.from({ length: FLAT_IMPORT_PART_LIMIT }, (_, index) => index + 1);
+const unPrefixParts = (row: Record<string, string>) => partIndexes.filter(index =>
+  row[`part_${index}_kind`] === "prefix" && row[`part_${index}_underlying_form`]?.toLowerCase() === "un");
+const workbookKeys = (skill: string) => isSuffixReviewSkill(skill) ? [...reviewKeys, ...suffixFields]
+  : skill === UN_PREFIX_SKILL ? [...reviewKeys.slice(0, 4), prefixMeaningKey, ...reviewKeys.slice(4)] : reviewKeys;
 const hidden = new Set(["canonical_word_id", "source_sense_reviewed_at", "sense_id", "pronunciation_id"]);
 const label = (key: string) => ({
   display_word: "Word", definition: "Meaning", family_key: "Word family",
@@ -60,6 +68,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       has_schwa: list(["Yes", "No"]),
     });
   }
+  if (input.skill === UN_PREFIX_SKILL) commonDropdowns[prefixMeaningKey] = list(prefixMeaningOptions);
   commonDropdowns.relationship_kind = list(["derived", "free_base", "regular_inflection", "irregular_inflection", "contraction", "historical_relative"]);
   for (let index = 1; index <= FLAT_IMPORT_PART_LIMIT; index++) {
     commonDropdowns[`part_${index}_kind`] = list(["prefix", "base", "root", "suffix", "connector"]);
@@ -77,6 +86,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       !entry.ipa || !entry.spoken_syllable_count || !entry.stress_pattern
         ? "Check pronunciation, syllable count and stress." : "",
     ].filter(Boolean).join(" ");
+    if (input.skill === UN_PREFIX_SKILL) {
+      const parts = unPrefixParts(entry);
+      const gloss = parts.length === 1 ? entry[`part_${parts[0]}_meaning`]?.trim().toLowerCase() : "";
+      entry[prefixMeaningKey] = prefixMeaningOptions.find(option => option.toLowerCase() === gloss) ?? "";
+    }
     const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
@@ -130,9 +144,9 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
     ["Dictation", "Use the word once. Count from zero for the target position. In She is caring for a sick bird, caring is position 2."],
     ["Existing facts", "Legacy lesson facts are suggestions for review. Keep the hidden IDs and source revision supplied in the workbook."],
   ]);
-  if (input.skill === "D4_MOR_PREFIXES_UN") guide.addRow([
+  if (input.skill === UN_PREFIX_SKILL) guide.addRow([
     "Prefix meaning group",
-    "Enter not or reverse as the meaning of the un- word part. In Preview and publish, open the word’s lesson editor to choose the Meaning group for the sorting activity. For untidy choose Not.",
+    "Choose Not or Reverse for the meaning used in the lesson. Uploading fills the meaning of the un- word part and the ADLE Meaning group. Choose Not for untidy and Reverse for unlock.",
   ]);
   if (suffixWorkbook) guide.addRows([
     ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
@@ -174,8 +188,9 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   } });
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(file);
-  const keys = workbookKeys(skill);
   const sheet = workbook.getWorksheet(sheetName);
+  const hasPrefixChoice = skill === UN_PREFIX_SKILL && sheet?.getCell(headerRow, 5).value === label(prefixMeaningKey);
+  const keys = skill === UN_PREFIX_SKILL && !hasPrefixChoice ? reviewKeys : workbookKeys(skill);
   if (!sheet || sheet.getCell("A2").value !== skill || keys.some((key, i) => sheet.getCell(headerRow, i + 1).value !== label(key)))
     throw new Error("Use the review workbook for this micro-skill and keep its column headings.");
   if (sheet.rowCount > 2000 + headerRow) throw new Error("Upload at most 2,000 meaning rows.");
@@ -206,6 +221,19 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
   if (!selected.length) throw new Error("Choose Yes under Use in lesson for at least one meaning.");
   for (const group of selected) {
     const tasks: WorkbookFamilyTask[] = [];
+    if (hasPrefixChoice) {
+      const lessonRows = group.filter(row => row.use_in_lesson === "Yes");
+      if (lessonRows.length > 1)
+        throw new Error(`Choose one teaching meaning under Use in lesson for ${group[0].display_word}.`);
+      const [row] = lessonRows;
+      const choice = prefixMeaningOptions.find(option => option.toLowerCase() === row[prefixMeaningKey].toLowerCase());
+      if (!choice) throw new Error(`Workbook row ${row.workbook_row}: choose Not or Reverse under Prefix meaning group.`);
+      const parts = unPrefixParts(row);
+      if (parts.length !== 1) throw new Error(`Workbook row ${row.workbook_row}: add one un- prefix part for the teaching meaning.`);
+      const meaning = choice.toLowerCase() as UnPrefixMeaning;
+      row[`part_${parts[0]}_meaning`] = meaning;
+      row[prefixMeaningKey] = meaning;
+    }
     for (const row of group) {
       const rowNumber = Number(row.workbook_row);
       row.family_key = row.family_key.split(" | ").at(-1) ?? "";
@@ -246,6 +274,10 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     return MULTI_SENSE_CSV_COLUMNS.map(key => key === "requested_micro_skills"
       ? row.use_in_lesson === "Yes" ? skill : "" : row[key] ?? "");
   })].map(row => row.map(value => `"${value.replaceAll('"', '""')}"`).join(",")).join("\r\n");
-  return { suffixFacts: new Map(records.filter(row => row.use_in_lesson === "Yes").map(row => [Number(row.workbook_row),
+  const requestedRows = records.filter(row => row.use_in_lesson === "Yes");
+  const prefixMeanings = new Map<number, UnPrefixMeaning>();
+  if (hasPrefixChoice) for (const row of requestedRows)
+    prefixMeanings.set(Number(row.workbook_row), row[prefixMeaningKey] as UnPrefixMeaning);
+  return { prefixMeanings, suffixFacts: new Map(requestedRows.map(row => [Number(row.workbook_row),
     { age_band: row.age_band ?? "", frequency_band: row.frequency_band ?? "", complexity_band: row.complexity_band ?? "", has_schwa: row.has_schwa ?? "" } satisfies SuffixWorkbookFacts])), csv, rowNumbers: records.map(row => Number(row.workbook_row)), pendingFamilies };
 }
