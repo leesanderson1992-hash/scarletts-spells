@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
-import { DIS_MIS_PREFIX_SKILL, NEGATIVE_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { DIS_MIS_PREFIX_SKILL, NEGATIVE_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled,
+  SUB_INTER_SUPER_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
@@ -197,15 +198,41 @@ async function main() {
   negativeSheet.getCell("E5").value = "im-";
   negativeSheet.getCell("A5").value = "imlogical";
   await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: use il- before l/);
+  const groupedPrefixes = new ExcelJS.Workbook();
+  await groupedPrefixes.xlsx.load(await buildReviewWorkbook({ skill: SUB_INTER_SUPER_PREFIX_SKILL,
+    title: "Prefixes sub-, inter- and super-", bundles: [], notes: new Map(), families: new Map() }));
+  const groupedSheet = groupedPrefixes.getWorksheet("Words to review")!;
+  for (const row of [4, 103])
+    assert.deepEqual(groupedSheet.getCell(`E${row}`).dataValidation.formulae, ['"Under,Between,Above or beyond"']);
+  const groupedHeaders = groupedSheet.getRow(3).values as string[];
+  for (const [row, prefix, base, group] of [[4, "sub", "soil", ""], [5, "inter", "school", "Between"],
+    [6, "super", "human", "Above or beyond"]] as const) {
+    const word = prefix + base;
+    for (const [key, value] of Object.entries({
+      ...values, Word: word, "Prefix meaning group": group, "Word family": base,
+      "Dictation sentence": `That is ${word}.`, "Dictation target token index": 2,
+      "Part 1 underlying form": prefix, "Part 1 visible letters": prefix,
+      "Part 2 underlying form": base, "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
+    })) groupedSheet.getCell(row, groupedHeaders.indexOf(key)).value = value;
+  }
+  const groupedUpload = async () => Uint8Array.from(await groupedPrefixes.xlsx.writeBuffer()).buffer;
+  const parsedGroups = await readReviewWorkbook(await groupedUpload(), SUB_INTER_SUPER_PREFIX_SKILL);
+  assert.deepEqual([...parsedGroups.prefixMeanings.values()], ["under", "between", "above_beyond"]);
+  assert.deepEqual(parseMultiSenseCsv(parsedGroups.csv).map(word => word.analyses[0].parts[0].gloss),
+    ["under", "between", "above or beyond"]);
+  groupedSheet.getCell("E6").value = "Under";
+  await assert.rejects(readReviewWorkbook(await groupedUpload(), SUB_INTER_SUPER_PREFIX_SKILL), /row 6: choose Above or beyond/);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "staging";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://qkpjbajicacbrphthibk.supabase.co";
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), true);
+  assert.equal(prefixWorkbookEnabled(SUB_INTER_SUPER_PREFIX_SKILL), true);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "production";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
   assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), true);
+  assert.equal(prefixWorkbookEnabled(SUB_INTER_SUPER_PREFIX_SKILL), false);
   assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }

@@ -16,7 +16,8 @@ import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuse
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
-import { NEGATIVE_PREFIX_SKILL, prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbookFieldLabel } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { NEGATIVE_PREFIX_SKILL, prefixWorkbookChoice, prefixWorkbookEnabled, prefixWorkbookFieldLabel,
+  SUB_INTER_SUPER_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { loadPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
@@ -46,6 +47,11 @@ function importIssue(message: string) {
   if (message.includes("SENSE_MORPHOLOGY_"))
     return "Check the word parts, joins and spelling changes against the spelling.";
   return "The word could not be saved. Check the sheet and retry.";
+}
+
+function workbookBasePartOfSpeech(skill: string) {
+  if (skill === SUB_INTER_SUPER_PREFIX_SKILL) return null;
+  return skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb";
 }
 
 export async function importReviewedMultiSenseCsv(
@@ -79,7 +85,7 @@ export async function importReviewedMultiSenseCsv(
       const { csv, rowNumbers, pendingFamilies, suffixFacts: workbookSuffixFacts, prefixMeanings: workbookPrefixMeanings } = await readReviewWorkbook(await file.arrayBuffer(), skill, {
         targetRow, decisions,
         resolve: (base, decision) => decision.createSenseId
-          ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb")
+          ? createWorkbookFamily(db, actor.id, base, decision.createSenseId, workbookBasePartOfSpeech(skill))
           : approvedWorkbookFamily(db, decision.familyKey ?? "", skill === ABLE_IBLE_SKILL),
       });
       suffixFacts = workbookSuffixFacts;
@@ -212,5 +218,5 @@ export async function getWorkbookFamilyChoices(skill: string, base: string) {
   if (!supportsReviewWorkbook(skill) || !/^[a-z][a-z'-]{0,119}$/u.test(base))
     throw new Error("Choose a workbook row with a base spelling.");
   return loadWorkbookFamilyChoices(createServiceRoleClient(), base, skill === ABLE_IBLE_SKILL,
-    skill === NEGATIVE_PREFIX_SKILL ? "adjective" : "verb");
+    workbookBasePartOfSpeech(skill));
 }

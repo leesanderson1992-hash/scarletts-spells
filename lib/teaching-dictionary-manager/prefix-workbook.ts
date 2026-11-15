@@ -4,6 +4,7 @@ import { ingReviewEnvironment } from "./ing-staging-scope";
 export const DIS_MIS_PREFIX_SKILL = "D4_MOR_PREFIXES_DIS_MIS";
 export const RE_PRE_PREFIX_SKILL = "D4_MOR_PREFIXES_RE_PRE";
 export const NEGATIVE_PREFIX_SKILL = "D4_MOR_PREFIXES_IN_IM_IL_IR";
+export const SUB_INTER_SUPER_PREFIX_SKILL = "D4_MOR_PREFIXES_SUB_INTER_SUPER";
 export const PREFIX_WORKBOOK_ROUTE = "dynamic_prefix_word_lab";
 export const PREFIX_PUBLISH_BATCH_SIZE = 30;
 
@@ -44,6 +45,15 @@ export const prefixWorkbooks = {
       { id: "ir", label: "ir-", prefix: "ir", gloss: "not" },
     ],
   },
+  [SUB_INTER_SUPER_PREFIX_SKILL]: {
+    title: "Prefixes sub-, inter- and super-",
+    source: "Reviewed sub-, inter- and super- Bulk review",
+    choices: [
+      { id: "under", label: "Under", prefix: "sub", gloss: "under" },
+      { id: "between", label: "Between", prefix: "inter", gloss: "between" },
+      { id: "above_beyond", label: "Above or beyond", prefix: "super", gloss: "above or beyond" },
+    ],
+  },
 } satisfies Record<string, { title: string; source: string; choices: PrefixWorkbookChoice[] }>;
 
 export type PrefixWorkbookSkill = keyof typeof prefixWorkbooks;
@@ -53,7 +63,9 @@ export function isPrefixWorkbookSkill(skill: unknown): skill is PrefixWorkbookSk
 }
 
 export function prefixWorkbookEnabled(skill: unknown): skill is PrefixWorkbookSkill {
-  return ingReviewEnvironment() !== null && isPrefixWorkbookSkill(skill);
+  const environment = ingReviewEnvironment();
+  return isPrefixWorkbookSkill(skill) &&
+    (environment === "staging" || (environment === "production" && skill !== SUB_INTER_SUPER_PREFIX_SKILL));
 }
 
 export function prefixWorkbookFieldLabel(skill: string) {

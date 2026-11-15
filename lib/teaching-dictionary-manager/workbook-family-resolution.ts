@@ -19,7 +19,7 @@ export async function approvedWorkbookFamily(db: Db, key: string, includeRoots =
     ? { key: row.family_key, base: row.base_lemma, meaning: row.base_meaning, partOfSpeech: row.base_part_of_speech, kind: row.base_kind } : null;
 }
 
-type WorkbookBasePartOfSpeech = "verb" | "adjective";
+type WorkbookBasePartOfSpeech = "verb" | "adjective" | null;
 
 async function loadWorkbookBases(db: Db, base: string, partOfSpeech: WorkbookBasePartOfSpeech) {
   const word = await db.from("canonical_teaching_dictionary_words").select("id,display_word")
@@ -39,7 +39,7 @@ async function loadWorkbookBases(db: Db, base: string, partOfSpeech: WorkbookBas
       const parts = analyses.data.find(row => row.sense_id === sense.id)?.morphology_parts as CanonicalPart[] | undefined;
       const part = parts?.find(item => item.kind === "base" && item.sourceText === base
         && item.surfaceText === word.data?.display_word);
-      if (part && sense.partOfSpeech === partOfSpeech)
+      if (part && (partOfSpeech === null || sense.partOfSpeech === partOfSpeech))
         bases.push({ wordId, senseId: sense.id, partId: part.id, meaning: sense.definition, partOfSpeech: sense.partOfSpeech });
     }
   }
@@ -70,7 +70,7 @@ export async function createWorkbookFamily(db: Db, actor: string, base: string, 
   basePartOfSpeech: WorkbookBasePartOfSpeech = "verb") {
   const { bases } = await loadWorkbookBases(db, base, basePartOfSpeech);
   const choice = bases.find(item => item.senseId === senseId);
-  if (!choice) throw new Error(`Choose a reviewed ${basePartOfSpeech} meaning for the base.`);
+  if (!choice) throw new Error(`Choose a reviewed ${basePartOfSpeech ? basePartOfSpeech + " " : ""}meaning for the base.`);
   const existing = async () => {
     const result = await db.from("teaching_dictionary_families_with_current_meaning").select("family_key")
       .eq("canonical_base_word_id", choice.wordId).eq("canonical_base_sense_id", choice.senseId)

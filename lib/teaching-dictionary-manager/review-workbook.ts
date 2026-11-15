@@ -3,7 +3,7 @@ import { ABLE_IBLE_SKILL, FUL_LESS_SKILL, isSuffixReviewSkill, type SuffixWorkbo
 import { DICTIONARY_BANDS } from "./contracts";
 import { UN_PREFIX_SKILL } from "./prefix-content";
 import { isPrefixWorkbookSkill, NEGATIVE_PREFIX_SKILL, negativePrefixForBase, prefixWorkbookFieldLabel,
-  prefixWorkbooks } from "./prefix-workbook";
+  prefixWorkbooks, SUB_INTER_SUPER_PREFIX_SKILL } from "./prefix-workbook";
 import ExcelJS from "exceljs";
 import { unzipSync } from "fflate";
 import { csvRecords, FLAT_IMPORT_PART_LIMIT } from "./csv";
@@ -133,6 +133,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
         : rule === "drop_e" ? "For caring, enter care as the underlying form and car as the visible letters."
           : input.skill === UN_PREFIX_SKILL ? "For unkind, enter un as the prefix and kind as the base."
             : input.skill === NEGATIVE_PREFIX_SKILL ? "For illegal, enter il as the prefix and legal as the base."
+            : input.skill === SUB_INTER_SUPER_PREFIX_SKILL ? "For subsoil, enter sub as the prefix and soil as the base."
             : prefixWorkbook ? "For misread, enter mis as the prefix and read as the base."
               : "Enter the underlying form and visible letters for each part.";
   const spellingChangeExample = input.skill === ABLE_IBLE_SKILL ? "For noticeable, retain notice as the underlying form and visible letters." : rule === "ie_to_y" ? "For tying, change the final ie to y before adding -ing."

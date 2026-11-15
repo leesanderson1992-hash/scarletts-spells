@@ -57,11 +57,11 @@ function FamilyDecision({ task, skill, saving, onResolve }: {
       </div> : <div className="grid gap-2">
         <label className="grid gap-1">Reviewed base meaning
           <select className={control} value={baseSense} onChange={event => setBaseSense(event.target.value)}>
-            <option value="">{choices.bases.length ? "Choose a reviewed meaning" : `No reviewed ${choices.basePartOfSpeech} base is available`}</option>
+            <option value="">{choices.bases.length ? "Choose a reviewed meaning" : `No reviewed ${choices.basePartOfSpeech ? choices.basePartOfSpeech + " " : ""}base is available`}</option>
             {choices.bases.map(row => <option key={row.senseId} value={row.senseId}>{task.base} · {row.meaning}</option>)}
           </select>
         </label>
-        {!choices.bases.length && <p>Review the base word and its {choices.basePartOfSpeech} meaning first. {choices.baseWordId &&
+        {!choices.bases.length && <p>Review the base word and its {choices.basePartOfSpeech ? choices.basePartOfSpeech + " " : ""}meaning first. {choices.baseWordId &&
           <Link className="underline" target="_blank" href={`/admin/teaching-dictionary/${choices.baseWordId}`}>Open base word</Link>}</p>}
         {!choices.bases.length && <button type="button" className={control} disabled={loading} onClick={load}>Refresh reviewed base</button>}
       </div>}
