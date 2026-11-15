@@ -148,7 +148,8 @@ async function main() {
   await assert.rejects(readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL), /row 4: choose Not or opposite/);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "production";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
-  assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), false);
+  assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), true);
+  assert.equal(prefixWorkbookEnabled("D4_MOR_PREFIXES_RE_PRE"), false);
   assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }

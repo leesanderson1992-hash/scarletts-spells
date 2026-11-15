@@ -33,9 +33,7 @@ export function isPrefixWorkbookSkill(skill: unknown): skill is PrefixWorkbookSk
 }
 
 export function prefixWorkbookEnabled(skill: unknown): skill is PrefixWorkbookSkill {
-  const environment = ingReviewEnvironment();
-  return environment !== null && isPrefixWorkbookSkill(skill)
-    && (skill === UN_PREFIX_SKILL || environment === "staging");
+  return ingReviewEnvironment() !== null && isPrefixWorkbookSkill(skill);
 }
 
 export function prefixWorkbookChoice(skill: PrefixWorkbookSkill, meaning: unknown) {
