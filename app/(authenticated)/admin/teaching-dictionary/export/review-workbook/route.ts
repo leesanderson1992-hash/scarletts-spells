@@ -11,7 +11,7 @@ import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/mu
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
-import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
+import { prefixWorkbookEnabled, prefixWorkbooks } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,7 @@ export async function GET(request: Request) {
   const batch = Number(params.get("batch") ?? "1");
   if (!canUpdateIngLesson() || !supportsReviewWorkbook(skill))
     return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
+  if (scope === "blank" && prefixWorkbookEnabled(skill)) return blankPrefixWorkbook(skill);
   if (scope !== "review" && scope !== "pool")
     return new Response("This workbook export is unavailable.", { status: 404 });
   if (!Number.isSafeInteger(batch) || batch < 1)
@@ -59,10 +60,7 @@ export async function GET(request: Request) {
       `teaching-dictionary-active-pool-${skill}.xlsx`);
     const selected = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!selected.length) {
-      if (skill === UN_PREFIX_SKILL && batch === 1) {
-        const bytes = await buildReviewWorkbook({ skill, title, bundles: [], notes: new Map(), families: new Map() });
-        return downloadWorkbook(bytes, `teaching-dictionary-blank-${skill}.xlsx`);
-      }
+      if (prefixWorkbookEnabled(skill) && batch === 1) return blankPrefixWorkbook(skill);
       return new Response("No words need review in this batch.", { status: 404 });
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
@@ -155,6 +153,11 @@ async function workbookResponse(skill: keyof typeof STAGING_ING_LESSONS, batch: 
   data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families">) {
   const bytes = await buildReviewWorkbook({ skill, title: STAGING_ING_LESSONS[skill], ...data });
   return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
+}
+
+async function blankPrefixWorkbook(skill: keyof typeof prefixWorkbooks) {
+  const bytes = await buildReviewWorkbook({ skill, title: prefixWorkbooks[skill].title, bundles: [], notes: new Map(), families: new Map() });
+  return downloadWorkbook(bytes, `teaching-dictionary-blank-${skill}.xlsx`);
 }
 
 function downloadWorkbook(bytes: Buffer, filename: string) {

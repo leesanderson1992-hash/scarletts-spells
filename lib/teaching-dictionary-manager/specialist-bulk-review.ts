@@ -1,3 +1,4 @@
+import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
 import "server-only";
 
 import { loadWeakVowelSelectionPool } from "@/lib/adle/weak-vowel/readiness-loader";
@@ -60,7 +61,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.baseWord,
       meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
     });
-    blockedNote = "Review the prefix and teaching family. In the word’s Micro-skills editor, choose the Meaning group, then review and publish the lesson.";
+    blockedNote = "Review the word parts and family in the workbook, then resolve any missing facts in Bulk review before publishing.";
   } else if (routeId === "comparative_superlative_word_lab") {
     const pool = await loadComparativeSelectionPool({ client: db, environmentKey: environment, microSkillKey: skill as ComparativeMicroSkill });
     if (pool.status === "ready") {
@@ -103,5 +104,5 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       senseSet: { pronunciations: [], senses: [{ id: "review", definition: "", partOfSpeech: "", pronunciationId: null }] },
     }))];
   }
-  return { current, rows, bundles, title: skill === "D4_MOR_PREFIXES_UN" ? "Prefix un-" : lesson.title, routeId, skill };
+  return { current, rows, bundles, title: prefixWorkbookEnabled(skill) ? prefixWorkbooks[skill].title : lesson.title, routeId, skill };
 }

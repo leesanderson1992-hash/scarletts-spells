@@ -6,7 +6,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { MAX_DICTIONARY_CSV_BYTES } from "@/lib/teaching-dictionary-manager/csv";
 import { approvedWorkbookFamily, createWorkbookFamily, loadWorkbookFamilyChoices } from "@/lib/teaching-dictionary-manager/workbook-family-resolution";
-import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision, type UnPrefixMeaning } from "@/lib/teaching-dictionary-manager/review-workbook";
+import { readReviewWorkbook, type WorkbookFamilyTask, type WorkbookFamilyDecision } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { prepareReviewedCsv } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
@@ -16,9 +16,9 @@ import { canUpdateIngLesson, isStagingIngSkill, loadStagingIngWordReleaseStatuse
 import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
-import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
-import { loadUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
-import { stageUnPrefixWorkbookDraft, unWorkbookApprovalEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
+import { prefixWorkbookChoice, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { loadPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
+import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
@@ -61,7 +61,7 @@ export async function importReviewedMultiSenseCsv(
     return { error: workbook ? "Choose a workbook smaller than 4 MB." : "Choose a CSV smaller than 4 MB." };
   const db = createServiceRoleClient();
   let familyTasks: WorkbookFamilyTask[] | undefined;
-  let prefixMeanings = new Map<number, UnPrefixMeaning>();
+  let prefixMeanings = new Map<number, string>();
   let suffixFacts = new Map<number, SuffixWorkbookFacts>();
   let entries: ReturnType<typeof prepareReviewedCsv>;
   try {
@@ -137,17 +137,13 @@ export async function importReviewedMultiSenseCsv(
           lesson.release = "Check and publish from the preview step";
           continue;
         }
-        const prefixMeaning = skillKey === UN_PREFIX_SKILL ? prefixMeanings.get(rows[index]) : undefined;
-        if (prefixMeaning) {
+        const prefixMeaning = prefixMeanings.get(rows[index]);
+        if (prefixMeaning && prefixWorkbookEnabled(skillKey)) {
           try {
-            lesson.draftId = await stageUnPrefixWorkbookDraft(db, actor.id, { ...bundle, wordId }, analysis.senseId, prefixMeaning);
-            const label = prefixMeaning === "not" ? "Not" : "Reverse";
-            lesson.release = `Meaning group saved as ${label}`;
-            if (unWorkbookApprovalEnabled()) {
-              const [row] = await loadUnWorkbookQueue(db, [wordId]);
-              if (row && !row.blockers.length) lesson.release = `Ready to publish · ${label}`;
-              else lesson.release = `Complete missing facts in Preview · ${label}`;
-            }
+            lesson.draftId = await stagePrefixWorkbookDraft(db, actor.id, { ...bundle, wordId }, skillKey, analysis.senseId, prefixMeaning);
+            const label = prefixWorkbookChoice(skillKey, prefixMeaning)?.label;
+            const [row] = await loadPrefixWorkbookQueue(db, skillKey, [wordId]);
+            lesson.release = row && !row.blockers.length ? `Ready to publish · ${label}` : `Complete missing facts in Preview · ${label}`;
           } catch (error) {
             report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
             lesson.release = "Meaning group needs review";

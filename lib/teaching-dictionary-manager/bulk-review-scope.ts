@@ -1,4 +1,5 @@
 import { COMPARATIVE_MICRO_SKILLS } from "@/lib/adle/inflection/contracts";
+import { prefixWorkbookEnabled, PREFIX_WORKBOOK_ROUTE } from "./prefix-workbook";
 import { ingReviewEnvironment } from "./ing-staging-scope";
 import { isStagingIngSkill } from "./ing-staging-release";
 import { isSuffixReviewSkill, ABLE_IBLE_SKILL, FUL_LESS_SKILL } from "./able-ible-workbook";
@@ -16,7 +17,6 @@ const specialistRoutes: Readonly<Record<string, string>> = {
   D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX: "base_word_lab",
   D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX: "base_word_lab",
   D4_MOR_BASE_WORDS_PRESERVE_BASE: "base_word_lab",
-  D4_MOR_PREFIXES_UN: "dynamic_prefix_word_lab",
   D4_SCHWA_FINAL_ET: "weak_vowel_word_lab",
   D4_SCHWA_FINAL_AL: "weak_vowel_word_lab",
   D4_SCHWA_INITIAL_A_INITIAL: "weak_vowel_word_lab",
@@ -25,6 +25,7 @@ const specialistRoutes: Readonly<Record<string, string>> = {
 };
 
 export function specialistWorkbookRoute(skill: unknown) {
+  if (prefixWorkbookEnabled(skill)) return PREFIX_WORKBOOK_ROUTE;
   return ingReviewEnvironment() !== null && typeof skill === "string" && Object.hasOwn(specialistRoutes, skill)
     ? specialistRoutes[skill] : null;
 }

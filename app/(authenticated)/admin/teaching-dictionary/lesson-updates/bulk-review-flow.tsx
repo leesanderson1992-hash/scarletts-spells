@@ -32,9 +32,9 @@ function SearchMenu({ label, value, options, disabled, onChange }: {
   </fieldset>;
 }
 
-export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, allowsBlankWorkbook, view, review, children }: {
+export function BulkReviewFlow({ clusters, skills, selected, initialCluster, supported, batches, fullPoolSize, allowsBlankWorkbook, blankWorkbookHref, view, review, children }: {
   clusters: Option[]; skills: Skill[]; selected: string; initialCluster: string; supported: boolean; batches: number | null;
-  fullPoolSize: number | null; allowsBlankWorkbook: boolean;
+  fullPoolSize: number | null; allowsBlankWorkbook: boolean; blankWorkbookHref?: string;
   view: "export" | "workbook" | "preview"; review?: ReactNode; children: ReactNode;
 }) {
   const router = useRouter();
@@ -147,6 +147,7 @@ export function BulkReviewFlow({ clusters, skills, selected, initialCluster, sup
           {allowsBlankWorkbook && <a className={actionClass} download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}`}>Download blank workbook</a>}
         </> : null}
+        {blankWorkbookHref && <a className={actionClass} download href={blankWorkbookHref}>Download blank workbook</a>}
         {fullPoolSize !== null && <div className="space-y-1 border-t border-[var(--border)] pt-3">
           <a className="font-semibold underline" download
             href={`/admin/teaching-dictionary/export/review-workbook?skill=${selected}&scope=pool`}>

@@ -14,10 +14,9 @@ import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute } 
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { writtenSyllableBlockers } from "@/lib/teaching-dictionary-manager/authoring";
 import { DICTIONARY_BANDS } from "@/lib/teaching-dictionary-manager/contracts";
-import { unWorkbookApprovalEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
-import { loadPendingUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
-import { publishUnWorkbookWords, saveUnWorkbookDetails } from "./un-prefix-actions";
-import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
+import { prefixWorkbookChoice, prefixWorkbookEnabled, PREFIX_PUBLISH_BATCH_SIZE } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { loadPendingPrefixWorkbookQueue } from "@/lib/teaching-dictionary-manager/prefix-bulk-review";
+import { publishPrefixWorkbookWords, savePrefixWorkbookDetails } from "./prefix-actions";
 import { publishAbleIbleLesson } from "./able-ible-actions";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
@@ -52,9 +51,10 @@ export default async function LessonUpdates({ searchParams }: {
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
-  const prefixQueue = selected === UN_PREFIX_SKILL && view === "preview" && specialist && unWorkbookApprovalEnabled()
-    ? await loadPendingUnWorkbookQueue(db) : null;
-  const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, 100) ?? [];
+  const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
+  const prefixQueue = prefixSkill && view === "preview" && specialist
+    ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
+  const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
   const draftWordIds = new Set(prefixQueue?.map(row => row.wordId));
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
@@ -80,7 +80,8 @@ export default async function LessonUpdates({ searchParams }: {
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
-      allowsBlankWorkbook={suffixPilot || selected === UN_PREFIX_SKILL}
+      allowsBlankWorkbook={suffixPilot}
+      blankWorkbookHref={prefixSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${prefixSkill}&scope=blank` : undefined}
       review={specialist && view === "export" ? <section className={card}>
         <h2 className="text-xl font-semibold">{specialist.rows.length} words waiting for review</h2>
         <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
@@ -106,13 +107,14 @@ export default async function LessonUpdates({ searchParams }: {
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
       <p>{specialist.current.length} active words · {specialist.rows.length} waiting for review</p>
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
-      {prefixQueue && <>
+      {prefixSkill && prefixQueue && <>
         {params.published && <p role="status">{params.published} words published and available in ADLE.</p>}
-        {prefixQueue.map(row => <form action={saveUnWorkbookDetails} key={row.id} className="space-y-2 rounded-lg border p-3">
+        {prefixQueue.map(row => <form action={savePrefixWorkbookDetails} key={row.id} className="space-y-2 rounded-lg border p-3">
+          <input type="hidden" name="skill" value={prefixSkill} />
           <input type="hidden" name="word_id" value={row.wordId} />
           <input type="hidden" name="draft_id" value={row.id} />
           <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
-          <p className="text-sm">{row.payload.definition} · Meaning group {row.payload.routeContents[0]?.content.meaningBinKey === "reverse" ? "Reverse" : "Not"}</p>
+          <p className="text-sm">{row.payload.definition} · Meaning group {prefixWorkbookChoice(prefixSkill, row.payload.routeContents[0]?.content.meaningBinKey)?.label ?? "Needs review"}</p>
           {row.blockers.length > 0 && <>
             <ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -135,11 +137,12 @@ export default async function LessonUpdates({ searchParams }: {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ActionSubmitButton className={button} pendingLabel="Checking facts…">Save and recheck {row.payload.displayWord}</ActionSubmitButton>
-              <Link className="text-sm underline" href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.id}#td-route-${UN_PREFIX_SKILL}`}>Open word details</Link>
+              <Link className="text-sm underline" href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.id}#td-route-${prefixSkill}`}>Open word details</Link>
             </div>
           </>}
         </form>)}
-        {readyPrefixRows.length > 0 && <form action={publishUnWorkbookWords}>
+        {readyPrefixRows.length > 0 && <form action={publishPrefixWorkbookWords}>
+          <input type="hidden" name="skill" value={prefixSkill} />
           {readyPrefixRows.map(row => <div key={row.id} hidden>
             <input type="hidden" name="word_id" value={row.wordId} />
             <input type="hidden" name="draft_id" value={row.id} />

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
+import { DIS_MIS_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
-import { stageUnPrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
+import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { parseMultiSenseCsv, type MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
 import type { WordDraftPayload } from "@/lib/teaching-dictionary-manager/contracts";
@@ -76,9 +77,9 @@ async function main() {
         assert.equal(args.p_draft, draftId);
         return { data: ["saved-route"], error: null };
       },
-    } as unknown as Parameters<typeof stageUnPrefixWorkbookDraft>[0];
+    } as unknown as Parameters<typeof stagePrefixWorkbookDraft>[0];
     for (let attempt = 0; attempt < 2; attempt++)
-      assert.equal(await stageUnPrefixWorkbookDraft(db, "admin", bundle, bundle.analyses[0].senseId, meaning), draftId);
+      assert.equal(await stagePrefixWorkbookDraft(db, "admin", bundle, UN_PREFIX_SKILL, bundle.analyses[0].senseId, meaning), draftId);
     assert.equal(inserted, 1);
     assert.equal(payload?.routeContents[0].content.meaningBinKey, meaning);
     assert.equal(payload?.canonicalMorphology.parts[0].gloss, meaning);
@@ -125,6 +126,30 @@ async function main() {
   assert.equal(newWord.senseSet.senses[0].id, "meaning-4");
   assert.equal(newWord.senseSet.senses[0].pronunciationId, "pronunciation-4");
   assert.deepEqual(newWord.analyses[0].parts.map(part => part.gloss), ["reverse", "Fasten with a lock."]);
+  const mixed = new ExcelJS.Workbook();
+  await mixed.xlsx.load(await buildReviewWorkbook({ skill: DIS_MIS_PREFIX_SKILL, title: "Prefixes dis- and mis-",
+    bundles: [], notes: new Map(), families: new Map() }));
+  const mixedSheet = mixed.getWorksheet("Words to review")!;
+  assert.deepEqual(mixedSheet.getCell("E4").dataValidation.formulae, ['"Not or opposite,Wrongly or badly"']);
+  const mixedHeaders = mixedSheet.getRow(3).values as string[];
+  for (const [index, word, prefix, base] of [[4, "dislike", "dis", "like"], [5, "misread", "mis", "read"]] as const) {
+    for (const [key, value] of Object.entries({
+      ...values, Word: word, "Prefix meaning group": "", "Word family": base, "Dictation sentence": `Please ${word} this.`,
+      "Part 1 underlying form": prefix, "Part 1 visible letters": prefix, "Part 2 underlying form": base,
+      "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
+    })) mixedSheet.getCell(index, mixedHeaders.indexOf(key)).value = value;
+  }
+  const mixedUpload = async () => Uint8Array.from(await mixed.xlsx.writeBuffer()).buffer;
+  const parsedMixed = await readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL);
+  assert.deepEqual([...parsedMixed.prefixMeanings], [[4, "not_or_opposite"], [5, "wrongly_or_badly"]]);
+  assert.deepEqual(parseMultiSenseCsv(parsedMixed.csv).map(word => word.analyses[0].parts[0].gloss),
+    ["not or opposite", "wrongly or badly"]);
+  mixedSheet.getCell("E4").value = "Wrongly or badly";
+  await assert.rejects(readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL), /row 4: choose Not or opposite/);
+  process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "production";
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
+  assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), false);
+  assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }
 
