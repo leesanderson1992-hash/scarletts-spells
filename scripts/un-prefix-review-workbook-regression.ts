@@ -88,7 +88,44 @@ async function main() {
   sheet.spliceColumns(5, 1);
   const legacy = await readReviewWorkbook(await serialize(), UN_PREFIX_SKILL);
   assert.equal(legacy.prefixMeanings.size, 0);
-  console.log("Prefix workbook choices and lesson draft handoff passed.");
+  const blank = new ExcelJS.Workbook();
+  await blank.xlsx.load(await buildReviewWorkbook({ skill: UN_PREFIX_SKILL, title: "Prefix un-",
+    bundles: [], notes: new Map(), families: new Map() }));
+  const blankSheet = blank.getWorksheet("Words to review")!;
+  assert.equal(blankSheet.getCell("A4").text, "");
+  for (const row of [4, 103])
+    assert.deepEqual(blankSheet.getCell(`E${row}`).dataValidation.formulae, ['"Not,Reverse"']);
+  const header = blankSheet.getRow(3).values as string[];
+  const values = {
+    "Word": "unlock", "Meaning": "Open something that is locked.", "Part of speech": "verb",
+    "Use in lesson": "Yes", "Prefix meaning group": "Reverse",
+    "IPA": "/ʌnˈlɒk/", "Spoken syllable count": 2, "Stress pattern": "unstressed-primary",
+    "Dictation sentence": "Please unlock the door.", "Dictation target token index": 1,
+    "Part 1 kind": "prefix", "Part 1 underlying form": "un", "Part 1 visible letters": "un",
+    "Part 2 kind": "base", "Part 2 underlying form": "lock", "Part 2 visible letters": "lock",
+    "Part 2 join before": "none", "Relationship kind": "derived",
+  };
+  for (const [key, value] of Object.entries(values)) {
+    assert(header.indexOf(key) > 0, key);
+    blankSheet.getCell(4, header.indexOf(key)).value = value;
+  }
+  const blankUpload = Uint8Array.from(await blank.xlsx.writeBuffer()).buffer;
+  const awaitingFamily = await readReviewWorkbook(blankUpload, UN_PREFIX_SKILL);
+  assert.deepEqual(awaitingFamily.rowNumbers, []);
+  assert.deepEqual(awaitingFamily.pendingFamilies.map(task => [task.row, task.base]), [[4, "lock"]]);
+  const parsedBlank = await readReviewWorkbook(blankUpload, UN_PREFIX_SKILL, {
+    targetRow: 4, decisions: [{ row: 4, familyKey: "lock" }],
+    resolve: async (base, decision) => ({ key: decision.familyKey!, base, meaning: "Fasten with a lock.",
+      partOfSpeech: "verb", kind: "free_base" }),
+  });
+  assert.deepEqual(parsedBlank.rowNumbers, [4]);
+  assert.deepEqual([...parsedBlank.prefixMeanings], [[4, "reverse"]]);
+  const [newWord] = parseMultiSenseCsv(parsedBlank.csv);
+  assert.equal(newWord.wordId, "");
+  assert.equal(newWord.senseSet.senses[0].id, "meaning-4");
+  assert.equal(newWord.senseSet.senses[0].pronunciationId, "pronunciation-4");
+  assert.deepEqual(newWord.analyses[0].parts.map(part => part.gloss), ["reverse", "Fasten with a lock."]);
+  console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }
 
 void main();

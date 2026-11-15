@@ -52,6 +52,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   });
   const familyOptions = workbook.addWorksheet("Family options", { state: "veryHidden" });
   const suffixWorkbook = isSuffixReviewSkill(input.skill);
+  const blankPrefixWorkbook = input.skill === UN_PREFIX_SKILL && !input.bundles.length;
   const list = (choices: readonly string[], allowBlank = true): ExcelJS.DataValidation => ({
     type: "list", allowBlank, formulae: [`"${choices.join(",")}"`],
     showErrorMessage: true, error: "Choose a value from the list.",
@@ -110,7 +111,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
       row.getCell(key).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFDEDF7" } };
     }
   }
-  if (suffixWorkbook) {
+  if (suffixWorkbook || blankPrefixWorkbook) {
     const firstBlankRow = headerRow + rows.length + 1;
     for (let number = firstBlankRow; number < firstBlankRow + 100; number++) {
       const row = sheet.getRow(number);
@@ -147,6 +148,11 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
   if (input.skill === UN_PREFIX_SKILL) guide.addRow([
     "Prefix meaning group",
     "Choose Not or Reverse for the meaning used in the lesson. Uploading fills the meaning of the un- word part and the ADLE Meaning group. Choose Not for untidy and Reverse for unlock.",
+  ]);
+  if (blankPrefixWorkbook) guide.addRows([
+    ["New words", "Start on the first blank row. Enter the spelling, meaning, part of speech, IPA, spoken syllable count, stress and dictation. The upload fills the hidden IDs."],
+    ["Prefix and base", "For part 1 choose prefix and enter un for both forms. For part 2 choose base and enter the base spelling and its meaning. Set the join to none and the relationship to derived."],
+    ["Before publishing", "Resolve the base family in Bulk review if needed. Open the saved lesson draft to complete any remaining lesson checks."],
   ]);
   if (suffixWorkbook) guide.addRows([
     ["New words", "Use the first 100 empty rows for new entries. Choose Needs family review to find or create a family in Bulk review."],
@@ -207,6 +213,10 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
       throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
     entry.workbook_row = String(index);
+    if (hasPrefixChoice && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
+      entry.sense_id ||= `meaning-${index}`;
+      if (entry.part_of_speech !== "root") entry.pronunciation_id ||= `pronunciation-${index}`;
+    }
     if (!entry.display_word) throw new Error(`Workbook row ${index} needs a word.`);
     const groupKey = entry.display_word.toLocaleLowerCase("en-GB");
     const group = groups.get(groupKey) ?? [];

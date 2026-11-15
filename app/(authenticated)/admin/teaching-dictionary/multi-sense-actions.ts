@@ -17,7 +17,8 @@ import { ABLE_IBLE_SKILL, type SuffixWorkbookFacts } from "@/lib/teaching-dictio
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { stageAbleIbleWord, suffixWorkbookIssues } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
-import { stageUnPrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
+import { loadUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
+import { stageUnPrefixWorkbookDraft, unWorkbookApprovalEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { saveBulkSkillApprovals } from "./bulk-assign/actions";
 
 type ImportIssue = { word: string; rows: number[]; wordId?: string; reason: string };
@@ -140,7 +141,13 @@ export async function importReviewedMultiSenseCsv(
         if (prefixMeaning) {
           try {
             lesson.draftId = await stageUnPrefixWorkbookDraft(db, actor.id, { ...bundle, wordId }, analysis.senseId, prefixMeaning);
-            lesson.release = `Meaning group saved as ${prefixMeaning === "not" ? "Not" : "Reverse"}`;
+            const label = prefixMeaning === "not" ? "Not" : "Reverse";
+            lesson.release = `Meaning group saved as ${label}`;
+            if (unWorkbookApprovalEnabled()) {
+              const [row] = await loadUnWorkbookQueue(db, [wordId]);
+              if (row && !row.blockers.length) lesson.release = `Ready to publish · ${label}`;
+              else lesson.release = `Complete missing facts in Preview · ${label}`;
+            }
           } catch (error) {
             report(error instanceof Error ? error.message : "Could not save the prefix lesson draft.");
             lesson.release = "Meaning group needs review";

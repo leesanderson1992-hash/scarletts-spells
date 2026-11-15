@@ -11,6 +11,7 @@ import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/mu
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +58,13 @@ export async function GET(request: Request) {
     if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook(title, current),
       `teaching-dictionary-active-pool-${skill}.xlsx`);
     const selected = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
-    if (!selected.length) return new Response("No words need review in this batch.", { status: 404 });
+    if (!selected.length) {
+      if (skill === UN_PREFIX_SKILL && batch === 1) {
+        const bytes = await buildReviewWorkbook({ skill, title, bundles: [], notes: new Map(), families: new Map() });
+        return downloadWorkbook(bytes, `teaching-dictionary-blank-${skill}.xlsx`);
+      }
+      return new Response("No words need review in this batch.", { status: 404 });
+    }
     const notes = new Map(selected.map(row => [row.id, row.note]));
     return downloadWorkbook(await buildReviewWorkbook({ skill, title,
       bundles: bundles.filter(bundle => notes.has(bundle.wordId)), notes, families: new Map() }),

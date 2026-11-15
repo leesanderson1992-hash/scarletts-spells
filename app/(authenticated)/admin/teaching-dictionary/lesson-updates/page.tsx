@@ -12,6 +12,11 @@ import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { DICTIONARY_BANDS } from "@/lib/teaching-dictionary-manager/contracts";
+import { unWorkbookApprovalEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
+import { loadPendingUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
+import { publishUnWorkbookWords, saveUnWorkbookDetails } from "./un-prefix-actions";
+import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { publishAbleIbleLesson } from "./able-ible-actions";
 import { chooseIngLessonMeaning, generateIngLesson, publishIngLesson } from "./actions";
 
@@ -46,6 +51,10 @@ export default async function LessonUpdates({ searchParams }: {
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
+  const prefixQueue = selected === UN_PREFIX_SKILL && view === "preview" && specialist && unWorkbookApprovalEnabled()
+    ? await loadPendingUnWorkbookQueue(db) : null;
+  const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, 100) ?? [];
+  const draftWordIds = new Set(prefixQueue?.map(row => row.wordId));
   const lessonName = skill ? STAGING_ING_LESSONS[skill] : "";
   const clusterLabels = new Map((clusterRows.data ?? []).map(row => [row.skill_cluster_key, row.display_name]));
   const skills = (skillRows.data ?? []).map(row => ({ key: row.micro_skill_key, label: row.display_name, cluster: row.skill_cluster_key }));
@@ -70,10 +79,51 @@ export default async function LessonUpdates({ searchParams }: {
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
-      allowsBlankWorkbook={suffixPilot}
+      allowsBlankWorkbook={suffixPilot || selected === UN_PREFIX_SKILL}
       review={specialist && view === "export" ? <section className={card}>
         <h2 className="text-xl font-semibold">{specialist.rows.length} words waiting for review</h2>
-        <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
+        {prefixQueue && <>
+        {params.published && <p role="status">{params.published} words published and available in the staging lesson.</p>}
+        {prefixQueue.map(row => <form action={saveUnWorkbookDetails} key={row.id} className="space-y-2 rounded-lg border p-3">
+          <input type="hidden" name="word_id" value={row.wordId} />
+          <input type="hidden" name="draft_id" value={row.id} />
+          <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
+          <p className="text-sm">{row.payload.definition} · Meaning group {row.payload.routeContents[0]?.content.meaningBinKey === "reverse" ? "Reverse" : "Not"}</p>
+          {row.blockers.length > 0 && <>
+            <ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([["ageBand", "Age band"], ["frequencyBand", "Frequency band"], ["complexityBand", "Complexity band"]] as const)
+                .filter(([key]) => !row.payload[key]).map(([key, label]) => <label key={key} className="grid gap-1 text-sm">
+                  {label}<select name={key} defaultValue="" className="rounded border p-2">
+                    <option value="">Choose {label.toLowerCase()}</option>
+                    {DICTIONARY_BANDS[key].map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}
+                  </select>
+                </label>)}
+              {!row.payload.writtenSyllableBreakdown && <label className="grid gap-1 text-sm">
+                Written syllables <input name="writtenSyllableBreakdown" className="rounded border p-2" placeholder="un·fold" />
+              </label>}
+              {row.payload.metadata.has_schwa == null && <label className="grid gap-1 text-sm">
+                Does the British pronunciation have a schwa?
+                <select name="hasSchwa" defaultValue="" className="rounded border p-2">
+                  <option value="">Choose one</option><option value="yes">Yes</option><option value="no">No</option>
+                </select>
+              </label>}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <ActionSubmitButton className={button} pendingLabel="Checking facts…">Save and recheck {row.payload.displayWord}</ActionSubmitButton>
+              <Link className="text-sm underline" href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.id}#td-route-${UN_PREFIX_SKILL}`}>Open word details</Link>
+            </div>
+          </>}
+        </form>)}
+        {readyPrefixRows.length > 0 && <form action={publishUnWorkbookWords}>
+          {readyPrefixRows.map(row => <div key={row.id} hidden>
+            <input type="hidden" name="word_id" value={row.wordId} />
+            <input type="hidden" name="draft_id" value={row.id} />
+          </div>)}
+          <ActionSubmitButton className={button} pendingLabel="Publishing words…">Publish {readyPrefixRows.length} ready {readyPrefixRows.length === 1 ? "word" : "words"}</ActionSubmitButton>
+        </form>}
+      </>}
+      <ul className="divide-y divide-[var(--border)]">{specialist.rows.filter(row => !draftWordIds.has(row.id)).map(row => <li key={row.id} className="py-2">
           <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
           <p className="text-sm">{row.note}</p>
         </li>)}</ul>
@@ -96,7 +146,48 @@ export default async function LessonUpdates({ searchParams }: {
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
       <p>{specialist.current.length} active words · {specialist.rows.length} waiting for review</p>
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
-      <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">
+      {prefixQueue && <>
+        {params.published && <p role="status">{params.published} words published and available in the staging lesson.</p>}
+        {prefixQueue.map(row => <form action={saveUnWorkbookDetails} key={row.id} className="space-y-2 rounded-lg border p-3">
+          <input type="hidden" name="word_id" value={row.wordId} />
+          <input type="hidden" name="draft_id" value={row.id} />
+          <h3 className="font-semibold">{row.payload.displayWord} · {row.blockers.length ? "Needs facts" : "Ready to publish"}</h3>
+          <p className="text-sm">{row.payload.definition} · Meaning group {row.payload.routeContents[0]?.content.meaningBinKey === "reverse" ? "Reverse" : "Not"}</p>
+          {row.blockers.length > 0 && <>
+            <ul className="list-disc pl-5 text-sm">{row.blockers.map(issue => <li key={issue}>{issue}</li>)}</ul>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([["ageBand", "Age band"], ["frequencyBand", "Frequency band"], ["complexityBand", "Complexity band"]] as const)
+                .filter(([key]) => !row.payload[key]).map(([key, label]) => <label key={key} className="grid gap-1 text-sm">
+                  {label}<select name={key} defaultValue="" className="rounded border p-2">
+                    <option value="">Choose {label.toLowerCase()}</option>
+                    {DICTIONARY_BANDS[key].map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}
+                  </select>
+                </label>)}
+              {!row.payload.writtenSyllableBreakdown && <label className="grid gap-1 text-sm">
+                Written syllables <input name="writtenSyllableBreakdown" className="rounded border p-2" placeholder="un·fold" />
+              </label>}
+              {row.payload.metadata.has_schwa == null && <label className="grid gap-1 text-sm">
+                Does the British pronunciation have a schwa?
+                <select name="hasSchwa" defaultValue="" className="rounded border p-2">
+                  <option value="">Choose one</option><option value="yes">Yes</option><option value="no">No</option>
+                </select>
+              </label>}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <ActionSubmitButton className={button} pendingLabel="Checking facts…">Save and recheck {row.payload.displayWord}</ActionSubmitButton>
+              <Link className="text-sm underline" href={`/admin/teaching-dictionary/${row.wordId}?draft=${row.id}#td-route-${UN_PREFIX_SKILL}`}>Open word details</Link>
+            </div>
+          </>}
+        </form>)}
+        {readyPrefixRows.length > 0 && <form action={publishUnWorkbookWords}>
+          {readyPrefixRows.map(row => <div key={row.id} hidden>
+            <input type="hidden" name="word_id" value={row.wordId} />
+            <input type="hidden" name="draft_id" value={row.id} />
+          </div>)}
+          <ActionSubmitButton className={button} pendingLabel="Publishing words…">Publish {readyPrefixRows.length} ready {readyPrefixRows.length === 1 ? "word" : "words"}</ActionSubmitButton>
+        </form>}
+      </>}
+      <ul className="divide-y divide-[var(--border)]">{specialist.rows.filter(row => !draftWordIds.has(row.id)).map(row => <li key={row.id} className="py-2">
         <Link className="font-semibold underline" href={row.href}>{row.word}</Link>
         <p className="text-sm">{row.note}</p>
       </li>)}</ul>
