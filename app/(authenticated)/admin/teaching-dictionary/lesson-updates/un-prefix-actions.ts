@@ -7,6 +7,7 @@ import { requireAdminUser } from "@/lib/admin/access";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import { writtenSyllableBlockers } from "@/lib/teaching-dictionary-manager/authoring";
 import { DICTIONARY_BANDS } from "@/lib/teaching-dictionary-manager/contracts";
 import { TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
@@ -59,6 +60,8 @@ export async function saveUnWorkbookDetails(form: FormData) {
     const written = String(form.get("writtenSyllableBreakdown") ?? "").trim();
     if (written.length > 140 || (schwa !== null && schwa !== "" && schwa !== "yes" && schwa !== "no"))
       throw new Error("Check the written syllables and schwa choice.");
+    const [syllableError] = writtenSyllableBlockers(bundle.displayWord, written);
+    if (syllableError) throw new Error(syllableError);
     await stageUnPrefixWorkbookDraft(db, actor.id, bundle, senseId, meaning, {
       ageBand: band("ageBand"), frequencyBand: band("frequencyBand"), complexityBand: band("complexityBand"),
       writtenSyllableBreakdown: written, hasSchwa: schwa === "yes" ? true : schwa === "no" ? false : undefined,

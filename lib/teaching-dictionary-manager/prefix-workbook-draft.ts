@@ -4,7 +4,7 @@ import type { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 import { emptyMetadata, emptyMorphology, routeForSkill, routeWithSharedFacts,
   type RouteContentDraft, type WordDraftPayload } from "./contracts";
-import { normaliseWrittenSyllableBreakdown } from "./authoring";
+import { normaliseWrittenSyllableBreakdown, writtenSyllableBlockers } from "./authoring";
 import { inheritFamilyPartMeanings } from "./family-part-meanings";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { UN_PREFIX_SKILL } from "./prefix-content";
@@ -52,10 +52,12 @@ export async function stageUnPrefixWorkbookDraft(db: Db, actorId: string, bundle
     ? priorPayload.routeContents.find(item => item.microSkillKey === UN_PREFIX_SKILL) : undefined;
   const priorDetails = pilot && previous.data?.source_reference === UN_WORKBOOK_SOURCE && prior
     && prior.content.workbookSenseRevision === revision?.data?.reviewed_at ? priorPayload : undefined;
+  const approvedWritten = metadata.data?.written_syllable_breakdown ?? "";
+  const written = pilot && writtenSyllableBlockers(bundle.displayWord, approvedWritten).length ? "" : approvedWritten;
   const payload: WordDraftPayload = {
     displayWord: bundle.displayWord, senseSet: bundle.senseSet, definition: sense.definition,
     dictationSentence: sense.dictationSentence ?? "", dictationTargetTokenIndex: sense.dictationTargetTokenIndex ?? 0,
-    writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(metadata.data?.written_syllable_breakdown
+    writtenSyllableBreakdown: normaliseWrittenSyllableBreakdown(written
       || details?.writtenSyllableBreakdown || priorDetails?.writtenSyllableBreakdown || ""),
     ageBand: facts.age_band || details?.ageBand || priorDetails?.ageBand || "",
     frequencyBand: facts.frequency_band || details?.frequencyBand || priorDetails?.frequencyBand || "",
@@ -82,7 +84,7 @@ export async function stageUnPrefixWorkbookDraft(db: Db, actorId: string, bundle
     && new Set(choices.map(choice => choice.text)).size === choices.length;
   const derivedAudit = canDeriveChoice ? { word: bundle.displayWord,
     choiceVerdicts: Object.fromEntries(choices.map(choice => [choice.text, choice.text === prefix.surfaceText])) } : undefined;
-  const choiceAudit = priorAudit ?? intro?.validChoiceAudit?.find(item => item.word === bundle.displayWord) ?? derivedAudit;
+  const choiceAudit = derivedAudit ?? priorAudit ?? intro?.validChoiceAudit?.find(item => item.word === bundle.displayWord);
   const content: RouteContentDraft = {
     routeId: route.routeId, routeVersion: route.routeVersion, microSkillKey: UN_PREFIX_SKILL, wordMeaning: "", wordSum: "",
     content: { prefixVariant: "un", meaningBinKey: meaning, expectedProfileId: profile.data.id,

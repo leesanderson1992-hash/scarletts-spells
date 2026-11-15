@@ -12,6 +12,7 @@ import { ActionSubmitButton } from "../action-submit-button";
 import { BulkReviewFlow } from "./bulk-review-flow";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
 import { loadAbleIbleReview } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { writtenSyllableBlockers } from "@/lib/teaching-dictionary-manager/authoring";
 import { DICTIONARY_BANDS } from "@/lib/teaching-dictionary-manager/contracts";
 import { unWorkbookApprovalEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { loadPendingUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
@@ -99,7 +100,7 @@ export default async function LessonUpdates({ searchParams }: {
                     {DICTIONARY_BANDS[key].map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}
                   </select>
                 </label>)}
-              {!row.payload.writtenSyllableBreakdown && <label className="grid gap-1 text-sm">
+              {(!row.payload.writtenSyllableBreakdown || writtenSyllableBlockers(row.payload.displayWord, row.payload.writtenSyllableBreakdown).length > 0) && <label className="grid gap-1 text-sm">
                 Written syllables <input name="writtenSyllableBreakdown" className="rounded border p-2" placeholder="un·fold" />
               </label>}
               {row.payload.metadata.has_schwa == null && <label className="grid gap-1 text-sm">
@@ -163,7 +164,7 @@ export default async function LessonUpdates({ searchParams }: {
                     {DICTIONARY_BANDS[key].map(value => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}
                   </select>
                 </label>)}
-              {!row.payload.writtenSyllableBreakdown && <label className="grid gap-1 text-sm">
+              {(!row.payload.writtenSyllableBreakdown || writtenSyllableBlockers(row.payload.displayWord, row.payload.writtenSyllableBreakdown).length > 0) && <label className="grid gap-1 text-sm">
                 Written syllables <input name="writtenSyllableBreakdown" className="rounded border p-2" placeholder="un·fold" />
               </label>}
               {row.payload.metadata.has_schwa == null && <label className="grid gap-1 text-sm">
