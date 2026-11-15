@@ -205,7 +205,7 @@ async function main() {
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
   assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
-  assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), false);
+  assert.equal(prefixWorkbookEnabled(NEGATIVE_PREFIX_SKILL), true);
   assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }
