@@ -14,7 +14,7 @@ import type { UnPrefixMeaning } from "./review-workbook";
 type Db = ReturnType<typeof createServiceRoleClient>;
 export const UN_WORKBOOK_SOURCE = "Reviewed un- Bulk review";
 export const UN_WORKBOOK_ROUTE = "dynamic_prefix_word_lab";
-export const unWorkbookApprovalEnabled = () => ingReviewEnvironment() === "staging";
+export const unWorkbookApprovalEnabled = () => ingReviewEnvironment() !== null;
 
 export type UnWorkbookDetails = Pick<WordDraftPayload, "ageBand" | "frequencyBand" | "complexityBand" | "writtenSyllableBreakdown">
   & { hasSchwa?: boolean };

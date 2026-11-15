@@ -14,6 +14,7 @@ import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-pr
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { stageUnPrefixWorkbookDraft, unWorkbookApprovalEnabled, UN_WORKBOOK_ROUTE } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
+import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadUnWorkbookQueue } from "@/lib/teaching-dictionary-manager/un-prefix-bulk-review";
 import type { UnPrefixMeaning } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { saveBulkSkillApprovals } from "../bulk-assign/actions";
@@ -124,7 +125,7 @@ export async function publishUnWorkbookWords(form: FormData) {
     let verified = false;
     try {
       const { profiles } = await loadDynamicPrefixProfiles(db, "00000000-0000-4000-8000-000000000001",
-        { microSkillKeys: [UN_PREFIX_SKILL], allowStagingProfiles: true });
+        { microSkillKeys: [UN_PREFIX_SKILL], allowStagingProfiles: ingReviewEnvironment() === "staging" });
       verified = profiles.some(profile => rows.every(row => profile.wordsByCanonicalId.get(row.wordId)?.effect
         === row.payload.routeContents[0]?.content.meaningBinKey));
     } catch { /* Roll back when runtime verification is unavailable. */ }
