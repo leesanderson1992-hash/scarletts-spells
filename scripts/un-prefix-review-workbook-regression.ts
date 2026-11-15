@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
-import { DIS_MIS_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
+import { DIS_MIS_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
@@ -146,10 +146,36 @@ async function main() {
     ["not or opposite", "wrongly or badly"]);
   mixedSheet.getCell("E4").value = "Wrongly or badly";
   await assert.rejects(readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL), /row 4: choose Not or opposite/);
+  const rePre = new ExcelJS.Workbook();
+  await rePre.xlsx.load(await buildReviewWorkbook({ skill: RE_PRE_PREFIX_SKILL, title: "Prefixes re- and pre-",
+    bundles: [], notes: new Map(), families: new Map() }));
+  const rePreSheet = rePre.getWorksheet("Words to review")!;
+  assert.equal(rePreSheet.getCell("A4").text, "");
+  for (const row of [4, 103])
+    assert.deepEqual(rePreSheet.getCell(`E${row}`).dataValidation.formulae, ['"Again or back,Before"']);
+  const rePreHeaders = rePreSheet.getRow(3).values as string[];
+  for (const [row, prefix, label] of [[4, "re", ""], [5, "pre", "Before"]] as const) {
+    const word = prefix + "wash";
+    for (const [key, value] of Object.entries({
+      ...values, Word: word, "Prefix meaning group": label, "Word family": "wash",
+      "Dictation sentence": `Please ${word} this.`, "Part 1 underlying form": prefix, "Part 1 visible letters": prefix,
+      "Part 2 underlying form": "wash", "Part 2 visible letters": "wash", "Part 2 meaning": "Clean with water.",
+    })) rePreSheet.getCell(row, rePreHeaders.indexOf(key)).value = value;
+  }
+  const rePreUpload = async () => Uint8Array.from(await rePre.xlsx.writeBuffer()).buffer;
+  const parsedRePre = await readReviewWorkbook(await rePreUpload(), RE_PRE_PREFIX_SKILL);
+  assert.deepEqual([...parsedRePre.prefixMeanings], [[4, "again_back"], [5, "before"]]);
+  assert.deepEqual(parseMultiSenseCsv(parsedRePre.csv).map(word => word.analyses[0].parts[0].gloss),
+    ["again or back", "before"]);
+  rePreSheet.getCell("E5").value = "Again or back";
+  await assert.rejects(readReviewWorkbook(await rePreUpload(), RE_PRE_PREFIX_SKILL), /row 5: choose Before/);
+  process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "staging";
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://qkpjbajicacbrphthibk.supabase.co";
+  assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "production";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://wwohrqtunajrbwxyssjf.supabase.co";
   assert.equal(prefixWorkbookEnabled(DIS_MIS_PREFIX_SKILL), true);
-  assert.equal(prefixWorkbookEnabled("D4_MOR_PREFIXES_RE_PRE"), false);
+  assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), false);
   assert.equal(prefixWorkbookEnabled(UN_PREFIX_SKILL), true);
   console.log("Prefix workbook choices, blank intake, and lesson draft handoff passed.");
 }
