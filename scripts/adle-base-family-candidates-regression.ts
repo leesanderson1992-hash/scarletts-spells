@@ -90,17 +90,17 @@ assert.notStrictEqual(indexedEligibleBaseFamilyCounts({ ...activation, releaseMa
   indexedEligibleBaseFamilyCounts(activation), "a new immutable release gets a separate count index");
 assert.deepEqual(shortlistBaseFamilyPairs(counts), [["a_base_family", "b_base_family"]], "2 + 4 is valid");
 const ingredientPairCounts = [
-  { baseFamilyKey: "ingredient_noun_base_family", eligibleCount: 2, eligibleWordIds: new Set(["ingredient", "ingredients"]) },
-  { baseFamilyKey: "colour_base_family", eligibleCount: 3, eligibleWordIds: new Set(["colour", "colourful", "colours"]) },
+  { baseFamilyKey: "ingredient_noun_base_family", regularityExclusions: [], eligibleCount: 2, eligibleWordIds: new Set(["ingredient", "ingredients"]) },
+  { baseFamilyKey: "colour_base_family", regularityExclusions: [], eligibleCount: 3, eligibleWordIds: new Set(["colour", "colourful", "colours"]) },
 ];
 assert.deepEqual(shortlistBaseFamilyPairs(ingredientPairCounts), []);
 assert.match(unpairableBaseFamilyBlockers(ingredientPairCounts, [])[0], /ingredient_noun_base_family has 2 eligible words/);
 assert.deepEqual(shortlistBaseFamilyPairs(counts, 2), [], "x filters the shortlist only");
 assert.deepEqual(shortlistBaseFamilyPairs(eligibleBaseFamilyCounts(parent, skill, new Set(ids.slice(0, 4)))), [], "fewer than six distinct words fails");
-assert.deepEqual(shortlistBaseFamilyPairs([{ baseFamilyKey: "only", eligibleCount: 6, eligibleWordIds: closure }]), [], "one family is insufficient");
+assert.deepEqual(shortlistBaseFamilyPairs([{ baseFamilyKey: "only", regularityExclusions: [], eligibleCount: 6, eligibleWordIds: closure }]), [], "one family is insufficient");
 assert.deepEqual(shortlistBaseFamilyPairs([
-  { baseFamilyKey: "overlap-a", eligibleCount: 4, eligibleWordIds: new Set(["1", "2", "3", "4"]) },
-  { baseFamilyKey: "overlap-b", eligibleCount: 4, eligibleWordIds: new Set(["1", "2", "3", "4"]) },
+  { baseFamilyKey: "overlap-a", regularityExclusions: [], eligibleCount: 4, eligibleWordIds: new Set(["1", "2", "3", "4"]) },
+  { baseFamilyKey: "overlap-b", regularityExclusions: [], eligibleCount: 4, eligibleWordIds: new Set(["1", "2", "3", "4"]) },
 ]), [], "a pair must contain six distinct words, not six memberships");
 
 const reviewedId = randomUUID();
@@ -143,7 +143,7 @@ assert.ok(extended.families.some((entry) => entry.familyId === newLegacyId));
 assert.ok(extended.families.some((entry) => entry.familyId === newDefinitionId));
 
 const large = Array.from({ length: 500 }, (_, index) => ({
-  baseFamilyKey: `family_${index}`, eligibleCount: 2,
+  baseFamilyKey: `family_${index}`, regularityExclusions: [], eligibleCount: 2,
   eligibleWordIds: new Set([`base_${index}`, `derived_${index}`]),
 }));
 assert.equal(shortlistBaseFamilyPairs(large).length, 0);

@@ -34,12 +34,20 @@ Object.assign(reverseFixture.senseSet.pronunciations[0], { ipa: "/ʌnˈlɒk/", s
 Object.assign(reverseFixture.analyses[0], { familyKey: "lock", wordSum: "un + lock → unlock" });
 Object.assign(reverseFixture.analyses[0].parts[1], { sourceText: "lock", surfaceText: "lock", gloss: "Fasten with a lock." });
 
+async function loadReviewFixture(workbook: ExcelJS.Workbook, input: Parameters<typeof buildReviewWorkbook>[0]) {
+  await workbook.xlsx.load(Uint8Array.from(await buildReviewWorkbook(input)).buffer);
+}
+
+async function workbookUpload(workbook: ExcelJS.Workbook) {
+  return Uint8Array.from(Buffer.from(await workbook.xlsx.writeBuffer())).buffer;
+}
+
 async function main() {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(await buildReviewWorkbook({ skill: UN_PREFIX_SKILL, title: "Prefix un-",
-    bundles: [fixture, reverseFixture], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(workbook, { skill: UN_PREFIX_SKILL, title: "Prefix un-",
+    bundles: [fixture, reverseFixture], notes: new Map(), families: new Map() });
   const sheet = workbook.getWorksheet("Words to review")!;
-  const serialize = async () => Uint8Array.from(await workbook.xlsx.writeBuffer()).buffer;
+  const serialize = () => workbookUpload(workbook);
   assert.equal(sheet.getCell("E3").text, "Prefix meaning group");
   assert.equal(sheet.getCell("E4").text, "Not");
   assert.deepEqual(sheet.getCell("E4").dataValidation.formulae, ['"Not,Reverse"']);
@@ -84,7 +92,9 @@ async function main() {
       assert.equal(await stagePrefixWorkbookDraft(db, "admin", bundle, UN_PREFIX_SKILL, bundle.analyses[0].senseId, meaning), draftId);
     assert.equal(inserted, 1);
     assert.equal(payload?.routeContents[0].content.meaningBinKey, meaning);
-    assert.equal(payload?.canonicalMorphology.parts[0].gloss, meaning);
+    const part = payload?.canonicalMorphology.parts[0];
+    assert(part && typeof part === "object" && "gloss" in part);
+    assert.equal(part.gloss, meaning);
   }
   sheet.getCell("E5").value = "Other";
   await assert.rejects(readReviewWorkbook(await serialize(), UN_PREFIX_SKILL), /row 5: choose Not or Reverse/);
@@ -92,8 +102,8 @@ async function main() {
   const legacy = await readReviewWorkbook(await serialize(), UN_PREFIX_SKILL);
   assert.equal(legacy.prefixMeanings.size, 0);
   const blank = new ExcelJS.Workbook();
-  await blank.xlsx.load(await buildReviewWorkbook({ skill: UN_PREFIX_SKILL, title: "Prefix un-",
-    bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(blank, { skill: UN_PREFIX_SKILL, title: "Prefix un-",
+    bundles: [], notes: new Map(), families: new Map() });
   const blankSheet = blank.getWorksheet("Words to review")!;
   assert.equal(blankSheet.getCell("A4").text, "");
   for (const row of [4, 103])
@@ -112,7 +122,7 @@ async function main() {
     assert(header.indexOf(key) > 0, key);
     blankSheet.getCell(4, header.indexOf(key)).value = value;
   }
-  const blankUpload = Uint8Array.from(await blank.xlsx.writeBuffer()).buffer;
+  const blankUpload = await workbookUpload(blank);
   const awaitingFamily = await readReviewWorkbook(blankUpload, UN_PREFIX_SKILL);
   assert.deepEqual(awaitingFamily.rowNumbers, []);
   assert.deepEqual(awaitingFamily.pendingFamilies.map(task => [task.row, task.base]), [[4, "lock"]]);
@@ -129,8 +139,8 @@ async function main() {
   assert.equal(newWord.senseSet.senses[0].pronunciationId, "pronunciation-4");
   assert.deepEqual(newWord.analyses[0].parts.map(part => part.gloss), ["reverse", "Fasten with a lock."]);
   const mixed = new ExcelJS.Workbook();
-  await mixed.xlsx.load(await buildReviewWorkbook({ skill: DIS_MIS_PREFIX_SKILL, title: "Prefixes dis- and mis-",
-    bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(mixed, { skill: DIS_MIS_PREFIX_SKILL, title: "Prefixes dis- and mis-",
+    bundles: [], notes: new Map(), families: new Map() });
   const mixedSheet = mixed.getWorksheet("Words to review")!;
   assert.deepEqual(mixedSheet.getCell("E4").dataValidation.formulae, ['"Not or opposite,Wrongly or badly"']);
   const mixedHeaders = mixedSheet.getRow(3).values as string[];
@@ -141,7 +151,7 @@ async function main() {
       "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
     })) mixedSheet.getCell(index, mixedHeaders.indexOf(key)).value = value;
   }
-  const mixedUpload = async () => Uint8Array.from(await mixed.xlsx.writeBuffer()).buffer;
+  const mixedUpload = () => workbookUpload(mixed);
   const parsedMixed = await readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL);
   assert.deepEqual([...parsedMixed.prefixMeanings], [[4, "not_or_opposite"], [5, "wrongly_or_badly"]]);
   assert.deepEqual(parseMultiSenseCsv(parsedMixed.csv).map(word => word.analyses[0].parts[0].gloss),
@@ -149,8 +159,8 @@ async function main() {
   mixedSheet.getCell("E4").value = "Wrongly or badly";
   await assert.rejects(readReviewWorkbook(await mixedUpload(), DIS_MIS_PREFIX_SKILL), /row 4: choose Not or opposite/);
   const rePre = new ExcelJS.Workbook();
-  await rePre.xlsx.load(await buildReviewWorkbook({ skill: RE_PRE_PREFIX_SKILL, title: "Prefixes re- and pre-",
-    bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(rePre, { skill: RE_PRE_PREFIX_SKILL, title: "Prefixes re- and pre-",
+    bundles: [], notes: new Map(), families: new Map() });
   const rePreSheet = rePre.getWorksheet("Words to review")!;
   assert.equal(rePreSheet.getCell("A4").text, "");
   for (const row of [4, 103])
@@ -164,7 +174,7 @@ async function main() {
       "Part 2 underlying form": "wash", "Part 2 visible letters": "wash", "Part 2 meaning": "Clean with water.",
     })) rePreSheet.getCell(row, rePreHeaders.indexOf(key)).value = value;
   }
-  const rePreUpload = async () => Uint8Array.from(await rePre.xlsx.writeBuffer()).buffer;
+  const rePreUpload = () => workbookUpload(rePre);
   const parsedRePre = await readReviewWorkbook(await rePreUpload(), RE_PRE_PREFIX_SKILL);
   assert.deepEqual([...parsedRePre.prefixMeanings], [[4, "again_back"], [5, "before"]]);
   assert.deepEqual(parseMultiSenseCsv(parsedRePre.csv).map(word => word.analyses[0].parts[0].gloss),
@@ -172,8 +182,8 @@ async function main() {
   rePreSheet.getCell("E5").value = "Again or back";
   await assert.rejects(readReviewWorkbook(await rePreUpload(), RE_PRE_PREFIX_SKILL), /row 5: choose Before/);
   const negatives = new ExcelJS.Workbook();
-  await negatives.xlsx.load(await buildReviewWorkbook({ skill: NEGATIVE_PREFIX_SKILL, title: "Negative prefixes",
-    bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(negatives, { skill: NEGATIVE_PREFIX_SKILL, title: "Negative prefixes",
+    bundles: [], notes: new Map(), families: new Map() });
   const negativeSheet = negatives.getWorksheet("Words to review")!;
   assert.equal(negativeSheet.getCell("E3").text, "Prefix form");
   for (const row of [4, 103])
@@ -189,7 +199,7 @@ async function main() {
       "Part 2 underlying form": base, "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
     })) if (value !== undefined) negativeSheet.getCell(index + 4, negativeHeaders.indexOf(key)).value = value;
   }
-  const negativeUpload = async () => Uint8Array.from(await negatives.xlsx.writeBuffer()).buffer;
+  const negativeUpload = () => workbookUpload(negatives);
   const parsedNegatives = await readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL);
   assert.deepEqual([...parsedNegatives.prefixMeanings.values()], ["in", "im", "il", "ir"]);
   assert.deepEqual(parseMultiSenseCsv(parsedNegatives.csv).map(word => word.analyses[0].parts[0].gloss),
@@ -200,8 +210,8 @@ async function main() {
   negativeSheet.getCell("A5").value = "imlogical";
   await assert.rejects(readReviewWorkbook(await negativeUpload(), NEGATIVE_PREFIX_SKILL), /row 5: use il- before l/);
   const groupedPrefixes = new ExcelJS.Workbook();
-  await groupedPrefixes.xlsx.load(await buildReviewWorkbook({ skill: SUB_INTER_SUPER_PREFIX_SKILL,
-    title: "Prefixes sub-, inter- and super-", bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(groupedPrefixes, { skill: SUB_INTER_SUPER_PREFIX_SKILL,
+    title: "Prefixes sub-, inter- and super-", bundles: [], notes: new Map(), families: new Map() });
   const groupedSheet = groupedPrefixes.getWorksheet("Words to review")!;
   for (const row of [4, 103])
     assert.deepEqual(groupedSheet.getCell(`E${row}`).dataValidation.formulae, ['"Under,Between,Above or beyond"']);
@@ -216,7 +226,7 @@ async function main() {
       "Part 2 underlying form": base, "Part 2 visible letters": base, "Part 2 meaning": "Reviewed base meaning",
     })) groupedSheet.getCell(row, groupedHeaders.indexOf(key)).value = value;
   }
-  const groupedUpload = async () => Uint8Array.from(await groupedPrefixes.xlsx.writeBuffer()).buffer;
+  const groupedUpload = () => workbookUpload(groupedPrefixes);
   const parsedGroups = await readReviewWorkbook(await groupedUpload(), SUB_INTER_SUPER_PREFIX_SKILL);
   assert.deepEqual([...parsedGroups.prefixMeanings.values()], ["under", "between", "above_beyond"]);
   assert.deepEqual(parseMultiSenseCsv(parsedGroups.csv).map(word => word.analyses[0].parts[0].gloss),
@@ -224,8 +234,8 @@ async function main() {
   groupedSheet.getCell("E6").value = "Under";
   await assert.rejects(readReviewWorkbook(await groupedUpload(), SUB_INTER_SUPER_PREFIX_SKILL), /row 6: choose Above or beyond/);
   const suffixWorkbook = new ExcelJS.Workbook();
-  await suffixWorkbook.xlsx.load(await buildReviewWorkbook({ skill: FUL_LESS_SKILL,
-    title: "-ful/-less", bundles: [], notes: new Map(), families: new Map() }));
+  await loadReviewFixture(suffixWorkbook, { skill: FUL_LESS_SKILL,
+    title: "-ful/-less", bundles: [], notes: new Map(), families: new Map() });
   const suffixSheet = suffixWorkbook.getWorksheet("Words to review")!;
   const suffixHeaders = suffixSheet.getRow(3).values as string[];
   const suffixValues = {
@@ -242,7 +252,7 @@ async function main() {
     assert(suffixHeaders.indexOf(key) > 0, key);
     suffixSheet.getCell(4, suffixHeaders.indexOf(key)).value = value;
   }
-  const suffixUpload = Uint8Array.from(await suffixWorkbook.xlsx.writeBuffer()).buffer;
+  const suffixUpload = await workbookUpload(suffixWorkbook);
   const pendingSuffix = await readReviewWorkbook(suffixUpload, FUL_LESS_SKILL);
   assert.deepEqual(pendingSuffix.pendingFamilies.map(row => row.base), ["help"]);
   const parsedSuffix = await readReviewWorkbook(suffixUpload, FUL_LESS_SKILL, {

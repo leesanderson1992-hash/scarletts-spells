@@ -37,7 +37,7 @@ export function WeakVowelFactsEditor(props: {
   function number(value: string) {
     return value.trim() && /^\d+$/.test(value.trim()) ? Number(value) : null;
   }
-  async function useDeviceVoice(kind: "wordRecording" | "sentenceRecording", text: string) {
+  async function setDeviceVoice(kind: "wordRecording" | "sentenceRecording", text: string) {
     if (!text.trim()) return;
     const src = deviceSpeechSource(text);
     const bytes = new TextEncoder().encode(src);
@@ -76,7 +76,7 @@ export function WeakVowelFactsEditor(props: {
       {input("Reviewed pronunciation ID", facts.pronunciationId, (value) => patch({ pronunciationId: value }))}
       {input("British word recording path", wordRecording.src, (value) => nested("wordRecording", { src: value }), "Use a published /audio/ path.")}
       {input("Word recording SHA-256", wordRecording.sha256, (value) => nested("wordRecording", { sha256: value }))}
-      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void useDeviceVoice("wordRecording", props.word)}>Use device voice for this word</button>
+      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void setDeviceVoice("wordRecording", props.word)}>Use device voice for this word</button>
         {needsPronunciationImprovement(wordRecording.src) && <span className="ml-3 text-amber-800">Pronunciation improvement needed</span>}</div>
       {numeric("Spoken syllable count", facts.spokenSyllableCount, (value) => patch({ spokenSyllableCount: value }))}
       {numeric("Target syllable (starts at 1)", target.syllableIndex, (value) => nested("target", { syllableIndex: value }))}
@@ -110,7 +110,7 @@ export function WeakVowelFactsEditor(props: {
       {facts.familyDecision === "approve" && facts.canonicalFamilyId ? <p className="self-end text-xs text-[color:var(--mid)]">Merged family ID: <code>{string(facts.canonicalFamilyId)}</code></p> : null}
       {input("British sentence recording path", sentenceRecording.src, (value) => nested("sentenceRecording", { src: value }))}
       {input("Sentence recording SHA-256", sentenceRecording.sha256, (value) => nested("sentenceRecording", { sha256: value }))}
-      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void useDeviceVoice("sentenceRecording", props.sentence)}>Use device voice for this sentence</button>
+      <div className="md:col-span-2"><button type="button" className="underline" onClick={() => void setDeviceVoice("sentenceRecording", props.sentence)}>Use device voice for this sentence</button>
         {needsPronunciationImprovement(sentenceRecording.src) && <span className="ml-3 text-amber-800">Dictation pronunciation improvement needed</span>}</div>
       {numeric("Sentence target start (zero-based)", sentenceTarget.start, (value) => nested("sentenceTarget", { start: value }))}
       {numeric("Sentence target end (exclusive)", sentenceTarget.end, (value) => nested("sentenceTarget", { end: value }))}

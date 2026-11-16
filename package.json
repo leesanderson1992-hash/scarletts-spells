@@ -333,7 +333,7 @@
     "adle:dynamic-prefix-shared-staging-proof-regression": "npx tsx scripts/adle-dynamic-prefix-shared-staging-proof-regression.ts",
     "adle:dynamic-affix-shared-authority-regression": "npx tsx scripts/adle-dynamic-affix-shared-authority-regression.ts",
     "adle:dynamic-affix-transfer-selection-regression": "npx tsx scripts/adle-dynamic-affix-transfer-selection-regression.ts",
-    "adle:dynamic-affix-candidate-loader-regression": "npx tsx scripts/adle-dynamic-affix-candidate-loader-regression.ts",
+    "adle:dynamic-affix-candidate-loader-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-dynamic-affix-candidate-loader-regression.ts",
     "adle:dynamic-affix-semantic-fingerprint-regression": "npx tsx scripts/adle-dynamic-affix-semantic-fingerprint-regression.ts",
     "adle:dynamic-affix-profile-fingerprint-audit": "npx tsx scripts/adle-dynamic-affix-profile-fingerprint-audit.ts",
     "adle:dynamic-affix-completion-contract-regression": "npx tsx scripts/adle-dynamic-affix-completion-contract-regression.ts",

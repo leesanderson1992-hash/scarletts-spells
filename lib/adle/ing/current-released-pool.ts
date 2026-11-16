@@ -2,9 +2,15 @@ import { loadPublishedWritingAssociations } from "@/lib/writing-engine/whole-wri
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { IngDictionaryWordV1, IngMicroSkill } from "./contracts";
 import { ingReleasedWordMatchesCurrentOverview } from "./current-overview";
-import { candidateFactsForSense } from "@/lib/teaching-dictionary-manager/candidate-sense-facts";
+import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 import { canonicalPairKey } from "../word-skill-relationships/pair-key";
 import { loadCurrentPairDeassignments } from "../word-skill-relationships/pair-decision-veto";
+
+import type { CandidateDecisionEvent } from "@/lib/teaching-dictionary-manager/candidate-decision-current";
+import type { DictionarySenseSet } from "@/lib/teaching-dictionary-manager/senses";
+
+type ReleasedWordSource = { id: string; source_name: string | null; source_url: string | null };
+type LegacyMorphologyRow = Omit<CandidateAnalysisRow, "sense_id"> & { analysis_status: string; review_status: string };
 
 /** Recheck the selected sense of every released word before admitting or selecting it. */
 export async function currentReleasedIngWordIds(input: {
@@ -18,7 +24,7 @@ export async function currentReleasedIngWordIds(input: {
     if (result.error) throw new Error(`ing_dictionary_pool:${result.error.message}`);
     return result.data ?? [];
   };
-  const rows: any[] = await read(input.client.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code,source_name,source_url").in("id", words.map(word => word.canonicalWordId)));
+  const rows = await read<ReleasedWordSource>(input.client.from("canonical_teaching_dictionary_words").select("id,display_word,row_status,review_status,dialect_code,source_name,source_url").in("id", words.map(word => word.canonicalWordId)));
   const overviewWords = words.filter(word => word.senseId !== undefined || word.pronunciationId !== undefined);
   const currentOverviewIds = new Set<string>();
   if (overviewWords.length) {
@@ -31,26 +37,26 @@ export async function currentReleasedIngWordIds(input: {
     const vetoes = input.environmentKey === "staging" ? await loadCurrentPairDeassignments({ client: input.client,
       environmentKey: input.environmentKey,
       pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: input.microSkillKey })) }) : new Set<string>();
-    const [sets, morphologies, links, senseAnalyses, senseLinks, decisions, senseBindings]: any[][] = await Promise.all([
-      read(input.client.from("teaching_dictionary_reviewed_sense_sets")
+    const [sets, morphologies, links, senseAnalyses, senseLinks, decisions, senseBindings] = await Promise.all([
+      read<{ canonical_word_id: string; sense_set: DictionarySenseSet }>(input.client.from("teaching_dictionary_reviewed_sense_sets")
         .select("canonical_word_id,sense_set").in("canonical_word_id", ids)),
-      read(input.client.from("canonical_teaching_dictionary_word_morphology")
+      read<LegacyMorphologyRow>(input.client.from("canonical_teaching_dictionary_word_morphology")
         .select("id,canonical_word_id,created_at,morphology_parts,morphology_joins,analysis_status,review_status,word_sum")
         .in("canonical_word_id", ids).eq("row_status", "active").order("created_at", { ascending: false })),
-      read(input.client.from("teaching_dictionary_current_sense_family_links")
+      read<CandidateLinkRow>(input.client.from("teaching_dictionary_current_sense_family_links")
         .select("id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_sense_morphology")
+      read<CandidateAnalysisRow>(input.client.from("teaching_dictionary_current_sense_morphology")
         .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,word_sum")
         .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_sense_family_memberships")
+      read<CandidateLinkRow>(input.client.from("teaching_dictionary_current_sense_family_memberships")
         .select("id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind")
         .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_current_candidate_decisions")
+      read<CandidateDecisionEvent & { canonical_word_id: string }>(input.client.from("teaching_dictionary_current_candidate_decisions")
         .select("canonical_word_id,sense_id,action,pronunciation_id,rule_revision,fact_snapshot")
         .eq("environment_key", input.environmentKey).eq("micro_skill_key", input.microSkillKey)
         .in("canonical_word_id", ids)),
-      read(input.client.from("teaching_dictionary_effective_lesson_sense_bindings")
+      read<{ canonical_word_id: string; sense_id: string }>(input.client.from("teaching_dictionary_effective_lesson_sense_bindings")
         .select("canonical_word_id,sense_id").eq("environment_key", input.environmentKey)
         .eq("micro_skill_key", input.microSkillKey).in("canonical_word_id", ids)),
     ]);

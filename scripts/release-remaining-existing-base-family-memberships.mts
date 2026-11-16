@@ -35,8 +35,27 @@ async function counts() {
   for (const table of protectedTables) out[table] = (await db.query(`select count(*)::int n from public.${table}`)).rows[0].n;
   return out;
 }
+type ExistingFamily = {
+  revision: number;
+  review_status: string;
+  base_lemma: string;
+  base_part_of_speech: string;
+  base_kind: string;
+  canonical_base_word_id: string;
+  base_meaning: string;
+};
+
+type ReviewedBaseFacts = {
+  word_id: string;
+  morphology_id: string;
+  word_sum: string;
+  morphology_parts: Array<{ kind: string; sourceText: string; surfaceText: string }>;
+  morphology_joins: unknown;
+  morphology_transformations: unknown;
+};
+
 async function latest(key: string) {
-  const result = await db.query(`select * from public.canonical_teaching_dictionary_lexical_base_families
+  const result = await db.query<ExistingFamily>(`select * from public.canonical_teaching_dictionary_lexical_base_families
     where family_key=$1 order by revision desc limit 1`, [key]);
   return result.rows[0] ?? null;
 }
@@ -46,9 +65,9 @@ try {
   await db.query("set local statement_timeout='60s'");
   await db.query("set local lock_timeout='10s'");
   const before = await counts();
-  const facts = new Map<string, Record<string, any>>();
+  const facts = new Map<string, ReviewedBaseFacts>();
   for (const row of rows) {
-    const result = await db.query(`select w.id word_id,w.normalised_word,m.id morphology_id,m.word_sum,
+    const result = await db.query<ReviewedBaseFacts>(`select w.id word_id,w.normalised_word,m.id morphology_id,m.word_sum,
       m.morphology_parts,m.morphology_joins,m.morphology_transformations
       from public.canonical_teaching_dictionary_words w
       join public.canonical_teaching_dictionary_word_morphology m on m.canonical_word_id=w.id
@@ -58,8 +77,8 @@ try {
     assert.equal(result.rowCount, 1, `WORD_OR_MORPHOLOGY_MISSING:${row.base_word}`);
     const fact = result.rows[0];
     assert.equal(fact.word_sum, row.word_sum);
-    assert(fact.morphology_parts.some((part: Record<string, string>) => part.kind === "base" && part.sourceText === row.base_word));
-    assert.equal(fact.morphology_parts.map((part: Record<string, string>) => part.surfaceText).join(""), row.base_word);
+    assert(fact.morphology_parts.some(part => part.kind === "base" && part.sourceText === row.base_word));
+    assert.equal(fact.morphology_parts.map(part => part.surfaceText).join(""), row.base_word);
     facts.set(row.base_word, fact);
   }
   if (mode === "verify") {
@@ -76,7 +95,7 @@ try {
     await db.query("rollback");
     console.log(JSON.stringify({ mode, verified: 7, sourceSha256: sourceSha }));
   } else {
-    const current = new Map<string, Record<string, any>>();
+    const current = new Map<string, ExistingFamily>();
     for (const row of rows) {
       const family = await latest(row.family_key);
       assert(family?.review_status === "approved", `FAMILY_MISSING:${row.family_key}`);

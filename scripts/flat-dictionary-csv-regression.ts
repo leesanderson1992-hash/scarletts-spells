@@ -71,16 +71,22 @@ const pilotPath = resolve("docs/implementation/seed-data/teaching-dictionary/can
 const pilot = parseDictionaryCsv(readFileSync(pilotPath, "utf8"));
 assert.equal(pilot.length, 14);
 assert.deepEqual(pilot.filter((entry) => entry.error).map((entry) => entry.normalisedWord), []);
+function morphologyField(parts: readonly unknown[], field: "sourceText" | "gloss") {
+  return parts.map(part => {
+    assert(part && typeof part === "object" && field in part, `Missing canonical morphology ${field}`);
+    return (part as Record<string, unknown>)[field];
+  });
+}
 const vegetable = pilot.find((entry) => entry.normalisedWord === "vegetable")!;
 assert.equal(vegetable.payload.rootFamilyReview?.rootDefinition, "To grow or live");
 assert.equal(vegetable.payload.rootFamilyReview?.pronunciationApplicability, "not_applicable");
 assert.equal(vegetable.payload.rootFamilyReview?.pronunciationIpa, "");
-assert.deepEqual(vegetable.payload.canonicalMorphology.parts.map((part) => part.gloss),
+assert.deepEqual(morphologyField(vegetable.payload.canonicalMorphology.parts, "gloss"),
   ["To grow or live", "able to be or suitable for"]);
 const enjoyable = pilot.find((entry) => entry.normalisedWord === "enjoyable")!;
 assert.equal(enjoyable.payload.metadata.stress_pattern, "unstressed-primary-unstressed-unstressed");
-assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.sourceText), ["en", "joy", "able"]);
-assert.deepEqual(enjoyable.payload.canonicalMorphology.parts.map((part) => part.gloss),
+assert.deepEqual(morphologyField(enjoyable.payload.canonicalMorphology.parts, "sourceText"), ["en", "joy", "able"]);
+assert.deepEqual(morphologyField(enjoyable.payload.canonicalMorphology.parts, "gloss"),
   ["to cause or to be", "a feeling of great happiness", "able to be or suitable for"]);
 assert.deepEqual(enjoyable.payload.freeBaseFamilyReview,
   { familyKey: "joy_noun_base_family", basePartOfSpeech: "noun" });

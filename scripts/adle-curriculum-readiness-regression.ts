@@ -12,7 +12,7 @@ function assert(value: unknown, message: string): asserts value {
 
 const CHILD = "child-a";
 const WORD = "word-playing";
-const SKILL_A = "D4_MOR_BASE_WORDS_PRESERVE_BASE";
+const SKILL_A = "D4_INF_ING_ENDINGS_REGULAR";
 const SKILL_B = "D4_MOR_BASE_WORDS_IDENTIFY_BASE";
 const SHARED_KEY = `${CHILD}\u0000${WORD}`;
 
@@ -128,16 +128,16 @@ const facts: CurriculumReadinessFacts = {
   ],
   routes,
   routeActivation: [
-    activation(SKILL_A, "base_word_lab"),
+    activation(SKILL_A, "ing_endings_word_lab"),
     activation(SKILL_B, "base_word_lab"),
     activation(SKILL_A, "alternate_base_lab"),
   ],
   routeSelections: [
-    { childId: CHILD, canonicalWordId: WORD, microSkillKey: SKILL_A, routeId: "base_word_lab", routeVersion: "v2", ready: true, selectorBlockers: [], evidence: [] },
+    { childId: CHILD, canonicalWordId: WORD, microSkillKey: SKILL_A, routeId: "ing_endings_word_lab", routeVersion: "v1", ready: true, selectorBlockers: [], evidence: [] },
     { childId: CHILD, canonicalWordId: WORD, microSkillKey: SKILL_B, routeId: "base_word_lab", routeVersion: "v2", ready: true, selectorBlockers: [], evidence: [] },
   ],
   routeContent: [
-    { canonicalWordId: WORD, microSkillKey: SKILL_A, routeId: "base_word_lab", routeVersion: "v2", dependencyFingerprint: "base-a-v1", ready: true, blockers: [], evidence: [] },
+    { canonicalWordId: WORD, microSkillKey: SKILL_A, routeId: "ing_endings_word_lab", routeVersion: "v1", dependencyFingerprint: "base-a-v1", ready: true, blockers: [], evidence: [] },
     { canonicalWordId: WORD, microSkillKey: SKILL_B, routeId: "base_word_lab", routeVersion: "v2", dependencyFingerprint: "base-b-v1", ready: true, blockers: [], evidence: [] },
   ],
   sharedRoutes: new Map(),
@@ -155,7 +155,7 @@ assert(result.learningItemInspections.find((entry) => entry.learningItemId === "
 assert(result.sharedWords[0]?.decision.status === "READY", "unscheduled shared words remain eligible for their first exposure");
 assert(result.targets.every((target) => target.assignmentReadinessByChild[0]?.decision.status === "READY"), "two pending first-exposure routes can be ready before review linkage exists");
 const alternate = result.targets.find((target) => target.microSkillKey === SKILL_A)?.routes.find((route) => route.routeId === "alternate_base_lab");
-assert(alternate?.assignmentReadiness.blockers.some((entry) => entry.code === "TARGET_ROUTE_CONTENT_INCOMPLETE"), "content for Base Word Lab cannot leak into another compatible route");
+assert(alternate?.assignmentReadiness.blockers.some((entry) => entry.code === "TARGET_ROUTE_CONTENT_INCOMPLETE"), "content for the -ing route cannot leak into another compatible route");
 
 const missingExactSupport = resolveCurriculumReadinessInventory({
   ...facts,
@@ -239,7 +239,7 @@ assert(hiddenGlobal.mappingInspections[0]?.runtimeIntakeUsability.blockers.some(
 
 const skillScopedActivation = resolveCurriculumReadinessInventory({
   ...facts,
-  routeActivation: [activation(SKILL_A, "base_word_lab"), activation(SKILL_B, "base_word_lab", false), activation(SKILL_A, "alternate_base_lab")],
+  routeActivation: [activation(SKILL_A, "ing_endings_word_lab"), activation(SKILL_B, "base_word_lab", false), activation(SKILL_A, "alternate_base_lab")],
 });
 const disabledSkill = skillScopedActivation.targets.find((target) => target.microSkillKey === SKILL_B)?.routes.find((route) => route.routeId === "base_word_lab");
 assert(disabledSkill?.assignmentReadiness.blockers.some((entry) => entry.code === "ROUTE_ENVIRONMENT_GATE_CLOSED"), "activation is scoped to the exact micro-skill and route");
@@ -247,8 +247,8 @@ assert(disabledSkill?.assignmentReadiness.blockers.some((entry) => entry.code ==
 const childScopedActivation = resolveCurriculumReadinessInventory({
   ...facts,
   routeActivation: [
-    activation(SKILL_A, "base_word_lab", false),
-    activation(SKILL_A, "base_word_lab", true, CHILD),
+    activation(SKILL_A, "ing_endings_word_lab", false),
+    activation(SKILL_A, "ing_endings_word_lab", true, CHILD),
     activation(SKILL_B, "base_word_lab"),
     activation(SKILL_A, "alternate_base_lab"),
   ],

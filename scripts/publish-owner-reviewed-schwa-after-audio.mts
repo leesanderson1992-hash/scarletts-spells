@@ -16,19 +16,26 @@ const apply=process.argv.includes("--apply");
 const limitArg=process.argv.indexOf("--limit");
 const limit=limitArg>=0?Number(process.argv[limitArg+1]):239;
 if(!Number.isInteger(limit)||limit<1||limit>239)throw Error("INVALID_LIMIT");
-const manifest=JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json","utf8"));
-const audio=JSON.parse(readFileSync("content/secret-life-of-vowels/audio-approved/google-chirp3-en-gb-20261029/manifest.json","utf8"));
-const clips=new Map<string,any>(audio.clips.map((clip:any)=>[`${clip.id}:${clip.kind}`,clip]));
+const manifest=JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json","utf8")) as typeof import("../content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json");
+const audio=JSON.parse(readFileSync("content/secret-life-of-vowels/audio-approved/google-chirp3-en-gb-20261029/manifest.json","utf8")) as typeof import("../content/secret-life-of-vowels/audio-approved/google-chirp3-en-gb-20261029/manifest.json");
+type RecordingClip = (typeof audio.clips)[number];
+const clips = new Map(audio.clips.map(clip => [`${clip.id}:${clip.kind}`, clip]));
 const live=await loadWeakVowelRepairInventory(url,"production");
 const sources=new Map(live.sources.map(s=>[`${s.word.id}:${s.microSkillKey}`,s]));
-const candidates=[] as Array<{row:any;source:typeof live.sources[number];facts:any;wordClip:any;sentenceClip:any}>;
+const candidates: Array<{
+  row: (typeof manifest.rows)[number] & { approvedSentence: string };
+  source: (typeof live.sources)[number];
+  facts: { sourceFingerprint: string; reviewSourceReference: string } & Record<string, unknown>;
+  wordClip: RecordingClip;
+  sentenceClip: RecordingClip;
+}> = [];
 for(const row of manifest.rows){
  if(row.reviewStatus!=="approved_written")continue;
  const source=sources.get(`${row.canonicalWordId}:${row.microSkillKey}`);
- if(!source||source.assignmentStatus!=="assigned"||source.routes.some((route:any)=>route.weak_vowel_published))continue;
+ if(!source||source.assignmentStatus!=="assigned"||source.routes.some(route=>route.weak_vowel_published))continue;
  const wordClip=clips.get(`${row.canonicalWordId}:word`);
  const sentenceClip=clips.get(`${row.canonicalWordId}:sentence`);
- if(!wordClip||!sentenceClip||row.familyDecision!=="skip"||
+ if(!wordClip||!sentenceClip||!row.selectedVowel||!row.approvedSentence||row.familyDecision!=="skip"||
    source.word.display_word!==row.word||source.metadata.length!==1||
    !source.dictations.some(d=>d.review_status==="approved_for_first_exposure"&&d.dictation_sentence===row.approvedSentence))
   throw Error(`SOURCE_OR_AUDIO_CHANGED:${row.word}:${row.microSkillKey}`);
@@ -51,7 +58,7 @@ for(const row of manifest.rows){
  const blockers=weakVowelRouteBlockers(facts,{displayWord:row.word,definition:row.sourceMeaning,
   dictationSentence:row.approvedSentence,microSkillKey:row.microSkillKey});
  if(blockers.length)throw Error(`ROUTE_BLOCKED:${row.word}:${blockers.join(",")}`);
- candidates.push({row,source,facts,wordClip,sentenceClip});
+ candidates.push({row: {...row, approvedSentence: row.approvedSentence},source,facts,wordClip,sentenceClip});
 }
 if(candidates.length>239)throw Error("CANDIDATE_COVERAGE_EXCEEDED");
 const selected=candidates.sort((a,b)=>a.row.microSkillKey.localeCompare(b.row.microSkillKey)||a.row.word.localeCompare(b.row.word)).slice(0,limit);

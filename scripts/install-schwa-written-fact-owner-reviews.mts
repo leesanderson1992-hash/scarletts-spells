@@ -12,9 +12,9 @@ if (!url || !new URL(url).username.includes("wwohrqtunajrbwxyssjf") ||
 const apply = process.argv.includes("--apply");
 const sha = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 const workbook = "/Users/katiesanderson/Downloads/schwa-lesson-facts-resolved-colour.xlsx";
-const manifest = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json", "utf8"));
+const manifest = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json", "utf8")) as typeof import("../content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json");
 if (sha(readFileSync(workbook)) !== manifest.workbookSha256) throw Error("WORKBOOK_CHANGED");
-const rows = manifest.rows as Array<Record<string, any>>;
+const rows = manifest.rows;
 if (rows.length !== 422 || rows.filter(r => r.reviewStatus === "approved_written").length !== 419 ||
   rows.filter(r => r.reviewStatus === "needs_resolution").length !== 3 ||
   rows.filter(r => r.mappingRule === "full_al_pattern_to_written_a").length !== 64 ||

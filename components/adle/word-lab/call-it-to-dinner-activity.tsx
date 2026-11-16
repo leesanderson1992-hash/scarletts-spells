@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/components/adle/activities/shared/motion";
 import { SplitHandle } from "@/components/adle/activities/shared/split-handle";
-import { deviceSpeechAvailable, speakWeakVowelDeviceSource } from "@/components/adle/activities/shared/weak-vowel-device-speech";
+import { speakWeakVowelDeviceSource, useWeakVowelAudioError } from "@/components/adle/activities/shared/weak-vowel-device-speech";
 import { isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import { dinnerAnswerTarget, isDinnerCutPrefix, scoreDinnerCuts, scoreDinnerTarget, type DinnerActivityConfigV1 } from "@/lib/adle/word-lab/call-it-to-dinner";
 
@@ -60,19 +60,15 @@ export function CallItToDinnerActivity(props: {
 }) {
   const [state, setState] = useState(() => restore(props.initialState, props.config));
   const [feedback, setFeedback] = useState("");
-  const [audioError, setAudioError] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const audio = useRef<HTMLAudioElement | null>(null);
   const replayButton = useRef<HTMLButtonElement | null>(null);
   const nextButton = useRef<HTMLButtonElement | null>(null);
   const completed = useRef(false);
   const round = props.config.rounds[state.index];
+  const [audioError, setAudioError] = useWeakVowelAudioError(round.recording.src);
   const current = state.words[round.canonicalWordId] ?? emptyWord();
   const finalVowelOnly = round.selectionTarget !== undefined;
-
-  useEffect(() => {
-    setAudioError(isDeviceSpeechSource(round.recording.src) && !deviceSpeechAvailable());
-  }, [round.recording.src]);
 
   useEffect(() => {
     if (current.phase === "done") nextButton.current?.focus({ preventScroll: true });

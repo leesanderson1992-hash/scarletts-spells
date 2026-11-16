@@ -1,3 +1,4 @@
+import type { RouteContentDraft } from "./contracts";
 import { deviceSpeechSource, isDeviceSpeechSource, isWeakVowelAudioSource } from "../adle/weak-vowel/audio-source";
 
 /** Lesson-specific weak-vowel facts. Shared spelling, meaning and dictionary
@@ -26,6 +27,10 @@ export interface WeakVowelRouteFactsV1 {
   sentenceTarget: { start: number; end: number };
   reviewSourceReference: string;
 }
+
+export type WeakVowelRouteContentDraft = Omit<RouteContentDraft, "content"> & {
+  content: { weakVowel?: WeakVowelRouteFactsV1 };
+};
 
 const SHA = /^[a-f0-9]{64}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

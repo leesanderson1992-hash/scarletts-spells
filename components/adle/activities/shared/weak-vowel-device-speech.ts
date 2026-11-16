@@ -1,9 +1,22 @@
 "use client";
 
+import { useState, useSyncExternalStore } from "react";
 import { isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 
 export function deviceSpeechAvailable(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+}
+
+// Speech API support is a browser capability, so there is no change event.
+const subscribeToSpeechSupport = () => () => undefined;
+const assumeSpeechSupportOnServer = () => true;
+
+export function useWeakVowelAudioError(source: string) {
+  const speechAvailable = useSyncExternalStore(subscribeToSpeechSupport, deviceSpeechAvailable, assumeSpeechSupportOnServer);
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const audioError = failedSource === source || (isDeviceSpeechSource(source) && !speechAvailable);
+  const setAudioError = (failed: boolean) => setFailedSource(failed ? source : null);
+  return [audioError, setAudioError] as const;
 }
 
 /** A British voice is preferred. If none is installed, the device default is used. */

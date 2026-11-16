@@ -46,6 +46,11 @@ const regressions = [
   "adle-reward-bridge-regression.ts",
 ] as const;
 
+const serverRegressions = new Set([
+  "adle-generic-snapshot-v3-d3-regression.ts",
+  "adle-dynamic-affix-candidate-loader-regression.ts",
+]);
+
 for (const regression of regressions) {
   const result = spawnSync("npx", ["tsx", `scripts/${regression}`], {
     cwd: process.cwd(),
@@ -54,8 +59,7 @@ for (const regression of regressions) {
       PATH: process.env.PATH,
       HOME: process.env.HOME,
       npm_config_cache: process.env.npm_config_cache,
-      NODE_OPTIONS: regression === "adle-generic-snapshot-v3-d3-regression.ts"
-        ? "--conditions=react-server" : undefined,
+      NODE_OPTIONS: serverRegressions.has(regression) ? "--conditions=react-server" : undefined,
     },
     stdio: "inherit",
   });

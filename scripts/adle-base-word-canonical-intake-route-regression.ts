@@ -153,7 +153,9 @@ const retiredActivation = structuredClone(baseLedActivation);
 retiredActivation.microSkillKey = "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX";
 retiredActivation.teachingContent.microSkillKey = retiredActivation.microSkillKey;
 if (retiredActivation.family.schemaVersion !== 2) throw new Error("expected family authority v2");
-retiredActivation.family.families[0].members[0].applicableMicroSkillKeys = [retiredActivation.microSkillKey];
+const retiredMember = retiredActivation.family.families[0].members[0];
+if (!("structuralRole" in retiredMember)) throw new Error("expected family authority member v2");
+retiredMember.applicableMicroSkillKeys = [retiredActivation.microSkillKey];
 assert.equal(compileBaseWordCanonicalIntakeRouteFacts({ activations: [retiredActivation] }).readyPairs.size, 0,
   "a retired Base Word skill cannot create a new ready pair");
 const baseAsLearnerTarget = structuredClone(baseLedActivation);

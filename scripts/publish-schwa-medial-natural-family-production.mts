@@ -3,7 +3,7 @@
 import pg from "pg";
 import { loadWeakVowelRepairInventory } from "./weak-vowel-repair-source";
 import { repairSourceFingerprint } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
-import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelRouteBlockers, type WeakVowelRouteContentDraft } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
@@ -35,7 +35,7 @@ try {
       and base.review_status='approved_for_first_exposure'
     group by f.id`, [familyId]);
   if (family.rows[0]?.eligible !== 2) throw Error("NATURE_FAMILY_NOT_APPROVED_AND_ELIGIBLE");
-  const current = await db.query<{ content: Record<string, any>; content_version_id: string }>(`
+  const current = await db.query<{ content: WeakVowelRouteContentDraft; content_version_id: string }>(`
     select v.content,p.content_version_id from public.adle_weak_vowel_content_publications p
     join public.teaching_dictionary_route_content_versions v on v.id=p.content_version_id
     where p.canonical_word_id=$1 and p.micro_skill_key=$2

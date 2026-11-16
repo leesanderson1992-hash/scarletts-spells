@@ -31,7 +31,7 @@ function client(): SupabaseClient {
   return { from(name: string) {
     let rows = [...(tables[name] ?? [])];
     const query = {
-      select(_columns: string) { return query; },
+      select() { return query; },
       eq(column: string, value: unknown) { rows = rows.filter((row) => row[column] === value); return query; },
       in(column: string, values: unknown[]) { rows = rows.filter((row) => values.includes(row[column])); return query; },
       maybeSingle() { return Promise.resolve({ data: rows[0] ?? null, error: null }); },

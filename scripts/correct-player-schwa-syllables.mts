@@ -23,10 +23,10 @@ const ownerDecision = {
   decision: "Owner approved correction to two syllables and final -er in syllable 2 on 2026-10-30",
 };
 const decisionSha = sha(JSON.stringify(ownerDecision));
-const manifest = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json", "utf8"));
-const row = manifest.rows.find((r: any) => r.canonicalWordId === wordId && r.microSkillKey === skill);
+const manifest = JSON.parse(readFileSync("content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json", "utf8")) as typeof import("../content/secret-life-of-vowels/schwa-written-facts-owner-review-20261029.json");
+const row = manifest.rows.find(r => r.canonicalWordId === wordId && r.microSkillKey === skill);
 if (!row || row.word !== "player" || row.reviewStatus !== "approved_written" ||
-    row.lessonTarget.syllableIndex !== 1 || JSON.stringify(row.proposedSpokenCuts) !== "[[4]]")
+    row.lessonTarget?.syllableIndex !== 1 || JSON.stringify(row.proposedSpokenCuts) !== "[[4]]")
   throw Error("REVIEWED_PLAYER_SOURCE_CHANGED");
 const source = (await loadWeakVowelRepairInventory(url, "production")).sources.find(s =>
   s.word.id === wordId && s.microSkillKey === skill);

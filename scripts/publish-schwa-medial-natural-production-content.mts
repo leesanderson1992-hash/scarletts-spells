@@ -3,7 +3,7 @@
 import pg from "pg";
 import { loadWeakVowelRepairInventory } from "./weak-vowel-repair-source";
 import { repairSourceFingerprint } from "../lib/teaching-dictionary-manager/weak-vowel-repair";
-import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelRouteBlockers, type WeakVowelRouteContentDraft } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 process.loadEnvFile(".env.local");
 const url = process.env.SUPABASE_PRODUCTION_DB_URL_POOLER_SHARED;
@@ -31,7 +31,7 @@ try {
     await db.query("rollback");
     console.log(JSON.stringify({ environment: "production", mode: "already_published", contentVersionId: existing.rows[0].content_version_id }));
   } else {
-    const previous = await db.query<{ content: Record<string, any>; content_version_id: string }>(`
+    const previous = await db.query<{ content: WeakVowelRouteContentDraft; content_version_id: string }>(`
       select v.content,p.content_version_id from public.adle_weak_vowel_content_publications p
       join public.teaching_dictionary_route_content_versions v on v.id=p.content_version_id
       where p.canonical_word_id=$1 and p.micro_skill_key='D4_SCHWA_FINAL_AL'

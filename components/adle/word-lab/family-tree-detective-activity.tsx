@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { DraggableTile } from "@/components/adle/activities/shared/draggable-tile";
-import { deviceSpeechAvailable, speakWeakVowelDeviceSource } from "@/components/adle/activities/shared/weak-vowel-device-speech";
+import { speakWeakVowelDeviceSource, useWeakVowelAudioError } from "@/components/adle/activities/shared/weak-vowel-device-speech";
 import { isDeviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
 import {
   correctVowelTile, maskedDetectiveWord, missingVowelIndex, toggleDetectiveClue,
@@ -131,18 +131,14 @@ export function FamilyTreeDetectiveActivity(props: {
   onComplete?: (response: Record<string, unknown>) => void;
 }) {
   const [state, setState] = useState(() => restore(props.initialState, props.config));
-  const [audioError, setAudioError] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
   const gap = useRef<HTMLDivElement | null>(null);
   const completed = useRef(false);
   const round = props.config.rounds[state.index];
+  const [audioError, setAudioError] = useWeakVowelAudioError(round.recording.src);
   const current = state.words[round.canonicalWordId] ?? emptyWord();
   const correct = correctVowelTile(round)!;
   const masked = maskedDetectiveWord(round)!;
-
-  useEffect(() => {
-    setAudioError(isDeviceSpeechSource(round.recording.src) && !deviceSpeechAvailable());
-  }, [round.recording.src]);
 
   function change(nextWord: DetectiveWordState, nextIndex = state.index) {
     const next = { index: nextIndex, words: { ...state.words, [round.canonicalWordId]: nextWord } };

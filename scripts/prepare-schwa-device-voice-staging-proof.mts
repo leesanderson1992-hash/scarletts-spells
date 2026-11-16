@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import pg from "pg";
 import { deviceSpeechSource } from "../lib/adle/weak-vowel/audio-source";
-import { weakVowelRouteBlockers } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
+import { weakVowelRouteBlockers, type WeakVowelRouteContentDraft } from "../lib/teaching-dictionary-manager/weak-vowel-authoring";
 
 process.loadEnvFile(".env.staging.local");
 const url = process.env.SUPABASE_STAGING_DB_URL;
@@ -19,7 +19,7 @@ try {
   await db.query("begin isolation level serializable");
   await db.query("set local lock_timeout='5s'");
   await db.query("set local statement_timeout='90s'");
-  const source = await db.query<{ id: string; canonical_word_id: string; content: Record<string, any>;
+  const source = await db.query<{ id: string; canonical_word_id: string; content: WeakVowelRouteContentDraft;
     display_word: string; normalised_word: string; dictation_sentence: string }>(`
     select v.id,v.canonical_word_id,v.content,w.display_word,w.normalised_word,
       (select s.dictation_sentence from public.canonical_teaching_dictionary_dictation_sentences s
