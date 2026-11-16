@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { mock } from "node:test";
 import { combineRoundTripRows, MAX_DICTIONARY_CSV_BYTES, parseDictionaryCsv, roundTripEditHash } from "../lib/teaching-dictionary-manager/csv";
 import { derivePrefixRouteFacts } from "../lib/teaching-dictionary-manager/prefix-content";
 import { emptyMorphology, isStructurallyUsableWordDraftPayload, publicationBlockers, routeBlockers, routeContentFromStoredRow, routeContentsForSelectedSkills, routeWithSharedFacts, routeWithSingleProfileDefaults, sharedRouteContentKeys } from "../lib/teaching-dictionary-manager/contracts";
 import { matchesPublishedFactsForDefinitionOnly } from "../lib/teaching-dictionary-manager/definition-only";
 import { routeEditorPayload } from "../lib/teaching-dictionary-manager/route-editor-payload";
-import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements } from "../lib/teaching-dictionary-manager/readiness";
+import { hasReleasedRouteContent, publicationBlockerTarget, routeContentForReadiness, routeRequirements, runtimeBlockerTarget } from "../lib/teaching-dictionary-manager/readiness";
 import { compileDynamicPrefixWordLabDecision } from "../lib/adle/morphology/dynamic-prefix-compiler-rollout";
 import { DYNAMIC_PREFIX_PEDAGOGY_VERSION, type DynamicPrefixWord } from "../lib/adle/morphology/dynamic-prefix-contracts";
 import { loadReviewedPrefixPackageFixtures, selectReviewedPrefixFixture } from "./lib/adle-reviewed-prefix-package-fixture";
@@ -17,7 +19,7 @@ import { isDynamicAffixWordLessonReady } from "../lib/adle/morphology/dynamic-af
 import { reviewedAffixMeanings, unreviewedAffixMeaningParts } from "../lib/teaching-dictionary-manager/affix-meanings";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { PartSequenceEditor } from "../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor";
+const requireFromRegression = createRequire(import.meta.url);
 
 const affixChoices = reviewedAffixMeanings(
   [{ prefix_choices: [{ text: "re", meaning: "again" }, { text: "re", meaning: "back" }] }],
@@ -42,15 +44,31 @@ assert.deepEqual(unreviewedAffixMeaningParts([
   { kind: "prefix", sourceText: "re", gloss: "back" },
   { kind: "suffix", sourceText: "ity", gloss: "old meaning" },
 ], affixChoices), [2], "an obsolete affix meaning cannot pass the approval check");
-const affixEditor = renderToStaticMarkup(createElement(PartSequenceEditor, {
-  label: "Reviewed parts", word: "equality",
-  parts: [{ id: "base", kind: "base", sourceText: "equal", surfaceText: "equal", gloss: "the same" },
-    { id: "suffix", kind: "suffix", sourceText: "ity", surfaceText: "ity", gloss: "a state" }],
-  joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
-  affixMeanings: affixChoices, onChange: () => {},
-}));
-assert.match(affixEditor, /<option[^>]*>a state<\/option>/);
-assert.match(affixEditor, /<option[^>]*>a quality<\/option>/);
+// Next.js replaces this server action import with a client reference. Stub just
+// that boundary when rendering the client editor directly in Node.
+const morphologyActions = mock.module(requireFromRegression.resolve(
+  "../app/(authenticated)/admin/teaching-dictionary/sense-morphology-actions",
+), {
+  namedExports: {
+    registerReviewedAffixMeaning: () => { throw new Error("Static rendering cannot register an affix meaning."); },
+  },
+});
+try {
+  const { PartSequenceEditor } = requireFromRegression(
+    "../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor",
+  ) as typeof import("../app/(authenticated)/admin/teaching-dictionary/part-sequence-editor");
+  const affixEditor = renderToStaticMarkup(createElement(PartSequenceEditor, {
+    label: "Reviewed parts", word: "equality",
+    parts: [{ id: "base", kind: "base", sourceText: "equal", surfaceText: "equal", gloss: "the same" },
+      { id: "suffix", kind: "suffix", sourceText: "ity", surfaceText: "ity", gloss: "a state" }],
+    joins: [{ afterPartId: "base", beforePartId: "suffix", joinType: "none" }],
+    affixMeanings: affixChoices, onChange: () => {},
+  }));
+  assert.match(affixEditor, /<option[^>]*>a state<\/option>/);
+  assert.match(affixEditor, /<option[^>]*>a quality<\/option>/);
+} finally {
+  morphologyActions.restore();
+}
 
 const [row] = parseDictionaryCsv([
   "targetWord,routeId,routeVersion,microSkillKey,wordMeaning,wordSum,wordPartsJSON,dictation1_sentence",
@@ -93,9 +111,13 @@ assert.equal(hasReleasedRouteContent("suffix", false, []), false);
 const suffixChecklist = routeRequirements(routeContentForReadiness({
   routeId: "dynamic_affix_word_lab", routeVersion: "v3", microSkillKey: "D4_MOR_SUFFIXES_ITY",
 }, row.payload), row.payload);
-assert(suffixChecklist.some((item) => item.label === "suffix form" && item.status === "missing"
-  && item.editTarget === "td-route-D4_MOR_SUFFIXES_ITY-suffixVariant"));
-assert(suffixChecklist.some((item) => item.label === "the dictionary dictation sentence" && item.status === "present"));
+assert.deepEqual(suffixChecklist.find(item => item.label === "suffix form"), {
+  label: "suffix form", status: "missing", editTarget: "td-canonical-parts",
+});
+assert.equal(runtimeBlockerTarget("Add suffix form.", "D4_MOR_SUFFIXES_ITY"), "td-canonical-parts");
+assert.deepEqual(suffixChecklist.find(item => item.label === "a sentence for the selected meaning"), {
+  label: "a sentence for the selected meaning", status: "present", editTarget: "td-dictation",
+});
 const sharedMorphologyPayload = structuredClone(row.payload);
 sharedMorphologyPayload.canonicalMorphology.parts = [{ id: "part_1", surfaceText: "renew", sourceText: "renew", kind: "base" }];
 sharedMorphologyPayload.canonicalMorphology.joins = [];
@@ -173,6 +195,9 @@ assert(routeBlockers({ ...completedAbilityRoute, content: {
   analysisStatus: "in_review" } }).includes("Review true morphology provenance."),
 "an unapproved Overview cannot supply reviewed morphology evidence");
 assert.equal(completedAbilityRoute.content.suffixVariant, "ity");
+assert.deepEqual(routeRequirements(completedAbilityRoute, abilityPayload).find(item => item.label === "suffix form"), {
+  label: "suffix form", status: "present", editTarget: "td-canonical-parts",
+});
 assert.equal(completedAbilityRoute.content.semanticBaseText, "able");
 assert.equal(completedAbilityRoute.content.semanticBaseKind, "base");
 assert.equal(completedAbilityRoute.content.baseMeaning, "capable of doing something");
@@ -182,7 +207,7 @@ assert.equal(staleAbilityRoute.content.semanticBaseText, "able");
 assert.equal(staleAbilityRoute.content.semanticBaseKind, "base");
 assert.equal(staleAbilityRoute.content.baseMeaning, "capable of doing something");
 assert.deepEqual(sharedRouteContentKeys("dynamic_affix_word_lab", abilityPayload),
-  ["semanticBaseText", "semanticBaseKind", "baseMeaning"]);
+  ["suffixVariant", "semanticBaseText", "semanticBaseKind", "baseMeaning"]);
 const staleBaseRoute = routeWithSharedFacts({ ...baseRoute, content: { ...baseRoute.content,
   baseWord: "old", baseMeaning: "old" } }, abilityPayload);
 assert.equal(staleBaseRoute.content.baseWord, "able");
