@@ -1,6 +1,5 @@
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
 import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
-import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { publishIdentifyBaseWord } from "./base-word-actions";
 import Link from "next/link";
@@ -53,7 +52,7 @@ export default async function LessonUpdates({ searchParams }: {
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
   const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
-  const blankWorkbookSkill = prefixSkill ?? (selected === FUL_LESS_SKILL && ingReviewEnvironment() === "staging" ? selected : null);
+  const blankWorkbookSkill = prefixSkill ?? (selected === FUL_LESS_SKILL ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];

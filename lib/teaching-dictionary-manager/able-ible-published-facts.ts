@@ -7,6 +7,7 @@ import { inheritFamilyPartMeanings } from "./family-part-meanings";
 import { evaluateLessonCandidate } from "./lesson-candidate";
 import type { DictionarySenseSet } from "./senses";
 import { ABLE_IBLE_ROUTE } from "./able-ible-workbook";
+import { ingReviewEnvironment } from "./ing-staging-scope";
 
 type PublishedFacts = {
   sense: Extract<LessonSenseProjection, { status: "current" }>;
@@ -19,6 +20,8 @@ type Member = { wordId: string; word: string; contentVersionId: string };
 
 export async function loadPublishedAffixFacts(db: SupabaseClient, skill: string, members: Member[], route = ABLE_IBLE_ROUTE) {
   if (!members.length) return new Map<string, PublishedFacts>();
+  const environment = ingReviewEnvironment();
+  if (!environment) throw new Error("Published affix facts require a verified dictionary environment.");
   const ids = members.map(member => member.wordId);
   const versions = members.map(member => member.contentVersionId);
   const [content, publications, rollbacks, senses, sets, analyses, links, associations, deassigned] = await Promise.all([
@@ -32,8 +35,8 @@ export async function loadPublishedAffixFacts(db: SupabaseClient, skill: string,
       .select("id,canonical_word_id,sense_id,morphology_parts,morphology_joins,morphology_transformations,word_sum").in("canonical_word_id", ids),
     db.from("teaching_dictionary_current_sense_family_memberships")
       .select("canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning").in("canonical_word_id", ids),
-    loadPublishedWritingAssociations(db, "staging", ids),
-    loadCurrentPairDeassignments({ client: db, environmentKey: "staging",
+    loadPublishedWritingAssociations(db, environment, ids),
+    loadCurrentPairDeassignments({ client: db, environmentKey: environment,
       pairs: ids.map(canonicalWordId => ({ canonicalWordId, microSkillKey: skill })) }),
   ]);
   if (content.error || publications.error || rollbacks.error || sets.error || analyses.error || links.error)
