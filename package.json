@@ -323,7 +323,7 @@
     "adle:compound-word-v2-release:build": "npx tsx scripts/build-adle-compound-word-v2-release.ts",
     "adle:compound-word-v2-release:regression": "npx tsx scripts/adle-compound-word-v2-release-regression.ts",
     "adle:semantic-production-baseline": "npx tsx scripts/adle-semantic-production-baseline.ts",
-    "adle:shared-affix-compiler-regression": "npx tsx scripts/adle-shared-affix-compiler-regression.ts",
+    "adle:shared-affix-compiler-regression": "NODE_OPTIONS=--conditions=react-server npx tsx scripts/adle-shared-affix-compiler-regression.ts",
     "adle:shared-affix-production-parity-regression": "npx tsx scripts/adle-shared-affix-production-parity-regression.ts",
     "adle:shared-affix-staging-proof": "npx tsx scripts/adle-shared-affix-staging-proof.ts ADLE-SHARED-AFFIX-SELECT-ONLY-STAGING-V1",
     "adle:dynamic-prefix-shared-authority-regression": "npx tsx scripts/adle-dynamic-prefix-shared-authority-regression.ts",

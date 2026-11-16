@@ -49,6 +49,7 @@ const regressions = [
 const serverRegressions = new Set([
   "adle-generic-snapshot-v3-d3-regression.ts",
   "adle-dynamic-affix-candidate-loader-regression.ts",
+  "adle-shared-affix-compiler-regression.ts",
 ]);
 
 for (const regression of regressions) {
