@@ -25,7 +25,7 @@ export const ING_ROUTE = "ing_endings_word_lab";
 
 export { canUpdateIngLesson };
 
-export async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
+export async function loadActiveIngRelease(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill, detail: "full" | "pool" = "full") {
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("This lesson update is unavailable.");
   const heads = await db.from("adle_route_activation_heads").select("current_revision_id,micro_skill_key")
@@ -46,11 +46,13 @@ export async function loadActiveIngRelease(db: ReturnType<typeof createServiceRo
     .in("release_manifest_id", [...new Set(releases.values())]);
   if (dependencies.error) throw new Error("Could not read the active lesson pools.");
   const bindings = dependencies.data.filter(row => releases.get(row.micro_skill_key) === row.release_manifest_id);
+  if (bindings.length !== 12) throw new Error("Could not read the released lesson content.");
+  const requestedBindings = detail === "pool" ? bindings.filter(row => row.authority_type === "ing_word_members") : bindings;
   const authorities = await db.from("adle_curriculum_dependency_authorities").select("id,semantic_projection")
-    .in("id", bindings.map(row => row.authority_id));
-  if (authorities.error || bindings.length !== 12 || authorities.data.length !== bindings.length)
+    .in("id", requestedBindings.map(row => row.authority_id));
+  if (authorities.error || authorities.data.length !== requestedBindings.length)
     throw new Error("Could not read the released lesson content.");
-  const projections = new Map(bindings.map(binding => [
+  const projections = new Map(requestedBindings.map(binding => [
     `${binding.micro_skill_key}:${binding.authority_type}`,
     authorities.data.find(row => row.id === binding.authority_id)!.semantic_projection,
   ]));
@@ -85,10 +87,13 @@ export async function loadStagingIngWordReleaseStatuses(
     matchesReleasedWord(word, releasedById) ? "In active lesson pool" : "Ready to publish"] as const));
 }
 
-export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill) {
+export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRoleClient>, skill: StagingIngSkill,
+  detail: "full" | "pool" = "full") {
   if (!canUpdateIngLesson()) throw new Error("This lesson update is unavailable.");
   const [{ revision, childIds, released, environment, projections, heads }, statuses] = await Promise.all([
-    loadActiveIngRelease(db, skill), loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill }),
+    loadActiveIngRelease(db, skill, detail),
+    loadRouteWordStatuses({ routeId: ING_ROUTE, microSkillKey: skill,
+      purpose: detail === "pool" ? "ing_review_export" : undefined }),
   ]);
   const releasedById = releasedIngWordsById(released, skill);
   const otherPoolIds = new Set(released.filter(word => word.microSkillKey !== skill)

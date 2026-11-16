@@ -57,7 +57,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
     .select("replacement_batch_id,reason").eq("original_batch_id", batchId).maybeSingle();
   if (replacement.error) throw new Error("TEACHING_BATCH_REPLACEMENT_READ_FAILED");
   if (replacement.data) return <main className="mx-auto grid max-w-6xl gap-5 p-6 text-[color:var(--ink)]">
-    <nav className="text-sm"><Link className="underline" href="/admin/teaching-dictionary">← Teaching Dictionary Manager</Link></nav>
+    <nav className="text-sm"><Link className="underline" prefetch={false} href="/admin/teaching-dictionary/import">← Import words</Link></nav>
     <h1 className="text-3xl font-semibold">CSV import replaced</h1>
     <p className="rounded-lg bg-amber-50 p-4 text-sm text-amber-900">{replacement.data.reason}</p>
     <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/imports/${replacement.data.replacement_batch_id}`}>
@@ -120,7 +120,7 @@ export default async function TeachingDictionaryImportPage({ params, searchParam
   if (failedResult.error) throw new Error("TEACHING_BATCH_FAILURE_READ_FAILED");
   const href = (next: number) => `/admin/teaching-dictionary/imports/${batchId}?page=${next}`;
   return <main className="mx-auto grid max-w-6xl gap-5 p-6 text-[color:var(--ink)]">
-    <nav className="text-sm"><Link className="underline" href="/admin/teaching-dictionary">← Teaching Dictionary Manager</Link></nav>
+    <nav className="text-sm"><Link className="underline" prefetch={false} href="/admin/teaching-dictionary/import">← Import words</Link></nav>
     <header><h1 className="text-3xl font-semibold">CSV import review</h1>
       <p className="mt-2 text-sm">{pending.length} words left to do of {new Set(allDrafts.map((draft) => draft.canonical_word_id ?? draft.normalised_word)).size} imported · page {page} of {pageCount}. Completed words leave this list automatically.</p>
     </header>

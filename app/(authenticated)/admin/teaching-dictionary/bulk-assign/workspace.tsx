@@ -1,22 +1,31 @@
 "use client";
 
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { filterBulkWords, isolatedPhonemeSymbols, nextAssignedBulkDraft, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { defaultBulkFilters, nextAssignedBulkDraft, nextBulkReviewDraft, type BulkDraftChoice, type BulkFilters, type BulkWord } from "@/lib/teaching-dictionary-manager/bulk-skill-assignment";
+import type { loadBulkWordFilterOptions } from "./candidate-page";
+import { normaliseBulkSpellingSearch, rememberSpellingPage, reuseSpellingPage,
+  type BulkCandidatePage, type RecentSpellingPages } from "@/lib/teaching-dictionary-manager/bulk-spelling-search";
+import { loadBulkCandidateDetails } from "./candidate-details";
 import { saveBulkSkillApprovals, type BulkApprovalResult } from "./actions";
 import type { BulkAssignedPair } from "@/lib/teaching-dictionary-manager/bulk-review";
 import { bulkSenseChoiceError } from "@/lib/teaching-dictionary-manager/bulk-sense-approval";
 import { evaluateLessonCandidate, hasCandidateRule } from "@/lib/teaching-dictionary-manager/lesson-candidate";
 
-type Family = { key: string; label: string };
-type Skill = { key: string; label: string; familyKey: string; clusterKey: string };
-const PAGE_SIZE = 50;
+type Cluster = { key: string; label: string };
+type Skill = { key: string; label: string; clusterKey: string };
+const emptySenseChoices: Record<string, string> = {};
+type FilterOptions = Awaited<ReturnType<typeof loadBulkWordFilterOptions>>;
+const candidatePagePath = "/api/admin/teaching-dictionary/bulk-assign/candidates";
+type DraftWord = Pick<BulkWord, "id" | "displayWord" | "normalisedWord" | "senseSet">;
+const emptyPage: BulkCandidatePage = { words: [], total: 0, currentPage: 1, pageCount: 1, details: undefined };
 const MAX_SELECTION = 100;
 const fieldClass = "w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-sm";
 
-function SearchableFilter({ label, value, options, allLabel, onChange }: {
+function SearchableFilter({ label, value, options, allLabel, onChange, loadOptions, optionsStatus }: {
   label: string; value: string; options: { value: string; label: string }[];
   allLabel: string; onChange: (value: string) => void;
+  loadOptions?: () => void; optionsStatus?: "loading" | "error";
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -68,7 +77,7 @@ function SearchableFilter({ label, value, options, allLabel, onChange }: {
     <button ref={triggerRef} type="button" aria-label={`${label} filter`} aria-haspopup="listbox"
       aria-expanded={open} aria-controls={open ? `${id}-options` : undefined}
       className={`${fieldClass} flex min-w-0 items-center justify-between gap-2 text-left font-normal`}
-      onClick={() => { setOpen((previous) => !previous); setQuery(""); setActiveIndex(0); }}>
+      onClick={() => { if (!open) loadOptions?.(); setOpen(!open); setQuery(""); setActiveIndex(0); }}>
       <span className="truncate">{options.find((option) => option.value === value)?.label ?? allLabel}</span>
       <span aria-hidden="true" className="shrink-0">⌄</span>
     </button>
@@ -99,15 +108,21 @@ function SearchableFilter({ label, value, options, allLabel, onChange }: {
           className={`block w-full rounded-md px-3 py-2 text-left text-sm font-normal hover:bg-[var(--paper)] ${index === activeIndex ? "bg-[var(--paper)]" : ""}`}
           onMouseEnter={() => setActiveIndex(index)} onClick={() => choose(option.value)}>{option.label}</button>)}
         {matchingOptions.length > 100 && <p className="px-3 py-2 text-xs text-slate-600">Search to narrow {matchingOptions.length} options.</p>}
-        {matchingOptions.length === 0 && <p className="px-3 py-2 text-xs text-slate-600">No matching options.</p>}
+        {optionsStatus === "loading" ? <p role="status" className="px-3 py-2 text-xs text-slate-600">Loading options…</p>
+          : optionsStatus === "error" ? <p className="px-3 py-2 text-xs">Could not load options. {loadOptions &&
+            <button type="button" className="underline" onClick={loadOptions}>Retry</button>}</p>
+          : matchingOptions.length === 0 && <p className="px-3 py-2 text-xs text-slate-600">No matching options.</p>}
       </div>
     </div>}
   </div>;
 }
 
 export function BulkAssignWorkspace(props: {
-  words: BulkWord[];
-  families: Family[];
+  initialPage?: BulkCandidatePage;
+  assignedWords: DraftWord[];
+  clusters: Cluster[];
+  initialSkillKey: string;
+  child?: string;
   skills: Skill[];
   assignedPairs: BulkAssignedPair[];
   assignedSenseIds: Record<string, string>;
@@ -116,38 +131,114 @@ export function BulkAssignWorkspace(props: {
   approvalEnabled: boolean;
 }) {
   const router = useRouter();
-  const [stage, setStage] = useState<1 | 2>(1);
-  const [familyKey, setFamilyKey] = useState("");
-  const [draftSkillKey, setDraftSkillKey] = useState("");
-  const [chosenSkillKey, setChosenSkillKey] = useState("");
-  const [draft, setDraft] = useState<Map<string, BulkDraftChoice>>(() => new Map());
+  const chosenSkillKey = props.initialSkillKey;
+  const chosenSkill = props.skills.find(skill => skill.key === chosenSkillKey);
+  const [stage, setStage] = useState<1 | 2>(chosenSkill ? 2 : 1);
+  const [clusterKey, setClusterKey] = useState(chosenSkill?.clusterKey ?? "");
+  const [draftSkillKey, setDraftSkillKey] = useState(chosenSkillKey);
+  const [opening, openSkill] = useTransition();
+  const [draftState, setDraftState] = useState({ choices: new Map<string, BulkDraftChoice>(), rows: new Map<string, DraftWord>() });
+  const draft = draftState.choices;
+  const [addedAssignedWords, setAddedAssignedWords] = useState<DraftWord[]>([]);
   const [assigned, setAssigned] = useState<Map<string, boolean>>(() => new Map(props.assignedPairs.map((pair) =>
     [`${pair.microSkillKey}:${pair.wordId}`, pair.removable])));
   const [selectedSenses, setSelectedSenses] = useState<Record<string, string>>(props.assignedSenseIds);
   const [approvedSenseIdsByPair, setApprovedSenseIdsByPair] = useState<Record<string, string[]>>(props.approvedSenseIdsByPair);
   const [excluded, setExcluded] = useState<Set<string>>(() => new Set(props.excludedPairs));
   const [editingWordId, setEditingWordId] = useState<string | null>(null);
-  const [filters, setFilters] = useState<BulkFilters>({ search: "", schwa: "all", morpheme: "", syllables: "", phoneme: "" });
+  const [filters, setFilters] = useState<BulkFilters>(defaultBulkFilters);
   const [page, setPage] = useState(1);
   const [result, setResult] = useState<BulkApprovalResult | null>(null);
   const [selectionError, setSelectionError] = useState("");
   const [reviewError, setReviewError] = useState("");
   const [requestId, setRequestId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const deferredSearch = useDeferredValue(filters.search);
-  const chosenSkill = props.skills.find((skill) => skill.key === chosenSkillKey);
-  const chosenFamily = props.families.find((family) => family.key === chosenSkill?.familyKey);
-  const wordById = useMemo(() => new Map(props.words.map((word) => [word.id, word])), [props.words]);
-  const parts = useMemo(() => [...new Set(props.words.flatMap((word) => word.morphemeParts))]
-    .sort((a, b) => a.localeCompare(b)), [props.words]);
-  const counts = useMemo(() => [...new Set(props.words.flatMap((word) => word.senseSet?.pronunciations
-    .map(pronunciation => pronunciation.spokenSyllableCount) ?? [word.syllableCount])
-    .filter((count): count is number => count !== null))].sort((a, b) => a - b), [props.words]);
-  const phonemes = useMemo(() => [...new Set(props.words.flatMap((word) => word.senseSet?.pronunciations.length
-    ? word.senseSet.pronunciations.flatMap(pronunciation => isolatedPhonemeSymbols(pronunciation.ipa))
-    : word.phonemeSymbols))]
-    .sort((a, b) => a.localeCompare(b)), [props.words]);
-  const selectedSenseId = (word: BulkWord) => selectedSenses[`${chosenSkillKey}:${word.id}`]
+  const chosenCluster = props.clusters.find(cluster => cluster.key === chosenSkill?.clusterKey);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>();
+  const [optionsStatus, setOptionsStatus] = useState<"loading" | "error">();
+  const optionsRequest = useRef<Promise<void> | null>(null);
+  const { parts, counts, phonemes } = filterOptions ?? { parts: [], counts: [], phonemes: [] };
+  function loadOptions() {
+    if (filterOptions || optionsRequest.current) return;
+    setOptionsStatus("loading");
+    optionsRequest.current = fetch(candidatePagePath, { cache: "no-store" }).then(async response => {
+      if (!response.ok) throw new Error("Filter options could not load.");
+      setFilterOptions(await response.json() as FilterOptions);
+      setOptionsStatus(undefined);
+    }).catch(() => setOptionsStatus("error")).finally(() => { optionsRequest.current = null; });
+  }
+  const { schwa, morpheme, syllables, phoneme } = filters;
+  const search = normaliseBulkSpellingSearch(filters.search);
+  const requestFilters = useMemo(() => ({ search, schwa, morpheme, syllables, phoneme }),
+    [search, schwa, morpheme, syllables, phoneme]);
+  const filtersUseMeaning = schwa !== "all" || Boolean(syllables || phoneme);
+  const spellingOnly = !filtersUseMeaning && !morpheme;
+  const filterSenses = filtersUseMeaning ? selectedSenses : emptySenseChoices;
+  const useInitialPage = page === 1 && spellingOnly && !search;
+  const pageKey = useMemo(() => JSON.stringify([page, requestFilters, filterSenses]), [page, requestFilters, filterSenses]);
+  const [loadedPage, setLoadedPage] = useState<{ key: string; data?: BulkCandidatePage }>({ key: "" });
+  const [pageAttempt, setPageAttempt] = useState(0);
+  const recentSpellingPages = useRef<RecentSpellingPages>(new Map());
+  const currentKey = `${pageAttempt}:${pageKey}`;
+  function invalidateCandidatePages() {
+    recentSpellingPages.current = new Map();
+    setPageAttempt(attempt => attempt + 1);
+  }
+  useEffect(() => {
+    recentSpellingPages.current = new Map();
+    function clearAfterReturning() {
+      if (!document.hidden) recentSpellingPages.current = new Map();
+    }
+    document.addEventListener("visibilitychange", clearAfterReturning);
+    return () => document.removeEventListener("visibilitychange", clearAfterReturning);
+  }, [chosenSkillKey, props.initialPage]);
+  useEffect(() => {
+    if (stage !== 2 || useInitialPage) return;
+    const controller = new AbortController();
+    const pages = recentSpellingPages.current;
+    const cached = spellingOnly ? reuseSpellingPage(pages, search, page, Date.now()) : undefined;
+    const timer = window.setTimeout(() => {
+      if (cached) {
+        setLoadedPage({ key: currentKey, data: cached });
+        return;
+      }
+      fetch(candidatePagePath, {
+        method: "POST", cache: "no-store", signal: controller.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skill: chosenSkillKey, filters: requestFilters, page, selectedSenses: filterSenses }),
+      }).then(async response => {
+        if (!response.ok) throw new Error("Candidate page could not load.");
+        return response.json() as Promise<BulkCandidatePage>;
+      }).then(data => {
+        if (controller.signal.aborted) return;
+        if (spellingOnly && (data.details || !data.words.length || !hasCandidateRule(chosenSkillKey))) {
+          rememberSpellingPage(pages, search, page, data, Date.now());
+        }
+        setLoadedPage({ key: currentKey, data });
+      }).catch(() => { if (!controller.signal.aborted) setLoadedPage({ key: currentKey }); });
+    }, cached || !search ? 0 : 60);
+    return () => { controller.abort(); window.clearTimeout(timer); };
+  }, [stage, useInitialPage, chosenSkillKey, requestFilters, search, page, filterSenses, spellingOnly, currentKey, props.initialPage]);
+  const pageLoading = !useInitialPage && loadedPage.key !== currentKey;
+  const pageError = !useInitialPage && loadedPage.key === currentKey && !loadedPage.data;
+  const candidatePage = useInitialPage ? props.initialPage ?? emptyPage : loadedPage.data ?? emptyPage;
+  const { words: pageWords, total, currentPage, pageCount } = candidatePage;
+  const pageById = useMemo(() => new Map(pageWords.map(word => [word.id, word])), [pageWords]);
+  const assignedWords = [...new Map([...props.assignedWords, ...addedAssignedWords].map(word => [word.id, word])).values()]
+    .filter(word => assigned.has(`${chosenSkillKey}:${word.id}`))
+    .sort((a, b) => a.normalisedWord.localeCompare(b.normalisedWord));
+  function setDraft(change: Map<string, BulkDraftChoice> | ((previous: Map<string, BulkDraftChoice>) => Map<string, BulkDraftChoice>)) {
+    setDraftState(previous => {
+      const choices = typeof change === "function" ? change(previous.choices) : change;
+      const rows = new Map<string, DraftWord>();
+      for (const id of choices.keys()) {
+        const row = pageById.get(id) ?? previous.rows.get(id) ?? assignedWords.find(word => word.id === id);
+        if (row) rows.set(id, row);
+      }
+      return { choices, rows };
+    });
+  }
+  const selectedSenseId = (word: DraftWord) => selectedSenses[`${chosenSkillKey}:${word.id}`]
     ?? (word.senseSet?.senses.length === 1 ? word.senseSet.senses[0].id : "");
   const selectedPronunciation = (word: BulkWord) => {
     const sense = word.senseSet?.senses.find(row => row.id === selectedSenseId(word));
@@ -158,38 +249,47 @@ export function BulkAssignWorkspace(props: {
     if (pronunciation?.ipa.trim()) return pronunciation.ipa.includes("ə");
     return word.senseSet?.senses.length ? null : word.hasSchwa;
   };
-  const filterSource = useMemo(() => props.words.map(word => {
-    const selectedId = selectedSenses[`${chosenSkillKey}:${word.id}`]
-      ?? (word.senseSet?.senses.length === 1 ? word.senseSet.senses[0].id : "");
-    const selected = word.senseSet?.senses.find(row => row.id === selectedId);
-    const pronunciations = selected
-      ? word.senseSet?.pronunciations.filter(row => row.id === selected.pronunciationId) ?? []
-      : word.senseSet?.pronunciations ?? [];
-    return { ...word,
-      hasSchwa: selected && pronunciations[0]?.ipa.trim()
-        ? pronunciations[0].ipa.includes("ə") : word.senseSet?.senses.length ? null : word.hasSchwa,
-      phonemeHint: selected ? pronunciations[0]?.ipa ?? null : pronunciations.map(row => row.ipa).join("; ") || word.phonemeHint,
-      phonemeSymbols: pronunciations.length
-        ? [...new Set(pronunciations.flatMap(row => isolatedPhonemeSymbols(row.ipa)))] : word.phonemeSymbols,
-      syllableCount: selected ? pronunciations[0]?.spokenSyllableCount ?? null
-        : pronunciations.length === 1 ? pronunciations[0].spokenSyllableCount : pronunciations.length ? null : word.syllableCount,
-      possibleSyllableCounts: pronunciations.flatMap(row => row.spokenSyllableCount === null ? [] : [row.spokenSyllableCount]),
-    };
-  }), [props.words, selectedSenses, chosenSkillKey]);
-  const filtered = useMemo(() => filterBulkWords(filterSource, { ...filters, search: deferredSearch }),
-    [filterSource, filters, deferredSearch]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, pageCount);
-  const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const selectableVisible = visible.filter((word) => word.approvable && (!assigned.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id)
+  const candidateRule = hasCandidateRule(chosenSkillKey);
+  const visiblePage = pageLoading || pageError ? [] : pageWords;
+  const pageIds = visiblePage.map(word => word.id).join(",");
+  const pageDetails = candidatePage.details;
+  const [details, setDetails] = useState<{ pageIds: string; rows: Awaited<ReturnType<typeof loadBulkCandidateDetails>> }>();
+  const [failedPage, setFailedPage] = useState("");
+  const [retry, setRetry] = useState({ pageIds: "", attempt: 0 });
+  const retryAttempt = retry.pageIds === pageIds ? retry.attempt : 0;
+  const activeDetailsRequest = useRef<{ key: string; result: ReturnType<typeof loadBulkCandidateDetails> } | null>(null);
+  function retryDetails() {
+    setFailedPage("");
+    setDetails(undefined);
+    setRetry(previous => ({ pageIds, attempt: previous.attempt + 1 }));
+  }
+  useEffect(() => {
+    if (stage !== 2 || !candidateRule || !pageIds || (pageDetails && !retryAttempt)) return;
+    let cancelled = false;
+    const key = `${retryAttempt}:${pageIds}`;
+    if (activeDetailsRequest.current?.key !== key) {
+      activeDetailsRequest.current = { key, result: loadBulkCandidateDetails(pageIds.split(",")) };
+    }
+    activeDetailsRequest.current.result.then(rows => {
+      if (!cancelled) {
+        setDetails({ pageIds, rows });
+        setFailedPage("");
+      }
+    }, () => { if (!cancelled) setFailedPage(pageIds); });
+    return () => { cancelled = true; };
+  }, [stage, candidateRule, pageIds, pageDetails, retryAttempt]);
+  const visible = visiblePage.map(word => ({ ...word, candidateSenseFacts:
+    details?.pageIds === pageIds ? details.rows[word.id] : retryAttempt ? undefined : pageDetails?.[word.id] }));
+  const candidateReady = (word: BulkWord) => !candidateRule || word.candidateSenseFacts !== undefined;
+  const selectableVisible = visible.filter((word) => word.approvable && candidateReady(word)
+    && (!assigned.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id)
     && (!excluded.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id));
   const draftWords = (choice: BulkDraftChoice) => [...draft].filter(([, value]) => value === choice)
-    .map(([id]) => wordById.get(id)).filter((word): word is BulkWord => Boolean(word));
+    .map(([id]) => draftState.rows.get(id)).filter((word): word is DraftWord => Boolean(word));
   const applyWords = draftWords("apply");
   const excludeWords = draftWords("exclude");
   const clearWords = draftWords("clear");
   const deassignWords = draftWords("deassign");
-  const assignedWords = props.words.filter((word) => assigned.has(`${chosenSkillKey}:${word.id}`));
 
   function updateFilters(patch: Partial<BulkFilters>) {
     setFilters((previous) => ({ ...previous, ...patch }));
@@ -235,7 +335,12 @@ export function BulkAssignWorkspace(props: {
       setDraft(new Map());
       setRequestId(null);
     }
-    setChosenSkillKey(draftSkillKey);
+    if (draftSkillKey !== chosenSkillKey) {
+      const query = new URLSearchParams({ skill: draftSkillKey });
+      if (props.child) query.set("child", props.child);
+      openSkill(() => router.push(`?${query}`));
+      return;
+    }
     setStage(2);
     setResult(null);
     setSelectionError("");
@@ -264,6 +369,9 @@ export function BulkAssignWorkspace(props: {
         setResult(response);
         if (response.ok) {
           if (response.readbackRequired) { window.location.reload(); return; }
+          invalidateCandidatePages();
+          setAddedAssignedWords(previous => [...new Map([...previous, ...applyWords]
+            .filter(word => response.assigned.some(pair => pair.id === word.id)).map(word => [word.id, word])).values()]);
           setAssigned((previous) => {
             const next = new Map(previous);
             for (const key of next.keys()) if (key.startsWith(`${chosenSkillKey}:`)) next.delete(key);
@@ -321,7 +429,7 @@ export function BulkAssignWorkspace(props: {
     const draftChoice = draft.get(word.id);
     const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
     const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
-    const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
+    const candidate = candidateRule && candidateReady(word) ? evaluateLessonCandidate({
       wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
       senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
       morphology: word.candidateSenseFacts
@@ -332,7 +440,7 @@ export function BulkAssignWorkspace(props: {
         : word.candidateFamilyLinks ?? [],
     }) : null;
     return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
-      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked
+      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked || !candidateReady(word)
         || choice === "apply" && candidate !== null && candidate.status !== "ready" && !isAssigned}
       onChange={(event) => changeSelection([word.id], choice, event.target.checked)} />;
   }
@@ -368,10 +476,13 @@ export function BulkAssignWorkspace(props: {
   }
 
   function senseDetails(word: BulkWord) {
+    if (!candidateReady(word)) return <p className="mt-1 text-xs">
+      {failedPage === pageIds ? "Candidate facts unavailable" : "Loading candidate facts…"}
+    </p>;
     const sense = word.senseSet?.senses.find(row => row.id === selectedSenseId(word));
     const issue = bulkSenseChoiceError({ wordId: word.id, displayWord: word.displayWord,
       senseSet: word.senseSet ?? null, senseId: selectedSenseId(word) });
-    const candidate = hasCandidateRule(chosenSkillKey) ? evaluateLessonCandidate({
+    const candidate = candidateRule && candidateReady(word) ? evaluateLessonCandidate({
       wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
       senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
       morphology: word.candidateSenseFacts
@@ -390,7 +501,7 @@ export function BulkAssignWorkspace(props: {
           : "Review this lesson's requirements."}</p>
         : <p className={issue ? "text-amber-900" : "text-emerald-800"}>{issue ?? "Reviewed meaning facts ready"}</p>}
       {candidate?.status === "needs_facts" && <button type="button" className="mt-1 underline"
-        onClick={() => router.refresh()}>Recheck requirements</button>}
+        onClick={() => { invalidateCandidatePages(); retryDetails(); router.refresh(); }}>Recheck requirements</button>}
     </div>;
   }
 
@@ -437,29 +548,21 @@ export function BulkAssignWorkspace(props: {
     <section className="rounded-2xl border border-[var(--border)] bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h2 className="text-xl font-semibold">1. Choose a micro-skill</h2>
-          {stage === 2 && <p className="mt-1 text-sm">{chosenFamily?.label} → <strong>{chosenSkill?.label}</strong></p>}
+          {stage === 2 && <p className="mt-1 text-sm">{chosenCluster?.label} → <strong>{chosenSkill?.label}</strong></p>}
         </div>
         {stage === 2 && <button type="button" disabled={pending} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50"
           onClick={() => setStage(1)}>Edit skill</button>}
       </div>
       {stage === 1 && <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
-        <label className="grid gap-1 text-sm font-medium">Family
-          <select className={fieldClass} value={familyKey} onChange={(event) => {
-            setFamilyKey(event.target.value); setDraftSkillKey("");
-          }}><option value="">Choose family</option>{props.families.filter((family) =>
-            props.skills.some((skill) => skill.familyKey === family.key)).map((family) =>
-            <option key={family.key} value={family.key}>{family.label}</option>)}</select>
-        </label>
-        <label className="grid gap-1 text-sm font-medium">Micro-skill
-          <select className={fieldClass} value={draftSkillKey} disabled={!familyKey}
-            onChange={(event) => setDraftSkillKey(event.target.value)}>
-            <option value="">Choose micro-skill</option>
-            {props.skills.filter((skill) => skill.familyKey === familyKey).map((skill) =>
-              <option key={skill.key} value={skill.key}>{skill.label}</option>)}
-          </select>
-        </label>
-        <button type="button" disabled={!draftSkillKey} onClick={continueToWords}
-          className="rounded-lg bg-[var(--scarlett)] px-5 py-2 font-semibold text-white disabled:opacity-50">Next</button>
+        <SearchableFilter label="Cluster" value={clusterKey} allLabel="Choose a cluster"
+          options={props.clusters.map(cluster => ({ value: cluster.key, label: cluster.label }))}
+          onChange={value => { setClusterKey(value); setDraftSkillKey(""); }} />
+        <SearchableFilter label="Micro-skill" value={draftSkillKey} allLabel="Choose a micro-skill"
+          options={props.skills.filter(skill => skill.clusterKey === clusterKey).map(skill =>
+            ({ value: skill.key, label: skill.label }))}
+          onChange={setDraftSkillKey} />
+        <button type="button" disabled={!draftSkillKey || opening} onClick={continueToWords}
+          className="rounded-lg bg-[var(--scarlett)] px-5 py-2 font-semibold text-white disabled:opacity-50">{opening ? "Loading words…" : "Next"}</button>
       </div>}
     </section>
 
@@ -467,7 +570,7 @@ export function BulkAssignWorkspace(props: {
       <h2 className="text-xl font-semibold">2. Assign words to {chosenSkill?.label}</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <label className="grid min-w-0 gap-1 text-sm font-medium">Letters anywhere in word
-          <input className={fieldClass} type="search" value={filters.search} placeholder="Search words"
+          <input className={fieldClass} type="search" value={filters.search} maxLength={256} placeholder="Search words"
             onChange={(event) => updateFilters({ search: event.target.value })} /></label>
         <label className="grid min-w-0 gap-1 text-sm font-medium">Schwa
           <select className={fieldClass} value={filters.schwa}
@@ -476,21 +579,28 @@ export function BulkAssignWorkspace(props: {
             <option value="no">No schwa</option><option value="unknown">Unknown</option>
           </select></label>
         <SearchableFilter label="Morpheme part" value={filters.morpheme} allLabel="All parts"
+          loadOptions={loadOptions} optionsStatus={optionsStatus}
           options={parts.map((part) => ({ value: part, label: part }))}
           onChange={(morpheme) => updateFilters({ morpheme })} />
         <label className="grid min-w-0 gap-1 text-sm font-medium">Syllable count
-          <select className={fieldClass} value={filters.syllables}
+          <select className={fieldClass} value={filters.syllables} onFocus={loadOptions} onPointerDown={loadOptions}
             onChange={(event) => updateFilters({ syllables: event.target.value })}>
-            <option value="">Any count</option>{counts.map((count) => <option key={count} value={count}>{count}</option>)}
+            <option value="">Any count</option>{optionsStatus && <option disabled>{optionsStatus === "loading" ? "Loading counts…" : "Counts could not load"}</option>}{counts.map((count) => <option key={count} value={count}>{count}</option>)}
             <option value="unknown">Unknown</option>
           </select></label>
         <SearchableFilter label="Phoneme" value={filters.phoneme} allLabel="All phonemes"
+          loadOptions={loadOptions} optionsStatus={optionsStatus}
           options={phonemes.map((phoneme) => ({ value: phoneme, label: `/${phoneme}/` }))}
           onChange={(phoneme) => updateFilters({ phoneme })} />
       </div>
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)]">
         <div className="min-w-0">
-          <p className="my-3 text-sm">{filtered.length} matching words · page {currentPage} of {pageCount}</p>
+          <p className="my-3 text-sm">{pageLoading ? "Loading words…" : `${total} matching words · page ${currentPage} of ${pageCount}`}</p>
+          {pageError && <p role="alert" className="text-sm">Could not load this page. <button type="button" className="underline" onClick={invalidateCandidatePages}>Retry</button></p>}
+          {failedPage === pageIds && pageIds && <p role="alert" className="text-sm">
+            Candidate facts could not load. <button type="button" className="underline"
+              onClick={retryDetails}>Retry</button>
+          </p>}
           <div className="mb-3 flex flex-wrap gap-4 text-sm md:hidden">
             {(["apply", "exclude"] as const).map((choice) => {
               const ids = selectableVisible.map((word) => word.id);
@@ -558,9 +668,9 @@ export function BulkAssignWorkspace(props: {
             </article>;
           })}</div>
           <div className="mt-3 flex items-center gap-3 text-sm">
-            <button type="button" className="underline disabled:opacity-40" disabled={currentPage <= 1}
+            <button type="button" className="underline disabled:opacity-40" disabled={pageLoading || pageError || currentPage <= 1}
               onClick={() => setPage(currentPage - 1)}>Previous</button>
-            <button type="button" className="underline disabled:opacity-40" disabled={currentPage >= pageCount}
+            <button type="button" className="underline disabled:opacity-40" disabled={pageLoading || pageError || currentPage >= pageCount}
               onClick={() => setPage(currentPage + 1)}>Next</button>
           </div>
         </div>

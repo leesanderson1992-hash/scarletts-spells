@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { summarizeWordPreflight, type WordReadinessResponse } from "@/lib/teaching-dictionary-manager/word-readiness-response";
 import { requireAdminUser } from "@/lib/admin/access";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
 import { loadLessonReadiness } from "@/lib/teaching-dictionary-manager/lesson-preflight";
@@ -10,11 +11,15 @@ import { wordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-st
 import { loadRouteWordStatuses } from "@/lib/teaching-dictionary-manager/route-word-status-service";
 
 export const dynamic = "force-dynamic";
-export async function GET(_request: Request, { params }: { params: Promise<{ wordId: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ wordId: string }> }) {
   const started = performance.now();
   await requireAdminUser();
   const { wordId } = await params;
   if (!isUuid(wordId)) return NextResponse.json({ error: "TEACHING_WORD_ID_INVALID" }, { status: 400 });
+  const previewSkill = new URL(request.url).searchParams.get("preview");
+  if (previewSkill !== null && !/^[a-z0-9_]{1,128}$/iu.test(previewSkill)) {
+    return NextResponse.json({ error: "TEACHING_PREVIEW_SKILL_INVALID" }, { status: 400 });
+  }
   const environment = resolveAdleRouteActivationEnvironment();
   const db = createServiceRoleClient();
   const [authority, dictionary] = await Promise.all([
@@ -26,7 +31,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   const assignedSkillKeys = [...new Set((authority?.relationships ?? [])
     .filter(row => row.canonicalWordId === wordId).map(row => row.microSkillKey))];
   const approvedSkillKeys = new Set(assignedSkillKeys);
-  const preflights = await loadLessonReadiness({ wordId, approvedSkillKeys: assignedSkillKeys });
+  const preflights = await loadLessonReadiness({ wordId, approvedSkillKeys: assignedSkillKeys,
+    requestedWordSkill: previewSkill ?? undefined });
+  if (previewSkill) {
+    const preview = preflights.find(row => row.microSkillKey === previewSkill);
+    return NextResponse.json({ compiledPreview: preview?.compiledPreview ?? null,
+      releaseContentPreview: preview?.releaseContentPreview ?? [] }, { headers: { "Cache-Control": "private, no-store" } });
+  }
   const schwaStatuses = await Promise.all(preflights.filter((lesson) => lesson.routeId === "weak_vowel_word_lab")
     .map(async (lesson) => (await loadRouteWordStatuses({ routeId: lesson.routeId, microSkillKey: lesson.microSkillKey,
       lesson, wordIds: [wordId] })).words[0]?.status));
@@ -35,20 +46,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ wor
   return NextResponse.json({
     routeContents: wordRoutesFromPreflights(preflights, wordId, ""),
     assignedSkillKeys,
-    skillKeys: [...new Set([
-      ...assignedSkillKeys,
-      ...preflights.map(row => row.microSkillKey),
-    ])],
     wordRouteStatuses: preflights.map(lesson => schwaBySkill.get(lesson.microSkillKey) ?? wordRouteStatus({
       wordId,
       dictionaryApproved: dictionary.data.row_status === "active" && dictionary.data.review_status === "approved_for_first_exposure",
       approvedSkillKeys,
       lesson,
     })),
-    preflights: preflights.map(({ releasePackage: _package, ...row }) => {
-      void _package;
-      return { ...row, compilerWitnesses: row.compilerWitnesses[wordId] ? { [wordId]: row.compilerWitnesses[wordId] } : {}, words: row.words.filter(word => word.id === wordId),
-        issues: row.issues.filter(issue => !issue.wordId || issue.wordId === wordId) };
-    }),
-  }, { headers: { "Cache-Control": "private, no-store", "Server-Timing": `lesson-readiness;dur=${Math.round(performance.now() - started)}` } });
+    preflights: preflights.map(row => summarizeWordPreflight(row, wordId)),
+  } satisfies WordReadinessResponse, { headers: { "Cache-Control": "private, no-store", "Server-Timing": `lesson-readiness;dur=${Math.round(performance.now() - started)}` } });
 }

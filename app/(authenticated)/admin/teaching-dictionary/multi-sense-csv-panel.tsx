@@ -9,9 +9,10 @@ import { importReviewedMultiSenseCsv, type MultiSenseImportState } from "./multi
 
 const exportUrl = "/admin/teaching-dictionary/export/multi-sense";
 
-export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = [], senses = [] }: {
+export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, guidanceHref, requests = [], senses = [] }: {
   wordId?: string;
   batchCount?: number;
+  guidanceHref?: string;
   skills?: { micro_skill_key: string; display_name: string }[];
   requests?: { sense_id: string; micro_skill_key: string }[];
   senses?: DictionarySense[];
@@ -95,9 +96,9 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
       </div>
       <div className="rounded-xl border border-[var(--border)] p-4">
         <h3 className="font-semibold">Update existing words</h3>
-        <p className="mt-1">Find the spelling below and choose <strong>Download word CSV</strong> beside it. Copy all its meaning rows into your file and keep the IDs and source revision.</p>
-        <a className="mt-3 inline-block rounded-lg border border-[var(--border)] px-3 py-2 font-semibold"
-          href="#dictionary-word-search">Find an existing word</a>
+        <p className="mt-1">Find the spelling in Catalogue and choose <strong>Download word CSV</strong> beside it. Copy all its meaning rows into your file and keep the IDs and source revision.</p>
+        <Link className="mt-3 inline-block rounded-lg border border-[var(--border)] px-3 py-2 font-semibold"
+          href="/admin/teaching-dictionary#dictionary-word-search" prefetch={false}>Find an existing word</Link>
         {batchCount > 0 ? <details className="mt-3">
           <summary className="cursor-pointer">Download multiple existing words</summary>
           <div className="mt-2 flex flex-wrap gap-3">{Array.from({ length: batchCount }, (_, index) =>
@@ -108,6 +109,9 @@ export function MultiSenseCsvPanel({ wordId, batchCount = 0, skills, requests = 
       </div>
     </div>
 
+    {guidanceHref && <Link prefetch={false} href={guidanceHref} className="mt-4 inline-block text-sm font-semibold underline">
+      Show batch downloads and micro-skill keys
+    </Link>}
     <div className="mt-5 border-t border-[var(--border)] pt-4 text-sm">
       <h3 className="font-semibold">Request lesson approval</h3>
       <p className="mt-1">Copy the micro-skill key into <code>requested_micro_skills</code> on the row for the meaning you want to teach. For a dictionary update only, leave it blank.</p>

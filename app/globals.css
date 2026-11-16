@@ -213,6 +213,8 @@ button, input, select, textarea { font: inherit; }
 .app-nav-label { min-width: 0; }
 .app-nav-more summary { cursor: pointer; list-style: none; }
 .app-nav-more summary::-webkit-details-marker { display: none; }
+.app-nav-disclosure { margin-inline-start: auto; }
+.app-nav-dictionary[open] .app-nav-disclosure { transform: rotate(90deg); }
 .app-nav-sublist { display: grid; gap: 2px; margin: 2px 0 5px 13px; border-left: 1px solid var(--border); padding-left: 6px; }
 .app-nav-sublist .app-nav-link { font-size: .82rem; }
 .app-nav-logout { padding: 4px 0 0 1px; }

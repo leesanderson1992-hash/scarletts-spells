@@ -23,8 +23,11 @@ import { approvedFactsSupersedeDraft } from "@/lib/teaching-dictionary-manager/d
 import { assignedWorkspaceSkills, currentWorkspaceSkills } from "@/lib/teaching-dictionary-manager/workspace-hydration";
 import { loadCachedTeachingDictionaryEvidenceAuthorityForWord } from "@/lib/teaching-dictionary-manager/evidence-authority";
 import { canUpdateIngLesson } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
+import { CATALOGUE_PATH, catalogueHref, readCatalogueQuery, withCatalogueOrigin, type CatalogueQuery } from
+  "@/lib/teaching-dictionary-manager/catalogue-navigation";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { WordWorkspace } from "./word-workspace";
+import { DraftHistory } from "./draft-history";
 import { BritishRecordingPanel } from "./british-recording-panel";
 import { approvedBritishRecording } from "@/lib/teaching-dictionary-manager/british-recordings";
 import { deviceSpeechSource } from "@/lib/adle/weak-vowel/audio-source";
@@ -38,7 +41,7 @@ import type { CandidateFamilyLink } from "@/lib/teaching-dictionary-manager/less
 import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
   "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 
-type Params = {
+type Params = CatalogueQuery & {
   draft?: string;
   sense?: string;
   historical?: string;
@@ -167,13 +170,13 @@ export async function TeachingDictionaryDetail({
           .order("published_at", { ascending: false })
           .limit(100)
       : null,
-    wordId
+    wordId && !params.draft
       ? db
           .from("teaching_dictionary_manager_drafts")
-          .select("id,source_reference,created_at")
+          .select("id,created_at")
           .eq("canonical_word_id", wordId)
           .order("created_at", { ascending: false })
-          .limit(30)
+          .limit(1)
       : null,
     wordId
       ? db
@@ -543,9 +546,15 @@ export async function TeachingDictionaryDetail({
     ).values(),
   ];
   const affixMeanings = reviewedAffixMeanings(prefixProfiles.data ?? [], suffixProfiles.data ?? [], dictionaryAffixMeanings.data ?? []);
+  const catalogueReturn = wordId && params.from === "catalogue" ? catalogueHref(readCatalogueQuery(params), wordId) : null;
+  const draftHref = (draftId: string, historical = false) => {
+    const query = new URLSearchParams({ draft: draftId });
+    if (historical) query.set("historical", "1");
+    return `${CATALOGUE_PATH}/${wordId}?${withCatalogueOrigin(params, query)}`;
+  };
   if (staleDraft && params.historical === "1" && draft && wordId) return (
     <main className="mx-auto grid max-w-5xl gap-4 p-6 text-[color:var(--ink)]">
-      <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}`}>← Current approved facts</Link>
+      <Link className="underline" href={draftHref(draft.id)}>← Current approved facts</Link>
       <h1 className="text-2xl font-semibold">Historical draft for {word?.display_word}</h1>
       <p role="status">This older snapshot is read-only. It cannot replace the current approved dictionary word.</p>
       <pre className="overflow-auto rounded border border-[var(--border)] bg-[var(--paper)] p-4 text-xs">{JSON.stringify(draft.payload, null, 2)}</pre>
@@ -554,8 +563,8 @@ export async function TeachingDictionaryDetail({
   return (
     <main className="mx-auto grid w-full min-w-0 max-w-7xl grid-cols-[minmax(0,1fr)] gap-4 p-4 text-[color:var(--ink)] sm:p-6">
       <nav className="flex gap-4 text-sm">
-        <Link href="/admin/teaching-dictionary" className="underline">
-          ← All words
+        <Link href={catalogueReturn ?? CATALOGUE_PATH} prefetch={false} scroll={!catalogueReturn} className="underline">
+          {catalogueReturn ? "← Back to Catalogue results" : "← Catalogue"}
         </Link>
         <Link href="/admin/adle-lesson-readiness" className="underline">
           ADLE lesson readiness
@@ -568,14 +577,14 @@ export async function TeachingDictionaryDetail({
       </header>
       {wordId && latestSavedDraft && <div role="status" className="rounded-xl border border-sky-300 bg-sky-50 p-4 text-sm">
         A newer saved draft exists, but its changes are not yet in the live dictionary.{" "}
-        <Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${latestSavedDraft.id}`}>
+        <Link className="underline" href={draftHref(latestSavedDraft.id)}>
           Open the saved draft
         </Link>{" "}to continue its review.
       </div>}
       {staleDraft && <div role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm">
         <strong>This draft predates newer approved dictionary facts.</strong>{" "}
         Current approved facts are shown. Save a new draft to review this lesson content; the older draft is preserved.
-        {wordId && draft && <>{" "}<Link className="underline" href={`/admin/teaching-dictionary/${wordId}?draft=${draft.id}&historical=1`}>
+        {wordId && draft && <>{" "}<Link className="underline" href={draftHref(draft.id, true)}>
           View historical draft
         </Link></>}
       </div>}
@@ -678,19 +687,9 @@ export async function TeachingDictionaryDetail({
           <div className="text-sm">
             <p>Canonical ID: {wordId ?? "New word"}</p>
             <p>Source: {word?.source_name ?? "Internally authored"}</p>
-            <ul className="mt-2 space-y-1">
-              {(history?.data ?? []).map((version) => (
-                <li key={version.id}>
-                  <Link
-                    className="underline"
-                    href={`/admin/teaching-dictionary/${wordId}?draft=${version.id}`}
-                  >
-                    {new Date(version.created_at).toLocaleString("en-GB")}
-                  </Link>{" "}
-                  · {version.source_reference}
-                </li>
-              ))}
-            </ul>
+            {wordId && <DraftHistory wordId={wordId} origin={{
+              q: params.q, filter: params.filter, page: params.page, child: params.child, from: params.from,
+            }} />}
           </div>
         }
       />

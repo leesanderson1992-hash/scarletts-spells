@@ -187,6 +187,7 @@ export async function importReviewedMultiSenseCsv(
   if (words) {
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
     revalidatePath("/admin/teaching-dictionary");
+    revalidatePath("/admin/teaching-dictionary/import");
     revalidatePath("/admin/teaching-dictionary/lesson-updates");
   }
   await Promise.all([...new Set(lessons.map(lesson => lesson.skillKey))].map(async skillKey => {

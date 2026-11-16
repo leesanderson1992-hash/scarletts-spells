@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import { isUuid } from "@/lib/writing-engine/whole-writing/knowledge-review";
+import type { CatalogueQuery } from "@/lib/teaching-dictionary-manager/catalogue-navigation";
 import { TeachingDictionaryDetail } from "../detail";
 
 export const dynamic = "force-dynamic";
 export default async function WordPage({ params, searchParams }: {
   params: Promise<{ wordId: string }>;
-  searchParams: Promise<{ draft?: string; sense?: string; historical?: string; saved?: string; error?: string; route_error?: string; family_error?: string; manual_family?: string }>;
+  searchParams: Promise<CatalogueQuery & { draft?: string; sense?: string; historical?: string; saved?: string; error?: string; route_error?: string; family_error?: string; manual_family?: string }>;
 }) {
   const { wordId } = await params;
   if (!isUuid(wordId)) notFound();

@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { filterBulkWords, isolatedPhonemeSymbols, morphemeParts, nextAssignedBulkDraft, nextBulkReviewDraft, nextBulkSelection, syllableCount, type BulkWord } from "../lib/teaching-dictionary-manager/bulk-skill-assignment";
+import { normaliseBulkSpellingSearch, rememberSpellingPage, reuseSpellingPage,
+  type RecentSpellingPages } from "../lib/teaching-dictionary-manager/bulk-spelling-search";
 import { managerAssignedPairs } from "../lib/teaching-dictionary-manager/bulk-review";
 import type { CanonicalWordSkillRelationship } from "../lib/adle/word-skill-relationships/contracts";
 
@@ -32,6 +34,25 @@ assert.deepEqual(isolatedPhonemeSymbols("/ˈtʃeɪndʒ/"), ["tʃ", "eɪ", "n", "
 assert.deepEqual(isolatedPhonemeSymbols(null), []);
 assert.deepEqual(filterBulkWords(words, { ...all, phoneme: "uː" }).map((word) => word.id), ["1"]);
 assert.deepEqual(filterBulkWords(words, { ...all, phoneme: "ə" }).map((word) => word.id), []);
+const recentSpellingPages: RecentSpellingPages = new Map();
+const reviewed = { words: [words[0], words[2]], total: 2, currentPage: 1, pageCount: 1,
+  details: { "1": {}, "3": {} } };
+rememberSpellingPage(recentSpellingPages, "re", 1, reviewed, 1_000);
+assert.equal(reuseSpellingPage(recentSpellingPages, normaliseBulkSpellingSearch(" RE "), 1, 1_300), reviewed);
+assert.deepEqual(reuseSpellingPage(recentSpellingPages, "ren", 1, 1_800), {
+  words: [words[0]], total: 1, currentPage: 1, pageCount: 1, details: { "1": {} },
+});
+assert.equal(reuseSpellingPage(recentSpellingPages, "n", 1, 2_000), undefined);
+assert.equal(reuseSpellingPage(recentSpellingPages, "ren", 2, 2_000), undefined);
+assert.equal(reuseSpellingPage(recentSpellingPages, "re", 1, 16_000), undefined);
+rememberSpellingPage(recentSpellingPages, "re", 1, { ...reviewed, total: 51, pageCount: 2 }, 17_000);
+assert.equal(reuseSpellingPage(recentSpellingPages, "ren", 1, 18_000), undefined);
+for (let index = 0; index < 10; index++) {
+  rememberSpellingPage(recentSpellingPages, `word-${index}`, 1, reviewed, 19_000);
+}
+assert.equal(recentSpellingPages.size, 8);
+assert.equal(reuseSpellingPage(recentSpellingPages, "word-0", 1, 20_000), undefined);
+
 const relationship = (sourceReference: string): CanonicalWordSkillRelationship => ({
   canonicalWordId: "1", microSkillKey: "skill", relationshipRole: "demonstrates",
   positiveEvidenceEligible: true, authorityInterpretationVersion: "ADLE_PROFICIENCY_MODEL_V1",

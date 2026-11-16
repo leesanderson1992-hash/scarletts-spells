@@ -99,22 +99,37 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
   if (review.error) throw new Error("Could not record the suffix lesson approval.");
 }
 
-export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL) {
+export async function loadAbleIbleActivePool(db: Db, skill: string) {
   if (!isSuffixWorkbookPilot(skill)) throw new Error("Suffix Bulk review is unavailable.");
-  const lessonPromise = loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: skill }).then(([lesson]) => lesson);
-  const [pool, lesson, candidates] = await Promise.all([
-    loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true }),
-    lessonPromise,
-    loadSuffixReviewCandidates(db, ABLE_IBLE_ROUTE, skill, lessonPromise),
-  ]);
-  if (!lesson) throw new Error("Suffix Bulk review requires a registered lesson.");
+  const pool = await loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true });
+  return summarizeSuffixPool(pool, skill);
+}
+
+function summarizeSuffixPool(pool: Awaited<ReturnType<typeof loadDynamicSuffixProfiles>>, skill: string) {
   const profile = pool.profiles.find(profile => profile.productionEnabled);
   const current = [...(profile?.wordsByCanonicalId.values() ?? [])]
     .filter(word => !suffixDictionaryOnly(skill) || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
     .map(word => ({
-    canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.semanticBaseText,
-    meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
-  }));
+      canonicalWordId: word.canonicalWordId, word: word.displayWord, base: word.semanticBaseText,
+      meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
+    }));
+  return { current, dictionaryReadyWordIds: pool.dictionaryReadyWordIds };
+}
+
+export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL) {
+  if (!isSuffixWorkbookPilot(skill)) throw new Error("Suffix Bulk review is unavailable.");
+  const liveSuffixPool = loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true });
+  const lessonPromise = loadLessonReadiness({
+    routeId: ABLE_IBLE_ROUTE, microSkillKey: skill, liveSuffixPool: { skill, result: liveSuffixPool },
+  }).then(([lesson]) => lesson);
+  const [live, lesson, candidates] = await Promise.all([
+    liveSuffixPool,
+    lessonPromise,
+    loadSuffixReviewCandidates(db, ABLE_IBLE_ROUTE, skill, lessonPromise),
+  ]);
+  if (!lesson) throw new Error("Suffix Bulk review requires a registered lesson.");
+  const pool = summarizeSuffixPool(live, skill);
+  const { current } = pool;
   const inPool = new Set(current.map(word => word.canonicalWordId));
   const candidatesById = new Map(candidates.map(word => [word.wordId, word]));
   const entries = new Map(lesson.words.map(word => [word.id, word]));

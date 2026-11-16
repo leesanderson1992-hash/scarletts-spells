@@ -27,6 +27,8 @@ export type BulkFilters = {
   phoneme: string;
 };
 
+export const defaultBulkFilters: BulkFilters = { search: "", schwa: "all", morpheme: "", syllables: "", phoneme: "" };
+
 export type BulkDraftChoice = "apply" | "exclude" | "clear" | "deassign";
 
 /** Saved assignments use one draft slot even when exclusion also de-assigns them. */
@@ -105,7 +107,10 @@ export function morphemeParts(value: unknown): string[] {
   return [...new Set(parts)];
 }
 
-export function filterBulkWords(words: readonly BulkWord[], filters: BulkFilters): BulkWord[] {
+export type BulkFilterWord = Pick<BulkWord,
+  "normalisedWord" | "hasSchwa" | "morphemeParts" | "syllableCount" | "possibleSyllableCounts" | "phonemeSymbols">;
+
+export function filterBulkWords<T extends BulkFilterWord>(words: readonly T[], filters: BulkFilters): T[] {
   const query = filters.search.trim().toLocaleLowerCase("en-GB");
   return words.filter((word) => {
     if (query && !word.normalisedWord.toLocaleLowerCase("en-GB").includes(query)) return false;

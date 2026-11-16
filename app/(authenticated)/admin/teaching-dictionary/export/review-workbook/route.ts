@@ -10,7 +10,7 @@ import type { MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/mult
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { ING_REVIEW_BATCH_SIZE, ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
 import { isSuffixWorkbookPilot, isIdentifyBaseReview, specialistWorkbookRoute, supportsReviewWorkbook } from "@/lib/teaching-dictionary-manager/bulk-review-scope";
-import { loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
+import { loadAbleIbleActivePool, loadAbleIbleReview, loadAbleIbleWorkbook } from "@/lib/teaching-dictionary-manager/able-ible-review";
 import { prefixWorkbookEnabled, prefixWorkbooks } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { buildLessonPoolWorkbook, buildReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
@@ -36,9 +36,12 @@ export async function GET(request: Request) {
 
   const db = createServiceRoleClient();
   if (isSuffixWorkbookPilot(skill)) {
-    const { rows, current } = await loadAbleIbleReview(db, skill);
-    if (scope === "pool") return downloadWorkbook(await buildLessonPoolWorkbook(suffixReviewTitle(skill), current),
-      `teaching-dictionary-active-pool-${skill}.xlsx`);
+    if (scope === "pool") {
+      const { current } = await loadAbleIbleActivePool(db, skill);
+      return downloadWorkbook(await buildLessonPoolWorkbook(suffixReviewTitle(skill), current),
+        `teaching-dictionary-active-pool-${skill}.xlsx`);
+    }
+    const { rows } = await loadAbleIbleReview(db, skill);
     const batchRows = rows.slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
     if (!batchRows.length && batch !== 1) return new Response("No words need review in this batch.", { status: 404 });
     const data = await loadAbleIbleWorkbook(db, batchRows.map(row => row.id));
@@ -74,7 +77,7 @@ export async function GET(request: Request) {
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
   if (scope === "pool") {
-    const { current } = await loadStagingIngUpdate(db, skill);
+    const { current } = await loadStagingIngUpdate(db, skill, "pool");
     const bytes = await buildLessonPoolWorkbook(STAGING_ING_LESSONS[skill], current);
     return downloadWorkbook(bytes, `teaching-dictionary-active-pool-${skill}.xlsx`);
   }
@@ -86,7 +89,7 @@ export async function GET(request: Request) {
     double_final_consonant: "Double the final consonant before adding -ing.",
     ie_to_y: "Change the final ie to y before adding -ing.",
   }[rule];
-  const update = await loadStagingIngUpdate(db, skill);
+  const update = await loadStagingIngUpdate(db, skill, "pool");
   const rows = ingReviewExportRows(update)
     .slice((batch - 1) * ING_REVIEW_BATCH_SIZE, batch * ING_REVIEW_BATCH_SIZE);
   const ids = rows.map(row => row.wordId);

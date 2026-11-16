@@ -996,6 +996,7 @@ export async function importTeachingDictionaryCsv(_previous: CsvImportState, for
       const result = await db.from("teaching_dictionary_manager_drafts").insert(drafts.slice(i, i + 100));
       if (result.error) throw new Error("CSV_DRAFT_IMPORT_FAILED");
     }
+    revalidatePath(`${PATH}/import`);
     revalidatePath(PATH);
     return { imported: drafts.length, batchId: drafts.length ? batchId : undefined,
       errorCount: errors.length, errors: errors.slice(0, 50) };

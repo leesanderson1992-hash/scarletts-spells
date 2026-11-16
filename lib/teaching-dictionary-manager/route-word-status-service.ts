@@ -49,12 +49,12 @@ async function readPages(client: SupabaseClient, table: string, columns: string,
 }
 
 async function readByIds(client: SupabaseClient, table: string, columns: string, column: string, ids: readonly string[],
-  orderColumn = "id"): Promise<any[]> {
+  orderColumn = "id", filter: (query: any) => any = query => query): Promise<any[]> {
   const unique = [...new Set(ids.filter(Boolean))];
   const batches: any[][] = [];
   for (let offset = 0; offset < unique.length; offset += 100) {
     batches.push(await readPages(client, table, columns,
-      (query) => query.in(column, unique.slice(offset, offset + 100)), orderColumn));
+      (query) => filter(query.in(column, unique.slice(offset, offset + 100))), orderColumn));
   }
   return batches.flat();
 }
@@ -66,10 +66,11 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
       "canonical_word_id", ids, "canonical_word_id"),
     readByIds(client, "teaching_dictionary_effective_lesson_sense_bindings",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,reviewed_by",
-      "canonical_word_id", ids, "canonical_word_id"),
+      "canonical_word_id", ids, "canonical_word_id",
+      query => query.eq("environment_key", environment).eq("micro_skill_key", skillKey)),
     readByIds(client, "canonical_teaching_dictionary_word_morphology",
       "id,canonical_word_id,row_status,created_at,morphology_parts,morphology_joins,analysis_status,review_status,word_sum",
-      "canonical_word_id", ids, "canonical_word_id"),
+      "canonical_word_id", ids, "canonical_word_id", query => query.eq("row_status", "active")),
     readByIds(client, "teaching_dictionary_current_sense_family_links",
       "id,canonical_word_id,sense_id,family_key,component_part_id,relationship_kind",
       "canonical_word_id", ids, "canonical_word_id"),
@@ -81,9 +82,11 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
       "canonical_word_id", ids, "canonical_word_id"),
     purpose === "suffix_review" ? Promise.resolve([]) : readByIds(client, "teaching_dictionary_current_candidate_decisions",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot,event_sequence",
-      "canonical_word_id", ids, "event_sequence"),
+      "canonical_word_id", ids, "event_sequence",
+      query => query.eq("environment_key", environment).eq("micro_skill_key", skillKey)),
     stagingIng ? readByIds(client, "teaching_dictionary_staging_ing_meaning_choices",
-      "canonical_word_id,micro_skill_key,sense_id", "canonical_word_id", ids, "canonical_word_id")
+      "canonical_word_id,micro_skill_key,sense_id", "canonical_word_id", ids, "canonical_word_id",
+      query => query.eq("micro_skill_key", skillKey))
       : Promise.resolve([]),
     readByIds(client, "teaching_dictionary_family_links_needing_meaning_review",
       "canonical_word_id,sense_id,base_lemma", "canonical_word_id", ids, "canonical_word_id"),
@@ -145,8 +148,9 @@ async function discoverWordIds(client: SupabaseClient, skill: string): Promise<s
 export async function loadRouteWordStatuses(input: {
   routeId: string;
   microSkillKey: string;
-  lesson?: LessonReadinessRow;
+  lesson?: LessonReadinessRow | Promise<LessonReadinessRow | undefined>;
   wordIds?: readonly string[];
+  purpose?: "ing_review_export";
 }): Promise<{ words: Candidate[]; counts: RouteWordCounts }> {
   return withAdleReadMetrics("route_word_status", () => loadRouteWordStatusesUnmeasured(input));
 }
@@ -154,17 +158,20 @@ export async function loadRouteWordStatuses(input: {
 async function loadRouteWordStatusesUnmeasured(input: {
   routeId: string;
   microSkillKey: string;
-  lesson?: LessonReadinessRow;
+  lesson?: LessonReadinessRow | Promise<LessonReadinessRow | undefined>;
   wordIds?: readonly string[];
+  purpose?: "ing_review_export";
 }): Promise<{ words: Candidate[]; counts: RouteWordCounts }> {
-  const lesson = input.lesson ?? (await loadLessonReadiness({ routeId: input.routeId, microSkillKey: input.microSkillKey }))
-    .find((row) => row.routeId === input.routeId && row.microSkillKey === input.microSkillKey);
+  const client = createServiceRoleClient();
+  const [lesson, discovered] = await Promise.all([
+    input.lesson ?? loadLessonReadiness({
+      routeId: input.routeId, microSkillKey: input.microSkillKey, purpose: input.purpose,
+    }).then(rows => rows.find(row => row.routeId === input.routeId && row.microSkillKey === input.microSkillKey)),
+    input.wordIds ? [] : discoverWordIds(client, input.microSkillKey),
+  ]);
   if (!lesson || lesson.routeId !== input.routeId || lesson.microSkillKey !== input.microSkillKey)
     throw new Error("Route word status requires a registered route and micro-skill");
-  const client = createServiceRoleClient();
-  const ids = [...new Set(input.wordIds ?? [
-    ...lesson.words.map(word => word.id), ...await discoverWordIds(client, lesson.microSkillKey),
-  ])];
+  const ids = [...new Set(input.wordIds ?? [...lesson.words.map(word => word.id), ...discovered])];
   const words = await loadRouteWordCandidates(client, lesson, ids, (candidate, facts) => ({
     ...candidate, status: wordRouteStatus({ ...facts, lesson }),
   }));
@@ -242,8 +249,8 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
     environment ? lesson.routeId === "weak_vowel_word_lab"
       ? loadPublishedWritingAssociations(client, environment, ids).then((explicitReviewedAssociations) =>
         loadCanonicalWordSkillRelationshipAuthority({ client, environmentKey: environment,
-          canonicalWordIds: ids, explicitReviewedAssociations }))
-      : loadTeachingDictionaryEvidenceAuthorityForWords(client, environment, ids) : Promise.resolve(null),
+          canonicalWordIds: ids, explicitReviewedAssociations, microSkillKey: lesson.microSkillKey }))
+      : loadTeachingDictionaryEvidenceAuthorityForWords(client, environment, ids, lesson.microSkillKey) : Promise.resolve(null),
     readByIds(client, "canonical_teaching_dictionary_words",
       "id,display_word,row_status,review_status,source_name,source_url", "id", ids),
     environment && hasCandidateRule(lesson.microSkillKey)

@@ -208,9 +208,17 @@ export function profileCompilerReady(input: {
       input.proposedMemberIds.every((id) => input.validatedMemberIds.has(id)));
 }
 
-export async function loadLessonReadiness(
-  scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
-): Promise<LessonReadinessRow[]> {
+type ReadinessScope = {
+  wordId?: string;
+  routeId?: string;
+  microSkillKey?: string;
+  approvedSkillKeys?: readonly string[];
+  requestedWordSkill?: string;
+  purpose?: "ing_review_export";
+  liveSuffixPool?: { skill: string; result: ReturnType<typeof loadDynamicSuffixProfiles> };
+};
+
+export async function loadLessonReadiness(scope: ReadinessScope = {}): Promise<LessonReadinessRow[]> {
   return withAdleReadMetrics("lesson_preflight", async () => {
     if (!scope.wordId || scope.routeId || scope.microSkillKey) return loadLessonReadinessUnmeasured(scope);
 
@@ -232,7 +240,8 @@ export async function loadLessonReadiness(
     const relevantPairs = ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap(route =>
       (route.compatibilityScope.kind === "generic_composer_fallback"
         ? ["generic_composer_fallback"] : route.supportedMicroSkillKeys)
-        .filter(skill => candidates.has(`${route.routeId}\u0000${skill}`))
+        .filter(skill => (!scope.requestedWordSkill || skill === scope.requestedWordSkill)
+          && candidates.has(`${route.routeId}\u0000${skill}`))
         .map(microSkillKey => ({ routeId: route.routeId, microSkillKey })));
     if (!relevantPairs.length) return [];
     const groups = await Promise.all(relevantPairs.map(pair => loadLessonReadinessUnmeasured({ ...scope, ...pair })));
@@ -240,9 +249,7 @@ export async function loadLessonReadiness(
   });
 }
 
-async function loadLessonReadinessUnmeasured(
-  scope: { wordId?: string; routeId?: string; microSkillKey?: string; approvedSkillKeys?: readonly string[] } = {},
-): Promise<LessonReadinessRow[]> {
+async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promise<LessonReadinessRow[]> {
   const db = createServiceRoleClient();
   const environment = resolveAdleRouteActivationEnvironment();
   const scoped = (query: any, column: string, value?: string) => value ? query.eq(column, value) : query;
@@ -337,9 +344,27 @@ async function loadLessonReadinessUnmeasured(
       )),
     );
   }
-  const authorityIds = [
-    ...new Set(dependencies.map((row) => String(row.authority_id))),
-  ];
+  function contentReleaseFor(routeId: string, routeVersion: string, skill: string) {
+    const head = activationHeads.find(row => row.route_id === routeId &&
+      row.route_version === routeVersion && row.micro_skill_key === skill);
+    const revision = head ? revisionById.get(head.current_revision_id) : null;
+    const active = revision ? releaseById.get(revision.release_manifest_id) : null;
+    return active ?? releaseRows.filter(row => row.route_id === routeId && row.route_version === routeVersion &&
+      dependencies.some(dep => dep.release_manifest_id === row.id && dep.micro_skill_key === skill))
+      .sort((a, b) => String(b.published_at).localeCompare(String(a.published_at)))[0];
+  }
+
+  // Historical manifests are needed to find the fallback release, but a scoped
+  // package only uses the selected release and current activation bindings.
+  const scopedRoute = scope.routeId && scope.microSkillKey
+    ? ADLE_CURRICULUM_ROUTE_REGISTRY.find(route => route.routeId === scope.routeId) : undefined;
+  const selectedReleaseIds = scopedRoute && scope.microSkillKey ? new Set([
+    contentReleaseFor(scopedRoute.routeId, scopedRoute.routeVersion, scope.microSkillKey)?.id,
+    ...activationRevisions.map(revision => revision.release_manifest_id),
+  ]) : null;
+  const loadedDependencies = selectedReleaseIds
+    ? dependencies.filter(dep => selectedReleaseIds.has(dep.release_manifest_id)) : dependencies;
+  const authorityIds = [...new Set(loadedDependencies.map(row => String(row.authority_id)))];
   const authorities: Row[] = [];
   for (let at = 0; at < authorityIds.length; at += 100) {
     const result = await db
@@ -435,7 +460,7 @@ async function loadLessonReadinessUnmeasured(
   for (const publication of weakPublicationRows) scopedWordIds.add(String(publication.canonical_word_id));
   for (const row of prefixMembers) if (prefixRows.some(profile => profile.id === row.prefix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
   for (const row of suffixMembers) if (suffixRows.some(profile => profile.id === row.suffix_profile_id)) scopedWordIds.add(String(row.canonical_word_id));
-  for (const dep of dependencies) {
+  for (const dep of loadedDependencies) {
     const release = releaseById.get(dep.release_manifest_id);
     if (!release || !relevant.has(`${release.route_id}:${dep.micro_skill_key}`)) continue;
     const facts = new Map<string, unknown>();
@@ -604,10 +629,20 @@ async function loadLessonReadinessUnmeasured(
         candidate.micro_skill_key === row.microSkillKey,
     ),
   );
-  const [loadedPrefix, loadedSuffix, candidatePrefixRead, candidateSuffix] =
+  const suffixCandidateMembers = candidateMembers.filter((row) =>
+    reviewedCandidates.some((candidate) =>
+      candidate.route_id === "dynamic_affix_word_lab" &&
+      candidate.canonical_word_id === row.canonicalWordId &&
+      candidate.micro_skill_key === row.microSkillKey,
+    ),
+  );
+  const suppliedSuffixPool = scope.liveSuffixPool;
+  const [loadedPrefix, loadedSuffix, candidatePrefixRead, candidateSuffixRead] =
     await Promise.all([
       loadDynamicPrefixProfiles(db, ZERO_CHILD, { microSkillKeys: prefixKeys, allowLegacyUn: true }),
-      loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys, allowLegacyAbleIble: true }),
+      suppliedSuffixPool && suffixKeys.length === 1 && suffixKeys[0] === suppliedSuffixPool.skill
+        ? suppliedSuffixPool.result
+        : loadDynamicSuffixProfiles(db, ZERO_CHILD, { microSkillKeys: suffixKeys, allowLegacyAbleIble: true }),
       prefixCandidateMembers.length
         ? loadDynamicPrefixProfiles(db, ZERO_CHILD, {
             microSkillKeys: prefixKeys,
@@ -616,19 +651,14 @@ async function loadLessonReadinessUnmeasured(
             candidateMembers: prefixCandidateMembers,
           })
         : Promise.resolve(null),
-      loadDynamicSuffixProfiles(db, ZERO_CHILD, {
-        microSkillKeys: suffixKeys,
-        allowLegacyAbleIble: true,
-        allowStagingProfiles: true,
-        candidateMembers: candidateMembers.filter((row) =>
-          reviewedCandidates.some(
-            (candidate) =>
-              candidate.route_id === "dynamic_affix_word_lab" &&
-              candidate.canonical_word_id === row.canonicalWordId &&
-              candidate.micro_skill_key === row.microSkillKey,
-          ),
-        ),
-      }),
+      suffixCandidateMembers.length
+        ? loadDynamicSuffixProfiles(db, ZERO_CHILD, {
+            microSkillKeys: suffixKeys,
+            allowLegacyAbleIble: true,
+            allowStagingProfiles: true,
+            candidateMembers: suffixCandidateMembers,
+          })
+        : Promise.resolve(null),
     ]);
   // With no proposed member overlay, the candidate loader differs only in
   // productionEnabled. Reuse its already validated profile and read results.
@@ -638,6 +668,10 @@ async function loadLessonReadinessUnmeasured(
       ...profile,
       productionEnabled: true,
     })),
+  };
+  const candidateSuffix = candidateSuffixRead ?? {
+    ...loadedSuffix,
+    profiles: loadedSuffix.profiles.map((profile) => ({ ...profile, productionEnabled: true })),
   };
   const currentRevisionIds = new Set<string>();
   await Promise.all(
@@ -1018,22 +1052,7 @@ async function loadLessonReadinessUnmeasured(
         const release = revision
           ? releaseById.get(revision.release_manifest_id)
           : null;
-        const contentRelease =
-          release ??
-          releaseRows
-            .filter(
-              (row) =>
-                row.route_id === route.routeId &&
-                row.route_version === route.routeVersion &&
-                dependencies.some(
-                  (dependency) =>
-                    dependency.release_manifest_id === row.id &&
-                    dependency.micro_skill_key === skill,
-                ),
-            )
-            .sort((a, b) =>
-              String(b.published_at).localeCompare(String(a.published_at)),
-            )[0];
+        const contentRelease = release ?? contentReleaseFor(route.routeId, route.routeVersion, skill);
         const releaseContentPreview: unknown[] = targetProfile
           ? [
               {
@@ -1341,7 +1360,11 @@ async function loadLessonReadinessUnmeasured(
               `The valid word pool cannot compile a ${route.wordCounts.lesson[0]}-word selection`,
             );
         }
-        if (!profile && contentRelease && revision) {
+        // The -ing workbook queue consumes word blockers and current release
+        // members. The prospective package only contributes group-level
+        // results for this route. Preview and publication use full preflight.
+        const ingReviewExport = scope.purpose === "ing_review_export" && route.routeId === "ing_endings_word_lab";
+        if (!profile && contentRelease && revision && !ingReviewExport) {
           const fullAuthorities = dependencies
             .filter((dep) => dep.release_manifest_id === contentRelease.id)
             .flatMap((dep) => {

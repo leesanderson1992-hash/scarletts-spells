@@ -33,6 +33,7 @@ import {
   type RouteContentDraft,
 } from "@/lib/teaching-dictionary-manager/contracts";
 import { workspaceErrorMessage } from "@/lib/teaching-dictionary-manager/workspace-errors";
+import { withCatalogueOrigin } from "@/lib/teaching-dictionary-manager/catalogue-navigation";
 import { partOfSpeechOptions } from "@/lib/teaching-dictionary-manager/part-of-speech-options";
 import { reviewedWordCanLaunch } from "@/lib/teaching-dictionary-manager/editorial-review";
 import { inheritFamilyPartMeanings } from "@/lib/teaching-dictionary-manager/family-part-meanings";
@@ -48,7 +49,7 @@ import {
   targetOccurrences,
   type ReviewedTransformation,
 } from "@/lib/teaching-dictionary-manager/authoring";
-import type { LessonReadinessRow } from "@/lib/teaching-dictionary-manager/lesson-preflight";
+import type { WordLessonPreview, WordPreflightSummary, WordReadinessResponse } from "@/lib/teaching-dictionary-manager/word-readiness-response";
 import type { WordRouteStatus } from "@/lib/teaching-dictionary-manager/word-route-status";
 import { approveTeachingDictionaryPartOfSpeech, saveWordWorkspace } from "./actions";
 
@@ -149,6 +150,31 @@ function Prompt({ text }: { text: string }) {
     </span>
   );
 }
+function LessonPreviewContent({ wordId, skill, enabled, children }: {
+  wordId: string | null | undefined;
+  skill: string;
+  enabled: boolean;
+  children: (preview: WordLessonPreview | undefined, error: boolean, retry: () => void) => ReactNode;
+}) {
+  const [preview, setPreview] = useState<WordLessonPreview>();
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!enabled || !wordId) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ preview: skill });
+    fetch(`/api/admin/teaching-dictionary/${wordId}/lesson-readiness?${params}`, {
+      cache: "no-store", signal: controller.signal,
+    }).then(async response => {
+      if (!response.ok) throw new Error("TEACHING_PREVIEW_LOAD_FAILED");
+      return response.json() as Promise<WordLessonPreview>;
+    }).then(data => { if (!controller.signal.aborted) setPreview(data); })
+      .catch(() => { if (!controller.signal.aborted) setError(true); });
+    return () => controller.abort();
+  }, [attempt, enabled, skill, wordId]);
+  return children(preview, error, () => { setError(false); setAttempt(version => version + 1); });
+}
+
 function CompiledLessonPreview({ value }: { value: unknown }) {
   const [open, setOpen] = useState(false);
   return <details className="mt-3 text-sm" onToggle={event => setOpen(event.currentTarget.open)}>
@@ -368,11 +394,13 @@ export function WordWorkspace(props: {
   useEffect(() => { editRevision.current = editVersion; }, [editVersion]);
   const [draftId, setDraftId] = useState(props.draftId);
   const [overviewReviewed, setOverviewReviewed] = useState(props.overviewReviewed);
-  const [preflights, setPreflights] = useState<LessonReadinessRow[]>([]);
+  const [preflights, setPreflights] = useState<WordPreflightSummary[]>([]);
   const [wordRouteStatuses, setWordRouteStatuses] = useState<WordRouteStatus[]>([]);
   const [assignedSkillKeys, setAssignedSkillKeys] = useState<string[] | null>(props.initialAssignedSkillKeys);
-  const [checksState, setChecksState] = useState<"loading" | "ready" | "error">(props.wordId ? "loading" : "ready");
+  const [checksRequested, setChecksRequested] = useState(false);
+  const [checksState, setChecksState] = useState<"idle" | "loading" | "ready" | "error">(props.wordId ? "idle" : "ready");
   const [checkVersion, setCheckVersion] = useState(0);
+  const [openedLessons, setOpenedLessons] = useState<string[]>([]);
   const checksGeneration = useRef(0);
   const initialChecksApplied = useRef(false);
   const [saveMessage, setSaveMessage] = useState(props.meaningSaved ? "Meaning approved. You can now review its word parts." : props.saved ? "Saved." : "");
@@ -396,6 +424,9 @@ export function WordWorkspace(props: {
       }
       setLastSaveMs(Math.round(performance.now() - saveStarted));
       const destination = new URL(result.destination, window.location.origin);
+      if (destination.pathname === window.location.pathname) {
+        withCatalogueOrigin(Object.fromEntries(new URLSearchParams(window.location.search)), destination.searchParams);
+      }
       const error = result.error ?? destination.searchParams.get("publish_error") ?? undefined;
       setActionError(error);
       setApprovalIssues(result.issues ?? []);
@@ -418,7 +449,7 @@ export function WordWorkspace(props: {
         return null;
       }
       window.history.replaceState(null, "", `${destination.pathname}${destination.search}${window.location.hash}`);
-      if (props.wordId) {
+      if (props.wordId && checksRequested) {
         checksGeneration.current += 1;
         setChecksState("loading");
         setCheckVersion(version => version + 1);
@@ -429,7 +460,7 @@ export function WordWorkspace(props: {
           setDirty(false);
           setOverviewReviewed(result.overviewApproved);
         }
-        setSaveMessage("Saved. Updating lesson checks…");
+        setSaveMessage(checksRequested ? "Saved. Updating lesson checks…" : "Saved.");
         if (String(form.get("review_section") ?? "").startsWith("lesson:")) router.refresh();
       }
       return null;
@@ -438,14 +469,14 @@ export function WordWorkspace(props: {
   void saveState;
   const morphologyRevision = props.senseAnalyses.map(analysis => analysis.id).sort().join(",");
   useEffect(() => {
-    if (!props.wordId) return;
+    if (!props.wordId || !checksRequested) return;
     const controller = new AbortController();
     const generation = checksGeneration.current;
     fetch(`/api/admin/teaching-dictionary/${props.wordId}/lesson-readiness`, {
       cache: "no-store", signal: controller.signal,
     }).then(async response => {
       if (!response.ok) throw new Error("TEACHING_READINESS_LOAD_FAILED");
-      return response.json() as Promise<{ preflights: LessonReadinessRow[]; routeContents: RouteContentDraft[]; skillKeys: string[]; assignedSkillKeys: string[]; wordRouteStatuses: WordRouteStatus[] }>;
+      return response.json() as Promise<WordReadinessResponse>;
     }).then(result => {
       if (controller.signal.aborted || generation !== checksGeneration.current) return;
       setChecksLoadedMs(Math.round(performance.now()));
@@ -483,7 +514,7 @@ export function WordWorkspace(props: {
     props.approvedWord, props.approvedDefinition, props.approvedSentence, props.wordClip, props.sentenceClip,
     props.deviceWordClip, props.deviceSentenceClip,
     props.approvedWeakSources, props.approvedWrittenFacts, props.weakFamilyPrefill, props.approvedSourceReference,
-    props.skills, checkVersion]);
+    props.skills, checkVersion, checksRequested]);
   const [joined, setJoined] = useState("");
   const [assignmentCluster, setAssignmentCluster] = useState("");
   const [splitSkill, setSplitSkill] = useState<string | null>(null);
@@ -725,7 +756,12 @@ export function WordWorkspace(props: {
       }
       const target = document.getElementById(id);
       const panel = target?.closest<HTMLElement>("[data-overview-view]")?.dataset.overviewView as OverviewView | undefined;
-      if (panel) setOverviewView(panel);
+      const lessonLink = panel === "lessons" || id === "td-skills" || id.startsWith("td-route-");
+      if (lessonLink && props.wordId) {
+        setOverviewView("lessons");
+        setChecksRequested(true);
+        setChecksState(previous => previous === "idle" ? "loading" : previous);
+      } else if (panel) setOverviewView(panel);
       if (target instanceof HTMLDetailsElement) target.open = true;
       let parent = target?.parentElement;
       while (parent) {
@@ -769,7 +805,7 @@ export function WordWorkspace(props: {
         editTarget: publicationBlockerTarget(label),
       })),
     ];
-    const word = preflight?.words.find((word) => word.id === props.wordId);
+    const word = preflight?.word;
     const usesSelectedMeaning = !activeSenseId || activeSenseId === payload.skillSenseIds?.[key];
     return {
       key,
@@ -839,7 +875,16 @@ export function WordWorkspace(props: {
       ],
     },
   ];
+  function openOverviewView(view: OverviewView) {
+    setOverviewView(view);
+    if (view === "lessons" && props.wordId && !checksRequested) {
+      setChecksRequested(true);
+      setChecksState("loading");
+    }
+  }
   function saveButton(review: string, label = "Save and approve") {
+    if (review !== "draft" && checksState === "idle") return <button type="button" className={button}
+      onClick={() => { setChecksRequested(true); setChecksState("loading"); }}>Check readiness before approval</button>;
     return (
       <ActionSubmitButton
         pending={saving}
@@ -1038,7 +1083,7 @@ export function WordWorkspace(props: {
             <nav aria-label="Overview views" className="mb-4 flex flex-wrap gap-1 border-b border-[var(--border)] pb-3">
               {overviewViews.map(([view, label]) => (
                 <button key={view} type="button" aria-pressed={overviewView === view}
-                  onClick={() => setOverviewView(view)}
+                  onClick={() => openOverviewView(view)}
                   className="rounded-lg px-3 py-2 text-sm font-semibold hover:bg-[var(--paper)] aria-pressed:bg-[var(--mist)] aria-pressed:text-[var(--scarlett)]">
                   {label}
                 </button>
@@ -1046,7 +1091,7 @@ export function WordWorkspace(props: {
             </nav>
             {(["meaning", "pronunciation"] as const).map(panel => (
               <div key={panel} data-overview-view={panel} hidden={overviewView !== panel}>
-                {payload.senseSet && <SenseEditor panel={panel} value={payload.senseSet} word={payload.displayWord}
+                {overviewView === panel && payload.senseSet && <SenseEditor panel={panel} value={payload.senseSet} word={payload.displayWord}
                   recordingSources={dictationRecordingSources} onChange={senseSet => change({ senseSet })}
                   selectedSenseId={activeSenseId} onSelectSense={setActiveSenseId} />}
               </div>
@@ -1204,7 +1249,7 @@ export function WordWorkspace(props: {
           {props.advanced}
             </div>
           </details>
-          {props.recordingSettings}
+          {overviewView === "details" && props.recordingSettings}
           <div className="grid gap-3 sm:grid-cols-2">
             {overview.map(field => field.readOnly ? (
               <div key={field.key} className="rounded-lg bg-[var(--paper)] p-3 text-sm">
@@ -1214,7 +1259,7 @@ export function WordWorkspace(props: {
             ) : <div key={field.key} className="flex min-w-0 items-end gap-2">
               <div className="min-w-0 flex-1"><Editable id={`td-${field.key}`} label={field.label}
                 value={field.value} onChange={field.change} options={field.options} /></div>
-              {field.key === "display" && props.wordClip && payload.displayWord === props.approvedWord &&
+              {overviewView === "details" && field.key === "display" && props.wordClip && payload.displayWord === props.approvedWord &&
                 <InlineBritishRecording clip={props.wordClip} label="word" />}
             </div>)}
           </div>
@@ -1644,7 +1689,9 @@ export function WordWorkspace(props: {
         <summary className="cursor-pointer font-semibold">Lesson checks</summary>
         {weakRows.length > 0 && <p className="mt-1 text-sm">Weak-vowel publication status and its required fields are shown above. This table covers the other lesson routes.</p>}
         {checksState !== "ready" && <p role="status" className="mt-2 text-sm text-[color:var(--mid)]">
-          {checksState === "loading" ? "Checking complete lesson groups… You can edit Overview while checks run." : "Lesson checks could not load. Approval and Launch are unavailable."}
+          {checksState === "idle" ? "Open Micro-skills to check lesson readiness." : checksState === "loading"
+            ? "Checking complete lesson groups… You can edit Overview while checks run."
+            : "Lesson checks could not load. Approval and Launch are unavailable."}
           {checksState === "error" && <button type="button" className="ml-2 text-[color:var(--scarlett)] underline" onClick={() => { setChecksState("loading"); setCheckVersion(version => version + 1); }}>Retry checks</button>}
         </p>}
         <div className="mt-3 min-w-0">
@@ -1747,6 +1794,9 @@ export function WordWorkspace(props: {
           <details
             id={`td-route-${row.key}`}
             key={row.key}
+            onToggle={event => {
+              if (event.currentTarget.open) setOpenedLessons(previous => previous.includes(row.key) ? previous : [...previous, row.key]);
+            }}
             className={`${section} scroll-mt-6`}
           >
             <summary className="cursor-pointer p-4 font-semibold">
@@ -1756,7 +1806,9 @@ export function WordWorkspace(props: {
                 {row.preflight?.status.replaceAll("_", " ") ?? "Needs review"}
               </span>
             </summary>
-            <div className="px-4 pb-4">
+            <LessonPreviewContent key={`${props.wordId}:${checkVersion}:${morphologyRevision}`} wordId={props.wordId}
+              skill={row.key} enabled={openedLessons.includes(row.key) && Boolean(row.preflight)}>
+              {(lessonPreview, previewError, retryPreview) => <div className="px-4 pb-4">
               {activityVariantsForRoute(row.route.routeId, row.key)
                 .filter((variant) => variant.enabled)
                 .map((variant) => (
@@ -1772,8 +1824,8 @@ export function WordWorkspace(props: {
                           route,
                           word: payload.displayWord,
                           wordId: props.wordId,
-                          compiled: row.preflight?.compiledPreview,
-                          sources: row.preflight?.releaseContentPreview ?? [],
+                          compiled: lessonPreview?.compiledPreview,
+                          sources: lessonPreview?.releaseContentPreview ?? [],
                         })}
                       />
                     </summary>
@@ -1879,7 +1931,7 @@ export function WordWorkspace(props: {
                         "comparative_superlative_word_lab",
                       ].includes(row.route.routeId) &&
                       (() => {
-                        const preview = row.preflight?.releaseContentPreview as
+                        const preview = lessonPreview?.releaseContentPreview as
                           | {
                               authorityType?: string;
                               content?: Record<string, unknown>;
@@ -2092,7 +2144,9 @@ export function WordWorkspace(props: {
                     ))}
                 </div>
               )}
-              <CompiledLessonPreview value={row.preflight?.compiledPreview ?? row.preflight?.releaseContentPreview ?? {}} />
+              {previewError ? <p role="alert" className="text-sm">Lesson preview could not load. <button type="button" className="underline" onClick={retryPreview}>Retry</button></p>
+                : lessonPreview ? <CompiledLessonPreview value={lessonPreview.compiledPreview ?? lessonPreview.releaseContentPreview} />
+                  : row.preflight && openedLessons.includes(row.key) && <p role="status" className="text-sm">Loading lesson preview…</p>}
               {(!row.ready || dirty) && <div className={actions}>
                 {saveButton(
                   `lesson:${row.key}`,
@@ -2132,7 +2186,8 @@ export function WordWorkspace(props: {
                   Launch lesson
                 </ActionSubmitButton>
               </form>
-            </div>
+            </div>}
+            </LessonPreviewContent>
           </details>
         );
       })}

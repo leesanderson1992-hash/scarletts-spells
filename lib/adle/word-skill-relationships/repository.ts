@@ -19,6 +19,9 @@ import {
   type SpecialistMembershipAdapterRow,
 } from "./adapters";
 import { readCanonicalWordSkillRelationships } from "./authority";
+import { isHistoricalBaseWordSkill } from "../base-word-skill-merge";
+import { ING_MICRO_SKILLS } from "../ing/contracts";
+import { COMPARATIVE_MICRO_SKILLS } from "../inflection/contracts";
 import { mergeBaseWordAuthorityInputs } from "./base-word-merge";
 import { loadReleasedInflectionMemberships } from "./released-inflection-memberships";
 import type {
@@ -84,21 +87,26 @@ async function readByIds<T>(client: SupabaseClient, table: string, columns: stri
 // The dependent queries here bound large mapping, support, membership, event,
 // and import-history reads to the requested words before authority interpretation.
 async function loadScopedSourceRows(client: SupabaseClient, environmentKey: "local" | "staging" | "production", canonicalWordIds: readonly string[]): Promise<any[][]> {
-  const targetWords = await readByIds<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status", "id", canonicalWordIds);
-  const normalisedWords = [...new Set(targetWords.map((row) => row.normalised_word as string))];
-  const [wordRows, skillRows, mappingRows, supportRows, prefixMembers, suffixMembers, pairDecisions] = await Promise.all([
-    readByIds<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status", "normalised_word", normalisedWords),
+  const normalisedScope = readByIds<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status", "id", canonicalWordIds)
+    .then(rows => [...new Set(rows.map(row => row.normalised_word as string))]);
+  const mappingSource = normalisedScope.then(names => readByIds<any>(client, "spelling_canonical_mappings",
+    "id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version", "correct_spelling_normalized", names));
+  const prefixSource = readByIds<any>(client, "canonical_teaching_dictionary_prefix_members",
+    "id,import_batch_id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash", "canonical_word_id", canonicalWordIds);
+  const suffixSource = readByIds<any>(client, "canonical_teaching_dictionary_suffix_members",
+    "id,import_batch_id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash", "canonical_word_id", canonicalWordIds);
+  const [wordRows, skillRows, mappingRows, supportRows, prefixMembers, suffixMembers, pairDecisions,
+    mappingEventRows, prefixProfiles, suffixProfiles] = await Promise.all([
+    normalisedScope.then(names => readByIds<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status", "normalised_word", names)),
     readAll<any>(client, "micro_skill_catalog", "micro_skill_key,is_active", undefined, "micro_skill_key"),
-    readByIds<any>(client, "spelling_canonical_mappings", "id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version", "correct_spelling_normalized", normalisedWords),
+    mappingSource,
     readByIds<any>(client, "canonical_teaching_dictionary_word_support", "id,import_batch_id,canonical_word_id,micro_skill_key,support_role,row_status,review_status,source_row_hash", "canonical_word_id", canonicalWordIds),
-    readByIds<any>(client, "canonical_teaching_dictionary_prefix_members", "id,import_batch_id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash", "canonical_word_id", canonicalWordIds),
-    readByIds<any>(client, "canonical_teaching_dictionary_suffix_members", "id,import_batch_id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash", "canonical_word_id", canonicalWordIds),
+    prefixSource,
+    suffixSource,
     (async () => { const rows: any[] = []; for (let start = 0; start < canonicalWordIds.length; start += 100) rows.push(...await readAll<any>(client, "teaching_dictionary_pair_latest_decisions", "id,canonical_word_id,micro_skill_key,action", (query) => query.eq("environment_key", environmentKey).in("canonical_word_id", canonicalWordIds.slice(start, start + 100)))); return rows; })(),
-  ]);
-  const [mappingEventRows, prefixProfiles, suffixProfiles] = await Promise.all([
-    readByIds<any>(client, "spelling_canonical_mapping_events", "id,mapping_id,event_type,new_resolver_visibility_status", "mapping_id", mappingRows.map((row) => row.id)),
-    readByIds<any>(client, "canonical_teaching_dictionary_prefix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", "id", prefixMembers.map((member) => member.prefix_profile_id)),
-    readByIds<any>(client, "canonical_teaching_dictionary_suffix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", "id", suffixMembers.map((member) => member.suffix_profile_id)),
+    mappingSource.then(rows => readByIds<any>(client, "spelling_canonical_mapping_events", "id,mapping_id,event_type,new_resolver_visibility_status", "mapping_id", rows.map(row => row.id))),
+    prefixSource.then(rows => readByIds<any>(client, "canonical_teaching_dictionary_prefix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", "id", rows.map(row => row.prefix_profile_id))),
+    suffixSource.then(rows => readByIds<any>(client, "canonical_teaching_dictionary_suffix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", "id", rows.map(row => row.suffix_profile_id))),
   ]);
   const filteredEvents = mappingEventRows.filter((row) => row.event_type === "resolver_visibility_enabled" && row.new_resolver_visibility_status === "visible");
   const filteredPrefixes = prefixProfiles.filter((row) => DYNAMIC_PREFIX_PROFILE_KEYS.includes(row.micro_skill_key));
@@ -187,10 +195,11 @@ async function loadCompoundRouteContent(client: SupabaseClient, environmentKey: 
 export async function loadCanonicalWordSkillRelationshipAuthority(params: {
   client: SupabaseClient;
   environmentKey: "local" | "staging" | "production";
-  explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[];
+  explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[] | Promise<readonly ExplicitReviewedAssociationAdapterRow[]>;
   ignorePairDecisionsFor?: readonly { canonicalWordId: string; microSkillKey: string }[];
   canonicalWordId?: string;
   canonicalWordIds?: readonly string[];
+  microSkillKey?: string;
   genericSupportSourceRows?: readonly GenericSupportSourceRow[];
 }): Promise<CanonicalWordSkillRelationshipReadResult> {
   return withAdleReadMetrics("word_skill_relationship_authority", () =>
@@ -200,19 +209,27 @@ export async function loadCanonicalWordSkillRelationshipAuthority(params: {
 async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   client: SupabaseClient;
   environmentKey: "local" | "staging" | "production";
-  explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[];
+  explicitReviewedAssociations?: readonly ExplicitReviewedAssociationAdapterRow[] | Promise<readonly ExplicitReviewedAssociationAdapterRow[]>;
   ignorePairDecisionsFor?: readonly { canonicalWordId: string; microSkillKey: string }[];
   canonicalWordId?: string;
   canonicalWordIds?: readonly string[];
+  microSkillKey?: string;
   genericSupportSourceRows?: readonly GenericSupportSourceRow[];
 }): Promise<CanonicalWordSkillRelationshipReadResult> {
   const client = params.client;
   if (params.canonicalWordId && params.canonicalWordIds) throw new Error("Supply one relationship word scope");
   const scopedIds = params.canonicalWordId ? [params.canonicalWordId] : params.canonicalWordIds;
+  // Historical Base Word skills can merge at interpretation time. Keep their
+  // complete authority and apply the requested skill after that merge.
+  const skill = params.microSkillKey && !isHistoricalBaseWordSkill(params.microSkillKey)
+    ? params.microSkillKey : undefined;
+  const prefixScope = !skill || DYNAMIC_PREFIX_PROFILE_KEYS.some(key => key === skill);
+  const suffixScope = !skill || DYNAMIC_SUFFIX_PROFILE_KEYS.some(key => key === skill);
+
   if (scopedIds && params.genericSupportSourceRows) throw new Error("Preloaded support rows require complete relationship scope");
-  const [wordRows, skillRows, mappingRows, mappingEventRows, supportRows, batchRows, prefixProfiles, prefixMembers, suffixProfiles, suffixMembers, pairDecisions] = scopedIds
-    ? await loadScopedSourceRows(client, params.environmentKey, scopedIds)
-    : await Promise.all([
+  const sourceRows = scopedIds
+    ? loadScopedSourceRows(client, params.environmentKey, scopedIds)
+    : Promise.all([
     readAll<any>(client, "canonical_teaching_dictionary_words", "id,normalised_word,row_status"),
     readAll<any>(client, "micro_skill_catalog", "micro_skill_key,is_active", undefined, "micro_skill_key"),
     readAll<any>(client, "spelling_canonical_mappings", "id,misspelling_normalized,correct_spelling_normalized,micro_skill_key,mapping_status,resolver_visibility_status,normalization_version"),
@@ -221,11 +238,25 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
       ? Promise.resolve([...params.genericSupportSourceRows].sort((a, b) => a.id.localeCompare(b.id)))
       : readAll<any>(client, "canonical_teaching_dictionary_word_support", "id,import_batch_id,canonical_word_id,micro_skill_key,support_role,row_status,review_status,source_row_hash"),
     readAll<any>(client, "canonical_teaching_dictionary_import_batches", "id,batch_status,source_commit,source_folder_sha256"),
-    readAll<any>(client, "canonical_teaching_dictionary_prefix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", (query) => query.in("micro_skill_key", [...DYNAMIC_PREFIX_PROFILE_KEYS])),
-    readAll<any>(client, "canonical_teaching_dictionary_prefix_members", "id,import_batch_id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash"),
-    readAll<any>(client, "canonical_teaching_dictionary_suffix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", (query) => query.in("micro_skill_key", [...DYNAMIC_SUFFIX_PROFILE_KEYS])),
-    readAll<any>(client, "canonical_teaching_dictionary_suffix_members", "id,import_batch_id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash"),
+    prefixScope ? readAll<any>(client, "canonical_teaching_dictionary_prefix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", (query) => query.in("micro_skill_key", [...DYNAMIC_PREFIX_PROFILE_KEYS])) : [],
+    prefixScope ? readAll<any>(client, "canonical_teaching_dictionary_prefix_members", "id,import_batch_id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash") : [],
+    suffixScope ? readAll<any>(client, "canonical_teaching_dictionary_suffix_profiles", "id,import_batch_id,micro_skill_key,production_enabled,row_status,review_status,source_row_hash", (query) => query.in("micro_skill_key", [...DYNAMIC_SUFFIX_PROFILE_KEYS])) : [],
+    suffixScope ? readAll<any>(client, "canonical_teaching_dictionary_suffix_members", "id,import_batch_id,suffix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,source_row_hash") : [],
     readAll<any>(client, "teaching_dictionary_pair_latest_decisions", "id,canonical_word_id,micro_skill_key,action", (query) => query.eq("environment_key", params.environmentKey)),
+  ]);
+  const [[wordRows, skillRows, mappingRows, mappingEventRows, supportRows, batchRows,
+    prefixProfiles, prefixMembers, suffixProfiles, suffixMembers, pairDecisions],
+    baseActivations, compoundRows, inflectionRows, explicitAssociations] = await Promise.all([
+    sourceRows,
+    skill ? [] : loadEnabledBaseWordReleaseAuthorities({
+      client,
+      environmentKey: params.environmentKey,
+      microSkillKeys: ["D4_MOR_BASE_WORDS_IDENTIFY_BASE", "D4_MOR_BASE_WORDS_PRESERVE_BASE", "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"],
+    }),
+    !skill || COMPOUND_SKILLS.some(key => key === skill) ? loadCompoundRouteContent(client, params.environmentKey) : [],
+    !skill || ING_MICRO_SKILLS.some(key => key === skill) || COMPARATIVE_MICRO_SKILLS.some(key => key === skill)
+      ? loadReleasedInflectionMemberships(client, params.environmentKey, scopedIds) : [],
+    params.explicitReviewedAssociations,
   ]);
   const batchById = new Map(batchRows.map((batch) => [batch.id as string, batch]));
   const wordCountByNormalised = new Map<string, number>();
@@ -315,11 +346,6 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   addProfileMembers(prefixProfiles, prefixMembers, "prefix_profile_id");
   addProfileMembers(suffixProfiles, suffixMembers, "suffix_profile_id");
 
-  const baseActivations = await loadEnabledBaseWordReleaseAuthorities({
-    client,
-    environmentKey: params.environmentKey,
-    microSkillKeys: ["D4_MOR_BASE_WORDS_IDENTIFY_BASE", "D4_MOR_BASE_WORDS_PRESERVE_BASE", "D4_MOR_BASE_WORDS_BASE_PLUS_PREFIX", "D4_MOR_BASE_WORDS_BASE_PLUS_SUFFIX"],
-  });
   const baseRows: SpecialistMembershipAdapterRow[] = [];
   for (const activation of baseActivations) {
     for (const family of activation.family.families) {
@@ -341,10 +367,8 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
       }
     }
   }
-  const compoundRows = await loadCompoundRouteContent(client, params.environmentKey);
-  const inflectionRows = await loadReleasedInflectionMemberships(client, params.environmentKey, scopedIds);
   const specialistFacts = adaptSpecialistMemberships([...profileRows, ...baseRows, ...compoundRows, ...inflectionRows]);
-  const explicitFacts = adaptExplicitReviewedAssociations(params.explicitReviewedAssociations ?? []);
+  const explicitFacts = adaptExplicitReviewedAssociations(explicitAssociations ?? []);
   const ignored = new Set((params.ignorePairDecisionsFor ?? []).map((pair) => `${pair.canonicalWordId}\u0000${pair.microSkillKey}`));
   const ordinaryFacts = [...resolverFacts, ...specialistFacts, ...genericFacts, ...explicitFacts];
   const ordinaryDecisions = pairDecisions.filter((row) => !ignored.has(`${row.canonical_word_id}\u0000${row.micro_skill_key}`))
@@ -356,8 +380,8 @@ async function loadCanonicalWordSkillRelationshipAuthorityUnmeasured(params: {
   const result = readCanonicalWordSkillRelationships({
     words,
     microSkills,
-    facts: inputs.facts,
-    pairDecisions: inputs.decisions,
+    facts: skill ? inputs.facts.filter(fact => fact.microSkillKey === skill) : inputs.facts,
+    pairDecisions: skill ? inputs.decisions.filter(decision => decision.microSkillKey === skill) : inputs.decisions,
     adapterAuthorityEstablished: true,
   });
   if (!scopedIds) return result;

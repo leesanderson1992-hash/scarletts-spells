@@ -41,7 +41,7 @@ export default async function LessonUpdates({ searchParams }: {
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
     supported && skill && (view === "preview" || view === "export")
-      ? loadStagingIngUpdate(db, skill).then(update => ({ update, error: null }),
+      ? loadStagingIngUpdate(db, skill, view === "export" ? "pool" : "full").then(update => ({ update, error: null }),
         (error: unknown) => ({ update: null, error: error instanceof Error ? error.message : "Could not load the lesson update." }))
       : Promise.resolve({ update: null, error: null }),
     suffixPilot && view !== "workbook" ? loadAbleIbleReview(db, params.skill) : null,

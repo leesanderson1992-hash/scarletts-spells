@@ -8,6 +8,7 @@ import { LogoutButton } from "@/app/dashboard/logout-button";
 import { setActiveChildContext } from "@/app/children/actions";
 import { NavIcon, type NavIconName } from "@/components/ui/nav-icon";
 import { buildScopedPath, normaliseAppMode, type AppMode } from "@/lib/children-shared";
+import { CATALOGUE_PATH } from "@/lib/teaching-dictionary-manager/catalogue-navigation";
 
 type ChildOption = { id: string; first_name: string; last_name: string | null };
 type AppShellProps = {
@@ -47,8 +48,15 @@ const adminNav: NavItem[] = [
   { label: "Canonical Misspelling Resolver", href: "/admin/canonical-mappings", icon: "✎" },
   { label: "No Matching Skill", href: "/admin/no-matching-skill", icon: "◇" },
   { label: "ADLE Requirements", href: "/admin/adle-canonical-intake-readiness", icon: "▤" },
-  { label: "Teaching Dictionary", href: "/admin/teaching-dictionary", icon: "▦" },
+];
+const recommendDictionary: NavItem[] = [
   { label: "Recommend Dictionary Entries", href: "/admin/recommend-dictionary-entries", icon: "▤" },
+];
+const dictionaryNav: NavItem[] = [
+  { label: "Catalogue", href: CATALOGUE_PATH, icon: "▤" },
+  { label: "Import words", href: `${CATALOGUE_PATH}/import`, icon: "↑" },
+  { label: "Bulk assign to micro-skills", href: `${CATALOGUE_PATH}/bulk-assign`, icon: "✓" },
+  { label: "Bulk review lesson words", href: `${CATALOGUE_PATH}/lesson-updates`, icon: "↻" },
 ];
 const adminMore: NavItem[] = [
   { label: "Word–skill Review", href: "/admin/word-skill-review", icon: "✓" },
@@ -133,14 +141,15 @@ function AppShellFrame({
   }, [profileOpen]);
   useEffect(() => {
     if (!drawerOpen) return;
-    drawerRef.current?.querySelector<HTMLElement>("a,button")?.focus();
+    drawerRef.current?.querySelector<HTMLElement>("a,button,summary")?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setDrawerOpen(false);
         requestAnimationFrame(() => hamburgerRef.current?.focus());
       }
       if (event.key === "Tab" && drawerRef.current) {
-        const items = Array.from(drawerRef.current.querySelectorAll<HTMLElement>("a,button")).filter((item) => !item.hasAttribute("disabled"));
+        const items = Array.from(drawerRef.current.querySelectorAll<HTMLElement>("a,button,summary"))
+          .filter(item => !item.hasAttribute("disabled") && item.getClientRects().length > 0);
         if (!items.length) return;
         if (event.shiftKey && document.activeElement === items[0]) {
           event.preventDefault();
@@ -164,6 +173,13 @@ function AppShellFrame({
   const accountName = userEmail?.split("@")[0]?.replace(/[._-]+/g, " ") || "Parent";
   const nav = mode === "child" ? childNav : parentNav;
   const focus = layout === "focus";
+  const inDictionary = currentPath === CATALOGUE_PATH || currentPath.startsWith(`${CATALOGUE_PATH}/`);
+  const dictionarySection = currentPath.slice(CATALOGUE_PATH.length).split("/")[1];
+  const activeDictionaryPage = inDictionary ? (
+    dictionarySection === "imports" ? `${CATALOGUE_PATH}/import`
+      : dictionarySection === "ing-review" ? `${CATALOGUE_PATH}/lesson-updates`
+      : dictionaryNav.find(item => item.href === `${CATALOGUE_PATH}/${dictionarySection}`)?.href ?? CATALOGUE_PATH
+  ) : undefined;
 
   function toggleSidebar() {
     if (window.matchMedia("(max-width: 1023px)").matches) {
@@ -186,13 +202,13 @@ function AppShellFrame({
     event.preventDefault();
     items[(index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
   }
-  function navLinks(items: NavItem[], extraClass = "") {
+  function navLinks(items: NavItem[], activeHref?: string) {
     return items.map((item) => {
       const href = buildScopedPath(item.href, selectedId, mode);
-      const active = currentPath === item.href || currentPath.startsWith(item.href + "/");
+      const active = activeHref ? activeHref === item.href : currentPath === item.href || currentPath.startsWith(item.href + "/");
       return <Link key={item.href} href={href} prefetch={false} onClick={() => setDrawerOpen(false)}
         title={collapsed ? item.label : undefined} aria-current={active ? "page" : undefined}
-        className={"app-nav-link " + (active ? "is-active " : "") + extraClass}>
+        className={"app-nav-link" + (active ? " is-active" : "")}>
         <span className="app-nav-icon" aria-hidden="true">{
           item.icon === "course" || item.icon === "analytics" || item.icon === "settings" || item.icon === "review"
             ? <NavIcon name={item.icon} /> : item.icon
@@ -220,6 +236,28 @@ function AppShellFrame({
           </button>
           {adminOpen ? <nav aria-label="Admin navigation" className="app-nav-list">
             {navLinks(adminNav)}
+            <details key={inDictionary ? "in-dictionary" : "outside-dictionary"}
+              className="app-nav-more app-nav-dictionary" open={inDictionary}>
+              <summary aria-label="Teaching Dictionary" title="Teaching Dictionary" className="app-nav-link"
+                onClick={(event) => {
+                  const tabletRail = window.matchMedia("(min-width: 768px) and (max-width: 1023px)").matches && !drawerOpen;
+                  const collapsedDesktop = collapsed && window.matchMedia("(min-width: 1024px)").matches;
+                  if (!tabletRail && !collapsedDesktop) return;
+                  event.preventDefault();
+                  if (event.currentTarget.parentElement instanceof HTMLDetailsElement) event.currentTarget.parentElement.open = true;
+                  if (tabletRail) setDrawerOpen(true);
+                  if (collapsedDesktop) {
+                    setCollapsed(false);
+                    localStorage.setItem("scarlett-sidebar-collapsed", "false");
+                  }
+                }}>
+                <span className="app-nav-icon" aria-hidden="true">▦</span>
+                <span className="app-nav-label">Teaching Dictionary</span>
+                <span className="app-nav-label app-nav-disclosure" aria-hidden="true">›</span>
+              </summary>
+              <div className="app-nav-sublist">{navLinks(dictionaryNav, activeDictionaryPage)}</div>
+            </details>
+            {navLinks(recommendDictionary)}
             <details className="app-nav-more">
               <summary className="app-nav-link"><span className="app-nav-icon" aria-hidden="true">···</span><span className="app-nav-label">More admin tools</span></summary>
               <div className="app-nav-sublist">{navLinks(adminMore)}</div>

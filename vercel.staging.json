@@ -1,0 +1,30 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "experiment/ai-context-benchmark": false
+    }
+  },
+  "functions": {
+    "app/api/admin/teaching-dictionary/bulk-assign/candidates/route.ts": {
+      "regions": [
+        "dub1"
+      ]
+    },
+    "app/(authenticated)/admin/teaching-dictionary/page.tsx": {
+      "regions": [
+        "dub1"
+      ]
+    },
+    "app/(authenticated)/admin/teaching-dictionary/lesson-updates/page.tsx": {
+      "regions": [
+        "dub1"
+      ]
+    },
+    "app/api/admin/teaching-dictionary/*/lesson-readiness/route.ts": {
+      "regions": [
+        "dub1"
+      ]
+    }
+  }
+}
