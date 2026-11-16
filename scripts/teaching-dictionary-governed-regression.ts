@@ -25,7 +25,60 @@ import { loadApprovedContextualContentForSkills } from "../lib/adle/homophone/pu
 import { buildWeakVowelReleasePackage } from "../lib/adle/weak-vowel/release";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { ABLE_IBLE_ROUTE, FUL_LESS_SKILL } from "../lib/teaching-dictionary-manager/able-ible-workbook";
+import type { LessonReadinessRow } from "../lib/teaching-dictionary-manager/lesson-preflight";
+import { loadSuffixReviewCandidates } from "../lib/teaching-dictionary-manager/route-word-status-service";
+
+async function verifySuffixCandidateRead(extraLessonWord: boolean) {
+  const scopes: string[][] = [];
+  let startCandidateRead!: () => void;
+  const candidateReadStarted = new Promise<void>(resolve => { startCandidateRead = resolve; });
+  let finishLesson!: (lesson: LessonReadinessRow) => void;
+  const pendingLesson = new Promise<LessonReadinessRow>(resolve => { finishLesson = resolve; });
+  const client = { from(table: string) {
+    let wordIds: string[] = [];
+    const query = {
+      select: () => query, eq: () => query, order: () => query,
+      in: (_key: string, ids: string[]) => { wordIds = ids; return query; },
+      range: async () => {
+        if (table === "canonical_teaching_dictionary_words") {
+          scopes.push(wordIds);
+          startCandidateRead();
+          return { data: wordIds.map(id => ({ id, display_word: id })), error: null };
+        }
+        return { data: table === "adle_reviewed_word_skill_pairs" ? [{ canonical_word_id: "hopeful" }] : [], error: null };
+      },
+    };
+    return query;
+  } } as unknown as SupabaseClient;
+
+  const candidates = loadSuffixReviewCandidates(client, ABLE_IBLE_ROUTE, FUL_LESS_SKILL, pendingLesson);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([candidateReadStarted, candidates, new Promise<never>((_, reject) => {
+      timeout = setTimeout(() => reject(new Error("Suffix evidence lookup waited for preflight")), 2000);
+    })]);
+  } finally {
+    clearTimeout(timeout);
+    finishLesson({
+      routeId: ABLE_IBLE_ROUTE, microSkillKey: FUL_LESS_SKILL,
+      words: [{ id: "hopeful" }, ...(extraLessonWord ? [{ id: "fearless" }] : [])],
+    } as LessonReadinessRow);
+  }
+  const rows = await candidates;
+  assert.deepEqual(scopes, extraLessonWord ? [["hopeful"], ["hopeful", "fearless"]] : [["hopeful"]]);
+  assert.deepEqual(rows.map(row => row.wordId), extraLessonWord ? ["fearless", "hopeful"] : ["hopeful"]);
+}
+
 async function main() {
+const originalEnvironment = process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT;
+delete process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT;
+try {
+  await verifySuffixCandidateRead(false);
+  await verifySuffixCandidateRead(true);
+} finally {
+  if (originalEnvironment !== undefined) process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = originalEnvironment;
+}
 const v1BaseMembers = [
   { canonicalWordId: "base-only", memberRole: "base", assignmentEligible: true,
     lessonContentEligible: true, authenticSelectionEligible: true },

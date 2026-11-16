@@ -60,7 +60,7 @@ async function readByIds(client: SupabaseClient, table: string, columns: string,
 }
 
 async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly string[],
-  environment: string, skillKey: string, stagingIng: boolean) {
+  environment: string, skillKey: string, stagingIng: boolean, purpose?: "suffix_review") {
   const [senseSets, bindings, morphology, familyLinks, senseAnalyses, senseFamilyLinks, decisions, choices, familyMeaningChanges] = await Promise.all([
     readByIds(client, "teaching_dictionary_reviewed_sense_sets", "canonical_word_id,sense_set",
       "canonical_word_id", ids, "canonical_word_id"),
@@ -79,7 +79,7 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
     readByIds(client, "teaching_dictionary_current_sense_family_memberships",
       "id,canonical_word_id,sense_id,sense_morphology_id,family_key,component_part_id,relationship_kind,base_meaning",
       "canonical_word_id", ids, "canonical_word_id"),
-    readByIds(client, "teaching_dictionary_current_candidate_decisions",
+    purpose === "suffix_review" ? Promise.resolve([]) : readByIds(client, "teaching_dictionary_current_candidate_decisions",
       "canonical_word_id,micro_skill_key,environment_key,sense_id,action,pronunciation_id,rule_revision,fact_snapshot,event_sequence",
       "canonical_word_id", ids, "event_sequence"),
     stagingIng ? readByIds(client, "teaching_dictionary_staging_ing_meaning_choices",
@@ -120,8 +120,7 @@ async function loadOverviewCandidateFacts(client: SupabaseClient, ids: readonly 
 
 /** Discover possible relationships by one micro-skill, without treating a
  * source row as approval. The governed interpreter makes that decision. */
-async function discoverWordIds(client: SupabaseClient, lesson: LessonReadinessRow): Promise<string[]> {
-  const skill = lesson.microSkillKey;
+async function discoverWordIds(client: SupabaseClient, skill: string): Promise<string[]> {
   const [reviewed, support, mappings, prefixProfiles, suffixProfiles] = await Promise.all([
     readPages(client, "adle_reviewed_word_skill_pairs", "id,canonical_word_id", (query) => query.eq("micro_skill_key", skill)),
     readPages(client, "canonical_teaching_dictionary_word_support", "id,canonical_word_id", (query) => query.eq("micro_skill_key", skill)),
@@ -135,7 +134,6 @@ async function discoverWordIds(client: SupabaseClient, lesson: LessonReadinessRo
     readByIds(client, "canonical_teaching_dictionary_suffix_members", "id,canonical_word_id", "suffix_profile_id", suffixProfiles.map((row) => row.id)),
   ]);
   return [...new Set<string>([
-    ...lesson.words.map((word) => word.id),
     ...support.map((row) => row.canonical_word_id),
     ...mappedWords.map((row) => row.id),
     ...prefixMembers.map((row) => row.canonical_word_id),
@@ -164,7 +162,9 @@ async function loadRouteWordStatusesUnmeasured(input: {
   if (!lesson || lesson.routeId !== input.routeId || lesson.microSkillKey !== input.microSkillKey)
     throw new Error("Route word status requires a registered route and micro-skill");
   const client = createServiceRoleClient();
-  const ids = [...new Set(input.wordIds ?? await discoverWordIds(client, lesson))];
+  const ids = [...new Set(input.wordIds ?? [
+    ...lesson.words.map(word => word.id), ...await discoverWordIds(client, lesson.microSkillKey),
+  ])];
   const words = await loadRouteWordCandidates(client, lesson, ids, (candidate, facts) => ({
     ...candidate, status: wordRouteStatus({ ...facts, lesson }),
   }));
@@ -180,6 +180,49 @@ async function loadRouteWordStatusesUnmeasured(input: {
   } };
 }
 
+/** Bulk review needs relationship approval and Overview facts. Preflight
+ * contributes word IDs, but the common case can read the discovered scope
+ * while preflight is still running. */
+export async function loadSuffixReviewCandidates(
+  client: SupabaseClient, routeId: string, microSkillKey: string,
+  lesson: Promise<LessonReadinessRow | undefined>,
+) {
+  return withAdleReadMetrics("route_word_status", async () => {
+    const scope = { routeId, microSkillKey };
+    const read = (ids: readonly string[]) => loadRouteWordCandidates(client, scope, ids, (candidate, facts) => ({
+      wordId: candidate.wordId,
+      displayWord: candidate.displayWord,
+      overviewCandidate: candidate.overviewCandidate,
+      familyMeaningReview: candidate.familyMeaningReview,
+      relationshipApproved: facts.approvedSkillKeys.has(microSkillKey),
+    }), undefined, "suffix_review");
+
+    const [readiness, discovered] = await Promise.all([
+      lesson,
+      discoverWordIds(client, microSkillKey).then(ids => ({
+        ids,
+        candidates: read(ids).then(
+          words => ({ ok: true, words } as const),
+          (error: unknown) => ({ ok: false, error } as const),
+        ),
+      })),
+    ]);
+    if (!readiness || readiness.routeId !== routeId || readiness.microSkillKey !== microSkillKey)
+      throw new Error("Route word status requires a registered route and micro-skill");
+
+    const ids = new Set(discovered.ids);
+    const lessonIds = readiness.words.map(word => word.id);
+    if (lessonIds.some(id => !ids.has(id))) {
+      // Resolve the union together so mapping ambiguity is still checked over
+      // the same identities as the full route-status read.
+      return read([...new Set([...lessonIds, ...ids])]);
+    }
+    const result = await discovered.candidates;
+    if (!result.ok) throw result.error;
+    return result.words;
+  });
+}
+
 export async function loadApprovedIngWordsForIds(client: SupabaseClient, microSkillKey: string, ids: readonly string[],
   selectedSenses?: ReadonlyMap<string, string>) {
   const candidates = await loadRouteWordCandidates(client, { routeId: "ing_endings_word_lab", microSkillKey },
@@ -190,7 +233,7 @@ export async function loadApprovedIngWordsForIds(client: SupabaseClient, microSk
 async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
   client: SupabaseClient, lesson: Pick<LessonReadinessRow, "routeId" | "microSkillKey">,
   ids: readonly string[], project: (candidate: Omit<Candidate, "status">, facts: Omit<Parameters<typeof wordRouteStatus>[0], "lesson">) => T,
-  selectedSenses?: ReadonlyMap<string, string>,
+  selectedSenses?: ReadonlyMap<string, string>, purpose?: "suffix_review",
 ): Promise<T[]> {
   if (!ids.length) return [];
   const environment = resolveAdleRouteActivationEnvironment();
@@ -204,9 +247,9 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
     readByIds(client, "canonical_teaching_dictionary_words",
       "id,display_word,row_status,review_status,source_name,source_url", "id", ids),
     environment && hasCandidateRule(lesson.microSkillKey)
-      ? loadOverviewCandidateFacts(client, ids, environment, lesson.microSkillKey, stagingIng)
+      ? loadOverviewCandidateFacts(client, ids, environment, lesson.microSkillKey, stagingIng, purpose)
       : Promise.resolve(null),
-    environment && hasCandidateRule(lesson.microSkillKey)
+    environment && hasCandidateRule(lesson.microSkillKey) && purpose !== "suffix_review"
       ? loadCurrentLessonSenses(client, ids, [lesson.microSkillKey], stagingIng)
       : Promise.resolve(new Map()),
   ]);

@@ -10,7 +10,7 @@ import { loadLessonReadiness } from "./lesson-preflight";
 import { loadReviewedMeaningBundles } from "./multi-sense-export";
 import type { MultiSenseCsvBundle } from "./multi-sense-csv";
 import { loadDynamicSuffixProfiles } from "@/lib/adle/morphology/dynamic-suffix-profile-loader";
-import { loadRouteWordStatuses } from "./route-word-status-service";
+import { loadSuffixReviewCandidates } from "./route-word-status-service";
 
 type Db = ReturnType<typeof createServiceRoleClient>;
 const zeroChild = "00000000-0000-4000-8000-000000000001";
@@ -101,11 +101,13 @@ export async function stageAbleIbleWord(db: Db, actor: string, bundle: MultiSens
 
 export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL) {
   if (!isSuffixWorkbookPilot(skill)) throw new Error("Suffix Bulk review is unavailable.");
-  const [lesson] = await loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: skill });
-  const [pool, candidates] = await Promise.all([
+  const lessonPromise = loadLessonReadiness({ routeId: ABLE_IBLE_ROUTE, microSkillKey: skill }).then(([lesson]) => lesson);
+  const [pool, lesson, candidates] = await Promise.all([
     loadDynamicSuffixProfiles(db, zeroChild, { microSkillKeys: [skill], allowLegacyAbleIble: true }),
-    loadRouteWordStatuses({ lesson, routeId: ABLE_IBLE_ROUTE, microSkillKey: skill }),
+    lessonPromise,
+    loadSuffixReviewCandidates(db, ABLE_IBLE_ROUTE, skill, lessonPromise),
   ]);
+  if (!lesson) throw new Error("Suffix Bulk review requires a registered lesson.");
   const profile = pool.profiles.find(profile => profile.productionEnabled);
   const current = [...(profile?.wordsByCanonicalId.values() ?? [])]
     .filter(word => !suffixDictionaryOnly(skill) || pool.dictionaryReadyWordIds.has(word.canonicalWordId))
@@ -114,10 +116,10 @@ export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL
     meaning: word.derivedMeaning, dictationSentence: word.dictationSentence,
   }));
   const inPool = new Set(current.map(word => word.canonicalWordId));
-  const candidatesById = new Map(candidates.words.map(word => [word.wordId, word]));
+  const candidatesById = new Map(candidates.map(word => [word.wordId, word]));
   const entries = new Map(lesson.words.map(word => [word.id, word]));
-  const ids = new Set([...inPool, ...entries.keys(), ...candidates.words.filter(word =>
-    word.status.relationshipApproved || word.familyMeaningReview).map(word => word.wordId)]);
+  const ids = new Set([...inPool, ...entries.keys(), ...candidates.filter(word =>
+    word.relationshipApproved || word.familyMeaningReview).map(word => word.wordId)]);
   const rows = [...ids].flatMap(id => {
     const entry = entries.get(id);
     const candidate = candidatesById.get(id);
