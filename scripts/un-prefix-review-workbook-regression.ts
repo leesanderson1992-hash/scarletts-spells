@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { DIS_MIS_PREFIX_SKILL, NEGATIVE_PREFIX_SKILL, RE_PRE_PREFIX_SKILL, prefixWorkbookEnabled,
   SUB_INTER_SUPER_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-workbook";
 import { UN_PREFIX_SKILL } from "@/lib/teaching-dictionary-manager/prefix-content";
+import { FUL_LESS_SKILL } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { stagePrefixWorkbookDraft } from "@/lib/teaching-dictionary-manager/prefix-workbook-draft";
 import { buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 import { parseMultiSenseCsv, type MultiSenseCsvBundle } from "@/lib/teaching-dictionary-manager/multi-sense-csv";
@@ -222,6 +223,36 @@ async function main() {
     ["under", "between", "above or beyond"]);
   groupedSheet.getCell("E6").value = "Under";
   await assert.rejects(readReviewWorkbook(await groupedUpload(), SUB_INTER_SUPER_PREFIX_SKILL), /row 6: choose Above or beyond/);
+  const suffixWorkbook = new ExcelJS.Workbook();
+  await suffixWorkbook.xlsx.load(await buildReviewWorkbook({ skill: FUL_LESS_SKILL,
+    title: "-ful/-less", bundles: [], notes: new Map(), families: new Map() }));
+  const suffixSheet = suffixWorkbook.getWorksheet("Words to review")!;
+  const suffixHeaders = suffixSheet.getRow(3).values as string[];
+  const suffixValues = {
+    Word: "helpless", Meaning: "Unable to manage without help.", "Use in lesson": "Yes",
+    "Part of speech": "adjective", IPA: "/ˈhelpləs/", "Spoken syllable count": 2,
+    "Stress pattern": "primary-unstressed", "Dictation sentence": "The lost kitten looked helpless.",
+    "Dictation target token index": 4, "Part 1 kind": "base", "Part 1 underlying form": "help",
+    "Part 1 visible letters": "help", "Part 2 kind": "suffix", "Part 2 underlying form": "less",
+    "Part 2 visible letters": "less", "Part 2 meaning": "without or not having", "Part 2 join before": "none",
+    "Relationship kind": "derived", "Age band": "middle_primary", "Frequency band": "medium",
+    "Complexity band": "low", "Has schwa": "Yes",
+  };
+  for (const [key, value] of Object.entries(suffixValues)) {
+    assert(suffixHeaders.indexOf(key) > 0, key);
+    suffixSheet.getCell(4, suffixHeaders.indexOf(key)).value = value;
+  }
+  const suffixUpload = Uint8Array.from(await suffixWorkbook.xlsx.writeBuffer()).buffer;
+  const pendingSuffix = await readReviewWorkbook(suffixUpload, FUL_LESS_SKILL);
+  assert.deepEqual(pendingSuffix.pendingFamilies.map(row => row.base), ["help"]);
+  const parsedSuffix = await readReviewWorkbook(suffixUpload, FUL_LESS_SKILL, {
+    decisions: [{ row: 4, familyKey: "help" }],
+    resolve: async () => ({ base: "help", key: "help", meaning: "Give someone support.", partOfSpeech: "verb", kind: "free_base" }),
+  });
+  const [suffixWord] = parseMultiSenseCsv(parsedSuffix.csv);
+  assert.equal(suffixWord.displayWord, "helpless");
+  assert.equal(suffixWord.senseSet.senses[0].pronunciationId, "pronunciation-4");
+  assert.equal(parsedSuffix.suffixFacts.get(4)?.has_schwa, "Yes");
   process.env.ADLE_ROUTE_ACTIVATION_ENVIRONMENT = "staging";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://qkpjbajicacbrphthibk.supabase.co";
   assert.equal(prefixWorkbookEnabled(RE_PRE_PREFIX_SKILL), true);

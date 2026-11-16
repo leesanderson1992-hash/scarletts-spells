@@ -1,5 +1,6 @@
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
-import { suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
+import { ingReviewEnvironment } from "@/lib/teaching-dictionary-manager/ing-staging-scope";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { publishIdentifyBaseWord } from "./base-word-actions";
 import Link from "next/link";
@@ -52,6 +53,7 @@ export default async function LessonUpdates({ searchParams }: {
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
   const selected = params.skill ?? "";
   const prefixSkill = prefixWorkbookEnabled(selected) ? selected : null;
+  const blankWorkbookSkill = prefixSkill ?? (selected === FUL_LESS_SKILL && ingReviewEnvironment() === "staging" ? selected : null);
   const prefixQueue = prefixSkill && view === "preview" && specialist
     ? await loadPendingPrefixWorkbookQueue(db, prefixSkill) : null;
   const readyPrefixRows = prefixQueue?.filter(row => !row.blockers.length).slice(0, PREFIX_PUBLISH_BATCH_SIZE) ?? [];
@@ -80,8 +82,8 @@ export default async function LessonUpdates({ searchParams }: {
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
-      allowsBlankWorkbook={suffixPilot}
-      blankWorkbookHref={prefixSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${prefixSkill}&scope=blank` : undefined}
+      allowsBlankWorkbook={suffixPilot && !blankWorkbookSkill}
+      blankWorkbookHref={blankWorkbookSkill ? `/admin/teaching-dictionary/export/review-workbook?skill=${blankWorkbookSkill}&scope=blank` : undefined}
       review={specialist && view === "export" ? <section className={card}>
         <h2 className="text-xl font-semibold">{specialist.rows.length} words waiting for review</h2>
         <ul className="divide-y divide-[var(--border)]">{specialist.rows.map(row => <li key={row.id} className="py-2">

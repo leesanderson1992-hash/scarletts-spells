@@ -232,7 +232,7 @@ export async function readReviewWorkbook(file: ArrayBuffer, skill: string, optio
     if (!["", "Review", "Yes", "No"].includes(entry.use_in_lesson))
       throw new Error(`Workbook row ${index}: choose Review, Yes or No under Use in lesson.`);
     entry.workbook_row = String(index);
-    if (hasPrefixChoice && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
+    if ((hasPrefixChoice || skill === FUL_LESS_SKILL) && entry.display_word && !entry.canonical_word_id && !entry.source_sense_reviewed_at) {
       entry.sense_id ||= `meaning-${index}`;
       if (entry.part_of_speech !== "root") entry.pronunciation_id ||= `pronunciation-${index}`;
     }
