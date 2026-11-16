@@ -336,28 +336,61 @@ export async function loadDynamicSuffixProfiles(
       .map((member) => text(member.canonical_word_id))
       .filter((id): id is string => id !== null),
   ))];
-  const [{ data: rawWords, error: wordsError }, { data: rawDictations, error: dictationError },
-    { data: rawMetadata, error: metadataError }, { data: rawMorphology, error: morphologyError },
-    { data: rawDefinitions, error: definitionError }] = wordIds.length
-    ? await Promise.all([
-      client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds),
+  const dictionaryEnvironment = ingReviewEnvironment();
+  const readsPublishedDictionary = (skill: unknown) =>
+    (dictionaryEnvironment === "staging" && (skill === ABLE_IBLE_SKILL || skill === FUL_LESS_SKILL))
+    || (dictionaryEnvironment === "production" && skill === FUL_LESS_SKILL);
+  const loadPublishedDictionary = async () => {
+    const wordResult = wordIds.length ? await client.from("canonical_teaching_dictionary_words").select("id,source_row_hash,display_word,frequency_band,age_band,complexity_band,row_status,review_status").in("id", wordIds) : null;
+    if (wordResult?.error) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordResult.error.message}`);
+    const wordsById = new Map(records<DictionaryWordRow>(wordResult?.data ?? []).flatMap(word => {
+      const id = text(word.id);
+      return id ? [[id, word] as const] : [];
+    }));
+    for (const candidate of options.candidateMembers ?? []) if (candidate.dictionary) {
+      const current = wordsById.get(candidate.canonicalWordId);
+      if (current) Object.assign(current, { display_word: candidate.dictionary.displayWord, age_band: candidate.dictionary.ageBand,
+        frequency_band: candidate.dictionary.frequencyBand, complexity_band: candidate.dictionary.complexityBand,
+        source_row_hash: fingerprintSnapshotValue(candidate.dictionary) });
+    }
+    const dictionaryFactsBySkill = new Map(await Promise.all(profileRows.filter(profile =>
+      readsPublishedDictionary(profile.micro_skill_key))
+      .map(async profile => {
+        const skill = String(profile.micro_skill_key);
+        const members = records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members).flatMap(member => {
+          const wordId = text(member.canonical_word_id);
+          const word = wordId ? text(wordsById.get(wordId)?.display_word) : null;
+          const contentVersionId = isRecord(member.source_metadata) ? text(member.source_metadata.contentVersionId) : null;
+          return wordId && word && contentVersionId ? [{ wordId, word, contentVersionId }] : [];
+        });
+        return [skill, await loadPublishedAffixFacts(client, skill, members)] as const;
+      })));
+    return { wordsById, dictionaryFactsBySkill };
+  };
+
+  // Published-fact checks only need the member IDs and display spellings.
+  // Dictation and the remaining legacy facts can load while those checks run.
+  const [{ wordsById, dictionaryFactsBySkill }, [
+    { data: rawDictations, error: dictationError },
+    { data: rawMetadata, error: metadataError },
+    { data: rawMorphology, error: morphologyError },
+    { data: rawDefinitions, error: definitionError },
+  ], pool] = await Promise.all([
+    loadPublishedDictionary(),
+    wordIds.length ? Promise.all([
       client.from("canonical_teaching_dictionary_dictation_sentences").select("id,source_row_hash,canonical_word_id,dictation_sentence,dictation_target_token_index,audio_text,row_status,review_status").in("canonical_word_id", wordIds),
       client.from("canonical_teaching_dictionary_word_metadata").select("canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,row_status,review_status").in("canonical_word_id", wordIds),
       client.from("canonical_teaching_dictionary_word_morphology").select("canonical_word_id,morphology_parts,morphology_joins,morphology_transformations,word_sum,analysis_status,review_status,row_status").in("canonical_word_id", wordIds).eq("row_status", "active"),
       client.from("teaching_dictionary_definition_versions").select("canonical_word_id,definition,published_at").in("canonical_word_id", wordIds).is("route_id", null).order("published_at", { ascending: false }),
-    ])
-    : Array.from({ length: 5 }, () => ({ data: [], error: null }));
-  if (wordsError || dictationError || metadataError || morphologyError || definitionError) throw new Error(`loadDynamicSuffixProfiles dictionary: ${wordsError?.message ?? dictationError?.message ?? metadataError?.message ?? morphologyError?.message ?? definitionError?.message}`);
+    ]) : Array.from({ length: 4 }, () => ({ data: [], error: null })),
+    loadDictationPool(client, wordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers),
+  ]);
+  if (dictationError || metadataError || morphologyError || definitionError) throw new Error(`loadDynamicSuffixProfiles dictionary: ${dictationError?.message ?? metadataError?.message ?? morphologyError?.message ?? definitionError?.message}`);
 
-  const dictionaryWords = records<DictionaryWordRow>(rawWords);
   const dictations = records<DictationRow>(rawDictations);
   const metadata = records<MetadataRow>(rawMetadata);
   const morphology = records<MorphologyRow>(rawMorphology);
   const definitions = records<DefinitionRow>(rawDefinitions);
-  const wordsById = new Map(dictionaryWords.flatMap((word) => {
-    const id = text(word.id);
-    return id ? [[id, word] as const] : [];
-  }));
   const dictationsByWordId = new Map<string, DictationRow[]>();
   for (const row of dictations) {
     const id = text(row.canonical_word_id);
@@ -380,31 +413,10 @@ export async function loadDynamicSuffixProfiles(
   }
 
   for (const candidate of options.candidateMembers ?? []) if (candidate.dictionary) {
-    const current = wordsById.get(candidate.canonicalWordId);
-    if (current) Object.assign(current, { display_word: candidate.dictionary.displayWord, age_band: candidate.dictionary.ageBand,
-      frequency_band: candidate.dictionary.frequencyBand, complexity_band: candidate.dictionary.complexityBand,
-      source_row_hash: fingerprintSnapshotValue(candidate.dictionary) });
     metadataByWordId.set(candidate.canonicalWordId, [{ canonical_word_id: candidate.canonicalWordId,
       ...candidate.dictionary.metadata, row_status: "active", review_status: "approved_for_first_exposure" }]);
   }
-  const dictionaryEnvironment = ingReviewEnvironment();
-  const readsPublishedDictionary = (skill: unknown) =>
-    (dictionaryEnvironment === "staging" && (skill === ABLE_IBLE_SKILL || skill === FUL_LESS_SKILL))
-    || (dictionaryEnvironment === "production" && skill === FUL_LESS_SKILL);
-  const dictionaryFactsBySkill = new Map(await Promise.all(profileRows.filter(profile =>
-    readsPublishedDictionary(profile.micro_skill_key))
-    .map(async profile => {
-      const skill = String(profile.micro_skill_key);
-      const members = records<MemberRow>(profile.canonical_teaching_dictionary_suffix_members).flatMap(member => {
-        const wordId = text(member.canonical_word_id);
-        const word = wordId ? text(wordsById.get(wordId)?.display_word) : null;
-        const contentVersionId = isRecord(member.source_metadata) ? text(member.source_metadata.contentVersionId) : null;
-        return wordId && word && contentVersionId ? [{ wordId, word, contentVersionId }] : [];
-      });
-      return [skill, await loadPublishedAffixFacts(client, skill, members)] as const;
-    })));
   const dictionaryReadyWordIds = new Set<string>();
-  const pool = await loadDictationPool(client, wordIds, options.dictationSeed ?? `${childId}:${new Date().toISOString().slice(0,10)}`, options.candidateMembers);
   const profiles: DynamicAffixProfile[] = [];
   const diagnostics: DynamicSuffixProfileLoadDiagnostic[] = [];
   for (const row of profileRows) {
