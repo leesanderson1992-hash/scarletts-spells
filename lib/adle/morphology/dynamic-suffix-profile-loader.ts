@@ -15,7 +15,7 @@ import { auditDerivedItyCandidates } from "./derived-suffix-candidate-loader";
 
 export { DYNAMIC_SUFFIX_PROFILE_KEYS } from "./dynamic-suffix-profile-keys";
 
-export type DynamicSuffixProfileLoadDiagnostic = {
+type DynamicSuffixProfileLoadDiagnostic = {
   profileKey: string;
   blockerCode:
     | "dictionary_approval_required"

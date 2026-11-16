@@ -691,12 +691,6 @@ async function performWorkspaceSave(form: FormData) {
   return { destination, error: null, overviewApproved };
 }
 
-/** Compatibility action for older forms; the compact workspace uses the result action below. */
-export async function saveTeachingDictionaryDraft(form: FormData) {
-  const result = await performWorkspaceSave(form);
-  finish(result.destination, result.error ? new Error(result.error) : undefined);
-}
-
 export async function saveWordWorkspace(form: FormData) {
   const result = await performWorkspaceSave(form);
   if (!result.error) {
@@ -705,23 +699,6 @@ export async function saveWordWorkspace(form: FormData) {
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
   }
   return result;
-}
-
-export async function publishTeachingDictionaryDraft(form: FormData) {
-  const actor = await requireAdminUser();
-  const id = value(form, "draft_id");
-  const wordId = value(form, "word_id");
-  const path = wordId && isUuid(wordId) ? `${PATH}/${wordId}?draft=${id}` : `${PATH}?draft=${id}`;
-  let destination = path;
-  try {
-    if (!isUuid(id)) throw new Error("TEACHING_DRAFT_ID_INVALID");
-    const db = createServiceRoleClient();
-    const draft = await db.from("teaching_dictionary_manager_drafts").select("normalised_word,payload").eq("id", id).single();
-    if (draft.error) throw new Error("TEACHING_DRAFT_NOT_FOUND");
-    const payload = draft.data.payload as WordDraftPayload;
-    destination = await publishValidatedDraft(db, id, actor.id, payload, draft.data.normalised_word);
-  } catch (error) { finish(path, error); }
-  finish(destination);
 }
 
 export type CsvImportState = { imported?: number; batchId?: string; errorCount?: number; errors?: string[]; error?: string };
@@ -1203,85 +1180,6 @@ async function applyTeachingDictionarySkillApprovals(form: FormData, actorId: st
         : result.error ?? "TEACHING_LESSON_SENSE_BIND_FAILED");
     }
 
-}
-
-export async function saveTeachingDictionarySkillApprovals(form: FormData) {
-  const actor = await requireAdminUser();
-  const path = `${PATH}/${value(form, "word_id")}`;
-  try { await applyTeachingDictionarySkillApprovals(form, actor.id); }
-  catch (error) { finish(path, error); }
-  finish(path);
-}
-
-export async function importApprovedTeachingSubmission(form: FormData) {
-  const actor = await requireAdminUser();
-  const submissionId = value(form, "submission_id");
-  const wordId = value(form, "word_id");
-  const path = `${PATH}/${wordId}`;
-  let destination = path;
-  try {
-    if (!isUuid(submissionId) || !isUuid(wordId)) throw new Error("TEACHING_SUBMISSION_ID_INVALID");
-    const db = createServiceRoleClient();
-    const [submission, word, metadata, dictation, morphology] = await Promise.all([
-      db.from("adle_word_teaching_content_submissions").select("id,canonical_word_id,target_word,route_id,route_version,micro_skill_key,content,approval_status")
-        .eq("id", submissionId).eq("canonical_word_id", wordId).single(),
-      db.from("canonical_teaching_dictionary_words").select("normalised_word,display_word,age_band,frequency_band,complexity_band,source_category,source_name,source_url,source_licence,source_use_note,confidence").eq("id", wordId).single(),
-      db.from("canonical_teaching_dictionary_word_metadata").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1),
-      db.from("canonical_teaching_dictionary_dictation_sentences").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").order("created_at", { ascending: false }).limit(1),
-      db.from("canonical_teaching_dictionary_word_morphology").select("*").eq("canonical_word_id", wordId).eq("row_status", "active").limit(1),
-    ]);
-    if (submission.error || word.error || metadata.error || dictation.error || morphology.error || submission.data.approval_status !== "approved_for_import") throw new Error("TEACHING_SUBMISSION_NOT_APPROVED");
-    const content = submission.data.content as Record<string, unknown>;
-    const currentMetadata = metadata.data?.[0] ?? {};
-    const mergedMetadata = emptyMetadata();
-    for (const key of WORD_METADATA_FIELDS) mergedMetadata[key] = String(currentMetadata[key] ?? "");
-    mergedMetadata.has_schwa = typeof currentMetadata.has_schwa === "boolean" ? currentMetadata.has_schwa : null;
-    const sentence = dictation.data?.[0];
-    const currentMorphology = morphology.data?.[0];
-    let routeFacts = content;
-    if (submission.data.route_id === "dynamic_prefix_word_lab") {
-      const profiles = await db.from("canonical_teaching_dictionary_prefix_profiles")
-        .select("id,source_row_hash,meaning_bins,prefix_choices").eq("micro_skill_key", submission.data.micro_skill_key)
-        .eq("row_status", "active").eq("review_status", "approved_for_first_exposure").limit(1);
-      if (profiles.error) throw new Error("TEACHING_PREFIX_PROFILE_READ_FAILED");
-      routeFacts = { ...derivePrefixRouteFacts({ word: word.data.display_word, source: content,
-        meaningBins: (profiles.data?.[0]?.meaning_bins ?? []) as { id: string; prefixText?: string }[],
-        choiceForms: ((profiles.data?.[0]?.prefix_choices ?? []) as { text?: string }[]).map((choice) => choice.text ?? "").filter(Boolean) }),
-        ...(profiles.data?.[0] ? { expectedProfileId: profiles.data[0].id, expectedSourceRowHash: profiles.data[0].source_row_hash } : {}) };
-    } else if (submission.data.route_id === "dynamic_affix_word_lab") {
-      const profiles = await db.from("canonical_teaching_dictionary_suffix_profiles").select("id,source_row_hash")
-        .eq("micro_skill_key", submission.data.micro_skill_key).eq("row_status", "active")
-        .eq("review_status", "approved_for_first_exposure").limit(1);
-      if (profiles.error) throw new Error("TEACHING_SUFFIX_PROFILE_READ_FAILED");
-      routeFacts = { ...content,
-        ...(profiles.data?.[0] ? { expectedProfileId: profiles.data[0].id, expectedSourceRowHash: profiles.data[0].source_row_hash } : {}) };
-    }
-    const route: RouteContentDraft = { routeId: submission.data.route_id, routeVersion: submission.data.route_version,
-      microSkillKey: submission.data.micro_skill_key, wordMeaning: String(content.wordMeaning ?? ""),
-      wordSum: String(content.wordSum ?? ""), content: routeFacts };
-    const payload: WordDraftPayload = { displayWord: word.data.display_word, definition: String(content.wordMeaning ?? ""),
-      dictationSentence: sentence?.dictation_sentence ?? String(content.dictation1_sentence ?? ""),
-      dictationTargetTokenIndex: sentence?.dictation_target_token_index ?? 0,
-      ageBand: word.data.age_band ?? "", frequencyBand: word.data.frequency_band ?? "", complexityBand: word.data.complexity_band ?? "",
-      metadata: mergedMetadata,
-      canonicalMorphology: currentMorphology ? {
-        rawSegmentation: currentMorphology.raw_morpholex_segmentation ?? "", rawPartOfSpeech: currentMorphology.raw_morpholex_pos ?? "",
-        parts: currentMorphology.morphology_parts ?? [], featureKeys: currentMorphology.feature_keys ?? [], joins: currentMorphology.morphology_joins ?? [],
-        transformationNotes: currentMorphology.transformation_notes ?? "", wordSum: currentMorphology.word_sum ?? "",
-        analysisStatus: currentMorphology.analysis_status, reviewNotes: currentMorphology.review_notes ?? "",
-      } : emptyMorphology(),
-      provenance: { sourceCategory: word.data.source_category as WordDraftPayload["provenance"]["sourceCategory"],
-        sourceName: word.data.source_name ?? "", sourceUrl: word.data.source_url ?? "",
-        sourceLicence: word.data.source_licence ?? "", sourceUseNote: word.data.source_use_note ?? "",
-        confidence: word.data.confidence as WordDraftPayload["provenance"]["confidence"] },
-      skillKeys: [submission.data.micro_skill_key], routeContents: [route] };
-    const saved = await db.from("teaching_dictionary_manager_drafts").insert({ canonical_word_id: wordId,
-      normalised_word: word.data.normalised_word, dialect_code: "en-GB", payload, source_kind: "approved_submission",
-      source_reference: `Approved teaching submission ${submissionId}`, created_by: actor.id }).select("id").single();
-    if (saved.error) throw new Error("TEACHING_SUBMISSION_IMPORT_FAILED");
-    destination = `${path}?draft=${saved.data.id}`;
-  } catch (error) { finish(path, error); }
-  finish(destination);
 }
 
 export async function findTeachingDictionaryWord(query: string): Promise<{id:string;word:string}[]> {

@@ -15,13 +15,13 @@ export const STAGING_ING_LESSONS = {
   D4_INF_ING_ENDINGS_DOUBLE_FINAL_CONSONANT: "Final consonant doubling",
   D4_INF_ING_ENDINGS_IE_TO_Y: "Change ie to y",
 } as const;
-export type StagingIngSkill = keyof typeof STAGING_ING_LESSONS;
+type StagingIngSkill = keyof typeof STAGING_ING_LESSONS;
 
 export function isStagingIngSkill(value: unknown): value is StagingIngSkill {
   return typeof value === "string" && Object.hasOwn(STAGING_ING_LESSONS, value);
 }
 
-export const ING_ROUTE = "ing_endings_word_lab";
+const ING_ROUTE = "ing_endings_word_lab";
 
 export { canUpdateIngLesson };
 
@@ -171,7 +171,7 @@ export async function findPreparedStagingIngRelease(db: StagingDb, skill: Stagin
   return release.data;
 }
 
-export async function prepareStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate) {
+async function prepareStagingIngUpdate(db: StagingDb, actorId: string, update: StagingIngUpdate) {
   if (!canUpdateIngLesson()) throw new Error("This lesson update is unavailable.");
   const { skill } = update;
   const pkg = buildIngReleasePackage(update.words, stagingIngReleaseKey(skill, update.fingerprint),
