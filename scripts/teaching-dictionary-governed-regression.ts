@@ -233,6 +233,14 @@ assert.equal(bound.packageSha256,databaseHash);assert.equal(hashCalls,bound.auth
 assert(bound.authorities.every(a=>a.semanticFingerprint===databaseHash));
 assert(bound.manifest.microSkills.every((s:{dependencies:Array<{semanticFingerprint:string}>})=>s.dependencies.every(d=>d.semanticFingerprint===databaseHash)));
 assert.equal(degree.package.packageSha256,packageSha256,"database binding preserves the pure proposed package");
+const cachedFirst = await bindNativePackageFingerprints(fingerprintDb, degree.package, "regression/staging");
+const initialHashCalls = hashCalls;
+const cachedAgain = await bindNativePackageFingerprints(fingerprintDb, degree.package, "regression/staging");
+assert.deepEqual(cachedAgain, cachedFirst);
+assert.equal(hashCalls, initialHashCalls, "identical readiness bytes reuse database fingerprints");
+const changedPackage = { ...degree.package, manifest: { ...degree.package.manifest, testRevision: 2 } };
+await bindNativePackageFingerprints(fingerprintDb, changedPackage, "regression/staging");
+assert.equal(hashCalls, initialHashCalls + 1, "editing the package recomputes its fingerprint");
 const compoundHash="c".repeat(64);const compoundDb={rpc:async(name:string)=>({data:name==="adle_snapshot_json_sha256_v1"?compoundHash:databaseHash,error:null})} as unknown as Pick<SupabaseClient,"rpc">;
 const compoundBound=await bindNativePackageFingerprints(compoundDb,{schemaVersion:1,activation:"inactive",manifest:{microSkills:[{dependencies:[{authorityType:"compound_structure",authorityKey:"compound"}]}]},authorities:[{authorityType:"compound_structure",authorityKey:"compound",semanticProjection:{schemaVersion:1,structures:[]}}],packageSha256:"old"});
 assert.equal(compoundBound.authorities[0].semanticFingerprint,compoundHash,"the compound publisher uses its established snapshot fingerprint algorithm");

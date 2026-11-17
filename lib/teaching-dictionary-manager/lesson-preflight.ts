@@ -587,7 +587,7 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
       { p_words: reviewedWords.slice(offset, offset + 100) },
     );
     if (error) throw new Error(`ADLE_LESSON_REVIEW_FINGERPRINT: ${error.message}`);
-    for (const row of data as Array<{ word_id: string; fingerprint: string | null }>) {
+    for (const row of (data ?? []) as Array<{ word_id: string; fingerprint: string | null }>) {
       currentFingerprints.set(row.word_id, row.fingerprint ?? "");
     }
   }
@@ -1400,7 +1400,8 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
             ? await buildStructuralPackage(packageInput)
             : buildGovernedPackage(packageInput);
           releasePackage = packageResult.package
-            ? await bindNativePackageFingerprints(db, packageResult.package)
+            ? await bindNativePackageFingerprints(db, packageResult.package,
+                route.routeId === "base_word_lab" && scope.wordId ? process.env.NEXT_PUBLIC_SUPABASE_URL : undefined)
             : undefined;
           blockers.push(...packageResult.blockers);
           const boundAuthorities = releasePackage
