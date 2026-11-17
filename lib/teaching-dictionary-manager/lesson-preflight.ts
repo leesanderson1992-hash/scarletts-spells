@@ -119,6 +119,46 @@ async function selectRows(
   }
 }
 
+const immutablePreflightRows = new Map<string, { row: Row; bytes: number }>();
+const MAX_IMMUTABLE_PREFLIGHT_BYTES = 4 * 1024 * 1024;
+let immutablePreflightBytes = 0;
+
+/** Draft payloads referenced by content versions and governed authority
+ * projections are immutable by ID. Their current references and decisions
+ * are read afresh before these rows are used. */
+async function readPreflightRowsById(
+  table: "adle_curriculum_dependency_authorities" | "teaching_dictionary_manager_drafts",
+  ids: string[],
+  reuse: boolean,
+  read: (missingIds: string[]) => Promise<Row[]>,
+): Promise<Row[]> {
+  const database = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!reuse || !database) return read(ids);
+  const prefix = `${database}\u0000${table}\u0000`;
+  const cached: Row[] = [];
+  const missing = ids.filter(id => {
+    const entry = immutablePreflightRows.get(prefix + id);
+    if (entry) cached.push(entry.row);
+    return !entry;
+  });
+  const fetched = await read(missing);
+  for (const row of fetched) {
+    const key = prefix + row.id;
+    if (immutablePreflightRows.has(key)) continue;
+    const bytes = Buffer.byteLength(JSON.stringify(row));
+    if (bytes > MAX_IMMUTABLE_PREFLIGHT_BYTES) continue;
+    while (immutablePreflightBytes + bytes > MAX_IMMUTABLE_PREFLIGHT_BYTES) {
+      const oldest = immutablePreflightRows.entries().next().value;
+      if (!oldest) break;
+      immutablePreflightRows.delete(oldest[0]);
+      immutablePreflightBytes -= oldest[1].bytes;
+    }
+    immutablePreflightRows.set(key, { row, bytes });
+    immutablePreflightBytes += bytes;
+  }
+  return [...cached, ...fetched];
+}
+
 function fakeItems(profileKey: string, ids: string[]): LearningItemFact[] {
   return ids.map((id, index) => ({
     learningItemId: `preview-${index}`,
@@ -312,7 +352,7 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     const batches = Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) => ids.slice(index * 100, (index + 1) * 100));
     return (await Promise.all(batches.map(batch => selectRows(db, table, columns, q => q.in(key, batch))))).flat();
   };
-  const [prefixMembers, suffixMembers, reviewRows, publicationRows, rollbackRows, activationRevisions, overviewRows, managerPublications] = await Promise.all([
+  const [prefixMembers, suffixMembers, reviewRows, publicationRows, rollbackRows, activationRevisions, overviewRows, managerPublications, dependencies] = await Promise.all([
     selectForIds("canonical_teaching_dictionary_prefix_members",
       "id,prefix_profile_id,canonical_word_id,member_role,assignment_eligible,row_status,review_status,base_word,base_meaning,child_friendly_meaning,meaning_bin_key,prefix_variant,teaching_split_parts,teaching_split_joins",
       "prefix_profile_id", prefixRows.map((row) => String(row.id))),
@@ -325,6 +365,8 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     selectForIds("adle_route_activation_revisions", "id,activation_status,readiness_report,release_manifest_id,release_manifest_sha256,dependency_fingerprint", "id", activationHeads.map((row) => String(row.current_revision_id))),
     selectForIds("teaching_dictionary_overview_reviews", "draft_id,content_fingerprint,base_dictionary_fingerprint", "draft_id", draftIds),
     selectForIds("teaching_dictionary_manager_publications", "draft_id,published_at", "draft_id", draftIds),
+    selectForIds("adle_curriculum_release_dependencies", "release_manifest_id,micro_skill_key,authority_id,authority_type",
+      "release_manifest_id", [...new Set(releaseRows.map(row => String(row.id)))]),
   ]);
   const revisionById = new Map(
     activationRevisions.map((row) => [row.id as string, row]),
@@ -332,18 +374,6 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
   const releaseById = new Map(
     releaseRows.map((row) => [row.id as string, row]),
   );
-  const dependencies: Row[] = [];
-  const releaseIds = [...new Set(releaseRows.map((row) => String(row.id)))];
-  for (let at = 0; at < releaseIds.length; at += 100) {
-    dependencies.push(
-      ...(await selectRows(
-        db,
-        "adle_curriculum_release_dependencies",
-        "release_manifest_id,micro_skill_key,authority_id,authority_type",
-        (q) => q.in("release_manifest_id", releaseIds.slice(at, at + 100)),
-      )),
-    );
-  }
   function contentReleaseFor(routeId: string, routeVersion: string, skill: string) {
     const head = activationHeads.find(row => row.route_id === routeId &&
       row.route_version === routeVersion && row.micro_skill_key === skill);
@@ -365,18 +395,9 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
   const loadedDependencies = selectedReleaseIds
     ? dependencies.filter(dep => selectedReleaseIds.has(dep.release_manifest_id)) : dependencies;
   const authorityIds = [...new Set(loadedDependencies.map(row => String(row.authority_id)))];
-  const authorities: Row[] = [];
-  for (let at = 0; at < authorityIds.length; at += 100) {
-    const result = await db
-      .from("adle_curriculum_dependency_authorities")
-      .select(
-        "id,authority_key,schema_version,semantic_projection,semantic_fingerprint,authority_type",
-      )
-      .in("id", authorityIds.slice(at, at + 100));
-    if (result.error)
-      throw new Error(`ADLE_LESSON_AUTHORITY_READ: ${result.error.message}`);
-    authorities.push(...(result.data ?? []));
-  }
+  const authorities = await readPreflightRowsById("adle_curriculum_dependency_authorities", authorityIds,
+    Boolean(scope.wordId), ids => selectForIds("adle_curriculum_dependency_authorities",
+      "id,authority_key,schema_version,semantic_projection,semantic_fingerprint,authority_type", "id", ids));
   const authorityById = new Map(
     authorities.map((row) => [row.id as string, row]),
   );
@@ -476,12 +497,6 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
       return active ? filtered.eq("row_status", "active") : filtered;
     })))).flat();
   };
-  const [wordRows, metadataRows, dictationRows] = await Promise.all([
-    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status,dialect_code", "id"),
-    readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
-    readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
-  ]);
-  const words = new Map(wordRows.map((word) => [word.id as string, word]));
   const activePrefixIds = new Set(prefixRows.map((profile) => profile.id));
   const activeSuffixIds = new Set(suffixRows.map((profile) => profile.id));
   const affixWordIds = [
@@ -496,49 +511,9 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
       ].map((member) => String(member.canonical_word_id)),
     ),
   ];
-  const newestDraftByWord = new Map<string, string>();
-  for (let at = 0; at < affixWordIds.length; at += 100) {
-    const drafts = await selectRows(
-      db,
-      "teaching_dictionary_manager_drafts",
-      "id,canonical_word_id,created_at",
-      (q) =>
-        q
-          .in("canonical_word_id", affixWordIds.slice(at, at + 100))
-          .order("created_at", { ascending: false }),
-    );
-    for (const draft of drafts)
-      if (!newestDraftByWord.has(draft.canonical_word_id))
-        newestDraftByWord.set(draft.canonical_word_id, draft.id);
-  }
-  const metadataByWord = new Map(
-    metadataRows.map((row) => [row.canonical_word_id as string, row]),
-  );
-  const dictationByWord = new Map(
-    dictationRows.map((row) => [row.canonical_word_id as string, row]),
-  );
   const reviewByContentId = new Map(
     reviewRows.map((row) => [row.content_version_id as string, row]),
   );
-  const draftById = new Map<string, WordDraftPayload>();
-  const draftCreatedAtById = new Map<string, string>();
-  const draftPublishedAtById = new Map(managerPublications.map((row) => [String(row.draft_id), String(row.published_at)]));
-  const invalidDraftIds = new Set<string>();
-  for (let at = 0; at < draftIds.length; at += 100) {
-    const result = await db
-      .from("teaching_dictionary_manager_drafts")
-      .select("id,payload,created_at")
-      .in("id", draftIds.slice(at, at + 100));
-    if (result.error)
-      throw new Error(`ADLE_LESSON_DRAFT_READ: ${result.error.message}`);
-    for (const draft of result.data ?? []) {
-      draftCreatedAtById.set(draft.id, draft.created_at);
-      if (isStructurallyUsableWordDraftPayload(draft.payload)) draftById.set(draft.id, draft.payload);
-      else invalidDraftIds.add(draft.id);
-    }
-  }
-  const draftBlocker = (id: string) => invalidDraftIds.has(id)
-    ? "Source draft payload is malformed" : "Source draft unavailable";
   const published = new Set(
     publicationRows.map((row) => row.content_version_id),
   );
@@ -547,21 +522,6 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
   // route-wide admin view. Scope this narrow read to unpublished candidates;
   // do not scan the whole morphology table or issue one query per word.
   const staleWordIds = unpublishedDraftWordIds(contentRows, published, rolledBack, scope.wordId);
-  const morphologyDates = new Map<string, string>();
-  const morphologyBatches = Array.from({ length: Math.ceil(staleWordIds.length / 100) },
-    (_, index) => staleWordIds.slice(index * 100, (index + 1) * 100));
-  const morphologyRows = (await Promise.all(morphologyBatches.map((ids) => selectRows(
-    db, "canonical_teaching_dictionary_word_morphology", "canonical_word_id,created_at",
-    (query) => query.in("canonical_word_id", ids).eq("row_status", "active"),
-  )))).flat();
-  for (const row of morphologyRows) {
-    const previous = morphologyDates.get(row.canonical_word_id);
-    if (!previous || row.created_at > previous) morphologyDates.set(row.canonical_word_id, row.created_at);
-  }
-  const sourceDraftIsStale = (draftId: string, wordId: string) =>
-    approvedFactsSupersedeDraft(draftPublishedAtById.get(draftId) ?? draftCreatedAtById.get(draftId),
-      [morphologyDates.get(wordId)]);
-  const staleDraftBlocker = "Source draft predates approved dictionary morphology; save and review a new draft from current facts.";
   const latestContent = new Map<string, Row>();
   for (const row of contentRows
     .filter((row) => !rolledBack.has(row.id))
@@ -580,17 +540,79 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
         .map((row) => String(row.canonical_word_id)),
     ),
   ];
-  const currentFingerprints = new Map<string, string>();
-  for (let offset = 0; offset < reviewedWords.length; offset += 100) {
-    const { data, error } = await db.rpc(
-      "teaching_dictionary_route_dictionary_fingerprints",
-      { p_words: reviewedWords.slice(offset, offset + 100) },
-    );
-    if (error) throw new Error(`ADLE_LESSON_REVIEW_FINGERPRINT: ${error.message}`);
-    for (const row of (data ?? []) as Array<{ word_id: string; fingerprint: string | null }>) {
-      currentFingerprints.set(row.word_id, row.fingerprint ?? "");
+  const draftBatches = Array.from({ length: Math.ceil(affixWordIds.length / 100) },
+    (_, index) => affixWordIds.slice(index * 100, (index + 1) * 100));
+  const readFingerprints = async () => {
+    const batches = Array.from({ length: Math.ceil(reviewedWords.length / 100) },
+      (_, index) => reviewedWords.slice(index * 100, (index + 1) * 100));
+    const results = await Promise.all(batches.map(p_words =>
+      db.rpc("teaching_dictionary_route_dictionary_fingerprints", { p_words })));
+    const fingerprints = new Map<string, string>();
+    for (const { data, error } of results) {
+      if (error) throw new Error(`ADLE_LESSON_REVIEW_FINGERPRINT: ${error.message}`);
+      for (const row of (data ?? []) as Array<{ word_id: string; fingerprint: string | null }>) {
+        fingerprints.set(row.word_id, row.fingerprint ?? "");
+      }
     }
+    return fingerprints;
+  };
+  // Each read below depends only on the discovered scope and content history.
+  // Wait for the group together instead of serialising its database rounds.
+  const [wordRows, metadataRows, dictationRows, affixDraftBatches, draftRows, morphologyRows,
+    currentFingerprints, currentRevisionIds] = await Promise.all([
+    readWordFacts("canonical_teaching_dictionary_words", "id,display_word,row_status,review_status,dialect_code", "id"),
+    readWordFacts("canonical_teaching_dictionary_word_metadata", "canonical_word_id,syllables,phoneme_hint,stress_pattern,has_schwa,morphemes,morphology_notes,row_status,review_status", "canonical_word_id", true),
+    readWordFacts("canonical_teaching_dictionary_dictation_sentences", "canonical_word_id,dictation_sentence,audio_text,dictation_target_token_index,row_status,review_status", "canonical_word_id", true),
+    Promise.all(draftBatches.map(ids => selectRows(db, "teaching_dictionary_manager_drafts",
+      "id,canonical_word_id,created_at", query => query.in("canonical_word_id", ids).order("created_at", { ascending: false })))),
+    readPreflightRowsById("teaching_dictionary_manager_drafts", draftIds, Boolean(scope.wordId),
+      ids => selectForIds("teaching_dictionary_manager_drafts", "id,payload,created_at", "id", ids)),
+    Promise.all(Array.from({ length: Math.ceil(staleWordIds.length / 100) }, (_, index) => selectRows(
+      db, "canonical_teaching_dictionary_word_morphology", "canonical_word_id,created_at",
+      query => query.in("canonical_word_id", staleWordIds.slice(index * 100, (index + 1) * 100)).eq("row_status", "active"),
+    ))),
+    readFingerprints(),
+    Promise.all(activationHeads.filter(head => relevant.has(`${head.route_id}:${head.micro_skill_key}`)).map(async head => {
+      const revision = revisionById.get(head.current_revision_id);
+      const release = revision ? releaseById.get(revision.release_manifest_id) : null;
+      if (!revision || !release) return null;
+      const result = await db.rpc("adle_route_activation_revision_is_current_v2", {
+        p_activation_revision_id: revision.id,
+        p_release_manifest_id: release.id,
+        p_release_manifest_sha256: release.release_manifest_sha256,
+        p_dependency_fingerprint: release.dependency_fingerprint,
+      });
+      if (result.error) throw new Error(`ADLE_LESSON_ACTIVATION_READ: ${result.error.message}`);
+      return result.data === true ? String(revision.id) : null;
+    })).then(ids => new Set(ids.filter(id => id !== null))),
+  ]);
+  const words = new Map(wordRows.map((word) => [word.id as string, word]));
+  const metadataByWord = new Map(metadataRows.map((row) => [row.canonical_word_id as string, row]));
+  const dictationByWord = new Map(dictationRows.map((row) => [row.canonical_word_id as string, row]));
+  const newestDraftByWord = new Map<string, string>();
+  for (const draft of affixDraftBatches.flat()) {
+    if (!newestDraftByWord.has(draft.canonical_word_id)) newestDraftByWord.set(draft.canonical_word_id, draft.id);
   }
+  const draftById = new Map<string, WordDraftPayload>();
+  const draftCreatedAtById = new Map<string, string>();
+  const draftPublishedAtById = new Map(managerPublications.map((row) => [String(row.draft_id), String(row.published_at)]));
+  const invalidDraftIds = new Set<string>();
+  for (const draft of draftRows) {
+    draftCreatedAtById.set(draft.id, draft.created_at);
+    if (isStructurallyUsableWordDraftPayload(draft.payload)) draftById.set(draft.id, draft.payload);
+    else invalidDraftIds.add(draft.id);
+  }
+  const draftBlocker = (id: string) => invalidDraftIds.has(id)
+    ? "Source draft payload is malformed" : "Source draft unavailable";
+  const morphologyDates = new Map<string, string>();
+  for (const row of morphologyRows.flat()) {
+    const previous = morphologyDates.get(row.canonical_word_id);
+    if (!previous || row.created_at > previous) morphologyDates.set(row.canonical_word_id, row.created_at);
+  }
+  const sourceDraftIsStale = (draftId: string, wordId: string) =>
+    approvedFactsSupersedeDraft(draftPublishedAtById.get(draftId) ?? draftCreatedAtById.get(draftId),
+      [morphologyDates.get(wordId)]);
+  const staleDraftBlocker = "Source draft predates approved dictionary morphology; save and review a new draft from current facts.";
   const reviews = new Set(
     [...latestContent.values()]
       .filter((row) =>
@@ -670,28 +692,6 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
     ...loadedSuffix,
     profiles: loadedSuffix.profiles.map((profile) => ({ ...profile, productionEnabled: true })),
   };
-  const currentRevisionIds = new Set<string>();
-  await Promise.all(
-    activationHeads.filter(head => relevant.has(`${head.route_id}:${head.micro_skill_key}`)).map(async (head) => {
-      const revision = revisionById.get(head.current_revision_id);
-      const release = revision
-        ? releaseById.get(revision.release_manifest_id)
-        : null;
-      if (!revision || !release) return;
-      const result = await db.rpc(
-        "adle_route_activation_revision_is_current_v2",
-        {
-          p_activation_revision_id: revision.id,
-          p_release_manifest_id: release.id,
-          p_release_manifest_sha256: release.release_manifest_sha256,
-          p_dependency_fingerprint: release.dependency_fingerprint,
-        },
-      );
-      if (result.error)
-        throw new Error(`ADLE_LESSON_ACTIVATION_READ: ${result.error.message}`);
-      if (result.data === true) currentRevisionIds.add(String(revision.id));
-    }),
-  );
   const output = await Promise.all(
     ADLE_CURRICULUM_ROUTE_REGISTRY.flatMap((route) => {
       const skills =
@@ -1443,7 +1443,7 @@ async function loadLessonReadinessUnmeasured(scope: ReadinessScope = {}): Promis
             currentContextualContent: route.routeId === "homophone_contextual_choice"
               ? currentContextual.get(skill)?.content ?? null : undefined,
             currentContextualBlocker: currentContextual.get(skill)?.blocker ?? undefined,
-          });
+          }, scope.wordId ? releasePackage?.packageSha256 : undefined);
           compilerReady = governed.ready;
           compiledPreview = governed.preview;
           compilerWitnesses = governed.witnesses;

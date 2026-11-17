@@ -72,15 +72,28 @@ export async function buildStructuralPackage(input: {
         "Complete parent family/structure, teaching content and closure required",
       );
     if (input.routeId === "base_word_lab") {
-      const [reviews, withdrawn, skillWithdrawn, definitions, legacy, levels] =
-        await Promise.all([
+      const environment = input.environment;
+      const [reviews, lexical] = await Promise.all([
           read(
             input.db
               .from("teaching_dictionary_base_family_member_reviews")
               .select("*")
               .eq("micro_skill_key", input.skill)
-              .eq("environment_key", input.environment),
+              .eq("environment_key", environment),
           ),
+          environment === "local" || environment === "staging" || environment === "production"
+            ? loadReviewedLexicalFamilies({
+                db: input.db,
+                candidateWordIds: input.candidates.map((candidate) => candidate.canonicalWordId),
+                microSkillKey: input.skill,
+                environment,
+              })
+            : [],
+      ]);
+      // These tables only supply facts for the explicit manager reviews.
+      // Lexical family decisions have their own scoped read above.
+      const [withdrawn, skillWithdrawn, definitions, legacy, levels] = reviews.length
+        ? await Promise.all([
           read(
             input.db
               .from("teaching_dictionary_base_family_member_withdrawals")
@@ -115,7 +128,8 @@ export async function buildStructuralPackage(input: {
                 true,
               ),
           ),
-        ]);
+        ])
+        : [[], [], [], [], []];
       const source = (row: any) => ({
         id: row.id,
         familyKey: row.family_key ?? row.base_family_key,
@@ -154,14 +168,10 @@ export async function buildStructuralPackage(input: {
           ),
         })),
       });
-      if (input.environment && ["local", "staging", "production"].includes(input.environment)) {
-        const lexical = await loadReviewedLexicalFamilies({
-          db: input.db, candidateWordIds: input.candidates.map((candidate) => candidate.canonicalWordId),
-          microSkillKey: input.skill, environment: input.environment as "local" | "staging" | "production",
-        });
+      if (environment === "local" || environment === "staging" || environment === "production") {
         structure.semanticProjection = appendReviewedLexicalFamilies({
           parent: structure.semanticProjection, microSkillKey: input.skill,
-          environment: input.environment as "local" | "staging" | "production", families: lexical,
+          environment, families: lexical,
         });
       }
       for (const candidate of input.candidates) {
@@ -234,18 +244,12 @@ export async function buildStructuralPackage(input: {
             ),
           ]
         : compoundDictionaryWordIds(structure.semanticProjection.structures);
-    const rows = await read(
-      input.db
-        .from("canonical_teaching_dictionary_words")
-        .select("id,word_key,normalised_word,display_word,dialect_code")
-        .in("id", ids),
-    );
-    const oldRows = await read(
-      input.db
-        .from("adle_teaching_dictionary_closure_words")
-        .select("canonical_word_id,word_key")
-        .eq("authority_id", closure.id),
-    );
+    const [rows, oldRows] = await Promise.all([
+      read(input.db.from("canonical_teaching_dictionary_words")
+        .select("id,word_key,normalised_word,display_word,dialect_code").in("id", ids)),
+      read(input.db.from("adle_teaching_dictionary_closure_words")
+        .select("canonical_word_id,word_key").eq("authority_id", closure.id)),
+    ]);
     const idByKey = new Map(
       oldRows.map((row: any) => [row.word_key, row.canonical_word_id]),
     );

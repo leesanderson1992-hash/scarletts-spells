@@ -709,7 +709,40 @@ async function structuralBaseProjection(
   };
 }
 
-export async function preflightGovernedRelease(
+const validatedBaseWordPackages = new Map<string, Promise<GovernedPreflight>>();
+const MAX_VALIDATED_BASE_WORD_PACKAGES = 16;
+
+export function preflightGovernedRelease(
+  input: Parameters<typeof preflightGovernedReleaseCore>[0],
+  verifiedPackageSha?: string,
+): Promise<GovernedPreflight> {
+  if (input.routeId !== "base_word_lab" || !verifiedPackageSha ||
+    !input.authorities.some(authority =>
+      authority.authority_type === "teaching_dictionary_closure" && authority.source_bindings)) {
+    return compileGovernedPreflight(input);
+  }
+  // The freshly bound package covers the family, teaching content and all
+  // closure word bindings. With the bindings supplied the Base Word compiler
+  // validates only those immutable inputs and performs no database reads.
+  const key = JSON.stringify([input.environment, input.skill, input.release.id, input.revision.id, verifiedPackageSha]);
+  const existing = validatedBaseWordPackages.get(key);
+  if (existing) return existing;
+  if (validatedBaseWordPackages.size >= MAX_VALIDATED_BASE_WORD_PACKAGES) {
+    const oldest = validatedBaseWordPackages.keys().next().value;
+    if (oldest !== undefined) validatedBaseWordPackages.delete(oldest);
+  }
+  const pending = compileGovernedPreflight(input).then(result => {
+    if (!result.ready && validatedBaseWordPackages.get(key) === pending) validatedBaseWordPackages.delete(key);
+    return result;
+  }, error => {
+    if (validatedBaseWordPackages.get(key) === pending) validatedBaseWordPackages.delete(key);
+    throw error;
+  });
+  validatedBaseWordPackages.set(key, pending);
+  return pending;
+}
+
+async function compileGovernedPreflight(
   input: Parameters<typeof preflightGovernedReleaseCore>[0],
 ): Promise<GovernedPreflight> {
   // Dictation variants change the compiler inputs but leave the ordered
