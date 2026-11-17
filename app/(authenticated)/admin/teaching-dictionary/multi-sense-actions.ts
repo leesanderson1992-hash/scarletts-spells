@@ -1,3 +1,5 @@
+import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
+import { semanticJson } from "@/lib/adle/inflection/semantic-json";
 "use server";
 
 import { randomUUID } from "node:crypto";
@@ -117,6 +119,19 @@ export async function importReviewedMultiSenseCsv(
         issues.push({ word, rows, reason: [...new Set(blockers)].join(" ") });
         continue;
       }
+    }
+    // Creating a family resumes the same workbook after its one-part base
+    // was saved. Refresh that revision only when the reviewed facts match.
+    if (workbook && isComparativeReviewSkill(skill) && familyTasks !== undefined
+      && bundle.wordId && !bundle.sourceSenseReviewedAt && bundle.analyses.every(analysis => analysis.parts.length === 1)) {
+      const [current] = await loadReviewedMeaningBundles(db, [bundle.wordId]);
+      if (current && semanticJson(current.senseSet) === semanticJson(bundle.senseSet)
+        && current.analyses.length === bundle.analyses.length
+        && bundle.analyses.every(analysis => current.analyses.some(previous =>
+          previous.senseId === analysis.senseId && semanticJson(previous.parts) === semanticJson(analysis.parts)
+          && semanticJson(previous.joins) === semanticJson(analysis.joins)
+          && semanticJson(previous.transformations) === semanticJson(analysis.transformations))))
+        bundle.sourceSenseReviewedAt = current.sourceSenseReviewedAt;
     }
     const applied = await db.rpc("import_reviewed_teaching_dictionary_word", {
       p_request_id: randomUUID(), p_word_id: bundle.wordId || null, p_display_word: bundle.displayWord,
