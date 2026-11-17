@@ -128,7 +128,9 @@ export default async function LessonUpdates({ searchParams }: {
       batches={specialist || base || suffix || review ? Math.ceil(wordsToReview.length / ING_REVIEW_BATCH_SIZE) : null}>
     {specialist && view === "preview" && <section className={card}>
       <h2 className="text-xl font-semibold">{specialist.title} publish status</h2>
-      <p>{specialist.current.length} active words · {specialist.rows.length} waiting for review</p>
+      <p>{new Set([...specialist.current.map(word => word.canonicalWordId), ...specialist.rows.map(word => word.id)]).size} words in this flow · {specialist.current.length} Active in ADLE · {specialist.rows.length} need review</p>
+      {specialist.rows.some(row => specialist.current.some(word => word.canonicalWordId === row.id)) &&
+        <p className="text-sm text-slate-600">{specialist.rows.filter(row => specialist.current.some(word => word.canonicalWordId === row.id)).length} Active words are also in review for missing facts or unpublished updates. Their existing lesson version stays available.</p>}
       <Link className="font-semibold underline" href={`/admin/adle-lesson-readiness?route=${specialist.routeId}&skill=${selected}`}>Open lesson readiness</Link>
       {prefixSkill && prefixQueue && <>
         {params.published && <p role="status">{params.published} words published and available in ADLE.</p>}

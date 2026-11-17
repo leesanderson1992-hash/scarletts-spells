@@ -36,10 +36,14 @@ export async function loadPendingPrefixWorkbookQueue(db: Db, skill: PrefixWorkbo
     .in("draft_id", rows.map(row => row.id)).eq("route_id", PREFIX_WORKBOOK_ROUTE).eq("micro_skill_key", skill);
   if (versions.error) throw new Error("Could not check the prefix workbook publications.");
   if (!versions.data.length) return rows;
-  const published = await db.from("teaching_dictionary_route_content_publications").select("content_version_id")
-    .in("content_version_id", versions.data.map(row => row.id));
-  if (published.error) throw new Error("Could not check the published prefix drafts.");
-  const publishedIds = new Set(published.data.map(row => row.content_version_id));
+  const versionIds = versions.data.map(row => row.id);
+  const [published, rolledBack] = await Promise.all([
+    db.from("teaching_dictionary_route_content_publications").select("content_version_id").in("content_version_id", versionIds),
+    db.from("teaching_dictionary_route_content_rollbacks").select("content_version_id").in("content_version_id", versionIds),
+  ]);
+  if (published.error || rolledBack.error) throw new Error("Could not check the published prefix drafts.");
+  const rolledBackIds = new Set(rolledBack.data.map(row => row.content_version_id));
+  const publishedIds = new Set(published.data.filter(row => !rolledBackIds.has(row.content_version_id)).map(row => row.content_version_id));
   const completed = new Set(versions.data.filter(row => publishedIds.has(row.id)).map(row => row.draft_id));
   return rows.filter(row => !completed.has(row.id));
 }

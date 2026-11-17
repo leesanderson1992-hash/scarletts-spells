@@ -1,7 +1,9 @@
+import { loadPendingPrefixWorkbookQueue } from "./prefix-bulk-review";
 import { loadComparativeReview } from "./comparative-review";
 import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
 import "server-only";
 
+import { loadTeachingDictionaryEvidenceAuthorityForSkill } from "./evidence-authority";
 import { loadLessonReviewRequests } from "./lesson-review-requests";
 
 import { loadWeakVowelSelectionPool } from "@/lib/adle/weak-vowel/readiness-loader";
@@ -44,15 +46,31 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
   const words = new Map(lesson.words.map(word => [word.id, word.word]));
   for (const row of requests.values()) words.set(row.word_id, row.word);
   const comparativeNotes = new Map<string, string>();
+  const pendingPrefixNotes = new Map<string, string>();
   let blockedNote = "Review the word and publish the lesson content from its Micro-skills section.";
   if (routeId === "dynamic_prefix_word_lab") {
     const child = "00000000-0000-4000-8000-000000000001";
-    const [ready, profile] = await Promise.all([
+    const [ready, profile, assigned, pending] = await Promise.all([
       loadDynamicPrefixProfiles(db, child, { microSkillKeys: [skill], allowStagingProfiles: environment === "staging" }),
       db.from("canonical_teaching_dictionary_prefix_profiles").select("canonical_teaching_dictionary_prefix_members(canonical_word_id,row_status,assignment_eligible,canonical_teaching_dictionary_words(display_word))")
         .eq("micro_skill_key", skill).eq("row_status", "active").maybeSingle(),
+      loadTeachingDictionaryEvidenceAuthorityForSkill(db, environment, skill),
+      prefixWorkbookEnabled(skill) ? loadPendingPrefixWorkbookQueue(db, skill) : [],
     ]);
     if (profile.error) throw new Error("Could not load the older prefix members.");
+    // Assignment does not require a runtime member yet. Keep those words in
+    // review until their canonical facts and lesson publication are complete.
+    for (const row of pending) {
+      words.set(row.wordId, row.payload.displayWord);
+      pendingPrefixNotes.set(row.wordId, "Reviewed changes are waiting to be published. Open Preview and publish.");
+    }
+    const missingAssignedIds = [...new Set(assigned.map(row => row.canonicalWordId))].filter(id => !words.has(id));
+    for (let offset = 0; offset < missingAssignedIds.length; offset += 100) {
+      const assignedWords = await db.from("canonical_teaching_dictionary_words").select("id,display_word")
+        .in("id", missingAssignedIds.slice(offset, offset + 100)).eq("row_status", "active");
+      if (assignedWords.error) throw new Error("Could not load assigned prefix words for review.");
+      for (const word of assignedWords.data) words.set(word.id, word.display_word);
+    }
     const members = (profile.data?.canonical_teaching_dictionary_prefix_members ?? []) as unknown as {
       canonical_word_id: string; row_status: string; assignment_eligible: boolean;
       canonical_teaching_dictionary_words: { display_word: string } | null;
@@ -126,6 +144,7 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
     const issues = comparativeNotes.has(id) ? [comparativeNotes.get(id)!] : auditPrefix ? prefixReviewIssues(
       facts.get(id), requests.get(id)?.sense_id, lessonSenses.get(id) ?? [], inPool?.base,
     ) : [];
+    if (pendingPrefixNotes.has(id)) issues.push(pendingPrefixNotes.get(id)!);
     if (inPool && !issues.length) return [];
     return [{ id, word, href: issues.length ? `/admin/teaching-dictionary/${id}#td-overview`
       : entry?.editHref ?? `/admin/teaching-dictionary/${id}#td-route-${skill}`,
