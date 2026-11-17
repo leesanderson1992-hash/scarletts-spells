@@ -35,7 +35,7 @@ const workbookLabel = (skill: string, key: string) => key === prefixMeaningKey ?
 
 export async function buildReviewWorkbook(input: { skill: string; title: string; bundles: MultiSenseCsvBundle[];
   notes: ReadonlyMap<string, string>; families: ReadonlyMap<string, string[]>;
-  suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts> }) {
+  suffixFacts?: ReadonlyMap<string, SuffixWorkbookFacts>; requestedSenses?: ReadonlyMap<string, string | null> }) {
   const keys = workbookKeys(input.skill);
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(sheetName, { views: [{ state: "frozen", xSplit: 1, ySplit: headerRow }] });
@@ -98,7 +98,7 @@ export async function buildReviewWorkbook(input: { skill: string; title: string;
         entry[prefixMeaningKey] = (choices.length === 1 ? choices[0] : choices.find(choice => choice.gloss === gloss))?.label ?? "";
       }
     }
-    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: "Review", needs_review: notes });
+    const row = sheet.addRow({ ...entry, ...input.suffixFacts?.get(entry.canonical_word_id), use_in_lesson: input.requestedSenses?.get(entry.canonical_word_id) === entry.sense_id ? "Yes" : "Review", needs_review: notes });
     row.height = 32;
     row.alignment = { vertical: "middle", wrapText: true };
     addDropdowns(row);

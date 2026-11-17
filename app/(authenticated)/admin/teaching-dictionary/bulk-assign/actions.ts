@@ -2,6 +2,7 @@
 
 import { ING_RULE_FOR_SKILL } from "@/lib/adle/ing/contracts";
 import { generateIngWordFromOverview } from "@/lib/teaching-dictionary-manager/ing-overview-recipe";
+import { stageQueuedAffixReview } from "@/lib/teaching-dictionary-manager/lesson-review-affix";
 import { requireAdminUser } from "@/lib/admin/access";
 import { resolveAdleRouteActivationEnvironment } from "@/lib/adle/route-activation-environment";
 import { loadCanonicalWordSkillRelationshipAuthority } from "@/lib/adle/word-skill-relationships/repository";
@@ -17,7 +18,7 @@ import { evaluateLessonCandidate, hasCandidateRule, IDENTIFY_BASE_SKILL,
 import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
   "@/lib/teaching-dictionary-manager/candidate-sense-facts";
 import { loadTeachingDictionaryEvidenceAuthority, TEACHING_DICTIONARY_EVIDENCE_TAG } from "@/lib/teaching-dictionary-manager/evidence-authority";
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type { EnrichmentCandidate } from "@/lib/writing-engine/whole-writing/knowledge";
 
 export type BulkApprovalResult = {
@@ -30,6 +31,8 @@ export type BulkApprovalResult = {
   assigned: { id: string; removable: boolean }[];
   excluded: string[];
   readbackRequired?: boolean;
+  queuedCount?: number;
+  approvedWordIds?: string[];
   blocked: { id: string; word: string; reason: string }[];
   error?: string;
 };
@@ -48,6 +51,7 @@ export async function saveBulkSkillApprovals(input: {
   senseIds: Record<string, string>;
   requestId: string;
   workbookReadback?: boolean;
+  queueForReview?: boolean;
   sourceKind?: "teaching_dictionary_bulk" | "teaching_dictionary_word" | "teaching_dictionary_import";
 }): Promise<BulkApprovalResult> {
   const actor = await requireAdminUser();
@@ -60,7 +64,9 @@ export async function saveBulkSkillApprovals(input: {
     || !Array.isArray(input.clearWordIds) || !Array.isArray(input.deassignWordIds)) {
     return failed("Select between 1 and 100 distinct words.");
   }
-  const { applyWordIds, excludeWordIds, clearWordIds, deassignWordIds } = input;
+  let { applyWordIds, senseIds } = input;
+  const { excludeWordIds, clearWordIds, deassignWordIds } = input;
+  const queued: BulkApprovalResult["blocked"] = [];
   if (input.microSkillKey === "D4_SCHWA_MEDIAL_NATURAL_ACTUAL")
     return failed("This micro-skill has been replaced by final -al.");
   const allIds = [...applyWordIds, ...excludeWordIds, ...clearWordIds, ...deassignWordIds];
@@ -119,10 +125,23 @@ export async function saveBulkSkillApprovals(input: {
     const morphologyByWord = new Map<string, NonNullable<typeof morphology.data>[number]>();
     for (const row of morphology.data ?? []) if (!morphologyByWord.has(row.canonical_word_id))
       morphologyByWord.set(row.canonical_word_id, row);
+    if (input.queueForReview && (environment === "staging" || environment === "production")) {
+      senseIds = Object.fromEntries(applyWordIds.map(id => {
+        const senses = byWord.get(id)?.senses ?? [];
+        const choice = senses.find(sense => sense.id === senseIds[id])?.id;
+        return [id, choice ?? (!senseIds[id] && senses.length === 1 ? senses[0].id : "")];
+      }));
+      const saved = await db.from("teaching_dictionary_lesson_review_requests").upsert(applyWordIds.map(id => ({
+        environment_key: environment, micro_skill_key: input.microSkillKey,
+        canonical_word_id: id, sense_id: senseIds[id] || null, request_id: input.requestId, requested_by: actor.id,
+      })), { ignoreDuplicates: true, onConflict: "environment_key,micro_skill_key,canonical_word_id,request_id" });
+      if (saved.error) return failed("Could not save the lesson selection. Please retry.");
+      revalidatePath("/admin/teaching-dictionary/lesson-updates");
+    }
     const blocked = applyWordIds.flatMap(id => {
       const word = byId.get(id)!;
       const selected = morphologyByWord.get(id);
-      const facts = candidateFactsForSense({ wordId: id, senseId: input.senseIds[id],
+      const facts = candidateFactsForSense({ wordId: id, senseId: senseIds[id],
         senseSet: byWord.get(id) ?? null,
         legacyMorphology: selected ? { id: selected.id, parts: selected.morphology_parts,
           joins: selected.morphology_joins, analysisStatus: selected.analysis_status,
@@ -132,7 +151,7 @@ export async function saveBulkSkillApprovals(input: {
         senseLinks: (senseFamilyLinks.data ?? []) as CandidateLinkRow[] });
       const candidateInput = {
         wordId: id, displayWord: word.display_word, skillKey: input.microSkillKey,
-        senseId: input.senseIds[id], senseSet: byWord.get(id) ?? null,
+        senseId: senseIds[id], senseSet: byWord.get(id) ?? null,
         morphology: facts.morphology, familyLinks: facts.familyLinks,
       };
       const candidate = input.sourceKind === "teaching_dictionary_import" && input.microSkillKey in ING_RULE_FOR_SKILL
@@ -142,16 +161,23 @@ export async function saveBulkSkillApprovals(input: {
       const reason = candidate && candidate.status !== "ready"
         ? candidate.issues[0]?.message ?? "This word does not match this lesson rule."
         : bulkSenseChoiceError({ wordId: id, displayWord: word.display_word,
-          senseSet: byWord.get(id) ?? null, senseId: input.senseIds[id] });
+          senseSet: byWord.get(id) ?? null, senseId: senseIds[id] });
       if (reason) return [{ id, word: word.display_word, reason }];
       if (candidate && facts.morphologyId && byWord.has(id)) expectedFacts[id] = {
-        senseId: input.senseIds[id], senseSet: byWord.get(id)!,
+        senseId: senseIds[id], senseSet: byWord.get(id)!,
         morphologyId: facts.morphologyId, morphologySource: facts.source,
         familyLinkIds: facts.familyLinkIds,
       };
       return [];
     });
-    if (blocked.length) return failed("Review the selected meanings before confirming.", blocked);
+    if (blocked.length) {
+      if (!input.queueForReview || (environment !== "staging" && environment !== "production"))
+        return failed("Review the selected meanings before confirming.", blocked);
+      queued.push(...blocked);
+      const blockedIds = new Set(blocked.map(row => row.id));
+      applyWordIds = applyWordIds.filter(id => !blockedIds.has(id));
+      senseIds = Object.fromEntries(applyWordIds.map(id => [id, senseIds[id]]));
+    }
   }
 
   try {
@@ -176,14 +202,13 @@ export async function saveBulkSkillApprovals(input: {
     if (decisions.error) return failed("Could not check saved de-assignments. Please retry.");
     const suppressed = new Set((decisions.data ?? []).filter((row) => row.action === "deassign")
       .map((row) => row.canonical_word_id));
-    const restoreIds = applyWordIds.filter((id) => suppressed.has(id));
+    let restoreIds = applyWordIds.filter((id) => suppressed.has(id));
     const activeReviewedPairs = new Set(existing.filter((row) => row.microSkillKey === input.microSkillKey
       && row.relationshipRole === "demonstrates" && row.rowStatus === "active")
       .map((row) => row.canonicalWordId));
     // A historical effective word–skill relationship without an active reviewed
     // release still needs one governed publication before its sense can bind.
-    const newIds = applyWordIds.filter((id) => !activeReviewedPairs.has(id));
-    const alreadyAssignedCount = applyWordIds.length - newIds.length;
+    let newIds = applyWordIds.filter((id) => !activeReviewedPairs.has(id));
     const deassignIds = [...new Set([...deassignWordIds, ...excludeWordIds.filter((id) => effective.has(id))])];
     let authorityFingerprint: string | null = null;
     if (newIds.length) {
@@ -207,11 +232,12 @@ export async function saveBulkSkillApprovals(input: {
         return packageId ? candidatePreviewAssociations(packageId, [candidate]) : [];
       });
       if (previewAssociations.length !== newIds.length) return failed("Could not verify the approval batch. No words were approved.");
-      const preview = await loadCanonicalWordSkillRelationshipAuthority({
+      const previewFor = (associations: typeof previewAssociations) => loadCanonicalWordSkillRelationshipAuthority({
         client: db, environmentKey: environment,
-        explicitReviewedAssociations: [...existing, ...previewAssociations], canonicalWordIds: scopedIds,
+        explicitReviewedAssociations: [...existing, ...associations], canonicalWordIds: scopedIds,
         ignorePairDecisionsFor: restoreIds.map((id) => ({ canonicalWordId: id, microSkillKey: input.microSkillKey })),
       });
+      const preview = await previewFor(previewAssociations);
       const blocked = candidates.flatMap((candidate) => {
         const packageId = packageByWord.get(candidate.canonicalWordId)!;
         const result = reviewPairReadiness(preview, packageId, candidate, 0);
@@ -219,29 +245,43 @@ export async function saveBulkSkillApprovals(input: {
           word: byId.get(candidate.canonicalWordId)?.display_word ?? candidate.canonicalWordId,
           reason: result.reasons.join(", ").replaceAll("_", " ") }];
       });
-      if (blocked.length) return failed("Resolve the blocked words before confirming. No words were approved.", blocked);
-      authorityFingerprint = preview.reconciliation.sourceFingerprint;
+      if (blocked.length) {
+        if (!input.queueForReview) return failed("Resolve the blocked words before confirming. No words were approved.", blocked);
+        queued.push(...blocked);
+        const blockedIds = new Set(blocked.map(row => row.id));
+        applyWordIds = applyWordIds.filter(id => !blockedIds.has(id));
+        newIds = newIds.filter(id => !blockedIds.has(id));
+        restoreIds = restoreIds.filter(id => !blockedIds.has(id));
+        senseIds = Object.fromEntries(applyWordIds.map(id => [id, senseIds[id]]));
+        for (const id of blockedIds) delete expectedFacts[id];
+        if (newIds.length) authorityFingerprint = (await previewFor(previewAssociations.filter(
+          row => row.canonicalWordId !== null && !blockedIds.has(row.canonicalWordId)))).reconciliation.sourceFingerprint;
+      } else authorityFingerprint = preview.reconciliation.sourceFingerprint;
     }
 
-    const reconciled = await db.rpc("reconcile_teaching_dictionary_bulk_review_v6", {
+    const reconciled = applyWordIds.length || excludeWordIds.length || clearWordIds.length || deassignWordIds.length
+      ? await db.rpc("reconcile_teaching_dictionary_bulk_review_v6", {
       p_environment: environment, p_skill_key: input.microSkillKey,
       p_publish_ids: newIds, p_exclude_ids: excludeWordIds,
       p_clear_ids: [...clearWordIds, ...applyWordIds],
       p_deassign_ids: deassignIds, p_restore_ids: restoreIds,
-      p_sense_ids: input.senseIds,
+      p_sense_ids: senseIds,
       p_actor: actor.id, p_request_id: input.requestId,
       p_authority_fingerprint: authorityFingerprint,
       p_rule_revision: LESSON_CANDIDATE_RULE_REVISION,
       p_expected_facts: expectedFacts,
       p_source_kind: input.sourceKind ?? "teaching_dictionary_bulk",
-    });
+    }) : { error: null, data: 0 };
     if (reconciled.error || reconciled.data !== newIds.length) {
       return failed("The batch result could not be confirmed. Retry with the same selection.");
     }
+    if (input.queueForReview && applyWordIds.length) {
+      queued.push(...await stageQueuedAffixReview(db, actor.id, input.microSkillKey, senseIds, byId));
+    }
     updateTag(TEACHING_DICTIONARY_EVIDENCE_TAG);
-    const summary = { ok: true, approvedCount: applyWordIds.length - alreadyAssignedCount, alreadyAssignedCount,
+    const summary = { ok: true, approvedCount: newIds.length, alreadyAssignedCount: applyWordIds.length - newIds.length,
       excludedCount: excludeWordIds.length, clearedCount: clearWordIds.length,
-      deassignedCount: deassignIds.length, blocked: [] };
+      deassignedCount: deassignIds.length, blocked: queued, queuedCount: queued.length, approvedWordIds: applyWordIds };
     // The workbook returns its affected words' release status separately.
     if (scopedIds) return { ...summary, assigned: [], excluded: [] };
     try {

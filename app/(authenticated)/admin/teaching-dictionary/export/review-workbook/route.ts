@@ -1,4 +1,5 @@
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
+import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
 import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
 import { NextResponse } from "next/server";
@@ -35,6 +36,9 @@ export async function GET(request: Request) {
     return new Response("Choose a valid workbook batch.", { status: 400 });
 
   const db = createServiceRoleClient();
+  const requestedSenses = scope === "review"
+    ? new Map([...await loadLessonReviewRequests(db, skill)].map(([id, row]) => [id, row.sense_id]))
+    : undefined;
   if (isSuffixWorkbookPilot(skill)) {
     if (scope === "pool") {
       const { current } = await loadAbleIbleActivePool(db, skill);
@@ -46,7 +50,7 @@ export async function GET(request: Request) {
     if (!batchRows.length && batch !== 1) return new Response("No words need review in this batch.", { status: 404 });
     const data = await loadAbleIbleWorkbook(db, batchRows.map(row => row.id));
     const bytes = await buildReviewWorkbook({ skill, title: suffixReviewTitle(skill), ...data,
-      notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map() });
+      notes: new Map(batchRows.map(row => [row.id, row.note])), families: new Map(), requestedSenses });
     return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (isIdentifyBaseReview(skill)) {
@@ -57,7 +61,7 @@ export async function GET(request: Request) {
     if (!selected.length) return new Response("No words need review in this batch.", { status: 404 });
     return downloadWorkbook(await buildReviewWorkbook({ skill, title: "Identify the Base",
       bundles: selected.flatMap(row => row.bundle ? [row.bundle] : []),
-      notes: new Map(selected.map(row => [row.id, row.note])), families: new Map() }),
+      notes: new Map(selected.map(row => [row.id, row.note])), families: new Map(), requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   const specialistRoute = specialistWorkbookRoute(skill);
@@ -72,7 +76,7 @@ export async function GET(request: Request) {
     }
     const notes = new Map(selected.map(row => [row.id, row.note]));
     return downloadWorkbook(await buildReviewWorkbook({ skill, title,
-      bundles: bundles.filter(bundle => notes.has(bundle.wordId)), notes, families: new Map() }),
+      bundles: bundles.filter(bundle => notes.has(bundle.wordId)), notes, families: new Map(), requestedSenses }),
     `teaching-dictionary-review-${skill}-${batch}.xlsx`);
   }
   if (!isStagingIngSkill(skill)) return new Response("Workbook review is unavailable for this lesson.", { status: 404 });
@@ -153,11 +157,11 @@ export async function GET(request: Request) {
       relationshipKind: "regular_inflection", requestedSkillKeys: [] }] : [],
     });
   }
-  return workbookResponse(skill, batch, { bundles, notes, families });
+  return workbookResponse(skill, batch, { bundles, notes, families, requestedSenses });
 }
 
 async function workbookResponse(skill: keyof typeof STAGING_ING_LESSONS, batch: number,
-  data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families">) {
+  data: Pick<Parameters<typeof buildReviewWorkbook>[0], "bundles" | "notes" | "families" | "requestedSenses">) {
   const bytes = await buildReviewWorkbook({ skill, title: STAGING_ING_LESSONS[skill], ...data });
   return downloadWorkbook(bytes, `teaching-dictionary-review-${skill}-${batch}.xlsx`);
 }

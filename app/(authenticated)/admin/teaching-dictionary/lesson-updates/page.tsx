@@ -1,3 +1,4 @@
+import { loadLessonReviewRequests } from "@/lib/teaching-dictionary-manager/lesson-review-requests";
 import { loadSpecialistBulkReview } from "@/lib/teaching-dictionary-manager/specialist-bulk-review";
 import { FUL_LESS_SKILL, suffixReviewTitle } from "@/lib/teaching-dictionary-manager/able-ible-workbook";
 import { loadIdentifyBaseReview } from "@/lib/teaching-dictionary-manager/base-word-review";
@@ -36,7 +37,7 @@ export default async function LessonUpdates({ searchParams }: {
   const baseReview = isIdentifyBaseReview(params.skill);
   const specialistRoute = specialistWorkbookRoute(params.skill);
   const supported = Boolean(specialistRoute) || baseReview || suffixPilot || canUpdateIngLesson() && Boolean(skill);
-  const [clusterRows, skillRows, result, suffix, base, specialist] = await Promise.all([
+  const [clusterRows, skillRows, result, suffix, base, specialist, otherRequests] = await Promise.all([
     db.from("micro_skill_clusters").select("skill_cluster_key,display_name").eq("is_active", true).order("display_name"),
     db.from("micro_skill_catalog").select("micro_skill_key,display_name,skill_cluster_key")
       .eq("is_active", true).eq("is_assignable", true).order("display_name"),
@@ -47,6 +48,7 @@ export default async function LessonUpdates({ searchParams }: {
     suffixPilot && view !== "workbook" ? loadAbleIbleReview(db, params.skill) : null,
     baseReview && view !== "workbook" ? loadIdentifyBaseReview(db) : null,
     specialistRoute && params.skill && view !== "workbook" ? loadSpecialistBulkReview(db, params.skill, specialistRoute) : null,
+    !supported && params.skill ? loadLessonReviewRequests(db, params.skill) : null,
   ]);
   if (clusterRows.error || skillRows.error) throw new Error("Could not load the lesson filters.");
   const suffixTitle = suffixReviewTitle(params.skill ?? "");
@@ -66,6 +68,7 @@ export default async function LessonUpdates({ searchParams }: {
   })).sort((a, b) => a.label.localeCompare(b.label));
   const { update } = result;
   const review = update && view === "export" ? ingReviewExportRows(update) : null;
+  const requestedIng = review?.filter(row => row.reviewRequested) ?? [];
   const [children, prepared] = await Promise.all([
     update && view === "preview" && update.childIds.length ? db.from("children").select("id,first_name").in("id", update.childIds)
       .eq("parent_user_id", actor.id).eq("is_archived", false).order("first_name") : null,
@@ -78,6 +81,12 @@ export default async function LessonUpdates({ searchParams }: {
     <Link href="/admin/teaching-dictionary" className="text-sm underline">Teaching Dictionary</Link>
     <h1 className="text-3xl font-semibold">Bulk review</h1>
     {pageError && <p role="alert" className="rounded-lg bg-rose-50 p-3">{pageError}</p>}
+    {Boolean(otherRequests?.size) && <section className={card}>
+      <h2 className="text-xl font-semibold">Saved lesson requests</h2>
+      <p>This micro-skill needs a supported Bulk review workbook and publisher.</p>
+      <ul className="list-disc pl-5">{[...otherRequests!.values()].sort((a, b) => a.word.localeCompare(b.word)).map(row =>
+        <li key={row.word_id}><Link className="underline" href={`/admin/teaching-dictionary/${row.word_id}`}>{row.word}</Link></li>)}</ul>
+    </section>}
     <BulkReviewFlow key={selected} clusters={clusters} skills={skills} selected={selected}
       initialCluster={params.cluster ?? ""} supported={supported} view={view}
       fullPoolSize={specialist?.current.length ?? base?.current.length ?? suffix?.current.length ?? update?.current.length ?? null}
@@ -101,6 +110,12 @@ export default async function LessonUpdates({ searchParams }: {
           <p><Link className="font-semibold underline" href={`/admin/teaching-dictionary/${word.id}`}>{word.word}</Link>
             {" · "}{word.status}</p>
           <p className="text-sm">{word.note}</p>
+        </li>)}</ul>
+      </section> : requestedIng.length ? <section className={card}>
+        <h2 className="text-xl font-semibold">Saved lesson requests</h2>
+        <ul className="divide-y divide-[var(--border)]">{requestedIng.map(row => <li key={row.wordId} className="py-2">
+          <Link className="font-semibold underline" href={`/admin/teaching-dictionary/${row.wordId}`}>{row.displayWord}</Link>
+          <p className="text-sm">{row.note}</p>
         </li>)}</ul>
       </section> : null}
       batches={specialist ? Math.ceil(specialist.rows.length / ING_REVIEW_BATCH_SIZE) : base ? Math.ceil(base.rows.length / ING_REVIEW_BATCH_SIZE) : suffix ? Math.ceil(suffix.rows.length / ING_REVIEW_BATCH_SIZE) : review ? Math.ceil(review.length / ING_REVIEW_BATCH_SIZE) : null}>

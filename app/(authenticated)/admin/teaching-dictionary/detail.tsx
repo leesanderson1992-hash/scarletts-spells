@@ -361,14 +361,10 @@ export async function TeachingDictionaryDetail({
   if (reviewedSenses?.error) throw new Error("TEACHING_SENSE_SET_READ_FAILED");
   if (candidateFamilyLinks?.error) throw new Error("TEACHING_CANDIDATE_FAMILY_READ_FAILED");
   if (senseAnalyses?.error || senseFamilyLinks?.error) throw new Error("TEACHING_SENSE_MORPHOLOGY_READ_FAILED");
-  const recentMeaningImport = wordId ? await db.from("teaching_dictionary_multi_sense_csv_requests")
-    .select("request_id").eq("canonical_word_id", wordId)
-    .order("reviewed_at", { ascending: false }).limit(1).maybeSingle() : null;
-  if (recentMeaningImport?.error) throw new Error("TEACHING_MEANING_IMPORT_READ_FAILED");
-  const meaningImportRequests = recentMeaningImport?.data ? await db
-    .from("teaching_dictionary_multi_sense_csv_skill_requests")
-    .select("sense_id,micro_skill_key").eq("request_id", recentMeaningImport.data.request_id) : null;
-  if (meaningImportRequests?.error) throw new Error("TEACHING_MEANING_SKILL_REQUEST_READ_FAILED");
+  const lessonRequests = wordId && (environment === "staging" || environment === "production") ? await db
+    .rpc("teaching_dictionary_lesson_review_queue", { p_environment: environment, p_skill: null, p_word: wordId }) : null;
+  if (lessonRequests?.error) throw new Error("TEACHING_LESSON_REVIEW_REQUEST_READ_FAILED");
+  const savedRequests = (lessonRequests?.data ?? []) as { micro_skill_key: string; sense_id: string | null }[];
   const familySourceTexts = [...new Set([morphology?.morphology_parts,
     ...(senseAnalyses?.data ?? []).map(row => row.morphology_parts)]
     .flatMap(value => Array.isArray(value) ? value : [])
@@ -602,7 +598,8 @@ export async function TeachingDictionaryDetail({
         approvedSenseSet={approvedSenseSet ?? null}
         senseReviewedAt={reviewedSenses?.data?.reviewed_at ?? null}
         initialSenseId={params.sense}
-        meaningImportRequests={meaningImportRequests?.data ?? []}
+        meaningImportRequests={savedRequests.flatMap(row => row.sense_id ? [{ ...row, sense_id: row.sense_id }] : [])}
+        lessonReviewSkillKeys={[...new Set(savedRequests.map(row => row.micro_skill_key))]}
         approvedCandidateMorphology={morphology ? { parts: morphology.morphology_parts,
           joins: morphology.morphology_joins, analysisStatus: morphology.analysis_status,
           reviewStatus: morphology.review_status, wordSum: morphology.word_sum } : null}

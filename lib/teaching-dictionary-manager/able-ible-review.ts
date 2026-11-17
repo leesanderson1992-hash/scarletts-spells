@@ -134,16 +134,17 @@ export async function loadAbleIbleReview(db: Db, skill: string = ABLE_IBLE_SKILL
   const candidatesById = new Map(candidates.map(word => [word.wordId, word]));
   const entries = new Map(lesson.words.map(word => [word.id, word]));
   const ids = new Set([...inPool, ...entries.keys(), ...candidates.filter(word =>
-    word.relationshipApproved || word.familyMeaningReview).map(word => word.wordId)]);
+    word.relationshipApproved || word.familyMeaningReview || word.reviewRequested).map(word => word.wordId)]);
   const rows = [...ids].flatMap(id => {
     const entry = entries.get(id);
     const candidate = candidatesById.get(id);
     const currentlyUsed = inPool.has(id);
-    const issues = candidate?.overviewCandidate?.issues.map(issue => issue.message) ?? [];
+    const issues = candidate?.overviewCandidate?.status === "not_match" ? ["The selected meaning and parts do not match this lesson."]
+      : candidate?.overviewCandidate?.issues.map(issue => issue.message) ?? [];
     const familyIssue = candidate?.familyMeaningReview
       ? `The family meaning for “${candidate.familyMeaningReview}” changed. Confirm the teaching family.` : null;
-    const ready = Boolean(entry?.ready && entry.reviewedDraftId && !familyIssue);
-    if (!entry?.reviewedDraftId && pool.dictionaryReadyWordIds.has(id) && !familyIssue && !entry?.blockers.length) return [];
+    const ready = Boolean(entry?.ready && entry.reviewedDraftId && !familyIssue && !issues.length);
+    if (!entry?.reviewedDraftId && pool.dictionaryReadyWordIds.has(id) && !familyIssue && !entry?.blockers.length && !issues.length) return [];
     const blockers = [...new Set([...(entry?.blockers ?? []), ...issues, ...(familyIssue ? [familyIssue] : [])])];
     if (!ready && !candidate?.overviewCandidate?.evidence.some(fact => fact.includes("linked to a reviewed family")) &&
       !blockers.some(message => message.includes("family"))) blockers.push("Confirm the teaching family for this meaning.");

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { loadLessonReviewRequests } from "./lesson-review-requests";
+
 import { loadEnabledBaseWordReleaseAuthorities } from "@/lib/adle/loaders/curriculum-release-authority";
 import { projectPublishedBaseWordRelease, baseWordPartShape } from "@/lib/adle/loaders/published-base-family-words";
 import { baseWordFamilyMemberAppliesToMicroSkill } from "@/lib/adle/curriculum-release-activation";
@@ -18,10 +20,26 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
   const environment = ingReviewEnvironment();
   if (!environment) throw new Error("Bulk review is unavailable.");
   const generationSupported = skill === IDENTIFY_BASE_SKILL;
-  const [release] = await loadEnabledBaseWordReleaseAuthorities({
-    client: db, environmentKey: environment, microSkillKeys: [skill], includePaused: !generationSupported,
-  });
-  if (!release) return { current: [], rows: [] };
+  const [[release], requests] = await Promise.all([
+    loadEnabledBaseWordReleaseAuthorities({
+      client: db, environmentKey: environment, microSkillKeys: [skill], includePaused: !generationSupported,
+    }),
+    loadLessonReviewRequests(db, skill),
+  ]);
+  const requestRows = [...requests.values()].map(({ word_id: id, word, sense_id }) => ({
+    id, word, choices: [], base: "",
+    note: !release ? "This lesson needs a supported release before the word can become Active."
+      : "Confirm the word parts and that the teaching family is available for this lesson.",
+    bundle: includeBundles ? {
+      wordId: id, displayWord: word, sourceSenseReviewedAt: "",
+      senseSet: { senses: [{ id: sense_id ?? "review", definition: "", partOfSpeech: "", pronunciationId: null }], pronunciations: [] },
+      analyses: [],
+    } satisfies MultiSenseCsvBundle : undefined,
+  }));
+  if (!release) {
+    const bundles = includeBundles ? await readBundles(db, requestRows.map(row => row.id)) : [];
+    return { current: [], rows: requestRows.map(row => ({ ...row, bundle: bundles.find(bundle => bundle.wordId === row.id) ?? row.bundle })) };
+  }
   const active = environment === "staging" && process.env.ADLE_BASE_WORD_DICTIONARY_ONLY === "enabled"
     ? await projectPublishedBaseWordRelease(db, release) : release;
   const pool = generationSupported ? await loadBaseWordSelectionPool(db, active) : null;
@@ -44,7 +62,8 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       ? [{ family, member, word }] : [];
   }));
   const ids = [...new Set(legacy.filter(({ word }) => !inPool.has(word.canonicalWordId)).map(({ word }) => word.canonicalWordId))];
-  const bundles = await readBundles(db, [...new Set([...ids, ...legacy.map(({ family }) => family.baseWordId)])]);
+  const extra = requestRows.filter(row => !inPool.has(row.id) && !ids.includes(row.id));
+  const bundles = await readBundles(db, [...new Set([...ids, ...extra.map(row => row.id), ...legacy.map(({ family }) => family.baseWordId)])]);
   const byWord = new Map(bundles.map(bundle => [bundle.wordId, bundle]));
   const rows = ids.map(id => {
     const records = legacy.filter(({ word }) => word.canonicalWordId === id);
@@ -89,7 +108,7 @@ export async function loadIdentifyBaseReview(db: Db, includeBundles = false, ski
       analyses: [],
     } satisfies MultiSenseCsvBundle : undefined };
   });
-  return { current, rows: rows.sort((a, b) => a.word.localeCompare(b.word, "en-GB")) };
+  return { current, rows: [...rows, ...extra.map(row => ({ ...row, bundle: byWord.get(row.id) ?? row.bundle }))].sort((a, b) => a.word.localeCompare(b.word, "en-GB")) };
 }
 
 async function readBundles(db: Db, ids: string[]) {

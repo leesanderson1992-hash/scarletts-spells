@@ -281,7 +281,7 @@ export function BulkAssignWorkspace(props: {
   const visible = visiblePage.map(word => ({ ...word, candidateSenseFacts:
     details?.pageIds === pageIds ? details.rows[word.id] : retryAttempt ? undefined : pageDetails?.[word.id] }));
   const candidateReady = (word: BulkWord) => !candidateRule || word.candidateSenseFacts !== undefined;
-  const selectableVisible = visible.filter((word) => word.approvable && candidateReady(word)
+  const selectableVisible = visible.filter((word) => word.approvable
     && (!assigned.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id)
     && (!excluded.has(`${chosenSkillKey}:${word.id}`) || editingWordId === word.id));
   const draftWords = (choice: BulkDraftChoice) => [...draft].filter(([, value]) => value === choice)
@@ -351,12 +351,6 @@ export function BulkAssignWorkspace(props: {
     if (!chosenSkillKey || draft.size === 0 || pending) return;
     const applyWordIds = applyWords.map((word) => word.id);
     const senseIds = Object.fromEntries(applyWords.map(word => [word.id, selectedSenseId(word)]));
-    const missing = applyWords.find(word => !senseIds[word.id] ||
-      !word.senseSet?.senses.some(sense => sense.id === senseIds[word.id]));
-    if (missing) {
-      setReviewError(`Choose a reviewed meaning for ${missing.displayWord} before confirming.`);
-      return;
-    }
     const excludeWordIds = excludeWords.map((word) => word.id);
     const clearWordIds = clearWords.map((word) => word.id);
     const deassignWordIds = deassignWords.map((word) => word.id);
@@ -365,7 +359,7 @@ export function BulkAssignWorkspace(props: {
     startTransition(async () => {
       try {
         const response = await saveBulkSkillApprovals({ microSkillKey: chosenSkillKey,
-          applyWordIds, excludeWordIds, clearWordIds, deassignWordIds, senseIds, requestId: currentRequestId });
+          applyWordIds, excludeWordIds, clearWordIds, deassignWordIds, senseIds, requestId: currentRequestId, queueForReview: true });
         setResult(response);
         if (response.ok) {
           if (response.readbackRequired) { window.location.reload(); return; }
@@ -393,6 +387,7 @@ export function BulkAssignWorkspace(props: {
           setApprovedSenseIdsByPair(previous => {
             const next = { ...previous };
             for (const [id, senseId] of Object.entries(senseIds)) {
+              if (!senseId || !response.approvedWordIds?.includes(id)) continue;
               const key = `${chosenSkillKey}:${id}`;
               next[key] = [...new Set([...(next[key] ?? []), senseId])];
             }
@@ -422,14 +417,8 @@ export function BulkAssignWorkspace(props: {
     setReviewError("");
   }
 
-  function choiceInput(word: BulkWord, choice: "apply" | "exclude") {
-    const pairKey = `${chosenSkillKey}:${word.id}`;
-    const isAssigned = assigned.has(pairKey);
-    const isExcluded = excluded.has(pairKey);
-    const draftChoice = draft.get(word.id);
-    const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
-    const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
-    const candidate = candidateRule && candidateReady(word) ? evaluateLessonCandidate({
+  function candidateFor(word: BulkWord) {
+    return candidateRule && candidateReady(word) ? evaluateLessonCandidate({
       wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
       senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
       morphology: word.candidateSenseFacts
@@ -439,9 +428,18 @@ export function BulkAssignWorkspace(props: {
         ? word.candidateSenseFacts[selectedSenseId(word)]?.familyLinks ?? []
         : word.candidateFamilyLinks ?? [],
     }) : null;
+  }
+
+  function choiceInput(word: BulkWord, choice: "apply" | "exclude") {
+    const pairKey = `${chosenSkillKey}:${word.id}`;
+    const isAssigned = assigned.has(pairKey);
+    const isExcluded = excluded.has(pairKey);
+    const draftChoice = draft.get(word.id);
+    const checked = draftChoice ? draftChoice === choice : choice === "apply" ? isAssigned : isExcluded;
+    const locked = (isAssigned || isExcluded) && editingWordId !== word.id;
     return <input type="checkbox" aria-label={`${choice === "apply" ? "Apply" : "Doesn't apply"}: ${word.displayWord}`}
-      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked || !candidateReady(word)
-        || choice === "apply" && candidate !== null && candidate.status !== "ready" && !isAssigned}
+      checked={checked} disabled={pending || !props.approvalEnabled || !word.approvable || locked
+        || choice === "apply" && !isAssigned && (!candidateReady(word) || candidateFor(word)?.status === "not_match")}
       onChange={(event) => changeSelection([word.id], choice, event.target.checked)} />;
   }
 
@@ -482,16 +480,7 @@ export function BulkAssignWorkspace(props: {
     const sense = word.senseSet?.senses.find(row => row.id === selectedSenseId(word));
     const issue = bulkSenseChoiceError({ wordId: word.id, displayWord: word.displayWord,
       senseSet: word.senseSet ?? null, senseId: selectedSenseId(word) });
-    const candidate = candidateRule && candidateReady(word) ? evaluateLessonCandidate({
-      wordId: word.id, displayWord: word.displayWord, skillKey: chosenSkillKey,
-      senseId: selectedSenseId(word), senseSet: word.senseSet ?? null,
-      morphology: word.candidateSenseFacts
-        ? word.candidateSenseFacts[selectedSenseId(word)]?.morphology ?? null
-        : word.candidateMorphology ?? null,
-      familyLinks: word.candidateSenseFacts
-        ? word.candidateSenseFacts[selectedSenseId(word)]?.familyLinks ?? []
-        : word.candidateFamilyLinks ?? [],
-    }) : null;
+    const candidate = candidateFor(word);
     return <div className="mt-1 text-xs font-normal">
       {sense?.dictationSentence && <p>Sentence: {sense.dictationSentence}</p>}
       {candidate ? <p className={candidate.status === "ready" ? "text-emerald-800" : "text-amber-900"}>
@@ -603,7 +592,8 @@ export function BulkAssignWorkspace(props: {
           </p>}
           <div className="mb-3 flex flex-wrap gap-4 text-sm md:hidden">
             {(["apply", "exclude"] as const).map((choice) => {
-              const ids = selectableVisible.map((word) => word.id);
+              const ids = selectableVisible.filter(word => choice === "exclude"
+                || candidateReady(word) && candidateFor(word)?.status !== "not_match").map(word => word.id);
               return <label key={choice} className="flex items-center gap-2">
                 <input type="checkbox" checked={ids.length > 0 && ids.every((id) => draft.get(id) === choice)}
                   disabled={pending || !props.approvalEnabled || ids.length === 0}
@@ -618,7 +608,8 @@ export function BulkAssignWorkspace(props: {
                 <col className="w-[16%]" /><col className="w-[10%]" /><col className="w-[28%]" /><col className="w-[11%]" /></colgroup>
               <thead className="bg-[var(--paper)]"><tr>
                 {(["apply", "exclude"] as const).map((choice) => {
-                  const ids = selectableVisible.map((word) => word.id);
+                  const ids = selectableVisible.filter(word => choice === "exclude"
+                || candidateReady(word) && candidateFor(word)?.status !== "not_match").map(word => word.id);
                   const allChecked = ids.length > 0 && ids.every((id) => draft.get(id) === choice);
                   return <th key={choice} className="break-words p-1 align-top">
                     <label className="flex flex-col items-start gap-1">
@@ -675,7 +666,7 @@ export function BulkAssignWorkspace(props: {
           </div>
         </div>
         <aside className="grid self-start gap-4">
-          {([{ title: "Selected Assigned Words", choice: "apply", words: applyWords },
+          {([{ title: "Words selected for this lesson", choice: "apply", words: applyWords },
             { title: "Doesn’t apply", choice: "exclude", words: excludeWords }] as const).map((box) =>
             <section key={box.choice} className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--paper)] p-4">
               <h3 className="text-lg font-semibold">{box.title} ({box.words.length})</h3>
@@ -702,6 +693,10 @@ export function BulkAssignWorkspace(props: {
             {result && <div className={`mt-4 rounded-lg p-3 text-sm ${result.ok ? "bg-emerald-50 text-emerald-900" : "bg-rose-50 text-rose-900"}`}
               role={result.ok ? "status" : "alert"}>
               {result.ok ? `${result.approvedCount} applied; ${result.excludedCount} marked doesn’t apply; ${result.deassignedCount} de-assigned; ${result.clearedCount} cleared${result.alreadyAssignedCount ? `; ${result.alreadyAssignedCount} already assigned` : ""}.` : result.error}
+              {result.ok && (Boolean(result.queuedCount) || Boolean(result.approvedWordIds?.length)) && <p>
+                {Boolean(result.queuedCount) && `${result.queuedCount} need review. `}
+                <a className="underline" href={`/admin/teaching-dictionary/lesson-updates?skill=${encodeURIComponent(chosenSkillKey)}`}>Open Bulk review</a>
+              </p>}
               {result.blocked.length > 0 && <ul className="mt-2 list-disc pl-5">{result.blocked.map((item) =>
                 <li key={item.id}>{item.word}: {item.reason}</li>)}</ul>}
             </div>}

@@ -66,7 +66,7 @@ export default async function BulkAssignPage({ searchParams }: {
   const header = <>
     <nav className="text-sm"><Link className="underline" prefetch={false} href="/admin/teaching-dictionary">← Catalogue</Link></nav>
     <header><h1 className="text-3xl font-semibold">Assign words to a micro-skill</h1>
-      <p className="mt-2 text-sm">Approve multiple canonical words as evidence for one micro-skill. ADLE lesson content is managed separately.</p>
+      <p className="mt-2 text-sm">Select words for one micro-skill. Words that need work are saved in Bulk review.</p>
     </header>
   </>;
   if (!selected) return <main className="mx-auto grid max-w-7xl gap-6 p-6 text-[color:var(--ink)]">

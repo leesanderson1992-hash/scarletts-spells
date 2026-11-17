@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import ExcelJS from "exceljs";
 import type { IngDictionaryWordV1 } from "@/lib/adle/ing/contracts";
 import { ingReviewExportRows } from "@/lib/teaching-dictionary-manager/ing-review-export";
-import { buildLessonPoolWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
+import { buildLessonPoolWorkbook, buildReviewWorkbook, readReviewWorkbook } from "@/lib/teaching-dictionary-manager/review-workbook";
 
 const skill = "D4_INF_ING_ENDINGS_REGULAR";
 function member(word: string, senseId?: string): IngDictionaryWordV1 {
@@ -34,6 +34,30 @@ async function main() {
   assert.match(rows[1].note, /Active.*Recheck the approval/);
   assert.equal(rows[2].note, "Add a reviewed sentence.");
   assert.match(rows[3].note, /Active.*family meaning for “walk” changed/);
+
+  const mixed = ingReviewExportRows({ current, changes: [member("brushing", "verb")], reviewWords: [
+    { wordId: "brushing", displayWord: "brushing", status: noBlockers, reviewRequested: true },
+    { wordId: "asking", displayWord: "asking", status: noBlockers, reviewRequested: true,
+      overviewCandidate: { issues: [{ message: "Approve the word parts." }] } },
+  ] });
+  assert.deepEqual(mixed.map(row => row.wordId), ["asking", "brushing"]);
+  assert.match(mixed[0].note, /Approve the word parts/);
+  assert.equal(mixed[1].note, "Ready to publish.");
+
+  const reviewBytes = await buildReviewWorkbook({
+    skill, title: "Regular -ing", notes: new Map(mixed.map(row => [row.wordId, row.note])),
+    families: new Map(), requestedSenses: new Map([["asking", "asking-verb"]]),
+    bundles: [{ wordId: "asking", displayWord: "asking", sourceSenseReviewedAt: "", analyses: [],
+      senseSet: { pronunciations: [], senses: [
+        { id: "asking-verb", definition: "Requesting something", partOfSpeech: "verb", pronunciationId: null },
+        { id: "asking-noun", definition: "An act of requesting", partOfSpeech: "noun", pronunciationId: null },
+      ] } }],
+  });
+  const reviewBook = new ExcelJS.Workbook();
+  await reviewBook.xlsx.load(Uint8Array.from(reviewBytes).buffer);
+  const reviewSheet = reviewBook.getWorksheet("Words to review")!;
+  const choiceColumn = (reviewSheet.getRow(3).values as string[]).indexOf("Use in lesson");
+  assert.deepEqual([4, 5].map(row => reviewSheet.getCell(row, choiceColumn).text), ["Yes", "Review"]);
 
   const bytes = await buildLessonPoolWorkbook("Regular -ing", current);
   const buffer = Uint8Array.from(bytes).buffer;

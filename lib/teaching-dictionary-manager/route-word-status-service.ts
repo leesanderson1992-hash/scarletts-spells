@@ -1,4 +1,6 @@
 import "server-only";
+
+import { loadLessonReviewRequests, type LessonReviewRequest } from "./lesson-review-requests";
 /* eslint-disable @typescript-eslint/no-explicit-any -- governed tables precede generated database types */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -24,7 +26,7 @@ import type { DictionarySenseSet } from "./senses";
 import { candidateFactsForSense, type CandidateAnalysisRow, type CandidateLinkRow } from
   "./candidate-sense-facts";
 
-type Candidate = { wordId: string; displayWord: string; status: WordRouteStatus;
+type Candidate = { reviewRequested?: boolean; wordId: string; displayWord: string; status: WordRouteStatus;
   overviewCandidate?: CandidateDecision; selectedSenseId?: string | null;
   selectedSenseDefinition?: string | null; senseBindingApproved?: boolean;
   multipleSenseChoices?: { id: string; definition: string }[];
@@ -163,18 +165,20 @@ async function loadRouteWordStatusesUnmeasured(input: {
   purpose?: "ing_review_export";
 }): Promise<{ words: Candidate[]; counts: RouteWordCounts }> {
   const client = createServiceRoleClient();
-  const [lesson, discovered] = await Promise.all([
+  const [lesson, discovered, requests] = await Promise.all([
     input.lesson ?? loadLessonReadiness({
       routeId: input.routeId, microSkillKey: input.microSkillKey, purpose: input.purpose,
     }).then(rows => rows.find(row => row.routeId === input.routeId && row.microSkillKey === input.microSkillKey)),
     input.wordIds ? [] : discoverWordIds(client, input.microSkillKey),
+    !input.wordIds && input.routeId === "ing_endings_word_lab"
+      ? loadLessonReviewRequests(client, input.microSkillKey) : undefined,
   ]);
   if (!lesson || lesson.routeId !== input.routeId || lesson.microSkillKey !== input.microSkillKey)
     throw new Error("Route word status requires a registered route and micro-skill");
-  const ids = [...new Set(input.wordIds ?? [...lesson.words.map(word => word.id), ...discovered])];
+  const ids = [...new Set(input.wordIds ?? [...lesson.words.map(word => word.id), ...discovered, ...(requests?.keys() ?? [])])];
   const words = await loadRouteWordCandidates(client, lesson, ids, (candidate, facts) => ({
     ...candidate, status: wordRouteStatus({ ...facts, lesson }),
-  }));
+  }), undefined, undefined, requests);
   return { words, counts: {
     candidates: words.length,
     approvedRelationships: words.filter((word) => word.status.relationshipApproved).length,
@@ -196,17 +200,19 @@ export async function loadSuffixReviewCandidates(
 ) {
   return withAdleReadMetrics("route_word_status", async () => {
     const scope = { routeId, microSkillKey };
+    const requests = await loadLessonReviewRequests(client, microSkillKey);
     const read = (ids: readonly string[]) => loadRouteWordCandidates(client, scope, ids, (candidate, facts) => ({
       wordId: candidate.wordId,
       displayWord: candidate.displayWord,
       overviewCandidate: candidate.overviewCandidate,
       familyMeaningReview: candidate.familyMeaningReview,
+      reviewRequested: candidate.reviewRequested,
       relationshipApproved: facts.approvedSkillKeys.has(microSkillKey),
-    }), undefined, "suffix_review");
+    }), undefined, "suffix_review", requests);
 
     const [readiness, discovered] = await Promise.all([
       lesson,
-      discoverWordIds(client, microSkillKey).then(ids => ({
+      discoverWordIds(client, microSkillKey).then(discovered => [...new Set([...discovered, ...requests.keys()])]).then(ids => ({
         ids,
         candidates: read(ids).then(
           words => ({ ok: true, words } as const),
@@ -241,6 +247,7 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
   client: SupabaseClient, lesson: Pick<LessonReadinessRow, "routeId" | "microSkillKey">,
   ids: readonly string[], project: (candidate: Omit<Candidate, "status">, facts: Omit<Parameters<typeof wordRouteStatus>[0], "lesson">) => T,
   selectedSenses?: ReadonlyMap<string, string>, purpose?: "suffix_review",
+  requests?: ReadonlyMap<string, LessonReviewRequest>,
 ): Promise<T[]> {
   if (!ids.length) return [];
   const environment = resolveAdleRouteActivationEnvironment();
@@ -290,9 +297,12 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
     const bindings = overview?.bindingByWord.get(row.id) ?? [];
     const releaseSenseId = stagingIng
       ? selectedSenses?.get(row.id) ?? overview?.releaseSenseByWord.get(row.id) : undefined;
-    const binding = releaseSenseId ? bindings.find(item => item.senseId === releaseSenseId)
-      : bindings.length === 1 ? bindings[0] : null;
-    const selectedSenseId = releaseSenseId ?? binding?.senseId
+    const request = requests?.get(row.id);
+    const requestedSense = request?.sense_id ?? (request && senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
+    const intendedSense = requestedSense ?? (request && (senseSet?.senses.length ?? 0) > 1 ? null : releaseSenseId);
+    const binding = intendedSense ? bindings.find(item => item.senseId === intendedSense)
+      : !request && bindings.length === 1 ? bindings[0] : null;
+    const selectedSenseId = intendedSense ?? binding?.senseId
       ?? (bindings.length === 0 && senseSet?.senses.length === 1 ? senseSet.senses[0].id : null);
     const morphology = overview?.morphologyByWord.get(row.id);
     const facts = overview ? candidateFactsForSense({ wordId: row.id,
@@ -323,7 +333,7 @@ async function loadRouteWordCandidates<T extends Omit<Candidate, "status">>(
       && row.row_status === "active" && row.review_status === "approved_for_first_exposure"
       ? approvedGeneratedIngWord({ generated: recipe.word,
         reviewerRef: binding?.reviewedBy ?? "", approvalRef: approvalRefByWord.get(row.id) ?? "" }) : null;
-    return project({ wordId: row.id, displayWord: row.display_word,
+    return project({ wordId: row.id, displayWord: row.display_word, reviewRequested: Boolean(request),
       ...(overview ? { selectedSenseId, senseBindingApproved: bindingCurrent,
         multipleSenseChoices: bindings.length > 1 || releaseSenseId ? bindings.map(item => ({ id: item.senseId,
           definition: senseSet?.senses.find(sense => sense.id === item.senseId)?.definition ?? item.senseId })) : [],

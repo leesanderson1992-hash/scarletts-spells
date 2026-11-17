@@ -1,6 +1,8 @@
 import { prefixWorkbookEnabled, prefixWorkbooks } from "./prefix-workbook";
 import "server-only";
 
+import { loadLessonReviewRequests } from "./lesson-review-requests";
+
 import { loadWeakVowelSelectionPool } from "@/lib/adle/weak-vowel/readiness-loader";
 import { loadComparativeSelectionPool } from "@/lib/adle/inflection/readiness-loader";
 import { loadDynamicPrefixProfiles } from "@/lib/adle/morphology/dynamic-prefix-profile-loader";
@@ -32,10 +34,13 @@ export async function loadSpecialistBulkReview(db: Db, skill: string, routeId: s
       bundles: base.rows.flatMap(row => row.bundle ? [row.bundle] : []),
     };
   }
-  const [lesson] = await loadLessonReadiness({ routeId, microSkillKey: skill });
+  const [[lesson], requests] = await Promise.all([
+    loadLessonReadiness({ routeId, microSkillKey: skill }), loadLessonReviewRequests(db, skill),
+  ]);
   if (!lesson) throw new Error("The lesson could not be loaded.");
   const current: PoolWord[] = [];
   const words = new Map(lesson.words.map(word => [word.id, word.word]));
+  for (const row of requests.values()) words.set(row.word_id, row.word);
   let blockedNote = "Review the word and publish the lesson content from its Micro-skills section.";
   if (routeId === "dynamic_prefix_word_lab") {
     const child = "00000000-0000-4000-8000-000000000001";

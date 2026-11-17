@@ -292,6 +292,7 @@ export function WordWorkspace(props: {
   senseReviewedAt: string | null;
   meaningSaved: boolean;
   initialSenseId?: string;
+  lessonReviewSkillKeys: string[];
   meaningImportRequests: { sense_id: string; micro_skill_key: string }[];
   approvedCandidateMorphology: CandidateMorphology | null;
   approvedMorphologyTransformations: unknown[];
@@ -1464,6 +1465,16 @@ export function WordWorkspace(props: {
           </div>
           <div data-overview-view="lessons" hidden={overviewView !== "lessons"} className="space-y-4">
       <section id="td-skills" className={`${section} scroll-mt-6`}>
+          {props.lessonReviewSkillKeys.length > 0 && <div className="space-y-1 text-sm">
+            <p className="font-semibold">Lesson review</p>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1">
+              {props.lessonReviewSkillKeys.map(key => <li key={key}><Link className="underline"
+                href={`/admin/teaching-dictionary/lesson-updates?skill=${encodeURIComponent(key)}`}>
+                {name(key)}
+              </Link></li>)}
+            </ul>
+          </div>}
+
         <h2 className="p-4 font-semibold">
           Readiness for this meaning
         </h2>

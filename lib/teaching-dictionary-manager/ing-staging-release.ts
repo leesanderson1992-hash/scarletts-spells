@@ -117,7 +117,7 @@ export async function loadStagingIngUpdate(db: ReturnType<typeof createServiceRo
     selectedSenseId: row.selectedSenseId, selectedMeaningReady: Boolean(row.approvedIngWord),
     activeMeaning: releasedById.get(row.wordId)?.meaning ?? null,
   }));
-  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => (!row.approvedIngWord || dictionaryOnly && !currentIds.has(row.wordId)) && (releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))),
+  return { revision, childIds, environment, projections, current, changes, retired, words, meaningChoices, reviewWords: statuses.words.filter(row => (!row.approvedIngWord || (dictionaryOnly || row.reviewRequested) && !currentIds.has(row.wordId)) && (row.reviewRequested || releasedById.has(row.wordId) || !otherPoolIds.has(row.wordId))),
     skill, fingerprint: fingerprintSnapshotValue({ heads, words }) };
 }
 
