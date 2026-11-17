@@ -1,6 +1,7 @@
+"use server";
+
 import { loadReviewedMeaningBundles } from "@/lib/teaching-dictionary-manager/multi-sense-export";
 import { semanticJson } from "@/lib/adle/inflection/semantic-json";
-"use server";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
